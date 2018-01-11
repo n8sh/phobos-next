@@ -15,7 +15,7 @@ version(unittest)
  */
 C filteredInplace(alias predicate, C)(C r) @trusted
     if (is(typeof(unaryFun!predicate)) &&
-        hasIndexing!C)          // TODO extend to isArrayContainer!C
+        hasIndexing!C)          // TODO extend to `isArrayContainer`!C eller `isRandomAccessContainer!C`
 {
     import std.typecons : Unqual;
     import std.traits : hasElaborateDestructor, isMutable, hasIndirections;
@@ -27,54 +27,62 @@ C filteredInplace(alias predicate, C)(C r) @trusted
     alias E = ElementType!C;
     alias MutableC = Unqual!C;
 
-    size_t dstIx = 0;           // destination index
 
-    // skip leading passing elements
-    // TODO reuse .indexOf!(_ => !pred(_)) algorithm in `Array`
-    while (dstIx < r.length && pred(r.ptr[dstIx]))
+    static if (is(typeof(r.ptr)))
     {
-        dstIx += 1;
-    }
+        size_t dstIx = 0;           // destination index
 
-    // inline filtering
-    foreach (immutable srcIx; dstIx + 1 .. r.length)
-    {
-        // TODO move this into @trusted member of Array
-        if (pred(r.ptr[srcIx]))
+        // skip leading passing elements
+        // TODO reuse .indexOf!(_ => !pred(_)) algorithm in `Array`
+        while (dstIx < r.length && pred(r.ptr[dstIx]))
         {
-            static if (isMutable!E &&
-                       !hasIndirections!E)
+            dstIx += 1;
+        }
+
+        // inline filtering
+        foreach (immutable srcIx; dstIx + 1 .. r.length)
+        {
+            // TODO move this into @trusted member of Array
+            if (pred(r.ptr[srcIx]))
             {
-                move(r.ptr[srcIx], r.ptr[dstIx]); // TODO reuse function in array
-            }
-            else static if (ownsItsElements!C)
-            {
-                move(r.ptr[srcIx], r.ptr[dstIx]); // TODO reuse function in array
+                static if (isMutable!E &&
+                           !hasIndirections!E)
+                {
+                    move(r.ptr[srcIx], r.ptr[dstIx]); // TODO reuse function in array
+                }
+                else static if (ownsItsElements!C)
+                {
+                    move(r.ptr[srcIx], r.ptr[dstIx]); // TODO reuse function in array
+                }
+                else
+                {
+                    static assert(0, "Cannot move elements in instance of " ~ C.stringof);
+                }
+                dstIx += 1;
             }
             else
             {
-                static assert(0, "Cannot move elements in instance of " ~ C.stringof);
-            }
-            dstIx += 1;
-        }
-        else
-        {
-            static if (hasElaborateDestructor!E)
-            {
-                .destroy(e);
+                static if (hasElaborateDestructor!E)
+                {
+                    .destroy(e);
+                }
             }
         }
+
+        r.shrinkTo(dstIx);
+    }
+    else
+    {
+        static assert(0, "Check");
     }
 
-    r.shrinkTo(dstIx);
-
-    return move(r);
+    return move(r);             // TODO remove move when compiler does it for us
 }
 
 /** Filter `r` eagerly in-place using `predicate`. */
 void filterInplace(alias predicate, C)(ref C r)
     if (is(typeof(unaryFun!predicate)) &&
-        hasIndexing!C)          // TODO extend to isArrayContainer!C
+        hasIndexing!C)          // TODO extend to `isArrayContainer`!C eller `isRandomAccessContainer!C`
 {
     import std.algorithm.mutation : move;
     r = move(r).filteredInplace!predicate();

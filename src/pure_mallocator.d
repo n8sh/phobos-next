@@ -4,6 +4,8 @@ import std.experimental.allocator.common;
 
 /**
    The C heap allocator purified.
+
+   TODO why is `shared` needed?
  */
 struct PureMallocator
 {

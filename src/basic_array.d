@@ -314,13 +314,21 @@ struct BasicArray(T,
     private static MutableE* allocate(size_t initialCapacity, bool zero)
     {
         typeof(return) ptr = null;
-        if (zero) { ptr = cast(typeof(return))calloc(initialCapacity, T.sizeof); }
-        else      { ptr = cast(typeof(return))malloc(initialCapacity * T.sizeof); }
+        if (zero)
+        {
+            ptr = cast(typeof(return))calloc(initialCapacity, T.sizeof);
+        }
+        else
+        {
+            ptr = cast(typeof(return))malloc(initialCapacity * T.sizeof);
+        }
         assert(ptr, "Allocation failed");
+
         static if (mustAddGCRange!T)
         {
             gc_addRange(ptr, initialCapacity * T.sizeof);
         }
+
         return ptr;
     }
 

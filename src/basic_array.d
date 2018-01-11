@@ -1173,10 +1173,8 @@ unittest
 
         this(int x) @trusted
         {
-            // dln("ctor:");
             _ptr = cast(int*)malloc(1);
             mallocCount += 1;
-            // dln("malloc: _ptr=", _ptr);
             *_ptr = x;
         }
 
@@ -1184,10 +1182,8 @@ unittest
 
         ~this() @trusted
         {
-            // dln("dtor:");
             free(_ptr);
             freeCount += 1;
-            // dln("free: _ptr=", _ptr);
         }
 
         import container_traits : NoGc;

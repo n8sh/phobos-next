@@ -315,8 +315,26 @@ struct BasicArray(T,
     private static MutableE* allocate(size_t initialCapacity, bool zero)
     {
         typeof(return) ptr = null;
-        static if (isType!Allocator)
+        static if (!is(typeof(Allocator) == typeof(null)))
         {
+            immutable size_t numBytes = initialCapacity * T.sizeof;
+            if (zero)
+            {
+                static if (__traits(hasMember, Allocator, "zeroallocate"))
+                {
+                    ptr = cast(typeof(return))Allocator.zeroallocate(numBytes).ptr;
+                }
+                else
+                {
+                    ptr = cast(typeof(return))Allocator.allocate(numBytes);
+                    import core.stdc.string : memset;
+                    memset(ptr, 0, numBytes);
+                }
+            }
+            else
+            {
+                ptr = cast(typeof(return))Allocator.allocate(numBytes).ptr;
+            }
         }
         else
         {
@@ -834,7 +852,7 @@ private:
     /** For more convenient construction. */
     struct Store
     {
-        static if (isType!Allocator &&
+        static if (!is(typeof(Allocator) == typeof(null)) &&
                    !hasFunctionAttributes!(Allocator.allocate, "@nogc"))
         {
             T* ptr;             // GC-allocated store pointer
@@ -1322,7 +1340,7 @@ unittest
 {
     import std.experimental.allocator.gc_allocator : GCAllocator;
     alias T = int;
-    alias A = BasicArray!(T, GCAllocator);
+    alias A = BasicArray!(T, GCAllocator.instance);
     A a;
 }
 

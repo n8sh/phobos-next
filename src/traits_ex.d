@@ -692,7 +692,7 @@ enum bool isPurelyCallableWith(alias fun, T...) = (isPure!fun &&
 
 @safe pure nothrow @nogc unittest
 {
-    int foo(int x) @safe pure nothrow { return x; }
+    static int foo(int x) @safe pure nothrow { return x; }
     static assert(isPure!foo);
     static assert(isPurelyCallableWith!(foo, int));
 }
@@ -706,11 +706,10 @@ enum bool isNogc(alias fun) = (isCallable!fun &&
 
 @safe pure nothrow @nogc unittest
 {
-    int foo(int x) @nogc pure nothrow { return x; }
+    static int foo(int x) @nogc pure nothrow;
+    static int goo(int x) pure nothrow;
     static assert(isNogc!foo);
-
-    int goo(int x) pure nothrow { return x; }
-    // TODO static assert(!isNogc!goo);
+    static assert(!isNogc!goo);
 }
 
 /** Persistently Call Function $(D fun) with arguments $(D args).

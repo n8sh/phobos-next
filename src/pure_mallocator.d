@@ -24,6 +24,7 @@ struct PureMallocator
     paradoxically, $(D malloc) is $(D @safe) but that's only useful to safe
     programs that can afford to leak memory allocated.
     */
+    pragma(inline, true)
     void[] allocate(size_t bytes) shared
         @trusted @nogc
     {
@@ -32,6 +33,7 @@ struct PureMallocator
         return p ? p[0 .. bytes] : null; // TODO can we use .ptr?
     }
 
+    pragma(inline, true)
     void[] zeroallocate(size_t bytes) shared
         @trusted @nogc
     {
@@ -41,6 +43,7 @@ struct PureMallocator
     }
 
     /// Ditto
+    pragma(inline, true)
     bool deallocate(void[] b) shared
         @system @nogc nothrow
     {

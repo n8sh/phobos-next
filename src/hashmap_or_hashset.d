@@ -894,7 +894,6 @@ struct HashMapOrSet(K, V = void,
             {
                 SmallBin tmpSmall;
                 Bstate tmpBstate;
-                uint tmpCounter = 0;
                 foreach (ref element; binElementsAt(binIx))
                 {
                     alias pred = unaryFun!predicate;
@@ -907,7 +906,7 @@ struct HashMapOrSet(K, V = void,
                     }
                     else
                     {
-                        moveEmplace(element, tmpSmall[tmpCounter]);
+                        moveEmplace(element, tmpSmall[tmpBstate.smallCount()]);
                         tmpBstate.incSmallCount();
                     }
                 }

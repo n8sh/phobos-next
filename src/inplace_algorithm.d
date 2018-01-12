@@ -89,13 +89,12 @@ C filteredInplace(alias predicate, C)(C r)
         isSetLike!C)
 {
     C s;
-    // TODO change to calls to remove if r.remove is doesn't not invalidate `r[]`-iteration
+    // TODO replace with call to C.removeAll(!predicate)
     import std.algorithm.iteration : filter;
     foreach (e; r[].filter!predicate)
     {
         s.insert(e);
     }
-
     import std.algorithm.mutation : move;
     return move(s);             // TODO remove move when compiler does it for us
 }

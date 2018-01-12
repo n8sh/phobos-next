@@ -763,7 +763,7 @@ struct BasicArray(T,
 
     /** Remove all elements matching `predicate`.
      */
-    void removeAll(alias predicate)() // template-lazy
+    void remove(alias predicate)() // template-lazy
         @trusted
         @("complexity", "O(length)")
         if (is(typeof(unaryFun!predicate)))
@@ -1334,7 +1334,7 @@ unittest
     assert(a[].ptr !is b[].ptr);
 }
 
-/// check filtered removal via `removeAll`
+/// check filtered removal via `remove`
 @safe pure nothrow @nogc unittest
 {
     struct T
@@ -1348,16 +1348,16 @@ unittest
 
     auto a = A([T(10), T(11), T(12)].s);
 
-    a.removeAll!"a.value == 13";
+    a.remove!"a.value == 13";
     assert(a[] == [T(10), T(11), T(12)].s);
 
-    a.removeAll!"a.value >= 12";
+    a.remove!"a.value >= 12";
     assert(a[] == [T(10), T(11)].s);
 
-    a.removeAll!"a.value == 10";
+    a.remove!"a.value == 10";
     assert(a[] == [T(11)].s);
 
-    a.removeAll!"a.value == 11";
+    a.remove!"a.value == 11";
     assert(a.empty);
 }
 

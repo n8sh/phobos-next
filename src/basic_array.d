@@ -759,14 +759,16 @@ struct BasicArray(T,
         }
     }
 
+    import std.functional : unaryFun;
+
     /** Remove all elements matching `predicate`.
         Returns: number of elements removed.
      */
     void removeAll(alias predicate)() // template-lazy
         @trusted
         @("complexity", "O(length)")
+        if (is(typeof(unaryFun!predicate)))
     {
-        import std.functional : unaryFun;
         alias pred = unaryFun!predicate;
         typeof(this) tmp;
         foreach (immutable i; 0 .. this.length)

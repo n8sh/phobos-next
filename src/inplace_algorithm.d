@@ -101,14 +101,14 @@ C filteredInplace(alias predicate, C)(C r) @trusted // TODO remove @trusted
 
 @safe pure nothrow @nogc unittest
 {
+    import std.algorithm.iteration : filter;
     import hashset : HashSet;
     import digestx.fnv : FNV;
-
-    import std.algorithm.iteration : filter;
 
     alias predicate = _ => (_ & 1) == 0;
     const x = [11, 22, 33, 44, 55, 66].s;
     alias X = HashSet!(uint, null, FNV!(64, true));
+
     assert(equal(X.withElements(x)
                   .filteredInplace!predicate[],
                  X.withElements(x)[]

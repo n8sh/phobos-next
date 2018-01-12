@@ -777,7 +777,7 @@ struct BasicArray(T,
             }
             else
             {
-                tmp.insertBackMove(_mptr[i]); // steal element
+                tmp.insertBackMove(_mptr[i]); // TODO remove unnecessary clearing of `_mptr`
             }
         }
         free(_mptr);            // just free old

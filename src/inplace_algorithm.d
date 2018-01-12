@@ -115,11 +115,11 @@ C filteredInplace(alias predicate, C)(C r)
                 [11, 12, 13, 14].s,
                 [11, 12, 13, 14, 15].s,
         ].s;
-    foreach (const x; as)
+    foreach (const a; as)
     {
-        assert(equal(X.withElements(x)
+        assert(equal(X.withElements(a)
                       .filteredInplace!predicate[],
-                     X.withElements(x)[]
+                     X.withElements(a)[]
                      .filter!predicate));
     }
 }

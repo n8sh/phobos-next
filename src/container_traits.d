@@ -286,5 +286,6 @@ template isHashable(T)
 /** Is `true` iff `T` is a set like container. */
 template isSetLike(T)
 {
-    enum isSetLike = __traits(hasMember, T, "remove");
+    enum isSetLike = (__traits(hasMember, T, "insert") &&
+                      __traits(hasMember, T, "remove"));
 }

@@ -769,11 +769,10 @@ struct BasicArray(T,
         @("complexity", "O(length)")
         if (is(typeof(unaryFun!predicate)))
     {
-        alias pred = unaryFun!predicate;
         typeof(this) tmp;
         foreach (immutable i; 0 .. this.length)
         {
-            if (pred(_mptr[i]))
+            if (unaryFun!predicate(_mptr[i]))
             {
                 .destroy(_mptr[i]);
             }

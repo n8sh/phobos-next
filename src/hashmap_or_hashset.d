@@ -911,7 +911,7 @@ struct HashMapOrSet(K, V = void,
                         tmpBstate.incSmallCount();
                     }
                 }
-                asesrt(tmpBstate.isSmall); // should stay small
+                assert(!tmpBstate.isLarge); // should stay small
                 moveEmplace(tmpSmall, _bins[binIx].small);
                 moveEmplace(tmpBstate, _bstates[binIx]);
             }

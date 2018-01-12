@@ -81,6 +81,40 @@ C filteredInplace(alias predicate, C)(C r) @trusted // TODO remove @trusted
     return move(r);             // TODO remove move when compiler does it for us
 }
 
+/** Returns: `r` eagerly in-place filtered on `predicate`.
+ */
+C filteredInplace(alias predicate, C)(C r) @trusted // TODO remove @trusted
+    if (is(typeof(unaryFun!predicate)) &&
+        __traits(hasMember, C, "remove"))
+{
+    C s;
+    // TODO change to calls to remove if r.remove is doesn't not invalidate `r[]`-iteration
+    import std.algorithm.iteration : filter;
+    foreach (e; r[].filter!predicate)
+    {
+        s.insert(e);
+    }
+
+    import std.algorithm.mutation : move;
+    return move(s);             // TODO remove move when compiler does it for us
+}
+
+@safe pure nothrow @nogc unittest
+{
+    import hashset : HashSet;
+    import digestx.fnv : FNV;
+
+    import std.algorithm.iteration : filter;
+
+    alias predicate = _ => (_ & 1) == 0;
+    const x = [11, 22, 33, 44, 55, 66].s;
+    alias X = HashSet!(uint, null, FNV!(64, true));
+    assert(equal(X.withElements(x)
+                  .filteredInplace!predicate[],
+                 X.withElements(x)[]
+                  .filter!predicate));
+}
+
 /** Filter `r` eagerly in-place using `predicate`. */
 void filterInplace(alias predicate, C)(ref C r) @trusted // TODO remove @trusted
     if (is(typeof(unaryFun!predicate)) &&

@@ -124,7 +124,7 @@ struct BasicArray(T,
         moveEmplace(value, _mptr[0]); // TODO remove `moveEmplace` when compiler does it for us
     }
 
-    /// Construct from uncopyable element `value`.
+    /// Construct from copyable element `value`.
     this(U)(U value) @trusted
         if (isCopyable!U &&
             isElementAssignable!U)

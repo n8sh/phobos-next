@@ -99,6 +99,7 @@ C filteredInplace(alias predicate, C)(C r)
     return move(s);             // TODO remove move when compiler does it for us
 }
 
+/// inplace filtering on hashset
 @safe pure nothrow @nogc unittest
 {
     import std.algorithm.iteration : filter;

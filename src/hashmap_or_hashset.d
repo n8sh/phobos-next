@@ -880,7 +880,7 @@ struct HashMapOrSet(K, V = void,
 
     /** Remove all elements matching `predicate`.
      */
-    void removeAll(alias predicate)()
+    void removeAll(alias predicate)() @trusted
         if (is(typeof(unaryFun!predicate)))
     {
         foreach (immutable binIx; 0 .. _bins.length)

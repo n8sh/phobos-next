@@ -883,16 +883,47 @@ struct HashMapOrSet(K, V = void,
     size_t removeAll(alias predicate)()
         if (is(typeof(unaryFun!predicate)))
     {
-        static assert(0, "TODO implement and use in inplace_algorithm.filteredInplace");
+        static assert(0, "TODO untested");
         foreach (immutable binIx; 0 .. _bins.length)
         {
             if (_bstates[binIx].isLarge)
             {
-                auto elements = _bins[binIx].large[];
+                LargeBin tmpBin;
+                foreach (ref element; binElementsAt(binIx))
+                {
+                    if (filter!predicate)
+                    {
+                        tmpBin.insertBackMove(element);
+                    }
+                    else
+                    {
+                        static if (hasElaborateDestructor!T)
+                        {
+                            destroy(element);
+                        }
+                    }
+                }
+                .destroy(large);
+                // TODO tmpBin emplace over large
             }
             else
             {
-                auto elements = smallBinElementsAt(binIx);
+                SmallBin tmpBin;
+                foreach (ref element; binElementsAt(binIx))
+                {
+                    if (filter!predicate)
+                    {
+                        tmpBin.insertBackMove(element);
+                    }
+                    else
+                    {
+                        static if (hasElaborateDestructor!T)
+                        {
+                            destroy(element);
+                        }
+                    }
+                }
+                // TODO tmpBin emplace over small
             }
         }
     }
@@ -907,7 +938,7 @@ struct HashMapOrSet(K, V = void,
         _bstates[binIx].decSmallCount();
         static if (hasElaborateDestructor!T)
         {
-            .destroy(_bins[binIx].small[_bstates[binIx].smallCount]);
+            .destroy(_bins[binIx].small[_bstates[binIx].smallCount]); // TODO this is incorrect
         }
     }
 

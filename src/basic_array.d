@@ -1343,8 +1343,18 @@ unittest
     static assert(!__traits(compiles, { A b = a; })); // copying disabled
 
     auto a = A([10, 11, 12].s);
-    a.removeAll!"a < 12";
+
+    a.removeAll!"a == 13";
+    assert(a[] == [10, 11, 12].s);
+
+    a.removeAll!"a >= 12";
     assert(a[] == [10, 11].s);
+
+    a.removeAll!"a == 10";
+    assert(a[] == [11].s);
+
+    a.removeAll!"a == 11";
+    assert(a.empty);
 }
 
 /// construct from map range

@@ -880,14 +880,14 @@ struct HashMapOrSet(K, V = void,
 
     /** Remove all elements matching `predicate`.
      */
-    void removeAll(alias predicate)() @trusted
+    void remove(alias predicate)() @trusted
         if (is(typeof(unaryFun!predicate)))
     {
         foreach (immutable binIx; 0 .. _bins.length)
         {
             if (_bstates[binIx].isLarge)
             {
-                _bins[binIx].large.removeAll!predicate;
+                _bins[binIx].large.remove!predicate;
                 tryShrinkLargeBinAt(binIx);
             }
             else
@@ -1175,6 +1175,11 @@ pure nothrow @nogc unittest
             x.insert(11);
             x.insert(12);
             x.insert(13);
+
+            // auto xc = x.dup;
+            // assert(xc.length == 3);
+            // xc.remove!"a == 11";
+            // assert(xc.length == 2);
 
             import std.algorithm : count;
             auto xr = x.byElement;

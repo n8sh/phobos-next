@@ -766,6 +766,7 @@ struct BasicArray(T,
         @trusted
         @("complexity", "O(length)")
     {
+        import std.functional : unaryFun;
         alias pred = unaryFun!predicate;
         typeof(this) tmp;
         foreach (immutable i; 0 .. this.length)
@@ -776,10 +777,10 @@ struct BasicArray(T,
             }
             else
             {
-                tmp.insertBackMove(_mptr[i]);
+                tmp.insertBackMove(_mptr[i]); // steal element
             }
         }
-        assert(0, "deallocate _mptr");
+        free(_mptr);            // just free old
         moveEmplace(tmp, this);
     }
 
@@ -1342,7 +1343,8 @@ unittest
     static assert(!__traits(compiles, { A b = a; })); // copying disabled
 
     auto a = A([10, 11, 12].s);
-    // TODO a.removeAll!(_ => _ < 12);
+    a.removeAll!"a < 12";
+    assert(a[] == [10, 11].s);
 }
 
 /// construct from map range

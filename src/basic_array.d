@@ -762,7 +762,6 @@ struct BasicArray(T,
     import std.functional : unaryFun;
 
     /** Remove all elements matching `predicate`.
-        Returns: number of elements removed.
      */
     void removeAll(alias predicate)() // template-lazy
         @trusted

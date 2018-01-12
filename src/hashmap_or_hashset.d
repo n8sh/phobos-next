@@ -896,8 +896,7 @@ struct HashMapOrSet(K, V = void,
                 Bstate tmpBstate;
                 foreach (ref element; binElementsAt(binIx))
                 {
-                    alias pred = unaryFun!predicate;
-                    if (pred(element))
+                    if (unaryFun!predicate(element))
                     {
                         static if (hasElaborateDestructor!T)
                         {

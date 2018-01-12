@@ -2,6 +2,7 @@ module inplace_algorithm;
 
 import std.functional : unaryFun;
 
+import container_traits : isSetLike;
 import typecons_ex : hasIndexing;
 
 version(unittest)
@@ -85,7 +86,7 @@ C filteredInplace(alias predicate, C)(C r) @trusted // TODO remove @trusted
  */
 C filteredInplace(alias predicate, C)(C r)
     if (is(typeof(unaryFun!predicate)) &&
-        __traits(hasMember, C, "remove"))
+        isSetLike!C)
 {
     C s;
     // TODO change to calls to remove if r.remove is doesn't not invalidate `r[]`-iteration

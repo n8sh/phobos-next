@@ -105,14 +105,22 @@ C filteredInplace(alias predicate, C)(C r)
     import hashset : HashSet;
     import digestx.fnv : FNV;
 
-    alias predicate = _ => (_ & 1) == 0;
-    const x = [11, 22, 33, 44, 55, 66].s;
     alias X = HashSet!(uint, null, FNV!(64, true));
+    alias predicate = _ => (_ & 1) == 0;
 
-    assert(equal(X.withElements(x)
-                  .filteredInplace!predicate[],
-                 X.withElements(x)[]
-                  .filter!predicate));
+    const as = [[1].s,
+                [11, 12].s,
+                [11, 12, 13].s,
+                [11, 12, 13, 14].s,
+                [11, 12, 13, 14, 15].s,
+        ].s;
+    foreach (const x; as)
+    {
+        assert(equal(X.withElements(x)
+                      .filteredInplace!predicate[],
+                     X.withElements(x)[]
+                     .filter!predicate));
+    }
 }
 
 /** Filter `r` eagerly in-place using `predicate`. */

@@ -759,6 +759,30 @@ struct BasicArray(T,
         }
     }
 
+    /** Remove all elements matching `predicate`.
+        Returns: number of elements removed.
+     */
+    size_t removeAll(alias predicate)() // template-lazy
+        @trusted
+        @("complexity", "O(length)")
+    {
+        alias pred = unaryFun!predicate;
+        typeof(this) tmp;
+        foreach (immutable i; 0 .. this.length)
+        {
+            if (pred(_mptr[i]))
+            {
+                .destroy(_mptr[i]);
+            }
+            else
+            {
+                tmp.insertBackMove(_mptr[i]);
+            }
+        }
+        assert(0, "deallocate _mptr");
+        move(tmp, this);
+    }
+
     /** Forwards to $(D insertBack(values)).
      */
     pragma(inline, true)

@@ -876,6 +876,16 @@ struct HashMapOrSet(K, V = void,
         }
     }
 
+    import std.functional : unaryFun;
+
+    /** Remove all elements matching `predicate`.
+     */
+    size_t removeAll(alias predicate)()
+        if (is(typeof(unaryFun!predicate)))
+    {
+        static assert(0, "TODO implement and use in inplace_algorithm.filteredInplace");
+    }
+
     /** Remove small element at `elementIx` in bin `binIx`. */
     private void removeSmallElementAt()(size_t binIx, // template-lazy
                                         size_t elementIx)

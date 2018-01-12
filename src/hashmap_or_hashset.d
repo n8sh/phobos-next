@@ -883,47 +883,32 @@ struct HashMapOrSet(K, V = void,
     size_t removeAll(alias predicate)()
         if (is(typeof(unaryFun!predicate)))
     {
-        static assert(0, "TODO untested");
         foreach (immutable binIx; 0 .. _bins.length)
         {
             if (_bstates[binIx].isLarge)
             {
-                LargeBin tmpBin;
-                foreach (ref element; binElementsAt(binIx))
-                {
-                    if (filter!predicate)
-                    {
-                        tmpBin.insertBackMove(element);
-                    }
-                    else
-                    {
-                        static if (hasElaborateDestructor!T)
-                        {
-                            destroy(element);
-                        }
-                    }
-                }
-                .destroy(large);
-                // TODO tmpBin emplace over large
+                _bins[binIx].large.removeAll!predicate;
+                static assert(0, "try shrinking to small");
             }
             else
             {
-                SmallBin tmpBin;
+                SmallBin tmpSmall;
                 foreach (ref element; binElementsAt(binIx))
                 {
-                    if (filter!predicate)
-                    {
-                        tmpBin.insertBackMove(element);
-                    }
-                    else
+                    alias pred = unaryFun!predicate;
+                    if (pred(element))
                     {
                         static if (hasElaborateDestructor!T)
                         {
                             destroy(element);
                         }
                     }
+                    else
+                    {
+                        tmpSmall.insertBackMove(element);
+                    }
                 }
-                // TODO tmpBin emplace over small
+                moveEmplace(smallLarge, _bins[binIx].small);
             }
         }
     }

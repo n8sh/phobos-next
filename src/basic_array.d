@@ -323,18 +323,17 @@ struct BasicArray(T,
             {
                 static if (__traits(hasMember, Allocator, "zeroallocate"))
                 {
-                    ptr = cast(typeof(return))Allocator.zeroallocate(numBytes);
+                    ptr = cast(typeof(return))Allocator.zeroallocate(numBytes).ptr; // TODO set length
                 }
                 else
                 {
-                    ptr = cast(typeof(return))Allocator.allocate(numBytes);
-                    import core.stdc.string : memset;
-                    memset(ptr, 0, numBytes);
+                    import std.experimental.allocator : makeArray;
+                    ptr = Allocator.makeArray!T(initialCapacity, 0).ptr; // TODO set length
                 }
             }
             else
             {
-                ptr = cast(typeof(return))Allocator.allocate(numBytes);
+                ptr = cast(typeof(return))Allocator.allocate(numBytes).ptr; // TODo set length
             }
         }
         else

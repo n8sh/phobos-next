@@ -762,7 +762,7 @@ struct BasicArray(T,
     /** Remove all elements matching `predicate`.
         Returns: number of elements removed.
      */
-    size_t removeAll(alias predicate)() // template-lazy
+    void removeAll(alias predicate)() // template-lazy
         @trusted
         @("complexity", "O(length)")
     {
@@ -780,7 +780,7 @@ struct BasicArray(T,
             }
         }
         assert(0, "deallocate _mptr");
-        move(tmp, this);
+        moveEmplace(tmp, this);
     }
 
     /** Forwards to $(D insertBack(values)).
@@ -1319,7 +1319,7 @@ unittest
     assert(a[] == [17].s);
 }
 
-/// check duplication
+/// check duplication via `dup`
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
@@ -1331,6 +1331,18 @@ unittest
     auto b = a.dup;
     assert(a == b);
     assert(a[].ptr !is b[].ptr);
+}
+
+/// check filtered removal via `removeAll`
+@safe pure nothrow @nogc unittest
+{
+    alias T = int;
+    alias A = BasicArray!(T);
+
+    static assert(!__traits(compiles, { A b = a; })); // copying disabled
+
+    auto a = A([10, 11, 12].s);
+    // TODO a.removeAll!(_ => _ < 12);
 }
 
 /// construct from map range

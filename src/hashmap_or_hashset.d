@@ -1170,11 +1170,7 @@ pure nothrow @nogc unittest
 
         static if (!X.hasValue)
         {
-            X x;
-
-            x.insert(11);
-            x.insert(12);
-            x.insert(13);
+            auto x = X.withElements([11, 12, 13].s);
 
             // auto xc = x.dup;
             // assert(xc.length == 3);
@@ -1568,4 +1564,9 @@ pure nothrow unittest
         static assert(is(typeof(e.key) == const(X.KeyType)));
         static assert(is(typeof(e.value) == X.ValueType));
     }
+}
+
+version(unittest)
+{
+    import array_help : s;
 }

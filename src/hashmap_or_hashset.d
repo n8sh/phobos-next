@@ -884,6 +884,17 @@ struct HashMapOrSet(K, V = void,
         if (is(typeof(unaryFun!predicate)))
     {
         static assert(0, "TODO implement and use in inplace_algorithm.filteredInplace");
+        foreach (immutable binIx; 0 .. _bins.length)
+        {
+            if (_bstates[binIx].isLarge)
+            {
+                auto elements = _bins[binIx].large[];
+            }
+            else
+            {
+                auto elements = smallBinElementsAt(binIx);
+            }
+        }
     }
 
     /** Remove small element at `elementIx` in bin `binIx`. */

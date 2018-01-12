@@ -888,7 +888,7 @@ struct HashMapOrSet(K, V = void,
             if (_bstates[binIx].isLarge)
             {
                 _bins[binIx].large.removeAll!predicate;
-                static assert(0, "try shrinking to small");
+                tryShrinkLargeBinAt(binIx);
             }
             else
             {

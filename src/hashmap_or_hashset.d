@@ -887,14 +887,12 @@ struct HashMapOrSet(K, V = void,
         {
             if (_bstates[binIx].isLarge)
             {
-                dln("large binIx:", binIx);
                 immutable removeCount = _bins[binIx].large.remove!predicate();
                 _length -= removeCount;
                 tryShrinkLargeBinAt(binIx);
             }
             else
             {
-                dln("small binIx:", binIx);
                 SmallBin tmpSmall;
                 Bstate tmpBstate;
                 foreach (ref element; smallBinElementsAt(binIx))
@@ -1578,5 +1576,4 @@ pure nothrow unittest
 version(unittest)
 {
     import array_help : s;
-    import dbgio;
 }

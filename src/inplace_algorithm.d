@@ -129,10 +129,10 @@ C filteredInplace(alias predicate, C)(C r)
         {
             dln(b);
         }
-        // assert(equal(X.withElements(a)
-        //               .filteredInplace!"(a & 1) == 0"[], // TODO we can't we use `predicate` here
-        //              X.withElements(a)[]
-        //              .filter!predicate));
+        assert(equal(X.withElements(a)
+                      .filteredInplace!"(a & 1) == 0"[], // TODO we can't we use `predicate` here
+                     X.withElements(a)[]
+                     .filter!predicate));
     }
 }
 

@@ -1209,12 +1209,13 @@ pure nothrow @nogc unittest
             assert(w.byElement.count == 0);
 
             {
-                auto xc = X.withElements([1, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16, 17, 18, 19].s);
-                assert(xc.length == 14);
+                auto xc = X.withElements([11, 12, 13].s);
+                assert(xc.length == 3);
                 assert(xc.contains(11));
+
                 xc.remove!"a == 11";
+                assert(xc.length == 2);
                 assert(!xc.contains(11));
-                assert(xc.length == 13);
             }
         }
 

@@ -762,17 +762,20 @@ struct BasicArray(T,
     import std.functional : unaryFun;
 
     /** Remove all elements matching `predicate`.
+        Returns: number of elements that were removed.
      */
-    void remove(alias predicate)() // template-lazy
+    size_t remove(alias predicate)() // template-lazy
         @trusted
         @("complexity", "O(length)")
         if (is(typeof(unaryFun!predicate)))
     {
         typeof(this) tmp;
+        size_t count = 0;
         foreach (immutable i; 0 .. this.length)
         {
             if (unaryFun!predicate(_mptr[i]))
             {
+                count += 1;
                 .destroy(_mptr[i]);
             }
             else
@@ -782,6 +785,7 @@ struct BasicArray(T,
         }
         free(_mptr);            // just free old
         moveEmplace(tmp, this);
+        return count;
     }
 
     /** Forwards to $(D insertBack(values)).
@@ -1348,16 +1352,16 @@ unittest
 
     auto a = A([T(10), T(11), T(12)].s);
 
-    a.remove!"a.value == 13";
+    assert(a.remove!"a.value == 13" == 0);
     assert(a[] == [T(10), T(11), T(12)].s);
 
-    a.remove!"a.value >= 12";
+    assert(a.remove!"a.value >= 12" == 1);
     assert(a[] == [T(10), T(11)].s);
 
-    a.remove!"a.value == 10";
+    assert(a.remove!"a.value == 10" == 1);
     assert(a[] == [T(11)].s);
 
-    a.remove!"a.value == 11";
+    assert(a.remove!"a.value == 11" == 1);
     assert(a.empty);
 }
 

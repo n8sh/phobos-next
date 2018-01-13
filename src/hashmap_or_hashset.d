@@ -887,10 +887,8 @@ struct HashMapOrSet(K, V = void,
         {
             if (_bstates[binIx].isLarge)
             {
-                immutable oldLength = _bins[binIx].large.length;
-                _bins[binIx].large.remove!predicate;
-                immutable newLength = _bins[binIx].large.length;
-                _length -= oldLength - newLength;
+                immutable removeCount = _bins[binIx].large.remove!predicate;
+                _length -= removeCount;
                 tryShrinkLargeBinAt(binIx);
             }
             else

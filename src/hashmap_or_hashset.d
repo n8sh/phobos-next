@@ -887,14 +887,17 @@ struct HashMapOrSet(K, V = void,
         {
             if (_bstates[binIx].isLarge)
             {
+                const oldLength = _bins[binIx].large.length;
                 _bins[binIx].large.remove!predicate;
+                const newLength = _bins[binIx].large.length;
+                _length -= oldLength - newLength;
                 tryShrinkLargeBinAt(binIx);
             }
             else
             {
                 SmallBin tmpSmall;
                 Bstate tmpBstate;
-                foreach (ref element; binElementsAt(binIx))
+                foreach (ref element; smallBinElementsAt(binIx))
                 {
                     if (unaryFun!predicate(element))
                     {
@@ -902,6 +905,7 @@ struct HashMapOrSet(K, V = void,
                         {
                             destroy(element);
                         }
+                        _length -= 1;
                     }
                     else
                     {
@@ -1172,10 +1176,12 @@ pure nothrow @nogc unittest
         {
             auto x = X.withElements([11, 12, 13].s);
 
-            // auto xc = x.dup;
-            // assert(xc.length == 3);
-            // xc.remove!"a == 11";
-            // assert(xc.length == 2);
+            auto xc = x.dup;
+            assert(xc.length == 3);
+            xc.remove!"a == 11";
+            assert(xc.length == 2);
+            assert(xc.contains(12));
+            assert(xc.contains(13));
 
             import std.algorithm : count;
             auto xr = x.byElement;
@@ -1569,4 +1575,5 @@ pure nothrow unittest
 version(unittest)
 {
     import array_help : s;
+    import dbgio;
 }

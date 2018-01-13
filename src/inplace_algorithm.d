@@ -88,15 +88,22 @@ C filteredInplace(alias predicate, C)(C r)
     if (is(typeof(unaryFun!predicate)) &&
         isSetLike!C)
 {
-    C s;
-    // TODO replace with call to C.removeAll(!predicate)
-    import std.algorithm.iteration : filter;
-    foreach (e; r[].filter!predicate)
-    {
-        s.insert(e);
-    }
     import std.algorithm.mutation : move;
-    return move(s);             // TODO remove move when compiler does it for us
+    static if (__traits(hasMember, C, "remove"))
+    {
+        r.remove!(unaryFun!predicate)();
+        return move(r);
+    }
+    else
+    {
+        C s;
+        import std.algorithm.iteration : filter;
+        foreach (e; r[].filter!predicate)
+        {
+            s.insert(e);
+        }
+        return move(s);             // TODO remove move when compiler does it for us
+    }
 }
 
 /// inplace filtering on hashset
@@ -117,14 +124,19 @@ C filteredInplace(alias predicate, C)(C r)
         ].s;
     foreach (const a; as)
     {
-        assert(equal(X.withElements(a)
-                      .filteredInplace!predicate[],
-                     X.withElements(a)[]
-                     .filter!predicate));
+        foreach (b; X.withElements(a)
+                     .filteredInplace!"(a & 1) == 0"[])
+        {
+            dln(b);
+        }
+        // assert(equal(X.withElements(a)
+        //               .filteredInplace!"(a & 1) == 0"[], // TODO we can't we use `predicate` here
+        //              X.withElements(a)[]
+        //              .filter!predicate));
     }
 }
 
-/** Filter `r` eagerly in-place using `predicate`. */
+/** Fyilter `r` eagerly in-place using `predicate`. */
 void filterInplace(alias predicate, C)(ref C r) @trusted // TODO remove @trusted
     if (is(typeof(unaryFun!predicate)) &&
         hasIndexing!C)          // TODO extend to `isArrayContainer`!C eller `isRandomAccessContainer!C`

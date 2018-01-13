@@ -211,10 +211,10 @@ struct HashMapOrSet(K, V = void,
      */
     static private size_t binCountOfCapacity()(size_t capacity) // template-lazy
     {
-        const minimumBinCount = ((capacityScaleNumerator *
-                                  capacity) /
-                                 (smallBinCapacity *
-                                  capacityScaleDenominator));
+        immutable minimumBinCount = ((capacityScaleNumerator *
+                                      capacity) /
+                                     (smallBinCapacity *
+                                      capacityScaleDenominator));
         import std.math : nextPow2;
         return nextPow2(minimumBinCount == 0 ?
                         0 :
@@ -887,9 +887,9 @@ struct HashMapOrSet(K, V = void,
         {
             if (_bstates[binIx].isLarge)
             {
-                const oldLength = _bins[binIx].large.length;
+                immutable oldLength = _bins[binIx].large.length;
                 _bins[binIx].large.remove!predicate;
-                const newLength = _bins[binIx].large.length;
+                immutable newLength = _bins[binIx].large.length;
                 _length -= oldLength - newLength;
                 tryShrinkLargeBinAt(binIx);
             }
@@ -1141,7 +1141,7 @@ private:
     pragma(inline, true)
     size_t hashToIndex(hash_t hash) const
     {
-        const size_t mask = _bins.length - 1;
+        immutable size_t mask = _bins.length - 1;
         assert((~mask ^ mask) == size_t.max); // isPowerOf2(_bins.length)
         return hash & mask;
     }

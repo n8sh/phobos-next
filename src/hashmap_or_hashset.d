@@ -887,12 +887,14 @@ struct HashMapOrSet(K, V = void,
         {
             if (_bstates[binIx].isLarge)
             {
+                dln("large binIx:", binIx);
                 immutable removeCount = _bins[binIx].large.remove!predicate();
                 _length -= removeCount;
                 tryShrinkLargeBinAt(binIx);
             }
             else
             {
+                dln("small binIx:", binIx);
                 SmallBin tmpSmall;
                 Bstate tmpBstate;
                 foreach (ref element; smallBinElementsAt(binIx))
@@ -1174,13 +1176,6 @@ pure nothrow @nogc unittest
         {
             auto x = X.withElements([11, 12, 13].s);
 
-            auto xc = x.dup;
-            assert(xc.length == 3);
-            xc.remove!"a == 11";
-            assert(xc.length == 2);
-            assert(xc.contains(12));
-            assert(xc.contains(13));
-
             import std.algorithm : count;
             auto xr = x.byElement;
 
@@ -1212,6 +1207,15 @@ pure nothrow @nogc unittest
 
             immutable w = X();
             assert(w.byElement.count == 0);
+
+            {
+                auto xc = X.withElements([1, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16, 17, 18, 19].s);
+                assert(xc.length == 14);
+                assert(xc.contains(11));
+                xc.remove!"a == 11";
+                assert(!xc.contains(11));
+                assert(xc.length == 13);
+            }
         }
 
         import container_traits : mustAddGCRange;

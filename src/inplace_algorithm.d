@@ -116,6 +116,8 @@ C filteredInplace(alias predicate, C)(C r)
     alias X = HashSet!(uint, null, FNV!(64, true));
     alias predicate = _ => (_ & 1) == 0;
 
+    // TODO activate this:
+
     // const as = [[11].s,
     //             [11, 12].s,
     //             [11, 12, 13].s,

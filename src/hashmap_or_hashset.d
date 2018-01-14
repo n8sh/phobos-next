@@ -1170,6 +1170,7 @@ pure nothrow @nogc unittest
 {
     import digestx.fnv : FNV;
     alias X = HashMapOrSet!(uint, void, null, FNV!(64, true));
+    foreach (e; X.init[]) {}
     // foreach (e; X.withElements([11].s)[]) {}
     // foreach (e; X.withElements([11, 12].s)[]) {}
 }

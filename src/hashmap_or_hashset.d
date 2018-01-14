@@ -645,9 +645,12 @@ struct HashMapOrSet(K, V = void,
         /// Returns forward range that iterates through the values of `this`.
         @property auto byElement()() inout // template-lazy
         {
+            // dln("entering byElement");
             alias This = ConstThis;
+            // TODO is the use of `&this` incorrect when `this` is an r-value?
             auto result = ByElement!This((ElementRef!This(cast(This*)&this)));
             result.initFirstNonEmptyBin();
+            // dln("leaving byElement");
             return result;
         }
         /// ditto
@@ -887,21 +890,21 @@ struct HashMapOrSet(K, V = void,
         {
             if (_bstates[binIx].isLarge)
             {
-                dln("large binIx:", binIx);
+                // dln("large binIx:", binIx);
                 immutable removeCount = _bins[binIx].large.remove!predicate();
                 _length -= removeCount;
                 tryShrinkLargeBinAt(binIx);
             }
             else
             {
-                dln("small binIx:", binIx, " length:", length);
+                // dln("small binIx:", binIx, " length:", length);
                 SmallBin tmpSmall;
                 Bstate tmpBstate;
                 foreach (ref element; smallBinElementsAt(binIx))
                 {
                     if (unaryFun!predicate(element))
                     {
-                        dln("remove element:", element);
+                        // dln("remove element:", element);
                         static if (hasElaborateDestructor!T)
                         {
                             destroy(element);
@@ -910,18 +913,18 @@ struct HashMapOrSet(K, V = void,
                     }
                     else
                     {
-                        dln("keep element:", element, " tmpBstate.smallCount():", tmpBstate.smallCount(), " smallBinCapacity:", smallBinCapacity);
+                        // dln("keep element:", element, " tmpBstate.smallCount():", tmpBstate.smallCount(), " smallBinCapacity:", smallBinCapacity);
                         moveEmplace(element, tmpSmall[tmpBstate.smallCount()]);
                         tmpBstate.incSmallCount();
-                        dln("tmpBstate.smallCount():", tmpBstate.smallCount());
+                        // dln("tmpBstate.smallCount():", tmpBstate.smallCount());
                     }
                 }
                 assert(!tmpBstate.isLarge); // should stay small
                 moveEmplace(tmpSmall, _bins[binIx].small);
-                dln("before:", tmpBstate.smallCount());
-                dln("before:", _bstates[binIx]);
+                // dln("before:", tmpBstate.smallCount());
+                // dln("before:", _bstates[binIx]);
                 moveEmplace(tmpBstate, _bstates[binIx]);
-                dln("after:", _bstates[binIx]);
+                // dln("after:", _bstates[binIx]);
             }
         }
     }
@@ -1171,7 +1174,9 @@ pure nothrow @nogc unittest
     import digestx.fnv : FNV;
     alias X = HashMapOrSet!(uint, void, null, FNV!(64, true));
     foreach (e; X.init[]) {}
-    // foreach (e; X.withElements([11].s)[]) {}
+    // dln("111");
+    // TODO foreach (e; X.withElements([11].s)[]) {}
+    // dln("222");
     // foreach (e; X.withElements([11, 12].s)[]) {}
 }
 

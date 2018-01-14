@@ -887,18 +887,21 @@ struct HashMapOrSet(K, V = void,
         {
             if (_bstates[binIx].isLarge)
             {
+                dln("large binIx:", binIx);
                 immutable removeCount = _bins[binIx].large.remove!predicate();
                 _length -= removeCount;
                 tryShrinkLargeBinAt(binIx);
             }
             else
             {
+                dln("small binIx:", binIx, " length:", length);
                 SmallBin tmpSmall;
                 Bstate tmpBstate;
                 foreach (ref element; smallBinElementsAt(binIx))
                 {
                     if (unaryFun!predicate(element))
                     {
+                        dln("remove element:", element);
                         static if (hasElaborateDestructor!T)
                         {
                             destroy(element);
@@ -907,13 +910,18 @@ struct HashMapOrSet(K, V = void,
                     }
                     else
                     {
+                        dln("keep element:", element, " tmpBstate.smallCount():", tmpBstate.smallCount(), " smallBinCapacity:", smallBinCapacity);
                         moveEmplace(element, tmpSmall[tmpBstate.smallCount()]);
                         tmpBstate.incSmallCount();
+                        dln("tmpBstate.smallCount():", tmpBstate.smallCount());
                     }
                 }
                 assert(!tmpBstate.isLarge); // should stay small
                 moveEmplace(tmpSmall, _bins[binIx].small);
+                dln("before:", tmpBstate.smallCount());
+                dln("before:", _bstates[binIx]);
                 moveEmplace(tmpBstate, _bstates[binIx]);
+                dln("after:", _bstates[binIx]);
             }
         }
     }
@@ -1073,6 +1081,7 @@ private:
 
         @property Count smallCount() const
         {
+            // dln("_count:", _count, " smallBinCapacity:", smallBinCapacity);
             assert(_count <= smallBinCapacity);
             return _count;
         }
@@ -1156,6 +1165,15 @@ private:
 
 @safe:
 
+/// make range from r-value
+@safe pure unittest
+{
+    import digestx.fnv : FNV;
+    alias X = HashMapOrSet!(uint, void, null, FNV!(64, true));
+    // foreach (e; X.withElements([11].s)[]) {}
+    // foreach (e; X.withElements([11, 12].s)[]) {}
+}
+
 pure nothrow @nogc unittest
 {
     import std.algorithm.comparison : equal;
@@ -1214,6 +1232,9 @@ pure nothrow @nogc unittest
                 xc.remove!"a == 11";
                 assert(xc.length == 2);
                 assert(!xc.contains(11));
+
+                // this is ok
+                foreach (e; xc[]) {}
             }
         }
 
@@ -1576,4 +1597,5 @@ pure nothrow unittest
 version(unittest)
 {
     import array_help : s;
+    import dbgio;
 }

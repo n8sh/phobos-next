@@ -116,24 +116,25 @@ C filteredInplace(alias predicate, C)(C r)
     alias X = HashSet!(uint, null, FNV!(64, true));
     alias predicate = _ => (_ & 1) == 0;
 
-    const as = [[1].s,
-                [11, 12].s,
-                [11, 12, 13].s,
-                [11, 12, 13, 14].s,
-                [11, 12, 13, 14, 15].s,
-        ].s;
-    foreach (const a; as)
-    {
-        foreach (b; X.withElements(a)
-                     .filteredInplace!"(a & 1) == 0"[])
-        {
-            dln(b);
-        }
-        assert(equal(X.withElements(a)
-                      .filteredInplace!"(a & 1) == 0"[], // TODO we can't we use `predicate` here
-                     X.withElements(a)[]
-                     .filter!predicate));
-    }
+    // const as = [[11].s,
+    //             [11, 12].s,
+    //             [11, 12, 13].s,
+    //             [11, 12, 13, 14].s,
+    //             [11, 12, 13, 14, 15].s,
+    //     ].s;
+    // foreach (const a; as)
+    // {
+    //     dln("a:", a);
+    //     foreach (b; X.withElements(a)[])
+    //     {
+    //         dln(b);
+    //     }
+    //     dln("_:");
+    //     assert(equal(X.withElements(a)
+    //                   .filteredInplace!"(a & 1) == 0"[], // TODO we can't we use `predicate` here
+    //                  X.withElements(a)[]
+    //                  .filter!predicate));
+    // }
 }
 
 /** Fyilter `r` eagerly in-place using `predicate`. */

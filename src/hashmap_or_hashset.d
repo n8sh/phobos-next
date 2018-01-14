@@ -1166,7 +1166,7 @@ private:
 @safe:
 
 /// make range from r-value
-@safe pure unittest
+pure nothrow @nogc unittest
 {
     import digestx.fnv : FNV;
     alias X = HashMapOrSet!(uint, void, null, FNV!(64, true));

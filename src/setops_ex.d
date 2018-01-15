@@ -308,7 +308,8 @@ setIntersectionFast(alias less = "a < b",
         auto z = setIntersectionFast!(less)(x[], y[]).collect!A;
     }
 
-    import std.datetime.datetime : benchmark, Duration;
+    import std.datetime.stopwatch : benchmark;
+    import core.time : Duration;
     immutable testCount = 10;
     auto r = benchmark!(testSetIntersection,
                         testSetIntersectionNew)(testCount);

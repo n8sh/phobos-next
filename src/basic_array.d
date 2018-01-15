@@ -890,7 +890,15 @@ size_t remove(alias predicate, C)(ref C c) // template-lazy
         if (unaryFun!predicate(c._mptr[i]))
         {
             count += 1;
-            .destroy(c._mptr[i]);
+            import std.traits : hasElaborateDestructor;
+            static if (is(T == class))
+            {
+                c._mptr[i] = null;
+            }
+            else static if (hasElaborateDestructor!(typeof(c._mptr[i])))
+            {
+                .destroy(c._mptr[i]);
+            }
         }
         else
         {
@@ -1344,6 +1352,16 @@ unittest
     auto b = a.dup;
     assert(a == b);
     assert(a[].ptr !is b[].ptr);
+}
+
+/// check duplication via `dup`
+@safe pure nothrow @nogc unittest
+{
+    class T
+    {
+        int x;
+    }
+    alias A = BasicArray!(T);
 }
 
 /// check filtered removal via `remove`

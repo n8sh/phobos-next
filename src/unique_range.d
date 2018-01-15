@@ -715,16 +715,6 @@ struct UniqueTake(Range)
     assert(cs.empty);
 }
 
-/// hashset range
-@safe pure nothrow @nogc unittest
-{
-    import std.algorithm.mutation : move;
-    import hashset : HashSet;
-    class C {}
-    alias S = HashSet!C;
-    auto cs = S().intoUniqueRange;
-}
-
 import std.functional : binaryFun;
 
 InputRange findUnique(alias pred = "a == b", InputRange, Element)(InputRange haystack, scope Element needle)

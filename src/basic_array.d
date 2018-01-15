@@ -885,12 +885,11 @@ import std.functional : unaryFun;
 /** Remove all elements matching `predicate`.
     Returns: number of elements that were removed.
 */
-size_t remove(alias predicate, C)(ref C c) // template-lazy
+size_t remove(alias predicate, C)(ref C c)
     @trusted
     @("complexity", "O(length)")
     if (isInstanceOf!(BasicArray, C) &&
-        is(typeof(unaryFun!predicate(C.init[0])))
-        )
+        is(typeof(unaryFun!predicate(C.init[0]))))
 {
     C tmp;
     size_t count = 0;

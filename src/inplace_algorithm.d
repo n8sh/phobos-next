@@ -91,7 +91,8 @@ C filteredInplace(alias predicate, C)(C r)
     import std.algorithm.mutation : move;
     static if (__traits(hasMember, C, "remove"))
     {
-        r.remove!(_ => !unaryFun!predicate(_))(); // TODO reuse predicate negation in std.functional?
+        import std.functional : not;
+        r.remove!(not!predicate)();
         return move(r);
     }
     else
@@ -114,7 +115,8 @@ C filteredInplace(alias predicate, C)(C r)
     import digestx.fnv : FNV;
 
     alias X = HashSet!(uint, null, FNV!(64, true));
-    alias predicate = _ => (_ & 1) == 0;
+    alias pred1 = _ => (_ & 1) == 0;
+    enum pred2 = "(a & 1) == 0";
 
     // TODO activate this:
 
@@ -126,7 +128,7 @@ C filteredInplace(alias predicate, C)(C r)
         ].s;
     foreach (const a; as)
     {
-        foreach (const e; X.withElements(a).filteredInplace!predicate.byElement)
+        foreach (const e; X.withElements(a).filteredInplace!pred2.byElement)
         {
         }
     }

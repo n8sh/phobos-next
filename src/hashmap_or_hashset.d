@@ -549,9 +549,9 @@ struct HashMapOrSet(K, V = void,
         }
     }
 
-    /** Element reference (and in turn range iterator).
+    /** L-value element reference (and in turn range iterator).
      */
-    static private struct ElementRef(HashMapOrSetType)
+    static private struct LvalueElementRef(HashMapOrSetType)
     {
         HashMapOrSetType* table;
         size_t binIx;           // index to bin inside table
@@ -603,6 +603,55 @@ struct HashMapOrSet(K, V = void,
         }
     }
 
+    /** R-value element reference (and in turn range iterator).
+     */
+    static private struct RvalueElementRef(HashMapOrSetType)
+    {
+        HashMapOrSetType table; // owned
+        size_t binIx;           // index to bin inside table
+        size_t elementOffset;   // offset to element inside bin
+        size_t elementCounter;  // counter over number of elements popped
+
+        pragma(inline, true):
+
+        /// Check if empty.
+        @property bool empty() const @safe pure nothrow @nogc
+        {
+            return binIx == table.binCount;
+        }
+
+        /// Get number of element left to pop.
+        @property size_t length() const @safe pure nothrow @nogc
+        {
+            return table.length - elementCounter;
+        }
+
+        void initFirstNonEmptyBin()
+        {
+            while (binIx < table.binCount &&
+                   table.binElementCountAt(binIx) == 0)
+            {
+                binIx += 1;
+            }
+        }
+
+        pragma(inline)
+        void popFront()
+        {
+            assert(!empty);
+            elementOffset += 1; // next element
+            // if current bin was emptied
+            while (elementOffset >= table.binElementsAt(binIx).length)
+            {
+                // next bin
+                binIx += 1;
+                elementOffset = 0;
+                if (empty) { break; }
+            }
+            elementCounter += 1;
+        }
+    }
+
     static if (!hasValue)       // HashSet
     {
         pragma(inline, true)
@@ -616,7 +665,6 @@ struct HashMapOrSet(K, V = void,
         static private struct ByLvalueElement(HashMapOrSetType)
         {
         pragma(inline, true):
-
             static if (is(ElementType == class))
             {
                 /// Get reference to front element (key and value).
@@ -637,9 +685,35 @@ struct HashMapOrSet(K, V = void,
                     return table.binElementsAt(binIx)[elementOffset];
                 }
             }
+            public LvalueElementRef!HashMapOrSetType _elementRef;
+            alias _elementRef this;
+        }
 
-            public ElementRef!HashMapOrSetType _elementRef;
-
+        /// Range over elements of r-value instance of this.
+        static private struct ByRvalueElement(HashMapOrSetType)
+        {
+        pragma(inline, true):
+            static if (is(ElementType == class))
+            {
+                /// Get reference to front element (key and value).
+                @property scope auto front()() return @trusted
+                {
+                    /* cast away const from `HashMapOrSetType` for classes
+                     * because class elements are currently hashed and compared
+                     * compared using their identity (pointer value) `is`
+                     */
+                    return cast(ElementType)table.binElementsAt(binIx)[elementOffset];
+                }
+            }
+            else
+            {
+                /// Get reference to front element (key and value).
+                @property scope auto front()()
+                {
+                    return table.binElementsAt(binIx)[elementOffset];
+                }
+            }
+            public RvalueElementRef!HashMapOrSetType _elementRef;
             alias _elementRef this;
         }
 
@@ -687,7 +761,7 @@ struct HashMapOrSet(K, V = void,
             {
                 return table.binElementsAt(binIx)[elementOffset].key;
             }
-            public ElementRef!HashMapOrSetType _elementRef;
+            public LvalueElementRef!HashMapOrSetType _elementRef;
             alias _elementRef this;
         }
 
@@ -695,7 +769,7 @@ struct HashMapOrSet(K, V = void,
         @property scope auto byKey()() inout return // template-lazy property
         {
             alias This = ConstThis;
-            auto result = ByKey!This((ElementRef!This(cast(This*)&this)));
+            auto result = ByKey!This((LvalueElementRef!This(cast(This*)&this)));
             result.initFirstNonEmptyBin();
             return result;
         }
@@ -708,7 +782,7 @@ struct HashMapOrSet(K, V = void,
             {
                 return *(cast(ValueType*)(&table.binElementsAt(binIx)[elementOffset].value)); // TODO remove reinterpret cast
             }
-            public ElementRef!HashMapOrSetType _elementRef;
+            public LvalueElementRef!HashMapOrSetType _elementRef;
             alias _elementRef this;
         }
 
@@ -716,7 +790,7 @@ struct HashMapOrSet(K, V = void,
         @property scope auto byValue()() inout return // template-lazy property
         {
             alias This = ConstThis;
-            auto result = ByValue!This((ElementRef!This(cast(This*)&this)));
+            auto result = ByValue!This((LvalueElementRef!This(cast(This*)&this)));
             result.initFirstNonEmptyBin();
             return result;
         }
@@ -737,7 +811,7 @@ struct HashMapOrSet(K, V = void,
                 }
                 return cast(E)table.binElementsAt(binIx)[elementOffset]; // TODO remove cast
             }
-            public ElementRef!HashMapOrSetType _elementRef;
+            public LvalueElementRef!HashMapOrSetType _elementRef;
             alias _elementRef this;
         }
 
@@ -745,7 +819,7 @@ struct HashMapOrSet(K, V = void,
         @property scope auto byKeyValue()() return // template-lazy property
         {
             alias This = MutableThis;
-            auto result = ByKeyValue!This((ElementRef!This(cast(This*)&this)));
+            auto result = ByKeyValue!This((LvalueElementRef!This(cast(This*)&this)));
             result.initFirstNonEmptyBin();
             return result;
         }
@@ -753,7 +827,7 @@ struct HashMapOrSet(K, V = void,
         @property scope auto byKeyValue()() const return // template-lazy property
         {
             alias This = ConstThis;
-            auto result = ByKeyValue!This((ElementRef!This(cast(This*)&this)));
+            auto result = ByKeyValue!This((LvalueElementRef!This(cast(This*)&this)));
             result.initFirstNonEmptyBin();
             return result;
         }
@@ -1162,20 +1236,30 @@ private:
 import std.traits : isInstanceOf;
 
 /// Returns forward range that iterates through the elements of `c`.
-auto byElement(HashMapOrSetType)(ref inout(HashMapOrSetType) c)
+auto byElement(HashMapOrSetType)(auto ref inout(HashMapOrSetType) c)
     @trusted
     if (isInstanceOf!(HashMapOrSet,
                       HashMapOrSetType))
 {
     alias C = const(HashMapOrSetType);
-    auto result = C.ByLvalueElement!C((C.ElementRef!C(cast(C*)&c)));
-    result.initFirstNonEmptyBin();
-    return result;
+    static if (__traits(isRef, c))
+    {
+        auto result = C.ByLvalueElement!C((C.LvalueElementRef!C(cast(C*)&c)));
+        result.initFirstNonEmptyBin();
+        return result;
+    }
+    else
+    {
+        import std.algorithm.mutation : move;
+        auto result = C.ByRvalueElement!C((C.RvalueElementRef!C(move(*(cast(HashMapOrSetType*)&c))))); // reinterpret
+        result.initFirstNonEmptyBin();
+        return move(result);
+    }
 }
 
 @safe:
 
-/// make range from l-value and r-value
+/// make range from l-value and r-value. element access is always const
 pure nothrow @nogc unittest
 {
     alias K = uint;
@@ -1189,7 +1273,7 @@ pure nothrow @nogc unittest
     auto x = X.withElements(a);
     foreach (e; x.byElement)    // from l-value
     {
-        static assert(is(typeof(e) == const(K))); // always const ref access
+        static assert(is(typeof(e) == const(K))); // always const access
     }
 
     // const
@@ -1199,7 +1283,10 @@ pure nothrow @nogc unittest
         static assert(is(typeof(e) == const(K)));
     }
 
-    // TODO foreach (e; X.withElements([11].s).byElement) {} // from r-value
+    foreach (e; X.withElements([11].s).byElement) // from r-value
+    {
+        static assert(is(typeof(e) == const(K))); // always const access
+    }
 }
 
 /// test various things

@@ -287,12 +287,14 @@ template isHashable(T)
 template isSet(T)
 {
     enum isSet = (__traits(hasMember, T, "insert") &&
-                  __traits(hasMember, T, "remove"));
+                  __traits(hasMember, T, "remove") &&
+                  __traits(hasMember, T, "ElementType"));
 }
 
 /** Is `true` iff `T` is a set like container with elements of type `E`. */
 template isSetOf(T, E)
 {
     enum isSetOf = (is(typeof(T.init.insert(E.init))) &&
-                    is(typeof(T.init.remove(E.init))));
+                    is(typeof(T.init.remove(E.init))) &&
+                    __traits(hasMember, T, "ElementType"));
 }

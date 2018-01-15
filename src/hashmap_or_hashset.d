@@ -1224,6 +1224,52 @@ private:
 }
 
 import std.traits : isInstanceOf;
+import std.functional : unaryFun;
+
+/** Remove all elements in `x` matching `predicate`.
+    Alternative to member of `HashMapOrSet`.
+ */
+void removeAltenative(alias predicate, HashMapOrSetType)(ref HashMapOrSetType x)
+    @trusted
+    if (isInstanceOf!(HashMapOrSet,
+                      HashMapOrSetType))
+{
+    import std.algorithm.mutation : moveEmplace;
+    foreach (immutable binIx; 0 .. x._bins.length)
+    {
+        if (x._bstates[binIx].isLarge)
+        {
+            immutable removeCount = x._bins[binIx].large.remove!predicate();
+            x._length -= removeCount;
+            x.tryShrinkLargeBinAt(binIx);
+        }
+        else
+        {
+            HashMapOrSetType.SmallBin tmpSmall;
+            HashMapOrSetType.Bstate tmpBstate;
+            foreach (ref element; x.smallBinElementsAt(binIx))
+            {
+                if (unaryFun!predicate(element))
+                {
+                    import std.traits : hasElaborateDestructor;
+                    static if (hasElaborateDestructor!(HashMapOrSetType.T))
+                    {
+                        destroy(element);
+                    }
+                    x._length -= 1;
+                }
+                else
+                {
+                    moveEmplace(element, tmpSmall[tmpBstate.smallCount()]);
+                    tmpBstate.incSmallCount();
+                }
+            }
+            assert(!tmpBstate.isLarge); // should stay small
+            moveEmplace(tmpSmall, x._bins[binIx].small);
+            moveEmplace(tmpBstate, x._bstates[binIx]);
+        }
+    }
+}
 
 /// Returns forward range that iterates through the elements of `c`.
 auto byElement(HashMapOrSetType)(auto ref inout(HashMapOrSetType) c)

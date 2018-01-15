@@ -1231,16 +1231,6 @@ void removeAlternative(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetT
 }
 
 /** Returns: `this` filtered on `predicate`. */
-void filtered(alias predicate, HashMapOrSetType)(ref HashMapOrSetType x)
-    @trusted
-    if (isInstanceOf!(HashMapOrSet,
-                      HashMapOrSetType))
-{
-    import std.functional : not;
-    removeAlternative!(not!predicate)(x);
-}
-
-/** Returns: `this` filtered on `predicate`. */
 auto filtered(alias predicate, HashMapOrSetType)(HashMapOrSetType x)
     @trusted
     if (isInstanceOf!(HashMapOrSet,

@@ -116,6 +116,7 @@ C filteredInplace(alias predicate, C)(C r)
 
     alias X = HashSet!(uint, null, FNV!(64, true));
     enum pred = "a != 11";
+    // alias pred = (_) => _ != 1;
 
     auto x = X.withElements([11, 12].s).filteredInplace!pred.byElement;
     assert(x.front == 12);

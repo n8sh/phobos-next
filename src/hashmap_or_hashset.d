@@ -1186,8 +1186,8 @@ import std.functional : unaryFun;
 
 /** Remove all elements in `x` matching `predicate`.
     Alternative to member of `HashMapOrSet`.
- */
-void removeAlternative(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetType x)
+*/
+void removeAllMatching(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetType x)
     @trusted
     if (isInstanceOf!(HashMapOrSet,
                       HashMapOrSetType))
@@ -1237,7 +1237,7 @@ auto filtered(alias predicate, HashMapOrSetType)(HashMapOrSetType x)
                       HashMapOrSetType))
 {
     import std.functional : not;
-    removeAlternative!(not!predicate)(x);
+    removeAllMatching!(not!predicate)(x);
     import std.algorithm.mutation : move;
     return move(x);
 }
@@ -1349,16 +1349,16 @@ pure nothrow @nogc unittest
                 assert(xc.contains(11));
 
                 // TODO http://forum.dlang.org/post/kvwrktmameivubnaifdx@forum.dlang.org
-                xc.removeAlternative!(_ => _ == 11);
+                xc.removeAllMatching!(_ => _ == 11);
 
                 assert(xc.length == 2);
                 assert(!xc.contains(11));
 
-                xc.removeAlternative!(_ => _ == 12);
+                xc.removeAllMatching!(_ => _ == 12);
                 assert(!xc.contains(12));
                 assert(xc.length == 1);
 
-                xc.removeAlternative!(_ => _ == 13);
+                xc.removeAllMatching!(_ => _ == 13);
                 assert(!xc.contains(13));
                 assert(xc.length == 0);
 

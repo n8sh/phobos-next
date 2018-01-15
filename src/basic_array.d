@@ -716,7 +716,10 @@ struct BasicArray(T,
         @("complexity", "O(length)")
     {
         assert(index < this.length);
-        .destroy(_mptr[index]);
+        static if (hasElaborateDestructor!T)
+        {
+            .destroy(_mptr[index]);
+        }
         shiftToFrontAt(index);
         _store.length -= 1;
     }
@@ -898,7 +901,7 @@ size_t remove(alias predicate, C)(ref C c) // template-lazy
         }
         else
         {
-            tmp.insertBackMove(c._mptr[i]); // TODO remove unnecessary clearing of `_mptr`
+            tmp.insertBackMove(c._mptr[i]); // TODO remove unnecessary clearing of `_mptr[i]`
         }
     }
 

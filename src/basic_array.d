@@ -759,35 +759,6 @@ struct BasicArray(T,
         }
     }
 
-    import std.functional : unaryFun;
-
-    /** Remove all elements matching `predicate`.
-        Returns: number of elements that were removed.
-     */
-    size_t remove(alias predicate)() // template-lazy
-        @trusted
-        @("complexity", "O(length)")
-        if (is(typeof(unaryFun!predicate(T.init))))
-    {
-        typeof(this) tmp;
-        size_t count = 0;
-        foreach (immutable i; 0 .. this.length)
-        {
-            if (unaryFun!predicate(_mptr[i]))
-            {
-                count += 1;
-                .destroy(_mptr[i]);
-            }
-            else
-            {
-                tmp.insertBackMove(_mptr[i]); // TODO remove unnecessary clearing of `_mptr`
-            }
-        }
-        free(_mptr);            // just free old
-        moveEmplace(tmp, this);
-        return count;
-    }
-
     /** Forwards to $(D insertBack(values)).
      */
     pragma(inline, true)
@@ -897,6 +868,43 @@ private:
     }
 
     Store _store;
+}
+
+import std.traits : isInstanceOf;
+import std.functional : unaryFun;
+
+/** Remove all elements matching `predicate`.
+    Returns: number of elements that were removed.
+*/
+size_t remove(alias predicate, C)(ref C c) // template-lazy
+    @trusted
+    @("complexity", "O(length)")
+    if (isInstanceOf!(BasicArray, C) // &&
+        // is(typeof(unaryFun!predicate(T.init)))
+        )
+{
+    C tmp;
+    size_t count = 0;
+    foreach (immutable i; 0 .. c.length)
+    {
+        if (unaryFun!predicate(c._mptr[i]))
+        {
+            count += 1;
+            .destroy(c._mptr[i]);
+        }
+        else
+        {
+            tmp.insertBackMove(c._mptr[i]); // TODO remove unnecessary clearing of `_mptr`
+        }
+    }
+
+    import qcmeman : free;
+    free(c._mptr);            // just free old
+
+    import std.algorithm : moveEmplace;
+    moveEmplace(tmp, c);
+
+    return count;
 }
 
 /// construct and append from slices

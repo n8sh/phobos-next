@@ -275,7 +275,7 @@ struct BasicArray(T,
     }
 
     /// Release internal store.
-    private void release() @trusted
+    private void release()
     {
         static if (hasElaborateDestructor!T)
         {

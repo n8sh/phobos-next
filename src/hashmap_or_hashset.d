@@ -1229,7 +1229,7 @@ import std.functional : unaryFun;
 /** Remove all elements in `x` matching `predicate`.
     Alternative to member of `HashMapOrSet`.
  */
-void removeAltenative(alias predicate, HashMapOrSetType)(ref HashMapOrSetType x)
+void removeAlternative(alias predicate, HashMapOrSetType)(ref HashMapOrSetType x)
     @trusted
     if (isInstanceOf!(HashMapOrSet,
                       HashMapOrSetType))

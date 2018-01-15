@@ -1309,7 +1309,6 @@ pure nothrow @nogc unittest
 {
     alias K = uint;
 
-    import digestx.fnv : FNV;
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 
     immutable a = [11, 22].s;
@@ -1337,9 +1336,6 @@ pure nothrow @nogc unittest
 /// test various things
 pure nothrow @nogc unittest
 {
-    import std.algorithm.comparison : equal;
-    import digestx.fnv : FNV;
-
     immutable n = 600;
 
     alias K = uint;
@@ -1608,7 +1604,6 @@ pure nothrow @nogc unittest
     import std.exception : assertThrown, assertNotThrown;
     import core.exception : RangeError;
     import uncopyable_sample : V = SomeUncopyable;
-    import digestx.fnv : FNV;
 
     immutable n = 11;
 
@@ -1652,7 +1647,6 @@ pure nothrow @nogc unittest
 {
     import std.exception : assertThrown, assertNotThrown;
     import core.exception : RangeError;
-    import digestx.fnv : FNV;
 
     immutable n = 11;
 
@@ -1707,8 +1701,6 @@ pure nothrow @nogc unittest
 /// constness inference of ranges
 pure nothrow unittest
 {
-    import digestx.fnv : FNV;
-
     alias K = uint;
     class V
     {
@@ -1740,8 +1732,6 @@ pure nothrow unittest
 /// class value mutability
 pure nothrow unittest
 {
-    import digestx.fnv : FNV;
-
     alias K = uint;
     class V
     {
@@ -1766,5 +1756,7 @@ pure nothrow unittest
 
 version(unittest)
 {
+    import std.algorithm.comparison : equal;
+    import digestx.fnv : FNV;
     import array_help : s;
 }

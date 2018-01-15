@@ -28,7 +28,7 @@ struct BasicArray(T,
          is(CapacityType == uint)))          // 2 64-bit words
 {
     import std.range : isInputRange, isIterable, ElementType, isInfinite;
-    import std.traits : Unqual, hasElaborateDestructor, hasIndirections, hasAliasing,
+    import std.traits : hasElaborateDestructor, hasIndirections, hasAliasing,
         isMutable, TemplateOf, isArray, isAssignable, isCopyable, isType, hasFunctionAttributes;
     import std.algorithm : move, moveEmplace, moveEmplaceAll;
     import std.conv : emplace;

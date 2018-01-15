@@ -284,16 +284,6 @@ struct BasicArray(T,
         freeStore();
     }
 
-    /// Free internal store.
-    private void freeStore() @trusted
-    {
-        static if (mustAddGCRange!T)
-        {
-            gc_removeRange(_mptr);
-        }
-        free(_mptr);
-    }
-
     /// Destroy elements.
     static if (hasElaborateDestructor!T)
     {
@@ -304,6 +294,16 @@ struct BasicArray(T,
                 .destroy(_mptr[i]);
             }
         }
+    }
+
+    /// Free internal store.
+    private void freeStore() @trusted
+    {
+        static if (mustAddGCRange!T)
+        {
+            gc_removeRange(_mptr);
+        }
+        free(_mptr);
     }
 
     /// Reset internal data.

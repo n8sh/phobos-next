@@ -891,11 +891,7 @@ size_t remove(alias predicate, C)(ref C c) // template-lazy
         {
             count += 1;
             import std.traits : hasElaborateDestructor;
-            static if (is(T == class))
-            {
-                c._mptr[i] = null;
-            }
-            else static if (hasElaborateDestructor!(typeof(c._mptr[i])))
+            static if (hasElaborateDestructor!(typeof(c._mptr[i])))
             {
                 .destroy(c._mptr[i]);
             }
@@ -1363,6 +1359,7 @@ unittest
         {
             this.x = x;
         }
+        ~this() { x = 42; }
         int x;
     }
     alias A = BasicArray!(T);

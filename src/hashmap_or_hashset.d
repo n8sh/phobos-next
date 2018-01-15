@@ -1164,7 +1164,8 @@ import std.traits : isInstanceOf;
 /// Returns forward range that iterates through the elements of `this`.
 auto byElement(HashMapOrSetType)(ref inout(HashMapOrSetType) x)
     @trusted
-    if (isInstanceOf!(HashMapOrSet, HashMapOrSetType))
+    if (isInstanceOf!(HashMapOrSet,
+                      HashMapOrSetType))
 {
     alias X = typeof(x);
     alias This = X.ConstThis;

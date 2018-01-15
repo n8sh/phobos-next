@@ -2,7 +2,7 @@ module inplace_algorithm;
 
 import std.functional : unaryFun;
 
-import container_traits : isSetLike;
+import container_traits : isSet;
 import typecons_ex : hasIndexing;
 
 version(unittest)
@@ -86,7 +86,7 @@ C filteredInplace(alias predicate, C)(C r) @trusted // TODO remove @trusted
  */
 C filteredInplace(alias predicate, C)(C r)
     if (is(typeof(unaryFun!predicate)) &&
-        isSetLike!C)
+        isSet!C)
 {
     import std.algorithm.mutation : move;
     static if (__traits(hasMember, C, "remove"))

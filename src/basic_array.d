@@ -1354,14 +1354,24 @@ unittest
     assert(a[].ptr !is b[].ptr);
 }
 
-/// check duplication via `dup`
-@safe pure nothrow @nogc unittest
+/// element type is a class
+@safe pure nothrow unittest
 {
     class T
     {
+        this (int x)
+        {
+            this.x = x;
+        }
         int x;
     }
     alias A = BasicArray!(T);
+    auto a = A([new T(10),
+                new T(11),
+                new T(12)].s);
+    assert(a.length == 3);
+    a.remove!(_ => _.x == 12);
+    assert(a.length == 2);
 }
 
 /// check filtered removal via `remove`

@@ -224,7 +224,6 @@ struct HashMapOrSet(K, V = void,
     /// Destruct.
     ~this()
     {
-        // dln("releasing ", &this, " with length:", length);
         release();
     }
 
@@ -957,21 +956,18 @@ struct HashMapOrSet(K, V = void,
         {
             if (_bstates[binIx].isLarge)
             {
-                // dln("large binIx:", binIx);
                 immutable removeCount = _bins[binIx].large.remove!predicate();
                 _length -= removeCount;
                 tryShrinkLargeBinAt(binIx);
             }
             else
             {
-                // dln("small binIx:", binIx, " length:", length);
                 SmallBin tmpSmall;
                 Bstate tmpBstate;
                 foreach (ref element; smallBinElementsAt(binIx))
                 {
                     if (unaryFun!predicate(element))
                     {
-                        // dln("remove element:", element);
                         static if (hasElaborateDestructor!T)
                         {
                             destroy(element);
@@ -980,18 +976,13 @@ struct HashMapOrSet(K, V = void,
                     }
                     else
                     {
-                        // dln("keep element:", element, " tmpBstate.smallCount():", tmpBstate.smallCount(), " smallBinCapacity:", smallBinCapacity);
                         moveEmplace(element, tmpSmall[tmpBstate.smallCount()]);
                         tmpBstate.incSmallCount();
-                        // dln("tmpBstate.smallCount():", tmpBstate.smallCount());
                     }
                 }
                 assert(!tmpBstate.isLarge); // should stay small
                 moveEmplace(tmpSmall, _bins[binIx].small);
-                // dln("before:", tmpBstate.smallCount());
-                // dln("before:", _bstates[binIx]);
                 moveEmplace(tmpBstate, _bstates[binIx]);
-                // dln("after:", _bstates[binIx]);
             }
         }
     }
@@ -1151,7 +1142,6 @@ private:
 
         @property Count smallCount() const
         {
-            // dln("_count:", _count, " smallBinCapacity:", smallBinCapacity);
             assert(_count <= smallBinCapacity);
             return _count;
         }

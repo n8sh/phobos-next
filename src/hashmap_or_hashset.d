@@ -956,6 +956,7 @@ struct HashMapOrSet(K, V = void,
         {
             if (_bstates[binIx].isLarge)
             {
+                import basic_array : remove;
                 immutable removeCount = _bins[binIx].large.remove!predicate();
                 _length -= removeCount;
                 tryShrinkLargeBinAt(binIx);
@@ -1248,6 +1249,7 @@ void removeAlternative(alias predicate, HashMapOrSetType)(ref HashMapOrSetType x
     {
         if (x._bstates[binIx].isLarge)
         {
+            import basic_array : remove;
             immutable removeCount = x._bins[binIx].large.remove!predicate();
             x._length -= removeCount;
             x.tryShrinkLargeBinAt(binIx);

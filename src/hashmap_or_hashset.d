@@ -987,6 +987,15 @@ struct HashMapOrSet(K, V = void,
         }
     }
 
+    /** Returns: `this` filtered on `predicate`. */
+    typeof(this) filtered(alias predicate)()
+        if (is(typeof(unaryFun!predicate(T.init))))
+    {
+        import std.functional : not;
+        remove!(not!predicate)();
+        return move(this);
+    }
+
     /** Remove small element at `elementIx` in bin `binIx`. */
     private void removeSmallElementAt()(size_t binIx, // template-lazy
                                         size_t elementIx)
@@ -1387,6 +1396,15 @@ pure nothrow @nogc unittest
 
                 // this is ok
                 foreach (e; xc.byElement) {}
+
+            }
+
+            {
+                auto k = X.withElements([11, 12].s).filtered!"a != 11".byElement;
+                static assert(isInputRange!(typeof(k)));
+                assert(k.front == 12);
+                k.popFront();
+                assert(k.empty);
             }
         }
 

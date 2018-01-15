@@ -1369,7 +1369,7 @@ pure nothrow @nogc unittest
             }
 
             {
-                auto k = X.withElements([11, 12].s).filtered!"a != 11".byElement;
+                auto k = X.withElements([11, 12].s).filtered!(_ => _ != 11).byElement;
                 static assert(isInputRange!(typeof(k)));
                 assert(k.front == 12);
                 k.popFront();

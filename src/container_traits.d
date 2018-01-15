@@ -289,3 +289,10 @@ template isSetLike(T)
     enum isSetLike = (__traits(hasMember, T, "insert") &&
                       __traits(hasMember, T, "remove"));
 }
+
+/** Is `true` iff `T` is a set like container with elements of type `E`. */
+template isSetLike(T, E)
+{
+    enum isSetLike = (is(typeof(T.init.insert(E.init))) &&
+                      is(typeof(T.init.remove(E.init))));
+}

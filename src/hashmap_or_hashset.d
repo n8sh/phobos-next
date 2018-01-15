@@ -1184,7 +1184,7 @@ pure nothrow @nogc unittest
     import digestx.fnv : FNV;
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 
-    const a = [11, 22].s;
+    immutable a = [11, 22].s;
 
     // mutable
     auto x = X.withElements(a);

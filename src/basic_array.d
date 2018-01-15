@@ -884,6 +884,9 @@ import std.functional : unaryFun;
 
 /** Remove all elements matching `predicate`.
     Returns: number of elements that were removed.
+
+    TODO implement version that doesn't use a temporary array `tmp`, which is
+    probably faster for small arrays.
 */
 size_t remove(alias predicate, C)(ref C c)
     @trusted

@@ -1399,7 +1399,7 @@ pure nothrow @nogc unittest
                 assert(!xc.contains(12));
                 assert(xc.length == 1);
 
-                xc.removeAlternative!"a == 13";
+                xc.removeAlternative!(_ => _ = 13);
                 assert(!xc.contains(13));
                 assert(xc.length == 0);
 

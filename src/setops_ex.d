@@ -254,7 +254,7 @@ setIntersectionFast(alias less = "a < b",
     }
 }
 
-unittest
+@safe unittest
 {
     import std.algorithm.sorting : sort;
     import std.algorithm.setops : setIntersection;

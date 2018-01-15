@@ -1167,9 +1167,8 @@ auto byElement(HashMapOrSetType)(ref inout(HashMapOrSetType) c)
     if (isInstanceOf!(HashMapOrSet,
                       HashMapOrSetType))
 {
-    alias C = HashMapOrSetType;
-    alias This = C.ConstThis;
-    auto result = C.ByLvalueElement!This((C.ElementRef!This(cast(This*)&c)));
+    alias C = const(HashMapOrSetType);
+    auto result = C.ByLvalueElement!C((C.ElementRef!C(cast(C*)&c)));
     result.initFirstNonEmptyBin();
     return result;
 }

@@ -293,6 +293,6 @@ template isSetLike(T)
 /** Is `true` iff `T` is a set like container with elements of type `E`. */
 template isSetOf(T, E)
 {
-    enum isSetLike = (is(typeof(T.init.insert(E.init))) &&
-                      is(typeof(T.init.remove(E.init))));
+    enum isSetOf = (is(typeof(T.init.insert(E.init))) &&
+                    is(typeof(T.init.remove(E.init))));
 }

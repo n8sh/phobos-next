@@ -120,6 +120,7 @@ C filteredInplace(alias predicate, C)(C r)
 
     auto x = X.withElements([11, 12].s).filteredInplace!pred.byElement;
     assert(x.front == 12);
+
     x.popFront();
     assert(x.empty);
 }

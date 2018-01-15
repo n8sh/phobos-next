@@ -1387,6 +1387,8 @@ pure nothrow @nogc unittest
                 assert(xc.contains(11));
 
                 xc.remove!"a == 11";
+                // TODO http://forum.dlang.org/post/kvwrktmameivubnaifdx@forum.dlang.org
+                // TODO xc.remove!(_ => _ == 1);
                 assert(xc.length == 2);
                 assert(!xc.contains(11));
 

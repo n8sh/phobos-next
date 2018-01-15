@@ -1270,7 +1270,6 @@ auto byElement(HashMapOrSetType)(auto ref inout(HashMapOrSetType) c)
 pure nothrow @nogc unittest
 {
     alias K = uint;
-
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 
     immutable a = [11, 22].s;

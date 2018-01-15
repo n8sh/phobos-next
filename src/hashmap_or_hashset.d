@@ -224,6 +224,7 @@ struct HashMapOrSet(K, V = void,
     /// Destruct.
     ~this()
     {
+        // dln("releasing ", &this, " with length:", length);
         release();
     }
 
@@ -611,8 +612,8 @@ struct HashMapOrSet(K, V = void,
             return contains(key);
         }
 
-        /// Range over elements.
-        static private struct ByElement(HashMapOrSetType)
+        /// Range over elements of l-value instance of this.
+        static private struct ByLvalueElement(HashMapOrSetType)
         {
         pragma(inline, true):
 
@@ -642,22 +643,14 @@ struct HashMapOrSet(K, V = void,
             alias _elementRef this;
         }
 
-        /// Returns forward range that iterates through the values of `this`.
-        @property auto byElement()() inout // template-lazy
-        {
-            // dln("entering byElement");
-            alias This = ConstThis;
-            // TODO is the use of `&this` incorrect when `this` is an r-value?
-            auto result = ByElement!This((ElementRef!This(cast(This*)&this)));
-            result.initFirstNonEmptyBin();
-            // dln("leaving byElement");
-            return result;
-        }
         /// ditto
+        version(none)           // cannot be combined
+        {
         pragma(inline, true)
         scope auto opSlice()() inout return // template-lazy
         {
             return byElement();
+        }
         }
     }
 
@@ -1166,20 +1159,40 @@ private:
 
 }
 
+import std.traits : isInstanceOf;
+
+/// Returns forward range that iterates through the elements of `this`.
+auto byElement(HashMapOrSetType)(ref inout(HashMapOrSetType) x)
+    @trusted
+    if (isInstanceOf!(HashMapOrSet, HashMapOrSetType))
+{
+    alias X = typeof(x);
+    alias This = X.ConstThis;
+    auto result = X.ByLvalueElement!This((X.ElementRef!This(cast(This*)&x)));
+    result.initFirstNonEmptyBin();
+    return result;
+}
+
 @safe:
 
-/// make range from r-value
+/// make range from l-value
 pure nothrow @nogc unittest
 {
     import digestx.fnv : FNV;
     alias X = HashMapOrSet!(uint, void, null, FNV!(64, true));
-    foreach (e; X.init[]) {}
-    // dln("111");
-    // TODO foreach (e; X.withElements([11].s)[]) {}
-    // dln("222");
-    // foreach (e; X.withElements([11, 12].s)[]) {}
+
+    // mutable
+    auto x = X.withElements([11, 22].s);
+    foreach (e; x.byElement) {} // from l-value
+
+    // const
+    const y = X.withElements([11, 22].s);
+    foreach (e; y.byElement) {} // from l-value
+
+    // TODO foreach (e; X.withElements([11].s).byElement) {} // from r-value
 }
 
+/// test various things
 pure nothrow @nogc unittest
 {
     import std.algorithm.comparison : equal;
@@ -1240,7 +1253,7 @@ pure nothrow @nogc unittest
                 assert(!xc.contains(11));
 
                 // this is ok
-                foreach (e; xc[]) {}
+                foreach (e; xc.byElement) {}
             }
         }
 

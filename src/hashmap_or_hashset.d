@@ -1175,11 +1175,13 @@ auto byElement(HashMapOrSetType)(ref inout(HashMapOrSetType) x)
 
 @safe:
 
-/// make range from l-value
+/// make range from l-value and r-value
 pure nothrow @nogc unittest
 {
+    alias K = uint;
+
     import digestx.fnv : FNV;
-    alias X = HashMapOrSet!(uint, void, null, FNV!(64, true));
+    alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 
     // mutable
     auto x = X.withElements([11, 22].s);
@@ -1187,7 +1189,10 @@ pure nothrow @nogc unittest
 
     // const
     const y = X.withElements([11, 22].s);
-    foreach (e; y.byElement) {} // from l-value
+    foreach (e; y.byElement)    // from l-value
+    {
+        static assert(is(typeof(e) == const(K)));
+    }
 
     // TODO foreach (e; X.withElements([11].s).byElement) {} // from r-value
 }

@@ -92,8 +92,8 @@ C filteredInplace(alias predicate, C)(C r)
     static if (__traits(hasMember, C, "remove"))
     {
         import std.functional : not;
-        r.remove!(not!predicate)();
-        return move(r);
+        import hashset : filtered;
+        return move(r).filtered!predicate();
     }
     else
     {

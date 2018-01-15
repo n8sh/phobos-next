@@ -767,7 +767,7 @@ struct BasicArray(T,
     size_t remove(alias predicate)() // template-lazy
         @trusted
         @("complexity", "O(length)")
-        if (is(typeof(unaryFun!predicate)))
+        if (is(typeof(unaryFun!predicate(T.init))))
     {
         typeof(this) tmp;
         size_t count = 0;

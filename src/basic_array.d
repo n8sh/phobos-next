@@ -879,8 +879,8 @@ import std.functional : unaryFun;
 size_t remove(alias predicate, C)(ref C c) // template-lazy
     @trusted
     @("complexity", "O(length)")
-    if (isInstanceOf!(BasicArray, C) // &&
-        // is(typeof(unaryFun!predicate(T.init)))
+    if (isInstanceOf!(BasicArray, C) &&
+        is(typeof(unaryFun!predicate(C.init[0])))
         )
 {
     C tmp;
@@ -1366,10 +1366,10 @@ unittest
     assert(a.remove!"a.value >= 12" == 1);
     assert(a[] == [T(10), T(11)].s);
 
-    assert(a.remove!"a.value == 10" == 1);
+    assert(a.remove!(_ => _.value == 10) == 1);
     assert(a[] == [T(11)].s);
 
-    assert(a.remove!"a.value == 11" == 1);
+    assert(a.remove!(_ => _.value == 11) == 1);
     assert(a.empty);
 }
 

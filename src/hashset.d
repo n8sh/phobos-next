@@ -1,7 +1,7 @@
 module hashset;
 
 import hashmap_or_hashset;
-public import hashmap_or_hashset : InsertionStatus;
+public import hashmap_or_hashset : InsertionStatus, removeAllMatching, filtered;
 
 /** Hash map storing keys of type `K`.
  */

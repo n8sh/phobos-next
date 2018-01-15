@@ -1231,7 +1231,7 @@ void removeAllMatching(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetT
 }
 
 /** Returns: `this` filtered on `predicate`. */
-auto filtered(alias predicate, HashMapOrSetType)(HashMapOrSetType x)
+HashMapOrSetType filtered(alias predicate, HashMapOrSetType)(HashMapOrSetType x)
     @trusted
     if (isInstanceOf!(HashMapOrSet,
                       HashMapOrSetType))

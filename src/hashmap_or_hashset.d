@@ -1186,7 +1186,10 @@ pure nothrow @nogc unittest
 
     // mutable
     auto x = X.withElements([11, 22].s);
-    foreach (e; x.byElement) {} // from l-value
+    foreach (e; x.byElement)    // from l-value
+    {
+        static assert(is(typeof(e) == const(K))); // always const ref access
+    }
 
     // const
     const y = X.withElements([11, 22].s);

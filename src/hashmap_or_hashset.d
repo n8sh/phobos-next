@@ -1393,6 +1393,14 @@ pure nothrow @nogc unittest
                 assert(xc.length == 2);
                 assert(!xc.contains(11));
 
+                xc.removeAlternative!"a == 12";
+                assert(!xc.contains(12));
+                assert(xc.length == 1);
+
+                xc.removeAlternative!"a == 13";
+                assert(!xc.contains(13));
+                assert(xc.length == 0);
+
                 // this is ok
                 foreach (e; xc.byElement) {}
 

@@ -1184,15 +1184,17 @@ pure nothrow @nogc unittest
     import digestx.fnv : FNV;
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 
+    const a = [11, 22].s;
+
     // mutable
-    auto x = X.withElements([11, 22].s);
+    auto x = X.withElements(a);
     foreach (e; x.byElement)    // from l-value
     {
         static assert(is(typeof(e) == const(K))); // always const ref access
     }
 
     // const
-    const y = X.withElements([11, 22].s);
+    const y = X.withElements(a);
     foreach (e; y.byElement)    // from l-value
     {
         static assert(is(typeof(e) == const(K)));

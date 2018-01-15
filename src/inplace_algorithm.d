@@ -91,7 +91,7 @@ C filteredInplace(alias predicate, C)(C r)
     import std.algorithm.mutation : move;
     static if (__traits(hasMember, C, "remove"))
     {
-        r.remove!(unaryFun!predicate)();
+        r.remove!(_ => !unaryFun!predicate(_))(); // TODO reuse predicate negation  in std.functional?
         return move(r);
     }
     else
@@ -110,7 +110,7 @@ C filteredInplace(alias predicate, C)(C r)
 @safe pure nothrow @nogc unittest
 {
     import std.algorithm.iteration : filter;
-    import hashset : HashSet;
+    import hashset : HashSet, byElement;
     import digestx.fnv : FNV;
 
     alias X = HashSet!(uint, null, FNV!(64, true));
@@ -118,25 +118,18 @@ C filteredInplace(alias predicate, C)(C r)
 
     // TODO activate this:
 
-    // const as = [[11].s,
-    //             [11, 12].s,
-    //             [11, 12, 13].s,
-    //             [11, 12, 13, 14].s,
-    //             [11, 12, 13, 14, 15].s,
-    //     ].s;
-    // foreach (const a; as)
-    // {
-    //     dln("a:", a);
-    //     foreach (b; X.withElements(a)[])
-    //     {
-    //         dln(b);
-    //     }
-    //     dln("_:");
-    //     assert(equal(X.withElements(a)
-    //                   .filteredInplace!"(a & 1) == 0"[], // TODO we can't we use `predicate` here
-    //                  X.withElements(a)[]
-    //                  .filter!predicate));
-    // }
+    const as = [[11].s,
+                [11, 12].s,
+                [11, 12, 13].s,
+                [11, 12, 13, 14].s,
+                [11, 12, 13, 14, 15].s,
+        ].s;
+    foreach (const a; as)
+    {
+        foreach (const e; X.withElements(a).filteredInplace!predicate.byElement)
+        {
+        }
+    }
 }
 
 /** Fyilter `r` eagerly in-place using `predicate`. */

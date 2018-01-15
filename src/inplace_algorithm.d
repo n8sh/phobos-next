@@ -127,8 +127,8 @@ C filteredInplace(alias predicate, C)(C r)
 
 /** Fyilter `r` eagerly in-place using `predicate`. */
 void filterInplace(alias predicate, C)(ref C r) @trusted // TODO remove @trusted
-    if (is(typeof(unaryFun!predicate)) &&
-        hasIndexing!C)          // TODO extend to `isArrayContainer`!C eller `isRandomAccessContainer!C`
+    if (hasIndexing!C && // TODO extend to `isArrayContainer`!C eller `isRandomAccessContainer!C`
+        is(typeof(unaryFun!predicate)))
 {
     import std.algorithm.mutation : move;
     r = move(r).filteredInplace!predicate(); // TODO remove move when compiler does it for us

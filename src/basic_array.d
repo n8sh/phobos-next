@@ -281,9 +281,15 @@ struct BasicArray(T,
         {
             destroyElements();
         }
+        freeStore();
+    }
+
+    /// Free internal store.
+    private void freeStore() @trusted
+    {
         static if (mustAddGCRange!T)
         {
-            gc_removeRange(_store.ptr);
+            gc_removeRange(_mptr);
         }
         free(_mptr);
     }
@@ -905,8 +911,7 @@ size_t remove(alias predicate, C)(ref C c) // template-lazy
         }
     }
 
-    import qcmeman : free;
-    free(c._mptr);            // just free old
+    c.freeStore();
 
     import std.algorithm : moveEmplace;
     moveEmplace(tmp, c);

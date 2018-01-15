@@ -1161,15 +1161,15 @@ private:
 
 import std.traits : isInstanceOf;
 
-/// Returns forward range that iterates through the elements of `this`.
-auto byElement(HashMapOrSetType)(ref inout(HashMapOrSetType) x)
+/// Returns forward range that iterates through the elements of `c`.
+auto byElement(HashMapOrSetType)(ref inout(HashMapOrSetType) c)
     @trusted
     if (isInstanceOf!(HashMapOrSet,
                       HashMapOrSetType))
 {
-    alias X = typeof(x);
-    alias This = X.ConstThis;
-    auto result = X.ByLvalueElement!This((X.ElementRef!This(cast(This*)&x)));
+    alias C = HashMapOrSetType;
+    alias This = C.ConstThis;
+    auto result = C.ByLvalueElement!This((C.ElementRef!This(cast(This*)&c)));
     result.initFirstNonEmptyBin();
     return result;
 }

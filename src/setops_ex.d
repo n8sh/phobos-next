@@ -244,13 +244,17 @@ setIntersectionFast(alias less = "a < b",
     static if (Rs.length == 2)
     {
         import std.algorithm.mutation : move;
-        return assumeMoveableSorted(SetIntersectionFast!(less, preferredSearchPolicy, Rs)(move(ranges[0]), // TODO remove `move` when compiler does it for us
-                                                                                          move(ranges[1]))); // TODO remove `move` when compiler does it for us
+        return assumeMoveableSorted(SetIntersectionFast!(less,
+                                                         preferredSearchPolicy,
+                                                         Rs)(move(ranges[0]), // TODO remove `move` when compiler does it for us
+                                                             move(ranges[1]))); // TODO remove `move` when compiler does it for us
     }
     else
     {
         import std.functional : forward;
-        return assumeMoveableSorted(SetIntersectionFast!(less, preferredSearchPolicy, Rs)(forward!ranges)); // TODO remove `forward` when compiler does it for us
+        return assumeMoveableSorted(SetIntersectionFast!(less,
+                                                         preferredSearchPolicy,
+                                                         Rs)(forward!ranges)); // TODO remove `forward` when compiler does it for us
     }
 }
 

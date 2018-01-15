@@ -85,7 +85,7 @@ C filteredInplace(alias predicate, C)(C r) @trusted // TODO remove @trusted
 /** Returns: `r` eagerly in-place filtered on `predicate`.
  */
 C filteredInplace(alias predicate, C)(C r)
-    if (is(typeof(unaryFun!predicate)) &&
+    if (is(typeof(unaryFun!predicate(C.ElementType.init))) &&
         isSet!C)
 {
     import std.algorithm.mutation : move;

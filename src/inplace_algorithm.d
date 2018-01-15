@@ -115,23 +115,12 @@ C filteredInplace(alias predicate, C)(C r)
     import digestx.fnv : FNV;
 
     alias X = HashSet!(uint, null, FNV!(64, true));
-    alias pred1 = _ => (_ & 1) == 0;
-    enum pred2 = "(a & 1) == 0";
+    enum pred = "a != 11";
 
-    // TODO activate this:
-
-    const as = [[11].s,
-                [11, 12].s,
-                [11, 12, 13].s,
-                [11, 12, 13, 14].s,
-                [11, 12, 13, 14, 15].s,
-        ].s;
-    foreach (const a; as)
-    {
-        foreach (const e; X.withElements(a).filteredInplace!pred2.byElement)
-        {
-        }
-    }
+    auto x = X.withElements([11, 12].s).filteredInplace!pred.byElement;
+    assert(x.front == 12);
+    x.popFront();
+    assert(x.empty);
 }
 
 /** Fyilter `r` eagerly in-place using `predicate`. */

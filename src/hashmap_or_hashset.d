@@ -945,58 +945,6 @@ struct HashMapOrSet(K, V = void,
         }
     }
 
-    import std.functional : unaryFun;
-
-    /** Remove all elements matching `predicate`.
-     */
-    void remove(alias predicate)() @trusted
-        if (is(typeof(unaryFun!predicate(T.init))))
-    {
-        foreach (immutable binIx; 0 .. _bins.length)
-        {
-            if (_bstates[binIx].isLarge)
-            {
-                import basic_array : remove;
-                immutable removeCount = _bins[binIx].large.remove!predicate();
-                _length -= removeCount;
-                tryShrinkLargeBinAt(binIx);
-            }
-            else
-            {
-                SmallBin tmpSmall;
-                Bstate tmpBstate;
-                foreach (ref element; smallBinElementsAt(binIx))
-                {
-                    if (unaryFun!predicate(element))
-                    {
-                        static if (hasElaborateDestructor!T)
-                        {
-                            destroy(element);
-                        }
-                        _length -= 1;
-                    }
-                    else
-                    {
-                        moveEmplace(element, tmpSmall[tmpBstate.smallCount()]);
-                        tmpBstate.incSmallCount();
-                    }
-                }
-                assert(!tmpBstate.isLarge); // should stay small
-                moveEmplace(tmpSmall, _bins[binIx].small);
-                moveEmplace(tmpBstate, _bstates[binIx]);
-            }
-        }
-    }
-
-    /** Returns: `this` filtered on `predicate`. */
-    typeof(this) filtered(alias predicate)()
-        if (is(typeof(unaryFun!predicate(T.init))))
-    {
-        import std.functional : not;
-        remove!(not!predicate)();
-        return move(this);
-    }
-
     /** Remove small element at `elementIx` in bin `binIx`. */
     private void removeSmallElementAt()(size_t binIx, // template-lazy
                                         size_t elementIx)
@@ -1239,7 +1187,7 @@ import std.functional : unaryFun;
 /** Remove all elements in `x` matching `predicate`.
     Alternative to member of `HashMapOrSet`.
  */
-void removeAlternative(alias predicate, HashMapOrSetType)(ref HashMapOrSetType x)
+void removeAlternative(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetType x)
     @trusted
     if (isInstanceOf!(HashMapOrSet,
                       HashMapOrSetType))
@@ -1280,6 +1228,28 @@ void removeAlternative(alias predicate, HashMapOrSetType)(ref HashMapOrSetType x
             moveEmplace(tmpBstate, x._bstates[binIx]);
         }
     }
+}
+
+/** Returns: `this` filtered on `predicate`. */
+void filtered(alias predicate, HashMapOrSetType)(ref HashMapOrSetType x)
+    @trusted
+    if (isInstanceOf!(HashMapOrSet,
+                      HashMapOrSetType))
+{
+    import std.functional : not;
+    removeAlternative!(not!predicate)(x);
+}
+
+/** Returns: `this` filtered on `predicate`. */
+auto filtered(alias predicate, HashMapOrSetType)(HashMapOrSetType x)
+    @trusted
+    if (isInstanceOf!(HashMapOrSet,
+                      HashMapOrSetType))
+{
+    import std.functional : not;
+    removeAlternative!(not!predicate)(x);
+    import std.algorithm.mutation : move;
+    return move(x);
 }
 
 /// Returns forward range that iterates through the elements of `c`.
@@ -1389,7 +1359,7 @@ pure nothrow @nogc unittest
                 assert(xc.contains(11));
 
                 // TODO http://forum.dlang.org/post/kvwrktmameivubnaifdx@forum.dlang.org
-                xc.remove!"a == 11";
+                xc.removeAlternative!"a == 11";
                 // TODO xc.remove!(_ => _ == 1);
 
                 assert(xc.length == 2);

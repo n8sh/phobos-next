@@ -91,7 +91,7 @@ C filteredInplace(alias predicate, C)(C r)
     import std.algorithm.mutation : move;
     static if (__traits(hasMember, C, "remove"))
     {
-        r.remove!(_ => !unaryFun!predicate(_))(); // TODO reuse predicate negation  in std.functional?
+        r.remove!(_ => !unaryFun!predicate(_))(); // TODO reuse predicate negation in std.functional?
         return move(r);
     }
     else

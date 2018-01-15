@@ -1349,17 +1349,16 @@ pure nothrow @nogc unittest
                 assert(xc.contains(11));
 
                 // TODO http://forum.dlang.org/post/kvwrktmameivubnaifdx@forum.dlang.org
-                xc.removeAlternative!"a == 11";
-                // TODO xc.remove!(_ => _ == 1);
+                xc.removeAlternative!(_ => _ == 11);
 
                 assert(xc.length == 2);
                 assert(!xc.contains(11));
 
-                xc.removeAlternative!"a == 12";
+                xc.removeAlternative!(_ => _ == 12);
                 assert(!xc.contains(12));
                 assert(xc.length == 1);
 
-                xc.removeAlternative!(_ => _ = 13);
+                xc.removeAlternative!(_ => _ == 13);
                 assert(!xc.contains(13));
                 assert(xc.length == 0);
 

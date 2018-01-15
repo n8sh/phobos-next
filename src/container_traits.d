@@ -287,7 +287,7 @@ template isHashable(T)
 template isSet(T)
 {
     enum isSet = (__traits(hasMember, T, "insert") &&
-                      __traits(hasMember, T, "remove"));
+                  __traits(hasMember, T, "remove"));
 }
 
 /** Is `true` iff `T` is a set like container with elements of type `E`. */

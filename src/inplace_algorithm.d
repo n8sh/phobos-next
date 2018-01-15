@@ -93,7 +93,7 @@ C filteredInplace(alias predicate, C)(C r)
     {
         import std.functional : not;
         import hashset : filtered;
-        return move(r).filtered!predicate();
+        return move(r).filtered!predicate(); // TODO remove move when compiler does it for us
     }
     else
     {
@@ -131,7 +131,7 @@ void filterInplace(alias predicate, C)(ref C r) @trusted // TODO remove @trusted
         hasIndexing!C)          // TODO extend to `isArrayContainer`!C eller `isRandomAccessContainer!C`
 {
     import std.algorithm.mutation : move;
-    r = move(r).filteredInplace!predicate();
+    r = move(r).filteredInplace!predicate(); // TODO remove move when compiler does it for us
 }
 
 @safe pure nothrow @nogc unittest

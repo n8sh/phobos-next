@@ -1,7 +1,7 @@
 module hashmap;
 
 import hashmap_or_hashset;
-public import hashmap_or_hashset : InsertionStatus;
+public import hashmap_or_hashset : InsertionStatus, removeAllMatching, filtered, intersectedWith;
 
 /** Hash map storing keys of type `K` and values of type `V`.
  */

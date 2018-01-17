@@ -1230,7 +1230,7 @@ void removeAllMatching(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetT
     }
 }
 
-/** Returns: `this` filtered on `predicate`. */
+/** Returns: `x` eagerly filtered on `predicate`. */
 HashMapOrSetType filtered(alias predicate, HashMapOrSetType)(HashMapOrSetType x)
     @trusted
     if (isInstanceOf!(HashMapOrSet,
@@ -1240,6 +1240,15 @@ HashMapOrSetType filtered(alias predicate, HashMapOrSetType)(HashMapOrSetType x)
     removeAllMatching!(not!predicate)(x);
     import std.algorithm.mutation : move;
     return move(x);
+}
+
+/** Returns: `x` eagerly intersected with `y`. */
+auto intersectedWith(alias predicate, HashMapOrSetType)(HashMapOrSetType x,
+                                                        auto ref const(HashMapOrSetType) y)
+    if (isInstanceOf!(HashMapOrSet,
+                      HashMapOrSetType))
+{
+    return c1.filtered!(_ => c2.contains(_));
 }
 
 /// Returns forward range that iterates through the elements of `c`.

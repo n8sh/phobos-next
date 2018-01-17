@@ -1185,7 +1185,7 @@ import std.traits : isInstanceOf;
 import std.functional : unaryFun;
 
 /** Remove all elements in `x` matching `predicate`.
-    Alternative to member of `HashMapOrSet`.
+    TODO move to container_algorithm.d.
 */
 void removeAllMatching(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetType x)
     @trusted
@@ -1230,7 +1230,9 @@ void removeAllMatching(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetT
     }
 }
 
-/** Returns: `x` eagerly filtered on `predicate`. */
+/** Returns: `x` eagerly filtered on `predicate`.
+    TODO move to container_algorithm.d.
+*/
 HashMapOrSetType filtered(alias predicate, HashMapOrSetType)(HashMapOrSetType x)
     @trusted
     if (isInstanceOf!(HashMapOrSet,
@@ -1242,7 +1244,9 @@ HashMapOrSetType filtered(alias predicate, HashMapOrSetType)(HashMapOrSetType x)
     return move(x);
 }
 
-/** Returns: `x` eagerly intersected with `y`. */
+/** Returns: `x` eagerly intersected with `y`.
+    TODO move to container_algorithm.d.
+ */
 auto intersectedWith(HashMapOrSetType)(HashMapOrSetType x,
                                        auto ref HashMapOrSetType y)
     if (isInstanceOf!(HashMapOrSet,

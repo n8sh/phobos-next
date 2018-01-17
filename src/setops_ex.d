@@ -324,54 +324,6 @@ setIntersectionFast(alias less = "a < b",
 
 }
 
-import container_traits : isSet;
-
-auto setIntersection(alias less = "a < b", C1, C2)(auto ref C1 c1,
-                                                   auto ref C2 c2)
-    if (isSet!C1 &&
-        isSet!C2)
-{
-    // TODO move to c1.intersectedWith(c2)
-    static if ((!__traits(isRef, c1)) &&
-               (!__traits(isRef, c2)))
-    {
-        // reuse r-value c1 and c2
-    }
-    else static if (!__traits(isRef, c1))
-    {
-        // reuse r-value c1
-    }
-    else static if (!__traits(isRef, c2))
-    {
-        // reuse r-value c2
-    }
-    else
-    {
-        // reuse both r-value
-    }
-
-    // iterate over shortest
-    if (c1.length <
-        c2.length)
-    {
-        import hashset : filtered;
-        // return c1.filtered!(_ => c2.contains(_));
-        foreach (const ref e; c1.byElement) // over shorter c1
-        {
-            // TODO c2.contains(e) or reuse filter
-        }
-    }
-    else
-    {
-        import hashset : filtered;
-        // return c2.filtered!(_ => c1.contains(_));
-        foreach (const ref e; c2.byElement) // over shorter c2
-        {
-            // TODO c1.contains(e) or reuse filter
-        }
-    }
-}
-
 @safe pure nothrow unittest
 {
     enum less = "a < b";

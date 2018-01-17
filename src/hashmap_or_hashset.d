@@ -1247,10 +1247,9 @@ HashMapOrSetType filtered(alias predicate, HashMapOrSetType)(HashMapOrSetType x)
 /** Returns: `x` eagerly intersected with `y`.
     TODO move to container_algorithm.d.
  */
-HashMapOrSetType intersectedWith(HashMapOrSetType)(HashMapOrSetType x,
-                                                   auto ref HashMapOrSetType y)
-    if (isInstanceOf!(HashMapOrSet,
-                      HashMapOrSetType))
+auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
+    if (isInstanceOf!(HashMapOrSet, C1) &&
+        isInstanceOf!(HashMapOrSet, C2))
 {
     import std.algorithm.mutation : move;
     static if (__traits(isRef, y)) // y is l-value
@@ -1294,6 +1293,31 @@ HashMapOrSetType intersectedWith(HashMapOrSetType)(HashMapOrSetType x,
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 
     auto y = X.withElements([10, 12, 13, 15].s).intersectedWith(X.withElements([12, 13].s));
+    assert(y.length == 2);
+    assert(y.contains(12));
+    assert(y.contains(13));
+}
+
+/** Returns: `x` eagerly intersected with `y`.
+    TODO move to container_algorithm.d.
+ */
+auto intersectWith(C1, C2)(ref C1 x,
+                           auto ref C2 y)
+    if (isInstanceOf!(HashMapOrSet, C1) &&
+        isInstanceOf!(HashMapOrSet, C2))
+{
+    return x.removeAllMatching!(_ => !y.contains(_));
+}
+
+/// r-value and l-value intersection
+@safe pure nothrow @nogc unittest
+{
+    alias K = uint;
+    alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
+
+    auto x = X.withElements([12, 13].s);
+    auto y = X.withElements([10, 12, 13, 15].s);
+    y.intersectWith(x);
     assert(y.length == 2);
     assert(y.contains(12));
     assert(y.contains(13));

@@ -1289,6 +1289,8 @@ auto intersectedWith(HashMapOrSetType)(HashMapOrSetType x,
 
     auto z = X.withElements([10, 12, 13, 15].s).intersectedWith(X.withElements([12, 13].s));
     assert(z.length == 2);
+    assert(z.contains(12));
+    assert(z.contains(13));
 }
 
 /// Returns forward range that iterates through the elements of `c`.

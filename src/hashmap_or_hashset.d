@@ -1275,8 +1275,10 @@ auto intersectedWith(HashMapOrSetType)(HashMapOrSetType x,
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 
     auto y = X.withElements([12, 13].s);
-    auto z = X.withElements([10, 12, 13, 15].s).intersectedWith(y).byElement;
+    auto z = X.withElements([10, 12, 13, 15].s).intersectedWith(y);
     assert(z.length == 2);
+    assert(z.contains(12));
+    assert(z.contains(13));
 }
 
 /// r-value and r-value intersection
@@ -1285,7 +1287,7 @@ auto intersectedWith(HashMapOrSetType)(HashMapOrSetType x,
     alias K = uint;
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 
-    auto z = X.withElements([10, 12, 13, 15].s).intersectedWith(X.withElements([12, 13].s)).byElement;
+    auto z = X.withElements([10, 12, 13, 15].s).intersectedWith(X.withElements([12, 13].s));
     assert(z.length == 2);
 }
 

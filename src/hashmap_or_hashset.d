@@ -1247,19 +1247,21 @@ HashMapOrSetType filtered(alias predicate, HashMapOrSetType)(HashMapOrSetType x)
 /** Returns: `x` eagerly intersected with `y`.
     TODO move to container_algorithm.d.
  */
-auto intersectedWith(HashMapOrSetType)(HashMapOrSetType x,
-                                       auto ref HashMapOrSetType y)
+HashMapOrSetType intersectedWith(HashMapOrSetType)(HashMapOrSetType x,
+                                                   auto ref HashMapOrSetType y)
     if (isInstanceOf!(HashMapOrSet,
                       HashMapOrSetType))
 {
     import std.algorithm.mutation : move;
     static if (__traits(isRef, y)) // y is l-value
     {
+        // @("complexity", "O(x.length)")
         return move(x).filtered!(_ => y.contains(_)); // only x can be reused
     }
     else
     {
-        // both are r-values so reuse the shortest
+        /* both are r-values so reuse the shortest */
+        // @("complexity", "O(min(x.length), min(y.length))")
         if (x.length <
             y.length)
         {

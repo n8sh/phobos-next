@@ -1244,15 +1244,31 @@ HashMapOrSetType filtered(alias predicate, HashMapOrSetType)(HashMapOrSetType x)
 
 /** Returns: `x` eagerly intersected with `y`. */
 auto intersectedWith(HashMapOrSetType)(HashMapOrSetType x,
-                                       auto ref const(HashMapOrSetType) y)
+                                       auto ref HashMapOrSetType y)
     if (isInstanceOf!(HashMapOrSet,
                       HashMapOrSetType))
 {
     import std.algorithm.mutation : move;
-    return move(x).filtered!(_ => y.contains(_));
+    static if (__traits(isRef, y)) // y is l-value
+    {
+        return move(x).filtered!(_ => y.contains(_)); // only x can be reused
+    }
+    else
+    {
+        // both are r-values so reuse the shortest
+        if (x.length <
+            y.length)
+        {
+            return move(x).filtered!(_ => y.contains(_));
+        }
+        else
+        {
+            return move(y).filtered!(_ => x.contains(_));
+        }
+    }
 }
 
-/// make range from l-value and r-value. element access is always const
+/// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {
     alias K = uint;
@@ -1260,6 +1276,16 @@ auto intersectedWith(HashMapOrSetType)(HashMapOrSetType x,
 
     auto y = X.withElements([12, 13].s);
     auto z = X.withElements([10, 12, 13, 15].s).intersectedWith(y).byElement;
+    assert(z.length == 2);
+}
+
+/// r-value and r-value intersection
+@safe pure nothrow @nogc unittest
+{
+    alias K = uint;
+    alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
+
+    auto z = X.withElements([10, 12, 13, 15].s).intersectedWith(X.withElements([12, 13].s)).byElement;
     assert(z.length == 2);
 }
 

@@ -1302,7 +1302,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     TODO move to container_algorithm.d.
  */
 auto intersectWith(C1, C2)(ref C1 x,
-                           auto ref C2 y)
+                           auto ref const(C2) y)
     if (isInstanceOf!(HashMapOrSet, C1) &&
         isInstanceOf!(HashMapOrSet, C2))
 {

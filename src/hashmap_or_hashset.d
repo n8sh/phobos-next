@@ -1243,12 +1243,24 @@ HashMapOrSetType filtered(alias predicate, HashMapOrSetType)(HashMapOrSetType x)
 }
 
 /** Returns: `x` eagerly intersected with `y`. */
-auto intersectedWith(alias predicate, HashMapOrSetType)(HashMapOrSetType x,
-                                                        auto ref const(HashMapOrSetType) y)
+auto intersectedWith(HashMapOrSetType)(HashMapOrSetType x,
+                                       auto ref const(HashMapOrSetType) y)
     if (isInstanceOf!(HashMapOrSet,
                       HashMapOrSetType))
 {
-    return c1.filtered!(_ => c2.contains(_));
+    import std.algorithm.mutation : move;
+    return move(x).filtered!(_ => y.contains(_));
+}
+
+/// make range from l-value and r-value. element access is always const
+@safe pure nothrow @nogc unittest
+{
+    alias K = uint;
+    alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
+
+    auto y = X.withElements([12, 13].s);
+    auto z = X.withElements([10, 12, 13, 15].s).intersectedWith(y).byElement;
+    assert(z.length == 2);
 }
 
 /// Returns forward range that iterates through the elements of `c`.

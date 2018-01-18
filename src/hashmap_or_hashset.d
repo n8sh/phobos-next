@@ -393,7 +393,7 @@ struct HashMapOrSet(K, V = void,
     /** Check if `element` is stored.
         Returns: `true` if element was already present, `false` otherwise.
      */
-    bool contains()(in K key) const @trusted // template-lazy. TODO make `auto ref K` work
+    bool contains()(in K key) const // template-lazy. TODO make `auto ref K` work
     {
         if (empty)              // TODO can this check be avoided?
         {
@@ -403,7 +403,7 @@ struct HashMapOrSet(K, V = void,
         return hasKey(binElementsAt(binIx), key);
     }
     /// ditto
-    bool contains()(in ref K key) const @trusted // template-lazy
+    bool contains()(in ref K key) const // template-lazy
     {
         if (empty)              // TODO can this check be avoided?
         {

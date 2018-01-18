@@ -800,7 +800,7 @@ struct BasicArray(T,
     }
 
     pragma(inline, true)
-    void opOpAssign(string op)(const auto ref typeof(this) values)
+    void opOpAssign(string op)(auto ref typeof(this) values)
         if (op == "~")
     {
         insertBack(values[]);

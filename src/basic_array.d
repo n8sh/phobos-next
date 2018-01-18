@@ -690,7 +690,7 @@ struct BasicArray(T,
     /** Remove last value fromm the end of the array.
      */
     pragma(inline, true)
-    void popBack()()            // template-lazy
+    void popBack()() @trusted   // template-lazy
     {
         assert(!empty);
         _store.length -= 1;

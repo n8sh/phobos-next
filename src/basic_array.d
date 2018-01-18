@@ -261,6 +261,12 @@ struct BasicArray(T,
     /// No default copying.
     @disable this(this);
 
+    // TODO: this gives error in insertBack. why?
+    // void opAssign()(typeof(this) rhs) @trusted pure nothrow @nogc // template-lazy
+    // {
+    //     move(rhs, this);
+    // }
+
     /// Destruct.
     ~this()
     {

@@ -1044,7 +1044,7 @@ private struct Array(E,
         }
 
         pragma(inline, true)
-        void opOpAssign(string op, A)(const ref A values)
+        void opOpAssign(string op, A)(ref A values)
             if (op == "~" &&
                 isArrayContainer!A &&
                 isElementAssignable!(ElementType!A))

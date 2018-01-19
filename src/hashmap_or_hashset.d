@@ -1807,9 +1807,12 @@ pure nothrow unittest
     foreach (ref e; x.byValue)
     {
         static assert(is(typeof(e) == X.ValueType)); // mutable access to value
+
         assert(e.data == 43);
+
         e.data += 1;
         assert(e.data == 44);
+
         e.data -= 1;
         assert(e.data == 43);
     }
@@ -1817,10 +1820,13 @@ pure nothrow unittest
     foreach (e; x.byKeyValue)
     {
         static assert(is(typeof(e.key) == const(X.KeyType))); // const access to key
+
         static assert(is(typeof(e.value) == X.ValueType)); // mutable access to value
         assert(e.value.data == 43);
+
         e.value.data += 1;
         assert(e.value.data == 44);
+
         e.value.data -= 1;
         assert(e.value.data == 43);
     }

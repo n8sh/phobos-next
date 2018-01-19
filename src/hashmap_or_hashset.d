@@ -1800,7 +1800,7 @@ pure nothrow unittest
 
     assert(x.length == 1);
 
-    foreach (e; x.byValue)      // e is automatically a reference
+    foreach (e; x.byValue)      // `e` is auto ref
     {
         static assert(is(typeof(e) == X.ValueType)); // mutable access to value
         assert(e.data == 43);
@@ -1812,7 +1812,7 @@ pure nothrow unittest
         assert(e.data == 43);
     }
 
-    foreach (e; x.byKeyValue)   // e is automatically a reference
+    foreach (e; x.byKeyValue)   // `e` is auto ref
     {
         static assert(is(typeof(e.key) == const(X.KeyType))); // const access to key
 

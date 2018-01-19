@@ -1800,7 +1800,7 @@ pure nothrow unittest
 
     assert(x.length == 1);
 
-    foreach (ref e; x.byValue)
+    foreach (e; x.byValue)
     {
         static assert(is(typeof(e) == X.ValueType)); // mutable access to value
         assert(e.data == 43);

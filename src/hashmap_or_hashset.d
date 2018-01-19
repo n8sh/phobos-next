@@ -1778,11 +1778,7 @@ pure nothrow unittest
     foreach (e; x.byKeyValue)
     {
         static assert(is(typeof(e.key) == const(X.KeyType)));
-
         static assert(is(typeof(e.value) == const(X.ValueType)));
-
-        // TODO should be a variant of ElementType where key is constant and
-        // value is mutable:
         static assert(is(typeof(e) == const(X.ElementType)));
     }
 }

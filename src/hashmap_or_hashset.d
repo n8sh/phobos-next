@@ -98,12 +98,14 @@ struct HashMapOrSet(K, V = void,
     /// Element type.
     static if (hasValue)
     {
+        /// Constant element reference with both constant key and value.
         struct T
         {
             K key;
             V value;
         }
 
+        /// Mutable element reference with constant key and mutable value.
         struct CT
         {
             const K key;

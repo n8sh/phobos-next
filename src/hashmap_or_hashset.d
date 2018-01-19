@@ -810,7 +810,7 @@ struct HashMapOrSet(K, V = void,
                 {
                     alias E = const(T);
                 }
-                return cast(E)table.binElementsAt(binIx)[elementOffset]; // TODO remove cast
+                return *(cast(E*)&table.binElementsAt(binIx)[elementOffset]); // TODO remove cast
             }
             public LvalueElementRef!HashMapOrSetType _elementRef;
             alias _elementRef this;
@@ -1800,15 +1800,29 @@ pure nothrow unittest
     alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
     auto x = X();
 
-    foreach (e; x.byValue)
+    x[42] = new V(43);
+
+    assert(x.length == 1);
+
+    foreach (ref e; x.byValue)
     {
         static assert(is(typeof(e) == X.ValueType)); // mutable access to value
+        assert(e.data == 43);
+        e.data += 1;
+        assert(e.data == 44);
+        e.data -= 1;
+        assert(e.data == 43);
     }
 
     foreach (e; x.byKeyValue)
     {
         static assert(is(typeof(e.key) == const(X.KeyType))); // const access to key
         static assert(is(typeof(e.value) == X.ValueType)); // mutable access to value
+        assert(e.value.data == 43);
+        e.value.data += 1;
+        assert(e.value.data == 44);
+        e.value.data -= 1;
+        assert(e.value.data == 43);
     }
 }
 

@@ -1777,7 +1777,6 @@ pure nothrow unittest
     {
         static assert(is(typeof(e.key) == const(X.KeyType)));
 
-        // TODO could this have mutable access:
         static assert(is(typeof(e.value) == const(X.ValueType)));
 
         // TODO should be a variant of ElementType where key is constant and
@@ -1786,7 +1785,7 @@ pure nothrow unittest
     }
 }
 
-/// class value mutability
+/// range mutability with `class` value
 pure nothrow unittest
 {
     alias K = uint;
@@ -1801,13 +1800,13 @@ pure nothrow unittest
 
     foreach (e; x.byValue)
     {
-        static assert(is(typeof(e) == X.ValueType));
+        static assert(is(typeof(e) == X.ValueType)); // mutable access to value
     }
 
     foreach (e; x.byKeyValue)
     {
-        static assert(is(typeof(e.key) == const(X.KeyType)));
-        static assert(is(typeof(e.value) == X.ValueType));
+        static assert(is(typeof(e.key) == const(X.KeyType))); // const access to key
+        static assert(is(typeof(e.value) == X.ValueType)); // mutable access to value
     }
 }
 

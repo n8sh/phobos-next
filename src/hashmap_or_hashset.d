@@ -1783,7 +1783,7 @@ pure nothrow unittest
     }
 }
 
-/// range mutability with `class` value
+/// range key constness and value mutability with `class` value
 pure nothrow unittest
 {
     alias K = uint;

@@ -1770,7 +1770,7 @@ pure nothrow unittest
 
     foreach (e; x.byValue)
     {
-        static assert(is(typeof(e) == X.ValueType));
+        static assert(is(typeof(e) == X.ValueType)); // TODO should be const(X.ValueType)
     }
 
     foreach (e; x.byKeyValue)

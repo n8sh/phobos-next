@@ -988,7 +988,7 @@ version(profile) unittest
     enum maxSmallSize = 23;
     alias S = RCXString!(immutable char, maxSmallSize);
 
-    import std.datetime.datetime: StopWatch, Duration;
+    import std.datetime: StopWatch, Duration;
     import std.conv : to;
     import std.stdio;
 

@@ -847,7 +847,10 @@ unittest
 /** Execute Expression $(D expr) the same way $(D n) times. */
 void doTimes(uint n, lazy void expr)
 {
-    while (n--) expr();
+    while (n--)
+    {
+        expr();
+    }
 }
 
 /** Execute Expression $(D expr) $(I inline) the same way $(D n) times.
@@ -855,8 +858,10 @@ void doTimes(uint n, lazy void expr)
 */
 void doTimes(uint n)(lazy void expr)
 {
-    import static_iota : iota;
-    foreach (i; iota!(0, n)) expr();
+    static foreach (i; 0 .. n)
+    {
+        expr();
+    }
 }
 
 ///

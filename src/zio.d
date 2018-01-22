@@ -551,7 +551,7 @@ unittest
     import std.file : dirEntries, SpanMode;
     import std.path : baseName;
     import std.stdio : write, writeln, stdout;
-    import std.datetime.datetime : MonoTime;
+    import std.datetime : MonoTime;
 
     foreach (const path; dirEntries(rootPath, SpanMode.depth).filter!(file => (file.name.baseName.startsWith(`instance_types`) &&
                                                                                file.name.endsWith(`.ttl.bz2`))))

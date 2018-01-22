@@ -54,8 +54,7 @@ struct FNV(ulong bitLength, bool fnv1a = false)
     void putStaticArray(size_t n)(scope auto ref const(ubyte)[n] data)
         pure nothrow @nogc
     {
-        import static_iota : iota;
-        foreach (i; iota!(0, n)) // unroll
+        static foreach (i; 0 .. n) // unroll
         {
             static if (fnv1a)
             {

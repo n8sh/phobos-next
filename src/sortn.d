@@ -382,7 +382,7 @@ auto hybridSort(alias less = "a < b", Range)(Range r)
     if (isRandomAccessRange!Range)
 {
     import std.algorithm.sorting : isSorted;
-    foreach (uint n; iota!(2, networkSortMaxLength + 1))
+    static foreach (n; 2 .. networkSortMaxLength + 1)
     {
         static if (__traits(compiles, { r.networkSortUpTo!(n, less); }))
         {

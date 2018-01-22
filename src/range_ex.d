@@ -389,7 +389,7 @@ auto slidingSplitter(R)(R data, size_t lower, size_t upper)
     foreach (ch; name8)
     {
         import static_iota : iota;
-        foreach (ix; iota!(0, ch.length)) // for each part in split
+        static foreach (ix; 0 .. ch.length) // for each part in split
         {
             import std.algorithm: equal;
             assert(ch[ix].equal(name16.front[ix]));
@@ -685,8 +685,8 @@ auto adjacentTriples(R)(R r)
 {
     import std.typecons : t = tuple;
     import std.algorithm : equal;
-    immutable x = [1, 2, 3, 4].s[];
-    auto y = x.adjacentPairs;
+    immutable x = [1, 2, 3, 4].s;
+    auto y = x[].adjacentPairs;
     assert(y.equal([t(1, 2), t(2, 3), t(3, 4)].s[]));
 }
 
@@ -695,8 +695,8 @@ auto adjacentTriples(R)(R r)
 {
     import std.typecons : t = tuple;
     import std.algorithm : equal;
-    auto x = ["1", "2", "3", "4"].s[];
-    auto y = x.adjacentPairs;
+    auto x = ["1", "2", "3", "4"].s;
+    auto y = x[].adjacentPairs;
     assert(y.equal([t("1", "2"), t("2", "3"), t("3", "4")].s[]));
 }
 
@@ -705,8 +705,8 @@ auto adjacentTriples(R)(R r)
 {
     import std.typecons : t = tuple;
     import std.algorithm : equal;
-    immutable x = ["1", "2", "3", "4"].s[];
-    auto y = x.adjacentPairs;
+    immutable x = ["1", "2", "3", "4"].s;
+    auto y = x[].adjacentPairs;
     assert(y.equal([t("1", "2"), t("2", "3"), t("3", "4")].s[]));
 }
 
@@ -774,7 +774,7 @@ auto staticLengthRange(size_t n, R)(R range)
     static assert (isInputRange!(typeof(r1)));
     static assert (r1.length == 3);
 
-    auto arr = [1, 2, 3, 4].s[];
-    auto r2 = arr.map!(a => a * 2).staticLengthRange!4;
+    auto arr = [1, 2, 3, 4].s;
+    auto r2 = arr[].map!(a => a * 2).staticLengthRange!4;
     static assert (r2.length == 4);
 }

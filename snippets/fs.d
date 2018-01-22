@@ -129,7 +129,7 @@ import std.algorithm: find, map, filter, reduce, max, min, uniq, all, joiner;
 import std.string: representation, chompPrefix;
 import std.stdio: write, writeln, writefln;
 import std.path: baseName, dirName, isAbsolute, dirSeparator, extension, buildNormalizedPath, expandTilde, absolutePath;
-import std.datetime.datetime;
+import std.datetime;
 import std.file: FileException;
 import std.digest.sha: sha1Of, toHexString;
 import std.range: repeat, array, empty, cycle, chain;
@@ -833,7 +833,7 @@ version(msgpack) unittest
 }
 
 import std.file: DirEntry, getLinkAttributes;
-import std.datetime.datetime: SysTime, Interval;
+import std.datetime: SysTime, Interval;
 
 /** File.
  */
@@ -3470,7 +3470,7 @@ class Dir : File
             /* _treeSize += subDent.size.Bytes64; */
             // dln("Updating ", _treeSize, " of ", path);
 
-            /** TODO Move these overloads to std.datetime.datetime */
+            /** TODO Move these overloads to std.datetime */
             auto ref min(in SysTime a, in SysTime b) @trusted pure nothrow { return (a < b ? a : b); }
             auto ref max(in SysTime a, in SysTime b) @trusted pure nothrow { return (a > b ? a : b); }
 

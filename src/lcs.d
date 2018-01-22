@@ -233,7 +233,7 @@ version(benchmark) unittest
     void bLD() { const d = levenshteinDistance(x, y); }
     void bLDAP() { const dp = levenshteinDistanceAndPath(x, y); }
 
-    import std.datetime.datetime: benchmark;
+    import std.datetime: benchmark;
     import std.algorithm: map;
     import std.array: array;
 

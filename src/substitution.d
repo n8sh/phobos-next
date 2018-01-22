@@ -37,8 +37,7 @@ template substitute(substs...)
     {
         switch (value)
         {
-            import static_iota : iota;
-            foreach (const i; iota!(0, substs.length / 2))
+            static foreach (i; 0 .. substs.length / 2)
             {
             case substs[2*i]:
                 return substs[2*i + 1];
@@ -80,11 +79,12 @@ auto substitute(alias pred = (a, b) => a == b, R, Ss...)(R r, Ss ss)
     enum n = Ss.length / 2;
     auto replaceElement(E)(E e)
     {
-        import static_iota : iota;
-        foreach (const i; iota!(0, n))
+        static foreach (i; 0 .. n)
         {
             if (binaryFun!pred(e, ss[2*i]))
+            {
                 return ss[2*i + 1];
+            }
         }
         return e;
     }
@@ -142,10 +142,9 @@ template substitute(ss...)
         enum n = ss.length / 2;
         auto replaceElement(E)(E e)
         {
-            import static_iota : iota;
             switch (e)
             {
-                foreach (const i; iota!(0, n))
+                static foreach (i; 0 .. n)
                 {
                 case ss[2*i]: return ss[2*i + 1];
                 }
@@ -380,17 +379,18 @@ auto substitute(alias pred = (a, b) => a == b, R, Ss...)(R r, Ss ss)
     {
         auto value = e[0];
         const hitNr = e[1];
-        import static_iota : iota;
         if (hitNr == 0) // not hit
         {
             return value;
         }
         else
         {
-            foreach (const i; iota!(0, n))
+            static foreach (i; 0 .. n)
             {
                 if (hitNr == i + 1)
+                {
                     return ss[2*i + 1]; // replacement
+                }
             }
             assert(false);
         }
@@ -399,8 +399,7 @@ auto substitute(alias pred = (a, b) => a == b, R, Ss...)(R r, Ss ss)
     // extract inputs
     alias Ins = Stride!(2, 0, Ss);
     Ins ins;
-    import static_iota : iota;
-    foreach (const i; iota!(0, n))
+    static foreach (i; 0 .. n)
     {
         ins[i] = ss[2*i];
     }

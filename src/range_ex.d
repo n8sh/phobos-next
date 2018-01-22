@@ -415,8 +415,7 @@ auto slidingSplitter(R)(R data, size_t lower, size_t upper)
 
     foreach (ch; name8)
     {
-        import static_iota : iota;
-        foreach (ix; iota!(0, ch.length)) // for each part in split
+        static foreach (ix; 0 .. ch.length) // for each part in split
         {
             import std.algorithm: equal;
             assert(ch[ix].equal(name16.front[ix]));

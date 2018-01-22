@@ -17,7 +17,7 @@ public import std.concurrency;
 public import std.container;
 public import std.conv;
 public import std.csv;
-public import std.datetime.datetime;
+public import std.datetime;
 public import std.encoding;
 public import std.exception;
 public import std.file;
@@ -88,5 +88,4 @@ public import core.sync.semaphore;
 /* experimental */
 public import std.experimental.logger;
 public import std.experimental.allocator;
-public import std.experimental.ndslice;
 public import std.experimental.typecons;

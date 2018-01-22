@@ -72,8 +72,7 @@ bool allZero(T, bool useStatic = true)(in T x)
     }
     else static if (useStatic && isStaticArray!T)
     {
-        import static_iota : iota;
-        foreach (ix; iota!(0, x.length))
+        static foreach (ix; 0 .. x.length) // TODO do we need static iota here?
         {
             if (!x[ix].allZero) { return false; } // make use of iota?
         }

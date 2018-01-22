@@ -2227,7 +2227,7 @@ auto splicerN(uint N, T)(T[] x) @trusted
     immutable int[count] x = [0, 1, 3, 3, 4, 5];
     immutable y = x.splicerN!count;
 
-    foreach (i; iota!(0, count))
+    static foreach (i; 0 .. count)
     {
         assert(y.at!i.equal(x[i .. i + 1]));
     }

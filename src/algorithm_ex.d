@@ -2220,8 +2220,6 @@ auto splicerN(uint N, T)(T[] x) @trusted
 ///
 @safe pure nothrow @nogc unittest
 {
-    import static_iota : iota;
-
     enum count = 6;
 
     immutable int[count] x = [0, 1, 3, 3, 4, 5];

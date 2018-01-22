@@ -190,8 +190,7 @@ struct BasicArray(T,
         reserve(values.length);
         _store.length = cast(CapacityType)values.length;
         // TODO use import emplace_all instead
-        import static_iota : iota;
-        foreach (immutable i; iota!(0, values.length))
+        static foreach (i; 0 .. values.length)
         {
             _mptr[i] = values[i];
         }

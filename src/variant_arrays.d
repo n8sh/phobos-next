@@ -444,7 +444,7 @@ unittest
     immutable n = 5_000_000;
 
     import std.stdio : writeln;
-    import std.datetime.datetime : MonoTime;
+    import std.datetime : MonoTime;
     import std.meta : AliasSeq;
     foreach (A; AliasSeq!(VariantArrays!(E)))
     {

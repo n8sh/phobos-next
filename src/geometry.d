@@ -42,8 +42,6 @@ else
     private enum rmul = true;
 }
 
-version(LDC) static if (__VERSION__ >= 2076) {pragma(msg, "geometry.d: TODO use static foreach inplace of iota!(...)"); }
-
 // TODO use import core.simd;
 import std.math: sqrt, isNaN, isInfinity, PI, sin, cos, acos;
 import std.conv: to;
@@ -54,7 +52,6 @@ import std.algorithm : map, all, any, min, max, reduce;
 import std.random: uniform;
 
 import mathml;
-import static_iota : iota;
 import traits_ex: haveCommonType;
 
 enum isVector(E)     = is(typeof(isVectorImpl(E.init)));
@@ -168,7 +165,7 @@ struct Point(E, uint D)
   <mo>(</mo>
   <mtable>`;
 
-        foreach (immutable i; iota!(0, D))
+        static foreach (i; 0 .. D)
         {
             str ~= `
     <mtr>
@@ -198,7 +195,7 @@ struct Point(E, uint D)
             (op == "-"))
     {
         Point!(CommonType!(E, F), D) y;
-        foreach (immutable i; iota!(0, D))
+        static foreach (i; 0 .. D)
         {
             y._point[i] = mixin("_point[i]" ~ op ~ "r._vector[i]");
         }
@@ -246,14 +243,14 @@ struct Vector(E, uint D,
             if (vec.normalized)
             {
                 immutable vec_norm = vec.magnitude;
-                foreach (immutable i; iota!(0, D))
+                static foreach (i; 0 .. D)
                 {
                     _vector[i] = vec._vector[i] / vec_norm;
                 }
                 return;
             }
         }
-        foreach (immutable i; iota!(0, D))
+        static foreach (i; 0 .. D)
         {
             _vector[i] = vec._vector[i];
         }
@@ -310,7 +307,7 @@ struct Vector(E, uint D,
     <mtr>`;
         }
 
-        foreach (immutable i; iota!(0, D))
+        static foreach (i; 0 .. D)
         {
             final switch (orient)
             {
@@ -411,7 +408,7 @@ struct Vector(E, uint D,
     void clear(V)(V value)
         if (isAssignable!(E, V))
     {
-        foreach (immutable i; iota!(0, D))
+        static foreach (i; 0 .. D)
         {
             _vector[i] = value;
         }
@@ -436,7 +433,7 @@ struct Vector(E, uint D,
     bool opEquals(S)(in S scalar) const
         if (isAssignable!(E, S)) // TODO is(typeof(E.init != S.init))
     {
-        foreach (immutable i; iota!(0, D))
+        static foreach (i; 0 .. D)
         {
             if (_vector[i] != scalar)
             {
@@ -462,7 +459,7 @@ struct Vector(E, uint D,
         {
             return false;
         }
-        foreach (immutable i; iota!(0, D))
+        static foreach (i; 0 .. D)
         {
             if (_vector[i] != array[i])
             {
@@ -537,7 +534,7 @@ struct Vector(E, uint D,
         if (isSigned!(E))
     {
         Vector y;
-        foreach (immutable i; iota!(0, D))
+        static foreach (i; 0 .. D)
         {
             y._vector[i] = - _vector[i];
         }
@@ -549,7 +546,7 @@ struct Vector(E, uint D,
             (op == "-"))
     {
         Vector!(CommonType!(E, F), D) y;
-        foreach (immutable i; iota!(0, D))
+        static foreach (i; 0 .. D)
         {
             y._vector[i] = mixin("_vector[i]" ~ op ~ "r._vector[i]");
         }
@@ -559,7 +556,7 @@ struct Vector(E, uint D,
     Vector opBinary(string op : "*", F)(F r) const
     {
         Vector!(CommonType!(E, F), D) y;
-        foreach (immutable i; iota!(0, dimension))
+        static foreach (i; 0 .. dimension)
         {
             y._vector[i] = _vector[i] * r;
         }
@@ -592,9 +589,9 @@ struct Vector(E, uint D,
     {
         Vector!(E, T.rows) ret;
         ret.clear(0);
-        foreach (immutable c; iota!(0, T.cols))
+        static foreach (c; 0 .. T.cols)
         {
-            foreach (immutable r; iota!(0, T.rows))
+            static foreach (r; 0 ..  T.rows)
             {
                 ret._vector[r] += _vector[c] * inp.at(r,c);
             }
@@ -615,7 +612,7 @@ struct Vector(E, uint D,
     void opOpAssign(string op, F)(F r)
         /* if ((op == "+") || (op == "-") || (op == "*") || (op == "%") || (op == "/") || (op == "^^")) */
     {
-        foreach (immutable i; iota!(0, dimension))
+        static foreach (i; 0 .. dimension)
         {
             mixin("_vector[i]" ~ op ~ "= r;");
         }
@@ -632,7 +629,7 @@ struct Vector(E, uint D,
         if ((op == "+") ||
             (op == "-"))
     {
-        foreach (immutable i; iota!(0, dimension))
+        static foreach (i; 0 .. dimension)
         {
             mixin("_vector[i]" ~ op ~ "= r._vector[i];");
         }
@@ -651,7 +648,10 @@ struct Vector(E, uint D,
         {
             E y = 0;                // TOREVIEW: Use other precision for now
         }
-        foreach (immutable i; iota!(0, D)) { y += _vector[i] ^^ N; }
+        static foreach (i; 0 .. D)
+        {
+            y += _vector[i] ^^ N;
+        }
         return y;
     }
 
@@ -692,7 +692,7 @@ struct Vector(E, uint D,
             if (this != 0)         // zero vector have zero magnitude
             {
                 immutable m = this.magnitude;
-                foreach (immutable i; iota!(0, D))
+                static foreach (i; 0 .. D)
                 {
                     _vector[i] /= m;
                 }
@@ -874,7 +874,7 @@ auto elementwiseLessThanOrEqual(Ta, Tb, uint D)(Vector!(Ta, D) a,
                                                 Vector!(Tb, D) b)
 {
     Vector!(bool, D) c = void;
-    foreach (immutable i; iota!(0, D))
+    static foreach (i; 0 .. D)
     {
         c[i] = a[i] <= b[i];
     }
@@ -895,7 +895,7 @@ T dotProduct(T, U)(in T a, in U b)
          U.dimension))
 {
     T c = void;
-    foreach (immutable i; iota!(0, T.dimension))
+    static foreach (i; 0 .. T.dimension)
     {
         c[i] = a[i] * b[i];
     }
@@ -910,9 +910,9 @@ auto outerProduct(Ta, Tb, uint Da, uint Db)(in Vector!(Ta, Da) a,
         Db >= 1)
 {
     Matrix!(CommonType!(Ta, Tb), Da, Db) y = void;
-    foreach (immutable r; iota!(0, Da))
+    static foreach (r; 0 .. Da)
     {
-        foreach (immutable c; iota!(0, Db))
+        static foreach (c; 0 .. Db)
         {
             y.at(r,c) = a[r] * b[c];
         }
@@ -1019,9 +1019,9 @@ struct Matrix(E, uint rows_, uint cols_,
     @property string toLaTeX()() const
     {
         string s;
-        foreach (immutable r; iota!(0, rows))
+        static foreach (r; 0 .. rows)
         {
-            foreach (immutable c; iota!(0, cols))
+            static foreach (c; 0 .. cols)
             {
                 s ~= to!string(at(r, c)) ;
                 if (c != cols - 1) { s ~= ` & `; } // if not last column
@@ -1038,11 +1038,11 @@ struct Matrix(E, uint rows_, uint cols_,
   <mo>❲</mo>
   <mtable>`;
 
-        foreach (immutable r; iota!(0, rows))
+        static foreach (r; 0 .. rows)
         {
             str ~=  `
     <mtr>`;
-            foreach (immutable c; iota!(0, cols))
+            static foreach (c; 0 .. cols)
             {
                 str ~= `
       <mtd>
@@ -1158,9 +1158,9 @@ struct Matrix(E, uint rows_, uint cols_,
             (T.rows < rows))
     {
         makeIdentity();
-        foreach (immutable r; iota!(0, T.rows))
+        static foreach (r; 0 .. T.rows)
         {
-            foreach (immutable c; iota!(0, T.cols))
+            static foreach (c; 0 .. T.cols)
             {
                 at(r, c) = mat.at(r, c);
             }
@@ -1192,9 +1192,9 @@ struct Matrix(E, uint rows_, uint cols_,
     /// Sets all values of the matrix to value (each column in each row will contain this value).
     void clear()(E value)
     {
-        foreach (immutable r; iota!(0, rows))
+        static foreach (r; 0 .. rows)
         {
-            foreach (immutable c; iota!(0, cols))
+            static foreach (c; 0 .. cols)
             {
                 at(r,c) = value;
             }
@@ -1207,7 +1207,7 @@ struct Matrix(E, uint rows_, uint cols_,
         void makeIdentity()()
         {
             clear(0);
-            foreach (immutable r; iota!(0, rows))
+            static foreach (r; 0 .. rows)
             {
                 at(r,r) = 1;
             }
@@ -1218,7 +1218,7 @@ struct Matrix(E, uint rows_, uint cols_,
         {
             Matrix ret;
             ret.clear(0);
-            foreach (immutable r; iota!(0, rows))
+            static foreach (r; 0 .. rows)
             {
                 ret.at(r,r) = 1;
             }
@@ -1272,9 +1272,9 @@ struct Matrix(E, uint rows_, uint cols_,
     @property Matrix!(E, cols, rows) transposed()() const
     {
         typeof(return) ret;
-        foreach (immutable r; iota!(0, rows))
+        static foreach (r; 0 .. rows)
         {
-            foreach (immutable c; iota!(0, cols))
+            static foreach (c; 0 .. cols)
             {
                 ret.at(c,r) = at(r,c);
             }
@@ -1354,7 +1354,7 @@ struct SpherePoint3(E)
   <mo>(</mo>
   <mtable>`;
 
-        foreach (immutable i; iota!(0, D))
+        static foreach (i; 0 .. D)
         {
             str ~= `
     <mtr>
@@ -1457,7 +1457,7 @@ struct Box(E, uint D)
     /// Expands the Box, so that $(I v) is part of the Box.
     ref Box expand(Vector!(E,D) v)
     {
-        foreach (immutable i; iota!(0, D))
+        static foreach (i; 0 .. D)
         {
             if (min[i] > v[i]) min[i] = v[i];
             if (max[i] < v[i]) max[i] = v[i];

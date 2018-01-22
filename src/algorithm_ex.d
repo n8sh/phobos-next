@@ -549,7 +549,7 @@ auto ref windowedReduce(Reduction reduction = Reduction.forwardDifference, R)(R 
 ///
 unittest
 {
-    import std.datetime.datetime: Clock, SysTime, Duration;
+    import std.datetime : Clock, SysTime, Duration;
     import std.algorithm.iteration: map;
     SysTime[] times;
     immutable n = 4;
@@ -731,7 +731,7 @@ auto apply(alias fun, N)(N n)
 ///
 unittest
 {
-    import std.datetime.datetime: Clock, SysTime, Duration;
+    import std.datetime: Clock, SysTime, Duration;
     import std.algorithm.iteration: map;
     import std.array: array;
     immutable n = 3;

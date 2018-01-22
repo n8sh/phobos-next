@@ -218,9 +218,7 @@ auto radixSort(R,
             assert((n % unrollFactor) == 0, "TODO Add reordering for remainder"); // is evenly divisible by unroll factor
             for (size_t j = n - 1; j < n; j -= unrollFactor) // for each element `j` in reverse order. when `j` wraps around `j` < `n` is no longer true
             {
-                version(LDC) static if (__VERSION__ >= 2076) { static assert(0, "TODO use static foreach inplace of iota!(...)"); }
-                import static_iota : iota;
-                foreach (k; iota!(0, unrollFactor)) // inlined (unrolled) loop
+                static foreach (k; 0 .. unrollFactor) // inlined (unrolled) loop
                 {
                     immutable i = (input[j - k].bijectToUnsigned(descending) >> digitBitshift) & mask; // digit (index)
                     tempSlice[--highOffsets[i]] = input[j - k]; // reorder into tempSlice
@@ -278,7 +276,7 @@ version(benchmark)
         import std.algorithm.sorting : sort, SwapStrategy, isSorted;
         import std.algorithm.comparison : min, max, equal;
         import std.range : retro;
-        import std.datetime.datetime : StopWatch, AutoStart, TickDuration;
+        import std.datetime : StopWatch, AutoStart, TickDuration;
         auto sw = StopWatch();
         immutable nMax = 5;
 

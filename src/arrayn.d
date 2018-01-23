@@ -88,7 +88,7 @@ struct ArrayN(T,
         Length _length;         /// number of defined elements in `_store`
     }
 
-    /// Is `true` if `U` can be assign to the element type `T` of `this`.
+    /// Is `true` iff `U` can be assign to the element type `T` of `this`.
     private enum isElementAssignable(U) = isAssignable!(T, U);
 
     @safe:
@@ -420,10 +420,10 @@ pragma(inline, true):
 
     @property
     {
-        /** Returns: `true` if `this` is empty, `false` otherwise. */
+        /** Returns: `true` iff `this` is empty, `false` otherwise. */
         bool empty() const { return _length == 0; }
 
-        /** Returns: `true` if `this` is full, `false` otherwise. */
+        /** Returns: `true` iff `this` is full, `false` otherwise. */
         bool full() const { return _length == capacity; }
 
         /** Get length. */

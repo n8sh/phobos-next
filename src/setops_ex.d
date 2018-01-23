@@ -41,7 +41,7 @@ private static auto setUnionHelper(Small, Large)(const Small small, Large large)
     return united;
 }
 
-/** Is `true` if `Set` is set-like container, that is provides membership
+/** Is `true` iff `Set` is set-like container, that is provides membership
     checking via the `in` operator or `contains`.
     TODO Move to Phobos std.traits
 */
@@ -51,7 +51,7 @@ template hasContains(Set)
     enum isSetOf = hasMember!(Set, "contains"); // TODO extend to check `in` operator aswell
 }
 
-/** Is `true` if `Map` is map-like container, that is provides membership
+/** Is `true` iff `Map` is map-like container, that is provides membership
     checking via the `in` operator or `contains`.
     TODO Move to Phobos std.traits
 */

@@ -1800,7 +1800,7 @@ auto staticArray() @property @safe
     return _staticArray();
 }
 
-/** Returns: `true` if `value` is equal to any of `values`, `false` otherwise. */
+/** Returns: `true` iff `value` is equal to any of `values`, `false` otherwise. */
 bool isAmong(alias pred = (a, b) => a == b,
              Value,
              Values...)(Value value,
@@ -1821,7 +1821,7 @@ bool isAmong(alias pred = (a, b) => a == b,
 import std.traits : isExpressionTuple;
 import traits_ex : haveCommonType;
 
-/** Returns: `true` if `value` is equal to any of `values`, `false` otherwise. */
+/** Returns: `true` iff `value` is equal to any of `values`, `false` otherwise. */
 template isAmong(values...)
     if (isExpressionTuple!values)
 {
@@ -1896,7 +1896,7 @@ void resetAllMembers(T)(T c)
     assert(c.c == null);
 }
 
-/** Returns: `true` if `r` contains strictly values that are strictly increase
+/** Returns: `true` iff `r` contains strictly values that are strictly increase
     with the increment `step`.
     See also: http://forum.dlang.org/post/mqjyhvqxepgfljpkxvmd@forum.dlang.org
  */
@@ -2038,7 +2038,7 @@ bool countsAtMost(R)(R r, size_t maxCount) @("complexity", "O(maxCount)")
 import std.traits : allSatisfy;
 import std.range.primitives : hasLength;
 
-/** Returns: `true` if `r` and all `ss` all have equal length.
+/** Returns: `true` iff `r` and all `ss` all have equal length.
  */
 bool equalLength(R, Ss...)(const R r, const Ss ss)
     @safe pure nothrow @nogc
@@ -2326,7 +2326,7 @@ auto use(alias F, T)(T t)
     }
 }
 
-/** Is `true` if `x` is an ASCII character constant, false otherwise.
+/** Is `true` iff `x` is an ASCII character constant, false otherwise.
     See also: `std.ascii.isASCII`.
 */
 template isASCIIConstant(alias x)

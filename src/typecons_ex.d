@@ -280,7 +280,7 @@ struct IndexedBy(R, string IndexTypeName)
             static struct Result
             {
                 Index index;    // index if exists is `true', 0 otherwise
-                bool exists;  // `true` if `index` is defined, `false` otherwise
+                bool exists;  // `true` iff `index` is defined, `false` otherwise
                 bool opCast(T : bool)() const @safe pure nothrow @nogc { return exists; }
             }
             import std.algorithm : countUntil;

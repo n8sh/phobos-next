@@ -88,7 +88,7 @@ private struct VariantRef(DefinedTypes...)
     /// Cast to `bool`, meaning 'true' if defined, `false` otherwise.
     bool opCast(U : bool)() const { return isDefined(); }
 
-    /// Returns: `true` if is defined.
+    /// Returns: `true` iff is defined.
     bool isDefined() const { return rawWord != 0; }
 
     /// Comparsion works like for integers.

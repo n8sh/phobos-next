@@ -33,8 +33,8 @@ alias tail = dropOne;
 
 /** This overload enables, when possible, lvalue return.
 
-    BUG this overload is not chosen over `std.algorithm.either` so function must
-    currently be called `either` instead of `either`
+    BUG: this overload is not chosen over `std.algorithm.either` so function
+    must currently be called `eitherRef` instead of `either`.
  */
 ref Ts[0] eitherRef(Ts...)(ref Ts a)
     if (a.length >= 1 &&

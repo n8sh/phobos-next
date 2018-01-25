@@ -11,7 +11,8 @@ authors "Per Nordlöw <per.nordlow@gmail.com>"
 
 # dependency "arsd" version="~master"
 
-dflags "-vcolumns" "-dip25" "-transition=intpromote"     # "-dip1000"
+dflags "-vcolumns" "-dip25"     # "-dip1000"
+dflags-dmd  "-transition=intpromote" # TODO move to dflags when ldc is at 2.078
 libs "z" "bz2" "zstd"
 # TODO lflags "-ltcmalloc"
 

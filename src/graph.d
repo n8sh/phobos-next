@@ -11,14 +11,16 @@ class Db
     Appender!(SuperEdge[]) superEdges;
 }
 
-interface Entity
+extern(C++) class Entity
 {
+extern(D):
     @safe pure nothrow:
     abstract inout(Db) db() inout;           // get up-reference
 }
 
-class Node : Entity
+extern(C++) class Node : Entity
 {
+extern(D):
     @safe pure nothrow:
 
     this(Db db)
@@ -32,8 +34,9 @@ class Node : Entity
     private Db _db;             // up-reference
 }
 
-class Text : Node
+extern(C++) class Text : Node
 {
+extern(D):
     @safe pure nothrow:
     this(Db db, string text, Lang lang)
     {
@@ -45,8 +48,9 @@ class Text : Node
 }
 
 /// Number with numerical type `T`.
-class Number(T) : Node
+extern(C++) class Number(T) : Node
 {
+extern(D):
     @safe pure nothrow:
     this(Db db, T value)
     {
@@ -56,8 +60,9 @@ class Number(T) : Node
     const T value;
 }
 
-class Edge : Entity
+extern(C++) class Edge : Entity
 {
+extern(D):
     @safe pure nothrow:
 
     this(Db db)
@@ -71,8 +76,9 @@ class Edge : Entity
     private Db _db;             // up-reference
 }
 
-class SuperEdge : Entity
+extern(C++) class SuperEdge : Entity
 {
+extern(D):
     @safe pure nothrow:
 
     this(Db db)
@@ -86,9 +92,10 @@ class SuperEdge : Entity
     private Db _db;             // up-reference
 }
 
-class Rela(uint arity) : Edge
+extern(C++) class Rela(uint arity) : Edge
     if (arity >= 2)
 {
+extern(D):
     @safe pure nothrow:
 
     this(Db db)
@@ -99,9 +106,10 @@ class Rela(uint arity) : Edge
     Entity[arity] actors;
 }
 
-class Func(uint arity) : Edge
+extern(C++) class Func(uint arity) : Edge
     if (arity >= 1)
 {
+extern(D):
     @safe pure nothrow:
 
     this(Db db)

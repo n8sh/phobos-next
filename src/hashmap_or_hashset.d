@@ -415,7 +415,7 @@ struct HashMapOrSet(K, V = void,
         return hasKey(binElementsAt(binIx), key);
     }
 
-    /** Insert `element`, being either a key, value (map-case) or a just a key (set-case).
+    /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
      */
     pragma(inline, true)
     InsertionStatus insert(T element)
@@ -424,6 +424,8 @@ struct HashMapOrSet(K, V = void,
         return insertMoveWithoutBinCountGrowth(element);
     }
 
+    /** Insert `elements`, all being either a key-value (map-case) or a just a key (set-case).
+     */
     void insertN(R)(R elements)
         if (isIterable!R)
     {
@@ -1474,7 +1476,7 @@ pure nothrow @nogc unittest
             {
                 X q;
                 auto qv = [11U, 12U, 13U, 14U].s;
-                q.insertN(qv[]); // insert many
+                q.insertN(qv[]);
                 foreach (e; qv[])
                 {
                     assert(q.contains(e));

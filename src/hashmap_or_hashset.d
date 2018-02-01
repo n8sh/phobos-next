@@ -437,7 +437,7 @@ struct HashMapOrSet(K, V = void,
         }
         foreach (element; elements)
         {
-            // TODO make `insertMoveWithoutBinCountGrowth` work here
+            // TODO use `insertMoveWithoutBinCountGrowth` when call to `reserveExtra` works
             static if (hasIndirections!T)
             {
                 insert(element);

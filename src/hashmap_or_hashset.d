@@ -437,13 +437,14 @@ struct HashMapOrSet(K, V = void,
         }
         foreach (element; elements)
         {
+            // TODO make `insertMoveWithoutBinCountGrowth` work here
             static if (hasIndirections!T)
             {
-                insertMoveWithoutBinCountGrowth(element);
+                insert(element);
             }
             else
             {
-                insertMoveWithoutBinCountGrowth(*cast(Unqual!T*)&element);
+                insert(*cast(Unqual!T*)&element);
             }
         }
     }

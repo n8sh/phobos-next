@@ -433,7 +433,7 @@ struct HashMapOrSet(K, V = void,
         import std.range : hasLength;
         static if (hasLength!R)
         {
-            reserveExtra(elements.length);
+            // reserveExtra(elements.length); // TODO this fails
         }
         foreach (element; elements)
         {

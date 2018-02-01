@@ -145,7 +145,16 @@ struct BasicArray(T,
 
             foreach (immutable i, const element; elements[])
             {
-                ptr[i] = *cast(MutableE*)&element; // TODO only for elements with no indirections
+                // TODO: be more strict
+                // static if (hasIndirections!T)
+                // {
+                //     ptr[i] = element;
+                // }
+                // else
+                // {
+                //     ptr[i] = *cast(MutableE*)&element;
+                // }
+                ptr[i] = *cast(MutableE*)&element;
             }
 
             // ptr[0 .. length] = elements[];

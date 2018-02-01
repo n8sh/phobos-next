@@ -424,7 +424,7 @@ struct HashMapOrSet(K, V = void,
         return insertMoveWithoutBinCountGrowth(element);
     }
 
-    void insert(R)(R elements)
+    void insertN(R)(R elements)
         if (isIterable!R)
     {
         import std.range : hasLength;
@@ -1474,7 +1474,7 @@ pure nothrow @nogc unittest
             {
                 X q;
                 auto qv = [11U, 12U, 13U, 14U].s;
-                q.insert(qv[]); // insert many
+                q.insertN(qv[]); // insert many
                 foreach (e; qv[])
                 {
                     assert(q.contains(e));

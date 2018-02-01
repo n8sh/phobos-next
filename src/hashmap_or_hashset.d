@@ -78,7 +78,7 @@ struct HashMapOrSet(K, V = void,
         smallBinMinCapacity >= 1) // no use having empty small bins
 {
     import std.conv : emplace;
-    import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable, isMutable;
+    import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable, isMutable, hasIndirections;
     import std.meta : Unqual;
     import std.algorithm.comparison : max;
     import std.algorithm.mutation : move, moveEmplace;
@@ -426,8 +426,9 @@ struct HashMapOrSet(K, V = void,
 
     /** Insert `elements`, all being either a key-value (map-case) or a just a key (set-case).
      */
-    void insertN(R)(R elements)
-        if (isIterable!R)
+    void insertN(R)(R elements) @trusted
+        if (isIterable!R &&
+            isCopyable!T)
     {
         import std.range : hasLength;
         static if (hasLength!R)
@@ -436,7 +437,14 @@ struct HashMapOrSet(K, V = void,
         }
         foreach (element; elements)
         {
-            insertMoveWithoutBinCountGrowth(element);
+            static if (hasIndirections!T)
+            {
+                insertMoveWithoutBinCountGrowth(element);
+            }
+            else
+            {
+                insertMoveWithoutBinCountGrowth(*cast(Unqual!T*)&element);
+            }
         }
     }
 

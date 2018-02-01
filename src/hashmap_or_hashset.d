@@ -424,6 +424,20 @@ struct HashMapOrSet(K, V = void,
         return insertMoveWithoutBinCountGrowth(element);
     }
 
+    void insert(R)(R elements)
+        if (isIterable!R)
+    {
+        import std.range : hasLength;
+        static if (hasLength!R)
+        {
+            reserveExtra(elements.length);
+        }
+        foreach (element; elements)
+        {
+            insertMoveWithoutBinCountGrowth(element);
+        }
+    }
+
     /** Reserve rom for `extraCapacity` number of extra buckets. */
     void reserveExtra()(size_t extraCapacity)
     {
@@ -1456,6 +1470,16 @@ pure nothrow @nogc unittest
                 k.popFront();
                 assert(k.empty);
             }
+
+            {
+                X q;
+                auto qv = [11U, 12U, 13U, 14U].s;
+                q.insert(qv[]); // insert many
+                foreach (e; qv[])
+                {
+                    assert(q.contains(e));
+                }
+            }
         }
 
         import container_traits : mustAddGCRange;
@@ -1694,6 +1718,8 @@ pure nothrow @nogc unittest
     X t;
     t.reserveExtra(4096);
     assert(t.binCount == 8192);
+
+    t.clear();
 }
 
 /// class as value

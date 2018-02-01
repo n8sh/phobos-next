@@ -1479,6 +1479,8 @@ pure nothrow @nogc unittest
                 {
                     assert(q.contains(e));
                 }
+                q.clear();
+                assert(q.empty);
             }
         }
 

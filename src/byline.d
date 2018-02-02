@@ -11,7 +11,8 @@ enum Newline
     native,                     // Current OS decides: '\n'
 }
 
-import std.range : hasSlicing, hasLength, isNarrowString;
+import std.traits : isNarrowString;
+import std.range : hasSlicing, hasLength;
 
 /** Split Input by line.
     See also: http://forum.dlang.org/thread/fjqpdfzmitcxxzpwlbgb@forum.dlang.org#post-rwxrytxqqurrazifugje:40forum.dlang.org

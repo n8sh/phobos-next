@@ -7,7 +7,8 @@
    */
 module predicates;
 
-import std.range : isIterable, ElementType;
+import std.traits : isIterable;
+import std.range : ElementType;
 
 // ==============================================================================================
 

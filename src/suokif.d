@@ -87,7 +87,8 @@ struct SUOKIFParser
         _input = input;
 
         import std.algorithm : startsWith;
-        immutable magic = x"EFBBBF";
+        import std.conv : hexString;
+        immutable magic = hexString!"EFBBBF";
         if (_input[_offset .. $].startsWith(magic))
         {
             _offset += magic.length;

@@ -1,7 +1,7 @@
 module rdf;
 
-import std.traits: isSomeString;
-import std.range : empty, hasSlicing, hasLength, isNarrowString;
+import std.traits: isSomeString, isNarrowString;
+import std.range : empty, hasSlicing, hasLength;
 import std.string: indexOf, lastIndexOf;
 import std.stdio: File;
 import std.algorithm.searching: startsWith, endsWith, findSplit;

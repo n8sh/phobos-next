@@ -17,8 +17,8 @@
  */
 module random_ex;
 
-import std.traits: isIntegral, isFloatingPoint, isNumeric, isIterable, isStaticArray, isArray, hasIndirections, isSomeString, isScalarType;
-import std.range: isInputRange, ElementType, hasAssignableElements, isBoolean;
+import std.traits: isIntegral, isFloatingPoint, isNumeric, isIterable, isStaticArray, isArray, hasIndirections, isSomeString, isScalarType, isBoolean;
+import std.range: isInputRange, ElementType, hasAssignableElements;
 import std.random: uniform;
 import std.algorithm.mutation : move;
 

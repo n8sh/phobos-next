@@ -342,7 +342,7 @@ body
         static assert(0, "Unsupported length: " ~ n.stringof);
     }
 
-    import std.algorithm.sorting : assumeSorted;
+    import std.range : assumeSorted;
     return s.assumeSorted!less;
 }
 

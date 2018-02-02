@@ -1921,7 +1921,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     import std.algorithm.sorting : isSorted, sort;
     import std.exception : assertThrown, assertNotThrown;
     import std.traits : isInstanceOf;
-    import std.typecons : Unqual;
+    import std.meta : Unqual;
 
     enum assignment = Assignment.copy;
     alias comp = binaryFun!less; //< comparison

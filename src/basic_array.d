@@ -27,9 +27,9 @@ struct BasicArray(T,
         (is(CapacityType == ulong) ||        // 3 64-bit words
          is(CapacityType == uint)))          // 2 64-bit words
 {
-    import std.range : isInputRange, isIterable, ElementType, isInfinite;
+    import std.range : isInputRange, ElementType, isInfinite;
     import std.traits : hasElaborateDestructor, hasIndirections, hasAliasing,
-        isMutable, TemplateOf, isArray, isAssignable, isCopyable, isType, hasFunctionAttributes;
+        isMutable, TemplateOf, isArray, isAssignable, isCopyable, isType, hasFunctionAttributes, isIterable;
     import std.algorithm : move, moveEmplace, moveEmplaceAll;
     import std.conv : emplace;
 

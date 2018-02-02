@@ -168,8 +168,7 @@ auto pairwise(R)(R r)
 {
     struct Pairwise(R)
     {
-        import std.range: ForeachType;
-        import std.traits: Unqual;
+        import std.traits : Unqual, ForeachType;
         import std.typecons: Tuple;
 
         alias UR = Unqual!R;

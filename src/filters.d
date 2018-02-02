@@ -465,8 +465,8 @@ struct StaticDenseSetFilter(E,
                             bool requestPacked = true)
     if (isStaticDenseFilterableType!E)
 {
-    import std.range : isIterable, ElementType;
-    import std.traits: isAssignable, isUnsigned;
+    import std.range : ElementType;
+    import std.traits : isIterable, isAssignable, isUnsigned;
     import core.bitop : bts, btr, btc, bt;
 
     alias This = typeof(this);

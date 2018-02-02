@@ -471,7 +471,7 @@ private struct FilterUniqueResult(alias pred, Range)
 }
 
 // TODO move these hidden behind template defs of takeUnique
-import std.typecons : Unqual;
+import std.meta : Unqual;
 import std.range.primitives : isInputRange, isInfinite, hasSlicing;
 
 /// Unique take.

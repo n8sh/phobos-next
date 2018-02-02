@@ -86,7 +86,7 @@ import std.traits : CommonType;
 import std.range.primitives;
 import std.meta : allSatisfy, staticMap;
 import std.functional : binaryFun;
-import std.algorithm.sorting : SearchPolicy;
+import std.range : SearchPolicy;
 import range_ex : haveCommonElementType;
 
 struct SetIntersectionFast(alias less = "a < b",
@@ -118,7 +118,7 @@ private:
                 import std.range : isRandomAccessRange;
                 static if (allSatisfy!(isRandomAccessRange, typeof(next)))
                 {
-                    import std.algorithm.sorting : assumeSorted;
+                    import std.range : assumeSorted;
 
                     // TODO remove need for this hack
                     static if (less == "a < b")
@@ -220,7 +220,7 @@ public:
     }
 }
 
-import std.typecons : Unqual;
+import std.meta : Unqual;
 
 auto assumeMoveableSorted(alias pred = "a < b", R)(R r)
     if (isInputRange!(Unqual!R))
@@ -240,7 +240,7 @@ setIntersectionFast(alias less = "a < b",
 {
     // TODO Remove need for these switch cases if this can be fixed:
     // http://forum.dlang.org/post/pknonazfniihvpicxbld@forum.dlang.org
-    import std.algorithm.sorting : assumeSorted;
+    import std.range : assumeSorted;
     static if (Rs.length == 2)
     {
         import std.algorithm.mutation : move;

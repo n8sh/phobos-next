@@ -6,7 +6,8 @@
 
 module range_ex;
 
-import std.range: hasSlicing, hasLength, isSomeString, isNarrowString, isInfinite, isInputRange, isBidirectionalRange, ElementType;
+import std.traits : isSomeString, isNarrowString;
+import std.range: hasSlicing, hasLength, isInfinite, isInputRange, isBidirectionalRange, ElementType;
 import std.traits: hasUnsharedAliasing, hasElaborateDestructor, isScalarType;
 
 public import slicing;
@@ -177,7 +178,8 @@ struct SlidingSplitter(Range)
          !isInfinite!Range))
 {
     import std.range: isForwardRange;
-    import std.typecons: Unqual, Tuple, tuple;
+    import std.meta : Unqual;
+    import std.typecons : Tuple, tuple;
     alias R = Unqual!Range;
 
     this(R)(R data, size_t lower = 0)
@@ -541,8 +543,7 @@ unittest
 
 import std.traits: isInstanceOf;
 import std.range: SortedRange;
-import std.meta: allSatisfy, staticMap;
-import std.typecons: Unqual;
+import std.meta: allSatisfy, staticMap, Unqual;
 
 template CommonElementType(Rs...)
 {
@@ -591,7 +592,7 @@ auto adjacentTuples(size_t N, R)(R r)
 {
     struct Range(R)
     {
-        import std.typecons: Unqual, Tuple;
+        import std.meta : Unqual, Tuple;
         alias E = Unqual!(ElementType!R);
         enum M = N - 1;  // temporary order
         alias P = E[M];

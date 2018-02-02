@@ -129,15 +129,15 @@ unittest
     assert(toHexString(fnv64.finish()) == "7B495389BDBDD4C7");
 
     // Template API
-    assert(digest!FNV32("abc") == x"439C2F4B");
-    assert(digest!FNV64("abc") == x"D8DCCA186BAFADCB");
-    assert(digest!FNV32A("abc") == x"1A47E90B");
-    assert(digest!FNV64A("abc") == x"E71FA2190541574B");
+    assert(digest!FNV32("abc") == hexString!"439C2F4B");
+    assert(digest!FNV64("abc") == hexString!"D8DCCA186BAFADCB");
+    assert(digest!FNV32A("abc") == hexString!"1A47E90B");
+    assert(digest!FNV64A("abc") == hexString!"E71FA2190541574B");
 
     // OOP API
     Digest fnv = new FNV32ADigest;
     ubyte[] d = fnv.digest("1234");
-    assert(d == x"FDC422FD");
+    assert(d == hexString!"FDC422FD");
 }
 
 /// Convenience aliases for std.digest.digest.digest using the FNV implementation.
@@ -164,8 +164,13 @@ auto fnv64aOf(T...)(in T data)
 ///
 @safe pure nothrow @nogc unittest
 {
-    assert(fnv32Of("") == x"811C9DC5");
-    assert(fnv64Of("") == x"CBF29CE484222325");
-    assert(fnv32aOf("") == x"811C9DC5");
-    assert(fnv64aOf("") == x"CBF29CE484222325");
+    assert(fnv32Of("") == hexString!"811C9DC5");
+    assert(fnv64Of("") == hexString!"CBF29CE484222325");
+    assert(fnv32aOf("") == hexString!"811C9DC5");
+    assert(fnv64aOf("") == hexString!"CBF29CE484222325");
+}
+
+version(unittest)
+{
+    import std.conv : hexString;
 }

@@ -75,10 +75,10 @@ unittest
     Adler32 adler;
     adler.start();
     adler.put(cast(ubyte[]) "abc");
-    assert(adler.finish() == x"024d0127");
+    assert(adler.finish() == hexString!"024d0127");
     adler.start();
     adler.put(cast(ubyte[]) "def");
-    assert(adler.finish() == x"025F0130");
+    assert(adler.finish() == hexString!"025F0130");
 }
 
 /// Convenience alias for $(D digest) function in std.digest.digest using the Adler32 implementation.
@@ -94,13 +94,18 @@ alias Adler32Digest = WrapperDigest!Adler32;
 unittest
 {
     auto adler = new Adler32Digest;
-    assert(adler.digest("abc") == x"024d0127");
+    assert(adler.digest("abc") == hexString!"024d0127");
 }
 
 @safe pure nothrow @nogc unittest
 {
     static assert(isDigest!Adler32);
 
-    assert(adler32Of("abc") == x"024d0127");
-    assert(adler32Of("abcdefghijklmnopqrstuvwxyz") == x"90860B20");
+    assert(adler32Of("abc") == hexString!"024d0127");
+    assert(adler32Of("abcdefghijklmnopqrstuvwxyz") == hexString!"90860B20");
+}
+
+version(unittest)
+{
+    import std.conv : hexString;
 }

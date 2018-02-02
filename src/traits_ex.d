@@ -11,8 +11,8 @@
 */
 module traits_ex;
 
-import std.traits: isArray, ParameterTypeTuple, isStaticArray, isDynamicArray, isSomeChar, isSomeString, isExpressions, isIntegral, isSigned, isUnsigned, isAssignable;
-import std.range: ElementType, isForwardRange, isRandomAccessRange, isInputRange, isBidirectionalRange, isOutputRange, isIterable;
+import std.traits: isArray, ParameterTypeTuple, isStaticArray, isDynamicArray, isSomeChar, isSomeString, isExpressions, isIntegral, isSigned, isUnsigned, isAssignable, isIterable;
+import std.range: ElementType, isForwardRange, isRandomAccessRange, isInputRange, isBidirectionalRange, isOutputRange;
 import std.typecons : Tuple;
 
 public import std.traits : isCopyable;

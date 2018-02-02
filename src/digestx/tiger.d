@@ -238,31 +238,31 @@ alias Tiger2_128Digest = WrapperDigest!Tiger2_128;
     Tiger st;
     st.start();
     st.put(cast(ubyte[])"The quick brown fox jumps over the lazy dog");
-    assert(st.finish() == x"6D12A41E72E644F017B6F0E2F7B44C6285F06DD5D2C5B075");
+    assert(st.finish() == hexString!"6D12A41E72E644F017B6F0E2F7B44C6285F06DD5D2C5B075");
 
     // Template API
-    assert(digest!Tiger("abc") == x"2AAB1484E8C158F2BFB8C5FF41B57A525129131C957B5F93");
-    assert(digest!Tiger160("abc") == x"2AAB1484E8C158F2BFB8C5FF41B57A525129131C");
-    assert(digest!Tiger128("abc") == x"2AAB1484E8C158F2BFB8C5FF41B57A52");
+    assert(digest!Tiger("abc") == hexString!"2AAB1484E8C158F2BFB8C5FF41B57A525129131C957B5F93");
+    assert(digest!Tiger160("abc") == hexString!"2AAB1484E8C158F2BFB8C5FF41B57A525129131C");
+    assert(digest!Tiger128("abc") == hexString!"2AAB1484E8C158F2BFB8C5FF41B57A52");
 
-    assert(digest!Tiger2("abc") == x"F68D7BC5AF4B43A06E048D7829560D4A9415658BB0B1F3BF");
+    assert(digest!Tiger2("abc") == hexString!"F68D7BC5AF4B43A06E048D7829560D4A9415658BB0B1F3BF");
 
     // OOP API
     Digest t = new TigerDigest;
     t.put(cast(ubyte[])"Tiger");
-    assert(t.finish() == x"DD00230799F5009FEC6DEBC838BB6A27DF2B9D6F110C7937");
+    assert(t.finish() == hexString!"DD00230799F5009FEC6DEBC838BB6A27DF2B9D6F110C7937");
 
     t = new Tiger160Digest;
     t.put(cast(ubyte[])"Tiger");
-    assert(t.finish() == x"DD00230799F5009FEC6DEBC838BB6A27DF2B9D6F");
+    assert(t.finish() == hexString!"DD00230799F5009FEC6DEBC838BB6A27DF2B9D6F");
 
     t = new Tiger128Digest;
     t.put(cast(ubyte[])"Tiger");
-    assert(t.finish() == x"DD00230799F5009FEC6DEBC838BB6A27");
+    assert(t.finish() == hexString!"DD00230799F5009FEC6DEBC838BB6A27");
 
     t = new Tiger2Digest;
     t.put(cast(ubyte[])"Tiger");
-    assert(t.finish() == x"FE40798B8EB937FD977608930548D6A894C20B04CBEF7A42");
+    assert(t.finish() == hexString!"FE40798B8EB937FD977608930548D6A894C20B04CBEF7A42");
 }
 
 /// Convenience alias for std.digest.digest using Tiger-192.
@@ -274,7 +274,7 @@ auto tigerOf(T...)(T data)
 ///
 @safe pure nothrow @nogc unittest
 {
-    assert(tigerOf("abc") == x"2AAB1484E8C158F2BFB8C5FF41B57A525129131C957B5F93");
+    assert(tigerOf("abc") == hexString!"2AAB1484E8C158F2BFB8C5FF41B57A525129131C957B5F93");
 }
 
 /// Convenience alias for std.digest.digest using Tiger2-192.
@@ -285,34 +285,34 @@ auto tiger2Of(T...)(T data)
 
 pure nothrow @nogc unittest
 {
-    assert(tigerOf("") == x"3293AC630C13F0245F92BBB1766E16167A4E58492DDE73F3");
-    assert(tiger2Of("") == x"4441BE75F6018773C206C22745374B924AA8313FEF919F41");
+    assert(tigerOf("") == hexString!"3293AC630C13F0245F92BBB1766E16167A4E58492DDE73F3");
+    assert(tiger2Of("") == hexString!"4441BE75F6018773C206C22745374B924AA8313FEF919F41");
 
-    assert(tigerOf("a") == x"77BEFBEF2E7EF8AB2EC8F93BF587A7FC613E247F5F247809");
-    assert(tiger2Of("a") == x"67E6AE8E9E968999F70A23E72AEAA9251CBC7C78A7916636");
+    assert(tigerOf("a") == hexString!"77BEFBEF2E7EF8AB2EC8F93BF587A7FC613E247F5F247809");
+    assert(tiger2Of("a") == hexString!"67E6AE8E9E968999F70A23E72AEAA9251CBC7C78A7916636");
 
-    assert(tigerOf("message digest") == x"D981F8CB78201A950DCF3048751E441C517FCA1AA55A29F6");
-    assert(tiger2Of("message digest") == x"E29419A1B5FA259DE8005E7DE75078EA81A542EF2552462D");
+    assert(tigerOf("message digest") == hexString!"D981F8CB78201A950DCF3048751E441C517FCA1AA55A29F6");
+    assert(tiger2Of("message digest") == hexString!"E29419A1B5FA259DE8005E7DE75078EA81A542EF2552462D");
 
     assert(tigerOf(
-               "abcdefghijklmnopqrstuvwxyz") == x"1714A472EEE57D30040412BFCC55032A0B11602FF37BEEE9");
+               "abcdefghijklmnopqrstuvwxyz") == hexString!"1714A472EEE57D30040412BFCC55032A0B11602FF37BEEE9");
     assert(tiger2Of(
-               "abcdefghijklmnopqrstuvwxyz") == x"F5B6B6A78C405C8547E91CD8624CB8BE83FC804A474488FD");
+               "abcdefghijklmnopqrstuvwxyz") == hexString!"F5B6B6A78C405C8547E91CD8624CB8BE83FC804A474488FD");
 
     assert(tigerOf("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq")
-           == x"0F7BF9A19B9C58F2B7610DF7E84F0AC3A71C631E7B53F78E");
+           == hexString!"0F7BF9A19B9C58F2B7610DF7E84F0AC3A71C631E7B53F78E");
     assert(tiger2Of("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq")
-           == x"A6737F3997E8FBB63D20D2DF88F86376B5FE2D5CE36646A9");
+           == hexString!"A6737F3997E8FBB63D20D2DF88F86376B5FE2D5CE36646A9");
 
     assert(tigerOf("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
-           == x"8DCEA680A17583EE502BA38A3C368651890FFBCCDC49A8CC");
+           == hexString!"8DCEA680A17583EE502BA38A3C368651890FFBCCDC49A8CC");
     assert(tiger2Of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
-           == x"EA9AB6228CEE7B51B77544FCA6066C8CBB5BBAE6319505CD");
+           == hexString!"EA9AB6228CEE7B51B77544FCA6066C8CBB5BBAE6319505CD");
 
     assert(tigerOf("12345678901234567890123456789012345678901234567890123456789012345678901234567890")
-           == x"1C14795529FD9F207A958F84C52F11E887FA0CABDFD91BFD");
+           == hexString!"1C14795529FD9F207A958F84C52F11E887FA0CABDFD91BFD");
     assert(tiger2Of("12345678901234567890123456789012345678901234567890123456789012345678901234567890")
-           == x"D85278115329EBAA0EEC85ECDC5396FDA8AA3A5820942FFF");
+           == hexString!"D85278115329EBAA0EEC85ECDC5396FDA8AA3A5820942FFF");
 }
 
 private:
@@ -779,3 +779,8 @@ immutable ulong[256] table4 = [
     0xE74D14754F986044UL, 0xCD56D9430EA8280EUL, 0xC12591D7535F5065UL,
     0xC83223F1720AEF96UL, 0xC3A0396F7363A51FUL
     ];
+
+version(unittest)
+{
+    import std.conv : hexString;
+}

@@ -32,8 +32,6 @@ enum InsertionStatus
  * specific value for key that indicates that slot is unused. Use this when
  * storing indexes in knet.storage
  *
- * TODO support uncopyable keys
- *
  * TODO add extractElement that moves it out similar to
  * http://en.cppreference.com/w/cpp/container/unordered_set/extract
  *
@@ -1825,7 +1823,12 @@ pure nothrow unittest
 /// range key constness and value mutability with `class` value
 pure nothrow unittest
 {
-    alias K = uint;
+    struct K
+    {
+        @disable this(this);
+        uint value;
+    }
+
     class V
     {
         this(uint data) { this.data = data; }
@@ -1835,7 +1838,7 @@ pure nothrow unittest
     alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
     auto x = X();
 
-    x[42] = new V(43);
+    x[K(42)] = new V(43);
 
     assert(x.length == 1);
 
@@ -1851,7 +1854,7 @@ pure nothrow unittest
         assert(e.data == 43);
     }
 
-    foreach (e; x.byKeyValue)   // `e` is auto ref
+    foreach (ref e; x.byKeyValue)   // `e` is auto ref
     {
         static assert(is(typeof(e.key) == const(X.KeyType))); // const access to key
 

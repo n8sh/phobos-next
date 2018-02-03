@@ -38,8 +38,6 @@ enum InsertionStatus
  * TODO add merge or union algorithm here or into container_algorithm.d. See
  * also: http://en.cppreference.com/w/cpp/container/unordered_set/merge
  *
- * TODO add test for `SetIntersectionFast` in setops_ex.d
- *
  * TODO adjust rehashing to occur when relative number of LargeBuckets is
  * larger than, say, 1/10. Experiment with different ratios.
  *

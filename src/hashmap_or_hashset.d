@@ -45,7 +45,7 @@ enum InsertionStatus
  * `bstates` when smallBinCapacity == 1, similar to:
  *     std.typecons.nullable(alias nullValue, T)( T t )
  *
- * TODO add flag for use growth factor smaller than powers of two. use prime_modulo.d
+ * TODO add flag for use of growth factor smaller than powers of two. use prime_modulo.d
  *
  * TODO use core.bitop : bsr, bsl to find first empty element in bin. if as fast
  * as current find use it to optimize remove()

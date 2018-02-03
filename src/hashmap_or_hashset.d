@@ -1826,7 +1826,7 @@ pure nothrow unittest
     struct K
     {
         @disable this(this);
-        uint keyData;
+        uint value;
     }
 
     class V

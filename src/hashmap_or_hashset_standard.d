@@ -13,7 +13,7 @@ enum InsertionStatus
 
 /** Hash set (or map) storing (key) elements of type `K` and values of type `V`.
  *
- * Uses open-addressing.
+ * Uses open-addressing with quadratic probing using triangular numbers.
  *
  * Params:
  *      K = key type.
@@ -149,6 +149,15 @@ struct HashMapOrSet(K, V = void,
         return typeof(return)(Bins.withCapacity(capacity), 0);
     }
 
+    pragma(inline)              // LDC can, DMD cannot inline
+    private static typeof(this) withBinCount()(size_t binCount) // template-lazy
+    {
+        typeof(return) that;    // TODO return direct call to store constructor
+        that._bins = Bins.withLength(binCount);
+        that._length = 0;
+        return that;
+    }
+
     import std.traits : isIterable;
 
     /** Make with `elements`. */
@@ -252,6 +261,7 @@ struct HashMapOrSet(K, V = void,
     InsertionStatus insert(T element)
     {
         reserveExtra(1);
+        insertWithoutGrowth(move(element));
         assert(0, "insert element");
     }
 
@@ -268,7 +278,7 @@ struct HashMapOrSet(K, V = void,
         }
         foreach (element; elements)
         {
-            // TODO use `insertMoveWithoutBinCountGrowth` when call to `reserveExtra` works
+            // TODO use `insertWithoutGrowth` when call to `reserveExtra` works
             static if (hasIndirections!T)
             {
                 insert(element);
@@ -285,8 +295,52 @@ struct HashMapOrSet(K, V = void,
     {
         if ((_length + extraCapacity) * 2 > _bins.length)
         {
-            assert(0, "duplicate _bins length");
+            growWithExtraCapacity(extraCapacity);
         }
+    }
+
+    /// Grow by duplicating number of bins.
+    private void growWithExtraCapacity(size_t extraCapacity) @trusted // not template-lazy
+    {
+        size_t newBinCount = 0;
+        if (extraCapacity == 1)
+        {
+            newBinCount = binCount ? 2 * binCount : 1; // 0 => 1, 1 => 2, 2 => 4, ...
+        }
+        else
+        {
+            newBinCount = _length + extraCapacity;
+        }
+        auto copy = withBinCount(newBinCount);
+
+        // move elements to copy
+        foreach (immutable binIx; 0 .. _bins.length)
+        {
+            copy.insertMoveWithoutGrowth(_bins[binIx]);
+        }
+        assert(copy._length == _length); // length should stay same
+
+        move(copy._bins, _bins);
+
+        assert(!_bins.empty);
+    }
+
+    /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
+     */
+    pragma(inline, true)
+    private InsertionStatus insertWithoutGrowth(T element)
+    {
+        immutable binIx = keyToBinIx(keyOf(element));
+        assert(0, "copy element into place at binIx");
+    }
+
+    /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
+     */
+    pragma(inline, true)
+    private InsertionStatus insertMoveWithoutGrowth(ref T element)
+    {
+        immutable binIx = keyToBinIx(keyOf(element));
+        assert(0, "move element into place at binIx");
     }
 
     static if (hasValue)

@@ -18,11 +18,13 @@ enum InsertionStatus
  * Params:
  *      K = key type.
  *      V = value type.
- *      Allocator = memory allocator for bin array and large bins (`LargeBin`)
+ *      Allocator = memory allocator for bin array
  *      hasher = hash function or std.digest Hash.
- *      smallBinMinCapacity = minimum capacity of small bin
  *
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
+ *
+ * TODO when allocating _bins use nullKeyConstant for assignment after
+ * allocating and in allocator when that is used.
  *
  * TODO try quadratic probing using triangular numbers:
  * http://stackoverflow.com/questions/2348187/moving-from-linear-probing-to-quadratic-probing-hash-collisons/2349774#2349774
@@ -37,13 +39,6 @@ enum InsertionStatus
  * TODO add merge or union algorithm here or into container_algorithm.d. See
  * also: http://en.cppreference.com/w/cpp/container/unordered_set/merge. this
  * algorithm moves elements from source if they are not already in `this`
- *
- * TODO adjust rehashing to occur when relative number of LargeBuckets is
- * larger than, say, 1/10. Experiment with different ratios.
- *
- * TODO add template parameter `alias nullKeyValue` that avoids having to store
- * `bstates` when smallBinCapacity == 1, similar to:
- *     std.typecons.nullable(alias nullValue, T)( T t )
  *
  * TODO add flag for use of growth factor smaller than powers of two. use prime_modulo.d
  *
@@ -61,11 +56,8 @@ enum InsertionStatus
 struct HashMapOrSet(K, V = void,
                     alias Allocator = null,
                     alias hasher = hashOf,
-                    uint smallBinMinCapacity = 1,
-                    uint capacityScaleNumerator = 2,
-                    uint capacityScaleDenominator = 1)
-    if (// isHashable!K &&
-        smallBinMinCapacity >= 1) // no use having empty small bins
+                    K nullKeyConstant = K.init)
+    // if (isHashable!K)
 {
     import std.conv : emplace;
     import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable, isMutable, hasIndirections;
@@ -154,7 +146,7 @@ struct HashMapOrSet(K, V = void,
     pragma(inline)              // LDC can, DMD cannot inline
     static typeof(this) withCapacity()(size_t capacity) // template-lazy
     {
-        return typeof(return)(capacity);
+        return typeof(return)(Bins.withCapacity(capacity), 0);
     }
 
     import std.traits : isIterable;
@@ -179,138 +171,16 @@ struct HashMapOrSet(K, V = void,
         return that;
     }
 
-    pragma(inline)              // LDC can, DMD cannot inline
-    private static typeof(this) withBinCount()(size_t binCount) // template-lazy
-    {
-        typeof(return) that;    // TODO return direct call to store constructor
-        that._bins = Bins.withLength(binCount);
-        that._bstates = Bstates.withLength(binCount);
-        that._length = 0;
-        return that;
-    }
-
-    /** Construct with room for storing at least `capacity` number of elements.
-     */
-    private this()(size_t capacity) // template-lazy
-    {
-        immutable binCount = binCountOfCapacity(capacity);
-        _bins = Bins.withLength(binCount);
-        _bstates = Bstates.withLength(binCount);
-        _length = 0;
-    }
-
-    /** Lookup bin count from capacity `capacity`.
-     */
-    static private size_t binCountOfCapacity()(size_t capacity) // template-lazy
-    {
-        immutable minimumBinCount = ((capacityScaleNumerator *
-                                      capacity) /
-                                     (smallBinCapacity *
-                                      capacityScaleDenominator));
-        import std.math : nextPow2;
-        return nextPow2(minimumBinCount == 0 ?
-                        0 :
-                        minimumBinCount - 1);
-    }
-
-    /// Destruct.
-    ~this()
-    {
-        release();
-    }
-
     /// No copying.
     @disable this(this);
 
     /// Duplicate.
     static if (isCopyable!T)
     {
-        typeof(this) dup()() const @trusted // template-lazy
+        typeof(this) dup()() const // template-lazy
         {
-            typeof(return) that;
-
-            that._bins.reserve(_bins.length);
-            // TODO merge these
-            that._bins.length = _bins.length; // TODO this zero-initializes before initialization below, use unsafe setLengthOnlyUNSAFE
-
-            that._bstates = _bstates.dup;
-            assert(that._bstates[] == _bstates[]);
-
-            that._length = _length;
-
-            foreach (immutable binIx; 0 .. _bins.length)
-            {
-                if (_bstates[binIx].isLarge)
-                {
-                    LargeBin.emplaceWithCopiedElements(&that._bins[binIx].large,
-                                                       _bins[binIx].large[]);
-                }
-                else
-                {
-                    auto elements = smallBinElementsAt(binIx);
-                    /** TODO functionize to `emplaceAll` in emplace_all.d. See also:
-                     * http://forum.dlang.org/post/xxigbqqflzwfgycrclyq@forum.dlang.org
-                     */
-                    static if (hasElaborateCopyConstructor!T)
-                    {
-                        foreach (immutable elementIx, immutable ref element; elements)
-                        {
-                            emplace(&that._bins[binIx].small[elementIx],
-                                    element);
-                        }
-                    }
-                    else
-                    {
-                        enum useMemcpy = true;
-                        static if (useMemcpy)
-                        {
-                            // currently faster than slice assignment on else branch
-                            import core.stdc.string : memcpy;
-                            memcpy(that._bins[binIx].small.ptr, // cannot overlap
-                                   elements.ptr,
-                                   elements.length * T.sizeof);
-                        }
-                        else
-                        {
-                            that._bins[binIx].small.ptr[0 .. _bstates[binIx].smallCount] = elements;
-                        }
-                    }
-                }
-            }
-
-            return that;
+            return typeof(return)(_bins.dup, _length);
         }
-    }
-
-    /// Grow by duplicating number of bins.
-    private void growWithExtraCapacity(size_t extraCapacity) @trusted // not template-lazy
-    {
-        size_t newBinCount = 0;
-        if (extraCapacity == 1)
-        {
-            newBinCount = binCount ? 2 * binCount : 1; // 0 => 1, 1 => 2, 2 => 4, ...
-        }
-        else
-        {
-            newBinCount = binCountOfCapacity(_length + extraCapacity);
-        }
-        auto copy = withBinCount(newBinCount);
-
-        // move elements to copy
-        foreach (immutable binIx; 0 .. _bins.length)
-        {
-            foreach (ref element; binElementsAt(binIx))
-            {
-                copy.insertMoveWithoutBinCountGrowth(element);
-            }
-        }
-        assert(copy._length == _length); // length shouldn't change
-
-        moveEmplace(copy._bstates, _bstates); // `_bstates` doesn't need destroying
-        move(copy._bins, _bins);
-
-        assert(!_bins.empty);
-        assert(!_bstates.empty);
     }
 
     /// Equality.
@@ -320,17 +190,23 @@ struct HashMapOrSet(K, V = void,
 
         foreach (immutable binIx; 0 .. _bins.length)
         {
-            foreach (const ref element; binElementsAt(binIx))
+            if (keyOf(_bins[binIx]) !is nullKeyConstant)
             {
                 static if (hasValue)
                 {
-                    auto elementFound = element.key in rhs;
-                    if (!elementFound) { return false; }
-                    if ((*elementFound) !is element.value) { return false; }
+                    auto elementFound = _bins[binIx].key in rhs;
+                    if (!elementFound)
+                    {
+                        return false;
+                    }
+                    if ((*elementFound) !is _bins[binIx].value)
+                    {
+                        return false;
+                    }
                 }
                 else
                 {
-                    if (!rhs.contains(element)) { return false; }
+                    if (!rhs.contains(_bins[binIx])) { return false; }
                 }
             }
         }
@@ -341,42 +217,7 @@ struct HashMapOrSet(K, V = void,
     /// Empty.
     void clear()()              // template-lazy
     {
-        release();
-        resetInternalData();
-    }
-
-    /// Release internal store.
-    private void release() @trusted
-    {
-        foreach (immutable binIx; 0 .. _bins.length)
-        {
-            if (_bstates[binIx].isLarge)
-            {
-                static if (hasElaborateDestructor!LargeBin)
-                {
-                    .destroy(_bins[binIx].large);
-                }
-            }
-            else
-            {
-                static if (hasElaborateDestructor!T)
-                {
-                    // TODO use emplace_all : destroyAll(smallBinElementsAt(binIx))
-                    foreach (ref element; smallBinElementsAt(binIx))
-                    {
-                        .destroy(element);
-                    }
-                }
-            }
-        }
-    }
-
-    /// Reset internal data.
-    private void resetInternalData()
-    {
         _bins.clear();
-        _bstates.clear();
-        _length = 0;
     }
 
     version(LDC) { pragma(inline, true): } // needed for LDC to inline this, DMD cannot
@@ -392,7 +233,7 @@ struct HashMapOrSet(K, V = void,
             return false; // prevent `RangeError` in `binElementsAt` when empty
         }
         immutable binIx = keyToBinIx(key);
-        return hasKey(binElementsAt(binIx), key);
+        return keyOf(_bins[binIx]) !is nullKeyConstant;
     }
     /// ditto
     bool contains()(in ref K key) const // template-lazy
@@ -402,7 +243,7 @@ struct HashMapOrSet(K, V = void,
             return false; // prevent `RangeError` in `binElementsAt` when empty
         }
         immutable binIx = keyToBinIx(key);
-        return hasKey(binElementsAt(binIx), key);
+        return keyOf(_bins[binIx]) !is nullKeyConstant;
     }
 
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
@@ -411,7 +252,7 @@ struct HashMapOrSet(K, V = void,
     InsertionStatus insert(T element)
     {
         reserveExtra(1);
-        return insertMoveWithoutBinCountGrowth(element);
+        assert(0, "insert element");
     }
 
     /** Insert `elements`, all being either a key-value (map-case) or a just a key (set-case).
@@ -442,12 +283,9 @@ struct HashMapOrSet(K, V = void,
     /** Reserve rom for `extraCapacity` number of extra buckets. */
     void reserveExtra()(size_t extraCapacity)
     {
-        if ((capacityScaleNumerator *
-             (_length + extraCapacity) /
-             capacityScaleDenominator) >
-            _bins.length * smallBinCapacity)
+        if ((_length + extraCapacity) * 2 > _bins.length)
         {
-            growWithExtraCapacity(extraCapacity);
+            assert(0, "duplicate _bins length");
         }
     }
 
@@ -482,96 +320,12 @@ struct HashMapOrSet(K, V = void,
         return offsetOfKey(elements, key) != elements.length;
     }
 
-    /** Insert `element` like with `insert()` without automatic growth of number
-     * of bins.
-     */
-    InsertionStatus insertMoveWithoutBinCountGrowth(ref T element) @trusted // ref simplifies move
-    {
-        immutable binIx = keyToBinIx(keyRefOf(element));
-        T[] elements = binElementsAt(binIx);
-        immutable elementOffset = offsetOfKey(elements, keyOf(element));
-        immutable elementFound = elementOffset != elements.length;
-
-        if (elementFound)
-        {
-            static if (hasValue)
-            {
-                /* TODO Rust does the same in its `insert()` at
-                 * https://doc.rust-lang.org/std/collections/struct.HashMap.html
-                 */
-                if (elements[elementOffset].value !is valueOf(element)) // if different value (or identity for classes)
-                {
-                    // replace value
-                    static if (needsMove!V)
-                    {
-                        move(valueOf(element),
-                             elements[elementOffset].value);
-                    }
-                    else
-                    {
-                        elements[elementOffset].value = valueOf(element);
-                    }
-                    return typeof(return).modified;
-                }
-            }
-            return typeof(return).unmodified;
-        }
-        else                    // no elementFound
-        {
-            if (_bstates[binIx].isLarge) // stay large
-            {
-                _bins[binIx].large.insertBackMove(element);
-            }
-            else
-            {
-                if (_bstates[binIx].isFullSmall) // expand small to large
-                {
-                    static if (needsMove!T)
-                    {
-                        // TODO functionize to concatenation:moveConcatenate()
-                        T[smallBinCapacity + 1] smallCopy = void;
-                        moveEmplaceAllNoReset(_bins[binIx].small[],
-                                              smallCopy[0 .. smallBinCapacity]);
-                        moveEmplace(element,
-                                    smallCopy[smallBinCapacity]);
-
-                        LargeBin.emplaceWithMovedElements(&_bins[binIx].large,
-                                                          smallCopy[]);
-                    }
-                    else
-                    {
-                        import concatenation : concatenate;
-                        auto smallCopy = concatenate(_bins[binIx].small, element);
-                        emplace!(LargeBin)(&_bins[binIx].large, smallCopy[]);
-                    }
-                    _bstates[binIx].makeLarge();
-                }
-                else            // stay small
-                {
-                    static if (needsMove!T)
-                    {
-                        moveEmplace(element,
-                                    _bins[binIx].small[_bstates[binIx].smallCount]);
-                    }
-                    else
-                    {
-                        _bins[binIx].small[_bstates[binIx].smallCount] = element;
-                    }
-                    _bstates[binIx].incSmallCount();
-                }
-            }
-            _length += 1;
-            return typeof(return).added;
-        }
-    }
-
     /** L-value element reference (and in turn range iterator).
      */
     static private struct LvalueElementRef(HashMapOrSetType)
     {
         HashMapOrSetType* table;
         size_t binIx;           // index to bin inside table
-        size_t elementOffset;   // offset to element inside bin
         size_t elementCounter;  // counter over number of elements popped
 
         pragma(inline, true):
@@ -590,27 +344,14 @@ struct HashMapOrSet(K, V = void,
 
         void initFirstNonEmptyBin()
         {
-            while (binIx < table.binCount &&
-                   table.binElementCountAt(binIx) == 0)
-            {
-                binIx += 1;
-            }
+            assert(0, "set binIx to first non-empty key or element");
         }
 
         pragma(inline)
         void popFront()
         {
             assert(!empty);
-            elementOffset += 1; // next element
-            // if current bin was emptied
-            while (elementOffset >= table.binElementsAt(binIx).length)
-            {
-                // next bin
-                binIx += 1;
-                elementOffset = 0;
-                if (empty) { break; }
-            }
-            elementCounter += 1;
+            assert(0, "set binIx to next non-empty key or element");
         }
 
         @property typeof(this) save() // ForwardRange
@@ -644,27 +385,14 @@ struct HashMapOrSet(K, V = void,
 
         void initFirstNonEmptyBin()
         {
-            while (binIx < table.binCount &&
-                   table.binElementCountAt(binIx) == 0)
-            {
-                binIx += 1;
-            }
+            assert(0, "set binIx to first non-empty key or element");
         }
 
         pragma(inline)
         void popFront()
         {
             assert(!empty);
-            elementOffset += 1; // next element
-            // if current bin was emptied
-            while (elementOffset >= table.binElementsAt(binIx).length)
-            {
-                // next bin
-                binIx += 1;
-                elementOffset = 0;
-                if (empty) { break; }
-            }
-            elementCounter += 1;
+            assert(0, "set binIx to next non-empty key or element");
         }
     }
 
@@ -698,7 +426,7 @@ struct HashMapOrSet(K, V = void,
                 /// Get reference to front element (key and value).
                 @property scope auto front()()
                 {
-                    return table.binElementsAt(binIx)[elementOffset];
+                    return table._bins[binIx];
                 }
             }
             public LvalueElementRef!HashMapOrSetType _elementRef;
@@ -726,7 +454,7 @@ struct HashMapOrSet(K, V = void,
                 /// Get reference to front element (key and value).
                 @property scope auto front()()
                 {
-                    return table.binElementsAt(binIx)[elementOffset];
+                    return table._bins[binIx];
                 }
             }
             public RvalueElementRef!HashMapOrSetType _elementRef;
@@ -755,17 +483,13 @@ struct HashMapOrSet(K, V = void,
                 return typeof(return).init;
             }
             immutable binIx = keyToBinIx(key);
-            const elements = binElementsAt(binIx);
-            immutable elementOffset = offsetOfKey(elements, key);
-            immutable elementFound = elementOffset != elements.length;
-            if (elementFound)
+            if (keyOf(_bins[binIx]) !is nullKeyConstant) // if hit
             {
-                return cast(typeof(return))&elements[elementOffset].value;
-                // return typeof(return)(&this, binIx, elementOffset);
+                return cast(typeof(return))&_bins[binIx].value;
             }
             else                    // miss
             {
-                return typeof(return).init;
+                return null;
             }
         }
 
@@ -775,7 +499,7 @@ struct HashMapOrSet(K, V = void,
             /// Get reference to key of front element.
             @property scope const auto ref front()() return // key access must be const
             {
-                return table.binElementsAt(binIx)[elementOffset].key;
+                return table._bins[binIx].key;
             }
             public LvalueElementRef!HashMapOrSetType _elementRef;
             alias _elementRef this;
@@ -794,9 +518,9 @@ struct HashMapOrSet(K, V = void,
         {
             pragma(inline, true):
             /// Get reference to value of front element.
-            @property scope auto ref front()() return @trusted // template-lazy property. TODO remove @trusted
+            @property scope auto ref front()() return @trusted // template-lazy property
             {
-                return *(cast(ValueType*)(&table.binElementsAt(binIx)[elementOffset].value)); // TODO remove reinterpret cast
+                return *(cast(ValueType*)&table._bins[binIx].value);
             }
             public LvalueElementRef!HashMapOrSetType _elementRef;
             alias _elementRef this;
@@ -825,7 +549,7 @@ struct HashMapOrSet(K, V = void,
                 {
                     alias E = const(T);
                 }
-                return *(cast(E*)&table.binElementsAt(binIx)[elementOffset]); // TODO remove cast
+                return *(cast(E*)&table._bins[binIx]);
             }
             public LvalueElementRef!HashMapOrSetType _elementRef;
             alias _elementRef this;
@@ -860,13 +584,9 @@ struct HashMapOrSet(K, V = void,
         scope ref inout(V) opIndex()(in auto ref K key) inout return
         {
             immutable binIx = keyToBinIx(key);
-            auto elements = binElementsAt(binIx);
-
-            immutable elementOffset = offsetOfKey(elements, key);
-            immutable elementFound = elementOffset != elements.length;
-            if (elementFound)
+            if (keyOf(_bins[binIx]) !is nullKeyConstant) // if hit
             {
-                return binElementsAt(binIx)[elementOffset].value;
+                return _bins[binIx].value;
             }
             else                // miss
             {
@@ -884,14 +604,12 @@ struct HashMapOrSet(K, V = void,
          */
         auto ref V get()(in K key, in auto ref V defaultValue) @trusted
         {
-            import std.algorithm.searching : countUntil;
-            immutable binIx = keyToBinIx(key);
-            immutable ptrdiff_t elementOffset = binElementsAt(binIx).countUntil!(_ => _.key is key); // TODO functionize
-            if (elementOffset != -1) // elementFound
+            auto value = key in this;
+            if (value !is null) // hit
             {
-                return binElementsAt(binIx)[elementOffset].value;
+                return *value;
             }
-            else                    // miss
+            else                // miss
             {
                 return defaultValue;
             }
@@ -906,104 +624,15 @@ struct HashMapOrSet(K, V = void,
                      move(value)));
             // TODO return reference to value
 	}
-
-        static if (__traits(compiles, { V _; _ += 1; })) // if we can increase the key
-        {
-            /** Increase value at `key`, or set value to 1 if `key` hasn't yet
-             * been added.
-             */
-            pragma(inline, true)
-            void autoinitIncAt()(in K key) // template-lazy
-            {
-                auto elementFound = key in this;
-                if (elementFound)
-                {
-                    (*elementFound) += 1;
-                }
-                else
-                {
-                    insert(key, V.init + 1);
-                }
-            }
-        }
-
     }
 
-    /** Remove `element` and, when possible, shrink its large bin to small.
-
+    /** Remove `element`.
         Returns: `true` if element was removed, `false` otherwise.
     */
     bool remove()(in K key)     // template-lazy
         @trusted
     {
-        immutable binIx = keyToBinIx(key);
-        import container_algorithm : popFirstMaybe;
-        if (_bstates[binIx].isLarge)
-        {
-            immutable elementFound = _bins[binIx].large.popFirstMaybe!keyEqualPred(key);
-            _length -= elementFound ? 1 : 0;
-            if (elementFound)
-            {
-                tryShrinkLargeBinAt(binIx);
-            }
-            return elementFound;
-        }
-        else
-        {
-            const elements = smallBinElementsAt(binIx);
-            immutable elementIx = offsetOfKey(elements, key);
-            immutable elementFound = elementIx != elements.length;
-            if (elementFound)
-            {
-                removeSmallElementAt(binIx, elementIx);
-            }
-            _length -= elementFound ? 1 : 0;
-            return elementFound;
-        }
-    }
-
-    /** Remove small element at `elementIx` in bin `binIx`. */
-    private void removeSmallElementAt()(size_t binIx, // template-lazy
-                                        size_t elementIx)
-    {
-        assert(!_bstates[binIx].isLarge);
-        import container_algorithm : shiftToFrontAt;
-        smallBinElementsAt(binIx).shiftToFrontAt(elementIx);
-        _bstates[binIx].decSmallCount();
-        static if (hasElaborateDestructor!T)
-        {
-            .destroy(_bins[binIx].small[_bstates[binIx].smallCount]); // TODO this is incorrect
-        }
-    }
-
-    /** Shrink large bin at `binIx` possible posbiel. */
-    private void tryShrinkLargeBinAt()(size_t binIx) // template-lazy
-    {
-        assert(_bstates[binIx].isLarge);
-        immutable count = _bins[binIx].large.length;
-        if (count <= smallBinCapacity) // large fits in small
-        {
-            SmallBin smallCopy = void;
-            moveEmplaceAllNoReset(_bins[binIx].large[0 .. count],
-                                  smallCopy[0 .. count]);
-            static if (hasElaborateDestructor!LargeBin)
-            {
-                .destroy(_bins[binIx].large);
-            }
-            moveEmplaceAllNoReset(smallCopy[0 .. count],
-                                  _bins[binIx].small[0 .. count]);
-            _bstates[binIx].smallCount = count;
-        }
-    }
-
-    /** Rehash.
-     *
-     * Reorganize `this` in place so that lookups are more efficient.
-     */
-    ref typeof(this) rehash()() @trusted // template-lazy
-    {
-        static assert(0, "TODO remove template parens of this functions and implement");
-        // return this;
+        assert(0, "remove at binIx");
     }
 
     /// Check if empty.
@@ -1018,165 +647,11 @@ struct HashMapOrSet(K, V = void,
     pragma(inline, true)
     @property size_t binCount() const { return _bins.length; }
 
-    /// Bin count statistics.
-    struct BinCounts
-    {
-        size_t smallCount;      // number of hybrid bins being small
-        size_t largeCount;      // number of hybrid bins being large
-    }
-
-    /// Returns: bin count statistics for small and large bins.
-    pragma(inline, false)
-    BinCounts binCounts()() const // template-lazy
-    {
-        import std.algorithm : count;
-        immutable largeCount = _bstates[].count!(_ => _.isLarge);
-        immutable smallCount = _bstates.length - largeCount;
-        auto result = typeof(return)(smallCount,
-                                     largeCount);
-        assert(result.largeCount + result.smallCount == _bstates.length);
-        return result;
-    }
-
-    /** Returns: elements in bin at `binIx`. */
-    pragma(inline, true)
-    private scope inout(T)[] binElementsAt(size_t binIx) inout return @trusted
-    {
-        if (_bstates[binIx].isLarge)
-        {
-            return _bins[binIx].large[];
-        }
-        else
-        {
-            return smallBinElementsAt(binIx);
-        }
-    }
-
-    pragma(inline, true)
-    private scope inout(T)[] smallBinElementsAt(size_t binIx) inout return
-    {
-        return _bins[binIx].small[0 .. _bstates[binIx].smallCount];
-    }
-
-    /** Returns: number of elements in bin at `binIx`. */
-    pragma(inline, true)
-    private size_t binElementCountAt(size_t binIx) const @trusted
-    {
-        if (_bstates[binIx].isLarge)
-        {
-            return _bins[binIx].large.length;
-        }
-        else
-        {
-            return _bstates[binIx].smallCount;
-        }
-    }
-
-    /** Maximum number of elements that fits in a small bin
-     * (`SmallBin`).
-     */
-    enum smallBinCapacity = max(smallBinMinCapacity,
-                                   LargeBin.sizeof / T.sizeof);
-
 private:
     import basic_array : Array = BasicArray;
+    alias Bins = Array!(T, Allocator);
 
-    /** 32-bit capacity and length for LargeBinLnegth on 64-bit platforms
-     * saves one word and makes insert() and contains() significantly faster */
-    alias LargeBinCapacityType = uint;
-    alias LargeBin = Array!(T, Allocator, LargeBinCapacityType);
-
-    alias SmallBin = T[smallBinCapacity];
-
-    /// no space for `SmallBin`s should be wasted
-    static assert(SmallBin.sizeof >= LargeBin.sizeof);
-
-    /** Small-size-optimized bin.
-     */
-    union HybridBin
-    {
-        SmallBin small;
-        LargeBin large;
-    }
-
-    static if (mustAddGCRange!LargeBin)
-    {
-        static assert(mustAddGCRange!HybridBin, "HybridBin mustAddGCRange when LargeBin is " ~ LargeBin.stringof);
-    }
-    static if (mustAddGCRange!SmallBin)
-    {
-        static assert(mustAddGCRange!HybridBin, "HybridBin mustAddGCRange when SmallBin is " ~ SmallBin.stringof);
-    }
-
-    /** Count and large status of bin. */
-    struct Bstate
-    {
-        alias Count = ubyte;
-
-        pragma(inline, true):
-
-        @property Count smallCount() const
-        {
-            assert(_count <= smallBinCapacity);
-            return _count;
-        }
-
-        @property void smallCount(size_t count)
-        {
-            assert(count <= smallBinCapacity);
-            _count = cast(Count)count;
-        }
-
-        void decSmallCount()
-        {
-            assert(_count >= 1);
-            _count -= 1;
-        }
-
-        void incSmallCount()
-        {
-            assert(_count + 1 <= smallBinCapacity);
-            _count += 1;
-        }
-
-        /** Returns: `true` iff `this` is a large bin. */
-        @property bool isLarge() const
-        {
-            return _count == Count.max;
-        }
-
-        void makeLarge()
-        {
-            _count = Count.max;
-        }
-
-        /** Returns: `true` iff `this` is a full small bin. */
-        @property bool isFullSmall() const
-        {
-            return _count == smallBinCapacity;
-        }
-
-        Count _count;
-    }
-
-    /** Small-size-optimized bin array.
-        Size-state (including small or large) for each element is determined by
-        corresponding element in `Bstates`.
-     */
-    alias Bins = Array!(HybridBin, Allocator);
-
-    /// Bin states.
-    alias Bstates = Array!(Bstate, Allocator);
-
-    // TODO merge these into an instance of soa.d and remove invariant
     Bins _bins;                 // bin elements
-    Bstates _bstates;           // bin states
-    invariant
-    {
-        assert(_bins.length ==
-               _bstates.length);
-    }
-
     size_t _length;             // total number of elements stored
 
     /** Returns: bin index of `hash`. */
@@ -1209,42 +684,8 @@ void removeAllMatching(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetT
     if (isInstanceOf!(HashMapOrSet,
                       HashMapOrSetType))
 {
-    import std.algorithm.mutation : moveEmplace;
-    foreach (immutable binIx; 0 .. x._bins.length)
-    {
-        if (x._bstates[binIx].isLarge)
-        {
-            import basic_array : remove;
-            immutable removeCount = x._bins[binIx].large.remove!predicate();
-            x._length -= removeCount;
-            x.tryShrinkLargeBinAt(binIx);
-        }
-        else
-        {
-            HashMapOrSetType.SmallBin tmpSmall;
-            HashMapOrSetType.Bstate tmpBstate;
-            foreach (ref element; x.smallBinElementsAt(binIx))
-            {
-                if (unaryFun!predicate(element))
-                {
-                    import std.traits : hasElaborateDestructor;
-                    static if (hasElaborateDestructor!(HashMapOrSetType.T))
-                    {
-                        destroy(element);
-                    }
-                    x._length -= 1;
-                }
-                else
-                {
-                    moveEmplace(element, tmpSmall[tmpBstate.smallCount()]);
-                    tmpBstate.incSmallCount();
-                }
-            }
-            assert(!tmpBstate.isLarge); // should stay small
-            moveEmplace(tmpSmall, x._bins[binIx].small);
-            moveEmplace(tmpBstate, x._bstates[binIx]);
-        }
-    }
+
+    assert(0, "find all elements in x matching predicate and set them to empty or destroy");
 }
 
 /** Returns: `x` eagerly filtered on `predicate`.
@@ -1492,19 +933,13 @@ pure nothrow @nogc unittest
             static assert(mustAddGCRange!V);
             static assert(mustAddGCRange!(V[1]));
             static assert(mustAddGCRange!(X.T));
-            static assert(mustAddGCRange!(X.SmallBin));
-            static assert(!mustAddGCRange!(X.LargeBin));
         }
         else
         {
             static assert(!mustAddGCRange!(X.T));
-            static assert(!mustAddGCRange!(X.SmallBin), "Fails for X being " ~ X.SmallBin.stringof);
         }
 
         auto x1 = X();            // start empty
-
-        // all bins start small
-        assert(x1.binCounts.largeCount == 0);
 
         // fill x1
 
@@ -1595,9 +1030,6 @@ pure nothrow @nogc unittest
             assert(equal(x1[], x2[]));
         }
 
-        assert(x1.binCounts.largeCount ==
-               x2.binCounts.largeCount);
-
         static assert(!__traits(compiles, { const _ = x1 < x2; })); // no ordering
 
         assert(x2.length == n);
@@ -1636,8 +1068,6 @@ pure nothrow @nogc unittest
             assert(x1.length == n - key - 1);
         }
 
-        assert(x1.binCounts.largeCount == 0);
-
         assert(x1.length == 0);
 
         x1.clear();
@@ -1669,8 +1099,6 @@ pure nothrow @nogc unittest
             assert(!x2.remove(key));
             assert(x2.length == n - key - 1);
         }
-
-        assert(x2.binCounts.largeCount == 0);
 
         assert(x2.length == 0);
 
@@ -1849,7 +1277,6 @@ pure nothrow unittest
     foreach (ref e; x.byKeyValue)   // `e` is auto ref
     {
         static assert(is(typeof(e.key) == const(X.KeyType))); // const access to key
-
         static assert(is(typeof(e.value) == X.ValueType)); // mutable access to value
 
         assert(e.value.data == 43);

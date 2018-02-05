@@ -707,7 +707,6 @@ private:
     }
 
     /** Returns: bin index of `key` if present or `_bins.length` if miss. */
-    pragma(inline)
     size_t tryFindIxOfKey()(in auto ref K key) const
     {
         size_t ix = keyToIx(key);

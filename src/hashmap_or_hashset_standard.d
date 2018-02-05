@@ -728,7 +728,7 @@ private:
             inc *= 2;
         }
 
-        if (keyOf(_bins[ix]) !is key)
+        if (keyOf(_bins[ix]) is key)
         {
             return ix;
         }

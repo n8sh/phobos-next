@@ -726,7 +726,8 @@ private:
 
         size_t inc = 1;
         while (keyOf(_bins[ix]) !is key &&
-               keyOf(_bins[ix]) !is nullKeyConstant)
+               keyOf(_bins[ix]) !is nullKeyConstant &&
+               inc != _bins.length)
         {
             ix = (ix + inc) % mask;
             inc *= 2;

@@ -1206,6 +1206,7 @@ private:
         return hashToIndex(hashOf2!(hasher)(key));
     }
 
+    /** Returns: current index mask from bin count. */
     pragma(inline, true)
     private size_t powerOf2Mask() const
     {

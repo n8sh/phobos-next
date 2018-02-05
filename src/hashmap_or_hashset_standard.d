@@ -241,7 +241,7 @@ struct HashMapOrSet(K, V = void,
         {
             return false; // prevent `RangeError` in `binElementsAt` when empty
         }
-        return tryFindKey(key) != _bins.length;
+        return tryFindKeyIx(key) != _bins.length;
     }
     /// ditto
     bool contains()(in ref K key) const // template-lazy
@@ -705,7 +705,7 @@ private:
 
     /** Returns: bin index of `key` or length of _bins if miss. */
     pragma(inline)
-    size_t tryFindKey()(in auto ref K key) const
+    size_t tryFindKeyIx()(in auto ref K key) const
     {
         size_t ix = keyToIx(key);
 
@@ -720,6 +720,7 @@ private:
 
         // if not yet decided
         immutable size_t mask = _bins.length - 1;
+        assert((~mask ^ mask) == size_t.max); // isPowerOf2(_bins.length)
         ix = (ix + 1) % mask;   // modulo power of two
 
         size_t inc = 1;

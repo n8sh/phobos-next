@@ -110,18 +110,21 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Get key part of element.
+        pragma(inline, true)
         static auto ref inout(K) keyOf()(auto ref return inout(T) element)
         {
             return element.key;
         }
 
         /// Get reference to key part of `element`.
+        pragma(inline, true)
         static ref inout(K) keyRefOf()(ref return inout(T) element) // template-lazy
         {
             return element.key;
         }
 
         /// Get value part of element.
+        pragma(inline, true)
         static auto ref inout(V) valueOf()(auto ref return inout(T) element)
         {
             return element.value;
@@ -140,12 +143,14 @@ struct HashMapOrSet(K, V = void,
         alias T = K;
 
         /// Get key part of element.
+        pragma(inline, true)
         static auto ref inout(K) keyOf()(auto ref return inout(T) element)
         {
             return element;
         }
 
         /// Get reference to key part of `element`.
+        pragma(inline, true)
         static ref inout(K) keyRefOf()(ref return inout(T) element) // template-lazy
         {
             return element;

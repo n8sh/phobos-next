@@ -246,7 +246,7 @@ struct HashMapOrSet(K, V = void,
         {
             return false; // prevent `RangeError` in `binElementsAt` when empty
         }
-        return tryFindKeyIx(key) != _bins.length;
+        return tryFindIxOfKey(key) != _bins.length;
     }
     /// ditto
     bool contains()(in ref K key) const // template-lazy
@@ -706,9 +706,9 @@ private:
         return hashToIndex(hashOf2!(hasher)(key));
     }
 
-    /** Returns: bin index of `key` or `_bins.length` if miss. */
+    /** Returns: bin index of `key` if present or `_bins.length` if miss. */
     pragma(inline)
-    size_t tryFindKeyIx()(in auto ref K key) const
+    size_t tryFindIxOfKey()(in auto ref K key) const
     {
         size_t ix = keyToIx(key);
 

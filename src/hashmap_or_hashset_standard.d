@@ -742,6 +742,7 @@ private:
         }
     }
 
+    pragma(inline, true)
     private size_t powerOf2Mask() const
     {
         immutable typeof(return) mask = _bins.length - 1;

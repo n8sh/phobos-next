@@ -706,7 +706,7 @@ private:
         return hashToIndex(hashOf2!(hasher)(key));
     }
 
-    /** Returns: bin index of `key` or length of _bins if miss. */
+    /** Returns: bin index of `key` or `_bins.length` if miss. */
     pragma(inline)
     size_t tryFindKeyIx()(in auto ref K key) const
     {

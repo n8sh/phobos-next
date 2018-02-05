@@ -197,25 +197,25 @@ struct HashMapOrSet(K, V = void,
     {
         if (_length != rhs._length) { return false; }
 
-        foreach (immutable binIx; 0 .. _bins.length)
+        foreach (immutable ix; 0 .. _bins.length)
         {
-            if (keyOf(_bins[binIx]) !is nullKeyConstant)
+            if (keyOf(_bins[ix]) !is nullKeyConstant)
             {
                 static if (hasValue)
                 {
-                    auto elementFound = _bins[binIx].key in rhs;
+                    auto elementFound = _bins[ix].key in rhs;
                     if (!elementFound)
                     {
                         return false;
                     }
-                    if ((*elementFound) !is _bins[binIx].value)
+                    if ((*elementFound) !is _bins[ix].value)
                     {
                         return false;
                     }
                 }
                 else
                 {
-                    if (!rhs.contains(_bins[binIx])) { return false; }
+                    if (!rhs.contains(_bins[ix])) { return false; }
                 }
             }
         }
@@ -241,8 +241,7 @@ struct HashMapOrSet(K, V = void,
         {
             return false; // prevent `RangeError` in `binElementsAt` when empty
         }
-        immutable binIx = keyToBinIx(key);
-        return keyOf(_bins[binIx]) !is nullKeyConstant;
+        return tryFindKey(key) != _bins.length;
     }
     /// ditto
     bool contains()(in ref K key) const // template-lazy
@@ -251,8 +250,8 @@ struct HashMapOrSet(K, V = void,
         {
             return false; // prevent `RangeError` in `binElementsAt` when empty
         }
-        immutable binIx = keyToBinIx(key);
-        return keyOf(_bins[binIx]) !is nullKeyConstant;
+        immutable ix = keyToIx(key);
+        return keyOf(_bins[ix]) !is nullKeyConstant;
     }
 
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
@@ -314,9 +313,9 @@ struct HashMapOrSet(K, V = void,
         auto copy = withBinCount(newBinCount);
 
         // move elements to copy
-        foreach (immutable binIx; 0 .. _bins.length)
+        foreach (immutable ix; 0 .. _bins.length)
         {
-            copy.insertMoveWithoutGrowth(_bins[binIx]);
+            copy.insertMoveWithoutGrowth(_bins[ix]);
         }
         assert(copy._length == _length); // length should stay same
 
@@ -330,8 +329,8 @@ struct HashMapOrSet(K, V = void,
     pragma(inline, true)
     private InsertionStatus insertWithoutGrowth(T element)
     {
-        immutable binIx = keyToBinIx(keyOf(element));
-        assert(0, "copy element into place at binIx");
+        immutable ix = keyToIx(keyOf(element));
+        assert(0, "copy element into place at ix");
     }
 
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
@@ -339,8 +338,8 @@ struct HashMapOrSet(K, V = void,
     pragma(inline, true)
     private InsertionStatus insertMoveWithoutGrowth(ref T element)
     {
-        immutable binIx = keyToBinIx(keyOf(element));
-        assert(0, "move element into place at binIx");
+        immutable ix = keyToIx(keyOf(element));
+        assert(0, "move element into place at ix");
     }
 
     static if (hasValue)
@@ -354,32 +353,12 @@ struct HashMapOrSet(K, V = void,
         }
     }
 
-    pragma(inline, true)              // DMD cannot inline
-    static private size_t offsetOfKey(in T[] elements,
-                                      in ref K key)
-    {
-        size_t elementOffset = 0;
-        foreach (const ref e; elements)
-        {
-            if (keyOf(e) is key) { break; }
-            elementOffset += 1;
-        }
-        return elementOffset;
-    }
-
-    pragma(inline, true)
-    static private bool hasKey(in T[] elements,
-                               in ref K key)
-    {
-        return offsetOfKey(elements, key) != elements.length;
-    }
-
     /** L-value element reference (and in turn range iterator).
      */
     static private struct LvalueElementRef(HashMapOrSetType)
     {
         HashMapOrSetType* table;
-        size_t binIx;           // index to bin inside table
+        size_t ix;           // index to bin inside table
         size_t elementCounter;  // counter over number of elements popped
 
         pragma(inline, true):
@@ -387,7 +366,7 @@ struct HashMapOrSet(K, V = void,
         /// Check if empty.
         @property bool empty() const @safe pure nothrow @nogc
         {
-            return binIx == table.binCount;
+            return ix == table.binCount;
         }
 
         /// Get number of element left to pop.
@@ -398,14 +377,14 @@ struct HashMapOrSet(K, V = void,
 
         void initFirstNonEmptyBin()
         {
-            assert(0, "set binIx to first non-empty key or element");
+            assert(0, "set ix to first non-empty key or element");
         }
 
         pragma(inline)
         void popFront()
         {
             assert(!empty);
-            assert(0, "set binIx to next non-empty key or element");
+            assert(0, "set ix to next non-empty key or element");
         }
 
         @property typeof(this) save() // ForwardRange
@@ -419,8 +398,7 @@ struct HashMapOrSet(K, V = void,
     static private struct RvalueElementRef(HashMapOrSetType)
     {
         HashMapOrSetType table; // owned
-        size_t binIx;           // index to bin inside table
-        size_t elementOffset;   // offset to element inside bin
+        size_t ix;           // index to bin inside table
         size_t elementCounter;  // counter over number of elements popped
 
         pragma(inline, true):
@@ -428,7 +406,7 @@ struct HashMapOrSet(K, V = void,
         /// Check if empty.
         @property bool empty() const @safe pure nothrow @nogc
         {
-            return binIx == table.binCount;
+            return ix == table.binCount;
         }
 
         /// Get number of element left to pop.
@@ -439,14 +417,14 @@ struct HashMapOrSet(K, V = void,
 
         void initFirstNonEmptyBin()
         {
-            assert(0, "set binIx to first non-empty key or element");
+            assert(0, "set ix to first non-empty key or element");
         }
 
         pragma(inline)
         void popFront()
         {
             assert(!empty);
-            assert(0, "set binIx to next non-empty key or element");
+            assert(0, "set ix to next non-empty key or element");
         }
     }
 
@@ -472,7 +450,7 @@ struct HashMapOrSet(K, V = void,
                      * because class elements are currently hashed and compared
                      * compared using their identity (pointer value) `is`
                      */
-                    return cast(ElementType)table.binElementsAt(binIx)[elementOffset];
+                    return cast(ElementType)table.binElementsAt(ix)[elementOffset];
                 }
             }
             else
@@ -480,7 +458,7 @@ struct HashMapOrSet(K, V = void,
                 /// Get reference to front element (key and value).
                 @property scope auto front()()
                 {
-                    return table._bins[binIx];
+                    return table._bins[ix];
                 }
             }
             public LvalueElementRef!HashMapOrSetType _elementRef;
@@ -500,7 +478,7 @@ struct HashMapOrSet(K, V = void,
                      * because class elements are currently hashed and compared
                      * compared using their identity (pointer value) `is`
                      */
-                    return cast(ElementType)table.binElementsAt(binIx)[elementOffset];
+                    return cast(ElementType)table.binElementsAt(ix)[elementOffset];
                 }
             }
             else
@@ -508,7 +486,7 @@ struct HashMapOrSet(K, V = void,
                 /// Get reference to front element (key and value).
                 @property scope auto front()()
                 {
-                    return table._bins[binIx];
+                    return table._bins[ix];
                 }
             }
             public RvalueElementRef!HashMapOrSetType _elementRef;
@@ -536,10 +514,10 @@ struct HashMapOrSet(K, V = void,
                 // prevent range error in `binElementsAt` when `this` is empty
                 return typeof(return).init;
             }
-            immutable binIx = keyToBinIx(key);
-            if (keyOf(_bins[binIx]) !is nullKeyConstant) // if hit
+            immutable ix = keyToIx(key);
+            if (keyOf(_bins[ix]) !is nullKeyConstant) // if hit
             {
-                return cast(typeof(return))&_bins[binIx].value;
+                return cast(typeof(return))&_bins[ix].value;
             }
             else                    // miss
             {
@@ -553,7 +531,7 @@ struct HashMapOrSet(K, V = void,
             /// Get reference to key of front element.
             @property scope const auto ref front()() return // key access must be const
             {
-                return table._bins[binIx].key;
+                return table._bins[ix].key;
             }
             public LvalueElementRef!HashMapOrSetType _elementRef;
             alias _elementRef this;
@@ -574,7 +552,7 @@ struct HashMapOrSet(K, V = void,
             /// Get reference to value of front element.
             @property scope auto ref front()() return @trusted // template-lazy property
             {
-                return *(cast(ValueType*)&table._bins[binIx].value);
+                return *(cast(ValueType*)&table._bins[ix].value);
             }
             public LvalueElementRef!HashMapOrSetType _elementRef;
             alias _elementRef this;
@@ -603,7 +581,7 @@ struct HashMapOrSet(K, V = void,
                 {
                     alias E = const(T);
                 }
-                return *(cast(E*)&table._bins[binIx]);
+                return *(cast(E*)&table._bins[ix]);
             }
             public LvalueElementRef!HashMapOrSetType _elementRef;
             alias _elementRef this;
@@ -637,10 +615,10 @@ struct HashMapOrSet(K, V = void,
         pragma(inline, true)    // LDC must have this
         scope ref inout(V) opIndex()(in auto ref K key) inout return
         {
-            immutable binIx = keyToBinIx(key);
-            if (keyOf(_bins[binIx]) !is nullKeyConstant) // if hit
+            immutable ix = keyToIx(key);
+            if (keyOf(_bins[ix]) !is nullKeyConstant) // if hit
             {
-                return _bins[binIx].value;
+                return _bins[ix].value;
             }
             else                // miss
             {
@@ -686,7 +664,7 @@ struct HashMapOrSet(K, V = void,
     bool remove()(in K key)     // template-lazy
         @trusted
     {
-        assert(0, "remove at binIx");
+        assert(0, "remove at ix");
     }
 
     /// Check if empty.
@@ -719,10 +697,47 @@ private:
 
     /** Returns: bin index of `key`. */
     pragma(inline, true)
-    size_t keyToBinIx()(in auto ref K key) const
+    size_t keyToIx()(in auto ref K key) const
     {
         import digestion : hashOf2;
         return hashToIndex(hashOf2!(hasher)(key));
+    }
+
+    /** Returns: bin index of `key` or length of _bins if miss. */
+    pragma(inline)
+    size_t tryFindKey()(in auto ref K key) const
+    {
+        size_t ix = keyToIx(key);
+
+        if (keyOf(_bins[ix]) is key)   // if direct hit
+        {
+            return ix;
+        }
+        else if (keyOf(_bins[ix]) is nullKeyConstant) // if miss
+        {
+            return _bins.length;
+        }
+
+        // if not yet decided
+        immutable size_t mask = _bins.length - 1;
+        ix = (ix + 1) % mask;   // modulo power of two
+
+        size_t inc = 1;
+        while (keyOf(_bins[ix]) !is key &&
+               keyOf(_bins[ix]) !is nullKeyConstant)
+        {
+            ix = (ix + inc) % mask;
+            inc *= 2;
+        }
+
+        if (keyOf(_bins[ix]) !is key)
+        {
+            return ix;
+        }
+        else
+        {
+            return _bins.length;
+        }
     }
 
 }

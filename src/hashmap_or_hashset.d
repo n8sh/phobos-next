@@ -1207,7 +1207,7 @@ private:
     }
 
     pragma(inline, true)
-    private size_t powerOf2Mask() const @safe pure nothrow @nogc
+    private size_t powerOf2Mask() const
     {
         immutable typeof(return) mask = _bins.length - 1;
         assert((~mask ^ mask) == size_t.max); // isPowerOf2(_bins.length)

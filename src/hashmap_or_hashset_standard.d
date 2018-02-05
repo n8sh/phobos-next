@@ -690,9 +690,7 @@ private:
     pragma(inline, true)
     size_t hashToIndex(hash_t hash) const
     {
-        immutable size_t mask = _bins.length - 1;
-        assert((~mask ^ mask) == size_t.max); // isPowerOf2(_bins.length)
-        return hash & mask;
+        return hash & powerOf2Mask;
     }
 
     /** Returns: bin index of `key`. */
@@ -719,8 +717,7 @@ private:
         }
 
         // if not yet decided
-        immutable size_t mask = _bins.length - 1;
-        assert((~mask ^ mask) == size_t.max); // isPowerOf2(_bins.length)
+        immutable size_t mask = powerOf2Mask;
         ix = (ix + 1) % mask;   // modulo power of two
 
         size_t inc = 1;
@@ -741,6 +738,12 @@ private:
         }
     }
 
+    private size_t powerOf2Mask() const @safe pure nothrow @nogc
+    {
+        immutable typeof(return) mask = _bins.length - 1;
+        assert((~mask ^ mask) == size_t.max); // isPowerOf2(_bins.length)
+        return mask;
+    }
 }
 
 import std.traits : isInstanceOf;

@@ -336,13 +336,10 @@ struct HashMapOrSet(K, V = void,
     private InsertionStatus insertWithoutGrowth(T element)
     {
         immutable ix = keyToIx(keyOf(element));
-        if (ix < _bins.length)  // hit
-        {
-        }
-        else                    // miss
-        {
-        }
-        assert(0, "copy element into place at ix");
+        assert(ix != _bins.length); // not full
+        const status = keyOf(_bins[ix]) is nullKeyConstant ? InsertionStatus.added : InsertionStatus.unmodified;
+        move(element, _bins[ix]);
+        return status;
     }
 
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
@@ -351,7 +348,10 @@ struct HashMapOrSet(K, V = void,
     private InsertionStatus insertMoveWithoutGrowth(ref T element)
     {
         immutable ix = keyToIx(keyOf(element));
-        assert(0, "move element into place at ix");
+        assert(ix != _bins.length); // not full
+        const status = keyOf(_bins[ix]) is nullKeyConstant ? InsertionStatus.added : InsertionStatus.unmodified;
+        move(element, _bins[ix]);
+        return status;
     }
 
     static if (hasValue)

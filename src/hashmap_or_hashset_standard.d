@@ -246,7 +246,8 @@ struct HashMapOrSet(K, V = void,
         {
             return false; // prevent `RangeError` in `binElementsAt` when empty
         }
-        return tryFindKeyIx(key) != _bins.length;
+        const ix = tryFindKeyIx(key);
+        return ix != _bins.length && keyOf(_bins[key]) is key;
     }
     /// ditto
     bool contains()(in ref K key) const // template-lazy

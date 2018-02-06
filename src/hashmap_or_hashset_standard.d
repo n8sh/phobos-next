@@ -246,7 +246,7 @@ struct HashMapOrSet(K, V = void,
         {
             return false; // prevent `RangeError` in `binElementsAt` when empty
         }
-        return tryFindIxOfKey(key) != _bins.length;
+        return tryFindKeyIx(key) != _bins.length;
     }
     /// ditto
     bool contains()(in ref K key) const // template-lazy
@@ -699,7 +699,7 @@ private:
 
     /** Returns: bin index of `hash`. */
     pragma(inline, true)
-    size_t hashToIndex(hash_t hash) const
+    size_t hashToIndex(in hash_t hash) const
     {
         return hash & powerOf2Mask;
     }
@@ -713,15 +713,13 @@ private:
     }
 
     /** Returns: bin index of `key` or empty bin or `_bins.length` if full. */
-    size_t tryFindIxOfKey()(in auto ref K key) const
+    size_t tryFindKeyIx()(in auto ref K key) const
     {
+        // TODO use among?
+
         size_t ix = keyToIx(key);
 
-        if (keyOf(_bins[ix]) is key)   // hit slot
-        {
-            return ix;
-        }
-        else if (keyOf(_bins[ix]) is nullKeyConstant) // free slot
+        if (isIxForKey(key, ix))
         {
             return ix;
         }
@@ -731,26 +729,27 @@ private:
         ix = (ix + 1) % mask;   // modulo power of two
 
         size_t inc = 1;
-        while (keyOf(_bins[ix]) !is key &&
-               keyOf(_bins[ix]) !is nullKeyConstant &&
+        while (!isIxForKey(key, ix) &&
                inc != _bins.length)
         {
             ix = (ix + inc) % mask;
             inc *= 2;
         }
 
-        if (keyOf(_bins[ix]) is key)
+        if (isIxForKey(key, ix))
         {
-            return ix;          // hit bin
-        }
-        else if (keyOf(_bins[ix]) is nullKeyConstant)
-        {
-            return ix;          // free bin
+            return ix;          // slot
         }
         else
         {
-            return _bins.length; // full
+            return _bins.length; // no slot, full
         }
+    }
+
+    private size_t isIxForKey()(in auto ref K key, in size_t ix) const
+    {
+        return (keyOf(_bins[ix]) is key ||           // hit slot
+                keyOf(_bins[ix]) is nullKeyConstant); // free slot
     }
 
     /** Returns: current index mask from bin count. */

@@ -266,8 +266,7 @@ struct HashMapOrSet(K, V = void,
     InsertionStatus insert(T element)
     {
         reserveExtra(1);
-        insertWithoutGrowth(move(element));
-        assert(0, "insert element");
+        return insertWithoutGrowth(move(element));
     }
 
     /** Insert `elements`, all being either a key-value (map-case) or a just a key (set-case).

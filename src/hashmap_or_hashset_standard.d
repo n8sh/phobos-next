@@ -335,6 +335,12 @@ struct HashMapOrSet(K, V = void,
     private InsertionStatus insertWithoutGrowth(T element)
     {
         immutable ix = keyToIx(keyOf(element));
+        if (ix < _bins.length)  // hit
+        {
+        }
+        else                    // miss
+        {
+        }
         assert(0, "copy element into place at ix");
     }
 
@@ -706,7 +712,7 @@ private:
         return hashToIndex(hashOf2!(hasher)(key));
     }
 
-    /** Returns: bin index of `key` if present or `_bins.length` if miss. */
+    /** Returns: bin index of `key` or empty bin or `_bins.length` if full. */
     size_t tryFindIxOfKey()(in auto ref K key) const
     {
         size_t ix = keyToIx(key);

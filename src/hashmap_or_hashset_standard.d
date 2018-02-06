@@ -246,7 +246,7 @@ struct HashMapOrSet(K, V = void,
         {
             return false; // prevent `RangeError` in `_bins` when empty
         }
-        const ix = tryFindKeyIx(key);
+        immutable ix = tryFindKeyIx(key);
         return ix != _bins.length && keyOf(_bins[key]) is key;
     }
     /// ditto
@@ -256,7 +256,7 @@ struct HashMapOrSet(K, V = void,
         {
             return false; // prevent `RangeError` in `_bins` when empty
         }
-        const ix = tryFindKeyIx(key);
+        immutable ix = tryFindKeyIx(key);
         return ix != _bins.length && keyOf(_bins[key]) is key;
     }
 

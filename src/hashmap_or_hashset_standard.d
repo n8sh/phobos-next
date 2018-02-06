@@ -337,7 +337,7 @@ struct HashMapOrSet(K, V = void,
     {
         immutable ix = keyToIx(keyOf(element));
         assert(ix != _bins.length); // not full
-        const status = keyOf(_bins[ix]) is nullKeyConstant ? InsertionStatus.added : InsertionStatus.unmodified;
+        immutable status = keyOf(_bins[ix]) is nullKeyConstant ? InsertionStatus.added : InsertionStatus.unmodified;
         move(element, _bins[ix]);
         return status;
     }
@@ -349,7 +349,7 @@ struct HashMapOrSet(K, V = void,
     {
         immutable ix = keyToIx(keyOf(element));
         assert(ix != _bins.length); // not full
-        const status = keyOf(_bins[ix]) is nullKeyConstant ? InsertionStatus.added : InsertionStatus.unmodified;
+        immutable status = keyOf(_bins[ix]) is nullKeyConstant ? InsertionStatus.added : InsertionStatus.unmodified;
         move(element, _bins[ix]);
         return status;
     }

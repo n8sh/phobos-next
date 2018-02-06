@@ -256,8 +256,8 @@ struct HashMapOrSet(K, V = void,
         {
             return false; // prevent `RangeError` in `binElementsAt` when empty
         }
-        immutable ix = keyToIx(key);
-        return keyOf(_bins[ix]) !is nullKeyConstant;
+        const ix = tryFindKeyIx(key);
+        return ix != _bins.length && keyOf(_bins[key]) is key;
     }
 
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).

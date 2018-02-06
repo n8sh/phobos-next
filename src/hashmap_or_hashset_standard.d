@@ -717,13 +717,13 @@ private:
     {
         size_t ix = keyToIx(key);
 
-        if (keyOf(_bins[ix]) is key)   // if direct hit
+        if (keyOf(_bins[ix]) is key)   // hit slot
         {
             return ix;
         }
-        else if (keyOf(_bins[ix]) is nullKeyConstant) // if miss
+        else if (keyOf(_bins[ix]) is nullKeyConstant) // free slot
         {
-            return _bins.length;
+            return ix;
         }
 
         // if not yet decided
@@ -741,11 +741,15 @@ private:
 
         if (keyOf(_bins[ix]) is key)
         {
-            return ix;
+            return ix;          // hit bin
+        }
+        else if (keyOf(_bins[ix]) is nullKeyConstant)
+        {
+            return ix;          // free bin
         }
         else
         {
-            return _bins.length;
+            return _bins.length; // full
         }
     }
 

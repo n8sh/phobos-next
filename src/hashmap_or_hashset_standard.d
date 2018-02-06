@@ -244,7 +244,7 @@ struct HashMapOrSet(K, V = void,
     {
         if (empty)              // TODO can this check be avoided?
         {
-            return false; // prevent `RangeError` in `binElementsAt` when empty
+            return false; // prevent `RangeError` in `_bins` when empty
         }
         const ix = tryFindKeyIx(key);
         return ix != _bins.length && keyOf(_bins[key]) is key;
@@ -254,7 +254,7 @@ struct HashMapOrSet(K, V = void,
     {
         if (empty)              // TODO can this check be avoided?
         {
-            return false; // prevent `RangeError` in `binElementsAt` when empty
+            return false; // prevent `RangeError` in `_bins` when empty
         }
         const ix = tryFindKeyIx(key);
         return ix != _bins.length && keyOf(_bins[key]) is key;
@@ -523,7 +523,7 @@ struct HashMapOrSet(K, V = void,
         {
             if (empty)
             {
-                // prevent range error in `binElementsAt` when `this` is empty
+                // prevent range error in `_bins` when `this` is empty
                 return typeof(return).init;
             }
             immutable ix = keyToIx(key);

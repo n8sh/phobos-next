@@ -773,8 +773,8 @@ void removeAllMatching(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetT
     if (isInstanceOf!(HashMapOrSet,
                       HashMapOrSetType))
 {
-
-    assert(0, "find all elements in x matching predicate and set them to empty or destroy");
+    import basic_array : remove;
+    x._bins.remove!predicate();
 }
 
 /** Returns: `x` eagerly filtered on `predicate`.

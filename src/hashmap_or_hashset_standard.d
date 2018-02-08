@@ -768,7 +768,7 @@ import std.functional : unaryFun;
 /** Remove all elements in `x` matching `predicate`.
     TODO move to container_algorithm.d.
 */
-void removeAllMatching(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetType x)
+void resetAllMatching(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetType x)
     @trusted
     if (isInstanceOf!(HashMapOrSet,
                       HashMapOrSetType))
@@ -787,7 +787,7 @@ HashMapOrSetType filtered(alias predicate, HashMapOrSetType)(HashMapOrSetType x)
                       HashMapOrSetType))
 {
     import std.functional : not;
-    x.removeAllMatching!(not!predicate);
+    x.resetAllMatching!(not!predicate);
     import std.algorithm.mutation : move;
     return move(x);
 }
@@ -854,7 +854,7 @@ auto intersectWith(C1, C2)(ref C1 x,
     if (isInstanceOf!(HashMapOrSet, C1) &&
         isInstanceOf!(HashMapOrSet, C2))
 {
-    return x.removeAllMatching!(_ => !y.contains(_));
+    return x.resetAllMatching!(_ => !y.contains(_));
 }
 
 /// r-value and l-value intersection
@@ -977,16 +977,16 @@ pure nothrow @nogc unittest
                 assert(xc.contains(11));
 
                 // TODO http://forum.dlang.org/post/kvwrktmameivubnaifdx@forum.dlang.org
-                xc.removeAllMatching!(_ => _ == 11);
+                xc.resetAllMatching!(_ => _ == 11);
 
                 assert(xc.length == 2);
                 assert(!xc.contains(11));
 
-                xc.removeAllMatching!(_ => _ == 12);
+                xc.resetAllMatching!(_ => _ == 12);
                 assert(!xc.contains(12));
                 assert(xc.length == 1);
 
-                xc.removeAllMatching!(_ => _ == 13);
+                xc.resetAllMatching!(_ => _ == 13);
                 assert(!xc.contains(13));
                 assert(xc.length == 0);
 

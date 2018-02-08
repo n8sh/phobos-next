@@ -337,6 +337,7 @@ struct HashMapOrSet(K, V = void,
         immutable ix = keyToIx(keyOf(element));
         assert(ix != _bins.length); // not full
         immutable status = keyOf(_bins[ix]) is nullKeyConstant ? InsertionStatus.added : InsertionStatus.unmodified;
+        _length += status == InsertionStatus.added ? 1 : 0;
         move(element, _bins[ix]);
         return status;
     }
@@ -349,6 +350,7 @@ struct HashMapOrSet(K, V = void,
         immutable ix = keyToIx(keyOf(element));
         assert(ix != _bins.length); // not full
         immutable status = keyOf(_bins[ix]) is nullKeyConstant ? InsertionStatus.added : InsertionStatus.unmodified;
+        _length += status == InsertionStatus.added ? 1 : 0;
         move(element, _bins[ix]);
         return status;
     }
@@ -826,9 +828,12 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 {
     alias K = uint;
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
+    import dbgio;
 
     auto x = X.withElements([12, 13].s);
+    assert(x.length == 2);
     auto y = X.withElements([10, 12, 13, 15].s).intersectedWith(x);
+    dln(y.length);
     assert(y.length == 2);
     assert(y.contains(12));
     assert(y.contains(13));

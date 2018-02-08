@@ -935,6 +935,32 @@ size_t remove(alias predicate, C)(ref C c)
     return count;
 }
 
+/** Reset all elements matching `predicate`.
+    Returns: number of elements that were removed.
+
+    TODO implement version that doesn't use a temporary array `tmp`, which is
+    probably faster for small arrays.
+*/
+size_t resetAllMatching(alias predicate, C)(ref C c)
+    @trusted
+    @("complexity", "O(length)")
+    if (isInstanceOf!(BasicArray, C) &&
+        is(typeof(unaryFun!predicate(C.init[0]))))
+{
+    C tmp;
+    size_t count = 0;
+    alias E = typeof(C.init[0]);
+    foreach (immutable i; 0 .. c.length)
+    {
+        if (unaryFun!predicate(c._mptr[i]))
+        {
+            count += 1;
+            c._mptr[i] = E.init;
+        }
+    }
+    return count;
+}
+
 /// construct and append from slices
 @safe pure nothrow @nogc unittest
 {

@@ -773,8 +773,9 @@ void removeAllMatching(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetT
     if (isInstanceOf!(HashMapOrSet,
                       HashMapOrSetType))
 {
-    import basic_array : remove;
-    x._bins.remove!predicate();
+    import basic_array : resetAllMatching;
+    immutable count = x._bins.resetAllMatching!predicate();
+    x._length -= count;
 }
 
 /** Returns: `x` eagerly filtered on `predicate`.
@@ -786,7 +787,7 @@ HashMapOrSetType filtered(alias predicate, HashMapOrSetType)(HashMapOrSetType x)
                       HashMapOrSetType))
 {
     import std.functional : not;
-    removeAllMatching!(not!predicate)(x);
+    x.removeAllMatching!(not!predicate);
     import std.algorithm.mutation : move;
     return move(x);
 }

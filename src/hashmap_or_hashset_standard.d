@@ -247,7 +247,7 @@ struct HashMapOrSet(K, V = void,
             return false; // prevent `RangeError` in `_bins` when empty
         }
         immutable ix = tryFindKeyIx(key);
-        return ix != _bins.length && keyOf(_bins[key]) is key;
+        return ix != _bins.length && keyOf(_bins[ix]) is key;
     }
     /// ditto
     bool contains()(in ref K key) const // template-lazy
@@ -257,7 +257,7 @@ struct HashMapOrSet(K, V = void,
             return false; // prevent `RangeError` in `_bins` when empty
         }
         immutable ix = tryFindKeyIx(key);
-        return ix != _bins.length && keyOf(_bins[key]) is key;
+        return ix != _bins.length && keyOf(_bins[ix]) is key;
     }
 
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
@@ -266,6 +266,7 @@ struct HashMapOrSet(K, V = void,
     InsertionStatus insert(T element)
     {
         reserveExtra(1);
+        assert(keyOf(element) !is nullKeyConstant);
         return insertWithoutGrowth(move(element));
     }
 
@@ -320,7 +321,10 @@ struct HashMapOrSet(K, V = void,
         // move elements to copy
         foreach (immutable ix; 0 .. _bins.length)
         {
-            copy.insertMoveWithoutGrowth(_bins[ix]);
+            if (keyOf(_bins[ix]) !is nullKeyConstant)
+            {
+                copy.insertMoveWithoutGrowth(_bins[ix]);
+            }
         }
         assert(copy._length == _length); // length should stay same
 
@@ -334,6 +338,7 @@ struct HashMapOrSet(K, V = void,
     pragma(inline, true)
     private InsertionStatus insertWithoutGrowth(T element)
     {
+        assert(keyOf(element) !is nullKeyConstant);
         immutable ix = keyToIx(keyOf(element));
         assert(ix != _bins.length); // not full
         immutable status = keyOf(_bins[ix]) is nullKeyConstant ? InsertionStatus.added : InsertionStatus.unmodified;
@@ -347,6 +352,7 @@ struct HashMapOrSet(K, V = void,
     pragma(inline, true)
     private InsertionStatus insertMoveWithoutGrowth(ref T element)
     {
+        assert(keyOf(element) !is nullKeyConstant);
         immutable ix = keyToIx(keyOf(element));
         assert(ix != _bins.length); // not full
         immutable status = keyOf(_bins[ix]) is nullKeyConstant ? InsertionStatus.added : InsertionStatus.unmodified;
@@ -776,7 +782,10 @@ void resetAllMatching(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetTy
                       HashMapOrSetType))
 {
     import basic_array : resetAllMatching;
+    dln("bins:", x._bins[]);
     immutable count = x._bins.resetAllMatching!predicate();
+    dln("count:", count);
+    dln("bins:", x._bins[]);
     x._length -= count;
 }
 
@@ -789,7 +798,9 @@ HashMapOrSetType filtered(alias predicate, HashMapOrSetType)(HashMapOrSetType x)
                       HashMapOrSetType))
 {
     import std.functional : not;
+    dln("bins before:", x._bins[]);
     x.resetAllMatching!(not!predicate);
+    dln("bins after:", x._bins[]);
     import std.algorithm.mutation : move;
     return move(x);
 }
@@ -804,6 +815,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     import std.algorithm.mutation : move;
     static if (__traits(isRef, y)) // y is l-value
     {
+        dln("");
         // @("complexity", "O(x.length)")
         return move(x).filtered!(_ => y.contains(_)); // only x can be reused
     }
@@ -814,10 +826,12 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
         if (x.length <
             y.length)
         {
+            dln("");
             return move(x).filtered!(_ => y.contains(_));
         }
         else
         {
+            dln("");
             return move(y).filtered!(_ => x.contains(_));
         }
     }
@@ -828,12 +842,33 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 {
     alias K = uint;
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
-    import dbgio;
+
+    auto x0 = X.init;
+    assert(x0.length == 0);
+    assert(!x0.contains(1));
+
+    auto x1 = X.withElements([12].s);
+    assert(x1.length == 1);
+    assert(x1.contains(12));
 
     auto x = X.withElements([12, 13].s);
     assert(x.length == 2);
-    auto y = X.withElements([10, 12, 13, 15].s).intersectedWith(x);
-    dln(y.length);
+    assert(x.contains(12));
+    assert(x.contains(13));
+
+    auto z = X.withElements([10, 12, 13, 15].s);
+    dln(z.length);
+    dln(z._bins[]);
+    assert(z.length == 4);
+    assert(z.contains(10));
+    assert(z.contains(12));
+    assert(z.contains(13));
+    assert(z.contains(15));
+
+    dln("before");
+    import std.algorithm.mutation : move;
+    auto y = move(z).intersectedWith(x);
+    dln("after");
     assert(y.length == 2);
     assert(y.contains(12));
     assert(y.contains(13));
@@ -842,6 +877,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 /// r-value and r-value intersection
 @safe pure nothrow @nogc unittest
 {
+    dln("");
     alias K = uint;
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 
@@ -865,6 +901,7 @@ auto intersectWith(C1, C2)(ref C1 x,
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {
+    dln("");
     alias K = uint;
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 
@@ -903,6 +940,7 @@ auto byElement(HashMapOrSetType)(auto ref inout(HashMapOrSetType) c)
 /// make range from l-value and r-value. element access is always const
 pure nothrow @nogc unittest
 {
+    dln("");
     alias K = uint;
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 
@@ -931,6 +969,7 @@ pure nothrow @nogc unittest
 /// test various things
 pure nothrow @nogc unittest
 {
+    dln("");
     immutable n = 600;
 
     alias K = uint;
@@ -1205,6 +1244,7 @@ pure nothrow @nogc unittest
 /// range checking
 @trusted pure unittest
 {
+    dln("");
     import std.exception : assertThrown, assertNotThrown;
     import core.exception : RangeError;
     import uncopyable_sample : V = SomeUncopyable;
@@ -1251,6 +1291,7 @@ pure nothrow @nogc unittest
 /// class as value
 @trusted pure unittest
 {
+    dln("");
     import std.exception : assertThrown, assertNotThrown;
     import core.exception : RangeError;
 
@@ -1307,6 +1348,7 @@ pure nothrow @nogc unittest
 /// constness inference of ranges
 pure nothrow unittest
 {
+    dln("");
     alias K = uint;
     class V
     {
@@ -1338,6 +1380,7 @@ pure nothrow unittest
 /// range key constness and value mutability with `class` value
 pure nothrow unittest
 {
+    dln("");
     struct K
     {
         @disable this(this);
@@ -1389,4 +1432,5 @@ version(unittest)
     import std.algorithm.comparison : equal;
     import digestx.fnv : FNV;
     import array_help : s;
+    import dbgio;
 }

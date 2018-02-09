@@ -912,18 +912,18 @@ size_t remove(alias predicate, C)(ref C c)
     size_t count = 0;
     foreach (immutable i; 0 .. c.length)
     {
-        if (unaryFun!predicate(c._mptr[i]))
+        if (unaryFun!predicate(c[i]))
         {
             count += 1;
             import std.traits : hasElaborateDestructor;
-            static if (hasElaborateDestructor!(typeof(c._mptr[i])))
+            static if (hasElaborateDestructor!(typeof(c[i])))
             {
-                .destroy(c._mptr[i]);
+                .destroy(c[i]);
             }
         }
         else
         {
-            tmp.insertBackMove(c._mptr[i]); // TODO remove unnecessary clearing of `_mptr[i]`
+            tmp.insertBackMove(c[i]); // TODO remove unnecessary clearing of `_mptr[i]`
         }
     }
 
@@ -942,7 +942,6 @@ size_t remove(alias predicate, C)(ref C c)
     probably faster for small arrays.
 */
 size_t resetAllMatching(alias predicate, C)(ref C c)
-    @trusted
     @("complexity", "O(length)")
     if (isInstanceOf!(BasicArray, C) &&
         is(typeof(unaryFun!predicate(C.init[0]))))
@@ -950,12 +949,13 @@ size_t resetAllMatching(alias predicate, C)(ref C c)
     C tmp;
     size_t count = 0;
     alias E = typeof(C.init[0]);
+    import dbgio;
     foreach (immutable i; 0 .. c.length)
     {
-        if (unaryFun!predicate(c._mptr[i]))
+        if (unaryFun!predicate(c[i]))
         {
             count += 1;
-            c._mptr[i] = E.init;
+            c[i] = E.init;
         }
     }
     return count;

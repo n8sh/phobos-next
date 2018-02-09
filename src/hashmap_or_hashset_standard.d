@@ -23,6 +23,8 @@ enum InsertionStatus
  *
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  *
+ * TODO length and capacity of _bins are always the same. this wastes an extra word of storage.
+ *
  * TODO should we allow `nullKeyConstant` to be used as argument to `insert`?
  *
  * TODO when allocating _bins use nullKeyConstant for assignment after
@@ -162,7 +164,7 @@ struct HashMapOrSet(K, V = void,
     {
         typeof(return) that;    // TODO return direct call to store constructor
         that._bins = Bins.withLength(binCount);
-        that._length = 0;
+        that._count = 0;
         return that;
     }
 
@@ -196,14 +198,14 @@ struct HashMapOrSet(K, V = void,
     {
         typeof(this) dup()() const // template-lazy
         {
-            return typeof(return)(_bins.dup, _length);
+            return typeof(return)(_bins.dup, _count);
         }
     }
 
     /// Equality.
     bool opEquals()(in auto ref typeof(this) rhs) const
     {
-        if (_length != rhs._length) { return false; }
+        if (_count != rhs._count) { return false; }
 
         foreach (immutable ix; 0 .. _bins.length)
         {
@@ -301,7 +303,7 @@ struct HashMapOrSet(K, V = void,
     /** Reserve rom for `extraCapacity` number of extra buckets. */
     void reserveExtra()(size_t extraCapacity)
     {
-        if ((_length + extraCapacity) * 2 > _bins.length)
+        if ((_count + extraCapacity) * 2 > _bins.length)
         {
             growWithExtraCapacity(extraCapacity);
         }
@@ -317,7 +319,7 @@ struct HashMapOrSet(K, V = void,
         }
         else
         {
-            newBinCount = _length + extraCapacity;
+            newBinCount = _count + extraCapacity;
         }
         auto copy = withBinCount(newBinCount);
 
@@ -329,7 +331,7 @@ struct HashMapOrSet(K, V = void,
                 copy.insertMoveWithoutGrowth(_bins[ix]);
             }
         }
-        assert(copy._length == _length); // length should stay same
+        assert(copy._count == _count); // length should stay same
 
         move(copy._bins, _bins);
 
@@ -347,7 +349,7 @@ struct HashMapOrSet(K, V = void,
         assert(ix != _bins.length); // not full
 
         immutable status = keyOf(_bins[ix]) is nullKeyConstant ? InsertionStatus.added : InsertionStatus.unmodified;
-        _length += (status == InsertionStatus.added ? 1 : 0);
+        _count += (status == InsertionStatus.added ? 1 : 0);
 
         move(element, _bins[ix]);
 
@@ -365,7 +367,7 @@ struct HashMapOrSet(K, V = void,
         assert(ix != _bins.length); // not full
 
         immutable status = keyOf(_bins[ix]) is nullKeyConstant ? InsertionStatus.added : InsertionStatus.unmodified;
-        _length += status == InsertionStatus.added ? 1 : 0;
+        _count += status == InsertionStatus.added ? 1 : 0;
 
         move(element, _bins[ix]);
         return status;
@@ -697,11 +699,11 @@ struct HashMapOrSet(K, V = void,
 
     /// Check if empty.
     pragma(inline, true)
-    @property bool empty() const { return _length == 0; }
+    @property bool empty() const { return _count == 0; }
 
     /// Get length (read-only).
     pragma(inline, true)
-    @property size_t length() const { return _length; }
+    @property size_t length() const { return _count; }
 
     /// Get bin count.
     pragma(inline, true)
@@ -712,7 +714,7 @@ private:
     alias Bins = Array!(T, Allocator);
 
     Bins _bins;                 // bin elements
-    size_t _length;             // total number of elements stored
+    size_t _count;             // total number of elements stored
 
     /** Returns: bin index of `hash`. */
     pragma(inline, true)
@@ -784,7 +786,7 @@ void resetAllMatching(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetTy
 {
     import basic_array : resetAllMatching;
     immutable count = x._bins.resetAllMatching!predicate();
-    x._length -= count;
+    x._count -= count;
 }
 
 /** Returns: `x` eagerly filtered on `predicate`.

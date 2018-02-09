@@ -422,7 +422,7 @@ struct HashMapOrSet(K, V = void,
         private void nextNonEmptyBin()
         {
             while (ix != (*table).binCount &&
-                   keyOf((*table)._bins[ix]) != nullKeyConstant)
+                   keyOf((*table)._bins[ix]) !is nullKeyConstant)
             {
                 ix += 1;
             }
@@ -461,7 +461,7 @@ struct HashMapOrSet(K, V = void,
         private void nextNonEmptyBin()
         {
             while (ix != table.binCount &&
-                   keyOf(table._bins[ix]) != nullKeyConstant)
+                   keyOf(table._bins[ix]) !is nullKeyConstant)
             {
                 ix += 1;
             }

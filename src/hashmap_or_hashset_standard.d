@@ -421,8 +421,8 @@ struct HashMapOrSet(K, V = void,
 
         private void nextNonEmptyBin()
         {
-            while (keyOf((*table)._bins[ix]) != nullKeyConstant &&
-                   ix != (*table).binCount)
+            while (ix != (*table).binCount &&
+                   keyOf((*table)._bins[ix]) != nullKeyConstant)
             {
                 ix += 1;
             }
@@ -460,8 +460,8 @@ struct HashMapOrSet(K, V = void,
 
         private void nextNonEmptyBin()
         {
-            while (keyOf(table._bins[ix]) != nullKeyConstant &&
-                   ix != table.binCount)
+            while (ix != table.binCount &&
+                   keyOf(table._bins[ix]) != nullKeyConstant)
             {
                 ix += 1;
             }
@@ -956,6 +956,7 @@ pure nothrow @nogc unittest
     {
         static assert(is(typeof(e) == const(K))); // always const access
     }
+    dln("");
 
     // const
     const y = X.withElements(a);
@@ -963,11 +964,13 @@ pure nothrow @nogc unittest
     {
         static assert(is(typeof(e) == const(K)));
     }
+    dln("");
 
     foreach (e; X.withElements([11].s).byElement) // from r-value
     {
         static assert(is(typeof(e) == const(K))); // always const access
     }
+    dln("");
 }
 
 /// test various things

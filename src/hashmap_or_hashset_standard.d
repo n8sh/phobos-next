@@ -406,21 +406,26 @@ struct HashMapOrSet(K, V = void,
             return table.length - elementCounter;
         }
 
-        void initFirstNonEmptyBin()
-        {
-            assert(0, "set ix to first non-empty key or element");
-        }
-
         pragma(inline)
         void popFront()
         {
             assert(!empty);
-            assert(0, "set ix to next non-empty key or element");
+            ix += 1;
+            nextNonEmptyBin();
         }
 
         @property typeof(this) save() // ForwardRange
         {
             return this;
+        }
+
+        private void nextNonEmptyBin()
+        {
+            while (keyOf((*table)._bins[ix]) != nullKeyConstant &&
+                   ix != (*table).binCount)
+            {
+                ix += 1;
+            }
         }
     }
 
@@ -446,16 +451,20 @@ struct HashMapOrSet(K, V = void,
             return table.length - elementCounter;
         }
 
-        void initFirstNonEmptyBin()
-        {
-            assert(0, "set ix to first non-empty key or element");
-        }
-
         pragma(inline)
         void popFront()
         {
-            assert(!empty);
-            assert(0, "set ix to next non-empty key or element");
+            ix += 1;
+            nextNonEmptyBin();
+        }
+
+        private void nextNonEmptyBin()
+        {
+            while (keyOf(table._bins[ix]) != nullKeyConstant &&
+                   ix != table.binCount)
+            {
+                ix += 1;
+            }
         }
     }
 
@@ -573,7 +582,7 @@ struct HashMapOrSet(K, V = void,
         {
             alias This = ConstThis;
             auto result = ByKey!This((LvalueElementRef!This(cast(This*)&this)));
-            result.initFirstNonEmptyBin();
+            result.nextNonEmptyBin();
             return result;
         }
 
@@ -594,7 +603,7 @@ struct HashMapOrSet(K, V = void,
         {
             alias This = ConstThis;
             auto result = ByValue!This((LvalueElementRef!This(cast(This*)&this)));
-            result.initFirstNonEmptyBin();
+            result.nextNonEmptyBin();
             return result;
         }
 
@@ -623,7 +632,7 @@ struct HashMapOrSet(K, V = void,
         {
             alias This = MutableThis;
             auto result = ByKeyValue!This((LvalueElementRef!This(cast(This*)&this)));
-            result.initFirstNonEmptyBin();
+            result.nextNonEmptyBin();
             return result;
         }
         /// ditto
@@ -631,7 +640,7 @@ struct HashMapOrSet(K, V = void,
         {
             alias This = ConstThis;
             auto result = ByKeyValue!This((LvalueElementRef!This(cast(This*)&this)));
-            result.initFirstNonEmptyBin();
+            result.nextNonEmptyBin();
             return result;
         }
 
@@ -918,14 +927,14 @@ auto byElement(HashMapOrSetType)(auto ref inout(HashMapOrSetType) c)
     static if (__traits(isRef, c))
     {
         auto result = C.ByLvalueElement!C((C.LvalueElementRef!C(cast(C*)&c)));
-        result.initFirstNonEmptyBin();
+        result.nextNonEmptyBin();
         return result;
     }
     else
     {
         import std.algorithm.mutation : move;
         auto result = C.ByRvalueElement!C((C.RvalueElementRef!C(move(*(cast(HashMapOrSetType*)&c))))); // reinterpret
-        result.initFirstNonEmptyBin();
+        result.nextNonEmptyBin();
         return move(result);
     }
 }

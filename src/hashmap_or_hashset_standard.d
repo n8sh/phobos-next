@@ -153,19 +153,10 @@ struct HashMapOrSet(K, V = void,
     /** Make with room for storing at least `capacity` number of elements.
      */
     pragma(inline)              // LDC can, DMD cannot inline
-    static typeof(this) withCapacity()(size_t capacity) // template-lazy
+    static typeof(this) withBinCount()(size_t capacity) // template-lazy
     {
         return typeof(return)(Bins.withLength(capacity), // TODO initialize wi nullKeyConstant
-                              0); // zero length
-    }
-
-    pragma(inline)              // LDC can, DMD cannot inline
-    private static typeof(this) withBinCount()(size_t binCount) // template-lazy
-    {
-        typeof(return) that;    // TODO return direct call to store constructor
-        that._bins = Bins.withLength(binCount);
-        that._count = 0;
-        return that;
+                              0); // zero count
     }
 
     import std.traits : isIterable;
@@ -177,7 +168,7 @@ struct HashMapOrSet(K, V = void,
         import std.range : hasLength;
         static if (hasLength!R)
         {
-            typeof(this) that = withCapacity(elements.length);
+            typeof(this) that = withBinCount(elements.length);
         }
         else
         {
@@ -1262,7 +1253,7 @@ pure nothrow @nogc unittest
 
     alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
 
-    auto s = X.withCapacity(n);
+    auto s = X.withBinCount(n);
 
     void dummy(ref V value) {}
 
@@ -1313,7 +1304,7 @@ pure nothrow @nogc unittest
 
     alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
 
-    auto s = X.withCapacity(n);
+    auto s = X.withBinCount(n);
 
     void dummy(ref V value) {}
 

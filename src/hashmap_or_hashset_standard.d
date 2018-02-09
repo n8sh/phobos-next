@@ -153,7 +153,8 @@ struct HashMapOrSet(K, V = void,
     pragma(inline)              // LDC can, DMD cannot inline
     static typeof(this) withCapacity()(size_t capacity) // template-lazy
     {
-        return typeof(return)(Bins.withCapacity(capacity), 0);
+        return typeof(return)(Bins.withLength(capacity), // TODO initialize wi nullKeyConstant
+                              0); // zero length
     }
 
     pragma(inline)              // LDC can, DMD cannot inline
@@ -342,25 +343,13 @@ struct HashMapOrSet(K, V = void,
     {
         assert(keyOf(element) !is nullKeyConstant);
 
-        static if (isCopyable!T)
-        {
-            dln("element:", element);
-            dln("_bins before insert:", _bins[]);
-        }
-
         immutable ix = tryFindKeyIx(keyOf(element));
-        dln("ix:", ix);
         assert(ix != _bins.length); // not full
 
         immutable status = keyOf(_bins[ix]) is nullKeyConstant ? InsertionStatus.added : InsertionStatus.unmodified;
-        _length += status == InsertionStatus.added ? 1 : 0;
+        _length += (status == InsertionStatus.added ? 1 : 0);
 
         move(element, _bins[ix]);
-
-        static if (isCopyable!T)
-        {
-            dln("_bins after insert:", _bins[]);
-        }
 
         return status;
     }
@@ -794,10 +783,7 @@ void resetAllMatching(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetTy
                       HashMapOrSetType))
 {
     import basic_array : resetAllMatching;
-    dln("bins:", x._bins[]);
     immutable count = x._bins.resetAllMatching!predicate();
-    dln("count:", count);
-    dln("bins:", x._bins[]);
     x._length -= count;
 }
 
@@ -809,9 +795,7 @@ HashMapOrSetType filtered(alias predicate, HashMapOrSetType)(HashMapOrSetType x)
                       HashMapOrSetType))
 {
     import std.functional : not;
-    dln("bins before:", x._bins[]);
     x.resetAllMatching!(not!predicate);
-    dln("bins after:", x._bins[]);
     import std.algorithm.mutation : move;
     return move(x);
 }
@@ -826,7 +810,6 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     import std.algorithm.mutation : move;
     static if (__traits(isRef, y)) // y is l-value
     {
-        dln("");
         // @("complexity", "O(x.length)")
         return move(x).filtered!(_ => y.contains(_)); // only x can be reused
     }
@@ -837,12 +820,10 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
         if (x.length <
             y.length)
         {
-            dln("");
             return move(x).filtered!(_ => y.contains(_));
         }
         else
         {
-            dln("");
             return move(y).filtered!(_ => x.contains(_));
         }
     }
@@ -861,19 +842,15 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 
     auto x1 = X.withElements([12].s);
     assert(x1.length == 1);
-    assert(x1._bins.length == 1);
     assert(x1.contains(12));
 
     auto x2 = X.withElements([10, 12].s);
-    dln(x2._bins[]);
     assert(x2.length == 2);
-    assert(x2._bins.length == 2);
     assert(x2.contains(10));
     assert(x2.contains(12));
 
     auto x3 = X.withElements([12, 13, 14].s);
     assert(x3.length == 3);
-    assert(x3._bins.length == 4);
     assert(x3.contains(12));
     assert(x3.contains(13));
     assert(x3.contains(14));
@@ -895,7 +872,6 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 /// r-value and r-value intersection
 @safe pure nothrow @nogc unittest
 {
-    dln("");
     alias K = uint;
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 
@@ -919,7 +895,6 @@ auto intersectWith(C1, C2)(ref C1 x,
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {
-    dln("");
     alias K = uint;
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 

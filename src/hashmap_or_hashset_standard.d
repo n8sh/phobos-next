@@ -198,7 +198,7 @@ struct HashMapOrSet(K, V = void,
     }
 
     /// Equality.
-    bool opEquals()(in auto ref typeof(this) rhs) const @trusted
+    bool opEquals()(in auto ref typeof(this) rhs) const
     {
         if (_length != rhs._length) { return false; }
 
@@ -450,7 +450,7 @@ struct HashMapOrSet(K, V = void,
     static if (!hasValue)       // HashSet
     {
         pragma(inline, true)
-        bool opBinaryRight(string op)(in K key) inout @trusted
+        bool opBinaryRight(string op)(in K key) inout
             if (op == "in")
         {
             return contains(key);
@@ -463,7 +463,7 @@ struct HashMapOrSet(K, V = void,
             static if (is(ElementType == class))
             {
                 /// Get reference to front element (key and value).
-                @property scope auto front()() return @trusted
+                @property scope auto front()() return
                 {
                     /* cast away const from `HashMapOrSetType` for classes
                      * because class elements are currently hashed and compared
@@ -491,7 +491,7 @@ struct HashMapOrSet(K, V = void,
             static if (is(ElementType == class))
             {
                 /// Get reference to front element (key and value).
-                @property scope auto front()() return @trusted
+                @property scope auto front()() return
                 {
                     /* cast away const from `HashMapOrSetType` for classes
                      * because class elements are currently hashed and compared
@@ -525,7 +525,7 @@ struct HashMapOrSet(K, V = void,
 
     static if (hasValue)        // HashMap
     {
-        scope inout(V)* opBinaryRight(string op)(in K key) inout @trusted return
+        scope inout(V)* opBinaryRight(string op)(in K key) inout return
             if (op == "in")
         {
             if (empty)
@@ -653,7 +653,7 @@ struct HashMapOrSet(K, V = void,
          *
          * TODO make `defaultValue` `lazy` when that can be `nothrow`
          */
-        auto ref V get()(in K key, in auto ref V defaultValue) @trusted
+        auto ref V get()(in K key, in auto ref V defaultValue)
         {
             auto value = key in this;
             if (value !is null) // hit
@@ -681,7 +681,6 @@ struct HashMapOrSet(K, V = void,
         Returns: `true` if element was removed, `false` otherwise.
     */
     bool remove()(in K key)     // template-lazy
-        @trusted
     {
         assert(0, "remove at ix");
     }
@@ -777,7 +776,6 @@ import std.functional : unaryFun;
     TODO move to container_algorithm.d.
 */
 void resetAllMatching(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetType x)
-    @trusted
     if (isInstanceOf!(HashMapOrSet,
                       HashMapOrSetType))
 {
@@ -793,7 +791,6 @@ void resetAllMatching(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetTy
     TODO move to container_algorithm.d.
 */
 HashMapOrSetType filtered(alias predicate, HashMapOrSetType)(HashMapOrSetType x)
-    @trusted
     if (isInstanceOf!(HashMapOrSet,
                       HashMapOrSetType))
 {
@@ -845,30 +842,37 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 
     auto x0 = X.init;
     assert(x0.length == 0);
+    assert(x0._bins.length == 0);
     assert(!x0.contains(1));
 
     auto x1 = X.withElements([12].s);
     assert(x1.length == 1);
+    assert(x1._bins.length == 1);
     assert(x1.contains(12));
 
-    auto x = X.withElements([12, 13].s);
-    assert(x.length == 2);
-    assert(x.contains(12));
-    assert(x.contains(13));
+    auto x2 = X.withElements([10, 12].s);
+    dln(x2._bins[]);
+    assert(x2.length == 2);
+    assert(x2._bins.length == 2);
+    assert(x2.contains(10));
+    assert(x2.contains(12));
+
+    auto x3 = X.withElements([12, 13, 14].s);
+    assert(x3.length == 3);
+    assert(x3._bins.length == 4);
+    assert(x3.contains(12));
+    assert(x3.contains(13));
+    assert(x3.contains(14));
 
     auto z = X.withElements([10, 12, 13, 15].s);
-    dln(z.length);
-    dln(z._bins[]);
     assert(z.length == 4);
     assert(z.contains(10));
     assert(z.contains(12));
     assert(z.contains(13));
     assert(z.contains(15));
 
-    dln("before");
     import std.algorithm.mutation : move;
-    auto y = move(z).intersectedWith(x);
-    dln("after");
+    auto y = move(z).intersectedWith(x2);
     assert(y.length == 2);
     assert(y.contains(12));
     assert(y.contains(13));

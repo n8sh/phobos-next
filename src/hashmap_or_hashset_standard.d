@@ -23,6 +23,8 @@ enum InsertionStatus
  *
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  *
+ * TODO should we allow `nullKeyConstant` to be used as argument to `insert`?
+ *
  * TODO when allocating _bins use nullKeyConstant for assignment after
  * allocating and in allocator when that is used.
  *
@@ -339,11 +341,27 @@ struct HashMapOrSet(K, V = void,
     private InsertionStatus insertWithoutGrowth(T element)
     {
         assert(keyOf(element) !is nullKeyConstant);
-        immutable ix = keyToIx(keyOf(element));
+
+        static if (isCopyable!T)
+        {
+            dln("element:", element);
+            dln("_bins before insert:", _bins[]);
+        }
+
+        immutable ix = tryFindKeyIx(keyOf(element));
+        dln("ix:", ix);
         assert(ix != _bins.length); // not full
+
         immutable status = keyOf(_bins[ix]) is nullKeyConstant ? InsertionStatus.added : InsertionStatus.unmodified;
         _length += status == InsertionStatus.added ? 1 : 0;
+
         move(element, _bins[ix]);
+
+        static if (isCopyable!T)
+        {
+            dln("_bins after insert:", _bins[]);
+        }
+
         return status;
     }
 
@@ -353,10 +371,13 @@ struct HashMapOrSet(K, V = void,
     private InsertionStatus insertMoveWithoutGrowth(ref T element)
     {
         assert(keyOf(element) !is nullKeyConstant);
-        immutable ix = keyToIx(keyOf(element));
+
+        immutable ix = tryFindKeyIx(keyOf(element));
         assert(ix != _bins.length); // not full
+
         immutable status = keyOf(_bins[ix]) is nullKeyConstant ? InsertionStatus.added : InsertionStatus.unmodified;
         _length += status == InsertionStatus.added ? 1 : 0;
+
         move(element, _bins[ix]);
         return status;
     }
@@ -533,7 +554,7 @@ struct HashMapOrSet(K, V = void,
                 // prevent range error in `_bins` when `this` is empty
                 return typeof(return).init;
             }
-            immutable ix = keyToIx(key);
+            immutable ix = tryFindKeyIx(key);
             if (keyOf(_bins[ix]) !is nullKeyConstant) // if hit
             {
                 return cast(typeof(return))&_bins[ix].value;
@@ -634,7 +655,7 @@ struct HashMapOrSet(K, V = void,
         pragma(inline, true)    // LDC must have this
         scope ref inout(V) opIndex()(in auto ref K key) inout return
         {
-            immutable ix = keyToIx(key);
+            immutable ix = tryFindKeyIx(key);
             if (keyOf(_bins[ix]) !is nullKeyConstant) // if hit
             {
                 return _bins[ix].value;
@@ -711,22 +732,15 @@ private:
         return hash & powerOf2Mask;
     }
 
-    /** Returns: bin index of `key`. */
-    pragma(inline, true)
-    size_t keyToIx()(in auto ref K key) const
-    {
-        import digestion : hashOf2;
-        return hashToIndex(hashOf2!(hasher)(key));
-    }
-
     /** Returns: bin index of `key` or empty bin or `_bins.length` if full. */
     size_t tryFindKeyIx()(in auto ref K key) const
     {
         // TODO use among?
 
-        size_t ix = keyToIx(key);
+        import digestion : hashOf2;
+        size_t ix = hashToIndex(hashOf2!(hasher)(key));
 
-        if (isIxForKey(key, ix))
+        if (isIxForNonEmptyKey(key, ix))
         {
             return ix;
         }
@@ -736,14 +750,14 @@ private:
         ix = (ix + 1) % mask;   // modulo power of two
 
         size_t inc = 1;
-        while (!isIxForKey(key, ix) &&
+        while (!isIxForNonEmptyKey(key, ix) &&
                inc != _bins.length)
         {
             ix = (ix + inc) % mask;
             inc *= 2;
         }
 
-        if (isIxForKey(key, ix))
+        if (isIxForNonEmptyKey(key, ix))
         {
             return ix;          // slot
         }
@@ -753,7 +767,7 @@ private:
         }
     }
 
-    private size_t isIxForKey()(in auto ref K key, in size_t ix) const
+    private size_t isIxForNonEmptyKey()(in auto ref K key, in size_t ix) const
     {
         return (keyOf(_bins[ix]) is key ||           // hit slot
                 keyOf(_bins[ix]) is nullKeyConstant); // free slot
@@ -874,8 +888,8 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     import std.algorithm.mutation : move;
     auto y = move(z).intersectedWith(x2);
     assert(y.length == 2);
+    assert(y.contains(10));
     assert(y.contains(12));
-    assert(y.contains(13));
 }
 
 /// r-value and r-value intersection

@@ -935,7 +935,6 @@ auto byElement(HashMapOrSetType)(auto ref inout(HashMapOrSetType) c)
 /// make range from l-value and r-value. element access is always const
 pure nothrow @nogc unittest
 {
-    dln("");
     alias K = uint;
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 
@@ -947,7 +946,6 @@ pure nothrow @nogc unittest
     {
         static assert(is(typeof(e) == const(K))); // always const access
     }
-    dln("");
 
     // const
     const y = X.withElements(a);
@@ -955,13 +953,11 @@ pure nothrow @nogc unittest
     {
         static assert(is(typeof(e) == const(K)));
     }
-    dln("");
 
     foreach (e; X.withElements([11].s).byElement) // from r-value
     {
         static assert(is(typeof(e) == const(K))); // always const access
     }
-    dln("");
 }
 
 /// test various things

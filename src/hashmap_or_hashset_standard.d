@@ -11,6 +11,8 @@ enum InsertionStatus
     unmodified                  // element was left unchanged
 }
 
+/** Default null key of type `T`,
+ */
 template defaultNullKeyConstantOf(T)
 {
     import std.traits : isPointer, isIntegral;

@@ -11,6 +11,25 @@ enum InsertionStatus
     unmodified                  // element was left unchanged
 }
 
+template defaultNullKeyConstantOf(T)
+{
+    import std.traits : isPointer, isIntegral;
+    static if (isPointer!T ||
+               is(T == class))
+    {
+        enum defaultNullKeyConstantOf = null;
+    }
+    else static if (isIntegral!T)
+    {
+        enum defaultNullKeyConstantOf = T.max; // TODO is this ok?
+    }
+    else
+    {
+        enum defaultNullKeyConstantOf = T.init; // TODO is this ok?
+        // static assert(0, "Handle type " ~ T.stringof);
+    }
+}
+
 /** Hash set (or map) storing (key) elements of type `K` and values of type `V`.
  *
  * Uses open-addressing with quadratic probing using triangular numbers.
@@ -60,7 +79,7 @@ enum InsertionStatus
 struct HashMapOrSet(K, V = void,
                     alias Allocator = null,
                     alias hasher = hashOf,
-                    K nullKeyConstant = K.init)
+                    K nullKeyConstant = defaultNullKeyConstantOf!K)
     // if (isHashable!K)
 {
     import std.conv : emplace;

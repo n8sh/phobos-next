@@ -59,9 +59,26 @@ struct BasicArray(T,
         return withCapacityLengthZero(initialCapacity, 0, false);
     }
 
+    static if (isCopyable!T)
+    {
+        /** Construct using
+         * - initial length `length`,
+         * - and value of all elements `elementValue`.
+         */
+        pragma(inline)              // DMD cannot inline
+        static typeof(this) withLengthElementValue()(size_t length,
+                                                     T elementValue)
+        {
+            assert(length <= CapacityType.max);
+            return typeof(return)(Store(typeof(this).allocateWithValue(length, elementValue),
+                                        cast(CapacityType)length,
+                                        cast(CapacityType)length));
+        }
+    }
+
     /** Construct using
      * - initial capacity `capacity`,
-     * - initial length `Length`,
+     * - initial length `length`,
      * - and zeroing-flag `zero`.
      */
     pragma(inline)              // DMD cannot inline
@@ -329,7 +346,7 @@ struct BasicArray(T,
         _store.length = 0;
     }
 
-    /** Allocate heap regionwith `initialCapacity` number of elements of type `T`.
+    /** Allocate heap region with `initialCapacity` number of elements of type `T`.
         If `zero` is `true` they will be zero-initialized.
     */
     private static MutableE* allocate(size_t initialCapacity, bool zero)
@@ -375,6 +392,39 @@ struct BasicArray(T,
         }
 
         return ptr;
+    }
+
+    static if (isCopyable!T)
+    {
+        /** Allocate heap region with `initialCapacity` number of elements of type `T` all set to `elementValue`.
+         */
+        private static MutableE* allocateWithValue(size_t initialCapacity,
+                                                   T elementValue)
+        {
+            immutable size_t numBytes = initialCapacity * T.sizeof;
+
+            typeof(return) ptr = null;
+            static if (!is(typeof(Allocator) == typeof(null)))
+            {
+                import std.experimental.allocator : makeArray;
+                ptr = Allocator.makeArray!T(initialCapacity, elementValue).ptr; // TODO set length
+            }
+            else
+            {
+                ptr = cast(typeof(return))malloc(numBytes);
+                foreach (const i; 0 .. initialCapacity)
+                {
+                    emplace(&ptr[i], elementValue);
+                }
+            }
+
+            static if (mustAddGCRange!T)
+            {
+                gc_addRange(ptr, numBytes);
+            }
+
+            return ptr;
+        }
     }
 
     /** Comparison for equality. */

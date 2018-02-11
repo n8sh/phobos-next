@@ -358,7 +358,8 @@ struct HashMapOrSet(K, V = void,
         assert(keyOf(element) !is nullKeyConstant);
 
         immutable ix = tryFindKeyIx(keyOf(element));
-        assert(ix != _bins.length); // not full
+        assert(!full);
+        assert(ix != _bins.length);
 
         immutable status = keyOf(_bins[ix]) is nullKeyConstant ? InsertionStatus.added : InsertionStatus.unmodified;
         _count += (status == InsertionStatus.added ? 1 : 0);
@@ -376,7 +377,8 @@ struct HashMapOrSet(K, V = void,
         assert(keyOf(element) !is nullKeyConstant);
 
         immutable ix = tryFindKeyIx(keyOf(element));
-        assert(ix != _bins.length); // not full
+        assert(!full);
+        assert(ix != _bins.length);
 
         immutable status = keyOf(_bins[ix]) is nullKeyConstant ? InsertionStatus.added : InsertionStatus.unmodified;
         _count += status == InsertionStatus.added ? 1 : 0;
@@ -950,6 +952,7 @@ auto byElement(HashMapOrSetType)(auto ref inout(HashMapOrSetType) c)
         return move(result);
     }
 }
+alias range = byElement;        // EMSI-container naming
 
 @safe:
 

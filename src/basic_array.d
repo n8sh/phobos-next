@@ -400,6 +400,7 @@ struct BasicArray(T,
          */
         private static MutableE* allocateWithValue(size_t initialCapacity,
                                                    T elementValue)
+            @trusted
         {
             immutable size_t numBytes = initialCapacity * T.sizeof;
 

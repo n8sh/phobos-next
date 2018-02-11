@@ -1379,6 +1379,7 @@ auto byElement(HashMapOrSetType)(auto ref inout(HashMapOrSetType) c)
         return move(result);
     }
 }
+alias range = byElement;        // EMSI-container naming
 
 @safe:
 

@@ -360,7 +360,6 @@ struct HashMapOrSet(K, V = void,
         assert(keyOf(element) !is nullKeyConstant);
 
         immutable ix = tryFindKeyIx(keyOf(element));
-        assert(!full);
         assert(ix != _bins.length);
 
         immutable status = keyOf(_bins[ix]) is nullKeyConstant ? InsertionStatus.added : InsertionStatus.unmodified;
@@ -379,7 +378,6 @@ struct HashMapOrSet(K, V = void,
         assert(keyOf(element) !is nullKeyConstant);
 
         immutable ix = tryFindKeyIx(keyOf(element));
-        assert(!full);
         assert(ix != _bins.length);
 
         immutable status = keyOf(_bins[ix]) is nullKeyConstant ? InsertionStatus.added : InsertionStatus.unmodified;

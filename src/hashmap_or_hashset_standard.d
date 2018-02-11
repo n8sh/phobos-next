@@ -44,6 +44,8 @@ template defaultNullKeyConstantOf(T)
  *
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  *
+ * TODO support HashSet-in operator: assert(*("a" in s) == "a");
+ *
  * TODO length and capacity of _bins are always the same. this wastes an extra word of storage.
  *
  * TODO should we allow `nullKeyConstant` to be used as argument to `insert`?

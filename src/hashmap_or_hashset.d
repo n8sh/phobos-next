@@ -25,8 +25,7 @@ enum InsertionStatus
  *
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  *
- * TODO try quadratic probing using triangular numbers:
- * http://stackoverflow.com/questions/2348187/moving-from-linear-probing-to-quadratic-probing-hash-collisons/2349774#2349774
+ * TODO support HashSet-in operator: assert(*("a" in s) == "a");
  *
  * TODO in non-sso optimized store add flag similar to Nullable that reserves a
  * specific value for key that indicates that slot is unused. Use this when

@@ -28,5 +28,10 @@ struct SomeUncopyable
 
     inout(uint)* valuePointer() inout { return _i; }
 
+    typeof(this) dup()
+    {
+        return typeof(return)(*_i);
+    }
+
     uint *_i;
 }

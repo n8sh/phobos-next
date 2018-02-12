@@ -206,9 +206,9 @@ struct HashMapOrSet(K, V = void,
     /// No copying.
     @disable this(this);
 
-    /// Duplicate.
     static if (isCopyable!T)
     {
+        /// Returns: a shallow duplicate of `this`.
         typeof(this) dup()() const // template-lazy
         {
             return typeof(return)(_bins.dup, _count);

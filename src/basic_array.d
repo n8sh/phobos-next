@@ -988,16 +988,12 @@ size_t remove(alias predicate, C)(ref C c)
 
 /** Reset all elements matching `predicate`.
     Returns: number of elements that were removed.
-
-    TODO implement version that doesn't use a temporary array `tmp`, which is
-    probably faster for small arrays.
 */
 size_t resetAllMatching(alias predicate, C)(ref C c)
     @("complexity", "O(length)")
     if (isInstanceOf!(BasicArray, C) &&
         is(typeof(unaryFun!predicate(C.init[0]))))
 {
-    C tmp;
     size_t count = 0;
     alias E = typeof(C.init[0]);
     import dbgio;

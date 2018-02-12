@@ -266,7 +266,7 @@ struct HashMapOrSet(K, V = void,
             return false; // prevent `RangeError` in `_bins` when empty
         }
         immutable ix = tryFindKeyIx(key);
-        return ix != _bins.length && keyOf(_bins[ix]) is key;
+        return isHitIxForKey(ix, key);
     }
     /// ditto
     bool contains()(in ref K key) const // template-lazy
@@ -276,7 +276,7 @@ struct HashMapOrSet(K, V = void,
             return false; // prevent `RangeError` in `_bins` when empty
         }
         immutable ix = tryFindKeyIx(key);
-        return ix != _bins.length && keyOf(_bins[ix]) is key;
+        return isHitIxForKey(ix, key);
     }
 
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
@@ -717,7 +717,24 @@ struct HashMapOrSet(K, V = void,
     */
     bool remove()(in K key)     // template-lazy
     {
-        assert(0, "remove at ix");
+        if (empty)              // TODO can this check be avoided?
+        {
+            return false; // prevent `RangeError` in `_bins` when empty
+        }
+        immutable ix = tryFindKeyIx(key);
+        immutable hit = isHitIxForKey(ix, key);
+        if (hit)
+        {
+            keyOf(_bins[ix]) = nullKeyConstant;
+            static if (hasValue &&
+                       hasElaborateDestructor!V)
+            {
+                valueOf(_bins[ix]) = V.init;
+                // TODO instead do only .destroy(valueOf(_bins[ix]));
+            }
+            _count -= 1;
+        }
+        return hit;
     }
 
     /// Check if empty.
@@ -785,6 +802,11 @@ private:
     {
         return (keyOf(_bins[ix]) is key ||           // hit slot
                 keyOf(_bins[ix]) is nullKeyConstant); // free slot
+    }
+
+    bool isHitIxForKey(size_t ix, in K key) const
+    {
+        return ix != _bins.length && keyOf(_bins[ix]) is key;
     }
 
     /** Returns: current index mask from bin count. */
@@ -1223,7 +1245,7 @@ pure nothrow @nogc unittest
             }
 
             assert(x1.remove(key));
-            assert(x1.length + 1 == n - key - 1);
+            assert(x1.length == n - key);
 
             static if (!X.hasValue)
             {
@@ -1231,7 +1253,7 @@ pure nothrow @nogc unittest
             }
             assert(key !in x1);
             assert(!x1.remove(key));
-            assert(x1.length + 1 == n - key - 1);
+            assert(x1.length == n - key);
         }
 
         assert(x1.length == 0);

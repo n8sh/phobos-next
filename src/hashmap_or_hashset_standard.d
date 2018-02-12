@@ -976,6 +976,8 @@ pure nothrow @nogc unittest
 
     // mutable
     auto x = X.withElements(a);
+    assert(x.length == 2);
+    assert(x.byElement.count == x.length);
     dln(x._bins[]);
     foreach (e; x.byElement)    // from l-value
     {
@@ -1461,6 +1463,7 @@ pure nothrow unittest
 
 version(unittest)
 {
+    import std.algorithm : count;
     import std.algorithm.comparison : equal;
     import digestx.fnv : FNV;
     import array_help : s;

@@ -70,7 +70,7 @@ struct BasicArray(T,
                                                      T elementValue)
         {
             assert(length <= CapacityType.max);
-            return typeof(return)(Store(typeof(this).allocateWithValue(length, elementValue),
+            return typeof(return)(Store(typeof(this).allocateWithValue(length, move(elementValue)),
                                         cast(CapacityType)length,
                                         cast(CapacityType)length));
         }

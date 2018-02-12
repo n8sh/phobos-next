@@ -424,7 +424,7 @@ struct HashMapOrSet(K, V = void,
         {
             assert(!empty);
             ix += 1;
-            nextNonEmptyBin();
+            findNextNonEmptyBin();
         }
 
         @property typeof(this) save() // ForwardRange
@@ -432,7 +432,7 @@ struct HashMapOrSet(K, V = void,
             return this;
         }
 
-        private void nextNonEmptyBin()
+        private void findNextNonEmptyBin()
         {
             while (ix != (*table).binCount &&
                    keyOf((*table)._bins[ix]) is nullKeyConstant)
@@ -468,10 +468,10 @@ struct HashMapOrSet(K, V = void,
         void popFront()
         {
             ix += 1;
-            nextNonEmptyBin();
+            findNextNonEmptyBin();
         }
 
-        private void nextNonEmptyBin()
+        private void findNextNonEmptyBin()
         {
             while (ix != table.binCount &&
                    keyOf(table._bins[ix]) is nullKeyConstant)
@@ -595,7 +595,7 @@ struct HashMapOrSet(K, V = void,
         {
             alias This = ConstThis;
             auto result = ByKey!This((LvalueElementRef!This(cast(This*)&this)));
-            result.nextNonEmptyBin();
+            result.findNextNonEmptyBin();
             return result;
         }
 
@@ -616,7 +616,7 @@ struct HashMapOrSet(K, V = void,
         {
             alias This = ConstThis;
             auto result = ByValue!This((LvalueElementRef!This(cast(This*)&this)));
-            result.nextNonEmptyBin();
+            result.findNextNonEmptyBin();
             return result;
         }
 
@@ -645,7 +645,7 @@ struct HashMapOrSet(K, V = void,
         {
             alias This = MutableThis;
             auto result = ByKeyValue!This((LvalueElementRef!This(cast(This*)&this)));
-            result.nextNonEmptyBin();
+            result.findNextNonEmptyBin();
             return result;
         }
         /// ditto
@@ -653,7 +653,7 @@ struct HashMapOrSet(K, V = void,
         {
             alias This = ConstThis;
             auto result = ByKeyValue!This((LvalueElementRef!This(cast(This*)&this)));
-            result.nextNonEmptyBin();
+            result.findNextNonEmptyBin();
             return result;
         }
 
@@ -947,14 +947,14 @@ auto byElement(HashMapOrSetType)(auto ref inout(HashMapOrSetType) c)
     static if (__traits(isRef, c))
     {
         auto result = C.ByLvalueElement!C((C.LvalueElementRef!C(cast(C*)&c)));
-        result.nextNonEmptyBin();
+        result.findNextNonEmptyBin();
         return result;
     }
     else
     {
         import std.algorithm.mutation : move;
         auto result = C.ByRvalueElement!C((C.RvalueElementRef!C(move(*(cast(HashMapOrSetType*)&c))))); // reinterpret
-        result.nextNonEmptyBin();
+        result.findNextNonEmptyBin();
         return move(result);
     }
 }

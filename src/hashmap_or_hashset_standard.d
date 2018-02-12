@@ -801,14 +801,21 @@ import std.traits : isInstanceOf;
 import std.functional : unaryFun;
 
 /** Reset (remove) all elements in `x` matching `predicate`.
-    TODO move to container_algorithm.d.
 */
 void resetAllMatching(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetType x)
     if (isInstanceOf!(HashMapOrSet,
                       HashMapOrSetType))
 {
-    import basic_array : resetAllMatching;
-    immutable count = x._bins.resetAllMatching!predicate(); // TODO use HashMapOrSetType.nullKeyConstant
+    size_t count = 0;
+    alias E = typeof(HashMapOrSetType._bins.init[0]);
+    foreach (immutable i; 0 .. x._bins.length)
+    {
+        if (unaryFun!predicate(x._bins[i]))
+        {
+            count += 1;
+            x._bins[i] = defaultNullKeyConstantOf!E;
+        }
+    }
     x._count -= count;
 }
 

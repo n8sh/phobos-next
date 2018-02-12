@@ -216,7 +216,7 @@ struct HashMapOrSet(K, V = void,
     }
 
     /// Equality.
-    bool opEquals()(in auto ref typeof(this) rhs) const
+    bool opEquals()(const scope auto ref typeof(this) rhs) const
     {
         if (_count != rhs._count) { return false; }
 
@@ -250,6 +250,7 @@ struct HashMapOrSet(K, V = void,
     void clear()()              // template-lazy
     {
         _bins.clear();
+        _count = 0;
     }
 
     version(LDC) { pragma(inline, true): } // needed for LDC to inline this, DMD cannot

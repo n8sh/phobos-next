@@ -1190,17 +1190,17 @@ unittest
    TODO Standardize name and remove alises.
    TODO Use partOf if generalized to InputRange.
  */
-bool sliceOf(T)(in T[] part,
-                in T[] whole)
+bool isSliceOf(T)(in T[] part,
+                  in T[] whole)
 {
     return (whole.ptr <= part.ptr &&
             part.ptr + part.length <=
             whole.ptr + whole.length);
 }
-alias containedIn = sliceOf;
-alias partOf = sliceOf;
-alias coveredBy = sliceOf;
-alias includedIn = sliceOf;
+alias containedIn = isSliceOf;
+alias partOf = isSliceOf;
+alias coveredBy = isSliceOf;
+alias includedIn = isSliceOf;
 
 /* See also: http://forum.dlang.org/thread/cjpplpzdzebfxhyqtskw@forum.dlang.org#post-cjpplpzdzebfxhyqtskw:40forum.dlang.org */
 auto dropWhile(alias pred = `a == b`, R, E)(R range, E element)

@@ -996,7 +996,6 @@ size_t resetAllMatching(alias predicate, C)(ref C c)
 {
     size_t count = 0;
     alias E = typeof(C.init[0]);
-    import dbgio;
     foreach (immutable i; 0 .. c.length)
     {
         if (unaryFun!predicate(c[i]))

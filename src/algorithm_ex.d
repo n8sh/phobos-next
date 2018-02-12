@@ -1188,7 +1188,6 @@ unittest
 /* Check if $(D part) is part of $(D whole).
    See also: http://forum.dlang.org/thread/ls9dbk$jkq$1@digitalmars.com
    TODO Standardize name and remove alises.
-   TODO Use partOf if generalized to InputRange.
  */
 bool isSliceOf(T)(in T[] part,
                   in T[] whole)
@@ -1197,10 +1196,6 @@ bool isSliceOf(T)(in T[] part,
             part.ptr + part.length <=
             whole.ptr + whole.length);
 }
-alias containedIn = isSliceOf;
-alias partOf = isSliceOf;
-alias coveredBy = isSliceOf;
-alias includedIn = isSliceOf;
 
 /* See also: http://forum.dlang.org/thread/cjpplpzdzebfxhyqtskw@forum.dlang.org#post-cjpplpzdzebfxhyqtskw:40forum.dlang.org */
 auto dropWhile(alias pred = `a == b`, R, E)(R range, E element)

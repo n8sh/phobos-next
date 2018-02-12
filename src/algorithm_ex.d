@@ -974,17 +974,17 @@ auto zipWith(fun, StoppingPolicy, Ranges...)(StoppingPolicy sp,
 /** Pair. TODO std.typecons */
 alias Pair(T, U) = Tuple!(T, U);
 /** Instantiator for $(D Pair). */
-auto pair(T, U)(in T t, in U u) { return Pair!(T, U)(t, u); }
+auto pair(T, U)(T t, U u) { return Pair!(T, U)(t, u); }
 
 /** Triple. TODO std.typecons */
 alias Triple(T, U, V) = Tuple!(T, U, V);
 /** Instantiator for $(D Triple). */
-auto triple(T, U, V)(in T t, in U u, in V v) { return Triple!(T, U, V)(t, u, v); }
+auto triple(T, U, V)(T t, U u, V v) { return Triple!(T, U, V)(t, u, v); }
 
 /** Quadruple. TODO std.typecons */
 alias Quadruple(T, U, V, W) = Tuple!(T, U, V, W);
 /** Instantiator for $(D Quadruple). */
-auto quadruple(T, U, V, W)(in T t, in U u, in V v, in W w) { return Quadruple!(T, U, V, W)(t, u, v, w); }
+auto quadruple(T, U, V, W)(T t, U u, V v, W w) { return Quadruple!(T, U, V, W)(t, u, v, w); }
 
 /** Limit/Span (Min,Max) Pair.
     Todo: Decide on either Span, MinMax or Limits

@@ -1213,7 +1213,7 @@ pure nothrow @nogc unittest
                 const element = key;
             }
 
-            assert(x1.length == n - key);
+            assert(x1.length == n + 1 - key);
 
             auto elementFound = key in x1;
             assert(elementFound);

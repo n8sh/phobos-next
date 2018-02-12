@@ -976,8 +976,11 @@ pure nothrow @nogc unittest
 
     // mutable
     auto x = X.withElements(a);
+    dln(x._bins[]);
     foreach (e; x.byElement)    // from l-value
     {
+        dln("e:", e);
+        assert(x.contains(e));
         static assert(is(typeof(e) == const(K))); // always const access
     }
 
@@ -985,11 +988,13 @@ pure nothrow @nogc unittest
     const y = X.withElements(a);
     foreach (e; y.byElement)    // from l-value
     {
+        assert(y.contains(e));
         static assert(is(typeof(e) == const(K)));
     }
 
     foreach (e; X.withElements([11].s).byElement) // from r-value
     {
+        assert(e == 11);
         static assert(is(typeof(e) == const(K))); // always const access
     }
 }
@@ -997,7 +1002,7 @@ pure nothrow @nogc unittest
 /// test various things
 pure nothrow @nogc unittest
 {
-    dln("");
+    dln();
     immutable n = 600;
 
     alias K = uint;
@@ -1272,7 +1277,7 @@ pure nothrow @nogc unittest
 /// range checking
 @trusted pure unittest
 {
-    dln("");
+    dln();
     import std.exception : assertThrown, assertNotThrown;
     import core.exception : RangeError;
 
@@ -1319,7 +1324,7 @@ pure nothrow @nogc unittest
 /// class as value
 @trusted pure unittest
 {
-    dln("");
+    dln();
     import std.exception : assertThrown, assertNotThrown;
     import core.exception : RangeError;
 
@@ -1376,7 +1381,7 @@ pure nothrow @nogc unittest
 /// constness inference of ranges
 pure nothrow unittest
 {
-    dln("");
+    dln();
     alias K = uint;
     class V
     {
@@ -1408,7 +1413,7 @@ pure nothrow unittest
 /// range key constness and value mutability with `class` value
 pure nothrow unittest
 {
-    dln("");
+    dln();
     struct K
     {
         uint value;

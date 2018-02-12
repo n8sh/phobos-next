@@ -23,7 +23,7 @@ template defaultNullKeyConstantOf(T)
     }
     else static if (isIntegral!T)
     {
-        enum defaultNullKeyConstantOf = T.max; // TODO is this ok?
+        enum defaultNullKeyConstantOf = 0;
     }
     else
     {
@@ -316,7 +316,6 @@ struct HashMapOrSet(K, V = void,
     /** Reserve rom for `extraCapacity` number of extra buckets. */
     void reserveExtra()(size_t extraCapacity)
     {
-        dln("extraCapacity:", extraCapacity);
         if ((_count + extraCapacity) * 2 > _bins.length)
         {
             growWithExtraCapacity(extraCapacity);
@@ -1276,11 +1275,11 @@ pure nothrow @nogc unittest
     dln("");
     import std.exception : assertThrown, assertNotThrown;
     import core.exception : RangeError;
-    import uncopyable_sample : V = SomeUncopyable;
 
     immutable n = 11;
 
     alias K = uint;
+    alias V = uint;
 
     alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
 
@@ -1412,7 +1411,6 @@ pure nothrow unittest
     dln("");
     struct K
     {
-        @disable this(this);
         uint value;
     }
 

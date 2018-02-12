@@ -1060,7 +1060,7 @@ pure nothrow @nogc unittest
                 assert(x.contains(e));
                 // assert(!y.contains(e));
                 y.insert(e);
-                // assert(y.contains(e));
+                assert(y.contains(e));
             }
 
             assert(y.byElement.count == 3);

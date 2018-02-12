@@ -1057,7 +1057,10 @@ pure nothrow @nogc unittest
             X y;
             foreach (const ref e; x.byElement)
             {
+                assert(x.contains(e));
+                // assert(!y.contains(e));
                 y.insert(e);
+                // assert(y.contains(e));
             }
 
             assert(y.byElement.count == 3);
@@ -1224,8 +1227,10 @@ pure nothrow @nogc unittest
 
         // empty x1
 
+        dln("x1.length:", x1.length);
         foreach (immutable key; 1 .. n + 1)
         {
+            dln("key:", key);
             static if (X.hasValue)
             {
                 const element = X.ElementType(key, V.init);

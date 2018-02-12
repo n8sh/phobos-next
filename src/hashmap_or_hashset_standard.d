@@ -178,8 +178,7 @@ struct HashMapOrSet(K, V = void,
     pragma(inline)              // LDC can, DMD cannot inline
     static typeof(this) withBinCount()(size_t capacity) // template-lazy
     {
-        return typeof(return)(Bins.withLength(capacity), // TODO initialize wi nullKeyConstant
-                              0); // zero count
+        return typeof(return)(Bins.withLengthElementValue(capacity, cast(T)nullKeyConstant));
     }
 
     import std.traits : isIterable;
@@ -317,6 +316,7 @@ struct HashMapOrSet(K, V = void,
     /** Reserve rom for `extraCapacity` number of extra buckets. */
     void reserveExtra()(size_t extraCapacity)
     {
+        dln("extraCapacity:", extraCapacity);
         if ((_count + extraCapacity) * 2 > _bins.length)
         {
             growWithExtraCapacity(extraCapacity);
@@ -800,7 +800,7 @@ private:
 import std.traits : isInstanceOf;
 import std.functional : unaryFun;
 
-/** Remove all elements in `x` matching `predicate`.
+/** Reset (remove) all elements in `x` matching `predicate`.
     TODO move to container_algorithm.d.
 */
 void resetAllMatching(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetType x)
@@ -808,7 +808,7 @@ void resetAllMatching(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetTy
                       HashMapOrSetType))
 {
     import basic_array : resetAllMatching;
-    immutable count = x._bins.resetAllMatching!predicate();
+    immutable count = x._bins.resetAllMatching!predicate(); // TODO use HashMapOrSetType.nullKeyConstant
     x._count -= count;
 }
 
@@ -857,6 +857,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {
+    dln();
     alias K = uint;
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 
@@ -897,6 +898,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 /// r-value and r-value intersection
 @safe pure nothrow @nogc unittest
 {
+    dln();
     alias K = uint;
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 
@@ -920,6 +922,7 @@ auto intersectWith(C1, C2)(ref C1 x,
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {
+    dln();
     alias K = uint;
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 
@@ -959,6 +962,7 @@ alias range = byElement;        // EMSI-container naming
 /// make range from l-value and r-value. element access is always const
 pure nothrow @nogc unittest
 {
+    dln();
     alias K = uint;
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 

@@ -590,7 +590,7 @@ struct HashMapOrSet(K, V = void,
             alias _elementRef this;
         }
 
-        /// Returns forward range that iterates through the keys of `this`.
+        /// Returns forward range that iterates through the keys of `this` in undefined order.
         @property scope auto byKey()() inout return // template-lazy property
         {
             alias This = ConstThis;
@@ -611,7 +611,7 @@ struct HashMapOrSet(K, V = void,
             alias _elementRef this;
         }
 
-        /// Returns forward range that iterates through the values of `this`.
+        /// Returns forward range that iterates through the values of `this` in undefined order.
         @property scope auto byValue()() inout return // template-lazy property
         {
             alias This = ConstThis;
@@ -937,7 +937,9 @@ auto intersectWith(C1, C2)(ref C1 x,
     assert(y.contains(13));
 }
 
-/// Returns forward range that iterates through the elements of `c`.
+/** Returns forward range that iterates through the elements of `c` in undefined
+ * order.
+ */
 auto byElement(HashMapOrSetType)(auto ref inout(HashMapOrSetType) c)
     @trusted
     if (isInstanceOf!(HashMapOrSet,

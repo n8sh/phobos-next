@@ -1109,7 +1109,7 @@ pure nothrow @nogc unittest
 
         // fill x1
 
-        foreach (immutable key; 0 .. n)
+        foreach (immutable key; 1 .. n + 1)
         {
             static if (X.hasValue)
             {
@@ -1123,7 +1123,7 @@ pure nothrow @nogc unittest
 
             assert(key !in x1);
 
-            assert(x1.length == key);
+            assert(x1.length + 1 == key);
             assert(x1.insert(element) == InsertionStatus.added);
 
             static if (X.hasValue)
@@ -1136,7 +1136,7 @@ pure nothrow @nogc unittest
                 x1[key] = value;
             }
 
-            assert(x1.length == key + 1);
+            assert(x1.length + 1 == key + 1);
 
             assert(key in x1);
             static if (X.hasValue)
@@ -1151,7 +1151,7 @@ pure nothrow @nogc unittest
             {
                 assert(x1.insert(key, value) == InsertionStatus.unmodified);
             }
-            assert(x1.length == key + 1);
+            assert(x1.length + 1 == key + 1);
 
             assert(key in x1);
         }
@@ -1202,7 +1202,7 @@ pure nothrow @nogc unittest
 
         // empty x1
 
-        foreach (immutable key; 0 .. n)
+        foreach (immutable key; 1 .. n + 1)
         {
             static if (X.hasValue)
             {
@@ -1223,7 +1223,7 @@ pure nothrow @nogc unittest
             }
 
             assert(x1.remove(key));
-            assert(x1.length == n - key - 1);
+            assert(x1.length + 1 == n - key - 1);
 
             static if (!X.hasValue)
             {
@@ -1231,7 +1231,7 @@ pure nothrow @nogc unittest
             }
             assert(key !in x1);
             assert(!x1.remove(key));
-            assert(x1.length == n - key - 1);
+            assert(x1.length + 1 == n - key - 1);
         }
 
         assert(x1.length == 0);
@@ -1243,7 +1243,7 @@ pure nothrow @nogc unittest
 
         assert(x2.length == n); // should be not affected by emptying of x1
 
-        foreach (immutable key; 0 .. n)
+        foreach (immutable key; 1 .. n + 1)
         {
             static if (X.hasValue)
             {
@@ -1293,13 +1293,13 @@ pure nothrow @nogc unittest
 
     assertThrown!RangeError(dummy(s[K.init]));
 
-    foreach (immutable uint i; 0 .. n)
+    foreach (immutable uint i; 1 .. n + 1)
     {
         s[i] = V(i);
         assertNotThrown!RangeError(dummy(s[i]));
     }
 
-    foreach (immutable uint i; 0 .. n)
+    foreach (immutable uint i; 1 .. n + 1)
     {
         s.remove(i);
         assertThrown!RangeError(dummy(s[i]));
@@ -1344,7 +1344,7 @@ pure nothrow @nogc unittest
 
     assertThrown!RangeError(dummy(s[K.init]));
 
-    foreach (immutable uint i; 0 .. n)
+    foreach (immutable uint i; 1 .. n + 1)
     {
         s[i] = new V(i);
         assertNotThrown!RangeError(dummy(s[i]));
@@ -1353,13 +1353,13 @@ pure nothrow @nogc unittest
     // test range
     auto sr = s.byKeyValue;
     assert(sr.length == n);
-    foreach (immutable uint i; 0 .. n)
+    foreach (immutable uint i; 1 .. n + 1)
     {
         sr.popFront();
         assert(sr.length == n - i - 1);
     }
 
-    foreach (immutable uint i; 0 .. n)
+    foreach (immutable uint i; 1 .. n + 1)
     {
         s.remove(i);
         assertThrown!RangeError(dummy(s[i]));

@@ -435,7 +435,7 @@ struct HashMapOrSet(K, V = void,
         private void nextNonEmptyBin()
         {
             while (ix != (*table).binCount &&
-                   keyOf((*table)._bins[ix]) !is nullKeyConstant)
+                   keyOf((*table)._bins[ix]) is nullKeyConstant)
             {
                 ix += 1;
             }
@@ -474,7 +474,7 @@ struct HashMapOrSet(K, V = void,
         private void nextNonEmptyBin()
         {
             while (ix != table.binCount &&
-                   keyOf(table._bins[ix]) !is nullKeyConstant)
+                   keyOf(table._bins[ix]) is nullKeyConstant)
             {
                 ix += 1;
             }
@@ -863,7 +863,6 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {
-    dln();
     alias K = uint;
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 
@@ -904,7 +903,6 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 /// r-value and r-value intersection
 @safe pure nothrow @nogc unittest
 {
-    dln();
     alias K = uint;
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 
@@ -928,7 +926,6 @@ auto intersectWith(C1, C2)(ref C1 x,
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {
-    dln();
     alias K = uint;
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 
@@ -968,20 +965,17 @@ alias range = byElement;        // EMSI-container naming
 /// make range from l-value and r-value. element access is always const
 pure nothrow @nogc unittest
 {
-    dln();
     alias K = uint;
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 
-    immutable a = [11, 22].s;
+    immutable a = [11, 22, 33].s;
 
     // mutable
     auto x = X.withElements(a);
-    assert(x.length == 2);
+    assert(x.length == 3);
     assert(x.byElement.count == x.length);
-    dln(x._bins[]);
     foreach (e; x.byElement)    // from l-value
     {
-        dln("e:", e);
         assert(x.contains(e));
         static assert(is(typeof(e) == const(K))); // always const access
     }

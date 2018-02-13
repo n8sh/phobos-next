@@ -893,7 +893,8 @@ private:
         }
         else
         {
-            return _bins.length; // no slot, full
+            assert(0, "full!");
+            // return _bins.length; // no slot, full
         }
     }
 
@@ -905,7 +906,8 @@ private:
 
     bool isHitIxForKey(size_t ix, const scope K key) const
     {
-        return ix != _bins.length && keyOf(_bins[ix]) is key;
+        return (ix != _bins.length &&
+                key is keyOf(_bins[ix]));
     }
 
     /** Returns: current index mask from bin count. */

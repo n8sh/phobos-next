@@ -430,19 +430,19 @@ struct BasicArray(T,
 
     /** Comparison for equality. */
     pragma(inline, true)
-    bool opEquals()(in typeof(this) rhs) const // template-lazy
+    bool opEquals()(const scope typeof(this) rhs) const // template-lazy
     {
         return slice() == rhs.slice();
     }
     /// ditto
     pragma(inline, true)
-    bool opEquals()(in ref typeof(this) rhs) const // template-lazy
+    bool opEquals()(const scope ref typeof(this) rhs) const // template-lazy
     {
         return slice() == rhs.slice();
     }
     /// ditto
     pragma(inline, true)
-    bool opEquals(U)(in U[] rhs) const
+    bool opEquals(U)(const scope U[] rhs) const
         if (is(typeof(T[].init == U[].init)))
     {
         return slice() == rhs;

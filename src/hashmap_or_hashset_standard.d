@@ -13,44 +13,117 @@ enum InsertionStatus
     unmodified                  // element was left unchanged
 }
 
+/** Is `true` iff `T` is a nullable type.
+ */
+template isNullableType(T)
+{
+    import std.traits : isPointer, isInstanceOf, isIntegral; // TODO remove
+    import std.typecons : Nullable;
+    enum isNullableType = (isPointer!T ||
+                           is(T == class) ||
+                           is(T == typeof(null)) ||
+                           isInstanceOf!(Nullable, T) ||
+                           isIntegral!T);    // TODO remove later
+}
+
 /** Default null key of type `T`,
  */
 template defaultNullKeyConstantOf(T)
 {
-    import std.traits : isPointer, isIntegral, isInstanceOf;
-    import std.typecons : Nullable;
-    static if (isPointer!T ||
-               is(T == class))
-    {
-        enum defaultNullKeyConstantOf = null;
-    }
-    else static if (isInstanceOf!(Nullable, T))
+    static if (isNullableType!T)
     {
         enum defaultNullKeyConstantOf = T.init;
     }
-    else static if (isIntegral!T)
-    {
-        enum defaultNullKeyConstantOf = 0;
-    }
     else
     {
-        enum defaultNullKeyConstantOf = T.init; // TODO is this ok?
-        // static assert(0, "Handle type " ~ T.stringof);
+        static assert(0, "Unsupported type " ~ T.stringof);
     }
 }
 
 ///
 @safe pure nothrow @nogc unittest
 {
-    import std.typecons : Nullable;
-
     static assert(defaultNullKeyConstantOf!(void*) == null);
 
     alias Ni = Nullable!int;
     static assert(defaultNullKeyConstantOf!(Ni) == Ni.init);
 
+    alias cNi = const(Nullable!int);
+    static assert(defaultNullKeyConstantOf!(cNi) == cNi.init);
+
     alias NubM = Nullable!(ubyte, ubyte.max);
-    // assert(defaultNullKeyConstantOf!(NubM) == NubM.init);
+    assert(defaultNullKeyConstantOf!(NubM).isNull);
+
+    alias NuiM = Nullable!(uint, uint.max);
+    assert(defaultNullKeyConstantOf!(NuiM).isNull);
+}
+
+/** Returns: `true` iff `x` has a null value.
+ */
+bool isNull(T)(T x)
+    @safe pure nothrow @nogc
+    if (isNullableType!(T))
+{
+    import std.traits : isPointer, isInstanceOf, isIntegral; // TODO remove
+    import std.typecons : Nullable;
+    static if (isPointer!T ||
+               is(T == class) ||
+               is(T == typeof(null)))
+    {
+        return x is T.init;
+    }
+    else static if (isIntegral!T) // TODO remove later
+    {
+        return x is T.init;
+    }
+    else static if (isInstanceOf!(Nullable, T))
+    {
+        return x.isNull;
+    }
+    else
+    {
+        static assert(0, "Unsupported type " ~ T.stringof);
+    }
+}
+
+void nullify(T)(ref T x)
+    @safe pure nothrow @nogc
+    if (isNullableType!(T))
+{
+    import std.traits : isPointer, isInstanceOf, isIntegral; // TODO remove
+    import std.typecons : Nullable;
+    static if (isPointer!T ||
+               is(T == class) ||
+               is(T == typeof(null)))
+    {
+        x = T.init;
+    }
+    else static if (isIntegral!T) // TODO remove later
+    {
+        x = T.init;
+    }
+    else static if (isInstanceOf!(Nullable, T))
+    {
+        x.nullify();
+    }
+    else
+    {
+        static assert(0, "Unsupported type " ~ T.stringof);
+    }
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    assert(null.isNull);
+    alias Ni = Nullable!int;
+    assert(Ni.init.isNull);
+
+    Ni ni = 3;
+    assert(!ni.isNull);
+
+    ni.nullify();
+    assert(ni.isNull);
 }
 
 /** Hash set (or map) storing (key) elements of type `K` and values of type `V`.
@@ -103,8 +176,7 @@ template defaultNullKeyConstantOf(T)
  */
 struct HashMapOrSet(K, V = void,
                     alias Allocator = null,
-                    alias hasher = hashOf,
-                    K nullKeyConstant = defaultNullKeyConstantOf!K)
+                    alias hasher = hashOf)
     // if (isHashable!K)
 {
     import std.conv : emplace;
@@ -170,6 +242,8 @@ struct HashMapOrSet(K, V = void,
         alias ValueType = V;
 
         enum keyEqualPred = "a.key is b";
+
+        enum nullKeyElement = T(defaultNullKeyConstantOf!K, V.init);
     }
     else                        // HashSet
     {
@@ -190,6 +264,8 @@ struct HashMapOrSet(K, V = void,
         }
 
         enum keyEqualPred = "a is b";
+
+        enum nullKeyElement = defaultNullKeyConstantOf!K;
     }
 
     alias ElementType = T;
@@ -199,7 +275,7 @@ struct HashMapOrSet(K, V = void,
     pragma(inline)              // LDC can, DMD cannot inline
     static typeof(this) withBinCount()(size_t capacity) // template-lazy
     {
-        return typeof(return)(Bins.withLengthElementValue(capacity, cast(T)nullKeyConstant));
+        return typeof(return)(Bins.withLengthElementValue(capacity, nullKeyElement));
     }
 
     import std.traits : isIterable;
@@ -243,7 +319,7 @@ struct HashMapOrSet(K, V = void,
 
         foreach (immutable ix; 0 .. _bins.length)
         {
-            if (keyOf(_bins[ix]) !is nullKeyConstant)
+            if (!keyOf(_bins[ix]).isNull)
             {
                 static if (hasValue)
                 {
@@ -306,7 +382,7 @@ struct HashMapOrSet(K, V = void,
     InsertionStatus insert(T element)
     {
         reserveExtra(1);
-        assert(keyOf(element) !is nullKeyConstant);
+        assert(!keyOf(element).isNull);
         return insertWithoutGrowth(move(element));
     }
 
@@ -361,7 +437,7 @@ struct HashMapOrSet(K, V = void,
         // move elements to copy
         foreach (immutable ix; 0 .. _bins.length)
         {
-            if (keyOf(_bins[ix]) !is nullKeyConstant)
+            if (!keyOf(_bins[ix]).isNull)
             {
                 copy.insertMoveWithoutGrowth(_bins[ix]);
             }
@@ -378,12 +454,12 @@ struct HashMapOrSet(K, V = void,
     pragma(inline, true)
     private InsertionStatus insertWithoutGrowth(T element)
     {
-        assert(keyOf(element) !is nullKeyConstant);
+        assert(!keyOf(element).isNull);
 
         immutable ix = tryFindKeyIx(keyOf(element));
         assert(ix != _bins.length);
 
-        immutable status = keyOf(_bins[ix]) is nullKeyConstant ? InsertionStatus.added : InsertionStatus.unmodified;
+        immutable status = keyOf(_bins[ix]).isNull ? InsertionStatus.added : InsertionStatus.unmodified;
         _count += (status == InsertionStatus.added ? 1 : 0);
 
         move(element, _bins[ix]);
@@ -396,12 +472,12 @@ struct HashMapOrSet(K, V = void,
     pragma(inline, true)
     private InsertionStatus insertMoveWithoutGrowth(ref T element)
     {
-        assert(keyOf(element) !is nullKeyConstant);
+        assert(!keyOf(element).isNull);
 
         immutable ix = tryFindKeyIx(keyOf(element));
         assert(ix != _bins.length);
 
-        immutable status = keyOf(_bins[ix]) is nullKeyConstant ? InsertionStatus.added : InsertionStatus.unmodified;
+        immutable status = keyOf(_bins[ix]).isNull ? InsertionStatus.added : InsertionStatus.unmodified;
         _count += status == InsertionStatus.added ? 1 : 0;
 
         move(element, _bins[ix]);
@@ -457,7 +533,7 @@ struct HashMapOrSet(K, V = void,
         private void findNextNonEmptyBin()
         {
             while (ix != (*table).binCount &&
-                   keyOf((*table)._bins[ix]) is nullKeyConstant)
+                   keyOf((*table)._bins[ix]).isNull)
             {
                 ix += 1;
             }
@@ -496,7 +572,7 @@ struct HashMapOrSet(K, V = void,
         private void findNextNonEmptyBin()
         {
             while (ix != table.binCount &&
-                   keyOf(table._bins[ix]) is nullKeyConstant)
+                   keyOf(table._bins[ix]).isNull)
             {
                 ix += 1;
             }
@@ -590,7 +666,7 @@ struct HashMapOrSet(K, V = void,
                 return typeof(return).init;
             }
             immutable ix = tryFindKeyIx(key);
-            if (keyOf(_bins[ix]) !is nullKeyConstant) // if hit
+            if (!keyOf(_bins[ix]).isNull) // if hit
             {
                 return cast(typeof(return))&_bins[ix].value;
             }
@@ -691,7 +767,7 @@ struct HashMapOrSet(K, V = void,
         scope ref inout(V) opIndex()(in auto ref K key) inout return
         {
             immutable ix = tryFindKeyIx(key);
-            if (keyOf(_bins[ix]) !is nullKeyConstant) // if hit
+            if (!keyOf(_bins[ix]).isNull) // if hit
             {
                 return _bins[ix].value;
             }
@@ -746,7 +822,7 @@ struct HashMapOrSet(K, V = void,
         immutable hit = isHitIxForKey(ix, key);
         if (hit)
         {
-            keyOf(_bins[ix]) = nullKeyConstant;
+            keyOf(_bins[ix]).nullify();
             static if (hasValue &&
                        hasElaborateDestructor!V)
             {
@@ -822,7 +898,7 @@ private:
     private size_t isIxForNonEmptyKey()(in auto ref K key, in size_t ix) const
     {
         return (keyOf(_bins[ix]) is key ||           // hit slot
-                keyOf(_bins[ix]) is nullKeyConstant); // free slot
+                keyOf(_bins[ix]).isNull); // free slot
     }
 
     bool isHitIxForKey(size_t ix, in K key) const
@@ -1045,7 +1121,7 @@ pure nothrow @nogc unittest
     dln();
     immutable n = 600;
 
-    alias K = uint;
+    alias K = Nullable!(uint, uint.max);
 
     import std.meta : AliasSeq;
     foreach (V; AliasSeq!(void, string))
@@ -1054,7 +1130,7 @@ pure nothrow @nogc unittest
 
         static if (!X.hasValue)
         {
-            auto x = X.withElements([11, 12, 13].s);
+            auto x = X.withElements([K(11), K(12), K(13)].s);
 
             import std.algorithm : count;
             auto xr = x.byElement;
@@ -1092,22 +1168,22 @@ pure nothrow @nogc unittest
             assert(w.byElement.count == 0);
 
             {
-                auto xc = X.withElements([11, 12, 13].s);
+                auto xc = X.withElements([K(11), K(12), K(13)].s);
                 assert(xc.length == 3);
-                assert(xc.contains(11));
+                assert(xc.contains(K(11)));
 
                 // TODO http://forum.dlang.org/post/kvwrktmameivubnaifdx@forum.dlang.org
                 xc.resetAllMatching!(_ => _ == 11);
 
                 assert(xc.length == 2);
-                assert(!xc.contains(11));
+                assert(!xc.contains(K(11)));
 
                 xc.resetAllMatching!(_ => _ == 12);
-                assert(!xc.contains(12));
+                assert(!xc.contains(K(12)));
                 assert(xc.length == 1);
 
                 xc.resetAllMatching!(_ => _ == 13);
-                assert(!xc.contains(13));
+                assert(!xc.contains(K(13)));
                 assert(xc.length == 0);
 
                 // this is ok
@@ -1116,7 +1192,7 @@ pure nothrow @nogc unittest
             }
 
             {
-                auto k = X.withElements([11, 12].s).filtered!(_ => _ != 11).byElement;
+                auto k = X.withElements([K(11), K(12)].s).filtered!(_ => _ != K(11)).byElement;
                 static assert(isInputRange!(typeof(k)));
                 assert(k.front == 12);
                 k.popFront();
@@ -1125,7 +1201,7 @@ pure nothrow @nogc unittest
 
             {
                 X q;
-                auto qv = [11U, 12U, 13U, 14U].s;
+                auto qv = [K(11U), K(12U), K(13U), K(14U)].s;
                 q.insertN(qv[]);
                 foreach (e; qv[])
                 {
@@ -1153,8 +1229,10 @@ pure nothrow @nogc unittest
 
         // fill x1
 
-        foreach (immutable key; 1 .. n + 1)
+        foreach (immutable key_; 1 .. n + 1)
         {
+            const key = K(key_);
+
             static if (X.hasValue)
             {
                 const value = V.init;
@@ -1247,8 +1325,10 @@ pure nothrow @nogc unittest
         // empty x1
 
         dln("x1.length:", x1.length);
-        foreach (immutable key; 1 .. n + 1)
+        foreach (immutable key_; 1 .. n + 1)
         {
+            const key = K(key_);
+
             dln("key:", key);
             static if (X.hasValue)
             {
@@ -1289,8 +1369,10 @@ pure nothrow @nogc unittest
 
         assert(x2.length == n); // should be not affected by emptying of x1
 
-        foreach (immutable key; 1 .. n + 1)
+        foreach (immutable key_; 1 .. n + 1)
         {
+            const key = K(key_);
+
             static if (X.hasValue)
             {
                 const element = X.ElementType(key, V.init);
@@ -1459,10 +1541,11 @@ pure nothrow unittest
 pure nothrow unittest
 {
     dln();
-    struct K
+    struct S
     {
         uint value;
     }
+    alias K = Nullable!(S, S(uint.max));
 
     class V
     {
@@ -1473,7 +1556,7 @@ pure nothrow unittest
     alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
     auto x = X();
 
-    x[K(42)] = new V(43);
+    x[K(S(42))] = new V(43);
 
     assert(x.length == 1);
 
@@ -1508,6 +1591,7 @@ version(unittest)
 {
     import std.algorithm : count;
     import std.algorithm.comparison : equal;
+    import std.typecons : Nullable;
     import digestx.fnv : FNV;
     import array_help : s;
     import dbgio;

@@ -870,7 +870,7 @@ private:
         import digestion : hashOf2;
         size_t ix = hashToIndex(hashOf2!(hasher)(key));
 
-        if (isIxForKey(key, ix))
+        if (isKeyIx(key, ix))
         {
             return ix;
         }
@@ -881,14 +881,14 @@ private:
         ix = (ix + 1) & mask;   // modulo power of two
 
         size_t inc = 1;
-        while (!isIxForKey(key, ix) &&
+        while (!isKeyIx(key, ix) &&
                inc != _bins.length)
         {
             ix = (ix + inc) & mask;
             inc *= 2;
         }
 
-        if (isIxForKey(key, ix))
+        if (isKeyIx(key, ix))
         {
             return ix;          // slot
         }
@@ -899,7 +899,8 @@ private:
         }
     }
 
-    private size_t isIxForKey()(const scope auto ref K key, const scope size_t ix) const
+    private size_t isKeyIx()(const scope auto ref K key,
+                             const scope size_t ix) const
     {
         return (keyOf(_bins[ix]) is key || // hit slot
                 keyOf(_bins[ix]).isNull); // free slot

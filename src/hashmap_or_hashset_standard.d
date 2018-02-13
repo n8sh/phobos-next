@@ -1115,7 +1115,7 @@ pure nothrow @nogc unittest
 pure nothrow @nogc unittest
 {
     dln();
-    immutable n = 600;
+    immutable uint n = 600;
 
     alias K = Nullable!(uint, uint.max);
 
@@ -1225,7 +1225,7 @@ pure nothrow @nogc unittest
 
         // fill x1
 
-        foreach (immutable key_; 1 .. n + 1)
+        foreach (immutable key_; 0 .. n)
         {
             const key = K(key_);
 
@@ -1241,7 +1241,12 @@ pure nothrow @nogc unittest
 
             assert(key !in x1);
 
-            assert(x1.length + 1 == key);
+            static if (is(typeof(element.isNull)))
+            {
+                dln("key_:", key_, " of type:", typeof(key_).stringof,
+                    " key:", key, " of type:", typeof(key).stringof, " element.isNull:", element.isNull);
+            }
+            assert(x1.length == key);
             assert(x1.insert(element) == InsertionStatus.added);
 
             static if (X.hasValue)
@@ -1254,7 +1259,7 @@ pure nothrow @nogc unittest
                 x1[key] = value;
             }
 
-            assert(x1.length + 1 == key + 1);
+            assert(x1.length == key + 1);
 
             assert(key in x1);
             static if (X.hasValue)
@@ -1320,7 +1325,7 @@ pure nothrow @nogc unittest
 
         // empty x1
 
-        foreach (immutable key_; 1 .. n + 1)
+        foreach (immutable key_; 0 .. n)
         {
             const key = K(key_);
 
@@ -1363,7 +1368,7 @@ pure nothrow @nogc unittest
 
         assert(x2.length == n); // should be not affected by emptying of x1
 
-        foreach (immutable key_; 1 .. n + 1)
+        foreach (immutable key_; 0 .. n)
         {
             const key = K(key_);
 
@@ -1415,13 +1420,13 @@ pure nothrow @nogc unittest
 
     assertThrown!RangeError(dummy(s[K.init]));
 
-    foreach (immutable uint i; 1 .. n + 1)
+    foreach (immutable uint i; 0 .. n)
     {
         s[i] = V(i);
         assertNotThrown!RangeError(dummy(s[i]));
     }
 
-    foreach (immutable uint i; 1 .. n + 1)
+    foreach (immutable uint i; 0 .. n)
     {
         s.remove(i);
         assertThrown!RangeError(dummy(s[i]));
@@ -1466,7 +1471,7 @@ pure nothrow @nogc unittest
 
     assertThrown!RangeError(dummy(s[K.init]));
 
-    foreach (immutable uint i; 1 .. n + 1)
+    foreach (immutable uint i; 0 .. n)
     {
         s[i] = new V(i);
         assertNotThrown!RangeError(dummy(s[i]));
@@ -1475,13 +1480,13 @@ pure nothrow @nogc unittest
     // test range
     auto sr = s.byKeyValue;
     assert(sr.length == n);
-    foreach (immutable uint i; 1 .. n + 1)
+    foreach (immutable uint i; 0 .. n)
     {
         sr.popFront();
         assert(sr.length == n - i - 1);
     }
 
-    foreach (immutable uint i; 1 .. n + 1)
+    foreach (immutable uint i; 0 .. n)
     {
         s.remove(i);
         assertThrown!RangeError(dummy(s[i]));

@@ -906,7 +906,8 @@ private:
                 keyOf(_bins[ix]).isNull); // free slot
     }
 
-    bool isHitIxForKey(size_t ix, const scope K key) const
+    bool isHitIxForKey(size_t ix,
+                       const scope K key) const
     {
         return (ix != _bins.length &&
                 key is keyOf(_bins[ix]));

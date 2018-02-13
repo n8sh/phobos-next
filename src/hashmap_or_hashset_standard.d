@@ -823,6 +823,7 @@ struct HashMapOrSet(K, V = void,
         immutable hit = isHitIxForKey(ix, key);
         if (hit)
         {
+            // dln("key:", key, " ix:", ix, " hit:", hit, " bin:", _bins[ix]);
             keyOf(_bins[ix]).nullify();
             static if (hasValue &&
                        hasElaborateDestructor!V)
@@ -869,7 +870,7 @@ private:
         import digestion : hashOf2;
         size_t ix = hashToIndex(hashOf2!(hasher)(key));
 
-        if (isIxForNonEmptyKey(key, ix))
+        if (isIxForKey(key, ix))
         {
             return ix;
         }
@@ -879,14 +880,14 @@ private:
         ix = (ix + 1) % mask;   // modulo power of two
 
         size_t inc = 1;
-        while (!isIxForNonEmptyKey(key, ix) &&
+        while (!isIxForKey(key, ix) &&
                inc != _bins.length)
         {
             ix = (ix + inc) % mask;
             inc *= 2;
         }
 
-        if (isIxForNonEmptyKey(key, ix))
+        if (isIxForKey(key, ix))
         {
             return ix;          // slot
         }
@@ -896,9 +897,9 @@ private:
         }
     }
 
-    private size_t isIxForNonEmptyKey()(const scope auto ref K key, const scope size_t ix) const
+    private size_t isIxForKey()(const scope auto ref K key, const scope size_t ix) const
     {
-        return (keyOf(_bins[ix]) is key ||           // hit slot
+        return (keyOf(_bins[ix]) is key || // hit slot
                 keyOf(_bins[ix]).isNull); // free slot
     }
 
@@ -1342,10 +1343,6 @@ pure nothrow @nogc unittest
 
             assert(x1.length == n - key);
 
-            if (key_ == 513)
-            {
-                dln("x1.length:", x1.length);
-            }
             const elementFound = key in x1;
             assert(elementFound);
             static if (X.hasValue)
@@ -1354,6 +1351,7 @@ pure nothrow @nogc unittest
             }
 
             assert(x1.remove(key));
+            assert(K(513) in x1);
             assert(x1.length == n - key - 1);
 
             static if (!X.hasValue)

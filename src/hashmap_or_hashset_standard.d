@@ -43,8 +43,8 @@ template defaultNullKeyConstantOf(T)
 @safe pure nothrow @nogc unittest
 {
     import std.typecons : Nullable;
-    assert(defaultNullKeyConstantOf!(void*) == null);
-    assert(defaultNullKeyConstantOf!(Nullable!int) == Nullable!int.init);
+    static assert(defaultNullKeyConstantOf!(void*) == null);
+    static assert(defaultNullKeyConstantOf!(Nullable!int) == Nullable!int.init);
     // TODO assert(defaultNullKeyConstantOf!(Nullable!(ubyte, ubyte.max)) == Nullable!(ubyte, ubyte.max).init);
 }
 

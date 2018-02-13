@@ -142,8 +142,6 @@ void nullify(T)(ref T x)
  *
  * TODO length and capacity of _bins are always the same. this wastes an extra word of storage.
  *
- * TODO should we allow `nullKeyConstant` to be used as argument to `insert`?
- *
  * TODO when allocating _bins use nullKeyConstant for assignment after
  * allocating and in allocator when that is used.
  *

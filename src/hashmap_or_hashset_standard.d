@@ -1328,6 +1328,7 @@ pure nothrow @nogc unittest
 
         foreach (immutable key_; 0 .. n)
         {
+            dln("key_:", key_);
             const key = K(key_);
 
             static if (X.hasValue)
@@ -1336,12 +1337,16 @@ pure nothrow @nogc unittest
             }
             else
             {
-                const element = key;
+                alias element = key;
             }
 
             assert(x1.length == n - key);
 
-            auto elementFound = key in x1;
+            if (key_ == 513)
+            {
+                dln("x1.length:", x1.length);
+            }
+            const elementFound = key in x1;
             assert(elementFound);
             static if (X.hasValue)
             {

@@ -356,7 +356,7 @@ struct HashMapOrSet(K, V = void,
     /** Check if `element` is stored.
         Returns: `true` if element was already present, `false` otherwise.
      */
-    bool contains()(in K key) const // template-lazy. TODO make `auto ref K` work
+    bool contains()(const scope K key) const // template-lazy. TODO make `auto ref K` work
     {
         if (empty)              // TODO can this check be avoided?
         {
@@ -366,7 +366,7 @@ struct HashMapOrSet(K, V = void,
         return isHitIxForKey(ix, key);
     }
     /// ditto
-    bool contains()(in ref K key) const // template-lazy
+    bool contains()(const scope ref K key) const // template-lazy
     {
         if (empty)              // TODO can this check be avoided?
         {
@@ -582,7 +582,7 @@ struct HashMapOrSet(K, V = void,
     static if (!hasValue)       // HashSet
     {
         pragma(inline, true)
-        bool opBinaryRight(string op)(in K key) inout
+        bool opBinaryRight(string op)(const scope K key) inout
             if (op == "in")
         {
             return contains(key);
@@ -657,7 +657,7 @@ struct HashMapOrSet(K, V = void,
 
     static if (hasValue)        // HashMap
     {
-        scope inout(V)* opBinaryRight(string op)(in K key) inout return
+        scope inout(V)* opBinaryRight(string op)(const scope K key) inout return
             if (op == "in")
         {
             if (empty)
@@ -764,7 +764,7 @@ struct HashMapOrSet(K, V = void,
 
         /// Indexing.
         pragma(inline, true)    // LDC must have this
-        scope ref inout(V) opIndex()(in auto ref K key) inout return
+        scope ref inout(V) opIndex()(const scope auto ref K key) inout return
         {
             immutable ix = tryFindKeyIx(key);
             if (!keyOf(_bins[ix]).isNull) // if hit
@@ -785,7 +785,7 @@ struct HashMapOrSet(K, V = void,
          *
          * TODO make `defaultValue` `lazy` when that can be `nothrow`
          */
-        auto ref V get()(in K key, in auto ref V defaultValue)
+        auto ref V get()(const scope K key, const scope auto ref V defaultValue)
         {
             auto value = key in this;
             if (value !is null) // hit
@@ -812,7 +812,7 @@ struct HashMapOrSet(K, V = void,
     /** Remove `element`.
         Returns: `true` if element was removed, `false` otherwise.
     */
-    bool remove()(in K key)     // template-lazy
+    bool remove()(const scope K key)     // template-lazy
     {
         if (empty)              // TODO can this check be avoided?
         {
@@ -855,13 +855,13 @@ private:
 
     /** Returns: bin index of `hash`. */
     pragma(inline, true)
-    size_t hashToIndex(in hash_t hash) const
+    size_t hashToIndex(const scope hash_t hash) const
     {
         return hash & powerOf2Mask;
     }
 
     /** Returns: bin index of `key` or empty bin or `_bins.length` if full. */
-    size_t tryFindKeyIx()(in auto ref K key) const
+    size_t tryFindKeyIx()(const scope auto ref K key) const
     {
         // TODO use among?
 
@@ -895,13 +895,13 @@ private:
         }
     }
 
-    private size_t isIxForNonEmptyKey()(in auto ref K key, in size_t ix) const
+    private size_t isIxForNonEmptyKey()(const scope auto ref K key, const scope size_t ix) const
     {
         return (keyOf(_bins[ix]) is key ||           // hit slot
                 keyOf(_bins[ix]).isNull); // free slot
     }
 
-    bool isHitIxForKey(size_t ix, in K key) const
+    bool isHitIxForKey(size_t ix, const scope K key) const
     {
         return ix != _bins.length && keyOf(_bins[ix]) is key;
     }
@@ -929,10 +929,11 @@ void resetAllMatching(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetTy
     alias E = typeof(HashMapOrSetType._bins.init[0]);
     foreach (immutable i; 0 .. x._bins.length)
     {
-        if (unaryFun!predicate(x._bins[i]))
+        if (!x._bins[i].isNull &&
+            unaryFun!predicate(x._bins[i]))
         {
             count += 1;
-            x._bins[i] = defaultNullKeyConstantOf!E;
+            x._bins[i].nullify();
         }
     }
     x._count -= count;
@@ -1173,7 +1174,7 @@ pure nothrow @nogc unittest
                 assert(xc.contains(K(11)));
 
                 // TODO http://forum.dlang.org/post/kvwrktmameivubnaifdx@forum.dlang.org
-                xc.resetAllMatching!(_ => _ == 11);
+                xc.resetAllMatching!(_ => _ == K(11));
 
                 assert(xc.length == 2);
                 assert(!xc.contains(K(11)));
@@ -1324,12 +1325,10 @@ pure nothrow @nogc unittest
 
         // empty x1
 
-        dln("x1.length:", x1.length);
         foreach (immutable key_; 1 .. n + 1)
         {
             const key = K(key_);
 
-            dln("key:", key);
             static if (X.hasValue)
             {
                 const element = X.ElementType(key, V.init);

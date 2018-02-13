@@ -43,9 +43,13 @@ template defaultNullKeyConstantOf(T)
 @safe pure nothrow @nogc unittest
 {
     import std.typecons : Nullable;
+
     static assert(defaultNullKeyConstantOf!(void*) == null);
+
     static assert(defaultNullKeyConstantOf!(Nullable!int) == Nullable!int.init);
-    // TODO assert(defaultNullKeyConstantOf!(Nullable!(ubyte, ubyte.max)) == Nullable!(ubyte, ubyte.max).init);
+
+    alias NubM = Nullable!(ubyte, ubyte.max);
+    // assert(defaultNullKeyConstantOf!(NubM) == NubM.init);
 }
 
 /** Hash set (or map) storing (key) elements of type `K` and values of type `V`.

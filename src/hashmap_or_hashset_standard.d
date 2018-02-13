@@ -56,6 +56,12 @@ template defaultNullKeyConstantOf(T)
 
     alias NuiM = Nullable!(uint, uint.max);
     assert(defaultNullKeyConstantOf!(NuiM).isNull);
+
+    const Nullable!(uint, uint.max) x = 13;
+    assert(!x.isNull);
+    const y = x;
+    assert(!y.isNull);
+    assert(!x.isNull);
 }
 
 /** Returns: `true` iff `x` has a null value.
@@ -1114,7 +1120,6 @@ pure nothrow @nogc unittest
 /// test various things
 pure nothrow @nogc unittest
 {
-    dln();
     immutable uint n = 600;
 
     alias K = Nullable!(uint, uint.max);
@@ -1236,16 +1241,12 @@ pure nothrow @nogc unittest
             }
             else
             {
-                const element = key;
+                // no assignment because Nullable.opAssign may leave rhs in null state
+                alias element = key;
             }
 
             assert(key !in x1);
 
-            static if (is(typeof(element.isNull)))
-            {
-                dln("key_:", key_, " of type:", typeof(key_).stringof,
-                    " key:", key, " of type:", typeof(key).stringof, " element.isNull:", element.isNull);
-            }
             assert(x1.length == key);
             assert(x1.insert(element) == InsertionStatus.added);
 
@@ -1274,7 +1275,7 @@ pure nothrow @nogc unittest
             {
                 assert(x1.insert(key, value) == InsertionStatus.unmodified);
             }
-            assert(x1.length + 1 == key + 1);
+            assert(x1.length == key + 1);
 
             assert(key in x1);
         }
@@ -1338,7 +1339,7 @@ pure nothrow @nogc unittest
                 const element = key;
             }
 
-            assert(x1.length == n + 1 - key);
+            assert(x1.length == n - key);
 
             auto elementFound = key in x1;
             assert(elementFound);
@@ -1348,7 +1349,7 @@ pure nothrow @nogc unittest
             }
 
             assert(x1.remove(key));
-            assert(x1.length == n - key);
+            assert(x1.length == n - key - 1);
 
             static if (!X.hasValue)
             {
@@ -1356,7 +1357,7 @@ pure nothrow @nogc unittest
             }
             assert(key !in x1);
             assert(!x1.remove(key));
-            assert(x1.length == n - key);
+            assert(x1.length == n - key - 1);
         }
 
         assert(x1.length == 0);

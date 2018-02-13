@@ -899,13 +899,15 @@ private:
         }
     }
 
-    private size_t isKeyForIx()(const scope auto ref K key,
-                                const scope size_t ix) const
+    pragma(inline, true)
+    private size_t isKeyForIx(const scope K key,
+                              const scope size_t ix) const
     {
         return (keyOf(_bins[ix]) is key || // hit slot
                 keyOf(_bins[ix]).isNull); // free slot
     }
 
+    pragma(inline, true)
     bool isHitIxForKey(size_t ix,
                        const scope K key) const
     {

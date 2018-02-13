@@ -876,14 +876,15 @@ private:
         }
 
         // if not yet decided
+
         immutable size_t mask = powerOf2Mask;
-        ix = (ix + 1) % mask;   // modulo power of two
+        ix = (ix + 1) & mask;   // modulo power of two
 
         size_t inc = 1;
         while (!isIxForKey(key, ix) &&
                inc != _bins.length)
         {
-            ix = (ix + inc) % mask;
+            ix = (ix + inc) & mask;
             inc *= 2;
         }
 

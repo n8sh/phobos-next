@@ -2,6 +2,8 @@ module hashmap_or_hashset_standard;
 
 import container_traits;
 
+@safe:
+
 /** Insertion status.
  */
 enum InsertionStatus
@@ -15,11 +17,16 @@ enum InsertionStatus
  */
 template defaultNullKeyConstantOf(T)
 {
-    import std.traits : isPointer, isIntegral;
+    import std.traits : isPointer, isIntegral, isInstanceOf;
+    import std.typecons : Nullable;
     static if (isPointer!T ||
                is(T == class))
     {
         enum defaultNullKeyConstantOf = null;
+    }
+    else static if (isInstanceOf!(Nullable, T))
+    {
+        enum defaultNullKeyConstantOf = T.init;
     }
     else static if (isIntegral!T)
     {
@@ -30,6 +37,14 @@ template defaultNullKeyConstantOf(T)
         enum defaultNullKeyConstantOf = T.init; // TODO is this ok?
         // static assert(0, "Handle type " ~ T.stringof);
     }
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    import std.typecons : Nullable;
+    assert(defaultNullKeyConstantOf!(void*) == null);
+    assert(defaultNullKeyConstantOf!(Nullable!int) == Nullable!int.init);
 }
 
 /** Hash set (or map) storing (key) elements of type `K` and values of type `V`.
@@ -984,8 +999,6 @@ auto byElement(HashMapOrSetType)(auto ref inout(HashMapOrSetType) c)
     }
 }
 alias range = byElement;        // EMSI-container naming
-
-@safe:
 
 /// make range from l-value and r-value. element access is always const
 pure nothrow @nogc unittest

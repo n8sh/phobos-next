@@ -46,7 +46,8 @@ template defaultNullKeyConstantOf(T)
 
     static assert(defaultNullKeyConstantOf!(void*) == null);
 
-    static assert(defaultNullKeyConstantOf!(Nullable!int) == Nullable!int.init);
+    alias Ni = Nullable!int;
+    static assert(defaultNullKeyConstantOf!(Ni) == Ni.init);
 
     alias NubM = Nullable!(ubyte, ubyte.max);
     // assert(defaultNullKeyConstantOf!(NubM) == NubM.init);

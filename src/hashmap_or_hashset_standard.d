@@ -911,8 +911,8 @@ private:
     bool isHitIxForKey(size_t ix,
                        const scope K key) const
     {
-        return (ix != _bins.length &&
-                key is keyOf(_bins[ix]));
+        assert(ix != _bins.length);
+        return (key is keyOf(_bins[ix]));
     }
 
     /** Returns: current index mask from bin count. */
@@ -1357,8 +1357,10 @@ pure nothrow @nogc unittest
                 assert(*elementFound is element.value);
             }
 
+            assert(x1.contains(K(513)));
             assert(K(513) in x1); // TODO remove
             assert(x1.remove(key));
+            assert(x1.contains(K(513)));
             assert(K(513) in x1); // TODO remove
             assert(x1.length == n - key - 1);
 

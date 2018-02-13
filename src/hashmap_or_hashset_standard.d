@@ -142,9 +142,6 @@ void nullify(T)(ref T x)
  *
  * TODO length and capacity of _bins are always the same. this wastes an extra word of storage.
  *
- * TODO when allocating _bins use nullKeyConstant for assignment after
- * allocating and in allocator when that is used.
- *
  * TODO try quadratic probing using triangular numbers:
  * http://stackoverflow.com/questions/2348187/moving-from-linear-probing-to-quadratic-probing-hash-collisons/2349774#2349774
  *

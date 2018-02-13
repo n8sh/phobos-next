@@ -1357,9 +1357,9 @@ pure nothrow @nogc unittest
                 assert(*elementFound is element.value);
             }
 
-            assert(K(513) in x1);
+            assert(K(513) in x1); // TODO remove
             assert(x1.remove(key));
-            assert(K(513) in x1);
+            assert(K(513) in x1); // TODO remove
             assert(x1.length == n - key - 1);
 
             static if (!X.hasValue)

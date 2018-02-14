@@ -58,12 +58,9 @@ size_t triangularProbeIndexFrom(alias hasher = hashOf, T, K)(const scope T[] hay
         // allocate and prepare haystack
         auto haystack = new T[length];
         haystack[] = T(17);     // other values are 17
-        haystack[$-1] = key;    // set key
+        haystack[$/2] = key;    // set key
 
-        import digestion : hashOf2;
-        size_t startIx = 0;
-
-        assert(haystack.triangularProbeIndexFrom!(FNV!(64, true))(key, startIx) != haystack.length);
+        assert(haystack.triangularProbeIndexFrom!(FNV!(64, true))(key, lengthPower) != haystack.length);
     }
 }
 

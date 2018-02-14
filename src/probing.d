@@ -2,7 +2,7 @@
  */
 module probing;
 
-/** Search for `key` in `haystack` starting at `index` in steps of triangular numbers.
+/** Search for `key` in `haystack` using `predicate` starting at `index` in steps of triangular numbers.
  *
  * Returns: index into `haystack` upon hit, `haystack.length` upon miss.
  * Note: `haystack.length` must be a power of two.

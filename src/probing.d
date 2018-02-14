@@ -49,10 +49,10 @@ size_t triangularProbeIndexFrom(alias predicate, T)(const scope T[] haystack, si
         haystack[] = T(17);     // other values are 17
         haystack[$/2] = hitKey;    // set hitKey
 
-        assert(haystack.triangularProbeIndexFrom!(element => (element is hitKey ||
-                                                              element.isNull))(lengthPower) != haystack.length);
-        assert(haystack.triangularProbeIndexFrom!(element => (element is missKey ||
-                                                              element.isNull))(lengthPower) == haystack.length);
+        assert(haystack.triangularProbeIndexFrom!(_ => (_ is hitKey ||
+                                                        _.isNull))(lengthPower) != haystack.length);
+        assert(haystack.triangularProbeIndexFrom!(_ => (_ is missKey ||
+                                                        _.isNull))(lengthPower) == haystack.length);
     }
 }
 

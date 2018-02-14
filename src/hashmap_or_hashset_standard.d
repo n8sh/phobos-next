@@ -764,7 +764,23 @@ private:
         debug                   // TODO remove
         {
             import std.algorithm : canFind;
-            assert(hit == _bins[].canFind!(element => keyOf(element) is key));
+            const hit2 = _bins[].canFind!(element => keyOf(element) is key);
+            if (hit)
+            {
+                if (hit != hit2)
+                {
+                    dln(ix, " ", _bins.length);
+                }
+                assert(hit == hit2, "hit found but not hit2");
+            }
+            else
+            {
+                if (hit != hit2)
+                {
+                    dln(ix, " ", _bins.length);
+                }
+                assert(hit == hit2, "hit not found but hit2");
+            }
         }
         return hit;
     }

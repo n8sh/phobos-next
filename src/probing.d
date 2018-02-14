@@ -8,9 +8,9 @@ module probing;
  * Note: `haystack.length` must be a power of two.
  * See also: https://fgiesen.wordpress.com/2015/02/22/triangular-numbers-mod-2n/
  */
-size_t triangularProbeIndexFrom(alias hasher = hashOf, T, K)(const scope T[] haystack,
-                                                             const scope auto ref K key,
-                                                             size_t index)
+size_t triangularProbeIndexFrom(T, K)(const scope T[] haystack,
+                                      const scope auto ref K key,
+                                      size_t index)
     @safe pure nothrow @nogc
 {
     immutable typeof(return) mask = haystack.length - 1;
@@ -35,9 +35,7 @@ size_t triangularProbeIndexFrom(alias hasher = hashOf, T, K)(const scope T[] hay
 ///
 @safe pure nothrow unittest
 {
-    import digestx.fnv : FNV;
     import std.typecons : Nullable;
-    import dbgio;
 
     alias T = Nullable!int;
 
@@ -54,8 +52,8 @@ size_t triangularProbeIndexFrom(alias hasher = hashOf, T, K)(const scope T[] hay
         haystack[] = T(17);     // other values are 17
         haystack[$/2] = hitKey;    // set hitKey
 
-        assert(haystack.triangularProbeIndexFrom!(FNV!(64, true))(hitKey, lengthPower) != haystack.length);
-        assert(haystack.triangularProbeIndexFrom!(FNV!(64, true))(missKey, lengthPower) == haystack.length);
+        assert(haystack.triangularProbeIndexFrom(hitKey, lengthPower) != haystack.length);
+        assert(haystack.triangularProbeIndexFrom(missKey, lengthPower) == haystack.length);
     }
 }
 

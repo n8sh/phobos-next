@@ -1,3 +1,5 @@
+/** Probing algoriths used by for instance hash tables.
+ */
 module probing;
 
 /** Quadratic probing of `key` in `haystack` using triangular numbers.

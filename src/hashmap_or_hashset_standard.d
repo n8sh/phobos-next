@@ -17,7 +17,7 @@ enum InsertionStatus
  */
 template isNullableType(T)
 {
-    import std.traits : isPointer, isInstanceOf, isIntegral; // TODO remove
+    import std.traits : isPointer, isInstanceOf, isIntegral; // TODOremove
     import std.typecons : Nullable;
     enum isNullableType = (isPointer!T ||
                            is(T == class) ||
@@ -143,6 +143,8 @@ void nullify(T)(ref T x)
  *      hasher = hash function or std.digest Hash.
  *
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
+ *
+ * TODO remove import of basic_array
  *
  * TODO support HashSet-in operator: assert(*("a" in s) == "a");
  *
@@ -823,8 +825,9 @@ struct HashMapOrSet(K, V = void,
         immutable hit = isHitIxForKey(ix, key);
         if (hit)
         {
-            // dln("key:", key, " ix:", ix, " hit:", hit, " bin:", _bins[ix]);
+            dln("key:", key, " ix:", ix, " hit:", hit, " bin:", _bins[ix]);
             keyOf(_bins[ix]).nullify();
+            dln("key:", key, " ix:", ix, " hit:", hit, " bin:", _bins[ix]);
             static if (hasValue &&
                        hasElaborateDestructor!V)
             {
@@ -912,7 +915,13 @@ private:
                        const scope K key) const
     {
         assert(ix != _bins.length);
-        return (key is keyOf(_bins[ix]));
+        const hit = (key is keyOf(_bins[ix]));
+        debug
+        {
+            import std.algorithm : canFind;
+            assert(hit == _bins[].canFind!(element => keyOf(element) is key));
+        }
+        return hit;
     }
 
     /** Returns: current index mask from bin count. */

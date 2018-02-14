@@ -11,7 +11,6 @@ module probing;
 size_t triangularProbeIndexFrom(T, K)(const scope T[] haystack,
                                       const scope auto ref K key,
                                       size_t index)
-    @safe pure nothrow @nogc
 {
     immutable typeof(return) mask = haystack.length - 1;
     assert((~mask ^ mask) == typeof(return).max); // std.math.isPowerOf2(haystack.length)

@@ -32,6 +32,7 @@ size_t triangularProbeIndexFrom(alias hasher = hashOf, T, K)(const scope T[] hay
     return haystack.length;
 }
 
+///
 @safe pure nothrow unittest
 {
     import digestx.fnv : FNV;

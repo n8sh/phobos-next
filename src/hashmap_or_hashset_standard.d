@@ -780,7 +780,6 @@ private:
 }
 
 import std.traits : isInstanceOf;
-import std.functional : unaryFun;
 
 /** Reset (remove) all elements in `x` matching `predicate`.
 */
@@ -792,6 +791,7 @@ void resetAllMatching(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetTy
     alias E = typeof(HashMapOrSetType._bins.init[0]);
     foreach (immutable i; 0 .. x._bins.length)
     {
+        import std.functional : unaryFun;
         if (!x._bins[i].isNull &&
             unaryFun!predicate(x._bins[i]))
         {

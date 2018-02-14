@@ -744,47 +744,15 @@ private:
         return hash & powerOf2Mask;
     }
 
-    /** Returns: bin index of `key` or empty bin or `_bins.length` if full. */
+    /** Returns: bin index of `key` or empty bin or `_bins.length` if miss (no free slots). */
     size_t tryFindKeyIx()(const scope auto ref K key) const
     {
         import digestion : hashOf2;
-        size_t ix = hashToIndex(hashOf2!(hasher)(key));
-
-        if (isKeyForIx(key, ix))
-        {
-            return ix;
-        }
-
-        // if not yet decided
-
-        immutable size_t mask = powerOf2Mask;
-        ix = (ix + 1) & mask;   // modulo power of two
-
-        size_t inc = 1;
-        while (!isKeyForIx(key, ix) &&
-               inc != _bins.length)
-        {
-            ix = (ix + inc) & mask;
-            inc *= 2;
-        }
-
-        if (isKeyForIx(key, ix))
-        {
-            return ix;          // slot
-        }
-        else
-        {
-            assert(0, "full!");
-            // return _bins.length; // no slot, full
-        }
-    }
-
-    pragma(inline, true)
-    private size_t isKeyForIx(const scope K key,
-                              const scope size_t ix) const
-    {
-        return (keyOf(_bins[ix]) is key || // hit slot
-                keyOf(_bins[ix]).isNull); // free slot
+        import probing;
+        const ix = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key ||
+                                                     keyOf(_).isNull)(hashToIndex(hashOf2!(hasher)(key)));
+        assert(ix != _bins.length, "key not found and no free slots");
+        return ix;
     }
 
     pragma(inline, true)

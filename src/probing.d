@@ -8,7 +8,7 @@ module probing;
  * Note: `haystack.length` must be a power of two.
  * See also: https://fgiesen.wordpress.com/2015/02/22/triangular-numbers-mod-2n/
  */
-size_t triangularProbeIndexFrom(alias predicate, T)(const scope T[] haystack, size_t index)
+size_t triangularProbeFrom(alias predicate, T)(const scope T[] haystack, size_t index)
 {
     immutable typeof(return) mask = haystack.length - 1;
     assert((~mask ^ mask) == typeof(return).max); // std.math.isPowerOf2(haystack.length)
@@ -49,10 +49,10 @@ size_t triangularProbeIndexFrom(alias predicate, T)(const scope T[] haystack, si
         haystack[] = T(17);     // other values are 17
         haystack[$/2] = hitKey;    // set hitKey
 
-        assert(haystack.triangularProbeIndexFrom!(_ => (_ is hitKey ||
-                                                        _.isNull))(lengthPower) != haystack.length);
-        assert(haystack.triangularProbeIndexFrom!(_ => (_ is missKey ||
-                                                        _.isNull))(lengthPower) == haystack.length);
+        assert(haystack.triangularProbeFrom!(_ => (_ is hitKey ||
+                                                   _.isNull))(lengthPower) != haystack.length);
+        assert(haystack.triangularProbeFrom!(_ => (_ is missKey ||
+                                                   _.isNull))(lengthPower) == haystack.length);
     }
 }
 

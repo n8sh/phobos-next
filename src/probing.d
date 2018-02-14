@@ -4,8 +4,8 @@ module probing;
 
 /** Search for `key` in `haystack` starting at `index` in steps of triangular numbers.
  *
- * `haystack.length` must be a power of two.
- *
+ * Returns: index into `haystack` upon hit, `haystack.length` upon miss.
+ * Note: `haystack.length` must be a power of two.
  * See also: https://fgiesen.wordpress.com/2015/02/22/triangular-numbers-mod-2n/
  */
 size_t triangularProbeIndexFrom(alias hasher = hashOf, T, K)(const scope T[] haystack,

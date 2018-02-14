@@ -8,10 +8,10 @@ module probing;
  * Note: `haystack.length` must be a power of two.
  * See also: https://fgiesen.wordpress.com/2015/02/22/triangular-numbers-mod-2n/
  */
-size_t triangularProbeIndexFrom(T, K)(const scope T[] haystack,
-                                      const scope auto ref K key,
-                                      size_t index)
+size_t triangularProbeIndexFrom(alias predicate, T)(const scope T[] haystack, size_t index)
 {
+    import std.functional : unaryFun;
+
     immutable typeof(return) mask = haystack.length - 1;
     assert((~mask ^ mask) == typeof(return).max); // std.math.isPowerOf2(haystack.length)
 
@@ -19,8 +19,7 @@ size_t triangularProbeIndexFrom(T, K)(const scope T[] haystack,
     size_t indexIncrement = 0;
     while (indexIncrement != haystack.length)
     {
-        if (haystack[index] is key || // hit slot
-            haystack[index].isNull)   // free slot
+        if (unaryFun!predicate(haystack[index]))
         {
             return index;
         }
@@ -51,8 +50,10 @@ size_t triangularProbeIndexFrom(T, K)(const scope T[] haystack,
         haystack[] = T(17);     // other values are 17
         haystack[$/2] = hitKey;    // set hitKey
 
-        assert(haystack.triangularProbeIndexFrom(hitKey, lengthPower) != haystack.length);
-        assert(haystack.triangularProbeIndexFrom(missKey, lengthPower) == haystack.length);
+        assert(haystack.triangularProbeIndexFrom!(element => (element is hitKey ||
+                                                              element.isNull))(lengthPower) != haystack.length);
+        assert(haystack.triangularProbeIndexFrom!(element => (element is missKey ||
+                                                              element.isNull))(lengthPower) == haystack.length);
     }
 }
 

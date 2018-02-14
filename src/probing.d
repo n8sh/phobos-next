@@ -1,5 +1,9 @@
 module probing;
 
+/** Do...
+
+   See also: https://fgiesen.wordpress.com/2015/02/22/triangular-numbers-mod-2n/
+ */
 size_t triangularFindIndex(alias hasher = hashOf, T, K)(const scope T[] haystack,
                                                         const scope auto ref K key)
     @safe pure nothrow @nogc
@@ -25,12 +29,14 @@ size_t triangularFindIndex(alias hasher = hashOf, T, K)(const scope T[] haystack
     // if not yet decided
 
     ix = (ix + 1) & mask;   // modulo power of two
+    dln("ix:", ix);
 
     size_t inc = 1;
     while (!isKeyForIx(key, ix) &&
            inc != haystack.length)
     {
         ix = (ix + inc) & mask;
+        dln("ix:", ix);
         inc *= 2;
     }
 
@@ -65,4 +71,9 @@ size_t triangularFindIndex(alias hasher = hashOf, T, K)(const scope T[] haystack
 
         assert(haystack.triangularFindIndex!(FNV!(64, true))(key) != haystack.length);
     }
+}
+
+version(unittest)
+{
+    import dbgio;
 }

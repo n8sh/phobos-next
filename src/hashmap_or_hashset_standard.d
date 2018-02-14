@@ -747,8 +747,6 @@ private:
     /** Returns: bin index of `key` or empty bin or `_bins.length` if full. */
     size_t tryFindKeyIx()(const scope auto ref K key) const
     {
-        // TODO use among?
-
         import digestion : hashOf2;
         size_t ix = hashToIndex(hashOf2!(hasher)(key));
 
@@ -795,7 +793,7 @@ private:
     {
         assert(ix != _bins.length);
         const hit = (key is keyOf(_bins[ix]));
-        debug
+        debug                   // TODO remove
         {
             import std.algorithm : canFind;
             assert(hit == _bins[].canFind!(element => keyOf(element) is key));

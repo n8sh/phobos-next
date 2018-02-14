@@ -759,8 +759,8 @@ private:
     bool isHitIxForKey(size_t ix,
                        const scope K key) const
     {
-        assert(ix != _bins.length);
-        const hit = (key is keyOf(_bins[ix]));
+        assert(ix < _bins.length);
+        const hit = (keyOf(_bins[ix]) is key);
         debug                   // TODO remove
         {
             import std.algorithm : canFind;

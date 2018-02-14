@@ -144,11 +144,9 @@ void nullify(T)(ref T x)
  *
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  *
- * TODO remove import of basic_array
+ * TODO remove import of basic_array and only use _ptr _capacity and _count instead
  *
  * TODO support HashSet-in operator: assert(*("a" in s) == "a");
- *
- * TODO length and capacity of _bins are always the same. this wastes an extra word of storage.
  *
  * TODO try quadratic probing using triangular numbers:
  * http://stackoverflow.com/questions/2348187/moving-from-linear-probing-to-quadratic-probing-hash-collisons/2349774#2349774

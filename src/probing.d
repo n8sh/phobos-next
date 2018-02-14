@@ -2,7 +2,7 @@ module probing;
 
 size_t triangularFindIndex(alias hasher = hashOf, T, K)(const scope T[] haystack,
                                                         const scope auto ref K key)
-    @safe
+    @safe pure nothrow @nogc
 {
     size_t isKeyForIx(const scope K key,
                       const scope size_t ix) const
@@ -40,11 +40,11 @@ size_t triangularFindIndex(alias hasher = hashOf, T, K)(const scope T[] haystack
     }
     else
     {
-        assert(0, "full!");
+        return haystack.length;
     }
 }
 
-@safe pure unittest
+@safe pure nothrow unittest
 {
     import digestx.fnv : FNV;
     import std.typecons : Nullable;

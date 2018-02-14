@@ -1,8 +1,8 @@
 module probing;
 
-/** Do...
-
-   See also: https://fgiesen.wordpress.com/2015/02/22/triangular-numbers-mod-2n/
+/** Quadratic probing of `key` in `haystack` using triangular numbers.
+ *
+ * See also: https://fgiesen.wordpress.com/2015/02/22/triangular-numbers-mod-2n/
  */
 size_t triangularFindIndex(alias hasher = hashOf, T, K)(const scope T[] haystack,
                                                         const scope auto ref K key)

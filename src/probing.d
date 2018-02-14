@@ -2,7 +2,8 @@
  */
 module probing;
 
-/** Search for a key in `haystack` matching `predicate` starting at `index` in steps of triangular numbers.
+/** Search for a key in `haystack` matching `predicate` starting at `index` in
+ * steps of triangular numbers, 0,1,3,6,10,15, ... .
  *
  * Returns: index into `haystack` upon hit, `haystack.length` upon miss.
  * Note: `haystack.length` must be a power of two.

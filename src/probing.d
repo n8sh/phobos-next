@@ -43,13 +43,13 @@ size_t triangularProbeFromIndex(alias predicate, T)(const scope T[] haystack,
         immutable length = 2^^lengthPower;
         dln("length:", length, " lengthPower:", lengthPower);
 
-        immutable hitKey = T(42);
-        immutable missKey = T(43);
+        immutable hitKey = T(42); // key to store
+        immutable missKey = T(43); // other key not present
 
         // allocate and prepare haystack
         auto haystack = new T[length];
-        haystack[] = T(17);     // other values are 17
-        haystack[$/2] = hitKey;    // set hitKey
+        haystack[] = T(17);     // make haystack full
+        haystack[$/2] = hitKey;
 
         assert(haystack.triangularProbeFromIndex!(_ => (_ is hitKey ||
                                                         _.isNull))(lengthPower) != haystack.length);

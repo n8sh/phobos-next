@@ -10,8 +10,6 @@ module probing;
  */
 size_t triangularProbeIndexFrom(alias predicate, T)(const scope T[] haystack, size_t index)
 {
-    import std.functional : unaryFun;
-
     immutable typeof(return) mask = haystack.length - 1;
     assert((~mask ^ mask) == typeof(return).max); // std.math.isPowerOf2(haystack.length)
 
@@ -19,6 +17,7 @@ size_t triangularProbeIndexFrom(alias predicate, T)(const scope T[] haystack, si
     size_t indexIncrement = 0;
     while (indexIncrement != haystack.length)
     {
+        import std.functional : unaryFun;
         if (unaryFun!predicate(haystack[index]))
         {
             return index;

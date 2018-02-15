@@ -332,7 +332,7 @@ struct HashMapOrSet(K, V = void,
         immutable startIndex = hashToIndex(hashOf2!(hasher)(keyOf(element)));
         immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => (keyOf(_) is keyOf(element) ||
                                                                      keyOf(_).isNull))(startIndex);
-        assert(hitIndex != _bins.length); // not full
+        assert(hitIndex != _bins.length, "no free slot");
 
         immutable status = keyOf(_bins[hitIndex]).isNull ? InsertionStatus.added : InsertionStatus.unmodified;
         _count += (status == InsertionStatus.added ? 1 : 0);

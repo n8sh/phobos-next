@@ -346,21 +346,7 @@ struct HashMapOrSet(K, V = void,
     pragma(inline, true)
     private InsertionStatus insertMoveWithoutGrowth(ref T element)
     {
-        // TODO return insertWithoutGrowth(move(element));
-
-        assert(!keyOf(element).isNull);
-
-        immutable startIx = hashToIndex(hashOf2!(hasher)(keyOf(element)));
-        immutable ix = _bins[].triangularProbeFromIndex!(_ => (keyOf(_) is keyOf(element) ||
-                                                               keyOf(_).isNull))(startIx);
-        assert(ix != _bins.length); // not full
-
-        immutable status = keyOf(_bins[ix]).isNull ? InsertionStatus.added : InsertionStatus.unmodified;
-        _count += (status == InsertionStatus.added ? 1 : 0);
-
-        move(element, _bins[ix]);
-
-        return status;
+        return insertWithoutGrowth(move(element));
     }
 
     static if (hasValue)

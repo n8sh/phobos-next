@@ -322,7 +322,7 @@ struct HashMapOrSet(K, V = void,
                                                                      keyOf(_).isNull))(startIndex);
         assert(hitIndex != _bins.length, "no free slot");
 
-        if (keyOf(_bins[hitIndex]).isNull) // add
+        if (keyOf(_bins[hitIndex]).isNull) // key missing
         {
             move(element,
                  _bins[hitIndex]);

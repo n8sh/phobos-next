@@ -304,7 +304,7 @@ struct HashMapOrSet(K, V = void,
                 copy.insertMoveWithoutGrowth(_bins[ix]);
             }
         }
-        assert(copy._count == _count); // length should stay same
+        assert(copy._count == _count);
 
         move(copy._bins, _bins);
 

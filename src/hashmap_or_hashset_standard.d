@@ -34,10 +34,6 @@ enum InsertionStatus
  * TODO add extractElement that moves it out similar to
  * http://en.cppreference.com/w/cpp/container/unordered_set/extract
  *
- * TODO add merge or union algorithm here or into container_algorithm.d. See
- * also: http://en.cppreference.com/w/cpp/container/unordered_set/merge. this
- * algorithm moves elements from source if they are not already in `this`
- *
  * TODO growWithExtraCapacity(): if allocator has realloc we can do rehashing in-place similar to
  * reordering in in-place radix (integer_sorting.d), otherwise rehash into new
  * copy of bins and free old bins when done. If bin element count is >
@@ -45,6 +41,10 @@ enum InsertionStatus
  * swap out and must be put in a queue.
  *
  * TODO benchmark against https://github.com/greg7mdp/sparsepp
+ *
+ * TODO add merge or union algorithm here or into container_algorithm.d. See
+ * also: http://en.cppreference.com/w/cpp/container/unordered_set/merge. this
+ * algorithm moves elements from source if they are not already in `this`
  */
 struct HashMapOrSet(K, V = void,
                     alias Allocator = null,

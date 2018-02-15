@@ -58,7 +58,6 @@ size_t triangularProbeFromIndex(alias predicate, T)(const scope T[] haystack,
     foreach (immutable lengthPower; 0 .. 20)
     {
         immutable length = 2^^lengthPower;
-        dln("length:", length, " lengthPower:", lengthPower);
 
         immutable hitKey = T(42); // key to store
         immutable missKey = T(43); // other key not present
@@ -80,5 +79,4 @@ size_t triangularProbeFromIndex(alias predicate, T)(const scope T[] haystack,
 version(unittest)
 {
     import std.typecons : Nullable;
-    import dbgio;
 }

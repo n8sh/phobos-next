@@ -244,8 +244,8 @@ struct HashMapOrSet(K, V = void,
      */
     bool contains()(const scope auto ref K key) const // template-lazy
     {
-        immutable startIx = hashToIndex(hashOf2!(hasher)(key));
-        return _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIx) != _bins.length;
+        immutable startIndex = hashToIndex(hashOf2!(hasher)(key));
+        return _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex) != _bins.length;
     }
 
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
@@ -328,9 +328,9 @@ struct HashMapOrSet(K, V = void,
     {
         assert(!keyOf(element).isNull);
 
-        immutable startIx = hashToIndex(hashOf2!(hasher)(keyOf(element)));
+        immutable startIndex = hashToIndex(hashOf2!(hasher)(keyOf(element)));
         immutable ix = _bins[].triangularProbeFromIndex!(_ => (keyOf(_) is keyOf(element) ||
-                                                               keyOf(_).isNull))(startIx);
+                                                               keyOf(_).isNull))(startIndex);
         assert(ix != _bins.length); // not full
 
         immutable status = keyOf(_bins[ix]).isNull ? InsertionStatus.added : InsertionStatus.unmodified;
@@ -525,8 +525,8 @@ struct HashMapOrSet(K, V = void,
         scope inout(V)* opBinaryRight(string op)(const scope K key) inout return
             if (op == "in")
         {
-            immutable startIx = hashToIndex(hashOf2!(hasher)(key));
-            immutable ix = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIx);
+            immutable startIndex = hashToIndex(hashOf2!(hasher)(key));
+            immutable ix = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex);
             if (ix != _bins.length) // if hit
             {
                 return cast(typeof(return))&_bins[ix].value;
@@ -627,8 +627,8 @@ struct HashMapOrSet(K, V = void,
         pragma(inline, true)    // LDC must have this
         scope ref inout(V) opIndex()(const scope auto ref K key) inout return
         {
-            immutable startIx = hashToIndex(hashOf2!(hasher)(key));
-            immutable ix = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIx);
+            immutable startIndex = hashToIndex(hashOf2!(hasher)(key));
+            immutable ix = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex);
             if (ix != _bins.length) // if hit
             {
                 return _bins[ix].value;
@@ -676,8 +676,8 @@ struct HashMapOrSet(K, V = void,
     */
     bool remove()(const scope K key) // template-lazy
     {
-        immutable startIx = hashToIndex(hashOf2!(hasher)(key));
-        immutable ix = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIx);
+        immutable startIndex = hashToIndex(hashOf2!(hasher)(key));
+        immutable ix = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex);
         if (ix != _bins.length) // if hit
         {
             keyOf(_bins[ix]).nullify();

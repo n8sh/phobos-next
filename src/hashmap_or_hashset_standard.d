@@ -40,9 +40,6 @@ enum InsertionStatus
  *
  * TODO add flag for use of growth factor smaller than powers of two. use prime_modulo.d
  *
- * TODO use core.bitop : bsr, bsl to find first empty element in bin. if as fast
- * as current find use it to optimize remove()
- *
  * TODO growWithExtraCapacity(): if allocator has realloc we can do rehashing in-place similar to
  * reordering in in-place radix (integer_sorting.d), otherwise rehash into new
  * copy of bins and free old bins when done. If bin element count is >

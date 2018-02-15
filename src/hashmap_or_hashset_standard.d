@@ -329,14 +329,14 @@ struct HashMapOrSet(K, V = void,
         assert(!keyOf(element).isNull);
 
         immutable startIndex = hashToIndex(hashOf2!(hasher)(keyOf(element)));
-        immutable ix = _bins[].triangularProbeFromIndex!(_ => (keyOf(_) is keyOf(element) ||
-                                                               keyOf(_).isNull))(startIndex);
-        assert(ix != _bins.length); // not full
+        immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => (keyOf(_) is keyOf(element) ||
+                                                                     keyOf(_).isNull))(startIndex);
+        assert(hitIndex != _bins.length); // not full
 
-        immutable status = keyOf(_bins[ix]).isNull ? InsertionStatus.added : InsertionStatus.unmodified;
+        immutable status = keyOf(_bins[hitIndex]).isNull ? InsertionStatus.added : InsertionStatus.unmodified;
         _count += (status == InsertionStatus.added ? 1 : 0);
 
-        move(element, _bins[ix]);
+        move(element, _bins[hitIndex]);
 
         return status;
     }
@@ -526,10 +526,10 @@ struct HashMapOrSet(K, V = void,
             if (op == "in")
         {
             immutable startIndex = hashToIndex(hashOf2!(hasher)(key));
-            immutable ix = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex);
-            if (ix != _bins.length) // if hit
+            immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex);
+            if (hitIndex != _bins.length) // if hit
             {
-                return cast(typeof(return))&_bins[ix].value;
+                return cast(typeof(return))&_bins[hitIndex].value;
             }
             else                    // miss
             {
@@ -628,10 +628,10 @@ struct HashMapOrSet(K, V = void,
         scope ref inout(V) opIndex()(const scope auto ref K key) inout return
         {
             immutable startIndex = hashToIndex(hashOf2!(hasher)(key));
-            immutable ix = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex);
-            if (ix != _bins.length)
+            immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex);
+            if (hitIndex != _bins.length)
             {
-                return _bins[ix].value;
+                return _bins[hitIndex].value;
             }
             else
             {
@@ -677,15 +677,15 @@ struct HashMapOrSet(K, V = void,
     bool remove()(const scope K key) // template-lazy
     {
         immutable startIndex = hashToIndex(hashOf2!(hasher)(key));
-        immutable ix = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex);
-        if (ix != _bins.length) // if hit
+        immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex);
+        if (hitIndex != _bins.length) // if hit
         {
-            keyOf(_bins[ix]).nullify();
+            keyOf(_bins[hitIndex]).nullify();
             static if (hasValue &&
                        hasElaborateDestructor!V)
             {
-                valueOf(_bins[ix]) = V.init;
-                // TODO instead do only .destroy(valueOf(_bins[ix]));
+                valueOf(_bins[hitIndex]) = V.init;
+                // TODO instead do only .destroy(valueOf(_bins[hitIndex]));
             }
             _count -= 1;
             return true;
@@ -717,14 +717,6 @@ private:
     size_t hashToIndex(const scope hash_t hash) const
     {
         return hash & powerOf2Mask;
-    }
-
-    pragma(inline, true)
-    bool isHitIxForKey(size_t ix,
-                       const scope K key) const
-    {
-        assert(ix < _bins.length);
-        return (keyOf(_bins[ix]) is key);
     }
 
     /** Returns: current index mask from bin count. */

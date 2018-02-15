@@ -31,10 +31,6 @@ enum InsertionStatus
  *
  * TODO support HashSet-in operator: assert(*("a" in s) == "a");
  *
- * TODO in non-sso optimized store add flag similar to Nullable that reserves a
- * specific value for key that indicates that slot is unused. Use this when
- * storing indexes in knet.storage
- *
  * TODO add extractElement that moves it out similar to
  * http://en.cppreference.com/w/cpp/container/unordered_set/extract
  *

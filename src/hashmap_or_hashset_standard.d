@@ -38,8 +38,6 @@ enum InsertionStatus
  * also: http://en.cppreference.com/w/cpp/container/unordered_set/merge. this
  * algorithm moves elements from source if they are not already in `this`
  *
- * TODO add flag for use of growth factor smaller than powers of two. use prime_modulo.d
- *
  * TODO growWithExtraCapacity(): if allocator has realloc we can do rehashing in-place similar to
  * reordering in in-place radix (integer_sorting.d), otherwise rehash into new
  * copy of bins and free old bins when done. If bin element count is >

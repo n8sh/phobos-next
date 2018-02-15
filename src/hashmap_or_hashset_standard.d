@@ -31,9 +31,6 @@ enum InsertionStatus
  *
  * TODO support HashSet-in operator: assert(*("a" in s) == "a");
  *
- * TODO try quadratic probing using triangular numbers:
- * http://stackoverflow.com/questions/2348187/moving-from-linear-probing-to-quadratic-probing-hash-collisons/2349774#2349774
- *
  * TODO in non-sso optimized store add flag similar to Nullable that reserves a
  * specific value for key that indicates that slot is unused. Use this when
  * storing indexes in knet.storage
@@ -296,6 +293,7 @@ struct HashMapOrSet(K, V = void,
     /// Grow by duplicating number of bins.
     private void growWithExtraCapacity(size_t extraCapacity) @trusted // not template-lazy
     {
+        checkCount();
         size_t newBinCount = 0;
         if (extraCapacity == 1)
         {
@@ -315,13 +313,6 @@ struct HashMapOrSet(K, V = void,
                 copy.insertMoveWithoutGrowth(_bins[ix]);
             }
         }
-        if (copy._count != _count)
-        {
-            dln("_count:", _count);
-            dln("_bins:", _bins[]);
-            dln("copy._bins:", copy._bins[]);
-            dln("copy._count:", copy._count);
-        }
         assert(copy._count == _count); // length should stay same
 
         move(copy._bins, _bins);
@@ -329,11 +320,11 @@ struct HashMapOrSet(K, V = void,
         assert(!_bins.empty);
     }
 
-    // invariant
-    // {
-    //     import std.algorithm : count;
-    //     assert(_count == _bins[].count!(_ => !keyOf(_).isNull));
-    // }
+    void checkCount() const
+    {
+        import std.algorithm : count;
+        assert(_count == _bins[].count!(_ => !keyOf(_).isNull));
+    }
 
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
      */

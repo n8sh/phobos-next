@@ -31,11 +31,28 @@ size_t triangularProbeFromIndex(alias predicate, T)(const scope T[] haystack,
     return haystack.length;
 }
 
-///
+/// empty case
 @safe pure nothrow unittest
 {
-    import std.typecons : Nullable;
+    alias T = Nullable!int;
 
+    immutable mask = size_t.min - 1;
+    assert((~mask ^ mask) == typeof(mask).max); // std.math.isPowerOf2(haystack.length)
+
+    immutable length = 0;
+
+    immutable hitKey = T(42); // key to store
+
+    auto haystack = new T[length];
+
+    // any key misses
+    assert(haystack.triangularProbeFromIndex!(_ => (_ is hitKey ||
+                                                    _.isNull))(0) == haystack.length);
+}
+
+/// generic case
+@safe pure nothrow unittest
+{
     alias T = Nullable!int;
 
     foreach (immutable lengthPower; 0 .. 20)
@@ -46,13 +63,15 @@ size_t triangularProbeFromIndex(alias predicate, T)(const scope T[] haystack,
         immutable hitKey = T(42); // key to store
         immutable missKey = T(43); // other key not present
 
-        // allocate and prepare haystack
         auto haystack = new T[length];
         haystack[] = T(17);     // make haystack full
         haystack[$/2] = hitKey;
 
+        // key hit
         assert(haystack.triangularProbeFromIndex!(_ => (_ is hitKey ||
                                                         _.isNull))(lengthPower) != haystack.length);
+
+        // key miss
         assert(haystack.triangularProbeFromIndex!(_ => (_ is missKey ||
                                                         _.isNull))(lengthPower) == haystack.length);
     }
@@ -60,5 +79,6 @@ size_t triangularProbeFromIndex(alias predicate, T)(const scope T[] haystack,
 
 version(unittest)
 {
+    import std.typecons : Nullable;
     import dbgio;
 }

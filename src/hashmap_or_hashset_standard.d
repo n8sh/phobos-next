@@ -67,6 +67,8 @@ struct HashMapOrSet(K, V = void,
     import std.algorithm.comparison : max;
     import std.algorithm.mutation : move, moveEmplace;
     import emplace_all : moveEmplaceAllNoReset;
+    import digestion : hashOf2;
+    import probing : triangularProbeFromIndex;
     // TODO activate and use import prime_modulo;
 
     /** In the hash map case, `V` is non-void, and a value is stored alongside
@@ -240,22 +242,14 @@ struct HashMapOrSet(K, V = void,
      */
     bool contains()(const scope K key) const // template-lazy. TODO make `auto ref K` work
     {
-        if (empty)              // TODO can this check be avoided?
-        {
-            return false; // prevent `RangeError` in `_bins` when empty
-        }
-        immutable ix = tryFindKeyIx(key);
-        return isHitIxForKey(ix, key);
+        immutable startIndex = hashToIndex(hashOf2!(hasher)(key));
+        return _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex) != _bins.length;
     }
     /// ditto
     bool contains()(const scope ref K key) const // template-lazy
     {
-        if (empty)              // TODO can this check be avoided?
-        {
-            return false; // prevent `RangeError` in `_bins` when empty
-        }
-        immutable ix = tryFindKeyIx(key);
-        return isHitIxForKey(ix, key);
+        immutable startIndex = hashToIndex(hashOf2!(hasher)(key));
+        return _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex) != _bins.length;
     }
 
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
@@ -751,13 +745,6 @@ private:
         import probing;
         const ix = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key ||
                                                      keyOf(_).isNull)(hashToIndex(hashOf2!(hasher)(key)));
-        static if (is(typeof(key is Nullable!uint(432))))
-        {
-            if (key == Nullable!uint(432))
-            {
-                dln(ix);
-            }
-        }
         assert(ix != _bins.length, "key not found and no free slots");
         return ix;
     }
@@ -767,29 +754,7 @@ private:
                        const scope K key) const
     {
         assert(ix < _bins.length);
-        const hit = (keyOf(_bins[ix]) is key);
-        debug                   // TODO remove
-        {
-            import std.algorithm : canFind;
-            const hit2 = _bins[].canFind!(element => keyOf(element) is key);
-            if (hit)
-            {
-                if (hit != hit2)
-                {
-                    dln(ix, " ", _bins.length);
-                }
-                assert(hit == hit2, "hit found but not hit2");
-            }
-            else
-            {
-                if (hit != hit2)
-                {
-                    dln(ix, " ", _bins.length);
-                }
-                assert(hit == hit2, "hit not found but hit2");
-            }
-        }
-        return hit;
+        return (keyOf(_bins[ix]) is key);
     }
 
     /** Returns: current index mask from bin count. */

@@ -2,6 +2,8 @@
  */
 module probing;
 
+import std.functional : unaryFun;
+
 /** Search for a key in `haystack` matching `predicate` starting at `index` in
  * steps of triangular numbers, 0,1,3,6,10,15,21, ... .
  *
@@ -11,6 +13,7 @@ module probing;
  */
 size_t triangularProbeFromIndex(alias predicate, T)(const scope T[] haystack,
                                                     size_t index)
+    if (is(typeof(unaryFun!predicate(T.init))))
 {
     immutable typeof(return) mask = haystack.length - 1;
     assert((~mask ^ mask) == typeof(return).max); // std.math.isPowerOf2(haystack.length)
@@ -19,7 +22,6 @@ size_t triangularProbeFromIndex(alias predicate, T)(const scope T[] haystack,
     size_t indexIncrement = 0;
     while (indexIncrement != haystack.length)
     {
-        import std.functional : unaryFun;
         if (unaryFun!predicate(haystack[index]))
         {
             return index;

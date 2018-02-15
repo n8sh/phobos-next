@@ -310,6 +310,7 @@ struct HashMapOrSet(K, V = void,
         assert(!_bins.empty);
     }
 
+    /** Check that `_count` (`length` property) matches contents of `_bins`. */
     private void checkCount()() const
     {
         import std.algorithm : count;

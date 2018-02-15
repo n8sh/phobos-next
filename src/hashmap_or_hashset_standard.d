@@ -629,11 +629,11 @@ struct HashMapOrSet(K, V = void,
         {
             immutable startIndex = hashToIndex(hashOf2!(hasher)(key));
             immutable ix = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex);
-            if (ix != _bins.length) // if hit
+            if (ix != _bins.length)
             {
                 return _bins[ix].value;
             }
-            else                // miss
+            else
             {
                 import core.exception : RangeError;
                 throw new RangeError("Key not in table");
@@ -650,11 +650,11 @@ struct HashMapOrSet(K, V = void,
         auto ref V get()(const scope K key, const scope auto ref V defaultValue)
         {
             auto value = key in this;
-            if (value !is null) // hit
+            if (value !is null)
             {
                 return *value;
             }
-            else                // miss
+            else
             {
                 return defaultValue;
             }

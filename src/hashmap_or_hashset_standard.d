@@ -238,15 +238,9 @@ struct HashMapOrSet(K, V = void,
     pragma(inline, true):                  // LDC must have this
 
     /** Check if `element` is stored.
-        Returns: `true` if element was already present, `false` otherwise.
+        Returns: `true` if element is present, `false` otherwise.
      */
-    bool contains()(const scope K key) const // template-lazy. TODO make `auto ref K` work
-    {
-        immutable startIndex = hashToIndex(hashOf2!(hasher)(key));
-        return _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex) != _bins.length;
-    }
-    /// ditto
-    bool contains()(const scope ref K key) const // template-lazy
+    bool contains()(const scope auto ref K key) const // template-lazy
     {
         immutable startIndex = hashToIndex(hashOf2!(hasher)(key));
         return _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex) != _bins.length;

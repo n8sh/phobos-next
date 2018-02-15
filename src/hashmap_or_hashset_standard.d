@@ -25,6 +25,8 @@ enum InsertionStatus
  *
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  *
+ * TODO extend opBinaryRight to return a reference to a free slot when assigned to sets value in slot and does _count += 1;
+ *
  * TODO remove import of basic_array and only use _ptr _capacity and _count instead
  *
  * TODO support HashSet-in operator: assert(*("a" in s) == "a");
@@ -242,8 +244,8 @@ struct HashMapOrSet(K, V = void,
      */
     bool contains()(const scope auto ref K key) const // template-lazy
     {
-        immutable startIndex = hashToIndex(hashOf2!(hasher)(key));
-        return _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex) != _bins.length;
+        immutable startIx = hashToIndex(hashOf2!(hasher)(key));
+        return _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIx) != _bins.length;
     }
 
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
@@ -326,8 +328,10 @@ struct HashMapOrSet(K, V = void,
     {
         assert(!keyOf(element).isNull);
 
-        immutable ix = tryFindKeyIx(keyOf(element));
-        assert(ix != _bins.length);
+        immutable startIx = hashToIndex(hashOf2!(hasher)(keyOf(element)));
+        immutable ix = _bins[].triangularProbeFromIndex!(_ => (keyOf(_) is keyOf(element) ||
+                                                               keyOf(_).isNull))(startIx);
+        assert(ix != _bins.length); // not full
 
         immutable status = keyOf(_bins[ix]).isNull ? InsertionStatus.added : InsertionStatus.unmodified;
         _count += (status == InsertionStatus.added ? 1 : 0);
@@ -342,15 +346,20 @@ struct HashMapOrSet(K, V = void,
     pragma(inline, true)
     private InsertionStatus insertMoveWithoutGrowth(ref T element)
     {
+        // TODO return insertWithoutGrowth(move(element));
+
         assert(!keyOf(element).isNull);
 
-        immutable ix = tryFindKeyIx(keyOf(element));
-        assert(ix != _bins.length);
+        immutable startIx = hashToIndex(hashOf2!(hasher)(keyOf(element)));
+        immutable ix = _bins[].triangularProbeFromIndex!(_ => (keyOf(_) is keyOf(element) ||
+                                                               keyOf(_).isNull))(startIx);
+        assert(ix != _bins.length); // not full
 
         immutable status = keyOf(_bins[ix]).isNull ? InsertionStatus.added : InsertionStatus.unmodified;
-        _count += status == InsertionStatus.added ? 1 : 0;
+        _count += (status == InsertionStatus.added ? 1 : 0);
 
         move(element, _bins[ix]);
+
         return status;
     }
 
@@ -530,13 +539,9 @@ struct HashMapOrSet(K, V = void,
         scope inout(V)* opBinaryRight(string op)(const scope K key) inout return
             if (op == "in")
         {
-            if (empty)
-            {
-                // prevent range error in `_bins` when `this` is empty
-                return typeof(return).init;
-            }
-            immutable ix = tryFindKeyIx(key);
-            if (!keyOf(_bins[ix]).isNull) // if hit
+            immutable startIx = hashToIndex(hashOf2!(hasher)(key));
+            immutable ix = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIx);
+            if (ix != _bins.length) // if hit
             {
                 return cast(typeof(return))&_bins[ix].value;
             }
@@ -636,8 +641,9 @@ struct HashMapOrSet(K, V = void,
         pragma(inline, true)    // LDC must have this
         scope ref inout(V) opIndex()(const scope auto ref K key) inout return
         {
-            immutable ix = tryFindKeyIx(key);
-            if (!keyOf(_bins[ix]).isNull) // if hit
+            immutable startIx = hashToIndex(hashOf2!(hasher)(key));
+            immutable ix = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIx);
+            if (ix != _bins.length) // if hit
             {
                 return _bins[ix].value;
             }
@@ -682,19 +688,13 @@ struct HashMapOrSet(K, V = void,
     /** Remove `element`.
         Returns: `true` if element was removed, `false` otherwise.
     */
-    bool remove()(const scope K key)     // template-lazy
+    bool remove()(const scope K key) // template-lazy
     {
-        if (empty)              // TODO can this check be avoided?
+        immutable startIx = hashToIndex(hashOf2!(hasher)(key));
+        immutable ix = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIx);
+        if (ix != _bins.length) // if hit
         {
-            return false; // prevent `RangeError` in `_bins` when empty
-        }
-        immutable ix = tryFindKeyIx(key);
-        immutable hit = isHitIxForKey(ix, key);
-        if (hit)
-        {
-            // dln("key:", key, " ix:", ix, " hit:", hit, " bin:", _bins[ix]);
             keyOf(_bins[ix]).nullify();
-            // dln("key:", key, " ix:", ix, " hit:", hit, " bin:", _bins[ix]);
             static if (hasValue &&
                        hasElaborateDestructor!V)
             {
@@ -702,8 +702,9 @@ struct HashMapOrSet(K, V = void,
                 // TODO instead do only .destroy(valueOf(_bins[ix]));
             }
             _count -= 1;
+            return true;
         }
-        return hit;
+        return false;
     }
 
     /// Check if empty.
@@ -730,17 +731,6 @@ private:
     size_t hashToIndex(const scope hash_t hash) const
     {
         return hash & powerOf2Mask;
-    }
-
-    /** Returns: bin index of `key` or empty bin or `_bins.length` if miss (no free slots). */
-    size_t tryFindKeyIx()(const scope auto ref K key) const
-    {
-        import digestion : hashOf2;
-        import probing;
-        const ix = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key ||
-                                                     keyOf(_).isNull)(hashToIndex(hashOf2!(hasher)(key)));
-        assert(ix != _bins.length, "key not found and no free slots");
-        return ix;
     }
 
     pragma(inline, true)
@@ -1193,11 +1183,7 @@ pure nothrow @nogc unittest
                 assert(*elementFound is element.value);
             }
 
-            assert(x1.contains(K(513)));
-            assert(K(513) in x1); // TODO remove
             assert(x1.remove(key));
-            assert(x1.contains(K(513)));
-            assert(K(513) in x1); // TODO remove
             assert(x1.length == n - key - 1);
 
             static if (!X.hasValue)

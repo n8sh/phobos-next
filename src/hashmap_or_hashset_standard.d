@@ -244,6 +244,7 @@ struct HashMapOrSet(K, V = void,
      */
     bool contains()(const scope auto ref K key) const // template-lazy
     {
+        assert(!key.isNull);    // TODO needed?
         immutable startIndex = hashToIndex(hashOf2!(hasher)(key));
         return _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex) != _bins.length;
     }
@@ -253,7 +254,7 @@ struct HashMapOrSet(K, V = void,
     pragma(inline, true)
     InsertionStatus insert(T element)
     {
-        assert(!keyOf(element).isNull);
+        assert(!keyOf(element).isNull); // TODO needed?
         reserveExtra(1);
         return insertWithoutGrowth(move(element));
     }

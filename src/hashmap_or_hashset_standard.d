@@ -720,7 +720,7 @@ private:
     alias Bins = Array!(T, Allocator);
 
     Bins _bins;                 // bin elements
-    size_t _count;             // total number of elements stored
+    size_t _count;              // total number of elements stored
 
     /** Returns: bin index of `hash`. */
     pragma(inline, true)
@@ -1227,10 +1227,6 @@ pure nothrow @nogc unittest
 /// range checking
 @trusted pure unittest
 {
-    dln();
-    import std.exception : assertThrown, assertNotThrown;
-    import core.exception : RangeError;
-
     immutable n = 11;
 
     alias K = Nullable!(uint, uint.max);
@@ -1278,8 +1274,6 @@ pure nothrow @nogc unittest
 @trusted pure unittest
 {
     dln();
-    import std.exception : assertThrown, assertNotThrown;
-    import core.exception : RangeError;
 
     immutable n = 11;
 
@@ -1417,6 +1411,8 @@ pure nothrow unittest
 
 version(unittest)
 {
+    import std.exception : assertThrown, assertNotThrown;
+    import core.exception : RangeError;
     import std.algorithm : count;
     import std.algorithm.comparison : equal;
     import std.typecons : Nullable;

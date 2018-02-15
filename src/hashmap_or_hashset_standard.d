@@ -284,7 +284,7 @@ struct HashMapOrSet(K, V = void,
     /// Grow by duplicating number of bins.
     private void growWithExtraCapacity(size_t extraCapacity) @trusted // not template-lazy
     {
-        checkCount();
+        debug checkCount();
         size_t newBinCount = 0;
         if (extraCapacity == 1)
         {
@@ -329,29 +329,24 @@ struct HashMapOrSet(K, V = void,
                                                                      keyOf(_).isNull))(startIndex);
         assert(hitIndex != _bins.length, "no free slot");
 
-        immutable status = keyOf(_bins[hitIndex]).isNull ? InsertionStatus.added : InsertionStatus.unmodified;
-        _count += (status == InsertionStatus.added ? 1 : 0);
-
+        if (keyOf(_bins[hitIndex]).isNull) // add
+        {
+            move(element,
+                 _bins[hitIndex]);
+            _count += 1;
+            return InsertionStatus.added;
+        }
         static if (hasValue)
         {
-            if (valueOf(_bins[hitIndex]) is valueOf(element))
+            if (valueOf(element) !is
+                valueOf(_bins[hitIndex])) // only value changed
             {
-                return status;
-            }
-            else
-            {
-                move(element, _bins[hitIndex]);
+                move(valueOf(element),
+                     valueOf(_bins[hitIndex]));
                 return InsertionStatus.modified;
             }
         }
-        else
-        {
-            if (status == InsertionStatus.added)
-            {
-                move(element, _bins[hitIndex]);
-            }
-            return status;
-        }
+        return InsertionStatus.unmodified;
     }
 
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
@@ -701,8 +696,10 @@ struct HashMapOrSet(K, V = void,
                 // TODO instead do only .destroy(valueOf(_bins[hitIndex]));
             }
             _count -= 1;
+            debug checkCount();
             return true;
         }
+        debug checkCount();
         return false;
     }
 
@@ -1074,6 +1071,7 @@ pure nothrow @nogc unittest
 
             assert(x1.length == key);
             assert(x1.insert(element) == InsertionStatus.added);
+            assert(x1.length == key + 1);
 
             static if (X.hasValue)
             {
@@ -1153,7 +1151,6 @@ pure nothrow @nogc unittest
 
         foreach (immutable key_; 0 .. n)
         {
-            dln("key_:", key_);
             const key = K(key_);
 
             static if (X.hasValue)

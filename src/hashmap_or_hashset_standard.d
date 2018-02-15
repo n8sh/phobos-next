@@ -337,9 +337,26 @@ struct HashMapOrSet(K, V = void,
         immutable status = keyOf(_bins[hitIndex]).isNull ? InsertionStatus.added : InsertionStatus.unmodified;
         _count += (status == InsertionStatus.added ? 1 : 0);
 
-        move(element, _bins[hitIndex]);
-
-        return status;
+        static if (hasValue)
+        {
+            if (valueOf(_bins[hitIndex]) is valueOf(element))
+            {
+                return status;
+            }
+            else
+            {
+                move(element, _bins[hitIndex]);
+                return InsertionStatus.modified;
+            }
+        }
+        else
+        {
+            if (status == InsertionStatus.added)
+            {
+                move(element, _bins[hitIndex]);
+            }
+            return status;
+        }
     }
 
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).

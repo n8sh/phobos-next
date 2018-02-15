@@ -6,7 +6,7 @@ module probing;
  * steps of triangular numbers, 0,1,3,6,10,15,21, ... .
  *
  * Returns: index into `haystack` upon hit, `haystack.length` upon miss.
- * Note: `haystack.length` must be a power of two.
+ * Note: `haystack.length` must be a power of two (or 1 or zero).
  * See also: https://fgiesen.wordpress.com/2015/02/22/triangular-numbers-mod-2n/
  */
 size_t triangularProbeFromIndex(alias predicate, T)(const scope T[] haystack,

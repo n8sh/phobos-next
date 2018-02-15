@@ -751,6 +751,13 @@ private:
         import probing;
         const ix = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key ||
                                                      keyOf(_).isNull)(hashToIndex(hashOf2!(hasher)(key)));
+        static if (is(typeof(key is Nullable!uint(432))))
+        {
+            if (key == Nullable!uint(432))
+            {
+                dln(ix);
+            }
+        }
         assert(ix != _bins.length, "key not found and no free slots");
         return ix;
     }
@@ -790,7 +797,7 @@ private:
     private size_t powerOf2Mask() const
     {
         immutable typeof(return) mask = _bins.length - 1;
-        assert((~mask ^ mask) == size_t.max); // isPowerOf2(_bins.length)
+        assert((~mask ^ mask) == typeof(mask).max); // isPowerOf2(_bins.length)
         return mask;
     }
 }

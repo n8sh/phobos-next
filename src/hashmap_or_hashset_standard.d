@@ -253,8 +253,8 @@ struct HashMapOrSet(K, V = void,
     pragma(inline, true)
     InsertionStatus insert(T element)
     {
-        reserveExtra(1);
         assert(!keyOf(element).isNull);
+        reserveExtra(1);
         return insertWithoutGrowth(move(element));
     }
 

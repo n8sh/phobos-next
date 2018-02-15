@@ -315,12 +315,25 @@ struct HashMapOrSet(K, V = void,
                 copy.insertMoveWithoutGrowth(_bins[ix]);
             }
         }
+        if (copy._count != _count)
+        {
+            dln("_count:", _count);
+            dln("_bins:", _bins[]);
+            dln("copy._bins:", copy._bins[]);
+            dln("copy._count:", copy._count);
+        }
         assert(copy._count == _count); // length should stay same
 
         move(copy._bins, _bins);
 
         assert(!_bins.empty);
     }
+
+    // invariant
+    // {
+    //     import std.algorithm : count;
+    //     assert(_count == _bins[].count!(_ => !keyOf(_).isNull));
+    // }
 
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
      */

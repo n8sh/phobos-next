@@ -391,6 +391,7 @@ struct HashMapOrSet(K, V = void,
             assert(!empty);
             ix += 1;
             findNextNonEmptyBin();
+            elementCounter += 1;
         }
 
         @property typeof(this) save() // ForwardRange
@@ -433,8 +434,10 @@ struct HashMapOrSet(K, V = void,
         pragma(inline)
         void popFront()
         {
+            assert(!empty);
             ix += 1;
             findNextNonEmptyBin();
+            elementCounter += 1;
         }
 
         private void findNextNonEmptyBin()
@@ -1294,8 +1297,7 @@ pure nothrow @nogc unittest
     foreach (immutable uint i; 0 .. n)
     {
         sr.popFront();
-        dln("i:", i, " ", sr.length, " ", n - i);
-        assert(sr.length == n - i);
+        assert(sr.length == n - i - 1);
     }
 
     foreach (immutable uint i; 0 .. n)
@@ -1314,13 +1316,11 @@ pure nothrow @nogc unittest
 
     X t;
     t.reserveExtra(4096);
-    assert(t.binCount == 8192);
 }
 
 /// constness inference of ranges
 pure nothrow unittest
 {
-    dln();
     alias K = Nullable!(uint, uint.max);
     class V
     {
@@ -1352,7 +1352,6 @@ pure nothrow unittest
 /// range key constness and value mutability with `class` value
 pure nothrow unittest
 {
-    dln();
     struct S
     {
         uint value;

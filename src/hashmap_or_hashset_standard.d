@@ -310,13 +310,6 @@ struct HashMapOrSet(K, V = void,
         assert(!_bins.empty);
     }
 
-    /** Check that `_count` (`length` property) matches contents of `_bins`. */
-    private void checkCount()() const
-    {
-        import std.algorithm : count;
-        assert(_count == _bins[].count!(_ => !keyOf(_).isNull));
-    }
-
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
      */
     pragma(inline, true)

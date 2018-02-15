@@ -284,7 +284,6 @@ struct HashMapOrSet(K, V = void,
     /// Grow by duplicating number of bins.
     private void growWithExtraCapacity(size_t extraCapacity) @trusted // not template-lazy
     {
-        debug checkCount();
         size_t newBinCount = 0;
         if (extraCapacity == 1)
         {
@@ -311,7 +310,7 @@ struct HashMapOrSet(K, V = void,
         assert(!_bins.empty);
     }
 
-    void checkCount() const
+    private void checkCount()() const
     {
         import std.algorithm : count;
         assert(_count == _bins[].count!(_ => !keyOf(_).isNull));
@@ -696,10 +695,8 @@ struct HashMapOrSet(K, V = void,
                 // TODO instead do only .destroy(valueOf(_bins[hitIndex]));
             }
             _count -= 1;
-            debug checkCount();
             return true;
         }
-        debug checkCount();
         return false;
     }
 

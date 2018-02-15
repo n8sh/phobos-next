@@ -1233,7 +1233,7 @@ pure nothrow @nogc unittest
 
     immutable n = 11;
 
-    alias K = uint;
+    alias K = Nullable!(uint, uint.max);
     alias V = uint;
 
     alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
@@ -1242,18 +1242,21 @@ pure nothrow @nogc unittest
 
     void dummy(ref V value) {}
 
+    dln(s.length, " ", K.init);
     assertThrown!RangeError(dummy(s[K.init]));
 
     foreach (immutable uint i; 0 .. n)
     {
-        s[i] = V(i);
-        assertNotThrown!RangeError(dummy(s[i]));
+        const k = K(i);
+        s[k] = V(i);
+        assertNotThrown!RangeError(dummy(s[k]));
     }
 
     foreach (immutable uint i; 0 .. n)
     {
-        s.remove(i);
-        assertThrown!RangeError(dummy(s[i]));
+        const k = K(i);
+        s.remove(k);
+        assertThrown!RangeError(dummy(s[k]));
     }
 
     s[K.init] = V.init;
@@ -1280,7 +1283,7 @@ pure nothrow @nogc unittest
 
     immutable n = 11;
 
-    alias K = uint;
+    alias K = Nullable!(uint, uint.max);
     class V
     {
         this(uint data) { this.data = data; }
@@ -1297,8 +1300,9 @@ pure nothrow @nogc unittest
 
     foreach (immutable uint i; 0 .. n)
     {
-        s[i] = new V(i);
-        assertNotThrown!RangeError(dummy(s[i]));
+        const k = K(i);
+        s[k] = new V(i);
+        assertNotThrown!RangeError(dummy(s[k]));
     }
 
     // test range
@@ -1312,8 +1316,9 @@ pure nothrow @nogc unittest
 
     foreach (immutable uint i; 0 .. n)
     {
-        s.remove(i);
-        assertThrown!RangeError(dummy(s[i]));
+        const k = K(i);
+        s.remove(k);
+        assertThrown!RangeError(dummy(s[k]));
     }
 
     s[K.init] = V.init;
@@ -1332,7 +1337,7 @@ pure nothrow @nogc unittest
 pure nothrow unittest
 {
     dln();
-    alias K = uint;
+    alias K = Nullable!(uint, uint.max);
     class V
     {
         this(uint data) { this.data = data; }

@@ -578,9 +578,9 @@ struct HashMapOrSet(K, V = void,
 
     /** L-value element reference (and in turn range iterator).
      */
-    static private struct LvalueElementRef(HashMapOrSetType)
+    static private struct LvalueElementRef(SomeHashMapOrSet)
     {
-        HashMapOrSetType* table;
+        SomeHashMapOrSet* table;
         size_t binIx;           // index to bin inside table
         size_t elementOffset;   // offset to element inside bin
         size_t elementCounter;  // counter over number of elements popped
@@ -632,9 +632,9 @@ struct HashMapOrSet(K, V = void,
 
     /** R-value element reference (and in turn range iterator).
      */
-    static private struct RvalueElementRef(HashMapOrSetType)
+    static private struct RvalueElementRef(SomeHashMapOrSet)
     {
-        HashMapOrSetType table; // owned
+        SomeHashMapOrSet table; // owned
         size_t binIx;           // index to bin inside table
         size_t elementOffset;   // offset to element inside bin
         size_t elementCounter;  // counter over number of elements popped
@@ -689,7 +689,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Range over elements of l-value instance of this.
-        static private struct ByLvalueElement(HashMapOrSetType)
+        static private struct ByLvalueElement(SomeHashMapOrSet)
         {
         pragma(inline, true):
             static if (is(ElementType == class))
@@ -697,7 +697,7 @@ struct HashMapOrSet(K, V = void,
                 /// Get reference to front element (key and value).
                 @property scope auto front()() return @trusted
                 {
-                    /* cast away const from `HashMapOrSetType` for classes
+                    /* cast away const from `SomeHashMapOrSet` for classes
                      * because class elements are currently hashed and compared
                      * compared using their identity (pointer value) `is`
                      */
@@ -712,12 +712,12 @@ struct HashMapOrSet(K, V = void,
                     return table.binElementsAt(binIx)[elementOffset];
                 }
             }
-            public LvalueElementRef!HashMapOrSetType _elementRef;
+            public LvalueElementRef!SomeHashMapOrSet _elementRef;
             alias _elementRef this;
         }
 
         /// Range over elements of r-value instance of this.
-        static private struct ByRvalueElement(HashMapOrSetType)
+        static private struct ByRvalueElement(SomeHashMapOrSet)
         {
         pragma(inline, true):
             static if (is(ElementType == class))
@@ -725,7 +725,7 @@ struct HashMapOrSet(K, V = void,
                 /// Get reference to front element (key and value).
                 @property scope auto front()() return @trusted
                 {
-                    /* cast away const from `HashMapOrSetType` for classes
+                    /* cast away const from `SomeHashMapOrSet` for classes
                      * because class elements are currently hashed and compared
                      * compared using their identity (pointer value) `is`
                      */
@@ -740,7 +740,7 @@ struct HashMapOrSet(K, V = void,
                     return table.binElementsAt(binIx)[elementOffset];
                 }
             }
-            public RvalueElementRef!HashMapOrSetType _elementRef;
+            public RvalueElementRef!SomeHashMapOrSet _elementRef;
             alias _elementRef this;
         }
 
@@ -780,7 +780,7 @@ struct HashMapOrSet(K, V = void,
             }
         }
 
-        static private struct ByKey(HashMapOrSetType)
+        static private struct ByKey(SomeHashMapOrSet)
         {
             pragma(inline, true):
             /// Get reference to key of front element.
@@ -788,7 +788,7 @@ struct HashMapOrSet(K, V = void,
             {
                 return table.binElementsAt(binIx)[elementOffset].key;
             }
-            public LvalueElementRef!HashMapOrSetType _elementRef;
+            public LvalueElementRef!SomeHashMapOrSet _elementRef;
             alias _elementRef this;
         }
 
@@ -801,7 +801,7 @@ struct HashMapOrSet(K, V = void,
             return result;
         }
 
-        static private struct ByValue(HashMapOrSetType)
+        static private struct ByValue(SomeHashMapOrSet)
         {
             pragma(inline, true):
             /// Get reference to value of front element.
@@ -809,7 +809,7 @@ struct HashMapOrSet(K, V = void,
             {
                 return *(cast(ValueType*)(&table.binElementsAt(binIx)[elementOffset].value)); // TODO remove reinterpret cast
             }
-            public LvalueElementRef!HashMapOrSetType _elementRef;
+            public LvalueElementRef!SomeHashMapOrSet _elementRef;
             alias _elementRef this;
         }
 
@@ -822,13 +822,13 @@ struct HashMapOrSet(K, V = void,
             return result;
         }
 
-        static private struct ByKeyValue(HashMapOrSetType)
+        static private struct ByKeyValue(SomeHashMapOrSet)
         {
             pragma(inline, true):
             /// Get reference to front element (key and value).
             @property scope auto ref front()() return @trusted
             {
-                static if (isMutable!(HashMapOrSetType))
+                static if (isMutable!(SomeHashMapOrSet))
                 {
                     alias E = CT;
                 }
@@ -838,7 +838,7 @@ struct HashMapOrSet(K, V = void,
                 }
                 return *(cast(E*)&table.binElementsAt(binIx)[elementOffset]); // TODO remove cast
             }
-            public LvalueElementRef!HashMapOrSetType _elementRef;
+            public LvalueElementRef!SomeHashMapOrSet _elementRef;
             alias _elementRef this;
         }
 
@@ -1221,10 +1221,10 @@ import std.functional : unaryFun;
 /** Remove all elements in `x` matching `predicate`.
     TODO move to container_algorithm.d.
 */
-void removeAllMatching(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetType x)
+void removeAllMatching(alias predicate, SomeHashMapOrSet)(auto ref SomeHashMapOrSet x)
     @trusted
     if (isInstanceOf!(HashMapOrSet,
-                      HashMapOrSetType))
+                      SomeHashMapOrSet))
 {
     import std.algorithm.mutation : moveEmplace;
     foreach (immutable binIx; 0 .. x._bins.length)
@@ -1238,14 +1238,14 @@ void removeAllMatching(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetT
         }
         else
         {
-            HashMapOrSetType.SmallBin tmpSmall;
-            HashMapOrSetType.Bstate tmpBstate;
+            SomeHashMapOrSet.SmallBin tmpSmall;
+            SomeHashMapOrSet.Bstate tmpBstate;
             foreach (ref element; x.smallBinElementsAt(binIx))
             {
                 if (unaryFun!predicate(element))
                 {
                     import std.traits : hasElaborateDestructor;
-                    static if (hasElaborateDestructor!(HashMapOrSetType.T))
+                    static if (hasElaborateDestructor!(SomeHashMapOrSet.T))
                     {
                         destroy(element);
                     }
@@ -1267,10 +1267,10 @@ void removeAllMatching(alias predicate, HashMapOrSetType)(auto ref HashMapOrSetT
 /** Returns: `x` eagerly filtered on `predicate`.
     TODO move to container_algorithm.d.
 */
-HashMapOrSetType filtered(alias predicate, HashMapOrSetType)(HashMapOrSetType x)
+SomeHashMapOrSet filtered(alias predicate, SomeHashMapOrSet)(SomeHashMapOrSet x)
     @trusted
     if (isInstanceOf!(HashMapOrSet,
-                      HashMapOrSetType))
+                      SomeHashMapOrSet))
 {
     import std.functional : not;
     removeAllMatching!(not!predicate)(x);
@@ -1358,12 +1358,12 @@ auto intersectWith(C1, C2)(ref C1 x,
 }
 
 /// Returns forward range that iterates through the elements of `c`.
-auto byElement(HashMapOrSetType)(auto ref inout(HashMapOrSetType) c)
+auto byElement(SomeHashMapOrSet)(auto ref inout(SomeHashMapOrSet) c)
     @trusted
     if (isInstanceOf!(HashMapOrSet,
-                      HashMapOrSetType))
+                      SomeHashMapOrSet))
 {
-    alias C = const(HashMapOrSetType);
+    alias C = const(SomeHashMapOrSet);
     static if (__traits(isRef, c))
     {
         auto result = C.ByLvalueElement!C((C.LvalueElementRef!C(cast(C*)&c)));
@@ -1373,7 +1373,7 @@ auto byElement(HashMapOrSetType)(auto ref inout(HashMapOrSetType) c)
     else
     {
         import std.algorithm.mutation : move;
-        auto result = C.ByRvalueElement!C((C.RvalueElementRef!C(move(*(cast(HashMapOrSetType*)&c))))); // reinterpret
+        auto result = C.ByRvalueElement!C((C.RvalueElementRef!C(move(*(cast(SomeHashMapOrSet*)&c))))); // reinterpret
         result.initFirstNonEmptyBin();
         return move(result);
     }

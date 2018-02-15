@@ -967,7 +967,7 @@ pure nothrow @nogc unittest
             foreach (const ref e; x.byElement)
             {
                 assert(x.contains(e));
-                // TODO assert(!y.contains(e));
+                assert(!y.contains(e));
                 y.insert(e);
                 assert(y.contains(e));
             }

@@ -40,9 +40,7 @@ size_t triangularProbeFromIndex(alias predicate, T)(const scope T[] haystack,
     assert((~mask ^ mask) == typeof(mask).max); // std.math.isPowerOf2(haystack.length)
 
     immutable length = 0;
-
     immutable hitKey = T(42); // key to store
-
     auto haystack = new T[length];
 
     // any key misses

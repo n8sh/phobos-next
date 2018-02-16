@@ -9,7 +9,7 @@ import std.experimental.allocator.common;
  */
 struct PureMallocator
 {
-    pure:
+    pure nothrow @nogc:
 
     /**
     The alignment is a static constant equal to $(D platformAlignment), which
@@ -26,7 +26,7 @@ struct PureMallocator
     */
     pragma(inline, true)
     void[] allocate(size_t bytes) shared
-        @trusted @nogc
+        @trusted
     {
         import core.memory : pureMalloc;
         if (!bytes) return null;
@@ -36,7 +36,7 @@ struct PureMallocator
 
     pragma(inline, true)
     void[] zeroallocate(size_t bytes) shared
-        @trusted @nogc
+        @trusted
     {
         import core.memory : pureCalloc;
         if (!bytes) return null;
@@ -47,7 +47,7 @@ struct PureMallocator
     /// Ditto
     pragma(inline, true)
     bool deallocate(void[] b) shared
-        @system @nogc nothrow
+        @system
     {
         import core.memory : pureFree;
         pureFree(b.ptr);
@@ -56,7 +56,7 @@ struct PureMallocator
 
     /// Ditto
     bool reallocate(ref void[] b, size_t s) shared
-        @system @nogc nothrow
+        @system
     {
         import core.memory : pureRealloc;
         if (!s)

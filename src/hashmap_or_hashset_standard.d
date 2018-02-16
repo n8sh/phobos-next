@@ -253,7 +253,7 @@ struct HashMapOrSet(K, V = void,
      */
     void insertN(R)(R elements) @trusted
         if (isIterable!R &&
-            isCopyable!T)
+            isCopyable!T)       // TODO support uncopyable T?
     {
         import std.range : hasLength;
         static if (hasLength!R)

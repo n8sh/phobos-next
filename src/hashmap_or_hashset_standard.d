@@ -258,18 +258,17 @@ struct HashMapOrSet(K, V = void,
         import std.range : hasLength;
         static if (hasLength!R)
         {
-            // reserveExtra(elements.length); // TODO this fails
+            reserveExtra(elements.length);
         }
         foreach (element; elements)
         {
-            // TODO use `insertWithoutGrowth` when call to `reserveExtra` works
             static if (hasIndirections!T)
             {
-                insert(element);
+                insertWithoutGrowth(element);
             }
             else
             {
-                insert(*cast(Unqual!T*)&element);
+                insertWithoutGrowth(*cast(Unqual!T*)&element);
             }
         }
     }

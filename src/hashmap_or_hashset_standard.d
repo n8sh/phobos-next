@@ -802,53 +802,53 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {
-    alias K = uint;
+    alias K = Nullable!(uint, uint.max);
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 
     auto x0 = X.init;
     assert(x0.length == 0);
     assert(x0._bins.length == 0);
-    assert(!x0.contains(1));
+    assert(!x0.contains(K(1)));
 
-    auto x1 = X.withElements([12].s);
+    auto x1 = X.withElements([K(12)].s);
     assert(x1.length == 1);
-    assert(x1.contains(12));
+    assert(x1.contains(K(12)));
 
-    auto x2 = X.withElements([10, 12].s);
+    auto x2 = X.withElements([K(10), K(12)].s);
     assert(x2.length == 2);
-    assert(x2.contains(10));
-    assert(x2.contains(12));
+    assert(x2.contains(K(10)));
+    assert(x2.contains(K(12)));
 
-    auto x3 = X.withElements([12, 13, 14].s);
+    auto x3 = X.withElements([K(12), K(13), K(14)].s);
     assert(x3.length == 3);
-    assert(x3.contains(12));
-    assert(x3.contains(13));
-    assert(x3.contains(14));
+    assert(x3.contains(K(12)));
+    assert(x3.contains(K(13)));
+    assert(x3.contains(K(14)));
 
-    auto z = X.withElements([10, 12, 13, 15].s);
+    auto z = X.withElements([K(10), K(12), K(13), K(15)].s);
     assert(z.length == 4);
-    assert(z.contains(10));
-    assert(z.contains(12));
-    assert(z.contains(13));
-    assert(z.contains(15));
+    assert(z.contains(K(10)));
+    assert(z.contains(K(12)));
+    assert(z.contains(K(13)));
+    assert(z.contains(K(15)));
 
     import std.algorithm.mutation : move;
     auto y = move(z).intersectedWith(x2);
     assert(y.length == 2);
-    assert(y.contains(10));
-    assert(y.contains(12));
+    assert(y.contains(K(10)));
+    assert(y.contains(K(12)));
 }
 
 /// r-value and r-value intersection
 @safe pure nothrow @nogc unittest
 {
-    alias K = uint;
+    alias K = Nullable!(uint, uint.max);
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 
-    auto y = X.withElements([10, 12, 13, 15].s).intersectedWith(X.withElements([12, 13].s));
+    auto y = X.withElements([K(10), K(12), K(13), K(15)].s).intersectedWith(X.withElements([K(12), K(13)].s));
     assert(y.length == 2);
-    assert(y.contains(12));
-    assert(y.contains(13));
+    assert(y.contains(K(12)));
+    assert(y.contains(K(13)));
 }
 
 /** Returns: `x` eagerly intersected with `y`.
@@ -865,15 +865,15 @@ auto intersectWith(C1, C2)(ref C1 x,
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {
-    alias K = uint;
+    alias K = Nullable!(uint, uint.max);
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 
-    auto x = X.withElements([12, 13].s);
-    auto y = X.withElements([10, 12, 13, 15].s);
+    auto x = X.withElements([K(12), K(13)].s);
+    auto y = X.withElements([K(10), K(12), K(13), K(15)].s);
     y.intersectWith(x);
     assert(y.length == 2);
-    assert(y.contains(12));
-    assert(y.contains(13));
+    assert(y.contains(K(12)));
+    assert(y.contains(K(13)));
 }
 
 /** Returns forward range that iterates through the elements of `c` in undefined
@@ -904,10 +904,10 @@ alias range = byElement;        // EMSI-container naming
 /// make range from l-value and r-value. element access is always const
 pure nothrow @nogc unittest
 {
-    alias K = uint;
+    alias K = Nullable!(uint, uint.max);
     alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
 
-    immutable a = [11, 22, 33].s;
+    immutable a = [K(11), K(22), K(33)].s;
 
     // mutable
     auto x = X.withElements(a);
@@ -927,9 +927,9 @@ pure nothrow @nogc unittest
         static assert(is(typeof(e) == const(K)));
     }
 
-    foreach (e; X.withElements([11].s).byElement) // from r-value
+    foreach (e; X.withElements([K(11)].s).byElement) // from r-value
     {
-        assert(e == 11);
+        assert(e == K(11));
         static assert(is(typeof(e) == const(K))); // always const access
     }
 }

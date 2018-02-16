@@ -19,8 +19,7 @@ int f(int x)
 
 void g() pure
 {
-    // static assert(!__traits(compiles, { auto x = f(42); }));
-    // alias puref = assumePure!(typeof(&f));
-    // pragma(msg, typeof(puref));
-    // auto x = (*puref)(42);
+    static assert(!__traits(compiles, { auto x = f(42); }));
+    auto pureF = assumePure(&f);
+    assert(pureF(42) == 43);
 }

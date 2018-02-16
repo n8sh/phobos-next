@@ -307,13 +307,12 @@ template isSetOf(T, E)
  */
 template isNullableType(T)
 {
-    import std.traits : isPointer, isInstanceOf, isIntegral; // TODOremove
+    import std.traits : isPointer, isInstanceOf;
     import std.typecons : Nullable;
     enum isNullableType = (isPointer!T ||
                            is(T == class) ||
                            is(T == typeof(null)) ||
-                           isInstanceOf!(Nullable, T) ||
-                           isIntegral!T);    // TODO remove later
+                           isInstanceOf!(Nullable, T));
 }
 
 /** Default null key of type `T`,
@@ -360,15 +359,11 @@ bool isNull(T)(T x)
     @safe pure nothrow @nogc
     if (isNullableType!(T))
 {
-    import std.traits : isPointer, isInstanceOf, isIntegral; // TODO remove
+    import std.traits : isPointer, isInstanceOf;
     import std.typecons : Nullable;
     static if (isPointer!T ||
                is(T == class) ||
                is(T == typeof(null)))
-    {
-        return x is T.init;
-    }
-    else static if (isIntegral!T) // TODO remove later
     {
         return x is T.init;
     }
@@ -378,7 +373,7 @@ bool isNull(T)(T x)
     }
     else
     {
-        static assert(0, "Unsupported type " ~ T.stringof);
+        static assert(0, "unsupported type " ~ T.stringof);
     }
 }
 
@@ -386,15 +381,11 @@ void nullify(T)(ref T x)
     @safe pure nothrow @nogc
     if (isNullableType!(T))
 {
-    import std.traits : isPointer, isInstanceOf, isIntegral; // TODO remove
+    import std.traits : isPointer, isInstanceOf;
     import std.typecons : Nullable;
     static if (isPointer!T ||
                is(T == class) ||
                is(T == typeof(null)))
-    {
-        x = T.init;
-    }
-    else static if (isIntegral!T) // TODO remove later
     {
         x = T.init;
     }
@@ -404,7 +395,7 @@ void nullify(T)(ref T x)
     }
     else
     {
-        static assert(0, "Unsupported type " ~ T.stringof);
+        static assert(0, "unsupported type " ~ T.stringof);
     }
 }
 

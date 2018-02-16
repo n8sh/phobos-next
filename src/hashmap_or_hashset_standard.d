@@ -368,30 +368,30 @@ struct HashMapOrSet(K, V = void,
     static private struct LvalueElementRef(SomeHashMapOrSet)
     {
         SomeHashMapOrSet* table;
-        size_t ix;           // index to bin inside table
-        size_t elementCounter;  // counter over number of elements popped
+        size_t iterationIndex;  // index to bin inside `table`
+        size_t iterationCounter; // counter over number of elements popped
 
         pragma(inline, true):
 
         /// Check if empty.
         @property bool empty() const @safe pure nothrow @nogc
         {
-            return ix == table.binCount;
+            return iterationIndex == table.binCount;
         }
 
         /// Get number of element left to pop.
         @property size_t length() const @safe pure nothrow @nogc
         {
-            return table.length - elementCounter;
+            return table.length - iterationCounter;
         }
 
         pragma(inline)
         void popFront()
         {
             assert(!empty);
-            ix += 1;
+            iterationIndex += 1;
             findNextNonEmptyBin();
-            elementCounter += 1;
+            iterationCounter += 1;
         }
 
         @property typeof(this) save() // ForwardRange
@@ -401,10 +401,10 @@ struct HashMapOrSet(K, V = void,
 
         private void findNextNonEmptyBin()
         {
-            while (ix != (*table).binCount &&
-                   keyOf((*table)._bins[ix]).isNull)
+            while (iterationIndex != (*table).binCount &&
+                   keyOf((*table)._bins[iterationIndex]).isNull)
             {
-                ix += 1;
+                iterationIndex += 1;
             }
         }
     }
@@ -414,38 +414,38 @@ struct HashMapOrSet(K, V = void,
     static private struct RvalueElementRef(SomeHashMapOrSet)
     {
         SomeHashMapOrSet table; // owned
-        size_t ix;           // index to bin inside table
-        size_t elementCounter;  // counter over number of elements popped
+        size_t iterationIndex;  // index to bin inside table
+        size_t iterationCounter; // counter over number of elements popped
 
         pragma(inline, true):
 
         /// Check if empty.
         @property bool empty() const @safe pure nothrow @nogc
         {
-            return ix == table.binCount;
+            return iterationIndex == table.binCount;
         }
 
         /// Get number of element left to pop.
         @property size_t length() const @safe pure nothrow @nogc
         {
-            return table.length - elementCounter;
+            return table.length - iterationCounter;
         }
 
         pragma(inline)
         void popFront()
         {
             assert(!empty);
-            ix += 1;
+            iterationIndex += 1;
             findNextNonEmptyBin();
-            elementCounter += 1;
+            iterationCounter += 1;
         }
 
         private void findNextNonEmptyBin()
         {
-            while (ix != table.binCount &&
-                   keyOf(table._bins[ix]).isNull)
+            while (iterationIndex != table.binCount &&
+                   keyOf(table._bins[iterationIndex]).isNull)
             {
-                ix += 1;
+                iterationIndex += 1;
             }
         }
     }
@@ -480,7 +480,7 @@ struct HashMapOrSet(K, V = void,
                 /// Get reference to front element (key and value).
                 @property scope auto front()()
                 {
-                    return table._bins[ix];
+                    return table._bins[iterationIndex];
                 }
             }
             public LvalueElementRef!SomeHashMapOrSet _elementRef;
@@ -500,7 +500,7 @@ struct HashMapOrSet(K, V = void,
                      * because class elements are currently hashed and compared
                      * compared using their identity (pointer value) `is`
                      */
-                    return cast(ElementType)table.binElementsAt(ix)[elementOffset];
+                    return cast(ElementType)table.binElementsAt(iterationIndex)[elementOffset];
                 }
             }
             else
@@ -508,7 +508,7 @@ struct HashMapOrSet(K, V = void,
                 /// Get reference to front element (key and value).
                 @property scope auto front()()
                 {
-                    return table._bins[ix];
+                    return table._bins[iterationIndex];
                 }
             }
             public RvalueElementRef!SomeHashMapOrSet _elementRef;
@@ -549,7 +549,7 @@ struct HashMapOrSet(K, V = void,
             /// Get reference to key of front element.
             @property scope const auto ref front()() return // key access must be const
             {
-                return table._bins[ix].key;
+                return table._bins[iterationIndex].key;
             }
             public LvalueElementRef!SomeHashMapOrSet _elementRef;
             alias _elementRef this;
@@ -570,7 +570,7 @@ struct HashMapOrSet(K, V = void,
             /// Get reference to value of front element.
             @property scope auto ref front()() return @trusted // template-lazy property
             {
-                return *(cast(ValueType*)&table._bins[ix].value);
+                return *(cast(ValueType*)&table._bins[iterationIndex].value);
             }
             public LvalueElementRef!SomeHashMapOrSet _elementRef;
             alias _elementRef this;
@@ -599,7 +599,7 @@ struct HashMapOrSet(K, V = void,
                 {
                     alias E = const(T);
                 }
-                return *(cast(E*)&table._bins[ix]);
+                return *(cast(E*)&table._bins[iterationIndex]);
             }
             public LvalueElementRef!SomeHashMapOrSet _elementRef;
             alias _elementRef this;

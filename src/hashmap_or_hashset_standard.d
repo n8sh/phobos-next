@@ -652,7 +652,8 @@ struct HashMapOrSet(K, V = void,
          *
          * TODO make `defaultValue` `lazy` when that can be `nothrow`
          */
-        auto ref V get()(const scope K key, const scope auto ref V defaultValue)
+        auto ref V get()(const scope K key,
+                         const scope auto ref V defaultValue)
         {
             auto value = key in this;
             if (value !is null)

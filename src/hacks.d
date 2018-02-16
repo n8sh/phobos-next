@@ -25,3 +25,10 @@ void g() pure
     auto pureF = assumePure(&f);
     assert(pureF(42) == 43);
 }
+
+auto assumePureNogc(T)(T t)
+    if (isFunctionPointer!T || isDelegate!T)
+{
+    enum attrs = functionAttributes!T | FunctionAttribute.pure_ | FunctionAttribute.nogc;
+    return cast(SetFunctionAttributes!(T, functionLinkage!T, attrs)) t;
+}

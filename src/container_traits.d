@@ -411,6 +411,9 @@ void nullify(T)(ref T x)
 
     ni.nullify();
     assert(ni.isNull);
+
+    const Ni ni2 = 3;
+    assert(!ni2.isNull);
 }
 
 version(unittest)

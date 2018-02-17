@@ -155,7 +155,7 @@ struct HashMapOrSet(K, V = void,
     alias ElementType = T;
 
     pragma(inline)              // LDC can, DMD cannot inline
-    private static typeof(this) withBinCount_(size_t capacity) // template-lazy
+    private static typeof(this) withCapacity_(size_t capacity) // template-lazy
         nothrow
     {
         import std.math : nextPow2;
@@ -201,17 +201,17 @@ struct HashMapOrSet(K, V = void,
             return assumePureNogc(&deallocate)(bins);
         }
 
-        private static typeof(this) withBinCount(size_t capacity) // template-lazy
+        private static typeof(this) withCapacity(size_t capacity) // template-lazy
             @trusted
         {
-            return assumePureNogc(&withBinCount_)(capacity);
+            return assumePureNogc(&withCapacity_)(capacity);
         }
     }
     else
     {
         alias allocateBins = allocate;
         alias deallocateBins = deallocate;
-        alias withBinCount = withBinCount_;
+        alias withCapacity = withCapacity_;
     }
 
     import std.traits : isIterable;
@@ -223,7 +223,7 @@ struct HashMapOrSet(K, V = void,
         import std.range : hasLength;
         static if (hasLength!R)
         {
-            typeof(this) that = withBinCount(elements.length);
+            typeof(this) that = withCapacity(elements.length);
         }
         else
         {
@@ -382,7 +382,7 @@ struct HashMapOrSet(K, V = void,
         {
             newBinCount = _count + extraCapacity;
         }
-        auto copy = withBinCount(newBinCount);
+        auto copy = withCapacity(newBinCount);
 
         // move elements to copy
         foreach (immutable ix; 0 .. _bins.length)
@@ -1323,7 +1323,7 @@ pure nothrow @nogc unittest
 
     alias X = HashMapOrSet!(K, V, FNV!(64, true));
 
-    auto s = X.withBinCount(n);
+    auto s = X.withCapacity(n);
 
     void dummy(ref V value) {}
 
@@ -1371,7 +1371,7 @@ pure nothrow @nogc unittest
 
     alias X = HashMapOrSet!(K, V, FNV!(64, true));
 
-    auto s = X.withBinCount(n);
+    auto s = X.withCapacity(n);
 
     void dummy(ref V value) {}
 

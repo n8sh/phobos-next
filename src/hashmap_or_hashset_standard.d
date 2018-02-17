@@ -869,6 +869,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {
+    dln();
     alias K = Nullable!(uint, uint.max);
     alias X = HashMapOrSet!(K, void, FNV!(64, true));
 
@@ -909,6 +910,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 /// r-value and r-value intersection
 @safe pure nothrow @nogc unittest
 {
+    dln();
     alias K = Nullable!(uint, uint.max);
     alias X = HashMapOrSet!(K, void, FNV!(64, true));
 
@@ -932,6 +934,7 @@ auto intersectWith(C1, C2)(ref C1 x,
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {
+    dln();
     alias K = Nullable!(uint, uint.max);
     alias X = HashMapOrSet!(K, void, FNV!(64, true));
 
@@ -971,6 +974,7 @@ alias range = byElement;        // EMSI-container naming
 /// make range from l-value and r-value. element access is always const
 pure nothrow @nogc unittest
 {
+    dln();
     alias K = Nullable!(uint, uint.max);
     alias X = HashMapOrSet!(K, void, FNV!(64, true));
 
@@ -1004,6 +1008,7 @@ pure nothrow @nogc unittest
 /// test various things
 pure nothrow @nogc unittest
 {
+    dln();
     immutable uint n = 600;
 
     alias K = Nullable!(uint, uint.max);
@@ -1289,6 +1294,7 @@ pure nothrow @nogc unittest
 /// range checking
 @trusted pure unittest
 {
+    dln();
     immutable n = 11;
 
     alias K = Nullable!(uint, uint.max);
@@ -1333,6 +1339,7 @@ pure nothrow @nogc unittest
 /// class as value
 @trusted pure unittest
 {
+    dln();
     immutable n = 11;
 
     alias K = Nullable!(uint, uint.max);
@@ -1387,6 +1394,7 @@ pure nothrow @nogc unittest
 /// constness inference of ranges
 pure nothrow unittest
 {
+    dln();
     alias K = Nullable!(uint, uint.max);
     class V
     {
@@ -1418,6 +1426,7 @@ pure nothrow unittest
 /// range key constness and value mutability with `class` value
 pure nothrow unittest
 {
+    dln();
     struct S
     {
         uint value;

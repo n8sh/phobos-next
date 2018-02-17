@@ -48,7 +48,9 @@ enum InsertionStatus
 struct HashMapOrSet(K, V = void,
                     alias hasher = hashOf,
                     alias Allocator = PureMallocator.instance)
-    // if (isHashable!K)
+    if (isNullableType!K
+        //isHashable!K
+        )
 {
     import std.conv : emplace;
     import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable, isMutable, hasIndirections;
@@ -240,17 +242,25 @@ struct HashMapOrSet(K, V = void,
                 /** TODO functionize to `emplaceAll` in emplace_all.d. See also:
                  * http://forum.dlang.org/post/xxigbqqflzwfgycrclyq@forum.dlang.org
                  */
-                static if (hasElaborateDestructor!T)
+                if (keyOf(element).isNull)
                 {
-                    import std.conv : emplace;
-                    emplace(&binsCopy[elementIndex], element);
+                    binsCopy[elementIndex] = T.init;
                 }
                 else
                 {
-                    binsCopy[elementIndex] = element;
+                    static if (hasElaborateDestructor!T)
+                    {
+                        import std.conv : emplace;
+                        emplace(&binsCopy[elementIndex], element);
+                    }
+                    else
+                    {
+                        binsCopy[elementIndex] = element;
+                    }
                 }
             }
-            assert(binsCopy == _bins);
+            import std.algorithm.comparison : equal;
+            assert(equal!((a, b) => a is b)(binsCopy, _bins));
             return typeof(return)(binsCopy, _count);
         }
     }
@@ -869,7 +879,6 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {
-    dln();
     alias K = Nullable!(uint, uint.max);
     alias X = HashMapOrSet!(K, void, FNV!(64, true));
 
@@ -910,7 +919,6 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 /// r-value and r-value intersection
 @safe pure nothrow @nogc unittest
 {
-    dln();
     alias K = Nullable!(uint, uint.max);
     alias X = HashMapOrSet!(K, void, FNV!(64, true));
 
@@ -934,7 +942,6 @@ auto intersectWith(C1, C2)(ref C1 x,
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {
-    dln();
     alias K = Nullable!(uint, uint.max);
     alias X = HashMapOrSet!(K, void, FNV!(64, true));
 
@@ -974,7 +981,6 @@ alias range = byElement;        // EMSI-container naming
 /// make range from l-value and r-value. element access is always const
 pure nothrow @nogc unittest
 {
-    dln();
     alias K = Nullable!(uint, uint.max);
     alias X = HashMapOrSet!(K, void, FNV!(64, true));
 
@@ -1008,7 +1014,6 @@ pure nothrow @nogc unittest
 /// test various things
 pure nothrow @nogc unittest
 {
-    dln();
     immutable uint n = 600;
 
     alias K = Nullable!(uint, uint.max);
@@ -1294,7 +1299,6 @@ pure nothrow @nogc unittest
 /// range checking
 @trusted pure unittest
 {
-    dln();
     immutable n = 11;
 
     alias K = Nullable!(uint, uint.max);
@@ -1339,7 +1343,6 @@ pure nothrow @nogc unittest
 /// class as value
 @trusted pure unittest
 {
-    dln();
     immutable n = 11;
 
     alias K = Nullable!(uint, uint.max);
@@ -1394,7 +1397,6 @@ pure nothrow @nogc unittest
 /// constness inference of ranges
 pure nothrow unittest
 {
-    dln();
     alias K = Nullable!(uint, uint.max);
     class V
     {
@@ -1426,7 +1428,6 @@ pure nothrow unittest
 /// range key constness and value mutability with `class` value
 pure nothrow unittest
 {
-    dln();
     struct S
     {
         uint value;

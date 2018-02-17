@@ -11,6 +11,7 @@ void main()
     import variant_arrays : VariantArrays;
     import hashset : HashSet;
     import hashmap : HashMap;
+    import open_hashmap_or_hashset : HashMap, HashSet;
 
     import std.digest.murmurhash : MurmurHash3;
     import xxhash64 : XXHash64;

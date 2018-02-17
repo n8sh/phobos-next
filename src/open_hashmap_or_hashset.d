@@ -1,4 +1,4 @@
-module hashmap_or_hashset_standard;
+module open_hashmap_or_hashset;
 
 import container_traits;
 import pure_mallocator : PureMallocator;

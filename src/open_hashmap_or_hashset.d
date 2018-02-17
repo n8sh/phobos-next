@@ -820,13 +820,13 @@ private:
     }
 }
 
-/** Hash map storing keys of type `K`.
+/** Hash set storing keys of type `K`.
  */
-alias HashSet(K, alias hasher = hashOf, alias Allocator = null) = HashMapOrSet!(K, void, hasher, Allocator);
+alias OpenHashSet(K, alias hasher = hashOf, alias Allocator = null) = HashMapOrSet!(K, void, hasher, Allocator);
 
 /** Hash map storing keys of type `K` and values of type `V`.
  */
-alias HashMap(K, V, alias hasher = hashOf, alias Allocator = null) = HashMapOrSet!(K, V, hasher, Allocator);
+alias OpenHashMap(K, V, alias hasher = hashOf, alias Allocator = null) = HashMapOrSet!(K, V, hasher, Allocator);
 
 import std.traits : isInstanceOf;
 

@@ -164,7 +164,6 @@ struct HashMapOrSet(K, V = void,
      */
     static if (is(typeof(Allocator) == immutable(PureMallocator)))
     {
-        import hacks : assumePureNogc;
         private pragma(inline, true):
 
         void[] allocateBins(size_t byteCount) const pure nothrow @nogc @system
@@ -180,6 +179,7 @@ struct HashMapOrSet(K, V = void,
         public static typeof(this) withCapacity(size_t capacity) // template-lazy
             @trusted
         {
+            import hacks : assumePureNogc;
             return assumePureNogc(&withCapacity_)(capacity);
         }
     }

@@ -84,6 +84,7 @@ struct PureMallocator
     auto buf = PureMallocator.instance.allocate(16);
     assert(&buf[0]);
     assert(buf.length);
+
     assert(PureMallocator.instance.deallocate(buf));
 
     import std.experimental.allocator : makeArray;

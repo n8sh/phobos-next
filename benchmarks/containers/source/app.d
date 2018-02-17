@@ -23,7 +23,7 @@ void main()
     import trie : RadixTreeSetGrowOnly;
 
     import std.stdio : write, writeln, writef, writefln;
-    import std.datetime.datetime : MonoTime;
+    import std.datetime : MonoTime;
     import std.meta : AliasSeq;
 
     import std.conv : to;

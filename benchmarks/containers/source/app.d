@@ -93,6 +93,7 @@ void main()
                           HashSet!(uint, null, muellerHash64),
                           HashSet!(uint, null, wangMixHash64),
                           HashSet!(uint, null, FNV!(64, true)),
+                          OpenHashSet!(Nullable!(uint, uint.max), FNV!(64, true)),
 
                           HashSet!(ulong, null, wangMixHash64),
                           HashSet!(ulong, null, muellerHash64),
@@ -104,7 +105,6 @@ void main()
                           HashSet!(uint, null, MurmurHash3!(128)),
                           HashSet!(uint, null, XXHash64),
 
-                          OpenHashSet!(Nullable!(uint, uint.max), FNV!(64, true)),
                           OpenHashSet!(Nullable!(ulong, uint.max), FNV!(64, true)),
 
                           // radix tree

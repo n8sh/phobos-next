@@ -117,8 +117,8 @@ private template isTemplateInstance(T)
 template mustAddGCRange(T)
 {
     import std.traits : hasUDA, isPointer, isArray, isStaticArray, isScalarType;
-    static if (isPointer!T ||
-               is(T == class))
+    static if (is(T == class) ||
+               isPointer!T)
     {
         enum mustAddGCRange = true;
     }
@@ -309,8 +309,8 @@ template isNullableType(T)
 {
     import std.traits : isPointer, isInstanceOf;
     import std.typecons : Nullable;
-    enum isNullableType = (isPointer!T ||
-                           is(T == class) ||
+    enum isNullableType = (is(T == class) ||
+                           isPointer!T ||
                            is(T == typeof(null)) ||
                            isInstanceOf!(Nullable, T));
 }
@@ -361,8 +361,8 @@ bool isNull(T)(const scope auto ref T x)
 {
     import std.traits : isPointer, isInstanceOf;
     import std.typecons : Nullable;
-    static if (isPointer!T ||
-               is(T == class) ||
+    static if (is(T == class) ||
+               isPointer!T ||
                is(T == typeof(null)))
     {
         return x is T.init;
@@ -383,8 +383,8 @@ void nullify(T)(ref T x)
 {
     import std.traits : isPointer, isInstanceOf;
     import std.typecons : Nullable;
-    static if (isPointer!T ||
-               is(T == class) ||
+    static if (is(T == class) ||
+               isPointer!T ||
                is(T == typeof(null)))
     {
         x = T.init;

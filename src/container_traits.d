@@ -369,7 +369,7 @@ bool isNull(T)(const scope auto ref T x)
     }
     else static if (isInstanceOf!(Nullable, T))
     {
-        return x.isNull;
+        return x.isNull;        // TODO generalize to __traits(T, hasMember, "isNull")
     }
     else
     {

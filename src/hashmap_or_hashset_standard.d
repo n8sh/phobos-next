@@ -5,23 +5,6 @@ import pure_mallocator : PureMallocator;
 
 @safe:
 
-/** Set insertion status.
- */
-enum SetInsertionStatus
-{
-    added,                      // element was added
-    unmodified                  // element was left unchanged
-}
-
-/** Map insertion status.
- */
-enum MapInsertionStatus
-{
-    added,                      // element was added
-    modified,                   // value of element was changed (map only). TODO only for Map-case
-    unmodified                  // element was left unchanged
-}
-
 /** Hash set (or map) storing (key) elements of type `K` and values of type `V`.
  *
  * Uses open-addressing with quadratic probing using triangular numbers.
@@ -83,7 +66,14 @@ struct HashMapOrSet(K, V = void,
     /// Element type.
     static if (hasValue)
     {
-        alias InsertionStatus = MapInsertionStatus;
+        /** Map insertion status.
+         */
+        enum InsertionStatus
+        {
+            added,                      // element was added
+            modified,                   // value of element was changed (map only). TODO only for Map-case
+            unmodified                  // element was left unchanged
+        }
 
         /// Constant element reference with both constant key and value.
         struct T
@@ -132,7 +122,14 @@ struct HashMapOrSet(K, V = void,
     }
     else                        // HashSet
     {
-        alias InsertionStatus = SetInsertionStatus;
+        /** Set insertion status.
+         */
+        enum InsertionStatus
+        {
+            added,                      // element was added
+            unmodified                  // element was left unchanged
+        }
+
 
         alias T = K;
 

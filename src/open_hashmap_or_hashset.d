@@ -145,7 +145,6 @@ struct HashMapOrSet(K, V = void,
      * See also:
      * https://forum.dlang.org/post/nyngzsaeqxzzuumivtze@forum.dlang.org
      */
-    pragma(inline)              // LDC can, DMD cannot inline
     static typeof(this) withCapacity(size_t capacity) // template-lazy
     {
         import std.math : nextPow2;

@@ -16,9 +16,9 @@ struct PureMallocator
     enum uint alignment = platformAlignment;
 
     /**
-     * Standard allocator methods per the semantics defined above. The
-     * $(D deallocate) and $(D reallocate) methods are $(D @system) because they
-     * may move memory around, leaving dangling pointers in user code. Somewhat
+     * Standard allocator methods per the semantics defined above. The $(D
+     * deallocate) and $(D reallocate) methods are $(D @system) because they may
+     * move memory around, leaving dangling pointers in user code. Somewhat
      * paradoxically, $(D malloc) is $(D @safe) but that's only useful to safe
      * programs that can afford to leak memory allocated.
      */
@@ -79,7 +79,10 @@ struct PureMallocator
     static immutable PureMallocator instance;
 }
 
-@safe pure unittest
+@trusted pure unittest
 {
     auto buf = PureMallocator.instance.allocate(16);
+    assert(&buf[0]);
+    assert(buf.length);
+    assert(PureMallocator.instance.deallocate(buf));
 }

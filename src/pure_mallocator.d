@@ -30,8 +30,8 @@ struct PureMallocator
     {
         import core.memory : pureMalloc;
         if (!bytes) return null;
-        auto p = pureMalloc(bytes);
-        return p ? p[0 .. bytes] : null; // TODO can we use p.ptr to avoid range-checking?
+        void* p = pureMalloc(bytes);
+        return p ? p[0 .. bytes] : null;
     }
 
     pragma(inline, true)
@@ -40,8 +40,8 @@ struct PureMallocator
     {
         import core.memory : pureCalloc;
         if (!bytes) return null;
-        auto p = pureCalloc(bytes, 1);
-        return p ? p[0 .. bytes] : null; // TODO can we use p.ptr to avoid range-checking?
+        void* p = pureCalloc(bytes, 1);
+        return p ? p[0 .. bytes] : null;
     }
 
     /// Ditto
@@ -67,7 +67,7 @@ struct PureMallocator
             b = null;
             return true;
         }
-        auto p = cast(ubyte*) pureRealloc(b.ptr, s);
+        ubyte* p = cast(ubyte*)pureRealloc(b.ptr, s);
         if (!p) return false;
         b = p[0 .. s];
         return true;

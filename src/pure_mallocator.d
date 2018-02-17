@@ -79,10 +79,13 @@ struct PureMallocator
     static immutable PureMallocator instance;
 }
 
-@trusted pure unittest
+@trusted pure nothrow @nogc unittest
 {
     auto buf = PureMallocator.instance.allocate(16);
     assert(&buf[0]);
     assert(buf.length);
     assert(PureMallocator.instance.deallocate(buf));
+
+    import std.experimental.allocator : makeArray;
+    PureMallocator.instance.makeArray!int(64, 42);
 }

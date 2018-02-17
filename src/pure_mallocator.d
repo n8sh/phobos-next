@@ -81,5 +81,5 @@ struct PureMallocator
 
 @safe pure unittest
 {
-    // TODO make this work: auto buf = PureMallocator.instance.allocate(16);
+    // TODO auto buf = PureMallocator.instance.allocate(16);
 }

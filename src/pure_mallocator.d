@@ -7,7 +7,7 @@ import std.experimental.allocator.common;
  */
 struct PureMallocator
 {
-    pure nothrow @nogc:
+    pure nothrow @nogc const shared:
 
     /**
      * The alignment is a static constant equal to $(D platformAlignment), which
@@ -23,7 +23,7 @@ struct PureMallocator
      * programs that can afford to leak memory allocated.
      */
     pragma(inline, true)
-    void[] allocate(size_t bytes) shared
+    void[] allocate(size_t bytes)
         @trusted
     {
         import core.memory : pureMalloc;
@@ -33,7 +33,7 @@ struct PureMallocator
     }
 
     pragma(inline, true)
-    void[] zeroallocate(size_t bytes) shared
+    void[] zeroallocate(size_t bytes)
         @trusted
     {
         import core.memory : pureCalloc;
@@ -44,7 +44,7 @@ struct PureMallocator
 
     /// Ditto
     pragma(inline, true)
-    bool deallocate(void[] b) shared
+    bool deallocate(void[] b)
         @system
     {
         import core.memory : pureFree;
@@ -53,7 +53,7 @@ struct PureMallocator
     }
 
     /// Ditto
-    bool reallocate(ref void[] b, size_t s) shared
+    bool reallocate(ref void[] b, size_t s)
         @system
     {
         import core.memory : pureRealloc;
@@ -74,12 +74,12 @@ struct PureMallocator
     /**
      * Returns the global instance of this allocator type. The C heap allocator is
      * thread-safe, therefore all of its methods and `it` itself are
-     * $(D shared).
+     * $(D x).
      */
-    static shared PureMallocator instance;
+    static immutable PureMallocator instance;
 }
 
 @safe pure unittest
 {
-    // TODO auto buf = PureMallocator.instance.allocate(16);
+    auto buf = PureMallocator.instance.allocate(16);
 }

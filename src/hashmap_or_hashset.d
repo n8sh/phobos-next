@@ -880,7 +880,7 @@ struct HashMapOrSet(K, V = void,
 
         /// Indexing.
         pragma(inline, true)    // LDC must have this
-        scope ref inout(V) opIndex()(in auto ref K key) inout return
+        scope ref inout(V) opIndex()(in K key) inout return // auto ref here makes things slow
         {
             immutable binIx = keyToBinIx(key);
             auto elements = binElementsAt(binIx);
@@ -905,7 +905,7 @@ struct HashMapOrSet(K, V = void,
          *
          * TODO make `defaultValue` `lazy` when that can be `nothrow`
          */
-        auto ref V get()(in K key, in auto ref V defaultValue) @trusted
+        auto ref V get()(in K key, in V defaultValue) @trusted // auto ref here makes things slow
         {
             import std.algorithm.searching : countUntil;
             immutable binIx = keyToBinIx(key);

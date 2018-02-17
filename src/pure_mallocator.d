@@ -79,6 +79,7 @@ struct PureMallocator
     static immutable PureMallocator instance;
 }
 
+///
 @trusted pure nothrow @nogc unittest
 {
     auto buf = PureMallocator.instance.allocate(16);

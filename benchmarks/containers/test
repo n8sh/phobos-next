@@ -1,3 +1,3 @@
 #!/bin/bash
 
-exec dub run --build=release-nobounds
+exec dub run --compiler=ldmd2 --build=release-nobounds

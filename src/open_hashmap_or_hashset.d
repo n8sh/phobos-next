@@ -140,9 +140,16 @@ struct HashMapOrSet(K, V = void,
 
     alias ElementType = T;
 
+    /** Make with room for storing at least `capacity` number of elements.
+     *
+     * TODO remove these hacks when a solution is proposed at
+     * https://forum.dlang.org/post/nyngzsaeqxzzuumivtze@forum.dlang.org
+     *
+     * See also:
+     * https://forum.dlang.org/post/nyngzsaeqxzzuumivtze@forum.dlang.org
+     */
     pragma(inline)              // LDC can, DMD cannot inline
-    static typeof(this) withCapacity_(size_t capacity) // template-lazy
-        nothrow
+    static typeof(this) withCapacity(size_t capacity) // template-lazy
     {
         import std.math : nextPow2;
         immutable powerOf2Capacity = capacity >= 3 ? nextPow2(capacity - 1) : capacity;
@@ -158,29 +165,6 @@ struct HashMapOrSet(K, V = void,
     void[] allocateBins(size_t byteCount) const pure nothrow @nogc @system
     {
         return Allocator.instance.allocate(T.sizeof*binCount);
-    }
-
-    /** Make with room for storing at least `capacity` number of elements.
-     *
-     * TODO remove these hacks when a solution is proposed at
-     * https://forum.dlang.org/post/nyngzsaeqxzzuumivtze@forum.dlang.org
-     *
-     * See also:
-     * https://forum.dlang.org/post/nyngzsaeqxzzuumivtze@forum.dlang.org
-     */
-    static if (is(typeof(Allocator) == immutable(PureMallocator)))
-    {
-        private pragma(inline, true)
-        public static typeof(this) withCapacity(size_t capacity) // template-lazy
-            @trusted
-        {
-            import hacks : assumePureNogc;
-            return assumePureNogc(&withCapacity_)(capacity);
-        }
-    }
-    else
-    {
-        public alias withCapacity = withCapacity_;
     }
 
     import std.traits : isIterable;

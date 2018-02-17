@@ -5,9 +5,17 @@ import pure_mallocator : PureMallocator;
 
 @safe:
 
-/** Insertion status.
+/** Set insertion status.
  */
-enum InsertionStatus
+enum SetInsertionStatus
+{
+    added,                      // element was added
+    unmodified                  // element was left unchanged
+}
+
+/** Map insertion status.
+ */
+enum MapInsertionStatus
 {
     added,                      // element was added
     modified,                   // value of element was changed (map only). TODO only for Map-case
@@ -75,6 +83,8 @@ struct HashMapOrSet(K, V = void,
     /// Element type.
     static if (hasValue)
     {
+        alias InsertionStatus = MapInsertionStatus;
+
         /// Constant element reference with both constant key and value.
         struct T
         {
@@ -122,6 +132,8 @@ struct HashMapOrSet(K, V = void,
     }
     else                        // HashSet
     {
+        alias InsertionStatus = SetInsertionStatus;
+
         alias T = K;
 
         /// Get key part of element.
@@ -1142,13 +1154,13 @@ pure nothrow @nogc unittest
             assert(key !in x1);
 
             assert(x1.length == key);
-            assert(x1.insert(element) == InsertionStatus.added);
+            assert(x1.insert(element) == X.InsertionStatus.added);
             assert(x1.length == key + 1);
 
             static if (X.hasValue)
             {
                 const e2 = X.ElementType(key, "a");
-                assert(x1.insert(e2) == InsertionStatus.modified);
+                assert(x1.insert(e2) == X.InsertionStatus.modified);
                 assert(x1.contains(key));
                 assert(x1.get(key, null) == "a");
                 x1.remove(key);
@@ -1165,10 +1177,10 @@ pure nothrow @nogc unittest
                 assert(*elementFound != "_");
             }
 
-            assert(x1.insert(element) == InsertionStatus.unmodified);
+            assert(x1.insert(element) == X.InsertionStatus.unmodified);
             static if (X.hasValue)
             {
-                assert(x1.insert(key, value) == InsertionStatus.unmodified);
+                assert(x1.insert(key, value) == X.InsertionStatus.unmodified);
             }
             assert(x1.length == key + 1);
 

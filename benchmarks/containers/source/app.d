@@ -11,7 +11,7 @@ void main()
     import variant_arrays : VariantArrays;
     import hashset : HashSet;
     import hashmap : HashMap;
-    import open_hashmap_or_hashset : HashMap, HashSet;
+    import open_hashmap_or_hashset : OpenHashMap, OpenHashSet;
 
     import std.digest.murmurhash : MurmurHash3;
     import xxhash64 : XXHash64;
@@ -21,6 +21,7 @@ void main()
     import filters : DenseSetFilter;
     import filterarray : DenseSetFilterGrowableArray;
 
+    import std.typecons : Nullable;
     import trie : RadixTreeSetGrowOnly;
 
     import std.stdio : write, writeln, writef, writefln;
@@ -103,6 +104,9 @@ void main()
                           HashSet!(uint, null, MurmurHash3!(128)),
                           HashSet!(uint, null, XXHash64),
 
+                          OpenHashSet!(Nullable!(uint, uint.max), FNV!(64, true)),
+                          OpenHashSet!(Nullable!(ulong, uint.max), FNV!(64, true)),
+
                           // radix tree
                           RadixTreeSetGrowOnly!(uint),
                  ))
@@ -123,7 +127,15 @@ void main()
                 }
                 else
                 {
-                    a.insert(i);
+                    static if (hasMember!(A, `ElementType`))
+                    {
+                        const element = A.ElementType(i); // wrap in i in Nullable
+                    }
+                    else
+                    {
+                        const element = i;
+                    }
+                    a.insert(element);
                 }
             }
             immutable after = MonoTime.currTime();
@@ -142,7 +154,15 @@ void main()
                 }
                 else
                 {
-                    hitCount += a.contains(i);
+                    static if (hasMember!(A, `ElementType`))
+                    {
+                        const element = A.ElementType(i); // wrap in i in Nullable
+                    }
+                    else
+                    {
+                        const element = i;
+                    }
+                    hitCount += a.contains(element);
                 }
             }
             const ok = hitCount = n; // for side effect in output

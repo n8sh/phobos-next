@@ -157,12 +157,6 @@ struct HashMapOrSet(K, V = void,
         return result;
     }
 
-    private static bool deallocate(T[] bins)
-        @system
-    {
-        return Allocator.instance.deallocate(bins);
-    }
-
     /** Make with room for storing at least `capacity` number of elements.
      *
      * TODO remove these hacks when a solution is proposed at
@@ -174,13 +168,39 @@ struct HashMapOrSet(K, V = void,
     static if (is(typeof(Allocator) == shared(PureMallocator)))
     {
         import hacks : assumePureNogc;
-        auto withBinCount = assumePureNogc(&withBinCount_);
-        auto deallocateBins = assumePureNogc(&deallocate);
+        private pragma(inline, true):
+
+        static void[] allocate(size_t bytes) @safe
+        {
+            return Allocator.instance.allocate(bytes);
+        }
+
+        static bool deallocate(T[] bins) @system
+        {
+            return Allocator.instance.deallocate(bins);
+        }
+
+        void[] allocateBins(size_t byteCount) const pure nothrow @nogc @system
+        {
+            return assumePureNogc(&allocate)(T.sizeof*binCount);
+        }
+
+        bool deallocateBins(T[] bins) pure nothrow @nogc @system
+        {
+            return assumePureNogc(&deallocate)(bins);
+        }
+
+        private static typeof(this) withBinCount(size_t capacity) // template-lazy
+            @trusted
+        {
+            return assumePureNogc(&withBinCount_)(capacity);
+        }
     }
     else
     {
-        alias withBinCount = withBinCount_;
+        alias allocateBins = allocate;
         alias deallocateBins = deallocate;
+        alias withBinCount = withBinCount_;
     }
 
     import std.traits : isIterable;
@@ -212,8 +232,26 @@ struct HashMapOrSet(K, V = void,
     {
         /// Returns: a shallow duplicate of `this`.
         typeof(this) dup()() const // template-lazy
+            @trusted
         {
-            return typeof(return)(_bins.dup, _count);
+            T[] binsCopy = cast(T[])allocateBins(_bins.length);
+            foreach (immutable elementIndex, ref element; _bins)
+            {
+                /** TODO functionize to `emplaceAll` in emplace_all.d. See also:
+                 * http://forum.dlang.org/post/xxigbqqflzwfgycrclyq@forum.dlang.org
+                 */
+                static if (hasElaborateDestructor!T)
+                {
+                    import std.conv : emplace;
+                    emplace(&binsCopy[elementIndex], element);
+                }
+                else
+                {
+                    binsCopy[elementIndex] = element;
+                }
+            }
+            assert(binsCopy == _bins);
+            return typeof(return)(binsCopy, _count);
         }
     }
 

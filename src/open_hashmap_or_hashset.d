@@ -155,7 +155,7 @@ struct HashMapOrSet(K, V = void,
     alias ElementType = T;
 
     pragma(inline)              // LDC can, DMD cannot inline
-    private static typeof(this) withCapacity_(size_t capacity) // template-lazy
+    static typeof(this) withCapacity_(size_t capacity) // template-lazy
         nothrow
     {
         import std.math : nextPow2;
@@ -201,7 +201,7 @@ struct HashMapOrSet(K, V = void,
             return assumePureNogc(&deallocate)(bins);
         }
 
-        private static typeof(this) withCapacity(size_t capacity) // template-lazy
+        static typeof(this) withCapacity(size_t capacity) // template-lazy
             @trusted
         {
             return assumePureNogc(&withCapacity_)(capacity);

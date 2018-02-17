@@ -201,7 +201,7 @@ struct HashMapOrSet(K, V = void,
             return assumePureNogc(&deallocate)(bins);
         }
 
-        static typeof(this) withCapacity(size_t capacity) // template-lazy
+        public static typeof(this) withCapacity(size_t capacity) // template-lazy
             @trusted
         {
             return assumePureNogc(&withCapacity_)(capacity);
@@ -209,9 +209,10 @@ struct HashMapOrSet(K, V = void,
     }
     else
     {
+        private:
         alias allocateBins = allocate;
         alias deallocateBins = deallocate;
-        alias withCapacity = withCapacity_;
+        public alias withCapacity = withCapacity_;
     }
 
     import std.traits : isIterable;

@@ -320,12 +320,14 @@ struct HashMapOrSet(K, V = void,
 
     /** Check if `element` is stored.
         Returns: `true` if element is present, `false` otherwise.
-     */
-    bool contains()(const scope auto ref K key) const // template-lazy
+    */
+    pragma(inline, true)
+    bool contains()(const scope K key) const // template-lazy, auto ref here makes things slow
     {
-        assert(!key.isNull);    // TODO needed?
+        assert(!key.isNull);
         immutable startIndex = hashToIndex(hashOf2!(hasher)(key));
-        return _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex) != _bins.length;
+        immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex);
+        return hitIndex != _bins.length;
     }
 
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
@@ -541,7 +543,7 @@ struct HashMapOrSet(K, V = void,
     static if (!hasValue)       // HashSet
     {
         pragma(inline, true)
-        bool opBinaryRight(string op)(const scope K key) inout
+        bool opBinaryRight(string op)(const scope K key) const
             if (op == "in")
         {
             return contains(key);
@@ -616,7 +618,7 @@ struct HashMapOrSet(K, V = void,
 
     static if (hasValue)        // HashMap
     {
-        scope inout(V)* opBinaryRight(string op)(const scope K key) inout return
+        scope inout(V)* opBinaryRight(string op)(const scope K key) inout return // auto ref here makes things slow
             if (op == "in")
         {
             immutable startIndex = hashToIndex(hashOf2!(hasher)(key));
@@ -742,7 +744,7 @@ struct HashMapOrSet(K, V = void,
          * TODO make `defaultValue` `lazy` when that can be `nothrow`
          */
         auto ref V get()(const scope K key,
-                         const scope auto ref V defaultValue)
+                         const scope V defaultValue)
         {
             auto value = key in this;
             if (value !is null)

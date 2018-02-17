@@ -1,6 +1,7 @@
 module hashmap_or_hashset_standard;
 
 import container_traits;
+import pure_mallocator : PureMallocator;
 
 @safe:
 
@@ -27,8 +28,6 @@ enum InsertionStatus
  *
  * TODO extend opBinaryRight to return a reference to a free slot when assigned to sets value in slot and does _count += 1;
  *
- * TODO remove import of basic_array and only use _ptr _capacity and _count instead
- *
  * TODO support HashSet-in operator: assert(*("a" in s) == "a");
  *
  * TODO add extractElement that moves it out similar to
@@ -47,8 +46,8 @@ enum InsertionStatus
  * algorithm moves elements from source if they are not already in `this`
  */
 struct HashMapOrSet(K, V = void,
-                    alias Allocator = null,
-                    alias hasher = hashOf)
+                    alias hasher = hashOf,
+                    alias Allocator = PureMallocator.instance)
     // if (isHashable!K)
 {
     import std.conv : emplace;
@@ -144,14 +143,44 @@ struct HashMapOrSet(K, V = void,
 
     alias ElementType = T;
 
-    /** Make with room for storing at least `capacity` number of elements.
-     */
     pragma(inline)              // LDC can, DMD cannot inline
-    static typeof(this) withBinCount()(size_t capacity) // template-lazy
+    private static typeof(this) withBinCount_(size_t capacity) // template-lazy
+        nothrow
     {
         import std.math : nextPow2;
         immutable powerOf2Capacity = capacity >= 3 ? nextPow2(capacity - 1) : capacity;
-        return typeof(return)(Bins.withLengthElementValue(powerOf2Capacity, nullKeyElement));
+
+        import std.experimental.allocator : makeArray;
+        typeof(return) result;
+        result._bins = Allocator.makeArray!T(powerOf2Capacity, nullKeyElement);
+        result._count = 0;
+        return result;
+    }
+
+    private static bool deallocate(T[] bins)
+        @system
+    {
+        return Allocator.instance.deallocate(bins);
+    }
+
+    /** Make with room for storing at least `capacity` number of elements.
+     *
+     * TODO remove these hacks when a solution is proposed at
+     * https://forum.dlang.org/post/nyngzsaeqxzzuumivtze@forum.dlang.org
+     *
+     * See also:
+     * https://forum.dlang.org/post/nyngzsaeqxzzuumivtze@forum.dlang.org
+     */
+    static if (is(typeof(Allocator) == shared(PureMallocator)))
+    {
+        import hacks : assumePureNogc;
+        auto withBinCount = assumePureNogc(&withBinCount_);
+        auto deallocateBins = assumePureNogc(&deallocate);
+    }
+    else
+    {
+        alias withBinCount = withBinCount_;
+        alias deallocateBins = deallocate;
     }
 
     import std.traits : isIterable;
@@ -221,8 +250,10 @@ struct HashMapOrSet(K, V = void,
 
     /// Empty.
     void clear()()              // template-lazy
+        @trusted pure
     {
-        _bins.clear();
+        deallocateBins(_bins);
+        _bins = typeof(_bins).init;
         _count = 0;
     }
 
@@ -308,7 +339,7 @@ struct HashMapOrSet(K, V = void,
 
         move(copy._bins, _bins);
 
-        assert(!_bins.empty);
+        assert(_bins.length);
     }
 
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
@@ -462,7 +493,7 @@ struct HashMapOrSet(K, V = void,
         static private struct ByLvalueElement(SomeHashMapOrSet)
         {
         pragma(inline, true):
-            static if (is(ElementType == class))
+            static if (is(T == class))
             {
                 /// Get reference to front element (key and value).
                 @property scope auto front()() return
@@ -471,7 +502,7 @@ struct HashMapOrSet(K, V = void,
                      * because class elements are currently hashed and compared
                      * compared using their identity (pointer value) `is`
                      */
-                    return cast(ElementType)table.binElementsAt(ix)[elementOffset];
+                    return cast(T)table.binElementsAt(ix)[elementOffset];
                 }
             }
             else
@@ -490,7 +521,7 @@ struct HashMapOrSet(K, V = void,
         static private struct ByRvalueElement(SomeHashMapOrSet)
         {
         pragma(inline, true):
-            static if (is(ElementType == class))
+            static if (is(T == class))
             {
                 /// Get reference to front element (key and value).
                 @property scope auto front()() return
@@ -499,7 +530,7 @@ struct HashMapOrSet(K, V = void,
                      * because class elements are currently hashed and compared
                      * compared using their identity (pointer value) `is`
                      */
-                    return cast(ElementType)table.binElementsAt(iterationIndex)[elementOffset];
+                    return cast(T)table.binElementsAt(iterationIndex)[elementOffset];
                 }
             }
             else
@@ -712,11 +743,8 @@ struct HashMapOrSet(K, V = void,
     @property size_t binCount() const { return _bins.length; }
 
 private:
-    import basic_array : Array = BasicArray;
-    alias Bins = Array!(T, Allocator);
-
-    Bins _bins;                 // bin elements
-    size_t _count;              // total number of elements stored
+    T[] _bins;            // bin elements
+    size_t _count;        // total number of non-null elements stored in `_bins`
 
     /** Returns: bin index of `hash`. */
     pragma(inline, true)
@@ -804,7 +832,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 @safe pure nothrow @nogc unittest
 {
     alias K = Nullable!(uint, uint.max);
-    alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
+    alias X = HashMapOrSet!(K, void, FNV!(64, true));
 
     auto x0 = X.init;
     assert(x0.length == 0);
@@ -844,7 +872,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 @safe pure nothrow @nogc unittest
 {
     alias K = Nullable!(uint, uint.max);
-    alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
+    alias X = HashMapOrSet!(K, void, FNV!(64, true));
 
     auto y = X.withElements([K(10), K(12), K(13), K(15)].s).intersectedWith(X.withElements([K(12), K(13)].s));
     assert(y.length == 2);
@@ -867,7 +895,7 @@ auto intersectWith(C1, C2)(ref C1 x,
 @safe pure nothrow @nogc unittest
 {
     alias K = Nullable!(uint, uint.max);
-    alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
+    alias X = HashMapOrSet!(K, void, FNV!(64, true));
 
     auto x = X.withElements([K(12), K(13)].s);
     auto y = X.withElements([K(10), K(12), K(13), K(15)].s);
@@ -906,7 +934,7 @@ alias range = byElement;        // EMSI-container naming
 pure nothrow @nogc unittest
 {
     alias K = Nullable!(uint, uint.max);
-    alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
+    alias X = HashMapOrSet!(K, void, FNV!(64, true));
 
     immutable a = [K(11), K(22), K(33)].s;
 
@@ -945,7 +973,7 @@ pure nothrow @nogc unittest
     import std.meta : AliasSeq;
     foreach (V; AliasSeq!(void, string))
     {
-        alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
+        alias X = HashMapOrSet!(K, V, FNV!(64, true));
 
         static if (!X.hasValue)
         {
@@ -1228,7 +1256,7 @@ pure nothrow @nogc unittest
     alias K = Nullable!(uint, uint.max);
     alias V = uint;
 
-    alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
+    alias X = HashMapOrSet!(K, V, FNV!(64, true));
 
     auto s = X.withBinCount(n);
 
@@ -1276,7 +1304,7 @@ pure nothrow @nogc unittest
         uint data;
     }
 
-    alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
+    alias X = HashMapOrSet!(K, V, FNV!(64, true));
 
     auto s = X.withBinCount(n);
 
@@ -1328,7 +1356,7 @@ pure nothrow unittest
         uint data;
     }
 
-    alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
+    alias X = HashMapOrSet!(K, V, FNV!(64, true));
     const x = X();
 
     foreach (e; x.byKey)
@@ -1364,7 +1392,7 @@ pure nothrow unittest
         uint data;
     }
 
-    alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
+    alias X = HashMapOrSet!(K, V, FNV!(64, true));
     auto x = X();
 
     x[K(S(42))] = new V(43);

@@ -162,7 +162,7 @@ struct HashMapOrSet(K, V = void,
      * See also:
      * https://forum.dlang.org/post/nyngzsaeqxzzuumivtze@forum.dlang.org
      */
-    static if (is(typeof(Allocator) == shared(PureMallocator)))
+    static if (is(typeof(Allocator) == immutable(PureMallocator)))
     {
         import hacks : assumePureNogc;
         private pragma(inline, true):
@@ -811,11 +811,16 @@ private:
 
 /** Hash set storing keys of type `K`.
  */
-alias OpenHashSet(K, alias hasher = hashOf, alias Allocator = PureMallocator.instance) = HashMapOrSet!(K, void, hasher, Allocator);
+alias OpenHashSet(K,
+                  alias hasher = hashOf,
+                  alias Allocator = PureMallocator.instance) = HashMapOrSet!(K, void, hasher, Allocator);
 
 /** Hash map storing keys of type `K` and values of type `V`.
  */
-alias OpenHashMap(K, V, alias hasher = hashOf, alias Allocator = PureMallocator.instance) = HashMapOrSet!(K, V, hasher, Allocator);
+alias OpenHashMap(K,
+                  V,
+                  alias hasher = hashOf,
+                  alias Allocator = PureMallocator.instance) = HashMapOrSet!(K, V, hasher, Allocator);
 
 import std.traits : isInstanceOf;
 

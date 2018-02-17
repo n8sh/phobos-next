@@ -707,7 +707,7 @@ struct HashMapOrSet(K, V = void,
 
         /// Indexing.
         pragma(inline, true)    // LDC must have this
-        scope ref inout(V) opIndex()(const scope auto ref K key) inout return
+        scope ref inout(V) opIndex()(const scope K key) inout return // auto ref here makes things slow
         {
             immutable startIndex = hashToIndex(hashOf2!(hasher)(key));
             immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex);

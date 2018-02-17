@@ -142,9 +142,6 @@ struct HashMapOrSet(K, V = void,
 
     /** Make with room for storing at least `capacity` number of elements.
      *
-     * TODO remove these hacks when a solution is proposed at
-     * https://forum.dlang.org/post/nyngzsaeqxzzuumivtze@forum.dlang.org
-     *
      * See also:
      * https://forum.dlang.org/post/nyngzsaeqxzzuumivtze@forum.dlang.org
      */

@@ -355,7 +355,7 @@ template defaultNullKeyConstantOf(T)
 
 /** Returns: `true` iff `x` has a null value.
  */
-bool isNull(T)(const scope T x)
+bool isNull(T)(const scope auto ref T x)
     @safe pure nothrow @nogc
     if (isNullableType!(T))
 {

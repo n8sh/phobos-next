@@ -185,7 +185,15 @@ void main()
                 }
                 else
                 {
-                    b.insert(i);
+                    static if (hasMember!(A, `ElementType`))
+                    {
+                        const element = A.ElementType(i); // wrap in i in Nullable
+                    }
+                    else
+                    {
+                        const element = i;
+                    }
+                    b.insert(element);
                 }
             }
             immutable after = MonoTime.currTime();
@@ -213,10 +221,12 @@ void main()
     foreach (A; AliasSeq!(HashMap!(uint, uint, null, muellerHash64),
                           HashMap!(uint, uint, null, wangMixHash64),
                           HashMap!(uint, uint, null, FNV!(64, true)),
+                          OpenHashMap!(Nullable!(uint, uint.max), uint, FNV!(64, true)),
 
                           HashMap!(ulong, ulong, null, muellerHash64),
                           HashMap!(ulong, ulong, null, wangMixHash64),
-                          HashMap!(ulong, ulong, null, FNV!(64, true))))
+                          HashMap!(ulong, ulong, null, FNV!(64, true)),
+                          OpenHashMap!(Nullable!(ulong, ulong.max), ulong, FNV!(64, true))))
     {
         A a;
 
@@ -226,7 +236,15 @@ void main()
             immutable before = MonoTime.currTime();
             foreach (const i; 0 .. n)
             {
-                a.insert(A.ElementType(i, A.ValueType.init));
+                static if (hasMember!(A, `KeyType`))
+                {
+                    const key = A.KeyType(i); // wrap in i in Nullable
+                }
+                else
+                {
+                    const key = i;
+                }
+                a.insert(A.ElementType(key, A.ValueType.init));
             }
             immutable after = MonoTime.currTime();
             writef("insert (w growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
@@ -237,7 +255,15 @@ void main()
             size_t hitCount = 0;
             foreach (const i; 0 .. n)
             {
-                hitCount += a.contains(i);
+                static if (hasMember!(A, `KeyType`))
+                {
+                    const key = A.KeyType(i); // wrap in i in Nullable
+                }
+                else
+                {
+                    const key = i;
+                }
+                hitCount += a.contains(key);
             }
             const ok = hitCount = n; // for side effect in output
             assert(ok);
@@ -250,7 +276,15 @@ void main()
             size_t hitCount = 0;
             foreach (const i; 0 .. n)
             {
-                hitCount += cast(bool)(i in a);
+                static if (hasMember!(A, `KeyType`))
+                {
+                    const key = A.KeyType(i); // wrap in i in Nullable
+                }
+                else
+                {
+                    const key = i;
+                }
+                hitCount += cast(bool)(key in a);
             }
             const ok = hitCount = n; // for side effect in output
             assert(ok);
@@ -262,7 +296,15 @@ void main()
         immutable before = MonoTime.currTime();
         foreach (const i; 0 .. n)
         {
-            b.insert(A.ElementType(i, A.ValueType.init));
+            static if (hasMember!(A, `KeyType`))
+            {
+                const key = A.KeyType(i); // wrap in i in Nullable
+            }
+            else
+            {
+                const key = i;
+            }
+            b.insert(A.ElementType(key, A.ValueType.init));
         }
         immutable after = MonoTime.currTime();
         writef(", insert (no growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);

@@ -167,24 +167,14 @@ struct HashMapOrSet(K, V = void,
         import hacks : assumePureNogc;
         private pragma(inline, true):
 
-        static void[] allocate(size_t bytes) @safe
-        {
-            return Allocator.instance.allocate(bytes);
-        }
-
-        static bool deallocate(T[] bins) @system
-        {
-            return Allocator.instance.deallocate(bins);
-        }
-
         void[] allocateBins(size_t byteCount) const pure nothrow @nogc @system
         {
-            return assumePureNogc(&allocate)(T.sizeof*binCount);
+            return Allocator.instance.allocate(T.sizeof*binCount);
         }
 
         bool deallocateBins(T[] bins) pure nothrow @nogc @system
         {
-            return assumePureNogc(&deallocate)(bins);
+            return Allocator.instance.deallocate(bins);
         }
 
         public static typeof(this) withCapacity(size_t capacity) // template-lazy

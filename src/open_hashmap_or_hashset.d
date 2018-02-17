@@ -154,6 +154,12 @@ struct HashMapOrSet(K, V = void,
         return result;
     }
 
+    private pragma(inline, true)
+    void[] allocateBins(size_t byteCount) const pure nothrow @nogc @system
+    {
+        return Allocator.instance.allocate(T.sizeof*binCount);
+    }
+
     /** Make with room for storing at least `capacity` number of elements.
      *
      * TODO remove these hacks when a solution is proposed at
@@ -164,18 +170,7 @@ struct HashMapOrSet(K, V = void,
      */
     static if (is(typeof(Allocator) == immutable(PureMallocator)))
     {
-        private pragma(inline, true):
-
-        void[] allocateBins(size_t byteCount) const pure nothrow @nogc @system
-        {
-            return Allocator.instance.allocate(T.sizeof*binCount);
-        }
-
-        bool deallocateBins(T[] bins) pure nothrow @nogc @system
-        {
-            return Allocator.instance.deallocate(bins);
-        }
-
+        private pragma(inline, true)
         public static typeof(this) withCapacity(size_t capacity) // template-lazy
             @trusted
         {
@@ -185,9 +180,6 @@ struct HashMapOrSet(K, V = void,
     }
     else
     {
-        private:
-        alias allocateBins = allocate;
-        alias deallocateBins = deallocate;
         public alias withCapacity = withCapacity_;
     }
 
@@ -286,7 +278,7 @@ struct HashMapOrSet(K, V = void,
     void clear()()              // template-lazy
         @trusted pure
     {
-        deallocateBins(_bins);
+        Allocator.instance.deallocate(_bins);
         _bins = typeof(_bins).init;
         _count = 0;
     }

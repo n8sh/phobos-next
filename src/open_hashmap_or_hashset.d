@@ -36,7 +36,7 @@ import pure_mallocator : PureMallocator;
  * also: http://en.cppreference.com/w/cpp/container/unordered_set/merge. this
  * algorithm moves elements from source if they are not already in `this`
  */
-struct HashMapOrSet(K, V = void,
+struct OpenHashMapOrSet(K, V = void,
                     alias hasher = hashOf,
                     alias Allocator = PureMallocator.instance)
     if (isNullableType!K
@@ -403,9 +403,9 @@ struct HashMapOrSet(K, V = void,
 
     /** L-value element reference (and in turn range iterator).
      */
-    static private struct LvalueElementRef(SomeHashMapOrSet)
+    static private struct LvalueElementRef(SomeOpenHashMapOrSet)
     {
-        SomeHashMapOrSet* table;
+        SomeOpenHashMapOrSet* table;
         size_t iterationIndex;  // index to bin inside `table`
         size_t iterationCounter; // counter over number of elements popped
 
@@ -449,9 +449,9 @@ struct HashMapOrSet(K, V = void,
 
     /** R-value element reference (and in turn range iterator).
      */
-    static private struct RvalueElementRef(SomeHashMapOrSet)
+    static private struct RvalueElementRef(SomeOpenHashMapOrSet)
     {
-        SomeHashMapOrSet table; // owned
+        SomeOpenHashMapOrSet table; // owned
         size_t iterationIndex;  // index to bin inside table
         size_t iterationCounter; // counter over number of elements popped
 
@@ -498,7 +498,7 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Range over elements of l-value instance of this.
-        static private struct ByLvalueElement(SomeHashMapOrSet)
+        static private struct ByLvalueElement(SomeOpenHashMapOrSet)
         {
         pragma(inline, true):
             static if (is(T == class))
@@ -506,7 +506,7 @@ struct HashMapOrSet(K, V = void,
                 /// Get reference to front element (key and value).
                 @property scope auto front()() return
                 {
-                    /* cast away const from `SomeHashMapOrSet` for classes
+                    /* cast away const from `SomeOpenHashMapOrSet` for classes
                      * because class elements are currently hashed and compared
                      * compared using their identity (pointer value) `is`
                      */
@@ -521,12 +521,12 @@ struct HashMapOrSet(K, V = void,
                     return table._bins[iterationIndex];
                 }
             }
-            public LvalueElementRef!SomeHashMapOrSet _elementRef;
+            public LvalueElementRef!SomeOpenHashMapOrSet _elementRef;
             alias _elementRef this;
         }
 
         /// Range over elements of r-value instance of this.
-        static private struct ByRvalueElement(SomeHashMapOrSet)
+        static private struct ByRvalueElement(SomeOpenHashMapOrSet)
         {
         pragma(inline, true):
             static if (is(T == class))
@@ -534,7 +534,7 @@ struct HashMapOrSet(K, V = void,
                 /// Get reference to front element (key and value).
                 @property scope auto front()() return
                 {
-                    /* cast away const from `SomeHashMapOrSet` for classes
+                    /* cast away const from `SomeOpenHashMapOrSet` for classes
                      * because class elements are currently hashed and compared
                      * compared using their identity (pointer value) `is`
                      */
@@ -549,7 +549,7 @@ struct HashMapOrSet(K, V = void,
                     return table._bins[iterationIndex];
                 }
             }
-            public RvalueElementRef!SomeHashMapOrSet _elementRef;
+            public RvalueElementRef!SomeOpenHashMapOrSet _elementRef;
             alias _elementRef this;
         }
 
@@ -581,7 +581,7 @@ struct HashMapOrSet(K, V = void,
             }
         }
 
-        static private struct ByKey(SomeHashMapOrSet)
+        static private struct ByKey(SomeOpenHashMapOrSet)
         {
             pragma(inline, true):
             /// Get reference to key of front element.
@@ -589,7 +589,7 @@ struct HashMapOrSet(K, V = void,
             {
                 return table._bins[iterationIndex].key;
             }
-            public LvalueElementRef!SomeHashMapOrSet _elementRef;
+            public LvalueElementRef!SomeOpenHashMapOrSet _elementRef;
             alias _elementRef this;
         }
 
@@ -602,7 +602,7 @@ struct HashMapOrSet(K, V = void,
             return result;
         }
 
-        static private struct ByValue(SomeHashMapOrSet)
+        static private struct ByValue(SomeOpenHashMapOrSet)
         {
             pragma(inline, true):
             /// Get reference to value of front element.
@@ -610,7 +610,7 @@ struct HashMapOrSet(K, V = void,
             {
                 return *(cast(ValueType*)&table._bins[iterationIndex].value);
             }
-            public LvalueElementRef!SomeHashMapOrSet _elementRef;
+            public LvalueElementRef!SomeOpenHashMapOrSet _elementRef;
             alias _elementRef this;
         }
 
@@ -623,13 +623,13 @@ struct HashMapOrSet(K, V = void,
             return result;
         }
 
-        static private struct ByKeyValue(SomeHashMapOrSet)
+        static private struct ByKeyValue(SomeOpenHashMapOrSet)
         {
             pragma(inline, true):
             /// Get reference to front element (key and value).
             @property scope auto ref front()() return @trusted
             {
-                static if (isMutable!(SomeHashMapOrSet))
+                static if (isMutable!(SomeOpenHashMapOrSet))
                 {
                     alias E = CT;
                 }
@@ -639,7 +639,7 @@ struct HashMapOrSet(K, V = void,
                 }
                 return *(cast(E*)&table._bins[iterationIndex]);
             }
-            public LvalueElementRef!SomeHashMapOrSet _elementRef;
+            public LvalueElementRef!SomeOpenHashMapOrSet _elementRef;
             alias _elementRef this;
         }
 
@@ -775,25 +775,25 @@ private:
  */
 alias OpenHashSet(K,
                   alias hasher = hashOf,
-                  alias Allocator = PureMallocator.instance) = HashMapOrSet!(K, void, hasher, Allocator);
+                  alias Allocator = PureMallocator.instance) = OpenHashMapOrSet!(K, void, hasher, Allocator);
 
 /** Hash map storing keys of type `K` and values of type `V`.
  */
 alias OpenHashMap(K,
                   V,
                   alias hasher = hashOf,
-                  alias Allocator = PureMallocator.instance) = HashMapOrSet!(K, V, hasher, Allocator);
+                  alias Allocator = PureMallocator.instance) = OpenHashMapOrSet!(K, V, hasher, Allocator);
 
 import std.traits : isInstanceOf;
 
 /** Reset (remove) all elements in `x` matching `predicate`.
 */
-void resetAllMatching(alias predicate, SomeHashMapOrSet)(auto ref SomeHashMapOrSet x)
-    if (isInstanceOf!(HashMapOrSet,
-                      SomeHashMapOrSet))
+void resetAllMatching(alias predicate, SomeOpenHashMapOrSet)(auto ref SomeOpenHashMapOrSet x)
+    if (isInstanceOf!(OpenHashMapOrSet,
+                      SomeOpenHashMapOrSet))
 {
     size_t count = 0;
-    alias E = typeof(SomeHashMapOrSet._bins.init[0]);
+    alias E = typeof(SomeOpenHashMapOrSet._bins.init[0]);
     foreach (immutable i; 0 .. x._bins.length)
     {
         import std.functional : unaryFun;
@@ -810,9 +810,9 @@ void resetAllMatching(alias predicate, SomeHashMapOrSet)(auto ref SomeHashMapOrS
 /** Returns: `x` eagerly filtered on `predicate`.
     TODO move to container_algorithm.d.
 */
-SomeHashMapOrSet filtered(alias predicate, SomeHashMapOrSet)(SomeHashMapOrSet x)
-    if (isInstanceOf!(HashMapOrSet,
-                      SomeHashMapOrSet))
+SomeOpenHashMapOrSet filtered(alias predicate, SomeOpenHashMapOrSet)(SomeOpenHashMapOrSet x)
+    if (isInstanceOf!(OpenHashMapOrSet,
+                      SomeOpenHashMapOrSet))
 {
     import std.functional : not;
     x.resetAllMatching!(not!predicate);
@@ -824,8 +824,8 @@ SomeHashMapOrSet filtered(alias predicate, SomeHashMapOrSet)(SomeHashMapOrSet x)
     TODO move to container_algorithm.d.
  */
 auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
-    if (isInstanceOf!(HashMapOrSet, C1) &&
-        isInstanceOf!(HashMapOrSet, C2))
+    if (isInstanceOf!(OpenHashMapOrSet, C1) &&
+        isInstanceOf!(OpenHashMapOrSet, C2))
 {
     import std.algorithm.mutation : move;
     static if (__traits(isRef, y)) // y is l-value
@@ -853,7 +853,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 @safe pure nothrow @nogc unittest
 {
     alias K = Nullable!(uint, uint.max);
-    alias X = HashMapOrSet!(K, void, FNV!(64, true));
+    alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
 
     auto x0 = X.init;
     assert(x0.length == 0);
@@ -893,7 +893,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 @safe pure nothrow @nogc unittest
 {
     alias K = Nullable!(uint, uint.max);
-    alias X = HashMapOrSet!(K, void, FNV!(64, true));
+    alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
 
     auto y = X.withElements([K(10), K(12), K(13), K(15)].s).intersectedWith(X.withElements([K(12), K(13)].s));
     assert(y.length == 2);
@@ -906,8 +906,8 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
  */
 auto intersectWith(C1, C2)(ref C1 x,
                            auto ref const(C2) y)
-    if (isInstanceOf!(HashMapOrSet, C1) &&
-        isInstanceOf!(HashMapOrSet, C2))
+    if (isInstanceOf!(OpenHashMapOrSet, C1) &&
+        isInstanceOf!(OpenHashMapOrSet, C2))
 {
     return x.resetAllMatching!(_ => !y.contains(_));
 }
@@ -916,7 +916,7 @@ auto intersectWith(C1, C2)(ref C1 x,
 @safe pure nothrow @nogc unittest
 {
     alias K = Nullable!(uint, uint.max);
-    alias X = HashMapOrSet!(K, void, FNV!(64, true));
+    alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
 
     auto x = X.withElements([K(12), K(13)].s);
     auto y = X.withElements([K(10), K(12), K(13), K(15)].s);
@@ -929,12 +929,12 @@ auto intersectWith(C1, C2)(ref C1 x,
 /** Returns forward range that iterates through the elements of `c` in undefined
  * order.
  */
-auto byElement(SomeHashMapOrSet)(auto ref inout(SomeHashMapOrSet) c)
+auto byElement(SomeOpenHashMapOrSet)(auto ref inout(SomeOpenHashMapOrSet) c)
     @trusted
-    if (isInstanceOf!(HashMapOrSet,
-                      SomeHashMapOrSet))
+    if (isInstanceOf!(OpenHashMapOrSet,
+                      SomeOpenHashMapOrSet))
 {
-    alias C = const(SomeHashMapOrSet);
+    alias C = const(SomeOpenHashMapOrSet);
     static if (__traits(isRef, c))
     {
         auto result = C.ByLvalueElement!C((C.LvalueElementRef!C(cast(C*)&c)));
@@ -944,7 +944,7 @@ auto byElement(SomeHashMapOrSet)(auto ref inout(SomeHashMapOrSet) c)
     else
     {
         import std.algorithm.mutation : move;
-        auto result = C.ByRvalueElement!C((C.RvalueElementRef!C(move(*(cast(SomeHashMapOrSet*)&c))))); // reinterpret
+        auto result = C.ByRvalueElement!C((C.RvalueElementRef!C(move(*(cast(SomeOpenHashMapOrSet*)&c))))); // reinterpret
         result.findNextNonEmptyBin();
         return move(result);
     }
@@ -955,7 +955,7 @@ alias range = byElement;        // EMSI-container naming
 pure nothrow @nogc unittest
 {
     alias K = Nullable!(uint, uint.max);
-    alias X = HashMapOrSet!(K, void, FNV!(64, true));
+    alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
 
     immutable a = [K(11), K(22), K(33)].s;
 
@@ -994,7 +994,7 @@ pure nothrow @nogc unittest
     import std.meta : AliasSeq;
     foreach (V; AliasSeq!(void, string))
     {
-        alias X = HashMapOrSet!(K, V, FNV!(64, true));
+        alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
 
         static if (!X.hasValue)
         {
@@ -1277,7 +1277,7 @@ pure nothrow @nogc unittest
     alias K = Nullable!(uint, uint.max);
     alias V = uint;
 
-    alias X = HashMapOrSet!(K, V, FNV!(64, true));
+    alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
 
     auto s = X.withCapacity(n);
 
@@ -1325,7 +1325,7 @@ pure nothrow @nogc unittest
         uint data;
     }
 
-    alias X = HashMapOrSet!(K, V, FNV!(64, true));
+    alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
 
     auto s = X.withCapacity(n);
 
@@ -1377,7 +1377,7 @@ pure nothrow unittest
         uint data;
     }
 
-    alias X = HashMapOrSet!(K, V, FNV!(64, true));
+    alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
     const x = X();
 
     foreach (e; x.byKey)
@@ -1413,7 +1413,7 @@ pure nothrow unittest
         uint data;
     }
 
-    alias X = HashMapOrSet!(K, V, FNV!(64, true));
+    alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
     auto x = X();
 
     x[K(S(42))] = new V(43);

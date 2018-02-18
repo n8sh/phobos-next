@@ -148,7 +148,9 @@ struct OpenHashMapOrSet(K, V = void,
     static typeof(this) withCapacity(size_t capacity) // template-lazy
     {
         import std.math : nextPow2;
-        immutable powerOf2Capacity = capacity >= 3 ? nextPow2(capacity - 1) : capacity;
+        immutable powerOf2Capacity = nextPow2(capacity);
+        // dln("capacity:", capacity,
+        //     " powerOf2Capacity:", powerOf2Capacity);
 
         import std.experimental.allocator : makeArray;
         typeof(return) result;
@@ -183,6 +185,12 @@ struct OpenHashMapOrSet(K, V = void,
             that.insert(element);
         }
         return that;
+    }
+
+    /// Destruct.
+    ~this()
+    {
+        release();
     }
 
     /// No copying.
@@ -256,11 +264,30 @@ struct OpenHashMapOrSet(K, V = void,
 
     /// Empty.
     void clear()()              // template-lazy
-        @trusted pure
     {
-        Allocator.instance.deallocate(_bins);
+        release();
         _bins = typeof(_bins).init;
         _count = 0;
+    }
+
+    /// Release internal allocations.
+    void release()
+    {
+        foreach (immutable ix; 0 .. _bins.length)
+        {
+            static if (hasElaborateDestructor!T)
+            {
+                .destroy(_bins[ix]);
+            }
+        }
+        releaseBins();
+    }
+
+    /// Release internal allocations.
+    void releaseBins()
+        @trusted
+    {
+        Allocator.instance.deallocate(_bins);
     }
 
     version(LDC) { pragma(inline, true): } // needed for LDC to inline this, DMD cannot
@@ -320,9 +347,10 @@ struct OpenHashMapOrSet(K, V = void,
     /** Reserve rom for `extraCapacity` number of extra buckets. */
     void reserveExtra()(size_t extraCapacity)
     {
-        immutable newCapacity = _count + extraCapacity;
-        if (newCapacity * 2 > _bins.length)
+        immutable newCapacity = (_count + extraCapacity)*2;
+        if (newCapacity > _bins.length)
         {
+            // dln("newCapacity:", newCapacity, " _bins.length:", _bins.length);
             growWithNewCapacity(newCapacity);
         }
     }
@@ -330,7 +358,7 @@ struct OpenHashMapOrSet(K, V = void,
     /// Grow to make for `newCapacity` number of elements.
     private void growWithNewCapacity(size_t newCapacity) // not template-lazy
     {
-        auto copy = withCapacity(newCapacity);
+        typeof(this) copy = withCapacity(newCapacity);
 
         // move elements to copy
         foreach (immutable ix; 0 .. _bins.length)

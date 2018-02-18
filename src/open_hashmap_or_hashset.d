@@ -312,6 +312,11 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
+    /// Numerator for grow scale.
+    enum growScaleP = 3;
+    /// Denominator for grow scale.
+    enum growScaleQ = 4;
+
     /** Reserve rom for `extraCapacity` number of extra buckets. */
     void reserveExtra()(size_t extraCapacity)
     {
@@ -322,19 +327,10 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    /// Grow to `extraCapacity`.
+    /// Grow to make for `newCapacity` number of elements.
     private void growWithNewCapacity(size_t newCapacity) // not template-lazy
     {
-        size_t newBinCount = 0;
-        if (newCapacity == 1)
-        {
-            newBinCount = binCount ? 2 * binCount : 1; // 0 => 1, 1 => 2, 2 => 4, ...
-        }
-        else
-        {
-            newBinCount = newCapacity;
-        }
-        auto copy = withCapacity(newBinCount);
+        auto copy = withCapacity(newCapacity);
 
         // move elements to copy
         foreach (immutable ix; 0 .. _bins.length)

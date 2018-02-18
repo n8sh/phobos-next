@@ -145,6 +145,7 @@ struct OpenHashMapOrSet(K, V = void,
      * See also:
      * https://forum.dlang.org/post/nyngzsaeqxzzuumivtze@forum.dlang.org
      */
+    pragma(inline, true)
     static typeof(this) withCapacity(size_t capacity) // template-lazy
     {
         return typeof(return)(makeBins(capacity), 0);

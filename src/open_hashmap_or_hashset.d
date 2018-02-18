@@ -147,14 +147,15 @@ struct OpenHashMapOrSet(K, V = void,
      */
     static typeof(this) withCapacity(size_t capacity) // template-lazy
     {
+        return typeof(return)(makeBins(capacity), 0);
+    }
+
+    private static T[] makeBins(size_t capacity) @trusted
+    {
         import std.math : nextPow2;
         immutable powerOf2Capacity = nextPow2(capacity);
-
         import std.experimental.allocator : makeArray;
-        typeof(return) result;
-        result._bins = Allocator.makeArray!T(powerOf2Capacity, nullKeyElement);
-        result._count = 0;
-        return result;
+        return Allocator.makeArray!T(powerOf2Capacity, nullKeyElement);
     }
 
     private pragma(inline, true)

@@ -368,7 +368,7 @@ struct HashMapOrSet(K, V = void,
         resetInternalData();
     }
 
-    /// Release internal store.
+    /// Release internal allocations.
     private void release() @trusted
     {
         foreach (immutable binIx; 0 .. _bins.length)

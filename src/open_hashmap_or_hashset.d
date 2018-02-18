@@ -24,7 +24,7 @@ import pure_mallocator : PureMallocator;
  * TODO add extractElement that moves it out similar to
  * http://en.cppreference.com/w/cpp/container/unordered_set/extract
  *
- * TODO growWithExtraCapacity(): if allocator has realloc we can do rehashing in-place similar to
+ * TODO growWithNewCapacity(): if allocator has realloc we can do rehashing in-place similar to
  * reordering in in-place radix (integer_sorting.d), otherwise rehash into new
  * copy of bins and free old bins when done. If bin element count is >
  * 1 this is more complicated since each bin contains a set of elements to
@@ -315,23 +315,24 @@ struct OpenHashMapOrSet(K, V = void,
     /** Reserve rom for `extraCapacity` number of extra buckets. */
     void reserveExtra()(size_t extraCapacity)
     {
-        if ((_count + extraCapacity) * 2 > _bins.length)
+        immutable newCapacity = _count + extraCapacity;
+        if (newCapacity * 2 > _bins.length)
         {
-            growWithExtraCapacity(extraCapacity);
+            growWithNewCapacity(newCapacity);
         }
     }
 
-    /// Grow by duplicating number of bins.
-    private void growWithExtraCapacity(size_t extraCapacity) @trusted // not template-lazy
+    /// Grow to `extraCapacity`.
+    private void growWithNewCapacity(size_t newCapacity) // not template-lazy
     {
         size_t newBinCount = 0;
-        if (extraCapacity == 1)
+        if (newCapacity == 1)
         {
             newBinCount = binCount ? 2 * binCount : 1; // 0 => 1, 1 => 2, 2 => 4, ...
         }
         else
         {
-            newBinCount = _count + extraCapacity;
+            newBinCount = newCapacity;
         }
         auto copy = withCapacity(newBinCount);
 

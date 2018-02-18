@@ -149,8 +149,6 @@ struct OpenHashMapOrSet(K, V = void,
     {
         import std.math : nextPow2;
         immutable powerOf2Capacity = nextPow2(capacity);
-        // dln("capacity:", capacity,
-        //     " powerOf2Capacity:", powerOf2Capacity);
 
         import std.experimental.allocator : makeArray;
         typeof(return) result;
@@ -182,7 +180,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
         foreach (ref element; elements)
         {
-            that.insert(element);
+            that.insertWithoutGrowth(element);
         }
         return that;
     }
@@ -350,7 +348,6 @@ struct OpenHashMapOrSet(K, V = void,
         immutable newCapacity = (_count + extraCapacity)*2;
         if (newCapacity > _bins.length)
         {
-            // dln("newCapacity:", newCapacity, " _bins.length:", _bins.length);
             growWithNewCapacity(newCapacity);
         }
     }
@@ -370,7 +367,10 @@ struct OpenHashMapOrSet(K, V = void,
         }
         assert(copy._count == _count);
 
-        move(copy._bins, _bins);
+        releaseBins();
+        _bins = copy._bins;
+        copy._bins = null;
+        copy._count = 0;
 
         assert(_bins.length);
     }
@@ -1010,7 +1010,7 @@ pure nothrow @nogc unittest
 }
 
 /// test various things
-pure nothrow @nogc unittest
+@trusted pure nothrow @nogc unittest
 {
     immutable uint n = 600;
 
@@ -1536,5 +1536,4 @@ version(unittest)
     import std.typecons : Nullable;
     import digestx.fnv : FNV;
     import array_help : s;
-    import dbgio;
 }

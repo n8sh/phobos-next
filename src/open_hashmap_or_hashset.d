@@ -1437,6 +1437,61 @@ pure nothrow unittest
         static assert(is(typeof(e.key) == const(X.KeyType))); // const access to key
         static assert(is(typeof(e.value) == X.ValueType)); // mutable access to value
 
+        assert(e.key.value == 42);
+
+        assert(e.value.data == 43);
+
+        // value mutation side effects
+        e.value.data += 1;
+        assert(e.value.data == 44);
+        e.value.data -= 1;
+        assert(e.value.data == 43);
+    }
+}
+
+/// range key constness and value mutability with `class` key and `class` value
+pure nothrow unittest
+{
+    class K
+    {
+        this(uint value)
+        {
+            this.value = value;
+        }
+        uint value;
+    }
+
+    class V
+    {
+        this(uint data) { this.data = data; }
+        uint data;
+    }
+
+    alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
+    auto x = X();
+
+    x[new K(42)] = new V(43);
+
+    assert(x.length == 1);
+
+    foreach (e; x.byValue)      // `e` is auto ref
+    {
+        static assert(is(typeof(e) == X.ValueType)); // mutable access to value
+        assert(e.data == 43);
+
+        // value mutation side effects
+        e.data += 1;
+        assert(e.data == 44);
+        e.data -= 1;
+        assert(e.data == 43);
+    }
+
+    foreach (ref e; x.byKeyValue)   // `e` is auto ref
+    {
+        static assert(is(typeof(e.key) == const(X.KeyType))); // const access to key
+        static assert(is(typeof(e.value) == X.ValueType)); // mutable access to value
+
+        assert(e.key.value == 42);
         assert(e.value.data == 43);
 
         // value mutation side effects

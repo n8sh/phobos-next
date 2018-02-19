@@ -280,11 +280,11 @@ struct OpenHashMapOrSet(K, V = void,
                 .destroy(_bins[ix]);
             }
         }
-        releaseBins();
+        releaseBinsSlice();
     }
 
-    /// Release internal allocations.
-    void releaseBins()
+    /// Release bin slice.
+    void releaseBinsSlice()
         @trusted
     {
         Allocator.instance.deallocate(_bins);
@@ -369,7 +369,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
         assert(copy._count == _count);
 
-        releaseBins();
+        releaseBinsSlice();
         _bins = copy._bins;
         copy._bins = null;
         copy._count = 0;

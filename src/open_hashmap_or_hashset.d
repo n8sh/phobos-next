@@ -273,6 +273,14 @@ struct OpenHashMapOrSet(K, V = void,
     /// Release internal allocations.
     void release()
     {
+        releaseBinElements();
+        releaseBinsSlice();
+    }
+
+    /// Release bin elements.
+    void releaseBinElements()
+        @trusted
+    {
         foreach (immutable ix; 0 .. _bins.length)
         {
             static if (hasElaborateDestructor!T)
@@ -280,7 +288,6 @@ struct OpenHashMapOrSet(K, V = void,
                 .destroy(_bins[ix]);
             }
         }
-        releaseBinsSlice();
     }
 
     /// Release bin slice.

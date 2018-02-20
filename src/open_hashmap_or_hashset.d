@@ -44,8 +44,7 @@ struct OpenHashMapOrSet(K, V = void,
         )
 {
     import std.conv : emplace;
-    import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable, isMutable, hasIndirections;
-    import std.meta : Unqual;
+    import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable, isMutable, hasIndirections, Unqual;
     import std.algorithm.comparison : max;
     import std.algorithm.mutation : move, moveEmplace;
     import emplace_all : moveEmplaceAllNoReset;
@@ -363,23 +362,25 @@ struct OpenHashMapOrSet(K, V = void,
 
     /// Grow to make for `newCapacity` number of elements.
     private void growWithNewCapacity(size_t newCapacity) // not template-lazy
+        @trusted
     {
-        typeof(this) copy = withCapacity(newCapacity);
+        T[] oldBins = _bins;
+        debug immutable oldCount = _count;
+
+        _bins = makeBins(newCapacity); // replace with new bins
+        _count = 0;
 
         // move elements to copy
-        foreach (immutable ix; 0 .. _bins.length)
+        foreach (ref oldBin; oldBins)
         {
-            if (!keyOf(_bins[ix]).isNull)
+            if (!keyOf(oldBin).isNull)
             {
-                copy.insertMoveWithoutGrowth(_bins[ix]);
+                insertMoveWithoutGrowth(oldBin);
             }
         }
-        assert(copy._count == _count);
+        debug assert(oldCount == _count);
 
-        releaseBinsSlice();
-        _bins = copy._bins;
-        copy._bins = null;
-        copy._count = 0;
+        Allocator.instance.deallocate(oldBins);
 
         assert(_bins.length);
     }

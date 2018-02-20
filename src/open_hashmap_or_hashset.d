@@ -24,12 +24,6 @@ import pure_mallocator : PureMallocator;
  * TODO add extractElement that moves it out similar to
  * http://en.cppreference.com/w/cpp/container/unordered_set/extract
  *
- * TODO growWithNewCapacity(): if allocator has realloc we can do rehashing in-place similar to
- * reordering in in-place radix (integer_sorting.d), otherwise rehash into new
- * copy of bins and free old bins when done. If bin element count is >
- * 1 this is more complicated since each bin contains a set of elements to
- * swap out and must be put in a queue.
- *
  * TODO benchmark against https://github.com/greg7mdp/sparsepp
  *
  * TODO add merge or union algorithm here or into container_algorithm.d. See
@@ -361,7 +355,35 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /// Grow to make for `newCapacity` number of elements.
+    pragma(inline, true)
     private void growWithNewCapacity(size_t newCapacity) // not template-lazy
+    {
+        assert(newCapacity > _bins.length);
+        // static if (__traits(hasMember, PureMallocator, "reallocate"))
+        // {
+        //     auto rawBins = cast(void[])_bins;
+        //     if (Allocator.instance.reallocate(rawBins, T.sizeof*newCapacity))
+        //     {
+        //         // do in-place reordering
+        //         // [null, 12, 24, null, 2, 3, null]
+        //         import bitarray : BitArray;
+        //         while (counter < _bins.length)
+        //         {
+        //         }
+        //     }
+        //     else
+        //     {
+        //         static assert(0, "revert to standard expand");
+        //     }
+        //     auto doneBins = BitArray!().withLength(_bins.length);
+        // }
+        // else
+        {
+            growStandardWithNewCapacity(newCapacity);
+        }
+    }
+
+    private void growStandardWithNewCapacity(size_t newCapacity) // not template-lazy
         @trusted
     {
         T[] oldBins = _bins;

@@ -44,7 +44,6 @@ struct OpenHashMapOrSet(K, V = void,
     import emplace_all : moveEmplaceAllNoReset;
     import digestion : hashOf2;
     import probing : triangularProbeFromIndex;
-    // TODO activate and use import prime_modulo;
 
     /** In the hash map case, `V` is non-void, and a value is stored alongside
      * the key of type `K`.

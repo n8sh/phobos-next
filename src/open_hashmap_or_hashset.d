@@ -346,7 +346,7 @@ struct OpenHashMapOrSet(K, V = void,
     enum growScaleQ = 4;
 
     /** Reserve rom for `extraCapacity` number of extra buckets. */
-    void reserveExtra()(size_t extraCapacity)
+    void reserveExtra(size_t extraCapacity) // not template-lazy
     {
         immutable newCapacity = (_count + extraCapacity)*2;
         if (newCapacity > _bins.length)

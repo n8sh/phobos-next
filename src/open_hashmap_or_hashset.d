@@ -42,7 +42,7 @@ struct OpenHashMapOrSet(K, V = void,
     import std.conv : emplace;
     import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable, isMutable, hasIndirections, Unqual;
     import std.algorithm.comparison : max;
-    import std.algorithm.mutation : move, moveEmplace;
+    import std.algorithm.mutation : move;
     import emplace_all : moveEmplaceAllNoReset;
     import digestion : hashOf2;
     import probing : triangularProbeFromIndex;
@@ -362,21 +362,7 @@ struct OpenHashMapOrSet(K, V = void,
         assert(newCapacity > _bins.length);
         // static if (__traits(hasMember, PureMallocator, "reallocate"))
         // {
-        //     auto rawBins = cast(void[])_bins;
-        //     if (Allocator.instance.reallocate(rawBins, T.sizeof*newCapacity))
-        //     {
-        //         // do in-place reordering
-        //         // [null, 12, 24, null, 2, 3, null]
-        //         import bitarray : BitArray;
-        //         while (counter < _bins.length)
-        //         {
-        //         }
-        //     }
-        //     else
-        //     {
-        //         static assert(0, "revert to standard expand");
-        //     }
-        //     auto doneBins = BitArray!().withLength(_bins.length);
+        //     growInPlaceWithNewCapacity(newCapacity);
         // }
         // else
         {
@@ -384,9 +370,76 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
+    /** Grow store in-place to make room for `newCapacity` number of elements.
+     */
+    private void growInPlaceWithNewCapacity(size_t newCapacity) // not template-lazy
+        @trusted
+    {
+        assert(newCapacity > _bins.length);
+
+        immutable oldLength = _bins.length;
+        auto rawBins = cast(void[])_bins;
+        import dbgio;
+        dln("_bins.length:", _bins.length, " => rawBins.length", rawBins.length);
+        if (Allocator.instance.reallocate(rawBins, T.sizeof*newCapacity))
+        {
+            // TODO make this an array operation `nullifyAll` or `nullifyN`
+            foreach (ref bin; _bins[oldLength .. newCapacity])
+            {
+                keyOf(bin).nullify(); // move this `init` to reallocate() above?
+            }
+
+            import bitarray : BitArray;
+            auto dones = BitArray!().withLength(_bins.length);
+            foreach (immutable doneIndex; 0 .. dones.length)
+            {
+                if (!dones[doneIndex]) // if _bins[doneIndex] not yet ready
+                {
+                    if (!keyOf(_bins[doneIndex]).isNull) // if non-empty bin
+                    {
+                        import std.algorithm.mutation : moveEmplace;
+
+                        size_t currentIndex = doneIndex;
+                        T currentElement = void;
+                        moveEmplace(_bins[doneIndex], currentElement);
+
+                        while (true)
+                        {
+                            immutable startIndex = hashToIndex(hashOf2!(hasher)(keyOf(_bins[currentIndex])));
+                            immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => (keyOf(_) is keyOf(_bins[currentIndex]) ||
+                                                                                         keyOf(_).isNull))(startIndex);
+                            assert(hitIndex != _bins.length, "no free slot");
+
+                            if (keyOf(_bins[hitIndex]).isNull()) // if free slot found
+                            {
+                                moveEmplace(currentElement, _bins[hitIndex]);
+                                dones[hitIndex] = true; // _bins[hitIndex] is at it's correct position
+                                break; // inner iteration is finished
+                            }
+                            else // if no free slot
+                            {
+                                T nextElement = void;
+                                moveEmplace(_bins[hitIndex], nextElement); // save non-free slot
+                                moveEmplace(currentElement, _bins[hitIndex]);
+                                dones[hitIndex] = true; // _bins[hitIndex] is at it's correct position
+                            }
+                        }
+                    }
+                    dones[doneIndex] = true; // _bins[doneIndex] is at it's correct position
+                }
+            }
+            _bins = cast(T[])rawBins;
+        }
+        else
+        {
+            assert(0, "Allocator couldn't reallocate");
+        }
+    }
+
     private void growStandardWithNewCapacity(size_t newCapacity) // not template-lazy
         @trusted
     {
+        assert(newCapacity > _bins.length);
         T[] oldBins = _bins;
         debug immutable oldCount = _count;
 

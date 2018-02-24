@@ -27,7 +27,7 @@ struct PureMallocator
         @trusted
     {
         import core.memory : pureMalloc;
-        if (!bytes) return null;
+        if (!bytes) { return null; }
         void* p = pureMalloc(bytes);
         return p ? p[0 .. bytes] : null;
     }
@@ -37,7 +37,7 @@ struct PureMallocator
         @trusted
     {
         import core.memory : pureCalloc;
-        if (!bytes) return null;
+        if (!bytes) { return null; }
         void* p = pureCalloc(bytes, 1);
         return p ? p[0 .. bytes] : null;
     }
@@ -66,7 +66,7 @@ struct PureMallocator
             return true;
         }
         ubyte* p = cast(ubyte*)pureRealloc(b.ptr, s);
-        if (!p) return false;
+        if (!p) { return false; }
         b = p[0 .. s];
         return true;
     }

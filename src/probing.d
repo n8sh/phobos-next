@@ -39,6 +39,10 @@ size_t triangularProbeFromIndex(alias predicate,
                 return index;
             }
         }
+        else
+        {
+            static assert(0, "unsupported predicate");
+        }
         indexIncrement += 1;
         index = (index + indexIncrement) & mask; // next triangular number modulo length
     }

@@ -60,10 +60,11 @@ size_t triangularProbeFromIndex(alias elementPredicate,
     // any key misses
     assert(haystack.triangularProbeFromIndex!(elementPredicate)(0) == haystack.length);
 
-    alias indexPredicate = _ => _;
+    // any key misses with always true index-predicate
+    assert(haystack.triangularProbeFromIndex!(elementPredicate, _ => true)(0) == haystack.length);
 
-    // any key misses with index-predicate
-    assert(haystack.triangularProbeFromIndex!(elementPredicate, indexPredicate)(0) == haystack.length);
+    // any key misses with always false index-predicate
+    assert(haystack.triangularProbeFromIndex!(elementPredicate, _ => false)(0) == haystack.length);
 }
 
 /// generic case
@@ -88,8 +89,14 @@ size_t triangularProbeFromIndex(alias elementPredicate,
         // key hit
         assert(haystack.triangularProbeFromIndex!(elementHitPredicate)(lengthPower) != haystack.length);
 
+        // key miss because of always false index predicate
+        assert(haystack.triangularProbeFromIndex!(elementHitPredicate, _ => false)(lengthPower) == haystack.length);
+
         // key miss
         assert(haystack.triangularProbeFromIndex!(elementMissPredicate)(lengthPower) == haystack.length);
+
+        // key miss regardless of always true index predicate
+        assert(haystack.triangularProbeFromIndex!(elementMissPredicate, _ => true)(lengthPower) == haystack.length);
     }
 }
 

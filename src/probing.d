@@ -25,13 +25,19 @@ size_t triangularProbeFromIndex(alias elementPredicate,
     size_t indexIncrement = 0;
     while (indexIncrement != haystack.length)
     {
-        static if (!is(typeof(indexPredicate) == typeof(null)))
-        {
-            pragma(msg, "TODO");
-        }
         if (unaryFun!elementPredicate(haystack[index]))
         {
-            return index;
+            static if (!is(typeof(indexPredicate) == typeof(null))) // if index-predicate was given
+            {
+                if (unaryFun!indexPredicate(index)) // use it
+                {
+                    return index;
+                }
+            }
+            else
+            {
+                return index;
+            }
         }
         indexIncrement += 1;
         index = (index + indexIncrement) & mask;
@@ -52,9 +58,15 @@ size_t triangularProbeFromIndex(alias elementPredicate,
     immutable hitKey = T(42); // key to store
     auto haystack = new T[length];
 
-    // any key misses
     alias elementPredicate = _ => (_ is hitKey || _.isNull);
+
+    // any key misses
     assert(haystack.triangularProbeFromIndex!(elementPredicate)(0) == haystack.length);
+
+    alias indexPredicate = _ => _;
+
+    // any key misses with index-predicate
+    assert(haystack.triangularProbeFromIndex!(elementPredicate, indexPredicate)(0) == haystack.length);
 }
 
 /// generic case

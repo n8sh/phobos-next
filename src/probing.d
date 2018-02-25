@@ -40,7 +40,7 @@ size_t triangularProbeFromIndex(alias elementPredicate,
             }
         }
         indexIncrement += 1;
-        index = (index + indexIncrement) & mask;
+        index = (index + indexIncrement) & mask; // next triangular number modulo length
     }
 
     return haystack.length;

@@ -6,7 +6,7 @@ import std.functional : unaryFun;
 
 /** Search for a key in `haystack` matching `elementPredicate` starting at
  * `index` in steps of triangular numbers, 0,1,3,6,10,15,21, ... . Optional
- * predicate `indexPredicate` (when non-void) matches the index of a given
+ * predicate `indexPredicate` (when non-`null`) matches the index of a given
  * element.
  *
  * Returns: index into `haystack` upon hit, `haystack.length` upon miss.
@@ -25,6 +25,10 @@ size_t triangularProbeFromIndex(alias elementPredicate,
     size_t indexIncrement = 0;
     while (indexIncrement != haystack.length)
     {
+        static if (!is(typeof(indexPredicate) == typeof(null)))
+        {
+            pragma(msg, "TODO");
+        }
         if (unaryFun!elementPredicate(haystack[index]))
         {
             return index;

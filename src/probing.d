@@ -77,7 +77,7 @@ size_t triangularProbeFromIndex(alias predicate,
         haystack[] = T(17);     // make haystack full
         haystack[$/2] = hitKey;
 
-        alias elementHitPredicate = element => (element is hitKey || element.isNull)x;
+        alias elementHitPredicate = element => (element is hitKey || element.isNull);
         alias elementMissPredicate = element => (element is missKey || element.isNull);
 
         // key hit

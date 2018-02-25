@@ -4,14 +4,18 @@ module probing;
 
 import std.functional : unaryFun;
 
-/** Search for a key in `haystack` matching `elementPredicate` starting at `index` in
- * steps of triangular numbers, 0,1,3,6,10,15,21, ... .
+/** Search for a key in `haystack` matching `elementPredicate` starting at
+ * `index` in steps of triangular numbers, 0,1,3,6,10,15,21, ... . Optional
+ * predicate `indexPredicate` (when non-void) matches the index of a given
+ * element.
  *
  * Returns: index into `haystack` upon hit, `haystack.length` upon miss.
  * Note: `haystack.length` must be a power of two (or 1 or zero).
  * See also: https://fgiesen.wordpress.com/2015/02/22/triangular-numbers-mod-2n/
  */
-size_t triangularProbeFromIndex(alias elementPredicate, alias indexPredicate, T)(const scope T[] haystack, size_t index)
+size_t triangularProbeFromIndex(alias elementPredicate,
+                                alias indexPredicate = null,
+                                T)(const scope T[] haystack, size_t index)
     if (is(typeof(unaryFun!elementPredicate(T.init))))
 {
     immutable typeof(return) mask = haystack.length - 1;
@@ -46,8 +50,7 @@ size_t triangularProbeFromIndex(alias elementPredicate, alias indexPredicate, T)
 
     // any key misses
     alias elementPredicate = _ => (_ is hitKey || _.isNull);
-    enum indexPredicate = null;
-    assert(haystack.triangularProbeFromIndex!(elementPredicate, indexPredicate)(0) == haystack.length);
+    assert(haystack.triangularProbeFromIndex!(elementPredicate)(0) == haystack.length);
 }
 
 /// generic case
@@ -68,13 +71,12 @@ size_t triangularProbeFromIndex(alias elementPredicate, alias indexPredicate, T)
 
         alias elementHitPredicate = _ => (_ is hitKey || _.isNull);
         alias elementMissPredicate = _ => (_ is missKey || _.isNull);
-        enum indexPredicate = null;
 
         // key hit
-        assert(haystack.triangularProbeFromIndex!(elementHitPredicate, indexPredicate)(lengthPower) != haystack.length);
+        assert(haystack.triangularProbeFromIndex!(elementHitPredicate)(lengthPower) != haystack.length);
 
         // key miss
-        assert(haystack.triangularProbeFromIndex!(elementMissPredicate, indexPredicate)(lengthPower) == haystack.length);
+        assert(haystack.triangularProbeFromIndex!(elementMissPredicate)(lengthPower) == haystack.length);
     }
 }
 

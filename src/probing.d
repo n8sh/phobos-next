@@ -51,9 +51,6 @@ size_t triangularProbeFromIndex(alias elementPredicate,
 {
     alias T = Nullable!int;
 
-    immutable mask = size_t.min - 1;
-    assert((~mask ^ mask) == typeof(mask).max); // std.math.isPowerOf2(haystack.length)
-
     immutable length = 0;
     immutable hitKey = T(42); // key to store
     auto haystack = new T[length];

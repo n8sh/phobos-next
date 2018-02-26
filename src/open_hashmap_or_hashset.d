@@ -382,7 +382,7 @@ struct OpenHashMapOrSet(K, V = void,
         immutable oldLength = _bins.length;
         auto rawBins = cast(void[])_bins;
 
-        import dbgio;
+        // import dbgio;
         // dln(" _bins.length:", _bins.length,
         //     " rawBins.length:", rawBins.length,
         //     " powerOf2newCapacity:", powerOf2newCapacity);
@@ -401,7 +401,7 @@ struct OpenHashMapOrSet(K, V = void,
             auto dones = BitArray!().withLength(_bins.length);
             foreach (immutable doneIndex; 0 .. dones.length)
             {
-                dln("doneIndex:", doneIndex, " dones:", dones[doneIndex], " length:", _bins.length);
+                // dln("doneIndex:", doneIndex, " dones:", dones[doneIndex], " length:", _bins.length);
                 if (!dones[doneIndex] && // if _bins[doneIndex] not yet ready
                     !keyOf(_bins[doneIndex]).isNull) // and non-null
                 {
@@ -420,7 +420,7 @@ struct OpenHashMapOrSet(K, V = void,
                         assert(hitIndex != _bins.length, "no free slot");
 
                         dones[hitIndex] = true; // _bins[hitIndex] will be at it's correct position
-                        dln("startIndex:", startIndex, " hitIndex:", hitIndex, " isNull:", keyOf(_bins[hitIndex]).isNull());
+                        // dln("startIndex:", startIndex, " hitIndex:", hitIndex, " isNull:", keyOf(_bins[hitIndex]).isNull());
 
                         if (keyOf(_bins[hitIndex]).isNull()) // if free slot found
                         {

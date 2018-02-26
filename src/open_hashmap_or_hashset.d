@@ -412,6 +412,8 @@ struct OpenHashMapOrSet(K, V = void,
                     import std.algorithm.mutation : moveEmplace;
 
                     T currentElement = void;
+
+                    // TODO functionize:
                     moveEmplace(_bins[doneIndex], currentElement);
                     keyOf(_bins[doneIndex]).nullify();
                     static if (hasValue && hasElaborateDestructor!V)
@@ -444,7 +446,15 @@ struct OpenHashMapOrSet(K, V = void,
                         else // if no free slot
                         {
                             T nextElement = void;
+                            // TODO functionize:
                             moveEmplace(_bins[hitIndex], nextElement); // save non-free slot
+                            keyOf(_bins[hitIndex]).nullify();
+                            static if (hasValue && hasElaborateDestructor!V)
+                            {
+                                valueOf(_bins[hitIndex]) = V.init;
+                                // TODO instead do only .destroy(valueOf(_bins[hitIndex])); and emplace values
+                            }
+
                             moveEmplace(currentElement, _bins[hitIndex]);
                             moveEmplace(nextElement, currentElement);
                             // dln("startIndex:", startIndex,

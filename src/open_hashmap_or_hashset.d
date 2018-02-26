@@ -883,6 +883,7 @@ struct OpenHashMapOrSet(K, V = void,
 private:
     T[] _bins;            // bin elements
     size_t _count;        // total number of non-null elements stored in `_bins`
+    size_t* _dels;        // elements in bin that has been deleted
 
     /** Returns: bin index of `key`. */
     pragma(inline, true)

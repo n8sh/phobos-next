@@ -259,18 +259,20 @@ struct OpenHashMapOrSet(K, V = void,
 
     static if (mutableFlag)
     {
+    pragma(inline, true):
     private:
 
-        enum bits = 8*size_t.sizeof;
+        enum blockBits = 8*size_t.sizeof;
 
-        size_t binChunkCount()
+        size_t binBlockCount() const
         {
-            return _bins.length / bits + (_bins.length % bits ? 1 : 0);
+            return (_bins.length / blockBits +
+                    (_bins.length % blockBits ? 1 : 0));
         }
 
-        size_t[] removeTags() @trusted
+        inout(size_t)[] removeTags() inout @trusted
         {
-            return _removeTags[0 .. binChunkCount];
+            return _removeTags[0 .. binBlockCount];
         }
     }
 

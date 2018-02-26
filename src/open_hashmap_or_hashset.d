@@ -402,40 +402,38 @@ struct OpenHashMapOrSet(K, V = void,
             auto dones = BitArray!().withLength(_bins.length);
             foreach (immutable doneIndex; 0 .. dones.length)
             {
-                // dln("doneIndex:", doneIndex, " dones:", dones[doneIndex]);
-                if (!dones[doneIndex]) // if _bins[doneIndex] not yet ready
+                dln("doneIndex:", doneIndex, " dones:", dones[doneIndex], " length:", _bins.length);
+                if (!dones[doneIndex] && // if _bins[doneIndex] not yet ready
+                    !keyOf(_bins[doneIndex]).isNull) // and non-null
                 {
-                    if (!keyOf(_bins[doneIndex]).isNull) // if non-empty bin
+                    import std.algorithm.mutation : moveEmplace;
+
+                    size_t currentIndex = doneIndex;
+                    T currentElement = void;
+                    moveEmplace(_bins[doneIndex], currentElement);
+
+                    while (true)
                     {
-                        import std.algorithm.mutation : moveEmplace;
+                        immutable startIndex = hashToIndex(hashOf2!(hasher)(keyOf(currentElement)));
+                        alias predicate = (index, element) => (keyOf(element).isNull || // free slot or
+                                                               !dones[index]); // or a not yet replaced element
+                        immutable hitIndex = _bins[].triangularProbeFromIndex!(predicate)(startIndex);
+                        assert(hitIndex != _bins.length, "no free slot");
 
-                        size_t currentIndex = doneIndex;
-                        T currentElement = void;
-                        moveEmplace(_bins[doneIndex], currentElement);
+                        dones[hitIndex] = true; // _bins[hitIndex] will be at it's correct position
+                        dln("startIndex:", startIndex, " hitIndex:", hitIndex, " isNull:", keyOf(_bins[hitIndex]).isNull());
 
-                        while (true)
+                        if (keyOf(_bins[hitIndex]).isNull()) // if free slot found
                         {
-                            immutable startIndex = hashToIndex(hashOf2!(hasher)(keyOf(currentElement)));
-                            alias predicate = (index, element) => (keyOf(element).isNull || // free slot or
-                                                                   !dones[index]); // or a not yet replaced element
-                            immutable hitIndex = _bins[].triangularProbeFromIndex!(predicate)(startIndex);
-                            assert(hitIndex != _bins.length, "no free slot");
-
-                            dones[hitIndex] = true; // _bins[hitIndex] will be at it's correct position
-                            dln("startIndex:", startIndex, " hitIndex:", hitIndex, " isNull:", keyOf(_bins[hitIndex]).isNull());
-
-                            if (keyOf(_bins[hitIndex]).isNull()) // if free slot found
-                            {
-                                moveEmplace(currentElement, _bins[hitIndex]);
-                                break; // inner iteration is finished
-                            }
-                            else // if no free slot
-                            {
-                                T nextElement = void;
-                                moveEmplace(_bins[hitIndex], nextElement); // save non-free slot
-                                moveEmplace(currentElement, _bins[hitIndex]);
-                                currentElement = nextElement;
-                            }
+                            moveEmplace(currentElement, _bins[hitIndex]); // TODO currentElement doesn't need to be reset
+                            break; // inner iteration is finished
+                        }
+                        else // if no free slot
+                        {
+                            T nextElement = void;
+                            moveEmplace(_bins[hitIndex], nextElement); // save non-free slot
+                            moveEmplace(currentElement, _bins[hitIndex]);
+                            currentElement = nextElement;
                         }
                     }
                     dones[doneIndex] = true; // _bins[doneIndex] is at it's correct position

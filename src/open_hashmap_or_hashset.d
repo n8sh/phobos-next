@@ -341,14 +341,14 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /// Numerator for grow scale.
-    enum growScaleP = 3;
+    enum growScaleP = 2;
     /// Denominator for grow scale.
-    enum growScaleQ = 4;
+    enum growScaleQ = 1;
 
     /** Reserve rom for `extraCapacity` number of extra buckets. */
     void reserveExtra(size_t extraCapacity) // not template-lazy
     {
-        immutable newCapacity = (_count + extraCapacity)*2;
+        immutable newCapacity = (_count + extraCapacity)*growScaleP/growScaleQ;
         if (newCapacity > _bins.length)
         {
             growWithNewCapacity(newCapacity);
@@ -360,11 +360,11 @@ struct OpenHashMapOrSet(K, V = void,
     private void growWithNewCapacity(size_t newCapacity) // not template-lazy
     {
         assert(newCapacity > _bins.length);
-        // static if (__traits(hasMember, PureMallocator, "reallocate"))
-        // {
-        //     growInPlaceWithNewCapacity(newCapacity);
-        // }
-        // else
+        static if (__traits(hasMember, PureMallocator, "reallocate"))
+        {
+            growInPlaceWithNewCapacity(newCapacity);
+        }
+        else
         {
             growStandardWithNewCapacity(newCapacity);
         }
@@ -379,11 +379,21 @@ struct OpenHashMapOrSet(K, V = void,
 
         immutable oldLength = _bins.length;
         auto rawBins = cast(void[])_bins;
+
         import dbgio;
-        dln("_bins.length:", _bins.length, " => rawBins.length", rawBins.length);
+
+        // dln(" _bins.length:", _bins.length,
+        //     " rawBins.length:", rawBins.length,
+        //     " newCapacity:", newCapacity);
+
         if (Allocator.instance.reallocate(rawBins, T.sizeof*newCapacity))
         {
+            // dln("bins.ptr:", _bins.ptr, " ", _bins.length);
+            _bins = cast(T[])rawBins;
+            // dln("bins.ptr:", _bins.ptr, " ", _bins.length);
+
             // TODO make this an array operation `nullifyAll` or `nullifyN`
+            // dln(oldLength, " : ", newCapacity);
             foreach (ref bin; _bins[oldLength .. newCapacity])
             {
                 keyOf(bin).nullify(); // move this `init` to reallocate() above?
@@ -393,6 +403,7 @@ struct OpenHashMapOrSet(K, V = void,
             auto dones = BitArray!().withLength(_bins.length);
             foreach (immutable doneIndex; 0 .. dones.length)
             {
+                // dln("doneIndex:", doneIndex, " dones:", dones[doneIndex]);
                 if (!dones[doneIndex]) // if _bins[doneIndex] not yet ready
                 {
                     if (!keyOf(_bins[doneIndex]).isNull) // if non-empty bin
@@ -405,15 +416,18 @@ struct OpenHashMapOrSet(K, V = void,
 
                         while (true)
                         {
-                            immutable startIndex = hashToIndex(hashOf2!(hasher)(keyOf(_bins[currentIndex])));
-                            immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => (keyOf(_) is keyOf(_bins[currentIndex]) ||
-                                                                                         keyOf(_).isNull))(startIndex);
+                            immutable startIndex = hashToIndex(hashOf2!(hasher)(keyOf(currentElement)));
+                            alias predicate = (index, element) => (keyOf(element).isNull || // free slot or
+                                                                   !dones[index]); // or a not yet replaced element
+                            immutable hitIndex = _bins[].triangularProbeFromIndex!(predicate)(startIndex);
                             assert(hitIndex != _bins.length, "no free slot");
+
+                            dones[hitIndex] = true; // _bins[hitIndex] will be at it's correct position
+                            // dln("startIndex:", startIndex, " hitIndex:", hitIndex, " isNull:", keyOf(_bins[hitIndex]).isNull());
 
                             if (keyOf(_bins[hitIndex]).isNull()) // if free slot found
                             {
                                 moveEmplace(currentElement, _bins[hitIndex]);
-                                dones[hitIndex] = true; // _bins[hitIndex] is at it's correct position
                                 break; // inner iteration is finished
                             }
                             else // if no free slot
@@ -421,14 +435,13 @@ struct OpenHashMapOrSet(K, V = void,
                                 T nextElement = void;
                                 moveEmplace(_bins[hitIndex], nextElement); // save non-free slot
                                 moveEmplace(currentElement, _bins[hitIndex]);
-                                dones[hitIndex] = true; // _bins[hitIndex] is at it's correct position
+                                currentElement = nextElement;
                             }
                         }
                     }
                     dones[doneIndex] = true; // _bins[doneIndex] is at it's correct position
                 }
             }
-            _bins = cast(T[])rawBins;
         }
         else
         {

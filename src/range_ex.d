@@ -178,7 +178,7 @@ struct SlidingSplitter(Range)
          !isInfinite!Range))
 {
     import std.range: isForwardRange;
-    import std.meta : Unqual;
+    import std.traits : Unqual;
     import std.typecons : Tuple, tuple;
     alias R = Unqual!Range;
 
@@ -592,7 +592,8 @@ auto adjacentTuples(size_t N, R)(R r)
 {
     struct Range(R)
     {
-        import std.meta : Unqual, Tuple;
+        import std.traits : Unqual;
+        import std.typecons : Tuple;
         alias E = Unqual!(ElementType!R);
         enum M = N - 1;  // temporary order
         alias P = E[M];

@@ -397,21 +397,30 @@ struct OpenHashMapOrSet(K, V = void,
                 keyOf(bin).nullify(); // move this `init` to reallocate() above?
             }
 
-            import dbgio;
-            dln("starting with:", _bins);
+            // import dbgio;
+            // dln("starting with:", _bins);
 
             import bitarray : BitArray;
             auto dones = BitArray!().withLength(_bins.length);
             foreach (immutable doneIndex; 0 .. dones.length)
             {
-                dln("doneIndex:", doneIndex, " dones:", dones[doneIndex], " length:", _bins.length);
                 if (!dones[doneIndex] && // if _bins[doneIndex] not yet ready
                     !keyOf(_bins[doneIndex]).isNull) // and non-null
                 {
+                    // dln("doneIndex:", doneIndex, " dones:", dones[doneIndex], " length:", _bins.length);
+
                     import std.algorithm.mutation : moveEmplace;
 
                     T currentElement = void;
                     moveEmplace(_bins[doneIndex], currentElement);
+                    keyOf(_bins[doneIndex]).nullify();
+                    static if (hasValue && hasElaborateDestructor!V)
+                    {
+                        valueOf(_bins[doneIndex]) = V.init;
+                        // TODO instead do only .destroy(valueOf(_bins[hitIndex])); and emplace values
+                    }
+
+                    assert(keyOf(_bins[doneIndex]).isNull);
 
                     while (true)
                     {
@@ -425,11 +434,11 @@ struct OpenHashMapOrSet(K, V = void,
 
                         if (keyOf(_bins[hitIndex]).isNull()) // if free slot found
                         {
-                            moveEmplace(currentElement, _bins[hitIndex]); // TODO currentElement doesn't need to be reset
-                            dln("startIndex:", startIndex,
-                                " hitIndex:", hitIndex,
-                                " currentElement:", currentElement,
-                                " isNull:", keyOf(_bins[hitIndex]).isNull(), " bins:", _bins);
+                            moveEmplace(currentElement, _bins[hitIndex]);
+                            // dln("startIndex:", startIndex,
+                            //     " hitIndex:", hitIndex,
+                            //     " currentElement:", currentElement,
+                            //     " isNull:", keyOf(_bins[hitIndex]).isNull(), " bins:", _bins);
                             break; // inner iteration is finished
                         }
                         else // if no free slot
@@ -437,12 +446,12 @@ struct OpenHashMapOrSet(K, V = void,
                             T nextElement = void;
                             moveEmplace(_bins[hitIndex], nextElement); // save non-free slot
                             moveEmplace(currentElement, _bins[hitIndex]);
-                            currentElement = nextElement;
-                            dln("startIndex:", startIndex,
-                                " hitIndex:", hitIndex,
-                                " currentElement:", currentElement,
-                                " nextElement:", nextElement,
-                                " isNull:", keyOf(_bins[hitIndex]).isNull(), " bins:", _bins);
+                            moveEmplace(nextElement, currentElement);
+                            // dln("startIndex:", startIndex,
+                            //     " hitIndex:", hitIndex,
+                            //     " currentElement:", currentElement,
+                            //     " nextElement:", nextElement,
+                            //     " isNull:", keyOf(_bins[hitIndex]).isNull(), " bins:", _bins);
                         }
                     }
                     dones[doneIndex] = true; // _bins[doneIndex] is at it's correct position
@@ -856,11 +865,10 @@ struct OpenHashMapOrSet(K, V = void,
         if (hitIndex != _bins.length) // if hit
         {
             keyOf(_bins[hitIndex]).nullify();
-            static if (hasValue &&
-                       hasElaborateDestructor!V)
+            static if (hasValue && hasElaborateDestructor!V)
             {
                 valueOf(_bins[hitIndex]) = V.init;
-                // TODO instead do only .destroy(valueOf(_bins[hitIndex]));
+                // TODO instead do only .destroy(valueOf(_bins[hitIndex])); and emplace values
             }
             _count -= 1;
             return true;

@@ -9,7 +9,7 @@ module leb128;
 
 import std.range : isOutputRange;
 import std.traits : isUnsigned, isSigned;
-import std.meta : Unqual;
+import std.traits : Unqual;
 
 /// Encode a LEB128-encoded value of signed integer type `SInt` to `os`.
 void encodeLEB128(SInt, Output)(ref Output os, Unqual!SInt value)

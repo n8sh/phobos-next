@@ -83,7 +83,7 @@ struct HashMapOrSet(K, V = void,
 {
     import std.conv : emplace;
     import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable, isMutable, hasIndirections;
-    import std.meta : Unqual;
+    import std.traits : Unqual;
     import std.algorithm.comparison : max;
     import std.algorithm.mutation : move, moveEmplace;
     import emplace_all : moveEmplaceAllNoReset;

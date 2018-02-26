@@ -3,8 +3,8 @@
  */
 module bijections;
 
-import std.meta : Unqual, AliasSeq, staticIndexOf;
-import std.traits : isUnsigned, isSigned, isIntegral, Unsigned, Signed, isNumeric, isSomeChar;
+import std.meta : AliasSeq, staticIndexOf;
+import std.traits : Unqual, isUnsigned, isSigned, isIntegral, Unsigned, Signed, isNumeric, isSomeChar;
 
 /** List of types that are bijectable to builtin integral types. */
 alias IntegralBijectableTypes = AliasSeq!(bool, char, wchar, dchar,

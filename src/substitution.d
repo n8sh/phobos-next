@@ -7,7 +7,7 @@
 module substitution;
 
 import std.range : isInputRange, ElementType;
-import std.meta : Unqual;
+import std.traits : Unqual;
 import std.typecons : Tuple;
 import std.traits : isExpressionTuple;
 import std.algorithm : startsWith;

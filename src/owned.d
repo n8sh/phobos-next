@@ -76,7 +76,7 @@ pragma(inline):
         /// Get full read-only slice.
         ReadBorrowed!(Range, Owned) sliceRO() const @trusted
         {
-            import std.meta : Unqual;
+            import std.traits : Unqual;
             assert(!_writeBorrowed, "This is already write-borrowed");
             return typeof(return)(_container.opSlice,
                                   cast(Unqual!(typeof(this))*)(&this)); // trusted unconst casta
@@ -85,7 +85,7 @@ pragma(inline):
         /// Get read-only slice in range `i` .. `j`.
         ReadBorrowed!(Range, Owned) sliceRO(size_t i, size_t j) const @trusted
         {
-            import std.meta : Unqual;
+            import std.traits : Unqual;
             assert(!_writeBorrowed, "This is already write-borrowed");
             return typeof(return)(_container.opSlice[i .. j],
                                   cast(Unqual!(typeof(this))*)(&this)); // trusted unconst cast

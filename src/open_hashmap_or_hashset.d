@@ -360,11 +360,11 @@ struct OpenHashMapOrSet(K, V = void,
     private void growWithNewCapacity(size_t newCapacity) // not template-lazy
     {
         assert(newCapacity > _bins.length);
-        static if (__traits(hasMember, PureMallocator, "reallocate"))
-        {
-            growInPlaceWithNewCapacity(newCapacity);
-        }
-        else
+        // static if (__traits(hasMember, PureMallocator, "reallocate"))
+        // {
+        //     growInPlaceWithNewCapacity(newCapacity);
+        // }
+        // else
         {
             growStandardWithNewCapacity(newCapacity);
         }

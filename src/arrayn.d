@@ -23,7 +23,7 @@ struct ArrayN(T,
               Checking checking = Checking.viaScope)
 {
     import std.bitmanip : bitfields;
-    import std.meta : Unqual;
+    import std.traits : Unqual;
     import std.traits : isSomeChar, hasElaborateDestructor, isAssignable, isCopyable;
     import std.algorithm.mutation : move, moveEmplace;
 
@@ -358,7 +358,7 @@ pragma(inline, true):
         /// Get full read-only slice.
         ReadBorrowed!(T[], typeof(this)) sliceRO() const @trusted return scope
         {
-            import std.meta : Unqual;
+            import std.traits : Unqual;
             assert(!_writeBorrowed, "Already write-borrowed");
             return typeof(return)(_store.ptr[0 .. _length],
                                   cast(Unqual!(typeof(this))*)(&this)); // trusted unconst casta
@@ -367,7 +367,7 @@ pragma(inline, true):
         /// Get read-only slice in range `i` .. `j`.
         ReadBorrowed!(T[], typeof(this)) sliceRO(size_t i, size_t j) const @trusted return scope
         {
-            import std.meta : Unqual;
+            import std.traits : Unqual;
             assert(!_writeBorrowed, "Already write-borrowed");
             return typeof(return)(_store.ptr[i .. j],
                                   cast(Unqual!(typeof(this))*)(&this)); // trusted unconst cast

@@ -220,8 +220,6 @@ struct OpenHashMapOrSet(K, V = void,
                     }
                 }
             }
-            import std.algorithm.comparison : equal;
-            assert(equal!((a, b) => a is b)(binsCopy, _bins));
             return typeof(return)(binsCopy, _count);
         }
     }
@@ -361,11 +359,11 @@ struct OpenHashMapOrSet(K, V = void,
     private void growWithNewCapacity(size_t newCapacity) // not template-lazy
     {
         assert(newCapacity > _bins.length);
-        // static if (__traits(hasMember, PureMallocator, "reallocate"))
-        // {
-        //     growInPlaceWithNewCapacity(newCapacity);
-        // }
-        // else
+        static if (__traits(hasMember, PureMallocator, "reallocate"))
+        {
+            growInPlaceWithNewCapacity(newCapacity);
+        }
+        else
         {
             growStandardWithNewCapacity(newCapacity);
         }
@@ -382,11 +380,6 @@ struct OpenHashMapOrSet(K, V = void,
         immutable oldLength = _bins.length;
         auto rawBins = cast(void[])_bins;
 
-        import dbgio;
-        dln(" _bins.length:", _bins.length,
-            " rawBins.length:", rawBins.length,
-            " powerOf2newCapacity:", powerOf2newCapacity);
-
         if (Allocator.instance.reallocate(rawBins, T.sizeof*powerOf2newCapacity))
         {
             _bins = cast(T[])rawBins;
@@ -397,9 +390,6 @@ struct OpenHashMapOrSet(K, V = void,
                 keyOf(bin).nullify(); // move this `init` to reallocate() above?
             }
 
-            // import dbgio;
-            // dln("starting with:", _bins);
-
             import bitarray : BitArray;
             auto dones = BitArray!().withLength(_bins.length);
             foreach (immutable doneIndex; 0 .. dones.length)
@@ -407,8 +397,6 @@ struct OpenHashMapOrSet(K, V = void,
                 if (!dones[doneIndex] && // if _bins[doneIndex] not yet ready
                     !keyOf(_bins[doneIndex]).isNull) // and non-null
                 {
-                    // dln("doneIndex:", doneIndex, " dones:", dones[doneIndex], " length:", _bins.length);
-
                     import std.algorithm.mutation : moveEmplace;
 
                     T currentElement = void;
@@ -437,10 +425,6 @@ struct OpenHashMapOrSet(K, V = void,
                         if (keyOf(_bins[hitIndex]).isNull()) // if free slot found
                         {
                             moveEmplace(currentElement, _bins[hitIndex]);
-                            // dln("startIndex:", startIndex,
-                            //     " hitIndex:", hitIndex,
-                            //     " currentElement:", currentElement,
-                            //     " isNull:", keyOf(_bins[hitIndex]).isNull(), " bins:", _bins);
                             break; // inner iteration is finished
                         }
                         else // if no free slot
@@ -457,11 +441,6 @@ struct OpenHashMapOrSet(K, V = void,
 
                             moveEmplace(currentElement, _bins[hitIndex]);
                             moveEmplace(nextElement, currentElement);
-                            // dln("startIndex:", startIndex,
-                            //     " hitIndex:", hitIndex,
-                            //     " currentElement:", currentElement,
-                            //     " nextElement:", nextElement,
-                            //     " isNull:", keyOf(_bins[hitIndex]).isNull(), " bins:", _bins);
                         }
                     }
                     dones[doneIndex] = true; // _bins[doneIndex] is at it's correct position

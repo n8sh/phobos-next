@@ -382,10 +382,10 @@ struct OpenHashMapOrSet(K, V = void,
         immutable oldLength = _bins.length;
         auto rawBins = cast(void[])_bins;
 
-        // import dbgio;
-        // dln(" _bins.length:", _bins.length,
-        //     " rawBins.length:", rawBins.length,
-        //     " powerOf2newCapacity:", powerOf2newCapacity);
+        import dbgio;
+        dln(" _bins.length:", _bins.length,
+            " rawBins.length:", rawBins.length,
+            " powerOf2newCapacity:", powerOf2newCapacity);
 
         if (Allocator.instance.reallocate(rawBins, T.sizeof*powerOf2newCapacity))
         {

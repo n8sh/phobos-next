@@ -39,10 +39,12 @@ struct OpenHashMapOrSet(K, V = void,
         //isHashable!K
         )
 {
+    import std.math : nextPow2;
     import std.conv : emplace;
     import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable, isMutable, hasIndirections, Unqual;
     import std.algorithm.comparison : max;
     import std.algorithm.mutation : move;
+
     import emplace_all : moveEmplaceAllNoReset;
     import digestion : hashOf2;
     import probing : triangularProbeFromIndex;
@@ -147,7 +149,6 @@ struct OpenHashMapOrSet(K, V = void,
 
     private static T[] makeBins(size_t capacity) @trusted
     {
-        import std.math : nextPow2;
         immutable powerOf2Capacity = nextPow2(capacity);
         import std.experimental.allocator : makeArray;
         return Allocator.makeArray!T(powerOf2Capacity, nullKeyElement);
@@ -360,11 +361,11 @@ struct OpenHashMapOrSet(K, V = void,
     private void growWithNewCapacity(size_t newCapacity) // not template-lazy
     {
         assert(newCapacity > _bins.length);
-        // static if (__traits(hasMember, PureMallocator, "reallocate"))
-        // {
-        //     growInPlaceWithNewCapacity(newCapacity);
-        // }
-        // else
+        static if (__traits(hasMember, PureMallocator, "reallocate"))
+        {
+            growInPlaceWithNewCapacity(newCapacity);
+        }
+        else
         {
             growStandardWithNewCapacity(newCapacity);
         }
@@ -376,6 +377,7 @@ struct OpenHashMapOrSet(K, V = void,
         @trusted
     {
         assert(newCapacity > _bins.length);
+        immutable powerOf2newCapacity = nextPow2(newCapacity);
 
         immutable oldLength = _bins.length;
         auto rawBins = cast(void[])_bins;
@@ -384,17 +386,14 @@ struct OpenHashMapOrSet(K, V = void,
 
         // dln(" _bins.length:", _bins.length,
         //     " rawBins.length:", rawBins.length,
-        //     " newCapacity:", newCapacity);
+        //     " powerOf2newCapacity:", powerOf2newCapacity);
 
-        if (Allocator.instance.reallocate(rawBins, T.sizeof*newCapacity))
+        if (Allocator.instance.reallocate(rawBins, T.sizeof*powerOf2newCapacity))
         {
-            // dln("bins.ptr:", _bins.ptr, " ", _bins.length);
             _bins = cast(T[])rawBins;
-            // dln("bins.ptr:", _bins.ptr, " ", _bins.length);
 
             // TODO make this an array operation `nullifyAll` or `nullifyN`
-            // dln(oldLength, " : ", newCapacity);
-            foreach (ref bin; _bins[oldLength .. newCapacity])
+            foreach (ref bin; _bins[oldLength .. powerOf2newCapacity])
             {
                 keyOf(bin).nullify(); // move this `init` to reallocate() above?
             }
@@ -423,7 +422,7 @@ struct OpenHashMapOrSet(K, V = void,
                             assert(hitIndex != _bins.length, "no free slot");
 
                             dones[hitIndex] = true; // _bins[hitIndex] will be at it's correct position
-                            // dln("startIndex:", startIndex, " hitIndex:", hitIndex, " isNull:", keyOf(_bins[hitIndex]).isNull());
+                            dln("startIndex:", startIndex, " hitIndex:", hitIndex, " isNull:", keyOf(_bins[hitIndex]).isNull());
 
                             if (keyOf(_bins[hitIndex]).isNull()) // if free slot found
                             {

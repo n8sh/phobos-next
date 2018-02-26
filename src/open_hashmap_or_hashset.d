@@ -885,7 +885,7 @@ private:
     size_t _count;        // total number of non-null elements stored in `_bins`
     static if (mutableFlag)
     {
-        size_t* _dels;        // elements in bin that has been deleted
+        size_t* _holes;          // bin elements that has been deleted
     }
 
     /** Returns: bin index of `key`. */

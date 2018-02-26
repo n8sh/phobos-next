@@ -12,8 +12,9 @@ import pure_mallocator : PureMallocator;
  * Params:
  *      K = key type.
  *      V = value type.
- *      Allocator = memory allocator for bin array
  *      hasher = hash function or std.digest Hash.
+ *      Allocator = memory allocator for bin array
+ *      mutableFlag = is `true` iff table should provide removal
  *
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  *
@@ -33,8 +34,9 @@ import pure_mallocator : PureMallocator;
  * TODO robin hood hashing
  */
 struct OpenHashMapOrSet(K, V = void,
-                    alias hasher = hashOf,
-                    alias Allocator = PureMallocator.instance)
+                        alias hasher = hashOf,
+                        alias Allocator = PureMallocator.instance,
+                        bool mutableFlag = true)
     if (isNullableType!K
         //isHashable!K
         )
@@ -903,14 +905,16 @@ private:
  */
 alias OpenHashSet(K,
                   alias hasher = hashOf,
-                  alias Allocator = PureMallocator.instance) = OpenHashMapOrSet!(K, void, hasher, Allocator);
+                  alias Allocator = PureMallocator.instance,
+                  bool mutableFlag = true) = OpenHashMapOrSet!(K, void, hasher, Allocator, mutableFlag);
 
 /** Hash map storing keys of type `K` and values of type `V`.
  */
 alias OpenHashMap(K,
                   V,
                   alias hasher = hashOf,
-                  alias Allocator = PureMallocator.instance) = OpenHashMapOrSet!(K, V, hasher, Allocator);
+                  alias Allocator = PureMallocator.instance,
+                  bool mutableFlag = true) = OpenHashMapOrSet!(K, V, hasher, Allocator, mutableFlag);
 
 import std.traits : isInstanceOf;
 

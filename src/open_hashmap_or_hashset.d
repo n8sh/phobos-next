@@ -300,8 +300,7 @@ struct OpenHashMapOrSet(K, V = void,
     bool contains()(const scope K key) const // template-lazy, auto ref here makes things slow
     {
         assert(!key.isNull);
-        immutable startIndex = hashToIndex(hashOf2!(hasher)(key));
-        immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex);
+        immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(keyToIndex(key));
         return hitIndex != _bins.length;
     }
 
@@ -419,10 +418,9 @@ struct OpenHashMapOrSet(K, V = void,
 
                     while (true)
                     {
-                        immutable startIndex = hashToIndex(hashOf2!(hasher)(keyOf(currentElement)));
                         alias predicate = (index, element) => (keyOf(element).isNull || // free slot or
                                                                !dones[index]); // or a not yet replaced element
-                        immutable hitIndex = _bins[].triangularProbeFromIndex!(predicate)(startIndex);
+                        immutable hitIndex = _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(keyOf(currentElement)));
                         assert(hitIndex != _bins.length, "no free slot");
 
                         dones[hitIndex] = true; // _bins[hitIndex] will be at it's correct position
@@ -492,9 +490,8 @@ struct OpenHashMapOrSet(K, V = void,
     {
         assert(!keyOf(element).isNull);
 
-        immutable startIndex = hashToIndex(hashOf2!(hasher)(keyOf(element)));
         immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => (keyOf(_) is keyOf(element) ||
-                                                                     keyOf(_).isNull))(startIndex);
+                                                                     keyOf(_).isNull))(keyToIndex(keyOf(element)));
         assert(hitIndex != _bins.length, "no free slot");
 
         if (keyOf(_bins[hitIndex]).isNull) // key missing
@@ -704,8 +701,7 @@ struct OpenHashMapOrSet(K, V = void,
         scope inout(V)* opBinaryRight(string op)(const scope K key) inout return // auto ref here makes things slow
             if (op == "in")
         {
-            immutable startIndex = hashToIndex(hashOf2!(hasher)(key));
-            immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex);
+            immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(keyToIndex(key));
             if (hitIndex != _bins.length) // if hit
             {
                 return cast(typeof(return))&_bins[hitIndex].value;
@@ -806,8 +802,7 @@ struct OpenHashMapOrSet(K, V = void,
         pragma(inline, true)    // LDC must have this
         scope ref inout(V) opIndex()(const scope K key) inout return // auto ref here makes things slow
         {
-            immutable startIndex = hashToIndex(hashOf2!(hasher)(key));
-            immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex);
+            immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(keyToIndex(key));
             if (hitIndex != _bins.length)
             {
                 return _bins[hitIndex].value;
@@ -856,8 +851,7 @@ struct OpenHashMapOrSet(K, V = void,
     */
     bool remove()(const scope K key) // template-lazy
     {
-        immutable startIndex = hashToIndex(hashOf2!(hasher)(key));
-        immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex);
+        immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(keyToIndex(key));
         if (hitIndex != _bins.length) // if hit
         {
             keyOf(_bins[hitIndex]).nullify();
@@ -888,11 +882,11 @@ private:
     T[] _bins;            // bin elements
     size_t _count;        // total number of non-null elements stored in `_bins`
 
-    /** Returns: bin index of `hash`. */
+    /** Returns: bin index of `key`. */
     pragma(inline, true)
-    size_t hashToIndex(const scope hash_t hash) const
+    size_t keyToIndex(const scope K key) const
     {
-        return hash & powerOf2Mask;
+        return hashOf2!(hasher)(key) & powerOf2Mask;
     }
 
     /** Returns: current index mask from bin count. */

@@ -383,7 +383,6 @@ struct OpenHashMapOrSet(K, V = void,
         auto rawBins = cast(void[])_bins;
 
         import dbgio;
-
         // dln(" _bins.length:", _bins.length,
         //     " rawBins.length:", rawBins.length,
         //     " powerOf2newCapacity:", powerOf2newCapacity);

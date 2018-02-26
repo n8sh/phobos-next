@@ -257,11 +257,32 @@ struct OpenHashMapOrSet(K, V = void,
         return true;
     }
 
+    static if (mutableFlag)
+    {
+    private:
+
+        enum bits = 8*size_t.sizeof;
+
+        size_t binChunkCount()
+        {
+            return _bins.length / bits + (_bins.length % bits ? 1 : 0);
+        }
+
+        size_t[] removeTags() @trusted
+        {
+            return _removeTags[0 .. binChunkCount];
+        }
+    }
+
     /// Empty.
     void clear()()              // template-lazy
     {
         release();
         _bins = typeof(_bins).init;
+        static if (mutableFlag)
+        {
+            _removeTags = null;
+        }
         _count = 0;
     }
 
@@ -290,6 +311,10 @@ struct OpenHashMapOrSet(K, V = void,
         @trusted
     {
         Allocator.instance.deallocate(_bins);
+        static if (mutableFlag)
+        {
+            Allocator.instance.deallocate(removeTags);
+        }
     }
 
     version(LDC) { pragma(inline, true): } // needed for LDC to inline this, DMD cannot

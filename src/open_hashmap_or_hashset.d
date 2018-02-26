@@ -297,7 +297,7 @@ struct OpenHashMapOrSet(K, V = void,
         Returns: `true` if element is present, `false` otherwise.
     */
     pragma(inline, true)
-    bool contains()(const scope K key) const // template-lazy, auto ref here makes things slow
+    bool contains()(const scope K key) const // template-lazy, WARNING: auto ref here makes things slow
     {
         assert(!key.isNull);
         immutable startIndex = hashToIndex(hashOf2!(hasher)(key));
@@ -701,18 +701,24 @@ struct OpenHashMapOrSet(K, V = void,
 
     static if (hasValue)        // HashMap
     {
-        scope inout(V)* opBinaryRight(string op)(const scope K key) inout return // auto ref here makes things slow
+        scope inout(V)* opBinaryRight(string op)(const scope K key) inout return // WARNING: auto ref here makes things slow
             if (op == "in")
         {
             immutable startIndex = hashToIndex(hashOf2!(hasher)(key));
-            immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex);
-            if (hitIndex != _bins.length) // if hit
+            immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => (keyOf(_) is key ||
+                                                                         keyOf(_).isNull))(startIndex);
+            if (hitIndex == _bins.length) // no free slot
+            {
+                dln(_bins.length);
+                return null;    // TODO change this behaviour to always have one slot free so this can't happen
+            }
+            if (!keyOf(_bins[hitIndex]).isNull) // if hit
             {
                 return cast(typeof(return))&_bins[hitIndex].value;
             }
             else                    // miss
             {
-                return null;
+                return null;    // TODO return reference to where element should be placed
             }
         }
 
@@ -804,7 +810,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         /// Indexing.
         pragma(inline, true)    // LDC must have this
-        scope ref inout(V) opIndex()(const scope K key) inout return // auto ref here makes things slow
+        scope ref inout(V) opIndex()(const scope K key) inout return // WARNING: auto ref here makes things slow
         {
             immutable startIndex = hashToIndex(hashOf2!(hasher)(key));
             immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(startIndex);
@@ -1330,6 +1336,7 @@ pure nothrow @nogc unittest
 
         foreach (immutable key_; 0 .. n)
         {
+            dln("key_:", key_);
             const key = K(key_);
 
             static if (X.hasValue)
@@ -1645,4 +1652,5 @@ version(unittest)
     import std.typecons : Nullable;
     import digestx.fnv : FNV;
     import array_help : s;
+    import dbgio;
 }

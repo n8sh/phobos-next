@@ -357,7 +357,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    /// Grow to make for `newCapacity` number of elements.
+    /// Grow (rehash) to make for `newCapacity` number of elements.
     pragma(inline, true)
     private void growWithNewCapacity(size_t newCapacity) // not template-lazy
     {
@@ -373,7 +373,8 @@ struct OpenHashMapOrSet(K, V = void,
         growStandardWithNewCapacity(newCapacity);
     }
 
-    /** Grow store in-place to make room for `newCapacity` number of elements.
+    /** Grow (rehash) store in-place to make room for `newCapacity` number of
+     * elements.
      */
     private void growInPlaceWithNewCapacity(size_t newCapacity) // not template-lazy
         @trusted
@@ -457,6 +458,8 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
+    /** Grow (rehash) store to make room for `newCapacity` number of elements.
+     */
     private void growStandardWithNewCapacity(size_t newCapacity) // not template-lazy
         @trusted
     {

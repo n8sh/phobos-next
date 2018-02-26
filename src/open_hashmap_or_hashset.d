@@ -272,7 +272,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         inout(size_t)[] removeTags() inout @trusted
         {
-            return _removeTags[0 .. binBlockCount];
+            return _removeTagsPtr[0 .. binBlockCount];
         }
     }
 
@@ -283,7 +283,7 @@ struct OpenHashMapOrSet(K, V = void,
         _bins = typeof(_bins).init;
         static if (mutableFlag)
         {
-            _removeTags = null;
+            _removeTagsPtr = null;
         }
         _count = 0;
     }
@@ -912,7 +912,7 @@ private:
     size_t _count;        // total number of non-null elements stored in `_bins`
     static if (mutableFlag)
     {
-        size_t* _removeTags; // bit array describing which bin elements that has been removed
+        size_t* _removeTagsPtr; // bit array describing which bin elements that has been removed
     }
 
     /** Returns: bin index of `key`. */

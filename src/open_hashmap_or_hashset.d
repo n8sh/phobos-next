@@ -340,9 +340,9 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /// Numerator for grow scale.
-    enum growScaleP = 2;
+    enum growScaleP = 3;
     /// Denominator for grow scale.
-    enum growScaleQ = 1;
+    enum growScaleQ = 2;
 
     /** Reserve rom for `extraCapacity` number of extra buckets. */
     void reserveExtra(size_t extraCapacity) // not template-lazy
@@ -358,15 +358,17 @@ struct OpenHashMapOrSet(K, V = void,
     pragma(inline, true)
     private void growWithNewCapacity(size_t newCapacity) // not template-lazy
     {
+        enum doInPlaceGrow = false;
         assert(newCapacity > _bins.length);
         static if (__traits(hasMember, PureMallocator, "reallocate"))
         {
-            growInPlaceWithNewCapacity(newCapacity);
+            if (doInPlaceGrow)
+            {
+                growInPlaceWithNewCapacity(newCapacity);
+                return;
+            }
         }
-        else
-        {
-            growStandardWithNewCapacity(newCapacity);
-        }
+        growStandardWithNewCapacity(newCapacity);
     }
 
     /** Grow store in-place to make room for `newCapacity` number of elements.

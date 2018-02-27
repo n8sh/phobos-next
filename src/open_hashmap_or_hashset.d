@@ -14,7 +14,7 @@ import pure_mallocator : PureMallocator;
  *      V = value type.
  *      hasher = hash function or std.digest Hash.
  *      Allocator = memory allocator for bin array
- *      mutableFlag = is `true` iff table should provide removal
+ *      mutationFlag = is `true` iff table should provide mutation and removal of elements
  *
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  *
@@ -27,6 +27,8 @@ import pure_mallocator : PureMallocator;
  *
  * TODO benchmark against https://github.com/greg7mdp/sparsepp
  *
+ * TODO when mutationFlag and is(typeof(key) == class) use use void*.max as deleted value
+ *
  * TODO add merge or union algorithm here or into container_algorithm.d. See
  * also: http://en.cppreference.com/w/cpp/container/unordered_set/merge. this
  * algorithm moves elements from source if they are not already in `this`
@@ -36,7 +38,7 @@ import pure_mallocator : PureMallocator;
 struct OpenHashMapOrSet(K, V = void,
                         alias hasher = hashOf,
                         alias Allocator = PureMallocator.instance,
-                        bool mutableFlag = true)
+                        bool mutationFlag = true)
     if (isNullableType!K
         //isHashable!K
         )
@@ -46,6 +48,7 @@ struct OpenHashMapOrSet(K, V = void,
     import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable, isMutable, hasIndirections, Unqual;
     import std.algorithm.comparison : max;
     import std.algorithm.mutation : move;
+    import std.experimental.allocator : makeArray;
 
     import emplace_all : moveEmplaceAllNoReset;
     import digestion : hashOf2;
@@ -152,7 +155,6 @@ struct OpenHashMapOrSet(K, V = void,
     private static T[] makeBins(size_t capacity) @trusted
     {
         immutable powerOf2Capacity = nextPow2(capacity);
-        import std.experimental.allocator : makeArray;
         return Allocator.makeArray!T(powerOf2Capacity, nullKeyElement);
     }
 
@@ -222,7 +224,23 @@ struct OpenHashMapOrSet(K, V = void,
                     }
                 }
             }
-            return typeof(return)(binsCopy, _count);
+            static if (mutationFlag)
+            {
+                if (_holesPtr)
+                {
+                    auto holesPtrCopy = cast(size_t*)Allocator.instance.zeroallocate(binBlockBytes);
+                    holesPtrCopy[0 .. holesBlockCount] = _holesPtr[0 .. holesBlockCount];
+                    return typeof(return)(binsCopy, _count, holesPtrCopy);
+                }
+                else
+                {
+                    return typeof(return)(binsCopy, _count);
+                }
+            }
+            else
+            {
+                return typeof(return)(binsCopy, _count);
+            }
         }
     }
 
@@ -257,22 +275,47 @@ struct OpenHashMapOrSet(K, V = void,
         return true;
     }
 
-    static if (mutableFlag)
+    static if (mutationFlag)
     {
     pragma(inline, true):
     private:
 
-        enum blockBits = 8*size_t.sizeof;
+        enum blockBytes = size_t.sizeof;
+        enum blockBits = 8*blockBytes;
 
-        size_t binBlockCount() const
+        size_t holesBlockCount() const
         {
             return (_bins.length / blockBits +
                     (_bins.length % blockBits ? 1 : 0));
         }
 
-        inout(size_t)[] removeTags() inout @trusted
+        size_t binBlockBytes() const
         {
-            return _removeTagsPtr[0 .. binBlockCount];
+            return blockBytes*holesBlockCount;
+        }
+
+        size_t* holesPtr() @trusted
+        {
+            if (_holesPtr is null)
+            {
+                // lazy allocation
+                dln("holesBlockCount:", holesBlockCount);
+                _holesPtr = cast(size_t*)Allocator.instance.zeroallocate(holesBlockCount);
+            }
+            return _holesPtr;
+        }
+
+        size_t[] holes() @trusted
+        {
+            return holesPtr[0 .. holesBlockCount];
+        }
+
+        void setHole(size_t index) @trusted
+        {
+            assert(index < 8*size_t.max*holesBlockCount);
+            import core.bitop : bts;
+            dln("index:", index);
+            // bts(holesPtr, index);
         }
     }
 
@@ -281,9 +324,9 @@ struct OpenHashMapOrSet(K, V = void,
     {
         release();
         _bins = typeof(_bins).init;
-        static if (mutableFlag)
+        static if (mutationFlag)
         {
-            _removeTagsPtr = null;
+            _holesPtr = null;
         }
         _count = 0;
     }
@@ -313,9 +356,10 @@ struct OpenHashMapOrSet(K, V = void,
         @trusted
     {
         Allocator.instance.deallocate(_bins);
-        static if (mutableFlag)
+        static if (mutationFlag)
         {
-            Allocator.instance.deallocate(removeTags);
+            dln("holes:", holes);
+            Allocator.instance.deallocate(holes);
         }
     }
 
@@ -875,24 +919,37 @@ struct OpenHashMapOrSet(K, V = void,
 	}
     }
 
-    /** Remove `element`.
-        Returns: `true` if element was removed, `false` otherwise.
-    */
-    bool remove()(const scope K key) // template-lazy
+    static if (mutationFlag)
     {
-        immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(keyToIndex(key));
-        if (hitIndex != _bins.length) // if hit
+        /** Remove `element`.
+            Returns: `true` if element was removed, `false` otherwise.
+        */
+        bool remove()(const scope K key) // template-lazy
         {
-            keyOf(_bins[hitIndex]).nullify();
-            static if (hasValue && hasElaborateDestructor!V)
+            immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(keyToIndex(key));
+            if (hitIndex != _bins.length) // if hit
             {
-                valueOf(_bins[hitIndex]) = V.init;
-                // TODO instead do only .destroy(valueOf(_bins[hitIndex])); and emplace values
+                // key
+                keyOf(_bins[hitIndex]).nullify();
+
+                // value
+                static if (hasValue && hasElaborateDestructor!V)
+                {
+                    valueOf(_bins[hitIndex]) = V.init;
+                    // TODO instead do only .destroy(valueOf(_bins[hitIndex])); and emplace values
+                }
+
+                // remove tag
+                static if (mutationFlag)
+                {
+                    setHole(hitIndex);
+                }
+
+                _count -= 1;
+                return true;
             }
-            _count -= 1;
-            return true;
+            return false;
         }
-        return false;
     }
 
     /// Check if empty.
@@ -910,9 +967,9 @@ struct OpenHashMapOrSet(K, V = void,
 private:
     T[] _bins;            // bin elements
     size_t _count;        // total number of non-null elements stored in `_bins`
-    static if (mutableFlag)
+    static if (mutationFlag)
     {
-        size_t* _removeTagsPtr; // bit array describing which bin elements that has been removed
+        size_t* _holesPtr; // bit array describing which bin elements that has been removed (holes)
     }
 
     /** Returns: bin index of `key`. */
@@ -937,7 +994,7 @@ private:
 alias OpenHashSet(K,
                   alias hasher = hashOf,
                   alias Allocator = PureMallocator.instance,
-                  bool mutableFlag = true) = OpenHashMapOrSet!(K, void, hasher, Allocator, mutableFlag);
+                  bool mutationFlag = true) = OpenHashMapOrSet!(K, void, hasher, Allocator, mutationFlag);
 
 /** Hash map storing keys of type `K` and values of type `V`.
  */
@@ -945,7 +1002,7 @@ alias OpenHashMap(K,
                   V,
                   alias hasher = hashOf,
                   alias Allocator = PureMallocator.instance,
-                  bool mutableFlag = true) = OpenHashMapOrSet!(K, V, hasher, Allocator, mutableFlag);
+                  bool mutationFlag = true) = OpenHashMapOrSet!(K, V, hasher, Allocator, mutationFlag);
 
 import std.traits : isInstanceOf;
 
@@ -1674,4 +1731,5 @@ version(unittest)
     import std.typecons : Nullable;
     import digestx.fnv : FNV;
     import array_help : s;
+    import dbgio;
 }

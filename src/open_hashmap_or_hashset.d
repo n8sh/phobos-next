@@ -439,7 +439,7 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /// Is `true` iff in-place rehashing during growth should be performed.
-    enum doInPlaceGrow = false;
+    enum bool doInPlaceGrow = false;
 
     /// Numerator for grow scale.
     enum growScaleP = 3;
@@ -466,13 +466,78 @@ struct OpenHashMapOrSet(K, V = void,
             if (doInPlaceGrow)
             {
                 growInPlaceWithNewCapacity(newCapacity);
-                return;
+            }
+            else
+            {
+                growStandardWithNewCapacity(newCapacity);
             }
         }
-        growStandardWithNewCapacity(newCapacity);
+        else
+        {
+            growStandardWithNewCapacity(newCapacity);
+        }
     }
 
-    /** Grow (rehash) store in-place to make room for `newCapacity` number of
+    private void rehash()
+        @trusted
+    {
+        import bitarray : BitArray;
+        auto dones = BitArray!().withLength(_bins.length);
+        foreach (immutable doneIndex; 0 .. dones.length)
+        {
+            if (!dones[doneIndex] && // if _bins[doneIndex] not yet ready
+                !keyOf(_bins[doneIndex]).isNull) // and non-null
+            {
+                import std.algorithm.mutation : moveEmplace;
+
+                T currentElement = void;
+
+                // TODO functionize:
+                moveEmplace(_bins[doneIndex], currentElement);
+                keyOf(_bins[doneIndex]).nullify();
+                static if (hasValue && hasElaborateDestructor!V)
+                {
+                    valueOf(_bins[doneIndex]) = V.init;
+                    // TODO instead do only .destroy(valueOf(_bins[hitIndex])); and emplace values
+                }
+
+                assert(keyOf(_bins[doneIndex]).isNull);
+
+                while (true)
+                {
+                    alias predicate = (index, element) => (keyOf(element).isNull || // free slot or
+                                                           !dones[index]); // or a not yet replaced element
+                    immutable hitIndex = _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(keyOf(currentElement)));
+                    assert(hitIndex != _bins.length, "no free slot");
+
+                    dones[hitIndex] = true; // _bins[hitIndex] will be at it's correct position
+
+                    if (keyOf(_bins[hitIndex]).isNull()) // if free slot found
+                    {
+                        moveEmplace(currentElement, _bins[hitIndex]);
+                        break; // inner iteration is finished
+                    }
+                    else // if no free slot
+                    {
+                        T nextElement = void;
+                        // TODO functionize:
+                        moveEmplace(_bins[hitIndex], nextElement); // save non-free slot
+                        keyOf(_bins[hitIndex]).nullify();
+                        static if (hasValue && hasElaborateDestructor!V)
+                        {
+                            valueOf(_bins[hitIndex]) = V.init;
+                            // TODO instead do only .destroy(valueOf(_bins[hitIndex])); and emplace values
+                        }
+
+                        moveEmplace(currentElement, _bins[hitIndex]);
+                        moveEmplace(nextElement, currentElement);
+                    }
+                }
+                dones[doneIndex] = true; // _bins[doneIndex] is at it's correct position
+            }
+        }    }
+
+    /** Grow (including rehash) store in-place to make room for `newCapacity` number of
      * elements.
      */
     private void growInPlaceWithNewCapacity(size_t newCapacity) // not template-lazy
@@ -499,61 +564,7 @@ struct OpenHashMapOrSet(K, V = void,
                 keyOf(bin).nullify(); // move this `init` to reallocate() above?
             }
 
-            import bitarray : BitArray;
-            auto dones = BitArray!().withLength(_bins.length);
-            foreach (immutable doneIndex; 0 .. dones.length)
-            {
-                if (!dones[doneIndex] && // if _bins[doneIndex] not yet ready
-                    !keyOf(_bins[doneIndex]).isNull) // and non-null
-                {
-                    import std.algorithm.mutation : moveEmplace;
-
-                    T currentElement = void;
-
-                    // TODO functionize:
-                    moveEmplace(_bins[doneIndex], currentElement);
-                    keyOf(_bins[doneIndex]).nullify();
-                    static if (hasValue && hasElaborateDestructor!V)
-                    {
-                        valueOf(_bins[doneIndex]) = V.init;
-                        // TODO instead do only .destroy(valueOf(_bins[hitIndex])); and emplace values
-                    }
-
-                    assert(keyOf(_bins[doneIndex]).isNull);
-
-                    while (true)
-                    {
-                        alias predicate = (index, element) => (keyOf(element).isNull || // free slot or
-                                                               !dones[index]); // or a not yet replaced element
-                        immutable hitIndex = _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(keyOf(currentElement)));
-                        assert(hitIndex != _bins.length, "no free slot");
-
-                        dones[hitIndex] = true; // _bins[hitIndex] will be at it's correct position
-
-                        if (keyOf(_bins[hitIndex]).isNull()) // if free slot found
-                        {
-                            moveEmplace(currentElement, _bins[hitIndex]);
-                            break; // inner iteration is finished
-                        }
-                        else // if no free slot
-                        {
-                            T nextElement = void;
-                            // TODO functionize:
-                            moveEmplace(_bins[hitIndex], nextElement); // save non-free slot
-                            keyOf(_bins[hitIndex]).nullify();
-                            static if (hasValue && hasElaborateDestructor!V)
-                            {
-                                valueOf(_bins[hitIndex]) = V.init;
-                                // TODO instead do only .destroy(valueOf(_bins[hitIndex])); and emplace values
-                            }
-
-                            moveEmplace(currentElement, _bins[hitIndex]);
-                            moveEmplace(nextElement, currentElement);
-                        }
-                    }
-                    dones[doneIndex] = true; // _bins[doneIndex] is at it's correct position
-                }
-            }
+            rehash();
         }
         else
         {
@@ -1001,6 +1012,7 @@ struct OpenHashMapOrSet(K, V = void,
     {
         foreach (ref key; keys)
         {
+
         }
     }
 

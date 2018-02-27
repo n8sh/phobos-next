@@ -472,6 +472,7 @@ struct OpenHashMapOrSet(K, V = void,
         growStandardWithNewCapacity(newCapacity);
     }
 
+    /** Rehash elements. */
     private void rehash()
         @trusted
     {

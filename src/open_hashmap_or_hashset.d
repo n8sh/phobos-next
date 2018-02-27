@@ -229,8 +229,9 @@ struct OpenHashMapOrSet(K, V = void,
             {
                 if (_holesPtr)
                 {
-                    auto holesPtrCopy = allocateHoles(binBlockBytes);
-                    holesPtrCopy[0 .. holesWordCount] = _holesPtr[0 .. holesWordCount];
+                    auto holesPtrCopy = allocateHoles(binBlockBytes(_bins.length));
+                    immutable wordCount = holesWordCount(_bins.length);
+                    holesPtrCopy[0 .. wordCount] = _holesPtr[0 .. wordCount];
                     return typeof(return)(binsCopy, _count, holesPtrCopy);
                 }
             }
@@ -287,18 +288,26 @@ struct OpenHashMapOrSet(K, V = void,
             return cast(typeof(return))Allocator.instance.zeroallocate(byteCount);
         }
 
+        static size_t* reallocateHoles(size_t[] holes, size_t byteCount) @trusted
+        {
+            auto rawHoles = cast(void[])holes;
+            const ok = Allocator.instance.reallocate(rawHoles, byteCount);
+            assert(ok, "couldn't reallocate holes");
+            return cast(typeof(return))rawHoles.ptr;
+        }
+
         /** Returns: number of words (`size_t`) needed to represent
          * `_bins.length` holes.
          */
-        size_t holesWordCount() const
+        static size_t holesWordCount(size_t binCount)
         {
-            return (_bins.length / wordBits +
-                    (_bins.length % wordBits ? 1 : 0));
+            return (binCount / wordBits +
+                    (binCount % wordBits ? 1 : 0));
         }
 
-        size_t binBlockBytes() const
+        static size_t binBlockBytes(size_t binCount)
         {
-            return wordBytes*holesWordCount;
+            return wordBytes*holesWordCount(binCount);
         }
 
         size_t* holesPtr() @trusted
@@ -306,21 +315,21 @@ struct OpenHashMapOrSet(K, V = void,
             if (_holesPtr is null)
             {
                 // lazy allocation
-                _holesPtr = zeroallocateHoles(binBlockBytes);
+                _holesPtr = zeroallocateHoles(binBlockBytes(_bins.length));
             }
             return _holesPtr;
         }
 
         size_t[] holes() @trusted
         {
-            return holesPtr[0 .. holesWordCount];
+            return holesPtr[0 .. holesWordCount(_bins.length)];
         }
 
         void setHole(size_t index) @trusted
         {
-            assert(index < 8*size_t.max*holesWordCount);
+            assert(index < 8*size_t.max*holesWordCount(_bins.length));
             import core.bitop : bts;
-            bts(holesPtr, index);
+            // TODO bts(holesPtr, index);
         }
     }
 
@@ -464,6 +473,10 @@ struct OpenHashMapOrSet(K, V = void,
         if (Allocator.instance.reallocate(rawBins, T.sizeof*powerOf2newCapacity))
         {
             _bins = cast(T[])rawBins;
+            static if (mutationFlag)
+            {
+                _holesPtr = reallocateHoles(holes, _bins.length);
+            }
 
             // TODO make this an array operation `nullifyAll` or `nullifyN`
             foreach (ref bin; _bins[oldLength .. powerOf2newCapacity])
@@ -529,7 +542,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
         else
         {
-            assert(0, "Allocator couldn't reallocate");
+            assert(0, "couldn't reallocate bin");
         }
     }
 

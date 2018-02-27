@@ -152,6 +152,7 @@ struct OpenHashMapOrSet(K, V = void,
         return typeof(return)(makeBins(capacity), 0);
     }
 
+    pragma(inline, true)
     private static T[] makeBins(size_t capacity) @trusted
     {
         immutable powerOf2Capacity = nextPow2(capacity);
@@ -318,7 +319,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             assert(index < 8*size_t.max*holesBlockCount);
             import core.bitop : bts;
-            bts(holesPtr, index);
+            // TODO bts(holesPtr, index);
         }
     }
 

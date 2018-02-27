@@ -1046,7 +1046,7 @@ private:
 alias OpenHashSet(K,
                   alias hasher = hashOf,
                   bool removalFlag = true,
-                  alias Allocator = PureMallocator.instance) = OpenHashMapOrSet!(K, void, hasher, Allocator, removalFlag);
+                  alias Allocator = PureMallocator.instance) = OpenHashMapOrSet!(K, void, hasher, removalFlag, Allocator);
 
 /** Hash map storing keys of type `K` and values of type `V`.
  */
@@ -1054,7 +1054,7 @@ alias OpenHashMap(K,
                   V,
                   alias hasher = hashOf,
                   bool removalFlag = true,
-                  alias Allocator = PureMallocator.instance) = OpenHashMapOrSet!(K, V, hasher, Allocator, removalFlag);
+                  alias Allocator = PureMallocator.instance) = OpenHashMapOrSet!(K, V, hasher, removalFlag, Allocator);
 
 import std.traits : isInstanceOf;
 

@@ -93,6 +93,11 @@ void main()
                           HashSet!(uint, null, muellerHash64),
                           HashSet!(uint, null, wangMixHash64),
                           HashSet!(uint, null, FNV!(64, true)),
+
+                          // std.digests
+                          HashSet!(uint, null, MurmurHash3!(128)),
+                          HashSet!(uint, null, XXHash64),
+
                           OpenHashSet!(Nullable!(uint, uint.max), FNV!(64, true)),
 
                           HashSet!(ulong, null, wangMixHash64),
@@ -100,10 +105,6 @@ void main()
                           HashSet!(ulong, null, FNV!(64, true), 2),
                           HashSet!(ulong, null, FNV!(64, true), 3),
                           HashSet!(ulong, null, FNV!(64, true), 4),
-
-                          // std.digests
-                          HashSet!(uint, null, MurmurHash3!(128)),
-                          HashSet!(uint, null, XXHash64),
 
                           OpenHashSet!(Nullable!(ulong, uint.max), FNV!(64, true)),
 

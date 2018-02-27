@@ -288,12 +288,21 @@ struct OpenHashMapOrSet(K, V = void,
             return cast(typeof(return))Allocator.instance.zeroallocate(byteCount);
         }
 
+        version(none)
         static size_t* reallocateHoles(size_t[] holes, size_t byteCount) @trusted
         {
             auto rawHoles = cast(void[])holes;
             const ok = Allocator.instance.reallocate(rawHoles, byteCount);
             assert(ok, "couldn't reallocate holes");
             return cast(typeof(return))rawHoles.ptr;
+        }
+
+        void deallocateHoles() @trusted
+        {
+            if (_holesPtr)
+            {
+                Allocator.instance.deallocate(_holesPtr[0 .. holesWordCount(_bins.length)]);
+            }
         }
 
         /** Returns: number of words (`size_t`) needed to represent
@@ -310,7 +319,7 @@ struct OpenHashMapOrSet(K, V = void,
             return wordBytes*holesWordCount(binCount);
         }
 
-        size_t* holesPtr() @trusted
+        size_t* lazyHolesPtr() @trusted
         {
             if (_holesPtr is null)
             {
@@ -320,16 +329,11 @@ struct OpenHashMapOrSet(K, V = void,
             return _holesPtr;
         }
 
-        size_t[] holes() @trusted
-        {
-            return holesPtr[0 .. holesWordCount(_bins.length)];
-        }
-
         void setHole(size_t index) @trusted
         {
             assert(index < 8*size_t.max*holesWordCount(_bins.length));
             import core.bitop : bts;
-            // TODO bts(holesPtr, index);
+            bts(lazyHolesPtr, index);
         }
     }
 
@@ -372,7 +376,7 @@ struct OpenHashMapOrSet(K, V = void,
         Allocator.instance.deallocate(_bins);
         static if (mutationFlag)
         {
-            Allocator.instance.deallocate(holes);
+            deallocateHoles();
         }
     }
 
@@ -475,7 +479,8 @@ struct OpenHashMapOrSet(K, V = void,
             _bins = cast(T[])rawBins;
             static if (mutationFlag)
             {
-                _holesPtr = reallocateHoles(holes, _bins.length);
+                deallocateHoles();
+                _holesPtr = allocateHoles(_bins.length);
             }
 
             // TODO make this an array operation `nullifyAll` or `nullifyN`
@@ -556,6 +561,11 @@ struct OpenHashMapOrSet(K, V = void,
         debug immutable oldCount = _count;
 
         _bins = makeBins(newCapacity); // replace with new bins
+        static if (mutationFlag)
+        {
+            deallocateHoles();
+            _holesPtr = allocateHoles(_bins.length);
+        }
         _count = 0;
 
         // move elements to copy

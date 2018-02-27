@@ -158,6 +158,12 @@ struct OpenHashMapOrSet(K, V = void,
         return Allocator.makeArray!T(powerOf2Capacity, nullKeyElement);
     }
 
+    pragma(inline, true)
+    private static size_t* makeHoles(size_t byteCount) @trusted
+    {
+        return cast(typeof(return))Allocator.instance.zeroallocate(byteCount);
+    }
+
     private pragma(inline, true)
     void[] allocateBins(size_t byteCount) const pure nothrow @nogc @system
     {
@@ -228,7 +234,7 @@ struct OpenHashMapOrSet(K, V = void,
             {
                 if (_holesPtr)
                 {
-                    auto holesPtrCopy = cast(size_t*)Allocator.instance.zeroallocate(binBlockBytes);
+                    auto holesPtrCopy = makeHoles(binBlockBytes);
                     holesPtrCopy[0 .. holesBlockCount] = _holesPtr[0 .. holesBlockCount];
                     return typeof(return)(binsCopy, _count, holesPtrCopy);
                 }
@@ -299,8 +305,7 @@ struct OpenHashMapOrSet(K, V = void,
             if (_holesPtr is null)
             {
                 // lazy allocation
-                dln("holesBlockCount:", holesBlockCount);
-                _holesPtr = cast(size_t*)Allocator.instance.zeroallocate(holesBlockCount);
+                _holesPtr = makeHoles(binBlockBytes);
             }
             return _holesPtr;
         }
@@ -314,7 +319,6 @@ struct OpenHashMapOrSet(K, V = void,
         {
             assert(index < 8*size_t.max*holesBlockCount);
             import core.bitop : bts;
-            dln("index:", index);
             // bts(holesPtr, index);
         }
     }
@@ -358,7 +362,6 @@ struct OpenHashMapOrSet(K, V = void,
         Allocator.instance.deallocate(_bins);
         static if (mutationFlag)
         {
-            dln("holes:", holes);
             Allocator.instance.deallocate(holes);
         }
     }

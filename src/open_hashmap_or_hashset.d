@@ -477,7 +477,7 @@ struct OpenHashMapOrSet(K, V = void,
         @trusted
     {
         import bitarray : BitArray;
-        auto dones = BitArray!().withLength(_bins.length);
+        auto dones = BitArray!().withLength(_bins.length); // TODO don't use BitArray
         foreach (immutable doneIndex; 0 .. dones.length)
         {
             if (!dones[doneIndex] && // if _bins[doneIndex] not yet ready
@@ -1007,6 +1007,8 @@ struct OpenHashMapOrSet(K, V = void,
     {
         foreach (ref key; keys)
         {
+            assert(!key.isNull);
+
         }
     }
 

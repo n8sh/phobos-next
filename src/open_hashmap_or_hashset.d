@@ -230,7 +230,7 @@ struct OpenHashMapOrSet(K, V = void,
                 if (_holesPtr)
                 {
                     auto holesPtrCopy = allocateHoles(binBlockBytes);
-                    holesPtrCopy[0 .. holesBlockCount] = _holesPtr[0 .. holesBlockCount];
+                    holesPtrCopy[0 .. holesWordCount] = _holesPtr[0 .. holesWordCount];
                     return typeof(return)(binsCopy, _count, holesPtrCopy);
                 }
             }
@@ -287,7 +287,10 @@ struct OpenHashMapOrSet(K, V = void,
             return cast(typeof(return))Allocator.instance.zeroallocate(byteCount);
         }
 
-        size_t holesBlockCount() const
+        /** Returns: number of words (`size_t`) needed to represent
+         * `_bins.length` holes.
+         */
+        size_t holesWordCount() const
         {
             return (_bins.length / blockBits +
                     (_bins.length % blockBits ? 1 : 0));
@@ -295,7 +298,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         size_t binBlockBytes() const
         {
-            return blockBytes*holesBlockCount;
+            return blockBytes*holesWordCount;
         }
 
         size_t* holesPtr() @trusted
@@ -310,16 +313,14 @@ struct OpenHashMapOrSet(K, V = void,
 
         size_t[] holes() @trusted
         {
-            return holesPtr[0 .. holesBlockCount];
+            return holesPtr[0 .. holesWordCount];
         }
 
         void setHole(size_t index) @trusted
         {
-            assert(index < 8*size_t.max*holesBlockCount);
+            assert(index < 8*size_t.max*holesWordCount);
             import core.bitop : bts;
-            dln("before index:", index);
             bts(holesPtr, index);
-            dln("after index:", index);
         }
     }
 

@@ -998,16 +998,15 @@ struct OpenHashMapOrSet(K, V = void,
     import std.traits : isIterable;
     import std.range : front;
 
-    /** Remove `element`.
+    /** Remove all elements matching `keys`.
         Returns: `true` if element was removed, `false` otherwise.
     */
-    bool removeAndRehash(Keys)(const scope Keys keys) // template-lazy
+    bool rehashingRemoveN(Keys)(const scope Keys keys) // template-lazy
         if (isIterable!Keys &&
             is(typeof(Keys.front == K.init)))
     {
         foreach (ref key; keys)
         {
-
         }
     }
 

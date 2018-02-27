@@ -159,18 +159,6 @@ struct OpenHashMapOrSet(K, V = void,
         return Allocator.makeArray!T(powerOf2Capacity, nullKeyElement);
     }
 
-    pragma(inline, true)
-    private static size_t* allocateHoles(size_t byteCount) @trusted
-    {
-        return cast(typeof(return))Allocator.instance.allocate(byteCount);
-    }
-
-    pragma(inline, true)
-    private static size_t* zeroallocateHoles(size_t byteCount) @trusted
-    {
-        return cast(typeof(return))Allocator.instance.zeroallocate(byteCount);
-    }
-
     private pragma(inline, true)
     void[] allocateBins(size_t byteCount) const pure nothrow @nogc @system
     {
@@ -289,6 +277,16 @@ struct OpenHashMapOrSet(K, V = void,
         enum blockBytes = size_t.sizeof;
         enum blockBits = 8*blockBytes;
 
+        static size_t* allocateHoles(size_t byteCount) @trusted
+        {
+            return cast(typeof(return))Allocator.instance.allocate(byteCount);
+        }
+
+        static size_t* zeroallocateHoles(size_t byteCount) @trusted
+        {
+            return cast(typeof(return))Allocator.instance.zeroallocate(byteCount);
+        }
+
         size_t holesBlockCount() const
         {
             return (_bins.length / blockBits +
@@ -319,7 +317,9 @@ struct OpenHashMapOrSet(K, V = void,
         {
             assert(index < 8*size_t.max*holesBlockCount);
             import core.bitop : bts;
-            // TODO bts(holesPtr, index);
+            dln("before index:", index);
+            bts(holesPtr, index);
+            dln("after index:", index);
         }
     }
 

@@ -11,7 +11,7 @@ void main()
     import variant_arrays : VariantArrays;
     import hashset : HashSet;
     import hashmap : HashMap;
-    import open_hashmap_or_hashset : OpenHashMap, OpenHashSet;
+    import open_hashmap_or_hashset : ImmutableHashMap, ImmutableHashSet;
 
     import std.digest.murmurhash : MurmurHash3;
     import xxhash64 : XXHash64;
@@ -98,7 +98,7 @@ void main()
                           HashSet!(uint, null, MurmurHash3!(128)),
                           HashSet!(uint, null, XXHash64),
 
-                          OpenHashSet!(Nullable!(uint, uint.max), FNV!(64, true)),
+                          ImmutableHashSet!(Nullable!(uint, uint.max), FNV!(64, true)),
 
                           HashSet!(ulong, null, wangMixHash64),
                           HashSet!(ulong, null, muellerHash64),
@@ -106,7 +106,7 @@ void main()
                           HashSet!(ulong, null, FNV!(64, true), 3),
                           HashSet!(ulong, null, FNV!(64, true), 4),
 
-                          OpenHashSet!(Nullable!(ulong, uint.max), FNV!(64, true)),
+                          ImmutableHashSet!(Nullable!(ulong, uint.max), FNV!(64, true)),
 
                           // radix tree
                           RadixTreeSetGrowOnly!(uint),
@@ -222,12 +222,12 @@ void main()
     foreach (A; AliasSeq!(HashMap!(uint, uint, null, muellerHash64),
                           HashMap!(uint, uint, null, wangMixHash64),
                           HashMap!(uint, uint, null, FNV!(64, true)),
-                          OpenHashMap!(Nullable!(uint, uint.max), uint, FNV!(64, true)),
+                          ImmutableHashMap!(Nullable!(uint, uint.max), uint, FNV!(64, true)),
 
                           HashMap!(ulong, ulong, null, muellerHash64),
                           HashMap!(ulong, ulong, null, wangMixHash64),
                           HashMap!(ulong, ulong, null, FNV!(64, true)),
-                          OpenHashMap!(Nullable!(ulong, ulong.max), ulong, FNV!(64, true))))
+                          ImmutableHashMap!(Nullable!(ulong, ulong.max), ulong, FNV!(64, true))))
     {
         A a;
 

@@ -1041,20 +1041,18 @@ private:
     }
 }
 
-/** Hash set storing keys of type `K`.
+/** Immutable hash set storing keys of type `K`.
  */
-alias OpenHashSet(K,
-                  alias hasher = hashOf,
-                  bool removalFlag = false,
-                  alias Allocator = PureMallocator.instance) = OpenHashMapOrSet!(K, void, hasher, removalFlag, Allocator);
+alias ImmutableHashSet(K,
+                       alias hasher = hashOf,
+                       alias Allocator = PureMallocator.instance) = OpenHashMapOrSet!(K, void, hasher, false, Allocator);
 
-/** Hash map storing keys of type `K` and values of type `V`.
+/** Immutable hash map storing keys of type `K` and values of type `V`.
  */
-alias OpenHashMap(K,
-                  V,
-                  alias hasher = hashOf,
-                  bool removalFlag = false,
-                  alias Allocator = PureMallocator.instance) = OpenHashMapOrSet!(K, V, hasher, removalFlag, Allocator);
+alias ImmutableHashMap(K,
+                       V,
+                       alias hasher = hashOf,
+                       alias Allocator = PureMallocator.instance) = OpenHashMapOrSet!(K, V, hasher, false, Allocator);
 
 import std.traits : isInstanceOf;
 

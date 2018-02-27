@@ -357,7 +357,7 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /// Release bin slice.
-    void releaseBinsMemory()
+    private void releaseBinsMemory()
         @trusted
     {
         Allocator.instance.deallocate(_bins);

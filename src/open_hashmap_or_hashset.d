@@ -439,7 +439,7 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /// Is `true` iff in-place rehashing during growth should be performed.
-    enum bool doInPlaceGrow = false;
+    enum bool doInPlaceGrow = true;
 
     /// Numerator for grow scale.
     enum growScaleP = 3;
@@ -466,10 +466,16 @@ struct OpenHashMapOrSet(K, V = void,
             if (doInPlaceGrow)
             {
                 growInPlaceWithNewCapacity(newCapacity);
-                return;
+            }
+            else
+            {
+                growStandardWithNewCapacity(newCapacity);
             }
         }
-        growStandardWithNewCapacity(newCapacity);
+        else
+        {
+            growStandardWithNewCapacity(newCapacity);
+        }
     }
 
     /** Rehash elements keeping only elements whose key matches `keyPredicateString`. */

@@ -159,7 +159,13 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     pragma(inline, true)
-    private static size_t* makeHoles(size_t byteCount) @trusted
+    private static size_t* allocateHoles(size_t byteCount) @trusted
+    {
+        return cast(typeof(return))Allocator.instance.allocate(byteCount);
+    }
+
+    pragma(inline, true)
+    private static size_t* zeroallocateHoles(size_t byteCount) @trusted
     {
         return cast(typeof(return))Allocator.instance.zeroallocate(byteCount);
     }
@@ -234,19 +240,12 @@ struct OpenHashMapOrSet(K, V = void,
             {
                 if (_holesPtr)
                 {
-                    auto holesPtrCopy = makeHoles(binBlockBytes);
+                    auto holesPtrCopy = allocateHoles(binBlockBytes);
                     holesPtrCopy[0 .. holesBlockCount] = _holesPtr[0 .. holesBlockCount];
                     return typeof(return)(binsCopy, _count, holesPtrCopy);
                 }
-                else
-                {
-                    return typeof(return)(binsCopy, _count);
-                }
             }
-            else
-            {
-                return typeof(return)(binsCopy, _count);
-            }
+            return typeof(return)(binsCopy, _count);
         }
     }
 
@@ -305,7 +304,7 @@ struct OpenHashMapOrSet(K, V = void,
             if (_holesPtr is null)
             {
                 // lazy allocation
-                _holesPtr = makeHoles(binBlockBytes);
+                _holesPtr = zeroallocateHoles(binBlockBytes);
             }
             return _holesPtr;
         }
@@ -319,7 +318,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             assert(index < 8*size_t.max*holesBlockCount);
             import core.bitop : bts;
-            // bts(holesPtr, index);
+            bts(holesPtr, index);
         }
     }
 

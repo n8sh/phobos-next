@@ -390,8 +390,18 @@ struct OpenHashMapOrSet(K, V = void,
     bool contains()(const scope K key) const // template-lazy, auto ref here makes things slow
     {
         assert(!key.isNull);
-        immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(keyToIndex(key));
-        return hitIndex != _bins.length;
+        static if (removalFlag)
+        {
+            immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(keyToIndex(key));
+            return hitIndex != _bins.length;
+        }
+        else
+        {
+            immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => (keyOf(_) is key ||
+                                                                         keyOf(_).isNull))(keyToIndex(key));
+            return (hitIndex != _bins.length &&
+                    keyOf(_bins[hitIndex]) is key);
+        }
     }
 
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
@@ -976,6 +986,21 @@ struct OpenHashMapOrSet(K, V = void,
                 return true;
             }
             return false;
+        }
+    }
+
+    import std.traits : isIterable;
+    import std.range : front;
+
+    /** Remove `element`.
+        Returns: `true` if element was removed, `false` otherwise.
+    */
+    bool removeAndRehash(Keys)(const scope Keys keys) // template-lazy
+        if (isIterable!Keys &&
+            is(typeof(Keys.front == K.init)))
+    {
+        foreach (ref key; keys)
+        {
         }
     }
 

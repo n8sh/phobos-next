@@ -274,8 +274,8 @@ struct OpenHashMapOrSet(K, V = void,
     pragma(inline, true):
     private:
 
-        enum blockBytes = size_t.sizeof;
-        enum blockBits = 8*blockBytes;
+        enum wordBytes = size_t.sizeof;
+        enum wordBits = 8*wordBytes;
 
         static size_t* allocateHoles(size_t byteCount) @trusted
         {
@@ -292,13 +292,13 @@ struct OpenHashMapOrSet(K, V = void,
          */
         size_t holesWordCount() const
         {
-            return (_bins.length / blockBits +
-                    (_bins.length % blockBits ? 1 : 0));
+            return (_bins.length / wordBits +
+                    (_bins.length % wordBits ? 1 : 0));
         }
 
         size_t binBlockBytes() const
         {
-            return blockBytes*holesWordCount;
+            return wordBytes*holesWordCount;
         }
 
         size_t* holesPtr() @trusted

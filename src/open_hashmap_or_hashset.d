@@ -530,7 +530,8 @@ struct OpenHashMapOrSet(K, V = void,
                 }
                 dones[doneIndex] = true; // _bins[doneIndex] is at it's correct position
             }
-        }    }
+        }
+    }
 
     /** Grow (including rehash) store in-place to make room for `newCapacity` number of
      * elements.
@@ -1005,7 +1006,22 @@ struct OpenHashMapOrSet(K, V = void,
         foreach (ref key; keys)
         {
             assert(!key.isNull);
+            static if (removalFlag)
+            {
+                immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(keyToIndex(key));
+                immutable hit = hitIndex != _bins.length;
+            }
+            else
+            {
+                immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => (keyOf(_) is key ||
+                                                                             keyOf(_).isNull))(keyToIndex(key));
+                immutable hit = ((hitIndex != _bins.length &&
+                                  keyOf(_bins[hitIndex]) is key));
+            }
+            if (hit)
+            {
 
+            }
         }
     }
 

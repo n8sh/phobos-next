@@ -1052,16 +1052,17 @@ private:
 
 /** Immutable hash set storing keys of type `K`.
  */
-alias ImmutableHashSet(K,
-                       alias hasher = hashOf,
-                       alias Allocator = PureMallocator.instance) = OpenHashMapOrSet!(K, void, hasher, false, Allocator);
+alias OpenHashSet(K, alias hasher = hashOf,
+                  bool removalFlag = false,
+                  alias Allocator = PureMallocator.instance) = OpenHashMapOrSet!(K, void, hasher,
+                                                                                 removalFlag, Allocator);
 
 /** Immutable hash map storing keys of type `K` and values of type `V`.
  */
-alias ImmutableHashMap(K,
-                       V,
-                       alias hasher = hashOf,
-                       alias Allocator = PureMallocator.instance) = OpenHashMapOrSet!(K, V, hasher, false, Allocator);
+alias OpenHashMap(K, V, alias hasher = hashOf,
+                  bool removalFlag = false,
+                  alias Allocator = PureMallocator.instance) = OpenHashMapOrSet!(K, V, hasher,
+                                                                                 removalFlag, Allocator);
 
 import std.traits : isInstanceOf;
 

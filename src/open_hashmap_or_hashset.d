@@ -337,14 +337,14 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /// Release internal allocations.
-    void release()
+    private void release()
     {
         releaseBinElements();
         releaseBinsMemory();
     }
 
     /// Release bin elements.
-    void releaseBinElements()
+    private void releaseBinElements()
         @trusted
     {
         foreach (immutable ix; 0 .. _bins.length)

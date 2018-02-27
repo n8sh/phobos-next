@@ -48,7 +48,7 @@ struct PureMallocator
         @system
     {
         import core.memory : pureFree;
-        pureFree(b.ptr);        // b.length not needed
+        pureFree(b.ptr);        // `free` doesn't need `b.length`
         return true;
     }
 

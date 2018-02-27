@@ -969,7 +969,7 @@ struct OpenHashMapOrSet(K, V = void,
         */
         bool remove()(const scope K key) // template-lazy
         {
-            immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(keyToIndex(key));
+            immutable hitIndex = _bins[].triangularProbeFromIndex!(element => keyOf(element) is key)(keyToIndex(key));
             if (hitIndex != _bins.length) // if hit
             {
                 keyOf(_bins[hitIndex]).nullify();

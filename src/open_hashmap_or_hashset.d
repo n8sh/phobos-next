@@ -7,14 +7,14 @@ import pure_mallocator : PureMallocator;
 
 /** Hash set (or map) storing (key) elements of type `K` and values of type `V`.
  *
- * Uses open-addressing with quadratic probing using triangular numbers.
+ * Uses open-addressing with quadratic probing using triangular numbers and optional removal.
  *
  * Params:
  *      K = key type.
  *      V = value type.
  *      hasher = hash function or std.digest Hash.
  *      Allocator = memory allocator for bin array
- *      mutationFlag = is `true` iff table should provide mutation and removal of elements
+ *      removalFlag = is `true` iff table should provide removal of elements via `remove` member
  *
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  *
@@ -27,7 +27,7 @@ import pure_mallocator : PureMallocator;
  *
  * TODO benchmark against https://github.com/greg7mdp/sparsepp
  *
- * TODO when mutationFlag and is(typeof(key) == class) use use void*.max as deleted value
+ * TODO when removalFlag and is(typeof(key) == class) use use void*.max as deleted value
  *
  * TODO add merge or union algorithm here or into container_algorithm.d. See
  * also: http://en.cppreference.com/w/cpp/container/unordered_set/merge. this
@@ -37,7 +37,7 @@ import pure_mallocator : PureMallocator;
  */
 struct OpenHashMapOrSet(K, V = void,
                         alias hasher = hashOf,
-                        bool mutationFlag = false,
+                        bool removalFlag = false,
                         alias Allocator = PureMallocator.instance)
     if (isNullableType!K
         //isHashable!K
@@ -225,7 +225,7 @@ struct OpenHashMapOrSet(K, V = void,
                     }
                 }
             }
-            static if (mutationFlag)
+            static if (removalFlag)
             {
                 if (_holesPtr)
                 {
@@ -270,7 +270,7 @@ struct OpenHashMapOrSet(K, V = void,
         return true;
     }
 
-    static if (mutationFlag)
+    static if (removalFlag)
     {
     pragma(inline, true):
     private:
@@ -342,7 +342,7 @@ struct OpenHashMapOrSet(K, V = void,
     {
         release();
         _bins = typeof(_bins).init;
-        static if (mutationFlag)
+        static if (removalFlag)
         {
             _holesPtr = null;
         }
@@ -374,7 +374,7 @@ struct OpenHashMapOrSet(K, V = void,
         @trusted
     {
         Allocator.instance.deallocate(_bins);
-        static if (mutationFlag)
+        static if (removalFlag)
         {
             deallocateHoles();
         }
@@ -477,7 +477,7 @@ struct OpenHashMapOrSet(K, V = void,
         if (Allocator.instance.reallocate(rawBins, T.sizeof*powerOf2newCapacity))
         {
             _bins = cast(T[])rawBins;
-            static if (mutationFlag)
+            static if (removalFlag)
             {
                 deallocateHoles();
                 _holesPtr = allocateHoles(_bins.length);
@@ -561,7 +561,7 @@ struct OpenHashMapOrSet(K, V = void,
         debug immutable oldCount = _count;
 
         _bins = makeBins(newCapacity); // replace with new bins
-        static if (mutationFlag)
+        static if (removalFlag)
         {
             deallocateHoles();
             _holesPtr = allocateHoles(_bins.length);
@@ -946,7 +946,7 @@ struct OpenHashMapOrSet(K, V = void,
 	}
     }
 
-    static if (mutationFlag)
+    static if (removalFlag)
     {
         /** Remove `element`.
             Returns: `true` if element was removed, `false` otherwise.
@@ -967,7 +967,7 @@ struct OpenHashMapOrSet(K, V = void,
                 }
 
                 // remove tag
-                static if (mutationFlag)
+                static if (removalFlag)
                 {
                     setHole(hitIndex);
                 }
@@ -994,7 +994,7 @@ struct OpenHashMapOrSet(K, V = void,
 private:
     T[] _bins;            // bin elements
     size_t _count;        // total number of non-null elements stored in `_bins`
-    static if (mutationFlag)
+    static if (removalFlag)
     {
         size_t* _holesPtr; // bit array describing which bin elements that has been removed (holes)
     }
@@ -1021,7 +1021,7 @@ private:
 alias OpenHashSet(K,
                   alias hasher = hashOf,
                   alias Allocator = PureMallocator.instance,
-                  bool mutationFlag = true) = OpenHashMapOrSet!(K, void, hasher, Allocator, mutationFlag);
+                  bool removalFlag = true) = OpenHashMapOrSet!(K, void, hasher, Allocator, removalFlag);
 
 /** Hash map storing keys of type `K` and values of type `V`.
  */
@@ -1029,7 +1029,7 @@ alias OpenHashMap(K,
                   V,
                   alias hasher = hashOf,
                   alias Allocator = PureMallocator.instance,
-                  bool mutationFlag = true) = OpenHashMapOrSet!(K, V, hasher, Allocator, mutationFlag);
+                  bool removalFlag = true) = OpenHashMapOrSet!(K, V, hasher, Allocator, removalFlag);
 
 import std.traits : isInstanceOf;
 

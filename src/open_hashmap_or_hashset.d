@@ -37,8 +37,8 @@ import pure_mallocator : PureMallocator;
  */
 struct OpenHashMapOrSet(K, V = void,
                         alias hasher = hashOf,
-                        alias Allocator = PureMallocator.instance,
-                        bool mutationFlag = true)
+                        bool mutationFlag = false,
+                        alias Allocator = PureMallocator.instance)
     if (isNullableType!K
         //isHashable!K
         )
@@ -1241,7 +1241,7 @@ pure nothrow @nogc unittest
     import std.meta : AliasSeq;
     foreach (V; AliasSeq!(void, string))
     {
-        alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
+        alias X = OpenHashMapOrSet!(K, V, FNV!(64, true), true);
 
         static if (!X.hasValue)
         {
@@ -1524,7 +1524,7 @@ pure nothrow @nogc unittest
     alias K = Nullable!(uint, uint.max);
     alias V = uint;
 
-    alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
+    alias X = OpenHashMapOrSet!(K, V, FNV!(64, true), true);
 
     auto s = X.withCapacity(n);
 
@@ -1572,7 +1572,7 @@ pure nothrow @nogc unittest
         uint data;
     }
 
-    alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
+    alias X = OpenHashMapOrSet!(K, V, FNV!(64, true), true);
 
     auto s = X.withCapacity(n);
 

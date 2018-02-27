@@ -466,16 +466,10 @@ struct OpenHashMapOrSet(K, V = void,
             if (doInPlaceGrow)
             {
                 growInPlaceWithNewCapacity(newCapacity);
-            }
-            else
-            {
-                growStandardWithNewCapacity(newCapacity);
+                return;
             }
         }
-        else
-        {
-            growStandardWithNewCapacity(newCapacity);
-        }
+        growStandardWithNewCapacity(newCapacity);
     }
 
     private void rehash()

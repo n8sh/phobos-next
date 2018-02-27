@@ -1020,7 +1020,6 @@ struct OpenHashMapOrSet(K, V = void,
             }
             if (hit)
             {
-
             }
         }
     }

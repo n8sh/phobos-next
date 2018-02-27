@@ -479,7 +479,7 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /** Rehash elements keeping only elements whose key matches `keyPredicateString`. */
-    private void rehash(alias keyPredicateString = "!a.isNull")()
+    private void rehash(alias keyPredicateString = "!a.isNull")() // template-lazy
         @trusted
     {
         import std.functional : unaryFun;
@@ -498,14 +498,12 @@ struct OpenHashMapOrSet(K, V = void,
 
                 // TODO functionize:
                 moveEmplace(_bins[doneIndex], currentElement);
-                keyOf(_bins[doneIndex]).nullify();
+                keyOf(_bins[doneIndex]).nullify(); // moveEmplace doesn't init source of type Nullable
                 static if (hasValue && hasElaborateDestructor!V)
                 {
                     valueOf(_bins[doneIndex]) = V.init;
                     // TODO instead do only .destroy(valueOf(_bins[hitIndex])); and emplace values
                 }
-
-                assert(keyOf(_bins[doneIndex]).isNull);
 
                 while (true)
                 {
@@ -521,7 +519,7 @@ struct OpenHashMapOrSet(K, V = void,
                         T nextElement = void;
                         // TODO functionize:
                         moveEmplace(_bins[hitIndex], nextElement); // save non-free slot
-                        keyOf(_bins[hitIndex]).nullify();
+                        keyOf(_bins[hitIndex]).nullify(); // moveEmplace doesn't init source of type Nullable
                         static if (hasValue && hasElaborateDestructor!V)
                         {
                             valueOf(_bins[hitIndex]) = V.init;
@@ -1012,25 +1010,7 @@ struct OpenHashMapOrSet(K, V = void,
         if (isRefIterable!Keys &&
             is(typeof(Keys.front == K.init)))
     {
-        foreach (ref key; keys)
-        {
-            assert(!key.isNull);
-            static if (removalFlag)
-            {
-                immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(keyToIndex(key));
-                immutable hit = hitIndex != _bins.length;
-            }
-            else
-            {
-                immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => (keyOf(_) is key ||
-                                                                             keyOf(_).isNull))(keyToIndex(key));
-                immutable hit = ((hitIndex != _bins.length &&
-                                  keyOf(_bins[hitIndex]) is key));
-            }
-            if (hit)
-            {
-            }
-        }
+        rehash!("!a.isNull && keys.canFind(a)")();
     }
 
     /// Check if empty.

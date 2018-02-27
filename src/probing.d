@@ -5,15 +5,13 @@ module probing;
 import std.functional : unaryFun, binaryFun;
 
 /** Search for a key in `haystack` matching `predicate` starting at `index` in
- * steps of triangular numbers, 0,1,3,6,10,15,21, ... . Optional predicate
- * `indexPredicate` (when non-`null`) matches the index of a given element.
+ * steps of triangular numbers, 0,1,3,6,10,15,21, ... .
  *
  * Returns: index into `haystack` upon hit, `haystack.length` upon miss.
  * Note: `haystack.length` must be a power of two (or 1 or zero).
  * See also: https://fgiesen.wordpress.com/2015/02/22/triangular-numbers-mod-2n/
  */
 size_t triangularProbeFromIndex(alias predicate,
-                                alias indexPredicate = null,
                                 T)(const scope T[] haystack, size_t index)
     if (is(typeof(unaryFun!predicate(T.init))) ||
         is(typeof(binaryFun!predicate(size_t.init, T.init))))

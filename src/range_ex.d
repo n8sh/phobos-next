@@ -541,9 +541,9 @@ unittest
     assert(x.pairs == [tuple(0, "a")]);
 }
 
-import std.traits: isInstanceOf;
+import std.traits: isInstanceOf, Unqual;
 import std.range: SortedRange;
-import std.meta: allSatisfy, staticMap, Unqual;
+import std.meta: allSatisfy, staticMap;
 
 template CommonElementType(Rs...)
 {

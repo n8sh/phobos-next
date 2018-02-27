@@ -339,7 +339,7 @@ struct OpenHashMapOrSet(K, V = void,
     void release()
     {
         releaseBinElements();
-        releaseBinsSlice();
+        releaseBins();
     }
 
     /// Release bin elements.
@@ -356,7 +356,7 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /// Release bin slice.
-    void releaseBinsSlice()
+    void releaseBins()
         @trusted
     {
         Allocator.instance.deallocate(_bins);

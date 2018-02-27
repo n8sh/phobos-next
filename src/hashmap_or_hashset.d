@@ -446,17 +446,18 @@ struct HashMapOrSet(K, V = void,
         import std.range : hasLength;
         static if (hasLength!R)
         {
-            reserveExtra(elements.length);
+            // reserveExtra(elements.length); // TODO this fails when starting knet
         }
         foreach (element; elements)
         {
+            // TODO use `insertMoveWithoutBinCountGrowth` when call to `reserveExtra` works
             static if (hasIndirections!T)
             {
-                insertMoveWithoutBinCountGrowth(element);
+                insert(element);
             }
             else
             {
-                insertMoveWithoutBinCountGrowth(*cast(Unqual!T*)&element);
+                insert(*cast(Unqual!T*)&element);
             }
         }
     }

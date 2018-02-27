@@ -439,7 +439,7 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /// Is `true` iff in-place rehashing during growth should be performed.
-    enum bool doInPlaceGrow = true;
+    enum bool doInPlaceGrow = false;
 
     /// Numerator for grow scale.
     enum growScaleP = 3;

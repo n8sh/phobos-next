@@ -472,10 +472,13 @@ struct OpenHashMapOrSet(K, V = void,
         growStandardWithNewCapacity(newCapacity);
     }
 
-    /** Rehash elements. */
-    private void rehash()
+    /** Rehash elements keeping only elements whose key matches `keyPredicateString`. */
+    private void rehash(alias keyPredicateString = "!a.isNull")()
         @trusted
     {
+        import std.functional : unaryFun;
+        alias keyPredicate = unaryFun!keyPredicateString;
+
         import bitarray : BitArray;
         auto dones = BitArray!().withLength(_bins.length); // TODO use size_t[] and core.bitop instead
         foreach (immutable doneIndex; 0 .. dones.length)
@@ -507,12 +510,7 @@ struct OpenHashMapOrSet(K, V = void,
 
                     dones[hitIndex] = true; // _bins[hitIndex] will be at it's correct position
 
-                    if (keyOf(_bins[hitIndex]).isNull()) // if free slot found
-                    {
-                        moveEmplace(currentElement, _bins[hitIndex]);
-                        break; // inner iteration is finished
-                    }
-                    else // if no free slot
+                    if (!keyOf(_bins[hitIndex]).isNull()) // if free slot found
                     {
                         T nextElement = void;
                         // TODO functionize:
@@ -526,6 +524,11 @@ struct OpenHashMapOrSet(K, V = void,
 
                         moveEmplace(currentElement, _bins[hitIndex]);
                         moveEmplace(nextElement, currentElement);
+                    }
+                    else // if no free slot
+                    {
+                        moveEmplace(currentElement, _bins[hitIndex]);
+                        break; // inner iteration is finished
                     }
                 }
                 dones[doneIndex] = true; // _bins[doneIndex] is at it's correct position

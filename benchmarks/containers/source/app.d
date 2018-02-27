@@ -77,7 +77,10 @@ void main()
 
         writefln(` for %s`, A.stringof);
 
-        static if (hasMember!(A, `clear`)) { a.clear(); }
+        static if (hasMember!(A, `clear`))
+        {
+            a.clear();
+        }
     }
 
     writefln("\nSets:\n");
@@ -214,7 +217,10 @@ void main()
 
         writeln();
 
-        static if (hasMember!(A, `clear`)) { a.clear(); }
+        static if (hasMember!(A, `clear`))
+        {
+            a.clear();
+        }
     }
 
     writefln("\nMaps:\n");
@@ -379,6 +385,9 @@ void main()
 
         writeln();
 
-        static if (hasMember!(A, `clear`)) { a.clear(); }
+        static if (hasMember!(A, `clear`))
+        {
+            a.clear();
+        }
     }
 }

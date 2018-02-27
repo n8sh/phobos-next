@@ -477,7 +477,7 @@ struct OpenHashMapOrSet(K, V = void,
         @trusted
     {
         import bitarray : BitArray;
-        auto dones = BitArray!().withLength(_bins.length); // TODO don't use BitArray
+        auto dones = BitArray!().withLength(_bins.length); // TODO use size_t[] and core.bitop instead
         foreach (immutable doneIndex; 0 .. dones.length)
         {
             if (!dones[doneIndex] && // if _bins[doneIndex] not yet ready
@@ -972,17 +972,14 @@ struct OpenHashMapOrSet(K, V = void,
             immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(keyToIndex(key));
             if (hitIndex != _bins.length) // if hit
             {
-                // key
                 keyOf(_bins[hitIndex]).nullify();
 
-                // value
                 static if (hasValue && hasElaborateDestructor!V)
                 {
                     valueOf(_bins[hitIndex]) = V.init;
                     // TODO instead do only .destroy(valueOf(_bins[hitIndex])); and emplace values
                 }
 
-                // remove tag
                 static if (removalFlag)
                 {
                     setHole(hitIndex);

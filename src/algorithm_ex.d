@@ -2031,7 +2031,7 @@ bool countsAtMost(R)(R r, size_t maxCount) @("complexity", "O(maxCount)")
     test(x[]);
 }
 
-import std.traits : allSatisfy;
+import std.meta : allSatisfy;
 import std.range.primitives : hasLength;
 
 /** Returns: `true` iff `r` and all `ss` all have equal length.

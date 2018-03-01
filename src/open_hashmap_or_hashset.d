@@ -44,7 +44,6 @@ struct OpenHashMapOrSet(K, V = void,
     import std.math : nextPow2;
     import std.conv : emplace;
     import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable, isMutable, hasIndirections, Unqual;
-    import std.algorithm.comparison : max;
     import std.algorithm.mutation : move;
     import std.typecons : Nullable;
 

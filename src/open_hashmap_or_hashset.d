@@ -1082,7 +1082,7 @@ alias OpenHashMap(K, V, alias hasher = hashOf,
 import std.traits : isInstanceOf;
 
 /** Remove (reset) all elements in `x` matching `predicate`.
-*/
+ */
 void removeAllMatching(alias predicate, SomeOpenHashMapOrSet)(auto ref SomeOpenHashMapOrSet x)
     if (isInstanceOf!(OpenHashMapOrSet,
                       SomeOpenHashMapOrSet))

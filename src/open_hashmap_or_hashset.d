@@ -23,8 +23,6 @@ import pure_mallocator : PureMallocator;
  * TODO add extractElement that moves it out similar to
  * http://en.cppreference.com/w/cpp/container/unordered_set/extract
  *
- * TODO benchmark against https://github.com/greg7mdp/sparsepp
- *
  * TODO when removalFlag and is(typeof(key) == class) use use void*.max as deleted value
  *
  * TODO add merge or union algorithm here or into container_algorithm.d. See

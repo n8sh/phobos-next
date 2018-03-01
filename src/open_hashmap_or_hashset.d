@@ -1042,7 +1042,7 @@ struct OpenHashMapOrSet(K, V = void,
             pragma(inline, true)
             void opIndexAssign()(V value, WrappedKey wrappedKey) // template-lazy
             {
-                insert(T(move(nullable(wrappedKey)),
+                insert(T(nullable(move(wrappedKey)),
                          move(value)));
                 // TODO return reference to value
             }

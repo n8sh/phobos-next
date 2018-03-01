@@ -62,6 +62,12 @@ struct OpenHashMapOrSet(K, V = void,
     alias MutableThis = Unqual!(typeof(this));
     alias ConstThis = const(MutableThis);
 
+    static if (isInstanceOf!(Nullable, K))
+    {
+        alias WrappedKey = Unqual!(typeof(K.get));
+        import std.typecons : nullable;
+    }
+
     pragma(inline):
 
     /// Element type.
@@ -401,6 +407,15 @@ struct OpenHashMapOrSet(K, V = void,
                                                                          keyOf(_).isNull))(keyToIndex(key));
             return (hitIndex != _bins.length &&
                     keyOf(_bins[hitIndex]) is key);
+        }
+    }
+
+    static if (isInstanceOf!(Nullable, T))
+    {
+        pragma(inline, true)
+        bool contains(const scope WrappedKey wrappedKey) const // template-lazy, auto ref here makes things slow
+        {
+            return contains(nullable(wrappedKey));
         }
     }
 
@@ -1820,23 +1835,6 @@ version(unittest)
         mixin(bitfields!(WN_SynsetKind, `synsetType`, bitsizeOfSynsetType,
                          uint, `synsetOffset`, 32 - bitsizeOfSynsetType));
     }
-}
-
-/*TODO enable*/version(none)
-@safe pure unittest
-{
-    import std.typecons : Nullable;
-
-    alias WN31_Offset = WN_Offset!(31);
-    alias K = Nullable!(WN31_Offset,
-                        WN31_Offset.init);
-    struct V
-    {
-        @disable this(this);
-        uint value;
-    }
-    alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
-    auto x = X();
 }
 
 version(unittest)

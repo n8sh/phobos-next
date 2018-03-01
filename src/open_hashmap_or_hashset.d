@@ -787,6 +787,15 @@ struct OpenHashMapOrSet(K, V = void,
             return contains(key);
         }
 
+        static if (isInstanceOf!(Nullable, K))
+        {
+            bool opBinaryRight(string op)(const scope WrappedKey wrappedKey) const
+                if (op == "in")
+            {
+                return opBinaryRight!"in"(nullable(wrappedKey));
+            }
+        }
+
         /// Range over elements of l-value instance of this.
         static private struct ByLvalueElement(SomeOpenHashMapOrSet)
         {
@@ -867,6 +876,14 @@ struct OpenHashMapOrSet(K, V = void,
             else                    // miss
             {
                 return null;    // TODO return reference to where element should be placed
+            }
+        }
+        static if (isInstanceOf!(Nullable, K))
+        {
+            scope inout(V)* opBinaryRight(string op)(const scope WrappedKey wrappedKey) inout return // auto ref here makes things slow
+                if (op == "in")
+            {
+                return opBinaryRight!"in"(nullable(wrappedKey));
             }
         }
 

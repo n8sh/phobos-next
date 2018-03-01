@@ -2,7 +2,7 @@
     See also: http://forum.dlang.org/thread/wswbtzakdvpgaebuhbom@forum.dlang.org
 */
 
-import array_ex : Stack = Array;
+import basic_array : Stack = BasicArray;
 
 @safe pure nothrow @nogc unittest
 {
@@ -13,15 +13,15 @@ import array_ex : Stack = Array;
 
     // insertBack:
 
-    s.insertBack(13);
+    s.insertBack(13U);
     assert(!s.empty);
     assert(s.back == 13);
 
-    s.insertBack(14);
+    s.insertBack(14U);
     assert(!s.empty);
     assert(s.back == 14);
 
-    s.insertBack(15);
+    s.insertBack(15U);
     assert(!s.empty);
     assert(s.back == 15);
 
@@ -40,7 +40,7 @@ import array_ex : Stack = Array;
 
     // insertBack:
 
-    s.insertBack(13, 14, 15);
+    s.insertBack(13U, 14U, 15U);
     assert(!s.empty);
     assert(s.back == 15);
 

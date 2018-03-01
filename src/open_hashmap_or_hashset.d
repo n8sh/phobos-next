@@ -1006,7 +1006,7 @@ struct OpenHashMapOrSet(K, V = void,
          *
          * TODO make `defaultValue` `lazy` when that can be `nothrow`
          */
-        auto ref V get()(const scope K key,
+        auto ref V get()(const scope K key, // template-lazy
                          const scope V defaultValue)
         {
             auto value = key in this;
@@ -1017,6 +1017,16 @@ struct OpenHashMapOrSet(K, V = void,
             else
             {
                 return defaultValue;
+            }
+        }
+        static if (isInstanceOf!(Nullable, K))
+        {
+            pragma(inline, true)
+            auto ref V get()(const scope WrappedKey wrappedKey, // template-lazy
+                             const scope V defaultValue)
+            {
+                return get(nullable(wrappedKey),
+                           defaultValue);
             }
         }
 

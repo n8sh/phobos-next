@@ -1007,7 +1007,7 @@ struct OpenHashMapOrSet(K, V = void,
          * TODO make `defaultValue` `lazy` when that can be `nothrow`
          */
         auto ref V get()(const scope K key, // template-lazy
-                         const scope V defaultValue)
+                         const scope return ref V defaultValue)
         {
             auto value = key in this;
             if (value !is null)
@@ -1023,7 +1023,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             pragma(inline, true)
             auto ref V get()(const scope WrappedKey wrappedKey, // template-lazy
-                             const scope V defaultValue)
+                             const scope return ref V defaultValue)
             {
                 return get(nullable(wrappedKey),
                            defaultValue);

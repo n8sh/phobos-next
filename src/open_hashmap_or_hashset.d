@@ -270,12 +270,12 @@ struct OpenHashMapOrSet(K, V = void,
             {
                 static if (hasValue)
                 {
-                    auto elementFound = _bins[ix].key in rhs;
-                    if (!elementFound)
+                    auto hitPtr = _bins[ix].key in rhs;
+                    if (!hitPtr)
                     {
                         return false;
                     }
-                    if ((*elementFound) !is _bins[ix].value)
+                    if ((*hitPtr) !is _bins[ix].value)
                     {
                         return false;
                     }

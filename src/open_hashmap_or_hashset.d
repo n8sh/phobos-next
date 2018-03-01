@@ -46,7 +46,6 @@ struct OpenHashMapOrSet(K, V = void,
     import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable, isMutable, hasIndirections, Unqual;
     import std.algorithm.comparison : max;
     import std.algorithm.mutation : move;
-    import std.experimental.allocator : makeArray;
     import std.typecons : Nullable;
 
     import qcmeman : gc_addRange, gc_removeRange;
@@ -158,16 +157,28 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     pragma(inline, true)
-    private static T[] makeBins(size_t capacity) @trusted
+    private static T[] makeBins(size_t capacity_) @trusted
     {
-        immutable powerOf2Capacity = nextPow2(capacity);
+        immutable powerOf2Capacity = nextPow2(capacity_);
+
         // TODO cannot use makeArray here because it cannot handle uncopyable types
-        auto bins = Allocator.makeArray!T(powerOf2Capacity, nullKeyElement);
+        // import std.experimental.allocator : makeArray;
+        // auto bins = Allocator.makeArray!T(powerOf2Capacity, nullKeyElement);
+
+        immutable byteCount = T.sizeof*powerOf2Capacity;
+        auto bins = cast(T[])Allocator.instance.allocate(byteCount);
+
+        // default initialize
+        foreach (ref element; bins)
+        {
+            nullifyElement(element);
+        }
+
         static if (mustAddGCRange!T)
         {
-            immutable byteCount = T.sizeof*powerOf2Capacity;
             gc_addRange(bins.ptr, byteCount);
         }
+
         return bins;
     }
 
@@ -521,6 +532,16 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
+    static private void nullifyElement(ref T element)
+    {
+        keyOf(element).nullify(); // moveEmplace doesn't init source of type Nullable
+        static if (hasValue && hasElaborateDestructor!V)
+        {
+            valueOf(element) = V.init;
+            // TODO instead do only .destroy(valueOf(_bins[hitIndex])); and emplace values
+        }
+    }
+
     /** Rehash elements in-place keeping only elements whose key matches `keyPredicateString`. */
     private void rehashInPlace(alias keyPredicateString = "!a.isNull")() // template-lazy
         @trusted
@@ -541,12 +562,7 @@ struct OpenHashMapOrSet(K, V = void,
 
                 // TODO functionize:
                 moveEmplace(_bins[doneIndex], currentElement);
-                keyOf(_bins[doneIndex]).nullify(); // moveEmplace doesn't init source of type Nullable
-                static if (hasValue && hasElaborateDestructor!V)
-                {
-                    valueOf(_bins[doneIndex]) = V.init;
-                    // TODO instead do only .destroy(valueOf(_bins[hitIndex])); and emplace values
-                }
+                nullifyElement(_bins[doneIndex]);
 
                 while (true)
                 {
@@ -562,13 +578,7 @@ struct OpenHashMapOrSet(K, V = void,
                         T nextElement = void;
                         // TODO functionize:
                         moveEmplace(_bins[hitIndex], nextElement); // save non-free slot
-                        keyOf(_bins[hitIndex]).nullify(); // moveEmplace doesn't init source of type Nullable
-                        static if (hasValue && hasElaborateDestructor!V)
-                        {
-                            valueOf(_bins[hitIndex]) = V.init;
-                            // TODO instead do only .destroy(valueOf(_bins[hitIndex])); and emplace values
-                        }
-
+                        nullifyElement(_bins[hitIndex]);
                         moveEmplace(currentElement, _bins[hitIndex]);
                         moveEmplace(nextElement, currentElement);
                     }
@@ -1883,6 +1893,60 @@ pure nothrow unittest
     auto x = X();
 
     x[new K(42)] = new V(43);
+
+    assert(x.length == 1);
+
+    foreach (e; x.byValue)      // `e` is auto ref
+    {
+        static assert(is(typeof(e) == X.ValueType)); // mutable access to value
+        assert(e.data == 43);
+
+        // value mutation side effects
+        e.data += 1;
+        assert(e.data == 44);
+        e.data -= 1;
+        assert(e.data == 43);
+    }
+
+    foreach (ref e; x.byKeyValue)   // `e` is auto ref
+    {
+        static assert(is(typeof(e.key) == const(X.KeyType))); // const access to key
+        static assert(is(typeof(e.value) == X.ValueType)); // mutable access to value
+
+        assert(e.key.value == 42);
+        assert(e.value.data == 43);
+
+        // value mutation side effects
+        e.value.data += 1;
+        assert(e.value.data == 44);
+        e.value.data -= 1;
+        assert(e.value.data == 43);
+    }
+}
+
+/// range key constness and value mutability with `class` key and `class` value
+pure nothrow unittest
+{
+    class K
+    {
+        this(uint value)
+        {
+            this.value = value;
+        }
+        uint value;
+    }
+
+    struct V
+    {
+        this(uint data) { this.data = data; }
+        // TODO activate @disable this(this);
+        uint data;
+    }
+
+    alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
+    auto x = X();
+
+    x[new K(42)] = V(43);
 
     assert(x.length == 1);
 

@@ -1135,11 +1135,11 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
         if (x.length <
             y.length)
         {
-            return move(x).filtered!(_ => y.contains(_));
+            return move(x).filtered!(_ => y.contains(_)); // functional
         }
         else
         {
-            return move(y).filtered!(_ => x.contains(_));
+            return move(y).filtered!(_ => x.contains(_)); // functional
         }
     }
 }

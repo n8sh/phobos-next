@@ -161,15 +161,30 @@ struct OpenHashMapOrSet(K, V = void,
     {
         immutable powerOf2Capacity = nextPow2(capacity_);
 
+        import std.traits : isPointer;
+
         // TODO cannot use makeArray here because it cannot handle uncopyable types
         // import std.experimental.allocator : makeArray;
         // auto bins = Allocator.makeArray!T(powerOf2Capacity, nullKeyElement);
 
         immutable byteCount = T.sizeof*powerOf2Capacity;
-        auto bins = cast(T[])Allocator.instance.allocate(byteCount);
-        foreach (ref element; bins)
+
+        static if ((isInstanceOf!(Nullable, K) &&
+                    is(Unqual!K == Nullable!(WrappedKey,
+                                             WrappedKey.init))) || // init value is always zero bits only
+                   is(K == class) ||
+                   isPointer!K)
         {
-            nullifyElement(element);
+            // https://stackoverflow.com/questions/2688466/why-mallocmemset-is-slower-than-calloc
+            auto bins = cast(T[])Allocator.instance.zeroallocate(byteCount);
+        }
+        else
+        {
+            auto bins = cast(T[])Allocator.instance.allocate(byteCount);
+            foreach (ref element; bins)
+            {
+                nullifyElement(element);
+            }
         }
 
         static if (mustAddGCRange!T)

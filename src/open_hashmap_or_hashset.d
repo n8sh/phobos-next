@@ -169,11 +169,11 @@ struct OpenHashMapOrSet(K, V = void,
 
         immutable byteCount = T.sizeof*powerOf2Capacity;
 
-        static if ((isInstanceOf!(Nullable, K) &&
+        static if (is(K == class) ||
+                   isPointer!K ||
+                   (isInstanceOf!(Nullable, K) &&
                     is(Unqual!K == Nullable!(WrappedKey,
-                                             WrappedKey.init))) || // init value is always zero bits only
-                   is(K == class) ||
-                   isPointer!K)
+                                             WrappedKey.init)))) // init value is always zero bits only
         {
             /* prefer call to calloc before malloc+memset:
              * https://stackoverflow.com/questions/2688466/why-mallocmemset-is-slower-than-calloc */

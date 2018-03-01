@@ -47,7 +47,6 @@ struct OpenHashMapOrSet(K, V = void,
     import std.typecons : Nullable;
 
     import qcmeman : gc_addRange, gc_removeRange;
-    import emplace_all : moveEmplaceAllNoReset;
     import digestion : hashOf2;
     import probing : triangularProbeFromIndex;
 

@@ -532,6 +532,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
+    /** Nullify `element`. */
     static private void nullifyElement(ref T element)
     {
         keyOf(element).nullify(); // moveEmplace doesn't init source of type Nullable

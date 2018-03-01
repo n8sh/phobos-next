@@ -167,8 +167,6 @@ struct OpenHashMapOrSet(K, V = void,
 
         immutable byteCount = T.sizeof*powerOf2Capacity;
         auto bins = cast(T[])Allocator.instance.allocate(byteCount);
-
-        // default initialize
         foreach (ref element; bins)
         {
             nullifyElement(element);
@@ -563,7 +561,7 @@ struct OpenHashMapOrSet(K, V = void,
 
                 // TODO functionize:
                 moveEmplace(_bins[doneIndex], currentElement);
-                nullifyElement(_bins[doneIndex]);
+                nullifyElement(_bins[doneIndex]); // moveEmplace doesn't init source of type Nullable
 
                 while (true)
                 {
@@ -579,7 +577,7 @@ struct OpenHashMapOrSet(K, V = void,
                         T nextElement = void;
                         // TODO functionize:
                         moveEmplace(_bins[hitIndex], nextElement); // save non-free slot
-                        nullifyElement(_bins[hitIndex]);
+                        nullifyElement(_bins[hitIndex]);           // moveEmplace doesn't init source of type Nullable
                         moveEmplace(currentElement, _bins[hitIndex]);
                         moveEmplace(nextElement, currentElement);
                     }

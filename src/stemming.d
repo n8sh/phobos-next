@@ -9,8 +9,8 @@ import std.traits: isSomeString;
 import std.typecons: Tuple, tuple;
 
 import languages : Lang;
-import lingua: isEnglishVowel, isSwedishVowel, isSwedishConsonant, isEnglishConsonant;
-import skip_ex: skipOverBack;
+import lingua : isEnglishVowel, isSwedishVowel, isSwedishConsonant, isEnglishConsonant;
+import skip_ex : skipOverBack;
 
 public class Stemmer(S)
     if (isSomeString!S)

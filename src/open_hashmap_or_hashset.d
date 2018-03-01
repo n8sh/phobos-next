@@ -175,8 +175,18 @@ struct OpenHashMapOrSet(K, V = void,
                    is(K == class) ||
                    isPointer!K)
         {
-            // https://stackoverflow.com/questions/2688466/why-mallocmemset-is-slower-than-calloc
-            auto bins = cast(T[])Allocator.instance.zeroallocate(byteCount);
+            /* prefer call to calloc before malloc+memset:
+             * https://stackoverflow.com/questions/2688466/why-mallocmemset-is-slower-than-calloc */
+            static if (__traits(hasMember, Allocator, "zeroallocate"))
+            {
+                auto bins = cast(T[])Allocator.instance.zeroallocate(byteCount);
+            }
+            else
+            {
+                auto bins = cast(T[])Allocator.instance.zeroallocate(byteCount);
+                import core.stdc.string : memset;
+                memset(bins.ptr, 0, byteCount);
+            }
         }
         else
         {

@@ -1110,19 +1110,11 @@ struct OpenHashMapOrSet(K, V = void,
             immutable hitIndex = _bins[].triangularProbeFromIndex!(element => keyOf(element) is key)(keyToIndex(key));
             if (hitIndex != _bins.length) // if hit
             {
-                keyOf(_bins[hitIndex]).nullify();
-
-                static if (hasValue && hasElaborateDestructor!V)
-                {
-                    valueOf(_bins[hitIndex]) = V.init;
-                    // TODO instead do only .destroy(valueOf(_bins[hitIndex])); and emplace values
-                }
-
+                nullifyElement(_bins[hitIndex]);
                 static if (removalFlag)
                 {
                     setHole(hitIndex);
                 }
-
                 _count -= 1;
                 return true;
             }

@@ -171,11 +171,13 @@ struct OpenHashMapOrSet(K, V = void,
         return Allocator.instance.allocate(T.sizeof*binCount);
     }
 
-    import std.traits : isIterable;
+    import std.range : StdElementType = ElementType;
+    import std.traits : isIterable, isAssignable;
 
     /** Make with `elements`. */
     static typeof(this) withElements(R)(R elements)
-        if (isIterable!R)
+        if (isIterable!R &&
+            isAssignable!(T, StdElementType!R))
     {
         import std.range : hasLength;
         static if (hasLength!R)

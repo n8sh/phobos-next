@@ -65,7 +65,6 @@ struct OpenHashMapOrSet(K, V = void,
     static if (isInstanceOf!(Nullable, K))
     {
         alias WrappedKey = Unqual!(typeof(K.get));
-        import std.typecons : nullable;
     }
 
     pragma(inline):
@@ -416,7 +415,7 @@ struct OpenHashMapOrSet(K, V = void,
         pragma(inline, true)
         bool contains(const scope WrappedKey wrappedKey) const // template-lazy, auto ref here makes things slow
         {
-            return contains(nullable(wrappedKey));
+            return contains(K(wrappedKey));
         }
     }
 
@@ -435,7 +434,7 @@ struct OpenHashMapOrSet(K, V = void,
         pragma(inline, true)
         InsertionStatus insert(WrappedKey wrappedElement)
         {
-            return insert(nullable(wrappedElement));
+            return insert(K(wrappedElement));
         }
     }
 
@@ -685,7 +684,7 @@ struct OpenHashMapOrSet(K, V = void,
             pragma(inline, true)    // LDC must have this
             InsertionStatus insert(WrappedKey wrappedKey, V value)
             {
-                return insert(nullable(wrappedKey), move(value));
+                return insert(K(wrappedKey), move(value));
             }
         }
     }
@@ -791,7 +790,7 @@ struct OpenHashMapOrSet(K, V = void,
             bool opBinaryRight(string op)(const scope WrappedKey wrappedKey) const
                 if (op == "in")
             {
-                return opBinaryRight!"in"(nullable(wrappedKey));
+                return opBinaryRight!"in"(K(wrappedKey));
             }
         }
 
@@ -883,7 +882,7 @@ struct OpenHashMapOrSet(K, V = void,
             scope inout(V)* opBinaryRight(string op)(const scope WrappedKey wrappedKey) inout return // auto ref here makes things slow
                 if (op == "in")
             {
-                return opBinaryRight!"in"(nullable(wrappedKey));
+                return opBinaryRight!"in"(K(wrappedKey));
             }
         }
 
@@ -993,7 +992,7 @@ struct OpenHashMapOrSet(K, V = void,
             pragma(inline, true)    // LDC must have this
             scope ref inout(V) opIndex()(const scope WrappedKey wrappedKey) inout return // auto ref here makes things slow
             {
-                return opIndex(nullable(wrappedKey));
+                return opIndex(K(wrappedKey));
             }
         }
 
@@ -1023,7 +1022,7 @@ struct OpenHashMapOrSet(K, V = void,
             auto ref V get()(const scope WrappedKey wrappedKey, // template-lazy
                              const scope V defaultValue)
             {
-                return get(nullable(wrappedKey),
+                return get(K(wrappedKey),
                            defaultValue);
             }
         }
@@ -1042,7 +1041,7 @@ struct OpenHashMapOrSet(K, V = void,
             pragma(inline, true)
             void opIndexAssign()(V value, WrappedKey wrappedKey) // template-lazy
             {
-                insert(T(nullable(move(wrappedKey)),
+                insert(T(K(move(wrappedKey)),
                          move(value)));
                 // TODO return reference to value
             }
@@ -1081,7 +1080,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             bool remove()(const scope WrappedKey wrappedKey) // template-lazy
             {
-                return remove(nullable(wrappedKey));
+                return remove(K(wrappedKey));
             }
         }
     }

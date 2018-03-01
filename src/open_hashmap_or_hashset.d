@@ -1,6 +1,6 @@
 module open_hashmap_or_hashset;
 
-import container_traits;
+import container_traits : isNullableType, defaultNullKeyConstantOf, mustAddGCRange, isNull, nullify;
 import pure_mallocator : PureMallocator;
 
 @safe:

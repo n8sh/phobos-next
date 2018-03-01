@@ -49,6 +49,7 @@ struct OpenHashMapOrSet(K, V = void,
     import std.algorithm.comparison : max;
     import std.algorithm.mutation : move;
     import std.experimental.allocator : makeArray;
+    import std.typecons : Nullable;
 
     import emplace_all : moveEmplaceAllNoReset;
     import digestion : hashOf2;

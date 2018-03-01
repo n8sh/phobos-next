@@ -409,7 +409,6 @@ struct OpenHashMapOrSet(K, V = void,
                     keyOf(_bins[hitIndex]) is key);
         }
     }
-
     static if (isInstanceOf!(Nullable, K))
     {
         pragma(inline, true)
@@ -428,7 +427,6 @@ struct OpenHashMapOrSet(K, V = void,
         reserveExtra(1);
         return insertWithoutGrowth(move(element));
     }
-
     static if (!hasValue &&
                isInstanceOf!(Nullable, K))
     {
@@ -680,7 +678,6 @@ struct OpenHashMapOrSet(K, V = void,
             return insert(T(move(key),
                             move(value)));
         }
-
         static if (isInstanceOf!(Nullable, K))
         {
             pragma(inline, true)    // LDC must have this
@@ -786,7 +783,6 @@ struct OpenHashMapOrSet(K, V = void,
         {
             return contains(key);
         }
-
         static if (isInstanceOf!(Nullable, K))
         {
             pragma(inline, true)    // LDC must have this
@@ -1007,7 +1003,7 @@ struct OpenHashMapOrSet(K, V = void,
          * TODO make `defaultValue` `lazy` when that can be `nothrow`
          */
         auto ref V get()(const scope K key, // template-lazy
-                         const scope return ref V defaultValue)
+                         const scope V defaultValue)
         {
             auto value = key in this;
             if (value !is null)
@@ -1023,7 +1019,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             pragma(inline, true)
             auto ref V get()(const scope WrappedKey wrappedKey, // template-lazy
-                             const scope return ref V defaultValue)
+                             const scope V defaultValue)
             {
                 return get(nullable(wrappedKey),
                            defaultValue);
@@ -1039,6 +1035,15 @@ struct OpenHashMapOrSet(K, V = void,
                      move(value)));
             // TODO return reference to value
 	}
+        static if (isInstanceOf!(Nullable, K))
+        {
+            pragma(inline, true)
+            void opIndexAssign()(V value, WrappedKey wrappedKey) // template-lazy
+            {
+                insert(T(move(nullable(wrappedKey)),
+                         move(value)));
+            }
+        }
     }
 
     static if (removalFlag)

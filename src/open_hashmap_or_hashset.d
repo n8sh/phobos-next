@@ -1110,9 +1110,9 @@ SomeOpenHashMapOrSet filtered(alias predicate, SomeOpenHashMapOrSet)(SomeOpenHas
                       SomeOpenHashMapOrSet))
 {
     import std.functional : not;
-    x.resetAllMatching!(not!predicate);
+    x.resetAllMatching!(not!predicate); // `x` is a singleton (r-value) so safe to mutate
     import std.algorithm.mutation : move;
-    return move(x);
+    return move(x);             // functional
 }
 
 /** Returns: `x` eagerly intersected with `y`.

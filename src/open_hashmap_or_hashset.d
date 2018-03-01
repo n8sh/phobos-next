@@ -644,7 +644,7 @@ struct OpenHashMapOrSet(K, V = void,
             static if (removalFlag)
             {
                 deallocateHoles();
-                _holesPtr = allocateHoles(_bins.length);
+                _holesPtr = allocateHoles(binBlockBytes(_bins.length));
             }
 
             // TODO make this an array operation `nullifyAll` or `nullifyN`
@@ -674,7 +674,7 @@ struct OpenHashMapOrSet(K, V = void,
         static if (removalFlag)
         {
             deallocateHoles();
-            _holesPtr = allocateHoles(_bins.length);
+            _holesPtr = allocateHoles(binBlockBytes(_bins.length));
         }
         _count = 0;
 

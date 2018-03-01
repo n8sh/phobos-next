@@ -429,6 +429,16 @@ struct OpenHashMapOrSet(K, V = void,
         return insertWithoutGrowth(move(element));
     }
 
+    static if (!hasValue &&
+               isInstanceOf!(Nullable, K))
+    {
+        pragma(inline, true)
+        InsertionStatus insert(WrappedKey wrappedElement)
+        {
+            return insert(nullable(wrappedElement));
+        }
+    }
+
     /** Insert `elements`, all being either a key-value (map-case) or a just a key (set-case).
      */
     void insertN(R)(R elements) @trusted

@@ -410,7 +410,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    static if (isInstanceOf!(Nullable, T))
+    static if (isInstanceOf!(Nullable, K))
     {
         pragma(inline, true)
         bool contains(const scope WrappedKey wrappedKey) const // template-lazy, auto ref here makes things slow

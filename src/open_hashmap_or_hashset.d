@@ -501,8 +501,8 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    /** Rehash elements keeping only elements whose key matches `keyPredicateString`. */
-    private void rehash(alias keyPredicateString = "!a.isNull")() // template-lazy
+    /** Rehash elements in-place keeping only elements whose key matches `keyPredicateString`. */
+    private void rehashInplace(alias keyPredicateString = "!a.isNull")() // template-lazy
         @trusted
     {
         import std.functional : unaryFun;
@@ -590,7 +590,7 @@ struct OpenHashMapOrSet(K, V = void,
                 keyOf(bin).nullify(); // move this `init` to reallocate() above?
             }
 
-            rehash();
+            rehashInplace();
         }
         else
         {

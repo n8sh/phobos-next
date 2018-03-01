@@ -680,6 +680,15 @@ struct OpenHashMapOrSet(K, V = void,
             return insert(T(move(key),
                             move(value)));
         }
+
+        static if (isInstanceOf!(Nullable, K))
+        {
+            pragma(inline, true)    // LDC must have this
+            InsertionStatus insert(WrappedKey wrappedKey, V value)
+            {
+                return insert(nullable(wrappedKey), move(value));
+            }
+        }
     }
 
     /** L-value element reference (and in turn range iterator).

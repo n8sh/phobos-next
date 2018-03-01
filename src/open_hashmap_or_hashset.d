@@ -271,14 +271,8 @@ struct OpenHashMapOrSet(K, V = void,
                 static if (hasValue)
                 {
                     auto hitPtr = _bins[ix].key in rhs;
-                    if (!hitPtr)
-                    {
-                        return false;
-                    }
-                    if ((*hitPtr) !is _bins[ix].value)
-                    {
-                        return false;
-                    }
+                    if (!hitPtr) { return false; }
+                    if ((*hitPtr) !is _bins[ix].value) { return false; }
                 }
                 else
                 {

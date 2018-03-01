@@ -1081,9 +1081,9 @@ alias OpenHashMap(K, V, alias hasher = hashOf,
 
 import std.traits : isInstanceOf;
 
-/** Reset (remove) all elements in `x` matching `predicate`.
+/** Remove (reset) all elements in `x` matching `predicate`.
 */
-void resetAllMatching(alias predicate, SomeOpenHashMapOrSet)(auto ref SomeOpenHashMapOrSet x)
+void removeAllMatching(alias predicate, SomeOpenHashMapOrSet)(auto ref SomeOpenHashMapOrSet x)
     if (isInstanceOf!(OpenHashMapOrSet,
                       SomeOpenHashMapOrSet))
 {
@@ -1110,7 +1110,7 @@ SomeOpenHashMapOrSet filtered(alias predicate, SomeOpenHashMapOrSet)(SomeOpenHas
                       SomeOpenHashMapOrSet))
 {
     import std.functional : not;
-    x.resetAllMatching!(not!predicate); // `x` is a singleton (r-value) so safe to mutate
+    x.removeAllMatching!(not!predicate); // `x` is a singleton (r-value) so safe to mutate
     import std.algorithm.mutation : move;
     return move(x);             // functional
 }
@@ -1205,7 +1205,7 @@ auto intersectWith(C1, C2)(ref C1 x,
     if (isInstanceOf!(OpenHashMapOrSet, C1) &&
         isInstanceOf!(OpenHashMapOrSet, C2))
 {
-    return x.resetAllMatching!(_ => !y.contains(_));
+    return x.removeAllMatching!(_ => !y.contains(_));
 }
 
 /// r-value and l-value intersection
@@ -1337,16 +1337,16 @@ pure nothrow @nogc unittest
                 assert(xc.contains(K(11)));
 
                 // TODO http://forum.dlang.org/post/kvwrktmameivubnaifdx@forum.dlang.org
-                xc.resetAllMatching!(_ => _ == K(11));
+                xc.removeAllMatching!(_ => _ == K(11));
 
                 assert(xc.length == 2);
                 assert(!xc.contains(K(11)));
 
-                xc.resetAllMatching!(_ => _ == 12);
+                xc.removeAllMatching!(_ => _ == 12);
                 assert(!xc.contains(K(12)));
                 assert(xc.length == 1);
 
-                xc.resetAllMatching!(_ => _ == 13);
+                xc.removeAllMatching!(_ => _ == 13);
                 assert(!xc.contains(K(13)));
                 assert(xc.length == 0);
 

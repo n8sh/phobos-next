@@ -1916,46 +1916,6 @@ pure nothrow unittest
 
 version(unittest)
 {
-    enum WN_SynsetKind : ubyte
-    {
-        unknown = 0,    // needed for `Nullable!(WN_SynsetKind, WN_SynsetKind.init)`
-        noun = 1,
-        verb = 2,
-        adjective = 3,
-        adjectiveSattelite = 4,
-        adverb = 5,
-    }
-
-    struct WN_Offset(alias versionId)
-    {
-        @safe pure:
-
-        this(WN_SynsetKind synsetType,
-             uint synsetOffset)
-        {
-            this.synsetType = synsetType;
-            this.synsetOffset = synsetOffset;
-        }
-
-        version(none)               // not needed now
-        @property string toString() const
-        {
-            import std.conv : to;
-            return `WN_Offset!` ~ versionId.stringof ~ `(` ~ synsetType.to!string ~ `:` ~ synsetOffset.to!string ~ `)`;
-        }
-
-        import bit_traits : packedBitSizeOf;
-        enum bitsizeOfSynsetType = packedBitSizeOf!WN_SynsetKind;
-        static assert(bitsizeOfSynsetType == 3);
-
-        import std.bitmanip : bitfields;
-        mixin(bitfields!(WN_SynsetKind, `synsetType`, bitsizeOfSynsetType,
-                         uint, `synsetOffset`, 32 - bitsizeOfSynsetType));
-    }
-}
-
-version(unittest)
-{
     import std.exception : assertThrown, assertNotThrown;
     import core.exception : RangeError;
     import std.algorithm : count;

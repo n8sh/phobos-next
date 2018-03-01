@@ -195,14 +195,18 @@ struct OpenHashMapOrSet(K, V = void,
         static if (hasLength!R)
         {
             typeof(this) that = withCapacity(elements.length);
+            foreach (ref element; elements)
+            {
+                that.insertWithoutGrowth(element);
+            }
         }
         else
         {
-            typeof(this) that;  // TODO if `isForwardRange` count elements
-        }
-        foreach (ref element; elements)
-        {
-            that.insertWithoutGrowth(element);
+            typeof(this) that;
+            foreach (ref element; elements)
+            {
+                that.insert(element);
+            }
         }
         return that;
     }

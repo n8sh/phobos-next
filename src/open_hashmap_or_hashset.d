@@ -789,6 +789,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         static if (isInstanceOf!(Nullable, K))
         {
+            pragma(inline, true)    // LDC must have this
             bool opBinaryRight(string op)(const scope WrappedKey wrappedKey) const
                 if (op == "in")
             {
@@ -880,6 +881,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
         static if (isInstanceOf!(Nullable, K))
         {
+            pragma(inline, true)    // LDC must have this
             scope inout(V)* opBinaryRight(string op)(const scope WrappedKey wrappedKey) inout return // auto ref here makes things slow
                 if (op == "in")
             {
@@ -986,6 +988,14 @@ struct OpenHashMapOrSet(K, V = void,
             {
                 import core.exception : RangeError;
                 throw new RangeError("Key not in table");
+            }
+        }
+        static if (isInstanceOf!(Nullable, K))
+        {
+            pragma(inline, true)    // LDC must have this
+            scope ref inout(V) opIndex()(const scope WrappedKey wrappedKey) inout return // auto ref here makes things slow
+            {
+                return opIndex(nullable(wrappedKey));
             }
         }
 

@@ -1094,7 +1094,7 @@ struct OpenHashMapOrSet(K, V = void,
         if (isRefIterable!Keys &&
             is(typeof(Keys.front == K.init)))
     {
-        rehash!("!a.isNull && keys.canFind(a)")();
+        rehash!("!a.isNull && keys.canFind(a)")(); // TODO make this work
     }
 
     /// Check if empty.

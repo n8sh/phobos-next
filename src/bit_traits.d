@@ -2,7 +2,7 @@ module bit_traits;
 
 /** Get number of bits needed to represent the range (0 .. `length`-1).
  */
-private template bitsNeeded(size_t length)
+template bitsNeeded(size_t length)
 {
     // TODO optimize by removing need for a linear search
     static      if (length <= 2)   { enum bitsNeeded = 1; }

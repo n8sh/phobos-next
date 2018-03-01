@@ -1622,11 +1622,14 @@ pure nothrow @nogc unittest
 
             assert(x1.length == n - key);
 
-            const elementFound = key in x1;
-            assert(elementFound);
+            const hitPtr = key in x1;
             static if (X.hasValue)
             {
-                assert(*elementFound is element.value);
+                assert(hitPtr && *hitPtr is element.value);
+            }
+            else
+            {
+                assert(hitPtr && *hitPtr is element);
             }
 
             assert(x1.remove(key));

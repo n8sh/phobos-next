@@ -262,8 +262,7 @@ struct OpenHashMapOrSet(K, V = void,
     /// Equality.
     bool opEquals()(const scope auto ref typeof(this) rhs) const
     {
-        if (_count != rhs._count) { return false; }
-
+        if (_count != rhs._count) { return false; } // quick discardal
         foreach (immutable ix; 0 .. _bins.length)
         {
             if (!keyOf(_bins[ix]).isNull)
@@ -280,7 +279,6 @@ struct OpenHashMapOrSet(K, V = void,
                 }
             }
         }
-
         return true;
     }
 

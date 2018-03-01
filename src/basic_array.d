@@ -34,7 +34,6 @@ struct BasicArray(T,
     import std.conv : emplace;
 
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
-
     import container_traits : mustAddGCRange, needsMove;
 
     /// Mutable element type.

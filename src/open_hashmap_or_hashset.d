@@ -1075,6 +1075,13 @@ struct OpenHashMapOrSet(K, V = void,
             }
             return false;
         }
+        static if (isInstanceOf!(Nullable, K))
+        {
+            bool remove()(const scope WrappedKey wrappedKey) // template-lazy
+            {
+                return remove(nullable(wrappedKey));
+            }
+        }
     }
 
     import traits_ex : isRefIterable;

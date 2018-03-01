@@ -1042,6 +1042,7 @@ struct OpenHashMapOrSet(K, V = void,
             {
                 insert(T(move(nullable(wrappedKey)),
                          move(value)));
+                // TODO return reference to value
             }
         }
     }

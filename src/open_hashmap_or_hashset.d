@@ -163,6 +163,7 @@ struct OpenHashMapOrSet(K, V = void,
     private static T[] makeBins(size_t capacity) @trusted
     {
         immutable powerOf2Capacity = nextPow2(capacity);
+        // TODO cannot use makeArray here because it cannot handle uncopyable types
         auto bins = Allocator.makeArray!T(powerOf2Capacity, nullKeyElement);
         static if (mustAddGCRange!T)
         {
@@ -812,15 +813,28 @@ struct OpenHashMapOrSet(K, V = void,
     static if (!hasValue)       // HashSet
     {
         pragma(inline, true)
-        bool opBinaryRight(string op)(const scope K key) const
+        inout(K)* opBinaryRight(string op)(const scope K key) inout
             if (op == "in")
         {
-            return contains(key);
+            assert(!key.isNull);
+            static if (removalFlag)
+            {
+                immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(keyToIndex(key));
+                immutable hit = hitIndex != _bins.length;
+            }
+            else
+            {
+                immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => (keyOf(_) is key ||
+                                                                             keyOf(_).isNull))(keyToIndex(key));
+                immutable hit = (hitIndex != _bins.length &&
+                                 keyOf(_bins[hitIndex]) is key);
+            }
+            return hit ? &_bins[hitIndex] : null;
         }
         static if (isInstanceOf!(Nullable, K))
         {
             pragma(inline, true)    // LDC must have this
-            bool opBinaryRight(string op)(const scope WrappedKey wrappedKey) const
+            inout(K)* opBinaryRight(string op)(const scope WrappedKey wrappedKey) inout
                 if (op == "in")
             {
                 return opBinaryRight!"in"(K(wrappedKey));

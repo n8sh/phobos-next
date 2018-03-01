@@ -1541,7 +1541,16 @@ pure nothrow @nogc unittest
 
             assert(x1.length == key + 1);
 
-            assert(key in x1);
+            const hitPtr = key in x1;
+            static if (X.hasValue)
+            {
+                assert(hitPtr);
+            }
+            else
+            {
+                assert(hitPtr && *hitPtr == key);
+            }
+
             static if (X.hasValue)
             {
                 auto elementFound = key in x1;

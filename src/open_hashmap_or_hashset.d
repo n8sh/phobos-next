@@ -51,6 +51,7 @@ struct OpenHashMapOrSet(K, V = void,
     import std.experimental.allocator : makeArray;
     import std.typecons : Nullable;
 
+    import qcmeman : gc_addRange, gc_removeRange;
     import emplace_all : moveEmplaceAllNoReset;
     import digestion : hashOf2;
     import probing : triangularProbeFromIndex;
@@ -162,13 +163,25 @@ struct OpenHashMapOrSet(K, V = void,
     private static T[] makeBins(size_t capacity) @trusted
     {
         immutable powerOf2Capacity = nextPow2(capacity);
-        return Allocator.makeArray!T(powerOf2Capacity, nullKeyElement);
+        auto bins = Allocator.makeArray!T(powerOf2Capacity, nullKeyElement);
+        static if (mustAddGCRange!T)
+        {
+            immutable byteCount = T.sizeof*powerOf2Capacity;
+            gc_addRange(bins.ptr, byteCount);
+        }
+        return bins;
     }
 
     private pragma(inline, true)
-    void[] allocateBins(size_t byteCount) const pure nothrow @nogc @system
+    void[] allocateBins(size_t capacity) const pure nothrow @nogc @system
     {
-        return Allocator.instance.allocate(T.sizeof*binCount);
+        immutable byteCount = T.sizeof*capacity;
+        auto bins = Allocator.instance.allocate(byteCount);
+        static if (mustAddGCRange!T)
+        {
+            gc_addRange(bins.ptr, byteCount);
+        }
+        return bins;
     }
 
     import std.range : StdElementType = ElementType;
@@ -361,7 +374,7 @@ struct OpenHashMapOrSet(K, V = void,
     private void release()
     {
         releaseBinElements();
-        releaseBinsMemory();
+        releaseBinsAndHolesSlices();
     }
 
     /// Release bin elements.
@@ -378,14 +391,24 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /// Release bin slice.
-    private void releaseBinsMemory()
+    private void releaseBinsAndHolesSlices()
         @trusted
     {
-        Allocator.instance.deallocate(_bins);
+        releaseBinsSlice(_bins);
         static if (removalFlag)
         {
             deallocateHoles();
         }
+    }
+
+    static private void releaseBinsSlice(T[] bins)
+        @trusted
+    {
+        static if (mustAddGCRange!T)
+        {
+            gc_removeRange(bins.ptr);
+        }
+        Allocator.instance.deallocate(bins);
     }
 
     version(LDC) { pragma(inline, true): } // needed for LDC to inline this, DMD cannot
@@ -574,12 +597,21 @@ struct OpenHashMapOrSet(K, V = void,
         assert(newCapacity > _bins.length);
         immutable powerOf2newCapacity = nextPow2(newCapacity);
 
+        static if (mustAddGCRange!T)
+        {
+            gc_removeRange(_bins.ptr);
+        }
+
         immutable oldLength = _bins.length;
         auto rawBins = cast(void[])_bins;
-
         if (Allocator.instance.reallocate(rawBins, T.sizeof*powerOf2newCapacity))
         {
             _bins = cast(T[])rawBins;
+            static if (mustAddGCRange!T)
+            {
+                immutable byteCount = T.sizeof*_bins.length;
+                gc_addRange(_bins.ptr, byteCount);
+            }
             static if (removalFlag)
             {
                 deallocateHoles();
@@ -627,7 +659,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
         debug assert(oldCount == _count);
 
-        Allocator.instance.deallocate(oldBins);
+        releaseBinsSlice(oldBins);
 
         assert(_bins.length);
     }

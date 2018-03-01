@@ -1544,18 +1544,11 @@ pure nothrow @nogc unittest
             const hitPtr = key in x1;
             static if (X.hasValue)
             {
-                assert(hitPtr);
+                assert(hitPtr && *hitPtr != "_");
             }
             else
             {
                 assert(hitPtr && *hitPtr == key);
-            }
-
-            static if (X.hasValue)
-            {
-                auto elementFound = key in x1;
-                assert(elementFound);
-                assert(*elementFound != "_");
             }
 
             assert(x1.insert(element) == X.InsertionStatus.unmodified);

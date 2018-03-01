@@ -20,8 +20,6 @@ import pure_mallocator : PureMallocator;
  *
  * TODO extend opBinaryRight to return a reference to a free slot when assigned to sets value in slot and does _count += 1;
  *
- * TODO support HashSet-in operator: assert(*("a" in s) == "a");
- *
  * TODO add extractElement that moves it out similar to
  * http://en.cppreference.com/w/cpp/container/unordered_set/extract
  *

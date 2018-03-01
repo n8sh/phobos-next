@@ -816,7 +816,7 @@ struct OpenHashMapOrSet(K, V = void,
     static if (!hasValue)       // HashSet
     {
         pragma(inline, true)
-        scope inout(K)* opBinaryRight(string op)(const scope K key) inout return
+        scope const(K)* opBinaryRight(string op)(const scope K key) const return
             if (op == "in")
         {
             assert(!key.isNull);
@@ -837,7 +837,7 @@ struct OpenHashMapOrSet(K, V = void,
         static if (isInstanceOf!(Nullable, K))
         {
             pragma(inline, true)    // LDC must have this
-            scope inout(K)* opBinaryRight(string op)(const scope WrappedKey wrappedKey) inout return
+            scope const(K)* opBinaryRight(string op)(const scope WrappedKey wrappedKey) const return
                 if (op == "in")
             {
                 return opBinaryRight!"in"(K(wrappedKey));

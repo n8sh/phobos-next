@@ -2,7 +2,7 @@
 
 module syllables;
 
-import lingua: Lang;
+import languages : Lang;
 import std.traits: isSomeString;
 import std.uni: byGrapheme;
 

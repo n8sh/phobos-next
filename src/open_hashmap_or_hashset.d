@@ -206,7 +206,7 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     private pragma(inline, true)
-    void[] allocateBins(size_t capacity) const pure nothrow @nogc @system
+    void[] allocateUninitializedBins(size_t capacity) const pure nothrow @nogc @system
     {
         immutable byteCount = T.sizeof*capacity;
         auto bins = Allocator.instance.allocate(byteCount);
@@ -260,7 +260,7 @@ struct OpenHashMapOrSet(K, V = void,
         typeof(this) dup()() const // template-lazy
             @trusted
         {
-            T[] binsCopy = cast(T[])allocateBins(_bins.length);
+            T[] binsCopy = cast(T[])allocateUninitializedBins(_bins.length);
             foreach (immutable elementIndex, ref element; _bins)
             {
                 /** TODO functionize to `emplaceAll` in emplace_all.d. See also:

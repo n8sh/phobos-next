@@ -311,7 +311,7 @@ template isNullableType(T)
     import std.typecons : Nullable;
     enum isNullableType = (is(T == class) ||
                            isPointer!T ||
-                           is(T == typeof(null)) ||
+                           // is(T == typeof(null)) ||
                            isInstanceOf!(Nullable, T));
 }
 
@@ -362,8 +362,9 @@ bool isNull(T)(const scope auto ref T x)
     import std.traits : isPointer, isInstanceOf;
     import std.typecons : Nullable;
     static if (is(T == class) ||
-               isPointer!T ||
-               is(T == typeof(null)))
+               isPointer!T//  ||
+               // is(T == typeof(null))
+        )
     {
         return x is T.init;
     }
@@ -384,8 +385,9 @@ void nullify(T)(ref T x)
     import std.traits : isPointer, isInstanceOf;
     import std.typecons : Nullable;
     static if (is(T == class) ||
-               isPointer!T ||
-               is(T == typeof(null)))
+               isPointer!T//  ||
+               // is(T == typeof(null))
+        )
     {
         x = T.init;
     }
@@ -402,7 +404,7 @@ void nullify(T)(ref T x)
 ///
 @safe pure nothrow @nogc unittest
 {
-    assert(null.isNull);
+    // assert(null.isNull);
     alias Ni = Nullable!int;
     assert(Ni.init.isNull);
 

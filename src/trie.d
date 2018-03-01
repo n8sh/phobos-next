@@ -117,7 +117,8 @@
 module trie;
 
 import std.algorithm : move, min, max;
-import std.traits : isSomeString, isArray, allSatisfy, isPointer, Unqual;
+import std.meta : allSatisfy;
+import std.traits : isSomeString, isArray, isPointer, Unqual;
 import std.range : isInputRange, isBidirectionalRange, ElementType;
 import std.range.primitives : hasLength;
 

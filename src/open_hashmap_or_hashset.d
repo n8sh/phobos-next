@@ -1157,6 +1157,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 
     auto x1 = X.withElements([K(12)].s);
     assert(x1.length == 1);
+    assert(x1.contains(12));
     assert(x1.contains(K(12)));
 
     auto x2 = X.withElements([K(10), K(12)].s);

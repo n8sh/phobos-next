@@ -41,9 +41,9 @@ struct OpenHashMapOrSet(K, V = void,
         //isHashable!K
         )
 {
+    import std.algorithm.mutation : move;
     import std.math : nextPow2;
     import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable, isMutable, hasIndirections, Unqual;
-    import std.algorithm.mutation : move;
     import std.typecons : Nullable;
 
     import qcmeman : gc_addRange, gc_removeRange;

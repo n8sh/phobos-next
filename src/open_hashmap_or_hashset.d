@@ -379,14 +379,31 @@ struct OpenHashMapOrSet(K, V = void,
             // static if (is(K == class) ||
             //            isPointer!K)
             // {
-            //     return (index != _bins.length && // needed for when _bins.length == 0
-            //             (cast(const(void)*)keyOf(_bins[index]) is cast(void*)0x1));
+            //     return (cast(const(void)*)keyOf(_bins[index]) is cast(void*)0x1);
             // }
             // else
             {
-                return _holesPtr && bt(_holesPtr, index) != 0;
+                return (_holesPtr &&
+                        bt(_holesPtr, index) != 0);
             }
         }
+
+        static bool hasNotHoleAtIndex(const scope size_t* holesPtr,
+                                      size_t index) @trusted
+        {
+            // TODO activate:
+            // static if (is(K == class) ||
+            //            isPointer!K)
+            // {
+            //     return (cast(const(void)*)keyOf(_bins[index]) !is cast(void*)0x1);
+            // }
+            // else
+            {
+                return (holesPtr is null ||
+                        bt(holesPtr, index) == 0);
+            }
+        }
+
     }
 
     /// Empty.
@@ -1171,18 +1188,21 @@ private:
     pragma(inline, true)
     private size_t tryFindIndexOfKey(const scope K key) const @trusted
     {
+        const holesPtr = _holesPtr;
         static if (isCopyable!T)
         {
             /* don't use `auto ref` for copyable `T`'s to prevent
              * massive performance drop for small elements when compiled
              * with LDC. TODO remove when LDC is fixed. */
-            alias predicate = (element) => ((keyOf(element).isNull) ||
-                                            (keyOf(element) is key));
+            alias predicate = (index, element) => ((keyOf(element).isNull) ||
+                                                   (keyOf(element) is key &&
+                                                    hasNotHoleAtIndex(_holesPtr, index)));
         }
         else
         {
-            alias predicate = (const auto ref element) => ((keyOf(element).isNull) ||
-                                                           (keyOf(element) is key));
+            alias predicate = (index, const auto ref element) => ((keyOf(element).isNull) ||
+                                                                  (keyOf(element) is key &&
+                                                                   hasNotHoleAtIndex(_holesPtr, index)));
         }
         return _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key));
     }

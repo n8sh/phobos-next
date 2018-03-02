@@ -52,8 +52,6 @@ struct OpenHashMapOrSet(K, V = void,
     import digestion : hashOf2;
     import probing : triangularProbeFromIndex;
 
-    enum removalFlag = true;
-
     /** In the hash map case, `V` is non-void, and a value is stored alongside
      * the key of type `K`.
      */
@@ -282,15 +280,12 @@ struct OpenHashMapOrSet(K, V = void,
                     }
                 }
             }
-            static if (removalFlag)
+            if (_holesPtr)
             {
-                if (_holesPtr)
-                {
-                    auto holesPtrCopy = allocateHoles(binBlockBytes(_bins.length));
-                    immutable wordCount = holesWordCount(_bins.length);
-                    holesPtrCopy[0 .. wordCount] = _holesPtr[0 .. wordCount];
-                    return typeof(return)(binsCopy, _count, holesPtrCopy);
-                }
+                auto holesPtrCopy = allocateHoles(binBlockBytes(_bins.length));
+                immutable wordCount = holesWordCount(_bins.length);
+                holesPtrCopy[0 .. wordCount] = _holesPtr[0 .. wordCount];
+                return typeof(return)(binsCopy, _count, holesPtrCopy);
             }
             return typeof(return)(binsCopy, _count);
         }
@@ -319,7 +314,7 @@ struct OpenHashMapOrSet(K, V = void,
         return true;
     }
 
-    static if (removalFlag)
+    static if (true)
     {
     pragma(inline, true):
     private:
@@ -399,10 +394,7 @@ struct OpenHashMapOrSet(K, V = void,
     {
         release();
         _bins = typeof(_bins).init;
-        static if (removalFlag)
-        {
-            _holesPtr = null;
-        }
+        _holesPtr = null;
         _count = 0;
     }
 
@@ -431,10 +423,7 @@ struct OpenHashMapOrSet(K, V = void,
         @trusted
     {
         releaseBinsSlice(_bins);
-        static if (removalFlag)
-        {
-            deallocateHoles();
-        }
+        deallocateHoles();
     }
 
     static private void releaseBinsSlice(T[] bins)
@@ -643,11 +632,8 @@ struct OpenHashMapOrSet(K, V = void,
                 immutable byteCount = T.sizeof*_bins.length;
                 gc_addRange(_bins.ptr, byteCount);
             }
-            static if (removalFlag)
-            {
-                deallocateHoles();
-                _holesPtr = allocateHoles(binBlockBytes(_bins.length));
-            }
+            deallocateHoles();
+            _holesPtr = allocateHoles(binBlockBytes(_bins.length));
 
             // TODO make this an array operation `nullifyAll` or `nullifyN`
             foreach (ref bin; _bins[oldLength .. powerOf2newCapacity])
@@ -673,11 +659,8 @@ struct OpenHashMapOrSet(K, V = void,
         debug immutable oldCount = _count;
 
         _bins = makeBins(newCapacity); // replace with new bins
-        static if (removalFlag)
-        {
-            deallocateHoles();
-            _holesPtr = allocateHoles(binBlockBytes(_bins.length));
-        }
+        deallocateHoles();
+        _holesPtr = allocateHoles(binBlockBytes(_bins.length));
         _count = 0;
 
         // move elements to copy
@@ -1113,32 +1096,26 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    static if (removalFlag)
+    /** Remove `element`.
+        Returns: `true` if element was removed, `false` otherwise.
+    */
+    bool remove()(const scope K key) // template-lazy
     {
-        /** Remove `element`.
-            Returns: `true` if element was removed, `false` otherwise.
-        */
-        bool remove()(const scope K key) // template-lazy
+        immutable hitIndex = tryFindIndexOfKey(key);
+        if (isOccupiedAtIndex(hitIndex))
         {
-            immutable hitIndex = tryFindIndexOfKey(key);
-            if (isOccupiedAtIndex(hitIndex))
-            {
-                nullifyElement(_bins[hitIndex]);
-                static if (removalFlag)
-                {
-                    makeHoleAtIndex(hitIndex);
-                }
-                _count -= 1;
-                return true;
-            }
-            return false;
+            nullifyElement(_bins[hitIndex]);
+            makeHoleAtIndex(hitIndex);
+            _count -= 1;
+            return true;
         }
-        static if (isInstanceOf!(Nullable, K))
+        return false;
+    }
+    static if (isInstanceOf!(Nullable, K))
+    {
+        bool remove()(const scope WrappedKey wrappedKey) // template-lazy
         {
-            bool remove()(const scope WrappedKey wrappedKey) // template-lazy
-            {
-                return remove(K(wrappedKey));
-            }
+            return remove(K(wrappedKey));
         }
     }
 
@@ -1170,10 +1147,7 @@ struct OpenHashMapOrSet(K, V = void,
 private:
     T[] _bins;            // bin elements
     size_t _count;        // total number of non-null elements stored in `_bins`
-    static if (removalFlag)
-    {
-        size_t* _holesPtr; // bit array describing which bin elements that has been removed (holes)
-    }
+    size_t* _holesPtr; // bit array describing which bin elements that has been removed (holes)
 
     /** Returns: bin index of `key`. */
     pragma(inline, true)

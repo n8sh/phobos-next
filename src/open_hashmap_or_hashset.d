@@ -1190,22 +1190,28 @@ private:
     }
 
     pragma(inline, true)
-    private size_t tryFindIndexOfKey(const scope K key) const
+    private size_t tryFindIndexOfKey(const scope K key) const @trusted
     {
+        import core.bitop : bt;
+        const holesPtr = _holesPtr; // restrictions in D's scope capturing
         static if (isCopyable!T)
         {
             /* don't use `auto ref` for copyable `T`'s to prevent
              * massive performance drop for small elements when compiled
              * with LDC. TODO remove when LDC is fixed. */
-            alias predicate = (element) => (keyOf(element).isNull ||
-                                            keyOf(element) is key); // TODO check holes
+            alias predicate = (index, element) => ((keyOf(element).isNull) ||
+                                                   (keyOf(element) is key &&
+                                                    (holesPtr is null ||
+                                                     bt(holesPtr, index) != 0)));
         }
         else
         {
-            alias predicate = (const auto ref element) => (keyOf(element).isNull ||
-                                                           keyOf(element) is key); // TODO check holes
+            alias predicate = (index, const auto ref element) => ((keyOf(element).isNull) ||
+                                                                  (keyOf(element) is key &&
+                                                                   (holesPtr is null ||
+                                                                    bt(holesPtr, index) != 0)));
         }
-        return _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key)); // TODO add holes pointer
+        return _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key));
     }
 
     /** Returns: `true` iff `index` indexes a non-null element, `false`
@@ -1214,8 +1220,7 @@ private:
     pragma(inline, true)
     private bool isOccupiedAtIndex(size_t index) const
     {
-        // TODO assert(hitIndex != _bins.length, "no free slot");
-        return (index != _bins.length && // TODO remove and activate assert instead
+        return (index != _bins.length && // needed for when _bins.length == 0
                 !keyOf(_bins[index]).isNull);
     }
 
@@ -1225,8 +1230,7 @@ private:
     pragma(inline, true)
     private bool isVacantAtIndex(size_t index) const
     {
-        // TODO assert(hitIndex != _bins.length, "no free slot");
-        return (index != _bins.length && // TODO remove and activate assert instead
+        return (index != _bins.length && // needed for when _bins.length == 0
                 (keyOf(_bins[index]).isNull)); // TODO check for holes
     }
 
@@ -1238,11 +1242,10 @@ private:
     pragma(inline, true)
     private bool isLazilyDeletedAtIndex(size_t index) /*TODO const*/ @trusted
     {
-        // TODO assert(hitIndex != _bins.length, "no free slot");
         static if (is(K == class) ||
                    isPointer!K)
         {
-            return (index != _bins.length && // TODO remove and activate assert instead
+            return (index != _bins.length && // needed for when _bins.length == 0
                     (cast(const(void)*)keyOf(_bins[index]) is cast(void*)0x1));
         }
         else

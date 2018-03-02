@@ -1198,14 +1198,14 @@ private:
              * massive performance drop for small elements when compiled
              * with LDC. TODO remove when LDC is fixed. */
             alias predicate = (element) => (keyOf(element).isNull ||
-                                            keyOf(element) is key);
+                                            keyOf(element) is key); // TODO check holes
         }
         else
         {
             alias predicate = (const auto ref element) => (keyOf(element).isNull ||
-                                                           keyOf(element) is key);
+                                                           keyOf(element) is key); // TODO check holes
         }
-        return _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key));
+        return _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key)); // add holes pointer
     }
 
     /** Returns: `true` iff `index` indexes a non-null element, `false`

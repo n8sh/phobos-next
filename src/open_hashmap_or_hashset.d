@@ -385,6 +385,13 @@ struct OpenHashMapOrSet(K, V = void,
             import core.bitop : bts;
             bts(lazyHolesPtr, index);
         }
+
+        bool getHole(size_t index) @trusted
+        {
+            assert(index < 8*size_t.max*holesWordCount(_bins.length));
+            import core.bitop : bt;
+            return bt(lazyHolesPtr, index) != 0;
+        }
     }
 
     /// Empty.
@@ -1187,27 +1194,18 @@ private:
     pragma(inline, true)
     private size_t tryFindIndexOfKey(const scope K key) const
     {
-        static if (removalFlag)
+        static if (isCopyable!T)
         {
-            // may contain holes
-            alias predicate = (const auto ref element) => keyOf(element) is key;
+            /* don't use `auto ref` for copyable `T`'s to prevent
+             * massive performance drop for small elements when compiled
+             * with LDC. TODO remove when LDC is fixed. */
+            alias predicate = (index, element) => (keyOf(element) is key ||
+                                                   keyOf(element).isNull);
         }
         else
         {
-            // cannot contain holes
-            static if (isCopyable!T)
-            {
-                /* don't use `auto ref` for copyable `T`'s to prevent
-                 * massive performance drop for small elements when compiled
-                 * with LDC. TODO remove when LDC is fixed. */
-                alias predicate = (element) => (keyOf(element) is key ||
-                                                keyOf(element).isNull);
-            }
-            else
-            {
-                alias predicate = (const auto ref element) => (keyOf(element) is key ||
-                                                               keyOf(element).isNull);
-            }
+            alias predicate = (index, const auto ref element) => (keyOf(element) is key ||
+                                                                  keyOf(element).isNull);
         }
         return _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key));
     }

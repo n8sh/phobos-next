@@ -379,7 +379,7 @@ struct OpenHashMapOrSet(K, V = void,
             // static if (is(K == class) ||
             //            isPointer!K)
             // {
-            //     return (cast(const(void)*)keyOf(_bins[index]) is cast(void*)0x1);
+            //     return (cast(const(void)*)keyOf(_bins[index]) is cast(void*)holeKey);
             // }
             // else
             {
@@ -395,7 +395,7 @@ struct OpenHashMapOrSet(K, V = void,
             // static if (is(K == class) ||
             //            isPointer!K)
             // {
-            //     return (cast(const(void)*)keyOf(_bins[index]) !is cast(void*)0x1);
+            //     return (cast(const(void)*)keyOf(_bins[index]) !is cast(void*)holeKey);
             // }
             // else
             {
@@ -1164,6 +1164,16 @@ struct OpenHashMapOrSet(K, V = void,
 private:
     T[] _bins;            // bin elements
     size_t _count;        // total number of non-null elements stored in `_bins`
+
+    static if (is(K == class) ||
+               isPointer!K)
+    {
+        enum holeKey = 0x1; // indicates a lazily deleted key
+    }
+    else
+    {
+        // TODO move _holesPtr here
+    }
     size_t* _holesPtr; // bit array describing which bin elements that has been removed (holes)
 
     /** Returns: bin index of `key`. */

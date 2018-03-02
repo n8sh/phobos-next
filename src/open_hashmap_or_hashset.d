@@ -561,6 +561,7 @@ struct OpenHashMapOrSet(K, V = void,
                    hasElaborateDestructor!V)
         {
             valueOf(element) = V.init;
+            // .destroy(valueOf(_bins[hitIndex]));
             // TODO instead do only .destroy(valueOf(_bins[hitIndex])); and emplace values
         }
     }

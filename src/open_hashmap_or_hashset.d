@@ -1217,7 +1217,9 @@ private:
                 !keyOf(_bins[index]).isNull);
     }
 
-    /** Returns: `true` iff `index` indexes a vacant (either null or deleted) element. */
+    /** Returns: `true` iff `index` indexes a vacant (either null or deleted)
+     * element.
+     */
     pragma(inline, true)
     private bool isVacantAtIndex(size_t index) const
     {

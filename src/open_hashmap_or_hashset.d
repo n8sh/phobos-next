@@ -1208,7 +1208,8 @@ private:
         return _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key));
     }
 
-    /** Returns: `true` iff `index` indexes a non-null element. */
+    /** Returns: `true` iff `index` indexes a non-null element, `false`
+     * otherwise. */
     pragma(inline, true)
     private bool isOccupiedAtIndex(size_t index) const
     {

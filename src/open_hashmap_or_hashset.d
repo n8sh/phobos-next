@@ -57,6 +57,9 @@ struct OpenHashMapOrSet(K, V = void,
      */
     enum hasValue = !is(V == void);
 
+    enum hasAddressKey = (is(K == class) ||
+                          isPointer!K);
+
     alias MutableThis = Unqual!(typeof(this));
     alias ConstThis = const(MutableThis);
 
@@ -166,8 +169,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         immutable byteCount = T.sizeof*powerOf2Capacity;
 
-        static if (is(K == class) ||
-                   isPointer!K ||
+        static if (hasAddressKey ||
                    (isInstanceOf!(Nullable, K) &&
                     is(Unqual!K == Nullable!(WrappedKey,
                                              WrappedKey.init)))) // init value is always zero bits only
@@ -376,8 +378,7 @@ struct OpenHashMapOrSet(K, V = void,
         bool hasHoleAtIndex(size_t index) @trusted const
         {
             // TODO activate:
-            // static if (is(K == class) ||
-            //            isPointer!K)
+            // static if (hasAddressKey)
             // {
             //     return (cast(const(void)*)keyOf(_bins[index]) is cast(void*)holeKey);
             // }
@@ -392,8 +393,7 @@ struct OpenHashMapOrSet(K, V = void,
                                       size_t index) @trusted
         {
             // TODO activate:
-            // static if (is(K == class) ||
-            //            isPointer!K)
+            // static if (hasAddressKey)
             // {
             //     return (cast(const(void)*)keyOf(_bins[index]) !is cast(void*)holeKey);
             // }
@@ -1165,8 +1165,7 @@ private:
     T[] _bins;            // bin elements
     size_t _count;        // total number of non-null elements stored in `_bins`
 
-    static if (is(K == class) ||
-               isPointer!K)
+    static if (hasAddressKey)
     {
         enum holeKey = 0x1; // indicates a lazily deleted key
     }

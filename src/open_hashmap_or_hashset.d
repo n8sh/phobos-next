@@ -585,7 +585,10 @@ struct OpenHashMapOrSet(K, V = void,
 
                 // TODO functionize:
                 moveEmplace(_bins[doneIndex], currentElement);
-                nullifyElement(_bins[doneIndex]); // moveEmplace doesn't init source of type Nullable
+                static if (isInstanceOf!(Nullable, K))
+                {
+                    nullifyElement(_bins[doneIndex]); // `moveEmplace` doesn't init source of type Nullable
+                }
 
                 while (true)
                 {
@@ -599,9 +602,14 @@ struct OpenHashMapOrSet(K, V = void,
                     if (!keyOf(_bins[hitIndex]).isNull()) // if free slot found
                     {
                         T nextElement = void;
+
                         // TODO functionize:
                         moveEmplace(_bins[hitIndex], nextElement); // save non-free slot
-                        nullifyElement(_bins[hitIndex]);           // moveEmplace doesn't init source of type Nullable
+                        static if (isInstanceOf!(Nullable, K))
+                        {
+                            nullifyElement(_bins[hitIndex]);           // `moveEmplace` doesn't init source of type Nullable
+                        }
+
                         moveEmplace(currentElement, _bins[hitIndex]);
                         moveEmplace(nextElement, currentElement);
                     }

@@ -449,13 +449,13 @@ struct OpenHashMapOrSet(K, V = void,
         assert(!key.isNull);
         static if (removalFlag)
         {
-            immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(keyToIndex(key));
+            immutable hitIndex = _bins[].triangularProbeFromIndex!((const auto ref _) => keyOf(_) is key)(keyToIndex(key));
             return hitIndex != _bins.length;
         }
         else
         {
-            immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => (keyOf(_) is key ||
-                                                                         keyOf(_).isNull))(keyToIndex(key));
+            immutable hitIndex = _bins[].triangularProbeFromIndex!((const auto ref _) => (keyOf(_) is key ||
+                                                                                          keyOf(_).isNull))(keyToIndex(key));
             return (hitIndex != _bins.length &&
                     keyOf(_bins[hitIndex]) is key);
         }
@@ -587,8 +587,8 @@ struct OpenHashMapOrSet(K, V = void,
 
                 while (true)
                 {
-                    alias predicate = (index, element) => (keyOf(element).isNull || // free slot or
-                                                           !dones[index]); // or a not yet replaced element
+                    alias predicate = (index, const auto ref element) => (keyOf(element).isNull || // free slot or
+                                                                          !dones[index]); // or a not yet replaced element
                     immutable hitIndex = _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(keyOf(currentElement)));
                     assert(hitIndex != _bins.length, "no free slot");
 
@@ -697,8 +697,8 @@ struct OpenHashMapOrSet(K, V = void,
     {
         assert(!keyOf(element).isNull);
 
-        immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => (keyOf(_) is keyOf(element) ||
-                                                                     keyOf(_).isNull))(keyToIndex(keyOf(element)));
+        immutable hitIndex = _bins[].triangularProbeFromIndex!((const auto ref _) => (keyOf(_) is keyOf(element) ||
+                                                                                      keyOf(_).isNull))(keyToIndex(keyOf(element)));
         assert(hitIndex != _bins.length, "no free slot");
 
         if (keyOf(_bins[hitIndex]).isNull) // key missing
@@ -844,13 +844,22 @@ struct OpenHashMapOrSet(K, V = void,
             assert(!key.isNull);
             static if (removalFlag)
             {
-                immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(keyToIndex(key));
+                immutable hitIndex = _bins[].triangularProbeFromIndex!((const auto ref _) => keyOf(_) is key)(keyToIndex(key));
                 immutable hit = hitIndex != _bins.length;
             }
             else
             {
-                immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => (keyOf(_) is key ||
-                                                                             keyOf(_).isNull))(keyToIndex(key));
+                static if (isCopyable!T)
+                {
+                    // don't use `auto ref` for non-copyable `T`'s to prevent massive performance drop for small elements
+                    immutable hitIndex = _bins[].triangularProbeFromIndex!((_) => (keyOf(_) is key ||
+                                                                                   keyOf(_).isNull))(keyToIndex(key));
+                }
+                else
+                {
+                    immutable hitIndex = _bins[].triangularProbeFromIndex!((const auto ref _) => (keyOf(_) is key ||
+                                                                                              keyOf(_).isNull))(keyToIndex(key));
+                }
                 immutable hit = (hitIndex != _bins.length &&
                                  keyOf(_bins[hitIndex]) is key);
             }
@@ -938,7 +947,7 @@ struct OpenHashMapOrSet(K, V = void,
         scope inout(V)* opBinaryRight(string op)(const scope K key) inout return // auto ref here makes things slow
             if (op == "in")
         {
-            immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(keyToIndex(key));
+            immutable hitIndex = _bins[].triangularProbeFromIndex!((const auto ref _) => keyOf(_) is key)(keyToIndex(key));
             if (hitIndex != _bins.length) // if hit
             {
                 return cast(typeof(return))&_bins[hitIndex].value;
@@ -1048,7 +1057,7 @@ struct OpenHashMapOrSet(K, V = void,
         pragma(inline, true)    // LDC must have this
         scope ref inout(V) opIndex()(const scope K key) inout return // auto ref here makes things slow
         {
-            immutable hitIndex = _bins[].triangularProbeFromIndex!(_ => keyOf(_) is key)(keyToIndex(key));
+            immutable hitIndex = _bins[].triangularProbeFromIndex!((const auto ref _) => keyOf(_) is key)(keyToIndex(key));
             if (hitIndex != _bins.length)
             {
                 return _bins[hitIndex].value;
@@ -1127,7 +1136,7 @@ struct OpenHashMapOrSet(K, V = void,
         */
         bool remove()(const scope K key) // template-lazy
         {
-            immutable hitIndex = _bins[].triangularProbeFromIndex!(element => keyOf(element) is key)(keyToIndex(key));
+            immutable hitIndex = _bins[].triangularProbeFromIndex!((const auto ref _) => keyOf(_) is key)(keyToIndex(key));
             if (hitIndex != _bins.length) // if hit
             {
                 nullifyElement(_bins[hitIndex]);
@@ -1952,7 +1961,7 @@ pure nothrow unittest
     struct V
     {
         this(uint data) { this.data = data; }
-        // TODO activate @disable this(this);
+        @disable this(this);
         uint data;
     }
 
@@ -1963,7 +1972,7 @@ pure nothrow unittest
 
     assert(x.length == 1);
 
-    foreach (e; x.byValue)      // `e` is auto ref
+    foreach (ref e; x.byValue)  // `e` is auto ref
     {
         static assert(is(typeof(e) == X.ValueType)); // mutable access to value
         assert(e.data == 43);
@@ -1975,7 +1984,7 @@ pure nothrow unittest
         assert(e.data == 43);
     }
 
-    foreach (ref e; x.byKeyValue)   // `e` is auto ref
+    foreach (ref e; x.byKeyValue) // `e` is auto ref
     {
         static assert(is(typeof(e.key) == const(X.KeyType))); // const access to key
         static assert(is(typeof(e.value) == X.ValueType)); // mutable access to value

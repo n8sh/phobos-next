@@ -25,8 +25,6 @@ import pure_mallocator : PureMallocator;
  * TODO add extractElement that moves it out similar to
  * http://en.cppreference.com/w/cpp/container/unordered_set/extract
  *
- * TODO benchmark against https://github.com/greg7mdp/sparsepp
- *
  * TODO add merge or union algorithm here or into container_algorithm.d. See
  * also: http://en.cppreference.com/w/cpp/container/unordered_set/merge. this
  * algorithm moves elements from source if they are not already in `this`

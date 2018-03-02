@@ -1115,7 +1115,7 @@ struct OpenHashMapOrSet(K, V = void,
         bool remove()(const scope K key) // template-lazy
         {
             immutable hitIndex = tryFindIndexOfKey(key);
-            if (hitIndex != _bins.length) // if hit
+            if (isOccupiedAtIndex(hitIndex))
             {
                 nullifyElement(_bins[hitIndex]);
                 static if (removalFlag)

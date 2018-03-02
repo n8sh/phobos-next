@@ -585,7 +585,7 @@ struct OpenHashMapOrSet(K, V = void,
 
                 while (true)
                 {
-                    alias predicate = (index, const auto ref element) => (keyOf(element).isNull || // free slot or
+                    alias predicate = (index, const auto ref element) => (keyOf(element).isNull || // free slot or TODO check holes
                                                                           !dones[index]); // or a not yet replaced element
                     immutable hitIndex = _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(keyOf(currentElement)));
                     assert(hitIndex != _bins.length, "no free slot");
@@ -1205,7 +1205,7 @@ private:
             alias predicate = (const auto ref element) => (keyOf(element).isNull ||
                                                            keyOf(element) is key); // TODO check holes
         }
-        return _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key)); // add holes pointer
+        return _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key)); // TODO add holes pointer
     }
 
     /** Returns: `true` iff `index` indexes a non-null element, `false`

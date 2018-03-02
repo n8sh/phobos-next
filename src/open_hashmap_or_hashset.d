@@ -595,7 +595,7 @@ struct OpenHashMapOrSet(K, V = void,
                         moveEmplace(_bins[hitIndex], nextElement); // save non-free slot
                         static if (isInstanceOf!(Nullable, K))
                         {
-                            nullifyElement(_bins[hitIndex]);           // `moveEmplace` doesn't init source of type Nullable
+                            nullifyElement(_bins[hitIndex]); // `moveEmplace` doesn't init source of type Nullable
                         }
 
                         moveEmplace(currentElement, _bins[hitIndex]);

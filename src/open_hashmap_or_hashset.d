@@ -16,12 +16,11 @@ import pure_mallocator : PureMallocator;
  *      V = value type.
  *      hasher = hash function or std.digest Hash.
  *      Allocator = memory allocator for bin array
- *      removalFlag = is `true` iff table should provide removal of elements via `remove` member
  *
  * See also: https://en.wikipedia.org/wiki/Lazy_deletion
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  *
- * TODO when removalFlag and key is type class or pointer use use void*.max or 0x1 as deleted value
+ * TODO when K is a class or pointer use use void*.max or 0x1 as deleted value
  *
  * TODO extend opBinaryRight to return a reference to a free slot when assigned to sets value in slot and does _count += 1;
  *
@@ -38,7 +37,6 @@ import pure_mallocator : PureMallocator;
  */
 struct OpenHashMapOrSet(K, V = void,
                         alias hasher = hashOf,
-                        bool removalFlag = false,
                         alias Allocator = PureMallocator.instance)
     if (isNullableType!K
         //isHashable!K
@@ -52,6 +50,8 @@ struct OpenHashMapOrSet(K, V = void,
     import qcmeman : gc_addRange, gc_removeRange;
     import digestion : hashOf2;
     import probing : triangularProbeFromIndex;
+
+    enum removalFlag = true;
 
     /** In the hash map case, `V` is non-void, and a value is stored alongside
      * the key of type `K`.
@@ -450,16 +450,7 @@ struct OpenHashMapOrSet(K, V = void,
     bool contains()(const scope K key) const // template-lazy, auto ref here makes things slow
     {
         assert(!key.isNull);
-        immutable hitIndex = tryFindIndexOfKey(key);
-        static if (removalFlag)
-        {
-            return hitIndex != _bins.length;
-        }
-        else
-        {
-            return (hitIndex != _bins.length &&
-                    keyOf(_bins[hitIndex]) is key);
-        }
+        return isElementIndex(tryFindIndexOfKey(key));
     }
     static if (isInstanceOf!(Nullable, K))
     {
@@ -850,16 +841,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             assert(!key.isNull);
             immutable hitIndex = tryFindIndexOfKey(key);
-            static if (removalFlag)
-            {
-                immutable hit = hitIndex != _bins.length;
-            }
-            else
-            {
-                immutable hit = (hitIndex != _bins.length &&
-                                 keyOf(_bins[hitIndex]) is key);
-            }
-            return hit ? &_bins[hitIndex] : null;
+            return isElementIndex(hitIndex) ? &_bins[hitIndex] : null;
         }
         static if (isInstanceOf!(Nullable, K))
         {
@@ -1230,21 +1212,25 @@ private:
         }
         return _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key));
     }
+
+    /** Returns: `true` iff `index` indexes a non-null element. */
+    pragma(inline, true)
+    private bool isElementIndex(size_t index) const
+    {
+        return (index != _bins.length &&
+                !keyOf(_bins[index]).isNull);
+    }
 }
 
 /** Immutable hash set storing keys of type `K`.
  */
 alias OpenHashSet(K, alias hasher = hashOf,
-                  bool removalFlag = false,
-                  alias Allocator = PureMallocator.instance) = OpenHashMapOrSet!(K, void, hasher,
-                                                                                 removalFlag, Allocator);
+                  alias Allocator = PureMallocator.instance) = OpenHashMapOrSet!(K, void, hasher, Allocator);
 
 /** Immutable hash map storing keys of type `K` and values of type `V`.
  */
 alias OpenHashMap(K, V, alias hasher = hashOf,
-                  bool removalFlag = false,
-                  alias Allocator = PureMallocator.instance) = OpenHashMapOrSet!(K, V, hasher,
-                                                                                 removalFlag, Allocator);
+                  alias Allocator = PureMallocator.instance) = OpenHashMapOrSet!(K, V, hasher, Allocator);
 
 import std.traits : isInstanceOf;
 
@@ -1457,7 +1443,7 @@ pure nothrow @nogc unittest
     import std.meta : AliasSeq;
     foreach (V; AliasSeq!(void, string))
     {
-        alias X = OpenHashMapOrSet!(K, V, FNV!(64, true), true);
+        alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
 
         static if (!X.hasValue)
         {
@@ -1745,7 +1731,7 @@ pure nothrow @nogc unittest
     alias K = Nullable!(uint, uint.max);
     alias V = uint;
 
-    alias X = OpenHashMapOrSet!(K, V, FNV!(64, true), true);
+    alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
 
     auto s = X.withCapacity(n);
 
@@ -1793,7 +1779,7 @@ pure nothrow @nogc unittest
         uint data;
     }
 
-    alias X = OpenHashMapOrSet!(K, V, FNV!(64, true), true);
+    alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
 
     auto s = X.withCapacity(n);
 

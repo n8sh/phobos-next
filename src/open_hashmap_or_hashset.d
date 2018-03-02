@@ -381,7 +381,6 @@ struct OpenHashMapOrSet(K, V = void,
 
         bool hasHoleAtIndex(size_t index) @trusted const
         {
-            assert(index < 8*size_t.max*holesWordCount(_bins.length));
             // TODO activate:
             // static if (is(K == class) ||
             //            isPointer!K)
@@ -391,6 +390,7 @@ struct OpenHashMapOrSet(K, V = void,
             // }
             // else
             {
+                assert(index < 8*size_t.max*holesWordCount(_bins.length));
                 return _holesPtr && bt(_holesPtr, index) != 0;
             }
         }

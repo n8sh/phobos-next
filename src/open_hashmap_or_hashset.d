@@ -557,7 +557,8 @@ struct OpenHashMapOrSet(K, V = void,
     static private void nullifyElement(scope ref T element)
     {
         keyOf(element).nullify(); // moveEmplace doesn't init source of type Nullable
-        static if (hasValue && hasElaborateDestructor!V)
+        static if (hasValue &&
+                   hasElaborateDestructor!V)
         {
             valueOf(element) = V.init;
             // TODO instead do only .destroy(valueOf(_bins[hitIndex])); and emplace values

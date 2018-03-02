@@ -851,15 +851,18 @@ struct OpenHashMapOrSet(K, V = void,
             {
                 static if (isCopyable!T)
                 {
-                    // don't use `auto ref` for non-copyable `T`'s to prevent massive performance drop for small elements
-                    immutable hitIndex = _bins[].triangularProbeFromIndex!((_) => (keyOf(_) is key ||
-                                                                                   keyOf(_).isNull))(keyToIndex(key));
+                    /* don't use `auto ref` for copyable `T`'s to prevent
+                     * massive performance drop for small elements when compiled
+                     * with LDC */
+                    alias predicate = (element) => (keyOf(element) is key ||
+                                                    keyOf(element).isNull);
                 }
                 else
                 {
-                    immutable hitIndex = _bins[].triangularProbeFromIndex!((const auto ref _) => (keyOf(_) is key ||
-                                                                                              keyOf(_).isNull))(keyToIndex(key));
+                    alias predicate = (const auto ref element) => (keyOf(element) is key ||
+                                                                   keyOf(element).isNull);
                 }
+                immutable hitIndex = _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key));
                 immutable hit = (hitIndex != _bins.length &&
                                  keyOf(_bins[hitIndex]) is key);
             }
@@ -947,8 +950,29 @@ struct OpenHashMapOrSet(K, V = void,
         scope inout(V)* opBinaryRight(string op)(const scope K key) inout return // auto ref here makes things slow
             if (op == "in")
         {
-            immutable hitIndex = _bins[].triangularProbeFromIndex!((const auto ref _) => keyOf(_) is key)(keyToIndex(key));
-            if (hitIndex != _bins.length) // if hit
+            static if (removalFlag)
+            {
+                alias predicate = (const auto ref _) => keyOf(_) is key;
+            }
+            else
+            {
+                static if (isCopyable!T)
+                {
+                    /* don't use `auto ref` for copyable `T`'s to prevent
+                     * massive performance drop for small elements when compiled
+                     * with LDC */
+                    alias predicate = (element) => (keyOf(element) is key ||
+                                                    keyOf(element).isNull);
+                }
+                else
+                {
+                    alias predicate = (const auto ref element) => (keyOf(element) is key ||
+                                                                   keyOf(element).isNull);
+                }
+            }
+            immutable hitIndex = _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key));
+            immutable hit = hitIndex != _bins.length;
+            if (hit)
             {
                 return cast(typeof(return))&_bins[hitIndex].value;
             }

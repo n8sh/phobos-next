@@ -1036,7 +1036,7 @@ struct OpenHashMapOrSet(K, V = void,
         scope ref inout(V) opIndex()(const scope K key) inout return // auto ref here makes things slow
         {
             immutable hitIndex = tryFindIndexOfKey(key);
-            if (hitIndex != _bins.length)
+            if (isOccupiedAtIndex(hitIndex))
             {
                 return _bins[hitIndex].value;
             }

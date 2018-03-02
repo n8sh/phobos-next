@@ -1594,6 +1594,7 @@ pure nothrow @nogc unittest
 
             assert(x1.length == key);
             assert(x1.insert(element) == X.InsertionStatus.added);
+            dln("key_:", key_, " bins:", x1._bins);
             assert(x1.length == key + 1);
 
             static if (X.hasValue)
@@ -1618,7 +1619,12 @@ pure nothrow @nogc unittest
                 assert(hitPtr && *hitPtr == key);
             }
 
-            assert(x1.insert(element) == X.InsertionStatus.unmodified);
+            auto status = x1.insert(element);
+            if (status != X.InsertionStatus.unmodified)
+            {
+                dln("status:", status, " element:", element);
+            }
+            assert(status == X.InsertionStatus.unmodified);
             static if (X.hasValue)
             {
                 assert(x1.insert(key, value) == X.InsertionStatus.unmodified);

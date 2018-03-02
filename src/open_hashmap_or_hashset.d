@@ -44,7 +44,7 @@ struct OpenHashMapOrSet(K, V = void,
 {
     import std.algorithm.mutation : move;
     import std.math : nextPow2;
-    import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable, isMutable, hasIndirections, Unqual;
+    import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable, isMutable, hasIndirections, Unqual, isPointer;
     import std.typecons : Nullable;
 
     import qcmeman : gc_addRange, gc_removeRange;
@@ -160,8 +160,6 @@ struct OpenHashMapOrSet(K, V = void,
     private static T[] makeBins(size_t capacity_) @trusted
     {
         immutable powerOf2Capacity = nextPow2(capacity_);
-
-        import std.traits : isPointer;
 
         // TODO cannot use makeArray here because it cannot handle uncopyable types
         // import std.experimental.allocator : makeArray;
@@ -386,7 +384,7 @@ struct OpenHashMapOrSet(K, V = void,
             bts(lazyHolesPtr, index);
         }
 
-        bool getHole(size_t index) @trusted
+        bool getHole(size_t index) @trusted /*TODO const*/
         {
             assert(index < 8*size_t.max*holesWordCount(_bins.length));
             import core.bitop : bt;
@@ -1226,6 +1224,25 @@ private:
         // TODO assert(hitIndex != _bins.length, "no free slot");
         return (index != _bins.length && // TODO remove and activate assert instead
                 (keyOf(_bins[index]).isNull)); // TODO check for holes
+    }
+
+    /** Returns: `true` iff `index` indexes a vacant (either null or deleted) element.
+     * See also: https://en.wikipedia.org/wiki/Lazy_deletion
+     */
+    pragma(inline, true)
+    private bool isLazilyDeletedAtIndex(size_t index) /*TODO const*/ @trusted
+    {
+        // TODO assert(hitIndex != _bins.length, "no free slot");
+        static if (is(K == class) ||
+                   isPointer!K)
+        {
+            return (index != _bins.length && // TODO remove and activate assert instead
+                    (cast(const(void)*)keyOf(_bins[index]) is cast(void*)0x1));
+        }
+        else
+        {
+            return getHole(index);
+        }
     }
 }
 

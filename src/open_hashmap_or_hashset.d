@@ -477,14 +477,7 @@ struct OpenHashMapOrSet(K, V = void,
     {
         assert(!keyOf(element).isNull); // TODO needed?
         reserveExtra(1);
-        static if (isCopyable!T)
-        {
-            return insertWithoutGrowth(element);
-        }
-        else
-        {
-            return insertWithoutGrowth(move(element));
-        }
+        return insertWithoutGrowth(move(element));
     }
     static if (!hasValue &&
                isInstanceOf!(Nullable, K))
@@ -750,16 +743,7 @@ struct OpenHashMapOrSet(K, V = void,
             pragma(inline, true)    // LDC must have this
             InsertionStatus insert(WrappedKey wrappedKey, V value)
             {
-                static if (isCopyable!V)
-                {
-                    return insert(K(wrappedKey),
-                                  value);
-                }
-                else
-                {
-                    return insert(K(wrappedKey),
-                                  move(value));
-                }
+                return insert(K(wrappedKey), move(value));
             }
         }
     }
@@ -1481,7 +1465,7 @@ pure nothrow @nogc unittest
 @trusted pure nothrow @nogc unittest
 {
     dln("");
-    immutable uint n = 6_000;
+    immutable uint n = 600;
 
     alias K = Nullable!(uint, uint.max);
 

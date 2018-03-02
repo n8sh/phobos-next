@@ -382,6 +382,14 @@ struct OpenHashMapOrSet(K, V = void,
         bool hasHoleAtIndex(size_t index) @trusted const
         {
             assert(index < 8*size_t.max*holesWordCount(_bins.length));
+            // TODO activate:
+            // static if (is(K == class) ||
+            //            isPointer!K)
+            // {
+            //     return (index != _bins.length && // needed for when _bins.length == 0
+            //             (cast(const(void)*)keyOf(_bins[index]) is cast(void*)0x1));
+            // }
+            // else
             return _holesPtr && bt(_holesPtr, index) != 0;
         }
     }
@@ -1235,17 +1243,7 @@ private:
     pragma(inline, true)
     private bool isLazilyDeletedAtIndex(size_t index) /*TODO const*/ @trusted
     {
-        // TODO activate:
-        // static if (is(K == class) ||
-        //            isPointer!K)
-        // {
-        //     return (index != _bins.length && // needed for when _bins.length == 0
-        //             (cast(const(void)*)keyOf(_bins[index]) is cast(void*)0x1));
-        // }
-        // else
-        {
-            return hasHoleAtIndex(index);
-        }
+        return hasHoleAtIndex(index);
     }
 }
 

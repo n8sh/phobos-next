@@ -1199,13 +1199,13 @@ private:
             /* don't use `auto ref` for copyable `T`'s to prevent
              * massive performance drop for small elements when compiled
              * with LDC. TODO remove when LDC is fixed. */
-            alias predicate = (element) => (keyOf(element) is key ||
-                                            keyOf(element).isNull);
+            alias predicate = (element) => (keyOf(element).isNull ||
+                                            keyOf(element) is key);
         }
         else
         {
-            alias predicate = (const auto ref element) => (keyOf(element) is key ||
-                                                           keyOf(element).isNull);
+            alias predicate = (const auto ref element) => (keyOf(element).isNull ||
+                                                           keyOf(element) is key);
         }
         return _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key));
     }

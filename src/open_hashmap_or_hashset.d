@@ -565,7 +565,8 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    /** Rehash elements in-place keeping only elements whose key matches `keyPredicateString`. */
+    /** Rehash elements in-place keeping only elements whose key matches
+     * `keyPredicateString`. */
     private void rehashInPlace(alias keyPredicateString = "!a.isNull")() // template-lazy
         @trusted
     {

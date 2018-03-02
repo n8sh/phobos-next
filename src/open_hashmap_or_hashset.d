@@ -19,7 +19,6 @@ import pure_mallocator : PureMallocator;
  *
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  * See also: https://en.wikipedia.org/wiki/Lazy_deletion
- * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  *
  * TODO extend opBinaryRight to return a reference to a free slot when assigned to sets value in slot and does _count += 1;
  *

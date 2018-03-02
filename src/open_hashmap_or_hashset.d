@@ -447,15 +447,13 @@ struct OpenHashMapOrSet(K, V = void,
     bool contains()(const scope K key) const // template-lazy, auto ref here makes things slow
     {
         assert(!key.isNull);
+        immutable hitIndex = tryFindIndexOfKey(key);
         static if (removalFlag)
         {
-            immutable hitIndex = _bins[].triangularProbeFromIndex!((const auto ref _) => keyOf(_) is key)(keyToIndex(key));
             return hitIndex != _bins.length;
         }
         else
         {
-            immutable hitIndex = _bins[].triangularProbeFromIndex!((const auto ref _) => (keyOf(_) is key ||
-                                                                                          keyOf(_).isNull))(keyToIndex(key));
             return (hitIndex != _bins.length &&
                     keyOf(_bins[hitIndex]) is key);
         }
@@ -842,27 +840,13 @@ struct OpenHashMapOrSet(K, V = void,
             if (op == "in")
         {
             assert(!key.isNull);
+            immutable hitIndex = tryFindIndexOfKey(key);
             static if (removalFlag)
             {
-                immutable hitIndex = _bins[].triangularProbeFromIndex!((const auto ref _) => keyOf(_) is key)(keyToIndex(key));
                 immutable hit = hitIndex != _bins.length;
             }
             else
             {
-                static if (isCopyable!T)
-                {
-                    /* don't use `auto ref` for copyable `T`'s to prevent
-                     * massive performance drop for small elements when compiled
-                     * with LDC */
-                    alias predicate = (element) => (keyOf(element) is key ||
-                                                    keyOf(element).isNull);
-                }
-                else
-                {
-                    alias predicate = (const auto ref element) => (keyOf(element) is key ||
-                                                                   keyOf(element).isNull);
-                }
-                immutable hitIndex = _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key));
                 immutable hit = (hitIndex != _bins.length &&
                                  keyOf(_bins[hitIndex]) is key);
             }
@@ -950,29 +934,8 @@ struct OpenHashMapOrSet(K, V = void,
         scope inout(V)* opBinaryRight(string op)(const scope K key) inout return // auto ref here makes things slow
             if (op == "in")
         {
-            static if (removalFlag)
-            {
-                alias predicate = (const auto ref element) => keyOf(element) is key;
-            }
-            else
-            {
-                static if (isCopyable!T)
-                {
-                    /* don't use `auto ref` for copyable `T`'s to prevent
-                     * massive performance drop for small elements when compiled
-                     * with LDC */
-                    alias predicate = (element) => (keyOf(element) is key ||
-                                                    keyOf(element).isNull);
-                }
-                else
-                {
-                    alias predicate = (const auto ref element) => (keyOf(element) is key ||
-                                                                   keyOf(element).isNull);
-                }
-            }
-            immutable hitIndex = _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key));
-            immutable hit = hitIndex != _bins.length;
-            if (hit)
+            immutable hitIndex = tryFindIndexOfKey(key);
+            if (hitIndex != _bins.length)
             {
                 return cast(typeof(return))&_bins[hitIndex].value;
             }
@@ -1081,7 +1044,7 @@ struct OpenHashMapOrSet(K, V = void,
         pragma(inline, true)    // LDC must have this
         scope ref inout(V) opIndex()(const scope K key) inout return // auto ref here makes things slow
         {
-            immutable hitIndex = _bins[].triangularProbeFromIndex!((const auto ref element) => keyOf(element) is key)(keyToIndex(key));
+            immutable hitIndex = tryFindIndexOfKey(key);
             if (hitIndex != _bins.length)
             {
                 return _bins[hitIndex].value;
@@ -1160,7 +1123,7 @@ struct OpenHashMapOrSet(K, V = void,
         */
         bool remove()(const scope K key) // template-lazy
         {
-            immutable hitIndex = _bins[].triangularProbeFromIndex!((const auto ref element) => keyOf(element) is key)(keyToIndex(key));
+            immutable hitIndex = tryFindIndexOfKey(key);
             if (hitIndex != _bins.length) // if hit
             {
                 nullifyElement(_bins[hitIndex]);
@@ -1217,7 +1180,7 @@ private:
 
     /** Returns: bin index of `key`. */
     pragma(inline, true)
-    size_t keyToIndex(const scope K key) const
+    private size_t keyToIndex(const scope K key) const
     {
         return hashOf2!(hasher)(key) & powerOf2Mask;
     }
@@ -1229,6 +1192,34 @@ private:
         immutable typeof(return) mask = _bins.length - 1;
         assert((~mask ^ mask) == typeof(mask).max); // isPowerOf2(_bins.length)
         return mask;
+    }
+
+    pragma(inline, true)
+    private size_t tryFindIndexOfKey(const scope K key) const
+    {
+        static if (removalFlag)
+        {
+            // may contain holes
+            alias predicate = (const auto ref element) => keyOf(element) is key;
+        }
+        else
+        {
+            // cannot contain holes
+            static if (isCopyable!T)
+            {
+                /* don't use `auto ref` for copyable `T`'s to prevent
+                 * massive performance drop for small elements when compiled
+                 * with LDC. TODO remove when LDC is fixed. */
+                alias predicate = (element) => (keyOf(element) is key ||
+                                                keyOf(element).isNull);
+            }
+            else
+            {
+                alias predicate = (const auto ref element) => (keyOf(element) is key ||
+                                                               keyOf(element).isNull);
+            }
+        }
+        return _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key));
     }
 }
 

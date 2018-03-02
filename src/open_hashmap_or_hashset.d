@@ -565,14 +565,10 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    /** Rehash elements in-place keeping only elements whose key matches
-     * `keyPredicateString`. */
-    private void rehashInPlace(alias keyPredicateString = "!a.isNull")() // template-lazy
+    /** Rehash elements in-place. */
+    private void rehashInPlace()() // template-lazy
         @trusted
     {
-        import std.functional : unaryFun;
-        alias keyPredicate = unaryFun!keyPredicateString;
-
         import bitarray : BitArray;
         auto dones = BitArray!().withLength(_bins.length); // TODO use size_t[] and core.bitop instead
         foreach (immutable doneIndex; 0 .. dones.length)

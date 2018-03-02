@@ -926,11 +926,11 @@ struct OpenHashMapOrSet(K, V = void,
             if (op == "in")
         {
             immutable hitIndex = tryFindIndexOfKey(key);
-            if (hitIndex != _bins.length)
+            if (isOccupiedAtIndex(hitIndex))
             {
                 return cast(typeof(return))&_bins[hitIndex].value;
             }
-            else                    // miss
+            else
             {
                 return null;    // TODO return reference to where element should be placed
             }

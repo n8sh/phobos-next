@@ -952,7 +952,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             static if (removalFlag)
             {
-                alias predicate = (const auto ref _) => keyOf(_) is key;
+                alias predicate = (const auto ref element) => keyOf(element) is key;
             }
             else
             {
@@ -1081,7 +1081,7 @@ struct OpenHashMapOrSet(K, V = void,
         pragma(inline, true)    // LDC must have this
         scope ref inout(V) opIndex()(const scope K key) inout return // auto ref here makes things slow
         {
-            immutable hitIndex = _bins[].triangularProbeFromIndex!((const auto ref _) => keyOf(_) is key)(keyToIndex(key));
+            immutable hitIndex = _bins[].triangularProbeFromIndex!((const auto ref element) => keyOf(element) is key)(keyToIndex(key));
             if (hitIndex != _bins.length)
             {
                 return _bins[hitIndex].value;
@@ -1160,7 +1160,7 @@ struct OpenHashMapOrSet(K, V = void,
         */
         bool remove()(const scope K key) // template-lazy
         {
-            immutable hitIndex = _bins[].triangularProbeFromIndex!((const auto ref _) => keyOf(_) is key)(keyToIndex(key));
+            immutable hitIndex = _bins[].triangularProbeFromIndex!((const auto ref element) => keyOf(element) is key)(keyToIndex(key));
             if (hitIndex != _bins.length) // if hit
             {
                 nullifyElement(_bins[hitIndex]);

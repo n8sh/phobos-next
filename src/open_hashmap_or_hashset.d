@@ -377,14 +377,14 @@ struct OpenHashMapOrSet(K, V = void,
             return _holesPtr;
         }
 
-        void setHole(size_t index) @trusted
+        void makeHoleAtIndex(size_t index) @trusted
         {
             assert(index < 8*size_t.max*holesWordCount(_bins.length));
             import core.bitop : bts;
             bts(lazyHolesPtr, index);
         }
 
-        bool getHole(size_t index) @trusted /*TODO const*/
+        bool hasHoleAtIndex(size_t index) @trusted /*TODO const*/
         {
             assert(index < 8*size_t.max*holesWordCount(_bins.length));
             import core.bitop : bt;
@@ -1124,7 +1124,7 @@ struct OpenHashMapOrSet(K, V = void,
                 nullifyElement(_bins[hitIndex]);
                 static if (removalFlag)
                 {
-                    setHole(hitIndex);
+                    makeHoleAtIndex(hitIndex);
                 }
                 _count -= 1;
                 return true;
@@ -1226,7 +1226,7 @@ private:
                 (keyOf(_bins[index]).isNull)); // TODO check for holes
     }
 
-    /** Returns: `true` iff `index` indexes a vacant (either null or deleted) element.
+    /** Returns: `true` iff `index` indexes a lazily deleted (removedd) element.
      * See also: https://en.wikipedia.org/wiki/Lazy_deletion
      */
     pragma(inline, true)
@@ -1241,7 +1241,7 @@ private:
         }
         else
         {
-            return getHole(index);
+            return hasHoleAtIndex(index);
         }
     }
 }

@@ -8,7 +8,7 @@ import pure_mallocator : PureMallocator;
 /** Hash set (or map) storing (key) elements of type `K` and values of type `V`.
  *
  * Uses open-addressing with quadratic probing (using triangular numbers) and
- * lazy removal/deletion.
+ * lazy deletion/removal.
  *
  * Params:
  *      K = key type.

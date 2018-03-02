@@ -1218,7 +1218,7 @@ private:
     }
 
     /** Returns: `true` iff `index` indexes a vacant (either null or deleted)
-     * element.
+     * element, `false` otherwise.
      */
     pragma(inline, true)
     private bool isVacantAtIndex(size_t index) const

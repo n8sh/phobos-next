@@ -17,6 +17,7 @@ import pure_mallocator : PureMallocator;
  *      hasher = hash function or std.digest Hash.
  *      Allocator = memory allocator for bin array
  *
+ * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  * See also: https://en.wikipedia.org/wiki/Lazy_deletion
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  *

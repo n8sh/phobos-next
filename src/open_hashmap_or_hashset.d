@@ -370,7 +370,6 @@ struct OpenHashMapOrSet(K, V = void,
 
         void makeHoleAtIndex(size_t index) @trusted
         {
-            assert(index < 8*size_t.max*holesWordCount(_bins.length));
             if (_holesPtr is null)
             {
                 // lazy allocation
@@ -390,7 +389,6 @@ struct OpenHashMapOrSet(K, V = void,
             // }
             // else
             {
-                assert(index < 8*size_t.max*holesWordCount(_bins.length));
                 return _holesPtr && bt(_holesPtr, index) != 0;
             }
         }

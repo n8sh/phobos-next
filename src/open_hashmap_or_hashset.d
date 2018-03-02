@@ -703,8 +703,10 @@ struct OpenHashMapOrSet(K, V = void,
 
         if (keyOf(_bins[hitIndex]).isNull) // key missing
         {
+            immutable hitIndex1 = tryFindNullOrHole(keyOf(element)); // try again to reuse hole
+            assert(hitIndex1 != _bins.length, "no null or hole slot");
             move(element,
-                 _bins[hitIndex]);
+                 _bins[hitIndex1]);
             _count += 1;
             return InsertionStatus.added;
         }
@@ -1193,21 +1195,39 @@ private:
     pragma(inline, true)
     private size_t tryFindIndexOfKey(const scope K key) const @trusted
     {
-        const holesPtr = _holesPtr;
         static if (isCopyable!T)
         {
             /* don't use `auto ref` for copyable `T`'s to prevent
              * massive performance drop for small elements when compiled
              * with LDC. TODO remove when LDC is fixed. */
-            alias predicate = (index, element) => ((keyOf(element).isNull) ||
+            alias predicate = (index, element) => (keyOf(element).isNull ||
                                                    (keyOf(element) is key &&
                                                     hasNotHoleAtIndex(_holesPtr, index)));
         }
         else
         {
-            alias predicate = (index, const auto ref element) => ((keyOf(element).isNull) ||
+            alias predicate = (index, const auto ref element) => (keyOf(element).isNull ||
                                                                   (keyOf(element) is key &&
                                                                    hasNotHoleAtIndex(_holesPtr, index)));
+        }
+        return _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key));
+    }
+
+    pragma(inline, true)
+    private size_t tryFindNullOrHole(const scope K key) const @trusted
+    {
+        static if (isCopyable!T)
+        {
+            /* don't use `auto ref` for copyable `T`'s to prevent
+             * massive performance drop for small elements when compiled
+             * with LDC. TODO remove when LDC is fixed. */
+            alias predicate = (index, element) => (keyOf(element).isNull ||
+                                                   hasHoleAtIndex(index));
+        }
+        else
+        {
+            alias predicate = (index, const auto ref element) => (keyOf(element).isNull ||
+                                                                  hasHoleAtIndex(index));
         }
         return _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key));
     }
@@ -1603,8 +1623,10 @@ pure nothrow @nogc unittest
                 assert(x1.insert(e2) == X.InsertionStatus.modified);
                 assert(x1.contains(key));
                 assert(x1.get(key, null) == "a");
+
                 x1.remove(key);
                 x1[key] = value;
+                assert(x1.contains(key));
             }
 
             assert(x1.length == key + 1);
@@ -1619,7 +1641,9 @@ pure nothrow @nogc unittest
                 assert(hitPtr && *hitPtr == key);
             }
 
+            dln("key_:", key_, " bins:", x1._bins, " holes:");
             auto status = x1.insert(element);
+            dln("key_:", key_, " bins:", x1._bins, " holes:");
             if (status != X.InsertionStatus.unmodified)
             {
                 dln("status:", status, " element:", element);

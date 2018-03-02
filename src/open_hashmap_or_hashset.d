@@ -450,7 +450,7 @@ struct OpenHashMapOrSet(K, V = void,
     bool contains()(const scope K key) const // template-lazy, auto ref here makes things slow
     {
         assert(!key.isNull);
-        return isOccupiedIndex(tryFindIndexOfKey(key));
+        return isOccupiedAtIndex(tryFindIndexOfKey(key));
     }
     static if (isInstanceOf!(Nullable, K))
     {
@@ -841,7 +841,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             assert(!key.isNull);
             immutable hitIndex = tryFindIndexOfKey(key);
-            return isOccupiedIndex(hitIndex) ? &_bins[hitIndex] : null;
+            return isOccupiedAtIndex(hitIndex) ? &_bins[hitIndex] : null;
         }
         static if (isInstanceOf!(Nullable, K))
         {
@@ -1215,7 +1215,7 @@ private:
 
     /** Returns: `true` iff `index` indexes a non-null element. */
     pragma(inline, true)
-    private bool isOccupiedIndex(size_t index) const
+    private bool isOccupiedAtIndex(size_t index) const
     {
         return (index != _bins.length &&
                 !keyOf(_bins[index]).isNull);
@@ -1223,7 +1223,7 @@ private:
 
     /** Returns: `true` iff `index` indexes a vacant (either null or deleted) element. */
     pragma(inline, true)
-    private bool isVacantIndex(size_t index) const
+    private bool isVacantAtIndex(size_t index) const
     {
         return (index != _bins.length &&
                 (keyOf(_bins[index]).isNull)); // TODO check for holes

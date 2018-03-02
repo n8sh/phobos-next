@@ -1209,7 +1209,8 @@ private:
     }
 
     /** Returns: `true` iff `index` indexes a non-null element, `false`
-     * otherwise. */
+     * otherwise.
+     */
     pragma(inline, true)
     private bool isOccupiedAtIndex(size_t index) const
     {

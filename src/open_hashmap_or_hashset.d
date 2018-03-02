@@ -21,7 +21,7 @@ import pure_mallocator : PureMallocator;
  * See also: https://en.wikipedia.org/wiki/Lazy_deletion
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  *
- * TODO when removalFlag and is(typeof(key) == class) use use void*.max as deleted value
+ * TODO when removalFlag and key is type class or pointer use use void*.max or 0x1 as deleted value
  *
  * TODO extend opBinaryRight to return a reference to a free slot when assigned to sets value in slot and does _count += 1;
  *

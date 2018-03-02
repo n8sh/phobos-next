@@ -46,6 +46,7 @@ struct OpenHashMapOrSet(K, V = void,
     import std.math : nextPow2;
     import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable, isMutable, hasIndirections, Unqual, isPointer;
     import std.typecons : Nullable;
+    import core.bitop : bts, bt;
 
     import qcmeman : gc_addRange, gc_removeRange;
     import digestion : hashOf2;
@@ -367,28 +368,21 @@ struct OpenHashMapOrSet(K, V = void,
             return wordBytes*holesWordCount(binCount);
         }
 
-        size_t* lazyHolesPtr() @trusted
+        void makeHoleAtIndex(size_t index) @trusted
         {
+            assert(index < 8*size_t.max*holesWordCount(_bins.length));
             if (_holesPtr is null)
             {
                 // lazy allocation
                 _holesPtr = zeroallocateHoles(binBlockBytes(_bins.length));
             }
-            return _holesPtr;
+            bts(_holesPtr, index);
         }
 
-        void makeHoleAtIndex(size_t index) @trusted
+        bool hasHoleAtIndex(size_t index) @trusted const
         {
             assert(index < 8*size_t.max*holesWordCount(_bins.length));
-            import core.bitop : bts;
-            bts(lazyHolesPtr, index);
-        }
-
-        bool hasHoleAtIndex(size_t index) @trusted /*TODO const*/
-        {
-            assert(index < 8*size_t.max*holesWordCount(_bins.length));
-            import core.bitop : bt;
-            return bt(lazyHolesPtr, index) != 0;
+            return _holesPtr && bt(_holesPtr, index) != 0;
         }
     }
 
@@ -1189,27 +1183,24 @@ private:
         return mask;
     }
 
+    /** Find index to `key` if it exists or to first empty slot found, ignoring
+     * lazily deleted slots.
+     */
     pragma(inline, true)
     private size_t tryFindIndexOfKey(const scope K key) const @trusted
     {
-        import core.bitop : bt;
-        const holesPtr = _holesPtr; // restrictions in D's scope capturing
         static if (isCopyable!T)
         {
             /* don't use `auto ref` for copyable `T`'s to prevent
              * massive performance drop for small elements when compiled
              * with LDC. TODO remove when LDC is fixed. */
             alias predicate = (index, element) => ((keyOf(element).isNull) ||
-                                                   (keyOf(element) is key &&
-                                                    (holesPtr is null ||
-                                                     bt(holesPtr, index) != 0)));
+                                                   (keyOf(element) is key));
         }
         else
         {
             alias predicate = (index, const auto ref element) => ((keyOf(element).isNull) ||
-                                                                  (keyOf(element) is key &&
-                                                                   (holesPtr is null ||
-                                                                    bt(holesPtr, index) != 0)));
+                                                                  (keyOf(element) is key));
         }
         return _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key));
     }
@@ -1218,20 +1209,22 @@ private:
      * otherwise.
      */
     pragma(inline, true)
-    private bool isOccupiedAtIndex(size_t index) const
+    private bool isOccupiedAtIndex(size_t index) const @trusted
     {
         return (index != _bins.length && // needed for when _bins.length == 0
-                !keyOf(_bins[index]).isNull);
+                !keyOf(_bins[index]).isNull &&
+                !hasHoleAtIndex(index));
     }
 
     /** Returns: `true` iff `index` indexes a vacant (either null or deleted)
      * element, `false` otherwise.
      */
     pragma(inline, true)
-    private bool isVacantAtIndex(size_t index) const
+    private bool isVacantAtIndex(size_t index) const @trusted
     {
         return (index != _bins.length && // needed for when _bins.length == 0
-                (keyOf(_bins[index]).isNull)); // TODO check for holes
+                (keyOf(_bins[index]).isNull ||
+                 hasHoleAtIndex(index)));
     }
 
     /** Returns: `true` iff `index` indexes a lazily deleted (removed) element,
@@ -1242,13 +1235,14 @@ private:
     pragma(inline, true)
     private bool isLazilyDeletedAtIndex(size_t index) /*TODO const*/ @trusted
     {
-        static if (is(K == class) ||
-                   isPointer!K)
-        {
-            return (index != _bins.length && // needed for when _bins.length == 0
-                    (cast(const(void)*)keyOf(_bins[index]) is cast(void*)0x1));
-        }
-        else
+        // TODO activate:
+        // static if (is(K == class) ||
+        //            isPointer!K)
+        // {
+        //     return (index != _bins.length && // needed for when _bins.length == 0
+        //             (cast(const(void)*)keyOf(_bins[index]) is cast(void*)0x1));
+        // }
+        // else
         {
             return hasHoleAtIndex(index);
         }

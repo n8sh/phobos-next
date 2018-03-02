@@ -695,8 +695,7 @@ struct OpenHashMapOrSet(K, V = void,
     {
         assert(!keyOf(element).isNull);
 
-        immutable hitIndex = _bins[].triangularProbeFromIndex!((const auto ref _) => (keyOf(_) is keyOf(element) ||
-                                                                                      keyOf(_).isNull))(keyToIndex(keyOf(element)));
+        immutable hitIndex = tryFindIndexOfKey(keyOf(element));
         assert(hitIndex != _bins.length, "no free slot");
 
         if (keyOf(_bins[hitIndex]).isNull) // key missing
@@ -1217,7 +1216,7 @@ private:
     pragma(inline, true)
     private bool isOccupiedAtIndex(size_t index) const
     {
-        return (index != _bins.length &&
+        return (index != _bins.length && // TODO index == _bins.length shouldn't happend when at least one free slot in _bins
                 !keyOf(_bins[index]).isNull);
     }
 
@@ -1225,7 +1224,7 @@ private:
     pragma(inline, true)
     private bool isVacantAtIndex(size_t index) const
     {
-        return (index != _bins.length &&
+        return (index != _bins.length && // TODO index == _bins.length shouldn't happend when at least one free slot in _bins
                 (keyOf(_bins[index]).isNull)); // TODO check for holes
     }
 }

@@ -390,7 +390,9 @@ struct OpenHashMapOrSet(K, V = void,
             //             (cast(const(void)*)keyOf(_bins[index]) is cast(void*)0x1));
             // }
             // else
-            return _holesPtr && bt(_holesPtr, index) != 0;
+            {
+                return _holesPtr && bt(_holesPtr, index) != 0;
+            }
         }
     }
 

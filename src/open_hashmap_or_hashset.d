@@ -1216,7 +1216,8 @@ private:
     pragma(inline, true)
     private bool isOccupiedAtIndex(size_t index) const
     {
-        return (index != _bins.length && // TODO index == _bins.length shouldn't happend when at least one free slot in _bins
+        // TODO assert(hitIndex != _bins.length, "no free slot");
+        return (index != _bins.length && // TODO remove and activate assert instead
                 !keyOf(_bins[index]).isNull);
     }
 
@@ -1224,7 +1225,8 @@ private:
     pragma(inline, true)
     private bool isVacantAtIndex(size_t index) const
     {
-        return (index != _bins.length && // TODO index == _bins.length shouldn't happend when at least one free slot in _bins
+        // TODO assert(hitIndex != _bins.length, "no free slot");
+        return (index != _bins.length && // TODO remove and activate assert instead
                 (keyOf(_bins[index]).isNull)); // TODO check for holes
     }
 }
@@ -1307,6 +1309,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {
+    dln("");
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
 
@@ -1348,6 +1351,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 /// r-value and r-value intersection
 @safe pure nothrow @nogc unittest
 {
+    dln("");
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
 
@@ -1371,6 +1375,7 @@ auto intersectWith(C1, C2)(ref C1 x,
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {
+    dln("");
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
 
@@ -1410,6 +1415,7 @@ alias range = byElement;        // EMSI-container naming
 /// make range from l-value and r-value. element access is always const
 pure nothrow @nogc unittest
 {
+    dln("");
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
 
@@ -1443,6 +1449,7 @@ pure nothrow @nogc unittest
 /// test various things
 @trusted pure nothrow @nogc unittest
 {
+    dln("");
     immutable uint n = 600;
 
     alias K = Nullable!(uint, uint.max);
@@ -1733,6 +1740,7 @@ pure nothrow @nogc unittest
 /// range checking
 @trusted pure unittest
 {
+    dln("");
     immutable n = 11;
 
     alias K = Nullable!(uint, uint.max);
@@ -1777,6 +1785,7 @@ pure nothrow @nogc unittest
 /// class as value
 @trusted pure unittest
 {
+    dln("");
     immutable n = 11;
 
     alias K = Nullable!(uint, uint.max);
@@ -1831,6 +1840,7 @@ pure nothrow @nogc unittest
 /// constness inference of ranges
 pure nothrow unittest
 {
+    dln("");
     alias K = Nullable!(uint, uint.max);
     class V
     {
@@ -1862,6 +1872,7 @@ pure nothrow unittest
 /// range key constness and value mutability with `class` value
 pure nothrow unittest
 {
+    dln("");
     struct S
     {
         uint value;
@@ -1913,6 +1924,7 @@ pure nothrow unittest
 /// range key constness and value mutability with `class` key and `class` value
 pure nothrow unittest
 {
+    dln("");
     class K
     {
         this(uint value)
@@ -1966,6 +1978,7 @@ pure nothrow unittest
 /// range key constness and value mutability with `class` key and `class` value
 pure nothrow unittest
 {
+    dln("");
     class K
     {
         this(uint value)
@@ -2026,4 +2039,5 @@ version(unittest)
     import std.typecons : Nullable;
     import digestx.fnv : FNV;
     import array_help : s;
+    import dbgio;
 }

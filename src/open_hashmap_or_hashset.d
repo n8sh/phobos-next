@@ -21,14 +21,14 @@ import pure_mallocator : PureMallocator;
  * See also: https://en.wikipedia.org/wiki/Lazy_deletion
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  *
+ * TODO when removalFlag and is(typeof(key) == class) use use void*.max as deleted value
+ *
  * TODO extend opBinaryRight to return a reference to a free slot when assigned to sets value in slot and does _count += 1;
  *
  * TODO add extractElement that moves it out similar to
  * http://en.cppreference.com/w/cpp/container/unordered_set/extract
  *
  * TODO benchmark against https://github.com/greg7mdp/sparsepp
- *
- * TODO when removalFlag and is(typeof(key) == class) use use void*.max as deleted value
  *
  * TODO add merge or union algorithm here or into container_algorithm.d. See
  * also: http://en.cppreference.com/w/cpp/container/unordered_set/merge. this

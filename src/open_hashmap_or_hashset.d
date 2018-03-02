@@ -1226,7 +1226,8 @@ private:
                 (keyOf(_bins[index]).isNull)); // TODO check for holes
     }
 
-    /** Returns: `true` iff `index` indexes a lazily deleted (removed) element.
+    /** Returns: `true` iff `index` indexes a lazily deleted (removed) element,
+     * `false` otherwise.
      *
      * See also: https://en.wikipedia.org/wiki/Lazy_deletion
      */

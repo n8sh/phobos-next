@@ -348,7 +348,7 @@ struct OpenHashMapOrSet(K, V = void,
         enum wordBits = 8*wordBytes;
 
         /** Returns: number of words (`size_t`) needed to represent
-         * `_bins.length` holes.
+         * `binCount` holes.
          */
         static size_t holesWordCount(size_t binCount)
         {

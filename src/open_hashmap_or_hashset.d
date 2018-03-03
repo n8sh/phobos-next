@@ -325,11 +325,6 @@ struct OpenHashMapOrSet(K, V = void,
         enum wordBytes = size_t.sizeof;
         enum wordBits = 8*wordBytes;
 
-        static size_t* zeroallocateHoles(size_t byteCount) @trusted
-        {
-            return cast(typeof(return))Allocator.instance.zeroallocate(byteCount);
-        }
-
         static size_t* reallocateHoles(size_t[] holes, size_t byteCount) @trusted
         {
             auto rawHoles = cast(void[])holes;
@@ -368,10 +363,9 @@ struct OpenHashMapOrSet(K, V = void,
 
         void makeHoleAtIndex(size_t index) @trusted
         {
-            if (_holesPtr is null)
+            if (_holesPtr is null) // lazy allocation
             {
-                // lazy allocation
-                _holesPtr = zeroallocateHoles(binBlockBytes(_bins.length));
+                _holesPtr = makeZeroedBitArray!PureMallocator(_bins.length);
             }
             bts(_holesPtr, index);
         }

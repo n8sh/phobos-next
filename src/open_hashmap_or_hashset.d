@@ -725,7 +725,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         if (keyOf(_bins[hitIndex]).isNull) // key missing
         {
-            immutable hitIndex1 = tryFindNullOrHole(keyOf(element)); // try again to reuse hole
+            immutable hitIndex1 = tryFindHoleOrNull(keyOf(element)); // try again to reuse hole
             assert(hitIndex1 != _bins.length, "no null or hole slot");
             move(element,
                  _bins[hitIndex1]);
@@ -1237,20 +1237,20 @@ private:
     }
 
     pragma(inline, true)
-    private size_t tryFindNullOrHole(const scope K key) const @trusted
+    private size_t tryFindHoleOrNull(const scope K key) const @trusted
     {
         static if (isCopyable!T)
         {
             /* don't use `auto ref` for copyable `T`'s to prevent
              * massive performance drop for small elements when compiled
              * with LDC. TODO remove when LDC is fixed. */
-            alias predicate = (index, element) => (keyOf(element).isNull ||
-                                                   hasHoleAtIndex(index));
+            alias predicate = (index, element) => (hasHoleAtIndex(index) ||
+                                                   keyOf(element).isNull);
         }
         else
         {
-            alias predicate = (index, const auto ref element) => (keyOf(element).isNull ||
-                                                                  hasHoleAtIndex(index));
+            alias predicate = (index, const auto ref element) => (hasHoleAtIndex(index) ||
+                                                                  keyOf(element).isNull);
         }
         return _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key));
     }

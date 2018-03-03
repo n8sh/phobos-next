@@ -1535,11 +1535,6 @@ pure nothrow @nogc unittest
             }
             else
             {
-                if (!(hitPtr && *hitPtr is element))
-                {
-                    dln("hitPtr:", hitPtr,
-                        " bins:", x._bins);
-                }
                 assert(hitPtr && *hitPtr is element);
             }
 
@@ -1720,7 +1715,6 @@ pure nothrow @nogc unittest
 
             assert(x1.length == key);
             assert(x1.insert(element) == X.InsertionStatus.added);
-            // dln("key_:", key_, " bins:", x1._bins);
             assert(x1.length == key + 1);
 
             static if (X.hasValue)

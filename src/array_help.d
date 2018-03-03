@@ -152,9 +152,15 @@ size_t* makeUninitializedBitArray(alias Allocator)(size_t bitCount)
 
 size_t* makeZeroBitArray(alias Allocator)(size_t bitCount)
     @trusted pure nothrow @nogc
-    if (__traits(hasMember, Allocator, "zeroallocate"))
 {
-    return cast(typeof(return))Allocator.instance.zeroallocate(binBlockBytes(bitCount));
+    static if (__traits(hasMember, Allocator, "zeroallocate"))
+    {
+        return cast(typeof(return))Allocator.instance.zeroallocate(binBlockBytes(bitCount));
+    }
+    else
+    {
+        static assert(0, "use allocate plus memset");
+    }
 }
 
 @trusted pure unittest

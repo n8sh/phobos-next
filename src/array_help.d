@@ -146,6 +146,12 @@ private static size_t binBlockBytes(size_t bitCount)
 
 import pure_mallocator : PureMallocator;
 
+size_t* makeUninitializedBitArray(alias Allocator = PureMallocator.instance)(size_t bitCount)
+    @trusted pure nothrow @nogc
+{
+    return cast(typeof(return))Allocator.instance.allocate(binBlockBytes(bitCount));
+}
+
 size_t* makeZeroBitArray(alias Allocator = PureMallocator.instance)(size_t bitCount)
     @trusted pure nothrow @nogc
 {
@@ -154,5 +160,6 @@ size_t* makeZeroBitArray(alias Allocator = PureMallocator.instance)(size_t bitCo
 
 @safe pure unittest
 {
-    auto bis = makeZeroBitArray(65);
+    auto x = makeUninitializedBitArray(65);
+    auto y = makeZeroBitArray(65);
 }

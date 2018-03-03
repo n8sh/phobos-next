@@ -280,7 +280,7 @@ struct OpenHashMapOrSet(K, V = void,
             }
             if (_holesPtr)
             {
-                auto holesPtrCopy = allocateHoles(binBlockBytes(_bins.length));
+                auto holesPtrCopy = allocateUninitializedHoles(binBlockBytes(_bins.length));
                 immutable wordCount = holesWordCount(_bins.length);
                 holesPtrCopy[0 .. wordCount] = _holesPtr[0 .. wordCount];
                 return typeof(return)(binsCopy, _count, holesPtrCopy);
@@ -320,7 +320,7 @@ struct OpenHashMapOrSet(K, V = void,
         enum wordBytes = size_t.sizeof;
         enum wordBits = 8*wordBytes;
 
-        static size_t* allocateHoles(size_t byteCount) @trusted
+        static size_t* allocateUninitializedHoles(size_t byteCount) @trusted
         {
             return cast(typeof(return))Allocator.instance.allocate(byteCount);
         }

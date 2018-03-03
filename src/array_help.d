@@ -160,9 +160,12 @@ size_t* makeZeroBitArray(alias Allocator)(size_t bitCount)
 {
     import pure_mallocator : PureMallocator;
 
-    size_t* x = makeUninitializedBitArray!(PureMallocator)(65);
-    PureMallocator.instance.deallocate(cast(void[])(x[0 .. 2]));
+    const n = 8*size_t.sizeof + 1;
+    const wordCount = 2;
 
-    size_t* y = makeZeroBitArray!(PureMallocator)(65);
-    PureMallocator.instance.deallocate(cast(void[])(y[0 .. 2]));
+    size_t* x = makeUninitializedBitArray!(PureMallocator)(n);
+    PureMallocator.instance.deallocate(cast(void[])(x[0 .. wordCount]));
+
+    size_t* y = makeZeroBitArray!(PureMallocator)(n);
+    PureMallocator.instance.deallocate(cast(void[])(y[0 .. wordCount]));
 }

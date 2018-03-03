@@ -124,3 +124,35 @@ pragma(inline, true)
         assert(y == [17, 0].s);
     }
 }
+
+private enum wordBytes = size_t.sizeof;
+private enum wordBits = 8*wordBytes;
+
+/** Returns: number of words (`size_t`) needed to represent
+ * `_bins.length` holes.
+ */
+private static size_t holesWordCount(size_t bitCount)
+    @safe pure nothrow @nogc
+{
+    return (bitCount / wordBits +
+            (bitCount % wordBits ? 1 : 0));
+}
+
+private static size_t binBlockBytes(size_t bitCount)
+    @safe pure nothrow @nogc
+{
+    return wordBytes*holesWordCount(bitCount);
+}
+
+import pure_mallocator : PureMallocator;
+
+size_t* makeZeroBitArray(alias Allocator = PureMallocator.instance)(size_t bitCount)
+    @trusted pure nothrow @nogc
+{
+    return cast(typeof(return))Allocator.instance.zeroallocate(binBlockBytes(bitCount));
+}
+
+@safe pure unittest
+{
+    auto bis = makeZeroBitArray(65);
+}

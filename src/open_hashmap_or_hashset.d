@@ -379,7 +379,7 @@ struct OpenHashMapOrSet(K, V = void,
             bts(_holesPtr, index);
         }
 
-        void unmakeHoleAtIndex(size_t index) @trusted
+        void tryFillHoleAtIndex(size_t index) @trusted
         {
             if (_holesPtr !is null)
             {
@@ -727,7 +727,7 @@ struct OpenHashMapOrSet(K, V = void,
             assert(hitIndex1 != _bins.length, "no null or hole slot");
             move(element,
                  _bins[hitIndex1]);
-            unmakeHoleAtIndex(hitIndex1);
+            tryFillHoleAtIndex(hitIndex1);
             _count += 1;
             return InsertionStatus.added;
         }
@@ -1509,7 +1509,58 @@ pure nothrow @nogc unittest
     dln("");
     immutable uint n = 600;
 
-    alias K = Nullable!(uint, uint.max);
+    void testEmptyAll(K, V, X)(ref X x, size_t n)
+    {
+        assert(x.length == n);
+        foreach (immutable key_; 0 .. n)
+        {
+            dln("key_:", key_, " length:", x.length);
+            const key = K(key_);
+
+            static if (X.hasValue)
+            {
+                const element = X.ElementType(key, V.init);
+            }
+            else
+            {
+                alias element = key;
+            }
+
+            assert(x.length == n - key);
+
+            const hitPtr = key in x;
+            static if (X.hasValue)
+            {
+                assert(hitPtr && *hitPtr is element.value);
+            }
+            else
+            {
+                if (!(hitPtr && *hitPtr is element))
+                {
+                    dln(x._bins);
+                }
+                assert(hitPtr && *hitPtr is element);
+            }
+
+            assert(x.remove(key));
+            assert(x.length == n - key - 1);
+
+            static if (!X.hasValue)
+            {
+                assert(!x.contains(key));
+            }
+            assert(key !in x);
+            assert(!x.remove(key));
+            assert(x.length == n - key - 1);
+        }
+
+        assert(x.length == 0);
+
+        x.clear();
+        assert(x.length == 0);
+    }
+
+    alias K = Nullable!(ulong, ulong.max);
 
     import std.meta : AliasSeq;
     foreach (V; AliasSeq!(void, string))
@@ -1726,88 +1777,9 @@ pure nothrow @nogc unittest
 
         static assert(!__traits(compiles, { const _ = x1 < x2; })); // no ordering
 
-        // empty x1
+        testEmptyAll!(K, V)(x1, n);
 
-        foreach (immutable key_; 0 .. n)
-        {
-            dln("key_:", key_, " length:", x1.length);
-            const key = K(key_);
-
-            static if (X.hasValue)
-            {
-                const element = X.ElementType(key, V.init);
-            }
-            else
-            {
-                alias element = key;
-            }
-
-            assert(x1.length == n - key);
-
-            const hitPtr = key in x1;
-            static if (X.hasValue)
-            {
-                assert(hitPtr && *hitPtr is element.value);
-            }
-            else
-            {
-                if (!(hitPtr && *hitPtr is element))
-                {
-                    dln(x1._bins);
-                }
-                assert(hitPtr && *hitPtr is element);
-            }
-
-            assert(x1.remove(key));
-            assert(x1.length == n - key - 1);
-
-            static if (!X.hasValue)
-            {
-                assert(!x1.contains(key));
-            }
-            assert(key !in x1);
-            assert(!x1.remove(key));
-            assert(x1.length == n - key - 1);
-        }
-
-        assert(x1.length == 0);
-
-        x1.clear();
-        assert(x1.length == 0);
-
-        // empty x2
-
-        assert(x2.length == n); // should be not affected by emptying of x1
-
-        foreach (immutable key_; 0 .. n)
-        {
-            const key = K(key_);
-
-            static if (X.hasValue)
-            {
-                const element = X.ElementType(key, V.init);
-            }
-            else
-            {
-                const element = key;
-            }
-
-            assert(x2.length == n - key);
-
-            assert(key in x2);
-
-            assert(x2.remove(key));
-            assert(x2.length == n - key - 1);
-
-            assert(key !in x2);
-            assert(!x2.remove(key));
-            assert(x2.length == n - key - 1);
-        }
-
-        assert(x2.length == 0);
-
-        x2.clear();
-        assert(x2.length == 0);
+        testEmptyAll!(K, V)(x2, n); // should be not affected by emptying of x1
     }
 }
 

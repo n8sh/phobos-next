@@ -1699,10 +1699,18 @@ pure nothrow @nogc unittest
 
         static if (X.hasValue)
         {
-            assert(equal(x1.byKey, x2.byKey));
-            assert(equal(x1.byValue, x2.byValue));
-            assert(equal(x1.byKeyValue, x2.byKeyValue));
+            assert(equal(x1.byKey,
+                         x2.byKey));
+            assert(equal(x1.byValue,
+                         x2.byValue));
+            assert(equal(x1.byKeyValue,
+                         x2.byKeyValue));
             assert(equal(x1[], x2[]));
+        }
+        else
+        {
+            assert(equal(x1.byElement,
+                         x2.byElement));
         }
 
         static assert(!__traits(compiles, { const _ = x1 < x2; })); // no ordering

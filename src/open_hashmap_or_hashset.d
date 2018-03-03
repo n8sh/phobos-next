@@ -280,9 +280,12 @@ struct OpenHashMapOrSet(K, V = void,
             }
             if (_holesPtr)
             {
-                auto holesPtrCopy = allocateUninitializedHoles(binBlockBytes(_bins.length));
                 immutable wordCount = holesWordCount(_bins.length);
+                immutable byteCount = size_t.sizeof*wordCount;
+
+                auto holesPtrCopy = allocateUninitializedHoles(byteCount);
                 holesPtrCopy[0 .. wordCount] = _holesPtr[0 .. wordCount];
+
                 return typeof(return)(binsCopy, _count, holesPtrCopy);
             }
             return typeof(return)(binsCopy, _count);

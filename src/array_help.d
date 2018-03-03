@@ -151,7 +151,7 @@ size_t* makeUninitializedBitArray(alias Allocator)(size_t bitCount)
     return cast(typeof(return))Allocator.instance.allocate(byteCount);
 }
 
-size_t* makeZeroBitArray(alias Allocator)(size_t bitCount)
+size_t* makeZeroedBitArray(alias Allocator)(size_t bitCount)
     @trusted pure nothrow @nogc
 {
     immutable byteCount = binBlockBytes(bitCount);
@@ -175,6 +175,6 @@ size_t* makeZeroBitArray(alias Allocator)(size_t bitCount)
     size_t* x = makeUninitializedBitArray!(PureMallocator)(bitCount);
     PureMallocator.instance.deallocate(cast(void[])(x[0 .. wordCount]));
 
-    size_t* y = makeZeroBitArray!(PureMallocator)(bitCount);
+    size_t* y = makeZeroedBitArray!(PureMallocator)(bitCount);
     PureMallocator.instance.deallocate(cast(void[])(y[0 .. wordCount]));
 }

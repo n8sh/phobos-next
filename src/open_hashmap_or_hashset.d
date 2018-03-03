@@ -1262,8 +1262,8 @@ private:
     private bool isOccupiedAtIndex(size_t index) const @trusted
     {
         return (index != _bins.length && // needed for when _bins.length == 0
-                !keyOf(_bins[index]).isNull &&
-                !hasHoleAtIndex(index));
+                !hasHoleAtIndex(index) &&
+                !keyOf(_bins[index]).isNull);
     }
 
     /** Returns: `true` iff `index` indexes a vacant (either null or deleted)
@@ -1273,19 +1273,8 @@ private:
     private bool isVacantAtIndex(size_t index) const @trusted
     {
         return (index != _bins.length && // needed for when _bins.length == 0
-                (keyOf(_bins[index]).isNull ||
-                 hasHoleAtIndex(index)));
-    }
-
-    /** Returns: `true` iff `index` indexes a lazily deleted (removed) element,
-     * `false` otherwise.
-     *
-     * See also: https://en.wikipedia.org/wiki/Lazy_deletion
-     */
-    pragma(inline, true)
-    private bool isLazilyDeletedAtIndex(size_t index) /*TODO const*/ @trusted
-    {
-        return hasHoleAtIndex(index);
+                (hasHoleAtIndex(index) ||
+                 keyOf(_bins[index]).isNull));
     }
 }
 

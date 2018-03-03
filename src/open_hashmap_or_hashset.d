@@ -1691,7 +1691,7 @@ pure nothrow @nogc unittest
         // duplicate x1
 
         auto x2 = x1.dup;
-
+        assert(x1._bins.ptr !is x2._bins.ptr);
         // non-symmetric algorithm so both are needed
         assert(x2 == x1);
         assert(x1 == x2);

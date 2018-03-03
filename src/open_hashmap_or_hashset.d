@@ -284,7 +284,7 @@ struct OpenHashMapOrSet(K, V = void,
                 immutable byteCount = size_t.sizeof*wordCount;
 
                 auto holesPtrCopy = allocateUninitializedHoles(byteCount);
-                holesPtrCopy[0 .. wordCount] = _holesPtr[0 .. wordCount];
+                holesPtrCopy[0 .. wordCount] = _holesPtr[0 .. wordCount]; // TODO use memcpy instead?
 
                 return typeof(return)(binsCopy, _count, holesPtrCopy);
             }

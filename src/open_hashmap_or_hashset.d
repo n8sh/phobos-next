@@ -322,9 +322,6 @@ struct OpenHashMapOrSet(K, V = void,
     pragma(inline, true):
     private:
 
-        enum wordBytes = size_t.sizeof;
-        enum wordBits = 8*wordBytes;
-
         static size_t* reallocateHoles(size_t[] holes, size_t byteCount) @trusted
         {
             auto rawHoles = cast(void[])holes;
@@ -346,6 +343,9 @@ struct OpenHashMapOrSet(K, V = void,
             deallocateHoles();
             _holesPtr = null;
         }
+
+        enum wordBytes = size_t.sizeof;
+        enum wordBits = 8*wordBytes;
 
         /** Returns: number of words (`size_t`) needed to represent
          * `_bins.length` holes.

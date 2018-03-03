@@ -284,9 +284,8 @@ struct OpenHashMapOrSet(K, V = void,
             if (_holesPtr)
             {
                 immutable wordCount = holesWordCount(_bins.length);
-                immutable byteCount = size_t.sizeof*wordCount;
 
-                auto holesPtrCopy = allocateUninitializedHoles(byteCount);
+                auto holesPtrCopy = makeUninitializedBitArray!PureMallocator(_bins.length);
                 holesPtrCopy[0 .. wordCount] = _holesPtr[0 .. wordCount]; // TODO use memcpy instead?
 
                 return typeof(return)(binsCopy, _count, holesPtrCopy);

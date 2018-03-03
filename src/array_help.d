@@ -160,9 +160,9 @@ size_t* makeZeroBitArray(alias Allocator)(size_t bitCount)
 {
     import pure_mallocator : PureMallocator;
 
-    auto x = makeUninitializedBitArray!(PureMallocator)(65);
+    size_t* x = makeUninitializedBitArray!(PureMallocator)(65);
     PureMallocator.instance.deallocate(cast(void[])(x[0 .. 2]));
 
-    auto y = makeZeroBitArray!(PureMallocator)(65);
+    size_t* y = makeZeroBitArray!(PureMallocator)(65);
     PureMallocator.instance.deallocate(cast(void[])(y[0 .. 2]));
 }

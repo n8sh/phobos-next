@@ -49,6 +49,7 @@ struct OpenHashMapOrSet(K, V = void,
     import qcmeman : gc_addRange, gc_removeRange;
     import digestion : hashOf2;
     import probing : triangularProbeFromIndex;
+    import array_help : makeUninitializedBitArray, makeZeroedBitArray;
 
     /** In the hash map case, `V` is non-void, and a value is stored alongside
      * the key of type `K`.

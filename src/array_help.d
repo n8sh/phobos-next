@@ -144,22 +144,25 @@ private static size_t binBlockBytes(size_t bitCount)
     return wordBytes*holesWordCount(bitCount);
 }
 
-import pure_mallocator : PureMallocator;
-
-size_t* makeUninitializedBitArray(alias Allocator = PureMallocator.instance)(size_t bitCount)
+size_t* makeUninitializedBitArray(alias Allocator)(size_t bitCount)
     @trusted pure nothrow @nogc
 {
     return cast(typeof(return))Allocator.instance.allocate(binBlockBytes(bitCount));
 }
 
-size_t* makeZeroBitArray(alias Allocator = PureMallocator.instance)(size_t bitCount)
+size_t* makeZeroBitArray(alias Allocator)(size_t bitCount)
     @trusted pure nothrow @nogc
 {
     return cast(typeof(return))Allocator.instance.zeroallocate(binBlockBytes(bitCount));
 }
 
-@safe pure unittest
+@trusted pure unittest
 {
-    auto x = makeUninitializedBitArray(65);
-    auto y = makeZeroBitArray(65);
+    import pure_mallocator : PureMallocator;
+
+    auto x = makeUninitializedBitArray!(PureMallocator)(65);
+    PureMallocator.instance.deallocate(cast(void[])(x[0 .. 2]));
+
+    auto y = makeZeroBitArray!(PureMallocator)(65);
+    PureMallocator.instance.deallocate(cast(void[])(y[0 .. 2]));
 }

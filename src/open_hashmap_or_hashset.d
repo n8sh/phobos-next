@@ -653,7 +653,8 @@ struct OpenHashMapOrSet(K, V = void,
                 immutable byteCount = T.sizeof*_bins.length;
                 gc_addRange(_bins.ptr, byteCount);
             }
-            _holesPtr = reallocateHoles(_holesPtr[0 .. binBlockBytes(oldLength)], binBlockBytes(_bins.length));
+            _holesPtr = reallocateHoles(_holesPtr[0 .. binBlockBytes(oldLength)],
+                                        binBlockBytes(_bins.length));
             // TODO assert(0, "zero initialize new bits in _holesPtr");
 
             // TODO make this an array operation `nullifyAll` or `nullifyN`

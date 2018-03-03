@@ -325,11 +325,6 @@ struct OpenHashMapOrSet(K, V = void,
         enum wordBytes = size_t.sizeof;
         enum wordBits = 8*wordBytes;
 
-        static size_t* allocateUninitializedHoles(size_t byteCount) @trusted
-        {
-            return cast(typeof(return))Allocator.instance.allocate(byteCount);
-        }
-
         static size_t* zeroallocateHoles(size_t byteCount) @trusted
         {
             return cast(typeof(return))Allocator.instance.zeroallocate(byteCount);

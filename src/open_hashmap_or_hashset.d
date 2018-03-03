@@ -866,7 +866,10 @@ struct OpenHashMapOrSet(K, V = void,
         {
             assert(!key.isNull);
             immutable hitIndex = tryFindIndexOfKey(key);
-            dln("key:", key, " hitIndex:", hitIndex, " isOccupiedAtIndex:", isOccupiedAtIndex(hitIndex), " hasHoleAtIndex:", hasHoleAtIndex(hitIndex));
+            dln("key:", key,
+                " hitIndex:", hitIndex,
+                " isOccupiedAtIndex:", isOccupiedAtIndex(hitIndex),
+                " hasHoleAtIndex:", hasHoleAtIndex(hitIndex));
             return isOccupiedAtIndex(hitIndex) ? &_bins[hitIndex] : null;
         }
         static if (isInstanceOf!(Nullable, K))

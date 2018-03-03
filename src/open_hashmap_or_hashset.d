@@ -1781,8 +1781,6 @@ pure nothrow @nogc unittest
 
         assert(x1.length == n);
 
-        // duplicate x1
-
         auto x2 = testDup(x1, n);
 
         testEmptyAll!(K, V)(x1, n);

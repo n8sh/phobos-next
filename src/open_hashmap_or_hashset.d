@@ -330,7 +330,6 @@ struct OpenHashMapOrSet(K, V = void,
             return cast(typeof(return))Allocator.instance.zeroallocate(byteCount);
         }
 
-        version(none)
         static size_t* reallocateHoles(size_t[] holes, size_t byteCount) @trusted
         {
             auto rawHoles = cast(void[])holes;
@@ -345,6 +344,12 @@ struct OpenHashMapOrSet(K, V = void,
             {
                 Allocator.instance.deallocate(_holesPtr[0 .. holesWordCount(_bins.length)]);
             }
+        }
+
+        void clearHoles()
+        {
+            deallocateHoles();
+            _holesPtr = null;
         }
 
         /** Returns: number of words (`size_t`) needed to represent
@@ -619,6 +624,7 @@ struct OpenHashMapOrSet(K, V = void,
                 dones[doneIndex] = true; // _bins[doneIndex] is at it's correct position
             }
         }
+        clearHoles();
     }
 
     /** Grow (including rehash) store in-place to make room for `newCapacity` number of
@@ -645,8 +651,8 @@ struct OpenHashMapOrSet(K, V = void,
                 immutable byteCount = T.sizeof*_bins.length;
                 gc_addRange(_bins.ptr, byteCount);
             }
-            deallocateHoles();
-            _holesPtr = allocateHoles(binBlockBytes(_bins.length));
+            _holesPtr = reallocateHoles(_holesPtr[0 .. binBlockBytes(oldLength)], binBlockBytes(_bins.length));
+            // TODO assert(0, "zero initialize new bits in _holesPtr");
 
             // TODO make this an array operation `nullifyAll` or `nullifyN`
             foreach (ref bin; _bins[oldLength .. powerOf2newCapacity])
@@ -668,24 +674,27 @@ struct OpenHashMapOrSet(K, V = void,
         @trusted
     {
         assert(newCapacity > _bins.length);
+
         T[] oldBins = _bins;
         debug immutable oldCount = _count;
+        size_t* oldHolesPtr = _holesPtr;
 
         _bins = makeBins(newCapacity); // replace with new bins
-        deallocateHoles();
-        _holesPtr = allocateHoles(binBlockBytes(_bins.length));
         _count = 0;
+        _holesPtr = null;
 
         // move elements to copy
-        foreach (ref oldBin; oldBins)
+        foreach (immutable oldIndex, ref oldBin; oldBins)
         {
-            if (!keyOf(oldBin).isNull)
+            if (!keyOf(oldBin).isNull &&
+                hasNotHoleAtIndex(oldHolesPtr, oldIndex))
             {
                 insertMoveWithoutGrowth(oldBin);
             }
         }
         debug assert(oldCount == _count);
 
+        Allocator.instance.deallocate(oldHolesPtr[0 .. holesWordCount(oldBins.length)]);
         releaseBinsSlice(oldBins);
 
         assert(_bins.length);
@@ -1614,7 +1623,7 @@ pure nothrow @nogc unittest
 
             assert(x1.length == key);
             assert(x1.insert(element) == X.InsertionStatus.added);
-            dln("key_:", key_, " bins:", x1._bins);
+            // dln("key_:", key_, " bins:", x1._bins);
             assert(x1.length == key + 1);
 
             static if (X.hasValue)
@@ -1641,13 +1650,7 @@ pure nothrow @nogc unittest
                 assert(hitPtr && *hitPtr == key);
             }
 
-            dln("key_:", key_, " bins:", x1._bins, " holes:");
             auto status = x1.insert(element);
-            dln("key_:", key_, " bins:", x1._bins, " holes:");
-            if (status != X.InsertionStatus.unmodified)
-            {
-                dln("status:", status, " element:", element);
-            }
             assert(status == X.InsertionStatus.unmodified);
             static if (X.hasValue)
             {

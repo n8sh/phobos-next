@@ -1560,6 +1560,38 @@ pure nothrow @nogc unittest
         assert(x.length == 0);
     }
 
+    X testDup(X)(scope ref X x, size_t n)
+    {
+        typeof(return) y = x.dup;
+
+        assert(x._bins.ptr !is y._bins.ptr);
+        assert(x.length == y.length);
+        assert(y.length == n);
+        // non-symmetric algorithm so both are needed
+        assert(y == x);
+        assert(x == y);
+
+        static if (X.hasValue)
+        {
+            assert(equal(x.byKey,
+                         y.byKey));
+            assert(equal(x.byValue,
+                         y.byValue));
+            assert(equal(x.byKeyValue,
+                         y.byKeyValue));
+            assert(equal(x[], y[]));
+        }
+        else
+        {
+            assert(equal(x.byElement,
+                         y.byElement));
+        }
+
+        static assert(!__traits(compiles, { const _ = x < y; })); // no ordering
+
+        return y;
+    }
+
     alias K = Nullable!(ulong, ulong.max);
 
     import std.meta : AliasSeq;
@@ -1751,31 +1783,7 @@ pure nothrow @nogc unittest
 
         // duplicate x1
 
-        auto x2 = x1.dup;
-        assert(x1._bins.ptr !is x2._bins.ptr);
-        assert(x1.length == x2.length);
-        assert(x2.length == n);
-        // non-symmetric algorithm so both are needed
-        assert(x2 == x1);
-        assert(x1 == x2);
-
-        static if (X.hasValue)
-        {
-            assert(equal(x1.byKey,
-                         x2.byKey));
-            assert(equal(x1.byValue,
-                         x2.byValue));
-            assert(equal(x1.byKeyValue,
-                         x2.byKeyValue));
-            assert(equal(x1[], x2[]));
-        }
-        else
-        {
-            assert(equal(x1.byElement,
-                         x2.byElement));
-        }
-
-        static assert(!__traits(compiles, { const _ = x1 < x2; })); // no ordering
+        auto x2 = testDup(x1, n);
 
         testEmptyAll!(K, V)(x1, n);
 

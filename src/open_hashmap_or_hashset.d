@@ -1709,6 +1709,7 @@ pure nothrow @nogc unittest
 
         foreach (immutable key_; 0 .. n)
         {
+            dln("key_:", key_, " length:", x1.length);
             const key = K(key_);
 
             static if (X.hasValue)

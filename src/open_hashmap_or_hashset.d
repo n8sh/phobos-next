@@ -42,7 +42,7 @@ struct OpenHashMapOrSet(K, V = void,
     import std.math : nextPow2;
     import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable, isMutable, hasIndirections, Unqual, isPointer;
     import std.typecons : Nullable;
-    import core.bitop : bts, bt;
+    import core.bitop : bts, bt, btr;
 
     import qcmeman : gc_addRange, gc_removeRange;
     import digestion : hashOf2;
@@ -377,6 +377,14 @@ struct OpenHashMapOrSet(K, V = void,
                 _holesPtr = zeroallocateHoles(binBlockBytes(_bins.length));
             }
             bts(_holesPtr, index);
+        }
+
+        void unmakeHoleAtIndex(size_t index) @trusted
+        {
+            if (_holesPtr !is null)
+            {
+                btr(_holesPtr, index);
+            }
         }
 
         bool hasHoleAtIndex(size_t index) @trusted const
@@ -719,6 +727,7 @@ struct OpenHashMapOrSet(K, V = void,
             assert(hitIndex1 != _bins.length, "no null or hole slot");
             move(element,
                  _bins[hitIndex1]);
+            unmakeHoleAtIndex(hitIndex1);
             _count += 1;
             return InsertionStatus.added;
         }
@@ -857,6 +866,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             assert(!key.isNull);
             immutable hitIndex = tryFindIndexOfKey(key);
+            dln("key:", key, " hitIndex:", hitIndex, " isOccupiedAtIndex:", isOccupiedAtIndex(hitIndex), " hasHoleAtIndex:", hasHoleAtIndex(hitIndex));
             return isOccupiedAtIndex(hitIndex) ? &_bins[hitIndex] : null;
         }
         static if (isInstanceOf!(Nullable, K))
@@ -1741,6 +1751,10 @@ pure nothrow @nogc unittest
             }
             else
             {
+                if (!(hitPtr && *hitPtr is element))
+                {
+                    dln(x1._bins);
+                }
                 assert(hitPtr && *hitPtr is element);
             }
 

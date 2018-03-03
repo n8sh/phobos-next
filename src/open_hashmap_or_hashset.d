@@ -475,7 +475,7 @@ struct OpenHashMapOrSet(K, V = void,
     bool contains()(const scope K key) const // template-lazy, auto ref here makes things slow
     {
         assert(!key.isNull);
-        return isOccupiedAtIndex(tryFindIndexOfKey(key));
+        return isOccupiedAtIndex(tryFindIndexOfKeySkippingHoles(key));
     }
     static if (isInstanceOf!(Nullable, K))
     {
@@ -718,7 +718,7 @@ struct OpenHashMapOrSet(K, V = void,
     {
         assert(!keyOf(element).isNull);
 
-        immutable hitIndex = tryFindIndexOfKey(keyOf(element));
+        immutable hitIndex = tryFindIndexOfKeySkippingHoles(keyOf(element));
         assert(hitIndex != _bins.length, "no free slot");
 
         if (keyOf(_bins[hitIndex]).isNull) // key missing
@@ -865,11 +865,7 @@ struct OpenHashMapOrSet(K, V = void,
             if (op == "in")
         {
             assert(!key.isNull);
-            immutable hitIndex = tryFindIndexOfKey(key);
-            dln("key:", key,
-                " hitIndex:", hitIndex,
-                " isOccupiedAtIndex:", isOccupiedAtIndex(hitIndex),
-                " hasHoleAtIndex:", hasHoleAtIndex(hitIndex));
+            immutable hitIndex = tryFindIndexOfKeySkippingHoles(key);
             return isOccupiedAtIndex(hitIndex) ? &_bins[hitIndex] : null;
         }
         static if (isInstanceOf!(Nullable, K))
@@ -954,7 +950,7 @@ struct OpenHashMapOrSet(K, V = void,
         scope inout(V)* opBinaryRight(string op)(const scope K key) inout return // auto ref here makes things slow
             if (op == "in")
         {
-            immutable hitIndex = tryFindIndexOfKey(key);
+            immutable hitIndex = tryFindIndexOfKeySkippingHoles(key);
             if (isOccupiedAtIndex(hitIndex))
             {
                 return cast(typeof(return))&_bins[hitIndex].value;
@@ -1064,7 +1060,7 @@ struct OpenHashMapOrSet(K, V = void,
         pragma(inline, true)    // LDC must have this
         scope ref inout(V) opIndex()(const scope K key) inout return // auto ref here makes things slow
         {
-            immutable hitIndex = tryFindIndexOfKey(key);
+            immutable hitIndex = tryFindIndexOfKeySkippingHoles(key);
             if (isOccupiedAtIndex(hitIndex))
             {
                 return _bins[hitIndex].value;
@@ -1141,7 +1137,7 @@ struct OpenHashMapOrSet(K, V = void,
     */
     bool remove()(const scope K key) // template-lazy
     {
-        immutable hitIndex = tryFindIndexOfKey(key);
+        immutable hitIndex = tryFindIndexOfKeySkippingHoles(key);
         if (isOccupiedAtIndex(hitIndex))
         {
             nullifyElement(_bins[hitIndex]);
@@ -1218,22 +1214,22 @@ private:
      * lazily deleted slots.
      */
     pragma(inline, true)
-    private size_t tryFindIndexOfKey(const scope K key) const @trusted
+    private size_t tryFindIndexOfKeySkippingHoles(const scope K key) const @trusted
     {
         static if (isCopyable!T)
         {
             /* don't use `auto ref` for copyable `T`'s to prevent
              * massive performance drop for small elements when compiled
              * with LDC. TODO remove when LDC is fixed. */
-            alias predicate = (index, element) => (keyOf(element).isNull ||
-                                                   (keyOf(element) is key &&
-                                                    hasNotHoleAtIndex(_holesPtr, index)));
+            alias predicate = (index, element) => (hasNotHoleAtIndex(_holesPtr, index) && // holes can be either null or have a key
+                                                   (keyOf(element).isNull ||
+                                                    keyOf(element) is key));
         }
         else
         {
-            alias predicate = (index, const auto ref element) => (keyOf(element).isNull ||
-                                                                  (keyOf(element) is key &&
-                                                                   hasNotHoleAtIndex(_holesPtr, index)));
+            alias predicate = (index, const auto ref element) => (hasNotHoleAtIndex(_holesPtr, index) &&
+                                                                  (keyOf(element).isNull ||
+                                                                   keyOf(element) is key));
         }
         return _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key));
     }
@@ -1517,7 +1513,6 @@ pure nothrow @nogc unittest
         assert(x.length == n);
         foreach (immutable key_; 0 .. n)
         {
-            dln("key_:", key_, " length:", x.length);
             const key = K(key_);
 
             static if (X.hasValue)
@@ -1540,7 +1535,8 @@ pure nothrow @nogc unittest
             {
                 if (!(hitPtr && *hitPtr is element))
                 {
-                    dln(x._bins);
+                    dln("hitPtr:", hitPtr,
+                        " bins:", x._bins);
                 }
                 assert(hitPtr && *hitPtr is element);
             }

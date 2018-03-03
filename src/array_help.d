@@ -147,15 +147,17 @@ private static size_t binBlockBytes(size_t bitCount)
 size_t* makeUninitializedBitArray(alias Allocator)(size_t bitCount)
     @trusted pure nothrow @nogc
 {
-    return cast(typeof(return))Allocator.instance.allocate(binBlockBytes(bitCount));
+    immutable byteCount = binBlockBytes(bitCount);
+    return cast(typeof(return))Allocator.instance.allocate(byteCount);
 }
 
 size_t* makeZeroBitArray(alias Allocator)(size_t bitCount)
     @trusted pure nothrow @nogc
 {
+    immutable byteCount = binBlockBytes(bitCount);
     static if (__traits(hasMember, Allocator, "zeroallocate"))
     {
-        return cast(typeof(return))Allocator.instance.zeroallocate(binBlockBytes(bitCount));
+        return cast(typeof(return))Allocator.instance.zeroallocate(byteCount);
     }
     else
     {

@@ -1693,6 +1693,7 @@ pure nothrow @nogc unittest
         auto x2 = x1.dup;
         assert(x1._bins.ptr !is x2._bins.ptr);
         assert(x1.length == x2.length);
+        assert(x2.length == n);
         // non-symmetric algorithm so both are needed
         assert(x2 == x1);
         assert(x1 == x2);
@@ -1714,8 +1715,6 @@ pure nothrow @nogc unittest
         }
 
         static assert(!__traits(compiles, { const _ = x1 < x2; })); // no ordering
-
-        assert(x2.length == n);
 
         // empty x1
 

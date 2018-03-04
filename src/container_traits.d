@@ -307,12 +307,12 @@ template isSetOf(T, E)
  */
 template isNullableType(T)
 {
-    import std.traits : isPointer, isInstanceOf;
-    import std.typecons : Nullable;
+    import std.traits : isPointer;
     enum isNullableType = (is(T == class) ||
                            isPointer!T ||
                            is(T == typeof(null)) ||
-                           isInstanceOf!(Nullable, T));
+                           (__traits(hasMember, T, "nullify") &&
+                            __traits(hasMember, T, "isNull")));
 }
 
 /** Default null key of type `T`,
@@ -355,21 +355,17 @@ template defaultNullKeyConstantOf(T)
 
 /** Returns: `true` iff `x` has a null value.
  */
+pragma(inline, true)
 bool isNull(T)(const scope auto ref T x)
     @safe pure nothrow @nogc
     if (isNullableType!(T))
 {
-    import std.traits : isPointer, isInstanceOf;
-    import std.typecons : Nullable;
+    import std.traits : isPointer;
     static if (is(T == class) ||
                isPointer!T ||
                is(T == typeof(null)))
     {
         return x is T.init;
-    }
-    else static if (isInstanceOf!(Nullable, T))
-    {
-        return x.isNull;        // TODO generalize to __traits(T, hasMember, "isNull")
     }
     else
     {
@@ -377,21 +373,17 @@ bool isNull(T)(const scope auto ref T x)
     }
 }
 
+pragma(inline, true)
 void nullify(T)(ref T x)
     @safe pure nothrow @nogc
     if (isNullableType!(T))
 {
-    import std.traits : isPointer, isInstanceOf;
-    import std.typecons : Nullable;
+    import std.traits : isPointer;
     static if (is(T == class) ||
                isPointer!T ||
                is(T == typeof(null)))
     {
         x = T.init;
-    }
-    else static if (isInstanceOf!(Nullable, T))
-    {
-        x.nullify();
     }
     else
     {

@@ -396,6 +396,7 @@ void nullify(T)(ref T x)
 @safe pure nothrow @nogc unittest
 {
     assert(null.isNull);
+
     alias Ni = Nullable!int;
     assert(Ni.init.isNull);
 

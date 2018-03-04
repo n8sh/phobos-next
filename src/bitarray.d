@@ -5,7 +5,7 @@ module bitarray;
  */
 struct BitArray(alias Allocator = null) // TODO use Allocator
 {
-    import qcmeman : malloc, calloc, free;
+    import core.memory : pureMalloc, pureCalloc, pureFree;
     import core.bitop : bt, bts, btr;
 
     pragma(inline, true)
@@ -18,7 +18,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
         typeof(return) that;
         that._blockCount = ((length / blockBits) + // number of whole blocks
                             (length % blockBits ? 1 : 0)); // remained block
-        that._blockPtr = cast(Block*)calloc(blockBits, that._blockCount);
+        that._blockPtr = cast(Block*)pureCalloc(blockBits, that._blockCount);
         that._length = length;
         return that;
     }
@@ -30,7 +30,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     {
         typeof(return) that;
         that._blockCount = blocks.length;
-        that._blockPtr = cast(Block*)malloc(blockBits * that._blockCount);
+        that._blockPtr = cast(Block*)pureMalloc(blockBits * that._blockCount);
         that._blocks[] = blocks;
         that._length = length;
         return that;
@@ -58,7 +58,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     /// Release internal store.
     private void release() @trusted
     {
-        free(_blockPtr);
+        pureFree(_blockPtr);
     }
 
     /// Reset internal data.

@@ -92,7 +92,7 @@ C filteredInplace(alias predicate, C)(C r)
     static if (__traits(hasMember, C, "remove"))
     {
         import std.functional : not;
-        import hashset : filtered;
+        import sso_hashset : filtered;
         return move(r).filtered!predicate(); // TODO remove move when compiler does it for us
     }
     else
@@ -111,7 +111,7 @@ C filteredInplace(alias predicate, C)(C r)
 @safe pure nothrow @nogc unittest
 {
     import std.algorithm.iteration : filter;
-    import hashset : HashSet, byElement;
+    import sso_hashset : HashSet, byElement;
     import digestx.fnv : FNV;
 
     alias X = HashSet!(uint, null, FNV!(64, true));

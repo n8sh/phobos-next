@@ -5,8 +5,8 @@ void main()
     import std.algorithm : max;
     import digestx.fnv : FNV;
 
-    import hashset : HashSet;
-    import hashmap : HashMap;
+    import sso_hashset : HashSet;
+    import sso_hashmap : HashMap;
     import basic_array : BasicArray;
 
     alias Ix = size_t;

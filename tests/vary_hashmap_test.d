@@ -4,7 +4,7 @@ module vary_hashmap_test;
 pure unittest
 {
     import digestx.fnv : FNV;
-    import hashmap : HashMap;
+    import sso_hashmap : HashMap;
     import vary : FastVariant;
 
     alias K = FastVariant!(size_t, string);

@@ -181,7 +181,7 @@ size_t* makeReallocatedBitArrayZeroPadded(alias Allocator)(size_t* input,
         const ok = Allocator.instance.reallocate(rawArray, binBlockBytes(newInputBitCount));
         assert(ok, "couldn't reallocate input");
 
-        // TODO functionize
+        // TODO make faster by setting whole words and functionize
         foreach (immutable bitIndex; existingInputBitCount .. newInputBitCount)
         {
             import core.bitop : bits;

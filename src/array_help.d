@@ -144,6 +144,7 @@ private static size_t binBlockBytes(size_t bitCount)
     return wordBytes*holesWordCount(bitCount);
 }
 
+/** Returns: an uninitialized bit-array containing `bitCount` number of bits. */
 size_t* makeUninitializedBitArray(alias Allocator)(size_t bitCount)
     @trusted pure nothrow @nogc
 {
@@ -151,6 +152,7 @@ size_t* makeUninitializedBitArray(alias Allocator)(size_t bitCount)
     return cast(typeof(return))Allocator.instance.allocate(byteCount);
 }
 
+/** Returns: an zero-initialized bit-array containing `bitCount` number of bits. */
 size_t* makeZeroedBitArray(alias Allocator)(size_t bitCount)
     @trusted pure nothrow @nogc
 {
@@ -163,6 +165,20 @@ size_t* makeZeroedBitArray(alias Allocator)(size_t bitCount)
     {
         static assert(0, "use allocate plus memset");
     }
+}
+
+/** Returns: `input` reallocated to contain `bitCount` number of bits. New bits
+ * are default-initialized to zero.
+ */
+size_t* makeReallocatedZeroedBitArray(alias Allocator)(size_t* input,
+                                                       size_t bitCount)
+    if (__traits(hasMember, Allocator, "reallocate"))
+{
+    auto rawArray = cast(void[])input;
+    immutable byteCount = binBlockBytes(bitCount);
+    const ok = Allocator.instance.reallocate(rawArray, byteCount);
+    assert(ok, "couldn't reallocate input");
+    return cast(typeof(return))rawArray.ptr;
 }
 
 @trusted pure unittest

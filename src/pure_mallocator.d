@@ -48,7 +48,7 @@ struct PureMallocator
         @system
     {
         pureFree(b.ptr);        // `free` doesn't need `b.length`
-        return true;            // indicate support
+        return true; // `true` indicates support, https://dlang.org/phobos/std_experimental_allocator.html#.IAllocator.deallocate
     }
 
     /// ditto
@@ -57,7 +57,7 @@ struct PureMallocator
         @system
     {
         pureFree(b);            // `free` doesn't need `b.length`
-        return true;            // indicate support
+        return true; // `true` indicates support, https://dlang.org/phobos/std_experimental_allocator.html#.IAllocator.deallocate
     }
 
     /// ditto

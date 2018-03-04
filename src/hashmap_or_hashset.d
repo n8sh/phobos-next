@@ -1,4 +1,4 @@
-module hashmap_or_hashset;
+module sso_hashmap_or_hashset;
 
 import container_traits;
 

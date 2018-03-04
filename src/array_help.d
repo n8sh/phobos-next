@@ -182,6 +182,8 @@ size_t* makeReallocatedBitArrayZeroPadded(alias Allocator)(size_t* input,
     @trusted
     if (__traits(hasMember, Allocator, "reallocate"))
 {
+    assert(currentBitCount < newBitCount, "no use reallocate to same size");
+
     auto rawArray = cast(void[])(input[0 .. wordCountOfBitCount(currentBitCount)]);
 
     immutable byteCount = binBlockBytes(newBitCount);

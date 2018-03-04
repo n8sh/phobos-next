@@ -138,7 +138,7 @@ private static size_t wordCountOfBitCount(size_t bitCount)
     @safe pure nothrow @nogc
 {
     return ((bitCount / wordBits) +
-            (bitCount % wordBits ? 1 : 0));
+            (bitCount % wordBits != 0 ? 1 : 0));
 }
 
 pragma(inline, true)

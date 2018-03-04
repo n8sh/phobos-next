@@ -49,7 +49,7 @@ struct OpenHashMapOrSet(K, V = void,
     import qcmeman : gc_addRange, gc_removeRange;
     import digestion : hashOf2;
     import probing : triangularProbeFromIndex;
-    import array_help : makeUninitializedBitArray, makeZeroedBitArray;
+    import array_help : makeUninitializedBitArray, makeZeroedBitArray, makeReallocatedBitArrayZeroPadded;
 
     /** In the hash map case, `V` is non-void, and a value is stored alongside
      * the key of type `K`.
@@ -285,7 +285,7 @@ struct OpenHashMapOrSet(K, V = void,
             {
                 immutable wordCount = holesWordCount(_bins.length);
 
-                auto holesPtrCopy = makeUninitializedBitArray!PureMallocator(_bins.length);
+                auto holesPtrCopy = makeUninitializedBitArray!Allocator(_bins.length);
                 holesPtrCopy[0 .. wordCount] = _holesPtr[0 .. wordCount]; // TODO use memcpy instead?
 
                 return typeof(return)(binsCopy, _count, holesPtrCopy);
@@ -365,7 +365,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             if (_holesPtr is null) // lazy allocation
             {
-                _holesPtr = makeZeroedBitArray!PureMallocator(_bins.length);
+                _holesPtr = makeZeroedBitArray!Allocator(_bins.length);
             }
             bts(_holesPtr, index);
         }
@@ -543,7 +543,7 @@ struct OpenHashMapOrSet(K, V = void,
     private void growWithNewCapacity(size_t newCapacity) // not template-lazy
     {
         assert(newCapacity > _bins.length);
-        static if (__traits(hasMember, PureMallocator, "reallocate"))
+        static if (__traits(hasMember, Allocator, "reallocate"))
         {
             if (doInPlaceGrow)
             {
@@ -653,9 +653,12 @@ struct OpenHashMapOrSet(K, V = void,
                 immutable byteCount = T.sizeof*_bins.length;
                 gc_addRange(_bins.ptr, byteCount);
             }
-            _holesPtr = reallocateHoles(_holesPtr[0 .. binBlockBytes(oldLength)],
-                                        binBlockBytes(_bins.length));
-            // TODO assert(0, "zero initialize new bits in _holesPtr");
+            if (_holesPtr)
+            {
+                _holesPtr = makeReallocatedBitArrayZeroPadded!Allocator(_holesPtr,
+                                                                        oldLength,
+                                                                        _bins.length);
+            }
 
             // TODO make this an array operation `nullifyAll` or `nullifyN`
             foreach (ref bin; _bins[oldLength .. powerOf2newCapacity])

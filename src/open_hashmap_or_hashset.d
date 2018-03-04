@@ -258,6 +258,7 @@ struct OpenHashMapOrSet(K, V = void,
         typeof(this) dup()() const // template-lazy
             @trusted
         {
+            import std.conv : emplace;
             T[] binsCopy = cast(T[])allocateUninitializedBins(_bins.length);
             foreach (immutable elementIndex, ref element; _bins)
             {
@@ -266,19 +267,15 @@ struct OpenHashMapOrSet(K, V = void,
                  */
                 if (keyOf(element).isNull)
                 {
-                    binsCopy[elementIndex] = T.init;
+                    keyOf(binsCopy[elementIndex]).nullify();
+                    static if (hasValue)
+                    {
+                        emplace(&valueOf(binsCopy[elementIndex])); // TODO shouldn't be needed when key is null
+                    }
                 }
                 else
                 {
-                    static if (hasElaborateDestructor!T)
-                    {
-                        import std.conv : emplace;
-                        emplace(&binsCopy[elementIndex], element);
-                    }
-                    else
-                    {
-                        binsCopy[elementIndex] = element;
-                    }
+                    emplace(&binsCopy[elementIndex], element);
                 }
             }
             if (_holesPtr)

@@ -42,7 +42,7 @@ struct PureMallocator
         return p ? p[0 .. bytes] : null;
     }
 
-    /// Ditto
+    /// ditto
     pragma(inline, true)
     bool deallocate(void[] b)
         @system
@@ -51,7 +51,15 @@ struct PureMallocator
         return true;
     }
 
-    /// Ditto
+    /// ditto
+    pragma(inline, true)
+    void deallocatePointer(void* b)
+        @system
+    {
+        pureFree(b);            // `free` doesn't need `b.length`
+    }
+
+    /// ditto
     bool reallocate(ref void[] b, size_t s)
         @system
     {

@@ -131,6 +131,7 @@ private enum wordBits = 8*wordBytes;
 /** Returns: number of words (`size_t`) needed to represent
  * `bitCount` bits.
  */
+pragma(inline, true)
 private static size_t wordCountOfBitCount(size_t bitCount)
     @safe pure nothrow @nogc
 {
@@ -138,6 +139,7 @@ private static size_t wordCountOfBitCount(size_t bitCount)
             (bitCount % wordBits ? 1 : 0));
 }
 
+pragma(inline, true)
 private static size_t binBlockBytes(size_t bitCount)
     @safe pure nothrow @nogc
 {
@@ -145,6 +147,7 @@ private static size_t binBlockBytes(size_t bitCount)
 }
 
 /** Returns: an uninitialized bit-array containing `bitCount` number of bits. */
+pragma(inline, true)
 size_t* makeUninitializedBitArray(alias Allocator)(size_t bitCount)
     @trusted pure nothrow @nogc
 {
@@ -153,6 +156,7 @@ size_t* makeUninitializedBitArray(alias Allocator)(size_t bitCount)
 }
 
 /** Returns: an zero-initialized bit-array containing `bitCount` number of bits. */
+pragma(inline, true)
 size_t* makeZeroedBitArray(alias Allocator)(size_t bitCount)
     @trusted pure nothrow @nogc
 {
@@ -175,19 +179,21 @@ size_t* makeReallocatedBitArrayZeroPadded(alias Allocator)(size_t* input,
                                                            const size_t newBitCount)
     if (__traits(hasMember, Allocator, "reallocate"))
 {
+    // dln("currentBitCount:", currentBitCount, " newBitCount:", newBitCount);
+
     immutable existingInputWordCount = wordCountOfBitCount(currentBitCount);
     auto rawArray = cast(void[])(input[0 .. existingInputWordCount]);
 
     immutable byteCount = binBlockBytes(newBitCount);
     const ok = Allocator.instance.reallocate(rawArray, byteCount);
     assert(ok, "couldn't reallocate input");
-    dln(input, " => ", rawArray.ptr);
+    // dln(input, " => ", rawArray.ptr);
     input = cast(size_t*)rawArray.ptr;
 
     // TODO make faster by setting unaligned bits, whole words and then again unaligned bits
     foreach (immutable bitIndex; currentBitCount .. newBitCount)
     {
-        dln("zeroing at bitIndex:", bitIndex);
+        // dln("zeroing at bitIndex:", bitIndex);
         import core.bitop : btr;
         btr(input, bitIndex);   // re(set) bit to zero
     }
@@ -210,15 +216,17 @@ size_t* makeReallocatedBitArrayZeroPadded(alias Allocator)(size_t* input,
 
     size_t bitCount = 1;
     size_t* y = makeZeroedBitArray!(Allocator)(bitCount); // start empty
-    for (; bitCount < 1000; bitCount *= 2)
+    while (bitCount < 100_000)
     {
         const newBitCount = bitCount*2;
         y = makeReallocatedBitArrayZeroPadded!(Allocator)(y, bitCount, newBitCount);
+        // dln("oldBitCount:", bitCount, " newbitCount:", newBitCount, " ptr:", y);
         bitCount = newBitCount;
-        dln("bitCount:", bitCount);
+
+        // check contents
         foreach (immutable bitIndex; 0 .. bitCount)
         {
-            dln("checking at bitIndex:", bitIndex);
+            // dln("checking at bitIndex:", bitIndex);
             assert(bt(y, bitIndex) == 0);
         }
     }

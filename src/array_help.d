@@ -185,7 +185,7 @@ size_t* makeReallocatedBitArrayZeroPadded(alias Allocator)(size_t* input,
     assert(currentBitCount < newBitCount, "no use reallocate to same size");
 
     immutable currentWordCount = wordCountOfBitCount(currentBitCount);
-    immutable newWordCount = newBitCount/wordBits;
+    immutable newWordCount = wordCountOfBitCount(newBitCount);
 
     auto rawArray = cast(void[])(input[0 .. currentWordCount]);
 
@@ -195,6 +195,7 @@ size_t* makeReallocatedBitArrayZeroPadded(alias Allocator)(size_t* input,
     input = cast(size_t*)rawArray.ptr;
 
     // TODO make faster by setting unaligned bits, whole words and then again unaligned bits
+    input[currentWordCount .. newWordCount] = 0;
     foreach (immutable bitIndex; currentBitCount .. newBitCount)
     {
         import core.bitop : btr;

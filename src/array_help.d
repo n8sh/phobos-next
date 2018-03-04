@@ -202,11 +202,10 @@ size_t* makeReallocatedBitArrayZeroPadded(alias Allocator)(size_t* input,
 
 @trusted pure nothrow @nogc unittest
 {
-    const bitCount = 8*size_t.sizeof + 1;
-    const wordCountOfBitCount = 2;
+    enum bitCount = 8*size_t.sizeof + 1;
 
     size_t* x = makeUninitializedBitArray!(Allocator)(bitCount);
-    Allocator.instance.deallocate(cast(void[])(x[0 .. wordCountOfBitCount]));
+    Allocator.instance.deallocate(cast(void[])(x[0 .. wordCountOfBitCount(bitCount)]));
 }
 
 @trusted pure nothrow @nogc unittest

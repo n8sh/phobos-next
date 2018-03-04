@@ -334,7 +334,14 @@ struct OpenHashMapOrSet(K, V = void,
         {
             if (_holesPtr)
             {
-                Allocator.instance.deallocate(_holesPtr[0 .. holesWordCount(_bins.length)]);
+                static if (__traits(hasMember, Allocator, "deallocatePtr"))
+                {
+                    Allocator.instance.deallocatePtr(_holesPtr);
+                }
+                else
+                {
+                    Allocator.instance.deallocate(_holesPtr[0 .. holesWordCount(_bins.length)]);
+                }
             }
         }
 

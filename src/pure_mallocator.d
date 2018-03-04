@@ -48,15 +48,16 @@ struct PureMallocator
         @system
     {
         pureFree(b.ptr);        // `free` doesn't need `b.length`
-        return true;
+        return true;            // indicate support
     }
 
     /// ditto
     pragma(inline, true)
-    void deallocatePointer(void* b)
+    bool deallocatePointer(void* b)
         @system
     {
         pureFree(b);            // `free` doesn't need `b.length`
+        return true;            // indicate support
     }
 
     /// ditto

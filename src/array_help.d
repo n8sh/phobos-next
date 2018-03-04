@@ -206,7 +206,7 @@ size_t* makeReallocatedBitArrayZeroPadded(alias Allocator)(size_t* input,
         Allocator.instance.deallocate(cast(void[])(x[0 .. wordCountOfBitCount]));
     }
 
-    import dbgio;
+    // import dbgio;
 
     size_t bitCount = 1;
     size_t* y = makeZeroedBitArray!(Allocator)(bitCount); // start empty
@@ -215,10 +215,8 @@ size_t* makeReallocatedBitArrayZeroPadded(alias Allocator)(size_t* input,
         const newBitCount = bitCount*2;
         y = makeReallocatedBitArrayZeroPadded!(Allocator)(y, bitCount, newBitCount);
         bitCount = newBitCount;
-        dln("bitCount:", bitCount);
         foreach (immutable bitIndex; 0 .. bitCount)
         {
-            dln("bitIndex:", bitIndex);
             assert(bt(y, bitIndex) == 0);
         }
     }

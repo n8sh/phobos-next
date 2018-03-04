@@ -184,7 +184,7 @@ size_t* makeReallocatedBitArrayZeroPadded(alias Allocator)(size_t* input,
         // TODO make faster by setting unaligned bits, whole words and then again unaligned bits
         foreach (immutable bitIndex; currentBitCount .. newBitCount)
         {
-            import core.bitop : bts;
+            import core.bitop : btr;
             btr(input, bitIndex);   // re(set) bit to zero
         }
 

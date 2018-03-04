@@ -7,6 +7,8 @@ import std.experimental.allocator.common;
  */
 struct PureMallocator
 {
+    import core.memory : pureMalloc, pureCalloc, pureRealloc, pureFree;
+
     pure nothrow @nogc const shared:
 
     /**
@@ -14,8 +16,6 @@ struct PureMallocator
      * ensures proper alignment for any D data type.
     */
     enum uint alignment = platformAlignment;
-
-    import core.memory : pureMalloc, pureCalloc, pureRealloc, pureFree;
 
     /**
      * Standard allocator methods per the semantics defined above. The $(D

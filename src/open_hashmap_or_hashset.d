@@ -580,7 +580,7 @@ struct OpenHashMapOrSet(K, V = void,
                    hasElaborateDestructor!V)
         {
             .destroy(valueOf(element));
-            emplace(valueOf(element)); // TODO shouldn't be needed
+            emplace(&valueOf(element)); // TODO shouldn't be needed
         }
     }
 

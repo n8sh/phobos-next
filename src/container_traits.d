@@ -311,6 +311,7 @@ template isNullableType(T)
     enum isNullableType = (is(T == class) ||
                            isPointer!T ||
                            is(T == typeof(null)) ||
+                           // std.traits.Nullable interface:
                            (__traits(hasMember, T, "nullify") &&
                             __traits(hasMember, T, "isNull")));
 }

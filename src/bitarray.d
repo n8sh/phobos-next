@@ -5,7 +5,7 @@ module bitarray;
  */
 struct BitArray(alias Allocator = null) // TODO use Allocator
 {
-    import qcmeman : malloc, calloc, realloc, free;
+    import qcmeman : malloc, calloc, free;
     import core.bitop : bt, bts, btr;
 
     pragma(inline, true)

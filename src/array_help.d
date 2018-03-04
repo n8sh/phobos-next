@@ -174,21 +174,22 @@ size_t* makeReallocatedBitArrayZeroPadded(alias Allocator)(size_t* input,
                                                            size_t existingInputBitCount,
                                                            size_t newInputBitCount)
     if (__traits(hasMember, Allocator, "reallocate"))
-{
-    auto rawArray = cast(void[])input;
-
-    const ok = Allocator.instance.reallocate(rawArray, binBlockBytes(newInputBitCount));
-    assert(ok, "couldn't reallocate input");
-
-    // TODO functionize
-    foreach (immutable bitIndex; existingInputBitCount .. newInputBitCount)
     {
-        import core.bitop : bits;
-        btr(input, bitIndex);   // re(set) bit to zero
-    }
+        immutable existingInputWordCount = holesWordCount(existingInputBitCount);
+        auto rawArray = cast(void[])(input[0 .. existingInputWordCount]);
 
-    return cast(typeof(return))rawArray.ptr;
-}
+        const ok = Allocator.instance.reallocate(rawArray, binBlockBytes(newInputBitCount));
+        assert(ok, "couldn't reallocate input");
+
+        // TODO functionize
+        foreach (immutable bitIndex; existingInputBitCount .. newInputBitCount)
+        {
+            import core.bitop : bits;
+            btr(input, bitIndex);   // re(set) bit to zero
+        }
+
+        return cast(typeof(return))rawArray.ptr;
+    }
 
 @trusted pure unittest
 {

@@ -1,7 +1,7 @@
-module hashmap;
+module soo_hashmap;
 
-import hashmap_or_hashset;
-public import hashmap_or_hashset : removeAllMatching, filtered, byElement, intersectedWith;
+import sso_hashmap_or_hashset;
+public import sso_hashmap_or_hashset : removeAllMatching, filtered, byElement, intersectedWith;
 
 /** Hash map storing keys of type `K` and values of type `V`.
  */

@@ -170,14 +170,23 @@ size_t* makeZeroedBitArray(alias Allocator)(size_t bitCount)
 /** Returns: `input` reallocated to contain `bitCount` number of bits. New bits
  * are default-initialized to zero.
  */
-size_t* makeReallocatedZeroedBitArray(alias Allocator)(size_t* input,
-                                                       size_t bitCount)
+size_t* makeReallocatedBitArrayZeroPadded(alias Allocator)(size_t* input,
+                                                           size_t existingBitCount,
+                                                           size_t newBitCount)
     if (__traits(hasMember, Allocator, "reallocate"))
 {
     auto rawArray = cast(void[])input;
-    immutable byteCount = binBlockBytes(bitCount);
-    const ok = Allocator.instance.reallocate(rawArray, byteCount);
+
+    const ok = Allocator.instance.reallocate(rawArray, binBlockBytes(newBitCount));
     assert(ok, "couldn't reallocate input");
+
+    // TODO functionize
+    foreach (immutable bitIndex; existingBitCount .. newBitCount)
+    {
+        import core.bitop : bits;
+        btr(input, bitIndex);   // re(set) bit to zero
+    }
+
     return cast(typeof(return))rawArray.ptr;
 }
 

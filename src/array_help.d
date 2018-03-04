@@ -2,6 +2,8 @@ module array_help;
 
 import std.traits : Unqual;
 
+@safe:
+
 /** Returns: statically (stack) allocated array with elements of type `T` of
     length `n`.
 
@@ -177,23 +179,20 @@ size_t* makeZeroedBitArray(alias Allocator)(size_t bitCount)
 size_t* makeReallocatedBitArrayZeroPadded(alias Allocator)(size_t* input,
                                                            const size_t currentBitCount,
                                                            const size_t newBitCount)
+    @trusted
     if (__traits(hasMember, Allocator, "reallocate"))
 {
-    // dln("currentBitCount:", currentBitCount, " newBitCount:", newBitCount);
-
     immutable existingInputWordCount = wordCountOfBitCount(currentBitCount);
     auto rawArray = cast(void[])(input[0 .. existingInputWordCount]);
 
     immutable byteCount = binBlockBytes(newBitCount);
     const ok = Allocator.instance.reallocate(rawArray, byteCount);
     assert(ok, "couldn't reallocate input");
-    // dln(input, " => ", rawArray.ptr);
     input = cast(size_t*)rawArray.ptr;
 
     // TODO make faster by setting unaligned bits, whole words and then again unaligned bits
     foreach (immutable bitIndex; currentBitCount .. newBitCount)
     {
-        // dln("zeroing at bitIndex:", bitIndex);
         import core.bitop : btr;
         btr(input, bitIndex);   // re(set) bit to zero
     }
@@ -201,32 +200,28 @@ size_t* makeReallocatedBitArrayZeroPadded(alias Allocator)(size_t* input,
     return input;
 }
 
-@trusted pure unittest
+@trusted pure nothrow @nogc unittest
 {
-    import core.bitop : bt;
-    import pure_mallocator : Allocator = PureMallocator;
+    const bitCount = 8*size_t.sizeof + 1;
+    const wordCountOfBitCount = 2;
 
-    {
-        const bitCount = 8*size_t.sizeof + 1;
-        const wordCountOfBitCount = 2;
+    size_t* x = makeUninitializedBitArray!(Allocator)(bitCount);
+    Allocator.instance.deallocate(cast(void[])(x[0 .. wordCountOfBitCount]));
+}
 
-        size_t* x = makeUninitializedBitArray!(Allocator)(bitCount);
-        Allocator.instance.deallocate(cast(void[])(x[0 .. wordCountOfBitCount]));
-    }
-
+@trusted pure nothrow @nogc unittest
+{
     size_t bitCount = 1;
     size_t* y = makeZeroedBitArray!(Allocator)(bitCount); // start empty
     while (bitCount < 100_000)
     {
         const newBitCount = bitCount*2;
         y = makeReallocatedBitArrayZeroPadded!(Allocator)(y, bitCount, newBitCount);
-        // dln("oldBitCount:", bitCount, " newbitCount:", newBitCount, " ptr:", y);
         bitCount = newBitCount;
 
         // check contents
         foreach (immutable bitIndex; 0 .. bitCount)
         {
-            // dln("checking at bitIndex:", bitIndex);
             assert(bt(y, bitIndex) == 0);
         }
     }
@@ -235,5 +230,7 @@ size_t* makeReallocatedBitArrayZeroPadded(alias Allocator)(size_t* input,
 
 version(unittest)
 {
+    import core.bitop : bt;
+    import pure_mallocator : Allocator = PureMallocator;
     import dbgio;
 }

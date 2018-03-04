@@ -51,9 +51,9 @@ struct PureMallocator
         return true; // `true` indicates support, https://dlang.org/phobos/std_experimental_allocator.html#.IAllocator.deallocate
     }
 
-    /// ditto
+    /// Deallocate using a pointer only like what `free` does.
     pragma(inline, true)
-    bool deallocatePointer(void* b)
+    bool deallocatePtr(void* b)
         @system
     {
         pureFree(b);            // `free` doesn't need `b.length`

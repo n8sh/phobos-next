@@ -179,7 +179,7 @@ size_t* makeZeroedBitArray(alias Allocator)(size_t bitCount)
 size_t* makeReallocatedBitArrayZeroPadded(alias Allocator)(size_t* input,
                                                            const size_t currentBitCount,
                                                            const size_t newBitCount)
-    @trusted
+    @system
     if (__traits(hasMember, Allocator, "reallocate"))
 {
     assert(currentBitCount < newBitCount, "no use reallocate to same size");

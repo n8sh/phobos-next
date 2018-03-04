@@ -409,6 +409,28 @@ void nullify(T)(ref T x)
     assert(!ni2.isNull);
 }
 
+///
+@safe pure nothrow unittest
+{
+    class C
+    {
+        @safe pure nothrow
+        this(int value)
+        {
+            this.value = value;
+        }
+        int value;
+    }
+
+    static assert(isNullableType!C);
+
+    const x = C.init;
+    assert(x.isNull);
+
+    const y = new C(42);
+    assert(!y.isNull);
+}
+
 version(unittest)
 {
     import std.typecons : Nullable;

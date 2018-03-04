@@ -184,7 +184,10 @@ size_t* makeReallocatedBitArrayZeroPadded(alias Allocator)(size_t* input,
 {
     assert(currentBitCount < newBitCount, "no use reallocate to same size");
 
-    auto rawArray = cast(void[])(input[0 .. wordCountOfBitCount(currentBitCount)]);
+    immutable currentWordCount = wordCountOfBitCount(currentBitCount);
+    immutable newWordCount = newBitCount/wordBits;
+
+    auto rawArray = cast(void[])(input[0 .. currentWordCount]);
 
     immutable byteCount = binBlockBytes(newBitCount);
     const ok = Allocator.instance.reallocate(rawArray, byteCount);

@@ -15,6 +15,8 @@ struct PureMallocator
     */
     enum uint alignment = platformAlignment;
 
+    import core.memory : pureMalloc, pureCalloc, pureRealloc, pureFree;
+
     /**
      * Standard allocator methods per the semantics defined above. The $(D
      * deallocate) and $(D reallocate) methods are $(D @system) because they may
@@ -26,7 +28,6 @@ struct PureMallocator
     void[] allocate(size_t bytes)
         @trusted
     {
-        import core.memory : pureMalloc;
         if (!bytes) { return null; }
         void* p = pureMalloc(bytes);
         return p ? p[0 .. bytes] : null;
@@ -36,7 +37,6 @@ struct PureMallocator
     void[] zeroallocate(size_t bytes)
         @trusted
     {
-        import core.memory : pureCalloc;
         if (!bytes) { return null; }
         void* p = pureCalloc(bytes, 1);
         return p ? p[0 .. bytes] : null;
@@ -47,7 +47,6 @@ struct PureMallocator
     bool deallocate(void[] b)
         @system
     {
-        import core.memory : pureFree;
         pureFree(b.ptr);        // `free` doesn't need `b.length`
         return true;
     }
@@ -56,7 +55,6 @@ struct PureMallocator
     bool reallocate(ref void[] b, size_t s)
         @system
     {
-        import core.memory : pureRealloc;
         if (!s)
         {
             // fuzzy area in the C standard, see http://goo.gl/ZpWeSE

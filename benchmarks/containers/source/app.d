@@ -9,8 +9,8 @@ void main()
     import basic_array : BasicArray;
     import array_help : toUbytes;
     import variant_arrays : VariantArrays;
-    import hashset : HashSet;
-    import hashmap : HashMap;
+    import sso_hashset : HashSet;
+    import sso_hashmap : HashMap;
     import open_hashmap_or_hashset : OpenHashMap, OpenHashSet;
 
     import std.digest.murmurhash : MurmurHash3;

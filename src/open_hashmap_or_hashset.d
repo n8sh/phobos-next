@@ -579,8 +579,8 @@ struct OpenHashMapOrSet(K, V = void,
         static if (hasValue &&
                    hasElaborateDestructor!V)
         {
-            .destroy(valueOf(_bins[hitIndex]));
-            emplace!V(valueOf(_bins[hitIndex])); // TODO shouldn't be needed
+            .destroy(valueOf(element));
+            emplace!V(valueOf(element)); // TODO shouldn't be needed
         }
     }
 

@@ -167,22 +167,22 @@ size_t* makeZeroedBitArray(alias Allocator)(size_t bitCount)
     }
 }
 
-/** Returns: `input` reallocated to contain `bitCount` number of bits. New bits
+/** Returns: `input` reallocated to contain `newBitCount` number of bits. New bits
  * are default-initialized to zero.
  */
 size_t* makeReallocatedBitArrayZeroPadded(alias Allocator)(size_t* input,
-                                                           size_t existingInputBitCount,
-                                                           size_t newInputBitCount)
+                                                           size_t currentBitCount,
+                                                           size_t newBitCount)
     if (__traits(hasMember, Allocator, "reallocate"))
     {
-        immutable existingInputWordCount = holesWordCount(existingInputBitCount);
+        immutable existingInputWordCount = holesWordCount(currentBitCount);
         auto rawArray = cast(void[])(input[0 .. existingInputWordCount]);
 
-        const ok = Allocator.instance.reallocate(rawArray, binBlockBytes(newInputBitCount));
+        const ok = Allocator.instance.reallocate(rawArray, binBlockBytes(newBitCount));
         assert(ok, "couldn't reallocate input");
 
         // TODO make faster by setting unaligned bits, whole words and then again unaligned bits
-        foreach (immutable bitIndex; existingInputBitCount .. newInputBitCount)
+        foreach (immutable bitIndex; currentBitCount .. newBitCount)
         {
             import core.bitop : bits;
             btr(input, bitIndex);   // re(set) bit to zero

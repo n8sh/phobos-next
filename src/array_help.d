@@ -193,6 +193,7 @@ size_t* makeReallocatedBitArrayZeroPadded(alias Allocator)(size_t* input,
     assert(ok, "couldn't reallocate input");
     input = cast(size_t*)rawArray.ptr;
 
+    // See: https://forum.dlang.org/post/puolgthmxgacveqasqkk@forum.dlang.org
     input[currentWordCount .. newWordCount] = 0;
 
     return input;

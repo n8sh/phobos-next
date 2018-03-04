@@ -40,7 +40,7 @@ struct OpenHashMapOrSet(K, V = void,
         //isHashable!K
         )
 {
-    import std.algorithm.mutation : move;
+    import std.algorithm.mutation : move, moveEmplace;
     import std.math : nextPow2;
     import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable, isMutable, hasIndirections, Unqual, isPointer;
     import std.typecons : Nullable;
@@ -582,8 +582,8 @@ struct OpenHashMapOrSet(K, V = void,
         static if (hasValue &&
                    hasElaborateDestructor!V)
         {
-            valueOf(element) = V.init;
-            // TODO instead do only .destroy(valueOf(_bins[hitIndex])); and emplace values
+            .destroy(valueOf(_bins[hitIndex]));
+            emplace!V(valueOf(_bins[hitIndex])); // TODO shouldn't be needed
         }
     }
 
@@ -598,8 +598,6 @@ struct OpenHashMapOrSet(K, V = void,
             if (!dones[doneIndex] && // if _bins[doneIndex] not yet ready
                 !keyOf(_bins[doneIndex]).isNull) // and non-null
             {
-                import std.algorithm.mutation : moveEmplace;
-
                 T currentElement = void;
 
                 // TODO functionize:
@@ -739,7 +737,7 @@ struct OpenHashMapOrSet(K, V = void,
         immutable hitIndex = tryFindIndexOfKeySkippingHoles(keyOf(element));
         assert(hitIndex != _bins.length, "no free slot");
 
-        if (keyOf(_bins[hitIndex]).isNull) // key missing
+        if (keyOf(_bins[hitIndex]).isNull)
         {
             immutable hitIndex1 = tryFindHoleOrNull(keyOf(element)); // try again to reuse hole
             assert(hitIndex1 != _bins.length, "no null or hole slot");
@@ -755,7 +753,7 @@ struct OpenHashMapOrSet(K, V = void,
                 valueOf(_bins[hitIndex])) // only value changed
             {
                 move(valueOf(element),
-                     valueOf(_bins[hitIndex]));
+                     valueOf(_bins[hitIndex])); // value is defined so overwrite it
                 return InsertionStatus.modified;
             }
         }

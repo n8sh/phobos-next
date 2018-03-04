@@ -41,6 +41,7 @@ struct OpenHashMapOrSet(K, V = void,
         )
 {
     import std.algorithm.mutation : move, moveEmplace;
+    import std.conv : emplace;
     import std.math : nextPow2;
     import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable, isMutable, hasIndirections, Unqual, isPointer;
     import std.typecons : Nullable;
@@ -258,7 +259,6 @@ struct OpenHashMapOrSet(K, V = void,
         typeof(this) dup()() const // template-lazy
             @trusted
         {
-            import std.conv : emplace;
             T[] binsCopy = cast(T[])allocateUninitializedBins(_bins.length);
             foreach (immutable elementIndex, ref element; _bins)
             {

@@ -460,7 +460,15 @@ struct OpenHashMapOrSet(K, V = void,
         {
             gc_removeRange(bins.ptr);
         }
-        Allocator.instance.deallocate(bins);
+
+        static if (__traits(hasMember, Allocator, "deallocatePtr"))
+        {
+            Allocator.instance.deallocatePtr(bins.ptr);
+        }
+        else
+        {
+            Allocator.instance.deallocate(bins);
+        }
     }
 
     version(LDC) { pragma(inline, true): } // needed for LDC to inline this, DMD cannot
@@ -707,7 +715,15 @@ struct OpenHashMapOrSet(K, V = void,
         }
         debug assert(oldCount == _count);
 
-        Allocator.instance.deallocate(oldHolesPtr[0 .. holesWordCount(oldBins.length)]);
+        static if (__traits(hasMember, Allocator, "deallocatePtr"))
+        {
+            Allocator.instance.deallocatePtr(oldHolesPtr);
+        }
+        else
+        {
+            Allocator.instance.deallocate(oldHolesPtr[0 .. holesWordCount(oldBins.length)]);
+        }
+
         releaseBinsSlice(oldBins);
 
         assert(_bins.length);

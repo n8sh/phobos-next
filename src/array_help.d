@@ -180,8 +180,8 @@ size_t* makeReallocatedBitArrayZeroPadded(alias Allocator)(size_t* input,
 
     immutable byteCount = binBlockBytes(newBitCount);
     const ok = Allocator.instance.reallocate(rawArray, byteCount);
-    input = cast(size_t*)rawArray.ptr;
     assert(ok, "couldn't reallocate input");
+    input = cast(size_t*)rawArray.ptr;
 
     // TODO make faster by setting unaligned bits, whole words and then again unaligned bits
     foreach (immutable bitIndex; currentBitCount .. newBitCount)

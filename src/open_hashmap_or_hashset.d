@@ -57,8 +57,15 @@ struct OpenHashMapOrSet(K, V = void,
      */
     enum hasValue = !is(V == void);
 
+    /** Is `true` is K is an address, in case holes can be expressed as a
+     * specific value `holeKey`.
+     */
     enum hasAddressKey = (is(K == class) ||
                           isPointer!K);
+    static if (hasAddressKey)
+    {
+            enum holeKey = 0x1; // indicates a lazily deleted key
+    }
 
     alias MutableThis = Unqual!(typeof(this));
     alias ConstThis = const(MutableThis);
@@ -1202,7 +1209,6 @@ private:
 
     static if (hasAddressKey)
     {
-        enum holeKey = 0x1; // indicates a lazily deleted key
     }
     else
     {

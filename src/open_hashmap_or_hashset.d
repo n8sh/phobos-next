@@ -57,15 +57,36 @@ struct OpenHashMapOrSet(K, V = void,
      */
     enum hasValue = !is(V == void);
 
-    /** Is `true` is K is an address, in case holes can be expressed as a
-     * specific value `holeKey`.
+    /** Is `true` is `K` is an address, in which case holes as represented by
+     * the a specific value `holeKey`.
      */
     enum hasAddressKey = (is(K == class) ||
                           isPointer!K);
     static if (hasAddressKey)
     {
-        // TODO test if ulong.max gives better performance
-        enum holeKey = 0x1; // indicates a lazily deleted key
+        enum holeKeyOffset = 0x1;
+
+        /**
+         * See also: https://forum.dlang.org/post/p7726n$2apd$1@digitalmars.com
+         * TODO test if ulong.max gives better performance
+         */
+        pragma(inline, true)
+        static K holeKey() @trusted pure nothrow @nogc
+        {
+            return cast(K)((cast(size_t*)null) + holeKeyOffset); // indicates a lazily deleted key
+        }
+
+        pragma(inline, true)
+        static bool isHoleKey(const scope K key) @trusted pure nothrow @nogc
+        {
+            return (cast(const(void)*)key is
+                    cast(const(void)*)holeKeyOffset);
+        }
+
+        /** TODO make these work
+         */
+        // enum K holeKey_1 = cast(K)((cast(size_t*)null));
+        // static immutable K holeKey_2 = cast(K)((cast(size_t*)null));
     }
 
     alias MutableThis = Unqual!(typeof(this));
@@ -328,95 +349,89 @@ struct OpenHashMapOrSet(K, V = void,
     pragma(inline, true):
     private:
 
-        static size_t* reallocateHoles(size_t[] holes, size_t byteCount) @trusted
+        static if (!hasAddressKey)
         {
-            auto rawHoles = cast(void[])holes;
-            const ok = Allocator.instance.reallocate(rawHoles, byteCount);
-            assert(ok, "couldn't reallocate holes");
-            return cast(typeof(return))rawHoles.ptr;
-        }
-
-        void deallocateHoles() @trusted
-        {
-            if (_holesPtr)
+            void deallocateHoles() @trusted
             {
-                static if (__traits(hasMember, Allocator, "deallocatePtr"))
+                if (_holesPtr)
                 {
-                    Allocator.instance.deallocatePtr(_holesPtr);
-                }
-                else
-                {
-                    Allocator.instance.deallocate(_holesPtr[0 .. holesWordCount(_bins.length)]);
+                    static if (__traits(hasMember, Allocator, "deallocatePtr"))
+                    {
+                        Allocator.instance.deallocatePtr(_holesPtr);
+                    }
+                    else
+                    {
+                        Allocator.instance.deallocate(_holesPtr[0 .. holesWordCount(_bins.length)]);
+                    }
                 }
             }
-        }
 
-        void clearHoles()
-        {
-            deallocateHoles();
-            _holesPtr = null;
-        }
+            static size_t* reallocateHoles(size_t[] holes, size_t byteCount) @trusted
+            {
+                auto rawHoles = cast(void[])holes;
+                const ok = Allocator.instance.reallocate(rawHoles, byteCount);
+                assert(ok, "couldn't reallocate holes");
+                return cast(typeof(return))rawHoles.ptr;
+            }
 
-        enum wordBytes = size_t.sizeof;
-        enum wordBits = 8*wordBytes;
+            void clearHoles()
+            {
+                deallocateHoles();
+                _holesPtr = null;
+            }
 
-        /** Returns: number of words (`size_t`) needed to represent
-         * `binCount` holes.
-         */
-        static size_t holesWordCount(size_t binCount)
-        {
-            return (binCount / wordBits +
-                    (binCount % wordBits ? 1 : 0));
-        }
+            enum wordBytes = size_t.sizeof;
+            enum wordBits = 8*wordBytes;
 
-        static size_t binBlockBytes(size_t binCount)
-        {
-            return wordBytes*holesWordCount(binCount);
+            /** Returns: number of words (`size_t`) needed to represent
+             * `binCount` holes.
+             */
+            static size_t holesWordCount(size_t binCount)
+            {
+                return (binCount / wordBits +
+                        (binCount % wordBits ? 1 : 0));
+            }
+
+            static size_t binBlockBytes(size_t binCount)
+            {
+                return wordBytes*holesWordCount(binCount);
+            }
+
+            void untagHoleAtIndex(size_t index) @trusted
+            {
+                if (_holesPtr !is null)
+                {
+                    btr(_holesPtr, index);
+                }
+            }
+
+            static bool hasHoleAtPtrIndex(const scope size_t* holesPtr,
+                                          size_t index) @trusted
+            {
+                return (holesPtr &&
+                        bt(holesPtr, index) != 0);
+            }
         }
 
         void makeHoleAtIndex(size_t index) @trusted
         {
-            if (_holesPtr is null) // lazy allocation
+            static if (!hasAddressKey)
             {
-                _holesPtr = makeZeroedBitArray!Allocator(_bins.length);
+                if (_holesPtr is null) // lazy allocation
+                {
+                    _holesPtr = makeZeroedBitArray!Allocator(_bins.length);
+                }
+                bts(_holesPtr, index);
             }
-            bts(_holesPtr, index);
-        }
-
-        void tryFillHoleAtIndex(size_t index) @trusted
-        {
-            if (_holesPtr !is null)
+            else
             {
-                btr(_holesPtr, index);
-            }
-        }
-
-        bool hasHoleAtIndex(size_t index) @trusted const
-        {
-            // TODO activate:
-            // static if (hasAddressKey)
-            // {
-            //     return (cast(const(void)*)keyOf(_bins[index]) is cast(void*)holeKey);
-            // }
-            // else
-            {
-                return (_holesPtr &&
-                        bt(_holesPtr, index) != 0);
-            }
-        }
-
-        static bool hasNotHoleAtIndex(const scope size_t* holesPtr,
-                                      size_t index) @trusted
-        {
-            // TODO activate:
-            // static if (hasAddressKey)
-            // {
-            //     return (cast(const(void)*)keyOf(_bins[index]) !is cast(void*)holeKey);
-            // }
-            // else
-            {
-                return (holesPtr is null ||
-                        bt(holesPtr, index) == 0);
+                keyOf(_bins[index]) = holeKey;
+                static if (hasValue &&
+                           hasElaborateDestructor!V)
+                {
+                    .destroy(valueOf(_bins[index]));
+                    emplace(&valueOf(_bins[index])); // TODO shouldn't be needed
+                }
             }
         }
 
@@ -456,7 +471,10 @@ struct OpenHashMapOrSet(K, V = void,
         @trusted
     {
         releaseBinsSlice(_bins);
-        deallocateHoles();
+        static if (!hasAddressKey)
+        {
+            deallocateHoles();
+        }
     }
 
     static private void releaseBinsSlice(T[] bins)
@@ -646,7 +664,11 @@ struct OpenHashMapOrSet(K, V = void,
                 dones[doneIndex] = true; // _bins[doneIndex] is at it's correct position
             }
         }
-        clearHoles();
+
+        static if (!hasAddressKey)
+        {
+            clearHoles();
+        }
     }
 
     /** Grow (including rehash) store in-place to make room for `newCapacity` number of
@@ -673,11 +695,15 @@ struct OpenHashMapOrSet(K, V = void,
                 immutable byteCount = T.sizeof*_bins.length;
                 gc_addRange(_bins.ptr, byteCount);
             }
-            if (_holesPtr)
+
+            static if (!hasAddressKey)
             {
-                _holesPtr = makeReallocatedBitArrayZeroPadded!Allocator(_holesPtr,
-                                                                        oldLength,
-                                                                        _bins.length);
+                if (_holesPtr)
+                {
+                    _holesPtr = makeReallocatedBitArrayZeroPadded!Allocator(_holesPtr,
+                                                                            oldLength,
+                                                                            _bins.length);
+                }
             }
 
             // TODO make this an array operation `nullifyAll` or `nullifyN`
@@ -702,31 +728,50 @@ struct OpenHashMapOrSet(K, V = void,
         assert(newCapacity > _bins.length);
 
         T[] oldBins = _bins;
-        debug immutable oldCount = _count;
-        size_t* oldHolesPtr = _holesPtr;
-
         _bins = makeBins(newCapacity); // replace with new bins
+
+        debug immutable oldCount = _count;
         _count = 0;
-        _holesPtr = null;
+
+        static if (!hasAddressKey)
+        {
+            size_t* oldHolesPtr = _holesPtr;
+            _holesPtr = null;
+        }
 
         // move elements to copy
         foreach (immutable oldIndex, ref oldBin; oldBins)
         {
-            if (!keyOf(oldBin).isNull &&
-                hasNotHoleAtIndex(oldHolesPtr, oldIndex))
+            if (!keyOf(oldBin).isNull)
             {
-                insertMoveWithoutGrowth(oldBin);
+                static if (!hasAddressKey)
+                {
+                    if (!hasHoleAtPtrIndex(oldHolesPtr, oldIndex))
+                    {
+                        insertMoveWithoutGrowth(oldBin);
+                    }
+                }
+                else
+                {
+                    if (!isHoleKey(keyOf(_bins[oldIndex])))
+                    {
+                        insertMoveWithoutGrowth(oldBin);
+                    }
+                }
             }
         }
         debug assert(oldCount == _count);
 
-        static if (__traits(hasMember, Allocator, "deallocatePtr"))
+        static if (!hasAddressKey)
         {
-            Allocator.instance.deallocatePtr(oldHolesPtr);
-        }
-        else
-        {
-            Allocator.instance.deallocate(oldHolesPtr[0 .. holesWordCount(oldBins.length)]);
+            static if (__traits(hasMember, Allocator, "deallocatePtr"))
+            {
+                Allocator.instance.deallocatePtr(oldHolesPtr);
+            }
+            else
+            {
+                Allocator.instance.deallocate(oldHolesPtr[0 .. holesWordCount(oldBins.length)]);
+            }
         }
 
         releaseBinsSlice(oldBins);
@@ -750,7 +795,10 @@ struct OpenHashMapOrSet(K, V = void,
             assert(hitIndex1 != _bins.length, "no null or hole slot");
             move(element,
                  _bins[hitIndex1]);
-            tryFillHoleAtIndex(hitIndex1);
+            static if (!hasAddressKey)
+            {
+                untagHoleAtIndex(hitIndex1);
+            }
             _count += 1;
             return InsertionStatus.added;
         }
@@ -1208,14 +1256,10 @@ private:
     T[] _bins;            // bin elements
     size_t _count;        // total number of non-null elements stored in `_bins`
 
-    static if (hasAddressKey)
+    static if (!hasAddressKey)
     {
+        size_t* _holesPtr; // bit array describing which bin elements that has been removed (holes)
     }
-    else
-    {
-        // TODO move _holesPtr here
-    }
-    size_t* _holesPtr; // bit array describing which bin elements that has been removed (holes)
 
     /** Returns: bin index of `key`. */
     pragma(inline, true)
@@ -1244,15 +1288,31 @@ private:
             /* don't use `auto ref` for copyable `T`'s to prevent
              * massive performance drop for small elements when compiled
              * with LDC. TODO remove when LDC is fixed. */
-            alias predicate = (index, element) => (hasNotHoleAtIndex(_holesPtr, index) && // holes can be either null or have a key
-                                                   (keyOf(element).isNull ||
-                                                    keyOf(element) is key));
+            static if (!hasAddressKey)
+            {
+                alias predicate = (index, element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
+                                                       (keyOf(element).isNull ||
+                                                        keyOf(element) is key));
+            }
+            else
+            {
+                alias predicate = (element) => (keyOf(element).isNull ||
+                                                keyOf(element) is key);
+            }
         }
         else
         {
-            alias predicate = (index, const auto ref element) => (hasNotHoleAtIndex(_holesPtr, index) &&
-                                                                  (keyOf(element).isNull ||
-                                                                   keyOf(element) is key));
+            static if (!hasAddressKey)
+            {
+                alias predicate = (index, const auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
+                                                                      (keyOf(element).isNull ||
+                                                                       keyOf(element) is key));
+            }
+            else
+            {
+                alias predicate = (const auto ref element) => (keyOf(element).isNull ||
+                                                               keyOf(element) is key);
+            }
         }
         return _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key));
     }
@@ -1265,13 +1325,29 @@ private:
             /* don't use `auto ref` for copyable `T`'s to prevent
              * massive performance drop for small elements when compiled
              * with LDC. TODO remove when LDC is fixed. */
-            alias predicate = (index, element) => (hasHoleAtIndex(index) ||
-                                                   keyOf(element).isNull);
+            static if (!hasAddressKey)
+            {
+                alias predicate = (index, element) => (hasHoleAtPtrIndex(_holesPtr, index) ||
+                                                       keyOf(element).isNull);
+            }
+            else
+            {
+                alias predicate = (element) => (isHoleKey(keyOf(element)) ||
+                                                keyOf(element).isNull);
+            }
         }
         else
         {
-            alias predicate = (index, const auto ref element) => (hasHoleAtIndex(index) ||
-                                                                  keyOf(element).isNull);
+            static if (!hasAddressKey)
+            {
+                alias predicate = (index, const auto ref element) => (hasHoleAtPtrIndex(_holesPtr, index) ||
+                                                                      keyOf(element).isNull);
+            }
+            else
+            {
+                alias predicate = (const auto ref element) => (isHoleKey(keyOf(element)) ||
+                                                               keyOf(element).isNull);
+            }
         }
         return _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key));
     }
@@ -1282,20 +1358,18 @@ private:
     pragma(inline, true)
     private bool isOccupiedAtIndex(size_t index) const @trusted
     {
-        return (index != _bins.length && // needed for when _bins.length == 0
-                !hasHoleAtIndex(index) &&
-                !keyOf(_bins[index]).isNull);
-    }
-
-    /** Returns: `true` iff `index` indexes a vacant (either null or deleted)
-     * element, `false` otherwise.
-     */
-    pragma(inline, true)
-    private bool isVacantAtIndex(size_t index) const @trusted
-    {
-        return (index != _bins.length && // needed for when _bins.length == 0
-                (hasHoleAtIndex(index) ||
-                 keyOf(_bins[index]).isNull));
+        static if (!hasAddressKey)
+        {
+            return (index != _bins.length && // needed for when _bins.length == 0
+                    !hasHoleAtPtrIndex(_holesPtr, index) &&
+                    !keyOf(_bins[index]).isNull);
+        }
+        else
+        {
+            return (index != _bins.length && // needed for when _bins.length == 0
+                    !isHoleKey(keyOf(_bins[index])) &&
+                    !keyOf(_bins[index]).isNull);
+        }
     }
 }
 

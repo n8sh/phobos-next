@@ -64,7 +64,8 @@ struct OpenHashMapOrSet(K, V = void,
                           isPointer!K);
     static if (hasAddressKey)
     {
-        enum holeKey = 0x1; // indicates a lazily deleted key
+        enum holeKey = 0x1; // indicates a lazily deleted key. TODO test if
+                            // ulong.max gives better performance
     }
 
     alias MutableThis = Unqual!(typeof(this));

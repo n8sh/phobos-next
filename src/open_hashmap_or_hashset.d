@@ -43,14 +43,12 @@ struct OpenHashMapOrSet(K, V = void,
     import std.algorithm.mutation : move, moveEmplace;
     import std.conv : emplace;
     import std.math : nextPow2;
-    import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable, isMutable, hasIndirections, Unqual, isPointer;
+    import std.traits : hasElaborateDestructor, isCopyable, isMutable, hasIndirections, Unqual, isPointer;
     import std.typecons : Nullable;
-    import core.bitop : bts, bt, btr;
 
     import qcmeman : gc_addRange, gc_removeRange;
     import digestion : hashOf2;
     import probing : triangularProbeFromIndex;
-    import array_help : makeUninitializedBitArray, makeZeroedBitArray, makeReallocatedBitArrayZeroPadded;
 
     /** In the hash map case, `V` is non-void, and a value is stored alongside
      * the key of type `K`.
@@ -60,8 +58,7 @@ struct OpenHashMapOrSet(K, V = void,
     /** Is `true` is `K` is an address, in which case holes as represented by
      * the a specific value `holeKey`.
      */
-    enum hasAddressKey = (is(K == class) ||
-                          isPointer!K);
+    enum hasAddressKey = (is(K == class) || isPointer!K);
     static if (hasAddressKey)
     {
         enum holeKeyOffset = 0x1;
@@ -87,6 +84,11 @@ struct OpenHashMapOrSet(K, V = void,
          */
         // enum K holeKey_1 = cast(K)((cast(size_t*)null));
         // static immutable K holeKey_2 = cast(K)((cast(size_t*)null));
+    }
+    else
+    {
+        import core.bitop : bts, bt, btr;
+        import array_help : makeUninitializedBitArray, makeZeroedBitArray, makeReallocatedBitArrayZeroPadded;
     }
 
     alias MutableThis = Unqual!(typeof(this));

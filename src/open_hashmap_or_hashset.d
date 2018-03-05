@@ -2132,7 +2132,8 @@ pure nothrow unittest
     alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
     auto x = X();
 
-    x[new K(42)] = V(43);
+    auto key42 = new K(42);
+    x[key42] = V(43);
 
     assert(x.length == 1);
 
@@ -2162,6 +2163,14 @@ pure nothrow unittest
         e.value.data -= 1;
         assert(e.value.data == 43);
     }
+
+    assert(x.length == 1);
+
+    x.remove(key42);
+    assert(x.length == 0);
+
+    x[key42] = V(43);
+    assert(x.length == 1);
 }
 
 version(unittest)

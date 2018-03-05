@@ -307,17 +307,27 @@ struct OpenHashMapOrSet(K, V = void,
                 }
                 else
                 {
-                    emplace(&binsCopy[elementIndex], element);
+                    static if (hasElaborateDestructor!T)
+                    {
+                        emplace(&binsCopy[elementIndex], element);
+                    }
+                    else
+                    {
+                        binsCopy[elementIndex] = cast(T)element;
+                    }
                 }
             }
-            if (_holesPtr)
+            static if (!hasAddressKey)
             {
-                immutable wordCount = holesWordCount(_bins.length);
+                if (_holesPtr)
+                {
+                    immutable wordCount = holesWordCount(_bins.length);
 
-                auto holesPtrCopy = makeUninitializedBitArray!Allocator(_bins.length);
-                holesPtrCopy[0 .. wordCount] = _holesPtr[0 .. wordCount]; // TODO use memcpy instead?
+                    auto holesPtrCopy = makeUninitializedBitArray!Allocator(_bins.length);
+                    holesPtrCopy[0 .. wordCount] = _holesPtr[0 .. wordCount]; // TODO use memcpy instead?
 
-                return typeof(return)(binsCopy, _count, holesPtrCopy);
+                    return typeof(return)(binsCopy, _count, holesPtrCopy);
+                }
             }
             return typeof(return)(binsCopy, _count);
         }
@@ -444,7 +454,10 @@ struct OpenHashMapOrSet(K, V = void,
     {
         release();
         _bins = typeof(_bins).init;
-        _holesPtr = null;
+        static if (!hasAddressKey)
+        {
+            _holesPtr = null;
+        }
         _count = 0;
     }
 
@@ -964,7 +977,7 @@ struct OpenHashMapOrSet(K, V = void,
                      * because class elements are currently hashed and compared
                      * compared using their identity (pointer value) `is`
                      */
-                    return cast(T)table.binElementsAt(ix)[elementOffset];
+                    return table._bins[iterationIndex];
                 }
             }
             else
@@ -992,7 +1005,7 @@ struct OpenHashMapOrSet(K, V = void,
                      * because class elements are currently hashed and compared
                      * compared using their identity (pointer value) `is`
                      */
-                    return cast(T)table.binElementsAt(iterationIndex)[elementOffset];
+                    return table._bins[iterationIndex];
                 }
             }
             else
@@ -1390,6 +1403,7 @@ import std.traits : isInstanceOf;
 /** Remove (reset) all elements in `x` matching `predicate`.
  */
 void removeAllMatching(alias predicate, SomeOpenHashMapOrSet)(auto ref SomeOpenHashMapOrSet x)
+    @trusted
     if (isInstanceOf!(OpenHashMapOrSet,
                       SomeOpenHashMapOrSet))
 {
@@ -1590,8 +1604,23 @@ pure nothrow @nogc unittest
     }
 }
 
+version(unittest)
+{
+    T make(T)(ulong value)
+    {
+        static if (is(T == class))
+        {
+            return new T(value);
+        }
+        else
+        {
+            return T(value);
+        }
+    }
+}
+
 /// test various things
-@trusted pure nothrow @nogc unittest
+@trusted unittest
 {
     version(show) dln("");
     immutable uint n = 600;
@@ -1601,18 +1630,18 @@ pure nothrow @nogc unittest
         assert(x.length == n);
         foreach (immutable key_; 0 .. n)
         {
-            const key = K(key_);
+            const key = make!K(key_);
 
             static if (X.hasValue)
             {
-                const element = X.ElementType(key, V.init);
+                const element = X.ElementType(make!K(key.get), V.init);
             }
             else
             {
                 alias element = key;
             }
 
-            assert(x.length == n - key);
+            assert(x.length == n - key.get);
 
             const hitPtr = key in x;
             static if (X.hasValue)
@@ -1625,7 +1654,7 @@ pure nothrow @nogc unittest
             }
 
             assert(x.remove(key));
-            assert(x.length == n - key - 1);
+            assert(x.length == n - key.get - 1);
 
             static if (!X.hasValue)
             {
@@ -1633,7 +1662,7 @@ pure nothrow @nogc unittest
             }
             assert(key !in x);
             assert(!x.remove(key));
-            assert(x.length == n - key - 1);
+            assert(x.length == n - key.get - 1);
         }
 
         assert(x.length == 0);
@@ -1674,200 +1703,230 @@ pure nothrow @nogc unittest
         return y;
     }
 
-    alias K = Nullable!(ulong, ulong.max);
+    alias NullableUlong = Nullable!(ulong, ulong.max);
+
+    static class SomeSimpleClass
+    {
+        @safe pure nothrow @nogc:
+        this(ulong value)
+        {
+            this._value = value;
+        }
+        ulong get() const
+        {
+            return _value;
+        }
+        private ulong _value;
+    }
 
     import std.meta : AliasSeq;
-    foreach (V; AliasSeq!(void, string))
+
+    foreach (K; AliasSeq!(NullableUlong,
+                          SomeSimpleClass))
     {
-        alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
-
-        static if (!X.hasValue)
+        foreach (V; AliasSeq!(void, string))
         {
-            auto x = X.withElements([K(11), K(12), K(13)].s);
+            alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
 
-            import std.algorithm : count;
-            auto xr = x.byElement;
-
-            alias R = typeof(xr);
-            import std.range : isInputRange;
-            import std.traits : ReturnType;
-            static assert(is(typeof(R.init) == R));
-            static assert(is(ReturnType!((R xr) => xr.empty) == bool));
-            auto f = xr.front;
-            static assert(is(typeof((R xr) => xr.front)));
-            static assert(!is(ReturnType!((R xr) => xr.front) == void));
-            static assert(is(typeof((R xr) => xr.popFront)));
-
-            static assert(isInputRange!(typeof(xr)));
-
-            assert(x.byElement.count == 3);
-
-            X y;
-            foreach (const ref e; x.byElement)
+            static if (!X.hasValue)
             {
-                assert(x.contains(e));
-                assert(!y.contains(e));
-                y.insert(e);
-                assert(y.contains(e));
-            }
+                auto x = X.withElements([make!K(11), make!K(12), make!K(13)].s);
 
-            assert(y.byElement.count == 3);
-            assert(x == y);
+                import std.algorithm : count;
+                auto xr = x.byElement;
 
-            const z = X();
-            assert(z.byElement.count == 0);
+                alias R = typeof(xr);
+                import std.range : isInputRange;
+                import std.traits : ReturnType;
+                static assert(is(typeof(R.init) == R));
+                static assert(is(ReturnType!((R xr) => xr.empty) == bool));
+                auto f = xr.front;
+                static assert(is(typeof((R xr) => xr.front)));
+                static assert(!is(ReturnType!((R xr) => xr.front) == void));
+                static assert(is(typeof((R xr) => xr.popFront)));
 
-            immutable w = X();
-            assert(w.byElement.count == 0);
+                static assert(isInputRange!(typeof(xr)));
 
-            {
-                auto xc = X.withElements([K(11), K(12), K(13)].s);
-                assert(xc.length == 3);
-                assert(xc.contains(K(11)));
+                assert(x.byElement.count == 3);
 
-                // TODO http://forum.dlang.org/post/kvwrktmameivubnaifdx@forum.dlang.org
-                xc.removeAllMatching!(_ => _ == K(11));
-
-                assert(xc.length == 2);
-                assert(!xc.contains(K(11)));
-
-                xc.removeAllMatching!(_ => _ == 12);
-                assert(!xc.contains(K(12)));
-                assert(xc.length == 1);
-
-                xc.removeAllMatching!(_ => _ == 13);
-                assert(!xc.contains(K(13)));
-                assert(xc.length == 0);
-
-                // this is ok
-                foreach (e; xc.byElement) {}
-
-            }
-
-            {
-                auto k = X.withElements([K(11), K(12)].s).filtered!(_ => _ != K(11)).byElement;
-                static assert(isInputRange!(typeof(k)));
-                assert(k.front == 12);
-                k.popFront();
-                assert(k.empty);
-            }
-
-            {
-                X q;
-                auto qv = [K(11U), K(12U), K(13U), K(14U)].s;
-                q.insertN(qv[]);
-                foreach (e; qv[])
+                X y;
+                foreach (const ref e; x.byElement)
                 {
-                    assert(q.contains(e));
+                    assert(x.contains(e));
+                    assert(!y.contains(e));
+                    static if (is(K == class))
+                    {
+                        y.insert(make!K(e.get)); // same as dup
+                    }
+                    else
+                    {
+                        y.insert(e);
+                    }
+                    assert(y.contains(e));
                 }
-                q.clear();
-                assert(q.empty);
+
+                assert(y.byElement.count == 3);
+                assert(x == y);
+
+                const z = X();
+                assert(z.byElement.count == 0);
+
+                immutable w = X();
+                assert(w.byElement.count == 0);
+
+                {
+                    auto xc = X.withElements([make!K(11), make!K(12), make!K(13)].s);
+                    assert(xc.length == 3);
+                    assert(xc.contains(make!K(11)));
+
+                    // TODO http://forum.dlang.org/post/kvwrktmameivubnaifdx@forum.dlang.org
+                    xc.removeAllMatching!(_ => _ == make!K(11));
+
+                    assert(xc.length == 2);
+                    assert(!xc.contains(make!K(11)));
+
+                    xc.removeAllMatching!(_ => _ == make!K(12));
+                    assert(!xc.contains(make!K(12)));
+                    assert(xc.length == 1);
+
+                    xc.removeAllMatching!(_ => _ == make!K(13));
+                    assert(!xc.contains(make!K(13)));
+                    assert(xc.length == 0);
+
+                    // this is ok
+                    foreach (e; xc.byElement) {}
+
+                }
+
+                {
+                    auto k = X.withElements([make!K(11), make!K(12)].s).filtered!(_ => _ != make!K(11)).byElement;
+                    static assert(isInputRange!(typeof(k)));
+                    assert(k.front == make!K(12));
+                    k.popFront();
+                    assert(k.empty);
+                }
+
+                {
+                    X q;
+                    auto qv = [make!K(11U), make!K(12U), make!K(13U), make!K(14U)].s;
+                    q.insertN(qv[]);
+                    foreach (e; qv[])
+                    {
+                        assert(q.contains(e));
+                    }
+                    q.clear();
+                    assert(q.empty);
+                }
             }
-        }
 
-        import container_traits : mustAddGCRange;
-        static if (X.hasValue &&
-                   is(V == string))
-        {
-            static assert(mustAddGCRange!V);
-            static assert(mustAddGCRange!(V[1]));
-            static assert(mustAddGCRange!(X.T));
-        }
-        else
-        {
-            static assert(!mustAddGCRange!(X.T));
-        }
-
-        auto x1 = X();            // start empty
-
-        // fill x1
-
-        foreach (immutable key_; 0 .. n)
-        {
-            const key = K(key_);
-
-            static if (X.hasValue)
+            import container_traits : mustAddGCRange;
+            static if (X.hasValue &&
+                       is(V == string))
             {
-                const value = V.init;
-                const element = X.ElementType(key, value);
+                static assert(mustAddGCRange!V);
+                static assert(mustAddGCRange!(V[1]));
+                static assert(mustAddGCRange!(X.T));
             }
             else
             {
-                // no assignment because Nullable.opAssign may leave rhs in null state
-                alias element = key;
+                static if (!is(X.T == class))
+                {
+                    static assert(!mustAddGCRange!(X.T));
+                }
             }
 
-            assert(key !in x1);
+            auto x1 = X();            // start empty
 
-            assert(x1.length == key);
-            assert(x1.insert(element) == X.InsertionStatus.added);
-            assert(x1.length == key + 1);
+            // fill x1
+
+            foreach (immutable key_; 0 .. n)
+            {
+                auto key = make!K(key_);
+
+                static if (X.hasValue)
+                {
+                    auto value = V.init;
+                    auto element = X.ElementType(key, value);
+                }
+                else
+                {
+                    // no assignment because Nullable.opAssign may leave rhs in null state
+                    auto element = key;
+                }
+
+                assert(key !in x1);
+
+                assert(x1.length == key.get);
+                assert(x1.insert(element) == X.InsertionStatus.added);
+                assert(x1.length == key.get + 1);
+
+                static if (X.hasValue)
+                {
+                    auto e2 = X.ElementType(key, "a");
+                    assert(x1.insert(e2) == X.InsertionStatus.modified);
+                    assert(x1.contains(key));
+                    assert(x1.get(key, null) == "a");
+
+                    x1.remove(key);
+                    x1[key] = value;
+                    assert(x1.contains(key));
+                }
+
+                assert(x1.length == key.get + 1);
+
+                const hitPtr = key in x1;
+                static if (X.hasValue)
+                {
+                    assert(hitPtr && *hitPtr != "_");
+                }
+                else
+                {
+                    assert(hitPtr && *hitPtr is key);
+                }
+
+                auto status = x1.insert(element);
+                assert(status == X.InsertionStatus.unmodified);
+                static if (X.hasValue)
+                {
+                    assert(x1.insert(key, value) == X.InsertionStatus.unmodified);
+                }
+                assert(x1.length == key.get + 1);
+
+                assert(key in x1);
+            }
 
             static if (X.hasValue)
             {
-                const e2 = X.ElementType(key, "a");
-                assert(x1.insert(e2) == X.InsertionStatus.modified);
-                assert(x1.contains(key));
-                assert(x1.get(key, null) == "a");
+                import basic_array : Array = BasicArray;
+                Array!(X.ElementType) a1;
 
-                x1.remove(key);
-                x1[key] = value;
-                assert(x1.contains(key));
+                foreach (const ref key; x1.byKey)
+                {
+                    auto keyPtr = key in x1;
+                    assert(keyPtr);
+                    a1 ~= X.ElementType(make!K(key.get), (*keyPtr));
+                }
+
+                assert(x1.length == a1.length);
+
+                foreach (aElement; a1[])
+                {
+                    auto keyPtr = aElement.key in x1;
+                    assert(keyPtr);
+                    assert((*keyPtr) is aElement.value);
+                }
             }
 
-            assert(x1.length == key + 1);
+            assert(x1.length == n);
 
-            const hitPtr = key in x1;
-            static if (X.hasValue)
-            {
-                assert(hitPtr && *hitPtr != "_");
-            }
-            else
-            {
-                assert(hitPtr && *hitPtr == key);
-            }
+            auto x2 = testDup(x1, n);
 
-            auto status = x1.insert(element);
-            assert(status == X.InsertionStatus.unmodified);
-            static if (X.hasValue)
-            {
-                assert(x1.insert(key, value) == X.InsertionStatus.unmodified);
-            }
-            assert(x1.length == key + 1);
+            testEmptyAll!(K, V)(x1, n);
 
-            assert(key in x1);
+            testEmptyAll!(K, V)(x2, n); // should be not affected by emptying of x1
         }
-
-        static if (X.hasValue)
-        {
-            import basic_array : Array = BasicArray;
-            Array!(X.ElementType) a1;
-
-            foreach (const ref key; x1.byKey)
-            {
-                auto keyPtr = key in x1;
-                assert(keyPtr);
-                a1 ~= X.ElementType(key, (*keyPtr));
-            }
-
-            assert(x1.length == a1.length);
-
-            foreach (aElement; a1[])
-            {
-                auto keyPtr = aElement.key in x1;
-                assert(keyPtr);
-                assert((*keyPtr) is aElement.value);
-            }
-        }
-
-        assert(x1.length == n);
-
-        auto x2 = testDup(x1, n);
-
-        testEmptyAll!(K, V)(x1, n);
-
-        testEmptyAll!(K, V)(x2, n); // should be not affected by emptying of x1
     }
+
 }
 
 /// range checking

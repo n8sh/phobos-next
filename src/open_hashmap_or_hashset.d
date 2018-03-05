@@ -1630,16 +1630,15 @@ version(unittest)
     version(show) dln("");
     immutable uint n = 600;
 
-    void testEmptyAll(K, V, X)(ref X x, size_t n)
+    void testEmptyAll(K, V, X)(ref X x, size_t n,
+                               scope K[] keys)
     {
         assert(x.length == n);
-        foreach (immutable key_; 0 .. n)
+        foreach (key; keys)
         {
-            const key = make!K(key_);
-
             static if (X.hasValue)
             {
-                const element = X.ElementType(make!K(key.get), V.init);
+                const element = X.ElementType(key, V.init);
             }
             else
             {
@@ -1655,6 +1654,11 @@ version(unittest)
             }
             else
             {
+                if (!(hitPtr && *hitPtr is element))
+                {
+                    import dbgio;
+                    dln(hitPtr);
+                }
                 assert(hitPtr && *hitPtr is element);
             }
 
@@ -1733,9 +1737,13 @@ version(unittest)
         {
             alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
 
+            auto k11 = make!K(11);
+            auto k12 = make!K(12);
+            auto k13 = make!K(13);
+
             static if (!X.hasValue)
             {
-                auto x = X.withElements([make!K(11), make!K(12), make!K(13)].s);
+                auto x = X.withElements([k11, k12, k13].s);
 
                 import std.algorithm : count;
                 auto xr = x.byElement;
@@ -1756,7 +1764,7 @@ version(unittest)
 
                 X y;
                 size_t ix = 0;
-                foreach (const ref e; x.byElement)
+                foreach (ref e; x.byElement)
                 {
                     import dbgio;
                     dln("ix:", ix, " e:", e.get, " K:", K.stringof, " V:", V.stringof);
@@ -1764,7 +1772,7 @@ version(unittest)
                     assert(!y.contains(e));
                     static if (is(K == class))
                     {
-                        y.insert(make!K(e.get)); // same as dup
+                        y.insert(cast(K)e); // ugly but ok in tests
                     }
                     else
                     {
@@ -1789,22 +1797,22 @@ version(unittest)
                 assert(w.byElement.count == 0);
 
                 {
-                    auto xc = X.withElements([make!K(11), make!K(12), make!K(13)].s);
+                    auto xc = X.withElements([k11, k12, k13].s);
                     assert(xc.length == 3);
-                    assert(xc.contains(make!K(11)));
+                    assert(xc.contains(k11));
 
                     // TODO http://forum.dlang.org/post/kvwrktmameivubnaifdx@forum.dlang.org
-                    xc.removeAllMatching!(_ => _ == make!K(11));
+                    xc.removeAllMatching!(_ => _ == k11);
 
                     assert(xc.length == 2);
-                    assert(!xc.contains(make!K(11)));
+                    assert(!xc.contains(k11));
 
-                    xc.removeAllMatching!(_ => _ == make!K(12));
-                    assert(!xc.contains(make!K(12)));
+                    xc.removeAllMatching!(_ => _ == k12);
+                    assert(!xc.contains(k12));
                     assert(xc.length == 1);
 
-                    xc.removeAllMatching!(_ => _ == make!K(13));
-                    assert(!xc.contains(make!K(13)));
+                    xc.removeAllMatching!(_ => _ == k13);
+                    assert(!xc.contains(k13));
                     assert(xc.length == 0);
 
                     // this is ok
@@ -1813,9 +1821,9 @@ version(unittest)
                 }
 
                 {
-                    auto k = X.withElements([make!K(11), make!K(12)].s).filtered!(_ => _ != make!K(11)).byElement;
+                    auto k = X.withElements([k11, k12].s).filtered!(_ => _ != k11).byElement;
                     static assert(isInputRange!(typeof(k)));
-                    assert(k.front == make!K(12));
+                    assert(k.front == k12);
                     k.popFront();
                     assert(k.empty);
                 }
@@ -1853,9 +1861,13 @@ version(unittest)
 
             // fill x1
 
+            import std.array : Appender;
+            Appender!(K[]) keys;
+
             foreach (immutable key_; 0 .. n)
             {
                 auto key = make!K(key_);
+                keys.put(key);
 
                 static if (X.hasValue)
                 {
@@ -1918,7 +1930,7 @@ version(unittest)
                 {
                     auto keyPtr = key in x1;
                     assert(keyPtr);
-                    a1 ~= X.ElementType(make!K(key.get), (*keyPtr));
+                    a1 ~= X.ElementType(cast(K)key, (*keyPtr));
                 }
 
                 assert(x1.length == a1.length);
@@ -1935,9 +1947,9 @@ version(unittest)
 
             auto x2 = testDup(x1, n);
 
-            testEmptyAll!(K, V)(x1, n);
+            testEmptyAll!(K, V)(x1, n, keys.data);
 
-            testEmptyAll!(K, V)(x2, n); // should be not affected by emptying of x1
+            testEmptyAll!(K, V)(x2, n, keys.data); // should be not affected by emptying of x1
         }
     }
 

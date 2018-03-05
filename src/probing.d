@@ -94,3 +94,16 @@ version(unittest)
 {
     import std.typecons : Nullable;
 }
+
+@trusted pure unittest
+{
+    class C { int value; }
+    C x;
+    C y = cast(C)((cast(size_t*)null) + 1); // indicates a lazily deleted key
+    struct S
+    {
+        // TODO make these work:
+        // enum C hole1 = cast(C)((cast(size_t*)null) + 1);
+        // static immutable C hole2 = cast(C)((cast(size_t*)null) + 1);
+    }
+}

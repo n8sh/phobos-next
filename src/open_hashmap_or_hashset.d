@@ -64,7 +64,7 @@ struct OpenHashMapOrSet(K, V = void,
                           isPointer!K);
     static if (hasAddressKey)
     {
-            enum holeKey = 0x1; // indicates a lazily deleted key
+        enum holeKey = 0x1; // indicates a lazily deleted key
     }
 
     alias MutableThis = Unqual!(typeof(this));

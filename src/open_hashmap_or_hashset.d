@@ -1770,6 +1770,11 @@ version(unittest)
                     {
                         y.insert(e);
                     }
+                    import std.algorithm : map;
+                    static if (is(K == class))
+                    {
+                        dln("bins:", y._bins[].map!(_ => _ !is null ? _.get : 0));
+                    }
                     assert(y.contains(e));
                     ix++;
                 }

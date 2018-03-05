@@ -1925,7 +1925,8 @@ pure nothrow unittest
     {
         uint value;
     }
-    alias K = Nullable!(S, S(uint.max));
+    alias K = Nullable!(S,
+                        S(uint.min)); // use uint.min to trigger use of faster `Allocator.zeroallocate`
 
     class V
     {

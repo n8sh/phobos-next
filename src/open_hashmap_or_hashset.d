@@ -131,7 +131,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
 
 
-        alias T = K;
+        alias T = K;            // short name for element type
 
         /// Get key part of element.
         pragma(inline, true)
@@ -1033,6 +1033,7 @@ struct OpenHashMapOrSet(K, V = void,
             /// Get reference to front element (key and value).
             @property scope auto ref front()() return @trusted
             {
+                // TODO can this be solved without this `static if`?
                 static if (isMutable!(SomeOpenHashMapOrSet))
                 {
                     alias E = CT;

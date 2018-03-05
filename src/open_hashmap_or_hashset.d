@@ -22,6 +22,8 @@ import pure_mallocator : PureMallocator;
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  * See also: https://en.wikipedia.org/wiki/Lazy_deletion
  *
+ * TODO replace BitArray with plain allocation
+ *
  * TODO extend opBinaryRight to return a reference to a free slot when assigned to sets value in slot and does _count += 1;
  *
  * TODO add extractElement that moves it out similar to
@@ -631,11 +633,12 @@ struct OpenHashMapOrSet(K, V = void,
     private void rehashInPlace()() // template-lazy
         @trusted
     {
-        import bitarray : BitArray;
-        auto dones = BitArray!().withLength(_bins.length); // TODO use size_t[] and core.bitop instead
-        foreach (immutable doneIndex; 0 .. dones.length)
+        import core.bitop : bts, bt;
+        import array_help : makeZeroedBitArray, wordCountOfBitCount;
+        size_t* dones = makeZeroedBitArray!Allocator(_bins.length);
+        foreach (immutable doneIndex; 0 .. _bins.length)
         {
-            if (!dones[doneIndex] && // if _bins[doneIndex] not yet ready
+            if (!bt(dones, doneIndex) && // if _bins[doneIndex] not yet ready
                 !keyOf(_bins[doneIndex]).isNull) // and non-null
             {
                 T currentElement = void;
@@ -650,11 +653,11 @@ struct OpenHashMapOrSet(K, V = void,
                 while (true)
                 {
                     alias predicate = (index, const auto ref element) => (keyOf(element).isNull || // free slot or TODO check holes
-                                                                          !dones[index]); // or a not yet replaced element
+                                                                          !bt(dones, index)); // or a not yet replaced element
                     immutable hitIndex = _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(keyOf(currentElement)));
                     assert(hitIndex != _bins.length, "no free slot");
 
-                    dones[hitIndex] = true; // _bins[hitIndex] will be at it's correct position
+                    bts(dones, hitIndex); // _bins[hitIndex] will be at it's correct position
 
                     if (!keyOf(_bins[hitIndex]).isNull()) // if free slot found
                     {
@@ -676,9 +679,11 @@ struct OpenHashMapOrSet(K, V = void,
                         break; // inner iteration is finished
                     }
                 }
-                dones[doneIndex] = true; // _bins[doneIndex] is at it's correct position
+                bts(dones, doneIndex); // _bins[doneIndex] is at it's correct position
             }
         }
+
+        Allocator.instance.deallocate(cast(void[])(dones[0 .. wordCountOfBitCount(_bins.length)]));
 
         static if (!hasAddressKey)
         {

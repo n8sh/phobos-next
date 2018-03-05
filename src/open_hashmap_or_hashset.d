@@ -1750,8 +1750,11 @@ version(unittest)
                 assert(x.byElement.count == 3);
 
                 X y;
+                size_t ix = 0;
                 foreach (const ref e; x.byElement)
                 {
+                    import dbgio;
+                    dln("ix:", ix, " e:", e.get, " K:", K.stringof, " V:", V.stringof);
                     assert(x.contains(e));
                     assert(!y.contains(e));
                     static if (is(K == class))
@@ -1763,6 +1766,7 @@ version(unittest)
                         y.insert(e);
                     }
                     assert(y.contains(e));
+                    ix++;
                 }
 
                 assert(y.byElement.count == 3);

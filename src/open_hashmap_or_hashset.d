@@ -1633,9 +1633,15 @@ version(unittest)
     void testEmptyAll(K, V, X)(ref X x, size_t n,
                                scope K[] keys)
     {
+        import dbgio;
+        dln("K:", K.stringof,
+            " V:", V.stringof);
+
         assert(x.length == n);
         foreach (key; keys)
         {
+            dln("key:", key.get);
+
             static if (X.hasValue)
             {
                 const element = X.ElementType(key, V.init);

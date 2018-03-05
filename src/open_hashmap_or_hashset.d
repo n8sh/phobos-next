@@ -1082,7 +1082,7 @@ struct OpenHashMapOrSet(K, V = void,
             else
             {
                 import core.exception : RangeError;
-                throw new RangeError("Key not in table");
+                throw new RangeError("key not in table");
             }
         }
         static if (isInstanceOf!(Nullable, K))

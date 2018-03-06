@@ -413,7 +413,7 @@ struct OpenHashMapOrSet(K, V = void,
 
             void untagHoleAtIndex(size_t index) @trusted
             {
-                assert(index < _bins.length);
+                version(unittest) assert(index < _bins.length);
                 if (_holesPtr !is null)
                 {
                     btr(_holesPtr, index);
@@ -430,7 +430,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         void makeHoleAtIndex(size_t index) @trusted
         {
-            assert(index < _bins.length);
+            version(unittest) assert(index < _bins.length);
             static if (!hasAddressKey)
             {
                 if (_holesPtr is null) // lazy allocation
@@ -602,7 +602,7 @@ struct OpenHashMapOrSet(K, V = void,
     pragma(inline, true)
     private void growWithNewCapacity(size_t newCapacity) // not template-lazy
     {
-        assert(newCapacity > _bins.length);
+        version(unittest) assert(newCapacity > _bins.length);
         static if (__traits(hasMember, Allocator, "reallocate"))
         {
             if (doInPlaceGrow)
@@ -749,7 +749,7 @@ struct OpenHashMapOrSet(K, V = void,
     private void growStandardWithNewCapacity(size_t newCapacity) // not template-lazy
         @trusted
     {
-        assert(newCapacity > _bins.length);
+        version(unittest) assert(newCapacity > _bins.length);
 
         T[] oldBins = _bins;
         _bins = makeBins(newCapacity); // replace with new bins
@@ -784,7 +784,7 @@ struct OpenHashMapOrSet(K, V = void,
                 }
             }
         }
-        debug assert(oldCount == _count);
+        version(unittest) debug assert(oldCount == _count);
 
         static if (!hasAddressKey)
         {
@@ -800,7 +800,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         releaseBinsSlice(oldBins);
 
-        assert(_bins.length);
+        version(unittest) assert(_bins.length);
     }
 
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
@@ -808,15 +808,15 @@ struct OpenHashMapOrSet(K, V = void,
     pragma(inline, true)
     private InsertionStatus insertWithoutGrowth(T element)
     {
-        assert(!keyOf(element).isNull);
+        version(unittest) assert(!keyOf(element).isNull);
 
         immutable hitIndex = tryFindIndexOfKeyOrVacantKeySkippingHoles(keyOf(element));
-        assert(hitIndex != _bins.length, "no free slot");
+        version(unittest) assert(hitIndex != _bins.length, "no free slot");
 
         if (keyOf(_bins[hitIndex]).isNull)
         {
             immutable hitIndex1 = tryFindHoleOrNullForKey(keyOf(element)); // try again to reuse hole
-            assert(hitIndex1 != _bins.length, "no null or hole slot");
+            version(unittest) assert(hitIndex1 != _bins.length, "no null or hole slot");
             move(element,
                  _bins[hitIndex1]);
             static if (!hasAddressKey)
@@ -1301,7 +1301,7 @@ private:
     private size_t powerOf2Mask() const
     {
         immutable typeof(return) mask = _bins.length - 1;
-        assert((~mask ^ mask) == typeof(mask).max); // isPowerOf2(_bins.length)
+        version(unittest) assert((~mask ^ mask) == typeof(mask).max); // isPowerOf2(_bins.length)
         return mask;
     }
 
@@ -1311,10 +1311,10 @@ private:
     pragma(inline, true)
     private size_t tryFindIndexOfKeyOrVacantKeySkippingHoles(const scope K key) const @trusted
     {
-        assert(!key.isNull);
+        version(unittest) assert(!key.isNull);
         static if (hasAddressKey)
         {
-            assert(!isHoleKeyConstant(key));
+            version(unittest) assert(!isHoleKeyConstant(key));
         }
         static if (isCopyable!T)
         {
@@ -1352,10 +1352,10 @@ private:
 
     private size_t tryFindHoleOrNullForKey(const scope K key) const @trusted
     {
-        assert(!key.isNull);
+        version(unittest) assert(!key.isNull);
         static if (hasAddressKey)
         {
-            assert(!isHoleKeyConstant(key));
+            version(unittest) assert(!isHoleKeyConstant(key));
         }
         static if (isCopyable!T)
         {
@@ -1395,7 +1395,7 @@ private:
     pragma(inline, true)
     private bool isOccupiedAtIndex(size_t index) const @trusted
     {
-        assert(index < _bins.length);
+        version(unittest) assert(index < _bins.length);
         static if (!hasAddressKey)
         {
             return (!hasHoleAtPtrIndex(_holesPtr, index) &&

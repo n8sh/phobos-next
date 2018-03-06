@@ -22,7 +22,7 @@ size_t triangularProbeFromIndex(alias predicate,
     if (is(typeof(unaryFun!predicate(T.init))) ||
         is(typeof(binaryFun!predicate(size_t.init, T.init))))
 {
-    immutable typeof(return) mask = haystack.length - 1;
+    immutable mask = haystack.length - 1;
     assert((~mask ^ mask) == typeof(return).max); // std.math.isPowerOf2(haystack.length)
 
     // search using triangular numbers as increments

@@ -61,9 +61,10 @@ struct OpenHashMapOrSet(K, V = void,
      * the a specific value `holeKeyConstant`.
      */
     enum hasAddressKey = (is(K == class) || isPointer!K);
+
     static if (hasAddressKey)
     {
-        enum holeKeyConstantOffset = 0x1;
+        enum holeKeyOffset = 0x1;
 
         /**
          * See also: https://forum.dlang.org/post/p7726n$2apd$1@digitalmars.com
@@ -72,14 +73,14 @@ struct OpenHashMapOrSet(K, V = void,
         pragma(inline, true)
         static K holeKeyConstant() @trusted pure nothrow @nogc
         {
-            return cast(K)((cast(size_t*)null) + holeKeyConstantOffset); // indicates a lazily deleted key
+            return cast(K)((cast(size_t*)null) + holeKeyOffset); // indicates a lazily deleted key
         }
 
         pragma(inline, true)
         static bool isHoleKeyConstant(const scope K key) @trusted pure nothrow @nogc
         {
             return (cast(const(void)*)key is
-                    cast(const(void)*)holeKeyConstantOffset);
+                    cast(const(void)*)holeKeyOffset);
         }
 
         /** TODO make these work

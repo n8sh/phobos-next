@@ -504,7 +504,6 @@ struct OpenHashMapOrSet(K, V = void,
         {
             gc_removeRange(bins.ptr);
         }
-
         static if (__traits(hasMember, Allocator, "deallocatePtr"))
         {
             Allocator.instance.deallocatePtr(bins.ptr);
@@ -704,21 +703,19 @@ struct OpenHashMapOrSet(K, V = void,
     {
         assert(newCapacity > _bins.length);
         immutable powerOf2newCapacity = nextPow2(newCapacity);
+        immutable newByteCount = T.sizeof*powerOf2newCapacity;
 
-        static if (mustAddGCRange!T)
-        {
-            gc_removeRange(_bins.ptr);
-        }
-
+        const oldBinsPtr = _bins.ptr;
         immutable oldLength = _bins.length;
+
         auto rawBins = cast(void[])_bins;
-        if (Allocator.instance.reallocate(rawBins, T.sizeof*powerOf2newCapacity))
+        if (Allocator.instance.reallocate(rawBins, newByteCount))
         {
             _bins = cast(T[])rawBins;
             static if (mustAddGCRange!T)
             {
-                immutable byteCount = T.sizeof*_bins.length;
-                gc_addRange(_bins.ptr, byteCount);
+                gc_removeRange(oldBinsPtr);
+                gc_addRange(_bins.ptr, newByteCount);
             }
 
             static if (!hasAddressKey)

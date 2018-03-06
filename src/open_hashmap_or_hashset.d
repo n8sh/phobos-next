@@ -525,7 +525,7 @@ struct OpenHashMapOrSet(K, V = void,
     bool contains()(const scope K key) const // template-lazy, auto ref here makes things slow
     {
         assert(!key.isNull);
-        immutable hitIndex = tryFindIndexOfKeyOrVacantKeySkippingHoles(key);
+        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
         return (hitIndex != _bins.length &&
                 isOccupiedAtIndex(hitIndex));
     }
@@ -811,12 +811,12 @@ struct OpenHashMapOrSet(K, V = void,
     {
         version(unittest) assert(!keyOf(element).isNull);
 
-        immutable hitIndex = tryFindIndexOfKeyOrVacantKeySkippingHoles(keyOf(element));
+        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(keyOf(element));
         version(unittest) assert(hitIndex != _bins.length, "no free slot");
 
         if (keyOf(_bins[hitIndex]).isNull)
         {
-            immutable hitIndex1 = tryFindHoleOrNullForKey(keyOf(element)); // try again to reuse hole
+            immutable hitIndex1 = indexOfHoleOrNullForKey(keyOf(element)); // try again to reuse hole
             version(unittest) assert(hitIndex1 != _bins.length, "no null or hole slot");
             move(element,
                  _bins[hitIndex1]);
@@ -874,7 +874,7 @@ struct OpenHashMapOrSet(K, V = void,
             if (op == "in")
         {
             assert(!key.isNull);
-            immutable hitIndex = tryFindIndexOfKeyOrVacantKeySkippingHoles(key);
+            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
             return (hitIndex != _bins.length &&
                     isOccupiedAtIndex(hitIndex)) ? &_bins[hitIndex] : null;
         }
@@ -960,7 +960,7 @@ struct OpenHashMapOrSet(K, V = void,
         scope inout(V)* opBinaryRight(string op)(const scope K key) inout return // auto ref here makes things slow
             if (op == "in")
         {
-            immutable hitIndex = tryFindIndexOfKeyOrVacantKeySkippingHoles(key);
+            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
             if (hitIndex != _bins.length &&
                 isOccupiedAtIndex(hitIndex))
             {
@@ -1072,7 +1072,7 @@ struct OpenHashMapOrSet(K, V = void,
         pragma(inline, true)    // LDC must have this
         scope ref inout(V) opIndex()(const scope K key) inout return // auto ref here makes things slow
         {
-            immutable hitIndex = tryFindIndexOfKeyOrVacantKeySkippingHoles(key);
+            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
             if (hitIndex != _bins.length &&
                 isOccupiedAtIndex(hitIndex))
             {
@@ -1150,7 +1150,7 @@ struct OpenHashMapOrSet(K, V = void,
     */
     bool remove()(const scope K key) // template-lazy
     {
-        immutable hitIndex = tryFindIndexOfKeyOrVacantKeySkippingHoles(key);
+        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
         if (hitIndex != _bins.length &&
             isOccupiedAtIndex(hitIndex))
         {
@@ -1223,7 +1223,7 @@ private:
      * lazily deleted slots.
      */
     pragma(inline, true)
-    private size_t tryFindIndexOfKeyOrVacantKeySkippingHoles(const scope K key) const @trusted
+    private size_t indexOfKeyOrVacancySkippingHoles(const scope K key) const @trusted
     {
         version(unittest) assert(!key.isNull);
         static if (hasAddressKey)
@@ -1264,7 +1264,7 @@ private:
         return _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key));
     }
 
-    private size_t tryFindHoleOrNullForKey(const scope K key) const @trusted
+    private size_t indexOfHoleOrNullForKey(const scope K key) const @trusted
     {
         version(unittest) assert(!key.isNull);
         static if (hasAddressKey)

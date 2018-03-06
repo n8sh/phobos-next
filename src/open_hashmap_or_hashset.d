@@ -702,6 +702,7 @@ struct OpenHashMapOrSet(K, V = void,
         @trusted
     {
         assert(newCapacity > _bins.length);
+
         immutable powerOf2newCapacity = nextPow2(newCapacity);
         immutable newByteCount = T.sizeof*powerOf2newCapacity;
 

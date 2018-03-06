@@ -1344,6 +1344,11 @@ pragma(inline, true):
         return table.length - iterationCounter;
     }
 
+    @property typeof(this) save() // ForwardRange
+    {
+        return this;
+    }
+
     pragma(inline)
     void popFront()
     {
@@ -1353,11 +1358,7 @@ pragma(inline, true):
         iterationCounter += 1;
     }
 
-    @property typeof(this) save() // ForwardRange
-    {
-        return this;
-    }
-
+    pragma(inline)
     private void findNextNonEmptyBin()
     {
         while (iterationIndex != (*table).binCount &&
@@ -1399,6 +1400,7 @@ pragma(inline, true):
         iterationCounter += 1;
     }
 
+    pragma(inline)
     private void findNextNonEmptyBin()
     {
         while (iterationIndex != table.binCount &&

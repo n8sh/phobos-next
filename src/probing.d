@@ -32,7 +32,7 @@ size_t triangularProbeFromIndex(alias predicate,
         static if (assumeNotFull)
         {
             assert(indexIncrement != haystack.length,
-                   "cannot use sentinel-based search when haystack is full");
+                   "cannot use sentinel-based search when no element `haystack` matches `predicate`");
         }
         else
         {

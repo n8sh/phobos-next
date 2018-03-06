@@ -294,6 +294,7 @@ struct OpenHashMapOrSet(K, V = void,
         typeof(this) dup()() const // template-lazy
             @trusted
         {
+            dln("dup");
             T[] binsCopy = cast(T[])allocateUninitializedBins(_bins.length);
             foreach (immutable index, ref element; _bins)
             {
@@ -310,6 +311,17 @@ struct OpenHashMapOrSet(K, V = void,
                 }
                 else
                 {
+                    version(unittest)
+                    {
+                        static if (!hasAddressKey)
+                        {
+                            assert(!hasHoleAtPtrIndex(_holesPtr, index));
+                        }
+                        else
+                        {
+                            assert(!isHoleKeyConstant(keyOf(_bins[index])));
+                        }
+                    }
                     static if (hasElaborateDestructor!T)
                     {
                         emplace(&binsCopy[index], element);
@@ -1489,7 +1501,6 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {
-    version(show) dln("");
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
 
@@ -1531,7 +1542,6 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 /// r-value and r-value intersection
 @safe pure nothrow @nogc unittest
 {
-    version(show) dln("");
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
 
@@ -1555,7 +1565,6 @@ auto intersectWith(C1, C2)(ref C1 x,
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {
-    version(show) dln("");
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
 
@@ -1595,7 +1604,6 @@ alias range = byElement;        // EMSI-container naming
 /// make range from l-value and r-value. element access is always const
 pure nothrow @nogc unittest
 {
-    version(show) dln("");
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
 
@@ -1612,7 +1620,6 @@ pure nothrow @nogc unittest
     assert(x.byElement.count == x.length);
     foreach (e; x.byElement)    // from l-value
     {
-        dln("e:", e.isNull);
         assert(x.contains(e));
         static assert(is(typeof(e) == const(K))); // always const access
     }
@@ -1636,7 +1643,6 @@ pure nothrow @nogc unittest
 /// range checking
 @trusted pure unittest
 {
-    version(show) dln("");
     immutable n = 11;
 
     alias K = Nullable!(uint, uint.max);
@@ -1681,7 +1687,6 @@ pure nothrow @nogc unittest
 /// class as value
 @trusted pure unittest
 {
-    version(show) dln("");
     immutable n = 11;
 
     alias K = Nullable!(uint, uint.max);
@@ -1736,7 +1741,6 @@ pure nothrow @nogc unittest
 /// constness inference of ranges
 pure nothrow unittest
 {
-    version(show) dln("");
     alias K = Nullable!(uint, uint.max);
     class V
     {
@@ -1768,7 +1772,6 @@ pure nothrow unittest
 /// range key constness and value mutability with `class` value
 pure nothrow unittest
 {
-    version(show) dln("");
     struct S
     {
         uint value;
@@ -1821,7 +1824,6 @@ pure nothrow unittest
 /// range key constness and value mutability with `class` key and `class` value
 pure nothrow unittest
 {
-    version(show) dln("");
     class K
     {
         this(uint value)
@@ -1875,7 +1877,6 @@ pure nothrow unittest
 /// range key constness and value mutability with `class` key and `class` value
 pure nothrow unittest
 {
-    version(show) dln("");
     class K
     {
         this(uint value)
@@ -1954,7 +1955,6 @@ version(unittest)
 /// test various things
 @trusted unittest
 {
-    version(show) dln("");
     const n = 600;
 
     void testEmptyAll(K, V, X)(ref X x, size_t n,
@@ -2038,44 +2038,52 @@ version(unittest)
 
     static class SomeSimpleClass
     {
-        @safe pure nothrow @nogc:
+        @safe pure nothrow @nogc
         this(ulong value)
         {
             this._value = value;
         }
+
+        @safe pure nothrow @nogc
         ulong get() const
         {
             return _value;
         }
+
+        @property void toString(scope void delegate(const(char)[]) sink) const
+        {
+            import std.format : formattedWrite;
+            sink.formattedWrite(typeof(this).stringof,
+                                "(%s)", _value);
+        }
+
         private ulong _value;
     }
 
     import std.meta : AliasSeq;
 
+    static assert(mustAddGCRange!string);
+
     foreach (K; AliasSeq!(NullableUlong,
                           SomeSimpleClass))
     {
-        foreach (V; AliasSeq!(void, string))
+        foreach (V; AliasSeq!(void, /*TODO string*/))
         {
             dln("K:", K.stringof,
                 " V:", V.stringof);
 
             alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
 
-            dln();
             auto k11 = make!K(11);
             auto k12 = make!K(12);
             auto k13 = make!K(13);
-            dln();
 
             static if (!X.hasValue)
             {
-                dln();
                 auto x = X.withElements([k11, k12, k13].s);
 
                 import std.algorithm : count;
                 auto xr = x.byElement;
-                dln();
 
                 alias R = typeof(xr);
                 import std.range : isInputRange;
@@ -2086,11 +2094,9 @@ version(unittest)
                 static assert(is(typeof((R xr) => xr.front)));
                 static assert(!is(ReturnType!((R xr) => xr.front) == void));
                 static assert(is(typeof((R xr) => xr.popFront)));
-                dln();
 
                 static assert(isInputRange!(typeof(xr)));
 
-                dln();
                 assert(x.byElement.count == 3);
 
                 X y;
@@ -2098,10 +2104,8 @@ version(unittest)
                 foreach (ref e; x.byElement)
                 {
                     import dbgio;
-                    dln("ix:", ix, " e:", e.get, " K:", K.stringof, " V:", V.stringof);
                     assert(x.contains(e));
                     assert(!y.contains(e));
-                    dln();
                     static if (is(K == class))
                     {
                         y.insert(cast(K)e); // ugly but ok in tests
@@ -2109,12 +2113,6 @@ version(unittest)
                     else
                     {
                         y.insert(e);
-                    }
-                    dln();
-                    import std.algorithm : map;
-                    static if (is(K == class))
-                    {
-                        dln("bins:", y._bins[].map!(_ => _ !is null ? _.get : 0));
                     }
                     assert(y.contains(e));
                     ix++;
@@ -2174,8 +2172,6 @@ version(unittest)
                 }
             }
 
-            dln();
-
             import container_traits : mustAddGCRange;
             static if (X.hasValue &&
                        is(V == string))
@@ -2192,8 +2188,6 @@ version(unittest)
                 }
             }
 
-            dln();
-
             auto x1 = X();            // start empty
 
             // fill x1
@@ -2201,9 +2195,23 @@ version(unittest)
             import std.array : Appender;
             Appender!(K[]) keys;
 
-            dln();
+            import core.memory : GC;
+            GC.disable();
+            dln("TODO remove disabling of GC");
+
+            dln(X.stringof);
             foreach (immutable key_; 0 .. n)
             {
+                dln("key_:", key_);
+                static if (X.hasValue)
+                {
+                    if (key_ == 2)
+                    {
+                        dln("before");
+                        dln(x1.byKeyValue);
+                    }
+                }
+
                 auto key = make!K(key_);
                 keys.put(key);
 

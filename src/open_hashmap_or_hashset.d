@@ -413,6 +413,7 @@ struct OpenHashMapOrSet(K, V = void,
 
             void untagHoleAtIndex(size_t index) @trusted
             {
+                assert(index < _bins.length);
                 if (_holesPtr !is null)
                 {
                     btr(_holesPtr, index);
@@ -429,6 +430,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         void makeHoleAtIndex(size_t index) @trusted
         {
+            assert(index < _bins.length);
             static if (!hasAddressKey)
             {
                 if (_holesPtr is null) // lazy allocation
@@ -1393,6 +1395,7 @@ private:
     pragma(inline, true)
     private bool isOccupiedAtIndex(size_t index) const @trusted
     {
+        assert(index < _bins.length);
         static if (!hasAddressKey)
         {
             return (!hasHoleAtPtrIndex(_holesPtr, index) &&

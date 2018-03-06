@@ -21,8 +21,13 @@ size_t triangularProbeFromIndex(alias predicate,
 
     // search using triangular numbers as increments
     size_t indexIncrement = 0;
-    while (indexIncrement != haystack.length) // TODO replace with an assert
+    while (true)
     {
+        // TODO replace with an assert
+        if (indexIncrement == haystack.length)
+        {
+            return haystack.length;
+        }
         // TODO assert(indexIncrement != haystack.length, "haystack is full");
 
         static if (is(typeof(unaryFun!predicate(T.init))))
@@ -46,8 +51,6 @@ size_t triangularProbeFromIndex(alias predicate,
         indexIncrement += 1;
         index = (index + indexIncrement) & mask; // next triangular number modulo length
     }
-
-    return haystack.length;
 }
 
 /// empty case

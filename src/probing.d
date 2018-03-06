@@ -32,7 +32,7 @@ size_t triangularProbeFromIndex(alias predicate,
         static if (assumeNotFull)
         {
             assert(indexIncrement != haystack.length,
-                   "no element in `haystack` matches `predicate`");
+                   "no element in `haystack` matches `predicate`, cannot used sentinel-based probing");
         }
         else
         {

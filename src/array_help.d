@@ -134,7 +134,7 @@ private enum wordBits = 8*wordBytes;
  * `bitCount` bits.
  */
 pragma(inline, true)
-private static size_t wordCountOfBitCount(size_t bitCount)
+static size_t wordCountOfBitCount(size_t bitCount)
     @safe pure nothrow @nogc
 {
     return ((bitCount / wordBits) +
@@ -142,7 +142,7 @@ private static size_t wordCountOfBitCount(size_t bitCount)
 }
 
 pragma(inline, true)
-private static size_t binBlockBytes(size_t bitCount)
+static size_t binBlockBytes(size_t bitCount)
     @safe pure nothrow @nogc
 {
     return wordBytes*wordCountOfBitCount(bitCount);

@@ -905,7 +905,7 @@ struct OpenHashMapOrSet(K, V = void,
         private void findNextNonEmptyBin()
         {
             while (iterationIndex != (*table).binCount &&
-                   (*table).isOccupiedAtIndex(iterationIndex))
+                   !(*table).isOccupiedAtIndex(iterationIndex))
             {
                 iterationIndex += 1;
             }
@@ -946,7 +946,7 @@ struct OpenHashMapOrSet(K, V = void,
         private void findNextNonEmptyBin()
         {
             while (iterationIndex != table.binCount &&
-                   table.isOccupiedAtIndex(iterationIndex))
+                   !table.isOccupiedAtIndex(iterationIndex))
             {
                 iterationIndex += 1;
             }
@@ -1598,20 +1598,27 @@ pure nothrow @nogc unittest
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
 
-    immutable a = [K(11), K(22), K(33)].s;
+    auto k11 = K(11);
+    auto k22 = K(22);
+    auto k33 = K(33);
+    immutable ks = [k11, k22, k33].s;
+    auto k44 = K(44);
 
     // mutable
-    auto x = X.withElements(a);
+    auto x = X.withElements(ks);
+    assert(!x.contains(k44));
     assert(x.length == 3);
     assert(x.byElement.count == x.length);
     foreach (e; x.byElement)    // from l-value
     {
+        dln("e:", e.isNull);
         assert(x.contains(e));
         static assert(is(typeof(e) == const(K))); // always const access
     }
 
     // const
-    const y = X.withElements(a);
+    const y = X.withElements(ks);
+    assert(!x.contains(k44));
     foreach (e; y.byElement)    // from l-value
     {
         assert(y.contains(e));

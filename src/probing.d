@@ -8,8 +8,9 @@ import std.functional : unaryFun, binaryFun;
  * steps of triangular numbers, 0,1,3,6,10,15,21, ... .
  *
  * If `assumeNotFull` is `true` it is assumed that at least one element in
- * `haystack` matches `predicate`, thereby enabling sentinel-based probing which
- * doesn't range checking via `indexIncrement != haystack.length`.
+ * `haystack` matches `predicate`, thereby enabling sentinel-based probing. Such
+ * probing doesn't require in-loop range checking via `indexIncrement !=
+ * haystack.length` and can be made faster.
  *
  * Returns: index into `haystack` upon hit, `haystack.length` upon miss.
  * Note: `haystack.length` must be a power of two (or 1 or zero).

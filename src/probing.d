@@ -25,6 +25,11 @@ size_t triangularProbeFromIndex(alias predicate,
     immutable mask = haystack.length - 1;
     assert((~mask ^ mask) == typeof(return).max); // std.math.isPowerOf2(haystack.length)
 
+    static if (assumeNonFullHaystack)
+    {
+        assert(haystack.length != 0, "haystack cannot be empty");
+    }
+
     // search using triangular numbers as increments
     size_t indexIncrement = 0;
     while (true)

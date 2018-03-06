@@ -295,28 +295,28 @@ struct OpenHashMapOrSet(K, V = void,
             @trusted
         {
             T[] binsCopy = cast(T[])allocateUninitializedBins(_bins.length);
-            foreach (immutable elementIndex, ref element; _bins)
+            foreach (immutable index, ref element; _bins)
             {
                 /** TODO functionize to `emplaceAll` in emplace_all.d. See also:
                  * http://forum.dlang.org/post/xxigbqqflzwfgycrclyq@forum.dlang.org
                  */
                 if (keyOf(element).isNull)
                 {
-                    keyOf(binsCopy[elementIndex]).nullify();
+                    keyOf(binsCopy[index]).nullify();
                     static if (hasValue)
                     {
-                        emplace(&valueOf(binsCopy[elementIndex])); // TODO shouldn't be needed when key is null
+                        emplace(&valueOf(binsCopy[index])); // TODO shouldn't be needed when key is null
                     }
                 }
                 else
                 {
                     static if (hasElaborateDestructor!T)
                     {
-                        emplace(&binsCopy[elementIndex], element);
+                        emplace(&binsCopy[index], element);
                     }
                     else
                     {
-                        binsCopy[elementIndex] = cast(T)element;
+                        binsCopy[index] = cast(T)element;
                     }
                 }
             }

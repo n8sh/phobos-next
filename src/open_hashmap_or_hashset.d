@@ -866,93 +866,6 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    /** L-value element reference (and in turn range iterator).
-     */
-    static private struct LvalueElementRef(SomeOpenHashMapOrSet)
-    {
-        SomeOpenHashMapOrSet* table;
-        size_t iterationIndex;  // index to bin inside `table`
-        size_t iterationCounter; // counter over number of elements popped
-
-        pragma(inline, true):
-
-        /// Check if empty.
-        @property bool empty() const @safe pure nothrow @nogc
-        {
-            return iterationIndex == table.binCount;
-        }
-
-        /// Get number of element left to pop.
-        @property size_t length() const @safe pure nothrow @nogc
-        {
-            return table.length - iterationCounter;
-        }
-
-        pragma(inline)
-        void popFront()
-        {
-            assert(!empty);
-            iterationIndex += 1;
-            findNextNonEmptyBin();
-            iterationCounter += 1;
-        }
-
-        @property typeof(this) save() // ForwardRange
-        {
-            return this;
-        }
-
-        private void findNextNonEmptyBin()
-        {
-            while (iterationIndex != (*table).binCount &&
-                   !(*table).isOccupiedAtIndex(iterationIndex))
-            {
-                iterationIndex += 1;
-            }
-        }
-    }
-
-    /** R-value element reference (and in turn range iterator).
-     */
-    static private struct RvalueElementRef(SomeOpenHashMapOrSet)
-    {
-        SomeOpenHashMapOrSet table; // owned
-        size_t iterationIndex;  // index to bin inside table
-        size_t iterationCounter; // counter over number of elements popped
-
-        pragma(inline, true):
-
-        /// Check if empty.
-        @property bool empty() const @safe pure nothrow @nogc
-        {
-            return iterationIndex == table.binCount;
-        }
-
-        /// Get number of element left to pop.
-        @property size_t length() const @safe pure nothrow @nogc
-        {
-            return table.length - iterationCounter;
-        }
-
-        pragma(inline)
-        void popFront()
-        {
-            assert(!empty);
-            iterationIndex += 1;
-            findNextNonEmptyBin();
-            iterationCounter += 1;
-        }
-
-        private void findNextNonEmptyBin()
-        {
-            while (iterationIndex != table.binCount &&
-                   !table.isOccupiedAtIndex(iterationIndex))
-            {
-                iterationIndex += 1;
-            }
-        }
-    }
-
     static if (!hasValue)       // HashSet
     {
         pragma(inline, true)
@@ -1409,6 +1322,93 @@ private:
     }
 }
 
+/** L-value element reference (and in turn range iterator).
+ */
+static private struct LvalueElementRef(SomeOpenHashMapOrSet)
+{
+    SomeOpenHashMapOrSet* table;
+    size_t iterationIndex;  // index to bin inside `table`
+    size_t iterationCounter; // counter over number of elements popped
+
+pragma(inline, true):
+
+    /// Check if empty.
+    @property bool empty() const @safe pure nothrow @nogc
+    {
+        return iterationIndex == table.binCount;
+    }
+
+    /// Get number of element left to pop.
+    @property size_t length() const @safe pure nothrow @nogc
+    {
+        return table.length - iterationCounter;
+    }
+
+    pragma(inline)
+    void popFront()
+    {
+        assert(!empty);
+        iterationIndex += 1;
+        findNextNonEmptyBin();
+        iterationCounter += 1;
+    }
+
+    @property typeof(this) save() // ForwardRange
+    {
+        return this;
+    }
+
+    private void findNextNonEmptyBin()
+    {
+        while (iterationIndex != (*table).binCount &&
+               !(*table).isOccupiedAtIndex(iterationIndex))
+        {
+            iterationIndex += 1;
+        }
+    }
+}
+
+/** R-value element reference (and in turn range iterator).
+ */
+static private struct RvalueElementRef(SomeOpenHashMapOrSet)
+{
+    SomeOpenHashMapOrSet table; // owned
+    size_t iterationIndex;  // index to bin inside table
+    size_t iterationCounter; // counter over number of elements popped
+
+pragma(inline, true):
+
+    /// Check if empty.
+    @property bool empty() const @safe pure nothrow @nogc
+    {
+        return iterationIndex == table.binCount;
+    }
+
+    /// Get number of element left to pop.
+    @property size_t length() const @safe pure nothrow @nogc
+    {
+        return table.length - iterationCounter;
+    }
+
+    pragma(inline)
+    void popFront()
+    {
+        assert(!empty);
+        iterationIndex += 1;
+        findNextNonEmptyBin();
+        iterationCounter += 1;
+    }
+
+    private void findNextNonEmptyBin()
+    {
+        while (iterationIndex != table.binCount &&
+               !table.isOccupiedAtIndex(iterationIndex))
+        {
+            iterationIndex += 1;
+        }
+    }
+}
+
 /** Immutable hash set storing keys of type `K`.
  */
 alias OpenHashSet(K, alias hasher = hashOf,
@@ -1577,14 +1577,14 @@ auto byElement(SomeOpenHashMapOrSet)(auto ref inout(SomeOpenHashMapOrSet) c)
     alias C = const(SomeOpenHashMapOrSet);
     static if (__traits(isRef, c))
     {
-        auto result = C.ByLvalueElement!C((C.LvalueElementRef!C(cast(C*)&c)));
+        auto result = C.ByLvalueElement!C((LvalueElementRef!C(cast(C*)&c)));
         result.findNextNonEmptyBin();
         return result;
     }
     else
     {
         import std.algorithm.mutation : move;
-        auto result = C.ByRvalueElement!C((C.RvalueElementRef!C(move(*(cast(SomeOpenHashMapOrSet*)&c))))); // reinterpret
+        auto result = C.ByRvalueElement!C((RvalueElementRef!C(move(*(cast(SomeOpenHashMapOrSet*)&c))))); // reinterpret
         result.findNextNonEmptyBin();
         return move(result);
     }

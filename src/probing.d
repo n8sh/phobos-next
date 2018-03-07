@@ -4,11 +4,11 @@ module probing;
 
 import std.functional : unaryFun, binaryFun;
 
-/** Search for a key in `haystack` matching `predicate` starting at `index` in
- * steps of triangular numbers, 0,1,3,6,10,15,21, ... .
+/** Search for a key in `haystack` matching predicate `pred` starting at `index`
+ * in steps of triangular numbers, 0,1,3,6,10,15,21, ... .
  *
  * If `assumeNonFullHaystack` is `true` it is assumed that at least one element
- * in `haystack` matches `predicate`, thereby enabling sentinel-based
+ * in `haystack` matches `pred`, thereby enabling sentinel-based
  * probing. Such probing doesn't require in-loop range checking via
  * `indexIncrement != haystack.length` and can be made faster.
  *
@@ -16,11 +16,11 @@ import std.functional : unaryFun, binaryFun;
  * Note: `haystack.length` must be a power of two (or 1 or zero).
  * See also: https://fgiesen.wordpress.com/2015/02/22/triangular-numbers-mod-2n/
  */
-size_t triangularProbeFromIndex(alias predicate,
+size_t triangularProbeFromIndex(alias pred,
                                 alias assumeNonFullHaystack = false,
                                 T)(const scope T[] haystack, size_t index)
-    if (is(typeof(unaryFun!predicate(T.init))) ||
-        is(typeof(binaryFun!predicate(size_t.init, T.init))))
+    if (is(typeof(unaryFun!pred(T.init))) ||
+        is(typeof(binaryFun!pred(size_t.init, T.init))))
 {
     immutable mask = haystack.length - 1;
     assert((~mask ^ mask) == typeof(return).max); // std.math.isPowerOf2(haystack.length)
@@ -37,7 +37,7 @@ size_t triangularProbeFromIndex(alias predicate,
         static if (assumeNonFullHaystack)
         {
             assert(indexIncrement != haystack.length,
-                   "no element in `haystack` matches `predicate`, cannot used sentinel-based probing");
+                   "no element in `haystack` matches `pred`, cannot used sentinel-based probing");
         }
         else
         {
@@ -47,23 +47,23 @@ size_t triangularProbeFromIndex(alias predicate,
             }
         }
 
-        static if (is(typeof(unaryFun!predicate(T.init))))
+        static if (is(typeof(unaryFun!pred(T.init))))
         {
-            if (unaryFun!predicate(haystack[index]))
+            if (unaryFun!pred(haystack[index]))
             {
                 return index;
             }
         }
-        else static if (is(typeof(binaryFun!predicate(size_t.min, T.init))))
+        else static if (is(typeof(binaryFun!pred(size_t.min, T.init))))
         {
-            if (binaryFun!predicate(index, haystack[index]))
+            if (binaryFun!pred(index, haystack[index]))
             {
                 return index;
             }
         }
         else
         {
-            static assert(0, "unsupported predicate");
+            static assert(0, "unsupported pred");
         }
         indexIncrement += 1;
         index = (index + indexIncrement) & mask; // next triangular number modulo length

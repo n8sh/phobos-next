@@ -4,6 +4,8 @@
     Copyright: Per Nordlöw 2017-.
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
     Authors: $(WEB Per Nordlöw)
+
+    TODO use https://dlang.org/changelog/2.079.0.html#default_after_variadic
 */
 module dbgio;
 

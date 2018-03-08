@@ -4,8 +4,6 @@
     Copyright: Per Nordlöw 2017-.
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
     Authors: $(WEB Per Nordlöw)
-
-    TODO use https://dlang.org/changelog/2.079.0.html#default_after_variadic
 */
 module dbgio;
 
@@ -51,6 +49,16 @@ void dln(string file = __FILE__,
 
 /** Show the symbol name and variable of $(D Args).
     See also: http://forum.dlang.org/thread/yczwqrbkxdiqijtiynrh@forum.dlang.org?page=1
+
+    TODO is using this https://dlang.org/changelog/2.079.0.html#default_after_variadic preferred?
+
+    TODO instead use
+
+    void show_(Args...)(Args args,
+                    string file = __FILE__,
+                    uint line = __LINE__,
+                    string fun = __FUNCTION__)
+
  */
 template show(Args...)
     if (Args.length >= 1)

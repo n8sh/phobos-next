@@ -21,7 +21,7 @@ public import std.traits : isCopyable;
 template isGCPointer(T)
 {
     bool isGCPointer(const T* ptr)
-        @trusted nothrow            // TODO @nogc?
+        @trusted nothrow @nogc
     {
         import core.memory : GC;
         return cast(bool)GC.addrOf(ptr);

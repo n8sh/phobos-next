@@ -64,7 +64,9 @@ enum isIntegralBijectableType(T) = staticIndexOf!(Unqual!T, IntegralBijectableTy
 
 pragma(inline) @safe pure nothrow @nogc:
 
-/** Biject (Shift) Signed $(D a) "up" to Unsigned (before radix sorting). */
+/** Biject (shift) a signed `a` "up" to the corresponding unsigned type (for
+ * instance before radix sorting an array of `a`).
+ */
 auto bijectToUnsigned(T)(T a) @trusted
     if (isIntegralBijectableType!T)
 {
@@ -95,7 +97,8 @@ auto bijectToUnsigned(T)(T a) @trusted
 }
 
 /** Same as `bijectToUnsigned` with extra argument `descending` that reverses
-    order. */
+ * order.
+ */
 auto bijectToUnsigned(T)(T a, bool descending)
     if (isIntegralBijectableType!T)
 {
@@ -103,7 +106,9 @@ auto bijectToUnsigned(T)(T a, bool descending)
     return descending ? ua.max-ua : ua;
 }
 
-/** Biject (Shift) Unsigned  $(D a) "back down" to Signed (after radix sorting). */
+/** Biject (Shift) an unsigned `a` "back down" to the corresponding signed type
+ * (for instance after radix sorting an array of `a`).
+ */
 void bijectFromUnsigned(U)(U a, ref U b)
     if (isUnsigned!U)
 {
@@ -169,8 +174,10 @@ void bijectFromUnsigned(U, V)(U a, ref V b)
     }
 }
 
-/** Map Bits of Floating Point Number \p a to Unsigned Integer that can be Radix Sorted.
+/** Map bits of floating point number \p a to unsigned integer that can be radix sorted.
+ *
  * Also finds \em sign of \p a.
+ *
  * - if it's 1 (negative float), it flips all bits.
  * - if it's 0 (positive float), it flips the sign only.
  */
@@ -178,8 +185,10 @@ uint    ff(uint f) { return f ^ (-cast(uint)  (f >> (8*f.sizeof-1)) | 0x80000000
 /// ditto
 ulong  ff(ulong f) { return f ^ (-cast(ulong) (f >> (8*f.sizeof-1)) | 0x8000000000000000); }
 
-/** Map a Floating Point Number \p a Back from Radix Sorting
+/** Map a floating point number \p a back from radix sorting
+ *
  * (Inverse of \c radix_flip_float()).
+ *
  * - if sign is 1 (negative), it flips the sign bit back
  * - if sign is 0 (positive), it flips all bits back
  */

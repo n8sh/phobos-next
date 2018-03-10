@@ -81,7 +81,7 @@ version = print;
 
 version(print) import std.stdio: wln = writeln;
 
-/** TODO Use Boundness Policy. */
+/** TODO Use boundness policy. */
 enum Policy { clamped, overflowed, throwed, modulo }
 
 //     TODO Do we need a specific underflow Exception?
@@ -89,27 +89,27 @@ enum Policy { clamped, overflowed, throwed, modulo }
 //     this(string msg) { super(msg); }
 // }
 
-/** Exception thrown when $(D Bound) values overflows or underflows. */
+/** Exception thrown when `Bound` values overflows or underflows. */
 class BoundOverflowException : Exception
 {
     this(string msg) { super(msg); }
 }
 
-/** Check if the value of $(D expr) is known at compile-time.
+/** Check if the value of `expr` is known at compile-time.
     See also: http://forum.dlang.org/thread/owlwzvidwwpsrelpkbok@forum.dlang.org
 */
 enum isCTEable(alias expr) = __traits(compiles, { enum id = expr; });
 
-/** Check if Type $(D T) can wrapped in a $(D Bounded).
+/** Check if type `T` can wrapped in a `Bounded`.
  */
 enum isBoundable(T) = isScalarType!T;
 
-/** Check if Expression $(D expr) is a CT-expression that can be used as a Bound.
+/** Check if expression `expr` is a compile-time-expression that can be used as a `Bound`.
  */
 enum isCTBound(alias expr) = (isBoundable!(typeof(expr)) &&
                               isCTEable!expr);
 
-/** TODO Use this. */
+/** TODO use this. */
 enum areCTBoundable(alias low, alias high) = (isCTBound!low &&
                                               isCTBound!high &&
                                               low < high);
@@ -144,9 +144,9 @@ template PackedNumericType(alias expr)
     }
 }
 
-/** Get Type that can contain the inclusive bound [low, high].
-    If $(D packed) optimize storage for compactness otherwise for speed.
-    If $(D signed) use a signed integer.
+/** Get type that can contain the inclusive bound [`low`, `high`].
+    If `packed` optimize storage for compactness otherwise for speed.
+    If `signed` use a signed integer.
 */
 template BoundsType(alias low,
                     alias high,
@@ -270,12 +270,13 @@ unittest
     static assert(is(BoundsType!(0.0, 10.0) == double));
 }
 
-/** Value of Type `V` bound inside Inclusive Range [low, high].
+/** Value of type `V` bound inside inclusive range [`low`, `high`].
 
-    If $(D optional) is true this stores one extra undefined state (similar to Haskell's Maybe).
+    If `optional` is `true`, this stores one extra undefined state (similar to
+    Haskell's `Maybe`).
 
-    If $(D exceptional) is true range errors will throw a
-    $(D BoundOverflowException), otherwise truncation plus warnings will issued.
+    If `exceptional` is true range errors will throw a `BoundOverflowException`,
+    otherwise truncation plus warnings will issued.
 */
 struct Bound(V,
              alias low,
@@ -296,10 +297,10 @@ struct Bound(V,
                       "high + 1 cannot equal V.max");
     }
 
-    /** Get Low Inclusive Bound. */
+    /** Get low inclusive bound. */
     static auto min() @property @safe pure nothrow { return low; }
 
-    /** Get High Inclusive Bound. */
+    /** Get high inclusive bound. */
     static auto max() @property @safe pure nothrow { return optional ? high - 1 : high; }
 
     static if (isIntegral!V && low >= 0)
@@ -307,14 +308,14 @@ struct Bound(V,
         size_t opCast(U : size_t)() const { return this._value; } // for IndexedBy support
     }
 
-    /** Construct from unbounded value $(D rhs). */
+    /** Construct from unbounded value `rhs`. */
     this(U, string file = __FILE__, int line = __LINE__)(U rhs)
         if (isBoundable!(U))
     {
         checkAssign!(U, file, line)(rhs);
         this._value = cast(V)(rhs - low);
     }
-    /** Assigne from unbounded value $(D rhs). */
+    /** Assigne from unbounded value `rhs`. */
     auto opAssign(U, string file = __FILE__, int line = __LINE__)(U rhs)
         if (areBoundable!(V, U))
     {
@@ -329,7 +330,7 @@ struct Bound(V,
         return value() == rhs;
     }
 
-    /** Construct from $(D Bound) value $(D rhs). */
+    /** Construct from `Bound` value `rhs`. */
     this(U,
          alias low_,
          alias high_)(Bound!(U, low_, high_,
@@ -341,7 +342,7 @@ struct Bound(V,
         this._value = rhs._value + (high - high_);
     }
 
-    /** Assign from $(D Bound) value $(D rhs). */
+    /** Assign from `Bound` value `rhs`. */
     auto opAssign(U,
                   alias low_,
                   alias high_)(Bound!(U, low_, high_,
@@ -413,7 +414,7 @@ struct Bound(V,
         };
     }
 
-    /** Check that assignment from $(D rhs) is ok. */
+    /** Check that assignment from `rhs` is ok. */
     void checkAssign(U, string file = __FILE__, int line = __LINE__)(U rhs)
     {
         if (rhs < min) goto overflow;
@@ -528,9 +529,10 @@ struct Bound(V,
     private V _value;           /// Payload.
 }
 
-/** Instantiate \c Bound from a single expression $(D expr).
-    Makes it easier to add free-contants to existing Bounded variables.
-    */
+/** Instantiate \c Bound from a single expression `expr`.
+ *
+ * Makes it easier to add free-contants to existing Bounded variables.
+ */
 template bound(alias value)
     if (isCTBound!value)
 {
@@ -547,8 +549,10 @@ unittest
 }
 
 /** Instantiator for \c Bound.
-    Bounds $(D low) and $(D high) infer type of internal _value.
-    If $(D packed) optimize storage for compactness otherwise for speed.
+ *
+ * Bounds `low` and `high` infer type of internal _value.
+ * If `packed` optimize storage for compactness otherwise for speed.
+ *
  * \see http://stackoverflow.com/questions/17502664/instantiator-function-for-bound-template-doesnt-compile
  */
 template bound(alias low,
@@ -619,8 +623,9 @@ unittest
     /* TODO static assert(is(typeof(bound!13 + bound!14) == const Bound!(ubyte, 27, 27))); */
 }
 
-/** Return $(D x) with Automatic Packed Saturation.
-    If $(D packed) optimize storage for compactness otherwise for speed.
+/** Return `x` with automatic packed saturation.
+ *
+ * If `packed` optimize storage for compactness otherwise for speed.
  */
 auto saturated(V,
                bool optional = false,
@@ -630,8 +635,9 @@ auto saturated(V,
     return bound!(V.min, V.max, optional, exceptional, packed)(x);
 }
 
-/** Return $(D x) with Automatic Packed Saturation.
-    If $(D packed) optimize storage for compactness otherwise for speed.
+/** Return `x` with automatic packed saturation.
+ *
+ * If `packed` optimize storage for compactness otherwise for speed.
 */
 auto optional(V, bool packed = true)(V x) // TODO inout may be irrelevant here
 {
@@ -729,7 +735,7 @@ unittest
     static assert(is(typeof(abMax) == const Bound!(ubyte, 5, 22)));
 }
 
-/** Calculate Absolute Value of $(D a). */
+/** Calculate absolute value of `a`. */
 auto abs(V,
          alias low,
          alias high,

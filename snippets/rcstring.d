@@ -15,8 +15,8 @@ import core.memory : GC;
 alias RCString = RCXString!(immutable char);
 
 /** Reference Counted Array.
-    Configured with character type $(D E), maximum length for the small string optimization,
-    and the allocation function, which must have the same semantics as $(D realloc).
+    Configured with character type `E`, maximum length for the small string optimization,
+    and the allocation function, which must have the same semantics as `realloc`.
 
     See also: https://github.com/burner/std.rcstring
 */
@@ -354,13 +354,13 @@ public:
         }
     }
 
-    /** Construct a $(D RCXString) from a slice $(D s).
+    /** Construct a `RCXString` from a slice `s`.
 
         If the slice is immutable, assumes the slice is a literal or
         GC-allocated and does NOT copy it internally.
 
-        Warning: Subsequently deallocating $(D s) will cause the $(D RCXString)
-        to dangle. If the slice has $(D const) or mutable characters, creates
+        Warning: Subsequently deallocating `s` will cause the `RCXString`
+        to dangle. If the slice has `const` or mutable characters, creates
         and manages a copy internally.
      */
     this(C)(C[] s)
@@ -586,7 +586,7 @@ public:
         assert(s1.capacity >= 10230);
     }
 
-    /** Appends $(D s) to $(D this).
+    /** Appends `s` to `this`.
      */
     void opOpAssign(string s : "~")(const(ME)[] s)
     {
@@ -670,7 +670,7 @@ public:
         assert(s2 == "123456789_123456789_123456789_123456789_, world!!!");
     }
 
-    /// Returns $(D true) iff $(D this) is empty
+    /// Returns `true` iff `this` is empty
     bool empty() const @nogc
     {
         return !length;
@@ -699,7 +699,7 @@ public:
         }
     }
 
-    /// Returns the first code point of $(D this).
+    /// Returns the first code point of `this`.
     auto front() const @nogc
     {
         assert(!empty);
@@ -714,7 +714,7 @@ public:
         }
     }
 
-    /// Returns the last code point of $(D this).
+    /// Returns the last code point of `this`.
     static if (isString)
     {
         dchar back() const @nogc
@@ -738,7 +738,7 @@ public:
         }
     }
 
-    /// Returns the $(D n)th code unit in $(D this).
+    /// Returns the `n`th code unit in `this`.
     E opIndex(size_t n) const @nogc
     {
         assert(n < length);
@@ -899,7 +899,7 @@ public:
         assert(s2 == "23456789_123456789_123456789_123456789");
     }
 
-    /// Returns the concatenation of $(D this) with $(D s).
+    /// Returns the concatenation of `this` with `s`.
     RCXString opBinary(string s = "~")(const auto ref RCXString s) const
     {
         return this ~ s.asSlice;
@@ -924,7 +924,7 @@ public:
         return result;
     }
 
-    /// Returns the concatenation of $(D s) with $(D this).
+    /// Returns the concatenation of `s` with `this`.
     RCXString opBinaryRight(string s = "~")(const(E)[] s) const
     {
         immutable length = this.length, resultLen = length + s.length;

@@ -7,6 +7,18 @@ struct W(T, size_t n)
     T value;
 }
 
+// @property
+// bool allSameTypeIterativeFun(V...)()
+//     if (V.length >= 2)
+//     // if (allSatisfy!(isType, V))
+// {
+//     foreach (Vi; V[1 .. $])
+//     {
+//         if (!is(Vi == V[0])) { return false; }
+//     }
+//     return true;
+// }
+
 /** Fake comparsion for getting some kind of lower limit on compiler-built-in type comparison. */
 enum allSameTypeFake(Ts...) = is(Ts[0 .. $/2] == Ts[$/2 .. $]);
 

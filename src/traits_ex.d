@@ -91,7 +91,7 @@ template allSameIterative(V...)
         static foreach (Vi; V[1 .. $])
         {
             static if (!is(typeof(allSameIterative) == bool) && // not yet defined
-                       V[0] != Vi)
+                       !isSame!(V[0], Vi))
             {
                 enum allSameIterative = false;
             }
@@ -111,6 +111,11 @@ template allSameIterative(V...)
     static assert( allSameIterative!(42, 42));
     static assert( allSameIterative!(42, 42, 42));
     static assert(!allSameIterative!(42, 43, 42));
+
+    static assert( allSameIterative!(int));
+    static assert( allSameIterative!(int, int));
+    static assert( allSameIterative!(int, int, int));
+    static assert(!allSameIterative!(int, byte, int));
 }
 
 /** Recursive variant of `allSame`.
@@ -1042,6 +1047,34 @@ template ownsItsElements(C)
     import std.range.primitives : ElementType;
     enum ownsItsElements = !isCopyable!C && !hasIndirections!(ElementType!C);
 }
+
+/** Copied from private definition in Phobos' std.meta.
+ */
+private template isSame(ab...)
+    if (ab.length == 2)
+{
+    static if (__traits(compiles, expectType!(ab[0]),
+                                  expectType!(ab[1])))
+    {
+        enum isSame = is(ab[0] == ab[1]);
+    }
+    else static if (!__traits(compiles, expectType!(ab[0])) &&
+                    !__traits(compiles, expectType!(ab[1])) &&
+                     __traits(compiles, expectBool!(ab[0] == ab[1])))
+    {
+        static if (!__traits(compiles, &ab[0]) ||
+                   !__traits(compiles, &ab[1]))
+            enum isSame = (ab[0] == ab[1]);
+        else
+            enum isSame = __traits(isSame, ab[0], ab[1]);
+    }
+    else
+    {
+        enum isSame = __traits(isSame, ab[0], ab[1]);
+    }
+}
+private template expectType(T) {}
+private template expectBool(bool b) {}
 
 version(unittest)
 {

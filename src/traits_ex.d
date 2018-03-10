@@ -78,7 +78,8 @@ template allSame(V...)
     static assert(!allSame!(42, 43, 42));
 }
 
-/** Recursive `allSame`. */
+/** Recursive variant of `allSame`.
+ */
 template allSameRecursive(V...)
     if (isExpressions!(V))
 {

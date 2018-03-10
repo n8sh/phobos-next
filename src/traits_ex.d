@@ -1168,6 +1168,60 @@ private template isSame(ab...)
 private template expectType(T) {}
 private template expectBool(bool b) {}
 
+template anySatisfyIterative(alias F, T...)
+{
+    static if (T.length == 0)
+    {
+        enum anySatisfy = false;
+    }
+    else static if (T.length == 1)
+    {
+        enum anySatisfy = F!(T[0]);
+    }
+    else
+    {
+        static foreach (Ti; T)
+        {
+            static if (!is(typeof(anySatisfyIterative) == bool) && // not yet defined
+                       F!(Ti))
+            {
+                enum anySatisfyIterative = true;
+            }
+        }
+        static if (!is(typeof(anySatisfyIterative) == bool)) // if not yet defined
+        {
+            enum anySatisfyIterative = false;
+        }
+    }
+}
+
+template allSatisfyIterative(alias F, T...)
+{
+    static if (T.length == 0)
+    {
+        enum allSatisfy = false;
+    }
+    else static if (T.length == 1)
+    {
+        enum allSatisfy = F!(T[0]);
+    }
+    else
+    {
+        static foreach (Ti; T)
+        {
+            static if (!is(typeof(allSatisfyIterative) == bool) && // not yet defined
+                       !F!(Ti))
+            {
+                enum allSatisfyIterative = false;
+            }
+        }
+        static if (!is(typeof(allSatisfyIterative) == bool)) // if not yet defined
+        {
+            enum allSatisfyIterative = true;
+        }
+    }
+}
+
 version(unittest)
 {
     import array_help : s;

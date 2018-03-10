@@ -544,7 +544,8 @@ pure @safe unittest
 }
 
 /**
- * Indicates how many elements of a range are mutated.
+ * Indicates how many elements of a range are different from the default element
+ * value.
  *
  * Params:
  *      range = An input range. The elements must be mutable and initializable.

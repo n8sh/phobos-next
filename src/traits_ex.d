@@ -115,6 +115,18 @@ template allSameTypeIterative(V...)
     {
         enum allSameTypeIterative = true;
     }
+    else static if (V.length == 2)
+    {
+        enum allSameTypeIterative = is(V[0] == V[1]);
+    }
+    else static if (V.length == 3)
+    {
+        enum allSameTypeIterative = is(V[0] == V[1]) && is(V[1] == V[2]);
+    }
+    else static if (V.length == 4)
+    {
+        enum allSameTypeIterative = is(V[0] == V[1]) && is(V[1] == V[2]) && is(V[2] == V[3]);
+    }
     else
     {
         static foreach (Vi; V[1 .. $])
@@ -138,8 +150,12 @@ alias allSameType = allSameTypeIterative;
 {
     static assert( allSameTypeIterative!(int));
     static assert( allSameTypeIterative!(int, int));
+
     static assert( allSameTypeIterative!(int, int, int));
     static assert(!allSameTypeIterative!(int, byte, int));
+
+    static assert( allSameTypeIterative!(int, int, int, int));
+    static assert(!allSameTypeIterative!(int, byte, int, byte));
 
     static assert(!allSameTypeIterative!(int, const(int)));
     static assert(!allSameTypeIterative!(byte, const(int)));

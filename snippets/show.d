@@ -12,7 +12,7 @@ enum Format { Text, HTML, };
     return fshow(Format.Text, names, args);
 }
 
-/** Group-Aligned Show of Slices $(D args).
+/** Group-Aligned Show of Slices `args`.
 
     Copyright: Per Nordlöw 2014-.
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
@@ -21,7 +21,7 @@ enum Format { Text, HTML, };
     Use as debug print in algorithms where we need to present slices and their
     relations.
 
-    TODO Calculate $(D names) from $(D args) or $(D args) from $(D names) using Mixins.
+    TODO Calculate `names` from `args` or `args` from `names` using Mixins.
     TODO Generalize to Ranges other than slices!?
     TODO Support HTML
 */

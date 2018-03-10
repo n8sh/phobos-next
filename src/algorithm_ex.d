@@ -183,7 +183,7 @@ import std.traits : isInstanceOf;
 
 import std.typecons : Nullable;
 
-/** Returns: true iff $(D a) has a value containing meaningful information.
+/** Returns: `true` iff $(D a) has a value containing meaningful information.
  */
 bool hasContents(T)(in T a)
 {

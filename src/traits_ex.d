@@ -17,7 +17,7 @@ import std.typecons : Tuple;
 
 public import std.traits : isCopyable;
 
-/** Returns: true iff $(D ptr) is handled by D's built-in garbage collector (GC). */
+/** Returns: `true` iff $(D ptr) is handled by D's built-in garbage collector (GC). */
 template isGCPointer(T)
 {
     bool isGCPointer(const T* ptr)
@@ -30,7 +30,7 @@ template isGCPointer(T)
 alias inGC = isGCPointer;
 alias isGCed = isGCPointer;
 
-//
+///
 nothrow unittest
 {
     int s;
@@ -40,11 +40,15 @@ nothrow unittest
     assert(ip.isGCPointer);
 }
 
-/** Returns: true iff all values $(D V) are the same.
+/** Returns: `true` iff all values $(D V) are the same.
+
+    Same as NoDuplicates!V.length == 1
+
+    See also: https://forum.dlang.org/post/ptnzlhnkuetijhgrgumd@forum.dlang.org
     See also: http://forum.dlang.org/post/iflpslqgrixdjwrlqqvn@forum.dlang.org
     See also: http://forum.dlang.org/post/mheumktihihfsxxxapff@forum.dlang.org
 */
-template allSame(V ...)
+template allSame(V...)
     if (isExpressions!V)
 {
     static if (V.length <= 1)
@@ -64,6 +68,7 @@ template allSame(V ...)
     }
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     static assert( allSame!());
@@ -99,6 +104,7 @@ template allSameIterative(V...)
     enum allSameIterative = impl_!V();
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     static assert( allSameIterative!());
@@ -130,7 +136,7 @@ template allSameRecursive(V...)
     static assert(allSameRecursive!(42, 42, 42));
 }
 
-/** Returns: true iff all types `T` are the same. */
+/** Returns: `true` iff all types `T` are the same. */
 template allSameType(T...)
 {
     static if (T.length <= 1)
@@ -143,7 +149,7 @@ template allSameType(T...)
     }
 }
 
-/** Returns: true iff all types `T` are the same. */
+/** Returns: `true` iff all types `T` are the same. */
 enum allSameType_alternative(T...) = (!T.length ||
                                       (is(T[0] == T[T.length > 1]) &&
                                        allSameType1!(T[1 .. $])));

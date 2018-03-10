@@ -217,7 +217,7 @@ unittest
  *      false if no luck.
  */
 bool pickAndCall(T, Fun, A...)(T t, Fun fun, auto ref A a)
-if (isNumeric!T && isCallable!Fun && is(ReturnType!Fun == void))
+    if (isNumeric!T && isCallable!Fun && is(ReturnType!Fun == void))
 in
 {
     static immutable string err = "chance to pick must be in the 0..100 range";
@@ -264,8 +264,8 @@ body
  *      range = an input range, must be a lvalue.
  */
 void popWhile(alias pred, Range)(ref Range range)
-if (isInputRange!Range && is(typeof(unaryFun!pred)) && isImplicitlyConvertible!
-    (typeof(unaryFun!pred((ElementType!Range).init)), bool))
+    if (isInputRange!Range && is(typeof(unaryFun!pred)) && isImplicitlyConvertible!
+        (typeof(unaryFun!pred((ElementType!Range).init)), bool))
 {
     import std.range.primitives: front, empty, popFront;
     alias f = unaryFun!pred;
@@ -310,8 +310,8 @@ pure @safe unittest
  * In addition this wrapper accepts rvalues.
  */
 auto dropWhile(alias pred, Range)(auto ref Range range)
-if (isInputRange!Range && is(typeof(unaryFun!pred)) && isImplicitlyConvertible!
-    (typeof(unaryFun!pred((ElementType!Range).init)), bool))
+    if (isInputRange!Range && is(typeof(unaryFun!pred)) && isImplicitlyConvertible!
+        (typeof(unaryFun!pred((ElementType!Range).init)), bool))
 {
     popWhile!(pred, Range)(range);
     return range;
@@ -331,8 +331,8 @@ pure @safe unittest
  *      range = an input range, must be a lvalue.
  */
 void popBackWhile(alias pred, Range)(ref Range range)
-if (isBidirectionalRange!Range && is(typeof(unaryFun!pred)) && isImplicitlyConvertible!
-    (typeof(unaryFun!pred((ElementType!Range).init)), bool))
+    if (isBidirectionalRange!Range && is(typeof(unaryFun!pred)) && isImplicitlyConvertible!
+        (typeof(unaryFun!pred((ElementType!Range).init)), bool))
 {
     import std.range.primitives: back, empty, popBack;
     alias f = unaryFun!pred;
@@ -377,8 +377,8 @@ pure @safe unittest
  * In addition this wrapper accepts rvalues.
  */
 auto dropBackWhile(alias pred, Range)(auto ref Range range)
-if (isBidirectionalRange!Range && is(typeof(unaryFun!pred)) && isImplicitlyConvertible!
-    (typeof(unaryFun!pred((ElementType!Range).init)), bool))
+    if (isBidirectionalRange!Range && is(typeof(unaryFun!pred)) && isImplicitlyConvertible!
+        (typeof(unaryFun!pred((ElementType!Range).init)), bool))
 {
     popBackWhile!(pred, Range)(range);
     return range;
@@ -401,7 +401,7 @@ pure @safe unittest
  *      flop = the second input range.
  */
 auto flipFlop(R1, R2)(auto ref R1 flip, auto ref R2 flop)
-if (isInputRange!R1 && isInputRange!R2 && is(ElementType!R1 == ElementType!R2))
+    if (isInputRange!R1 && isInputRange!R2 && is(ElementType!R1 == ElementType!R2))
 {
     import std.range.primitives: front, empty, popFront;
     struct FlipFlop
@@ -458,8 +458,8 @@ pure @safe unittest
  *      range = an input range, only consumed when passed by reference.
  */
 auto takeWhile(alias pred, Range)(auto ref Range range)
-if (isInputRange!Range && is(typeof(unaryFun!pred)) && isImplicitlyConvertible!
-    (typeof(unaryFun!pred((ElementType!Range).init)), bool))
+    if (isInputRange!Range && is(typeof(unaryFun!pred)) && isImplicitlyConvertible!
+        (typeof(unaryFun!pred((ElementType!Range).init)), bool))
 {
     alias f = unaryFun!pred;
     import std.range.primitives: front, empty, popFront;
@@ -505,8 +505,8 @@ pure @safe unittest
  *      range = an bidirectional range, only consumed when passed by reference.
  */
 auto takeBackWhile(alias pred, Range)(auto ref Range range)
-if (isBidirectionalRange!Range && is(typeof(unaryFun!pred)) && isImplicitlyConvertible!
-    (typeof(unaryFun!pred((ElementType!Range).init)), bool))
+    if (isBidirectionalRange!Range && is(typeof(unaryFun!pred)) && isImplicitlyConvertible!
+        (typeof(unaryFun!pred((ElementType!Range).init)), bool))
 {
     alias f = unaryFun!pred;
     import std.range.primitives: back, empty, popBack;
@@ -555,8 +555,8 @@ pure @safe unittest
  *      initializer.
  */
 size_t mutatedCount(Range)(Range range)
-if (isInputRange!Range && is(typeof((ElementType!Range).init))
-    && isMutable!(ElementType!Range) && !isNarrowString!Range)
+    if (isInputRange!Range && is(typeof((ElementType!Range).init))
+        && isMutable!(ElementType!Range) && !isNarrowString!Range)
 {
     import std.range.primitives: front, empty, popFront;
 
@@ -631,8 +631,8 @@ unittest
  */
 bool compare(string op, L, R, string fname = __FILE__, int line = __LINE__)
     (auto ref L lhs, auto ref R rhs)
-if ((isIntegral!R &&  isIntegral!L) && op == "<" || op == ">" || op == "<=" ||
-    op == ">=" || op == "==" || op == "!=")
+    if ((isIntegral!R &&  isIntegral!L) && op == "<" || op == ">" || op == "<=" ||
+        op == ">=" || op == "==" || op == "!=")
 {
     alias LT = Unqual!L;
     alias RT = Unqual!R;
@@ -728,7 +728,7 @@ void throwStaticEx(string message, string file = __FILE__, size_t line = __LINE_
  *      code = The pointer to the static function.
  */
 void setDelegate(T, FT)(ref T t, void* context, FT code)
-if (is(T == delegate) && is(FT == typeof(T.funcptr)))
+    if (is(T == delegate) && is(FT == typeof(T.funcptr)))
 {
     t.ptr = context;
     t.funcptr = code;
@@ -759,7 +759,7 @@ unittest
  *      A new delegate of type T.
  */
 auto getDelegate(FT)(void* context, FT code)
-if (is(PointerTarget!FT == function))
+    if (is(PointerTarget!FT == function))
 {
     import std.array: replace;
     enum type = "alias T = " ~ FT.stringof.replace("function", "delegate") ~ ";";
@@ -786,7 +786,7 @@ unittest
  * are compatible with D delegates.
  */
 union Delegate(FT)
-if (is(PointerTarget!FT == function))
+    if (is(PointerTarget!FT == function))
 {
     /// Defines the delegate layout as defined in the D ABI
     struct DgMembers
@@ -834,11 +834,11 @@ unittest
  * This function is inspired by http://www.forwardscattering.org/post/27
  */
 template bitCast(T, S)
-if (T.sizeof == S.sizeof
-    && !is(S == T)
-    && !(is(S== float) & (size_t.sizeof == 4))
-    && !is(S == class)     && !is(T == class)
-    && !is(S == interface) && !is(T == interface))
+    if (T.sizeof == S.sizeof
+        && !is(S == T)
+        && !(is(S== float) & (size_t.sizeof == 4))
+        && !is(S == class)     && !is(T == class)
+        && !is(S == interface) && !is(T == interface))
 {
     private union BitCaster
     {
@@ -868,8 +868,8 @@ if (T.sizeof == S.sizeof
 
 /// ditto
 template bitCast(T, S)
-if (T.sizeof == S.sizeof && is(S == float)
-    && !is(T == class) && !is(T == interface))
+    if (T.sizeof == S.sizeof && is(S == float)
+        && !is(T == class) && !is(T == interface))
 {
     T bitCast(S[1] source...) pure
     {
@@ -1010,25 +1010,25 @@ version(unittest) private class Item
     }
 }
 
-unittest
-{
-    import iz.containers: ObjectTreeItem;
-    import iz.memory: construct, destruct;
-    ObjectTreeItem root = construct!ObjectTreeItem;
-    ObjectTreeItem c1 = root.addNewChild!ObjectTreeItem;
-    ObjectTreeItem c2 = root.addNewChild!ObjectTreeItem;
-    ObjectTreeItem c1c1 = c1.addNewChild!ObjectTreeItem;
-    ObjectTreeItem c1c2 = c1.addNewChild!ObjectTreeItem;
-    ObjectTreeItem c2c1 = c2.addNewChild!ObjectTreeItem;
-    ObjectTreeItem c2c2 = c2.addNewChild!ObjectTreeItem;
+// unittest
+// {
+//     import iz.containers: ObjectTreeItem;
+//     import iz.memory: construct, destruct;
+//     ObjectTreeItem root = construct!ObjectTreeItem;
+//     ObjectTreeItem c1 = root.addNewChild!ObjectTreeItem;
+//     ObjectTreeItem c2 = root.addNewChild!ObjectTreeItem;
+//     ObjectTreeItem c1c1 = c1.addNewChild!ObjectTreeItem;
+//     ObjectTreeItem c1c2 = c1.addNewChild!ObjectTreeItem;
+//     ObjectTreeItem c2c1 = c2.addNewChild!ObjectTreeItem;
+//     ObjectTreeItem c2c2 = c2.addNewChild!ObjectTreeItem;
 
-    int cnt, a;
-    deepIterate!((e) => ++cnt, "children")(root);
-    assert(cnt == 7);
+//     int cnt, a;
+//     deepIterate!((e) => ++cnt, "children")(root);
+//     assert(cnt == 7);
 
-    root.deleteChildren;
-    destruct(root);
-}
+//     root.deleteChildren;
+//     destruct(root);
+// }
 
 /**
  * Allows to call recursively the function being executed.

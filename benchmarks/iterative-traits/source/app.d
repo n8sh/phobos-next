@@ -6,6 +6,9 @@ struct W(T, size_t n)
     T value;
 }
 
+/** Fake comparsion for getting some kind of lower limit on compiler-built-in type comparison. */
+enum allSameTypeFake(Ts...) = is(Ts[0 .. $/2] == Ts[$/2 .. $]);
+
 enum allSameUsingNoDuplicates(Ts...) = NoDuplicates!Ts.length == 1;
 
 void main()
@@ -38,13 +41,6 @@ void main()
         {
             foreach (T3; Ts)
             {
-                // alias MergedTs = AliasSeq!(W!(T1, 1),
-                //                            W!(T2, 2),
-                //                            W!(T3, 3));
-                // static if (is(MergedTs[0 .. $/2] ==
-                //               MergedTs[$/2 .. $]))
-                // {
-                // }
                 static if (allSameTypeIterative!(W!(T1, 1),
                                                  W!(T2, 2),
                                                  W!(T3, 3)))

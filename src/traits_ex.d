@@ -34,9 +34,9 @@ alias isGCed = isGCPointer;
 nothrow unittest
 {
     int s;
-    scope int* sp = &s;
+    int* sp = &s;
     assert(!sp.isGCPointer);
-    scope int* ip = new int;
+    int* ip = new int;
     assert(ip.isGCPointer);
 }
 

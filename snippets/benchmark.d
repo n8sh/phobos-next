@@ -62,12 +62,12 @@ Benchmark results report time per iteration.
 
 Params:
 
-funs = If one ore more $(D funs) are provided, they must come as pairs
+funs = If one ore more `funs` are provided, they must come as pairs
 in which the first element is a string (the name of the benchmark) and
 the second element is the alias of a function (the actual
 benchmark). Each alias must refer to a function that takes either no
 arguments or one integral argument (which is the iterations count).
-target = $(D File) where output is printed.
+target = `File` where output is printed.
 
 Example:
 ---
@@ -77,7 +77,7 @@ printBenchmarks!(
     ();
 ---
 
-The example above outputs to $(D stdout):
+The example above outputs to `stdout`:
 
 ---
 ===============================================================================
@@ -103,11 +103,11 @@ printBenchmarks!(
 In the example above, the framework iterates the first lambda many
 times and collects timing information. For the second lambda, instead
 of doing the iteration, the framework simply passes increasing values
-of $(D n) to the lambda. In the end time per iteration is measured, so
+of `n` to the lambda. In the end time per iteration is measured, so
 the performance profile (and the printout) would be virtually
 identical to the one in the previous example.
 
-If the call to $(D printBenchmarks) does not provide a name for some
+If the call to `printBenchmarks` does not provide a name for some
 benchmarks, the name of the benchmarked function is used. (For
 lambdas, the name is e.g. $(D __lambda5).)
 
@@ -124,7 +124,7 @@ printBenchmarks!(
     ();
 ---
 
-The example above outputs to $(D stdout):
+The example above outputs to `stdout`:
 
 ---
 ===============================================================================
@@ -172,7 +172,7 @@ According to the data above, file reading is $(D 5.178) times faster
 than file writing, whereas array creation is $(D 1200) times faster
 than file writing.
 
-If no functions are passed as $(D funs), calling $(D printBenchmarks)
+If no functions are passed as `funs`, calling `printBenchmarks`
 prints the previously registered per-module benchmarks.
 Refer to $(LREF scheduleForBenchmarking).
  */
@@ -191,11 +191,11 @@ void printBenchmarks(funs...)(File target = stdout)
 }
 
 /**
-Benchmarks functions and appends the results to the $(D results)
+Benchmarks functions and appends the results to the `results`
 parameter. This function is used by $(LREF printBenchmarks), and the
-$(D funs) parameter has the same requirements as for that function.
+`funs` parameter has the same requirements as for that function.
 
-Using $(D benchmark) directly is recommended for custom processing and
+Using `benchmark` directly is recommended for custom processing and
 printing of _benchmark results.
 
 Example:
@@ -256,11 +256,11 @@ void benchmark(funs...)(ref BenchmarkResult[] results, string moduleName = null)
 struct BenchmarkResult
 {
     /**
-       Module name in which the function resides ($(D null) if not applicable).
+       Module name in which the function resides (`null` if not applicable).
     */
     string moduleName;
     /**
-       Name of the benchmark (sans the $(D benchmark_) or $(D
+       Name of the benchmark (sans the `benchmark_` or $(D
        benchmark_relative_) prefix, if any).
     */
     string benchmarkName;
@@ -270,12 +270,12 @@ struct BenchmarkResult
     TickDuration perIteration;
     /**
        Relative timing (if benchmark is a _relative one). Refer to the
-       definition of $(D benchmarkModule) below for what constitutes a
-       relative benchmark. For relative benchmarks, $(D relative) is
+       definition of `benchmarkModule` below for what constitutes a
+       relative benchmark. For relative benchmarks, `relative` is
        $(D 1.0) if the benchmark has the same speed as its baseline,
        $(D 2.0) is the benchmark is twice as fast, and $(D 0.5) if the
        benchmark has half the speed. For non-_relative benchmarks, $(D
-       relative) is set to $(D NaN), which is testable with $(XREF
+       relative) is set to `NaN`, which is testable with $(XREF
        math,isNaN).
      */
     double relative;
@@ -512,10 +512,10 @@ The code $(D mixin(scheduleForBenchmarking)) planted at module level
 schedules the entire module for benchmarking. The actual benchmarking
 can be done globally by calling $(LREF printBenchmarks) (with no
 arguments) or $(LREF runBenchmarks). Either call is usually made from
-$(D main).
+`main`.
 
 In a multi-module application, several modules may define benchmarks,
-and $(D printBenchmarks) distinguishes each visually.
+and `printBenchmarks` distinguishes each visually.
 
 Example:
 ---
@@ -535,7 +535,7 @@ void benchmark_relative_fileRead()
 mixin(scheduleForBenchmarking);
 ---
 
-Typically the $(D mixin) is guarded by a version so benchmarks are only run if desired.
+Typically the `mixin` is guarded by a version so benchmarks are only run if desired.
 
 Example:
 ---
@@ -612,7 +612,7 @@ private StopWatch theStopWatch;
 
 /*
 Array containing all benchmarks to be executed. Usually they are
-executed by calling $(D runBenchmarks) or $(D printBenchmarks).
+executed by calling `runBenchmarks` or `printBenchmarks`.
  */
 private Tuple!(string, void function(ref BenchmarkResult[], string))[]
 allBenchmarks;

@@ -12,6 +12,7 @@
 module traits_ex;
 
 import std.traits: isArray, ParameterTypeTuple, isStaticArray, isDynamicArray, isSomeChar, isSomeString, isExpressions, isIntegral, isSigned, isUnsigned, isAssignable, isIterable;
+import std.meta : allSatisfy;
 import std.range: ElementType, isForwardRange, isRandomAccessRange, isInputRange, isBidirectionalRange, isOutputRange;
 import std.typecons : Tuple;
 
@@ -106,6 +107,39 @@ enum isHomogeneousTupleOf(T, E) = (isHomogeneousType!(T) &&
    is not the same as the others.
 */
 enum isHeterogeneous(T) = !isHomogeneousType!T;
+
+template allSameTypeIterative(V...)
+{
+    static if (V.length <= 1)
+    {
+        enum allSameTypeIterative = true;
+    }
+    else
+    {
+        static foreach (Vi; V[1 .. $])
+        {
+            static if (!is(typeof(allSameTypeIterative) == bool) && // not yet defined
+                       !is(V[0] == Vi)) // 10% faster than `!isSame(V[0], Vi)`
+            {
+                enum allSameTypeIterative = false;
+            }
+        }
+        static if (!is(typeof(allSameTypeIterative) == bool)) // if not yet defined
+        {
+            enum allSameTypeIterative = true;
+        }
+    }
+}
+alias allSameType = allSameTypeIterative;
+
+///
+@safe pure nothrow @nogc unittest
+{
+    static assert( allSameTypeIterative!(int));
+    static assert( allSameTypeIterative!(int, int));
+    static assert( allSameTypeIterative!(int, int, int));
+    static assert(!allSameTypeIterative!(int, byte, int));
+}
 
 /** Returns: `true` iff all values `V` are the same.
 

@@ -139,6 +139,9 @@ alias allSameType = allSameTypeIterative;
     static assert( allSameTypeIterative!(int, int));
     static assert( allSameTypeIterative!(int, int, int));
     static assert(!allSameTypeIterative!(int, byte, int));
+
+    static assert(!allSameTypeIterative!(int, const(int)));
+    static assert(!allSameTypeIterative!(byte, const(int)));
 }
 
 /** Returns: `true` iff all values `V` are the same.
@@ -230,11 +233,12 @@ template allSameTypeRecursive(V...)
     static assert(allSameTypeRecursive!());
     static assert(allSameTypeRecursive!(int));
     static assert(allSameTypeRecursive!(int, int));
-    static assert(!allSameTypeRecursive!(int, const(int)));
-    static assert(allSameTypeRecursive!(int, Unqual!(const(int))));
     static assert(!allSameTypeRecursive!(int, double));
     static assert(!allSameTypeRecursive!(int, int, double));
     static assert(allSameTypeRecursive!(Tuple!(int, int, int).Types, int));
+
+    static assert(!allSameTypeRecursive!(int, const(int)));
+    static assert(!allSameTypeRecursive!(byte, const(int)));
 }
 
 /** Returns: `true` iff all types `T` are the same. */

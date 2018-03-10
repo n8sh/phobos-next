@@ -1,5 +1,6 @@
-import std.meta : AliasSeq, NoDuplicates;
-import traits_ex : allSame, allSameIterative, allSameTypeIterative, allSameTypeRecursive, allSameTypeHybrid;
+import std.traits : isIntegral;
+import std.meta : AliasSeq, NoDuplicates, anySatisfy, allSatisfy;
+import traits_ex : allSame, allSameIterative, allSameTypeIterative, allSameTypeRecursive, allSameTypeHybrid, anySatisfyIterative, allSatisfyIterative;
 
 struct W(T, size_t n)
 {
@@ -28,7 +29,10 @@ void main()
     enum n = 1000;
     static foreach (i; 0 .. n)
     {
-        static if (allSameTypeIterative!(differentTs!(i)))
+        // static if (allSameTypeIterative!(differentTs!(i)))
+        // {
+        // }
+        static if (allSatisfyIterative!(isIntegral, differentTs!(i)))
         {
         }
     }

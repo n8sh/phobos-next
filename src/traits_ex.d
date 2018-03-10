@@ -78,6 +78,40 @@ template allSame(V...)
     static assert(!allSame!(42, 43, 42));
 }
 
+/** Iterative variant of `allSame`.
+ */
+template allSameIterative(V...)
+{
+    static if (V.length <= 1)
+    {
+        enum allSameIterative = true;
+    }
+    else
+    {
+        static foreach (Vi; V[1 .. $])
+        {
+            static if (V[0] != Vi)
+            {
+                enum allSameIterative = false;
+            }
+        }
+        static if (!is(typeof(allSameIterative) == bool)) // if not yet defined
+        {
+            enum allSameIterative = true;
+        }
+    }
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    static assert( allSameIterative!());
+    static assert( allSameIterative!(42));
+    static assert( allSameIterative!(42, 42));
+    static assert( allSameIterative!(42, 42, 42));
+    static assert(!allSameIterative!(42, 43, 42));
+}
+
 /** Recursive variant of `allSame`.
  */
 template allSameRecursive(V...)

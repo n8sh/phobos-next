@@ -69,7 +69,7 @@ template Concise(Tuple)
 
 auto concise(T)(T t) { return Concise!T(t); }
 
-/** Returns: Duration $(D dur) in a Level-Of-Detail (LOD) string
+/** Returns: Duration `dur` in a Level-Of-Detail (LOD) string
     representation.
 */
 string shortDurationString(in Duration dur)
@@ -248,7 +248,7 @@ class Viz
         }
     }
 
-    /** Put $(D arg) to $(D this) without any conversion nor coloring. */
+    /** Put `arg` to `this` without any conversion nor coloring. */
     void ppRaw(T...)(T args)
     {
         foreach (arg; args)
@@ -264,7 +264,7 @@ class Viz
         }
     }
 
-    /** Put $(D arg) to $(D this) without any conversion nor coloring. */
+    /** Put `arg` to `this` without any conversion nor coloring. */
     void pplnRaw(T...)(T args)
     {
         foreach (arg; args)
@@ -343,7 +343,7 @@ class Viz
         }
     }
 
-    /** Put $(D arg) to $(D viz) possibly with conversion. */
+    /** Put `arg` to `viz` possibly with conversion. */
     void ppPut(T)(T arg,
                   bool nbsp = true)
     {
@@ -365,7 +365,7 @@ class Viz
         }
     }
 
-    /** Put $(D arg) to $(D viz) possibly with conversion. */
+    /** Put `arg` to `viz` possibly with conversion. */
     void ppPut(T)(Face!Color face,
                   T arg,
                   bool nbsp = true)
@@ -414,7 +414,7 @@ class Viz
         ppTagClose(`math`);
     }
 
-    /** Pretty-Print Single Argument $(D arg) to Terminal $(D term). */
+    /** Pretty-Print Single Argument `arg` to Terminal `term`. */
     void pp1(Arg)(int depth,
                   Arg arg)
 
@@ -1141,7 +1141,7 @@ class Viz
         }
     }
 
-    /** Pretty-Print Multiple Arguments $(D args) to Terminal $(D term). */
+    /** Pretty-Print Multiple Arguments `args` to Terminal `term`. */
     void ppN(Args...)(Args args)
     {
         foreach (arg; args)
@@ -1150,7 +1150,7 @@ class Viz
         }
     }
 
-    /** Pretty-Print Arguments $(D args) to Terminal $(D term) without Line Termination. */
+    /** Pretty-Print Arguments `args` to Terminal `term` without Line Termination. */
     void pp(Args...)(Args args)
     {
         ppN(args);
@@ -1160,7 +1160,7 @@ class Viz
         }
     }
 
-    /** Pretty-Print Arguments $(D args) including final line termination. */
+    /** Pretty-Print Arguments `args` including final line termination. */
     void ppln(Args...)(Args args)
     {
         ppN(args);
@@ -1175,7 +1175,7 @@ class Viz
         }
     }
 
-    /** Pretty-Print Arguments $(D args) each including a final line termination. */
+    /** Pretty-Print Arguments `args` each including a final line termination. */
     void pplns(Args...)(Args args)
     {
         foreach (arg; args)
@@ -1184,7 +1184,7 @@ class Viz
         }
     }
 
-    /** Print End of Line to Terminal $(D term). */
+    /** Print End of Line to Terminal `term`. */
     void ppendl()
     {
         ppln(``);

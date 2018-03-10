@@ -115,18 +115,6 @@ template allSameTypeIterative(V...)
     {
         enum allSameTypeIterative = true;
     }
-    else static if (V.length == 2)
-    {
-        enum allSameTypeIterative = is(V[0] == V[1]);
-    }
-    else static if (V.length == 3)
-    {
-        enum allSameTypeIterative = is(V[0] == V[1]) && is(V[1] == V[2]);
-    }
-    else static if (V.length == 4)
-    {
-        enum allSameTypeIterative = is(V[0] == V[1]) && is(V[1] == V[2]) && is(V[2] == V[3]);
-    }
     else
     {
         static foreach (Vi; V[1 .. $])

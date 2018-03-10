@@ -1168,6 +1168,42 @@ private template isSame(ab...)
 private template expectType(T) {}
 private template expectBool(bool b) {}
 
+template allSatisfyIterative(alias F, T...)
+{
+    static if (T.length == 0)
+    {
+        enum allSatisfy = false;
+    }
+    else static if (T.length == 1)
+    {
+        enum allSatisfy = F!(T[0]);
+    }
+    else
+    {
+        static foreach (Ti; T)
+        {
+            static if (!is(typeof(allSatisfyIterative) == bool) && // not yet defined
+                       !F!(Ti))
+            {
+                enum allSatisfyIterative = false;
+            }
+        }
+        static if (!is(typeof(allSatisfyIterative) == bool)) // if not yet defined
+        {
+            enum allSatisfyIterative = true;
+        }
+    }
+}
+
+///
+@safe unittest
+{
+    import std.traits : isIntegral;
+
+    static assert(!allSatisfyIterative!(isIntegral, int, double));
+    static assert( allSatisfyIterative!(isIntegral, int, long));
+}
+
 template anySatisfyIterative(alias F, T...)
 {
     static if (T.length == 0)
@@ -1195,31 +1231,13 @@ template anySatisfyIterative(alias F, T...)
     }
 }
 
-template allSatisfyIterative(alias F, T...)
+///
+@safe unittest
 {
-    static if (T.length == 0)
-    {
-        enum allSatisfy = false;
-    }
-    else static if (T.length == 1)
-    {
-        enum allSatisfy = F!(T[0]);
-    }
-    else
-    {
-        static foreach (Ti; T)
-        {
-            static if (!is(typeof(allSatisfyIterative) == bool) && // not yet defined
-                       !F!(Ti))
-            {
-                enum allSatisfyIterative = false;
-            }
-        }
-        static if (!is(typeof(allSatisfyIterative) == bool)) // if not yet defined
-        {
-            enum allSatisfyIterative = true;
-        }
-    }
+    import std.traits : isIntegral;
+
+    static assert(!anySatisfyIterative!(isIntegral, string, double));
+    static assert( anySatisfyIterative!(isIntegral, int, double));
 }
 
 version(unittest)

@@ -17,8 +17,10 @@ void main()
                                           W!(short, n), W!(ushort, n),
                                           W!(int, n), W!(uint, n),
                                           W!(long, n), W!(ulong, n),
-                                          W!(float, n), W!(float, n),
-                                          W!(double, n), W!(double, n));
+                                          W!(float, n), W!(cfloat, n),
+                                          W!(double, n), W!(cdouble, n),
+                                          W!(real, n), W!(creal, n),
+                                          W!(string, n), W!(wstring, n), W!(dstring, n));
 
     pragma(msg, "Instantiation count : ", cast(int)Ts.length^^3);
     import std.stdio;
@@ -26,7 +28,7 @@ void main()
     enum n = 2000;
     static foreach (i; 0 .. n)
     {
-        static if (allSameTypeIterative!(differentTs!(i)))
+        static if (allSameTypeFake!(differentTs!(i)))
         {
         }
     }

@@ -561,9 +561,9 @@ struct MoveableSortedRange(Range, alias pred = "a < b")
 // lowerBound
 /**
    This function uses a search with policy $(D sp) to find the
-   largest left subrange on which $(D pred(x, value)) is $(D true) for
+   largest left subrange on which $(D pred(x, value)) is `true` for
    all $(D x) (e.g., if $(D pred) is "less than", returns the portion of
-   the range with elements strictly smaller than $(D value)). The search
+   the range with elements strictly smaller than `value`). The search
    schedule and its complexity are documented in
    $(LREF SearchPolicy).  See also STL's
    $(HTTP sgi.com/tech/stl/lower_bound.html, lower_bound).
@@ -578,9 +578,9 @@ struct MoveableSortedRange(Range, alias pred = "a < b")
 // upperBound
 /**
 This function searches with policy $(D sp) to find the largest right
-subrange on which $(D pred(value, x)) is $(D true) for all $(D x)
+subrange on which $(D pred(value, x)) is `true` for all $(D x)
 (e.g., if $(D pred) is "less than", returns the portion of the range
-with elements strictly greater than $(D value)). The search schedule
+with elements strictly greater than `value`). The search schedule
 and its complexity are documented in $(LREF SearchPolicy).
 
 For ranges that do not offer random access, $(D SearchPolicy.linear)
@@ -616,7 +616,7 @@ See_Also: STL's $(HTTP sgi.com/tech/stl/lower_bound.html,upper_bound).
    Returns the subrange containing all elements $(D e) for which both $(D
    pred(e, value)) and $(D pred(value, e)) evaluate to $(D false) (e.g.,
    if $(D pred) is "less than", returns the portion of the range with
-   elements equal to $(D value)). Uses a classic binary search with
+   elements equal to `value`). Uses a classic binary search with
    interval halving until it finds a value that satisfies the condition,
    then uses $(D SearchPolicy.gallopBackwards) to find the left boundary
    and $(D SearchPolicy.gallop) to find the right boundary. These
@@ -717,7 +717,7 @@ equalRange). Completes the entire search in $(BIGOH log(n)) time.
 
 // contains
 /**
-Returns $(D true) if and only if $(D value) can be found in $(D
+Returns `true` if and only if `value` can be found in $(D
 range), which is assumed to be sorted. Performs $(BIGOH log(r.length))
 evaluations of $(D pred). See also STL's $(HTTP
 sgi.com/tech/stl/binary_search.html, binary_search).

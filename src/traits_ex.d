@@ -130,7 +130,7 @@ template allSameRecursive(V...)
     static assert(allSameRecursive!(42, 42, 42));
 }
 
-/** Returns: true iff all types $(D T) are the same. */
+/** Returns: true iff all types `T` are the same. */
 template allSameType(T...)
 {
     static if (T.length <= 1)
@@ -143,7 +143,7 @@ template allSameType(T...)
     }
 }
 
-/** Returns: true iff all types $(D T) are the same. */
+/** Returns: true iff all types `T` are the same. */
 enum allSameType_alternative(T...) = (!T.length ||
                                       (is(T[0] == T[T.length > 1]) &&
                                        allSameType1!(T[1 .. $])));
@@ -352,7 +352,7 @@ alias isOdd = unaryFun!(a => (a & 1) == 1); // Limit to Integers?
 alias lessThan = binaryFun!((a, b) => a < b);
 alias greaterThan = binaryFun!((a, b) => a > b);
 
-/** Check if $(D T) has an even length. */
+/** Check if `T` has an even length. */
 enum hasEvenLength(T...) = !(T.length & 1);
 @safe pure nothrow @nogc unittest
 {
@@ -580,7 +580,7 @@ enum isCallableWith(alias fun, T, U) = (is(typeof(fun(T.init,
     assert(!isCallableWith!(sqr2, int, string));
 }
 
-/** Check if $(D T) is a Sorted Range.
+/** Check if `T` is a Sorted Range.
     See also: http://forum.dlang.org/thread/lt1g3q$15fe$1@digitalmars.com
 */
 template isSortedRange(T)
@@ -658,7 +658,7 @@ enum isCTEable(alias expr) = __traits(compiles, { enum id = expr; });
 
 import std.traits: hasFunctionAttributes, isCallable, ParameterTypeTuple, Unqual;
 
-/** Returns $(D true) if $(D T) is not $(D const) or $(D immutable).
+/** Returns $(D true) if `T` is not $(D const) or $(D immutable).
     Note that isConst is true for string, or immutable(char)[], because the
     'head' is mutable.
 */
@@ -867,7 +867,7 @@ template stringsOf(T...)        // TODO Add to Phobos
     enum strings = stringsOf!(bool, short, int, long);
 }
 
-/** Get Dimensionality of Type $(D T).
+/** Get Dimensionality of Type `T`.
    See also: http://forum.dlang.org/thread/hiuhqdxtpifhzwebewjh@forum.dlang.org?page=2
 */
 

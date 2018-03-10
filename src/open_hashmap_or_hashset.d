@@ -536,9 +536,9 @@ struct OpenHashMapOrSet(K, V = void,
     bool contains()(const scope K key) const // template-lazy, auto ref here makes things slow
     {
         assert(!key.isNull);
-        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
-        return (hitIndex != _bins.length &&
-                isOccupiedAtIndex(hitIndex));
+        if (_bins.length == 0) { return false; }
+        immutable hitIndex = indexOfKeyOrVacancySkippingHoles_alt(key);
+        return (isOccupiedAtIndex(hitIndex));
     }
     static if (isInstanceOf!(Nullable, K))
     {
@@ -1272,6 +1272,51 @@ private:
             }
         }
         return _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key));
+    }
+
+    /** Find index to `key` if it exists or to first empty slot found, ignoring
+     * lazily deleted slots.
+     */
+    pragma(inline, true)
+    private size_t indexOfKeyOrVacancySkippingHoles_alt(const scope K key) const @trusted
+    {
+        version(unittest) assert(!key.isNull);
+        static if (hasAddressKey)
+        {
+            version(unittest) assert(!isHoleKeyConstant(key));
+        }
+        static if (isCopyable!T)
+        {
+            /* don't use `auto ref` for copyable `T`'s to prevent
+             * massive performance drop for small elements when compiled
+             * with LDC. TODO remove when LDC is fixed. */
+            static if (!hasAddressKey)
+            {
+                alias predicate = (index, element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
+                                                       (keyOf(element).isNull ||
+                                                        keyOf(element) is key));
+            }
+            else
+            {
+                alias predicate = (element) => (keyOf(element).isNull ||
+                                                keyOf(element) is key);
+            }
+        }
+        else
+        {
+            static if (!hasAddressKey)
+            {
+                alias predicate = (index, const auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
+                                                                      (keyOf(element).isNull ||
+                                                                       keyOf(element) is key));
+            }
+            else
+            {
+                alias predicate = (const auto ref element) => (keyOf(element).isNull ||
+                                                               keyOf(element) is key);
+            }
+        }
+        return _bins[].triangularProbeFromIndex!(predicate, true)(keyToIndex(key));
     }
 
     private size_t indexOfHoleOrNullForKey(const scope K key) const @trusted

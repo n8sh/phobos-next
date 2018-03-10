@@ -13,41 +13,21 @@ enum allSameUsingNoDuplicates(Ts...) = NoDuplicates!Ts.length == 1;
 
 void main()
 {
-    alias differentTs = AliasSeq!(byte, ubyte, const(ubyte),
-                                  short, ushort, const(ushort),
-                                  int, uint, const(uint),
-                                  long, ulong, const(ulong),
-                                  float, double, real, const(real),
-                                  cfloat, cdouble, creal, const(creal),
-                                  char, wchar, dchar, const(dchar),
-                                  string, wstring, dstring, const(dstring));
-    alias sameTs = AliasSeq!(byte, byte,
-                             byte, byte,
-                             byte, byte,
-                             byte, byte,
-                             byte, byte, byte,
-                             byte, byte, byte,
-                             byte, byte, byte,
-                             byte, byte,
-                             byte);
-    alias Ts = differentTs;
+    alias differentTs(uint n) = AliasSeq!(W!(byte, n), W!(ubyte, n),
+                                          W!(short, n), W!(ushort, n),
+                                          W!(int, n), W!(uint, n),
+                                          W!(long, n), W!(ulong, n),
+                                          W!(float, n), W!(float, n),
+                                          W!(double, n), W!(double, n));
 
     pragma(msg, "Instantiation count : ", cast(int)Ts.length^^3);
     import std.stdio;
 
-    foreach (T1; Ts)
+    enum n = 2000;
+    static foreach (i; 0 .. n)
     {
-        foreach (T2; Ts)
+        static if (allSameTypeIterative!(differentTs!(i)))
         {
-            foreach (T3; Ts)
-            {
-                alias MergedTs = AliasSeq!(T1, T2, T3);
-                static if (allSameTypeIterative!(W!(T1, 1),
-                                                 W!(T2, 2),
-                                                 W!(T3, 3)))
-                {
-                }
-            }
         }
     }
 }

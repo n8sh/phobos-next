@@ -26,11 +26,11 @@ void main()
     enum n = 1000;
     static foreach (i; 0 .. n)
     {
-        // static if (allSameTypeIterative!(differentTs!(i)))
-        // {
-        // }
-        static if (allSatisfyIterative!(isIntegral, differentTs!(i)))
+        static if (allSameUsingNoDuplicates!(differentTs!(i)))
         {
         }
+        // static if (allSatisfyIterative!(isIntegral, differentTs!(i)))
+        // {
+        // }
     }
 }

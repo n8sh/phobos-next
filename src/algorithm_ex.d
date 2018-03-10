@@ -32,9 +32,9 @@ import std.range : dropOne;
 alias tail = dropOne;
 
 /** This overload enables, when possible, lvalue return.
-
-    BUG: this overload is not chosen over `std.algorithm.either` so function
-    must currently be called `eitherRef` instead of `either`.
+ *
+ * BUG: this overload is not chosen over `std.algorithm.either` so function
+ * must currently be called `eitherRef` instead of `either`.
  */
 ref Ts[0] eitherRef(Ts...)(ref Ts a)
     if (a.length >= 1 &&
@@ -59,13 +59,13 @@ ref Ts[0] eitherRef(Ts...)(ref Ts a)
     assert(y == 2);
 }
 
-/** Returns: Last Argument if all arguments implicitly bool-convert to `true`
-    otherwise `CommonType!T.init`.
-
-    Similar to behaviour of `and` operator in dynamic languages such as of
-    Lisp's `(and a...)` and Python's `a and ....`.
-
-    TODO Is inout Conversion!T the correct return value?
+/** Returns: last argument if all arguments implicitly bool-convert to `true`
+ * otherwise `CommonType!T.init`.
+ *
+ * Similar to behaviour of `and` operator in dynamic languages such as of Lisp's
+ * `(and a...)` and Python's `a and ....`.
+ *
+ * TODO Is inout Conversion!T the correct return value?
 */
 CommonType!T every(T...)(lazy T a)
     if (T.length >= 1)
@@ -125,10 +125,11 @@ version(none) // WARNING disabled because I don't see any use of this for.
     }
 }
 
-/** Evaluate all $(D parts) possibly digesting $(D whole).
-    If all values of $(D parts) implicitly convert to bool true return the
-    values as an array, otherwise restore whole and return null.
-*/
+/** Evaluate all `parts` possibly digesting `whole`.
+ *
+ * If all values of `parts` implicitly convert to `bool true`, return the values
+ * as an array, otherwise restore whole and return null.
+ */
 CommonType!T[] tryEvery(S, T...)(ref S whole, lazy T parts)
     if (T.length >= 1)
 {
@@ -183,7 +184,7 @@ import std.traits : isInstanceOf;
 
 import std.typecons : Nullable;
 
-/** Returns: `true` iff $(D a) has a value containing meaningful information.
+/** Returns: `true` iff `a` has a value containing meaningful information.
  */
 bool hasContents(T)(in T a)
 {
@@ -202,7 +203,7 @@ bool hasContents(T)(in T a)
     }
 }
 
-/** Reset $(D a) to its default value.
+/** Reset `a` to its default value.
  *
  * Params:
  *      T = the argument type, likely to be infered.
@@ -252,7 +253,7 @@ unittest
 
 import std.typecons : Tuple, tuple;
 
-/** Find $(D needles) In Order in $(D haystack). */
+/** Find `needles` in order in `haystack`. */
 auto findInOrder(alias pred = `a == b`,
                  alias finder = find,
                  R,
@@ -281,10 +282,12 @@ auto findInOrder(alias pred = `a == b`,
 }
 
 /** Returns: If `range` is symmetric.
-    See also: http://forum.dlang.org/thread/dlfeiszyweafpjiocplf@forum.dlang.org#post-vpzuaqxvtdpzpeuorxdl:40forum.dlang.org
-    See also: https://stackoverflow.com/questions/21849580/equality-operator-in-favour-of-std-range-equal
-    TODO: Test graphemes in `string` and `wstring`.
-    TODO Move to Phobos
+ *
+ * See also: http://forum.dlang.org/thread/dlfeiszyweafpjiocplf@forum.dlang.org#post-vpzuaqxvtdpzpeuorxdl:40forum.dlang.org
+ * See also: https://stackoverflow.com/questions/21849580/equality-operator-in-favour-of-std-range-equal
+ *
+ * TODO: Test graphemes in `string` and `wstring`.
+ * TODO Move to Phobos
 */
 bool isSymmetric(R)(R range)
     if (isBidirectionalRange!(R))
@@ -295,9 +298,9 @@ bool isSymmetric(R)(R range)
     {
         import std.range.primitives : front, back, popFront, popBack;
         if (range.front != range.back) { return false; }
-        range.popFront(); i++;
+        range.popFront(); ++i;
         if (range.empty) { break; }
-        range.popBack(); i++;
+        range.popBack(); ++i;
     }
     return true;
 }
@@ -332,9 +335,9 @@ bool isPalindrome(R)(R range,
     {
         import std.range.primitives : front, back, popFront, popBack;
         if (range.front != range.back) return false;
-        range.popFront(); i++;
+        range.popFront(); ++i;
         if (range.empty) break;
-        range.popBack(); i++;
+        range.popBack(); ++i;
     }
     return i >= minLength;
 }
@@ -355,15 +358,16 @@ bool isPalindrome(R)(R range,
 import traits_ex : areEquable;
 
 /** Return true if $(D s1) is an Anagram of $(D s2).
-    Equal arguments are not considered to be an anagrams of each other.
-
-    TODO Is there a faster way of calculating anagrams?
-    TODO Allow const input
-    TODO Move to Phobos std.algorithm.sorting.
-    TODO Should requirement isInputRange be relaxed?
-
-    Note that implementations in http://rosettacode.org/wiki/Anagrams#D doesn't
-    correctly handle multi-byte encoded characters in string and wstring.
+ *
+ * Equal arguments are not considered to be an anagrams of each other.
+ *
+ * TODO Is there a faster way of calculating anagrams?
+ * TODO Allow const input
+ * TODO Move to Phobos std.algorithm.sorting.
+ * TODO Should requirement isInputRange be relaxed?
+ *
+ * Note that implementations in http://rosettacode.org/wiki/Anagrams#D doesn't
+ * correctly handle multi-byte encoded characters in string and wstring.
  */
 auto isAnagramOf(R1, R2)(R1 r1, R2 r2) // TODO nothrow
     if (isInputRange!R1 &&
@@ -499,9 +503,10 @@ enum Reduction
 }
 
 /** Generalized Windowed Reduce.
-    See also: https://stackoverflow.com/questions/21004944/forward-difference-algorithm
-    See also: http://forum.dlang.org/thread/ujouqtqeehkegmtaxebg@forum.dlang.org#post-lczzsypupcfigttghkwx:40forum.dlang.org
-    See also: http://rosettacode.org/wiki/Forward_difference#D
+ *
+ * See also: https://stackoverflow.com/questions/21004944/forward-difference-algorithm
+ * See also: http://forum.dlang.org/thread/ujouqtqeehkegmtaxebg@forum.dlang.org#post-lczzsypupcfigttghkwx:40forum.dlang.org
+ * See also: http://rosettacode.org/wiki/Forward_difference#D
 */
 auto ref windowedReduce(Reduction reduction = Reduction.forwardDifference, R)(R range)
     if (isInputRange!R)
@@ -626,17 +631,17 @@ pure unittest
     version(print) dln(xPacked);
 }
 
-/** Compute Forward Difference of $(D range).
-
-    TODO Is there a difference between whether R r is immutable, const or
-    mutable?
-
-    TODO If r contains only one element return empty range.
-
-    See also: https://stackoverflow.com/questions/21004944/forward-difference-algorithm
-    See also: http://forum.dlang.org/thread/ujouqtqeehkegmtaxebg@forum.dlang.org#post-lczzsypupcfigttghkwx:40forum.dlang.org
-    See also: http://rosettacode.org/wiki/Forward_difference#D
-*/
+/** Compute Forward Difference of `range`.
+ *
+ * TODO Is there a difference between whether `R r` is immutable, const or
+ * mutable?
+ *
+ * TODO If `r` contains only one element return empty range.
+ *
+ * See also: https://stackoverflow.com/questions/21004944/forward-difference-algorithm
+ * See also: http://forum.dlang.org/thread/ujouqtqeehkegmtaxebg@forum.dlang.org#post-lczzsypupcfigttghkwx:40forum.dlang.org
+ * See also: http://rosettacode.org/wiki/Forward_difference#D
+ */
 auto forwardDifference(R)(R r)
     if (isInputRange!R)
 {
@@ -711,12 +716,12 @@ unittest
 import std.traits: isCallable, ReturnType, arity;
 import traits_ex: arityMin0;
 
-/** Create Range of Elements Generated by $(D fun).
-
-    Use for example to generate random instances of return value of fun.
-
-    TODO I believe we need arityMin, arityMax trait here
-*/
+/** Create Range of Elements Generated by `fun`.
+ *
+ * Use for example to generate random instances of return value of fun.
+ *
+ * TODO I believe we need arityMin, arityMax trait here
+ */
 auto apply(alias fun, N)(N n)
     if (// TODO isCallable!fun &&
         arityMin0!fun &&
@@ -741,9 +746,10 @@ unittest
     version(print) dln(spans);
 }
 
-/** In Place Ordering (in Sorted Order) of all Elements $(D t).
-    See also: https://stackoverflow.com/questions/21102646/in-place-ordering-of-elements/
-    See also: http://forum.dlang.org/thread/eweortsmcmibppmvtriw@forum.dlang.org#post-eweortsmcmibppmvtriw:40forum.dlang.org
+/** In Place Ordering (in Sorted Order) of all Elements `t`.
+ *
+ * See also: https://stackoverflow.com/questions/21102646/in-place-ordering-of-elements/
+ * See also: http://forum.dlang.org/thread/eweortsmcmibppmvtriw@forum.dlang.org#post-eweortsmcmibppmvtriw:40forum.dlang.org
 */
 void orderInPlace(T...)(ref T t) @trusted
 {
@@ -787,9 +793,10 @@ unittest
 
 import std.algorithm: SwapStrategy;
 
-/** Allow Static Arrays to be sorted without [].
-    See also: http://forum.dlang.org/thread/jhzurojjnlkatjdgcfhg@forum.dlang.org
-*/
+/** Allow static arrays to be sorted without [].
+ *
+ * See also: http://forum.dlang.org/thread/jhzurojjnlkatjdgcfhg@forum.dlang.org
+ */
 template sort(alias less = `a < b`, SwapStrategy ss = SwapStrategy.unstable)
 {
     import std.algorithm: stdSort = sort;
@@ -815,8 +822,9 @@ unittest
 }
 
 /** Stable Variant of Quick Sort.
-    See also: http://forum.dlang.org/thread/gjuvmrypvxeebvztszpr@forum.dlang.org
-*/
+ *
+ * See also: http://forum.dlang.org/thread/gjuvmrypvxeebvztszpr@forum.dlang.org
+ */
 auto ref stableSort(T)(auto ref T a) pure
     if (isRandomAccessRange!T)
 {
@@ -844,7 +852,7 @@ unittest
     assert(a == b);
 }
 
-/** Execute Expression $(D expr) the same way $(D n) times. */
+/** Execute Expression `expr` the same way `n` times. */
 void doTimes(uint n, lazy void expr)
 {
     while (n--)
@@ -853,8 +861,8 @@ void doTimes(uint n, lazy void expr)
     }
 }
 
-/** Execute Expression $(D expr) $(I inline) the same way $(D n) times.
-    $(D n) must be a constant known at compile time.
+/** Execute Expression `expr` $(I inline) the same way `n` times.
+    `n` must be a constant known at compile time.
 */
 void doTimes(uint n)(lazy void expr)
 {
@@ -876,7 +884,7 @@ alias loop = doTimes;
 alias doN = doTimes;
 alias repeat = doTimes;
 
-/** Execute Expression $(D action) the same way $(D n) times. */
+/** Execute Expression `action` the same way `n` times. */
 void times(alias action, N)(N n)
     if (isCallable!action &&
         isIntegral!N &&
@@ -933,7 +941,7 @@ unittest
 
 import std.meta : allSatisfy;
 
-/** Zip $(D ranges) together with operation $(D fun).
+/** Zip `ranges` together with operation `fun`.
     TODO Remove when Issue 8715 is fixed providing zipWith
 */
 auto zipWith(alias fun, Ranges...)(Ranges ranges)
@@ -973,17 +981,17 @@ auto zipWith(fun, StoppingPolicy, Ranges...)(StoppingPolicy sp,
 
 /** Pair. TODO std.typecons */
 alias Pair(T, U) = Tuple!(T, U);
-/** Instantiator for $(D Pair). */
+/** Instantiator for `Pair`. */
 auto pair(T, U)(T t, U u) { return Pair!(T, U)(t, u); }
 
 /** Triple. TODO std.typecons */
 alias Triple(T, U, V) = Tuple!(T, U, V);
-/** Instantiator for $(D Triple). */
+/** Instantiator for `Triple`. */
 auto triple(T, U, V)(T t, U u, V v) { return Triple!(T, U, V)(t, u, v); }
 
 /** Quadruple. TODO std.typecons */
 alias Quadruple(T, U, V, W) = Tuple!(T, U, V, W);
-/** Instantiator for $(D Quadruple). */
+/** Instantiator for `Quadruple`. */
 auto quadruple(T, U, V, W)(T t, U u, V v, W w) { return Quadruple!(T, U, V, W)(t, u, v, w); }
 
 /** Limit/Span (Min,Max) Pair.
@@ -996,7 +1004,7 @@ struct Limits(T)
 
     @property:
 
-    /** Expand Limits to include $(D a). */
+    /** Expand Limits to include `a`. */
     auto ref include(in T a) nothrow
     {
         _lims[0] = min(_lims[0], a);
@@ -1052,7 +1060,7 @@ unittest
 /*     dln(getTypeString!Rational); */
 /* } */
 
-/** Check if $(D a) and $(D b) are colinear. */
+/** Check if `a` and `b` are colinear. */
 bool areColinear(T)(T a, T b)
 {
     // a and b are colinear if a.x / a.y == b.x / b.y
@@ -1103,7 +1111,7 @@ unittest
     assert(1.fibonacci.take(9).equal([1, 2, 3, 5, 8, 13, 21, 34, 55]));
 }
 
-/** Expand Static $(D array) into a parameter arguments (AliasSeq!).
+/** Expand Static `array` into a parameter arguments (AliasSeq!).
     See also: http://forum.dlang.org/thread/hwellpcaomwbpnpofzlx@forum.dlang.org?page=1
 */
 template expand(alias array, size_t idx = 0)
@@ -1185,7 +1193,7 @@ unittest
     assert(c.w == 44);
 }
 
-/* Check if $(D part) is part of $(D whole).
+/* Check if `part` is part of `whole`.
    See also: http://forum.dlang.org/thread/ls9dbk$jkq$1@digitalmars.com
    TODO Standardize name and remove alises.
  */
@@ -1241,7 +1249,7 @@ unittest
                  [1, 1]));
 }
 
-/** Simpler variant of Phobos' $(D split). */
+/** Simpler variant of Phobos' `split`. */
 auto split(alias pred, R)(R haystack)
     if (isForwardRange!R)
 {
@@ -1291,7 +1299,7 @@ unittest
     assert(`1bb`.split!(a => a.isDigit) == tuple(``, `1`, `bb`));
 }
 
-/** Simpler variant of Phobos' $(D splitBefore). */
+/** Simpler variant of Phobos' `splitBefore`. */
 auto splitBefore(alias pred, R)(R haystack)
     if (isForwardRange!R)
 {
@@ -1420,8 +1428,8 @@ unittest
     assert(r == `111`);
 }
 
-/** Variant of $(D findSplitBefore) that destructively pops everything up to,
-    not including, $(D needle) from $(D haystack).
+/** Variant of `findSplitBefore` that destructively pops everything up to,
+    not including, `needle` from `haystack`.
 */
 auto findPopBefore(alias pred = `a == b`, R1, R2)(ref R1 haystack, R2 needle)
     if (isForwardRange!R1 &&
@@ -1463,8 +1471,8 @@ unittest
     assert(haystack == `yz`);
 }
 
-/** Variant of $(D findSplitAfter) that destructively pops everything up to,
-    including, $(D needle) from $(D haystack).
+/** Variant of `findSplitAfter` that destructively pops everything up to,
+    including, `needle` from `haystack`.
 */
 auto findPopAfter(alias pred = `a == b`, R1, R2)(ref R1 haystack, R2 needle)
     if (isForwardRange!R1 &&
@@ -1511,10 +1519,11 @@ unittest
     assert(haystack == source);
 }
 
-/** Find First Occurrence any of $(D needles) in $(D haystack).
-    Like to std.algorithm.find but takes an array of needles as argument instead
-    of a variadic list of key needle arguments.
-   Return found range plus index into needles starting at 1 upon.
+/** Find First Occurrence any of `needles` in `haystack`.
+ *
+ * Like to std.algorithm.find but takes an array of needles as argument instead
+ * of a variadic list of key needle arguments.  Return found range plus index
+ * into needles starting at 1 upon.
  */
 Tuple!(R, size_t) findFirstOfAnyInOrder(alias pred = `a == b`, R)(R haystack, const R[] needles)
 {
@@ -1590,11 +1599,12 @@ Tuple!(R, size_t)[] findAllOfAnyInOrder(alias pred = `a == b`, R)(R haystack, R[
     return typeof(return).init;
 }
 
-/** Return true if all arguments $(D args) are strictly ordered,
-    that is args[0] < args[1] < args[2] < ... .
-    TODO: CT-variant
-    See also: http://forum.dlang.org/thread/wzsdhzycwqyrvqmmttix@forum.dlang.org?page=2#post-vprvhifglfegnlvzqmjj:40forum.dlang.org
-*/
+/** Return true if all arguments `args` are strictly ordered, that is args[0] <
+ * args[1] < args[2] < ... .
+ *
+ * TODO: CT-variant
+ * See also: http://forum.dlang.org/thread/wzsdhzycwqyrvqmmttix@forum.dlang.org?page=2#post-vprvhifglfegnlvzqmjj:40forum.dlang.org
+ */
 bool areStrictlyOrdered(Ts...)(Ts args)
     if (args.length >= 2 &&
         haveCommonType!Ts)
@@ -1615,10 +1625,11 @@ unittest
     assert(areStrictlyOrdered('a', 'b', 'c'));
 }
 
-/** Return true if all arguments $(D args) are unstrictly ordered,
-    that is args[0] <= args[1] <= args[2] <= ... .
-    TODO: CT-variant
-    See also: http://forum.dlang.org/thread/wzsdhzycwqyrvqmmttix@forum.dlang.org?page=2#post-vprvhifglfegnlvzqmjj:40forum.dlang.org
+/** Return true if all arguments `args` are unstrictly ordered,
+ * that is args[0] <= args[1] <= args[2] <= ... .
+ *
+ * TODO: CT-variant
+ * See also: http://forum.dlang.org/thread/wzsdhzycwqyrvqmmttix@forum.dlang.org?page=2#post-vprvhifglfegnlvzqmjj:40forum.dlang.org
 */
 bool areUnstrictlyOrdered(Ts...)(Ts args)
     if (args.length >= 2 &&
@@ -1645,9 +1656,11 @@ alias sadd = addu;
 alias ssub = subu;
 alias smul = mulu;
 
-/** Append arguments $(args) to $(D data).
-    TODO Add support for other random-access-ranges such as array_ex.d.
-    See also: http://forum.dlang.org/thread/mevnosveagdiswkxtbrv@forum.dlang.org?page=1
+/** Append arguments $(args) to `data`.
+ *
+ * TODO Add support for other random-access-ranges such as array_ex.d.
+ *
+ * See also: http://forum.dlang.org/thread/mevnosveagdiswkxtbrv@forum.dlang.org?page=1
  */
 ref R append(R, Args...)(ref R data,
                          auto ref Args args)
@@ -1748,11 +1761,11 @@ unittest
     static assert(!__traits(compiles, { data.append(); }));
 }
 
-/** Distinct Elements of $(D r).
-
-   See also: http://forum.dlang.org/thread/jufggxqwzhlsmhshtnfj@forum.dlang.org?page=2
-   See also: http://dpaste.dzfl.pl/7b4b37b490a7
-*/
+/** Distinct Elements of `r`.
+ *
+ * See also: http://forum.dlang.org/thread/jufggxqwzhlsmhshtnfj@forum.dlang.org?page=2
+ * See also: http://dpaste.dzfl.pl/7b4b37b490a7
+ */
 auto distinct(R)(R r)
     if (isInputRange!(Unqual!R))
 {
@@ -1847,9 +1860,9 @@ import std.algorithm.setops : cartesianProduct;
 /** More descriptive alias. */
 alias elementCombinations = cartesianProduct;
 
-/** Reset all members in aggregate instance $(D c).
-    See also: http://forum.dlang.org/post/ckitmpguywfitgadfpkv@forum.dlang.org
-    See also: http://forum.dlang.org/post/fbs8b5$5bu$1@digitalmars.com
+/** Reset all members in aggregate instance `c`.
+ * See also: http://forum.dlang.org/post/ckitmpguywfitgadfpkv@forum.dlang.org
+ * See also: http://forum.dlang.org/post/fbs8b5$5bu$1@digitalmars.com
 */
 void resetAllMembers(T)(T c)
     if (is(T == class))
@@ -1893,8 +1906,9 @@ void resetAllMembers(T)(T c)
 }
 
 /** Returns: `true` iff `r` contains strictly values that are strictly increase
-    with the increment `step`.
-    See also: http://forum.dlang.org/post/mqjyhvqxepgfljpkxvmd@forum.dlang.org
+ * with the increment `step`.
+ *
+ * See also: http://forum.dlang.org/post/mqjyhvqxepgfljpkxvmd@forum.dlang.org
  */
 bool isLinearRamp(R)(R r, size_t step = 1)
     if (isInputRange!R &&
@@ -2058,11 +2072,12 @@ bool equalLength(R, Ss...)(const R r, const Ss ss)
 }
 
 /** Collect/Gather the elements of `r` into a `Container` and return it.
-    TODO Use std.container.util.make instead?: https://dlang.org/phobos/std_container_util.html#.make
-    TODO Rename `container` to `output`?
-    TODO Support Set-containers via `insert` aswell, or add `alias put = insert` to them?
-    TODO What about `Appender`?
-    TODO Rename from `collect` to `gather`.
+ *
+ * TODO Use std.container.util.make instead?: https://dlang.org/phobos/std_container_util.html#.make
+ * TODO Rename `container` to `output`?
+ * TODO Support Set-containers via `insert` aswell, or add `alias put = insert` to them?
+ * TODO What about `Appender`?
+ * TODO Rename from `collect` to `gather`.
  */
 Container collect(Container, Range) (Range r)
     // if (isInputRange!Range &&
@@ -2126,9 +2141,9 @@ Container collect(Container, Range) (Range r)
 }
 
 /** Returns: `x` eagerly split in two parts, all as equal in length as possible.
-
-    Safely avoids range checking thanks to D's builtin slice expressions.
-    Use in divide-and-conquer algorithms such as quicksort and binary search.
+ *
+ * Safely avoids range checking thanks to D's builtin slice expressions.
+ * Use in divide-and-conquer algorithms such as quicksort and binary search.
  */
 auto spliced2(T)(T[] x) @trusted
 {
@@ -2154,9 +2169,9 @@ alias halved = spliced2;
 }
 
 /** Returns: `x` eagerly split in three parts, all as equal in length as possible.
-
-    Safely avoids range checking thanks to D's builtin slice expressions.
-    Use in divide-and-conquer algorithms such as quicksort and binary search.
+ *
+ * Safely avoids range checking thanks to D's builtin slice expressions.
+ * Use in divide-and-conquer algorithms such as quicksort and binary search.
  */
 auto spliced3(T)(T[] x) @trusted
 {
@@ -2185,9 +2200,9 @@ auto spliced3(T)(T[] x) @trusted
 }
 
 /** Splice `x` in `N` parts, all as equal in lengths as possible.
-
-    Safely avoids range checking thanks to D's builtin slice expressions.
-    Use in divide-and-conquer algorithms such as quicksort and binary search.
+ *
+ * Safely avoids range checking thanks to D's builtin slice expressions.
+ * Use in divide-and-conquer algorithms such as quicksort and binary search.
  */
 auto splicerN(uint N, T)(T[] x) @trusted
 {
@@ -2323,8 +2338,9 @@ auto use(alias F, T)(T t)
 }
 
 /** Is `true` iff `x` is an ASCII character constant, false otherwise.
-    See also: `std.ascii.isASCII`.
-*/
+ *
+ * See also: `std.ascii.isASCII`.
+ */
 template isASCIIConstant(alias x)
 {
     alias T = typeof(x);

@@ -90,7 +90,8 @@ template allSameIterative(V...)
     {
         static foreach (Vi; V[1 .. $])
         {
-            static if (V[0] != Vi)
+            static if (!is(typeof(allSameIterative) == bool) && // not yet defined
+                       V[0] != Vi)
             {
                 enum allSameIterative = false;
             }

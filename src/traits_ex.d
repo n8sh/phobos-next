@@ -188,6 +188,14 @@ template allSameTypeHybrid(V...)
 {
     static if (V.length >= 8)
     {
+        static if (V.length <= 1)
+        {
+            enum allSameTypeHybrid = true;
+        }
+        else static if (V.length == 2)
+        {
+            enum allSameTypeHybrid = is(V[0] == V[1]);
+        }
         static if (V.length & 1) // odd count
         {
             enum allSameTypeHybrid = (is(V[0] == V[$ - 1]) && // first equals last

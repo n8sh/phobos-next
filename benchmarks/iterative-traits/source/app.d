@@ -17,7 +17,7 @@ void main()
                          char, wchar, dchar,
                          string, wstring, dstring);
 
-    pragma(msg, "Instantiation count: ", cast(int)Ts.length^^4);
+    pragma(msg, "Instantiation count: ", cast(int)Ts.length^^3);
     import std.stdio;
 
     auto count = 0;
@@ -27,13 +27,9 @@ void main()
         {
             foreach (T3; Ts)
             {
-                foreach (T4; Ts)
-                {
-                    count += allSameTypeIterative!(W!(T1, 1),
-                                                   W!(T2, 2),
-                                                   W!(T3, 3),
-                                                   W!(T4, 4)) ? 1 : 0;
-                }
+                count += allSameTypeIterative!(W!(T1, 1),
+                                               W!(T2, 2),
+                                               W!(T3, 3)) ? 1 : 0;
             }
         }
     }

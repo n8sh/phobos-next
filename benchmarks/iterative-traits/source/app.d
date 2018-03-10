@@ -6,17 +6,18 @@ struct W(T, size_t n)
 void main()
 {
     import std.meta : AliasSeq, NoDuplicates;
-    import traits_ex : allSame, allSameTypeRecursive;
+    import traits_ex : allSame, allSameTypeIterative, allSameTypeRecursive;
 
     alias Ts = AliasSeq!(byte, ubyte,
                          short, ushort,
                          int, uint,
                          long, ulong,
                          float, double, real,
+                         cfloat, cdouble, creal,
                          char, wchar, dchar,
                          string, wstring, dstring);
 
-    pragma(msg, "Instantiation count: ", cast(int)Ts.length^^3);
+    pragma(msg, "Instantiation count: ", cast(int)Ts.length^^4);
     import std.stdio;
 
     auto count = 0;
@@ -26,10 +27,13 @@ void main()
         {
             static foreach (T3; Ts)
             {
-                count += allSame!(W!(T1, 1),
-                                  W!(T2, 2),
-                                  W!(T3, 3)) ? 1 : 0;
-                // writeln(T1.stringof, " - ", T2.stringof, " - ", T3.stringof, " => ", count);
+                static foreach (T4; Ts)
+                {
+                    count += allSameTypeIterative!(W!(T1, 1),
+                                                   W!(T2, 2),
+                                                   W!(T3, 3),
+                                                   W!(T4, 4)) ? 1 : 0;
+                }
             }
         }
     }

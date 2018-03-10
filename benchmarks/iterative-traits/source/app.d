@@ -21,13 +21,13 @@ void main()
     import std.stdio;
 
     auto count = 0;
-    static foreach (T1; Ts)
+    foreach (T1; Ts)
     {
-        static foreach (T2; Ts)
+        foreach (T2; Ts)
         {
-            static foreach (T3; Ts)
+            foreach (T3; Ts)
             {
-                static foreach (T4; Ts)
+                foreach (T4; Ts)
                 {
                     count += allSameTypeIterative!(W!(T1, 1),
                                                    W!(T2, 2),

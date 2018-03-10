@@ -87,7 +87,7 @@ bool skipOverBack(alias pred, R1, R2)(ref R1 r1, R2 r2)
     assert(skipOverBack(s1, "world") && s1 == "Hello ");
 }
 
-import std.typecons: tuple, Tuple;
+import std.typecons: Tuple;
 
 import std.algorithm: startsWith;
 

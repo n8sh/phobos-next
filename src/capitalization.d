@@ -2,7 +2,7 @@ module capitalization;
 
 import std.traits : isSomeString;
 
-/** Check if $(D s) starts with a capital letter followed by a lower
+/** Check if `s` starts with a capital letter followed by a lower
     letter. */
 bool isCapitalizedEasy(S)(S s)
     if (isSomeString!S)
@@ -67,7 +67,7 @@ auto isUppercased(S, alias pred = isUpper)(S s)
     assert(!`a`.isUppercased);
 }
 
-/** Check if $(D s) starts with a capital letter followed by only lower
+/** Check if `s` starts with a capital letter followed by only lower
     letters. */
 bool isCapitalized(S)(S s)
     if (isSomeString!S)

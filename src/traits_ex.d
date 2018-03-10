@@ -78,43 +78,6 @@ template allSame(V...)
     static assert(!allSame!(42, 43, 42));
 }
 
-version(none)                   // disable for now
-{
-/** Iterative `allSame`. */
-template allSameIterative(V...)
-    if (isExpressions!V)
-{
-    bool impl_(V...)()
-    {
-        static if (V.length >= 2)
-        {
-            foreach (i, _; V[0 .. $ - 1])
-            {
-                if (V[i] != V[i + 1])
-                {
-                    return false;
-                }
-            }
-            return true;        // TODO remove warning: statement not reachable
-        }
-        else
-        {
-            return true;
-        }
-    }
-    enum allSameIterative = impl_!V();
-}
-
-///
-@safe pure nothrow @nogc unittest
-{
-    static assert( allSameIterative!());
-    static assert( allSameIterative!(42));
-    static assert( allSameIterative!(42, 42, 42));
-    static assert(!allSameIterative!(42, 43, 42));
-}
-}
-
 /** Recursive `allSame`. */
 template allSameRecursive(V...)
     if (isExpressions!(V))

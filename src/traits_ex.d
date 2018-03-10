@@ -183,28 +183,65 @@ template allSameRecursive(V...)
     static assert(!allSameRecursive!(42, 43, 42));
 }
 
-/** Variant of `allSameRecursive`.
+template allSameTypeHybrid(V...)
+// TODO restrict `V` to types only
+{
+    static if (V.length >= 8)
+    {
+        static if (V.length & 1) // odd count
+        {
+            enum allSameTypeHybrid = (is(V[0] == V[$ - 1]) && // first equals last
+                                      is(V[0 .. $/2] == V[$/2 .. $-1]) && // (first half) equals (second half minus last element)
+                                      allSameTypeHybrid!(V[0 .. $/2]));
+        }
+        else                        // even count
+        {
+            enum allSameTypeHybrid = (is(V[0 .. $/2] == V[$/2 .. $]) && // (first half) equals (second half)
+                                      allSameTypeHybrid!(V[0 .. $/2]));
+        }
+    }
+    else
+    {
+        enum allSameTypeHybrid = allSameTypeIterative!(V);
+    }
+}
+
+//
+@safe pure nothrow @nogc unittest
+{
+    static assert(allSameTypeHybrid!());
+    static assert(allSameTypeHybrid!(int));
+    static assert(allSameTypeHybrid!(int, int));
+    static assert(!allSameTypeHybrid!(int, double));
+    static assert(!allSameTypeHybrid!(int, int, double));
+    static assert(allSameTypeHybrid!(Tuple!(int, int, int).Types, int));
+
+    static assert(!allSameTypeHybrid!(int, const(int)));
+    static assert(!allSameTypeHybrid!(byte, const(int)));
+}
+
+/** Variant of `allSameTypeRecursive`.
  */
-template allSameRecursive2(V...)
+template allSameTypeRecursive2(V...)
     if (isExpressions!(V))
 {
     static if (V.length <= 1)
     {
-        enum allSameRecursive2 = true;
+        enum allSameTypeRecursive2 = true;
     }
     else
     {
-        enum allSameRecursive2 = (V[0] == V[1] &&
-                                  allSameRecursive2!(V[1..$]));
+        enum allSameTypeRecursive2 = (V[0] == V[1] &&
+                                      allSameTypeRecursive2!(V[1..$]));
     }
 }
 
 @safe pure nothrow @nogc unittest
 {
-    static assert(allSameRecursive2!());
-    static assert(allSameRecursive2!(42));
-    static assert(!allSameRecursive2!(41, 42));
-    static assert(allSameRecursive2!(42, 42, 42));
+    static assert(allSameTypeRecursive2!());
+    static assert(allSameTypeRecursive2!(42));
+    static assert(!allSameTypeRecursive2!(41, 42));
+    static assert(allSameTypeRecursive2!(42, 42, 42));
 }
 
 /** Returns: `true` iff all types `T` are the same.

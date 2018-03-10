@@ -17,7 +17,7 @@ import std.typecons : Tuple;
 
 public import std.traits : isCopyable;
 
-/** Returns: true iff $(D ptr) is handled by the garbage collector (GC). */
+/** Returns: true iff $(D ptr) is handled by D's built-in garbage collector (GC). */
 template isGCPointer(T)
 {
     bool isGCPointer(const T* ptr)

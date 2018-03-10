@@ -14,33 +14,23 @@ enum allSameUsingNoDuplicates(Ts...) = NoDuplicates!Ts.length == 1;
 
 void main()
 {
-    alias differentTs(uint n) = AliasSeq!(W!(byte, n), W!(ubyte, n),
-                                          W!(short, n), W!(ushort, n),
-                                          W!(int, n), W!(uint, n),
-                                          W!(long, n), W!(ulong, n),
-                                          W!(float, n), W!(cfloat, n),
-                                          W!(double, n), W!(cdouble, n),
-                                          W!(real, n), W!(creal, n),
-                                          W!(string, n), W!(wstring, n), W!(dstring, n));
+    alias Ts(uint n) = AliasSeq!(W!(byte, n), W!(ubyte, n),
+                                 W!(short, n), W!(ushort, n),
+                                 W!(int, n), W!(uint, n),
+                                 W!(long, n), W!(ulong, n),
+                                 W!(float, n), W!(cfloat, n),
+                                 W!(double, n), W!(cdouble, n),
+                                 W!(real, n), W!(creal, n),
+                                 W!(string, n), W!(wstring, n), W!(dstring, n));
 
-    enum n = 1000;
+    enum n = 1000;              // number of different sets of instantations of Ts
     static foreach (i; 0 .. n)
     {
         // uncomment what you like and measure compilation speed:
-        static if (allSameUsingNoDuplicates!(differentTs!(i)))
-        {
-        }
-        // static if (allSatisfyIterative!(isIntegral, differentTs!(i)))
-        // {
-        // }
-        // static if (allSatisfy!(isIntegral, differentTs!(i)))
-        // {
-        // }
-        // static if (anySatisfyIterative!(isIntegral, differentTs!(i)))
-        // {
-        // }
-        // static if (anySatisfy!(isIntegral, differentTs!(i)))
-        // {
-        // }
+        // static if (allSameUsingNoDuplicates!(Ts!(i))) {} // really slow
+        // static if (allSatisfyIterative!(isIntegral, Ts!(i))) {}
+        // static if (allSatisfy!(isIntegral, Ts!(i))) {}
+        // static if (anySatisfyIterative!(isIntegral, Ts!(i))) {}
+        // static if (anySatisfy!(isIntegral, Ts!(i))) {}
     }
 }

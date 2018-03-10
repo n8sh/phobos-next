@@ -23,9 +23,6 @@ void main()
                                           W!(real, n), W!(creal, n),
                                           W!(string, n), W!(wstring, n), W!(dstring, n));
 
-    pragma(msg, "Instantiation count : ", cast(int)Ts.length^^3);
-    import std.stdio;
-
     enum n = 1000;
     static foreach (i; 0 .. n)
     {

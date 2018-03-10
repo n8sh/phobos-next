@@ -1,8 +1,8 @@
 module priority_queue;
 
 /** Priority Queue.
-    $(D P) is Priority Type. Lower priority means higher precedence in queue.
-    $(D V) is Value Type.
+    `P` is Priority Type. Lower priority means higher precedence in queue.
+    `V` is Value Type.
  */
 struct PriorityQueue(P, V, alias pred = "a > b")
 {

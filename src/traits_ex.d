@@ -57,13 +57,13 @@ template allSame(V...)
     }
     else static if (V.length & 1)
     {
-        enum allSame = (V[$ - 1] == V[0] &&
-                        V[0 .. $/2] == V[$/2 .. $-1] &&
+        enum allSame = (V[0] == V[$ - 1] && // first equals last
+                        V[0 .. $/2] == V[$/2 .. $-1] && // (first half) equals (second half minus last element)
                         allSame!(V[0 .. $/2]));
     }
     else
     {
-        enum allSame = (V[0 .. $/2] == V[$/2 .. $] &&
+        enum allSame = (V[0 .. $/2] == V[$/2 .. $] && // (first half) equals (second half)
                         allSame!(V[0 .. $/2]));
     }
 }
@@ -75,6 +75,10 @@ template allSame(V...)
     static assert( allSame!(42));
     static assert( allSame!(42, 42, 42));
     static assert(!allSame!(42, 43, 42));
+
+    import std.meta : NoDuplicates;
+    static assert(NoDuplicates!(42, 42, 42).length == 1);
+    static assert(NoDuplicates!(int, int).length == 1);
 }
 
 version(none)                   // disable for now
@@ -234,7 +238,7 @@ template allSameTypesInTuple(T)
     static assert(allSameTypesInTuple!(typeof(ztup)));
 }
 
-/** Convert tuple $(D tup) to a static array.
+/** Returns: tuple `tup` to a static array.
     See also: http://dpaste.dzfl.pl/d0059e6e6c09
 */
 inout(T.Types[0])[T.length] toStaticArray(T)(inout T tup) @trusted
@@ -252,7 +256,7 @@ inout(T.Types[0])[T.length] toStaticArray(T)(inout T tup) @trusted
     assert(tup.toStaticArray() == arr);
 }
 
-/** Return Tuple $(D tup) as a Dynamic Array.
+/** Returns: tuple `tup` as a dynamic array.
 */
 auto asDynamicArray(T)(inout T tup)
     if (allSameType!(T.Types))
@@ -276,7 +280,10 @@ pure nothrow unittest
 }
 
 /** Is `true` if `R` is iterable over references to its elements.
-    TODO Add to Phobos.
+ *
+ * Typically used to iterate over ranges with uncopyable elements.
+ *
+ * TODO Add to Phobos.
  */
 enum bool isRefIterable(T) = is(typeof({ foreach (ref elem; T.init) {} }));
 

@@ -8,14 +8,23 @@ void main()
     import std.meta : AliasSeq, NoDuplicates;
     import traits_ex : allSame, allSameTypeIterative, allSameTypeRecursive;
 
-    alias Ts = AliasSeq!(byte, ubyte,
-                         short, ushort,
-                         int, uint,
-                         long, ulong,
-                         float, double, real,
-                         cfloat, cdouble, creal,
-                         char, wchar, dchar,
-                         string, wstring, dstring);
+    alias differentTs = AliasSeq!(byte, ubyte,
+                                  short, ushort,
+                                  int, uint,
+                                  long, ulong,
+                                  float, double, real,
+                                  cfloat, cdouble, creal,
+                                  char, wchar, dchar,
+                                  string, wstring, dstring);
+    alias sameTs = AliasSeq!(byte, byte,
+                             byte, byte,
+                             byte, byte,
+                             byte, byte,
+                             byte, byte, byte,
+                             byte, byte, byte,
+                             byte, byte, byte,
+                             byte, byte, byte);
+    alias Ts = differentTs;
 
     pragma(msg, "Instantiation count: ", cast(int)Ts.length^^3);
     import std.stdio;

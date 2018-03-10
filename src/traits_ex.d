@@ -111,11 +111,7 @@ enum isHeterogeneous(T) = !isHomogeneousType!T;
 template allSameTypeIterative(V...)
 // TODO restrict `V` to types only
 {
-    static if (V.length <= 1)
-    {
-        enum allSameTypeIterative = true;
-    }
-    else
+    static if (V.length >= 2)
     {
         static foreach (Vi; V[1 .. $])
         {
@@ -125,10 +121,10 @@ template allSameTypeIterative(V...)
                 enum allSameTypeIterative = false;
             }
         }
-        static if (!is(typeof(allSameTypeIterative) == bool)) // if not yet defined
-        {
-            enum allSameTypeIterative = true;
-        }
+    }
+    static if (!is(typeof(allSameTypeIterative) == bool)) // if not yet defined
+    {
+        enum allSameTypeIterative = true;
     }
 }
 alias allSameType = allSameTypeIterative;

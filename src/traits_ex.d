@@ -563,8 +563,7 @@ enum isValueType(T) = !hasIndirections!T;
 // enum isValueType(T) = isScalarType!T || isStaticArray!T || isStruct!T;
 enum hasValueSemantics(T) = !hasIndirections!T; // TODO merge with isValueType
 
-/* See also: http://forum.dlang.org/thread/hsfkgcmkjgvrfuyjoujj@forum.dlang.org#post-hsfkgcmkjgvrfuyjoujj:40forum.dlang.org */
-enum isReferenceType(T) = isDynamicArray!T || isSomeString!T || isClass!T;
+enum isReferenceType(T) = hasIndirections!T;
 
 enum arityMin0(alias fun) = __traits(compiles, fun());
 

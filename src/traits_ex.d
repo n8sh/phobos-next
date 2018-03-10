@@ -18,14 +18,11 @@ import std.typecons : Tuple;
 public import std.traits : isCopyable;
 
 /** Returns: `true` iff $(D ptr) is handled by D's built-in garbage collector (GC). */
-template isGCPointer(T)
+bool isGCPointer(T)(const T* ptr)
+    @trusted nothrow @nogc
 {
-    bool isGCPointer(const T* ptr)
-        @trusted nothrow @nogc
-    {
-        import core.memory : GC;
-        return cast(bool)GC.addrOf(ptr);
-    }
+    import core.memory : GC;
+    return cast(bool)GC.addrOf(ptr);
 }
 alias inGC = isGCPointer;
 alias isGCed = isGCPointer;

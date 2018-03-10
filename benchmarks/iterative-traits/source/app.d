@@ -1,13 +1,15 @@
+import std.meta : AliasSeq, NoDuplicates;
+import traits_ex : allSame, allSameTypeIterative, allSameTypeRecursive;
+
 struct W(T, size_t n)
 {
     T value;
 }
 
+enum allSameUsingNoDuplicates(Ts) = NoDuplicates!Ts.length == 1;
+
 void main()
 {
-    import std.meta : AliasSeq, NoDuplicates;
-    import traits_ex : allSame, allSameTypeIterative, allSameTypeRecursive;
-
     alias differentTs = AliasSeq!(byte, ubyte,
                                   short, ushort,
                                   int, uint,
@@ -24,7 +26,7 @@ void main()
                              byte, byte, byte,
                              byte, byte, byte,
                              byte, byte, byte);
-    alias Ts = differentTs;
+    alias Ts = sameTs;
 
     pragma(msg, "Instantiation count: ", cast(int)Ts.length^^3);
     import std.stdio;

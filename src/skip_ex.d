@@ -67,10 +67,11 @@ bool skipOverBack(alias pred, R1, R2)(ref R1 r1, R2 r2)
     return r2.empty;
 }
 
-@safe pure nothrow @nogc unittest
+///
+@safe pure nothrow unittest
 {
-    auto s1 = [1, 2, 3].s[];
-    const s2 = [2, 3].s[];
+    auto s1 = [1, 2, 3];
+    const s2 = [2, 3];
     s1.skipOverBack(s2);
     assert(s1 == [1].s);
     s1.skipOverBack(s2);        // no effect
@@ -223,10 +224,10 @@ size_t skipOverBackShortestOf(alias pred = "a == b", Range, Ranges...)(ref Range
     import std.traits: hasIndirections;
     import std.traits : Unqual;
     import std.meta: staticMap, AliasSeq;
-    // import traits_ex: allSameType;
+    // import traits_ex: allSame;
 
     static if ((!hasIndirections!(ElementType!Range))/*  && */
-               /* allSameType!(Unqual!Range, staticMap!(Unqual, Ranges)) */)
+               /* allSame!(Unqual!Range, staticMap!(Unqual, Ranges)) */)
     {
         auto retroHaystack = (cast(ubyte[])haystack).retro;
 

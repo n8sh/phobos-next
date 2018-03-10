@@ -206,6 +206,7 @@ template allSameRecursive2(V...)
 /** Returns: `true` iff all types `T` are the same.
  */
 template allSameTypeRecursive(V...)
+// TODO restrict `V` to types only
 {
     static if (V.length <= 1)
     {
@@ -229,6 +230,8 @@ template allSameTypeRecursive(V...)
     static assert(allSameTypeRecursive!());
     static assert(allSameTypeRecursive!(int));
     static assert(allSameTypeRecursive!(int, int));
+    static assert(!allSameTypeRecursive!(int, const(int)));
+    static assert(allSameTypeRecursive!(int, Unqual!(const(int))));
     static assert(!allSameTypeRecursive!(int, double));
     static assert(!allSameTypeRecursive!(int, int, double));
     static assert(allSameTypeRecursive!(Tuple!(int, int, int).Types, int));

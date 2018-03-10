@@ -543,9 +543,8 @@ pure @safe unittest
     assert(takeBackWhile!((a) => isDigit(a))("").array == "");
 }
 
-/**
- * Indicates how many elements of a range are different from the default element
- * value.
+/** Indicates how many elements of a range are different from the default
+ * element value.
  *
  * Params:
  *      range = An input range. The elements must be mutable and initializable.

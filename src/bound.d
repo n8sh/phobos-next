@@ -270,7 +270,7 @@ unittest
     static assert(is(BoundsType!(0.0, 10.0) == double));
 }
 
-/** Value of Type $(D V) bound inside Inclusive Range [low, high].
+/** Value of Type `V` bound inside Inclusive Range [low, high].
 
     If $(D optional) is true this stores one extra undefined state (similar to Haskell's Maybe).
 

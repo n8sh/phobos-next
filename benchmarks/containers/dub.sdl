@@ -1,4 +1,4 @@
-name "benchmark-append"
+name "benchmark-containers"
 
 targetType "executable"
 

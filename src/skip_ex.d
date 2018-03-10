@@ -87,8 +87,6 @@ bool skipOverBack(alias pred, R1, R2)(ref R1 r1, R2 r2)
     assert(skipOverBack(s1, "world") && s1 == "Hello ");
 }
 
-import std.typecons: Tuple;
-
 import std.algorithm: startsWith;
 
 /** Variadic Version of $(D skipOver).
@@ -205,8 +203,14 @@ size_t skipOverShortestOf(alias pred = "a == b",
     assert(x == "eta version");
 }
 
+private static struct SkipOverLongest
+{
+    bool hit;
+    size_t index;
+}
+
 /** Skip Over Longest Matching prefix in $(D needles) that prefixes $(D haystack). */
-Tuple!(bool, size_t) skipOverLongestOf(alias pred = "a == b", Range, Ranges...)(ref Range haystack, Ranges needles)
+SkipOverLongest skipOverLongestOf(alias pred = "a == b", Range, Ranges...)(ref Range haystack, Ranges needles)
 {
     // TODO figure out which needles that are prefixes of other needles by first
     // sorting them and then use some adjacent filtering algorithm

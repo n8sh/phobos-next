@@ -93,10 +93,10 @@ import lingua: TokenId, Usage;
     /** Preformatted. */
     struct AsPreformatted(T...) { T args; } auto ref asPreformatted(T...)(T args) { return AsPreformatted!T(args); }
 
-    /** Scan Hit with index $(D ix)). */
+    /** Scan hit with index `ix`). */
     struct AsHit(T...) { uint ix; T args; } auto ref asHit(T)(uint ix, T args) { return AsHit!T(ix, args); }
 
-    /** Scan Hit Context with index $(D ix)). */
+    /** Scan hit context with index `ix`). */
     struct AsCtx(T...) { uint ix; T args; } auto ref asCtx(T)(uint ix, T args) { return AsCtx!T(ix, args); }
 
     /** Header. */

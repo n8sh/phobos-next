@@ -23,14 +23,18 @@ void main()
                                  W!(real, n), W!(creal, n),
                                  W!(string, n), W!(wstring, n), W!(dstring, n));
 
-    enum n = 1000;              // number of different sets of instantations of Ts
+    enum n = 500;              // number of different sets of instantations of Ts
     static foreach (i; 0 .. n)
     {
         // uncomment what you like and measure compilation speed:
-        // static if (allSameUsingNoDuplicates!(Ts!(i))) {} // really slow
-        // static if (allSatisfyIterative!(isIntegral, Ts!(i))) {}
-        // static if (allSatisfy!(isIntegral, Ts!(i))) {}
-        // static if (anySatisfyIterative!(isIntegral, Ts!(i))) {}
+
+        // static if (allSatisfyIterative!(isIntegral, Ts!(i))) {} // 0.9 secs
+        // static if (allSatisfy!(isIntegral, Ts!(i))) {} // 7 secs
+
+        // static if (anySatisfyIterative!(isIntegral, Ts!(i))) {} // 7 secs
         // static if (anySatisfy!(isIntegral, Ts!(i))) {}
+
+        // static if (allSameIterative!(Ts!(i))) {} // 0.6 secs
+        // static if (allSameUsingNoDuplicates!(Ts!(i))) {} // 9.3 secs
     }
 }

@@ -128,13 +128,13 @@ template allSameRecursive(V...)
     else static if (V.length & 1) // odd count
     {
         enum allSameRecursive = (V[0] == V[$ - 1] && // first equals last
-                        V[0 .. $/2] == V[$/2 .. $-1] && // (first half) equals (second half minus last element)
-                        allSameRecursive!(V[0 .. $/2]));
+                                 V[0 .. $/2] == V[$/2 .. $-1] && // (first half) equals (second half minus last element)
+                                 allSameRecursive!(V[0 .. $/2]));
     }
     else                        // event count
     {
         enum allSameRecursive = (V[0 .. $/2] == V[$/2 .. $] && // (first half) equals (second half)
-                        allSameRecursive!(V[0 .. $/2]));
+                                 allSameRecursive!(V[0 .. $/2]));
     }
 }
 
@@ -159,7 +159,8 @@ template allSameRecursive2(V...)
     }
     else
     {
-        enum allSameRecursive2 = V[0] == V[1] && allSameRecursive2!(V[1..$]);
+        enum allSameRecursive2 = (V[0] == V[1] &&
+                                  allSameRecursive2!(V[1..$]));
     }
 }
 
@@ -182,13 +183,13 @@ template allSameTypeRecursive(V...)
     else static if (V.length & 1) // odd count
     {
         enum allSameTypeRecursive = (is(V[0] == V[$ - 1]) && // first equals last
-                            is(V[0 .. $/2] == V[$/2 .. $-1]) && // (first half) equals (second half minus last element)
-                            allSameTypeRecursive!(V[0 .. $/2]));
+                                     is(V[0 .. $/2] == V[$/2 .. $-1]) && // (first half) equals (second half minus last element)
+                                     allSameTypeRecursive!(V[0 .. $/2]));
     }
     else                        // even count
     {
         enum allSameTypeRecursive = (is(V[0 .. $/2] == V[$/2 .. $]) && // (first half) equals (second half)
-                            allSameTypeRecursive!(V[0 .. $/2]));
+                                     allSameTypeRecursive!(V[0 .. $/2]));
     }
 }
 

@@ -1,5 +1,5 @@
 import std.meta : AliasSeq, NoDuplicates;
-import traits_ex : allSame, allSameTypeIterative, allSameTypeRecursive;
+import traits_ex : allSame, allSameIterative, allSameTypeIterative, allSameTypeRecursive;
 
 struct W(T, size_t n)
 {
@@ -37,9 +37,10 @@ void main()
         {
             foreach (T3; Ts)
             {
-                static if (allSameUsingNoDuplicates!(W!(T1, 1),
-                                                     W!(T2, 2),
-                                                     W!(T3, 3)))
+                alias MergedTs = AliasSeq!(W!(T1, 1),
+                                           W!(T2, 2),
+                                           W!(T3, 3));
+                static if (allSameTypeIterative!(MergedTs))
                 {
                 }
                 else

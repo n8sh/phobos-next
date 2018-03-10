@@ -481,8 +481,8 @@ class FKind
 
     override string toString() const @property @trusted pure nothrow { return kindName; }
 
-    /** Returns: Id Unique to matching behaviour of $(D this) FKind. If match
-        behaviour of $(D this) FKind changes returned id will change.
+    /** Returns: Id Unique to matching behaviour of `this` FKind. If match
+        behaviour of `this` FKind changes returned id will change.
         value is memoized.
     */
     auto ref const(SHA1Digest) behaviorId() @property @safe /* pure nothrow */
@@ -606,7 +606,7 @@ private:
     FKind[SHA1Digest] byId;    // Index Kinds by their behaviour
 }
 
-/** Match $(D kind) with full filename $(D full). */
+/** Match `kind` with full filename `full`. */
 bool matchFullName(in FKind kind,
                    in string full, size_t six = 0) @safe pure nothrow
 {
@@ -614,7 +614,7 @@ bool matchFullName(in FKind kind,
             !kind.baseNaming.match(full, six).empty);
 }
 
-/** Match $(D kind) with file extension $(D ext). */
+/** Match `kind` with file extension `ext`. */
 bool matchExtension(in FKind kind,
                     in string ext) @safe pure nothrow
 {
@@ -631,8 +631,8 @@ bool matchName(in FKind kind,
 
 import std.range: hasSlicing;
 
-/** Match (Magic) Contents of $(D kind) with $(D range).
-    Returns: true iff match. */
+/** Match (Magic) Contents of `kind` with `range`.
+    Returns: `true` iff match. */
 bool matchContents(Range)(in FKind kind,
                           in Range range,
                           in RegFile regFile) pure nothrow if (hasSlicing!Range)
@@ -694,7 +694,7 @@ Tuple!(KindHit, FKind, size_t) ofAnyKindIn(NotNull!RegFile regFile,
                  0UL);
 }
 
-/** Returns: true if file with extension $(D ext) is of type $(D kind). */
+/** Returns: true if file with extension `ext` is of type `kind`. */
 KindHit ofKind(NotNull!RegFile regFile,
                NotNull!FKind kind,
                bool collectTypeHits,
@@ -872,8 +872,8 @@ class File
 
     Face!Color face() const @property @safe pure nothrow { return fileFace; }
 
-    /** Check if $(D this) File has been invalidated by $(D dent).
-        Returns: true iff $(D this) was obseleted.
+    /** Check if `this` File has been invalidated by `dent`.
+        Returns: `true` iff `this` was obseleted.
     */
     bool checkObseleted(ref DirEntry dent) @trusted
     {
@@ -913,7 +913,7 @@ class File
         return depth;
     }
 
-    /** Get Parenting Dirs starting from parent of $(D this) upto root.
+    /** Get Parenting Dirs starting from parent of `this` upto root.
         Make this even more lazily evaluted.
     */
     Dir[] parentsUpwards()
@@ -929,7 +929,7 @@ class File
     alias dirsDownward = parentsUpwards;
 
     /** Get Parenting Dirs starting from file system root downto containing
-        directory of $(D this).
+        directory of `this`.
     */
     auto parents()
     {
@@ -945,7 +945,7 @@ class File
         return parents.any!(unaryFun!pred);
     }
 
-    /** Returns: Path to $(D this) File.
+    /** Returns: Path to `this` File.
         TODO Reuse parents.
      */
     string path() @property @trusted pure out (result) {
@@ -982,7 +982,7 @@ class File
         return thePath;
     }
 
-    /** Returns: Path to $(D this) File.
+    /** Returns: Path to `this` File.
         Recursive Heap-active implementation, slower than $(D path()).
     */
     string pathRecursive() @property @trusted pure
@@ -1170,7 +1170,7 @@ class Symlink : File
 
     version(msgpack)
     {
-        /** Construct from msgpack $(D unpacker).  */
+        /** Construct from msgpack `unpacker`.  */
         this(Unpacker)(ref Unpacker unpacker)
         {
             fromMsgpack(msgpack.Unpacker(unpacker));
@@ -1214,7 +1214,7 @@ class SpecFile : File
 
     version(msgpack)
     {
-        /** Construct from msgpack $(D unpacker).  */
+        /** Construct from msgpack `unpacker`.  */
         this(Unpacker)(ref Unpacker unpacker)
         {
             fromMsgpack(msgpack.Unpacker(unpacker));
@@ -1266,7 +1266,7 @@ class RegFile : File
 
     override string toTextual() const @property { return `Regular File`; }
 
-    /** Returns: Content Id of $(D this). */
+    /** Returns: Content Id of `this`. */
     const(SHA1Digest) contentId() @property @trusted /* @safe pure nothrow */
     {
         if (_cstat._contentId.isUntouched)
@@ -1280,7 +1280,7 @@ class RegFile : File
         return _cstat._contentId;
     }
 
-    /** Returns: Tree Content Id of $(D this). */
+    /** Returns: Tree Content Id of `this`. */
     override const(SHA1Digest) treeContentId() @property @trusted /* @safe pure nothrow */
     {
         return contentId;
@@ -1288,7 +1288,7 @@ class RegFile : File
 
     override Face!Color face() const @property @safe pure nothrow { return regFileFace; }
 
-    /** Returns: SHA-1 of $(D this) $(D File) Contents at $(D src). */
+    /** Returns: SHA-1 of `this` `File` Contents at `src`. */
     const(SHA1Digest) contId(inout (ubyte[]) src,
                              File[][SHA1Digest] filesByContentId)
         @property pure out(result) { assert(!result.empty); } // must have be defined
@@ -1302,7 +1302,7 @@ class RegFile : File
         return _cstat._contentId;
     }
 
-    /** Returns: Cached/Memoized Binary Histogram of $(D this) $(D File). */
+    /** Returns: Cached/Memoized Binary Histogram of `this` `File`. */
     auto ref bistogram8() @property @safe // ref needed here!
     {
         if (_cstat.bist.empty)
@@ -1312,7 +1312,7 @@ class RegFile : File
         return _cstat.bist;
     }
 
-    /** Returns: Cached/Memoized XGram of $(D this) $(D File). */
+    /** Returns: Cached/Memoized XGram of `this` `File`. */
     auto ref xgram() @property @safe // ref needed here!
     {
         if (_cstat.xgram.empty)
@@ -1322,7 +1322,7 @@ class RegFile : File
         return _cstat.xgram;
     }
 
-    /** Returns: Cached/Memoized XGram Deep Denseness of $(D this) $(D File). */
+    /** Returns: Cached/Memoized XGram Deep Denseness of `this` `File`. */
     auto ref xgramDeepDenseness() @property @safe
     {
         if (!_cstat._xgramDeepDenseness)
@@ -1385,7 +1385,7 @@ class RegFile : File
         }
     }
 
-    /** Clear/Reset Contents Statistics of $(D this) $(D File). */
+    /** Clear/Reset Contents Statistics of `this` `File`. */
     void clearCStat(File[][SHA1Digest] filesByContentId) @safe nothrow
     {
         // SHA1-digest
@@ -1408,7 +1408,7 @@ class RegFile : File
 
     version(msgpack)
     {
-        /** Construct from msgpack $(D unpacker).  */
+        /** Construct from msgpack `unpacker`.  */
         this(Unpacker)(ref Unpacker unpacker)
         {
             fromMsgpack(msgpack.Unpacker(unpacker));
@@ -1505,7 +1505,7 @@ class RegFile : File
         override void makeObselete() @trusted { _cstat.reset(); /* debug dln(`Reset CStat for `, path); */ }
     }
 
-    /** Returns: Read-Only Contents of $(D this) Regular File. */
+    /** Returns: Read-Only Contents of `this` Regular File. */
     // } catch (InvalidMemoryOperationError) { viz.ppln(outFile, useHTML, `Failed to mmap `, dent.name); }
     // scope immutable src = cast(immutable ubyte[]) read(dent.name, upTo);
     immutable(ubyte[]) readOnlyContents(string file = __FILE__, int line = __LINE__)() @trusted
@@ -1530,7 +1530,7 @@ class RegFile : File
         return cast(typeof(return))_mmfile[];
     }
 
-    /** Returns: Read-Writable Contents of $(D this) Regular File. */
+    /** Returns: Read-Writable Contents of `this` Regular File. */
     // } catch (InvalidMemoryOperationError) { viz.ppln(outFile, useHTML, `Failed to mmap `, dent.name); }
     // scope immutable src = cast(immutable ubyte[]) read(dent.name, upTo);
     ubyte[] readWriteableContents() @trusted
@@ -1543,7 +1543,7 @@ class RegFile : File
         return cast(typeof(return))_mmfile[];
     }
 
-    /** If needed Free Allocated Contents of $(D this) Regular File. */
+    /** If needed Free Allocated Contents of `this` Regular File. */
     bool freeContents()
     {
         if (_mmfile) {
@@ -3391,7 +3391,7 @@ class Dir : File
         return _treeSize.get.bytes;
     }
 
-    /** Returns: Directory Tree Content Id of $(D this). */
+    /** Returns: Directory Tree Content Id of `this`. */
     override const(SHA1Digest) treeContentId() @property @trusted /* @safe nothrow */
     {
         if (_treeContentId.isUntouched)
@@ -3408,7 +3408,7 @@ class Dir : File
 
     override Face!Color face() const @property @safe pure nothrow { return dirFace; }
 
-    /** Return true if $(D this) is a file system root directory. */
+    /** Return true if `this` is a file system root directory. */
     bool isRoot() @property @safe const pure nothrow { return !parent; }
 
     GStats gstats(GStats gstats) @property @safe pure /* nothrow */ {
@@ -3433,7 +3433,7 @@ class Dir : File
         return _depth;
     }
 
-    /** Scan $(D this) recursively for a non-diretory file with basename $(D name).
+    /** Scan `this` recursively for a non-diretory file with basename `name`.
         TODO Reuse range based algorithm this.tree(depthFirst|breadFirst)
      */
     File find(string name) @property
@@ -3483,7 +3483,7 @@ class Dir : File
         }
     }
 
-    /** Update Statistics for Sub-File $(D sub) with $(D subDent) of $(D this) Dir. */
+    /** Update Statistics for Sub-File `sub` with `subDent` of `this` Dir. */
     void updateStats(F)(NotNull!F subFile, ref DirEntry subDent, bool isRegFile)
     {
         auto lGS = gstats();
@@ -3507,8 +3507,8 @@ class Dir : File
         }
     }
 
-    /** Load Contents of $(D this) Directory from Disk using DirEntries.
-        Returns: true iff Dir was updated (reread) from disk.
+    /** Load Contents of `this` Directory from Disk using DirEntries.
+        Returns: `true` iff Dir was updated (reread) from disk.
     */
     bool load(int depth = 0, bool force = false)
     {
@@ -3624,7 +3624,7 @@ class Dir : File
     }
     version(msgpack)
     {
-        /** Construct from msgpack $(D unpacker).  */
+        /** Construct from msgpack `unpacker`.  */
         this(Unpacker)(ref Unpacker unpacker)
         {
             fromMsgpack(msgpack.Unpacker(unpacker));
@@ -3823,7 +3823,7 @@ Bytes64 treeSizeMemoized(NotNull!File file, Bytes64[File] cache) @trusted /* not
     return sum;
 }
 
-/** Save File System Tree Cache under Directory $(D rootDir).
+/** Save File System Tree Cache under Directory `rootDir`.
     Returns: Serialized Byte Array.
 */
 const(ubyte[]) saveRootDirTree(Viz viz,
@@ -3858,7 +3858,7 @@ const(ubyte[]) saveRootDirTree(Viz viz,
     return data;
 }
 
-/** Load File System Tree Cache from $(D cacheFile).
+/** Load File System Tree Cache from `cacheFile`.
     Returns: Root Directory of Loaded Tree.
 */
 Dir loadRootDirTree(Viz viz,
@@ -3921,7 +3921,7 @@ Dir[] getDirs(NotNull!Dir rootDir, string[] topDirNames)
     return topDirs;
 }
 
-/** (Cached) Lookup of File $(D filePath).
+/** (Cached) Lookup of File `filePath`.
  */
 File getFile(NotNull!Dir rootDir, string filePath,
              bool isDir = false,
@@ -3954,7 +3954,7 @@ File getFile(NotNull!Dir rootDir, string filePath,
     return null;
 }
 
-/** (Cached) Lookup of Directory $(D dirpath).
+/** (Cached) Lookup of Directory `dirpath`.
     Returns: Dir if present under rootDir, null otherwise.
     TODO Make use of dent
 */
@@ -4002,7 +4002,7 @@ body
     return currDir;
 }
 
-/** (Cached) Lookup of Directory $(D dirPath). */
+/** (Cached) Lookup of Directory `dirPath`. */
 Dir getDir(NotNull!Dir rootDir, string dirPath) @trusted
 {
     Symlink[] followedSymlinks;
@@ -4075,7 +4075,7 @@ struct Op
         this.prec = prec;
         this.desc = desc;
     }
-    /** Make $(D this) an alias of $(D opOrig). */
+    /** Make `this` an alias of `opOrig`. */
     Op aliasOf(string opOrig)
     {
         // TODO set relation in map from op to opOrig
@@ -4755,7 +4755,7 @@ class Scanner(Term)
         return kindHit;
     }
 
-    /** Search for Keys $(D keys) in Source $(D src).
+    /** Search for Keys `keys` in Source `src`.
      */
     size_t scanForKeys(Source, Keys)(Viz viz,
                                      NotNull!Dir topDir,
@@ -5013,7 +5013,7 @@ class Scanner(Term)
         return hitCount;
     }
 
-    /** Process Regular File $(D theRegFile). */
+    /** Process Regular File `theRegFile`. */
     void processRegFile(Viz viz,
                         NotNull!Dir topDir,
                         NotNull!RegFile theRegFile,
@@ -5055,7 +5055,7 @@ class Scanner(Term)
         }
     }
 
-    /** Scan $(D elfFile) for ELF Symbols. */
+    /** Scan `elfFile` for ELF Symbols. */
     void scanELFFile(Viz viz,
                      NotNull!RegFile elfFile,
                      const string[] keys,
@@ -5122,7 +5122,7 @@ class Scanner(Term)
         }
     }
 
-    /** Search for Keys $(D keys) in Regular File $(D theRegFile). */
+    /** Search for Keys `keys` in Regular File `theRegFile`. */
     void scanRegFile(Viz viz,
                      NotNull!Dir topDir,
                      NotNull!RegFile theRegFile,
@@ -5345,8 +5345,8 @@ class Scanner(Term)
         }
     }
 
-    /** Scan Symlink $(D symlink) at $(D parentDir) for $(D keys)
-        Put results in $(D results). */
+    /** Scan Symlink `symlink` at `parentDir` for `keys`
+        Put results in `results`. */
     void scanSymlink(Viz viz,
                      NotNull!Dir topDir,
                      NotNull!Symlink theSymlink,
@@ -5463,7 +5463,7 @@ class Scanner(Term)
         fromSymlinks.popBackN(1);
     }
 
-    /** Scan Directory $(D parentDir) for $(D keys). */
+    /** Scan Directory `parentDir` for `keys`. */
     void scanDir(Viz viz,
                  NotNull!Dir topDir,
                  NotNull!Dir theDir,
@@ -5586,7 +5586,7 @@ class Scanner(Term)
         }
     }
 
-    /** Filter out $(D files) that lie under any of the directories $(D dirPaths). */
+    /** Filter out `files` that lie under any of the directories `dirPaths`. */
     F[] filterUnderAnyOfPaths(F)(F[] files,
                                  string[] dirPaths)
     {

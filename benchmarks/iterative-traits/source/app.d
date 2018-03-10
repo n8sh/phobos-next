@@ -6,7 +6,7 @@ struct W(T, size_t n)
     T value;
 }
 
-enum allSameUsingNoDuplicates(Ts) = NoDuplicates!Ts.length == 1;
+enum allSameUsingNoDuplicates(Ts...) = NoDuplicates!Ts.length == 1;
 
 void main()
 {
@@ -25,22 +25,26 @@ void main()
                              byte, byte, byte,
                              byte, byte, byte,
                              byte, byte, byte,
-                             byte, byte, byte);
-    alias Ts = sameTs;
+                             byte, byte);
+    alias Ts = differentTs;
 
     pragma(msg, "Instantiation count: ", cast(int)Ts.length^^3);
     import std.stdio;
 
-    auto count = 0;
     foreach (T1; Ts)
     {
         foreach (T2; Ts)
         {
             foreach (T3; Ts)
             {
-                count += allSameTypeIterative!(W!(T1, 1),
-                                               W!(T2, 2),
-                                               W!(T3, 3)) ? 1 : 0;
+                static if (allSameUsingNoDuplicates!(W!(T1, 1),
+                                                     W!(T2, 2),
+                                                     W!(T3, 3)))
+                {
+                }
+                else
+                {
+                }
             }
         }
     }

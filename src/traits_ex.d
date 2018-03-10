@@ -75,10 +75,6 @@ template allSame(V...)
     static assert( allSame!(42));
     static assert( allSame!(42, 42, 42));
     static assert(!allSame!(42, 43, 42));
-
-    import std.meta : NoDuplicates;
-    static assert(NoDuplicates!(42, 42, 42).length == 1);
-    static assert(NoDuplicates!(int, int).length == 1);
 }
 
 version(none)                   // disable for now

@@ -14,7 +14,7 @@ module algorithm_ex;
 import std.algorithm : min, max;
 import std.traits : isArray, Unqual, isIntegral, CommonType, isIterable, isStaticArray, isFloatingPoint, arity, isSomeString, isSomeChar, isExpressionTuple;
 import std.range : ElementType, isInputRange, isForwardRange, isBidirectionalRange, isRandomAccessRange, isOutputRange, front, back;
-import traits_ex : allSameType;
+import traits_ex : allSame;
 import std.functional : unaryFun, binaryFun;
 import std.algorithm.searching : find;
 
@@ -38,7 +38,7 @@ alias tail = dropOne;
  */
 ref Ts[0] eitherRef(Ts...)(ref Ts a)
     if (a.length >= 1 &&
-        allSameType!Ts)         // TODO better trait for this?
+        allSame!Ts)         // TODO better trait for this?
 {
     static if (Ts.length == 1)
     {
@@ -100,7 +100,7 @@ version(none) // WARNING disabled because I don't see any use of this for.
     /** This overload enables, when possible, lvalue return.
     */
     auto ref every(T...)(ref T a)
-    if (T.length >= 1 && allSameType!T)
+    if (T.length >= 1 && allSame!T)
     {
         static if (T.length == 1)
         {

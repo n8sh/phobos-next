@@ -83,6 +83,32 @@ template allSameIterative(V...)
 }
 
 alias allSame = allSameIterative; // default to iterative variant for now
+alias isHomogeneousType = allSame;
+enum isHomogeneousTuple(T) = isHomogeneousType!(T.Types);
+
+@safe pure nothrow @nogc unittest
+{
+    static assert(isHomogeneousTuple!(Tuple!(int, int, int)));
+    static assert(isHomogeneousTuple!(Tuple!(float, float, float)));
+    static assert(!isHomogeneousTuple!(Tuple!(int, float, double)));
+}
+
+enum isHomogeneousTupleOf(T, E) = (isHomogeneousType!(T) &&
+                                   is(T.Types[0] == E));
+
+@safe pure nothrow @nogc unittest
+{
+    import std.typecons : Tuple;
+    static assert(isHomogeneousTupleOf!(Tuple!(int, int, int), int));
+    static assert(isHomogeneousTupleOf!(Tuple!(float, float, float), float));
+    static assert(!isHomogeneousTupleOf!(Tuple!(float, float, float), int));
+}
+
+/**
+   Returns $(D true) if at least one type in the $(D Tuple T)
+   is not the same as the others.
+*/
+enum isHeterogeneous(T) = !isHomogeneousType!T;
 
 /** Returns: `true` iff all values `V` are the same.
 
@@ -147,66 +173,40 @@ template allSameRecursive2(V...)
 
 /** Returns: `true` iff all types `T` are the same.
  */
-template allSameType(V...)
+template allSameTypeRecursive(V...)
 {
     static if (V.length <= 1)
     {
-        enum allSameType = true;
+        enum allSameTypeRecursive = true;
     }
     else static if (V.length & 1) // odd count
     {
-        enum allSameType = (is(V[0] == V[$ - 1]) && // first equals last
+        enum allSameTypeRecursive = (is(V[0] == V[$ - 1]) && // first equals last
                             is(V[0 .. $/2] == V[$/2 .. $-1]) && // (first half) equals (second half minus last element)
-                            allSameType!(V[0 .. $/2]));
+                            allSameTypeRecursive!(V[0 .. $/2]));
     }
     else                        // even count
     {
-        enum allSameType = (is(V[0 .. $/2] == V[$/2 .. $]) && // (first half) equals (second half)
-                            allSameType!(V[0 .. $/2]));
+        enum allSameTypeRecursive = (is(V[0 .. $/2] == V[$/2 .. $]) && // (first half) equals (second half)
+                            allSameTypeRecursive!(V[0 .. $/2]));
     }
 }
 
 @safe pure nothrow @nogc unittest
 {
-    static assert(allSameType!());
-    static assert(allSameType!(int));
-    static assert(allSameType!(int, int));
-    static assert(!allSameType!(int, double));
-    static assert(!allSameType!(int, int, double));
-    static assert(allSameType!(Tuple!(int, int, int).Types, int));
+    static assert(allSameTypeRecursive!());
+    static assert(allSameTypeRecursive!(int));
+    static assert(allSameTypeRecursive!(int, int));
+    static assert(!allSameTypeRecursive!(int, double));
+    static assert(!allSameTypeRecursive!(int, int, double));
+    static assert(allSameTypeRecursive!(Tuple!(int, int, int).Types, int));
 }
-alias isHomogeneousType = allSameType;
-enum isHomogeneousTuple(T) = isHomogeneousType!(T.Types);
 
 /** Returns: `true` iff all types `T` are the same. */
 enum allSameType_alternative(T...) = (!T.length ||
                                       (is(T[0] == T[T.length > 1]) &&
                                        allSameType1!(T[1 .. $])));
 
-
-@safe pure nothrow @nogc unittest
-{
-    static assert(isHomogeneousTuple!(Tuple!(int, int, int)));
-    static assert(isHomogeneousTuple!(Tuple!(float, float, float)));
-    static assert(!isHomogeneousTuple!(Tuple!(int, float, double)));
-}
-
-enum isHomogeneousTupleOf(T, E) = (isHomogeneousType!(T) &&
-                                   is(T.Types[0] == E));
-
-@safe pure nothrow @nogc unittest
-{
-    import std.typecons : Tuple;
-    static assert(isHomogeneousTupleOf!(Tuple!(int, int, int), int));
-    static assert(isHomogeneousTupleOf!(Tuple!(float, float, float), float));
-    static assert(!isHomogeneousTupleOf!(Tuple!(float, float, float), int));
-}
-
-/**
-   Returns $(D true) if at least one type in the $(D Tuple T)
-   is not the same as the others.
-*/
-enum isHeterogeneous(T) = !isHomogeneousType!T;
 
 import std.typecons : isTuple;
 
@@ -258,7 +258,7 @@ template allSameTypesInTuple(T)
     See also: http://dpaste.dzfl.pl/d0059e6e6c09
 */
 inout(T.Types[0])[T.length] toStaticArray(T)(inout T tup) @trusted
-    if (allSameType!(T.Types))
+    if (allSameTypeRecursive!(T.Types))
 {
     return *cast(T.Types[0][T.length]*)&tup; // hackish
 }
@@ -275,7 +275,7 @@ inout(T.Types[0])[T.length] toStaticArray(T)(inout T tup) @trusted
 /** Returns: tuple `tup` as a dynamic array.
 */
 auto asDynamicArray(T)(inout T tup)
-    if (allSameType!(T.Types))
+    if (allSameTypeRecursive!(T.Types))
 {
     alias E = T.Types[0];
     E[] a = new E[T.length];

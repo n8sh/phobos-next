@@ -40,7 +40,7 @@ nothrow unittest
     assert(ip.isGCPointer);
 }
 
-/** Returns: `true` iff all values $(D V) are the same.
+/** Returns: `true` iff all values `V` are the same.
 
     Same as NoDuplicates!V.length == 1
 
@@ -55,13 +55,13 @@ template allSame(V...)
     {
         enum allSame = true;
     }
-    else static if (V.length & 1)
+    else static if (V.length & 1) // odd count
     {
         enum allSame = (V[0] == V[$ - 1] && // first equals last
                         V[0 .. $/2] == V[$/2 .. $-1] && // (first half) equals (second half minus last element)
                         allSame!(V[0 .. $/2]));
     }
-    else
+    else                        // event count
     {
         enum allSame = (V[0 .. $/2] == V[$/2 .. $] && // (first half) equals (second half)
                         allSame!(V[0 .. $/2]));
@@ -140,23 +140,26 @@ template allSameRecursive(V...)
     static assert(allSameRecursive!(42, 42, 42));
 }
 
-/** Returns: `true` iff all types `T` are the same. */
-template allSameType(T...)
+/** Returns: `true` iff all types `T` are the same.
+ */
+template allSameType(V...)
 {
-    static if (T.length <= 1)
+    static if (V.length <= 1)
     {
         enum allSameType = true;
     }
-    else
+    else static if (V.length & 1) // odd count
     {
-        enum allSameType = is(T[0] == T[1]) && allSameType!(T[1..$]);
+        enum allSameType = (is(V[0] == V[$ - 1]) && // first equals last
+                            is(V[0 .. $/2] == V[$/2 .. $-1]) && // (first half) equals (second half minus last element)
+                            allSameType!(V[0 .. $/2]));
+    }
+    else                        // even count
+    {
+        enum allSameType = (is(V[0 .. $/2] == V[$/2 .. $]) && // (first half) equals (second half)
+                            allSameType!(V[0 .. $/2]));
     }
 }
-
-/** Returns: `true` iff all types `T` are the same. */
-enum allSameType_alternative(T...) = (!T.length ||
-                                      (is(T[0] == T[T.length > 1]) &&
-                                       allSameType1!(T[1 .. $])));
 
 @safe pure nothrow @nogc unittest
 {
@@ -165,8 +168,27 @@ enum allSameType_alternative(T...) = (!T.length ||
     static assert(!allSameType!(int, int, double));
     static assert(allSameType!(Tuple!(int, int, int).Types, int));
 }
-alias isHomogeneous = allSameType;
-enum isHomogeneousTuple(T) = isHomogeneous!(T.Types);
+alias isHomogeneousType = allSameType;
+enum isHomogeneousTuple(T) = isHomogeneousType!(T.Types);
+
+/** Recursive `allSameType`. */
+template allSameTypeRecursive(T...)
+{
+    static if (T.length <= 1)
+    {
+        enum allSameType = true;
+    }
+    else
+    {
+        enum allSameType = is(T[0] == T[1]) && allSameTypeRecursive!(T[1..$]);
+    }
+}
+
+/** Returns: `true` iff all types `T` are the same. */
+enum allSameType_alternative(T...) = (!T.length ||
+                                      (is(T[0] == T[T.length > 1]) &&
+                                       allSameType1!(T[1 .. $])));
+
 
 @safe pure nothrow @nogc unittest
 {
@@ -175,7 +197,7 @@ enum isHomogeneousTuple(T) = isHomogeneous!(T.Types);
     static assert(!isHomogeneousTuple!(Tuple!(int, float, double)));
 }
 
-enum isHomogeneousTupleOf(T, E) = (isHomogeneous!(T) &&
+enum isHomogeneousTupleOf(T, E) = (isHomogeneousType!(T) &&
                                    is(T.Types[0] == E));
 
 @safe pure nothrow @nogc unittest
@@ -190,7 +212,7 @@ enum isHomogeneousTupleOf(T, E) = (isHomogeneous!(T) &&
    Returns $(D true) if at least one type in the $(D Tuple T)
    is not the same as the others.
 */
-enum isHeterogeneous(T) = !isHomogeneous!T;
+enum isHeterogeneous(T) = !isHomogeneousType!T;
 
 import std.typecons : isTuple;
 

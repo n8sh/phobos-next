@@ -109,6 +109,7 @@ enum isHomogeneousTupleOf(T, E) = (isHomogeneousType!(T) &&
 enum isHeterogeneous(T) = !isHomogeneousType!T;
 
 template allSameTypeIterative(V...)
+// TODO restrict `V` to types only
 {
     static if (V.length <= 1)
     {

@@ -32,7 +32,7 @@ void main()
                              byte);
     alias Ts = differentTs;
 
-    pragma(msg, "Instantiation count: ", cast(int)Ts.length^^3);
+    pragma(msg, "Instantiation count : ", cast(int)Ts.length^^3);
     import std.stdio;
 
     foreach (T1; Ts)
@@ -41,6 +41,7 @@ void main()
         {
             foreach (T3; Ts)
             {
+                alias MergedTs = AliasSeq!(T1, T2, T3);
                 static if (allSameTypeIterative!(W!(T1, 1),
                                                  W!(T2, 2),
                                                  W!(T3, 3)))

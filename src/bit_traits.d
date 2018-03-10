@@ -17,7 +17,7 @@ template bitsNeeded(size_t length)
     else                           { static assert(0, `Too large length`); }
 }
 
-/** Number of bits required to store a packed instance of $(D T).
+/** Number of bits required to store a packed instance of `T`.
     See also: http://forum.dlang.org/thread/okonqhnxzqlqtxijxsfg@forum.dlang.org
 
     TODO Extend to continuous version; use std.numeric.sumOfLog2s. Ask on

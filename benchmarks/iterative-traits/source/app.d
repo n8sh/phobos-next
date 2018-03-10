@@ -29,7 +29,7 @@ void main()
         // uncomment what you like and measure compilation speed:
 
         // best-case input for anySatisfy:
-        // static if (allSatisfyIterative!(isIntegral, Ts!(i))) {} // 0.9 secs
+        // static if (allSatisfyIterative!(isIntegral, Ts!(i))) {} // 0.99 secs
         // static if (allSatisfy!(isIntegral, Ts!(i))) {} // 7.5 secs
 
         // worst-case input for anySatisfy:

@@ -25,10 +25,10 @@ void main()
     pragma(msg, "Instantiation count : ", cast(int)Ts.length^^3);
     import std.stdio;
 
-    enum n = 2000;
+    enum n = 1000;
     static foreach (i; 0 .. n)
     {
-        static if (allSameTypeFake!(differentTs!(i)))
+        static if (allSameTypeIterative!(differentTs!(i)))
         {
         }
     }

@@ -15,7 +15,7 @@ import std.traits : isIntegral;
 
 pure @nogc nothrow:
 
-/** Get an Unsigned Type of size as $(D T) if possible. */
+/** Get an unsigned type of size as `T` if possible. */
 template UnsignedOfSameSizeAs(T)
 {
     enum nBits = 8*T.sizeof;
@@ -31,7 +31,7 @@ template UnsignedOfSameSizeAs(T)
     }
 }
 
-/** Returns: A T with only `bix`:th bit set. */
+/** Returns: `T` with only `bix`:th bit set. */
 T makeBit(T, I...)(I bixs) @safe
     if (isIntegral!T &&
         allSatisfy!(isIntegral, I) &&
@@ -55,7 +55,7 @@ body
 }
 alias btm = makeBit;
 
-/** Returns: Check if all `bix`:th bits of $(D a) are set. */
+/** Returns: `true` iff all `bix`:th bits of `a` are set. */
 pragma(inline, true)
 bool testBit(T, I...)(in T a, I bixs) @safe
     if (isIntegral!T &&
@@ -65,7 +65,7 @@ bool testBit(T, I...)(in T a, I bixs) @safe
     return a & makeBit!T(bixs) ? true : false;
 }
 
-/** Returns: Check if all `bix`:th bits of $(D a) are set. */
+/** Returns: `true` iff all `bix`:th bits of `a` are set. */
 pragma(inline, true)
 bool testBit(T, I...)(in T a, I bixs) @trusted
     if ((!(isIntegral!T)) &&
@@ -74,7 +74,7 @@ bool testBit(T, I...)(in T a, I bixs) @trusted
     return (*(cast(UnsignedOfSameSizeAs!T*)&a)).testBit(bixs); // reuse integer variant
 }
 
-/** Returns: Check if all `bix`:th bits of $(D *a) are set. */
+/** Returns: `true` iff all `bix`:th bits of `*a` are set. */
 pragma(inline, true)
 bool testBit(T, I...)(in T* a, I bixs) @safe
     if ((!(isIntegral!T)) &&
@@ -109,8 +109,9 @@ alias bt = testBit;
     test!long;
 }
 
-/** Test and sets the `bix`:th bit of $(D a) to one.
-    Returns: A non-zero value if the bit was set, and a zero if it was clear.
+/** Test and sets the `bix`:th bit of `a` to one.
+ *
+ * Returns: A non-zero value if the bit was set, and a zero if it was clear.
 */
 pragma(inline, true)
 void setBit(T, I...)(ref T a, I bixs) @safe
@@ -121,9 +122,8 @@ void setBit(T, I...)(ref T a, I bixs) @safe
     a |= makeBit!T(bixs);
 }
 
-/** Test and sets the `bix`:th bit of $(D *a) to one.
-    Returns: A non-zero value if the bit was set, and a zero if it was clear.
-*/
+/** Sets the `bix`:th bit of `*a` to one.
+ */
 pragma(inline, true)
 void setBit(T, I...)(T* a, I bixs) @safe
     if (isIntegral!T &&
@@ -134,7 +134,8 @@ void setBit(T, I...)(T* a, I bixs) @safe
     *a |= makeBit!T(bixs);
 }
 
-/** Returns: Check if all `bix`:th bits of $(D a) are set. */
+/** Sets the `bix`:th bit of `*a` to one.
+ */
 pragma(inline, true)
 void setBit(T, I...)(ref T a, I bixs) @trusted
     if ((!(isIntegral!T)) &&

@@ -73,6 +73,7 @@ template allSame(V...)
 {
     static assert( allSame!());
     static assert( allSame!(42));
+    static assert( allSame!(42, 42));
     static assert( allSame!(42, 42, 42));
     static assert(!allSame!(42, 43, 42));
 }
@@ -159,6 +160,8 @@ template allSameType(V...)
 
 @safe pure nothrow @nogc unittest
 {
+    static assert(allSameType!());
+    static assert(allSameType!(int));
     static assert(allSameType!(int, int));
     static assert(!allSameType!(int, double));
     static assert(!allSameType!(int, int, double));

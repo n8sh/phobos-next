@@ -41,45 +41,9 @@ nothrow unittest
 }
 
 /** Returns: `true` iff all values `V` are the same.
-
-    Same as NoDuplicates!V.length == 1
-
-    See also: https://forum.dlang.org/post/ptnzlhnkuetijhgrgumd@forum.dlang.org
-    See also: http://forum.dlang.org/post/iflpslqgrixdjwrlqqvn@forum.dlang.org
-    See also: http://forum.dlang.org/post/mheumktihihfsxxxapff@forum.dlang.org
+ *
+ * See also: https://forum.dlang.org/post/lnsreapgttmdeuscsupp@forum.dlang.org
 */
-template allSame(V...)
-    if (isExpressions!V)
-{
-    static if (V.length <= 1)
-    {
-        enum allSame = true;
-    }
-    else static if (V.length & 1) // odd count
-    {
-        enum allSame = (V[0] == V[$ - 1] && // first equals last
-                        V[0 .. $/2] == V[$/2 .. $-1] && // (first half) equals (second half minus last element)
-                        allSame!(V[0 .. $/2]));
-    }
-    else                        // event count
-    {
-        enum allSame = (V[0 .. $/2] == V[$/2 .. $] && // (first half) equals (second half)
-                        allSame!(V[0 .. $/2]));
-    }
-}
-
-///
-@safe pure nothrow @nogc unittest
-{
-    static assert( allSame!());
-    static assert( allSame!(42));
-    static assert( allSame!(42, 42));
-    static assert( allSame!(42, 42, 42));
-    static assert(!allSame!(42, 43, 42));
-}
-
-/** Iterative variant of `allSame`.
- */
 template allSameIterative(V...)
 {
     static if (V.length <= 1)
@@ -118,27 +82,67 @@ template allSameIterative(V...)
     static assert(!allSameIterative!(int, byte, int));
 }
 
-/** Recursive variant of `allSame`.
- */
+alias allSame = allSameIterative; // default to iterative variant for now
+
+/** Returns: `true` iff all values `V` are the same.
+
+    Same as NoDuplicates!V.length == 1
+
+    See also: https://forum.dlang.org/post/ptnzlhnkuetijhgrgumd@forum.dlang.org
+    See also: http://forum.dlang.org/post/iflpslqgrixdjwrlqqvn@forum.dlang.org
+    See also: http://forum.dlang.org/post/mheumktihihfsxxxapff@forum.dlang.org
+*/
 template allSameRecursive(V...)
-    if (isExpressions!(V))
+    if (isExpressions!V)
 {
     static if (V.length <= 1)
     {
         enum allSameRecursive = true;
     }
+    else static if (V.length & 1) // odd count
+    {
+        enum allSameRecursive = (V[0] == V[$ - 1] && // first equals last
+                        V[0 .. $/2] == V[$/2 .. $-1] && // (first half) equals (second half minus last element)
+                        allSameRecursive!(V[0 .. $/2]));
+    }
+    else                        // event count
+    {
+        enum allSameRecursive = (V[0 .. $/2] == V[$/2 .. $] && // (first half) equals (second half)
+                        allSameRecursive!(V[0 .. $/2]));
+    }
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    static assert( allSameRecursive!());
+    static assert( allSameRecursive!(42));
+    static assert( allSameRecursive!(42, 42));
+    static assert( allSameRecursive!(42, 42, 42));
+    static assert(!allSameRecursive!(42, 43, 42));
+}
+
+/** Variant of `allSameRecursive`.
+ */
+template allSameRecursive2(V...)
+    if (isExpressions!(V))
+{
+    static if (V.length <= 1)
+    {
+        enum allSameRecursive2 = true;
+    }
     else
     {
-        enum allSameRecursive = V[0] == V[1] && allSameRecursive!(V[1..$]);
+        enum allSameRecursive2 = V[0] == V[1] && allSameRecursive2!(V[1..$]);
     }
 }
 
 @safe pure nothrow @nogc unittest
 {
-    static assert(allSameRecursive!());
-    static assert(allSameRecursive!(42));
-    static assert(!allSameRecursive!(41, 42));
-    static assert(allSameRecursive!(42, 42, 42));
+    static assert(allSameRecursive2!());
+    static assert(allSameRecursive2!(42));
+    static assert(!allSameRecursive2!(41, 42));
+    static assert(allSameRecursive2!(42, 42, 42));
 }
 
 /** Returns: `true` iff all types `T` are the same.
@@ -173,19 +177,6 @@ template allSameType(V...)
 }
 alias isHomogeneousType = allSameType;
 enum isHomogeneousTuple(T) = isHomogeneousType!(T.Types);
-
-/** Recursive `allSameType`. */
-template allSameTypeRecursive(T...)
-{
-    static if (T.length <= 1)
-    {
-        enum allSameType = true;
-    }
-    else
-    {
-        enum allSameType = is(T[0] == T[1]) && allSameTypeRecursive!(T[1..$]);
-    }
-}
 
 /** Returns: `true` iff all types `T` are the same. */
 enum allSameType_alternative(T...) = (!T.length ||

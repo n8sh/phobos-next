@@ -36,6 +36,7 @@ void main()
         // static if (anySatisfyIterative!(isIntegral, Ts!(i))) {} // 7.2 secs
         // static if (anySatisfy!(isIntegral, Ts!(i))) {} // 7.6 secs
 
+        // best-case input for allSame
         // static if (allSameIterative!(Ts!(i))) {} // 0.6 secs
         // static if (allSameUsingNoDuplicates!(Ts!(i))) {} // 9.3 secs
     }

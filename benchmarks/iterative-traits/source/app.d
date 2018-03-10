@@ -26,10 +26,20 @@ void main()
     enum n = 1000;
     static foreach (i; 0 .. n)
     {
+        // uncomment what you like and measure compilation speed:
         static if (allSameUsingNoDuplicates!(differentTs!(i)))
         {
         }
         // static if (allSatisfyIterative!(isIntegral, differentTs!(i)))
+        // {
+        // }
+        // static if (allSatisfy!(isIntegral, differentTs!(i)))
+        // {
+        // }
+        // static if (anySatisfyIterative!(isIntegral, differentTs!(i)))
+        // {
+        // }
+        // static if (anySatisfy!(isIntegral, differentTs!(i)))
         // {
         // }
     }

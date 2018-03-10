@@ -32,7 +32,7 @@ void main()
         // static if (allSatisfy!(isIntegral, Ts!(i))) {} // 7 secs
 
         // static if (anySatisfyIterative!(isIntegral, Ts!(i))) {} // 7 secs
-        // static if (anySatisfy!(isIntegral, Ts!(i))) {}
+        // static if (anySatisfy!(isIntegral, Ts!(i))) {} // 7.6 secs
 
         // static if (allSameIterative!(Ts!(i))) {} // 0.6 secs
         // static if (allSameUsingNoDuplicates!(Ts!(i))) {} // 9.3 secs

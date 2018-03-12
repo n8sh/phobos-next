@@ -921,7 +921,7 @@ struct OpenHashMapOrSet(K, V = void,
                      * because class elements are currently hashed and compared
                      * compared using their identity (pointer value) `is`
                      */
-                    return table._bins[_binIndex];
+                    return _table._bins[_binIndex];
                 }
             }
             else
@@ -929,7 +929,7 @@ struct OpenHashMapOrSet(K, V = void,
                 /// Get reference to front element (key and value).
                 @property scope auto front()()
                 {
-                    return table._bins[_binIndex];
+                    return _table._bins[_binIndex];
                 }
             }
             public LvalueElementRef!(Table) _elementRef;
@@ -949,7 +949,7 @@ struct OpenHashMapOrSet(K, V = void,
                      * because class elements are currently hashed and compared
                      * compared using their identity (pointer value) `is`
                      */
-                    return table._bins[_binIndex];
+                    return _table._bins[_binIndex];
                 }
             }
             else
@@ -957,7 +957,7 @@ struct OpenHashMapOrSet(K, V = void,
                 /// Get reference to front element (key and value).
                 @property scope auto front()()
                 {
-                    return table._bins[_binIndex];
+                    return _table._bins[_binIndex];
                 }
             }
             public RvalueElementRef!Table _elementRef;
@@ -997,7 +997,7 @@ struct OpenHashMapOrSet(K, V = void,
             /// Get reference to key of front element.
             @property scope const auto ref front()() return // key access must be const
             {
-                return table._bins[_binIndex].key;
+                return _table._bins[_binIndex].key;
             }
             public LvalueElementRef!(Table) _elementRef;
             alias _elementRef this;
@@ -1018,7 +1018,7 @@ struct OpenHashMapOrSet(K, V = void,
             /// Get reference to value of front element.
             @property scope auto ref front()() return @trusted // template-lazy property
             {
-                return *(cast(ValueType*)&table._bins[_binIndex].value);
+                return *(cast(ValueType*)&_table._bins[_binIndex].value);
             }
             public LvalueElementRef!(Table) _elementRef;
             alias _elementRef this;
@@ -1048,7 +1048,7 @@ struct OpenHashMapOrSet(K, V = void,
                 {
                     alias E = const(T);
                 }
-                return *(cast(E*)&table._bins[_binIndex]);
+                return *(cast(E*)&_table._bins[_binIndex]);
             }
             public LvalueElementRef!(Table) _elementRef;
             alias _elementRef this;
@@ -1423,21 +1423,21 @@ private:
  */
 static private struct LvalueElementRef(Table)
 {
-    private Table* table;
+    private Table* _table;
     private size_t _binIndex;   // index to bin inside `table`
     private size_t _iterationCounter; // counter over number of elements popped. TODO needed?
 
     debug
     {
-        alias MutableTable = Unqual!(typeof(*table));
+        alias MutableTable = Unqual!(typeof(*_table));
     }
 
     this(Table* table) @trusted
     {
-        this.table = table;
+        this._table = table;
         debug
         {
-            (cast(MutableTable*)(table)).incBorrowCount();
+            (cast(MutableTable*)(_table)).incBorrowCount();
         }
     }
 
@@ -1445,7 +1445,7 @@ static private struct LvalueElementRef(Table)
     {
         debug
         {
-            (cast(MutableTable*)(table)).decBorrowCount();
+            (cast(MutableTable*)(_table)).decBorrowCount();
         }
     }
 
@@ -1453,8 +1453,8 @@ static private struct LvalueElementRef(Table)
     {
         debug
         {
-            assert(table._borrowCount != 0);
-            (cast(MutableTable*)(table)).incBorrowCount();
+            assert(_table._borrowCount != 0);
+            (cast(MutableTable*)(_table)).incBorrowCount();
         }
     }
 
@@ -1463,13 +1463,13 @@ pragma(inline, true):
     /// Check if empty.
     @property bool empty() const @safe pure nothrow @nogc
     {
-        return _binIndex == table.binCount;
+        return _binIndex == _table.binCount;
     }
 
     /// Get number of element left to pop.
     @property size_t length() const @safe pure nothrow @nogc
     {
-        return table.length - _iterationCounter;
+        return _table.length - _iterationCounter;
     }
 
     @property typeof(this) save() // ForwardRange
@@ -1489,8 +1489,8 @@ pragma(inline, true):
     pragma(inline)
     private void findNextNonEmptyBin()
     {
-        while (_binIndex != (*table).binCount &&
-               !(*table).isOccupiedAtIndex(_binIndex))
+        while (_binIndex != (*_table).binCount &&
+               !(*_table).isOccupiedAtIndex(_binIndex))
         {
             _binIndex += 1;
         }
@@ -1501,7 +1501,7 @@ pragma(inline, true):
  */
 static private struct RvalueElementRef(Table)
 {
-    Table table;                // owned table
+    Table _table;                // owned table
     size_t _binIndex;            // index to bin inside table
     size_t _iterationCounter;    // counter over number of elements popped
 
@@ -1510,13 +1510,13 @@ pragma(inline, true):
     /// Check if empty.
     @property bool empty() const @safe pure nothrow @nogc
     {
-        return _binIndex == table.binCount;
+        return _binIndex == _table.binCount;
     }
 
     /// Get number of element left to pop.
     @property size_t length() const @safe pure nothrow @nogc
     {
-        return table.length - _iterationCounter;
+        return _table.length - _iterationCounter;
     }
 
     pragma(inline)
@@ -1531,8 +1531,8 @@ pragma(inline, true):
     pragma(inline)
     private void findNextNonEmptyBin()
     {
-        while (_binIndex != table.binCount &&
-               !table.isOccupiedAtIndex(_binIndex))
+        while (_binIndex != _table.binCount &&
+               !_table.isOccupiedAtIndex(_binIndex))
         {
             _binIndex += 1;
         }

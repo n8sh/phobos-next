@@ -1191,6 +1191,26 @@ struct OpenHashMapOrSet(K, V = void,
     pragma(inline, true)
     @property size_t binCount() const { return _bins.length; }
 
+    static if (hasValue)
+    {
+    }
+    else
+    {
+        /** Returns: average probe count for all elements stored. */
+        double averageProbeCount()
+        {
+            size_t totalProbeCount = 0;
+            auto range = byElement(this);
+            foreach (ref element; range)
+            {
+                immutable startIndex = keyToIndex(keyOf(element));
+                immutable hitIndex = indexOfKeyOrVacancySkippingHoles(keyOf(element));
+                // TODO walk from index
+            }
+            return totalProbeCount / _count; // average
+        }
+    }
+
 private:
     T[] _bins;                  // each bin contain one element
 

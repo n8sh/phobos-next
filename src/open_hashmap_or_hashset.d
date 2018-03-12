@@ -917,10 +917,6 @@ struct OpenHashMapOrSet(K, V = void,
                 /// Get reference to front element (key and value).
                 @property scope auto front()() return
                 {
-                    /* cast away const from `Table` for classes
-                     * because class elements are currently hashed and compared
-                     * compared using their identity (pointer value) `is`
-                     */
                     return _table._bins[_binIndex];
                 }
             }
@@ -945,10 +941,6 @@ struct OpenHashMapOrSet(K, V = void,
                 /// Get reference to front element (key and value).
                 @property scope auto front()() return
                 {
-                    /* cast away const from `Table` for classes
-                     * because class elements are currently hashed and compared
-                     * compared using their identity (pointer value) `is`
-                     */
                     return _table._bins[_binIndex];
                 }
             }

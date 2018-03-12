@@ -294,6 +294,7 @@ struct OpenHashMapOrSet(K, V = void,
         typeof(this) dup()() const // template-lazy
             @trusted
         {
+            debug assert(!isBorrowed);
             T[] binsCopy = cast(T[])allocateUninitializedBins(_bins.length);
             foreach (immutable index, ref element; _bins)
             {
@@ -350,6 +351,7 @@ struct OpenHashMapOrSet(K, V = void,
     /// Equality.
     bool opEquals()(const scope auto ref typeof(this) rhs) const
     {
+        debug assert(!isWriteBorrowed);
         if (_count != rhs._count) { return false; } // quick discardal
         foreach (immutable ix; 0 .. _bins.length)
         {
@@ -468,6 +470,7 @@ struct OpenHashMapOrSet(K, V = void,
     /// Empty.
     void clear()()              // template-lazy
     {
+        debug assert(!isBorrowed);
         release();
         _bins = typeof(_bins).init;
         static if (!hasAddressKey)
@@ -534,6 +537,7 @@ struct OpenHashMapOrSet(K, V = void,
     pragma(inline, true)
     bool contains()(const scope K key) const // template-lazy, auto ref here makes things slow
     {
+        debug assert(!isWriteBorrowed);
         assert(!key.isNull);
         if (_bins.length == 0) { return false; }
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
@@ -553,6 +557,7 @@ struct OpenHashMapOrSet(K, V = void,
     pragma(inline, true)
     InsertionStatus insert(T element)
     {
+        debug assert(!isBorrowed);
         assert(!keyOf(element).isNull); // TODO needed?
         reserveExtra(1);
         return insertWithoutGrowth(move(element));
@@ -573,6 +578,7 @@ struct OpenHashMapOrSet(K, V = void,
         if (isIterable!R &&
             isCopyable!T)       // TODO support uncopyable T?
     {
+        debug assert(!isBorrowed);
         import std.range : hasLength;
         static if (hasLength!R)
         {
@@ -602,6 +608,7 @@ struct OpenHashMapOrSet(K, V = void,
     /** Reserve rom for `extraCapacity` number of extra buckets. */
     void reserveExtra(size_t extraCapacity) // not template-lazy
     {
+        debug assert(!isBorrowed);
         immutable newCapacity = (_count + extraCapacity)*growScaleP/growScaleQ;
         if (newCapacity > _bins.length)
         {
@@ -882,6 +889,7 @@ struct OpenHashMapOrSet(K, V = void,
         scope const(K)* opBinaryRight(string op)(const scope K key) const return
             if (op == "in")
         {
+            debug assert(!isWriteBorrowed);
             assert(!key.isNull);
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
             return (hitIndex != _bins.length &&
@@ -969,6 +977,7 @@ struct OpenHashMapOrSet(K, V = void,
         scope inout(V)* opBinaryRight(string op)(const scope K key) inout return // auto ref here makes things slow
             if (op == "in")
         {
+            debug assert(!isWriteBorrowed);
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
             if (hitIndex != _bins.length &&
                 isOccupiedAtIndex(hitIndex))
@@ -1081,6 +1090,7 @@ struct OpenHashMapOrSet(K, V = void,
         pragma(inline, true)    // LDC must have this
         scope ref inout(V) opIndex()(const scope K key) inout return // auto ref here makes things slow
         {
+            debug assert(!isWriteBorrowed);
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
             if (hitIndex != _bins.length &&
                 isOccupiedAtIndex(hitIndex))
@@ -1112,6 +1122,7 @@ struct OpenHashMapOrSet(K, V = void,
         auto ref V get()(const scope K key, // template-lazy
                          const scope V defaultValue)
         {
+            debug assert(!isWriteBorrowed);
             auto value = key in this;
             if (value !is null)
             {
@@ -1159,6 +1170,7 @@ struct OpenHashMapOrSet(K, V = void,
     */
     bool remove()(const scope K key) // template-lazy
     {
+        debug assert(!isBorrowed);
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
         if (hitIndex != _bins.length &&
             isOccupiedAtIndex(hitIndex))
@@ -1188,6 +1200,7 @@ struct OpenHashMapOrSet(K, V = void,
         if (isRefIterable!Keys &&
             is(typeof(Keys.front == K.init)))
     {
+        debug assert(!isBorrowed);
         rehash!("!a.isNull && keys.canFind(a)")(); // TODO make this work
     }
 
@@ -1217,8 +1230,20 @@ private:
         import std.bitmanip : bitfields;
         mixin(bitfields!(size_t, "_count", 8*size_t.sizeof - readBorrowCountBits - 1,
                          bool, "_writeBorrowed", 1,
-                         size_t, "_readBorrowCount", readBorrowCountBits,
+                         uint, "_readBorrowCount", readBorrowCountBits,
                   ));
+
+        @property
+        {
+            /// Returns: `true` iff `this` is either write or read borrowed.
+            bool isBorrowed() const { return _writeBorrowed || _readBorrowCount >= 1; }
+
+            /// Returns: `true` iff `this` is write borrowed.
+            bool isWriteBorrowed() const { return _writeBorrowed; }
+
+            /// Returns: number of read-only borrowers of `this`.
+            uint readBorrowCount() const { return _readBorrowCount; }
+        }
     }
     else
     {

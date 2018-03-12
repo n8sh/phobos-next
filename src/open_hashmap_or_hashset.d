@@ -35,7 +35,7 @@ import pure_mallocator : PureMallocator;
  * also: http://en.cppreference.com/w/cpp/container/unordered_set/merge. this
  * algorithm moves elements from source if they are not already in `this`
  *
- * TODO robin hood hashing
+ * TODO Robin-Hood-hashing
  */
 struct OpenHashMapOrSet(K, V = void,
                         alias hasher = hashOf,

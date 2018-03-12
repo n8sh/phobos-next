@@ -1770,7 +1770,12 @@ alias range = byElement;        // EMSI-container naming
 
         // allowed
         assert(x.contains(e));
-        const eDup = x.dup;     // duplication is const and therefore allowed
+
+        const eHit = e in x;
+        assert(eHit);           // found
+        assert(*eHit is e);     // and the value equals what we searched for
+
+        const eDup = x.dup;     // duplication is `const` and allowed
     }
 
     // const

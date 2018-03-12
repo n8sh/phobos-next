@@ -53,7 +53,7 @@ struct OpenHashMapOrSet(K, V = void,
     import container_traits : defaultNullKeyConstantOf, mustAddGCRange, isNull, nullify;
     import qcmeman : gc_addRange, gc_removeRange;
     import digestion : hashOf2;
-    import probing : triangularProbeFromIndex, triangularProbeIndexIncrement;
+    import probing : triangularProbeFromIndex, triangularProbeCountFromIndex;
 
     /** In the hash map case, `V` is non-void, and a value is stored alongside
      * the key of type `K`.
@@ -1213,7 +1213,7 @@ struct OpenHashMapOrSet(K, V = void,
                 {
                     alias predicate = (const auto ref element) => (keyOf(element) is key);
                 }
-                totalCount += triangularProbeIndexIncrement!predicate(_bins[], keyToIndex(key)) + 1;
+                totalCount += triangularProbeCountFromIndex!predicate(_bins[], keyToIndex(key));
             }
             return totalCount;
         }

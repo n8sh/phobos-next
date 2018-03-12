@@ -70,7 +70,7 @@ size_t triangularProbeFromIndex(alias pred,
     }
 }
 
-size_t triangularProbeIndexIncrement(alias pred,
+size_t triangularProbeCountFromIndex(alias pred,
                                      T)(const scope T[] haystack, size_t index)
     if (is(typeof(unaryFun!pred(T.init))))
 {
@@ -83,11 +83,11 @@ size_t triangularProbeIndexIncrement(alias pred,
     {
         if (indexIncrement == haystack.length)
         {
-            return indexIncrement;
+            return indexIncrement + 1;
         }
         if (unaryFun!pred(haystack[index]))
         {
-            return indexIncrement;
+            return indexIncrement + 1;
         }
         indexIncrement += 1;
         index = (index + indexIncrement) & mask; // next triangular number modulo length

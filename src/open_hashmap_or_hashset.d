@@ -1194,14 +1194,16 @@ struct OpenHashMapOrSet(K, V = void,
     import std.range : front;
 
     /** Remove all elements matching `keys` followed by a rehash.
-        Returns: `true` if element was removed, `false` otherwise.
-    */
-    bool rehashingRemoveN(Keys)(const scope Keys keys) // template-lazy
+     *
+     * Returns: number of elements that were removed.
+     */
+    size_t rehashingRemoveN(Keys)(const scope Keys keys) // template-lazy
         if (isRefIterable!Keys &&
             is(typeof(Keys.front == K.init)))
     {
-        debug assert(!isBorrowed), borrowedErrorMessage;
+        debug assert(!isBorrowed, borrowedErrorMessage);
         rehash!("!a.isNull && keys.canFind(a)")(); // TODO make this work
+        return 0;
     }
 
     /// Check if empty.
@@ -1760,6 +1762,7 @@ alias range = byElement;        // EMSI-container naming
         static assert(is(typeof(e) == const(K))); // always const access
 
         // range invalidation forbidden:
+        assertThrown!AssertError(x.reserveExtra(1));  // range invalidation
         assertThrown!AssertError(x.clear());          // range invalidation
         assertThrown!AssertError(x.insert(k11));      // range invalidation
         assertThrown!AssertError(x.insertN([k11].s)); // range invalidation

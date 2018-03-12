@@ -214,6 +214,10 @@ void main()
         {
             writef(" smallBinCapacity:%s", A.smallBinCapacity);
         }
+        static if (hasMember!(A, `totalProbeCount`))
+        {
+            writef(" averageProbeCount:%s", cast(double)a.totalProbeCount/a.length);
+        }
 
         writeln();
 

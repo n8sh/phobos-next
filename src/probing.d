@@ -70,6 +70,30 @@ size_t triangularProbeFromIndex(alias pred,
     }
 }
 
+size_t triangularProbeIndexIncrement(alias pred,
+                                     T)(const scope T[] haystack, size_t index)
+    if (is(typeof(unaryFun!pred(T.init))))
+{
+    immutable mask = haystack.length - 1;
+    assert((~mask ^ mask) == typeof(return).max); // std.math.isPowerOf2(haystack.length)
+
+    // search using triangular numbers as increments
+    size_t indexIncrement = 0;
+    while (true)
+    {
+        if (indexIncrement == haystack.length)
+        {
+            return indexIncrement;
+        }
+        if (unaryFun!pred(haystack[index]))
+        {
+            return indexIncrement;
+        }
+        indexIncrement += 1;
+        index = (index + indexIncrement) & mask; // next triangular number modulo length
+    }
+}
+
 /// empty case
 @safe pure nothrow unittest
 {

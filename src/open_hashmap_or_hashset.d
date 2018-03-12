@@ -2242,7 +2242,6 @@ version(unittest)
                 size_t ix = 0;
                 foreach (ref e; x.byElement)
                 {
-                    import dbgio;
                     assert(x.contains(e));
                     assert(!y.contains(e));
                     static if (is(K == class))

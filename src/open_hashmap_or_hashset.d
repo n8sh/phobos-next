@@ -1760,9 +1760,10 @@ alias range = byElement;        // EMSI-container naming
         static assert(is(typeof(e) == const(K))); // always const access
 
         // range invalidation forbidden:
-        assertThrown!AssertError(x.clear());        // range invalidation
-        assertThrown!AssertError(x.insert(K.init)); // range invalidation
-        assertThrown!AssertError(x.remove(K.init)); // range invalidation
+        assertThrown!AssertError(x.clear());          // range invalidation
+        assertThrown!AssertError(x.insert(k11));      // range invalidation
+        assertThrown!AssertError(x.insertN([k11].s)); // range invalidation
+        assertThrown!AssertError(x.remove(k11));      // range invalidation
 
         // allowed
         assert(x.contains(e));

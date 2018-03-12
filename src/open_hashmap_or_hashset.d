@@ -62,7 +62,7 @@ struct OpenHashMapOrSet(K, V = void,
      */
     enum hasValue = !is(V == void);
 
-    /** Is `true` is `K` is an address, in which case holes as represented by
+    /** Is `true` iff `K` is an address, in which case holes as represented by
      * the a specific value `holeKeyConstant`.
      */
     enum hasAddressKey = (is(K == class) || isPointer!K);

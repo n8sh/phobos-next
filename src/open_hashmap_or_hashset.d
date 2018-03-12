@@ -1,7 +1,7 @@
 module open_hashmap_or_hashset;
 
 import std.traits : isMutable, Unqual;
-import container_traits : isNullableType, defaultNullKeyConstantOf, mustAddGCRange, isNull, nullify;
+import container_traits : isNullableType;
 import pure_mallocator : PureMallocator;
 
 // version = showEntries;
@@ -50,6 +50,7 @@ struct OpenHashMapOrSet(K, V = void,
     import std.traits : hasElaborateDestructor, isCopyable, isMutable, hasIndirections, isPointer;
     import std.typecons : Nullable;
 
+    import container_traits : defaultNullKeyConstantOf, mustAddGCRange, isNull, nullify;
     import qcmeman : gc_addRange, gc_removeRange;
     import digestion : hashOf2;
     import probing : triangularProbeFromIndex;
@@ -1602,6 +1603,7 @@ void removeAllMatching(alias predicate, Table)(auto ref Table x)
     if (isInstanceOf!(OpenHashMapOrSet,
                       Table))
 {
+    import container_traits : isNull, nullify;
     size_t count = 0;
     alias E = typeof(Table._bins.init[0]);
     foreach (immutable i; 0 .. x._bins.length)
@@ -2234,6 +2236,7 @@ version(unittest)
 
     import std.meta : AliasSeq;
 
+    import container_traits : mustAddGCRange;
     static assert(mustAddGCRange!string);
 
     foreach (K; AliasSeq!(NullableUlong,

@@ -297,7 +297,7 @@ struct OpenHashMapOrSet(K, V = void,
         typeof(this) dup()() const // template-lazy
             @trusted
         {
-            debug assert(!isBorrowed);
+            debug assert(!isBorrowed, borrowMessage);
             T[] binsCopy = cast(T[])allocateUninitializedBins(_bins.length);
             foreach (immutable index, ref element; _bins)
             {
@@ -354,7 +354,7 @@ struct OpenHashMapOrSet(K, V = void,
     /// Equality.
     bool opEquals()(const scope auto ref typeof(this) rhs) const
     {
-        debug assert(!isWriteBorrowed);
+        debug assert(!isWriteBorrowed, writeBorrowMessage);
         if (_count != rhs._count) { return false; } // quick discardal
         foreach (immutable ix; 0 .. _bins.length)
         {
@@ -470,10 +470,29 @@ struct OpenHashMapOrSet(K, V = void,
 
     }
 
+    static const writeBorrowMessage = "this is already write-borrowed";
+    static const readBorrowMessage = "this is already read-borrowed";
+
+    string borrowMessage() const @safe pure nothrow @nogc
+    {
+        if (isWriteBorrowed)
+        {
+            return writeBorrowMessage;
+        }
+        else if (readBorrowCount != 0)
+        {
+            return readBorrowMessage;
+        }
+        else
+        {
+            return "";
+        }
+    }
+
     /// Empty.
     void clear()()              // template-lazy
     {
-        debug assert(!isBorrowed);
+        debug assert(!isBorrowed, borrowMessage);
         release();
         _bins = typeof(_bins).init;
         static if (!hasAddressKey)
@@ -540,7 +559,7 @@ struct OpenHashMapOrSet(K, V = void,
     pragma(inline, true)
     bool contains()(const scope K key) const // template-lazy, auto ref here makes things slow
     {
-        debug assert(!isWriteBorrowed);
+        debug assert(!isWriteBorrowed, writeBorrowMessage);
         assert(!key.isNull);
         if (_bins.length == 0) { return false; }
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
@@ -560,7 +579,7 @@ struct OpenHashMapOrSet(K, V = void,
     pragma(inline, true)
     InsertionStatus insert(T element)
     {
-        debug assert(!isBorrowed);
+        debug assert(!isBorrowed, borrowMessage);
         assert(!keyOf(element).isNull); // TODO needed?
         reserveExtra(1);
         return insertWithoutGrowth(move(element));
@@ -581,7 +600,7 @@ struct OpenHashMapOrSet(K, V = void,
         if (isIterable!R &&
             isCopyable!T)       // TODO support uncopyable T?
     {
-        debug assert(!isBorrowed);
+        debug assert(!isBorrowed, borrowMessage);
         import std.range : hasLength;
         static if (hasLength!R)
         {
@@ -611,7 +630,7 @@ struct OpenHashMapOrSet(K, V = void,
     /** Reserve rom for `extraCapacity` number of extra buckets. */
     void reserveExtra(size_t extraCapacity) // not template-lazy
     {
-        debug assert(!isBorrowed);
+        debug assert(!isBorrowed, borrowMessage);
         immutable newCapacity = (_count + extraCapacity)*growScaleP/growScaleQ;
         if (newCapacity > _bins.length)
         {
@@ -892,7 +911,7 @@ struct OpenHashMapOrSet(K, V = void,
         scope const(K)* opBinaryRight(string op)(const scope K key) const return
             if (op == "in")
         {
-            debug assert(!isWriteBorrowed);
+            debug assert(!isWriteBorrowed, writeBorrowMessage);
             assert(!key.isNull);
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
             return (hitIndex != _bins.length &&
@@ -980,7 +999,7 @@ struct OpenHashMapOrSet(K, V = void,
         scope inout(V)* opBinaryRight(string op)(const scope K key) inout return // auto ref here makes things slow
             if (op == "in")
         {
-            debug assert(!isWriteBorrowed);
+            debug assert(!isWriteBorrowed, writeBorrowMessage);
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
             if (hitIndex != _bins.length &&
                 isOccupiedAtIndex(hitIndex))
@@ -1093,7 +1112,7 @@ struct OpenHashMapOrSet(K, V = void,
         pragma(inline, true)    // LDC must have this
         scope ref inout(V) opIndex()(const scope K key) inout return // auto ref here makes things slow
         {
-            debug assert(!isWriteBorrowed);
+            debug assert(!isWriteBorrowed, writeBorrowMessage);
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
             if (hitIndex != _bins.length &&
                 isOccupiedAtIndex(hitIndex))
@@ -1125,7 +1144,7 @@ struct OpenHashMapOrSet(K, V = void,
         auto ref V get()(const scope K key, // template-lazy
                          const scope V defaultValue)
         {
-            debug assert(!isWriteBorrowed);
+            debug assert(!isWriteBorrowed, writeBorrowMessage);
             auto value = key in this;
             if (value !is null)
             {
@@ -1173,7 +1192,7 @@ struct OpenHashMapOrSet(K, V = void,
     */
     bool remove()(const scope K key) // template-lazy
     {
-        debug assert(!isBorrowed);
+        debug assert(!isBorrowed, borrowMessage);
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
         if (hitIndex != _bins.length &&
             isOccupiedAtIndex(hitIndex))
@@ -1203,7 +1222,7 @@ struct OpenHashMapOrSet(K, V = void,
         if (isRefIterable!Keys &&
             is(typeof(Keys.front == K.init)))
     {
-        debug assert(!isBorrowed);
+        debug assert(!isBorrowed), borrowMessage;
         rehash!("!a.isNull && keys.canFind(a)")(); // TODO make this work
     }
 
@@ -1768,7 +1787,7 @@ auto byElement(Table)(auto ref inout(Table) c)
 alias range = byElement;        // EMSI-container naming
 
 /// make range from l-value and r-value. element access is always const
-pure nothrow @nogc unittest
+@system pure unittest
 {
     version(showEntries) dln();
     alias K = Nullable!(uint, uint.max);
@@ -1787,6 +1806,7 @@ pure nothrow @nogc unittest
     assert(x.byElement.count == x.length);
     foreach (e; x.byElement)    // from l-value
     {
+        assertThrown!AssertError(x.clear()); // check capturing of range invalidation
         assert(x.contains(e));
         static assert(is(typeof(e) == const(K))); // always const access
     }
@@ -1796,6 +1816,7 @@ pure nothrow @nogc unittest
     assert(!x.contains(k44));
     foreach (e; y.byElement)    // from l-value
     {
+        auto z = y.byElement;   // ok to read-borrow again
         assert(y.contains(e));
         static assert(is(typeof(e) == const(K)));
     }
@@ -2501,11 +2522,13 @@ version(unittest)
 version(unittest)
 {
     import std.exception : assertThrown, assertNotThrown;
-    import core.exception : RangeError;
+    import core.exception : RangeError, AssertError;
     import std.algorithm : count;
     import std.algorithm.comparison : equal;
     import std.typecons : Nullable;
+
     import digestx.fnv : FNV;
     import array_help : s;
+
     import dbgio;
 }

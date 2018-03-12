@@ -1,11 +1,11 @@
 module open_hashmap_or_hashset;
 
+// version = showEntries;
+// version = show;
+
 import std.traits : isMutable, Unqual;
 import container_traits : isNullableType;
 import pure_mallocator : PureMallocator;
-
-// version = showEntries;
-// version = show;
 
 @safe:
 

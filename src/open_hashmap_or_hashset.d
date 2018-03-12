@@ -1207,8 +1207,7 @@ struct OpenHashMapOrSet(K, V = void,
                     /* don't use `auto ref` for copyable `T`'s to prevent
                      * massive performance drop for small elements when compiled
                      * with LDC. TODO remove when LDC is fixed. */
-                    alias predicate = (element) => (keyOf(element).isNull ||
-                                                    keyOf(element) is key);
+                    alias predicate = (element) => (keyOf(element) is key);
                 }
                 else
                 {

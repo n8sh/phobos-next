@@ -2287,7 +2287,6 @@ version(unittest)
 
                     // this is ok
                     foreach (e; xc.byElement) {}
-
                 }
 
                 {

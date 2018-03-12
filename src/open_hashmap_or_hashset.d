@@ -294,7 +294,6 @@ struct OpenHashMapOrSet(K, V = void,
         typeof(this) dup()() const // template-lazy
             @trusted
         {
-            dln("dup");
             T[] binsCopy = cast(T[])allocateUninitializedBins(_bins.length);
             foreach (immutable index, ref element; _bins)
             {
@@ -2114,8 +2113,8 @@ version(unittest)
     {
         foreach (V; AliasSeq!(void, /*TODO string*/))
         {
-            dln("K:", K.stringof,
-                " V:", V.stringof);
+            version(show) dln("K:", K.stringof,
+                              " V:", V.stringof);
 
             alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
 
@@ -2242,18 +2241,21 @@ version(unittest)
 
             import core.memory : GC;
             GC.disable();
-            dln("TODO remove disabling of GC");
+            version(show) dln("TODO remove disabling of GC");
 
-            dln(X.stringof);
+            version(show) dln(X.stringof);
             foreach (immutable key_; 0 .. n)
             {
-                dln("key_:", key_);
-                static if (X.hasValue)
+                version(show)
                 {
-                    if (key_ == 2)
+                    dln("key_:", key_);
+                    static if (X.hasValue)
                     {
-                        dln("before");
-                        dln(x1.byKeyValue);
+                        if (key_ == 2)
+                        {
+                            dln("before");
+                            dln(x1.byKeyValue);
+                        }
                     }
                 }
 
@@ -2279,14 +2281,20 @@ version(unittest)
                     if (key_ == 2)
                     {
                         import std.algorithm : map;
-                        dln("inserting key_:", key_, " length:", x1._bins.length,
-                            " bins:", x1._bins[].map!(_ => _.key));
+                        version(show)
+                        {
+                            dln("inserting key_:", key_, " length:", x1._bins.length,
+                                " bins:", x1._bins[].map!(_ => _.key));
+                        }
                     }
                 }
                 assert(x1.insert(element) == X.InsertionStatus.added);
-                if (key_ == 2)
+                version(show)
                 {
-                    dln("inserted key_:", key_);
+                    if (key_ == 2)
+                    {
+                        dln("inserted key_:", key_);
+                    }
                 }
                 assert(x1.length == key.get + 1);
 

@@ -678,9 +678,9 @@ struct OpenHashMapOrSet(K, V = void,
 
                 while (true)
                 {
-                    alias predicate = (index, const auto ref element) => (keyOf(element).isNull || // free slot or TODO check holes
+                    alias pred = (index, const auto ref element) => (keyOf(element).isNull || // free slot or TODO check holes
                                                                           !bt(dones, index)); // or a not yet replaced element
-                    immutable hitIndex = _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(keyOf(currentElement)));
+                    immutable hitIndex = _bins[].triangularProbeFromIndex!(pred)(keyToIndex(keyOf(currentElement)));
                     assert(hitIndex != _bins.length, "no free slot");
 
                     bts(dones, hitIndex); // _bins[hitIndex] will be at it's correct position
@@ -1212,13 +1212,13 @@ struct OpenHashMapOrSet(K, V = void,
                 /* don't use `auto ref` for copyable `T`'s to prevent
                  * massive performance drop for small elements when compiled
                  * with LDC. TODO remove when LDC is fixed. */
-                alias predicate = (element) => (keyOf(element) is keyOf(currentElement));
+                alias pred = (element) => (keyOf(element) is keyOf(currentElement));
             }
             else
             {
-                alias predicate = (const auto ref element) => (keyOf(element) is keyOf(currentElement));
+                alias pred = (const auto ref element) => (keyOf(element) is keyOf(currentElement));
             }
-            totalCount += triangularProbeCountFromIndex!predicate(_bins[], keyToIndex(keyOf(currentElement)));
+            totalCount += triangularProbeCountFromIndex!pred(_bins[], keyToIndex(keyOf(currentElement)));
         }
         return totalCount;
     }
@@ -1309,13 +1309,13 @@ private:
              * with LDC. TODO remove when LDC is fixed. */
             static if (!hasAddressKey)
             {
-                alias predicate = (index, element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
+                alias pred = (index, element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
                                                        (keyOf(element).isNull ||
                                                         keyOf(element) is key));
             }
             else
             {
-                alias predicate = (element) => (keyOf(element).isNull ||
+                alias pred = (element) => (keyOf(element).isNull ||
                                                 keyOf(element) is key);
             }
         }
@@ -1323,17 +1323,17 @@ private:
         {
             static if (!hasAddressKey)
             {
-                alias predicate = (index, const auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
+                alias pred = (index, const auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
                                                                       (keyOf(element).isNull ||
                                                                        keyOf(element) is key));
             }
             else
             {
-                alias predicate = (const auto ref element) => (keyOf(element).isNull ||
+                alias pred = (const auto ref element) => (keyOf(element).isNull ||
                                                                keyOf(element) is key);
             }
         }
-        return _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key));
+        return _bins[].triangularProbeFromIndex!(pred)(keyToIndex(key));
     }
 
     /** Find index to `key` if it exists or to first empty slot found, ignoring
@@ -1354,13 +1354,13 @@ private:
              * with LDC. TODO remove when LDC is fixed. */
             static if (!hasAddressKey)
             {
-                alias predicate = (index, element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
+                alias pred = (index, element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
                                                        (keyOf(element).isNull ||
                                                         keyOf(element) is key));
             }
             else
             {
-                alias predicate = (element) => (keyOf(element).isNull ||
+                alias pred = (element) => (keyOf(element).isNull ||
                                                 keyOf(element) is key);
             }
         }
@@ -1368,17 +1368,17 @@ private:
         {
             static if (!hasAddressKey)
             {
-                alias predicate = (index, const auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
+                alias pred = (index, const auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
                                                                       (keyOf(element).isNull ||
                                                                        keyOf(element) is key));
             }
             else
             {
-                alias predicate = (const auto ref element) => (keyOf(element).isNull ||
+                alias pred = (const auto ref element) => (keyOf(element).isNull ||
                                                                keyOf(element) is key);
             }
         }
-        return _bins[].triangularProbeFromIndex!(predicate, true)(keyToIndex(key));
+        return _bins[].triangularProbeFromIndex!(pred, true)(keyToIndex(key));
     }
 
     private size_t indexOfHoleOrNullForKey(const scope K key) const @trusted
@@ -1395,12 +1395,12 @@ private:
              * with LDC. TODO remove when LDC is fixed. */
             static if (!hasAddressKey)
             {
-                alias predicate = (index, element) => (hasHoleAtPtrIndex(_holesPtr, index) ||
+                alias pred = (index, element) => (hasHoleAtPtrIndex(_holesPtr, index) ||
                                                        keyOf(element).isNull);
             }
             else
             {
-                alias predicate = (element) => (isHoleKeyConstant(keyOf(element)) ||
+                alias pred = (element) => (isHoleKeyConstant(keyOf(element)) ||
                                                 keyOf(element).isNull);
             }
         }
@@ -1408,16 +1408,16 @@ private:
         {
             static if (!hasAddressKey)
             {
-                alias predicate = (index, const auto ref element) => (hasHoleAtPtrIndex(_holesPtr, index) ||
+                alias pred = (index, const auto ref element) => (hasHoleAtPtrIndex(_holesPtr, index) ||
                                                                       keyOf(element).isNull);
             }
             else
             {
-                alias predicate = (const auto ref element) => (isHoleKeyConstant(keyOf(element)) ||
+                alias pred = (const auto ref element) => (isHoleKeyConstant(keyOf(element)) ||
                                                                keyOf(element).isNull);
             }
         }
-        return _bins[].triangularProbeFromIndex!(predicate)(keyToIndex(key));
+        return _bins[].triangularProbeFromIndex!(pred)(keyToIndex(key));
     }
 
     /** Returns: `true` iff `index` indexes a non-null element, `false`
@@ -1572,9 +1572,9 @@ alias OpenHashMap(K, V, alias hasher = hashOf,
 
 import std.traits : isInstanceOf;
 
-/** Remove (reset) all elements in `x` matching `predicate`.
+/** Remove (reset) all elements in `x` matching `pred`.
  */
-void removeAllMatching(alias predicate, Table)(auto ref Table x)
+void removeAllMatching(alias pred, Table)(auto ref Table x)
     @trusted
     if (isInstanceOf!(OpenHashMapOrSet,
                       Table))
@@ -1586,7 +1586,7 @@ void removeAllMatching(alias predicate, Table)(auto ref Table x)
     {
         import std.functional : unaryFun;
         if (!x._bins[i].isNull &&
-            unaryFun!predicate(x._bins[i]))
+            unaryFun!pred(x._bins[i]))
         {
             count += 1;
             x._bins[i].nullify();
@@ -1595,15 +1595,15 @@ void removeAllMatching(alias predicate, Table)(auto ref Table x)
     x._count = x._count - count;
 }
 
-/** Returns: `x` eagerly filtered on `predicate`.
+/** Returns: `x` eagerly filtered on `pred`.
     TODO move to container_algorithm.d.
 */
-Table filtered(alias predicate, Table)(Table x)
+Table filtered(alias pred, Table)(Table x)
     if (isInstanceOf!(OpenHashMapOrSet,
                       Table))
 {
     import std.functional : not;
-    x.removeAllMatching!(not!predicate); // `x` is a singleton (r-value) so safe to mutate
+    x.removeAllMatching!(not!pred); // `x` is a singleton (r-value) so safe to mutate
     import std.algorithm.mutation : move;
     return move(x);             // functional
 }

@@ -26,8 +26,6 @@ import pure_mallocator : PureMallocator;
  *
  * TODO add static assert(!__traits(compiles, )) for DIP-1000 scope checking of escaping l-value ranges
  *
- * TODO replace BitArray with plain allocation
- *
  * TODO extend opBinaryRight to return a reference to a free slot when assigned to sets value in slot and does _count += 1;
  *
  * TODO add extractElement that moves it out similar to

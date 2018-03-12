@@ -963,16 +963,6 @@ struct OpenHashMapOrSet(K, V = void,
             public RvalueElementRef!Table _elementRef;
             alias _elementRef this;
         }
-
-        /// ditto
-        version(none)           // cannot be combined
-        {
-        pragma(inline, true)
-        scope auto opSlice()() inout return // template-lazy
-        {
-            return byElement();
-        }
-        }
     }
 
     static if (hasValue)        // HashMap
@@ -1079,13 +1069,6 @@ struct OpenHashMapOrSet(K, V = void,
             auto result = ByKeyValue!This((LvalueElementRef!(This)(cast(This*)&this)));
             result.findNextNonEmptyBin();
             return result;
-        }
-
-        /// ditto
-        pragma(inline, true)
-        scope auto opSlice()() return  // template-lazy
-        {
-            return byKeyValue();
         }
 
         /// Indexing.

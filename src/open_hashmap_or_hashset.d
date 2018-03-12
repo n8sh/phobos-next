@@ -53,7 +53,7 @@ struct OpenHashMapOrSet(K, V = void,
     import container_traits : defaultNullKeyConstantOf, mustAddGCRange, isNull, nullify;
     import qcmeman : gc_addRange, gc_removeRange;
     import digestion : hashOf2;
-    import probing : triangularProbeFromIndex;
+    import probing : triangularProbeFromIndex, triangularProbeIndexIncrement;
 
     /** In the hash map case, `V` is non-void, and a value is stored alongside
      * the key of type `K`.
@@ -1196,18 +1196,27 @@ struct OpenHashMapOrSet(K, V = void,
     }
     else
     {
-        /** Returns: average probe count for all elements stored. */
-        double averageProbeCount()
+        /** Returns: get total probe count for all elements stored. */
+        size_t totalProbeCount() const
         {
-            size_t totalProbeCount = 0;
-            auto range = byElement(this);
-            foreach (ref element; range)
+            typeof(return) totalCount = 0;
+            foreach (ref key; byElement(this))
             {
-                immutable startIndex = keyToIndex(keyOf(element));
-                immutable hitIndex = indexOfKeyOrVacancySkippingHoles(keyOf(element));
-                // TODO walk from index
+                static if (isCopyable!T)
+                {
+                    /* don't use `auto ref` for copyable `T`'s to prevent
+                     * massive performance drop for small elements when compiled
+                     * with LDC. TODO remove when LDC is fixed. */
+                    alias predicate = (element) => (keyOf(element).isNull ||
+                                                    keyOf(element) is key);
+                }
+                else
+                {
+                    alias predicate = (const auto ref element) => (keyOf(element) is key);
+                }
+                totalCount += triangularProbeIndexIncrement!predicate(_bins[], keyToIndex(key)) + 1;
             }
-            return totalProbeCount / _count; // average
+            return totalCount;
         }
     }
 

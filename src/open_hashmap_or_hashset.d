@@ -299,7 +299,7 @@ struct OpenHashMapOrSet(K, V = void,
         typeof(this) dup()() const // template-lazy
             @trusted
         {
-            debug assert(!isBorrowed, borrowMessage);
+            debug assert(!isBorrowed, borrowedErrorMessage);
             T[] binsCopy = cast(T[])allocateUninitializedBins(_bins.length);
             foreach (immutable index, ref element; _bins)
             {
@@ -471,12 +471,12 @@ struct OpenHashMapOrSet(K, V = void,
 
     }
 
-    static const borrowMessage = "cannot mutate when this is borrowed";
+    static const borrowedErrorMessage = "cannot mutate when this is borrowed";
 
     /// Empty.
     void clear()()              // template-lazy
     {
-        debug assert(!isBorrowed, borrowMessage);
+        debug assert(!isBorrowed, borrowedErrorMessage);
         release();
         _bins = typeof(_bins).init;
         static if (!hasAddressKey)
@@ -562,7 +562,7 @@ struct OpenHashMapOrSet(K, V = void,
     pragma(inline, true)
     InsertionStatus insert(T element)
     {
-        debug assert(!isBorrowed, borrowMessage);
+        debug assert(!isBorrowed, borrowedErrorMessage);
         assert(!keyOf(element).isNull); // TODO needed?
         reserveExtra(1);
         return insertWithoutGrowth(move(element));
@@ -583,7 +583,7 @@ struct OpenHashMapOrSet(K, V = void,
         if (isIterable!R &&
             isCopyable!T)       // TODO support uncopyable T?
     {
-        debug assert(!isBorrowed, borrowMessage);
+        debug assert(!isBorrowed, borrowedErrorMessage);
         import std.range : hasLength;
         static if (hasLength!R)
         {
@@ -613,7 +613,7 @@ struct OpenHashMapOrSet(K, V = void,
     /** Reserve rom for `extraCapacity` number of extra buckets. */
     void reserveExtra(size_t extraCapacity) // not template-lazy
     {
-        debug assert(!isBorrowed, borrowMessage);
+        debug assert(!isBorrowed, borrowedErrorMessage);
         immutable newCapacity = (_count + extraCapacity)*growScaleP/growScaleQ;
         if (newCapacity > _bins.length)
         {
@@ -1171,7 +1171,7 @@ struct OpenHashMapOrSet(K, V = void,
     */
     bool remove()(const scope K key) // template-lazy
     {
-        debug assert(!isBorrowed, borrowMessage);
+        debug assert(!isBorrowed, borrowedErrorMessage);
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
         if (hitIndex != _bins.length &&
             isOccupiedAtIndex(hitIndex))
@@ -1201,7 +1201,7 @@ struct OpenHashMapOrSet(K, V = void,
         if (isRefIterable!Keys &&
             is(typeof(Keys.front == K.init)))
     {
-        debug assert(!isBorrowed), borrowMessage;
+        debug assert(!isBorrowed), borrowedErrorMessage;
         rehash!("!a.isNull && keys.canFind(a)")(); // TODO make this work
     }
 

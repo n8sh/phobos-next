@@ -1227,7 +1227,7 @@ private:
             bool isBorrowed() const { return _borrowCount >= 1; }
 
             /// Returns: number of read-only borrowers of `this`.
-            uint readBorrowCount() const { return _borrowCount; }
+            uint borrowCount() const { return _borrowCount; }
         }
 
         /// Increase borrow count.

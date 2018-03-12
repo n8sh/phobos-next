@@ -4,6 +4,7 @@ import std.traits : isMutable, Unqual;
 import container_traits : isNullableType, defaultNullKeyConstantOf, mustAddGCRange, isNull, nullify;
 import pure_mallocator : PureMallocator;
 
+// version = showEntries;
 // version = show;
 
 @safe:
@@ -1661,7 +1662,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {
-    dln();
+    version(showEntries) dln();
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
 
@@ -1703,7 +1704,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 /// r-value and r-value intersection
 @safe pure nothrow @nogc unittest
 {
-    dln();
+    version(showEntries) dln();
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
 
@@ -1727,7 +1728,7 @@ auto intersectWith(C1, C2)(ref C1 x,
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {
-    dln();
+    version(showEntries) dln();
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
 
@@ -1767,7 +1768,7 @@ alias range = byElement;        // EMSI-container naming
 /// make range from l-value and r-value. element access is always const
 pure nothrow @nogc unittest
 {
-    dln();
+    version(showEntries) dln();
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
 
@@ -1807,7 +1808,7 @@ pure nothrow @nogc unittest
 /// range checking
 @trusted pure unittest
 {
-    dln();
+    version(showEntries) dln();
     immutable n = 11;
 
     alias K = Nullable!(uint, uint.max);
@@ -1852,7 +1853,7 @@ pure nothrow @nogc unittest
 /// class as value
 @trusted pure unittest
 {
-    dln();
+    version(showEntries) dln();
     immutable n = 11;
 
     alias K = Nullable!(uint, uint.max);
@@ -1907,7 +1908,7 @@ pure nothrow @nogc unittest
 /// constness inference of ranges
 pure nothrow unittest
 {
-    dln();
+    version(showEntries) dln();
     alias K = Nullable!(uint, uint.max);
     class V
     {
@@ -1939,7 +1940,7 @@ pure nothrow unittest
 /// range key constness and value mutability with `class` value
 pure nothrow unittest
 {
-    dln();
+    version(showEntries) dln();
     struct S
     {
         uint value;
@@ -1992,7 +1993,7 @@ pure nothrow unittest
 /// range key constness and value mutability with `class` key and `class` value
 pure nothrow unittest
 {
-    dln();
+    version(showEntries) dln();
     class K
     {
         this(uint value)
@@ -2046,7 +2047,7 @@ pure nothrow unittest
 /// range key constness and value mutability with `class` key and `class` value
 pure nothrow unittest
 {
-    dln();
+    version(showEntries) dln();
     class K
     {
         this(uint value)
@@ -2125,7 +2126,7 @@ version(unittest)
 /// test various things
 @trusted unittest
 {
-    dln();
+    version(showEntries) dln();
     const n = 600;
 
     void testEmptyAll(K, V, X)(ref X x, size_t n,

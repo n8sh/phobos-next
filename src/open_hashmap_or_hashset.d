@@ -3,7 +3,7 @@ module open_hashmap_or_hashset;
 import container_traits : isNullableType, defaultNullKeyConstantOf, mustAddGCRange, isNull, nullify;
 import pure_mallocator : PureMallocator;
 
-version = show;
+// version = show;
 
 @safe:
 
@@ -536,7 +536,7 @@ struct OpenHashMapOrSet(K, V = void,
     {
         assert(!key.isNull);
         if (_bins.length == 0) { return false; }
-        immutable hitIndex = indexOfKeyOrVacancySkippingHoles_alt(key);
+        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
         return (isOccupiedAtIndex(hitIndex));
     }
     static if (isInstanceOf!(Nullable, K))
@@ -833,7 +833,7 @@ struct OpenHashMapOrSet(K, V = void,
             {
                 untagHoleAtIndex(hitIndex1);
             }
-            _count += 1;
+            _count = _count + 1;
             return InsertionStatus.added;
         }
         static if (hasValue)
@@ -1165,7 +1165,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             nullifyElement(_bins[hitIndex]);
             makeHoleAtIndex(hitIndex);
-            _count -= 1;
+            _count = _count - 1;
             return true;
         }
         return false;
@@ -1204,8 +1204,26 @@ struct OpenHashMapOrSet(K, V = void,
     @property size_t binCount() const { return _bins.length; }
 
 private:
-    T[] _bins;            // bin elements
-    size_t _count;        // total number of non-null elements stored in `_bins`
+    T[] _bins;            // each bin contain one element
+
+    debug                       // use Rust-style borrow checking at run-time
+    {
+        /// Number of bits needed to store number of read borrows.
+        enum readBorrowCountBits = 15;
+
+        /// Maximum value possible for `_readBorrowCount`.
+        enum readBorrowCountMax = 2^^readBorrowCountBits - 1;
+
+        import std.bitmanip : bitfields;
+        mixin(bitfields!(size_t, "_count", 8*size_t.sizeof - readBorrowCountBits - 1,
+                         bool, "_writeBorrowed", 1,
+                         size_t, "_readBorrowCount", readBorrowCountBits,
+                  ));
+    }
+    else
+    {
+        size_t _count;        // total number of non-null elements stored in `_bins`
+    }
 
     static if (!hasAddressKey)
     {
@@ -1497,7 +1515,7 @@ void removeAllMatching(alias predicate, SomeOpenHashMapOrSet)(auto ref SomeOpenH
             x._bins[i].nullify();
         }
     }
-    x._count -= count;
+    x._count = x._count - count;
 }
 
 /** Returns: `x` eagerly filtered on `predicate`.

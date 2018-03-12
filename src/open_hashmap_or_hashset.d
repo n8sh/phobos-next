@@ -1202,7 +1202,7 @@ struct OpenHashMapOrSet(K, V = void,
     @property size_t binCount() const { return _bins.length; }
 
 private:
-    T[] _bins;            // each bin contain one element
+    T[] _bins;                  // each bin contain one element
 
     debug                       // use Rust-style borrow checking at run-time
     {

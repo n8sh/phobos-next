@@ -1224,12 +1224,16 @@ private:
         enum borrowCountBits = 16;
 
         /// Maximum value possible for `_borrowCount`.
-        enum readBorrowCountMax = 2^^borrowCountBits - 1;
+        enum borrowCountMax = 2^^borrowCountBits - 1;
 
         import std.bitmanip : bitfields;
         mixin(bitfields!(size_t, "_count", 8*size_t.sizeof - borrowCountBits,
                          uint, "_borrowCount", borrowCountBits,
                   ));
+
+        pragma(inline, true):
+
+        @safe pure nothrow @nogc:
 
         @property
         {
@@ -1238,6 +1242,20 @@ private:
 
             /// Returns: number of read-only borrowers of `this`.
             uint readBorrowCount() const { return _borrowCount; }
+        }
+
+        /// Increase borrow count.
+        void incBorrowCount()
+        {
+            assert(_borrowCount + 1 != borrowCountMax);
+            _borrowCount = _borrowCount + 1;
+        }
+
+        /// Decrease borrow count.
+        void decBorrowCount()
+        {
+            assert(_borrowCount != 0);
+            _borrowCount = _borrowCount - 1;
         }
     }
     else
@@ -1433,7 +1451,7 @@ static private struct LvalueElementRef(Table)
         this.table = table;
         debug
         {
-            (cast(MutableTable*)(table))._borrowCount = table._borrowCount + 1;
+            (cast(MutableTable*)(table)).incBorrowCount();
         }
     }
 
@@ -1441,8 +1459,7 @@ static private struct LvalueElementRef(Table)
     {
         debug
         {
-            assert(table._borrowCount != 0);
-            (cast(MutableTable*)(table))._borrowCount = table._borrowCount - 1;
+            (cast(MutableTable*)(table)).decBorrowCount();
         }
     }
 
@@ -1451,7 +1468,7 @@ static private struct LvalueElementRef(Table)
         debug
         {
             assert(table._borrowCount != 0);
-            (cast(MutableTable*)(table))._borrowCount = table._borrowCount + 1;
+            (cast(MutableTable*)(table)).incBorrowCount();
         }
     }
 

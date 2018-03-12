@@ -299,7 +299,6 @@ struct OpenHashMapOrSet(K, V = void,
         typeof(this) dup()() const // template-lazy
             @trusted
         {
-            debug assert(!isBorrowed, borrowedErrorMessage);
             T[] binsCopy = cast(T[])allocateUninitializedBins(_bins.length);
             foreach (immutable index, ref element; _bins)
             {
@@ -1758,10 +1757,16 @@ alias range = byElement;        // EMSI-container naming
     assert(x.byElement.count == x.length);
     foreach (e; x.byElement)    // from l-value
     {
-        assertThrown!AssertError(x.clear()); // check capturing of range invalidation
-        assertThrown!AssertError(x.insert(K.init)); // check capturing of range invalidation
-        assert(x.contains(e));
         static assert(is(typeof(e) == const(K))); // always const access
+
+        // range invalidation forbidden:
+        assertThrown!AssertError(x.clear());        // range invalidation
+        assertThrown!AssertError(x.insert(K.init)); // range invalidation
+        assertThrown!AssertError(x.remove(K.init)); // range invalidation
+
+        // allowed
+        assert(x.contains(e));
+        const eDup = x.dup;                        // duplication is const and therefore allowed
     }
 
     // const

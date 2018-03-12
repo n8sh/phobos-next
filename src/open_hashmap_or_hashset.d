@@ -43,7 +43,7 @@ struct OpenHashMapOrSet(K, V = void,
                         alias hasher = hashOf,
                         alias Allocator = PureMallocator.instance)
     if (isNullableType!K
-        //isHashable!K
+        // isHashable!K
         )
 {
     import std.algorithm.mutation : move, moveEmplace;

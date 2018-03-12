@@ -1191,32 +1191,34 @@ struct OpenHashMapOrSet(K, V = void,
     pragma(inline, true)
     @property size_t binCount() const { return _bins.length; }
 
-    static if (hasValue)
+    /** Returns: get total probe count for all elements stored. */
+    size_t totalProbeCount() const
     {
-    }
-    else
-    {
-        /** Returns: get total probe count for all elements stored. */
-        size_t totalProbeCount() const
+        static if (hasValue)
         {
-            typeof(return) totalCount = 0;
-            foreach (ref key; byElement(this))
-            {
-                static if (isCopyable!T)
-                {
-                    /* don't use `auto ref` for copyable `T`'s to prevent
-                     * massive performance drop for small elements when compiled
-                     * with LDC. TODO remove when LDC is fixed. */
-                    alias predicate = (element) => (keyOf(element) is key);
-                }
-                else
-                {
-                    alias predicate = (const auto ref element) => (keyOf(element) is key);
-                }
-                totalCount += triangularProbeCountFromIndex!predicate(_bins[], keyToIndex(key));
-            }
-            return totalCount;
+            auto range = this.byKeyValue;
         }
+        else
+        {
+            auto range = byElement(this);
+        }
+        typeof(return) totalCount = 0;
+        foreach (ref currentElement; range)
+        {
+            static if (isCopyable!T)
+            {
+                /* don't use `auto ref` for copyable `T`'s to prevent
+                 * massive performance drop for small elements when compiled
+                 * with LDC. TODO remove when LDC is fixed. */
+                alias predicate = (element) => (keyOf(element) is keyOf(currentElement));
+            }
+            else
+            {
+                alias predicate = (const auto ref element) => (keyOf(element) is keyOf(currentElement));
+            }
+            totalCount += triangularProbeCountFromIndex!predicate(_bins[], keyToIndex(keyOf(currentElement)));
+        }
+        return totalCount;
     }
 
 private:

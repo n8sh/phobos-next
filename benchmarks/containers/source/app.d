@@ -216,7 +216,7 @@ void main()
         }
         static if (hasMember!(A, `totalProbeCount`))
         {
-            writef(" averageProbeCount:%s", cast(double)a.totalProbeCount/a.length);
+            writef(" averageProbeCount:%s", (cast(double)a.totalProbeCount)/a.length);
         }
 
         writeln();
@@ -329,6 +329,10 @@ void main()
         static if (hasMember!(A, `smallBinCapacity`))
         {
             writef(" smallBinCapacity:%s", A.smallBinCapacity);
+        }
+        static if (hasMember!(A, `totalProbeCount`))
+        {
+            writef(" averageProbeCount:%s", (cast(double)a.totalProbeCount)/a.length);
         }
 
         writeln();

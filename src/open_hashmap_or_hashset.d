@@ -1,5 +1,6 @@
 module open_hashmap_or_hashset;
 
+import std.traits : isMutable, Unqual;
 import container_traits : isNullableType, defaultNullKeyConstantOf, mustAddGCRange, isNull, nullify;
 import pure_mallocator : PureMallocator;
 
@@ -45,7 +46,7 @@ struct OpenHashMapOrSet(K, V = void,
     import std.algorithm.mutation : move, moveEmplace;
     import std.conv : emplace;
     import std.math : nextPow2;
-    import std.traits : hasElaborateDestructor, isCopyable, isMutable, hasIndirections, Unqual, isPointer;
+    import std.traits : hasElaborateDestructor, isCopyable, isMutable, hasIndirections, isPointer;
     import std.typecons : Nullable;
 
     import qcmeman : gc_addRange, gc_removeRange;
@@ -906,7 +907,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
 
         /// Range over elements of l-value instance of this.
-        static private struct ByLvalueElement(SomeOpenHashMapOrSet)
+        static private struct ByLvalueElement(Table)
         {
         pragma(inline, true):
             static if (is(T == class))
@@ -914,7 +915,7 @@ struct OpenHashMapOrSet(K, V = void,
                 /// Get reference to front element (key and value).
                 @property scope auto front()() return
                 {
-                    /* cast away const from `SomeOpenHashMapOrSet` for classes
+                    /* cast away const from `Table` for classes
                      * because class elements are currently hashed and compared
                      * compared using their identity (pointer value) `is`
                      */
@@ -929,12 +930,12 @@ struct OpenHashMapOrSet(K, V = void,
                     return table._bins[iterationIndex];
                 }
             }
-            public LvalueElementRef!SomeOpenHashMapOrSet _elementRef;
+            public LvalueElementRef!(Table, true) _elementRef;
             alias _elementRef this;
         }
 
         /// Range over elements of r-value instance of this.
-        static private struct ByRvalueElement(SomeOpenHashMapOrSet)
+        static private struct ByRvalueElement(Table)
         {
         pragma(inline, true):
             static if (is(T == class))
@@ -942,7 +943,7 @@ struct OpenHashMapOrSet(K, V = void,
                 /// Get reference to front element (key and value).
                 @property scope auto front()() return
                 {
-                    /* cast away const from `SomeOpenHashMapOrSet` for classes
+                    /* cast away const from `Table` for classes
                      * because class elements are currently hashed and compared
                      * compared using their identity (pointer value) `is`
                      */
@@ -957,7 +958,7 @@ struct OpenHashMapOrSet(K, V = void,
                     return table._bins[iterationIndex];
                 }
             }
-            public RvalueElementRef!SomeOpenHashMapOrSet _elementRef;
+            public RvalueElementRef!Table _elementRef;
             alias _elementRef this;
         }
 
@@ -999,7 +1000,7 @@ struct OpenHashMapOrSet(K, V = void,
             }
         }
 
-        static private struct ByKey(SomeOpenHashMapOrSet)
+        static private struct ByKey(Table)
         {
             pragma(inline, true):
             /// Get reference to key of front element.
@@ -1007,7 +1008,7 @@ struct OpenHashMapOrSet(K, V = void,
             {
                 return table._bins[iterationIndex].key;
             }
-            public LvalueElementRef!SomeOpenHashMapOrSet _elementRef;
+            public LvalueElementRef!(Table, false) _elementRef;
             alias _elementRef this;
         }
 
@@ -1015,12 +1016,12 @@ struct OpenHashMapOrSet(K, V = void,
         @property scope auto byKey()() inout return // template-lazy property
         {
             alias This = ConstThis;
-            auto result = ByKey!This((LvalueElementRef!This(cast(This*)&this)));
+            auto result = ByKey!This((LvalueElementRef!(This, false)(cast(This*)&this)));
             result.findNextNonEmptyBin();
             return result;
         }
 
-        static private struct ByValue(SomeOpenHashMapOrSet)
+        static private struct ByValue(Table)
         {
             pragma(inline, true):
             /// Get reference to value of front element.
@@ -1028,7 +1029,7 @@ struct OpenHashMapOrSet(K, V = void,
             {
                 return *(cast(ValueType*)&table._bins[iterationIndex].value);
             }
-            public LvalueElementRef!SomeOpenHashMapOrSet _elementRef;
+            public LvalueElementRef!(Table, false) _elementRef;
             alias _elementRef this;
         }
 
@@ -1036,19 +1037,19 @@ struct OpenHashMapOrSet(K, V = void,
         @property scope auto byValue()() inout return // template-lazy property
         {
             alias This = ConstThis;
-            auto result = ByValue!This((LvalueElementRef!This(cast(This*)&this)));
+            auto result = ByValue!This((LvalueElementRef!(This, false)(cast(This*)&this)));
             result.findNextNonEmptyBin();
             return result;
         }
 
-        static private struct ByKeyValue(SomeOpenHashMapOrSet)
+        static private struct ByKeyValue(Table)
         {
             pragma(inline, true):
             /// Get reference to front element (key and value).
             @property scope auto ref front()() return @trusted
             {
                 // TODO can this be solved without this `static if`?
-                static if (isMutable!(SomeOpenHashMapOrSet))
+                static if (isMutable!(Table))
                 {
                     alias E = CT;
                 }
@@ -1058,7 +1059,7 @@ struct OpenHashMapOrSet(K, V = void,
                 }
                 return *(cast(E*)&table._bins[iterationIndex]);
             }
-            public LvalueElementRef!SomeOpenHashMapOrSet _elementRef;
+            public LvalueElementRef!(Table, false) _elementRef;
             alias _elementRef this;
         }
 
@@ -1066,7 +1067,7 @@ struct OpenHashMapOrSet(K, V = void,
         @property scope auto byKeyValue()() return // template-lazy property
         {
             alias This = MutableThis;
-            auto result = ByKeyValue!This((LvalueElementRef!This(cast(This*)&this)));
+            auto result = ByKeyValue!This((LvalueElementRef!(This, false)(cast(This*)&this)));
             result.findNextNonEmptyBin();
             return result;
         }
@@ -1074,7 +1075,7 @@ struct OpenHashMapOrSet(K, V = void,
         @property scope auto byKeyValue()() const return // template-lazy property
         {
             alias This = ConstThis;
-            auto result = ByKeyValue!This((LvalueElementRef!This(cast(This*)&this)));
+            auto result = ByKeyValue!This((LvalueElementRef!(This, false)(cast(This*)&this)));
             result.findNextNonEmptyBin();
             return result;
         }
@@ -1422,11 +1423,83 @@ private:
 
 /** L-value element reference (and in turn range iterator).
  */
-static private struct LvalueElementRef(SomeOpenHashMapOrSet)
+static private struct LvalueElementRef(Table,
+                                       bool borrowChecked)
 {
-    SomeOpenHashMapOrSet* table;
+    Table* table;
     size_t iterationIndex;  // index to bin inside `table`
     size_t iterationCounter; // counter over number of elements popped
+
+    debug
+    {
+        static if (borrowChecked &&
+                   !isMutable!Table) // if claiming mutable access
+        {
+            alias MutableTable = Unqual!(typeof(*table));
+        }
+    }
+
+    this(Table* table) @trusted
+    {
+        this.table = table;
+        debug
+        {
+            static if (borrowChecked)
+            {
+                static if (isMutable!Table) // if claiming mutable access
+                {
+                    assert(!table.isBorrowed);
+                    table._writeBorrowed = true;
+                }
+                else                // if claiming constant access
+                {
+                    assert(!table.isWriteBorrowed);
+                    auto mutableTable = (cast(MutableTable*)(table));
+                    mutableTable._readBorrowCount = table._readBorrowCount + 1;
+                }
+            }
+        }
+    }
+
+    ~this() @trusted
+    {
+        debug
+        {
+            static if (borrowChecked)
+            {
+                static if (isMutable!Table) // if claiming mutable access
+                {
+                    table._writeBorrowed = false;
+                }
+                else                // if claiming constant access
+                {
+                    assert(table._readBorrowCount != 0);
+                    auto mutableTable = (cast(MutableTable*)(table));
+                    mutableTable._readBorrowCount = table._readBorrowCount - 1;
+                }
+            }
+        }
+    }
+
+    this(this) @trusted
+    {
+        debug
+        {
+            static if (borrowChecked)
+            {
+                static if (isMutable!Table) // if claiming mutable access
+                {
+                    static assert(0, "cannot duplicate mutable range");
+                }
+                else                // if claiming constant access
+                {
+                    assert(table._readBorrowCount != 0);
+                    auto mutableTable = (cast(MutableTable*)(table));
+                    mutableTable._readBorrowCount = table._readBorrowCount + 1;
+                }
+            }
+        }
+    }
 
 pragma(inline, true):
 
@@ -1469,9 +1542,9 @@ pragma(inline, true):
 
 /** R-value element reference (and in turn range iterator).
  */
-static private struct RvalueElementRef(SomeOpenHashMapOrSet)
+static private struct RvalueElementRef(Table)
 {
-    SomeOpenHashMapOrSet table; // owned
+    Table table; // owned
     size_t iterationIndex;  // index to bin inside table
     size_t iterationCounter; // counter over number of elements popped
 
@@ -1523,13 +1596,13 @@ import std.traits : isInstanceOf;
 
 /** Remove (reset) all elements in `x` matching `predicate`.
  */
-void removeAllMatching(alias predicate, SomeOpenHashMapOrSet)(auto ref SomeOpenHashMapOrSet x)
+void removeAllMatching(alias predicate, Table)(auto ref Table x)
     @trusted
     if (isInstanceOf!(OpenHashMapOrSet,
-                      SomeOpenHashMapOrSet))
+                      Table))
 {
     size_t count = 0;
-    alias E = typeof(SomeOpenHashMapOrSet._bins.init[0]);
+    alias E = typeof(Table._bins.init[0]);
     foreach (immutable i; 0 .. x._bins.length)
     {
         import std.functional : unaryFun;
@@ -1546,9 +1619,9 @@ void removeAllMatching(alias predicate, SomeOpenHashMapOrSet)(auto ref SomeOpenH
 /** Returns: `x` eagerly filtered on `predicate`.
     TODO move to container_algorithm.d.
 */
-SomeOpenHashMapOrSet filtered(alias predicate, SomeOpenHashMapOrSet)(SomeOpenHashMapOrSet x)
+Table filtered(alias predicate, Table)(Table x)
     if (isInstanceOf!(OpenHashMapOrSet,
-                      SomeOpenHashMapOrSet))
+                      Table))
 {
     import std.functional : not;
     x.removeAllMatching!(not!predicate); // `x` is a singleton (r-value) so safe to mutate
@@ -1588,6 +1661,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {
+    dln();
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
 
@@ -1629,6 +1703,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 /// r-value and r-value intersection
 @safe pure nothrow @nogc unittest
 {
+    dln();
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
 
@@ -1652,6 +1727,7 @@ auto intersectWith(C1, C2)(ref C1 x,
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {
+    dln();
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
 
@@ -1666,22 +1742,22 @@ auto intersectWith(C1, C2)(ref C1 x,
 /** Returns forward range that iterates through the elements of `c` in undefined
  * order.
  */
-auto byElement(SomeOpenHashMapOrSet)(auto ref inout(SomeOpenHashMapOrSet) c)
+auto byElement(Table)(auto ref inout(Table) c)
     @trusted
     if (isInstanceOf!(OpenHashMapOrSet,
-                      SomeOpenHashMapOrSet))
+                      Table))
 {
-    alias C = const(SomeOpenHashMapOrSet);
+    alias C = const(Table);
     static if (__traits(isRef, c))
     {
-        auto result = C.ByLvalueElement!C((LvalueElementRef!C(cast(C*)&c)));
+        auto result = C.ByLvalueElement!C((LvalueElementRef!(C, true)(cast(C*)&c)));
         result.findNextNonEmptyBin();
         return result;
     }
     else
     {
         import std.algorithm.mutation : move;
-        auto result = C.ByRvalueElement!C((RvalueElementRef!C(move(*(cast(SomeOpenHashMapOrSet*)&c))))); // reinterpret
+        auto result = C.ByRvalueElement!C((RvalueElementRef!C(move(*(cast(Table*)&c))))); // reinterpret
         result.findNextNonEmptyBin();
         return move(result);
     }
@@ -1691,6 +1767,7 @@ alias range = byElement;        // EMSI-container naming
 /// make range from l-value and r-value. element access is always const
 pure nothrow @nogc unittest
 {
+    dln();
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
 
@@ -1730,6 +1807,7 @@ pure nothrow @nogc unittest
 /// range checking
 @trusted pure unittest
 {
+    dln();
     immutable n = 11;
 
     alias K = Nullable!(uint, uint.max);
@@ -1774,6 +1852,7 @@ pure nothrow @nogc unittest
 /// class as value
 @trusted pure unittest
 {
+    dln();
     immutable n = 11;
 
     alias K = Nullable!(uint, uint.max);
@@ -1828,6 +1907,7 @@ pure nothrow @nogc unittest
 /// constness inference of ranges
 pure nothrow unittest
 {
+    dln();
     alias K = Nullable!(uint, uint.max);
     class V
     {
@@ -1859,6 +1939,7 @@ pure nothrow unittest
 /// range key constness and value mutability with `class` value
 pure nothrow unittest
 {
+    dln();
     struct S
     {
         uint value;
@@ -1911,6 +1992,7 @@ pure nothrow unittest
 /// range key constness and value mutability with `class` key and `class` value
 pure nothrow unittest
 {
+    dln();
     class K
     {
         this(uint value)
@@ -1964,6 +2046,7 @@ pure nothrow unittest
 /// range key constness and value mutability with `class` key and `class` value
 pure nothrow unittest
 {
+    dln();
     class K
     {
         this(uint value)
@@ -2042,6 +2125,7 @@ version(unittest)
 /// test various things
 @trusted unittest
 {
+    dln();
     const n = 600;
 
     void testEmptyAll(K, V, X)(ref X x, size_t n,
@@ -2419,5 +2503,5 @@ version(unittest)
     import std.typecons : Nullable;
     import digestx.fnv : FNV;
     import array_help : s;
-    version(show) import dbgio;
+    import dbgio;
 }

@@ -1207,7 +1207,7 @@ private:
     debug                       // use Rust-style borrow checking at run-time
     {
         /// Number of bits needed to store number of read borrows.
-        enum borrowCountBits = 16;
+        enum borrowCountBits = 24;
 
         /// Maximum value possible for `_borrowCount`.
         enum borrowCountMax = 2^^borrowCountBits - 1;

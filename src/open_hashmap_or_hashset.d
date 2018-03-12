@@ -1218,7 +1218,6 @@ private:
                   ));
 
         pragma(inline, true):
-
         @safe pure nothrow @nogc:
 
         @property

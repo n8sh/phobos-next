@@ -354,7 +354,6 @@ struct OpenHashMapOrSet(K, V = void,
     /// Equality.
     bool opEquals()(const scope auto ref typeof(this) rhs) const
     {
-        debug assert(!isWriteBorrowed, writeBorrowMessage);
         if (_count != rhs._count) { return false; } // quick discardal
         foreach (immutable ix; 0 .. _bins.length)
         {
@@ -470,24 +469,7 @@ struct OpenHashMapOrSet(K, V = void,
 
     }
 
-    static const writeBorrowMessage = "this is already write-borrowed";
-    static const readBorrowMessage = "this is already read-borrowed";
-
-    string borrowMessage() const @safe pure nothrow @nogc
-    {
-        if (isWriteBorrowed)
-        {
-            return writeBorrowMessage;
-        }
-        else if (readBorrowCount != 0)
-        {
-            return readBorrowMessage;
-        }
-        else
-        {
-            return "";
-        }
-    }
+    static const borrowMessage = "cannot mutate when this is borrowed";
 
     /// Empty.
     void clear()()              // template-lazy
@@ -559,7 +541,6 @@ struct OpenHashMapOrSet(K, V = void,
     pragma(inline, true)
     bool contains()(const scope K key) const // template-lazy, auto ref here makes things slow
     {
-        debug assert(!isWriteBorrowed, writeBorrowMessage);
         assert(!key.isNull);
         if (_bins.length == 0) { return false; }
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
@@ -911,7 +892,6 @@ struct OpenHashMapOrSet(K, V = void,
         scope const(K)* opBinaryRight(string op)(const scope K key) const return
             if (op == "in")
         {
-            debug assert(!isWriteBorrowed, writeBorrowMessage);
             assert(!key.isNull);
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
             return (hitIndex != _bins.length &&
@@ -940,7 +920,7 @@ struct OpenHashMapOrSet(K, V = void,
                      * because class elements are currently hashed and compared
                      * compared using their identity (pointer value) `is`
                      */
-                    return table._bins[iterationIndex];
+                    return table._bins[binIndex];
                 }
             }
             else
@@ -948,10 +928,10 @@ struct OpenHashMapOrSet(K, V = void,
                 /// Get reference to front element (key and value).
                 @property scope auto front()()
                 {
-                    return table._bins[iterationIndex];
+                    return table._bins[binIndex];
                 }
             }
-            public LvalueElementRef!(Table, true) _elementRef;
+            public LvalueElementRef!(Table) _elementRef;
             alias _elementRef this;
         }
 
@@ -968,7 +948,7 @@ struct OpenHashMapOrSet(K, V = void,
                      * because class elements are currently hashed and compared
                      * compared using their identity (pointer value) `is`
                      */
-                    return table._bins[iterationIndex];
+                    return table._bins[binIndex];
                 }
             }
             else
@@ -976,7 +956,7 @@ struct OpenHashMapOrSet(K, V = void,
                 /// Get reference to front element (key and value).
                 @property scope auto front()()
                 {
-                    return table._bins[iterationIndex];
+                    return table._bins[binIndex];
                 }
             }
             public RvalueElementRef!Table _elementRef;
@@ -999,7 +979,6 @@ struct OpenHashMapOrSet(K, V = void,
         scope inout(V)* opBinaryRight(string op)(const scope K key) inout return // auto ref here makes things slow
             if (op == "in")
         {
-            debug assert(!isWriteBorrowed, writeBorrowMessage);
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
             if (hitIndex != _bins.length &&
                 isOccupiedAtIndex(hitIndex))
@@ -1027,9 +1006,9 @@ struct OpenHashMapOrSet(K, V = void,
             /// Get reference to key of front element.
             @property scope const auto ref front()() return // key access must be const
             {
-                return table._bins[iterationIndex].key;
+                return table._bins[binIndex].key;
             }
-            public LvalueElementRef!(Table, false) _elementRef;
+            public LvalueElementRef!(Table) _elementRef;
             alias _elementRef this;
         }
 
@@ -1037,7 +1016,7 @@ struct OpenHashMapOrSet(K, V = void,
         @property scope auto byKey()() inout return // template-lazy property
         {
             alias This = ConstThis;
-            auto result = ByKey!This((LvalueElementRef!(This, false)(cast(This*)&this)));
+            auto result = ByKey!This((LvalueElementRef!(This)(cast(This*)&this)));
             result.findNextNonEmptyBin();
             return result;
         }
@@ -1048,9 +1027,9 @@ struct OpenHashMapOrSet(K, V = void,
             /// Get reference to value of front element.
             @property scope auto ref front()() return @trusted // template-lazy property
             {
-                return *(cast(ValueType*)&table._bins[iterationIndex].value);
+                return *(cast(ValueType*)&table._bins[binIndex].value);
             }
-            public LvalueElementRef!(Table, false) _elementRef;
+            public LvalueElementRef!(Table) _elementRef;
             alias _elementRef this;
         }
 
@@ -1058,7 +1037,7 @@ struct OpenHashMapOrSet(K, V = void,
         @property scope auto byValue()() inout return // template-lazy property
         {
             alias This = ConstThis;
-            auto result = ByValue!This((LvalueElementRef!(This, false)(cast(This*)&this)));
+            auto result = ByValue!This((LvalueElementRef!(This)(cast(This*)&this)));
             result.findNextNonEmptyBin();
             return result;
         }
@@ -1078,9 +1057,9 @@ struct OpenHashMapOrSet(K, V = void,
                 {
                     alias E = const(T);
                 }
-                return *(cast(E*)&table._bins[iterationIndex]);
+                return *(cast(E*)&table._bins[binIndex]);
             }
-            public LvalueElementRef!(Table, false) _elementRef;
+            public LvalueElementRef!(Table) _elementRef;
             alias _elementRef this;
         }
 
@@ -1088,7 +1067,7 @@ struct OpenHashMapOrSet(K, V = void,
         @property scope auto byKeyValue()() return // template-lazy property
         {
             alias This = MutableThis;
-            auto result = ByKeyValue!This((LvalueElementRef!(This, false)(cast(This*)&this)));
+            auto result = ByKeyValue!This((LvalueElementRef!(This)(cast(This*)&this)));
             result.findNextNonEmptyBin();
             return result;
         }
@@ -1096,7 +1075,7 @@ struct OpenHashMapOrSet(K, V = void,
         @property scope auto byKeyValue()() const return // template-lazy property
         {
             alias This = ConstThis;
-            auto result = ByKeyValue!This((LvalueElementRef!(This, false)(cast(This*)&this)));
+            auto result = ByKeyValue!This((LvalueElementRef!(This)(cast(This*)&this)));
             result.findNextNonEmptyBin();
             return result;
         }
@@ -1112,7 +1091,6 @@ struct OpenHashMapOrSet(K, V = void,
         pragma(inline, true)    // LDC must have this
         scope ref inout(V) opIndex()(const scope K key) inout return // auto ref here makes things slow
         {
-            debug assert(!isWriteBorrowed, writeBorrowMessage);
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
             if (hitIndex != _bins.length &&
                 isOccupiedAtIndex(hitIndex))
@@ -1144,7 +1122,6 @@ struct OpenHashMapOrSet(K, V = void,
         auto ref V get()(const scope K key, // template-lazy
                          const scope V defaultValue)
         {
-            debug assert(!isWriteBorrowed, writeBorrowMessage);
             auto value = key in this;
             if (value !is null)
             {
@@ -1244,27 +1221,23 @@ private:
     debug                       // use Rust-style borrow checking at run-time
     {
         /// Number of bits needed to store number of read borrows.
-        enum readBorrowCountBits = 15;
+        enum borrowCountBits = 16;
 
-        /// Maximum value possible for `_readBorrowCount`.
-        enum readBorrowCountMax = 2^^readBorrowCountBits - 1;
+        /// Maximum value possible for `_borrowCount`.
+        enum readBorrowCountMax = 2^^borrowCountBits - 1;
 
         import std.bitmanip : bitfields;
-        mixin(bitfields!(size_t, "_count", 8*size_t.sizeof - readBorrowCountBits - 1,
-                         bool, "_writeBorrowed", 1,
-                         uint, "_readBorrowCount", readBorrowCountBits,
+        mixin(bitfields!(size_t, "_count", 8*size_t.sizeof - borrowCountBits,
+                         uint, "_borrowCount", borrowCountBits,
                   ));
 
         @property
         {
             /// Returns: `true` iff `this` is either write or read borrowed.
-            bool isBorrowed() const { return _writeBorrowed || _readBorrowCount >= 1; }
-
-            /// Returns: `true` iff `this` is write borrowed.
-            bool isWriteBorrowed() const { return _writeBorrowed; }
+            bool isBorrowed() const { return _borrowCount >= 1; }
 
             /// Returns: number of read-only borrowers of `this`.
-            uint readBorrowCount() const { return _readBorrowCount; }
+            uint readBorrowCount() const { return _borrowCount; }
         }
     }
     else
@@ -1444,20 +1417,15 @@ private:
 
 /** L-value element reference (and in turn range iterator).
  */
-static private struct LvalueElementRef(Table,
-                                       bool borrowChecked)
+static private struct LvalueElementRef(Table)
 {
-    Table* table;
-    size_t iterationIndex;  // index to bin inside `table`
-    size_t iterationCounter; // counter over number of elements popped
+    private Table* table;
+    private size_t binIndex;   // index to bin inside `table`
+    private size_t iterationCounter; // counter over number of elements popped. TODO needed?
 
     debug
     {
-        static if (borrowChecked &&
-                   !isMutable!Table) // if claiming mutable access
-        {
-            alias MutableTable = Unqual!(typeof(*table));
-        }
+        alias MutableTable = Unqual!(typeof(*table));
     }
 
     this(Table* table) @trusted
@@ -1465,20 +1433,7 @@ static private struct LvalueElementRef(Table,
         this.table = table;
         debug
         {
-            static if (borrowChecked)
-            {
-                static if (isMutable!Table) // if claiming mutable access
-                {
-                    assert(!table.isBorrowed);
-                    table._writeBorrowed = true;
-                }
-                else                // if claiming constant access
-                {
-                    assert(!table.isWriteBorrowed);
-                    auto mutableTable = (cast(MutableTable*)(table));
-                    mutableTable._readBorrowCount = table._readBorrowCount + 1;
-                }
-            }
+            (cast(MutableTable*)(table))._borrowCount = table._borrowCount + 1;
         }
     }
 
@@ -1486,19 +1441,8 @@ static private struct LvalueElementRef(Table,
     {
         debug
         {
-            static if (borrowChecked)
-            {
-                static if (isMutable!Table) // if claiming mutable access
-                {
-                    table._writeBorrowed = false;
-                }
-                else                // if claiming constant access
-                {
-                    assert(table._readBorrowCount != 0);
-                    auto mutableTable = (cast(MutableTable*)(table));
-                    mutableTable._readBorrowCount = table._readBorrowCount - 1;
-                }
-            }
+            assert(table._borrowCount != 0);
+            (cast(MutableTable*)(table))._borrowCount = table._borrowCount - 1;
         }
     }
 
@@ -1506,19 +1450,8 @@ static private struct LvalueElementRef(Table,
     {
         debug
         {
-            static if (borrowChecked)
-            {
-                static if (isMutable!Table) // if claiming mutable access
-                {
-                    static assert(0, "cannot duplicate mutable range");
-                }
-                else                // if claiming constant access
-                {
-                    assert(table._readBorrowCount != 0);
-                    auto mutableTable = (cast(MutableTable*)(table));
-                    mutableTable._readBorrowCount = table._readBorrowCount + 1;
-                }
-            }
+            assert(table._borrowCount != 0);
+            (cast(MutableTable*)(table))._borrowCount = table._borrowCount + 1;
         }
     }
 
@@ -1527,7 +1460,7 @@ pragma(inline, true):
     /// Check if empty.
     @property bool empty() const @safe pure nothrow @nogc
     {
-        return iterationIndex == table.binCount;
+        return binIndex == table.binCount;
     }
 
     /// Get number of element left to pop.
@@ -1545,7 +1478,7 @@ pragma(inline, true):
     void popFront()
     {
         assert(!empty);
-        iterationIndex += 1;
+        binIndex += 1;
         findNextNonEmptyBin();
         iterationCounter += 1;
     }
@@ -1553,10 +1486,10 @@ pragma(inline, true):
     pragma(inline)
     private void findNextNonEmptyBin()
     {
-        while (iterationIndex != (*table).binCount &&
-               !(*table).isOccupiedAtIndex(iterationIndex))
+        while (binIndex != (*table).binCount &&
+               !(*table).isOccupiedAtIndex(binIndex))
         {
-            iterationIndex += 1;
+            binIndex += 1;
         }
     }
 }
@@ -1565,16 +1498,16 @@ pragma(inline, true):
  */
 static private struct RvalueElementRef(Table)
 {
-    Table table; // owned
-    size_t iterationIndex;  // index to bin inside table
-    size_t iterationCounter; // counter over number of elements popped
+    Table table;                // owned table
+    size_t binIndex;            // index to bin inside table
+    size_t iterationCounter;    // counter over number of elements popped
 
 pragma(inline, true):
 
     /// Check if empty.
     @property bool empty() const @safe pure nothrow @nogc
     {
-        return iterationIndex == table.binCount;
+        return binIndex == table.binCount;
     }
 
     /// Get number of element left to pop.
@@ -1587,7 +1520,7 @@ pragma(inline, true):
     void popFront()
     {
         assert(!empty);
-        iterationIndex += 1;
+        binIndex += 1;
         findNextNonEmptyBin();
         iterationCounter += 1;
     }
@@ -1595,10 +1528,10 @@ pragma(inline, true):
     pragma(inline)
     private void findNextNonEmptyBin()
     {
-        while (iterationIndex != table.binCount &&
-               !table.isOccupiedAtIndex(iterationIndex))
+        while (binIndex != table.binCount &&
+               !table.isOccupiedAtIndex(binIndex))
         {
-            iterationIndex += 1;
+            binIndex += 1;
         }
     }
 }
@@ -1772,7 +1705,7 @@ auto byElement(Table)(auto ref inout(Table) c)
     alias C = const(Table);
     static if (__traits(isRef, c))
     {
-        auto result = C.ByLvalueElement!C((LvalueElementRef!(C, true)(cast(C*)&c)));
+        auto result = C.ByLvalueElement!C((LvalueElementRef!(C)(cast(C*)&c)));
         result.findNextNonEmptyBin();
         return result;
     }
@@ -1807,6 +1740,7 @@ alias range = byElement;        // EMSI-container naming
     foreach (e; x.byElement)    // from l-value
     {
         assertThrown!AssertError(x.clear()); // check capturing of range invalidation
+        assertThrown!AssertError(x.insert(K.init)); // check capturing of range invalidation
         assert(x.contains(e));
         static assert(is(typeof(e) == const(K))); // always const access
     }
@@ -1902,12 +1836,14 @@ alias range = byElement;        // EMSI-container naming
     }
 
     // test range
-    auto sr = s.byKeyValue;
-    assert(sr.length == n);
-    foreach (immutable uint i; 0 .. n)
     {
-        sr.popFront();
-        assert(sr.length == n - i - 1);
+        auto sr = s.byKeyValue; // scoped range
+        assert(sr.length == n);
+        foreach (immutable uint i; 0 .. n)
+        {
+            sr.popFront();
+            assert(sr.length == n - i - 1);
+        }
     }
 
     foreach (immutable uint i; 0 .. n)
@@ -2530,5 +2466,6 @@ version(unittest)
     import digestx.fnv : FNV;
     import array_help : s;
 
-    import dbgio;
+    version(showEntries) import dbgio;
+    version(show) import dbgio;
 }

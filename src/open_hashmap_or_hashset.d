@@ -197,9 +197,12 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     pragma(inline, true)
-    private static T[] makeBins(size_t capacity_) @trusted
+    private static T[] makeBins(size_t capacity_)
+        @trusted pure nothrow @nogc
     {
         immutable powerOf2Capacity = nextPow2(capacity_);
+        version(showEntries) dln(__FUNCTION__, " capacity_:", capacity_,
+                                 " powerOf2Capacity:", powerOf2Capacity);
 
         // TODO cannot use makeArray here because it cannot handle uncopyable types
         // import std.experimental.allocator : makeArray;
@@ -248,9 +251,10 @@ struct OpenHashMapOrSet(K, V = void,
         return bins;
     }
 
-    private pragma(inline, true)
-    void[] allocateUninitializedBins(size_t capacity) const pure nothrow @nogc @system
+    static private void[] allocateUninitializedBins(size_t capacity)
+        @trusted pure nothrow @nogc
     {
+        version(showEntries) dln(__FUNCTION__, " newCapacity:", capacity);
         immutable byteCount = T.sizeof*capacity;
         auto bins = Allocator.instance.allocate(byteCount);
         static if (mustAddGCRange!T)
@@ -303,6 +307,7 @@ struct OpenHashMapOrSet(K, V = void,
         typeof(this) dup()() const // template-lazy
             @trusted
         {
+            version(showEntries) dln(__FUNCTION__, " length:", length);
             T[] binsCopy = cast(T[])allocateUninitializedBins(_bins.length);
             foreach (immutable index, ref element; _bins)
             {
@@ -629,6 +634,7 @@ struct OpenHashMapOrSet(K, V = void,
     pragma(inline, true)
     private void growWithNewCapacity(size_t newCapacity) // not template-lazy
     {
+        version(showEntries) dln(__FUNCTION__, " newCapacity:", newCapacity);
         version(unittest) assert(newCapacity > _bins.length);
         static if (__traits(hasMember, Allocator, "reallocate"))
         {
@@ -675,7 +681,7 @@ struct OpenHashMapOrSet(K, V = void,
     private void rehashInPlace()() // template-lazy
         @trusted
     {
-        version(showEntries) dln(__PRETTY_FUNCTION__);
+        version(showEntries) dln(__FUNCTION__);
         import core.bitop : bts, bt;
         import array_help : makeZeroedBitArray, wordCountOfBitCount;
         size_t* dones = makeZeroedBitArray!Allocator(_bins.length);
@@ -787,6 +793,7 @@ struct OpenHashMapOrSet(K, V = void,
     private void growStandardWithNewCapacity(size_t newCapacity) // not template-lazy
         @trusted
     {
+        version(showEntries) dln(__FUNCTION__, " newCapacity:", newCapacity);
         version(unittest) assert(newCapacity > _bins.length);
 
         T[] oldBins = _bins;
@@ -2258,8 +2265,7 @@ version(unittest)
     foreach (K; AliasSeq!(NullableUlong,
                           SomeSimpleClass))
     {
-        foreach (V; AliasSeq!(void// , int
-                     ))
+        foreach (V; AliasSeq!(void, int))
         {
             version(show) dln("K:", K.stringof,
                               " V:", V.stringof);
@@ -2377,11 +2383,6 @@ version(unittest)
             import std.array : Appender;
             Appender!(K[]) keys;
 
-            import core.memory : GC;
-            GC.disable();
-            version(show) dln("TODO remove disabling of GC");
-
-            version(show) dln(X.stringof);
             foreach (immutable key_; 0 .. n)
             {
                 version(show)
@@ -2391,8 +2392,14 @@ version(unittest)
                     {
                         if (key_ == 2)
                         {
-                            dln("before");
-                            dln(x1.byKeyValue);
+                            dln("before", " count:", x1._count,
+                                " bins-ptr:", x1._bins.ptr,
+                                " bins-length:", x1._bins.length,
+                                " K:", K.stringof,
+                                " V:", V.stringof);
+                            dln("values: ", x1.byValue);
+                            dln("keys: ", x1.byKey);
+                            dln("key-values: ", x1.byKeyValue);
                             dln("after");
                         }
                     }
@@ -2440,10 +2447,10 @@ version(unittest)
                 static if (X.hasValue)
                 {
                     import std.conv : to;
-                    auto e2 = X.ElementType(key, 42.to!V);
+                    auto e2 = X.ElementType(key, (42 + key_).to!V);
                     assert(x1.insert(e2) == X.InsertionStatus.modified);
                     assert(x1.contains(key));
-                    assert(x1.get(key, V.init) == 42.to!V);
+                    assert(x1.get(key, V.init) == (42 + key_).to!V);
 
                     x1.remove(key);
                     x1[key] = value;

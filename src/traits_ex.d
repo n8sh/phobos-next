@@ -52,13 +52,13 @@ template allSameIterative(V...)
     {
         static foreach (Vi; V[1 .. $])
         {
-            static if (!is(typeof(allSameIterative) == bool) && // not yet defined
+            static if (is(typeof(allSameIterative) == void) && // not yet defined
                        !isSame!(V[0], Vi))
             {
                 enum allSameIterative = false;
             }
         }
-        static if (!is(typeof(allSameIterative) == bool)) // if not yet defined
+        static if (is(typeof(allSameIterative) == void)) // if not yet defined
         {
             enum allSameIterative = true;
         }
@@ -115,14 +115,14 @@ template allSameTypeIterative(V...)
     {
         static foreach (Vi; V[1 .. $])
         {
-            static if (!is(typeof(allSameTypeIterative) == bool) && // not yet defined
+            static if (is(typeof(allSameTypeIterative) == void) && // not yet defined
                        !is(V[0] == Vi)) // 10% faster than `!isSame(V[0], Vi)`
             {
                 enum allSameTypeIterative = false;
             }
         }
     }
-    static if (!is(typeof(allSameTypeIterative) == bool)) // if not yet defined
+    static if (is(typeof(allSameTypeIterative) == void)) // if not yet defined
     {
         enum allSameTypeIterative = true;
     }
@@ -1156,13 +1156,13 @@ template allSatisfyIterative(alias F, T...)
 {
     static foreach (Ti; T)
     {
-        static if (!is(typeof(allSatisfyIterative) == bool) && // not yet defined
+        static if (is(typeof(allSatisfyIterative) == void) && // not yet defined
                    !F!(Ti))
         {
             enum allSatisfyIterative = false;
         }
     }
-    static if (!is(typeof(allSatisfyIterative) == bool)) // if not yet defined
+    static if (is(typeof(allSatisfyIterative) == void)) // if not yet defined
     {
         enum allSatisfyIterative = true;
     }
@@ -1184,13 +1184,13 @@ template anySatisfyIterative(alias F, T...)
 {
     static foreach (Ti; T)
     {
-        static if (!is(typeof(anySatisfyIterative) == bool) && // not yet defined
+        static if (is(typeof(anySatisfyIterative) == void) && // not yet defined
                    F!(Ti))
         {
             enum anySatisfyIterative = true;
         }
     }
-    static if (!is(typeof(anySatisfyIterative) == bool)) // if not yet defined
+    static if (is(typeof(anySatisfyIterative) == void)) // if not yet defined
     {
         enum anySatisfyIterative = false;
     }

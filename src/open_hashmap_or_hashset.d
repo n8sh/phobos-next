@@ -1978,6 +1978,9 @@ pure nothrow unittest
 
         assert(e.value.data == 43);
 
+        // key cannot be mutated
+        static assert(!__traits(compiles, { e.key.value += 1; }));
+
         // value mutation side effects
         e.value.data += 1;
         assert(e.value.data == 44);
@@ -2031,6 +2034,9 @@ pure nothrow unittest
 
         assert(e.key.value == 42);
         assert(e.value.data == 43);
+
+        // key cannot be mutated
+        static assert(!__traits(compiles, { e.key.value += 1; }));
 
         // value mutation side effects
         e.value.data += 1;

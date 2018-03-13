@@ -1,6 +1,6 @@
 module open_hashmap_or_hashset;
 
-// version = showEntries;
+version = showEntries;
 // version = show;
 
 import std.traits : Unqual;
@@ -2194,7 +2194,6 @@ version(unittest)
                          y.byValue));
             assert(equal(x.byKeyValue,
                          y.byKeyValue));
-            assert(equal(x[], y[]));
         }
         else
         {
@@ -2241,7 +2240,7 @@ version(unittest)
     foreach (K; AliasSeq!(NullableUlong,
                           SomeSimpleClass))
     {
-        foreach (V; AliasSeq!(void, /*TODO string*/))
+        foreach (V; AliasSeq!(void, string))
         {
             version(show) dln("K:", K.stringof,
                               " V:", V.stringof);

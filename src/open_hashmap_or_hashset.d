@@ -169,7 +169,6 @@ struct OpenHashMapOrSet(K, V = void,
             unmodified                  // element was left unchanged
         }
 
-
         alias T = K;            // short name for element type
 
         /// Get key part of element.
@@ -467,8 +466,9 @@ struct OpenHashMapOrSet(K, V = void,
                 static if (hasValue &&
                            hasElaborateDestructor!V)
                 {
-                    .destroy(valueOf(_bins[index]));
-                    emplace(&valueOf(_bins[index])); // TODO shouldn't be needed
+                    valueOf(_bins[index]) = V.init; // destroy should be enough
+                    // .destroy(valueOf(_bins[index]));
+                    // emplace(&valueOf(_bins[index])); // TODO shouldn't be needed
                 }
             }
         }
@@ -660,6 +660,17 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
+    private void insertMoveElementAtIndex(ref T element,
+                                          size_t index)
+        @trusted
+    {
+        move(keyOf(element), keyOf(_bins[index]));
+        static if (hasValue)
+        {
+            moveEmplace(valueOf(element), valueOf(_bins[index]));
+        }
+    }
+
     /** Rehash elements in-place. */
     private void rehashInPlace()() // template-lazy
         @trusted
@@ -844,8 +855,9 @@ struct OpenHashMapOrSet(K, V = void,
         {
             immutable hitIndex1 = indexOfHoleOrNullForKey(keyOf(element)); // try again to reuse hole
             version(unittest) assert(hitIndex1 != _bins.length, "no null or hole slot");
-            move(element,
-                 _bins[hitIndex1]);
+
+            insertMoveElementAtIndex(element, hitIndex1);
+
             static if (!hasAddressKey)
             {
                 untagHoleAtIndex(hitIndex1);
@@ -1402,12 +1414,12 @@ private:
             static if (!hasAddressKey)
             {
                 alias pred = (index, element) => (hasHoleAtPtrIndex(_holesPtr, index) ||
-                                                       keyOf(element).isNull);
+                                                  keyOf(element).isNull);
             }
             else
             {
                 alias pred = (element) => (isHoleKeyConstant(keyOf(element)) ||
-                                                keyOf(element).isNull);
+                                           keyOf(element).isNull);
             }
         }
         else
@@ -1415,12 +1427,12 @@ private:
             static if (!hasAddressKey)
             {
                 alias pred = (index, const auto ref element) => (hasHoleAtPtrIndex(_holesPtr, index) ||
-                                                                      keyOf(element).isNull);
+                                                                 keyOf(element).isNull);
             }
             else
             {
                 alias pred = (const auto ref element) => (isHoleKeyConstant(keyOf(element)) ||
-                                                               keyOf(element).isNull);
+                                                          keyOf(element).isNull);
             }
         }
         return _bins[].triangularProbeFromIndex!(pred)(keyToIndex(key));
@@ -2246,7 +2258,8 @@ version(unittest)
     foreach (K; AliasSeq!(NullableUlong,
                           SomeSimpleClass))
     {
-        foreach (V; AliasSeq!(void, string))
+        foreach (V; AliasSeq!(void// , int
+                     ))
         {
             version(show) dln("K:", K.stringof,
                               " V:", V.stringof);
@@ -2350,19 +2363,11 @@ version(unittest)
             }
 
             import container_traits : mustAddGCRange;
-            static if (X.hasValue &&
-                       is(V == string))
+            static if (is(V == string))
             {
                 static assert(mustAddGCRange!V);
                 static assert(mustAddGCRange!(V[1]));
                 static assert(mustAddGCRange!(X.T));
-            }
-            else
-            {
-                static if (!is(X.T == class))
-                {
-                    static assert(!mustAddGCRange!(X.T));
-                }
             }
 
             auto x1 = X();            // start empty
@@ -2388,6 +2393,7 @@ version(unittest)
                         {
                             dln("before");
                             dln(x1.byKeyValue);
+                            dln("after");
                         }
                     }
                 }
@@ -2433,10 +2439,11 @@ version(unittest)
 
                 static if (X.hasValue)
                 {
-                    auto e2 = X.ElementType(key, "a");
+                    import std.conv : to;
+                    auto e2 = X.ElementType(key, 42.to!V);
                     assert(x1.insert(e2) == X.InsertionStatus.modified);
                     assert(x1.contains(key));
-                    assert(x1.get(key, null) == "a");
+                    assert(x1.get(key, V.init) == 42.to!V);
 
                     x1.remove(key);
                     x1[key] = value;
@@ -2448,7 +2455,7 @@ version(unittest)
                 const hitPtr = key in x1;
                 static if (X.hasValue)
                 {
-                    assert(hitPtr && *hitPtr != "_");
+                    assert(hitPtr && *hitPtr == value);
                 }
                 else
                 {

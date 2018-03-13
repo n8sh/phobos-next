@@ -647,26 +647,24 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    /** Nullify `element`. */
+    /** Nullify (reset) `element`. */
     static private void nullifyElement(scope ref T element)
         @trusted
     {
         keyOf(element).nullify(); // moveEmplace doesn't init source of type Nullable
-        static if (hasValue)
+        static if (hasElaborateDestructor!V) // if we should clear all
         {
             valueOf(element) = V.init;
+            // TODO activate and use emplace elsewhere
+            //    .destroy(valueOf(element));
         }
-        // TODO activate and use emplace elsewhere
-        // static if (hasElaborateDestructor!V)
-        // {
-        //     .destroy(valueOf(element));
-        // }
     }
 
     /** Rehash elements in-place. */
     private void rehashInPlace()() // template-lazy
         @trusted
     {
+        version(showEntries) dln(__PRETTY_FUNCTION__);
         import core.bitop : bts, bt;
         import array_help : makeZeroedBitArray, wordCountOfBitCount;
         size_t* dones = makeZeroedBitArray!Allocator(_bins.length);

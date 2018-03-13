@@ -2263,13 +2263,13 @@ version(unittest)
     import container_traits : mustAddGCRange;
     static assert(mustAddGCRange!string);
 
-    foreach (K; AliasSeq!(NullableUlong,
-                          SomeSimpleClass))
+    foreach (K; AliasSeq!(SomeSimpleClass,
+                          NullableUlong))
     {
-        foreach (V; AliasSeq!(void, int))
+        foreach (V; AliasSeq!(int,
+                              void))
         {
-            version(show) dln("K:", K.stringof,
-                              " V:", V.stringof);
+            version(show) dln("K:", K.stringof, " V:", V.stringof);
 
             alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
 

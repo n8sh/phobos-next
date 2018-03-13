@@ -1177,6 +1177,7 @@ template allSatisfyIterative(alias F, T...)
     static assert( allSatisfyIterative!(isIntegral, int));
     static assert(!allSatisfyIterative!(isIntegral, int, double));
     static assert( allSatisfyIterative!(isIntegral, int, long));
+    static assert(!allSatisfyIterative!(isIntegral, string));
 }
 
 template anySatisfyIterative(alias F, T...)
@@ -1204,6 +1205,7 @@ template anySatisfyIterative(alias F, T...)
     static assert( anySatisfyIterative!(isIntegral, int));
     static assert(!anySatisfyIterative!(isIntegral, string, double));
     static assert( anySatisfyIterative!(isIntegral, int, double));
+    static assert( anySatisfyIterative!(isIntegral, int, string));
 }
 
 version(unittest)

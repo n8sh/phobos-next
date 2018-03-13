@@ -1,7 +1,7 @@
 module open_hashmap_or_hashset;
 
-// version = showEntries;
-// version = show;
+version = showEntries;
+version = show;
 
 import std.traits : Unqual;
 import container_traits : isNullableType;
@@ -222,17 +222,22 @@ struct OpenHashMapOrSet(K, V = void,
             }
             else
             {
-                auto bins = cast(T[])Allocator.instance.zeroallocate(byteCount);
+                auto bins = cast(T[])Allocator.instance.allocate(byteCount);
                 import core.stdc.string : memset;
                 memset(bins.ptr, 0, byteCount);
             }
         }
-        else
+        else                    // when default null key is not represented by zeros
         {
             auto bins = cast(T[])Allocator.instance.allocate(byteCount);
             foreach (ref element; bins)
             {
-                nullifyElement(element);
+                keyOf(element).nullify(); // moveEmplace doesn't init source of type Nullable
+                static if (hasValue)
+                {
+                    // construct in-place
+                    emplace(&valueOf(element));
+                }
             }
         }
 
@@ -647,12 +652,15 @@ struct OpenHashMapOrSet(K, V = void,
         @trusted
     {
         keyOf(element).nullify(); // moveEmplace doesn't init source of type Nullable
-        static if (hasValue &&
-                   hasElaborateDestructor!V)
+        static if (hasValue)
         {
-            .destroy(valueOf(element));
-            emplace(&valueOf(element)); // TODO shouldn't be needed
+            valueOf(element) = V.init;
         }
+        // TODO activate and use emplace elsewhere
+        // static if (hasElaborateDestructor!V)
+        // {
+        //     .destroy(valueOf(element));
+        // }
     }
 
     /** Rehash elements in-place. */
@@ -2240,8 +2248,7 @@ version(unittest)
     foreach (K; AliasSeq!(NullableUlong,
                           SomeSimpleClass))
     {
-        foreach (V; AliasSeq!(void// , string
-                     ))
+        foreach (V; AliasSeq!(void, string))
         {
             version(show) dln("K:", K.stringof,
                               " V:", V.stringof);

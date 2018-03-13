@@ -70,6 +70,7 @@ struct OpenHashMapOrSet(K, V = void,
     static if (hasAddressKey)
     {
         enum holeKeyOffset = 0x1;
+        // enum holeKeyOffset = ulong.max;
 
         /**
          * See also: https://forum.dlang.org/post/p7726n$2apd$1@digitalmars.com

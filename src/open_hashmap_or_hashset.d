@@ -1975,7 +1975,6 @@ pure nothrow unittest
         static assert(is(typeof(e.value) == X.ValueType)); // mutable access to value
 
         assert(e.key.value == 42);
-
         assert(e.value.data == 43);
 
         // key cannot be mutated

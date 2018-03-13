@@ -1173,6 +1173,7 @@ template allSatisfyIterative(alias F, T...)
 {
     import std.traits : isIntegral;
 
+    static assert( allSatisfyIterative!(isIntegral));
     static assert( allSatisfyIterative!(isIntegral, int));
     static assert(!allSatisfyIterative!(isIntegral, int, double));
     static assert( allSatisfyIterative!(isIntegral, int, long));
@@ -1199,6 +1200,7 @@ template anySatisfyIterative(alias F, T...)
 {
     import std.traits : isIntegral;
 
+    static assert(!anySatisfyIterative!(isIntegral));
     static assert( anySatisfyIterative!(isIntegral, int));
     static assert(!anySatisfyIterative!(isIntegral, string, double));
     static assert( anySatisfyIterative!(isIntegral, int, double));

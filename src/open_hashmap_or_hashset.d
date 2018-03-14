@@ -318,11 +318,16 @@ struct OpenHashMapOrSet(K, V = void,
                  */
                 if (keyOf(element).isNull)
                 {
-                    keyOf(binsCopy[index]).nullify();
-                    static if (hasValue)
+                    // TODO only emplace key and not value
+                    static if (hasElaborateDestructor!T)
                     {
-                        emplace(&valueOf(binsCopy[index])); // TODO shouldn't be needed when key is null
+                        emplace(&binsCopy[index]);
                     }
+                    else
+                    {
+                        binsCopy[index] = T.init;
+                    }
+                    keyOf(binsCopy[index]).nullify();
                 }
                 else
                 {
@@ -338,7 +343,6 @@ struct OpenHashMapOrSet(K, V = void,
                             assert(!isHoleKeyConstant(keyOf(_bins[index])));
                         }
                     }
-                    // TODO handle this
                     static if (hasElaborateDestructor!T)
                     {
                         emplace(&binsCopy[index], element);

@@ -709,8 +709,9 @@ struct OpenHashMapOrSet(K, V = void,
 
                 while (true)
                 {
-                    alias pred = (index, const scope auto ref element) => (keyOf(element).isNull || // free slot or TODO check holes
-                                                                     !bt(dones, index)); // or a not yet replaced element
+                    alias pred = (const scope index,
+                                  const scope auto ref element) => (keyOf(element).isNull || // free slot or TODO check holes
+                                                                    !bt(dones, index)); // or a not yet replaced element
                     immutable hitIndex = _bins[].triangularProbeFromIndex!(pred)(keyToIndex(keyOf(currentElement)));
                     assert(hitIndex != _bins.length, "no free slot");
 
@@ -1248,7 +1249,7 @@ struct OpenHashMapOrSet(K, V = void,
                 /* don't use `auto ref` for copyable `T`'s to prevent
                  * massive performance drop for small elements when compiled
                  * with LDC. TODO remove when LDC is fixed. */
-                alias pred = (element) => (keyOf(element) is keyOf(currentElement));
+                alias pred = (const scope element) => (keyOf(element) is keyOf(currentElement));
             }
             else
             {
@@ -1345,28 +1346,30 @@ private:
              * with LDC. TODO remove when LDC is fixed. */
             static if (!hasAddressKey)
             {
-                alias pred = (index, element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
-                                                  (keyOf(element).isNull ||
-                                                   keyOf(element) is key));
+                alias pred = (const scope index,
+                              const scope element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
+                                                       (keyOf(element).isNull ||
+                                                        keyOf(element) is key));
             }
             else
             {
-                alias pred = (element) => (keyOf(element).isNull ||
-                                           keyOf(element) is key);
+                alias pred = (const scope element) => (keyOf(element).isNull ||
+                                                       keyOf(element) is key);
             }
         }
         else
         {
             static if (!hasAddressKey)
             {
-                alias pred = (index, const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
-                                                                 (keyOf(element).isNull ||
-                                                                  keyOf(element) is key));
+                alias pred = (const scope index,
+                              const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
+                                                                (keyOf(element).isNull ||
+                                                                 keyOf(element) is key));
             }
             else
             {
                 alias pred = (const scope auto ref element) => (keyOf(element).isNull ||
-                                                          keyOf(element) is key);
+                                                                keyOf(element) is key);
             }
         }
         return _bins[].triangularProbeFromIndex!(pred)(keyToIndex(key));
@@ -1390,28 +1393,30 @@ private:
              * with LDC. TODO remove when LDC is fixed. */
             static if (!hasAddressKey)
             {
-                alias pred = (index, element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
-                                                  (keyOf(element).isNull ||
-                                                   keyOf(element) is key));
+                alias pred = (const scope index,
+                              const scope element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
+                                                       (keyOf(element).isNull ||
+                                                        keyOf(element) is key));
             }
             else
             {
-                alias pred = (element) => (keyOf(element).isNull ||
-                                           keyOf(element) is key);
+                alias pred = (const scope element) => (keyOf(element).isNull ||
+                                                       keyOf(element) is key);
             }
         }
         else
         {
             static if (!hasAddressKey)
             {
-                alias pred = (index, const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
-                                                                 (keyOf(element).isNull ||
-                                                                  keyOf(element) is key));
+                alias pred = (const scope index,
+                              const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
+                                                                (keyOf(element).isNull ||
+                                                                 keyOf(element) is key));
             }
             else
             {
                 alias pred = (const scope auto ref element) => (keyOf(element).isNull ||
-                                                          keyOf(element) is key);
+                                                                keyOf(element) is key);
             }
         }
         return _bins[].triangularProbeFromIndex!(pred, true)(keyToIndex(key));
@@ -1431,26 +1436,28 @@ private:
              * with LDC. TODO remove when LDC is fixed. */
             static if (!hasAddressKey)
             {
-                alias pred = (index, element) => (hasHoleAtPtrIndex(_holesPtr, index) ||
-                                                  keyOf(element).isNull);
+                alias pred = (const scope index,
+                              const scope element) => (hasHoleAtPtrIndex(_holesPtr, index) ||
+                                                       keyOf(element).isNull);
             }
             else
             {
-                alias pred = (element) => (isHoleKeyConstant(keyOf(element)) ||
-                                           keyOf(element).isNull);
+                alias pred = (const scope element) => (isHoleKeyConstant(keyOf(element)) ||
+                                                       keyOf(element).isNull);
             }
         }
         else
         {
             static if (!hasAddressKey)
             {
-                alias pred = (index, const scope auto ref element) => (hasHoleAtPtrIndex(_holesPtr, index) ||
-                                                                 keyOf(element).isNull);
+                alias pred = (const scope index,
+                              const scope auto ref element) => (hasHoleAtPtrIndex(_holesPtr, index) ||
+                                                                keyOf(element).isNull);
             }
             else
             {
                 alias pred = (const scope auto ref element) => (isHoleKeyConstant(keyOf(element)) ||
-                                                          keyOf(element).isNull);
+                                                                keyOf(element).isNull);
             }
         }
         return _bins[].triangularProbeFromIndex!(pred)(keyToIndex(key));

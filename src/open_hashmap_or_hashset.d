@@ -855,13 +855,20 @@ struct OpenHashMapOrSet(K, V = void,
     private InsertionStatus insertWithoutGrowth(T element)
     {
         version(unittest) assert(!keyOf(element).isNull);
+        static if (hasAddressKey)
+        {
+            version(unittest) assert(!isHoleKeyConstant(keyOf(element)));
+        }
 
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(keyOf(element));
-        version(unittest) assert(hitIndex != _bins.length, "no free slot");
-
-        if (keyOf(_bins[hitIndex]).isNull)
+        if (hitIndex == _bins.length || // keys miss and holes may have filled all empty slots
+            keyOf(_bins[hitIndex]).isNull) // just key miss but empty slot found
         {
             immutable hitIndex1 = indexOfHoleOrNullForKey(keyOf(element)); // try again to reuse hole
+            if (hitIndex1 == _bins.length)
+            {
+                dln("hitIndex1:", hitIndex1);
+            }
             version(unittest) assert(hitIndex1 != _bins.length, "no null or hole slot");
 
             insertMoveElementAtIndex(element, hitIndex1);
@@ -873,6 +880,7 @@ struct OpenHashMapOrSet(K, V = void,
             _count = _count + 1;
             return InsertionStatus.added;
         }
+
         static if (hasValue)
         {
             if (valueOf(element) !is
@@ -1173,6 +1181,7 @@ struct OpenHashMapOrSet(K, V = void,
     {
         debug assert(!isBorrowed, borrowedErrorMessage);
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
+        // dln("hitIndex:", hitIndex, " _bins.length:", _bins.length);
         if (hitIndex != _bins.length &&
             isOccupiedAtIndex(hitIndex))
         {
@@ -1336,13 +1345,13 @@ private:
             static if (!hasAddressKey)
             {
                 alias pred = (index, element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
-                                                       (keyOf(element).isNull ||
-                                                        keyOf(element) is key));
+                                                  (keyOf(element).isNull ||
+                                                   keyOf(element) is key));
             }
             else
             {
                 alias pred = (element) => (keyOf(element).isNull ||
-                                                keyOf(element) is key);
+                                           keyOf(element) is key);
             }
         }
         else
@@ -1350,13 +1359,13 @@ private:
             static if (!hasAddressKey)
             {
                 alias pred = (index, const auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
-                                                                      (keyOf(element).isNull ||
-                                                                       keyOf(element) is key));
+                                                                 (keyOf(element).isNull ||
+                                                                  keyOf(element) is key));
             }
             else
             {
                 alias pred = (const auto ref element) => (keyOf(element).isNull ||
-                                                               keyOf(element) is key);
+                                                          keyOf(element) is key);
             }
         }
         return _bins[].triangularProbeFromIndex!(pred)(keyToIndex(key));
@@ -2397,9 +2406,9 @@ version(unittest)
                                 " bins-length:", x1._bins.length,
                                 " K:", K.stringof,
                                 " V:", V.stringof);
-                            dln("values: ", x1.byValue);
-                            dln("keys: ", x1.byKey);
-                            dln("key-values: ", x1.byKeyValue);
+                            // dln("values: ", x1.byValue);
+                            // dln("keys: ", x1.byKey);
+                            // dln("key-values: ", x1.byKeyValue);
                             dln("after");
                         }
                     }
@@ -2423,7 +2432,9 @@ version(unittest)
                 assert(key !in x1);
 
                 assert(x1.length == key.get);
+                dln("inserting element:", element);
                 assert(x1.insert(element) == X.InsertionStatus.added);
+                dln("inserted element:", element);
                 assert(x1.length == key.get + 1);
 
                 static if (X.hasValue)
@@ -2435,8 +2446,10 @@ version(unittest)
                     assert(x1.get(key, V.init) == (42 + key_).to!V);
 
                     // TODO this makes stuff fail
-                    // assert(x1.remove(key));
-                    // assert(!x1.contains(key));
+                    dln("removing key:", key_);
+                    assert(x1.remove(key));
+                    dln("removed key:", key_);
+                    assert(!x1.contains(key));
 
                     x1[key] = value; // restore value
                     assert(x1.contains(key));

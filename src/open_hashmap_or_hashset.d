@@ -867,9 +867,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             immutable hitIndex1 = indexOfHoleOrNullForKey(keyOf(element)); // try again to reuse hole
             version(unittest) assert(hitIndex1 != _bins.length, "no null or hole slot");
-
             insertMoveElementAtIndex(element, hitIndex1);
-
             static if (!hasAddressKey)
             {
                 untagHoleAtIndex(hitIndex1);

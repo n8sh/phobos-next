@@ -2270,7 +2270,8 @@ version(unittest)
     foreach (K; AliasSeq!(SomeSimpleClass,
                           NullableUlong))
     {
-        foreach (V; AliasSeq!(int,
+        foreach (V; AliasSeq!(string,
+                              int,
                               void))
         {
             version(show) dln("K:", K.stringof, " V:", V.stringof);

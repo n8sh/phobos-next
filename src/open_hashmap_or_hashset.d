@@ -253,12 +253,12 @@ struct OpenHashMapOrSet(K, V = void,
         return bins;
     }
 
-    static private void[] allocateUninitializedBins(size_t capacity)
+    static private T[] allocateUninitializedBins(size_t capacity)
         @trusted pure nothrow @nogc
     {
         version(showEntries) dln(__FUNCTION__, " newCapacity:", capacity);
         immutable byteCount = T.sizeof*capacity;
-        auto bins = Allocator.instance.allocate(byteCount);
+        auto bins = cast(typeof(return))Allocator.instance.allocate(byteCount);
         static if (mustAddGCRange!T)
         {
             gc_addRange(bins.ptr, byteCount);
@@ -307,10 +307,10 @@ struct OpenHashMapOrSet(K, V = void,
     {
         /// Returns: a shallow duplicate of `this`.
         typeof(this) dup()() const // template-lazy
-            @trusted
+        @trusted
         {
             version(showEntries) dln(__FUNCTION__, " length:", length);
-            T[] binsCopy = cast(T[])allocateUninitializedBins(_bins.length);
+            T[] binsCopy = allocateUninitializedBins(_bins.length);
             foreach (immutable index, ref element; _bins)
             {
                 /** TODO functionize to `emplaceAll` in emplace_all.d. See also:

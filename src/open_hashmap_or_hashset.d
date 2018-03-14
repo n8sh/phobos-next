@@ -1,7 +1,7 @@
 module open_hashmap_or_hashset;
 
 // version = showEntries;
-// version = show;
+version = show;
 
 import std.traits : Unqual;
 import container_traits : isNullableType;
@@ -1852,7 +1852,7 @@ alias range = byElement;        // EMSI-container naming
     foreach (immutable uint i; 0 .. n)
     {
         const k = K(i);
-        s.remove(k);
+        assert(s.remove(k));
         assertThrown!RangeError(dummy(s[k]));
     }
 
@@ -1861,7 +1861,7 @@ alias range = byElement;        // EMSI-container naming
     static assert(is(typeof(vp) == V*));
     assert((*vp) == V.init);
 
-    s.remove(K(0));
+    assert(s.remove(K(0)));
     assert(K(0) !in s);
 
     X t;
@@ -1912,7 +1912,7 @@ alias range = byElement;        // EMSI-container naming
     foreach (immutable uint i; 0 .. n)
     {
         const k = K(i);
-        s.remove(k);
+        assert(s.remove(k));
         assertThrown!RangeError(dummy(s[k]));
     }
 
@@ -1920,7 +1920,7 @@ alias range = byElement;        // EMSI-container naming
     auto vp = K(0) in s;
     static assert(is(typeof(vp) == V*));
 
-    s.remove(K(0));
+    assert(s.remove(K(0)));
     assert(K(0) !in s);
 
     X t;
@@ -2128,7 +2128,7 @@ pure nothrow unittest
 
     assert(x.length == 1);
 
-    x.remove(key42);
+    assert(x.remove(key42));
     assert(x.length == 0);
 
     x[key42] = V(43);
@@ -2388,7 +2388,6 @@ version(unittest)
             {
                 version(show)
                 {
-                    dln("key_:", key_);
                     static if (X.hasValue)
                     {
                         if (key_ == 2)
@@ -2409,6 +2408,7 @@ version(unittest)
                 auto key = make!K(key_);
                 keys.put(key);
 
+                // create elements
                 static if (X.hasValue)
                 {
                     auto value = V.init;
@@ -2423,26 +2423,7 @@ version(unittest)
                 assert(key !in x1);
 
                 assert(x1.length == key.get);
-                static if (is(V == string))
-                {
-                    if (key_ == 2)
-                    {
-                        import std.algorithm : map;
-                        version(show)
-                        {
-                            dln("inserting key_:", key_, " length:", x1._bins.length,
-                                " bins:", x1._bins[].map!(_ => _.key));
-                        }
-                    }
-                }
                 assert(x1.insert(element) == X.InsertionStatus.added);
-                version(show)
-                {
-                    if (key_ == 2)
-                    {
-                        dln("inserted key_:", key_);
-                    }
-                }
                 assert(x1.length == key.get + 1);
 
                 static if (X.hasValue)
@@ -2454,7 +2435,7 @@ version(unittest)
                     assert(x1.get(key, V.init) == (42 + key_).to!V);
 
                     // TODO this makes stuff fail
-                    // x1.remove(key);
+                    // assert(x1.remove(key));
                     // assert(!x1.contains(key));
 
                     x1[key] = value; // restore value

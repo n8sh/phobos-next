@@ -307,7 +307,7 @@ struct OpenHashMapOrSet(K, V = void,
     {
         /// Returns: a shallow duplicate of `this`.
         typeof(this) dup()() const // template-lazy
-        @trusted
+            @trusted
         {
             version(showEntries) dln(__FUNCTION__, " length:", length);
             T[] binsCopy = allocateUninitializedBins(_bins.length);

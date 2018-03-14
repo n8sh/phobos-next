@@ -710,7 +710,7 @@ struct OpenHashMapOrSet(K, V = void,
                 while (true)
                 {
                     alias pred = (index, const auto ref element) => (keyOf(element).isNull || // free slot or TODO check holes
-                                                                          !bt(dones, index)); // or a not yet replaced element
+                                                                     !bt(dones, index)); // or a not yet replaced element
                     immutable hitIndex = _bins[].triangularProbeFromIndex!(pred)(keyToIndex(keyOf(currentElement)));
                     assert(hitIndex != _bins.length, "no free slot");
 
@@ -1391,13 +1391,13 @@ private:
             static if (!hasAddressKey)
             {
                 alias pred = (index, element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
-                                                       (keyOf(element).isNull ||
-                                                        keyOf(element) is key));
+                                                  (keyOf(element).isNull ||
+                                                   keyOf(element) is key));
             }
             else
             {
                 alias pred = (element) => (keyOf(element).isNull ||
-                                                keyOf(element) is key);
+                                           keyOf(element) is key);
             }
         }
         else
@@ -1405,13 +1405,13 @@ private:
             static if (!hasAddressKey)
             {
                 alias pred = (index, const auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
-                                                                      (keyOf(element).isNull ||
-                                                                       keyOf(element) is key));
+                                                                 (keyOf(element).isNull ||
+                                                                  keyOf(element) is key));
             }
             else
             {
                 alias pred = (const auto ref element) => (keyOf(element).isNull ||
-                                                               keyOf(element) is key);
+                                                          keyOf(element) is key);
             }
         }
         return _bins[].triangularProbeFromIndex!(pred, true)(keyToIndex(key));

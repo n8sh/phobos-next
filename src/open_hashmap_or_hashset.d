@@ -709,7 +709,7 @@ struct OpenHashMapOrSet(K, V = void,
 
                 while (true)
                 {
-                    alias pred = (index, const auto ref element) => (keyOf(element).isNull || // free slot or TODO check holes
+                    alias pred = (index, const scope auto ref element) => (keyOf(element).isNull || // free slot or TODO check holes
                                                                      !bt(dones, index)); // or a not yet replaced element
                     immutable hitIndex = _bins[].triangularProbeFromIndex!(pred)(keyToIndex(keyOf(currentElement)));
                     assert(hitIndex != _bins.length, "no free slot");
@@ -1252,7 +1252,7 @@ struct OpenHashMapOrSet(K, V = void,
             }
             else
             {
-                alias pred = (const auto ref element) => (keyOf(element) is keyOf(currentElement));
+                alias pred = (const scope auto ref element) => (keyOf(element) is keyOf(currentElement));
             }
             totalCount += triangularProbeCountFromIndex!pred(_bins[], keyToIndex(keyOf(currentElement)));
         }
@@ -1359,13 +1359,13 @@ private:
         {
             static if (!hasAddressKey)
             {
-                alias pred = (index, const auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
+                alias pred = (index, const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
                                                                  (keyOf(element).isNull ||
                                                                   keyOf(element) is key));
             }
             else
             {
-                alias pred = (const auto ref element) => (keyOf(element).isNull ||
+                alias pred = (const scope auto ref element) => (keyOf(element).isNull ||
                                                           keyOf(element) is key);
             }
         }
@@ -1404,13 +1404,13 @@ private:
         {
             static if (!hasAddressKey)
             {
-                alias pred = (index, const auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
+                alias pred = (index, const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
                                                                  (keyOf(element).isNull ||
                                                                   keyOf(element) is key));
             }
             else
             {
-                alias pred = (const auto ref element) => (keyOf(element).isNull ||
+                alias pred = (const scope auto ref element) => (keyOf(element).isNull ||
                                                           keyOf(element) is key);
             }
         }
@@ -1444,12 +1444,12 @@ private:
         {
             static if (!hasAddressKey)
             {
-                alias pred = (index, const auto ref element) => (hasHoleAtPtrIndex(_holesPtr, index) ||
+                alias pred = (index, const scope auto ref element) => (hasHoleAtPtrIndex(_holesPtr, index) ||
                                                                  keyOf(element).isNull);
             }
             else
             {
-                alias pred = (const auto ref element) => (isHoleKeyConstant(keyOf(element)) ||
+                alias pred = (const scope auto ref element) => (isHoleKeyConstant(keyOf(element)) ||
                                                           keyOf(element).isNull);
             }
         }

@@ -1,7 +1,7 @@
 module open_hashmap_or_hashset;
 
 // version = showEntries;
-version = show;
+// version = show;
 
 import std.traits : Unqual;
 import container_traits : isNullableType;
@@ -79,7 +79,8 @@ struct OpenHashMapOrSet(K, V = void,
         pragma(inline, true)
         static K holeKeyConstant() @trusted pure nothrow @nogc
         {
-            return cast(K)((cast(size_t*)null) + holeKeyOffset); // indicates a lazily deleted key
+            // TODO note that cast(size_t*) will give address 0x8 instead of 0x1
+            return cast(K)((cast(void*)null) + holeKeyOffset); // indicates a lazily deleted key
         }
 
         pragma(inline, true)
@@ -138,14 +139,14 @@ struct OpenHashMapOrSet(K, V = void,
 
         /// Get key part of element.
         pragma(inline, true)
-        static auto ref inout(K) keyOf()(auto ref return inout(T) element)
+        static auto ref inout(K) keyOf()(auto ref return scope inout(T) element)
         {
             return element.key;
         }
 
         /// Get value part of element.
         pragma(inline, true)
-        static auto ref inout(V) valueOf()(auto ref return inout(T) element)
+        static auto ref inout(V) valueOf()(auto ref return scope inout(T) element)
         {
             return element.value;
         }
@@ -852,7 +853,7 @@ struct OpenHashMapOrSet(K, V = void,
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
      */
     pragma(inline, true)
-    private InsertionStatus insertWithoutGrowth(T element)
+    private InsertionStatus insertWithoutGrowth(T element) @trusted
     {
         version(unittest) assert(!keyOf(element).isNull);
         static if (hasAddressKey)
@@ -862,13 +863,9 @@ struct OpenHashMapOrSet(K, V = void,
 
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(keyOf(element));
         if (hitIndex == _bins.length || // keys miss and holes may have filled all empty slots
-            keyOf(_bins[hitIndex]).isNull) // just key miss but empty slot found
+            keyOf(_bins[hitIndex]).isNull) // just key miss but a hole may be have be found on the way
         {
             immutable hitIndex1 = indexOfHoleOrNullForKey(keyOf(element)); // try again to reuse hole
-            if (hitIndex1 == _bins.length)
-            {
-                dln("hitIndex1:", hitIndex1);
-            }
             version(unittest) assert(hitIndex1 != _bins.length, "no null or hole slot");
 
             insertMoveElementAtIndex(element, hitIndex1);
@@ -2395,25 +2392,6 @@ version(unittest)
 
             foreach (immutable key_; 0 .. n)
             {
-                version(show)
-                {
-                    static if (X.hasValue)
-                    {
-                        if (key_ == 2)
-                        {
-                            dln("before", " count:", x1._count,
-                                " bins-ptr:", x1._bins.ptr,
-                                " bins-length:", x1._bins.length,
-                                " K:", K.stringof,
-                                " V:", V.stringof);
-                            // dln("values: ", x1.byValue);
-                            // dln("keys: ", x1.byKey);
-                            // dln("key-values: ", x1.byKeyValue);
-                            dln("after");
-                        }
-                    }
-                }
-
                 auto key = make!K(key_);
                 keys.put(key);
 
@@ -2432,9 +2410,7 @@ version(unittest)
                 assert(key !in x1);
 
                 assert(x1.length == key.get);
-                dln("inserting element:", element);
                 assert(x1.insert(element) == X.InsertionStatus.added);
-                dln("inserted element:", element);
                 assert(x1.length == key.get + 1);
 
                 static if (X.hasValue)
@@ -2445,10 +2421,7 @@ version(unittest)
                     assert(x1.contains(key));
                     assert(x1.get(key, V.init) == (42 + key_).to!V);
 
-                    // TODO this makes stuff fail
-                    dln("removing key:", key_);
                     assert(x1.remove(key));
-                    dln("removed key:", key_);
                     assert(!x1.contains(key));
 
                     x1[key] = value; // restore value

@@ -222,7 +222,7 @@ hash_t hashOf2(alias hasher, T)(const scope auto ref T value)
 
     alias E = double;
 
-    immutable e = [1.2, 1.3, 1.4].s;
+    immutable e = [cast(E)1, cast(E)2, cast(E)3].s;
     auto a = BasicArray!E.withElements(e.s);
 
     // static array and its slice (dynamic array) hash differently

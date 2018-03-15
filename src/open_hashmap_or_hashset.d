@@ -219,7 +219,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             /* prefer call to calloc before malloc+memset:
              * https://stackoverflow.com/questions/2688466/why-mallocmemset-is-slower-than-calloc */
-            // TODO functionize to `makeInitArray`
+            // TODO functionize to `makeZeroInitArray`
             static if (__traits(hasMember, Allocator, "zeroallocate"))
             {
                 auto bins = cast(T[])Allocator.instance.zeroallocate(byteCount);

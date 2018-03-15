@@ -104,7 +104,8 @@ private void digestArray(Digest, T)(scope ref Digest digest,
     digestRaw(digest, value.length); // length
 
     alias E = typeof(T.init[0]);
-    static if (isScalarType!E)
+    static if (isScalarType!E ||
+               isPointer!E)
     {
         digest.put((cast(ubyte*)value.ptr)[0 .. value.length * value[0].sizeof]); // faster
     }

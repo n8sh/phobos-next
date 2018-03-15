@@ -19,7 +19,7 @@ enum Checking
     TODO Add @safe nothrow @nogc ctor from static array (of known length)
 */
 struct ArrayN(T,
-              uint requestedCapacity,
+              uint minimumCapacity,
               Checking checking = Checking.viaScope)
 {
     import std.bitmanip : bitfields;
@@ -30,7 +30,7 @@ struct ArrayN(T,
     import qcmeman : gc_addRange, gc_removeRange;
     import container_traits : mustAddGCRange;
 
-    alias capacity = requestedCapacity; // for public use
+    alias capacity = minimumCapacity; // for public use
 
     /// Store of `capacity` number of elements.
     T[capacity] _store;         // TODO use store constructor
@@ -458,19 +458,19 @@ pragma(inline, true):
     }
 }
 
-/** Stack-allocated string of maximum length of `requestedCapacity.` */
-alias StringN(uint requestedCapacity, Checking checking = Checking.viaScope) = ArrayN!(immutable(char), requestedCapacity, checking);
-/** Stack-allocated wstring of maximum length of `requestedCapacity.` */
-alias WStringN(uint requestedCapacity, Checking checking = Checking.viaScope) = ArrayN!(immutable(wchar), requestedCapacity, checking);
-/** Stack-allocated dstring of maximum length of `requestedCapacity.` */
-alias DStringN(uint requestedCapacity, Checking checking = Checking.viaScope) = ArrayN!(immutable(dchar), requestedCapacity, checking);
+/** Stack-allocated string of maximum length of `minimumCapacity.` */
+alias StringN(uint minimumCapacity, Checking checking = Checking.viaScope) = ArrayN!(immutable(char), minimumCapacity, checking);
+/** Stack-allocated wstring of maximum length of `minimumCapacity.` */
+alias WStringN(uint minimumCapacity, Checking checking = Checking.viaScope) = ArrayN!(immutable(wchar), minimumCapacity, checking);
+/** Stack-allocated dstring of maximum length of `minimumCapacity.` */
+alias DStringN(uint minimumCapacity, Checking checking = Checking.viaScope) = ArrayN!(immutable(dchar), minimumCapacity, checking);
 
-/** Stack-allocated mutable string of maximum length of `requestedCapacity.` */
-alias MutableStringN(uint requestedCapacity, Checking checking = Checking.viaScope) = ArrayN!(char, requestedCapacity, checking);
-/** Stack-allocated mutable wstring of maximum length of `requestedCapacity.` */
-alias MutableWStringN(uint requestedCapacity, Checking checking = Checking.viaScope) = ArrayN!(char, requestedCapacity, checking);
-/** Stack-allocated mutable dstring of maximum length of `requestedCapacity.` */
-alias MutableDStringN(uint requestedCapacity, Checking checking = Checking.viaScope) = ArrayN!(char, requestedCapacity, checking);
+/** Stack-allocated mutable string of maximum length of `minimumCapacity.` */
+alias MutableStringN(uint minimumCapacity, Checking checking = Checking.viaScope) = ArrayN!(char, minimumCapacity, checking);
+/** Stack-allocated mutable wstring of maximum length of `minimumCapacity.` */
+alias MutableWStringN(uint minimumCapacity, Checking checking = Checking.viaScope) = ArrayN!(char, minimumCapacity, checking);
+/** Stack-allocated mutable dstring of maximum length of `minimumCapacity.` */
+alias MutableDStringN(uint minimumCapacity, Checking checking = Checking.viaScope) = ArrayN!(char, minimumCapacity, checking);
 
 /// construct from array may throw
 @safe pure unittest

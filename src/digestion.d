@@ -36,7 +36,7 @@ void digestAny(Digest, T)(ref Digest digest,
     else static if (is(T == class) || // a class is memory-wise
                     isPointer!T)      // just a pointer. consistent with opCmp
     {
-        digestPointer(digest, value);
+        digestAddress(digest, value);
     }
     else static if (!hasIndirections!T) // no pointers left in `T`
     {
@@ -65,8 +65,8 @@ void digestAny(Digest, T)(ref Digest digest,
     }
 }
 
-/** Digest the class `value`. */
-private void digestPointer(Digest, T)(scope ref Digest digest,
+/** Digest the `value` as an address (pointer). */
+private void digestAddress(Digest, T)(scope ref Digest digest,
                                       const scope T value) // pointer passed by value
     if (isDigest!Digest &&
         (is(T == class) ||
@@ -103,14 +103,17 @@ private void digestArray(Digest, T)(scope ref Digest digest,
 {
     digestRaw(digest, value.length);
     alias E = typeof(T.init[0]);
-    static if (!hasIndirections!E)
+    static if (isScalarType!E)
     {
         // faster:
         digest.put((cast(ubyte*)value.ptr)[0 .. value.length * value[0].sizeof]);
     }
     else
     {
-        static assert(0, "handle array with element type " ~ T.stringof);
+        foreach (const ref element; value)
+        {
+            digestAny(digest, element);
+        }
     }
 }
 

@@ -540,22 +540,22 @@ struct BasicArray(T,
     pragma(inline, true)
     @property size_t capacity() const { return _store.capacity; } // can't be template-lazy
 
-    /** Ensures sufficient capacity to accommodate for requestedCapacity number
-        of elements. If `requestedCapacity` < `capacity`, this method does
+    /** Ensures sufficient capacity to accommodate for minimumCapacity number
+        of elements. If `minimumCapacity` < `capacity`, this method does
         nothing.
      */
-    void reserve()(size_t requestedCapacity) @trusted // template-lazy
+    void reserve()(size_t minimumCapacity) @trusted // template-lazy
     {
-        assert(requestedCapacity <= CapacityType.max);
+        assert(minimumCapacity <= CapacityType.max);
 
-        if (requestedCapacity <= capacity) { return; }
+        if (minimumCapacity <= capacity) { return; }
 
         // growth factor
         // Motivation: https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md#memory-handling
-        reallocateAndSetCapacity(3*requestedCapacity/2); // use 1.5 like Facebook's `fbvector` does
+        reallocateAndSetCapacity(3*minimumCapacity/2); // use 1.5 like Facebook's `fbvector` does
 
         // import std.math : nextPow2;
-        // reallocateAndSetCapacity(requestedCapacity.nextPow2);
+        // reallocateAndSetCapacity(minimumCapacity.nextPow2);
     }
 
     /// Index support.

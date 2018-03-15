@@ -101,18 +101,18 @@ private void digestArray(Digest, T)(scope ref Digest digest,
     if (isDigest!Digest &&
         isArray!T)
 {
-    digestRaw(digest, value.length);
+    digestRaw(digest, value.length); // length
+
     alias E = typeof(T.init[0]);
     static if (isScalarType!E)
     {
-        // faster:
-        digest.put((cast(ubyte*)value.ptr)[0 .. value.length * value[0].sizeof]);
+        digest.put((cast(ubyte*)value.ptr)[0 .. value.length * value[0].sizeof]); // faster
     }
     else
     {
         foreach (const ref element; value)
         {
-            digestAny(digest, element);
+            digestAny(digest, element); // slower
         }
     }
 }

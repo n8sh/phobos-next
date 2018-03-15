@@ -198,12 +198,15 @@ struct OpenHashMapOrSet(K, V = void,
         return typeof(return)(makeBins(capacity), 0);
     }
 
+    /** Make default-initialized bins with capacity for at least
+     * `minimumCapacity` number of elements.
+     */
     pragma(inline, true)
-    private static T[] makeBins(size_t requestedCapacity)
+    private static T[] makeBins(size_t minimumCapacity)
         @trusted pure nothrow @nogc
     {
-        immutable capacity = nextPow2(requestedCapacity);
-        version(showEntries) dln(__FUNCTION__, " requestedCapacity:", requestedCapacity,
+        immutable capacity = nextPow2(minimumCapacity);
+        version(showEntries) dln(__FUNCTION__, " minimumCapacity:", minimumCapacity,
                                  " capacity:", capacity);
 
         // TODO cannot use makeArray here because it cannot handle uncopyable types

@@ -488,7 +488,7 @@ struct OpenHashMapOrSet(K, V = void,
 
     }
 
-    static const borrowedErrorMessage = "cannot mutate when this is borrowed";
+    static const borrowedErrorMessage = "cannot mutate this when it's borrowed";
 
     /// Empty.
     void clear()()              // template-lazy
@@ -1984,8 +1984,7 @@ pure nothrow unittest
     {
         uint value;
     }
-    alias K = Nullable!(S,
-                        S(uint.min)); // use uint.min to trigger use of faster `Allocator.zeroallocate`
+    alias K = Nullable!(S, S(uint.min)); // use uint.min to trigger use of faster `Allocator.zeroallocate`
 
     class V
     {

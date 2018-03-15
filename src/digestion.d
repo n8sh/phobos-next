@@ -223,8 +223,8 @@ hash_t hashOf2(alias hasher, T)(const scope auto ref T value)
 
     // static array and its slice (dynamic array) hash differently
     const sh = hashOf2!(FNV64)(e); /* does not need to include length in hash
-                                       * because all instances of typeof(e) have
-                                       * the same length */
+                                    * because all instances of typeof(e) have
+                                    * the same length */
     const dh = hashOf2!(FNV64)(e[]); // includes hash in length
     assert(sh != dh);
 

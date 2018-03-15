@@ -216,7 +216,7 @@ hash_t hashOf2(alias hasher, T)(in auto ref T value)
 
     alias E = double;
 
-    const e = [1.2, 1.3, 1.4].s;
+    immutable e = [1.2, 1.3, 1.4].s;
     auto a = BasicArray!E.withElements(e.s);
 
     // TODO assert(hashOf2!(FNV64)(a) == hashOf2!(FNV64)(e));

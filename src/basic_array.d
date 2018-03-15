@@ -155,6 +155,7 @@ struct BasicArray(T,
                !is(T == union)) // forbid copying of unions such as `HybridBin` in hashmap.d
     {
         static typeof(this) withElements()(const T[] elements) // template-lazy
+            @trusted
         {
             immutable length = elements.length;
             auto ptr = typeof(this).allocate(length, false);
@@ -489,7 +490,6 @@ struct BasicArray(T,
         if (isDigest!Digest)
     {
         import digestion : digestAny;
-        digestAny(digest, _store.length);
         digestAny(digest, slice());
     }
 

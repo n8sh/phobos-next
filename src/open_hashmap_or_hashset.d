@@ -488,7 +488,7 @@ struct OpenHashMapOrSet(K, V = void,
 
     }
 
-    static const borrowedErrorMessage = "cannot mutate this when it's borrowed";
+    static immutable borrowedErrorMessage = "cannot mutate this when it's borrowed";
 
     /// Empty.
     void clear()()              // template-lazy

@@ -1690,8 +1690,32 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
     auto x = X();
 
-    auto k11 = K(11);
-    x[k11] = V.withElements([11].s);
+    const n = 2;
+    foreach (const i; 0 .. n)
+    {
+        auto key = K(i);
+        auto value = V.withElements([i].s);
+
+        x[key] = value.dup;
+        assert(x.contains(key));
+
+        x.remove(key);
+        assert(!x.contains(key));
+
+        x[key] = value.dup;
+        assert(x.contains(key));
+    }
+
+    foreach (const i; 0 .. n)
+    {
+        auto key = K(i);
+        auto value = V.withElements([i].s);
+
+        assert(x.contains(key));
+
+        x.remove(key);
+        assert(!x.contains(key));
+    }
 }
 
 /// r-value and l-value intersection
@@ -1873,14 +1897,14 @@ alias range = byElement;        // EMSI-container naming
 
     assertThrown!RangeError(dummy(s[K(0)]));
 
-    foreach (immutable uint i; 0 .. n)
+    foreach (immutable i; 0 .. n)
     {
         const k = K(i);
         s[k] = V(i);
         assertNotThrown!RangeError(dummy(s[k]));
     }
 
-    foreach (immutable uint i; 0 .. n)
+    foreach (immutable i; 0 .. n)
     {
         const k = K(i);
         assert(s.remove(k));
@@ -1922,7 +1946,7 @@ alias range = byElement;        // EMSI-container naming
 
     assertThrown!RangeError(dummy(s[K(0)]));
 
-    foreach (immutable uint i; 0 .. n)
+    foreach (immutable i; 0 .. n)
     {
         const k = K(i);
         s[k] = new V(i);
@@ -1933,14 +1957,14 @@ alias range = byElement;        // EMSI-container naming
     {
         auto sr = s.byKeyValue; // scoped range
         assert(sr.length == n);
-        foreach (immutable uint i; 0 .. n)
+        foreach (immutable i; 0 .. n)
         {
             sr.popFront();
             assert(sr.length == n - i - 1);
         }
     }
 
-    foreach (immutable uint i; 0 .. n)
+    foreach (immutable i; 0 .. n)
     {
         const k = K(i);
         assert(s.remove(k));

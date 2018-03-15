@@ -1702,7 +1702,10 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
         x[key] = value.dup;
         assert(x.length == i + 1);
         assert(x.contains(key));
-        assert(key in x);
+        {
+            auto valuePtr = key in x;
+            assert(valuePtr && *valuePtr == value);
+        }
 
         x.remove(key);
         assert(x.length == i);
@@ -1712,7 +1715,10 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
         x[key] = value.dup;
         assert(x.length == i + 1);
         assert(x.contains(key));
-        assert(key in x);
+        {
+            auto valuePtr = key in x;
+            assert(valuePtr && *valuePtr == value);
+        }
     }
 
     foreach (immutable i; 0 .. n)
@@ -1723,7 +1729,10 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
         auto value = V.withElements([i].s);
 
         assert(x.contains(key));
-        assert(key in x);
+        {
+            auto valuePtr = key in x;
+            assert(valuePtr && *valuePtr == value);
+        }
 
         x.remove(key);
         assert(!x.contains(key));

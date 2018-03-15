@@ -39,7 +39,7 @@ void digestAny(Digest, T)(ref Digest digest,
     {
         digestAddress(digest, value);
     }
-    else static if (!hasIndirections!T) // no pointers left in `T`
+    else static if (!hasIndirections!T) // no pointers left in `T`. TODO make this the default in-place of `isScalarType`
     {
         digestRaw(digest, value); // hash everything in one call for better speed
     }

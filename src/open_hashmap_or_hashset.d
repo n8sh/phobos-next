@@ -1694,16 +1694,21 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     const VE n = 1;
     foreach (immutable i; 0 .. n)
     {
+        assert(x.length == i);
+
         auto key = K(i);
         auto value = V.withElements([i].s);
 
         x[key] = value.dup;
+        assert(x.length == i + 1);
         assert(x.contains(key));
 
         x.remove(key);
+        assert(x.length == i);
         assert(!x.contains(key));
 
         x[key] = value.dup;
+        assert(x.length == i + 1);
         assert(x.contains(key));
     }
 

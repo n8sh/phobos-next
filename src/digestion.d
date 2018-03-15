@@ -222,8 +222,9 @@ hash_t hashOf2(alias hasher, T)(in auto ref T value)
     auto a = BasicArray!E.withElements(e.s);
 
     // static array and its slice (dynamic array) hash differently
-    assert(hashOf2!(FNV64)(e) !=  // does not need to include length in hash
-           hashOf2!(FNV64)(e[])); // includes hash in length
+    const shash = hashOf2!(FNV64)(e); /* does not need to include length in hash because all instances of typeof(e) have the same length */
+    const dhash = hashOf2!(FNV64)(e[]); // includes hash in length
+    assert(shash != dhash);
 
     assert(hashOf2!(FNV64)(a) ==
            hashOf2!(FNV64)(e[]));

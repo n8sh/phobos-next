@@ -199,18 +199,18 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     pragma(inline, true)
-    private static T[] makeBins(size_t capacity_)
+    private static T[] makeBins(size_t requestedCapacity)
         @trusted pure nothrow @nogc
     {
-        immutable powerOf2Capacity = nextPow2(capacity_);
-        version(showEntries) dln(__FUNCTION__, " capacity_:", capacity_,
-                                 " powerOf2Capacity:", powerOf2Capacity);
+        immutable capacity = nextPow2(requestedCapacity);
+        version(showEntries) dln(__FUNCTION__, " requestedCapacity:", requestedCapacity,
+                                 " capacity:", capacity);
 
         // TODO cannot use makeArray here because it cannot handle uncopyable types
         // import std.experimental.allocator : makeArray;
-        // auto bins = Allocator.makeArray!T(powerOf2Capacity, nullKeyElement);
+        // auto bins = Allocator.makeArray!T(capacity, nullKeyElement);
 
-        immutable byteCount = T.sizeof*powerOf2Capacity;
+        immutable byteCount = T.sizeof*capacity;
 
         static if (hasAddressKey ||
                    (isInstanceOf!(Nullable, K) &&

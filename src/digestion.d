@@ -51,7 +51,7 @@ void digestAny(Digest, T)(ref Digest digest,
         import std.range : hasSlicing;
         static if (hasSlicing!T && isArray!(T.init[]))
         {
-            // T is array container
+            // T is an array container
             digestArray(digest, value[]);
         }
         else
@@ -209,12 +209,23 @@ hash_t hashOf2(alias hasher, T)(in auto ref T value)
     }
 }
 
+/// array container
+@safe pure unittest
+{
+    import basic_array : BasicArray;
+
+    alias E = double;
+
+    const e = [1.2, 1.3, 1.4].s;
+    auto a = BasicArray!E.withElements(e.s);
+
+    // TODO assert(hashOf2!(FNV64)(a) == hashOf2!(FNV64)(e));
+
+    assert(hashOf2!(FNV64)(a[]) == hashOf2!(FNV64)(e[]));
+}
+
 @trusted pure unittest
 {
-    import digestx.fnv : FNV;
-
-    alias FNV64 = FNV!(64, true);
-
     const ubyte[8] bytes8 = [1, 2, 3, 4, 5, 6, 7, 8];
     assert(hashOf2!(FNV64)(bytes8) == 9130222009665091821UL);
 
@@ -277,5 +288,8 @@ hash_t hashOf2(alias hasher, T)(in auto ref T value)
 
 version(unittest)
 {
+    import digestx.fnv : FNV;
+    alias FNV64 = FNV!(64, true);
     import dbgio;
+    import array_help : s;
 }

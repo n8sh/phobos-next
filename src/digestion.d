@@ -21,17 +21,17 @@ pragma(inline, true):
 /** Digest `value` into `digest`.
  */
 void digestAny(Digest, T)(ref Digest digest,
-                          in auto ref T value)
+                          const scope auto ref T value)
     if (isDigest!Digest)
 {
-    static if (hasMember!(T, "toDigest"))
-    {
-        value.toDigest(digest);
-    }
-    else static if (isScalarType!T)  // first because faster to evaluate than
+    static if (isScalarType!T)  // first because faster to evaluate than
                                 // `!hasIndirections!T` below
     {
         digestRaw(digest, value);
+    }
+    else static if (hasMember!(T, "toDigest"))
+    {
+        value.toDigest(digest);
     }
     else static if (is(T == class) || // a class is memory-wise
                     isPointer!T)      // just a pointer. consistent with opCmp
@@ -42,16 +42,16 @@ void digestAny(Digest, T)(ref Digest digest,
     {
         digestRaw(digest, value); // hash everything in one call for better speed
     }
-    else static if (isArray!T) // including strings, wstring, dstring
+    else static if (isArray!T) // including `T` being `string`, `wstring`, `dstring`
     {
         digestArray(digest, value);
     }
     else static if (is(T == struct))
     {
-        import std.range : hasSlicing;
-        static if (hasSlicing!T && // container with slicing to array
+        static if (is(typeof(T.init[])) &&
                    isArray!(typeof(T.init[])))
         {
+            // T is an array like container
             digestArray(digest, value[]);
         }
         else
@@ -67,7 +67,7 @@ void digestAny(Digest, T)(ref Digest digest,
 
 /** Digest the class `value`. */
 private void digestPointer(Digest, T)(scope ref Digest digest,
-                                      in T value) // pointer passed by value
+                                      const scope T value) // pointer passed by value
     if (isDigest!Digest &&
         (is(T == class) ||
          isPointer!T))
@@ -78,7 +78,7 @@ private void digestPointer(Digest, T)(scope ref Digest digest,
 /** Digest the struct `value` by digesting each member sequentially. */
 pragma(inline)                  // DMD cannot inline
 private void digestStruct(Digest, T)(scope ref Digest digest,
-                                     in auto ref T value)
+                                     const scope auto ref T value)
     if (isDigest!Digest &&
         is(T == struct))
 {
@@ -97,15 +97,15 @@ private void digestStruct(Digest, T)(scope ref Digest digest,
 
 /** Digest the array `value`. */
 private void digestArray(Digest, T)(scope ref Digest digest,
-                                    in auto ref T value) @trusted
+                                    const scope auto ref T value) @trusted
     if (isDigest!Digest &&
         isArray!T)
 {
+    digestRaw(digest, value.length);
     alias E = typeof(T.init[0]);
     static if (!hasIndirections!E)
     {
         // faster:
-        digestRaw(digest, value.length);
         digest.put((cast(ubyte*)value.ptr)[0 .. value.length * value[0].sizeof]);
     }
     else
@@ -116,7 +116,7 @@ private void digestArray(Digest, T)(scope ref Digest digest,
 
 /** Digest raw bytes of `values`. */
 private void digestRaw(Digest, T)(scope ref Digest digest,
-                                  in auto ref T value) @trusted
+                                  const scope auto ref T value) @trusted
     if (isDigest!Digest)
 {
     digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
@@ -127,7 +127,7 @@ private void digestRaw(Digest, T)(scope ref Digest digest,
  * A faster alternative to `hashOf`.
  */
 pragma(inline)                  // DMD cannot inline
-hash_t hashOf2(alias hasher, T)(in auto ref T value)
+hash_t hashOf2(alias hasher, T)(const scope auto ref T value)
 {
     static if (__traits(compiles, { hash_t _ = hasher(value); }))
     {
@@ -228,8 +228,8 @@ hash_t hashOf2(alias hasher, T)(in auto ref T value)
     const dh = hashOf2!(FNV64)(e[]); // includes hash in length
     assert(sh != dh);
 
-    // assert(hashOf2!(FNV64)(a) ==
-    //        hashOf2!(FNV64)(e[]));
+    assert(hashOf2!(FNV64)(a) ==
+           hashOf2!(FNV64)(e[]));
 }
 
 version(none) @trusted pure unittest

@@ -211,7 +211,7 @@ hash_t hashOf2(alias hasher, T)(const scope auto ref T value)
     }
 }
 
-/// arrays and containers
+/// arrays and containers and its slices
 @safe pure unittest
 {
     import basic_array : BasicArray;
@@ -228,6 +228,7 @@ hash_t hashOf2(alias hasher, T)(const scope auto ref T value)
     const dh = hashOf2!(FNV64)(e[]); // includes hash in length
     assert(sh != dh);
 
+    // array container and its slice should hash equal
     assert(hashOf2!(FNV64)(a) ==
            hashOf2!(FNV64)(e[]));
 }

@@ -49,10 +49,8 @@ void digestAny(Digest, T)(ref Digest digest,
     }
     else static if (is(T == struct))
     {
-        static if (is(typeof(T.init[])) &&
-                   isArray!(typeof(T.init[])))
+        static if (is(typeof(T.init[])) && isArray!(typeof(T.init[]))) // TODO trait: `isArrayLike`
         {
-            // T is an array like container
             digestArray(digest, value[]);
         }
         else

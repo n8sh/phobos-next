@@ -514,11 +514,11 @@ struct OpenHashMapOrSet(K, V = void,
     private void releaseBinElements()
         @trusted
     {
-        foreach (immutable ix; 0 .. _bins.length)
+        foreach (immutable i; 0 .. _bins.length)
         {
             static if (hasElaborateDestructor!T)
             {
-                .destroy(_bins[ix]);
+                .destroy(_bins[i]);
             }
         }
     }
@@ -1692,7 +1692,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     auto x = X();
 
     const VE n = 1;
-    foreach (const i; 0 .. n)
+    foreach (immutable i; 0 .. n)
     {
         auto key = K(i);
         auto value = V.withElements([i].s);
@@ -1707,7 +1707,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
         assert(x.contains(key));
     }
 
-    foreach (const i; 0 .. n)
+    foreach (immutable i; 0 .. n)
     {
         auto key = K(i);
         auto value = V.withElements([i].s);

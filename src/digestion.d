@@ -40,7 +40,6 @@ void digestAny(Digest, T)(ref Digest digest,
     }
     else static if (!hasIndirections!T) // no pointers left in `T`
     {
-        pragma(msg, T);
         digestRaw(digest, value); // hash everything in one call for better speed
     }
     else static if (isArray!T) // including strings, wstring, dstring
@@ -50,9 +49,9 @@ void digestAny(Digest, T)(ref Digest digest,
     else static if (is(T == struct))
     {
         import std.range : hasSlicing;
-        static if (hasSlicing!T && isArray!(T.init[]))
+        static if (hasSlicing!T && // container with slicing to array
+                   isArray!(typeof(T.init[])))
         {
-            // T is an array container
             digestArray(digest, value[]);
         }
         else
@@ -223,11 +222,11 @@ hash_t hashOf2(alias hasher, T)(in auto ref T value)
     auto a = BasicArray!E.withElements(e.s);
 
     // static array and its slice (dynamic array) hash differently
-    assert(hashOf2!(FNV64)(e) != // does not include length in hash
-           hashOf2!(FNV64)(e[])); // includes hash in length
+    // assert(hashOf2!(FNV64)(e) != // does not include length in hash
+    //        hashOf2!(FNV64)(e[])); // includes hash in length
 
-    // assert(hashOf2!(FNV64)(a[]) ==
-    //        hashOf2!(FNV64)(e));
+    assert(hashOf2!(FNV64)(a) ==
+           hashOf2!(FNV64)(e[]));
 }
 
 version(none) @trusted pure unittest

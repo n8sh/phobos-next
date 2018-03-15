@@ -1730,6 +1730,11 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
         // auto y = x.dup;
         // assert(x.length == y.length);
 
+        foreach (ref key; x.byKey)
+        {
+            assert(x.contains(key));
+        }
+
         foreach (ref e; x.byKeyValue)
         {
             assert(x.contains(e.key));

@@ -1680,6 +1680,20 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     }
 }
 
+/// array container as value type
+@safe pure nothrow @nogc unittest
+{
+    version(showEntries) dln();
+    import basic_array : Array = BasicArray;
+    alias K = Nullable!(uint, uint.max);
+    alias V = Array!int;
+    alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
+    auto x = X();
+
+    auto k11 = K(11);
+    x[k11] = V.withElements([11].s);
+}
+
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {

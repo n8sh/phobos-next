@@ -1714,6 +1714,8 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 
     foreach (immutable i; 0 .. n)
     {
+        assert(x.length == n - i);
+
         auto key = K(i);
         auto value = V.withElements([i].s);
 

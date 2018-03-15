@@ -1735,9 +1735,9 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
             assert(x.contains(key));
         }
 
-        foreach (ref e; x.byKeyValue)
+        foreach (ref keyValue; x.byKeyValue)
         {
-            assert(x.contains(e.key));
+            assert(x.contains(keyValue.key));
         }
 
         foreach (immutable i; 0 .. n)

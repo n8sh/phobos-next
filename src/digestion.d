@@ -16,6 +16,7 @@ module digestion;
 import std.traits : hasMember, isScalarType, hasIndirections, isArray, isPointer;
 import std.digest.digest : isDigest;
 
+@safe:
 pragma(inline, true):
 
 /** Digest `value` into `digest`.
@@ -78,7 +79,7 @@ private void digestAddress(Digest, T)(scope ref Digest digest,
 /** Digest the struct `value` by digesting each member sequentially. */
 pragma(inline)                  // DMD cannot inline
 private void digestStruct(Digest, T)(scope ref Digest digest,
-                                     const scope auto ref T value)
+                                     const scope auto ref T value) @trusted
     if (isDigest!Digest &&
         is(T == struct))
 {

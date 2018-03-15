@@ -484,15 +484,6 @@ struct BasicArray(T,
         }
     }
 
-    import std.digest.digest : isDigest;
-
-    void toDigest(Digest)(scope ref Digest digest) const nothrow @nogc
-        if (isDigest!Digest)
-    {
-        import digestion : digestAny;
-        digestAny(digest, slice());
-    }
-
     /// Check if empty.
     pragma(inline, true)
     bool empty()() const { return _store.length == 0; } // template-lazy

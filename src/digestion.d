@@ -40,6 +40,7 @@ void digestAny(Digest, T)(ref Digest digest,
     }
     else static if (!hasIndirections!T) // no pointers left in `T`
     {
+        pragma(msg, T);
         digestRaw(digest, value); // hash everything in one call for better speed
     }
     else static if (isArray!T) // including strings, wstring, dstring
@@ -138,6 +139,7 @@ hash_t hashOf2(alias hasher, T)(in auto ref T value)
                     hasMember!(hasher, "get"))
     {
         import std.digest.digest : makeDigest;
+
         auto digest = makeDigest!(hasher);
         static if (hasMember!(T, "toDigest"))
         {
@@ -149,6 +151,7 @@ hash_t hashOf2(alias hasher, T)(in auto ref T value)
         }
         digest.finish();
         auto result = digest.get();
+
         static if (is(typeof(result) == typeof(return)))
         {
             return result;
@@ -209,7 +212,7 @@ hash_t hashOf2(alias hasher, T)(in auto ref T value)
     }
 }
 
-/// array container
+/// arrays and containers
 @safe pure unittest
 {
     import basic_array : BasicArray;
@@ -219,12 +222,15 @@ hash_t hashOf2(alias hasher, T)(in auto ref T value)
     immutable e = [1.2, 1.3, 1.4].s;
     auto a = BasicArray!E.withElements(e.s);
 
-    // TODO assert(hashOf2!(FNV64)(a) == hashOf2!(FNV64)(e));
+    // static array and its slice (dynamic array) hash differently
+    assert(hashOf2!(FNV64)(e) != // does not include length in hash
+           hashOf2!(FNV64)(e[])); // includes hash in length
 
-    assert(hashOf2!(FNV64)(a[]) == hashOf2!(FNV64)(e[]));
+    // assert(hashOf2!(FNV64)(a[]) ==
+    //        hashOf2!(FNV64)(e));
 }
 
-@trusted pure unittest
+version(none) @trusted pure unittest
 {
     const ubyte[8] bytes8 = [1, 2, 3, 4, 5, 6, 7, 8];
     assert(hashOf2!(FNV64)(bytes8) == 9130222009665091821UL);

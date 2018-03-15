@@ -237,7 +237,7 @@ hash_t hashOf2(alias hasher, T)(const scope auto ref T value)
            hashOf2!(FNV64)(e[]));
 }
 
-version(none) @trusted pure unittest
+@trusted pure unittest
 {
     const ubyte[8] bytes8 = [1, 2, 3, 4, 5, 6, 7, 8];
     assert(hashOf2!(FNV64)(bytes8) == 9130222009665091821UL);

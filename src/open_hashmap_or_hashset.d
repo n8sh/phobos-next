@@ -1686,11 +1686,12 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     version(showEntries) dln();
     import basic_array : Array = BasicArray;
     alias K = Nullable!(uint, uint.max);
-    alias V = Array!int;
+    alias VE = int;
+    alias V = Array!VE;
     alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
     auto x = X();
 
-    const n = 2;
+    const VE n = 1;
     foreach (const i; 0 .. n)
     {
         auto key = K(i);

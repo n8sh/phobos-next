@@ -2466,7 +2466,7 @@ version(unittest)
             static if (X.hasValue)
             {
                 import basic_array : Array = BasicArray;
-                Array!(X.ElementType) a1;
+                Array!(X.ElementType) a1; // remember the keys
 
                 foreach (const ref key; x1.byKey)
                 {
@@ -2477,11 +2477,11 @@ version(unittest)
 
                 assert(x1.length == a1.length);
 
-                foreach (aElement; a1[])
+                foreach (ae; a1[])
                 {
-                    auto keyPtr = aElement.key in x1;
+                    auto keyPtr = ae.key in x1;
                     assert(keyPtr);
-                    assert((*keyPtr) is aElement.value);
+                    assert((*keyPtr) is ae.value);
                 }
             }
 

@@ -1684,64 +1684,69 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 @safe pure nothrow @nogc unittest
 {
     version(showEntries) dln();
+
     import basic_array : Array = BasicArray;
+
     alias K = Nullable!(uint, uint.max);
     alias VE = uint;
     alias V = Array!VE;
-    alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
-    auto x = X();
 
-    const VE n = 1;
-    foreach (immutable i; 0 .. n)
+    foreach (X; AliasSeq!(OpenHashMapOrSet!(K, V, FNV!(64, true))))
     {
-        assert(x.length == i);
+        auto x = X();
 
-        auto key = K(i);
-        auto value = V.withElements([i].s);
-
-        x[key] = value.dup;
-        assert(x.length == i + 1);
-        assert(x.contains(key));
+        const VE n = 1;
+        foreach (immutable i; 0 .. n)
         {
-            auto valuePtr = key in x;
-            assert(valuePtr && *valuePtr == value);
+            assert(x.length == i);
+
+            auto key = K(i);
+            auto value = V.withElements([i].s);
+
+            x[key] = value.dup;
+            assert(x.length == i + 1);
+            assert(x.contains(key));
+            {
+                auto valuePtr = key in x;
+                assert(valuePtr && *valuePtr == value);
+            }
+
+            x.remove(key);
+            assert(x.length == i);
+            assert(!x.contains(key));
+            assert(key !in x);
+
+            x[key] = value.dup;
+            assert(x.length == i + 1);
+            assert(x.contains(key));
+            {
+                auto valuePtr = key in x;
+                assert(valuePtr && *valuePtr == value);
+            }
         }
 
-        x.remove(key);
-        assert(x.length == i);
-        assert(!x.contains(key));
-        assert(key !in x);
-
-        x[key] = value.dup;
-        assert(x.length == i + 1);
-        assert(x.contains(key));
+        foreach (ref e; x.byKeyValue)
         {
-            auto valuePtr = key in x;
-            assert(valuePtr && *valuePtr == value);
-        }
-    }
-
-    foreach (ref e; x.byKeyValue)
-    {
-        assert(x.contains(e.key));
-    }
-
-    foreach (immutable i; 0 .. n)
-    {
-        assert(x.length == n - i);
-
-        auto key = K(i);
-        auto value = V.withElements([i].s);
-
-        assert(x.contains(key));
-        {
-            auto valuePtr = key in x;
-            assert(valuePtr && *valuePtr == value);
+            assert(x.contains(e.key));
         }
 
-        x.remove(key);
-        assert(!x.contains(key));
-        assert(key !in x);
+        foreach (immutable i; 0 .. n)
+        {
+            assert(x.length == n - i);
+
+            auto key = K(i);
+            auto value = V.withElements([i].s);
+
+            assert(x.contains(key));
+            {
+                auto valuePtr = key in x;
+                assert(valuePtr && *valuePtr == value);
+            }
+
+            x.remove(key);
+            assert(!x.contains(key));
+            assert(key !in x);
+        }
     }
 }
 
@@ -2339,8 +2344,6 @@ version(unittest)
         private ulong _value;
     }
 
-    import std.meta : AliasSeq;
-
     import container_traits : mustAddGCRange;
     static assert(mustAddGCRange!string);
 
@@ -2568,6 +2571,7 @@ version(unittest)
     import std.algorithm : count;
     import std.algorithm.comparison : equal;
     import std.typecons : Nullable;
+    import std.meta : AliasSeq;
 
     import digestx.fnv : FNV;
     import array_help : s;

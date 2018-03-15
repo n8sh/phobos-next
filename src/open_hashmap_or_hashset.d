@@ -1693,9 +1693,9 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 
     foreach (X; AliasSeq!(OpenHashMapOrSet!(K, V, FNV!(64, true))))
     {
-        const VE n = 1;
+        const VE n = 4;
 
-        auto x = X.withCapacity(n);
+        auto x = X();
 
         foreach (immutable i; 0 .. n)
         {

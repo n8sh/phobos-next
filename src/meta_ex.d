@@ -133,7 +133,7 @@ template staticAssignableTypeIndexOf(U)
     enum canStore = f!U;
 }
 
-/** Returns: `xs` forwarded through calls to `fun`.
+/** Returns: `xs` forwarded through calls to `fun` and packed into a `std.typecons.Tuple`.
  *
  * See also: https://forum.dlang.org/post/zjxmreegqkxgdzvihvyk@forum.dlang.org
  */

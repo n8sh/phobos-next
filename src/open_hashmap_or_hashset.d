@@ -320,7 +320,7 @@ struct OpenHashMapOrSet(K, V = void,
             @trusted
         {
             version(showEntries) dln(__FUNCTION__, " length:", length);
-            T[] binsCopy = allocateUninitializedBins(_bins.length);
+            T[] binsCopy = allocateUninitializedBins(_bins.length); // unsafe
             foreach (immutable index, ref element; _bins)
             {
                 /** TODO functionize to `emplaceAll` in emplace_all.d. See also:
@@ -1703,6 +1703,9 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
         foreach (ref keyValue; x.byKeyValue)
         {
             assert(x.contains(keyValue.key));
+            auto keyValuePtr = keyValue.key in x;
+            assert(keyValuePtr &&
+                   *keyValuePtr == keyValue.value);
         }
 
         foreach (immutable i; 0 .. n)

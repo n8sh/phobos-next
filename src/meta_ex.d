@@ -133,26 +133,30 @@ template staticAssignableTypeIndexOf(U)
     enum canStore = f!U;
 }
 
-/** Returns: `things` forwarded through calls to `fun`.
+/** Returns: `xs` forwarded through calls to `fun`.
  *
  * See also: https://forum.dlang.org/post/zjxmreegqkxgdzvihvyk@forum.dlang.org
  */
-auto forwardMap(alias fun, Ts ...)(Ts things) @trusted
+auto forwardMap(alias fun, Ts...)(Ts xs) @trusted
 {
     import std.meta : aliasSeqOf, staticMap;
     import std.range : iota;
     import std.typecons : Tuple;
     import std.conv : emplace;
 
-    alias NewType(size_t i) = typeof(fun(things[i]));
+    alias NewType(size_t i) = typeof(fun(xs[i]));
     alias NewTypes = staticMap!(NewType,
-                                aliasSeqOf!(iota(things.length)));
-    Tuple!NewTypes results = void;
-    static foreach (i, thing; things)
+                                aliasSeqOf!(iota(xs.length)));
+    Tuple!NewTypes ys = void;
+    static foreach (i, thing; xs)
     {
-        emplace(&results[i], fun(thing));
+        emplace(&ys[i], fun(thing));
     }
-    return results;
+    return ys;
+}
+
+void forwardMap2(alias fun, Ts...)(Ts xs) @trusted
+{
 }
 
 @safe pure unittest

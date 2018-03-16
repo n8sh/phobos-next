@@ -139,12 +139,10 @@ template staticAssignableTypeIndexOf(U)
  */
 auto forwardMap(alias fun, Ts...)(Ts xs)
 {
-    // types
     import std.meta : staticMap;
     alias MappedTypeOf(T) = typeof(fun(T.init));
     alias NewTypes = staticMap!(MappedTypeOf, Ts);
 
-    // values
     import std.typecons : Tuple;
     Tuple!NewTypes ys = void;
     import std.conv : emplace;

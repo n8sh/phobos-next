@@ -10,8 +10,7 @@ struct MinimalFixedArray(E, uint capacity)
 {
     @safe:
 
-    this(in E[] es)
-        @trusted
+    this(in E[] es) @trusted
     {
         assert(es.length <= capacity,
                "Length of input parameter `es` is larger than capacity "

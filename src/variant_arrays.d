@@ -1,9 +1,13 @@
 module variant_arrays;
 
+@safe:
+
 /** Typed index (reference) into an element in `VariantArrays`.
  */
 private struct VariantRef(DefinedTypes...)
 {
+    @safe:
+
     import std.meta : staticIndexOf;
 
     alias Kind = ubyte;              // kind code
@@ -176,6 +180,8 @@ private mixin template VariantArrayOf(Type)
  */
 private struct VariantArrays(Types...)
 {
+    @safe:
+
     alias Ref = VariantRef!Types;
 
     import basic_array : BasicArray;
@@ -415,7 +421,7 @@ version(extraTests)
 
 /// put and peek
 version(extraTests)
-pure nothrow @nogc unittest
+@system pure nothrow @nogc unittest
 {
     S s;
 

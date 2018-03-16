@@ -5,8 +5,7 @@ module minimal_fixed_array;
 /** Minimalistic fixed-length (static) array of (`capacity`) number of elements
  * of type `E` where length only fits in an `ubyte` for compact packing.
  */
-struct MinimalFixedArray(E, uint capacity)
-    if (capacity <= ubyte.max)
+struct MinimalFixedArray(E, ubyte capacity)
 {
     @safe:
 
@@ -21,7 +20,7 @@ struct MinimalFixedArray(E, uint capacity)
 
 private:
     E[capacity] _es;
-    ubyte _length;
+    typeof(capacity) _length;
 }
 
 @safe pure nothrow @nogc unittest

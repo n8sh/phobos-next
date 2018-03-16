@@ -35,8 +35,6 @@ import pure_mallocator : PureMallocator;
  *
  * TODO add static assert(!__traits(compiles, )) for DIP-1000 scope checking of escaping l-value ranges
  *
- * TODO extend opBinaryRight to return a reference to a free slot when assigned to sets value in slot and does _count += 1;
- *
  * TODO add extractElement that moves it out similar to
  * http://en.cppreference.com/w/cpp/container/unordered_set/extract
  *
@@ -942,7 +940,10 @@ struct OpenHashMapOrSet(K, V = void,
             assert(!key.isNull);
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
             return (hitIndex != _bins.length &&
-                    isOccupiedAtIndex(hitIndex)) ? &_bins[hitIndex] : null;
+                    isOccupiedAtIndex(hitIndex)) ? &_bins[hitIndex] :
+            null; /* TODO instead of null return a reference to a struct SlotRef
+                   * when assigned to sets value in slot and increases
+                   * table._count += 1; */
         }
         static if (isInstanceOf!(Nullable, K))
         {

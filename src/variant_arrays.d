@@ -323,9 +323,9 @@ private:
 ///
 @safe pure nothrow @nogc unittest
 {
-    import fixed_array : BasicFixedArray;
+    import fixed_array : MinimalFixedArray;
 
-    alias Chars(uint capacity) = BasicFixedArray!(char, capacity);
+    alias Chars(uint capacity) = MinimalFixedArray!(char, capacity);
     alias Chars7 = Chars!7;
     alias Chars15 = Chars!15;
     alias VA = VariantArrays!(ulong,

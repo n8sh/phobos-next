@@ -341,18 +341,6 @@ struct OpenHashMapOrSet(K, V = void,
                 }
                 else
                 {
-                    version(unittest)
-                    {
-                        // TODO handle this case
-                        static if (!hasAddressKey)
-                        {
-                            assert(!hasHoleAtPtrIndex(_holesPtr, index));
-                        }
-                        else
-                        {
-                            assert(!isHoleKeyConstant(keyOf(_bins[index])));
-                        }
-                    }
                     static if (hasElaborateDestructor!T)
                     {
                         emplace(&binsCopy[index], element);

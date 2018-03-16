@@ -664,7 +664,7 @@ version(none) pure unittest     // TODO activate
 }
 
 /// equality
-pure unittest
+@safe pure unittest
 {
     enum capacity = 15;
     alias S = ArrayN!(int, capacity);

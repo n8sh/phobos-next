@@ -1,7 +1,8 @@
 /** Minimal array storage. */
 module minimal_fixed_array;
 
-/** Minimalistic implementation of A few (`capacity`) elements of type `E`.
+/** Minimalistic fixed-length (static) array of (`capacity`) number of elements
+ * of type `E`.
  */
 struct MinimalFixedArray(E, uint capacity)
     if (capacity <= ubyte.max)

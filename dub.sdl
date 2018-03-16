@@ -27,7 +27,7 @@ sourceFiles {
    "src/trie.d"
    "src/array_ex.d"
    "src/dbgio.d"
-   "src/arrayn.d"
+   "src/fixed_arra.d"
    "src/predicates.d"
    "src/string_ex.d"
    "src/getopt_ex.d"

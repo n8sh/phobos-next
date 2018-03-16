@@ -14,6 +14,6 @@ extern(C)
 
     void free(void* ptr);
 
-    void gc_addRange( in void* p, size_t sz, const TypeInfo ti = null );
+    void gc_addRange( in void* p, size_t sz, const TypeInfo ti = null);
     void gc_removeRange( in void* p );
 }

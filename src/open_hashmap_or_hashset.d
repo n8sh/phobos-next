@@ -28,8 +28,9 @@ import pure_mallocator : PureMallocator;
  * is null
  *
  * TODO if hash-function is cast(size_t)(classInstance) always use prime length
- * and perphaps shift pointer before hash based on alignof (might not be needed
- * when module prime)
+ * and shift pointer before hash based on alignof (might not be needed when
+ * module prime) to maximize memory locality when adding successively allocated
+ * pointers
  *
  * TODO keep only predicates with ref arguments when LDC can optimize those as
  * fast as value passing. add LDC issue for this

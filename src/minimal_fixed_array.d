@@ -1,11 +1,15 @@
 module minimal_fixed_array;
 
+@safe:
+
 /** Minimalistic fixed-length (static) array of (`capacity`) number of elements
  * of type `E`.
  */
 struct MinimalFixedArray(E, uint capacity)
     if (capacity <= ubyte.max)
 {
+    @safe:
+
     this(in E[] es)
         @trusted
     {

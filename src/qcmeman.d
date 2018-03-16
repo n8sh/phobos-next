@@ -6,7 +6,7 @@ extern(C)
     // qualified C memory allocations
     pure nothrow @nogc:
 
-    void* malloc(size_t size) @safe; // TODO make unsafe
+    void* malloc(size_t size) @trusted;
     void* calloc(size_t nmemb, size_t size) @safe;
     void* realloc(void* ptr, size_t size);
 

@@ -1,4 +1,3 @@
-/** Minimal array storage. */
 module minimal_fixed_array;
 
 /** Minimalistic fixed-length (static) array of (`capacity`) number of elements

@@ -6,6 +6,8 @@
  */
 module static_bitarray;
 
+@safe:
+
 /** A statically sized `std.bitmanip.BitArray`.
 
     TODO Infer `Block` from `len` as is done for `Bound` and `Mod`.
@@ -14,6 +16,8 @@ module static_bitarray;
  */
 struct StaticBitArray(uint len, Block = size_t)
 {
+    @safe:
+
     import std.format : FormatSpec, format;
     import core.bitop : bitswap;
     import modulo : Mod;
@@ -226,8 +230,7 @@ struct StaticBitArray(uint len, Block = size_t)
     {
         /** Sets the $(D i)'th bit. No range checking needed. */
         pragma(inline, true)
-        bool opIndexAssign(ModUInt)(bool b, Mod!(len, ModUInt) i)
-            @trusted
+        bool opIndexAssign(ModUInt)(bool b, Mod!(len, ModUInt) i) @trusted
         if (isUnsigned!ModUInt)
         {
             if (b)
@@ -260,7 +263,7 @@ struct StaticBitArray(uint len, Block = size_t)
     }
 
     /** Support for $(D foreach) loops for $(D StaticBitArray). */
-    int opApply(scope int delegate(ref bool) dg)
+    int opApply(scope int delegate(ref bool) dg) @trusted
     {
         int result;
         for (size_t i = 0; i < len; ++i)
@@ -274,7 +277,7 @@ struct StaticBitArray(uint len, Block = size_t)
     }
 
     /** ditto */
-    int opApply(scope int delegate(bool) dg) const
+    int opApply(scope int delegate(bool) dg) const @trusted
     {
         int result;
         for (size_t i = 0; i < len; ++i)
@@ -287,7 +290,7 @@ struct StaticBitArray(uint len, Block = size_t)
     }
 
     /** ditto */
-    int opApply(scope int delegate(ref size_t, ref bool) dg)
+    int opApply(scope int delegate(ref size_t, ref bool) dg) @trusted
     {
         int result;
         for (size_t i = 0; i < len; ++i)
@@ -301,7 +304,7 @@ struct StaticBitArray(uint len, Block = size_t)
     }
 
     /** ditto */
-    int opApply(scope int delegate(size_t, bool) dg) const
+    int opApply(scope int delegate(size_t, bool) dg) const @trusted
     {
         int result;
         for (size_t i = 0; i < len; ++i)
@@ -918,7 +921,7 @@ struct StaticBitArray(uint len, Block = size_t)
     /* } */
 
     /** Convert to $(D void[]). */
-    void[] opCast(T : void[])()
+    void[] opCast(T : void[])() @trusted
     {
         return cast(void[])ptr[0 .. dim];
     }
@@ -938,7 +941,7 @@ struct StaticBitArray(uint len, Block = size_t)
     }
 
     /** Support for unary operator ~ for $(D StaticBitArray). */
-    typeof(this) opCom() const
+    typeof(this) opCom() const @trusted
     {
         StaticBitArray result;
         for (size_t i = 0; i < dim; ++i)
@@ -1103,7 +1106,7 @@ struct StaticBitArray(uint len, Block = size_t)
      * separated with an underscore.
      */
     void toString(scope void delegate(const(char)[]) sink,
-                  FormatSpec!char fmt) const
+                  FormatSpec!char fmt) const @trusted
     {
         switch(fmt.spec)
         {
@@ -1127,7 +1130,7 @@ struct StaticBitArray(uint len, Block = size_t)
         assert(s2 == "00001111_00001111");
     }
 
-    private void formatBitString()(scope void delegate(const(char)[]) sink) const
+    private void formatBitString()(scope void delegate(const(char)[]) sink) const @trusted
     {
         import std.range : put;
 
@@ -1158,7 +1161,7 @@ struct StaticBitArray(uint len, Block = size_t)
         }
     }
 
-    private void formatBitSet()(scope void delegate(const(char)[]) sink) const
+    private void formatBitSet()(scope void delegate(const(char)[]) sink) const @trusted
     {
         sink("[");
         foreach (immutable ix; 0 .. len)

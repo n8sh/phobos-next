@@ -6,11 +6,15 @@ extern(C)
     // qualified C memory allocations
     pure nothrow @nogc:
 
-    // See also: https://forum.dlang.org/post/mailman.1130.1521239659.3374.digitalmars-d@puremagic.com
+    /* See also:
+     * https://forum.dlang.org/post/mailman.1130.1521239659.3374.digitalmars-d@puremagic.com
+     * for an explanation of why `pureMalloc` and `pureCalloc` both can
+     * be @trusted. */
     void* malloc(size_t size) @trusted;
 
-    void* calloc(size_t nmemb, size_t size) @safe;
-    void* realloc(void* ptr, size_t size);
+    void* calloc(size_t nmemb, size_t size) @trusted;
+
+    void* realloc(void* ptr, size_t size) @system;
 
     void* alloca(size_t length) @safe;
 

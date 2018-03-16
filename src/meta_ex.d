@@ -158,8 +158,8 @@ auto forwardMap(alias fun, Ts ...)(Ts things) @trusted
 @safe pure unittest
 {
     import std.typecons : Tuple;
-    alias InType = Tuple!(int, float, double, string);
-    auto x = InType(1, 1.2f, 1.2, "1.2");
+    alias X = Tuple!(int, float, double, string);
+    auto x = X(1, 1.2f, 1.2, "1.2");
     auto y = forwardMap!(_ => _)(x.tupleof);
     static assert(is(typeof(x) == typeof(y)));
 }

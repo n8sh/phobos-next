@@ -155,7 +155,7 @@ auto forwardMap(alias fun, Ts...)(Ts xs) @trusted
     return ys;
 }
 
-void forwardMap2(alias fun, Ts...)(Ts xs) @trusted
+void forwardMap2(alias fun, Ts...)(Ts xs) @trusted // TODO auto ref?
 {
 }
 

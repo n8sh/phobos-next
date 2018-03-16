@@ -2,7 +2,7 @@
 
 /** Bounded Arithmetic Wrapper Type, similar to Ada Range/Interval Types.
 
-    Copyright: Per Nordlöw 2017-.
+    Copyright: Per Nordlöw 2018-.
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
     Authors: $(WEB Per Nordlöw)
 

@@ -18,7 +18,7 @@ extern(C)
 
     void* alloca(size_t length) @safe;
 
-    void free(void* ptr);
+    void free(void* ptr) @system;
 
     void gc_addRange( in void* p, size_t sz, const TypeInfo ti = null);
     void gc_removeRange( in void* p );

@@ -1,5 +1,7 @@
 module bitarray;
 
+@safe:
+
 /** Array of bits.
     Like `std.bitmanip.BitArray` but @safe pure nothrow @nogc.
  */

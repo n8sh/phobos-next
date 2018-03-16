@@ -199,17 +199,17 @@ struct OpenHashMapOrSet(K, V = void,
      * See also:
      * https://forum.dlang.org/post/nyngzsaeqxzzuumivtze@forum.dlang.org
      */
-    pragma(inline, true)
-    static typeof(this) withCapacity(size_t capacity) // template-lazy
+    pragma(inline)              // LDC can, DMD cannot inline
+    static typeof(this) withCapacity()(size_t capacity) // template-lazy
     {
-        return typeof(return)(makeBins(capacity), 0);
+        return typeof(return)(makeDefaultInitializedBins(capacity), 0);
     }
 
-    /** Make default-initialized bins with capacity for at least
+    /** Make default-initialized bins with room for storing for at least
      * `minimumCapacity` number of elements.
      */
     pragma(inline, true)
-    private static T[] makeBins(size_t minimumCapacity)
+    private static T[] makeDefaultInitializedBins()(size_t minimumCapacity) // template-lazy
         @trusted pure nothrow @nogc
     {
         immutable capacity = nextPow2(minimumCapacity);
@@ -263,7 +263,7 @@ struct OpenHashMapOrSet(K, V = void,
         return bins;
     }
 
-    static private T[] allocateUninitializedBins(size_t capacity)
+    static private T[] allocateUninitializedBins()(size_t capacity) // template-lazy
         @trusted pure nothrow @nogc
     {
         version(showEntries) dln(__FUNCTION__, " newCapacity:", capacity);
@@ -584,10 +584,10 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
-     */
+    /** Insert `element`, being either a key-value (map-case) or a just a key
+     * (set-case). */
     pragma(inline, true)
-    InsertionStatus insert(T element)
+    InsertionStatus insert()(T element) // template-lazy
     {
         debug assert(!isBorrowed, borrowedErrorMessage);
         assert(!keyOf(element).isNull); // TODO needed?
@@ -598,7 +598,7 @@ struct OpenHashMapOrSet(K, V = void,
                isInstanceOf!(Nullable, K))
     {
         pragma(inline, true)
-        InsertionStatus insert(WrappedKey wrappedElement)
+        InsertionStatus insert()(WrappedKey wrappedElement) // template-lazy
         {
             return insert(K(wrappedElement));
         }
@@ -650,7 +650,7 @@ struct OpenHashMapOrSet(K, V = void,
 
     /// Grow (rehash) to make for `newCapacity` number of elements.
     pragma(inline, true)
-    private void growWithNewCapacity(size_t newCapacity) // not template-lazy
+    private void growWithNewCapacity()(size_t newCapacity) // template-lazy
     {
         version(showEntries) dln(__FUNCTION__, " newCapacity:", newCapacity);
         version(unittest) assert(newCapacity > _bins.length);
@@ -684,8 +684,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    private void insertMoveElementAtIndex(ref T element,
-                                          size_t index)
+    private void insertMoveElementAtIndex()(ref T element, size_t index) // template-lazy
         @trusted
     {
         move(keyOf(element), keyOf(_bins[index]));
@@ -762,7 +761,7 @@ struct OpenHashMapOrSet(K, V = void,
     /** Grow (including rehash) store in-place to make room for `newCapacity` number of
      * elements.
      */
-    private void growInPlaceWithNewCapacity(size_t newCapacity) // not template-lazy
+    private void growInPlaceWithNewCapacity()(size_t newCapacity) // template-lazy
         @trusted
     {
         assert(newCapacity > _bins.length);
@@ -809,14 +808,14 @@ struct OpenHashMapOrSet(K, V = void,
 
     /** Grow (rehash) store to make room for `newCapacity` number of elements.
      */
-    private void growStandardWithNewCapacity(size_t newCapacity) // not template-lazy
+    private void growStandardWithNewCapacity()(size_t newCapacity) // template-lazy
         @trusted
     {
         version(showEntries) dln(__FUNCTION__, " newCapacity:", newCapacity);
         version(unittest) assert(newCapacity > _bins.length);
 
         T[] oldBins = _bins;
-        _bins = makeBins(newCapacity); // replace with new bins
+        _bins = makeDefaultInitializedBins(newCapacity); // replace with new bins
 
         debug immutable oldCount = _count;
         _count = 0;
@@ -870,7 +869,7 @@ struct OpenHashMapOrSet(K, V = void,
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
      */
     pragma(inline, true)
-    private InsertionStatus insertWithoutGrowth(T element) @trusted
+    private InsertionStatus insertWithoutGrowth()(T element) @trusted // template-lazy
     {
         version(unittest) assert(!keyOf(element).isNull);
         static if (hasAddressKey)
@@ -909,7 +908,7 @@ struct OpenHashMapOrSet(K, V = void,
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
      */
     pragma(inline, true)
-    private InsertionStatus insertMoveWithoutGrowth(ref T element)
+    private InsertionStatus insertMoveWithoutGrowth()(ref T element) // template-lazy
     {
         return insertWithoutGrowth(move(element));
     }
@@ -918,7 +917,7 @@ struct OpenHashMapOrSet(K, V = void,
     {
         /** Insert or replace `value` at `key`. */
         pragma(inline, true)    // LDC must have this
-        InsertionStatus insert(K key, V value)
+        InsertionStatus insert()(K key, V value) // template-lazy
         {
             return insert(T(move(key),
                             move(value)));
@@ -926,7 +925,7 @@ struct OpenHashMapOrSet(K, V = void,
         static if (isInstanceOf!(Nullable, K))
         {
             pragma(inline, true)    // LDC must have this
-            InsertionStatus insert(WrappedKey wrappedKey, V value)
+            InsertionStatus insert()(WrappedKey wrappedKey, V value) // template-lazy
             {
                 return insert(K(wrappedKey), move(value));
             }
@@ -1244,7 +1243,7 @@ struct OpenHashMapOrSet(K, V = void,
     @property size_t binCount() const { return _bins.length; }
 
     /** Returns: get total probe count for all elements stored. */
-    size_t totalProbeCount() const
+    size_t totalProbeCount()() const // template-lazy
     {
         static if (hasValue)
         {
@@ -1388,54 +1387,7 @@ private:
         return _bins[].triangularProbeFromIndex!(pred)(keyToIndex(key));
     }
 
-    /** Find index to `key` if it exists or to first empty slot found, ignoring
-     * lazily deleted slots.
-     */
-    pragma(inline, true)
-    private size_t indexOfKeyOrVacancySkippingHoles_alt(const scope K key) const @trusted
-    {
-        version(unittest) assert(!key.isNull);
-        static if (hasAddressKey)
-        {
-            version(unittest) assert(!isHoleKeyConstant(key));
-        }
-        static if (isCopyable!T)
-        {
-            /* don't use `auto ref` for copyable `T`'s to prevent
-             * massive performance drop for small elements when compiled
-             * with LDC. TODO remove when LDC is fixed. */
-            static if (!hasAddressKey)
-            {
-                alias pred = (const scope index,
-                              const scope element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
-                                                       (keyOf(element).isNull ||
-                                                        keyOf(element) is key));
-            }
-            else
-            {
-                alias pred = (const scope element) => (keyOf(element).isNull ||
-                                                       keyOf(element) is key);
-            }
-        }
-        else
-        {
-            static if (!hasAddressKey)
-            {
-                alias pred = (const scope index,
-                              const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
-                                                                (keyOf(element).isNull ||
-                                                                 keyOf(element) is key));
-            }
-            else
-            {
-                alias pred = (const scope auto ref element) => (keyOf(element).isNull ||
-                                                                keyOf(element) is key);
-            }
-        }
-        return _bins[].triangularProbeFromIndex!(pred, true)(keyToIndex(key));
-    }
-
-    private size_t indexOfHoleOrNullForKey(const scope K key) const @trusted
+    private size_t indexOfHoleOrNullForKey()(const scope K key) const @trusted // template-lazy
     {
         version(unittest) assert(!key.isNull);
         static if (hasAddressKey)

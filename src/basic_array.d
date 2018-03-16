@@ -2,6 +2,8 @@ module basic_array;
 
 import std.traits : Unqual;
 
+@safe:
+
 /** Array type with deterministic control of memory. The memory allocated for
     the array is reclaimed as soon as possible; there is no reliance on the
     garbage collector. Array uses malloc, realloc and free for managing its own
@@ -27,6 +29,8 @@ struct BasicArray(T,
         (is(CapacityType == ulong) ||        // 3 64-bit words
          is(CapacityType == uint)))          // 2 64-bit words
 {
+    @safe:
+
     import std.range : isInputRange, ElementType, isInfinite;
     import std.traits : hasElaborateDestructor, hasIndirections, hasAliasing,
         isMutable, TemplateOf, isArray, isAssignable, isCopyable, isType, hasFunctionAttributes, isIterable;
@@ -350,6 +354,7 @@ struct BasicArray(T,
         If `zero` is `true` they will be zero-initialized.
     */
     private static MutableE* allocate(size_t initialCapacity, bool zero)
+        @trusted
     {
         immutable size_t numBytes = initialCapacity * T.sizeof;
 

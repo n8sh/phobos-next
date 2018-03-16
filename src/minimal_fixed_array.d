@@ -1,5 +1,5 @@
 /** Minimal array storage. */
-module fixed_array;
+module minimal_fixed_array;
 
 /** A few (`capacity`) elements of type `E`.
  */

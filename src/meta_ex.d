@@ -146,9 +146,13 @@ auto forwardMap(alias fun, Ts...)(Ts xs)
     import std.typecons : Tuple;
     Tuple!NewTypes ys = void;
     import std.conv : emplace;
+
+    import std.functional : unaryFun;
+    alias fun_ = unaryFun!(fun);
+
     static foreach (immutable i, x; xs)
     {
-        emplace(&ys[i], fun(x));
+        emplace(&ys[i], fun_(x));
     }
     return ys;
 }

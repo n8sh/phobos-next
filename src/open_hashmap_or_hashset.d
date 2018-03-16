@@ -24,6 +24,12 @@ import pure_mallocator : PureMallocator;
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  * See also: https://en.wikipedia.org/wiki/Lazy_deletion
  *
+ * TODO search for `_bins` and double-check `destroy` and `init` of value when key
+ * is null
+ *
+ * TODO if hash-function is cast(size_t)(classInstance) always use prime length
+ * and shift pointer before hash based on alignof (if needed)
+ *
  * TODO keep only predicates with ref arguments when LDC can optimize those as fast
  *
  * TODO add static assert(!__traits(compiles, )) for DIP-1000 scope checking of escaping l-value ranges

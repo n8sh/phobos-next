@@ -31,7 +31,8 @@ import pure_mallocator : PureMallocator;
  * and perphaps shift pointer before hash based on alignof (might not be needed
  * when module prime)
  *
- * TODO keep only predicates with ref arguments when LDC can optimize those as fast
+ * TODO keep only predicates with ref arguments when LDC can optimize those as
+ * fast as value passing
  *
  * TODO add static assert(!__traits(compiles, )) for DIP-1000 scope checking of escaping l-value ranges
  *

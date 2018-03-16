@@ -133,11 +133,14 @@ template staticAssignableTypeIndexOf(U)
     enum canStore = f!U;
 }
 
+import std.functional : unaryFun;
+
 /** Returns: `xs` forwarded through calls to `fun` and packed into a `std.typecons.Tuple`.
  *
  * See also: https://forum.dlang.org/post/zjxmreegqkxgdzvihvyk@forum.dlang.org
  */
 auto forwardMap(alias fun, Ts...)(Ts xs)
+    if (is(typeof(unaryFun!(fun))))
 {
     import std.meta : staticMap;
     alias MappedTypeOf(T) = typeof(fun(T.init));
@@ -146,7 +149,6 @@ auto forwardMap(alias fun, Ts...)(Ts xs)
     import std.typecons : Tuple;
     Tuple!NewTypes ys = void;
 
-    import std.functional : unaryFun;
     alias fun_ = unaryFun!(fun);
 
     import std.conv : emplace;

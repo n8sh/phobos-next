@@ -137,17 +137,21 @@ template staticAssignableTypeIndexOf(U)
  *
  * See also: https://forum.dlang.org/post/zjxmreegqkxgdzvihvyk@forum.dlang.org
  */
-auto forwardMap(alias fun, Ts ...)(Ts things)
+auto forwardMap(alias fun, Ts ...)(Ts things) @trusted
 {
     import std.meta : aliasSeqOf, staticMap;
     import std.range : iota;
     import std.typecons : Tuple;
+    import std.conv : emplace;
 
     alias NewType(size_t i) = typeof(fun(things[i]));
     alias NewTypes = staticMap!(NewType,
                                 aliasSeqOf!(iota(things.length)));
-    Tuple!NewTypes results;
-    static foreach (i, thing; things) results[i] = fun(thing);
+    Tuple!NewTypes results = void;
+    static foreach (i, thing; things)
+    {
+        emplace(&results[i], fun(thing));
+    }
     return results;
 }
 
@@ -155,6 +159,7 @@ auto forwardMap(alias fun, Ts ...)(Ts things)
 {
     import std.typecons : Tuple;
     alias InType = Tuple!(int, float, double, string);
-    auto x = forwardMap!(_ => _)(AliasSeq!(1, 1.2f, 1.2, "1.2"));
-    static assert(is(typeof(x) == InType));
+    auto x = InType(1, 1.2f, 1.2, "1.2");
+    auto y = forwardMap!(_ => _)(x.tupleof);
+    static assert(is(typeof(x) == typeof(y)));
 }

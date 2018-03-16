@@ -2,7 +2,7 @@
 
     TODO Make scope-checking kick in: http://forum.dlang.org/post/hnrungqxapjwqpkluvqu@forum.dlang.org
  */
-module arrayn;
+module fixed_array;
 
 @safe:
 
@@ -20,9 +20,9 @@ enum Checking
 
     TODO Add @safe nothrow @nogc ctor from static array (of known length)
 */
-struct ArrayN(T,
-              uint requestedCapacity,
-              Checking checking = Checking.viaScope)
+struct FixedArray(T,
+                  uint requestedCapacity,
+                  Checking checking = Checking.viaScope)
 {
     @safe:
     import std.bitmanip : bitfields;
@@ -462,25 +462,25 @@ pragma(inline, true):
 }
 
 /** Stack-allocated string of maximum length of `requestedCapacity.` */
-alias StringN(uint requestedCapacity, Checking checking = Checking.viaScope) = ArrayN!(immutable(char), requestedCapacity, checking);
+alias StringN(uint requestedCapacity, Checking checking = Checking.viaScope) = FixedArray!(immutable(char), requestedCapacity, checking);
 /** Stack-allocated wstring of maximum length of `requestedCapacity.` */
-alias WStringN(uint requestedCapacity, Checking checking = Checking.viaScope) = ArrayN!(immutable(wchar), requestedCapacity, checking);
+alias WStringN(uint requestedCapacity, Checking checking = Checking.viaScope) = FixedArray!(immutable(wchar), requestedCapacity, checking);
 /** Stack-allocated dstring of maximum length of `requestedCapacity.` */
-alias DStringN(uint requestedCapacity, Checking checking = Checking.viaScope) = ArrayN!(immutable(dchar), requestedCapacity, checking);
+alias DStringN(uint requestedCapacity, Checking checking = Checking.viaScope) = FixedArray!(immutable(dchar), requestedCapacity, checking);
 
 /** Stack-allocated mutable string of maximum length of `requestedCapacity.` */
-alias MutableStringN(uint requestedCapacity, Checking checking = Checking.viaScope) = ArrayN!(char, requestedCapacity, checking);
+alias MutableStringN(uint requestedCapacity, Checking checking = Checking.viaScope) = FixedArray!(char, requestedCapacity, checking);
 /** Stack-allocated mutable wstring of maximum length of `requestedCapacity.` */
-alias MutableWStringN(uint requestedCapacity, Checking checking = Checking.viaScope) = ArrayN!(char, requestedCapacity, checking);
+alias MutableWStringN(uint requestedCapacity, Checking checking = Checking.viaScope) = FixedArray!(char, requestedCapacity, checking);
 /** Stack-allocated mutable dstring of maximum length of `requestedCapacity.` */
-alias MutableDStringN(uint requestedCapacity, Checking checking = Checking.viaScope) = ArrayN!(char, requestedCapacity, checking);
+alias MutableDStringN(uint requestedCapacity, Checking checking = Checking.viaScope) = FixedArray!(char, requestedCapacity, checking);
 
 /// construct from array may throw
 @safe pure unittest
 {
     enum capacity = 3;
     alias T = int;
-    alias A = ArrayN!(T, capacity);
+    alias A = FixedArray!(T, capacity);
     static assert(!mustAddGCRange!A);
 
     auto a = A([1, 2, 3].s[]);
@@ -492,7 +492,7 @@ alias MutableDStringN(uint requestedCapacity, Checking checking = Checking.viaSc
 {
     enum capacity = 3;
     alias T = int;
-    alias A = ArrayN!(T, capacity);
+    alias A = FixedArray!(T, capacity);
     static assert(!mustAddGCRange!A);
 
     auto a = A.fromValuesUnsafe([1, 2, 3].s);
@@ -504,7 +504,7 @@ alias MutableDStringN(uint requestedCapacity, Checking checking = Checking.viaSc
 {
     enum capacity = 3;
     alias T = int;
-    alias A = ArrayN!(T, capacity);
+    alias A = FixedArray!(T, capacity);
     static assert(!mustAddGCRange!A);
 
     auto a = A(1, 2, 3);
@@ -572,7 +572,7 @@ version(none) pure unittest     // TODO activate
     alias T = char;
     enum capacity = 3;
 
-    alias A = ArrayN!(T, capacity, Checking.viaScopeAndBorrowing);
+    alias A = FixedArray!(T, capacity, Checking.viaScopeAndBorrowing);
     static assert(!mustAddGCRange!A);
     static assert(A.sizeof == T.sizeof*capacity + 1);
 
@@ -636,7 +636,7 @@ version(none) pure unittest     // TODO activate
     static void testAsSomeString(T)()
     {
         enum capacity = 15;
-        alias A = ArrayN!(immutable(T), capacity, Checking.viaScopeAndBorrowing);
+        alias A = FixedArray!(immutable(T), capacity, Checking.viaScopeAndBorrowing);
         static assert(!mustAddGCRange!A);
         auto a = A("abc");
         assert(a[] == "abc");
@@ -667,7 +667,7 @@ version(none) pure unittest     // TODO activate
 @safe pure unittest
 {
     enum capacity = 15;
-    alias S = ArrayN!(int, capacity);
+    alias S = FixedArray!(int, capacity);
     static assert(!mustAddGCRange!S);
 
     assert(S([1, 2, 3].s[]) ==
@@ -680,7 +680,7 @@ version(none) pure unittest     // TODO activate
 @system pure nothrow @nogc unittest
 {
     enum capacity = 15;
-    alias S = ArrayN!(int, capacity);
+    alias S = FixedArray!(int, capacity);
 
     assert(S.fromValuesUnsafe([1, 2, 3].s) ==
            S.fromValuesUnsafe([1, 2, 3].s));
@@ -757,7 +757,7 @@ version(none) pure unittest     // TODO activate
 @safe pure nothrow @nogc unittest
 {
     enum capacity = 4;
-    // TODO alias A = ArrayN!(int*, capacity, Checking.viaScopeAndBorrowing);
+    // TODO alias A = FixedArray!(int*, capacity, Checking.viaScopeAndBorrowing);
 }
 
 version(unittest)

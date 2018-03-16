@@ -781,7 +781,7 @@ unittest
 ///
 pure unittest
 {
-    import arrayn : StringN, Checking;
+    import fixed_array : StringN, Checking;
     alias String15 = StringN!(15, Checking.viaScope);
 
     String15 s;

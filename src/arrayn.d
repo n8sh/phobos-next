@@ -4,6 +4,8 @@
  */
 module arrayn;
 
+@safe:
+
 /** Type of index and slice lifetime checking. */
 enum Checking
 {
@@ -22,6 +24,7 @@ struct ArrayN(T,
               uint requestedCapacity,
               Checking checking = Checking.viaScope)
 {
+    @safe:
     import std.bitmanip : bitfields;
     import std.traits : Unqual;
     import std.traits : isSomeChar, hasElaborateDestructor, isAssignable, isCopyable;
@@ -674,7 +677,7 @@ pure unittest
 }
 
 /// equality
-pure nothrow @nogc unittest
+@system pure nothrow @nogc unittest
 {
     enum capacity = 15;
     alias S = ArrayN!(int, capacity);
@@ -709,7 +712,7 @@ pure nothrow @nogc unittest
 }
 
 ///
-pure unittest
+@system pure unittest
 {
     enum capacity = 15;
     alias String15 = StringN!(capacity, Checking.viaScopeAndBorrowing);

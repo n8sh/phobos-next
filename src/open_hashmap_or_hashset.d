@@ -1703,8 +1703,8 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
         auto y = x.dup;
         assert(x !is y);
         assert(x.length == y.length);
-        // assert(y == x);
-        // assert(x == y);
+        // TODO assert(y == x);
+        // TODO assert(x == y);
 
         foreach (ref key; x.byKey)
         {

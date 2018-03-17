@@ -366,9 +366,9 @@ struct OpenHashMapOrSet(K, V = void,
             {
                 static if (hasValue)
                 {
-                    auto hitPtr = bin.key in rhs;
-                    if (!hitPtr) { return false; }
-                    if ((*hitPtr) !is bin.value) { return false; }
+                    auto valuePtr = bin.key in rhs;
+                    if (!valuePtr) { return false; }
+                    if ((*valuePtr) !is bin.value) { return false; }
                 }
                 else
                 {

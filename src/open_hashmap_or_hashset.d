@@ -1448,7 +1448,7 @@ private static void duplicateEmplace(T)(const scope ref T src,
     }
     else
     {
-        static assert(0, T.stringof ~ " is neither copyable or dupable");
+        static assert(0, "cannot duplicate a " ~ T.stringof);
     }
 }
 

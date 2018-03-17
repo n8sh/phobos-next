@@ -1753,6 +1753,8 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
                 assert(valuePtr && *valuePtr == value);
             }
 
+            // TODO call remove and removeAllMatching in parallel on x and y and
+            // check that their _bins and holes array empty the same
             y.remove(key);
             // TODO assert(y.removeAllMatching!((const scope ref element) => element.key == key) == 1);
             assert(!y.contains(key));

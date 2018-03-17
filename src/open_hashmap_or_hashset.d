@@ -1420,15 +1420,21 @@ private:
 private static void duplicateEmplace(T)(const scope ref T src,
                                         scope ref T dst) @system
 {
+    import std.conv : emplace;
     import std.traits : hasElaborateDestructor, isCopyable;
-    static if (isCopyable!T &&
-               !hasElaborateDestructor!T)
+    static if (!hasElaborateDestructor!T)
     {
-        dst = cast(T)src;
+        static if (isCopyable!T)
+        {
+            dst = cast(T)src;
+        }
+        else
+        {
+            emplace(dst, src);
+        }
     }
     else static if (__traits(hasMember, T, "dup"))
     {
-        import std.conv : emplace;
         emplace(&dst);          // TODO avoid when possible
         dst = src.dup;
     }

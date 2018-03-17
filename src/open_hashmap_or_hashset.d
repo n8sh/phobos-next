@@ -1585,9 +1585,8 @@ alias OpenHashMap(K, V, alias hasher = hashOf,
 import std.traits : isInstanceOf;
 
 /** Remove all elements in `x` matching `pred`. */
-void removeAllMatching(alias pred, Table)(auto ref Table x) @trusted
-    if (isInstanceOf!(OpenHashMapOrSet,
-                      Table))
+size_t removeAllMatching(alias pred, Table)(auto ref Table x) @trusted
+    if (isInstanceOf!(OpenHashMapOrSet, Table))
 {
     import container_traits : nullify;
     size_t removalCount = 0;
@@ -1597,19 +1596,19 @@ void removeAllMatching(alias pred, Table)(auto ref Table x) @trusted
         if (x.isOccupiedAtIndex(i) &&
             unaryFun!pred(x._bins[i]))
         {
-            x._bins[i].nullify();
+            Table.nullifyElement(x._bins[i]);
             removalCount += 1;
         }
     }
     x._count = x._count - removalCount;
+    return removalCount;        // TODO remove this return value
 }
 
 /** Returns: `x` eagerly filtered on `pred`.
     TODO move to container_algorithm.d.
 */
 Table filtered(alias pred, Table)(Table x)
-    if (isInstanceOf!(OpenHashMapOrSet,
-                      Table))
+    if (isInstanceOf!(OpenHashMapOrSet, Table))
 {
     import std.functional : not;
     x.removeAllMatching!(not!pred); // `x` is a singleton (r-value) so safe to mutate
@@ -1694,6 +1693,9 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 
         x = x.dup;              // replace `x` with a copy of itself
 
+        auto y = x.dup;
+        assert(x.length == y.length);
+
         foreach (ref key; x.byKey)
         {
             assert(x.contains(key));
@@ -1725,9 +1727,28 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
             assert(key !in x);
         }
 
-        auto y = x.dup;
-        assert(x.length == y.length);
-        x.clear();
+        // remove all elements in `y` using `removeAllMatching`
+        foreach (immutable i; 0 .. n)
+        {
+            import dbgio;
+            dln("i:", i);
+
+            // TODO assert(y.length == n - i);
+
+            auto key = K(i);
+            auto value = V.withElements([i].s);
+
+            assert(y.contains(key));
+            {
+                auto valuePtr = key in y;
+                assert(valuePtr && *valuePtr == value);
+            }
+
+            // TODO:
+            // assert(y.removeAllMatching!((ref element) => element.key == key) == 1);
+            // assert(!y.contains(key));
+            // assert(key !in y);
+        }
     }
 }
 

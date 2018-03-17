@@ -319,18 +319,18 @@ struct OpenHashMapOrSet(K, V = void,
     {
         version(showEntries) dln(__FUNCTION__, " length:", length);
         T[] binsCopy = allocateUninitializedBins(_bins.length); // unsafe
-        foreach (immutable index, ref element; _bins)
+        foreach (immutable index, ref bin; _bins)
         {
-            if (!keyOf(element).isNull) // normal case
+            if (!keyOf(bin).isNull) // normal case
             {
                 static if (hasValue) // map
                 {
-                    duplicateEmplace(element.key, binsCopy[index].key);
-                    duplicateEmplace(element.value, binsCopy[index].value);
+                    duplicateEmplace(bin.key, binsCopy[index].key);
+                    duplicateEmplace(bin.value, binsCopy[index].value);
                 }
                 else            // set
                 {
-                    duplicateEmplace(element, binsCopy[index]);
+                    duplicateEmplace(bin, binsCopy[index]);
                 }
             }
             else
@@ -358,19 +358,19 @@ struct OpenHashMapOrSet(K, V = void,
     bool opEquals()(const scope auto ref typeof(this) rhs) const
     {
         if (_count != rhs._count) { return false; } // quick discardal
-        foreach (immutable index; 0 .. _bins.length)
+        foreach (immutable index, const ref bin; _bins)
         {
             if (isOccupiedAtIndex(index))
             {
                 static if (hasValue)
                 {
-                    auto hitPtr = _bins[index].key in rhs;
+                    auto hitPtr = bin.key in rhs;
                     if (!hitPtr) { return false; }
-                    if ((*hitPtr) !is _bins[index].value) { return false; }
+                    if ((*hitPtr) !is bin.value) { return false; }
                 }
                 else
                 {
-                    if (!rhs.contains(_bins[index])) { return false; }
+                    if (!rhs.contains(bin)) { return false; }
                 }
             }
         }
@@ -498,11 +498,11 @@ struct OpenHashMapOrSet(K, V = void,
     /// Release bin elements.
     private void releaseBinElements() @trusted
     {
-        foreach (immutable i; 0 .. _bins.length)
+        foreach (ref bin; _bins)
         {
             static if (hasElaborateDestructor!T)
             {
-                .destroy(_bins[i]);
+                .destroy(bin);
             }
         }
     }

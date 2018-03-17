@@ -1421,16 +1421,23 @@ private static void duplicateEmplace(T)(const scope ref T src,
                                         scope ref T dst) @system
 {
     import std.conv : emplace;
-    import std.traits : hasElaborateDestructor, isCopyable;
+    import std.traits : hasElaborateDestructor, isCopyable, isBasicType;
     static if (!hasElaborateDestructor!T)
     {
-        static if (isCopyable!T)
+        import std.traits : isInstanceOf;
+        static if (is(T == class) ||
+                   is(T == string))
         {
             dst = cast(T)src;
         }
+        else static if (isBasicType!T ||
+                        isInstanceOf!(Nullable, T)) // `Nullable` types cannot be emplaced
+        {
+            dst = src;
+        }
         else
         {
-            emplace(dst, src);
+            emplace(dst, cast(Unqual!T)src);
         }
     }
     else static if (__traits(hasMember, T, "dup"))

@@ -1421,10 +1421,9 @@ private static void duplicateEmplace(T)(const scope ref T src,
                                         scope ref T dst) @system
 {
     import std.conv : emplace;
-    import std.traits : hasElaborateCopyConstructor, isCopyable, isBasicType;
+    import std.traits : hasElaborateCopyConstructor, isCopyable, isBasicType, isInstanceOf;
     static if (!hasElaborateCopyConstructor!T)
     {
-        import std.traits : isInstanceOf;
         static if (is(T == class) ||
                    is(T == string))
         {

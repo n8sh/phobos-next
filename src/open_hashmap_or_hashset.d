@@ -1595,7 +1595,7 @@ void removeAllMatching(alias pred, Table)(auto ref Table x) @trusted
     foreach (immutable i; 0 .. x._bins.length)
     {
         import std.functional : unaryFun;
-        if (!x._bins[i].isNull &&
+        if (x.isOccupiedAtIndex(i) &&
             unaryFun!pred(x._bins[i]))
         {
             removalCount += 1;

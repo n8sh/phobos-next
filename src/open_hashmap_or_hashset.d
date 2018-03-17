@@ -1591,7 +1591,6 @@ void removeAllMatching(alias pred, Table)(auto ref Table x) @trusted
 {
     import container_traits : nullify;
     size_t removalCount = 0;
-    alias E = typeof(Table._bins.init[0]);
     foreach (immutable i; 0 .. x._bins.length)
     {
         import std.functional : unaryFun;

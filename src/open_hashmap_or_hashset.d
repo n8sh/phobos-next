@@ -323,7 +323,7 @@ struct OpenHashMapOrSet(K, V = void,
         T[] binsCopy = allocateUninitializedBins(_bins.length); // unsafe
         foreach (immutable index, ref bin; _bins)
         {
-            if (!keyOf(bin).isNull) // normal case
+            if (isOccupiedAtIndex(index)) // normal case
             {
                 static if (hasValue) // map
                 {

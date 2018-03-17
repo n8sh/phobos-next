@@ -1590,7 +1590,7 @@ void removeAllMatching(alias pred, Table)(auto ref Table x) @trusted
                       Table))
 {
     import container_traits : isNull, nullify;
-    size_t count = 0;
+    size_t removalCount = 0;
     alias E = typeof(Table._bins.init[0]);
     foreach (immutable i; 0 .. x._bins.length)
     {
@@ -1598,11 +1598,11 @@ void removeAllMatching(alias pred, Table)(auto ref Table x) @trusted
         if (!x._bins[i].isNull &&
             unaryFun!pred(x._bins[i]))
         {
-            count += 1;
+            removalCount += 1;
             x._bins[i].nullify();
         }
     }
-    x._count = x._count - count;
+    x._count = x._count - removalCount;
 }
 
 /** Returns: `x` eagerly filtered on `pred`.

@@ -3,6 +3,7 @@ module open_hashmap_or_hashset;
 // version = showEntries;
 // version = show;
 
+import std.functional : unaryFun;
 import std.traits : Unqual;
 import container_traits : isNullableType;
 import pure_mallocator : PureMallocator;
@@ -1165,6 +1166,8 @@ struct OpenHashMapOrSet(K, V = void,
         if (hitIndex != _bins.length &&
             isOccupiedAtIndex(hitIndex))
         {
+            // dln("remove(): removing key:", keyOf(_bins[hitIndex]),
+            //     " at index:", hitIndex);
             nullifyElement(_bins[hitIndex]);
             makeHoleAtIndex(hitIndex);
             _count = _count - 1;
@@ -1586,17 +1589,19 @@ import std.traits : isInstanceOf;
 
 /** Remove all elements in `x` matching `pred`. */
 size_t removeAllMatching(alias pred, Table)(auto ref Table x) @trusted
-    if (isInstanceOf!(OpenHashMapOrSet, Table))
+    if (isInstanceOf!(OpenHashMapOrSet, Table) &&
+        is(typeof((unaryFun!pred))))
 {
     import container_traits : nullify;
     size_t removalCount = 0;
-    foreach (immutable i; 0 .. x._bins.length)
+    foreach (immutable index, ref bin; x._bins)
     {
-        import std.functional : unaryFun;
-        if (x.isOccupiedAtIndex(i) &&
-            unaryFun!pred(x._bins[i]))
+        if (x.isOccupiedAtIndex(index) &&
+            unaryFun!pred(bin))
         {
-            Table.nullifyElement(x._bins[i]);
+            // dln("removeAllMatching: removing key:", Table.keyOf(bin),
+            //     " at index:", index);
+            Table.nullifyElement(bin);
             removalCount += 1;
         }
     }
@@ -1727,13 +1732,14 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
             assert(key !in x);
         }
 
+        // dln(y.length, " ", y._bins.length);
+
         // remove all elements in `y` using `removeAllMatching`
         foreach (immutable i; 0 .. n)
         {
-            import dbgio;
-            dln("i:", i);
+            // dln("i:", i);
 
-            // TODO assert(y.length == n - i);
+            assert(y.length == n - i);
 
             auto key = K(i);
             auto value = V.withElements([i].s);
@@ -1744,10 +1750,10 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
                 assert(valuePtr && *valuePtr == value);
             }
 
-            // TODO:
-            // assert(y.removeAllMatching!((ref element) => element.key == key) == 1);
-            // assert(!y.contains(key));
-            // assert(key !in y);
+            y.remove(key);
+            // TODO assert(y.removeAllMatching!((const scope ref element) => element.key == key) == 1);
+            assert(!y.contains(key));
+            assert(key !in y);
         }
     }
 }
@@ -2577,6 +2583,5 @@ version(unittest)
     import digestx.fnv : FNV;
     import array_help : s;
 
-    version(showEntries) import dbgio;
-    version(show) import dbgio;
+    import dbgio;
 }

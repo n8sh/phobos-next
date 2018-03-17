@@ -1584,8 +1584,7 @@ alias OpenHashMap(K, V, alias hasher = hashOf,
 
 import std.traits : isInstanceOf;
 
-/** Remove (reset) all elements in `x` matching `pred`.
- */
+/** Remove all elements in `x` matching `pred`. */
 void removeAllMatching(alias pred, Table)(auto ref Table x) @trusted
     if (isInstanceOf!(OpenHashMapOrSet,
                       Table))

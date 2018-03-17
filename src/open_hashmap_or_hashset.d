@@ -25,6 +25,8 @@ import pure_mallocator : PureMallocator;
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  * See also: https://en.wikipedia.org/wiki/Lazy_deletion
  *
+ * TODO replace !isNull with isOccupiedAtIndex
+ *
  * TODO search for `_bins` and double-check `destroy` and `init` of value when key
  * is null
  *
@@ -245,13 +247,13 @@ struct OpenHashMapOrSet(K, V = void,
         else                    // when default null key is not represented by zeros
         {
             auto bins = cast(T[])Allocator.instance.allocate(byteCount);
-            foreach (ref element; bins)
+            foreach (ref bin; bins)
             {
-                keyOf(element).nullify(); // moveEmplace doesn't init source of type Nullable
+                keyOf(bin).nullify(); // moveEmplace doesn't init source of type Nullable
                 static if (hasValue)
                 {
                     // construct in-place
-                    emplace(&valueOf(element));
+                    emplace(&valueOf(bin));
                 }
             }
         }

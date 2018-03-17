@@ -1422,6 +1422,7 @@ private static void duplicateEmplace(T)(const scope ref T src,
 {
     import std.conv : emplace;
     import std.traits : hasElaborateCopyConstructor, isCopyable, isBasicType;
+    import std.algorithm.mutation : moveEmplace;
     static if (!hasElaborateCopyConstructor!T)
     {
         import std.traits : isInstanceOf;
@@ -1442,7 +1443,8 @@ private static void duplicateEmplace(T)(const scope ref T src,
     }
     else static if (__traits(hasMember, T, "dup"))
     {
-        emplace(&dst);          // TODO can this call be avoided?
+        // TODO fix when emplace can handle uncopyable types
+        emplace(&dst);
         dst = src.dup;
     }
     else

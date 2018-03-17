@@ -313,58 +313,45 @@ struct OpenHashMapOrSet(K, V = void,
     /// No copying.
     @disable this(this);
 
-    static if (isCopyable!T)
+    /// Returns: a shallow duplicate of `this`.
+    typeof(this) dup()() const // template-lazy
+    @trusted
     {
-        /// Returns: a shallow duplicate of `this`.
-        typeof(this) dup()() const // template-lazy
-            @trusted
+        version(showEntries) dln(__FUNCTION__, " length:", length);
+        T[] binsCopy = allocateUninitializedBins(_bins.length); // unsafe
+        foreach (immutable index, ref element; _bins)
         {
-            version(showEntries) dln(__FUNCTION__, " length:", length);
-            T[] binsCopy = allocateUninitializedBins(_bins.length); // unsafe
-            foreach (immutable index, ref element; _bins)
+            if (!keyOf(element).isNull) // normal case
             {
-                /** TODO functionize to `emplaceAll` in emplace_all.d. See also:
-                 * http://forum.dlang.org/post/xxigbqqflzwfgycrclyq@forum.dlang.org
-                 */
-                if (keyOf(element).isNull)
+                static if (hasValue) // map
                 {
-                    // TODO only emplace key and not value
-                    static if (hasElaborateDestructor!T)
-                    {
-                        emplace(&binsCopy[index]);
-                    }
-                    else
-                    {
-                        binsCopy[index] = T.init;
-                    }
-                    keyOf(binsCopy[index]).nullify();
+                    duplicateEmplace(element.key, binsCopy[index].key);
+                    duplicateEmplace(element.value, binsCopy[index].value);
                 }
-                else
+                else            // set
                 {
-                    static if (hasElaborateDestructor!T)
-                    {
-                        emplace(&binsCopy[index], element);
-                    }
-                    else
-                    {
-                        binsCopy[index] = cast(T)element;
-                    }
+                    duplicateEmplace(element, binsCopy[index]);
                 }
             }
-            static if (!hasAddressKey)
+            else
             {
-                if (_holesPtr)
-                {
-                    immutable wordCount = holesWordCount(_bins.length);
-
-                    auto holesPtrCopy = makeUninitializedBitArray!Allocator(_bins.length);
-                    holesPtrCopy[0 .. wordCount] = _holesPtr[0 .. wordCount]; // TODO use memcpy instead?
-
-                    return typeof(return)(binsCopy, _count, holesPtrCopy);
-                }
+                emplace(&binsCopy[index]); // TODO only emplace key and not value
+                keyOf(binsCopy[index]).nullify();
             }
-            return typeof(return)(binsCopy, _count);
         }
+        static if (!hasAddressKey)
+        {
+            if (_holesPtr)
+            {
+                immutable wordCount = holesWordCount(_bins.length);
+
+                auto holesPtrCopy = makeUninitializedBitArray!Allocator(_bins.length);
+                holesPtrCopy[0 .. wordCount] = _holesPtr[0 .. wordCount]; // TODO use memcpy instead?
+
+                return typeof(return)(binsCopy, _count, holesPtrCopy);
+            }
+        }
+        return typeof(return)(binsCopy, _count);
     }
 
     /// Equality.
@@ -1433,6 +1420,30 @@ private:
             return (!isHoleKeyConstant(keyOf(_bins[index])) &&
                     !keyOf(_bins[index]).isNull);
         }
+    }
+}
+
+/** Duplicate `src` into uninitialized `dst` ignoring prior destruction of `dst`.
+ * TODO move somewhere
+ */
+private static void duplicateEmplace(T)(const scope ref T src,
+                                        scope ref T dst) @system
+{
+    import std.traits : hasElaborateDestructor, isCopyable;
+    static if (isCopyable!T &&
+               !hasElaborateDestructor!T)
+    {
+        dst = cast(T)src;
+    }
+    else static if (__traits(hasMember, T, "dup"))
+    {
+        import std.conv : emplace;
+        emplace(&dst);          // TODO avoid when possible
+        dst = src.dup;
+    }
+    else
+    {
+        static assert(0, T.stringof ~ " is neither copyable or dupable");
     }
 }
 

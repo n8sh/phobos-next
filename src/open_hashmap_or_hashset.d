@@ -1435,7 +1435,7 @@ private static void duplicateEmplace(T)(const scope ref T src,
     }
     else static if (__traits(hasMember, T, "dup"))
     {
-        emplace(&dst);          // TODO avoid when possible
+        emplace(&dst);          // TODO can this call be avoided?
         dst = src.dup;
     }
     else

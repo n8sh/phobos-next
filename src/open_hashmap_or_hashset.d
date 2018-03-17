@@ -1421,8 +1421,8 @@ private static void duplicateEmplace(T)(const scope ref T src,
                                         scope ref T dst) @system
 {
     import std.conv : emplace;
-    import std.traits : hasElaborateDestructor, isCopyable, isBasicType;
-    static if (!hasElaborateDestructor!T)
+    import std.traits : hasElaborateCopyConstructor, isCopyable, isBasicType;
+    static if (!hasElaborateCopyConstructor!T)
     {
         import std.traits : isInstanceOf;
         static if (is(T == class) ||
@@ -1437,7 +1437,7 @@ private static void duplicateEmplace(T)(const scope ref T src,
         }
         else
         {
-            emplace(dst, cast(Unqual!T)src);
+            emplace(&dst, cast(Unqual!T)src);
         }
     }
     else static if (__traits(hasMember, T, "dup"))

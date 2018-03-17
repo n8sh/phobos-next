@@ -1589,7 +1589,7 @@ void removeAllMatching(alias pred, Table)(auto ref Table x) @trusted
     if (isInstanceOf!(OpenHashMapOrSet,
                       Table))
 {
-    import container_traits : isNull, nullify;
+    import container_traits : nullify;
     size_t removalCount = 0;
     alias E = typeof(Table._bins.init[0]);
     foreach (immutable i; 0 .. x._bins.length)

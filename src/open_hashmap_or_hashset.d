@@ -1697,6 +1697,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
         }
 
         x = x.dup;              // replace `x` with a copy of itself
+        assert(x is x);
 
         auto y = x.dup;
         assert(x !is y);

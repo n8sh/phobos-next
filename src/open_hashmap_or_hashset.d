@@ -809,7 +809,7 @@ struct OpenHashMapOrSet(K, V = void,
                 }
                 else
                 {
-                    if (!isHoleKeyConstant(keyOf(_bins[oldIndex])))
+                    if (!isHoleKeyConstant(keyOf(oldBin)))
                     {
                         insertMoveWithoutGrowth(oldBin);
                     }

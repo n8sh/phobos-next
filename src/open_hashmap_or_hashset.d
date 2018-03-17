@@ -676,7 +676,7 @@ struct OpenHashMapOrSet(K, V = void,
         foreach (immutable doneIndex; 0 .. _bins.length)
         {
             if (!bt(dones, doneIndex) && // if _bins[doneIndex] not yet ready
-                !keyOf(_bins[doneIndex]).isNull) // and non-null
+                !keyOf(_bins[doneIndex]).isNull) // and non-null. TODO what to do here?
             {
                 T currentElement = void;
 
@@ -697,7 +697,7 @@ struct OpenHashMapOrSet(K, V = void,
 
                     bts(dones, hitIndex); // _bins[hitIndex] will be at it's correct position
 
-                    if (!keyOf(_bins[hitIndex]).isNull()) // if free slot found
+                    if (!keyOf(_bins[hitIndex]).isNull()) // if free slot found. TODO what to do?
                     {
                         T nextElement = void;
 
@@ -1406,15 +1406,14 @@ private:
     private bool isOccupiedAtIndex(size_t index) const @trusted
     {
         version(unittest) assert(index < _bins.length);
+        if (keyOf(_bins[index]).isNull) { return false; }
         static if (!hasAddressKey)
         {
-            return (!hasHoleAtPtrIndex(_holesPtr, index) &&
-                    !keyOf(_bins[index]).isNull);
+            return (!hasHoleAtPtrIndex(_holesPtr, index));
         }
         else
         {
-            return (!isHoleKeyConstant(keyOf(_bins[index])) &&
-                    !keyOf(_bins[index]).isNull);
+            return (!isHoleKeyConstant(keyOf(_bins[index])));
         }
     }
 }

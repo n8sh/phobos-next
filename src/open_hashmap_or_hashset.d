@@ -1420,7 +1420,6 @@ private:
 private static void duplicateEmplace(T)(const scope ref T src,
                                         scope ref T dst) @system
 {
-    import std.conv : emplace;
     import std.traits : hasElaborateCopyConstructor, isCopyable, isBasicType, isInstanceOf;
     static if (!hasElaborateCopyConstructor!T)
     {
@@ -1436,11 +1435,13 @@ private static void duplicateEmplace(T)(const scope ref T src,
         }
         else
         {
+            import std.conv : emplace;
             emplace(&dst, cast(Unqual!T)src);
         }
     }
     else static if (__traits(hasMember, T, "dup"))
     {
+        import std.conv : emplace;
         // TODO fix when emplace can handle uncopyable types
         emplace(&dst);
         dst = src.dup;

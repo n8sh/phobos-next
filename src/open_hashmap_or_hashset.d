@@ -1422,7 +1422,6 @@ private static void duplicateEmplace(T)(const scope ref T src,
 {
     import std.conv : emplace;
     import std.traits : hasElaborateCopyConstructor, isCopyable, isBasicType;
-    import std.algorithm.mutation : moveEmplace;
     static if (!hasElaborateCopyConstructor!T)
     {
         import std.traits : isInstanceOf;

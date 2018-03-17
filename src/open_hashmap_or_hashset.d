@@ -314,8 +314,7 @@ struct OpenHashMapOrSet(K, V = void,
     @disable this(this);
 
     /// Returns: a shallow duplicate of `this`.
-    typeof(this) dup()() const // template-lazy
-    @trusted
+    typeof(this) dup()() const @trusted // template-lazy
     {
         version(showEntries) dln(__FUNCTION__, " length:", length);
         T[] binsCopy = allocateUninitializedBins(_bins.length); // unsafe
@@ -496,8 +495,7 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /// Release bin elements.
-    private void releaseBinElements()
-        @trusted
+    private void releaseBinElements() @trusted
     {
         foreach (immutable i; 0 .. _bins.length)
         {
@@ -509,8 +507,7 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /// Release bin slice.
-    private void releaseBinsAndHolesSlices()
-        @trusted
+    private void releaseBinsAndHolesSlices() @trusted
     {
         releaseBinsSlice(_bins);
         static if (!hasAddressKey)
@@ -519,8 +516,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    static private void releaseBinsSlice(T[] bins)
-        @trusted
+    static private void releaseBinsSlice(T[] bins) @trusted
     {
         static if (mustAddGCRange!T)
         {
@@ -647,8 +643,7 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /** Nullify (reset) `element`. */
-    static private void nullifyElement(scope ref T element)
-        @trusted
+    static private void nullifyElement(scope ref T element) @trusted
     {
         keyOf(element).nullify(); // moveEmplace doesn't init source of type Nullable
         static if (hasElaborateDestructor!V) // if we should clear all
@@ -659,8 +654,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    private void insertMoveElementAtIndex()(ref T element, size_t index) // template-lazy
-        @trusted
+    private void insertMoveElementAtIndex()(ref T element, size_t index) @trusted // template-lazy
     {
         move(keyOf(element), keyOf(_bins[index]));
         static if (hasValue)
@@ -670,8 +664,7 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /** Rehash elements in-place. */
-    private void rehashInPlace()() // template-lazy
-        @trusted
+    private void rehashInPlace()() @trusted // template-lazy
     {
         version(showEntries) dln(__FUNCTION__);
         import core.bitop : bts, bt;
@@ -736,8 +729,7 @@ struct OpenHashMapOrSet(K, V = void,
     /** Grow (including rehash) store in-place to make room for `newCapacity` number of
      * elements.
      */
-    private void growInPlaceWithNewCapacity()(size_t newCapacity) // template-lazy
-        @trusted
+    private void growInPlaceWithNewCapacity()(size_t newCapacity) @trusted // template-lazy
     {
         assert(newCapacity > _bins.length);
 
@@ -783,8 +775,7 @@ struct OpenHashMapOrSet(K, V = void,
 
     /** Grow (rehash) store to make room for `newCapacity` number of elements.
      */
-    private void growStandardWithNewCapacity()(size_t newCapacity) // template-lazy
-        @trusted
+    private void growStandardWithNewCapacity()(size_t newCapacity) @trusted // template-lazy
     {
         version(showEntries) dln(__FUNCTION__, " newCapacity:", newCapacity);
         version(unittest) assert(newCapacity > _bins.length);
@@ -1581,8 +1572,7 @@ import std.traits : isInstanceOf;
 
 /** Remove (reset) all elements in `x` matching `pred`.
  */
-void removeAllMatching(alias pred, Table)(auto ref Table x)
-    @trusted
+void removeAllMatching(alias pred, Table)(auto ref Table x) @trusted
     if (isInstanceOf!(OpenHashMapOrSet,
                       Table))
 {
@@ -1813,8 +1803,7 @@ auto intersectWith(C1, C2)(ref C1 x,
 /** Returns forward range that iterates through the elements of `c` in undefined
  * order.
  */
-auto byElement(Table)(auto ref inout(Table) c)
-    @trusted
+auto byElement(Table)(auto ref inout(Table) c) @trusted
     if (isInstanceOf!(OpenHashMapOrSet,
                       Table))
 {

@@ -1597,8 +1597,8 @@ void removeAllMatching(alias pred, Table)(auto ref Table x) @trusted
         if (x.isOccupiedAtIndex(i) &&
             unaryFun!pred(x._bins[i]))
         {
-            removalCount += 1;
             x._bins[i].nullify();
+            removalCount += 1;
         }
     }
     x._count = x._count - removalCount;

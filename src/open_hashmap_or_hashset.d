@@ -1699,6 +1699,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
         x = x.dup;              // replace `x` with a copy of itself
 
         auto y = x.dup;
+        assert(x !is y);
         assert(x.length == y.length);
 
         foreach (ref key; x.byKey)

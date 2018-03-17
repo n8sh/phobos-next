@@ -358,19 +358,19 @@ struct OpenHashMapOrSet(K, V = void,
     bool opEquals()(const scope auto ref typeof(this) rhs) const
     {
         if (_count != rhs._count) { return false; } // quick discardal
-        foreach (immutable ix; 0 .. _bins.length)
+        foreach (immutable index; 0 .. _bins.length)
         {
-            if (!keyOf(_bins[ix]).isNull)
+            if (isOccupiedAtIndex(index))
             {
                 static if (hasValue)
                 {
-                    auto hitPtr = _bins[ix].key in rhs;
+                    auto hitPtr = _bins[index].key in rhs;
                     if (!hitPtr) { return false; }
-                    if ((*hitPtr) !is _bins[ix].value) { return false; }
+                    if ((*hitPtr) !is _bins[index].value) { return false; }
                 }
                 else
                 {
-                    if (!rhs.contains(_bins[ix])) { return false; }
+                    if (!rhs.contains(_bins[index])) { return false; }
                 }
             }
         }
@@ -1700,9 +1700,10 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
         assert(x is x);
 
         auto y = x.dup;
-        // TODO assert(x == y);
         assert(x !is y);
         assert(x.length == y.length);
+        // assert(y == x);
+        // assert(x == y);
 
         foreach (ref key; x.byKey)
         {

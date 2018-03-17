@@ -1690,9 +1690,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
             }
         }
 
-        // TODO:
-        // auto y = x.dup;
-        // assert(x.length == y.length);
+        x = x.dup;              // replace `x` with a copy of itself
 
         foreach (ref key; x.byKey)
         {
@@ -1724,6 +1722,10 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
             assert(!x.contains(key));
             assert(key !in x);
         }
+
+        auto y = x.dup;
+        assert(x.length == y.length);
+        x.clear();
     }
 }
 

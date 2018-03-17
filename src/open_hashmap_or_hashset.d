@@ -1700,6 +1700,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
         assert(x is x);
 
         auto y = x.dup;
+        // TODO assert(x == y);
         assert(x !is y);
         assert(x.length == y.length);
 

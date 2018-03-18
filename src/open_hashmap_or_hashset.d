@@ -1441,7 +1441,7 @@ private:
 }
 
 /** Duplicate `src` into uninitialized `dst` ignoring prior destruction of `dst`.
- * TODO move generic
+ * TODO move to more generic place
  */
 private static void duplicateEmplace(T)(const scope ref T src,
                                         scope ref T dst) @system

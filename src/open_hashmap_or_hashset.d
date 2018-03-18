@@ -364,15 +364,28 @@ struct OpenHashMapOrSet(K, V = void,
         {
             if (isOccupiedAtIndex(index))
             {
+                dln("index:", index, " key:", keyOf(bin));
                 static if (hasValue)
                 {
                     auto valuePtr = bin.key in rhs;
-                    if (!valuePtr) { return false; }
-                    if ((*valuePtr) !is bin.value) { return false; }
+                    if (!valuePtr)
+                    {
+                        dln("key not found at index:", index, " for key:", keyOf(bin));
+                        return false;
+                    }
+                    if ((*valuePtr) != bin.value) // TODO make != a parameter that can also be typically !is. TODO ask forum about this
+                    {
+                        dln("value diff at index:", index, " for key:", keyOf(bin));
+                        return false;
+                    }
                 }
                 else
                 {
-                    if (!rhs.contains(bin)) { return false; }
+                    if (!rhs.contains(bin))
+                    {
+                        dln("element not found at index:", index, " for element:", bin);
+                        return false;
+                    }
                 }
             }
         }
@@ -1724,8 +1737,8 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
         auto y = x.dup;
         assert(x !is y);
         assert(x.length == y.length);
-        // TODO assert(y == x);
-        // TODO assert(x == y);
+        assert(y == x);
+        assert(x == y);
 
         foreach (ref key; x.byKey)
         {

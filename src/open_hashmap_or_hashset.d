@@ -1186,7 +1186,6 @@ struct OpenHashMapOrSet(K, V = void,
     {
         debug assert(!isBorrowed, borrowedErrorMessage);
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
-        // dln("hitIndex:", hitIndex, " _bins.length:", _bins.length);
         if (hitIndex != _bins.length &&
             isOccupiedAtIndex(hitIndex))
         {

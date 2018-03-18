@@ -690,7 +690,7 @@ struct OpenHashMapOrSet(K, V = void,
                 while (true)
                 {
                     alias pred = (const scope index,
-                                  const scope auto ref element) => (keyOf(element).isNull || // free slot or TODO check holes
+                                  const scope auto ref element) => (!isOccupiedAtIndex(index) || // free slot
                                                                     !bt(dones, index)); // or a not yet replaced element
                     immutable hitIndex = _bins[].triangularProbeFromIndex!(pred)(keyToIndex(keyOf(currentElement)));
                     assert(hitIndex != _bins.length, "no free slot");

@@ -632,7 +632,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             if (rehashInPlace)
             {
-                growInPlaceWithNewCapacity(newCapacity);
+                growInPlaceWithCapacity(newCapacity);
             }
             else
             {
@@ -729,14 +729,14 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    /** Grow (including rehash) store in-place to make room for `newCapacity` number of
-     * elements.
+    /** Grow (including rehash) store in-place to make room for
+     * `minimumCapacity` number of elements.
      */
-    private void growInPlaceWithNewCapacity()(size_t newCapacity) @trusted // template-lazy
+    private void growInPlaceWithCapacity()(size_t minimumCapacity) @trusted // template-lazy
     {
-        assert(newCapacity > _bins.length);
+        assert(minimumCapacity > _bins.length);
 
-        immutable powerOf2newCapacity = nextPow2(newCapacity);
+        immutable powerOf2newCapacity = nextPow2(minimumCapacity);
         immutable newByteCount = T.sizeof*powerOf2newCapacity;
 
         const oldBinsPtr = _bins.ptr;

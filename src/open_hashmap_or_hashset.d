@@ -1759,14 +1759,15 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
             assert(key !in x);
         }
 
-        // dln(y.length, " ", y._bins.length);
+        auto z = y.dup;
+        assert(y == z);
 
-        // remove all elements in `y` using `removeAllMatching`
+        /* remove all elements in `y` using `removeAllMatching` and all elements
+         * in `z` using `removeAllMatching` */
         foreach (immutable i; 0 .. n)
         {
-            // dln("i:", i);
-
             assert(y.length == n - i);
+            assert(z.length == n - i);
 
             auto key = K(i);
             auto value = V.withElements([i].s);
@@ -1776,13 +1777,22 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
                 auto valuePtr = key in y;
                 assert(valuePtr && *valuePtr == value);
             }
+            assert(z.contains(key));
+            {
+                auto valuePtr = key in z;
+                assert(valuePtr && *valuePtr == value);
+            }
 
-            // TODO call remove and removeAllMatching in parallel on x and y and
-            // check that their _bins and holes array empty the same
             y.remove(key);
-            // TODO assert(y.removeAllMatching!((const scope ref element) => element.key == key) == 1);
+            z.remove(key);
+            // TODO assert(z.removeAllMatching!((const scope ref element) => element.key == key) == 1);
+            assert(y == z);
+
             assert(!y.contains(key));
+            assert(!z.contains(key));
+
             assert(key !in y);
+            assert(key !in z);
         }
     }
 }

@@ -783,6 +783,27 @@ struct OpenHashMapOrSet(K, V = void,
         version(showEntries) dln(__FUNCTION__, " newCapacity:", newCapacity);
         version(unittest) assert(newCapacity > _bins.length);
 
+        auto next = typeof(this).withCapacity(newCapacity);
+
+        foreach (immutable index, ref bin; _bins)
+        {
+            if (isOccupiedAtIndex(index))
+            {
+                next.insertMoveWithoutGrowth(bin);
+                keyOf(bin).nullify(); // value already zeroed
+            }
+        }
+
+        move(next, this);
+    }
+
+    /** Alternative version of `growStandardWithNewCapacity`.
+     */
+    private void growStandardWithNewCapacity_alternative()(size_t newCapacity) @trusted // template-lazy
+    {
+        version(showEntries) dln(__FUNCTION__, " newCapacity:", newCapacity);
+        version(unittest) assert(newCapacity > _bins.length);
+
         T[] oldBins = _bins;
         _bins = makeDefaultInitializedBins(newCapacity); // replace with new bins
 

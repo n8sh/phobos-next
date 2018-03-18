@@ -464,13 +464,6 @@ struct OpenHashMapOrSet(K, V = void,
             else
             {
                 keyOf(_bins[index]) = holeKeyConstant;
-                static if (hasValue &&
-                           hasElaborateDestructor!V)
-                {
-                    valueOf(_bins[index]) = V.init; // destroy should be enough
-                    // .destroy(valueOf(_bins[index]));
-                    // emplace(&valueOf(_bins[index])); // TODO shouldn't be needed
-                }
             }
         }
 

@@ -364,28 +364,16 @@ struct OpenHashMapOrSet(K, V = void,
         {
             if (isOccupiedAtIndex(index))
             {
-                dln("index:", index, " key:", keyOf(bin));
                 static if (hasValue)
                 {
                     auto valuePtr = bin.key in rhs;
-                    if (!valuePtr)
-                    {
-                        dln("key not found at index:", index, " for key:", keyOf(bin));
-                        return false;
-                    }
-                    if ((*valuePtr) != bin.value) // TODO make != a parameter that can also be typically !is. TODO ask forum about this
-                    {
-                        dln("value diff at index:", index, " for key:", keyOf(bin));
-                        return false;
-                    }
+                    if (!valuePtr) { return false; }
+                    // TODO make != a parameter that can also be typically !is. TODO ask forum about this
+                    if ((*valuePtr) != bin.value) { return false; }
                 }
                 else
                 {
-                    if (!rhs.contains(bin))
-                    {
-                        dln("element not found at index:", index, " for element:", bin);
-                        return false;
-                    }
+                    if (!rhs.contains(bin)) { return false; }
                 }
             }
         }

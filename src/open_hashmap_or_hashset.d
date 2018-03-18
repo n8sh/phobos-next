@@ -1783,10 +1783,13 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
                 assert(valuePtr && *valuePtr == value);
             }
 
+            dln("key:", key);
             y.remove(key);
             z.remove(key);
             // TODO assert(z.removeAllMatching!((const scope ref element) => element.key == key) == 1);
             assert(y == z);
+            // TODO assert(y.byKey == z.byKey);
+            // TODO assert(y.byKeyValue == z.byKeyValue);
 
             assert(!y.contains(key));
             assert(!z.contains(key));

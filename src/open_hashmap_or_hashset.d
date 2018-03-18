@@ -2597,7 +2597,6 @@ version(unittest)
             testEmptyAll!(K, V)(x2, n, keys.data); // should be not affected by emptying of x1
         }
     }
-
 }
 
 version(unittest)

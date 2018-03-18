@@ -225,7 +225,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         immutable byteCount = T.sizeof*capacity;
 
-        static if (hasAddressKey ||
+        static if (hasAddressKey || // addresses are always default-initialized to zero (null)
                    (isInstanceOf!(Nullable, K) &&
                     is(Unqual!K == Nullable!(WrappedKey,
                                              WrappedKey.init)))) // init value is always zero bits only
@@ -782,18 +782,18 @@ struct OpenHashMapOrSet(K, V = void,
     {
         version(showEntries) dln(__FUNCTION__, " newCapacity:", newCapacity);
         version(unittest) assert(newCapacity > _bins.length);
-
         auto next = typeof(this).withCapacity(newCapacity);
-
         foreach (immutable index, ref bin; _bins)
         {
             if (isOccupiedAtIndex(index))
             {
-                next.insertMoveWithoutGrowth(bin);
-                keyOf(bin).nullify(); // value already zeroed
+                next.insertMoveWithoutGrowth(bin); // value is zeroed but
+                static if (!hasAddressKey)
+                {
+                    keyOf(bin).nullify(); // key must zeroed
+                }
             }
         }
-
         move(next, this);
     }
 

@@ -604,7 +604,7 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /// Is `true` iff in-place rehashing during growth should be performed.
-    enum bool rehashInPlaceFlag = false;
+    enum bool growInPlaceFlag = false;
 
     /// Numerator for grow scale.
     enum growScaleP = 3;
@@ -630,7 +630,7 @@ struct OpenHashMapOrSet(K, V = void,
         version(unittest) assert(newCapacity > _bins.length);
         static if (__traits(hasMember, Allocator, "reallocate"))
         {
-            if (rehashInPlaceFlag)
+            if (growInPlaceFlag)
             {
                 growInPlaceWithCapacity(newCapacity);
             }

@@ -1259,3 +1259,27 @@ unittest
     static assert(!hasPropertyFunction!(S, "f"));
     static assert(!hasPropertyFunction!(S, "sf"));
 }
+
+/** Is `true` if `T.name` is a manifest constant, built-in type field, or
+ * immutable static.
+ */
+template isManifestAssignable(T, string name)
+{
+    enum isManifestAssignable = is(typeof({ enum x = mixin("T." ~ name); }));
+}
+
+///
+unittest
+{
+    struct A
+    {
+        int m;
+        static immutable int sim = 1;
+        enum e = 1;
+    }
+    static assert(!isManifestAssignable!(A*, "na"));
+    static assert(!isManifestAssignable!(A, "na"));
+    static assert(!isManifestAssignable!(A, "m"));
+    static assert(isManifestAssignable!(A, "e"));
+    static assert(isManifestAssignable!(A, "sim"));
+}

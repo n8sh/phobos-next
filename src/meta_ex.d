@@ -172,11 +172,11 @@ auto forwardMap(alias fun, Ts...)(Ts xs)
     assert(y == X(43, 43f, 43));
 }
 
-/**  Flattens a list of ranges and non ranges.
+/** Flattens a list of ranges and non ranges.
  *
  * If a type is a range then its `ElementType` is used
-*/
-template FlattenRanges(Values...)
+ */
+template FlattenedRanges(Values...)
 {
     import std.meta : AliasSeq;
     static if (Values.length)
@@ -187,16 +187,16 @@ template FlattenRanges(Values...)
         static if (isInputRange!Head)
         {
             import std.range : ElementType;
-            alias FlattenRanges = FlattenRanges!(ElementType!Head, FlattenRanges!Tail);
+            alias FlattenedRanges = FlattenedRanges!(ElementType!Head, FlattenedRanges!Tail);
         }
         else
         {
-            alias FlattenRanges = AliasSeq!(Head, FlattenRanges!Tail);
+            alias FlattenedRanges = AliasSeq!(Head, FlattenedRanges!Tail);
         }
     }
     else
     {
-        alias FlattenRanges = AliasSeq!();
+        alias FlattenedRanges = AliasSeq!();
     }
 }
 
@@ -209,12 +209,12 @@ template FlattenRanges(Values...)
     alias R1 = typeof([1, 2, 3].filter!"true");
     alias R2 = typeof([1.0, 2.0, 3.0]);
 
-    static assert(is(FlattenRanges!(int, double) == AliasSeq!(int, double)));
-    static assert(is(FlattenRanges!(int, R1, R2) == AliasSeq!(int, int, double)));
+    static assert(is(FlattenedRanges!(int, double) == AliasSeq!(int, double)));
+    static assert(is(FlattenedRanges!(int, R1, R2) == AliasSeq!(int, int, double)));
 
     import std.traits : CommonType;
 
-    static assert(is(CommonType!(FlattenRanges!(int, R1, R2, float)) == double));
+    static assert(is(CommonType!(FlattenedRanges!(int, R1, R2, float)) == double));
 }
 
 /** Returns the types of all values given.

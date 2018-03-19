@@ -1283,3 +1283,107 @@ unittest
     static assert(isManifestAssignable!(A, "e"));
     static assert(isManifestAssignable!(A, "sim"));
 }
+
+/** Tells you if a name is a read and/or write property
+ *
+ * Returns: `Tuple!(bool, "isRead", bool, "isWrite")`
+ */
+auto propertySemantics(T, string name)()
+    if (hasPropertyFunction!(T, name))
+{
+    import std.typecons : tuple;
+
+    enum overloads = __traits(getOverloads, T, name).length;
+    enum canInstantiateAsField = is(typeof(mixin("T.init." ~ name)));
+    static if (overloads > 1 || canInstantiateAsField)
+    {
+        enum canRead = true;
+    }
+    else
+    {
+        enum canRead = false;
+    }
+    static if (overloads > 1 || !canInstantiateAsField)
+    {
+        enum canWrite = true;
+    }
+    else
+    {
+        enum canWrite = false;
+    }
+    return tuple!("canRead", "canWrite")(canRead, canWrite);
+}
+
+///
+unittest
+{
+    import std.typecons;
+
+    struct S
+    {
+        int m;
+        @property int rp()
+        {
+            return m;
+        }
+
+        @property void wp(int)
+        {
+        }
+
+        @property int rwp()
+        {
+            return m;
+        }
+
+        @property void rwp(int)
+        {
+        }
+    }
+
+    static assert(!__traits(compiles, propertySemantics!(S, "na")));
+    static assert(!__traits(compiles, propertySemantics!(S, "m")));
+    static assert(propertySemantics!(S, "rp") == tuple!("canRead", "canWrite")(true, false));
+    static assert(propertySemantics!(S, "wp") == tuple!("canRead", "canWrite")(false, true));
+    static assert(propertySemantics!(S, "rwp") == tuple!("canRead", "canWrite")(true, true));
+}
+
+/**
+    Tells you if a list of types, which are composed of ranges and non ranges,
+    share a common type after flattening the ranges (i.e. `ElementType`)
+
+    This basically answers the question: $(I Can I combine these ranges and values
+    into a single range of a common type?)
+
+    See_also:
+        `meta_ex.FlattenedRanges`
+*/
+template areFlatteninglyCombinable(Values...)
+{
+    import std.traits : CommonType;
+    import meta_ex : FlattenedRanges;
+    enum areFlatteninglyCombinable = !is(CommonType!(FlattenedRanges!Values) == void);
+}
+
+///
+unittest
+{
+    static assert(areFlatteninglyCombinable!(int, int, int));
+    static assert(areFlatteninglyCombinable!(float[], int, char[]));
+    static assert(areFlatteninglyCombinable!(string, int, int));
+    // Works with string because:
+    import std.traits : CommonType;
+    import std.range : ElementType;
+
+    static assert(is(CommonType!(ElementType!string, int) == uint));
+
+    struct A
+    {
+    }
+
+    static assert(!areFlatteninglyCombinable!(A, int, int));
+    static assert(!areFlatteninglyCombinable!(A[], int[]));
+    static assert(areFlatteninglyCombinable!(A[], A[]));
+    static assert(areFlatteninglyCombinable!(A[], A[], A));
+    static assert(!areFlatteninglyCombinable!(int[], A));
+}

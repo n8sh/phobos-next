@@ -1220,3 +1220,38 @@ version(unittest)
     import std.typecons : Tuple;
     import array_help : s;
 }
+
+/** Is `true` iff `T` has the property member named `name`. */
+template hasProperty(T, string name)
+{
+    static if (__traits(hasMember, T, name))
+    {
+        enum hasProperty = (!is(typeof(__traits(getMember, T, name)) == function) &&
+                            __traits(getOverloads, T, name).length);
+    }
+    else
+    {
+        enum hasProperty = false;
+    }
+}
+
+///
+unittest
+{
+    struct S
+    {
+        int m;
+        static int sm;
+        void f() {}
+        static void sf() {}
+        @property int rp() { return m; }
+        @property void wp(int) {}
+    }
+    static assert(!hasProperty!(S, "na"));
+    static assert(!hasProperty!(S, "m"));
+    static assert(!hasProperty!(S, "sm"));
+    static assert(!hasProperty!(S, "f"));
+    static assert(!hasProperty!(S, "sf"));
+    static assert(hasProperty!(S, "rp"));
+    static assert(hasProperty!(S, "wp"));
+}

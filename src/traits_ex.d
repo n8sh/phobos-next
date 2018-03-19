@@ -14,7 +14,6 @@ module traits_ex;
 import std.traits: isArray, ParameterTypeTuple, isStaticArray, isDynamicArray, isSomeChar, isSomeString, isExpressions, isIntegral, isSigned, isUnsigned, isAssignable, isIterable;
 import std.meta : allSatisfy;
 import std.range: ElementType, isForwardRange, isRandomAccessRange, isInputRange, isBidirectionalRange, isOutputRange;
-import std.typecons : Tuple;
 
 public import std.traits : isCopyable;
 
@@ -96,7 +95,6 @@ enum isHomogeneousTupleOf(T, E) = (isHomogeneousType!(T) &&
 
 @safe pure nothrow @nogc unittest
 {
-    import std.typecons : Tuple;
     static assert(isHomogeneousTupleOf!(Tuple!(int, int, int), int));
     static assert(isHomogeneousTupleOf!(Tuple!(float, float, float), float));
     static assert(!isHomogeneousTupleOf!(Tuple!(float, float, float), int));
@@ -319,7 +317,6 @@ template allSameTypesInTuple(T)
 
 @safe pure nothrow unittest
 {
-    import std.typecons : Tuple;
     alias HOTUP = Tuple!(int, int, int);
     static assert(allSameTypesInTuple!HOTUP);
 
@@ -788,6 +785,8 @@ import std.traits : CommonType;
 
 /// Is `true` iff `Types` all share a common type.
 enum bool haveCommonType(Types...) = !is(CommonType!Types == void);
+
+///
 @safe pure nothrow @nogc unittest
 {
     static assert(haveCommonType!(bool, int, long));
@@ -801,6 +800,7 @@ enum bool isPure(alias fun) = hasFunctionAttributes!(fun, `pure`);
 enum bool isPurelyCallableWith(alias fun, T...) = (isPure!fun &&
                                                    is(T == ParameterTypeTuple!fun));
 
+///
 @safe pure nothrow @nogc unittest
 {
     static int foo(int x) @safe pure nothrow { return x; }
@@ -813,6 +813,7 @@ enum bool isPurelyCallableWith(alias fun, T...) = (isPure!fun &&
 */
 enum bool isNogc(alias fun) = hasFunctionAttributes!(fun, `@nogc`);
 
+///
 @safe pure nothrow @nogc unittest
 {
     static int foo(int x) @nogc pure nothrow;
@@ -953,6 +954,7 @@ template sizesOf(T...)          // TODO Add to Phobos
     enum sizesOf = staticMap!(sizeOf, T);
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     enum sizes = sizesOf!(bool, short, int, long);
@@ -975,6 +977,7 @@ template stringsOf(T...)        // TODO Add to Phobos
     enum stringsOf = staticMap!(stringOf, T);
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     enum strings = stringsOf!(bool, short, int, long);
@@ -1007,6 +1010,7 @@ template dimensionality (T)
     alias dimensionality = count_dim!();
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     static assert(dimensionality!(int[]) == 1);
@@ -1022,6 +1026,7 @@ template rank(T)
         enum rank = 0; // base case, stop there
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     import std.range : cycle;
@@ -1092,6 +1097,7 @@ template EntropyBitsOf(T)
     }
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     static assert(EntropyBitsOf!int == 8*int.sizeof);
@@ -1107,6 +1113,7 @@ enum isLvalue(alias sym) = is(typeof((ref _){}(sym)));
  */
 enum isRvalue(alias sym) = !isLvalue!sym;
 
+///
 @safe pure nothrow @nogc unittest
 {
     int i;
@@ -1210,5 +1217,6 @@ template anySatisfyIterative(alias F, T...)
 
 version(unittest)
 {
+    import std.typecons : Tuple;
     import array_help : s;
 }

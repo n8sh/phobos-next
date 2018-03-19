@@ -545,20 +545,52 @@ import std.traits: isInstanceOf, Unqual;
 import std.range: SortedRange;
 import std.meta: allSatisfy, staticMap;
 
+/// Is the `CommonType` of the `ElementType`s of the ranges `Rs`.
 template CommonElementType(Rs...)
 {
     import std.traits: CommonType;
     import std.range: ElementType;
     alias CommonElementType = CommonType!(staticMap!(ElementType, Rs));
 }
+
+///
+@safe pure nothrow @nogc unittest
+{
+    static assert(is(CommonElementType!(int[], double[]) == double));
+}
+
 enum bool haveCommonElementType(Types...) = !is(CommonElementType!Types == void);
-unittest
+
+/// Is `true` iff the ranges `Rs` have a common element type.
+@safe pure nothrow @nogc unittest
 {
     static assert(haveCommonElementType!(bool[], int[]));
     static assert(!haveCommonElementType!(bool[], int[], string[]));
 }
 
 alias isSortedRange(R) = isInstanceOf!(SortedRange, R); // TODO Or use: __traits(isSame, TemplateOf!R, SortedRange)
+
+/** True if R is a `SortedRange`
+ *
+ * SeeAlso:
+ * `std.range.SortedRange`
+ */
+template isSortedRange_alt(R)
+{
+    import std.range : SortedRange;
+    enum isSortedRange = is(R : SortedRange!U, U...);
+}
+
+///
+unittest
+{
+    import std.algorithm : sort;
+    import std.range : assumeSorted;
+    static assert(isSortedRange!(typeof([0, 1, 2])) == false);
+    static assert(isSortedRange!(typeof([0, 1, 2].sort)) == true);
+    static assert(isSortedRange!(typeof([0, 1, 2].assumeSorted)) == true);
+    static assert(isSortedRange!int == false);
+}
 
 /// See also: http://forum.dlang.org/post/gkdqakdogqevwzntpgtu@forum.dlang.org
 template genTypeList(T, size_t n)
@@ -777,4 +809,37 @@ auto staticLengthRange(size_t n, R)(R range)
     auto arr = [1, 2, 3, 4].s;
     auto r2 = arr[].map!(a => a * 2).staticLengthRange!4;
     static assert (r2.length == 4);
+}
+
+/** Given a `SortedRange` R, `sortingPredicate!R(a, b)` will call in to the
+ * predicate that was used to create the `SortedRange`.
+ *
+ * Params:
+ *   Range = the range to extract the predicate from
+ *   fallbackPred = the sorting predicate to fallback to if `Range` is not a `SortedRange`
+*/
+template sortingPredicate(Range, alias fallbackPred = "a < b")
+    if (isInputRange!Range)
+{
+    import std.range : SortedRange;
+    import std.functional : binaryFun;
+    static if (is(Range : SortedRange!P, P...))
+    {
+        alias sortingPredicate = binaryFun!(P[1]);
+    }
+    else
+    {
+        alias sortingPredicate = binaryFun!fallbackPred;
+    }
+}
+
+///
+unittest
+{
+    import std.algorithm : sort;
+    assert(sortingPredicate!(typeof([1].sort!"a < b"))(1, 2) == true);
+    assert(sortingPredicate!(typeof([1].sort!"a > b"))(1, 2) == false);
+    assert(sortingPredicate!(typeof([1].sort!((a, b) => a < b)))(1, 2) == true);
+    assert(sortingPredicate!(typeof([1].sort!((a, b) => a > b)))(1, 2) == false);
+    assert(sortingPredicate!(int[])(1, 2) == true);
 }

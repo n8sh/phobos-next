@@ -172,9 +172,9 @@ auto forwardMap(alias fun, Ts...)(Ts xs)
     assert(y == X(43, 43f, 43));
 }
 
-/** Flattens a list of ranges and non ranges.
+/** Flattens a list `Values` of ranges and non ranges.
  *
- * If a type is a range then its `ElementType` is used
+ * If a type is a range then its `ElementType` is used.
  */
 template FlattenedRanges(Values...)
 {

@@ -24,11 +24,9 @@ bool isGCPointer(T)(const T* ptr)
     import core.memory : GC;
     return cast(bool)GC.addrOf(ptr);
 }
-alias inGC = isGCPointer;
-alias isGCed = isGCPointer;
 
 ///
-nothrow unittest
+@system nothrow unittest
 {
     int s;
     int* sp = &s;
@@ -83,6 +81,7 @@ alias allSame = allSameIterative; // default to iterative variant for now
 alias isHomogeneousType = allSame;
 enum isHomogeneousTuple(T) = isHomogeneousType!(T.Types);
 
+///
 @safe pure nothrow @nogc unittest
 {
     static assert(isHomogeneousTuple!(Tuple!(int, int, int)));
@@ -93,6 +92,7 @@ enum isHomogeneousTuple(T) = isHomogeneousType!(T.Types);
 enum isHomogeneousTupleOf(T, E) = (isHomogeneousType!(T) &&
                                    is(T.Types[0] == E));
 
+///
 @safe pure nothrow @nogc unittest
 {
     static assert(isHomogeneousTupleOf!(Tuple!(int, int, int), int));

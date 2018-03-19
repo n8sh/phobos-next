@@ -1348,15 +1348,13 @@ unittest
     static assert(propertySemantics!(S, "rwp") == tuple!("canRead", "canWrite")(true, true));
 }
 
-/**
-    Tells you if a list of types, which are composed of ranges and non ranges,
-    share a common type after flattening the ranges (i.e. `ElementType`)
-
-    This basically answers the question: $(I Can I combine these ranges and values
-    into a single range of a common type?)
-
-    See_also:
-        `meta_ex.FlattenedRanges`
+/** Is `true` iff a list of types, which are composed of ranges and non ranges,
+ * share a common type after flattening the ranges (i.e. `ElementType`)
+ *
+ * This basically answers the question: $(I Can I combine these ranges and
+ * values into a single range of a common type?).
+ *
+ * See_also: `meta_ex.FlattenedRanges`
 */
 template areFlatteninglyCombinable(Values...)
 {

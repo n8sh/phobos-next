@@ -1221,17 +1221,17 @@ version(unittest)
     import array_help : s;
 }
 
-/** Is `true` iff `T` has a property member function named `name`. */
-template hasProperty(T, string name)
+/** Is `true` iff `T` has a property member non-function named `name`. */
+template hasPropertyFunction(T, string name)
 {
     static if (__traits(hasMember, T, name))
     {
-        enum hasProperty = (!is(typeof(__traits(getMember, T, name)) == function) &&
-                            __traits(getOverloads, T, name).length);
+        enum hasPropertyFunction = (!is(typeof(__traits(getMember, T, name)) == function) &&
+                                    __traits(getOverloads, T, name).length);
     }
     else
     {
-        enum hasProperty = false;
+        enum hasPropertyFunction = false;
     }
 }
 
@@ -1242,16 +1242,20 @@ unittest
     {
         int m;
         static int sm;
+
         void f() {}
         static void sf() {}
+
         @property int rp() { return m; }
         @property void wp(int) {}
     }
-    static assert(!hasProperty!(S, "na"));
-    static assert(!hasProperty!(S, "m"));
-    static assert(!hasProperty!(S, "sm"));
-    static assert(!hasProperty!(S, "f"));
-    static assert(!hasProperty!(S, "sf"));
-    static assert(hasProperty!(S, "rp"));
-    static assert(hasProperty!(S, "wp"));
+
+    static assert(hasPropertyFunction!(S, "rp"));
+    static assert(hasPropertyFunction!(S, "wp"));
+
+    static assert(!hasPropertyFunction!(S, "na"));
+    static assert(!hasPropertyFunction!(S, "m"));
+    static assert(!hasPropertyFunction!(S, "sm"));
+    static assert(!hasPropertyFunction!(S, "f"));
+    static assert(!hasPropertyFunction!(S, "sf"));
 }

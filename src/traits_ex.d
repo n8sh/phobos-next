@@ -1221,7 +1221,7 @@ version(unittest)
     import array_help : s;
 }
 
-/** Is `true` iff `T` has the property member named `name`. */
+/** Is `true` iff `T` has a property member function named `name`. */
 template hasProperty(T, string name)
 {
     static if (__traits(hasMember, T, name))

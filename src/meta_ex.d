@@ -272,3 +272,8 @@ template typeOf(T)
     static assert(typeOf!int(3));
     static assert(allSatisfy!(typeOf!int, 3));
 }
+
+template from(string moduleName)
+{
+    mixin("import from = " ~ moduleName ~ ";");
+}

@@ -669,8 +669,8 @@ struct OpenHashMapOrSet(K, V = void,
         size_t* dones = makeZeroedBitArray!Allocator(_bins.length);
         foreach (immutable doneIndex; 0 .. _bins.length)
         {
-            if (!bt(dones, doneIndex) && // if _bins[doneIndex] not yet ready
-                !keyOf(_bins[doneIndex]).isNull) // and non-null. TODO what to do here?
+            if (bt(dones, doneIndex)) { continue; } // if _bins[doneIndex] continue
+            if (isOccupiedAtIndex(doneIndex))
             {
                 T currentElement = void;
 
@@ -711,8 +711,8 @@ struct OpenHashMapOrSet(K, V = void,
                         break; // inner iteration is finished
                     }
                 }
-                bts(dones, doneIndex); // _bins[doneIndex] is at it's correct position
             }
+            bts(dones, doneIndex); // _bins[doneIndex] is at it's correct position
         }
 
         Allocator.instance.deallocate(cast(void[])(dones[0 .. wordCountOfBitCount(_bins.length)]));

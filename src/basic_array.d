@@ -1309,7 +1309,7 @@ unittest
 
         this(int x) @trusted
         {
-            _ptr = cast(int*)malloc(1);
+            _ptr = cast(int*)malloc(int.sizeof);
             mallocCount += 1;
             *_ptr = x;
         }

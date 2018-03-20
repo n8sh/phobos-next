@@ -24,9 +24,6 @@ import pure_mallocator : PureMallocator;
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  * See also: https://en.wikipedia.org/wiki/Lazy_deletion
  *
- * TODO search for `_bins` and double-check `destroy` and `init` of value when key
- * is null
- *
  * TODO if hash-function is cast(size_t)(classInstance) always use prime length
  * and shift pointer before hash based on alignof (might not be needed when
  * module prime) to maximize memory locality when adding successively allocated
@@ -653,9 +650,7 @@ struct OpenHashMapOrSet(K, V = void,
         keyOf(element).nullify(); // moveEmplace doesn't init source of type Nullable
         static if (hasElaborateDestructor!V) // if we should clear all
         {
-            valueOf(element) = V.init;
-            // TODO activate and use emplace elsewhere
-            //    .destroy(valueOf(element));
+            .destroy(valueOf(element));
         }
     }
 
@@ -672,9 +667,12 @@ struct OpenHashMapOrSet(K, V = void,
     private void rehashInPlace()() @trusted // template-lazy
     {
         version(showEntries) dln(__FUNCTION__);
+
         import core.bitop : bts, bt;
         import array_help : makeZeroedBitArray, wordCountOfBitCount;
+
         size_t* dones = makeZeroedBitArray!Allocator(_bins.length);
+
         foreach (immutable doneIndex; 0 .. _bins.length)
         {
             if (bt(dones, doneIndex)) { continue; } // if _bins[doneIndex] continue

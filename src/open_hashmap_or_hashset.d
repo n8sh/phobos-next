@@ -1615,6 +1615,7 @@ size_t removeAllMatching(alias pred, Table)(auto ref Table x) @trusted
     size_t removalCount = 0;
     foreach (immutable index, ref bin; x._bins)
     {
+        // TODO:
         // move to Table.removeRef(bin) // uses: `offset = &bin - _bins.ptr`
         // or   to Table.removeAt(index)
         if (x.isOccupiedAtIndex(index) &&

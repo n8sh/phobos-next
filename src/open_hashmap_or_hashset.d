@@ -25,8 +25,6 @@ import pure_mallocator : PureMallocator;
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  * See also: https://en.wikipedia.org/wiki/Lazy_deletion
  *
- * TODO replace !isNull with isOccupiedAtIndex
- *
  * TODO search for `_bins` and double-check `destroy` and `init` of value when key
  * is null
  *

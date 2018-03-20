@@ -4,7 +4,6 @@ module open_hashmap_or_hashset;
 // version = show;
 
 import std.functional : unaryFun;
-import std.traits : Unqual;
 import container_traits : isNullableType;
 import pure_mallocator : PureMallocator;
 
@@ -59,7 +58,7 @@ struct OpenHashMapOrSet(K, V = void,
     import std.algorithm.mutation : move, moveEmplace;
     import std.conv : emplace;
     import std.math : nextPow2;
-    import std.traits : hasElaborateDestructor, isCopyable, isMutable, hasIndirections, isPointer;
+    import std.traits : hasElaborateDestructor, isCopyable, isMutable, hasIndirections, isPointer, Unqual;
     import std.typecons : Nullable;
 
     import container_traits : defaultNullKeyConstantOf, mustAddGCRange, isNull, nullify;
@@ -1483,6 +1482,8 @@ private static void duplicateEmplace(T)(const scope ref T src,
  */
 static private struct LvalueElementRef(Table)
 {
+    import std.traits : Unqual;
+
     private Table* _table;
     private size_t _binIndex;   // index to bin inside `table`
     private size_t _iterationCounter; // counter over number of elements popped. TODO needed?

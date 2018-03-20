@@ -324,7 +324,7 @@ struct BasicArray(T,
     {
         private void destroyElements() @trusted
         {
-            foreach (const i; 0 .. _store.length)
+            foreach (immutable i; 0 .. _store.length)
             {
                 .destroy(_mptr[i]);
             }
@@ -418,7 +418,7 @@ struct BasicArray(T,
             else
             {
                 ptr = cast(typeof(return))malloc(numBytes);
-                foreach (const i; 0 .. initialCapacity)
+                foreach (immutable i; 0 .. initialCapacity)
                 {
                     emplace(&ptr[i], elementValue);
                 }
@@ -479,7 +479,7 @@ struct BasicArray(T,
         void toString()(scope void delegate(const(char)[]) sink) const // template-lazy
         {
             sink("[");
-            foreach (const ix, ref value; slice())
+            foreach (immutable ix, ref value; slice())
             {
                 import std.format : formattedWrite;
                 sink.formattedWrite("%s", value);
@@ -498,14 +498,18 @@ struct BasicArray(T,
     @property size_t length() const { return _store.length; } // can't be template-lazy
     alias opDollar = length;    /// ditto
 
-    /// Set length to `newLength`.
+    /** Set length to `newLength`.
+     *
+     * If `newLength` < `length` elements are truncate.
+     * If `newLength` > `length` default-initialized elements are appended.
+     */
     @property void length(size_t newLength) @trusted // can't template-lazy
     {
-        if (newLength < length)
+        if (newLength < length) // if truncatation
         {
             static if (hasElaborateDestructor!T)
             {
-                foreach (const i; newLength .. _store.length)
+                foreach (immutable i; newLength .. _store.length)
                 {
                     .destroy(_mptr[i]);
                 }
@@ -516,8 +520,8 @@ struct BasicArray(T,
             reserve(newLength);
             static if (hasElaborateDestructor!T)
             {
-                // TODO remove when compiles does it for us
-                foreach (const i; _store.length .. newLength)
+                // TODO remove when compiler does it for us
+                foreach (immutable i; _store.length .. newLength)
                 {
                     // TODO remove when compiler does it for us:
                     static if (isCopyable!T)
@@ -1249,7 +1253,7 @@ unittest
 
     auto a = A([1, 2, 3].s);
 
-    foreach (const i, const e; a)
+    foreach (immutable i, const e; a)
     {
         assert(i + 1 == e);
     }

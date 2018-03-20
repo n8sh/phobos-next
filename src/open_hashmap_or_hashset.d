@@ -38,6 +38,8 @@ import pure_mallocator : PureMallocator;
  *
  * TODO add static assert(!__traits(compiles, )) for DIP-1000 scope checking of escaping l-value ranges
  *
+ * TODO fix bug in `growInPlaceWithCapacity` and benchmarka
+ *
  * TODO add extractElement that moves it out similar to
  * http://en.cppreference.com/w/cpp/container/unordered_set/extract
  *
@@ -203,6 +205,7 @@ struct OpenHashMapOrSet(K, V = void,
     pragma(inline)              // LDC can, DMD cannot inline
     static typeof(this) withCapacity()(size_t capacity) // template-lazy
     {
+        version(showEntries) dln(__FUNCTION__, " capacity:", capacity);
         return typeof(return)(makeDefaultInitializedBins(capacity), 0);
     }
 
@@ -285,6 +288,7 @@ struct OpenHashMapOrSet(K, V = void,
         if (isIterable!R &&
             isAssignable!(T, StdElementType!R))
     {
+        version(showEntries) dln(__FUNCTION__, " length:", elements.length);
         import std.range : hasLength;
         static if (hasLength!R)
         {
@@ -317,15 +321,15 @@ struct OpenHashMapOrSet(K, V = void,
     /// Returns: a shallow duplicate of `this`.
     typeof(this) dup()() const @trusted // template-lazy
     {
-        dln(__FUNCTION__, " this:", &this, " with length ", length);
+        // dln(__FUNCTION__, " this:", &this, " with length ", length);
         version(showEntries) dln(__FUNCTION__, " length:", length);
         T[] binsCopy = allocateUninitializedBins(_bins.length); // unsafe
-        dln("1");
+        // dln("1");
         foreach (immutable index, ref bin; _bins)
         {
             if (isOccupiedAtIndex(index)) // normal case
             {
-                dln("occupied at index ", index);
+                // dln("occupied at index ", index);
                 static if (hasValue) // map
                 {
                     duplicateEmplace(bin.key, binsCopy[index].key);
@@ -338,14 +342,14 @@ struct OpenHashMapOrSet(K, V = void,
             }
             else
             {
-                dln("free at index ", index);
+                // dln("free at index ", index);
                 emplace(&binsCopy[index]); // TODO only emplace key and not value
                 keyOf(binsCopy[index]).nullify();
             }
         }
         static if (!hasAddressKey)
         {
-            dln("copy holes");
+            // dln("copy holes");
             if (_holesPtr)
             {
                 immutable wordCount = holesWordCount(_bins.length);
@@ -356,7 +360,7 @@ struct OpenHashMapOrSet(K, V = void,
                 return typeof(return)(binsCopy, _count, holesPtrCopy);
             }
         }
-        dln("done");
+        // dln("done");
         return typeof(return)(binsCopy, _count);
     }
 
@@ -602,7 +606,7 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /// Is `true` iff in-place rehashing during growth should be performed.
-    enum bool growInPlaceFlag = true;
+    enum bool growInPlaceFlag = false; // TODO warning growInPlaceWithCapacity is buggy
 
     /// Numerator for grow scale.
     enum growScaleP = 3;
@@ -1466,8 +1470,8 @@ private static void duplicateEmplace(T)(const scope ref T src,
     {
         import std.conv : emplace;
         // TODO when `emplace` can handle src being an r-value of uncopyable types replace with: `emplace(&dst, src.dup);`
-        emplace(&dst, src.dup);
-        // dst = src.dup;
+        emplace(&dst);
+        dst = src.dup;
     }
     else
     {
@@ -1686,11 +1690,11 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 
     alias K = Nullable!(uint, uint.max);
 
-    // alias VE = uint;
-    // alias V = Array!VE;
+    alias VE = uint;
+    alias V = Array!VE;
 
-    alias VE = Nullable!(uint, uint.max);
-    alias V = OpenHashMapOrSet!(VE, void, FNV!(64, true));
+    // alias VE = Nullable!(uint, uint.max);
+    // alias V = OpenHashMapOrSet!(VE, void, FNV!(64, true));
 
     foreach (X; AliasSeq!(OpenHashMapOrSet!(K, V, FNV!(64, true))))
     {
@@ -1729,9 +1733,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 
         assert(x is x);
 
-        dln("duplicating 1");
         x = x.dup;              // replace `x` with a copy of itself
-        dln("duplicating 2");
 
         auto y = x.dup;
         assert(x !is y);
@@ -1809,7 +1811,6 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
             assert(key !in z);
         }
     }
-
 }
 
 /// r-value and l-value intersection

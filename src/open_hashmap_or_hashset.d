@@ -1625,7 +1625,7 @@ size_t removeAllMatching(alias pred, Table)(auto ref Table x) @trusted
 }
 
 /** Returns: `x` eagerly filtered on `pred`.
-    TODO move to container_algorithm.d.
+    TODO move to container_algorithm.d with more generic template restrictions
 */
 Table filtered(alias pred, Table)(Table x)
     if (isInstanceOf!(OpenHashMapOrSet, Table))

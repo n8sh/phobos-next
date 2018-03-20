@@ -317,12 +317,15 @@ struct OpenHashMapOrSet(K, V = void,
     /// Returns: a shallow duplicate of `this`.
     typeof(this) dup()() const @trusted // template-lazy
     {
+        dln(__FUNCTION__, " this:", &this, " with length ", length);
         version(showEntries) dln(__FUNCTION__, " length:", length);
         T[] binsCopy = allocateUninitializedBins(_bins.length); // unsafe
+        dln("1");
         foreach (immutable index, ref bin; _bins)
         {
             if (isOccupiedAtIndex(index)) // normal case
             {
+                dln("occupied at index ", index);
                 static if (hasValue) // map
                 {
                     duplicateEmplace(bin.key, binsCopy[index].key);
@@ -335,12 +338,14 @@ struct OpenHashMapOrSet(K, V = void,
             }
             else
             {
+                dln("free at index ", index);
                 emplace(&binsCopy[index]); // TODO only emplace key and not value
                 keyOf(binsCopy[index]).nullify();
             }
         }
         static if (!hasAddressKey)
         {
+            dln("copy holes");
             if (_holesPtr)
             {
                 immutable wordCount = holesWordCount(_bins.length);
@@ -351,6 +356,7 @@ struct OpenHashMapOrSet(K, V = void,
                 return typeof(return)(binsCopy, _count, holesPtrCopy);
             }
         }
+        dln("done");
         return typeof(return)(binsCopy, _count);
     }
 
@@ -1459,9 +1465,9 @@ private static void duplicateEmplace(T)(const scope ref T src,
     else static if (__traits(hasMember, T, "dup"))
     {
         import std.conv : emplace;
-        // TODO fix when emplace can handle uncopyable types
-        emplace(&dst);
-        dst = src.dup;
+        // TODO when `emplace` can handle src being an r-value of uncopyable types replace with: `emplace(&dst, src.dup);`
+        emplace(&dst, src.dup);
+        // dst = src.dup;
     }
     else
     {
@@ -1679,8 +1685,12 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     import basic_array : Array = BasicArray;
 
     alias K = Nullable!(uint, uint.max);
-    alias VE = uint;
-    alias V = Array!VE;
+
+    // alias VE = uint;
+    // alias V = Array!VE;
+
+    alias VE = Nullable!(uint, uint.max);
+    alias V = OpenHashMapOrSet!(VE, void, FNV!(64, true));
 
     foreach (X; AliasSeq!(OpenHashMapOrSet!(K, V, FNV!(64, true))))
     {
@@ -1693,7 +1703,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
             assert(x.length == i);
 
             auto key = K(i);
-            auto value = V.withElements([i].s);
+            auto value = V.withElements([VE(i)].s);
 
             x[key] = value.dup;
             assert(x.length == i + 1);
@@ -1717,12 +1727,16 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
             }
         }
 
-        x = x.dup;              // replace `x` with a copy of itself
         assert(x is x);
+
+        dln("duplicating 1");
+        x = x.dup;              // replace `x` with a copy of itself
+        dln("duplicating 2");
 
         auto y = x.dup;
         assert(x !is y);
         assert(x.length == y.length);
+
         assert(y == x);
         assert(x == y);
 
@@ -1744,7 +1758,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
             assert(x.length == n - i);
 
             auto key = K(i);
-            auto value = V.withElements([i].s);
+            auto value = V.withElements([VE(i)].s);
 
             assert(x.contains(key));
             {
@@ -1768,7 +1782,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
             assert(z.length == n - i);
 
             auto key = K(i);
-            auto value = V.withElements([i].s);
+            auto value = V.withElements([VE(i)].s);
 
             assert(y.contains(key));
             {
@@ -1781,7 +1795,6 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
                 assert(valuePtr && *valuePtr == value);
             }
 
-            // dln("key:", key);
             y.remove(key);
             z.remove(key);
             // TODO assert(z.removeAllMatching!((const scope ref element) => element.key == key) == 1);
@@ -1796,6 +1809,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
             assert(key !in z);
         }
     }
+
 }
 
 /// r-value and l-value intersection

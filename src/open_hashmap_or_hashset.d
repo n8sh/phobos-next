@@ -1609,7 +1609,7 @@ size_t removeAllMatching(alias pred, Table)(auto ref Table x) @trusted
 {
     import container_traits : nullify;
     size_t removalCount = 0;
-    foreach (immutable index, ref bin; x._bins)
+    foreach (immutable index, ref bin; x._bins) // TODO make this generic
     {
         if (x.isOccupiedAtIndex(index) &&
             unaryFun!pred(bin))

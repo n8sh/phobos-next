@@ -58,7 +58,8 @@ struct OpenHashMapOrSet(K, V = void,
     import std.algorithm.mutation : move, moveEmplace;
     import std.conv : emplace;
     import std.math : nextPow2;
-    import std.traits : hasElaborateDestructor, isCopyable, isMutable, hasIndirections, isPointer, Unqual;
+    import std.traits : hasElaborateDestructor, isCopyable, isMutable, hasIndirections, isPointer, Unqual,
+        hasFunctionAttributes;
     import std.typecons : Nullable;
 
     import container_traits : defaultNullKeyConstantOf, mustAddGCRange, isNull, nullify;
@@ -1266,7 +1267,15 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
 private:
-    T[] _bins;                  // each bin contain one element
+    static if (hasFunctionAttributes!(Allocator.allocate, "@nogc"))
+    {
+        import container_traits : NoGc;
+        @NoGc T[] _bins;        // one element per bin
+    }
+    else
+    {
+        T[] _bins;              // one element per bin
+    }
 
     debug                       // use Rust-style borrow checking at run-time
     {
@@ -1312,9 +1321,19 @@ private:
         size_t _count;        // total number of non-null elements stored in `_bins`
     }
 
-    static if (!hasAddressKey)
+    static if (hasFunctionAttributes!(Allocator.allocate, "@nogc"))
     {
-        size_t* _holesPtr; // bit array describing which bin elements that has been removed (holes)
+        static if (!hasAddressKey)
+        {
+            @NoGc size_t* _holesPtr; // bit array describing which bin elements that has been removed (holes)
+        }
+    }
+    else
+    {
+        static if (!hasAddressKey)
+        {
+            size_t* _holesPtr; // bit array describing which bin elements that has been removed (holes)
+        }
     }
 
     /** Returns: bin index of `key`. */
@@ -1691,13 +1710,15 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 
     alias K = Nullable!(uint, uint.max);
 
-    alias VE = uint;
-    alias V = Array!VE;
+    // alias VE = uint;
+    // alias V = Array!VE;
 
-    // alias VE = Nullable!(uint, uint.max);
-    // alias V = OpenHashMapOrSet!(VE, void, FNV!(64, true));
+    alias VE = Nullable!(uint, uint.max);
+    alias V = OpenHashSet!(VE, FNV!(64, true));
 
-    foreach (X; AliasSeq!(OpenHashMapOrSet!(K, V, FNV!(64, true))))
+    static assert(!mustAddGCRange!V);
+
+    foreach (X; AliasSeq!(OpenHashMap!(K, V, FNV!(64, true))))
     {
         const VE n = 600;
 
@@ -2635,6 +2656,7 @@ version(unittest)
     import std.typecons : Nullable;
     import std.meta : AliasSeq;
 
+    import container_traits : mustAddGCRange;
     import digestx.fnv : FNV;
     import array_help : s;
 

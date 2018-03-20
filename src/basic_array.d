@@ -1305,11 +1305,13 @@ unittest
     {
         @safe pure nothrow @nogc:
 
+        alias E = int;
+
         import qcmeman : malloc, free;
 
-        this(int x) @trusted
+        this(E x) @trusted
         {
-            _ptr = cast(int*)malloc(int.sizeof);
+            _ptr = cast(E*)malloc(E.sizeof);
             mallocCount += 1;
             *_ptr = x;
         }
@@ -1323,7 +1325,7 @@ unittest
         }
 
         import container_traits : NoGc;
-        @NoGc int* _ptr;
+        @NoGc E* _ptr;
     }
 
     pragma(msg, "TODO activate this test!");

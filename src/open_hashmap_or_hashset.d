@@ -813,7 +813,7 @@ struct OpenHashMapOrSet(K, V = void,
         // move elements to copy
         foreach (immutable oldIndex, ref oldBin; oldBins)
         {
-            if (!keyOf(oldBin).isNull) // TODO use isOccupiedAtIndex
+            if (!keyOf(oldBin).isNull)
             {
                 static if (!hasAddressKey)
                 {

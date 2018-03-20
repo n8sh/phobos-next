@@ -598,7 +598,7 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /// Is `true` iff in-place rehashing during growth should be performed.
-    enum bool growInPlaceFlag = false;
+    enum bool growInPlaceFlag = true;
 
     /// Numerator for grow scale.
     enum growScaleP = 3;
@@ -691,7 +691,7 @@ struct OpenHashMapOrSet(K, V = void,
 
                     bts(dones, hitIndex); // _bins[hitIndex] will be at it's correct position
 
-                    if (!keyOf(_bins[hitIndex]).isNull()) // if free slot found. TODO what to do?
+                    if (isOccupiedAtIndex(doneIndex))
                     {
                         T nextElement = void;
 

@@ -1602,15 +1602,21 @@ alias OpenHashMap(K, V, alias hasher = hashOf,
 
 import std.traits : isInstanceOf;
 
-/** Remove all elements in `x` matching `pred`. */
+/** Remove all elements in `x` matching `pred`.
+ *
+ * TODO make this generic for all iterable containers and move to
+ * container_algorithm.
+ */
 size_t removeAllMatching(alias pred, Table)(auto ref Table x) @trusted
     if (isInstanceOf!(OpenHashMapOrSet, Table) &&
         is(typeof((unaryFun!pred))))
 {
     import container_traits : nullify;
     size_t removalCount = 0;
-    foreach (immutable index, ref bin; x._bins) // TODO make this generic
+    foreach (immutable index, ref bin; x._bins)
     {
+        // move to Table.removeRef(bin) // uses: `offset = &bin - _bins.ptr`
+        // or   to Table.removeAt(index)
         if (x.isOccupiedAtIndex(index) &&
             unaryFun!pred(bin))
         {

@@ -1710,9 +1710,6 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 
     alias K = Nullable!(uint, uint.max);
 
-    // alias VE = uint;
-    // alias V = Array!VE;
-
     alias VE = Nullable!(uint, uint.max);
     alias V = OpenHashSet!(VE, FNV!(64, true));
 

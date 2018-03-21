@@ -20,7 +20,7 @@ import traits_ex: isNullable;
    the convenience function, notNull.
 
    Condition: T must be a reference type.
-   Instead of: __traits(compiles, { T t; assert(t is null); }.
+   Instead of: __traits(compiles, { T t; assert(t is null); } ).
 
    TODO Merge with http://arsdnet.net/dcode/notnullsimplified.d
 

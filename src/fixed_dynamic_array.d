@@ -12,13 +12,11 @@ private struct FixedDynamicArray(T)
 pragma(inline, true):
 
     /// Make and return uninitialized array of `length`.
-    pragma(inline)              // DMD cannot inline this
     static typeof(this) makeUninitializedOfLength(size_t length) @system
     {
         return typeof(return)(Store(length, cast(T*)pureMalloc(length * T.sizeof)));
     }
 
-    pragma(inline)              // DMD cannot inline this
     static typeof(this) withLength(size_t length) @system
     {
         return typeof(return)(Store(length, cast(T*)pureCalloc(length, T.sizeof)));

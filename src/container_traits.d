@@ -319,6 +319,7 @@ template hasNullValue(T)
     static assert( hasNullValue!(C));
     static assert( hasNullValue!(int*));
     static assert( hasNullValue!(int[]));
+    static assert( hasNullValue!(const(int)[]));
     static assert(!hasNullValue!(int[3]));
     static assert( hasNullValue!(string));
     static assert(!hasNullValue!(int));
@@ -341,6 +342,7 @@ template isNullableType(T)
     static assert( isNullableType!(C));
     static assert( isNullableType!(int*));
     static assert( isNullableType!(int[]));
+    static assert( isNullableType!(const(int)[]));
     static assert(!isNullableType!(int[3]));
     static assert( isNullableType!(string));
     static assert( isNullableType!(Nullable!int));

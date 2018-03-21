@@ -1928,8 +1928,7 @@ auto intersectWith(C1, C2)(ref C1 x,
  * order.
  */
 auto byElement(Table)(auto ref inout(Table) c) @trusted
-    if (isInstanceOf!(OpenHashMapOrSet,
-                      Table))
+    if (isInstanceOf!(OpenHashMapOrSet, Table))
 {
     alias C = const(Table);
     static if (__traits(isRef, c))

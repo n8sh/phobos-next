@@ -303,13 +303,20 @@ template isSetOf(T, E)
 
 /** Is `true` iff `T` is a type with a "natural" null value.
  */
-template isNullableType(T)
+template hasNull(T)
 {
     import std.traits : isPointer, isDynamicArray;
-    enum isNullableType = (is(T == class) ||
-                           isPointer!T ||
-                           isDynamicArray!T ||
-                           is(T == typeof(null)) ||
+    enum hasNull = (is(T == class) ||
+                    isPointer!T ||
+                    isDynamicArray!T ||
+                    is(T == typeof(null)));
+}
+
+/** Is `true` iff `T` is a nullable type.
+ */
+template isNullableType(T)
+{
+    enum isNullableType = (hasNull!T ||
                            // std.traits.Nullable interface:
                            (__traits(hasMember, T, "nullify") &&
                             __traits(hasMember, T, "isNull")));

@@ -307,13 +307,13 @@ template hasNullValue(T)
 {
     import std.traits : isPointer, isDynamicArray;
     enum hasNullValue = (is(T == class) ||
-                    isPointer!T ||
-                    isDynamicArray!T ||
-                    is(T == typeof(null)));
+                         isPointer!T ||
+                         isDynamicArray!T ||
+                         is(T == typeof(null)));
 }
 
 ///
-@safe pure nothrow @nogc
+@safe pure nothrow @nogc unittest
 {
     class C {};
     static assert( hasNullValue!(C));
@@ -335,7 +335,7 @@ template isNullableType(T)
 }
 
 ///
-@safe pure nothrow @nogc
+@safe pure nothrow @nogc unittest
 {
     class C {};
     static assert( isNullableType!(C));

@@ -17,11 +17,13 @@ pragma(inline, true):
      * Unlike `@trusted pureMalloc` this must be `@system` because the return
      * value of this factory function can be accessed in @safe code.
      */
+    pragma(inline)              // DMD cannot inline
     static typeof(this) makeUninitializedOfLength(size_t length) @system
     {
         return typeof(return)(Store(length, cast(T*)pureMalloc(length * T.sizeof)));
     }
 
+    pragma(inline)              // DMD cannot inline
     static typeof(this) withLength(size_t length) @system
     {
         return typeof(return)(Store(length, cast(T*)pureCalloc(length, T.sizeof)));

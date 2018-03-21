@@ -96,7 +96,7 @@ struct UniqueRange(Source)
         }
         else
         {
-            static assert(false, "TODO if front is an l-value move it out and return it");
+            static assert(0, "TODO if front is an l-value move it out and return it");
             // import std.algorithm.mutation : move;
             // import std.traits : Unqual;
             // TODO reinterpret as typeof(*(cast(Unqual!E*)(&_source[_frontIx]))) iff `E` doesn't contain any immutable indirections
@@ -145,7 +145,7 @@ struct UniqueRange(Source)
             }
             else
             {
-                static assert(false, "TODO if back is an l-value move it out and return it");
+                static assert(0, "TODO if back is an l-value move it out and return it");
                 // import std.algorithm.mutation : move;
                 // import std.traits : Unqual;
                 // TODO reinterpret as typeof(*(cast(Unqual!E*)(&_source[_backIx]))) iff `E` doesn't contain any immutable indirections

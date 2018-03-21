@@ -413,9 +413,10 @@ void nullify(T)(ref T x)
     @safe pure nothrow @nogc
     if (isNullable!(T))
 {
-    import std.traits : isPointer;
+    import std.traits : isPointer, isDynamicArray;
     static if (is(T == class) ||
                isPointer!T ||
+               isDynamicArray!T ||
                is(T == typeof(null)))
     {
         x = T.init;

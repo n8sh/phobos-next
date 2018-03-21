@@ -404,7 +404,7 @@ bool isNull(T)(const scope auto ref T x)
     }
     else
     {
-        static assert(0, "unsupported type " ~ T.stringof);
+        static assert(0, "Unsupported type " ~ T.stringof);
     }
 }
 
@@ -423,7 +423,7 @@ void nullify(T)(ref T x)
     }
     else
     {
-        static assert(0, "unsupported type " ~ T.stringof);
+        static assert(0, "Unsupported type " ~ T.stringof);
     }
 }
 

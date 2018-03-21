@@ -327,33 +327,33 @@ template hasNullValue(T)
 
 /** Is `true` iff `T` is a nullable type.
  */
-template isNullableType(T)
+template isNullable(T)
 {
-    enum isNullableType = (hasNullValue!T ||
-                           // std.traits.Nullable interface:
-                           (__traits(hasMember, T, "nullify") &&
-                            __traits(hasMember, T, "isNull")));
+    enum isNullable = (hasNullValue!T ||
+                       // std.traits.Nullable interface:
+                       (__traits(hasMember, T, "nullify") &&
+                        __traits(hasMember, T, "isNull")));
 }
 
 ///
 @safe pure nothrow @nogc unittest
 {
     class C {}
-    static assert( isNullableType!(C));
-    static assert( isNullableType!(int*));
-    static assert( isNullableType!(int[]));
-    static assert( isNullableType!(const(int)[]));
-    static assert(!isNullableType!(int[3]));
-    static assert( isNullableType!(string));
-    static assert( isNullableType!(Nullable!int));
-    static assert(!isNullableType!(int));
+    static assert( isNullable!(C));
+    static assert( isNullable!(int*));
+    static assert( isNullable!(int[]));
+    static assert( isNullable!(const(int)[]));
+    static assert(!isNullable!(int[3]));
+    static assert( isNullable!(string));
+    static assert( isNullable!(Nullable!int));
+    static assert(!isNullable!(int));
 }
 
 /** Default null key of type `T`,
  */
 template defaultNullKeyConstantOf(T)
 {
-    static if (isNullableType!T)
+    static if (isNullable!T)
     {
         enum defaultNullKeyConstantOf = T.init;
     }
@@ -392,7 +392,7 @@ template defaultNullKeyConstantOf(T)
 pragma(inline, true)
 bool isNull(T)(const scope auto ref T x)
     @safe pure nothrow @nogc
-    if (isNullableType!(T))
+    if (isNullable!(T))
 {
     import std.traits : isPointer;
     static if (is(T == class) ||
@@ -410,7 +410,7 @@ bool isNull(T)(const scope auto ref T x)
 pragma(inline, true)
 void nullify(T)(ref T x)
     @safe pure nothrow @nogc
-    if (isNullableType!(T))
+    if (isNullable!(T))
 {
     import std.traits : isPointer;
     static if (is(T == class) ||
@@ -456,7 +456,7 @@ void nullify(T)(ref T x)
         int value;
     }
 
-    static assert(isNullableType!C);
+    static assert(isNullable!C);
 
     const x = C.init;
     assert(x.isNull);

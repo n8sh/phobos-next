@@ -4,7 +4,7 @@ module open_hashmap_or_hashset;
 // version = show;
 
 import std.functional : unaryFun;
-import container_traits : isNullableType, isSet;
+import container_traits : isNullable, isSet;
 import pure_mallocator : PureMallocator;
 
 @safe:
@@ -24,7 +24,7 @@ import pure_mallocator : PureMallocator;
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  * See also: https://en.wikipedia.org/wiki/Lazy_deletion
  *
- * TODO add test for HashMap(string, string) and extend isNullableType to support string
+ * TODO add test for HashMap(string, string) and extend isNullable to support string
  *
  * TODO if hash-function is cast(size_t)(classInstance) always use prime length
  * and shift pointer before hash based on alignof (might not be needed when
@@ -50,7 +50,7 @@ import pure_mallocator : PureMallocator;
 struct OpenHashMapOrSet(K, V = void,
                         alias hasher = hashOf,
                         alias Allocator = PureMallocator.instance)
-    if (isNullableType!K
+    if (isNullable!K
         // isHashable!K
         )
 {

@@ -574,7 +574,8 @@ template isNullable(T)
 ///
 @safe pure nothrow @nogc unittest
 {
-    static assert(isNullable!(int*));
+    static assert( isNullable!(int*));
+    static assert(!isNullable!(int));
 }
 
 enum nameOf(alias a) = a.stringof;

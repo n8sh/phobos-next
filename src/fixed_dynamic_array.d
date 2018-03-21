@@ -8,6 +8,7 @@ private struct FixedDynamicArray(T)
 {
 @safe:
     import qcmeman : pureMalloc = malloc, pureCalloc = calloc, pureFree = free;
+    import container_traits : mustAddGCRange;
 
 pragma(inline, true):
 
@@ -76,7 +77,8 @@ private:
     static struct Store
     {
         size_t length;
-        T* ptr;
+        import container_traits : NoGc;
+        @NoGc T* ptr;       // non-GC-allocated store pointer
     }
     Store _store;
 }

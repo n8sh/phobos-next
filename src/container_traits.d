@@ -289,7 +289,6 @@ template isSet(T)
     import std.range : hasLength;
     enum isSet = (__traits(hasMember, T, "insert") && // TODO assert O(1)
                   __traits(hasMember, T, "remove") && // TODO assert O(1)
-                  __traits(hasMember, T, "ElementType") &&
                   hasLength!T);
 }
 
@@ -299,7 +298,6 @@ template isSetOf(T, E)
     import std.range : hasLength;
     enum isSetOf = (is(typeof(T.init.insert(E.init))) && // TODO assert O(1)
                     is(typeof(T.init.remove(E.init))) && // TODO assert O(1)
-                    __traits(hasMember, T, "ElementType") &&
                     hasLength!T);
 }
 

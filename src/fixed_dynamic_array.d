@@ -14,8 +14,8 @@ pragma(inline, true):
 
     /** Make and return uninitialized array of `length`.
      *
-     * Unlike @trusted pureMalloc this must be @system because the return value
-     * of this factory function can be accessed in @safe code.
+     * Unlike `@trusted pureMalloc` this must be `@system` because the return
+     * value of this factory function can be accessed in @safe code.
      */
     static typeof(this) makeUninitializedOfLength(size_t length) @system
     {

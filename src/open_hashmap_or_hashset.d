@@ -372,13 +372,25 @@ struct OpenHashMapOrSet(K, V = void,
                 static if (hasValue)
                 {
                     auto valuePtr = bin.key in rhs;
-                    if (!valuePtr) { return false; }
+                    if (!valuePtr)
+                    {
+                        dln("index:", index, " missing key:", bin.key);
+                        return false;
+                    }
                     // TODO make != a parameter that can also be typically !is. TODO ask forum about this
-                    if ((*valuePtr) != bin.value) { return false; }
+                    if ((*valuePtr) != bin.value)
+                    {
+                        dln("index:", index, " value differs:");
+                        return false;
+                    }
                 }
                 else
                 {
-                    if (!rhs.contains(bin)) { return false; }
+                    if (!rhs.contains(bin))
+                    {
+                        dln("index:", index, " missing element:", bin);
+                        return false;
+                    }
                 }
             }
         }
@@ -644,13 +656,20 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    /** Nullify (reset) `element`. */
-    static private void nullifyElement(scope ref T element) @trusted
+    private void tagAsLazilyDeletedElementAtIndex(size_t index) @trusted
     {
-        keyOf(element).nullify(); // moveEmplace doesn't init source of type Nullable
+        static if (!hasAddressKey)
+        {
+            keyOf(_bins[index]).nullify();
+            makeHoleAtIndex(index);
+        }
+        else
+        {
+            keyOf(_bins[index]) = holeKeyConstant;
+        }
         static if (hasElaborateDestructor!V) // if we should clear all
         {
-            .destroy(valueOf(element));
+            .destroy(valueOf(_bins[index]));
         }
     }
 
@@ -684,7 +703,7 @@ struct OpenHashMapOrSet(K, V = void,
                 moveEmplace(_bins[doneIndex], currentElement);
                 static if (isInstanceOf!(Nullable, K))
                 {
-                    nullifyElement(_bins[doneIndex]); // `moveEmplace` doesn't init source of type Nullable
+                    keyOf(_bins[doneIndex]).nullify(); // `moveEmplace` doesn't init source of type Nullable
                 }
 
                 while (true)
@@ -705,7 +724,7 @@ struct OpenHashMapOrSet(K, V = void,
                         moveEmplace(_bins[hitIndex], nextElement); // save non-free slot
                         static if (isInstanceOf!(Nullable, K))
                         {
-                            nullifyElement(_bins[hitIndex]); // `moveEmplace` doesn't init source of type Nullable
+                            keyOf(_bins[hitIndex]).nullify(); // `moveEmplace` doesn't init source of type Nullable
                         }
 
                         moveEmplace(currentElement, _bins[hitIndex]);
@@ -1180,8 +1199,8 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /** Remove `element`.
-        Returns: `true` if element was removed, `false` otherwise.
-    */
+     * Returns: `true` if element was removed, `false` otherwise.
+     */
     bool remove()(const scope K key) // template-lazy
     {
         debug assert(!isBorrowed, borrowedErrorMessage);
@@ -1189,10 +1208,7 @@ struct OpenHashMapOrSet(K, V = void,
         if (hitIndex != _bins.length &&
             isOccupiedAtIndex(hitIndex))
         {
-            // dln("remove(): removing key:", keyOf(_bins[hitIndex]),
-            //     " at index:", hitIndex);
-            nullifyElement(_bins[hitIndex]);
-            makeHoleAtIndex(hitIndex);
+            tagAsLazilyDeletedElementAtIndex(hitIndex);
             _count = _count - 1;
             return true;
         }
@@ -1648,9 +1664,7 @@ size_t removeAllMatching(alias pred, Table)(auto ref Table x) @trusted
         if (x.isOccupiedAtIndex(index) &&
             unaryFun!pred(bin))
         {
-            // dln("removeAllMatching: removing key:", Table.keyOf(bin),
-            //     " at index:", index);
-            Table.nullifyElement(bin);
+            x.tagAsLazilyDeletedElementAtIndex(index);
             removalCount += 1;
         }
     }
@@ -1815,11 +1829,8 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
             }
 
             y.remove(key);
-            z.remove(key);
-            // TODO assert(z.removeAllMatching!((const scope ref element) => element.key == key) == 1);
+            assert(z.removeAllMatching!((const scope ref element) => element.key is key) == 1);
             assert(y == z);
-            // TODO assert(y.byKey == z.byKey);
-            // TODO assert(y.byKeyValue == z.byKeyValue);
 
             assert(!y.contains(key));
             assert(!z.contains(key));

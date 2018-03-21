@@ -78,7 +78,7 @@ private:
     {
         size_t length;
         import container_traits : NoGc;
-        @NoGc T* ptr;       // non-GC-allocated store pointer
+        @NoGc T* ptr;           // non-GC-allocated store pointer
     }
     Store _store;
 }

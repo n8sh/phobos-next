@@ -186,7 +186,8 @@ alias intoGenerator = intoUniqueRange;
 @safe pure nothrow @nogc unittest
 {
     import basic_array : SA = BasicArray;
-    import std.range.primitives : isInputRange, isIterable;
+    import std.traits : isIterable;
+    import std.range.primitives : isInputRange;
     alias C = SA!int;
 
     auto cs = C([11, 13, 15, 17].s).intoUniqueRange;
@@ -697,7 +698,8 @@ struct UniqueTake(Range)
 @safe pure nothrow @nogc unittest
 {
     import basic_array : SA = BasicArray;
-    import std.range.primitives : isInputRange, isIterable;
+    import std.traits : isIterable;
+    import std.range.primitives : isInputRange;
     alias C = SA!int;
 
     auto cs = C([11, 13].s).intoUniqueRange;

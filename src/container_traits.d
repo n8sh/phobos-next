@@ -315,7 +315,7 @@ template hasNullValue(T)
 ///
 @safe pure nothrow @nogc unittest
 {
-    class C {};
+    class C {}
     static assert( hasNullValue!(C));
     static assert( hasNullValue!(int*));
     static assert( hasNullValue!(int[]));
@@ -337,7 +337,7 @@ template isNullableType(T)
 ///
 @safe pure nothrow @nogc unittest
 {
-    class C {};
+    class C {}
     static assert( isNullableType!(C));
     static assert( isNullableType!(int*));
     static assert( isNullableType!(int[]));

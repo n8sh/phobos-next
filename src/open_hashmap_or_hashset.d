@@ -24,8 +24,6 @@ import pure_mallocator : PureMallocator;
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  * See also: https://en.wikipedia.org/wiki/Lazy_deletion
  *
- * TODO add test for HashMap(string, string) and extend isNullable to support string
- *
  * TODO if hash-function is cast(size_t)(classInstance) always use prime length
  * and shift pointer before hash based on alignof (might not be needed when
  * module prime) to maximize memory locality when adding successively allocated

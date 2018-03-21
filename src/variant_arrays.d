@@ -96,6 +96,7 @@ private struct VariantRef(DefinedTypes...)
     bool isDefined() const { return rawWord != 0; }
 
     /// Comparsion works like for integers.
+    pragma(inline)              // DMD cannot inline
     int opCmp(in typeof(this) rhs) const @trusted
     {
         if (this.rawWord < rhs.rawWord)
@@ -212,7 +213,6 @@ private struct VariantArrays(Types...)
 
     /** Insert `value` at back.
      */
-    pragma(inline)                             // DMD cannot inline
     Ref insertBack(SomeKind)(SomeKind value) // TODO add array type overload
         if (Ref.canReferenceType!SomeKind)
     {
@@ -226,7 +226,6 @@ private struct VariantArrays(Types...)
 
     /** Move (emplace) `value` into back.
      */
-    pragma(inline)                             // DMD cannot inline
     Ref insertBackMove(SomeKind)(ref SomeKind value) // TODO add array type overload
         if (Ref.canReferenceType!SomeKind)
     {

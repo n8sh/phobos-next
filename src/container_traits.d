@@ -301,7 +301,7 @@ template isSetOf(T, E)
                     hasLength!T);
 }
 
-/** Is `true` iff `T` is a nullable type.
+/** Is `true` iff `T` is a type with a "natural" null value.
  */
 template isNullableType(T)
 {

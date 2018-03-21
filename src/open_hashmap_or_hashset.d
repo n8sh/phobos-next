@@ -467,7 +467,7 @@ struct OpenHashMapOrSet(K, V = void,
             }
         }
 
-        void makeHoleAtIndex(size_t index) @trusted
+        void tagHoleAtIndex(size_t index) @trusted
         {
             version(unittest) assert(index < _bins.length);
             static if (!hasAddressKey)
@@ -661,7 +661,7 @@ struct OpenHashMapOrSet(K, V = void,
         static if (!hasAddressKey)
         {
             keyOf(_bins[index]).nullify();
-            makeHoleAtIndex(index);
+            tagHoleAtIndex(index);
         }
         else
         {
@@ -1920,6 +1920,24 @@ auto intersectWith(C1, C2)(ref C1 x,
     assert(y.length == 2);
     assert(y.contains(K(12)));
     assert(y.contains(K(13)));
+}
+
+/// `string` as key
+@safe pure nothrow @nogc unittest
+{
+    version(showEntries) dln();
+
+    alias X = OpenHashMapOrSet!(string, void, FNV!(64, true));
+    static assert(!mustAddGCRange!X);
+    static assert(X.sizeof == 24); // smart packing
+
+    X x;
+
+    x.insert("a");
+    assert(x.contains("a"));
+
+    x.remove("a");
+    assert(!x.contains("a"));
 }
 
 /** Returns forward range that iterates through the elements of `c` in undefined

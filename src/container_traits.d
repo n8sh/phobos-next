@@ -94,9 +94,9 @@ template ContainerElementType(ContainerType,
     }
 }
 
-/**
- * This enum must be used as an UDA to mark a variable of a type that looks
- * like GC-managed but that is actually not GC-managed.
+/** Used as an UDA to mark a variable of a type that looks like GC-managed but
+ * that is actually not GC-managed, because its allocated by `malloc`, `calloc`
+ * or some other non-GC allocator.
  */
 enum NoGc;
 

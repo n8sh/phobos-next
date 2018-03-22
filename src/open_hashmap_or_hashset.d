@@ -4,7 +4,6 @@ module open_hashmap_or_hashset;
 // version = show;
 // version = internalUnittest; // fed by dub (see dub.sdl) in unittest-internal mode
 
-import std.functional : unaryFun;
 import container_traits : isNullable;
 import pure_mallocator : PureMallocator;
 
@@ -1654,6 +1653,7 @@ alias OpenHashMap(K, V, alias hasher = hashOf,
                   alias Allocator = PureMallocator.instance) = OpenHashMapOrSet!(K, V, hasher, Allocator);
 
 import std.traits : isInstanceOf;
+import std.functional : unaryFun;
 
 /** Remove all elements in `x` matching `pred`.
  *

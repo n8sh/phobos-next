@@ -72,9 +72,7 @@ struct OpenHashMapOrSet(K, V = void,
     /** Is `true` iff `K` is an address, in which case holes are represented by
      * a specific value `holeKeyConstant`.
      */
-    enum hasAddressKey = (is(K == class) ||
-                          isPointer!K ||
-                          isDynamicArray!K);
+    enum hasAddressKey = (is(K == class) || isPointer!K || isDynamicArray!K);
 
     static if (hasAddressKey)
     {

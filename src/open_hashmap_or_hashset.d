@@ -9,8 +9,8 @@ import pure_mallocator : PureMallocator;
 
 @safe:
 
-/** Hash set (or map) with open-addressing, storing (key) elements of type `K`
- * and values of type `V`.
+/** Hash table/map (or set) with open-addressing, storing (key) elements of type
+ * `K` and values of type `V`.
  *
  * Uses open-addressing with quadratic probing (using triangular numbers) and
  * lazy deletion/removal.

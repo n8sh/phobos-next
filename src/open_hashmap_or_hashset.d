@@ -989,7 +989,7 @@ struct OpenHashMapOrSet(K, V = void,
             else
             {
                 /// Get reference to front element (key and value).
-                @property scope auto front()()
+                @property scope auto ref front()() return
                 {
                     return _table._bins[_binIndex];
                 }
@@ -1014,7 +1014,7 @@ struct OpenHashMapOrSet(K, V = void,
             else
             {
                 /// Get reference to front element (key and value).
-                @property scope auto front()()
+                @property scope auto ref front()() return
                 {
                     return _table._bins[_binIndex];
                 }

@@ -1763,7 +1763,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
         auto x = X();
 
         {                       // scoped byKey range
-            auto xkeys = x.byKey();
+            auto xkeys = x.byKey;
             assert(xkeys.length == 0);
             foreach (ref key; xkeys)
             {
@@ -1884,6 +1884,16 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     version(showEntries) dln();
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
+
+    auto x = X();
+
+    {                       // scoped byElement range
+        auto xes = x.byElement;
+        assert(xes.length == 0);
+        foreach (ref xe; xes)
+        {
+        }
+    }
 
     auto x0 = X.init;
     assert(x0.length == 0);

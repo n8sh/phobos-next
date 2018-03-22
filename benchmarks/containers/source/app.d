@@ -352,9 +352,8 @@ void main()
 
         writef("- ");
 
-        // separate allocation
-        E[] es = new E[n];
-        foreach (immutable i; 0 .. n) { es[i] = i.to!E; }
+        // allocate
+        E[] es = iotaArrayOf!E(n);
 
         // insert
         {
@@ -409,4 +408,15 @@ void main()
             a.clear();
         }
     }
+}
+
+T[] iotaArrayOf(T)(size_t n)
+{
+    import std.conv : to;
+    typeof(return) es = new T[n];
+    foreach (immutable i; 0 .. n)
+    {
+        es[i] = i.to!T;
+    }
+    return es;
 }

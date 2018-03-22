@@ -980,7 +980,7 @@ struct OpenHashMapOrSet(K, V = void,
             static if (is(K == class) || isPointer!K) // for reference types
             {
                 /// Get reference to front element (key and value).
-                @property scope T front()() return @trusted
+                @property scope K front()() return @trusted
                 {
                     // cast to head-const for class key
                     return cast(typeof(return))_table._bins[_binIndex];
@@ -1005,7 +1005,7 @@ struct OpenHashMapOrSet(K, V = void,
             static if (is(K == class) || isPointer!K) // for reference types
             {
                 /// Get reference to front element (key and value).
-                @property scope T front()() return @trusted
+                @property scope K front()() return @trusted
                 {
                     // cast to head-const for class key
                     return cast(typeof(return))_table._bins[_binIndex];

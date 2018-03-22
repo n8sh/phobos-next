@@ -1966,11 +1966,11 @@ auto byElement(Table)(auto ref inout(Table) c) @trusted
     if (isInstanceOf!(OpenHashMapOrSet, Table))
 {
     alias C = const(Table);
-    static if (__traits(isRef, c))
+    static if (__traits(isRef, c)) // `c` is an l-value
     {
         auto result = C.ByLvalueElement!C((LvalueElementRef!(C)(cast(C*)&c)));
     }
-    else
+    else                        // `c` was is an r-value and can be moved
     {
         import std.algorithm.mutation : move;
         auto result = C.ByRvalueElement!C((RvalueElementRef!C(move(*(cast(Table*)&c))))); // reinterpret

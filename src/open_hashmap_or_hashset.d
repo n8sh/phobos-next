@@ -977,7 +977,7 @@ struct OpenHashMapOrSet(K, V = void,
         static private struct ByLvalueElement(Table)
         {
         pragma(inline, true):
-            static if (is(T == class))
+            static if (is(K == class) || isPointer!K) // for reference types
             {
                 /// Get reference to front element (key and value).
                 @property scope T front()() return @trusted
@@ -1002,7 +1002,7 @@ struct OpenHashMapOrSet(K, V = void,
         static private struct ByRvalueElement(Table)
         {
         pragma(inline, true):
-            static if (is(T == class))
+            static if (is(K == class) || isPointer!K) // for reference types
             {
                 /// Get reference to front element (key and value).
                 @property scope T front()() return @trusted

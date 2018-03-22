@@ -977,12 +977,13 @@ struct OpenHashMapOrSet(K, V = void,
         static private struct ByLvalueElement(Table)
         {
         pragma(inline, true):
-            static if (is(hasIndirections!T))
+            static if (is(T == class))
             {
                 /// Get reference to front element (key and value).
-                @property scope auto front()() return
+                @property scope T front()() return @trusted
                 {
-                    return _table._bins[_binIndex];
+                    // cast to head-const for class key
+                    return cast(typeof(return))_table._bins[_binIndex];
                 }
             }
             else
@@ -1004,9 +1005,10 @@ struct OpenHashMapOrSet(K, V = void,
             static if (is(T == class))
             {
                 /// Get reference to front element (key and value).
-                @property scope auto front()() return
+                @property scope T front()() return @trusted
                 {
-                    return _table._bins[_binIndex];
+                    // cast to head-const for class key
+                    return cast(typeof(return))_table._bins[_binIndex];
                 }
             }
             else

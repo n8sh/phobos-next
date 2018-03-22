@@ -1969,16 +1969,14 @@ auto byElement(Table)(auto ref inout(Table) c) @trusted
     static if (__traits(isRef, c))
     {
         auto result = C.ByLvalueElement!C((LvalueElementRef!(C)(cast(C*)&c)));
-        result.findNextNonEmptyBin();
-        return result;
     }
     else
     {
         import std.algorithm.mutation : move;
         auto result = C.ByRvalueElement!C((RvalueElementRef!C(move(*(cast(Table*)&c))))); // reinterpret
-        result.findNextNonEmptyBin();
-        return move(result);
     }
+    result.findNextNonEmptyBin();
+    return result;
 }
 alias range = byElement;        // EMSI-container naming
 

@@ -2543,14 +2543,15 @@ version(unittest)
                 static assert(is(typeof(R.init) == R));
                 static assert(is(ReturnType!((R xr) => xr.empty) == bool));
 
+                static assert(!__traits(compiles, { xr.front == K.init; })); // always head-const
                 auto f = xr.front;
                 static if (is(K == class))
                 {
-                    static assert(is(typeof(f) == K));
+                    static assert(is(typeof(f) == K)); // tail-mutable
                 }
                 else
                 {
-                    static assert(is(typeof(f) == const(K)));
+                    static assert(is(typeof(f) == const(K))); // tail-const
                 }
 
                 static assert(is(typeof((R xr) => xr.front)));

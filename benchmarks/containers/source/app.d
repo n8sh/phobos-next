@@ -246,6 +246,16 @@ void main()
 
         writef("- ");
 
+        // // allocate
+        // static if (hasMember!(A, `KeyType`))
+        // {
+        //     const es = iotaArrayOf!(A.KeyType)(n);
+        // }
+        // else
+        // {
+        //     const es = i;
+        // }
+
         {
             immutable before = MonoTime.currTime();
             foreach (immutable i; 0 .. n)
@@ -412,11 +422,18 @@ void main()
 
 T[] iotaArrayOf(T)(size_t n)
 {
-    import std.conv : to;
     typeof(return) es = new T[n];
     foreach (immutable i; 0 .. n)
     {
-        es[i] = i.to!T;
+        static if (is(typeof(T(i))))
+        {
+            es[i] = T(i);
+        }
+        else
+        {
+            import std.conv : to;
+            es[i] = i.to!T;
+        }
     }
     return es;
 }

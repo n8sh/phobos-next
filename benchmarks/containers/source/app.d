@@ -425,14 +425,14 @@ T[] iotaArrayOf(T)(size_t n)
     typeof(return) es = new T[n];
     foreach (immutable i; 0 .. n)
     {
-        static if (is(typeof(T(i))))
+        static if (is(typeof(T(i)))) // if possible
         {
-            es[i] = T(i);
+            es[i] = T(i);       // try normal construction
         }
         else
         {
             import std.conv : to;
-            es[i] = i.to!T;
+            es[i] = i.to!T;     // otherwise conv which may allocate
         }
     }
     return es;

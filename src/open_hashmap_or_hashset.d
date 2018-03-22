@@ -979,7 +979,7 @@ struct OpenHashMapOrSet(K, V = void,
         static private struct ByLvalueElement(Table)
         {
         pragma(inline, true):
-            static if (is(T == class))
+            static if (is(hasIndirections!T))
             {
                 /// Get reference to front element (key and value).
                 @property scope auto front()() return
@@ -1977,7 +1977,7 @@ auto intersectWith(C1, C2)(ref C1 x,
 
     static assert(!__traits(compiles, { testEscapeShouldFail(); } ));
     // TODO this should fail:
-    // static assert(!__traits(compiles, { testEscapeShouldFailFront(); } ));
+    // TODO static assert(!__traits(compiles, { testEscapeShouldFailFront(); } ));
 }
 
 /** Returns forward range that iterates through the elements of `c` in undefined

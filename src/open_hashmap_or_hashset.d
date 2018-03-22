@@ -1936,11 +1936,19 @@ auto intersectWith(C1, C2)(ref C1 x,
 {
     version(showEntries) dln();
 
-    alias X = OpenHashMapOrSet!(string, void, FNV!(64, true));
+    alias E = string;
+    alias X = OpenHashMapOrSet!(E, void, FNV!(64, true));
     static assert(!mustAddGCRange!X);
     static assert(X.sizeof == 24); // dynamic arrays also `hasAddressKey`
 
     X x;
+
+    E testEscape()
+    {
+        X x;
+        x.insert("a");
+        return x.byElement.front;
+    }
 
     x.insert("a");
     x.insert("b");

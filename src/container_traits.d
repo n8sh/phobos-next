@@ -1,4 +1,9 @@
-/** Traits used by containers. */
+/** Traits used by containers.
+ *
+ * TODO add `isUnorderedContainer` and `isUnorderedRange` traits and used to
+ * forbid hash algorithms to operate on unordered containers (such as
+ * `open_hashmap_or_hashset` and `open_hashmap_or_hashset`) and their ranges.
+ */
 module container_traits;
 
 /// True if elements need move.

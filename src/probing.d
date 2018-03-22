@@ -56,6 +56,7 @@ size_t triangularProbeFromIndex(alias pred,
         {
             static assert(0, "unsupported pred");
         }
+
         indexIncrement += 1;
         index = (index + indexIncrement) & mask; // next triangular number modulo length
     }

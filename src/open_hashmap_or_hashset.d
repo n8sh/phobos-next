@@ -55,8 +55,8 @@ struct OpenHashMapOrSet(K, V = void,
     import std.algorithm.mutation : move, moveEmplace;
     import std.conv : emplace;
     import std.math : nextPow2;
-    import std.traits : hasElaborateDestructor, isCopyable, isMutable, hasIndirections, isPointer, Unqual,
-        hasFunctionAttributes;
+    import std.traits : hasElaborateDestructor, isCopyable, isMutable, hasIndirections,
+        isPointer, isDynamicArray, Unqual, hasFunctionAttributes;
     import std.typecons : Nullable;
 
     import container_traits : defaultNullKeyConstantOf, mustAddGCRange, isNull, nullify;
@@ -72,7 +72,7 @@ struct OpenHashMapOrSet(K, V = void,
     /** Is `true` iff `K` is an address, in which case holes are represented by
      * a specific value `holeKeyConstant`.
      */
-    enum hasAddressKey = (is(K == class) || isPointer!K);
+    enum hasAddressKey = (is(K == class) || isPointer!K || isDynamicArray!K);
 
     static if (hasAddressKey)
     {
@@ -87,7 +87,16 @@ struct OpenHashMapOrSet(K, V = void,
         static K holeKeyConstant() @trusted pure nothrow @nogc
         {
             // TODO note that cast(size_t*) will give address 0x8 instead of 0x1
-            return cast(K)((cast(void*)null) + holeKeyOffset); // indicates a lazily deleted key
+            static if (isDynamicArray!K)
+            {
+                alias E = typeof(K.init[0])*; // array element type
+                auto ptr = cast(E)((cast(void*)null) + holeKeyOffset); // indicates a lazily deleted key
+                return ptr[0 .. 0];
+            }
+            else
+            {
+                return cast(K)((cast(void*)null) + holeKeyOffset); // indicates a lazily deleted key
+            }
         }
 
         pragma(inline, true)
@@ -1929,15 +1938,25 @@ auto intersectWith(C1, C2)(ref C1 x,
 
     alias X = OpenHashMapOrSet!(string, void, FNV!(64, true));
     static assert(!mustAddGCRange!X);
-    // TODO static assert(X.sizeof == 24); // smart packing
+    static assert(X.sizeof == 24); // smart packing
 
     X x;
 
     x.insert("a");
+    x.insert("b");
     assert(x.contains("a"));
+    assert(x.contains("b"));
 
     x.remove("a");
     assert(!x.contains("a"));
+
+    x.remove("b");
+    assert(!x.contains("b"));
+
+    x.insert("a");
+    x.insert("b");
+    assert(x.contains("a"));
+    assert(x.contains("b"));
 }
 
 /** Returns forward range that iterates through the elements of `c` in undefined

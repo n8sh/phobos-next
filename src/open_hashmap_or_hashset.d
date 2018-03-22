@@ -1098,7 +1098,10 @@ struct OpenHashMapOrSet(K, V = void,
                 K _key;          // no const because
 
                 // make key access head-const
-                K key() @property @safe pure nothrow @nogc { return _key; }
+                K key() @property @safe pure nothrow @nogc
+                {
+                    return _key;
+                }
             }
             else
             {

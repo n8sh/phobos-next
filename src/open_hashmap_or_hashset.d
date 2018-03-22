@@ -12,6 +12,10 @@ import pure_mallocator : PureMallocator;
 /** Hash table/map (or set) with open-addressing, storing (key) elements of type
  * `K` and values of type `V`.
  *
+ * Keys are immutable except for when they are `class`es in which case they are
+ * head-const, This corresponds with behaviour of default value hashing of
+ * `class` instances in `digestion.d`.
+ *
  * Uses open-addressing with quadratic probing (using triangular numbers) and
  * lazy deletion/removal.
  *
@@ -2302,7 +2306,7 @@ pure nothrow unittest
         // class key itself should not be mutable
         // TODO static assert(!__traits(compiles, { e.key = null; }));
 
-        // key can be mutated
+        // members of key can be mutated
         static assert(__traits(compiles, { e.key.value += 1; }));
 
         // value mutation side effects

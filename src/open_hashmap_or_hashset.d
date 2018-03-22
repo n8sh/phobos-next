@@ -1670,7 +1670,8 @@ size_t removeAllMatching(alias pred, Table)(auto ref Table x) @trusted
     {
         // TODO:
         // move to Table.removeRef(bin) // uses: `offset = &bin - _bins.ptr`
-        // or   to Table.removeAt(index)
+        // move to Table.inplaceRemove(bin) // uses: `offset = &bin - _bins.ptr`
+        // or   to Table.removeAtIndex(index)
         if (x.isOccupiedAtIndex(index) &&
             unaryFun!pred(bin))
         {

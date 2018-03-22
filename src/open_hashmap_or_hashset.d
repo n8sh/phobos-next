@@ -2542,7 +2542,17 @@ version(unittest)
                 import std.traits : ReturnType;
                 static assert(is(typeof(R.init) == R));
                 static assert(is(ReturnType!((R xr) => xr.empty) == bool));
+
                 auto f = xr.front;
+                static if (is(K == class))
+                {
+                    static assert(is(typeof(f) == K));
+                }
+                else
+                {
+                    static assert(is(typeof(f) == const(K)));
+                }
+
                 static assert(is(typeof((R xr) => xr.front)));
                 static assert(!is(ReturnType!((R xr) => xr.front) == void));
                 static assert(is(typeof((R xr) => xr.popFront)));

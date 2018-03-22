@@ -296,7 +296,7 @@ template isSet(T)
     import std.range : hasLength;
     enum isSet = (__traits(hasMember, T, "insert") && // TODO assert O(1)
                   __traits(hasMember, T, "remove") && // TODO assert O(1)
-                  hasLength!T);
+                  __traits(compiles, { auto _ = T.init.byElement; }));
 }
 
 /** Is `true` iff `T` is a set like container with elements of type `E`. */
@@ -305,7 +305,7 @@ template isSetOf(T, E)
     import std.range : hasLength;
     enum isSetOf = (is(typeof(T.init.insert(E.init))) && // TODO assert O(1)
                     is(typeof(T.init.remove(E.init))) && // TODO assert O(1)
-                    hasLength!T);
+                    __traits(compiles, { auto _ = T.init.byElement; }));
 }
 
 /** Is `true` iff `T` is a type with a "natural" null value.

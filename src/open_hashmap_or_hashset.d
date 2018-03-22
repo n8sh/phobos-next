@@ -1762,7 +1762,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 
         auto x = X();
 
-        {                       // scoped byKey range
+        {                       // scoped range
             auto xkeys = x.byKey;
             assert(xkeys.length == 0);
             foreach (ref key; xkeys)
@@ -1887,7 +1887,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 
     auto x = X();
 
-    {                       // scoped byElement range
+    {                           // scoped range
         auto xes = x.byElement;
         assert(xes.length == 0);
         foreach (ref xe; xes)

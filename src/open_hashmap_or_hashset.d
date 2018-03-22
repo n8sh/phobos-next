@@ -1762,6 +1762,14 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 
         auto x = X();
 
+        {                       // scope range
+            auto xkeys = x.byKey();
+            assert(xkeys.length == 0);
+            foreach (ref key; xkeys)
+            {
+            }
+        }
+
         foreach (immutable i; 0 .. n)
         {
             assert(x.length == i);

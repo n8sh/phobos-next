@@ -24,6 +24,12 @@ buildType "unittest" {
    dflags "-fsanitize=address" platform="posix-ldc"
 }
 
+buildType "unittest-internal" {
+   dflags "-dip1000"            # prevent dependencies to inherit -dip1000
+   dflags "-fsanitize=address" platform="posix-ldc"
+   dflags "-version=internalUnittest"
+}
+
 sourceFiles {
    "src/combinations.d"
    "src/trie.d"

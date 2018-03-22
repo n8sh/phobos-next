@@ -1966,7 +1966,7 @@ auto byElement(Table)(auto ref inout(Table) c) @trusted
     if (isInstanceOf!(OpenHashMapOrSet, Table))
 {
     alias C = const(Table);
-    static if (__traits(isRef, c)) // `c` is an l-value
+    static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
         auto result = C.ByLvalueElement!C((LvalueElementRef!(C)(cast(C*)&c)));
     }

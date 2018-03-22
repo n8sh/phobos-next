@@ -1063,7 +1063,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
 
         /// Returns forward range that iterates through the keys of `this` in undefined order.
-        @property scope auto byKey()() inout return // template-lazy property
+        @property scope auto byKey()() inout return @trusted // template-lazy property
         {
             alias This = ConstThis;
             auto result = ByKey!This((LvalueElementRef!(This)(cast(This*)&this)));
@@ -1084,7 +1084,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
 
         /// Returns forward range that iterates through the values of `this` in undefined order.
-        @property scope auto byValue()() inout return // template-lazy property
+        @property scope auto byValue()() inout return @trusted // template-lazy property
         {
             alias This = ConstThis;
             auto result = ByValue!This((LvalueElementRef!(This)(cast(This*)&this)));
@@ -1114,7 +1114,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
 
         /// Returns forward range that iterates through the keys and values of `this`.
-        @property scope auto byKeyValue()() return // template-lazy property
+        @property scope auto byKeyValue()() return @trusted // template-lazy property
         {
             alias This = MutableThis;
             auto result = ByKeyValue!This((LvalueElementRef!(This)(cast(This*)&this)));
@@ -1122,7 +1122,7 @@ struct OpenHashMapOrSet(K, V = void,
             return result;
         }
         /// ditto
-        @property scope auto byKeyValue()() const return // template-lazy property
+        @property scope auto byKeyValue()() const return @trusted // template-lazy property
         {
             alias This = ConstThis;
             auto result = ByKeyValue!This((LvalueElementRef!(This)(cast(This*)&this)));
@@ -1934,6 +1934,8 @@ auto intersectWith(C1, C2)(ref C1 x,
 /// `string` as key
 @safe pure nothrow @nogc unittest
 {
+    import digestx.fnv : FNV;
+    import container_traits : mustAddGCRange;
     version(showEntries) dln();
 
     alias E = string;
@@ -1943,11 +1945,11 @@ auto intersectWith(C1, C2)(ref C1 x,
 
     X x;
 
-    E testEscape()
+    auto testEscapeShouldFail()() @safe pure
     {
         X x;
         x.insert("a");
-        return x.byElement.front;
+        return x.byElement;
     }
 
     x.insert("a");
@@ -1965,12 +1967,19 @@ auto intersectWith(C1, C2)(ref C1 x,
     x.insert("b");
     assert(x.contains("a"));
     assert(x.contains("b"));
+
+    // TODO detect if -dip1000 flag was passed, https://forum.dlang.org/posting/ayemvxctmpqqsokbmqeb
+    enum useDIP1000 = true;
+    static if (useDIP1000)
+    {
+        static assert(!__traits(compiles, { auto _ = testEscapeShouldFail(); } ));
+    }
 }
 
 /** Returns forward range that iterates through the elements of `c` in undefined
  * order.
  */
-auto byElement(Table)(auto ref inout(Table) c) @trusted
+auto byElement(Table)(auto ref return inout(Table) c) @trusted
     if (isInstanceOf!(OpenHashMapOrSet, Table))
 {
     alias C = const(Table);

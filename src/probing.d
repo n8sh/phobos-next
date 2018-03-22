@@ -41,25 +41,16 @@ size_t triangularProbeFromIndex(alias pred,
         }
         else
         {
-            if (indexIncrement == haystack.length)
-            {
-                return haystack.length;
-            }
+            if (indexIncrement == haystack.length) { return haystack.length; }
         }
 
         static if (is(typeof(unaryFun!pred(T.init))))
         {
-            if (unaryFun!pred(haystack[index]))
-            {
-                return index;
-            }
+            if (unaryFun!pred(haystack[index])) { return index; }
         }
         else static if (is(typeof(binaryFun!pred(size_t.min, T.init))))
         {
-            if (binaryFun!pred(index, haystack[index]))
-            {
-                return index;
-            }
+            if (binaryFun!pred(index, haystack[index])) { return index; }
         }
         else
         {
@@ -81,14 +72,8 @@ size_t triangularProbeCountFromIndex(alias pred,
     size_t indexIncrement = 0;
     while (true)
     {
-        if (indexIncrement == haystack.length)
-        {
-            return indexIncrement + 1;
-        }
-        if (unaryFun!pred(haystack[index]))
-        {
-            return indexIncrement + 1;
-        }
+        if (indexIncrement == haystack.length) { return indexIncrement + 1; }
+        if (unaryFun!pred(haystack[index])) { return indexIncrement + 1; }
         indexIncrement += 1;
         index = (index + indexIncrement) & mask; // next triangular number modulo length
     }

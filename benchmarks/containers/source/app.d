@@ -246,15 +246,15 @@ void main()
 
         writef("- ");
 
-        // // allocate
-        // static if (hasMember!(A, `KeyType`))
-        // {
-        //     const es = iotaArrayOf!(A.KeyType)(n);
-        // }
-        // else
-        // {
-        //     const es = i;
-        // }
+        // allocate
+
+        static if (hasMember!(A, `KeyType`))
+        {
+            const keys = iotaArrayOf!(A.KeyType)(n);
+        }
+        else
+        {
+        }
 
         {
             immutable before = MonoTime.currTime();
@@ -363,7 +363,7 @@ void main()
         writef("- ");
 
         // allocate
-        E[] es = iotaArrayOf!E(n);
+        const es = iotaArrayOf!E(n);
 
         // insert
         {
@@ -420,18 +420,18 @@ void main()
     }
 }
 
-T[] iotaArrayOf(T)(size_t n)
+T[] iotaArrayOf(T, U)(U n)
 {
     typeof(return) es = new T[n];
     foreach (immutable i; 0 .. n)
     {
+        import std.conv : to;
         static if (is(typeof(T(i)))) // if possible
         {
             es[i] = T(i);       // try normal construction
         }
         else
         {
-            import std.conv : to;
             es[i] = i.to!T;     // otherwise conv which may allocate
         }
     }

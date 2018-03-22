@@ -1938,7 +1938,7 @@ auto intersectWith(C1, C2)(ref C1 x,
 
     alias X = OpenHashMapOrSet!(string, void, FNV!(64, true));
     static assert(!mustAddGCRange!X);
-    static assert(X.sizeof == 24); // dynamic arrays `hasAddressKey`
+    static assert(X.sizeof == 24); // dynamic arrays also `hasAddressKey`
 
     X x;
 

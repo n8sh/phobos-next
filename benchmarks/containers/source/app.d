@@ -247,28 +247,13 @@ void main()
         writef("- ");
 
         // allocate
-
-        static if (hasMember!(A, `KeyType`))
-        {
-            const keys = iotaArrayOf!(A.KeyType)(n);
-        }
-        else
-        {
-        }
+        const keys = iotaArrayOf!(A.KeyType)(n);
 
         {
             immutable before = MonoTime.currTime();
             foreach (immutable i; 0 .. n)
             {
-                static if (hasMember!(A, `KeyType`))
-                {
-                    const key = i.to!(A.KeyType);
-                }
-                else
-                {
-                    const key = i;
-                }
-                a.insert(A.ElementType(key, A.ValueType.init));
+                a.insert(A.ElementType(keys[i], A.ValueType.init));
             }
             immutable after = MonoTime.currTime();
             writef("insert (w growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
@@ -279,15 +264,7 @@ void main()
             size_t hitCount = 0;
             foreach (immutable i; 0 .. n)
             {
-                static if (hasMember!(A, `KeyType`))
-                {
-                    const key = i.to!(A.KeyType);
-                }
-                else
-                {
-                    const key = i;
-                }
-                hitCount += a.contains(key);
+                hitCount += a.contains(keys[i]);
             }
             const ok = hitCount = n; // for side effect in output
             assert(ok);
@@ -300,15 +277,7 @@ void main()
             size_t hitCount = 0;
             foreach (immutable i; 0 .. n)
             {
-                static if (hasMember!(A, `KeyType`))
-                {
-                    const key = i.to!(A.KeyType);
-                }
-                else
-                {
-                    const key = i;
-                }
-                hitCount += cast(bool)(key in a);
+                hitCount += cast(bool)(keys[i] in a);
             }
             const ok = hitCount = n; // for side effect in output
             assert(ok);
@@ -320,15 +289,7 @@ void main()
         immutable before = MonoTime.currTime();
         foreach (immutable i; 0 .. n)
         {
-            static if (hasMember!(A, `KeyType`))
-            {
-                const key = i.to!(A.KeyType);
-            }
-            else
-            {
-                const key = i;
-            }
-            b.insert(A.ElementType(key, A.ValueType.init));
+            b.insert(A.ElementType(keys[i], A.ValueType.init));
         }
         immutable after = MonoTime.currTime();
         writef(", insert (no growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
@@ -352,6 +313,8 @@ void main()
 
         static if (hasMember!(A, `clear`)) { a.clear(); }
     }
+
+    writefln("\nBuiltin Assocative Arrays:\n");
 
     foreach (E; AliasSeq!(uint, ulong, string))
     {

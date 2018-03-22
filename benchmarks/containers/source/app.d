@@ -237,7 +237,10 @@ void main()
                           HashMap!(ulong, ulong, null, muellerHash64),
                           HashMap!(ulong, ulong, null, wangMixHash64),
                           HashMap!(ulong, ulong, null, FNV!(64, true)),
-                          OpenHashMap!(Nullable!(ulong, ulong.max), ulong, FNV!(64, true))))
+                          OpenHashMap!(Nullable!(ulong, ulong.max), ulong, FNV!(64, true)),
+
+                          OpenHashMap!(string, string, FNV!(64, true)),
+                 ))
     {
         A a;
 
@@ -249,7 +252,7 @@ void main()
             {
                 static if (hasMember!(A, `KeyType`))
                 {
-                    const key = A.KeyType(i); // wrap in i in Nullable
+                    const key = i.to!(A.KeyType);
                 }
                 else
                 {
@@ -268,7 +271,7 @@ void main()
             {
                 static if (hasMember!(A, `KeyType`))
                 {
-                    const key = A.KeyType(i); // wrap in i in Nullable
+                    const key = i.to!(A.KeyType);
                 }
                 else
                 {
@@ -289,7 +292,7 @@ void main()
             {
                 static if (hasMember!(A, `KeyType`))
                 {
-                    const key = A.KeyType(i); // wrap in i in Nullable
+                    const key = i.to!(A.KeyType);
                 }
                 else
                 {
@@ -309,7 +312,7 @@ void main()
         {
             static if (hasMember!(A, `KeyType`))
             {
-                const key = A.KeyType(i); // wrap in i in Nullable
+                const key = i.to!(A.KeyType);
             }
             else
             {

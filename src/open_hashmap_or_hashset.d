@@ -2,7 +2,6 @@ module open_hashmap_or_hashset;
 
 // version = showEntries;
 // version = show;
-
 // version = internalUnittest; // fed by dub (see dub.sdl) in unittest-internal mode
 
 import std.functional : unaryFun;

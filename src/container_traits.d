@@ -6,7 +6,7 @@
  */
 module container_traits;
 
-/// True if elements need move.
+/// True if a `T` needs to be passed by move instead of value.
 template needsMove(T)
 {
     import std.traits : hasElaborateDestructor, isCopyable;

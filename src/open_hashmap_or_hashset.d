@@ -1093,11 +1093,11 @@ struct OpenHashMapOrSet(K, V = void,
         /// Key-value element reference with head-const for `class` keys.
         static private struct KeyValueType
         {
-            static if (is(K == class) || isPointer!K)
+            static if (is(K == class) || isPointer!K) // for reference types
             {
                 K _key;          // no const because
 
-                // make key access head-const
+                /** Key access is head-const. */
                 K key() @property @safe pure nothrow @nogc
                 {
                     return _key;

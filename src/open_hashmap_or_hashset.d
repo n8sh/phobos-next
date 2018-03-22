@@ -2535,6 +2535,8 @@ version(unittest)
                 auto x = X.withElements([k11, k12, k13].s);
 
                 import std.algorithm : count;
+
+                // ByLvalueElement
                 auto xr = x.byElement;
 
                 alias R = typeof(xr);
@@ -2612,7 +2614,7 @@ version(unittest)
                     foreach (e; xc.byElement) {}
                 }
 
-                {
+                {               // ByRvalueElement
                     auto k = X.withElements([k11, k12].s).filtered!(_ => _ != k11).byElement;
                     static assert(isInputRange!(typeof(k)));
                     assert(k.front == k12);

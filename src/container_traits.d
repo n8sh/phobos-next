@@ -6,6 +6,8 @@
  */
 module container_traits;
 
+@safe:
+
 /// True if a `T` needs to be passed by move instead of value.
 template needsMove(T)
 {

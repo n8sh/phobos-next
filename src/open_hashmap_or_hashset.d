@@ -1968,12 +1968,7 @@ auto intersectWith(C1, C2)(ref C1 x,
     assert(x.contains("a"));
     assert(x.contains("b"));
 
-    // TODO detect if -dip1000 flag was passed, https://forum.dlang.org/posting/ayemvxctmpqqsokbmqeb
-    enum useDIP1000 = true;
-    static if (useDIP1000)
-    {
-        static assert(!__traits(compiles, { auto _ = testEscapeShouldFail(); } ));
-    }
+    static assert(!__traits(compiles, { testEscapeShouldFail(); } ));
 }
 
 /** Returns forward range that iterates through the elements of `c` in undefined

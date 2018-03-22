@@ -13,8 +13,9 @@ import pure_mallocator : PureMallocator;
  * `K` and values of type `V`.
  *
  * Keys are immutable except for when they are `class`es in which case they are
- * head-const, This corresponds with behaviour of default value hashing of
- * `class` instances in `digestion.d`.
+ * head-const (through bin reinterpretation to `KeyValueType`), This corresponds
+ * with behaviour of default value hashing of `class` instances in
+ * `digestion.d`.
  *
  * Uses open-addressing with quadratic probing (using triangular numbers) and
  * lazy deletion/removal.
@@ -150,21 +151,6 @@ struct OpenHashMapOrSet(K, V = void,
             V value;
         }
 
-        /// Mutable element reference with constant key and mutable value.
-        struct CT
-        {
-            static if (is(K == class) ||
-                       isPointer!K)
-            {
-                K key;          // no const because
-            }
-            else
-            {
-                const K key;
-            }
-            V value;
-        }
-
         /// Get key part of element.
         pragma(inline, true)
         static auto ref inout(K) keyOf()(auto ref return scope inout(T) element)
@@ -231,7 +217,7 @@ struct OpenHashMapOrSet(K, V = void,
      * `minimumCapacity` number of elements.
      */
     pragma(inline, true)
-    private static T[] makeDefaultInitializedBins()(size_t minimumCapacity) // template-lazy
+    static private T[] makeDefaultInitializedBins()(size_t minimumCapacity) // template-lazy
         @trusted pure nothrow @nogc
     {
         immutable capacity = nextPow2(minimumCapacity);
@@ -1104,6 +1090,23 @@ struct OpenHashMapOrSet(K, V = void,
             return result;
         }
 
+        /// Key-value element reference with head-const for `class` keys.
+        static private struct KeyValueType
+        {
+            static if (is(K == class) || isPointer!K)
+            {
+                K _key;          // no const because
+
+                // make key access head-const
+                K key() @property @safe pure nothrow @nogc { return _key; }
+            }
+            else
+            {
+                const K key;
+            }
+            V value;
+        }
+
         static private struct ByKeyValue(Table)
         {
             pragma(inline, true):
@@ -1113,7 +1116,7 @@ struct OpenHashMapOrSet(K, V = void,
                 // TODO can this be solved without this `static if`?
                 static if (isMutable!(Table))
                 {
-                    alias E = CT;
+                    alias E = KeyValueType;
                 }
                 else
                 {
@@ -1497,7 +1500,7 @@ private:
 /** Duplicate `src` into uninitialized `dst` ignoring prior destruction of `dst`.
  * TODO move to more generic place
  */
-private static void duplicateEmplace(T)(const scope ref T src,
+static private void duplicateEmplace(T)(const scope ref T src,
                                         scope ref T dst) @system
 {
     import std.traits : hasElaborateCopyConstructor, isCopyable, isBasicType, isInstanceOf;
@@ -2304,7 +2307,7 @@ pure nothrow unittest
         assert(e.value.data == 43);
 
         // class key itself should not be mutable
-        // TODO static assert(!__traits(compiles, { e.key = null; }));
+        static assert(!__traits(compiles, { e.key = null; }));
 
         // members of key can be mutated
         static assert(__traits(compiles, { e.key.value += 1; }));

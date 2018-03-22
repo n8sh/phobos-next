@@ -1386,3 +1386,13 @@ unittest
     static assert(areFlatteninglyCombinable!(A[], A[], A));
     static assert(!areFlatteninglyCombinable!(int[], A));
 }
+
+/** Is `true` iff DIP-1000 checking is enabled via compiler flag -dip1000.
+ *
+ * See also: https://forum.dlang.org/post/qglynupcootocnnnpmhj@forum.dlang.org
+ */
+enum isDIP1000 = __traits(compiles, () @safe {
+         int x;
+         int* p;
+         p = &x;
+    });

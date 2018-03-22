@@ -1952,6 +1952,13 @@ auto intersectWith(C1, C2)(ref C1 x,
         return x.byElement;
     }
 
+    auto testEscapeShouldFailFront()() @safe pure
+    {
+        X x;
+        x.insert("a");
+        return x.byElement.front;
+    }
+
     x.insert("a");
     x.insert("b");
     assert(x.contains("a"));
@@ -1969,6 +1976,8 @@ auto intersectWith(C1, C2)(ref C1 x,
     assert(x.contains("b"));
 
     static assert(!__traits(compiles, { testEscapeShouldFail(); } ));
+    // TODO this should fail:
+    // static assert(!__traits(compiles, { testEscapeShouldFailFront(); } ));
 }
 
 /** Returns forward range that iterates through the elements of `c` in undefined

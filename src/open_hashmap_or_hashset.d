@@ -3,6 +3,8 @@ module open_hashmap_or_hashset;
 // version = showEntries;
 // version = show;
 
+// version = internalTest;
+
 import std.functional : unaryFun;
 import container_traits : isNullable, isSet;
 import pure_mallocator : PureMallocator;
@@ -461,7 +463,7 @@ struct OpenHashMapOrSet(K, V = void,
 
             void untagHoleAtIndex(size_t index) @trusted
             {
-                version(unittest) assert(index < _bins.length);
+                version(internalTest) assert(index < _bins.length);
                 if (_holesPtr !is null)
                 {
                     btr(_holesPtr, index);
@@ -478,7 +480,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         void tagHoleAtIndex(size_t index) @trusted
         {
-            version(unittest) assert(index < _bins.length);
+            version(internalTest) assert(index < _bins.length);
             static if (!hasAddressKey)
             {
                 if (_holesPtr is null) // lazy allocation
@@ -647,7 +649,7 @@ struct OpenHashMapOrSet(K, V = void,
     private void growWithNewCapacity()(size_t newCapacity) // template-lazy
     {
         version(showEntries) dln(__FUNCTION__, " newCapacity:", newCapacity);
-        version(unittest) assert(newCapacity > _bins.length);
+        version(internalTest) assert(newCapacity > _bins.length);
         static if (__traits(hasMember, Allocator, "reallocate"))
         {
             if (growInPlaceFlag)
@@ -809,7 +811,7 @@ struct OpenHashMapOrSet(K, V = void,
     private void growStandardWithNewCapacity()(size_t newCapacity) @trusted // template-lazy
     {
         version(showEntries) dln(__FUNCTION__, " newCapacity:", newCapacity);
-        version(unittest) assert(newCapacity > _bins.length);
+        version(internalTest) assert(newCapacity > _bins.length);
         auto next = typeof(this).withCapacity(newCapacity);
         foreach (immutable index, ref bin; _bins)
         {
@@ -830,7 +832,7 @@ struct OpenHashMapOrSet(K, V = void,
     private void growStandardWithNewCapacity_alternative()(size_t newCapacity) @trusted // template-lazy
     {
         version(showEntries) dln(__FUNCTION__, " newCapacity:", newCapacity);
-        version(unittest) assert(newCapacity > _bins.length);
+        version(internalTest) assert(newCapacity > _bins.length);
 
         T[] oldBins = _bins;
         _bins = makeDefaultInitializedBins(newCapacity); // replace with new bins
@@ -866,7 +868,7 @@ struct OpenHashMapOrSet(K, V = void,
                 }
             }
         }
-        version(unittest) debug assert(oldCount == _count);
+        version(internalTest) debug assert(oldCount == _count);
 
         static if (!hasAddressKey)
         {
@@ -882,7 +884,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         releaseBinsSlice(oldBins);
 
-        version(unittest) assert(_bins.length);
+        version(internalTest) assert(_bins.length);
     }
 
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
@@ -890,10 +892,10 @@ struct OpenHashMapOrSet(K, V = void,
     pragma(inline, true)
     private InsertionStatus insertWithoutGrowth()(T element) @trusted // template-lazy
     {
-        version(unittest) assert(!keyOf(element).isNull);
+        version(internalTest) assert(!keyOf(element).isNull);
         static if (hasAddressKey)
         {
-            version(unittest) assert(!isHoleKeyConstant(keyOf(element)));
+            version(internalTest) assert(!isHoleKeyConstant(keyOf(element)));
         }
 
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(keyOf(element));
@@ -901,7 +903,7 @@ struct OpenHashMapOrSet(K, V = void,
             keyOf(_bins[hitIndex]).isNull) // just key miss but a hole may be have be found on the way
         {
             immutable hitIndex1 = indexOfHoleOrNullForKey(keyOf(element)); // try again to reuse hole
-            version(unittest) assert(hitIndex1 != _bins.length, "no null or hole slot");
+            version(internalTest) assert(hitIndex1 != _bins.length, "no null or hole slot");
             insertMoveElementAtIndex(element, hitIndex1);
             static if (!hasAddressKey)
             {
@@ -1371,7 +1373,7 @@ private:
     private size_t powerOf2Mask() const
     {
         immutable typeof(return) mask = _bins.length - 1;
-        version(unittest) assert((~mask ^ mask) == typeof(mask).max); // isPowerOf2(_bins.length)
+        version(internalTest) assert((~mask ^ mask) == typeof(mask).max); // isPowerOf2(_bins.length)
         return mask;
     }
 
@@ -1381,10 +1383,10 @@ private:
     pragma(inline, true)
     private size_t indexOfKeyOrVacancySkippingHoles(const scope K key) const @trusted
     {
-        version(unittest) assert(!key.isNull);
+        version(internalTest) assert(!key.isNull);
         static if (hasAddressKey)
         {
-            version(unittest) assert(!isHoleKeyConstant(key));
+            version(internalTest) assert(!isHoleKeyConstant(key));
         }
         static if (isCopyable!T)
         {
@@ -1424,10 +1426,10 @@ private:
 
     private size_t indexOfHoleOrNullForKey()(const scope K key) const @trusted // template-lazy
     {
-        version(unittest) assert(!key.isNull);
+        version(internalTest) assert(!key.isNull);
         static if (hasAddressKey)
         {
-            version(unittest) assert(!isHoleKeyConstant(key));
+            version(internalTest) assert(!isHoleKeyConstant(key));
         }
         static if (isCopyable!T)
         {
@@ -1469,7 +1471,7 @@ private:
     pragma(inline, true)
     private bool isOccupiedAtIndex(size_t index) const @trusted
     {
-        version(unittest) assert(index < _bins.length);
+        version(internalTest) assert(index < _bins.length);
         if (keyOf(_bins[index]).isNull) { return false; }
         static if (!hasAddressKey)
         {

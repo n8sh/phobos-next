@@ -5,7 +5,7 @@ module open_hashmap_or_hashset;
 // version = internalUnittest; // fed by dub (see dub.sdl) in unittest-internal mode
 
 import std.functional : unaryFun;
-import container_traits : isNullable, isSet;
+import container_traits : isNullable;
 import pure_mallocator : PureMallocator;
 
 @safe:

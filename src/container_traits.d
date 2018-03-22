@@ -121,7 +121,7 @@ private template isTemplateInstance(T)
  */
 template mustAddGCRange(T)
 {
-    import std.traits : hasUDA, isPointer, isArray, isStaticArray, isScalarType;
+    import std.traits : isPointer, isArray, isStaticArray, isScalarType;
     static if (is(T == class) ||
                isPointer!T)
     {

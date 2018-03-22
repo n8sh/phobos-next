@@ -2616,6 +2616,17 @@ version(unittest)
                     auto k = X.withElements([k11, k12].s).filtered!(_ => _ != k11).byElement;
                     static assert(isInputRange!(typeof(k)));
                     assert(k.front == k12);
+
+                    static assert(!__traits(compiles, { k.front = K.init; })); // head-const
+                    static if (is(K == class))
+                    {
+                        static assert(is(typeof(k.front) == K)); // tail-mutable
+                    }
+                    else
+                    {
+                        static assert(is(typeof(k.front) == const(K))); // tail-const
+                    }
+
                     k.popFront();
                     assert(k.empty);
                 }

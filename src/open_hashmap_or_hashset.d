@@ -139,7 +139,7 @@ struct OpenHashMapOrSet(K, V = void,
             unmodified                  // element was left unchanged
         }
 
-        /// Constant element reference with both constant key and value.
+        /// Mutable element reference with mutable constant key and value.
         struct T
         {
             K key;
@@ -149,7 +149,15 @@ struct OpenHashMapOrSet(K, V = void,
         /// Mutable element reference with constant key and mutable value.
         struct CT
         {
-            const K key;
+            static if (is(K == class) ||
+                       isPointer!K)
+            {
+                K key;          // no const because
+            }
+            else
+            {
+                const K key;
+            }
             V value;
         }
 
@@ -2285,14 +2293,17 @@ pure nothrow unittest
 
     foreach (ref e; x.byKeyValue)   // `e` is auto ref
     {
-        static assert(is(typeof(e.key) == const(X.KeyType))); // const access to key
+        static assert(is(typeof(e.key) == X.KeyType)); // mutable access to class key
         static assert(is(typeof(e.value) == X.ValueType)); // mutable access to value
 
         assert(e.key.value == 42);
         assert(e.value.data == 43);
 
-        // key cannot be mutated
-        static assert(!__traits(compiles, { e.key.value += 1; }));
+        // class key itself should not be mutable
+        // TODO static assert(!__traits(compiles, { e.key = null; }));
+
+        // key can be mutated
+        static assert(__traits(compiles, { e.key.value += 1; }));
 
         // value mutation side effects
         e.value.data += 1;
@@ -2344,7 +2355,7 @@ pure nothrow unittest
 
     foreach (ref e; x.byKeyValue) // `e` is auto ref
     {
-        static assert(is(typeof(e.key) == const(X.KeyType))); // const access to key
+        static assert(is(typeof(e.key) == X.KeyType)); // mutable access to class key
         static assert(is(typeof(e.value) == X.ValueType)); // mutable access to value
 
         assert(e.key.value == 42);

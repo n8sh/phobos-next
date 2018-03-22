@@ -68,7 +68,7 @@ void main()
         }
 
         immutable before = MonoTime.currTime();
-        foreach (const i; 0 .. n)
+        foreach (immutable i; 0 .. n)
         {
             a ~= i.to!uint;     // need to cast away const here for now. TODO remove this requirement
         }
@@ -122,7 +122,7 @@ void main()
 
         {
             immutable before = MonoTime.currTime();
-            foreach (const i; 0 .. n)
+            foreach (immutable i; 0 .. n)
             {
                 static if (hasMember!(A, `ElementType`) &&
                            is(A.ElementType == ubyte[]))
@@ -149,7 +149,7 @@ void main()
         {
             immutable before = MonoTime.currTime();
             size_t hitCount = 0;
-            foreach (const i; 0 .. n)
+            foreach (immutable i; 0 .. n)
             {
                 static if (hasMember!(A, `ElementType`) &&
                            is(A.ElementType == ubyte[]))
@@ -180,7 +180,7 @@ void main()
             A b = A.withCapacity(n);
 
             immutable before = MonoTime.currTime();
-            foreach (const i; 0 .. n)
+            foreach (immutable i; 0 .. n)
             {
                 static if (hasMember!(A, `ElementType`) &&
                            is(A.ElementType == ubyte[]))
@@ -245,7 +245,7 @@ void main()
 
         {
             immutable before = MonoTime.currTime();
-            foreach (const i; 0 .. n)
+            foreach (immutable i; 0 .. n)
             {
                 static if (hasMember!(A, `KeyType`))
                 {
@@ -264,7 +264,7 @@ void main()
         {
             immutable before = MonoTime.currTime();
             size_t hitCount = 0;
-            foreach (const i; 0 .. n)
+            foreach (immutable i; 0 .. n)
             {
                 static if (hasMember!(A, `KeyType`))
                 {
@@ -285,7 +285,7 @@ void main()
         {
             immutable before = MonoTime.currTime();
             size_t hitCount = 0;
-            foreach (const i; 0 .. n)
+            foreach (immutable i; 0 .. n)
             {
                 static if (hasMember!(A, `KeyType`))
                 {
@@ -305,7 +305,7 @@ void main()
 
         A b = A.withCapacity(n);
         immutable before = MonoTime.currTime();
-        foreach (const i; 0 .. n)
+        foreach (immutable i; 0 .. n)
         {
             static if (hasMember!(A, `KeyType`))
             {
@@ -349,22 +349,28 @@ void main()
 
         writef("- ");
 
+        // separate allocation
+        E[] es = new E[n];
+        foreach (immutable i; 0 .. n) { es[i] = i.to!E; }
+
+        // insert
         {
             immutable before = MonoTime.currTime();
-            foreach (const i; 0 .. n)
+            foreach (immutable i; 0 .. n)
             {
-                a[i.to!E] = ValueType.init;
+                a[es[i]] = ValueType.init;
             }
             immutable after = MonoTime.currTime();
             writef("insert (w growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
         }
 
+        // in
         {
             immutable before = MonoTime.currTime();
             size_t hitCount = 0;
-            foreach (const i; 0 .. n)
+            foreach (immutable i; 0 .. n)
             {
-                hitCount += cast(bool)(i.to!E in a);
+                hitCount += cast(bool)(es[i] in a);
             }
             const ok = hitCount = n; // for side effect in output
             assert(ok);
@@ -372,6 +378,7 @@ void main()
             writef(", contains: %3.1f ns/op (%s)", cast(double)(after - before).total!"nsecs" / n, ok ? "OK" : "ERR");
         }
 
+        // rahash
         {
             immutable before = MonoTime.currTime();
             a.rehash();
@@ -379,11 +386,12 @@ void main()
             writef(", rehash: %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
         }
 
+        // in
         {
             immutable before = MonoTime.currTime();
-            foreach (const i; 0 .. n)
+            foreach (immutable i; 0 .. n)
             {
-                const hit = i.to!E in a;
+                const hit = es[i] in a;
             }
             immutable after = MonoTime.currTime();
             writef(", contains (after rehash): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);

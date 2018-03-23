@@ -1120,14 +1120,8 @@ struct OpenHashMapOrSet(K, V = void,
             @property scope auto ref front() return @trusted // TODO auto ref => ref T
             {
                 // TODO can this be solved without this `static if`?
-                static if (isMutable!(Table))
-                {
-                    alias E = KeyValueType;
-                }
-                else
-                {
-                    alias E = const(T);
-                }
+                static if (isMutable!(Table)) { alias E = KeyValueType; }
+                else                          { alias E = const(T); }
                 return *(cast(E*)&_table._bins[_binIndex]);
             }
             public LvalueElementRef!(Table) _elementRef;

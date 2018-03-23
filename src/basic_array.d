@@ -259,6 +259,8 @@ struct BasicArray(T,
                 {
                     static if (needsMove!(typeof(value)))
                     {
+                        pragma(msg, typeof(value));
+                        f;
                         moveEmplace(value, _mptr[i++]);
                     }
                     else
@@ -1131,7 +1133,7 @@ size_t remove(alias predicate, C)(ref C c)
 version(unittest)
 {
     /// uncopyable struct
-    private static struct US
+    private static struct SomeUncopyable
     {
         @disable this(this);
         int x;
@@ -1141,32 +1143,32 @@ version(unittest)
 /// construct and insert from non-copyable element type passed by value
 @safe pure nothrow /*@nogc*/ unittest
 {
-    alias A = BasicArray!(US);
+    alias A = BasicArray!(SomeUncopyable);
 
-    A a = A(US(17));
-    assert(a[] == [US(17)]);
+    A a = A(SomeUncopyable(17));
+    assert(a[] == [SomeUncopyable(17)]);
 
-    a.insertBack(US(18));
-    assert(a[] == [US(17),
-                   US(18)]);
+    a.insertBack(SomeUncopyable(18));
+    assert(a[] == [SomeUncopyable(17),
+                   SomeUncopyable(18)]);
 
-    a ~= US(19);
-    assert(a[] == [US(17),
-                   US(18),
-                   US(19)]);
+    a ~= SomeUncopyable(19);
+    assert(a[] == [SomeUncopyable(17),
+                   SomeUncopyable(18),
+                   SomeUncopyable(19)]);
 }
 
 /// construct from slice of uncopyable type
 @safe pure nothrow @nogc unittest
 {
-    alias A = BasicArray!(US);
-    // TODO can we safely support this?: A a = [US(17)];
+    alias A = BasicArray!(SomeUncopyable);
+    // TODO can we safely support this?: A a = [SomeUncopyable(17)];
 }
 
 // construct from array with uncopyable elements
 @safe pure nothrow @nogc unittest
 {
-    alias A = BasicArray!(US);
+    alias A = BasicArray!(SomeUncopyable);
 
     A a;
     assert(a.empty);
@@ -1178,7 +1180,7 @@ version(unittest)
 // construct from ranges of uncopyable elements
 @safe pure nothrow @nogc unittest
 {
-    alias T = US;
+    alias T = SomeUncopyable;
     alias A = BasicArray!T;
 
     A a;

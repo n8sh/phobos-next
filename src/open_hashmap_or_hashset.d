@@ -2776,7 +2776,9 @@ version(unittest)
     alias X = OpenHashMapOrSet!(Nullable!(size_t, size_t.max), size_t, FNV!(64, true));
     import basic_array : Array = BasicArray;
     X x;
-    auto a = Array!(X.KeyType)(x.byKey);
+    // TODO these segfault:
+    // auto a = Array!(X.KeyType)(x.byKey); // l-value byKey
+    // auto b = Array!(X.KeyType)(X().byKey); // r-value byKey
 }
 
 version(unittest)

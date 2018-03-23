@@ -2770,6 +2770,15 @@ version(unittest)
     }
 }
 
+///
+@safe pure nothrow @nogc unittest
+{
+    alias X = OpenHashMapOrSet!(Nullable!(size_t, size_t.max), size_t, FNV!(64, true));
+    import basic_array : Array = BasicArray;
+    X x;
+    auto a = Array!(X.KeyType)(x.byKey);
+}
+
 version(unittest)
 {
     import std.exception : assertThrown, assertNotThrown;

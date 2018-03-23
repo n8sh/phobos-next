@@ -1050,7 +1050,7 @@ struct OpenHashMapOrSet(K, V = void,
             }
         }
 
-        static private struct ByKey(Table)
+        static private struct ByLvalueKey(Table)
         {
             pragma(inline, true):
             /// Get reference to key of front element.
@@ -1062,16 +1062,7 @@ struct OpenHashMapOrSet(K, V = void,
             alias _elementRef this;
         }
 
-        /// Returns forward range that iterates through the keys of `this` in undefined order.
-        @property scope auto byKey()() inout return @trusted // template-lazy property
-        {
-            alias This = ConstThis;
-            auto result = ByKey!This((LvalueElementRef!(This)(cast(This*)&this)));
-            result.findNextNonEmptyBin();
-            return result;
-        }
-
-        static private struct ByValue(Table)
+        static private struct ByLvalueValue(Table)
         {
             pragma(inline, true):
             /// Get reference to value of front element.
@@ -1081,15 +1072,6 @@ struct OpenHashMapOrSet(K, V = void,
             }
             public LvalueElementRef!(Table) _elementRef;
             alias _elementRef this;
-        }
-
-        /// Returns forward range that iterates through the values of `this` in undefined order.
-        @property scope auto byValue()() inout return @trusted // template-lazy property
-        {
-            alias This = ConstThis;
-            auto result = ByValue!This((LvalueElementRef!(This)(cast(This*)&this)));
-            result.findNextNonEmptyBin();
-            return result;
         }
 
         /// Key-value element reference with head-const for `class` keys.
@@ -1112,7 +1094,7 @@ struct OpenHashMapOrSet(K, V = void,
             V value;
         }
 
-        static private struct ByKeyValue(Table)
+        static private struct ByLvalueKeyValue(Table)
         {
             pragma(inline, true):
             /// Get reference to front element (key and value).
@@ -1133,11 +1115,29 @@ struct OpenHashMapOrSet(K, V = void,
             alias _elementRef this;
         }
 
+        /// Returns forward range that iterates through the keys of `this` in undefined order.
+        @property scope auto byKey()() inout return @trusted // template-lazy property
+        {
+            alias This = ConstThis;
+            auto result = ByLvalueKey!This((LvalueElementRef!(This)(cast(This*)&this)));
+            result.findNextNonEmptyBin();
+            return result;
+        }
+
+        /// Returns forward range that iterates through the values of `this` in undefined order.
+        @property scope auto byValue()() inout return @trusted // template-lazy property
+        {
+            alias This = ConstThis;
+            auto result = ByLvalueValue!This((LvalueElementRef!(This)(cast(This*)&this)));
+            result.findNextNonEmptyBin();
+            return result;
+        }
+
         /// Returns forward range that iterates through the keys and values of `this`.
         @property scope auto byKeyValue()() return @trusted // template-lazy property
         {
             alias This = MutableThis;
-            auto result = ByKeyValue!This((LvalueElementRef!(This)(cast(This*)&this)));
+            auto result = ByLvalueKeyValue!This((LvalueElementRef!(This)(cast(This*)&this)));
             result.findNextNonEmptyBin();
             return result;
         }
@@ -1145,7 +1145,7 @@ struct OpenHashMapOrSet(K, V = void,
         @property scope auto byKeyValue()() const return @trusted // template-lazy property
         {
             alias This = ConstThis;
-            auto result = ByKeyValue!This((LvalueElementRef!(This)(cast(This*)&this)));
+            auto result = ByLvalueKeyValue!This((LvalueElementRef!(This)(cast(This*)&this)));
             result.findNextNonEmptyBin();
             return result;
         }
@@ -2018,10 +2018,10 @@ auto intersectWith(C1, C2)(ref C1 x,
 /** Returns forward range that iterates through the elements of `c` in undefined
  * order.
  */
-auto byElement(Table)(auto ref return inout(Table) c) @trusted
-    if (isInstanceOf!(OpenHashMapOrSet, Table))
+auto byElement(T)(auto ref return inout(T) c) @trusted
+    if (isInstanceOf!(OpenHashMapOrSet, T))
 {
-    alias C = const(Table);
+    alias C = const(T);
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
         auto result = C.ByLvalueElement!C((LvalueElementRef!(C)(cast(C*)&c)));
@@ -2029,7 +2029,7 @@ auto byElement(Table)(auto ref return inout(Table) c) @trusted
     else                        // `c` was is an r-value and can be moved
     {
         import std.algorithm.mutation : move;
-        auto result = C.ByRvalueElement!C((RvalueElementRef!C(move(*(cast(Table*)&c))))); // reinterpret
+        auto result = C.ByRvalueElement!C((RvalueElementRef!C(move(*(cast(T*)&c))))); // reinterpret
     }
     result.findNextNonEmptyBin();
     return result;
@@ -2777,7 +2777,7 @@ version(unittest)
     import basic_array : Array = BasicArray;
     X x;
     // TODO these segfault:
-    // TODO auto a = Array!(X.KeyType).withElementsOfRange_untested(x.byKey); // l-value byKey
+    auto a = Array!(X.KeyType).withElementsOfRange_untested(x.byKey); // l-value byKey
     // TODO auto b = Array!(X.KeyType).withElementsOfRange_untested(X().byKey); // r-value byKey
 }
 

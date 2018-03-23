@@ -265,7 +265,7 @@ struct BasicArray(T,
                     }
                     else
                     {
-                        _mptr[i++] = value;
+                        result._mptr[i++] = value;
                     }
                 }
                 result._store.length = values.length;

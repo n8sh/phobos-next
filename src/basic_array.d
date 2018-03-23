@@ -228,14 +228,14 @@ struct BasicArray(T,
 
     /** Is `true` iff constructable from the iterable (or range) `I`.
      */
-    enum isAssignableFromElementsOfRefIterableStruct(I) = (is(I == struct) && // exclude class ranges for aliasing control
+    enum isAssignableFromElementsOfFiniteRefIterable(I) = (is(I == struct) && // exclude class ranges for aliasing control
                                                            isRefIterable!I && // elements may be non-copyable
                                                            !isInfinite!I &&
                                                            isElementAssignable!(ElementType!I));
 
     /// Construct from the elements `values`.
     this(R)(R values) @trusted
-        if (isAssignableFromElementsOfRefIterableStruct!R)
+        if (isAssignableFromElementsOfFiniteRefIterable!R)
     {
         import std.range : hasLength, hasSlicing;
 
@@ -721,7 +721,7 @@ struct BasicArray(T,
     /** Insert the elements `elements` into the end of the array.
      */
     void insertBack(R)(R elements)
-        if (isAssignableFromElementsOfRefIterableStruct!R)
+        if (isAssignableFromElementsOfFiniteRefIterable!R)
     {
         import std.range : hasLength;
         static if (isInputRange!R &&

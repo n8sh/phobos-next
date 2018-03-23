@@ -1062,6 +1062,18 @@ struct OpenHashMapOrSet(K, V = void,
             alias _elementRef this;
         }
 
+        static private struct ByRvalueKey(Table)
+        {
+            pragma(inline, true):
+            /// Get reference to key of front element.
+            @property scope const auto ref front()() return // key access must be const, TODO auto ref => ref K
+            {
+                return _table._bins[_binIndex].key;
+            }
+            public RvalueElementRef!(Table) _elementRef;
+            alias _elementRef this;
+        }
+
         static private struct ByLvalueValue(Table)
         {
             pragma(inline, true):
@@ -1113,15 +1125,6 @@ struct OpenHashMapOrSet(K, V = void,
             }
             public LvalueElementRef!(Table) _elementRef;
             alias _elementRef this;
-        }
-
-        /// Returns forward range that iterates through the keys of `this` in undefined order.
-        @property scope auto byKey()() inout return @trusted // template-lazy property
-        {
-            alias This = ConstThis;
-            auto result = ByLvalueKey!This((LvalueElementRef!(This)(cast(This*)&this)));
-            result.findNextNonEmptyBin();
-            return result;
         }
 
         /// Returns forward range that iterates through the values of `this` in undefined order.
@@ -2015,8 +2018,7 @@ auto intersectWith(C1, C2)(ref C1 x,
     // TODO static assert(!__traits(compiles, { testEscapeShouldFailFront(); } ));
 }
 
-/** Returns forward range that iterates through the elements of `c` in undefined
- * order.
+/** Returns: range that iterates through the elements of `c` in undefined order.
  */
 auto byElement(T)(auto ref return inout(T) c) @trusted
     if (isInstanceOf!(OpenHashMapOrSet, T))
@@ -2035,6 +2037,24 @@ auto byElement(T)(auto ref return inout(T) c) @trusted
     return result;
 }
 alias range = byElement;        // EMSI-container naming
+
+/** Returns: range that iterates through the keys of `c` in undefined order.
+ */
+auto byKey(T)(auto ref return inout(T) c) @trusted
+{
+    alias C = const(T);
+    static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
+    {
+        auto result = C.ByLvalueKey!C((LvalueElementRef!(C)(cast(C*)&c)));
+    }
+    else                        // `c` was is an r-value and can be moved
+    {
+        import std.algorithm.mutation : move;
+        auto result = C.ByRvalueKey!C((RvalueElementRef!C(move(*(cast(T*)&c))))); // reinterpret
+    }
+    result.findNextNonEmptyBin();
+    return result;
+}
 
 /// make range from l-value and r-value. element access is always const
 @system pure unittest
@@ -2777,7 +2797,7 @@ version(unittest)
     import basic_array : Array = BasicArray;
     X x;
     // TODO these segfault:
-    auto a = Array!(X.KeyType).withElementsOfRange_untested(x.byKey); // l-value byKey
+    // auto a = Array!(X.KeyType).withElementsOfRange_untested(x.byKey); // l-value byKey
     // TODO auto b = Array!(X.KeyType).withElementsOfRange_untested(X().byKey); // r-value byKey
 }
 

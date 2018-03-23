@@ -228,10 +228,10 @@ struct BasicArray(T,
 
     /** Is `true` iff constructable from the iterable (or range) `I`.
      */
-    enum isAssignableFromElementsOfFiniteRefIterable(I) = (is(I == struct) && // exclude class ranges for aliasing control
-                                                           isRefIterable!I && // elements may be non-copyable
-                                                           !isInfinite!I &&
-                                                           isElementAssignable!(ElementType!I));
+    private enum isAssignableFromElementsOfFiniteRefIterable(I) = (is(I == struct) && // exclude class ranges for aliasing control
+                                                                   isRefIterable!I && // elements may be non-copyable
+                                                                   !isInfinite!I &&
+                                                                   isElementAssignable!(ElementType!I));
 
     /// Construct from the elements `values`.
     this(R)(R values) @trusted

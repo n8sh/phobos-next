@@ -2813,7 +2813,7 @@ version(unittest)
     import basic_array : Array = BasicArray;
     X x;
     // TODO these segfault:
-    // auto a = Array!(X.KeyType).withElementsOfRange_untested(x.byKey); // l-value byKey
+    // TODO auto a = Array!(X.KeyType).withElementsOfRange_untested(x.byKey); // l-value byKey
     // TODO auto b = Array!(X.KeyType).withElementsOfRange_untested(X().byKey); // r-value byKey
 }
 

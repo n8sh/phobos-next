@@ -210,8 +210,7 @@ struct BasicArray(T,
         reserve(values.length);
         _store.length = cast(CapacityType)values.length;
         import emplace_all : moveEmplaceAllNoReset;
-        moveEmplaceAllNoReset(values,
-                              _mptr[0 .. _store.length]);
+        moveEmplaceAllNoReset(values, _mptr[0 .. _store.length]);
     }
 
     /// Construct from `n` number of element(s) `values` (in a static array).

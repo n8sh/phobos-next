@@ -989,7 +989,7 @@ struct OpenHashMapOrSet(K, V = void,
             else
             {
                 /// Get reference to front element (key and value).
-                @property scope auto ref front()() return
+                @property scope auto ref front() return
                 {
                     return _table._bins[_binIndex];
                 }
@@ -1014,7 +1014,7 @@ struct OpenHashMapOrSet(K, V = void,
             else
             {
                 /// Get reference to front element (key and value).
-                @property scope auto ref front()() return
+                @property scope auto ref front() return
                 {
                     return _table._bins[_binIndex];
                 }
@@ -1054,7 +1054,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             pragma(inline, true):
             /// Get reference to key of front element.
-            @property scope const auto ref front()() return // key access must be const, TODO auto ref => ref K
+            @property scope const auto ref front() return // key access must be const, TODO auto ref => ref K
             {
                 return _table._bins[_binIndex].key;
             }
@@ -1066,7 +1066,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             pragma(inline, true):
             /// Get reference to key of front element.
-            @property scope const auto ref front()() return // key access must be const, TODO auto ref => ref K
+            @property scope const auto ref front() return // key access must be const, TODO auto ref => ref K
             {
                 return _table._bins[_binIndex].key;
             }
@@ -1078,7 +1078,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             pragma(inline, true):
             /// Get reference to value of front element.
-            @property scope auto ref front()() return @trusted // template-lazy property, TODO auto ref => ref V
+            @property scope auto ref front() return @trusted // TODO auto ref => ref V
             {
                 return *(cast(ValueType*)&_table._bins[_binIndex].value);
             }
@@ -1090,7 +1090,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             pragma(inline, true):
             /// Get reference to value of front element.
-            @property scope auto ref front()() return @trusted // template-lazy property, TODO auto ref => ref V
+            @property scope auto ref front() return @trusted // TODO auto ref => ref V
             {
                 return *(cast(ValueType*)&_table._bins[_binIndex].value);
             }
@@ -1122,7 +1122,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             pragma(inline, true):
             /// Get reference to front element (key and value).
-            @property scope auto ref front()() return @trusted // TODO auto ref => ref T
+            @property scope auto ref front() return @trusted // TODO auto ref => ref T
             {
                 // TODO can this be solved without this `static if`?
                 static if (isMutable!(Table))

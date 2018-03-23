@@ -1050,7 +1050,7 @@ struct OpenHashMapOrSet(K, V = void,
             }
         }
 
-        static private struct ByLvalueKey(Table)
+        static private struct ByKey_lvalue(Table)
         {
             pragma(inline, true):
             /// Get reference to key of front element.
@@ -1062,7 +1062,7 @@ struct OpenHashMapOrSet(K, V = void,
             alias _elementRef this;
         }
 
-        static private struct ByRvalueKey(Table)
+        static private struct ByKey_rvalue(Table)
         {
             pragma(inline, true):
             /// Get reference to key of front element.
@@ -1074,7 +1074,7 @@ struct OpenHashMapOrSet(K, V = void,
             alias _elementRef this;
         }
 
-        static private struct ByLvalueValue(Table)
+        static private struct ByValue_lvalue(Table)
         {
             pragma(inline, true):
             /// Get reference to value of front element.
@@ -1086,7 +1086,7 @@ struct OpenHashMapOrSet(K, V = void,
             alias _elementRef this;
         }
 
-        static private struct ByRvalueValue(Table)
+        static private struct ByValue_rvalue(Table)
         {
             pragma(inline, true):
             /// Get reference to value of front element.
@@ -1118,7 +1118,7 @@ struct OpenHashMapOrSet(K, V = void,
             V value;
         }
 
-        static private struct ByLvalueKeyValue(Table)
+        static private struct ByKeyValue_lvalue(Table)
         {
             pragma(inline, true):
             /// Get reference to front element (key and value).
@@ -1143,7 +1143,7 @@ struct OpenHashMapOrSet(K, V = void,
         @property scope auto byKeyValue()() return @trusted // template-lazy property
         {
             alias This = MutableThis;
-            auto result = ByLvalueKeyValue!This((LvalueElementRef!(This)(cast(This*)&this)));
+            auto result = ByKeyValue_lvalue!This((LvalueElementRef!(This)(cast(This*)&this)));
             result.findNextNonEmptyBin();
             return result;
         }
@@ -1151,7 +1151,7 @@ struct OpenHashMapOrSet(K, V = void,
         @property scope auto byKeyValue()() const return @trusted // template-lazy property
         {
             alias This = ConstThis;
-            auto result = ByLvalueKeyValue!This((LvalueElementRef!(This)(cast(This*)&this)));
+            auto result = ByKeyValue_lvalue!This((LvalueElementRef!(This)(cast(This*)&this)));
             result.findNextNonEmptyBin();
             return result;
         }
@@ -2048,12 +2048,12 @@ auto byKey(T)(auto ref return inout(T) c) @trusted
     alias C = const(T);
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
-        auto result = C.ByLvalueKey!C((LvalueElementRef!(C)(cast(C*)&c)));
+        auto result = C.ByKey_lvalue!C((LvalueElementRef!(C)(cast(C*)&c)));
     }
     else                        // `c` was is an r-value and can be moved
     {
         import std.algorithm.mutation : move;
-        auto result = C.ByRvalueKey!C((RvalueElementRef!C(move(*(cast(T*)&c))))); // reinterpret
+        auto result = C.ByKey_rvalue!C((RvalueElementRef!C(move(*(cast(T*)&c))))); // reinterpret
     }
     result.findNextNonEmptyBin();
     return result;
@@ -2066,12 +2066,12 @@ auto byValue(T)(auto ref return inout(T) c) @trusted
     alias C = const(T);
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
-        auto result = C.ByLvalueValue!C((LvalueElementRef!(C)(cast(C*)&c)));
+        auto result = C.ByValue_lvalue!C((LvalueElementRef!(C)(cast(C*)&c)));
     }
     else                        // `c` was is an r-value and can be moved
     {
         import std.algorithm.mutation : move;
-        auto result = C.ByRvalueValue!C((RvalueElementRef!C(move(*(cast(T*)&c))))); // reinterpret
+        auto result = C.ByValue_rvalue!C((RvalueElementRef!C(move(*(cast(T*)&c))))); // reinterpret
     }
     result.findNextNonEmptyBin();
     return result;

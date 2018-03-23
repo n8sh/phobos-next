@@ -1086,6 +1086,18 @@ struct OpenHashMapOrSet(K, V = void,
             alias _elementRef this;
         }
 
+        static private struct ByRvalueValue(Table)
+        {
+            pragma(inline, true):
+            /// Get reference to value of front element.
+            @property scope auto ref front()() return @trusted // template-lazy property, TODO auto ref => ref V
+            {
+                return *(cast(ValueType*)&_table._bins[_binIndex].value);
+            }
+            public RvalueElementRef!(Table) _elementRef;
+            alias _elementRef this;
+        }
+
         /// Key-value element reference with head-const for `class` keys.
         static private struct KeyValueType
         {
@@ -1125,15 +1137,6 @@ struct OpenHashMapOrSet(K, V = void,
             }
             public LvalueElementRef!(Table) _elementRef;
             alias _elementRef this;
-        }
-
-        /// Returns forward range that iterates through the values of `this` in undefined order.
-        @property scope auto byValue()() inout return @trusted // template-lazy property
-        {
-            alias This = ConstThis;
-            auto result = ByLvalueValue!This((LvalueElementRef!(This)(cast(This*)&this)));
-            result.findNextNonEmptyBin();
-            return result;
         }
 
         /// Returns forward range that iterates through the keys and values of `this`.
@@ -2051,6 +2054,24 @@ auto byKey(T)(auto ref return inout(T) c) @trusted
     {
         import std.algorithm.mutation : move;
         auto result = C.ByRvalueKey!C((RvalueElementRef!C(move(*(cast(T*)&c))))); // reinterpret
+    }
+    result.findNextNonEmptyBin();
+    return result;
+}
+
+/** Returns: range that iterates through the values of `c` in undefined order.
+ */
+auto byValue(T)(auto ref return inout(T) c) @trusted
+{
+    alias C = const(T);
+    static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
+    {
+        auto result = C.ByLvalueValue!C((LvalueElementRef!(C)(cast(C*)&c)));
+    }
+    else                        // `c` was is an r-value and can be moved
+    {
+        import std.algorithm.mutation : move;
+        auto result = C.ByRvalueValue!C((RvalueElementRef!C(move(*(cast(T*)&c))))); // reinterpret
     }
     result.findNextNonEmptyBin();
     return result;

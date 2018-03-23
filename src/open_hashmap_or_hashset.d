@@ -1052,8 +1052,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         static private struct ByKey_lvalue(Table)
         {
-            pragma(inline, true):
-            /// Get reference to key of front element.
+            pragma(inline, true)
             @property scope const auto ref front() return // key access must be const, TODO auto ref => ref K
             {
                 return _table._bins[_binIndex].key;
@@ -1064,8 +1063,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         static private struct ByKey_rvalue(Table)
         {
-            pragma(inline, true):
-            /// Get reference to key of front element.
+            pragma(inline, true)
             @property scope const auto ref front() return // key access must be const, TODO auto ref => ref K
             {
                 return _table._bins[_binIndex].key;
@@ -1076,8 +1074,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         static private struct ByValue_lvalue(Table)
         {
-            pragma(inline, true):
-            /// Get reference to value of front element.
+            pragma(inline, true)
             @property scope auto ref front() return @trusted // TODO auto ref => ref V
             {
                 return *(cast(ValueType*)&_table._bins[_binIndex].value);
@@ -1088,8 +1085,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         static private struct ByValue_rvalue(Table)
         {
-            pragma(inline, true):
-            /// Get reference to value of front element.
+            pragma(inline, true)
             @property scope auto ref front() return @trusted // TODO auto ref => ref V
             {
                 return *(cast(ValueType*)&_table._bins[_binIndex].value);
@@ -1120,8 +1116,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         static private struct ByKeyValue_lvalue(Table)
         {
-            pragma(inline, true):
-            /// Get reference to front element (key and value).
+            pragma(inline, true)
             @property scope auto ref front() return @trusted // TODO auto ref => ref T
             {
                 // TODO can this be solved without this `static if`?

@@ -233,40 +233,42 @@ struct BasicArray(T,
                                                                    isElementAssignable!(ElementType!I));
 
     /// Construct from the elements `values`.
-    this(R)(R values) @trusted
+    static typeof(this) withElementsOfRange_untested(R)(R values) @trusted
         if (isAssignableFromElementsOfFiniteRefIterable!R)
     {
         import std.range : hasLength, hasSlicing;
+
+        typeof(this) result;
 
         static if (hasLength!R &&
                    hasSlicing!R &&
                    isCopyable!(ElementType!R) &&
                    !hasElaborateDestructor!(ElementType!R))
         {
-            reserve(values.length);
+            result.reserve(values.length);
             import std.algorithm : copy;
             copy(values[0 .. values.length],
-                 _mptr[0 .. values.length]); // TODO better to use foreach instead?
-            _store.length = values.length;
+                 result._mptr[0 .. values.length]); // TODO better to use foreach instead?
+            result._store.length = values.length;
         }
         else
         {
             static if (hasLength!R)
             {
-                reserve(values.length);
+                result.reserve(values.length);
                 size_t i = 0;
                 foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
                 {
                     static if (needsMove!(typeof(value)))
                     {
-                        moveEmplace(value, _mptr[i++]);
+                        moveEmplace(value, result._mptr[i++]);
                     }
                     else
                     {
                         _mptr[i++] = value;
                     }
                 }
-                _store.length = values.length;
+                result._store.length = values.length;
             }
             else
             {
@@ -276,15 +278,16 @@ struct BasicArray(T,
                 {
                     static if (needsMove!(ElementType!R))
                     {
-                        insertBackMove(value); // steal element
+                        result.insertBackMove(value); // steal element
                     }
                     else
                     {
-                        insertBack1(value);
+                        result.insertBack1(value);
                     }
                 }
             }
         }
+        return result;
     }
     /// No default copying.
     @disable this(this);
@@ -1186,11 +1189,11 @@ version(unittest)
 
     import std.algorithm : map, filter;
 
-    const b = A([10, 20, 30].s[].map!(_ => T(_^^2))); // hasLength
+    const b = A.withElementsOfRange_untested([10, 20, 30].s[].map!(_ => T(_^^2))); // hasLength
     assert(b.length == 3);
     assert(b == [T(100), T(400), T(900)].s);
 
-    const c = A([10, 20, 30].s[].filter!(_ => _ == 30).map!(_ => T(_^^2))); // !hasLength
+    const c = A.withElementsOfRange_untested([10, 20, 30].s[].filter!(_ => _ == 30).map!(_ => T(_^^2))); // !hasLength
     assert(c == [T(900)].s);
 }
 
@@ -1205,11 +1208,11 @@ version(unittest)
 
     import std.algorithm : map, filter;
 
-    const b = A([10, 20, 30].s[].map!(_ => T(_^^2))); // hasLength
+    const b = A.withElementsOfRange_untested([10, 20, 30].s[].map!(_ => T(_^^2))); // hasLength
     assert(b.length == 3);
     assert(b == [T(100), T(400), T(900)].s);
 
-    const c = A([10, 20, 30].s[].filter!(_ => _ == 30).map!(_ => T(_^^2))); // !hasLength
+    const c = A.withElementsOfRange_untested([10, 20, 30].s[].filter!(_ => _ == 30).map!(_ => T(_^^2))); // !hasLength
     assert(c == [T(900)].s);
 }
 
@@ -1479,7 +1482,7 @@ unittest
     import std.algorithm : map;
     alias T = int;
     alias A = BasicArray!(T);
-    auto a = A([10, 20, 30].s[].map!(_ => _^^2));
+    auto a = A.withElementsOfRange_untested([10, 20, 30].s[].map!(_ => _^^2));
     assert(a[] == [100, 400, 900].s);
 }
 

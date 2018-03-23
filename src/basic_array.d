@@ -260,7 +260,6 @@ struct BasicArray(T,
                     static if (needsMove!(typeof(value)))
                     {
                         pragma(msg, typeof(value));
-                        f;
                         moveEmplace(value, _mptr[i++]);
                     }
                     else

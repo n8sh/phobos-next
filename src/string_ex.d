@@ -3,8 +3,8 @@ module string_ex;
 import std.traits : isSomeString;
 
 S[] quotedWords(S)(S s,
-                   string quoteBeginChar = `"`,
-                   string quoteEndChar = `"`)
+                   const scope string quoteBeginChar = `"`,
+                   const scope string quoteEndChar = `"`)
     if (isSomeString!S)
 {
     typeof(return) words;
@@ -62,7 +62,7 @@ S[] quotedWords(S)(S s,
 }
 
 /** Check if `s` contains more than one word. */
-auto isMultiWord(const(char)[] s)
+auto isMultiWord(const scope const(char)[] s)
 {
     import std.algorithm.searching : canFind;
     return s.canFind(`_`, ` `) >= 1;

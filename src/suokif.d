@@ -105,7 +105,7 @@ struct SUOKIFParser
     }
 
     pragma(inline, true)
-    @property bool empty() const nothrow @nogc
+    @property bool empty() const nothrow scope @nogc
     {
         return _endOfFile;
     }

@@ -5060,7 +5060,8 @@ auto testString(Keys...)(size_t count, uint maxLength) @safe
     }
 
     import std.algorithm : equal;
-    import std.datetime : StopWatch, AutoStart, Duration;
+    import std.datetime.stopwatch : StopWatch, AutoStart;
+    import std.datetime : Duration;
 
     foreach (Key; Keys)
     {
@@ -5301,7 +5302,8 @@ private static auto randomUniqueSortedStrings(size_t count, uint maxLength)
 /// Create a set of words from /usr/share/dict/words
 void testWords(Value)()
 {
-    import std.datetime : StopWatch, AutoStart, Duration;
+    import std.datetime.stopwatch : StopWatch, AutoStart;
+    import std.datetime : Duration;
     import std.stdio : File;
     import std.range : chain;
 
@@ -5516,7 +5518,8 @@ void benchmark()()
         static assert(!set.hasValue);
 
         import std.conv : to;
-        import std.datetime : StopWatch, AutoStart, Duration;
+        import std.datetime.stopwatch : StopWatch, AutoStart;
+        import std.datetime : Duration;
 
         enum n = 1_000_000;
 

@@ -317,7 +317,7 @@ struct Bound(V,
     }
     /** Assigne from unbounded value `rhs`. */
     auto opAssign(U, string file = __FILE__, int line = __LINE__)(U rhs)
-        if (areBoundable!(V, U))
+        if (isBoundable!(U))
     {
         checkAssign!(U, file, line)(rhs);
         _value = rhs - low;

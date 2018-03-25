@@ -113,18 +113,17 @@ private:
     // alias ArrayTypes = staticMap!(toArray, Types);
     // Tuple!ArrayTypes containers;
 
-    static string generateArrays()
+    static string generateArrayDefinitionsString()
     {
         version(LDC) static if (__VERSION__ >= 2076) { static assert(0, "TODO use static foreach"); }
         string defs;
-        foreach (const index, Type; Types)
+        static foreach (index, Type; Types)
         {
-            enum TypeName = Type.stringof;
-            defs ~= TypeName ~ `[] _container` ~ index.stringof ~ ";";
+            defs ~= Type.stringof ~ `[] _container` ~ index.stringof ~ ";";
         }
         return defs;
     }
-    mixin(generateArrays());
+    mixin(generateArrayDefinitionsString());
 
     ref inout(Types[index][]) getArray(size_t index)() inout return
     {

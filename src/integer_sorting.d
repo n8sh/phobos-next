@@ -276,7 +276,7 @@ version(benchmark)
         import std.algorithm.sorting : sort, SwapStrategy, isSorted;
         import std.algorithm.comparison : min, max, equal;
         import std.range : retro;
-        import std.datetime : StopWatch, AutoStart, TickDuration;
+        import std.datetime.stopwatch : StopWatch, AutoStart;
         auto sw = StopWatch();
         immutable nMax = 5;
 
@@ -300,7 +300,7 @@ version(benchmark)
         sw.start();
         qa[].sort!("a < b", SwapStrategy.stable)();
         sw.stop;
-        immutable TickDuration sortTime = sw.peek;
+        immutable sortTimeUsecs = sw.peek.total!"usecs";
         version(show) write("quick sorted: ", qa[0 .. min(nMax, $)], ", ");
         assert(qa[].isSorted);
 
@@ -320,9 +320,9 @@ version(benchmark)
             sw.start();
             b[].radixSort!(typeof(b[]), "b", false)();
             sw.stop;
-            immutable radixTime1 = sw.peek.usecs;
+            immutable radixTime1 = sw.peek.total!"usecs";
 
-            writef("%9-s, ", cast(real)sortTime.usecs / radixTime1);
+            writef("%9-s, ", cast(real)sortTimeUsecs / radixTime1);
             assert(b[].equal(qa[]));
         }
 
@@ -334,7 +334,7 @@ version(benchmark)
             sw.start();
             b[].radixSort!(typeof(b[]), "b", false, true)();
             sw.stop;
-            immutable radixTime = sw.peek.usecs;
+            immutable radixTime = sw.peek.total!"usecs";
 
             assert(b[].equal(qa[]));
 
@@ -343,7 +343,7 @@ version(benchmark)
                 writeln("standard radix sorted with fast-discardal: ",
                         b[0 .. min(nMax, $)]);
             }
-            writef("%9-s, ", cast(real)sortTime.usecs / radixTime);
+            writef("%9-s, ", cast(real)sortTimeUsecs / radixTime);
         }
 
         // inplace-place radix sort
@@ -364,7 +364,7 @@ version(benchmark)
         //         writeln("in-place radix sorted with fast-discardal: ",
         //                 b[0 .. min(nMax, $)]);
         //     }
-        //     writef("%9-s, ", cast(real)sortTime.usecs / radixTime);
+        //     writef("%9-s, ", cast(real)sortTimeUsecs / radixTime);
         // }
 
         writeln("");

@@ -49,7 +49,8 @@ auto radixSort(R,
     if (isRandomAccessRange!R &&
         (isNumeric!(ElementType!R)))
 {
-    import std.algorithm.sorting : isSorted, assumeSorted; // TODO move this to radixSort when know how map less to descending
+    import std.range : assumeSorted;
+    import std.algorithm.sorting : isSorted; // TODO move this to radixSort when know how map less to descending
     import std.algorithm : min, max;
     import std.range : front;
 

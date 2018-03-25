@@ -19,11 +19,13 @@ libs "z" "bz2" "zstd"
 importPaths "src"
 
 buildType "unittest" {
+   dflags "-unittest"
    dflags "-dip1000"            # prevent dependencies to inherit -dip1000
    dflags "-fsanitize=address" platform="posix-ldc"
 }
 
 buildType "unittest-internal" {
+   dflags "-unittest"
    dflags "-dip1000"            # prevent dependencies to inherit -dip1000
    dflags "-fsanitize=address" platform="posix-ldc"
    dflags "-version=internalUnittest"

@@ -3,4 +3,4 @@
 .dub
 dub.selections.json
 *.lst
-trie.d
+phobos-next-test-library

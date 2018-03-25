@@ -112,7 +112,6 @@ class DecompressByLine(BlockInputRange)
 
         static if (isBlockInputRange!(typeof(_range)))
         {
-            // dln(`here`);
             // TODO functionize
             while (!_range.empty)
             {
@@ -134,7 +133,6 @@ class DecompressByLine(BlockInputRange)
                 if (hit.length)
                 {
                     const lineLength = hit.ptr - currentFronts.ptr;
-                    // dln(`hit: `, hit, ` hit.length:`, lineLength);
                     _lbuf.put(currentFronts[0 .. lineLength]); // add everything up to separator
                     _range._bufIx += lineLength + _separator.sizeof; // advancement + separator
                     if (_range.empty)
@@ -145,7 +143,6 @@ class DecompressByLine(BlockInputRange)
                 }
                 else            // no separator yet
                 {
-                    // dln(`no hit`);
                     _lbuf.put(currentFronts); // so just add everything
                     _range.loadNextChunk();
                 }

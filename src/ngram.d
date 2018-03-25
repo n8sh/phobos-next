@@ -959,7 +959,7 @@ auto bistogramOverRepresentation(in string x) pure nothrow
 unittest
 {
     const x = "abcdef";
-    const h = x.bistogramOverRepresentation;
+    auto h = x.bistogramOverRepresentation;
     size_t ix = 0;
     foreach (const bin; h)
     {

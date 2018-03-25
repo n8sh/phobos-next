@@ -4,7 +4,7 @@ module fixed_dynamic_array;
 
 /** Dynamically allocated (heap) array with fixed length.
  */
-private struct FixedDynamicArray(T)
+struct FixedDynamicArray(T)
 {
 @safe:
     import qcmeman : pureMalloc = malloc, pureCalloc = calloc, pureFree = free;

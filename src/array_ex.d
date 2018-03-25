@@ -99,8 +99,8 @@ private struct Array(E,
         is(CapacityType == uint))          // 2 64-bit words
 {
     import std.conv : emplace;
-    import std.range : isInputRange, isInfinite, isIterable, ElementType;
-    import std.traits : isAssignable, Unqual, isArray, isScalarType, hasElaborateDestructor, hasIndirections, TemplateOf, isCopyable;
+    import std.range : isInputRange, isInfinite, ElementType;
+    import std.traits : isIterable, isAssignable, Unqual, isArray, isScalarType, hasElaborateDestructor, hasIndirections, TemplateOf, isCopyable;
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
     import std.algorithm.mutation : move, moveEmplace, moveEmplaceAll;

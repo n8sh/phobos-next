@@ -273,7 +273,8 @@ version(benchmark)
 
         import std.traits : isIntegral, isSigned, isUnsigned;
         import random_ex : randInPlace, randInPlaceWithElementRange;
-        import std.algorithm.sorting : sort, SwapStrategy, isSorted;
+        import std.algorithm.sorting : sort, isSorted;
+        import std.algorithm.mutation : SwapStrategy;
         import std.algorithm.comparison : min, max, equal;
         import std.range : retro;
         import std.datetime.stopwatch : StopWatch, AutoStart;

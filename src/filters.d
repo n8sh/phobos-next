@@ -471,6 +471,7 @@ struct StaticDenseSetFilter(E,
     import std.traits : isIterable, isAssignable, isUnsigned;
     import core.bitop : bts, btr, btc, bt;
 
+    alias ElementType = E;
     alias This = typeof(this);
 
     @safe pure:

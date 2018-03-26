@@ -24,19 +24,19 @@ struct PureMallocator
      * paradoxically, $(D malloc) is $(D @safe) but that's only useful to safe
      * programs that can afford to leak memory allocated.
      */
-    pragma(inline, true)
     void[] allocate(size_t bytes)
         @trusted
     {
+        version(LDC) pragma(inline, true);
         if (!bytes) { return null; }
         void* p = pureMalloc(bytes);
         return p ? p[0 .. bytes] : null;
     }
 
-    pragma(inline, true)
     void[] zeroallocate(size_t bytes)
         @trusted
     {
+        version(LDC) pragma(inline, true);
         if (!bytes) { return null; }
         void* p = pureCalloc(bytes, 1);
         return p ? p[0 .. bytes] : null;
@@ -48,7 +48,9 @@ struct PureMallocator
         @system
     {
         pureFree(b.ptr);        // `free` doesn't need `b.length`
-        return true; // `true` indicates support, https://dlang.org/phobos/std_experimental_allocator.html#.IAllocator.deallocate
+        // `true` indicates support,
+        // See also: https://dlang.org/phobos/std_experimental_allocator.html#.IAllocator.deallocate
+        return true;
     }
 
     /// ditto

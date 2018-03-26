@@ -1,3 +1,4 @@
+
 module open_hashmap_or_hashset;
 
 // version = showEntries;
@@ -28,6 +29,7 @@ import pure_mallocator : PureMallocator;
  *
  * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  * See also: https://en.wikipedia.org/wiki/Lazy_deletion
+ * See also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  *
  * TODO if hash-function is cast(size_t)(classInstance) always use prime length
  * and shift pointer before hash based on alignof (might not be needed when
@@ -216,7 +218,6 @@ struct OpenHashMapOrSet(K, V = void,
     /** Make default-initialized bins with room for storing for at least
      * `minimumCapacity` number of elements.
      */
-    pragma(inline, true)
     static private T[] makeDefaultInitializedBins()(size_t minimumCapacity) // template-lazy
         @trusted pure nothrow @nogc
     {
@@ -553,15 +554,12 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    version(LDC) { pragma(inline, true): } // needed for LDC to inline this, DMD cannot
-    pragma(inline, true):                  // LDC must have this
-
     /** Check if `element` is stored.
         Returns: `true` if element is present, `false` otherwise.
     */
-    pragma(inline, true)
     bool contains()(const scope K key) const // template-lazy, auto ref here makes things slow
     {
+        version(LDC) pragma(inline, true);
         assert(!key.isNull);
         if (_bins.length == 0) { return false; }
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
@@ -578,9 +576,9 @@ struct OpenHashMapOrSet(K, V = void,
 
     /** Insert `element`, being either a key-value (map-case) or a just a key
      * (set-case). */
-    pragma(inline, true)
     InsertionStatus insert()(T element) // template-lazy
     {
+        version(LDC) pragma(inline, true);
         debug assert(!isBorrowed, borrowedErrorMessage);
         assert(!keyOf(element).isNull); // TODO needed?
         reserveExtra(1);
@@ -641,9 +639,9 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /// Grow (rehash) to make for `newCapacity` number of elements.
-    pragma(inline, true)
     private void growWithNewCapacity()(size_t newCapacity) // template-lazy
     {
+        version(LDC) pragma(inline, true);
         version(showEntries) dln(__FUNCTION__, " newCapacity:", newCapacity);
         version(internalUnittest) assert(newCapacity > _bins.length);
         static if (__traits(hasMember, Allocator, "reallocate"))
@@ -885,9 +883,9 @@ struct OpenHashMapOrSet(K, V = void,
 
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
      */
-    pragma(inline, true)
     private InsertionStatus insertWithoutGrowth()(T element) @trusted // template-lazy
     {
+        version(LDC) pragma(inline, true);
         version(internalUnittest) assert(!keyOf(element).isNull);
         static if (hasAddressKey)
         {
@@ -1209,9 +1207,9 @@ struct OpenHashMapOrSet(K, V = void,
 
 	/** Supports $(B aa[key] = value;) syntax.
 	 */
-        pragma(inline, true)
         void opIndexAssign()(V value, K key) // template-lazy
 	{
+            version(LDC) pragma(inline, true);
             insert(T(move(key),
                      move(value)));
             // TODO return reference to value
@@ -1246,6 +1244,7 @@ struct OpenHashMapOrSet(K, V = void,
     }
     static if (isInstanceOf!(Nullable, K))
     {
+        pragma(inline, true)
         bool remove()(const scope WrappedKey wrappedKey) // template-lazy
         {
             return remove(K(wrappedKey));
@@ -1399,9 +1398,9 @@ private:
     /** Find index to `key` if it exists or to first empty slot found, ignoring
      * lazily deleted slots.
      */
-    pragma(inline, true)
     private size_t indexOfKeyOrVacancySkippingHoles(const scope K key) const @trusted
     {
+        version(LDC) pragma(inline, true);
         version(internalUnittest) assert(!key.isNull);
         static if (hasAddressKey)
         {
@@ -1445,6 +1444,7 @@ private:
 
     private size_t indexOfHoleOrNullForKey()(const scope K key) const @trusted // template-lazy
     {
+        version(LDC) pragma(inline, true);
         version(internalUnittest) assert(!key.isNull);
         static if (hasAddressKey)
         {

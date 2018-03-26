@@ -1617,7 +1617,7 @@ static private struct LvalueElementRef(Table)
 
     void popFront()
     {
-        pragma(inline, true);
+        version(LDC) pragma(inline, true);
         assert(!empty);
         _binIndex += 1;
         findNextNonEmptyBin();
@@ -1659,7 +1659,7 @@ static private struct RvalueElementRef(Table)
 
     void popFront()
     {
-        pragma(inline, true);
+        version(LDC) pragma(inline, true);
         assert(!empty);
         _binIndex += 1;
         findNextNonEmptyBin();

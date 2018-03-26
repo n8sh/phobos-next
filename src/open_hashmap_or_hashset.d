@@ -955,8 +955,6 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    pragma(inline, true):
-
     static if (!hasValue)       // HashSet
     {
         scope const(K)* opBinaryRight(string op)(const scope K key) const return
@@ -1032,11 +1030,14 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
+    pragma(inline, true):
+
     static if (hasValue)        // HashMap
     {
         scope inout(V)* opBinaryRight(string op)(const scope K key) inout return // auto ref here makes things slow
             if (op == "in")
         {
+            pragma(inline, true);
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
             if (hitIndex != _bins.length &&
                 isOccupiedAtIndex(hitIndex))

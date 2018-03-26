@@ -38,8 +38,6 @@ import pure_mallocator : PureMallocator;
  * TODO keep only predicates with ref arguments when LDC can optimize those as
  * fast as value passing. add LDC issue for this
  *
- * TODO add static assert(!__traits(compiles, )) for DIP-1000 scope checking of escaping l-value ranges
- *
  * TODO fix bug in `growInPlaceWithCapacity` and benchmarka
  *
  * TODO add extractElement that moves it out similar to

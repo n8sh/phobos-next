@@ -34,8 +34,7 @@ void digestAny(Digest, T)(ref Digest digest,
     {
         value.toDigest(digest);
     }
-    else static if (is(T == class) || // a class is memory-wise
-                    isPointer!T)      // just a pointer. consistent with opCmp
+    else static if (isAddress!T)
     {
         digestAddress(digest, value);
     }
@@ -64,13 +63,15 @@ void digestAny(Digest, T)(ref Digest digest,
     }
 }
 
+private enum isAddress(T) = (is(T == class) || // a class is memory-wise
+                             isPointer!T);     // just a pointer, consistent with opCmp
+
 /** Digest the `value` as an address (pointer). */
 pragma(inline, true)
 private void digestAddress(Digest, T)(scope ref Digest digest,
                                       const scope T value) // pointer passed by value
     if (isDigest!Digest &&
-        (is(T == class) ||
-         isPointer!T))
+        isAddress!T)
 {
     digestRaw(digest, value);
 }

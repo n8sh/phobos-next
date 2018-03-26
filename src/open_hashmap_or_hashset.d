@@ -540,6 +540,8 @@ struct OpenHashMapOrSet(K, V = void,
 
     static private void releaseBinsSlice(T[] bins) @trusted
     {
+        version(showEntries) dln(__FUNCTION__, " bins.ptr:", bins.ptr, " bins.length", bins.length);
+        if (bins.ptr is null) { return; } // gc_removeRange fails when bins.ptr is null
         static if (mustAddGCRange!T)
         {
             gc_removeRange(bins.ptr);
@@ -832,6 +834,7 @@ struct OpenHashMapOrSet(K, V = void,
         version(showEntries) dln(__FUNCTION__, " newCapacity:", newCapacity);
         version(internalUnittest) assert(newCapacity > _bins.length);
 
+        dln(_bins.ptr, " ", _bins.length);
         T[] oldBins = _bins;
         _bins = makeDefaultInitializedBins(newCapacity); // replace with new bins
 
@@ -847,6 +850,8 @@ struct OpenHashMapOrSet(K, V = void,
         // move elements to copy
         foreach (immutable oldIndex, ref oldBin; oldBins)
         {
+            dln("oldIndex:", oldIndex);
+
             // TODO use non-member-version of `isOccupiedAtIndex`
             if (!keyOf(oldBin).isNull)
             {

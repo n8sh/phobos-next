@@ -19,6 +19,8 @@ struct DenseSetFilterGrowableArray(E,
     import filters : DenseSetFilter, Growable, Copyable;
     import basic_array : BasicArray;
 
+    alias ElementType = E;
+
     @disable this(this);
 
     pragma(inline, true):

@@ -1150,9 +1150,9 @@ struct OpenHashMapOrSet(K, V = void,
         }
 
         /// Indexing.
-        pragma(inline, true)    // LDC must have this
         scope ref inout(V) opIndex()(const scope K key) inout return // auto ref here makes things slow
         {
+            version(LDC) pragma(inline, true);
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
             if (hitIndex != _bins.length &&
                 isOccupiedAtIndex(hitIndex))
@@ -1216,9 +1216,9 @@ struct OpenHashMapOrSet(K, V = void,
 	}
         static if (isInstanceOf!(Nullable, K))
         {
-            pragma(inline, true)
             void opIndexAssign()(V value, WrappedKey wrappedKey) // template-lazy
             {
+                version(LDC) pragma(inline, true);
                 insert(T(K(move(wrappedKey)),
                          move(value)));
                 // TODO return reference to value

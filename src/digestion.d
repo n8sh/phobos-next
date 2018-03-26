@@ -103,7 +103,13 @@ private void digestArray(Digest, T)(scope ref Digest digest,
     if (isDigest!Digest &&
         isArray!T)
 {
-    digestRaw(digest, value.length); // length
+    import std.traits : isDynamicArray;
+    static if (isDynamicArray!T)
+    {
+        // only dynamic arrays vary in length for a specific type `T` being
+        // hashed
+        digestRaw(digest, value.length); // length
+    }
 
     alias E = typeof(T.init[0]);
     static if (isScalarType!E ||

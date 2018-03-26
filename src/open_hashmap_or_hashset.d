@@ -643,7 +643,7 @@ struct OpenHashMapOrSet(K, V = void,
         version(internalUnittest) assert(newCapacity > _bins.length);
         static if (__traits(hasMember, Allocator, "reallocate"))
         {
-            if (growInPlaceFlag)
+            static if (growInPlaceFlag)
             {
                 growInPlaceWithCapacity(newCapacity);
             }

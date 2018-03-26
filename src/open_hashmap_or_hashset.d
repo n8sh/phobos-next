@@ -1240,6 +1240,7 @@ struct OpenHashMapOrSet(K, V = void,
      */
     bool remove()(const scope K key) // template-lazy
     {
+        pragma(inline, true);
         debug assert(!isBorrowed, borrowedErrorMessage);
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
         if (hitIndex != _bins.length &&

@@ -928,6 +928,8 @@ struct OpenHashMapOrSet(K, V = void,
         return InsertionStatus.unmodified;
     }
 
+    pragma(inline, true):
+
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
      */
     private InsertionStatus insertMoveWithoutGrowth()(ref T element) // template-lazy

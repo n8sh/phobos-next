@@ -29,7 +29,7 @@ import pure_mallocator : PureMallocator;
  * See also: https://en.wikipedia.org/wiki/Lazy_deletion
  * See also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  *
- * remove dependency on Nullable and use bitarrays for nulls and holes
+ * TODO remove dependency on Nullable and use bitarrays for nulls and holes
  *
  * TODO if hash-function is cast(size_t)(classInstance) always use prime length
  * and shift pointer before hash based on alignof (might not be needed when

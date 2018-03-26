@@ -17,7 +17,6 @@ import std.traits : hasMember, isScalarType, hasIndirections, isArray, isPointer
 import std.digest.digest : isDigest;
 
 @safe:
-pragma(inline, true):
 
 /** Digest `value` into `digest`.
  */
@@ -25,6 +24,7 @@ void digestAny(Digest, T)(ref Digest digest,
                           const scope auto ref T value)
     if (isDigest!Digest)
 {
+    version(LDC) pragma(inline, true);
     static if (isScalarType!T)  // first because faster to evaluate than
                                 // `!hasIndirections!T` below
     {
@@ -65,6 +65,7 @@ void digestAny(Digest, T)(ref Digest digest,
 }
 
 /** Digest the `value` as an address (pointer). */
+pragma(inline, true)
 private void digestAddress(Digest, T)(scope ref Digest digest,
                                       const scope T value) // pointer passed by value
     if (isDigest!Digest &&
@@ -75,7 +76,6 @@ private void digestAddress(Digest, T)(scope ref Digest digest,
 }
 
 /** Digest the struct `value` by digesting each member sequentially. */
-pragma(inline)                  // DMD cannot inline
 private void digestStruct(Digest, T)(scope ref Digest digest,
                                      const scope auto ref T value) @trusted
     if (isDigest!Digest &&
@@ -83,6 +83,7 @@ private void digestStruct(Digest, T)(scope ref Digest digest,
 {
     static if (!hasIndirections!T)
     {
+        pragma(inline, true);
         digestRaw(digest, value); // hash everything in one call for better speed
     }
     else
@@ -108,6 +109,7 @@ private void digestArray(Digest, T)(scope ref Digest digest,
                (is(T == class) &&
                 !hasMember!(T, "toDigest")))
     {
+        pragma(inline, true);
         digest.put((cast(ubyte*)value.ptr)[0 .. value.length * value[0].sizeof]); // faster
     }
     else
@@ -124,6 +126,7 @@ private void digestRaw(Digest, T)(scope ref Digest digest,
                                   const scope auto ref T value) @trusted
     if (isDigest!Digest)
 {
+    version(LDC) pragma(inline, true);
     digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
 }
 
@@ -131,9 +134,9 @@ private void digestRaw(Digest, T)(scope ref Digest digest,
  *
  * A faster alternative to `hashOf`.
  */
-pragma(inline)                  // DMD cannot inline
 hash_t hashOf2(alias hasher, T)(const scope auto ref T value)
 {
+    version(LDC) pragma(inline, true);
     static if (__traits(compiles, { hash_t _ = hasher(value); }))
     {
         return hasher(value);   // for instance `hashOf`

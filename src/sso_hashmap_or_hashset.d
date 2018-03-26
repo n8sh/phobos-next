@@ -762,11 +762,11 @@ struct HashMapOrSet(K, V = void,
         /// ditto
         version(none)           // cannot be combined
         {
-        pragma(inline, true)
-        scope auto opSlice()() inout return // template-lazy
-        {
-            return byElement();
-        }
+            pragma(inline, true)
+            scope auto opSlice()() inout return // template-lazy
+            {
+                return byElement();
+            }
         }
     }
 

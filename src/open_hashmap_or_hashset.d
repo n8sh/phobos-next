@@ -1277,8 +1277,6 @@ struct OpenHashMapOrSet(K, V = void,
         return 0;
     }
 
-    pragma(inline, true):
-
     /// Check if empty.
     pragma(inline, true)
     @property bool empty() const { return _count == 0; }
@@ -1294,6 +1292,7 @@ struct OpenHashMapOrSet(K, V = void,
     /** Returns: get total probe count for all elements stored. */
     size_t totalProbeCount()() const // template-lazy
     {
+        version(LDC) pragma(inline, true); // prevent performance regression in benchmark for now
         static if (hasValue)
         {
             auto range = this.byKeyValue;

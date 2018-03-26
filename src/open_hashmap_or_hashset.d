@@ -576,7 +576,7 @@ struct OpenHashMapOrSet(K, V = void,
     {
         version(LDC) pragma(inline, true);
         debug assert(!isBorrowed, borrowedErrorMessage);
-        assert(!keyOf(element).isNull); // TODO needed?
+        assert(!keyOf(element).isNull);
         reserveExtra(1);
         return insertWithoutGrowth(move(element));
     }

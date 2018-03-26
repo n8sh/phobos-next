@@ -1240,7 +1240,7 @@ struct OpenHashMapOrSet(K, V = void,
      */
     bool remove()(const scope K key) // template-lazy
     {
-        pragma(inline, true);
+        version(LDC) pragma(inline, true);
         debug assert(!isBorrowed, borrowedErrorMessage);
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
         if (hitIndex != _bins.length &&
@@ -1288,37 +1288,6 @@ struct OpenHashMapOrSet(K, V = void,
     /// Get bin count.
     pragma(inline, true)
     @property size_t binCount() const { return _bins.length; }
-
-    /** Returns: get total probe count for all elements stored. */
-    size_t totalProbeCount()() const // template-lazy
-    {
-        version(LDC) pragma(inline, true); // prevent performance regression in benchmark for now
-        static if (hasValue)
-        {
-            auto range = this.byKeyValue;
-        }
-        else
-        {
-            auto range = byElement(this);
-        }
-        typeof(return) totalCount = 0;
-        foreach (ref currentElement; range)
-        {
-            static if (isCopyable!T)
-            {
-                /* don't use `auto ref` for copyable `T`'s to prevent
-                 * massive performance drop for small elements when compiled
-                 * with LDC. TODO remove when LDC is fixed. */
-                alias pred = (const scope element) => (keyOf(element) is keyOf(currentElement));
-            }
-            else
-            {
-                alias pred = (const scope auto ref element) => (keyOf(element) is keyOf(currentElement));
-            }
-            totalCount += triangularProbeCountFromIndex!pred(_bins[], keyToIndex(keyOf(currentElement)));
-        }
-        return totalCount;
-    }
 
 private:
     static if (hasFunctionAttributes!(Allocator.allocate, "@nogc"))
@@ -1517,6 +1486,37 @@ private:
         {
             return (!isHoleKeyConstant(keyOf(_bins[index])));
         }
+    }
+
+    /** Returns: get total probe count for all elements stored. */
+    public size_t totalProbeCount()() const // template-lazy
+    {
+        version(LDC) pragma(inline, true); // prevent performance regression in benchmark for now
+        static if (hasValue)
+        {
+            auto range = this.byKeyValue;
+        }
+        else
+        {
+            auto range = byElement(this);
+        }
+        typeof(return) totalCount = 0;
+        foreach (ref currentElement; range)
+        {
+            static if (isCopyable!T)
+            {
+                /* don't use `auto ref` for copyable `T`'s to prevent
+                 * massive performance drop for small elements when compiled
+                 * with LDC. TODO remove when LDC is fixed. */
+                alias pred = (const scope element) => (keyOf(element) is keyOf(currentElement));
+            }
+            else
+            {
+                alias pred = (const scope auto ref element) => (keyOf(element) is keyOf(currentElement));
+            }
+            totalCount += triangularProbeCountFromIndex!pred(_bins[], keyToIndex(keyOf(currentElement)));
+        }
+        return totalCount;
     }
 }
 

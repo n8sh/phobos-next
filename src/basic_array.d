@@ -68,7 +68,7 @@ struct BasicArray(T,
          * - initial length `length`,
          * - and value of all elements `elementValue`.
          */
-        pragma(inline)              // DMD cannot inline
+        pragma(inline, true)
         static typeof(this) withLengthElementValue()(size_t length,
                                                      T elementValue)
         {
@@ -84,11 +84,11 @@ struct BasicArray(T,
      * - initial length `length`,
      * - and zeroing-flag `zero`.
      */
-    pragma(inline)              // DMD cannot inline
     private static typeof(this) withCapacityLengthZero()(size_t capacity, // template-lazy
                                                          size_t length,
                                                          bool zero) @trusted
     {
+        version(LDC) pragma(inline, true);
         assert(capacity >= length);
         assert(capacity <= CapacityType.max);
         return typeof(return)(Store(typeof(this).allocate(capacity, zero),
@@ -128,7 +128,6 @@ struct BasicArray(T,
         return *thatPtr;
     }
 
-    pragma(inline, true)
     private this(Store store)
     {
         _store = store;
@@ -185,7 +184,7 @@ struct BasicArray(T,
         }
 
         /// Returns: shallow duplicate of `this`.
-        pragma(inline)          // DMD cannot inline
+        pragma(inline, true)
         @property BasicArray!(Unqual!T, Allocator, CapacityType) dup()() const @trusted // template-lazy
         {
             return typeof(this).withElements(this[]);
@@ -456,6 +455,7 @@ struct BasicArray(T,
     }
 
     /// Calculate D associative array (AA) key hash.
+    pragma(inline, true)
     size_t toHash()() const @trusted // template-lazy
     {
         import core.internal.hash : hashOf;
@@ -1499,6 +1499,8 @@ unittest
 
     auto y = x;
     assert(y == z);
+
+    auto _ = x.toHash;
 }
 
 /// GCAllocator

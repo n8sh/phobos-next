@@ -805,7 +805,7 @@ struct OpenHashMapOrSet(K, V = void,
 
     /** Grow (rehash) store to make room for `newCapacity` number of elements.
      */
-    private void growStandardWithNewCapacity()(size_t newCapacity) @trusted // template-lazy
+    private void growStandardWithNewCapacity_new()(size_t newCapacity) @trusted // template-lazy
     {
         version(LDC) pragma(inline, true); // LDC needs this or to prevent 10x performance regression in contains()
         version(showEntries) dln(__FUNCTION__, " newCapacity:", newCapacity);
@@ -827,8 +827,7 @@ struct OpenHashMapOrSet(K, V = void,
 
     /** Alternative version of `growStandardWithNewCapacity`.
      */
-    version(none)
-    private void growStandardWithNewCapacity_alternative()(size_t newCapacity) @trusted // template-lazy
+    private void growStandardWithNewCapacity()(size_t newCapacity) @trusted // template-lazy
     {
         version(showEntries) dln(__FUNCTION__, " newCapacity:", newCapacity);
         version(internalUnittest) assert(newCapacity > _bins.length);
@@ -1766,6 +1765,55 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     }
 }
 
+/// `string` as key
+@safe pure nothrow @nogc unittest
+{
+    version(showEntries) dln();
+    import digestx.fnv : FNV;
+    import container_traits : mustAddGCRange;
+
+    alias E = string;
+    alias X = OpenHashMapOrSet!(E, void, FNV!(64, true));
+    static assert(!mustAddGCRange!X);
+    static assert(X.sizeof == 24); // dynamic arrays also `hasAddressKey`
+
+    auto x = X();
+
+    auto testEscapeShouldFail()() @safe pure
+    {
+        X x;
+        x.insert("a");
+        return x.byElement;
+    }
+
+    auto testEscapeShouldFailFront()() @safe pure
+    {
+        X x;
+        x.insert("a");
+        return x.byElement.front;
+    }
+
+    x.insert("a");
+    x.insert("b");
+    assert(x.contains("a"));
+    assert(x.contains("b"));
+
+    x.remove("a");
+    assert(!x.contains("a"));
+
+    x.remove("b");
+    assert(!x.contains("b"));
+
+    x.insert("a");
+    x.insert("b");
+    assert(x.contains("a"));
+    assert(x.contains("b"));
+
+    static assert(!__traits(compiles, { testEscapeShouldFail(); } ));
+    // TODO this should fail:
+    // TODO static assert(!__traits(compiles, { testEscapeShouldFailFront(); } ));
+}
+
 /// array container as value type
 @safe pure nothrow @nogc unittest
 {
@@ -1988,55 +2036,6 @@ auto intersectWith(C1, C2)(ref C1 x,
     assert(y.length == 2);
     assert(y.contains(K(12)));
     assert(y.contains(K(13)));
-}
-
-/// `string` as key
-@safe pure nothrow @nogc unittest
-{
-    import digestx.fnv : FNV;
-    import container_traits : mustAddGCRange;
-    version(showEntries) dln();
-
-    alias E = string;
-    alias X = OpenHashMapOrSet!(E, void, FNV!(64, true));
-    static assert(!mustAddGCRange!X);
-    static assert(X.sizeof == 24); // dynamic arrays also `hasAddressKey`
-
-    X x;
-
-    auto testEscapeShouldFail()() @safe pure
-    {
-        X x;
-        x.insert("a");
-        return x.byElement;
-    }
-
-    auto testEscapeShouldFailFront()() @safe pure
-    {
-        X x;
-        x.insert("a");
-        return x.byElement.front;
-    }
-
-    x.insert("a");
-    x.insert("b");
-    assert(x.contains("a"));
-    assert(x.contains("b"));
-
-    x.remove("a");
-    assert(!x.contains("a"));
-
-    x.remove("b");
-    assert(!x.contains("b"));
-
-    x.insert("a");
-    x.insert("b");
-    assert(x.contains("a"));
-    assert(x.contains("b"));
-
-    static assert(!__traits(compiles, { testEscapeShouldFail(); } ));
-    // TODO this should fail:
-    // TODO static assert(!__traits(compiles, { testEscapeShouldFailFront(); } ));
 }
 
 /** Returns: range that iterates through the elements of `c` in undefined order.
@@ -2835,6 +2834,7 @@ version(unittest)
 ///
 @safe pure nothrow @nogc unittest
 {
+    version(showEntries) dln();
     alias X = OpenHashMapOrSet!(Nullable!(size_t, size_t.max), size_t, FNV!(64, true));
     import basic_array : Array = BasicArray;
     X x;

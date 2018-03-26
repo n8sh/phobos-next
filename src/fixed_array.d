@@ -105,7 +105,7 @@ struct FixedArray(T,
             gc_addRange(_store.ptr, _store.sizeof);
         }
 
-        foreach (const ix, ref value; values)
+        foreach (immutable ix, ref value; values)
         {
             static if (hasElaborateDestructor!(typeof(value)))
             {
@@ -178,7 +178,7 @@ struct FixedArray(T,
             static if (borrowChecked) { assert(!isBorrowed); }
             static if (hasElaborateDestructor!T)
             {
-                foreach (const i; 0 .. length)
+                foreach (immutable i; 0 .. length)
                 {
                     .destroy(_store.ptr[i]);
                 }
@@ -203,7 +203,7 @@ struct FixedArray(T,
         import std.exception : enforce;
         enforce(_length + Es.length <= capacity, `Arguments don't fit in array`);
 
-        foreach (const i, ref e; es)
+        foreach (immutable i, ref e; es)
         {
             moveEmplace(e, _store[_length + i]); // TODO remove `move` when compiler does it for us
         }
@@ -220,7 +220,7 @@ struct FixedArray(T,
         if (Es.length <= capacity)
     {
         if (_length + Es.length > capacity) { return false; }
-        foreach (const i, ref e; es)
+        foreach (immutable i, ref e; es)
         {
             moveEmplace(e, _store[_length + i]); // TODO remove `move` when compiler does it for us
         }
@@ -250,7 +250,7 @@ struct FixedArray(T,
             assert(!empty);
             static if (borrowChecked) { assert(!isBorrowed); }
             // TODO is there a reusable Phobos function for this?
-            foreach (const i; 0 .. _length - 1)
+            foreach (immutable i; 0 .. _length - 1)
             {
                 move(_store[i + 1], _store[i]); // like `_store[i] = _store[i + 1];` but more generic
             }

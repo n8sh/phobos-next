@@ -26,6 +26,8 @@ struct DenseSetFilter(E,
     import core.memory : malloc = pureMalloc, calloc = pureCalloc, realloc = pureRealloc;
     import core.bitop : bts, btr, btc, bt;
 
+    alias ElementType = E;
+
     @safe pure nothrow @nogc:
 
     static if (growable == Growable.no)

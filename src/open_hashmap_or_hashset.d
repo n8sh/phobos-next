@@ -664,6 +664,7 @@ struct OpenHashMapOrSet(K, V = void,
 
     private void tagAsLazilyDeletedElementAtIndex(size_t index) @trusted
     {
+        pragma(inline, true);
         static if (!hasAddressKey)
         {
             keyOf(_bins[index]).nullify();
@@ -678,6 +679,8 @@ struct OpenHashMapOrSet(K, V = void,
             .destroy(valueOf(_bins[index]));
         }
     }
+
+    // pragma(inline, true):
 
     private void insertMoveElementAtIndex()(ref T element, size_t index) @trusted // template-lazy
     {

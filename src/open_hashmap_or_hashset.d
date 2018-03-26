@@ -1235,8 +1235,6 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    pragma(inline, true):
-
     /** Remove `element`.
      * Returns: `true` if element was removed, `false` otherwise.
      */
@@ -1255,13 +1253,14 @@ struct OpenHashMapOrSet(K, V = void,
     }
     static if (isInstanceOf!(Nullable, K))
     {
-        pragma(inline, true)
         bool remove()(const scope WrappedKey wrappedKey) // template-lazy
         {
             pragma(inline, true);
             return remove(K(wrappedKey));
         }
     }
+
+    pragma(inline, true):
 
     import traits_ex : isRefIterable;
     import std.range : front;

@@ -481,9 +481,9 @@ struct StaticDenseSetFilter(E,
         Appender!(typeof(return)) str = This.stringof ~ "([";
         bool other = false;
 
-        pragma(inline, true)
         void putElement(in E e)
         {
+            version(LDC) pragma(inline, true);
             if (contains(e))
             {
                 if (other)

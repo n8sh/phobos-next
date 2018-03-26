@@ -174,9 +174,9 @@ struct HashMapOrSet(K, V = void,
 
     /** Make with room for storing at least `capacity` number of elements.
      */
-    pragma(inline)              // LDC can, DMD cannot inline
     static typeof(this) withCapacity()(size_t capacity) // template-lazy
     {
+        version(LDC) pragma(inline, true);
         return typeof(return)(capacity);
     }
 
@@ -202,9 +202,9 @@ struct HashMapOrSet(K, V = void,
         return that;
     }
 
-    pragma(inline)              // LDC can, DMD cannot inline
     private static typeof(this) withBinCount()(size_t binCount) // template-lazy
     {
+        version(LDC) pragma(inline, true);
         typeof(return) that;    // TODO return direct call to store constructor
         that._bins = Bins.withLength(binCount);
         that._bstates = Bstates.withLength(binCount);
@@ -237,6 +237,7 @@ struct HashMapOrSet(K, V = void,
     }
 
     /// Destruct.
+    pragma(inline, true)
     ~this()
     {
         release();
@@ -364,6 +365,7 @@ struct HashMapOrSet(K, V = void,
     /// Empty.
     void clear()()              // template-lazy
     {
+        version(LDC) pragma(inline, true);
         release();
         resetInternalData();
     }
@@ -395,6 +397,7 @@ struct HashMapOrSet(K, V = void,
     }
 
     /// Reset internal data.
+    pragma(inline, true)
     private void resetInternalData()
     {
         _bins.clear();
@@ -402,14 +405,12 @@ struct HashMapOrSet(K, V = void,
         _length = 0;
     }
 
-    version(LDC) { pragma(inline, true): } // needed for LDC to inline this, DMD cannot
-    pragma(inline, true):                  // LDC must have this
-
     /** Check if `element` is stored.
         Returns: `true` if element was already present, `false` otherwise.
      */
     bool contains()(in K key) const // template-lazy. TODO make `auto ref K` work
     {
+        version(LDC) pragma(inline, true);
         if (empty)              // TODO can this check be avoided?
         {
             return false; // prevent `RangeError` in `binElementsAt` when empty
@@ -420,6 +421,7 @@ struct HashMapOrSet(K, V = void,
     /// ditto
     bool contains()(in ref K key) const // template-lazy
     {
+        version(LDC) pragma(inline, true);
         if (empty)              // TODO can this check be avoided?
         {
             return false; // prevent `RangeError` in `binElementsAt` when empty
@@ -430,9 +432,9 @@ struct HashMapOrSet(K, V = void,
 
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
      */
-    pragma(inline, true)
     InsertionStatus insert(T element)
     {
+        version(LDC) pragma(inline, true);
         reserveExtra(1);
         return insertMoveWithoutBinCountGrowth(element);
     }
@@ -463,6 +465,7 @@ struct HashMapOrSet(K, V = void,
     }
 
     /** Reserve rom for `extraCapacity` number of extra buckets. */
+    pragma(inline, true)
     void reserveExtra()(size_t extraCapacity)
     {
         if ((capacityScaleNumerator *
@@ -485,10 +488,10 @@ struct HashMapOrSet(K, V = void,
         }
     }
 
-    pragma(inline, true)              // DMD cannot inline
     static private size_t offsetOfKey(in T[] elements,
                                       in ref K key)
     {
+        version(LDC) pragma(inline, true);
         size_t elementOffset = 0;
         foreach (const ref e; elements)
         {
@@ -922,9 +925,9 @@ struct HashMapOrSet(K, V = void,
 
 	/** Supports $(B aa[key] = value;) syntax.
 	 */
-        pragma(inline, true)
         void opIndexAssign()(V value, K key) // template-lazy
 	{
+            version(LDC) pragma(inline, true);
             insert(T(move(key),
                      move(value)));
             // TODO return reference to value
@@ -1210,9 +1213,9 @@ private:
     }
 
     /** Returns: bin index of `key`. */
-    pragma(inline, true)
     size_t keyToBinIx()(in auto ref K key) const
     {
+        version(LDC) pragma(inline, true);
         import digestion : hashOf2;
         return hashToIndex(hashOf2!(hasher)(key));
     }

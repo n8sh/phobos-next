@@ -1224,7 +1224,7 @@ struct OpenHashMapOrSet(K, V = void,
     /** Returns: get total probe count for all elements stored. */
     size_t totalProbeCount()() const // template-lazy
     {
-        version(LDC) pragma(inline, true); // prevent performance regression in benchmark for now
+        version(LDC) pragma(inline, true); // LDC needs this or to prevent 10x performance regression in contains()
         static if (hasValue)
         {
             auto range = this.byKeyValue;

@@ -54,7 +54,7 @@ size_t triangularProbeFromIndex(alias pred,
         }
         else
         {
-            static assert(0, "unsupported pred");
+            static assert(0, "Unsupported predicate of type " ~ typeof(pred).stringof);
         }
 
         indexIncrement += 1;

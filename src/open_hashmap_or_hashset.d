@@ -509,7 +509,7 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /// Release bin elements.
-    private void releaseBinElements() @trusted
+    private void releaseBinElements()
     {
         foreach (ref bin; _bins)
         {
@@ -656,7 +656,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    private void tagAsLazilyDeletedElementAtIndex(size_t index) @trusted
+    private void tagAsLazilyDeletedElementAtIndex(size_t index)
     {
         pragma(inline, true);
         static if (!hasAddressKey)

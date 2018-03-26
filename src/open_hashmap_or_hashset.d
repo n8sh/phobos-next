@@ -220,6 +220,7 @@ struct OpenHashMapOrSet(K, V = void,
     static private T[] makeDefaultInitializedBins()(size_t minimumCapacity) // template-lazy
         @trusted pure nothrow @nogc
     {
+        version(LDC) pragma(inline, true);
         immutable capacity = nextPow2(minimumCapacity);
         version(showEntries) dln(__FUNCTION__, " minimumCapacity:", minimumCapacity,
                                  " capacity:", capacity);

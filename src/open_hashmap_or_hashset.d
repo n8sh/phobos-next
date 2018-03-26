@@ -1342,8 +1342,8 @@ private:
         return mask;
     }
 
-    /** Find index to `key` if it exists or to first empty slot found, ignoring
-     * lazily deleted slots.
+    /** Find index to `key` if it exists or to first empty slot found, skipping
+     * (ignoring) lazily deleted slots.
      */
     private size_t indexOfKeyOrVacancySkippingHoles(const scope K key) const
     {

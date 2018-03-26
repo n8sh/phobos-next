@@ -571,7 +571,10 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /** Insert `element`, being either a key-value (map-case) or a just a key
-     * (set-case). */
+     * (set-case).
+     *
+     * If `element` is a nullable type and it is null an `AssertError` is thrown.
+     */
     InsertionStatus insert()(T element) // template-lazy
     {
         version(LDC) pragma(inline, true);

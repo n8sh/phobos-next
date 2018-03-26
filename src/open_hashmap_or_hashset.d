@@ -80,8 +80,6 @@ struct OpenHashMapOrSet(K, V = void,
      */
     enum hasAddressKey = (is(K == class) || isPointer!K || isDynamicArray!K);
 
-    pragma(inline, true):
-
     static if (hasAddressKey)
     {
         enum holeKeyOffset = 0x1;
@@ -91,9 +89,9 @@ struct OpenHashMapOrSet(K, V = void,
          * See also: https://forum.dlang.org/post/p7726n$2apd$1@digitalmars.com
          * TODO test if ulong.max gives better performance
          */
-        pragma(inline, true)
         static K holeKeyConstant() @trusted pure nothrow @nogc
         {
+            pragma(inline, true);
             // TODO note that cast(size_t*) will give address 0x8 instead of 0x1
             static if (isDynamicArray!K)
             {
@@ -107,9 +105,9 @@ struct OpenHashMapOrSet(K, V = void,
             }
         }
 
-        pragma(inline, true)
         static bool isHoleKeyConstant(const scope K key) @trusted pure nothrow @nogc
         {
+            pragma(inline, true);
             return (cast(const(void)*)key is
                     cast(const(void)*)holeKeyOffset);
         }
@@ -209,7 +207,7 @@ struct OpenHashMapOrSet(K, V = void,
      */
     static typeof(this) withCapacity()(size_t capacity) // template-lazy
     {
-        version(LDC) pragma(inline);
+        version(LDC) pragma(inline, true);
         version(showEntries) dln(__FUNCTION__, " capacity:", capacity);
         return typeof(return)(makeDefaultInitializedBins(capacity), 0);
     }
@@ -275,6 +273,7 @@ struct OpenHashMapOrSet(K, V = void,
     static private T[] allocateUninitializedBins()(size_t capacity) // template-lazy
         @trusted pure nothrow @nogc
     {
+        version(LDC) pragma(inline, true);
         version(showEntries) dln(__FUNCTION__, " newCapacity:", capacity);
         immutable byteCount = T.sizeof*capacity;
         auto bins = cast(typeof(return))Allocator.instance.allocate(byteCount);
@@ -317,6 +316,7 @@ struct OpenHashMapOrSet(K, V = void,
     /// Destruct.
     ~this()
     {
+        version(LDC) pragma(inline, true);
         release();
     }
 
@@ -512,6 +512,7 @@ struct OpenHashMapOrSet(K, V = void,
     /// Release internal allocations.
     private void release()
     {
+        version(LDC) pragma(inline, true);
         releaseBinElements();
         releaseBinsAndHolesSlices();
     }
@@ -630,6 +631,7 @@ struct OpenHashMapOrSet(K, V = void,
     /** Reserve rom for `extraCapacity` number of extra buckets. */
     void reserveExtra(size_t extraCapacity) // not template-lazy
     {
+        version(LDC) pragma(inline, true);
         debug assert(!isBorrowed, borrowedErrorMessage);
         immutable newCapacity = (_count + extraCapacity)*growScaleP/growScaleQ;
         if (newCapacity > _bins.length)
@@ -678,6 +680,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
+    pragma(inline, true);
     private void insertMoveElementAtIndex()(ref T element, size_t index) @trusted // template-lazy
     {
         move(keyOf(element), keyOf(_bins[index]));
@@ -1250,6 +1253,7 @@ struct OpenHashMapOrSet(K, V = void,
         pragma(inline, true)
         bool remove()(const scope WrappedKey wrappedKey) // template-lazy
         {
+            pragma(inline, true);
             return remove(K(wrappedKey));
         }
     }

@@ -1261,8 +1261,6 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    pragma(inline, true):
-
     import traits_ex : isRefIterable;
     import std.range : front;
 
@@ -1278,6 +1276,8 @@ struct OpenHashMapOrSet(K, V = void,
         rehash!("!a.isNull && keys.canFind(a)")(); // TODO make this work
         return 0;
     }
+
+    pragma(inline, true):
 
     /// Check if empty.
     pragma(inline, true)

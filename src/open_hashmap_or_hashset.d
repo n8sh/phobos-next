@@ -1,7 +1,6 @@
 module open_hashmap_or_hashset;
 
 // version = showEntries;
-// version = show;
 // version = internalUnittest; // fed by dub (see dub.sdl) in unittest-internal mode
 
 import container_traits : isNullable;
@@ -2531,8 +2530,6 @@ version(unittest)
                               int,
                               void))
         {
-            version(show) dln("K:", K.stringof, " V:", V.stringof);
-
             alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
 
             auto k11 = make!K(11);

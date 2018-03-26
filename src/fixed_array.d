@@ -185,7 +185,10 @@ struct FixedArray(T,
             }
             static if (mustAddGCRange!T)
             {
-                gc_removeRange(_store.ptr);
+                if (_store.ptr !is null)
+                {
+                    gc_removeRange(_store.ptr);
+                }
             }
         }
     }

@@ -10,7 +10,7 @@ dflags-posix-ldc "-Xcc=-fuse-ld=gold"
 
 buildType "release-test" {
           dflags "-mcpu=native" "-O3"
-          dflags-posix-ldc "-flto=thin"
+          dflags-posix-ldc "-flto=full"
           buildOptions "unittests" "releaseMode" "optimize" "inline"
 }
 
@@ -26,6 +26,6 @@ buildType "release-nobounds" {
 
 buildType "release-nobounds-tlo" {
           dflags "-mcpu=native" "-O3"
-          dflags-posix-ldc "-flto=thin"
+          dflags-posix-ldc "-flto=full"
           buildOptions "releaseMode" "optimize" "noBoundsCheck" "inline"
 }

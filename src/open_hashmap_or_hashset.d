@@ -802,7 +802,7 @@ struct OpenHashMapOrSet(K, V = void,
 
     /** Grow (rehash) store to make room for `newCapacity` number of elements.
      */
-    private void growStandardWithNewCapacity()(size_t newCapacity) @trusted // template-lazy
+    private void growStandardWithNewCapacity()(size_t newCapacity) // template-lazy
     {
         version(LDC) pragma(inline, true); // LDC needs this or to prevent 10x performance regression in contains()
         version(showEntries) dln(__FUNCTION__, " newCapacity:", newCapacity);
@@ -822,7 +822,7 @@ struct OpenHashMapOrSet(K, V = void,
         move(next, this);
     }
 
-    private InsertionStatus insertWithoutGrowth()(T element) @trusted // template-lazy
+    private InsertionStatus insertWithoutGrowth()(T element)  // template-lazy
     {
         version(LDC) pragma(inline, true);
         version(internalUnittest)
@@ -1343,7 +1343,7 @@ private:
     /** Find index to `key` if it exists or to first empty slot found, ignoring
      * lazily deleted slots.
      */
-    private size_t indexOfKeyOrVacancySkippingHoles(const scope K key) const @trusted
+    private size_t indexOfKeyOrVacancySkippingHoles(const scope K key) const
     {
         version(LDC) pragma(inline, true);
         version(internalUnittest)
@@ -1390,7 +1390,7 @@ private:
         return _bins[].triangularProbeFromIndex!(pred)(keyToIndex(key));
     }
 
-    private size_t indexOfHoleOrNullForKey()(const scope K key) const @trusted // template-lazy
+    private size_t indexOfHoleOrNullForKey()(const scope K key) const // template-lazy
     {
         version(LDC) pragma(inline, true);
         version(internalUnittest)
@@ -1438,7 +1438,7 @@ private:
     /** Returns: `true` iff `index` indexes a non-null element, `false`
      * otherwise.
      */
-    private bool isOccupiedAtIndex(size_t index) const @trusted
+    private bool isOccupiedAtIndex(size_t index) const
     {
         pragma(inline, true);
         version(internalUnittest) assert(index < _bins.length);

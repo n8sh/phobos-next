@@ -88,6 +88,7 @@ private void digestStruct(Digest, T)(scope ref Digest digest,
     }
     else
     {
+        version(LDC) pragma(inline, true);
         foreach (const ref subValue; value.tupleof) // for each member
         {
             digestAny(digest, subValue);

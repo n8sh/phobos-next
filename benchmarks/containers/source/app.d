@@ -109,7 +109,7 @@ void main()
                           HashSet!(ulong, null, FNV!(64, true), 3),
                           HashSet!(ulong, null, FNV!(64, true), 4),
 
-                          OpenHashSet!(Nullable!(ulong, uint.max), FNV!(64, true)),
+                          OpenHashSet!(Nullable!(ulong, ulong.max), FNV!(64, true)),
 
                           // TODO OpenHashMap!(string, void, FNV!(64, true)),
 

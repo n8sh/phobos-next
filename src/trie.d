@@ -4298,23 +4298,26 @@ inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey) @trusted
     }
 }
 
-/// Radix-Tree with key of type `Key` and value of type `Value` (if non-`void`).
-struct RadixTree(Key, Value)
-    if (allSatisfy!(isTrieableKeyType, Key))
+/// Radix-Tree with key of type `K` and value of type `V` (if non-`void`).
+struct RadixTree(K, V)
+    if (allSatisfy!(isTrieableKeyType, K))
 {
-    alias RawTree = RawRadixTree!(Value);
+    alias RawTree = RawRadixTree!(V);
+
+    alias KeyType = K;
+    alias ValueType = V;
 
     static if (RawTree.hasValue)
     {
         struct TypedElt
         {
-            Key key;
-            Value value;
+            K key;
+            V value;
         }
 
-        ref Value opIndex(Key key)
+        ref V opIndex(K key)
         {
-            Value* value = contains(key);
+            V* value = contains(key);
             if (value is null)
             {
                 import core.exception : RangeError;
@@ -4323,7 +4326,7 @@ struct RadixTree(Key, Value)
             return *value;
         }
 
-        auto opIndexAssign(in Value value, Key key)
+        auto opIndexAssign(in V value, K key)
         {
             _rawTree.ElementRefType elementRef; // reference to where element was added
 
@@ -4336,14 +4339,14 @@ struct RadixTree(Key, Value)
             _length += added;
             /* TODO return reference (via `auto ref` return typed) to stored
                value at `elementRef` instead, unless packed static_bitarray storage is used
-               when `Value is bool` */
+               when `V is bool` */
             return value;
         }
 
         /** Insert `key`.
             Returns: `true` if `key` wasn't previously added, `false` otherwise.
         */
-        bool insert(in Key key, in Value value) @nogc
+        bool insert(in K key, in V value) @nogc
         {
             _rawTree.ElementRefType elementRef; // indicates that key was added
 
@@ -4367,10 +4370,10 @@ struct RadixTree(Key, Value)
                 case ix_DenseBranchPtr:
                     assert(false);
                 case ix_SparseLeaf1Ptr:
-                    elementRef.node.as!(SparseLeaf1!Value*).setValue(UIx(rawKey[$ - 1]), value);
+                    elementRef.node.as!(SparseLeaf1!V*).setValue(UIx(rawKey[$ - 1]), value);
                     break;
                 case ix_DenseLeaf1Ptr:
-                    elementRef.node.as!(DenseLeaf1!Value*).setValue(UIx(rawKey[$ - 1]), value);
+                    elementRef.node.as!(DenseLeaf1!V*).setValue(UIx(rawKey[$ - 1]), value);
                     break;
                 }
                 immutable bool hit = elementRef.modStatus == ModStatus.added;
@@ -4384,7 +4387,7 @@ struct RadixTree(Key, Value)
         }
 
         /** Returns: pointer to value if `key` is contained in set, null otherwise. */
-        inout(Value*) contains(in Key key) inout @nogc
+        inout(V*) contains(in K key) inout @nogc
         {
             Array!Ix rawUKey;
             auto rawKey = key.toRawKey(rawUKey); // TODO DIP-1000 scope
@@ -4400,12 +4403,12 @@ struct RadixTree(Key, Value)
     else
     {
         @nogc:
-        alias TypedElt = Key;
+        alias TypedElt = K;
 
         /** Insert `key`.
             Returns: `true` if `key` wasn't previously added, `false` otherwise.
         */
-        bool insert(Key key)
+        bool insert(K key)
         {
             _rawTree.ElementRefType elementRef; // indicates that elt was added
 
@@ -4422,7 +4425,7 @@ struct RadixTree(Key, Value)
         nothrow:
 
         /** Returns: `true` if `key` is stored, `false` otherwise. */
-        bool contains(in Key key) inout
+        bool contains(in K key) inout
         {
             Array!Ix rawUKey;
             auto rawKey = key.toRawKey(rawUKey); // TODO DIP-1000 scope
@@ -4436,8 +4439,8 @@ struct RadixTree(Key, Value)
         }
     }
 
-    /** Supports $(B `Key` in `this`) syntax. */
-    auto opBinaryRight(string op)(in Key key) inout
+    /** Supports $(B `K` in `this`) syntax. */
+    auto opBinaryRight(string op)(in K key) inout
         if (op == "in")
     {
         return contains(key);   // TODO return `_rawTree.ElementRefType`
@@ -4451,7 +4454,7 @@ struct RadixTree(Key, Value)
     /** Get range over elements whose key starts with `keyPrefix`.
         The element equal to `keyPrefix` is return as an empty instance of the type.
      */
-    pragma(inline) auto prefix(Key keyPrefix) @system
+    pragma(inline) auto prefix(K keyPrefix) @system
     {
         Array!Ix rawUKey;
         auto rawKeyPrefix = keyPrefix.toRawKey(rawUKey);
@@ -4478,12 +4481,12 @@ struct RadixTree(Key, Value)
         {
             static if (RawTree.hasValue)
             {
-                return typeof(return)(_rawRange.lowKey.toTypedKey!Key,
+                return typeof(return)(_rawRange.lowKey.toTypedKey!K,
                                       _rawRange._front._cachedFrontValue);
             }
             else
             {
-                return _rawRange.lowKey.toTypedKey!Key;
+                return _rawRange.lowKey.toTypedKey!K;
             }
         }
 
@@ -4491,12 +4494,12 @@ struct RadixTree(Key, Value)
         {
             static if (RawTree.hasValue)
             {
-                return typeof(return)(_rawRange.highKey.toTypedKey!Key,
+                return typeof(return)(_rawRange.highKey.toTypedKey!K,
                                       _rawRange._back._cachedFrontValue);
             }
             else
             {
-                return _rawRange.highKey.toTypedKey!Key;
+                return _rawRange.highKey.toTypedKey!K;
             }
         }
 
@@ -4522,13 +4525,13 @@ struct RadixTree(Key, Value)
 
         static if (RawTree.hasValue)
         {
-            const(Elt!Value) front() const
+            const(Elt!V) front() const
             {
                 return typeof(return)(_rawRange.lowKey,
                                       _rawRange._front._cachedFrontValue);
             }
 
-            const(Elt!Value) back() const
+            const(Elt!V) back() const
             {
                 return typeof(return)(_rawRange.highKey,
                                       _rawRange._back._cachedFrontValue);
@@ -4536,11 +4539,11 @@ struct RadixTree(Key, Value)
         }
         else
         {
-            const(Elt!Value) front() const
+            const(Elt!V) front() const
             {
                 return _rawRange.lowKey;
             }
-            const(Elt!Value) back() const
+            const(Elt!V) back() const
             {
                 return _rawRange.highKey;
             }
@@ -4566,7 +4569,7 @@ struct RadixTree(Key, Value)
         TODO replace `matchCommonPrefix` with something more clever directly
         finds the next element after rawKey and returns a TreeRange at that point
     */
-    pragma(inline) auto upperBound(Key key) @system
+    pragma(inline) auto upperBound(K key) @system
     {
         Array!Ix rawUKey;
         auto rawKey = key.toRawKey(rawUKey);
@@ -4606,12 +4609,12 @@ struct RadixTree(Key, Value)
             wholeRawKey ~= _rawRange.lowKey;
             static if (RawTree.hasValue)
             {
-                return typeof(return)(wholeRawKey[].toTypedKey!Key,
+                return typeof(return)(wholeRawKey[].toTypedKey!K,
                                       _rawRange._front._cachedFrontValue);
             }
             else
             {
-                return wholeRawKey[].toTypedKey!Key;
+                return wholeRawKey[].toTypedKey!K;
             }
         }
 

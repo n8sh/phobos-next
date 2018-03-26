@@ -111,12 +111,16 @@ void main()
 
                           OpenHashSet!(Nullable!(ulong, uint.max), FNV!(64, true)),
 
+                          // TODO OpenHashMap!(string, void, FNV!(64, true)),
+
                           // radix tree
                           RadixTreeSetGrowOnly!(uint),
                  ))
     {
         // scope
         A a;
+
+        // TODO const elements = iotaArrayOf!(A.ElementType)(n);
 
         writef("- ");
 

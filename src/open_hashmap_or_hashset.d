@@ -680,8 +680,6 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    // pragma(inline, true):
-
     private void insertMoveElementAtIndex()(ref T element, size_t index) @trusted // template-lazy
     {
         version(LDC) pragma(inline, true);
@@ -809,6 +807,7 @@ struct OpenHashMapOrSet(K, V = void,
      */
     private void growStandardWithNewCapacity()(size_t newCapacity) @trusted // template-lazy
     {
+        version(LDC) pragma(inline, true); // LDC needs this or to prevent 10x performance regression in contains()
         version(showEntries) dln(__FUNCTION__, " newCapacity:", newCapacity);
         version(internalUnittest) assert(newCapacity > _bins.length);
         auto next = typeof(this).withCapacity(newCapacity);
@@ -828,6 +827,7 @@ struct OpenHashMapOrSet(K, V = void,
 
     /** Alternative version of `growStandardWithNewCapacity`.
      */
+    version(none)
     private void growStandardWithNewCapacity_alternative()(size_t newCapacity) @trusted // template-lazy
     {
         version(showEntries) dln(__FUNCTION__, " newCapacity:", newCapacity);

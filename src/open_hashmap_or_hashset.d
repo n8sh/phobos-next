@@ -1361,32 +1361,32 @@ private:
             /* don't use `auto ref` for copyable `T`'s to prevent
              * massive performance drop for small elements when compiled
              * with LDC. TODO remove when LDC is fixed. */
-            static if (!hasAddressKey)
+            static if (hasAddressKey)
+            {
+                alias pred = (const scope element) => (keyOf(element).isNull ||
+                                                       keyOf(element) is key);
+            }
+            else
             {
                 alias pred = (const scope index,
                               const scope element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
                                                        (keyOf(element).isNull ||
                                                         keyOf(element) is key));
             }
-            else
-            {
-                alias pred = (const scope element) => (keyOf(element).isNull ||
-                                                       keyOf(element) is key);
-            }
         }
         else
         {
-            static if (!hasAddressKey)
+            static if (hasAddressKey)
+            {
+                alias pred = (const scope auto ref element) => (keyOf(element).isNull ||
+                                                                keyOf(element) is key);
+            }
+            else
             {
                 alias pred = (const scope index,
                               const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
                                                                 (keyOf(element).isNull ||
                                                                  keyOf(element) is key));
-            }
-            else
-            {
-                alias pred = (const scope auto ref element) => (keyOf(element).isNull ||
-                                                                keyOf(element) is key);
             }
         }
         return _bins[].triangularProbeFromIndex!(pred)(keyToIndex(key));
@@ -1408,29 +1408,29 @@ private:
             /* don't use `auto ref` for copyable `T`'s to prevent
              * massive performance drop for small elements when compiled
              * with LDC. TODO remove when LDC is fixed. */
-            static if (!hasAddressKey)
+            static if (hasAddressKey)
+            {
+                alias pred = (const scope element) => (isHoleKeyConstant(keyOf(element)) ||
+                                                       keyOf(element).isNull);
+            }
+            else
             {
                 alias pred = (const scope index,
                               const scope element) => (hasHoleAtPtrIndex(_holesPtr, index) ||
                                                        keyOf(element).isNull);
             }
-            else
-            {
-                alias pred = (const scope element) => (isHoleKeyConstant(keyOf(element)) ||
-                                                       keyOf(element).isNull);
-            }
         }
         else
         {
-            static if (!hasAddressKey)
+            static if (hasAddressKey)
             {
-                alias pred = (const scope index,
-                              const scope auto ref element) => (hasHoleAtPtrIndex(_holesPtr, index) ||
+                alias pred = (const scope auto ref element) => (isHoleKeyConstant(keyOf(element)) ||
                                                                 keyOf(element).isNull);
             }
             else
             {
-                alias pred = (const scope auto ref element) => (isHoleKeyConstant(keyOf(element)) ||
+                alias pred = (const scope index,
+                              const scope auto ref element) => (hasHoleAtPtrIndex(_holesPtr, index) ||
                                                                 keyOf(element).isNull);
             }
         }
@@ -1445,13 +1445,13 @@ private:
         pragma(inline, true);
         version(internalUnittest) assert(index < _bins.length);
         if (keyOf(_bins[index]).isNull) { return false; }
-        static if (!hasAddressKey)
+        static if (hasAddressKey)
         {
-            return (!hasHoleAtPtrIndex(_holesPtr, index));
+            return !isHoleKeyConstant(keyOf(_bins[index]));
         }
         else
         {
-            return (!isHoleKeyConstant(keyOf(_bins[index])));
+            return !hasHoleAtPtrIndex(_holesPtr, index);
         }
     }
 

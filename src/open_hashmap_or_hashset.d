@@ -885,10 +885,13 @@ struct OpenHashMapOrSet(K, V = void,
     private InsertionStatus insertWithoutGrowth()(T element) @trusted // template-lazy
     {
         version(LDC) pragma(inline, true);
-        version(internalUnittest) assert(!keyOf(element).isNull);
-        static if (hasAddressKey)
+        version(internalUnittest)
         {
-            version(internalUnittest) assert(!isHoleKeyConstant(keyOf(element)));
+            assert(!keyOf(element).isNull);
+            static if (hasAddressKey)
+            {
+                assert(!isHoleKeyConstant(keyOf(element)));
+            }
         }
 
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(keyOf(element));
@@ -1400,10 +1403,13 @@ private:
     private size_t indexOfKeyOrVacancySkippingHoles(const scope K key) const @trusted
     {
         version(LDC) pragma(inline, true);
-        version(internalUnittest) assert(!key.isNull);
-        static if (hasAddressKey)
+        version(internalUnittest)
         {
-            version(internalUnittest) assert(!isHoleKeyConstant(key));
+            assert(!key.isNull);
+            static if (hasAddressKey)
+            {
+                assert(!isHoleKeyConstant(key));
+            }
         }
         static if (isCopyable!T)
         {
@@ -1444,10 +1450,13 @@ private:
     private size_t indexOfHoleOrNullForKey()(const scope K key) const @trusted // template-lazy
     {
         version(LDC) pragma(inline, true);
-        version(internalUnittest) assert(!key.isNull);
-        static if (hasAddressKey)
+        version(internalUnittest)
         {
-            version(internalUnittest) assert(!isHoleKeyConstant(key));
+            assert(!key.isNull);
+            static if (hasAddressKey)
+            {
+                assert(!isHoleKeyConstant(key));
+            }
         }
         static if (isCopyable!T)
         {

@@ -911,7 +911,6 @@ struct BasicArray(T,
         assert(_store.ptr, "Reallocation failed");
         static if (mustAddGCRange!T)
         {
-
             gc_addRange(_store.ptr, _store.capacity * T.sizeof);
         }
     }

@@ -455,7 +455,6 @@ struct BasicArray(T,
     }
 
     /// Calculate D associative array (AA) key hash.
-    pragma(inline, true)
     size_t toHash()() const @trusted // template-lazy
     {
         import core.internal.hash : hashOf;

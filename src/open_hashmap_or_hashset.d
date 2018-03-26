@@ -802,7 +802,7 @@ struct OpenHashMapOrSet(K, V = void,
 
     /** Grow (rehash) store to make room for `newCapacity` number of elements.
      */
-    private void growStandardWithNewCapacity_new()(size_t newCapacity) @trusted // template-lazy
+    private void growStandardWithNewCapacity()(size_t newCapacity) @trusted // template-lazy
     {
         version(LDC) pragma(inline, true); // LDC needs this or to prevent 10x performance regression in contains()
         version(showEntries) dln(__FUNCTION__, " newCapacity:", newCapacity);
@@ -815,75 +815,13 @@ struct OpenHashMapOrSet(K, V = void,
                 next.insertMoveWithoutGrowth(bin); // value is zeroed but
                 static if (!hasAddressKey)
                 {
-                    keyOf(bin).nullify(); // key must zeroed
+                    keyOf(bin).nullify(); // keyC must zeroed
                 }
             }
         }
         move(next, this);
     }
 
-    /** Alternative version of `growStandardWithNewCapacity`.
-     */
-    private void growStandardWithNewCapacity()(size_t newCapacity) @trusted // template-lazy
-    {
-        version(showEntries) dln(__FUNCTION__, " newCapacity:", newCapacity);
-        version(internalUnittest) assert(newCapacity > _bins.length);
-
-        T[] oldBins = _bins;
-        _bins = makeDefaultInitializedBins(newCapacity); // replace with new bins
-
-        debug immutable oldCount = _count;
-        _count = 0;
-
-        static if (!hasAddressKey)
-        {
-            size_t* oldHolesPtr = _holesPtr;
-            _holesPtr = null;
-        }
-
-        // move elements to copy
-        foreach (immutable oldIndex, ref oldBin; oldBins)
-        {
-            // TODO use non-member-version of `isOccupiedAtIndex`
-            if (!keyOf(oldBin).isNull)
-            {
-                static if (!hasAddressKey)
-                {
-                    if (!hasHoleAtPtrIndex(oldHolesPtr, oldIndex))
-                    {
-                        insertMoveWithoutGrowth(oldBin);
-                    }
-                }
-                else
-                {
-                    if (!isHoleKeyConstant(keyOf(oldBin)))
-                    {
-                        insertMoveWithoutGrowth(oldBin);
-                    }
-                }
-            }
-        }
-        version(internalUnittest) debug assert(oldCount == _count);
-
-        static if (!hasAddressKey)
-        {
-            static if (__traits(hasMember, Allocator, "deallocatePtr"))
-            {
-                Allocator.instance.deallocatePtr(oldHolesPtr);
-            }
-            else
-            {
-                Allocator.instance.deallocate(oldHolesPtr[0 .. holesWordCount(oldBins.length)]);
-            }
-        }
-
-        releaseBinsSlice(oldBins);
-
-        version(internalUnittest) assert(_bins.length);
-    }
-
-    /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
-     */
     private InsertionStatus insertWithoutGrowth()(T element) @trusted // template-lazy
     {
         version(LDC) pragma(inline, true);

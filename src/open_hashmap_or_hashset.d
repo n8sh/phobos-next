@@ -1508,6 +1508,7 @@ private:
 static private void duplicateEmplace(T)(const scope ref T src,
                                         scope ref T dst) @system
 {
+    pragma(inline, true);
     import std.traits : hasElaborateCopyConstructor, isCopyable, isBasicType, isInstanceOf;
     static if (!hasElaborateCopyConstructor!T)
     {

@@ -553,7 +553,7 @@ struct OpenHashMapOrSet(K, V = void,
     /** Check if `element` is stored.
         Returns: `true` if element is present, `false` otherwise.
     */
-    bool contains()(const scope K key) const // template-lazy, auto ref here makes things slow
+    bool contains()(const scope K key) const // template-lazy, `auto ref` here makes things slow
     {
         version(LDC) pragma(inline, true);
         assert(!key.isNull);
@@ -563,7 +563,7 @@ struct OpenHashMapOrSet(K, V = void,
     }
     static if (isInstanceOf!(Nullable, K))
     {
-        bool contains(const scope WrappedKey wrappedKey) const // template-lazy, auto ref here makes things slow
+        bool contains(const scope WrappedKey wrappedKey) const // template-lazy, `auto ref` here makes things slow
         {
             pragma(inline, true);
             return contains(K(wrappedKey));
@@ -968,7 +968,7 @@ struct OpenHashMapOrSet(K, V = void,
 
     static if (hasValue)        // HashMap
     {
-        scope inout(V)* opBinaryRight(string op)(const scope K key) inout return // auto ref here makes things slow
+        scope inout(V)* opBinaryRight(string op)(const scope K key) inout return // `auto ref` here makes things slow
             if (op == "in")
         {
             pragma(inline, true);
@@ -986,7 +986,7 @@ struct OpenHashMapOrSet(K, V = void,
         static if (isInstanceOf!(Nullable, K))
         {
             pragma(inline, true)    // LDC must have this
-            scope inout(V)* opBinaryRight(string op)(const scope WrappedKey wrappedKey) inout return // auto ref here makes things slow
+            scope inout(V)* opBinaryRight(string op)(const scope WrappedKey wrappedKey) inout return // `auto ref` here makes things slow
                 if (op == "in")
             {
                 return opBinaryRight!"in"(K(wrappedKey));
@@ -1095,7 +1095,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
 
         /// Indexing.
-        scope ref inout(V) opIndex()(const scope K key) inout return // auto ref here makes things slow
+        scope ref inout(V) opIndex()(const scope K key) inout return // `auto ref` here makes things slow
         {
             version(LDC) pragma(inline, true);
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
@@ -1112,7 +1112,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
         static if (isInstanceOf!(Nullable, K))
         {
-            scope ref inout(V) opIndex()(const scope WrappedKey wrappedKey) inout return // auto ref here makes things slow
+            scope ref inout(V) opIndex()(const scope WrappedKey wrappedKey) inout return // `auto ref` here makes things slow
             {
                 pragma(inline, true);
                 return opIndex(K(wrappedKey));
@@ -1345,7 +1345,7 @@ private:
     /** Find index to `key` if it exists or to first empty slot found, skipping
      * (ignoring) lazily deleted slots.
      */
-    private size_t indexOfKeyOrVacancySkippingHoles(const scope K key) const // auto ref here makes things slow
+    private size_t indexOfKeyOrVacancySkippingHoles(const scope K key) const // `auto ref` here makes things slow
     {
         version(LDC) pragma(inline, true);
         version(internalUnittest)

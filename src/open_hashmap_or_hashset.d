@@ -1030,8 +1030,6 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    pragma(inline, true):
-
     static if (hasValue)        // HashMap
     {
         scope inout(V)* opBinaryRight(string op)(const scope K key) inout return // auto ref here makes things slow
@@ -1236,6 +1234,8 @@ struct OpenHashMapOrSet(K, V = void,
             }
         }
     }
+
+    pragma(inline, true):
 
     /** Remove `element`.
      * Returns: `true` if element was removed, `false` otherwise.

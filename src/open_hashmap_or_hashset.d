@@ -512,7 +512,6 @@ struct OpenHashMapOrSet(K, V = void,
     /// Release internal allocations.
     private void release()
     {
-        version(LDC) pragma(inline, true);
         releaseBinElements();
         releaseBinsAndHolesSlices();
     }
@@ -680,9 +679,9 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    pragma(inline, true);
     private void insertMoveElementAtIndex()(ref T element, size_t index) @trusted // template-lazy
     {
+        version(LDC) pragma(inline, true);
         move(keyOf(element), keyOf(_bins[index]));
         static if (hasValue)
         {

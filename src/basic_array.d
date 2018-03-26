@@ -643,6 +643,7 @@ struct BasicArray(T,
      */
     void insertBackMove()(ref T value) @trusted // template-lazy
     {
+        version(LDC) pragma(inline, true);
         reserve(_store.length + 1);
         moveEmplace(value, _mptr[_store.length]);
         _store.length += 1;
@@ -669,10 +670,10 @@ struct BasicArray(T,
 
     /** Insert unmoveable `value` into the end of the array.
      */
-    pragma(inline)              // DMD cannot inline
     void insertBack()(T value) @trusted // template-lazy
         if (!isCopyable!T)
     {
+        version(LDC) pragma(inline, true);
         insertBackMove(value);
     }
 

@@ -85,6 +85,7 @@ struct OpenHashMapOrSet(K, V = void,
     static if (hasAddressKey)
     {
         enum holeKeyOffset = 0x1;
+        enum holeKeyAddress = cast(void*)holeKeyOffset;
 
         /**
          * See also: https://forum.dlang.org/post/p7726n$2apd$1@digitalmars.com
@@ -112,13 +113,11 @@ struct OpenHashMapOrSet(K, V = void,
             static if (isDynamicArray!K) // for slices
             {
                 // suffice to compare pointer part
-                return (cast(const(void)*)key.ptr is
-                        cast(const(void)*)holeKeyOffset);
+                return (cast(const(void)*)key.ptr is holeKeyAddress);
             }
             else
             {
-                return (cast(const(void)*)key is
-                        cast(const(void)*)holeKeyOffset);
+                return (cast(const(void)*)key is holeKeyAddress);
             }
         }
 

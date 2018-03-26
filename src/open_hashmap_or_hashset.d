@@ -113,7 +113,7 @@ struct OpenHashMapOrSet(K, V = void,
             static if (isDynamicArray!K) // for slices
             {
                 // suffice to compare pointer part
-                return (cast(const(void)*)key.ptr is holeKeyAddress);
+                return (key.ptr is holeKeyAddress);
             }
             else
             {

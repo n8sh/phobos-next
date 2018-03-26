@@ -80,6 +80,8 @@ struct OpenHashMapOrSet(K, V = void,
      */
     enum hasAddressKey = (is(K == class) || isPointer!K || isDynamicArray!K);
 
+    pragma(inline, true):
+
     static if (hasAddressKey)
     {
         enum holeKeyOffset = 0x1;
@@ -131,8 +133,6 @@ struct OpenHashMapOrSet(K, V = void,
         alias WrappedKey = Unqual!(typeof(K.get));
     }
 
-    pragma(inline):
-
     /// Element type.
     static if (hasValue)
     {
@@ -153,16 +153,16 @@ struct OpenHashMapOrSet(K, V = void,
         }
 
         /// Get key part of element.
-        pragma(inline, true)
         static auto ref inout(K) keyOf()(auto ref return scope inout(T) element)
         {
+            pragma(inline, true);
             return element.key;
         }
 
         /// Get value part of element.
-        pragma(inline, true)
         static auto ref inout(V) valueOf()(auto ref return scope inout(T) element)
         {
+            pragma(inline, true);
             return element.value;
         }
 
@@ -189,9 +189,9 @@ struct OpenHashMapOrSet(K, V = void,
         alias T = K;            // short name for element type
 
         /// Get key part of element.
-        pragma(inline, true)
         static auto ref inout(K) keyOf()(auto ref return inout(T) element)
         {
+            pragma(inline, true);
             return element;
         }
 
@@ -207,9 +207,9 @@ struct OpenHashMapOrSet(K, V = void,
      * See also:
      * https://forum.dlang.org/post/nyngzsaeqxzzuumivtze@forum.dlang.org
      */
-    pragma(inline)              // LDC can, DMD cannot inline
     static typeof(this) withCapacity()(size_t capacity) // template-lazy
     {
+        version(LDC) pragma(inline);
         version(showEntries) dln(__FUNCTION__, " capacity:", capacity);
         return typeof(return)(makeDefaultInitializedBins(capacity), 0);
     }
@@ -567,9 +567,9 @@ struct OpenHashMapOrSet(K, V = void,
     }
     static if (isInstanceOf!(Nullable, K))
     {
-        pragma(inline, true)
         bool contains(const scope WrappedKey wrappedKey) const // template-lazy, auto ref here makes things slow
         {
+            pragma(inline, true);
             return contains(K(wrappedKey));
         }
     }
@@ -587,9 +587,9 @@ struct OpenHashMapOrSet(K, V = void,
     static if (!hasValue &&
                isInstanceOf!(Nullable, K))
     {
-        pragma(inline, true)
         InsertionStatus insert()(WrappedKey wrappedElement) // template-lazy
         {
+            pragma(inline, true);
             return insert(K(wrappedElement));
         }
     }
@@ -925,9 +925,9 @@ struct OpenHashMapOrSet(K, V = void,
 
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
      */
-    pragma(inline, true)
     private InsertionStatus insertMoveWithoutGrowth()(ref T element) // template-lazy
     {
+        pragma(inline, true);
         return insertWithoutGrowth(move(element));
     }
 
@@ -952,10 +952,10 @@ struct OpenHashMapOrSet(K, V = void,
 
     static if (!hasValue)       // HashSet
     {
-        pragma(inline, true)
         scope const(K)* opBinaryRight(string op)(const scope K key) const return
             if (op == "in")
         {
+            pragma(inline, true);
             assert(!key.isNull);
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
             return (hitIndex != _bins.length &&
@@ -966,10 +966,10 @@ struct OpenHashMapOrSet(K, V = void,
         }
         static if (isInstanceOf!(Nullable, K))
         {
-            pragma(inline, true)    // LDC must have this
             scope const(K)* opBinaryRight(string op)(const scope WrappedKey wrappedKey) const return
                 if (op == "in")
             {
+                pragma(inline, true);
                 return opBinaryRight!"in"(K(wrappedKey));
             }
         }
@@ -1170,9 +1170,9 @@ struct OpenHashMapOrSet(K, V = void,
         }
         static if (isInstanceOf!(Nullable, K))
         {
-            pragma(inline, true)    // LDC must have this
             scope ref inout(V) opIndex()(const scope WrappedKey wrappedKey) inout return // auto ref here makes things slow
             {
+                pragma(inline, true);
                 return opIndex(K(wrappedKey));
             }
         }
@@ -1199,10 +1199,10 @@ struct OpenHashMapOrSet(K, V = void,
         }
         static if (isInstanceOf!(Nullable, K))
         {
-            pragma(inline, true)
             auto ref V get()(const scope WrappedKey wrappedKey, // template-lazy
                              const scope V defaultValue)
             {
+                pragma(inline, true);
                 return get(K(wrappedKey),
                            defaultValue);
             }
@@ -1496,9 +1496,9 @@ private:
     /** Returns: `true` iff `index` indexes a non-null element, `false`
      * otherwise.
      */
-    pragma(inline, true)
     private bool isOccupiedAtIndex(size_t index) const @trusted
     {
+        pragma(inline, true);
         version(internalUnittest) assert(index < _bins.length);
         if (keyOf(_bins[index]).isNull) { return false; }
         static if (!hasAddressKey)
@@ -1568,6 +1568,7 @@ static private struct LvalueElementRef(Table)
 
     this(Table* table) @trusted
     {
+        pragma(inline, true);
         this._table = table;
         debug
         {
@@ -1577,6 +1578,7 @@ static private struct LvalueElementRef(Table)
 
     ~this() @trusted
     {
+        pragma(inline, true);
         debug
         {
             (cast(MutableTable*)(_table)).decBorrowCount();
@@ -1585,6 +1587,7 @@ static private struct LvalueElementRef(Table)
 
     this(this) @trusted
     {
+        pragma(inline, true);
         debug
         {
             assert(_table._borrowCount != 0);
@@ -1592,37 +1595,38 @@ static private struct LvalueElementRef(Table)
         }
     }
 
-pragma(inline, true):
-
     /// Check if empty.
     @property bool empty() const @safe pure nothrow @nogc
     {
+        pragma(inline, true);
         return _binIndex == _table.binCount;
     }
 
     /// Get number of element left to pop.
     @property size_t length() const @safe pure nothrow @nogc
     {
+        pragma(inline, true);
         return _table.length - _iterationCounter;
     }
 
     @property typeof(this) save() // ForwardRange
     {
+        pragma(inline, true);
         return this;
     }
 
-    pragma(inline)
     void popFront()
     {
+        pragma(inline, true);
         assert(!empty);
         _binIndex += 1;
         findNextNonEmptyBin();
         _iterationCounter += 1;
     }
 
-    pragma(inline)
     private void findNextNonEmptyBin()
     {
+        pragma(inline, true);
         while (_binIndex != (*_table).binCount &&
                !(*_table).isOccupiedAtIndex(_binIndex))
         {
@@ -1639,32 +1643,32 @@ static private struct RvalueElementRef(Table)
     size_t _binIndex;            // index to bin inside table
     size_t _iterationCounter;    // counter over number of elements popped
 
-pragma(inline, true):
-
     /// Check if empty.
     @property bool empty() const @safe pure nothrow @nogc
     {
+        pragma(inline, true);
         return _binIndex == _table.binCount;
     }
 
     /// Get number of element left to pop.
     @property size_t length() const @safe pure nothrow @nogc
     {
+        pragma(inline, true);
         return _table.length - _iterationCounter;
     }
 
-    pragma(inline)
     void popFront()
     {
+        pragma(inline, true);
         assert(!empty);
         _binIndex += 1;
         findNextNonEmptyBin();
         _iterationCounter += 1;
     }
 
-    pragma(inline)
     private void findNextNonEmptyBin()
     {
+        pragma(inline, true);
         while (_binIndex != _table.binCount &&
                !_table.isOccupiedAtIndex(_binIndex))
         {

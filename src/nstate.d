@@ -117,6 +117,8 @@ private:
     }
 }
 
+/** State being either `yes`, `no` or `unknown`.
+ */
 struct Tristate
 {
     @safe pure nothrow @nogc:

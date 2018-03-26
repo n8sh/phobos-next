@@ -533,10 +533,10 @@ struct OpenHashMapOrSet(K, V = void,
     static private void releaseBinsSlice(T[] bins) @trusted
     {
         version(showEntries) dln(__FUNCTION__, " bins.ptr:", bins.ptr, " bins.length", bins.length);
-        if (bins.ptr is null) { return; } // gc_removeRange fails when bins.ptr is null
+        if (bins.ptr is null) { return; } // `gc_removeRange` fails for null input
         static if (mustAddGCRange!T)
         {
-            gc_removeRange(bins.ptr);
+            gc_removeRange(bins.ptr); // `gc_removeRange` fails for null input
         }
         static if (__traits(hasMember, Allocator, "deallocatePtr"))
         {
@@ -769,7 +769,10 @@ struct OpenHashMapOrSet(K, V = void,
             _bins = cast(T[])rawBins;
             static if (mustAddGCRange!T)
             {
-                gc_removeRange(oldBinsPtr);
+                if (oldBinsPtr !is null)
+                {
+                    gc_removeRange(oldBinsPtr); // `gc_removeRange` fails for null input
+                }
                 gc_addRange(_bins.ptr, newByteCount);
             }
 

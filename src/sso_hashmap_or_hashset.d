@@ -882,9 +882,9 @@ struct HashMapOrSet(K, V = void,
         }
 
         /// Indexing.
-        pragma(inline, true)    // LDC must have this
         scope ref inout(V) opIndex()(in K key) inout return // auto ref here makes things slow
         {
+            version(LDC) pragma(inline, true);
             immutable binIx = keyToBinIx(key);
             auto elements = binElementsAt(binIx);
 

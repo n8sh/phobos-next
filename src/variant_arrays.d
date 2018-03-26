@@ -33,6 +33,21 @@ private struct VariantRef(DefinedTypes...)
     /// Is `true` iff an index to a `SomeKind`-kind can be stored.
     enum canReferenceType(SomeKind) = nrOfKind!SomeKind >= 0;
 
+    /// Comparsion works like for integers.
+    int opCmp(in typeof(this) rhs) const @trusted
+    {
+        version(LDC) pragma(inline, true);
+        if (this.rawWord < rhs.rawWord)
+        {
+            return -1;
+        }
+        if (this.rawWord > rhs.rawWord)
+        {
+            return +1;
+        }
+        return 0;
+    }
+
     pragma(inline, true):
 
     /// Construct from mutable `that`.
@@ -94,21 +109,6 @@ private struct VariantRef(DefinedTypes...)
 
     /// Returns: `true` iff is defined.
     bool isDefined() const { return rawWord != 0; }
-
-    /// Comparsion works like for integers.
-    pragma(inline)              // DMD cannot inline
-    int opCmp(in typeof(this) rhs) const @trusted
-    {
-        if (this.rawWord < rhs.rawWord)
-        {
-            return -1;
-        }
-        if (this.rawWord > rhs.rawWord)
-        {
-            return +1;
-        }
-        return 0;
-    }
 
     /// Returns: `true` iff `this` targets a value of type `SomeKind`.
     public bool isA(SomeKind)() const

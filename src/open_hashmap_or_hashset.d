@@ -2105,11 +2105,14 @@ auto byValue(T)(auto ref return inout(T) c) @trusted
         static assert(is(typeof(e) == const(K))); // always const access
 
         // range invalidation forbidden:
-        assertThrown!AssertError(x.reserveExtra(1));  // range invalidation
-        assertThrown!AssertError(x.clear());          // range invalidation
-        assertThrown!AssertError(x.insert(k11));      // range invalidation
-        assertThrown!AssertError(x.insertN([k11].s)); // range invalidation
-        assertThrown!AssertError(x.remove(k11));      // range invalidation
+        debug
+        {
+            assertThrown!AssertError(x.reserveExtra(1));  // range invalidation
+            assertThrown!AssertError(x.clear());          // range invalidation
+            assertThrown!AssertError(x.insert(k11));      // range invalidation
+            assertThrown!AssertError(x.insertN([k11].s)); // range invalidation
+            assertThrown!AssertError(x.remove(k11));      // range invalidation
+        }
 
         // allowed
         assert(x.contains(e));
@@ -2153,20 +2156,20 @@ auto byValue(T)(auto ref return inout(T) c) @trusted
 
     void dummy(ref V value) {}
 
-    assertThrown!RangeError(dummy(s[K(0)]));
+    debug assertThrown!RangeError(dummy(s[K(0)]));
 
     foreach (immutable i; 0 .. n)
     {
         const k = K(i);
         s[k] = V(i);
-        assertNotThrown!RangeError(dummy(s[k]));
+        debug assertNotThrown!RangeError(dummy(s[k]));
     }
 
     foreach (immutable i; 0 .. n)
     {
         const k = K(i);
         assert(s.remove(k));
-        assertThrown!RangeError(dummy(s[k]));
+        debug assertThrown!RangeError(dummy(s[k]));
     }
 
     s[K(0)] = V.init;
@@ -2202,13 +2205,13 @@ auto byValue(T)(auto ref return inout(T) c) @trusted
 
     void dummy(ref V value) {}
 
-    assertThrown!RangeError(dummy(s[K(0)]));
+    debug assertThrown!RangeError(dummy(s[K(0)]));
 
     foreach (immutable i; 0 .. n)
     {
         const k = K(i);
         s[k] = new V(i);
-        assertNotThrown!RangeError(dummy(s[k]));
+        debug assertNotThrown!RangeError(dummy(s[k]));
     }
 
     // test range
@@ -2226,7 +2229,7 @@ auto byValue(T)(auto ref return inout(T) c) @trusted
     {
         const k = K(i);
         assert(s.remove(k));
-        assertThrown!RangeError(dummy(s[k]));
+        debug assertThrown!RangeError(dummy(s[k]));
     }
 
     s[K(0)] = V.init;
@@ -2829,7 +2832,7 @@ version(unittest)
 
 version(unittest)
 {
-    import std.exception : assertThrown, assertNotThrown;
+    debug import std.exception : assertThrown, assertNotThrown;
     import core.exception : RangeError, AssertError;
     import std.algorithm : count;
     import std.algorithm.comparison : equal;

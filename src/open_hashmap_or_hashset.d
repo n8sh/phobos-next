@@ -109,8 +109,17 @@ struct OpenHashMapOrSet(K, V = void,
         static bool isHoleKeyConstant(const scope K key) @trusted pure nothrow @nogc
         {
             pragma(inline, true);
-            return (cast(const(void)*)key is
-                    cast(const(void)*)holeKeyOffset);
+            static if (isDynamicArray!K) // for slices
+            {
+                // suffice to compare pointer part
+                return (cast(const(void)*)key.ptr is
+                        cast(const(void)*)holeKeyOffset);
+            }
+            else
+            {
+                return (cast(const(void)*)key is
+                        cast(const(void)*)holeKeyOffset);
+            }
         }
 
         /** TODO make these work

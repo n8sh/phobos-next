@@ -24,8 +24,8 @@ buildType "release-nobounds" {
           buildOptions "releaseMode" "optimize" "noBoundsCheck" "inline"
 }
 
-buildType "release-nobounds-tlo" {
-          dflags "-mcpu=native" "-O3"
-          dflags-posix-ldc "-flto=full"
+buildType "release-nobounds-lto" {
           buildOptions "releaseMode" "optimize" "noBoundsCheck" "inline"
+          dflags "-mcpu=native" "-O3"
+          dflags "-flto=thin" platform="posix-ldc"
 }

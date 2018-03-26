@@ -557,9 +557,9 @@ struct OpenHashMapOrSet(K, V = void,
     {
         version(LDC) pragma(inline, true);
         assert(!key.isNull);
-        if (_bins.length == 0) { return false; }
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
-        return (isOccupiedAtIndex(hitIndex));
+        return (hitIndex != _bins.length &&
+                isOccupiedAtIndex(hitIndex));
     }
     static if (isInstanceOf!(Nullable, K))
     {

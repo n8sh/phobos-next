@@ -1234,7 +1234,7 @@ struct OpenHashMapOrSet(K, V = void,
             auto range = byElement(this);
         }
         typeof(return) totalCount = 0;
-        foreach (ref currentElement; range)
+        foreach (const ref currentElement; range)
         {
             static if (isCopyable!T)
             {

@@ -329,12 +329,10 @@ struct OpenHashMapOrSet(K, V = void,
         // dln(__FUNCTION__, " this:", &this, " with length ", length);
         version(showEntries) dln(__FUNCTION__, " length:", length);
         T[] binsCopy = allocateUninitializedBins(_bins.length); // unsafe
-        // dln("1");
         foreach (immutable index, ref bin; _bins)
         {
             if (isOccupiedAtIndex(index)) // normal case
             {
-                // dln("occupied at index ", index);
                 static if (hasValue) // map
                 {
                     duplicateEmplace(bin.key, binsCopy[index].key);
@@ -347,14 +345,12 @@ struct OpenHashMapOrSet(K, V = void,
             }
             else
             {
-                // dln("free at index ", index);
                 emplace(&binsCopy[index]); // TODO only emplace key and not value
                 keyOf(binsCopy[index]).nullify();
             }
         }
         static if (!hasAddressKey)
         {
-            // dln("copy holes");
             if (_holesPtr)
             {
                 immutable wordCount = holesWordCount(_bins.length);
@@ -365,7 +361,6 @@ struct OpenHashMapOrSet(K, V = void,
                 return typeof(return)(binsCopy, _count, holesPtrCopy);
             }
         }
-        // dln("done");
         return typeof(return)(binsCopy, _count);
     }
 
@@ -382,13 +377,11 @@ struct OpenHashMapOrSet(K, V = void,
                     auto valuePtr = bin.key in rhs;
                     if (!valuePtr)
                     {
-                        dln("index:", index, " missing key:", bin.key);
                         return false;
                     }
                     // TODO make != a parameter that can also be typically !is. TODO ask forum about this
                     if ((*valuePtr) != bin.value)
                     {
-                        dln("index:", index, " value differs:");
                         return false;
                     }
                 }
@@ -396,7 +389,6 @@ struct OpenHashMapOrSet(K, V = void,
                 {
                     if (!rhs.contains(bin))
                     {
-                        dln("index:", index, " missing element:", bin);
                         return false;
                     }
                 }
@@ -834,7 +826,6 @@ struct OpenHashMapOrSet(K, V = void,
         version(showEntries) dln(__FUNCTION__, " newCapacity:", newCapacity);
         version(internalUnittest) assert(newCapacity > _bins.length);
 
-        dln(_bins.ptr, " ", _bins.length);
         T[] oldBins = _bins;
         _bins = makeDefaultInitializedBins(newCapacity); // replace with new bins
 
@@ -850,8 +841,6 @@ struct OpenHashMapOrSet(K, V = void,
         // move elements to copy
         foreach (immutable oldIndex, ref oldBin; oldBins)
         {
-            dln("oldIndex:", oldIndex);
-
             // TODO use non-member-version of `isOccupiedAtIndex`
             if (!keyOf(oldBin).isNull)
             {

@@ -529,7 +529,7 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /// Release bin slice.
-    private void releaseBinsAndHolesSlices() @trusted
+    private void releaseBinsAndHolesSlices()
     {
         releaseBinsSlice(_bins);
         static if (!hasAddressKey)
@@ -823,6 +823,67 @@ struct OpenHashMapOrSet(K, V = void,
             }
         }
         move(next, this);
+    }
+
+    /** Alternative version of `growStandardWithNewCapacity`.
+     */
+    version(none)
+    private void growStandardWithNewCapacity_alternative()(size_t newCapacity) @trusted // template-lazy
+    {
+        version(showEntries) dln(__FUNCTION__, " newCapacity:", newCapacity);
+        version(internalUnittest) assert(newCapacity > _bins.length);
+
+        T[] oldBins = _bins;
+        _bins = makeDefaultInitializedBins(newCapacity); // replace with new bins
+
+        debug immutable oldCount = _count;
+        _count = 0;
+
+        static if (!hasAddressKey)
+        {
+            size_t* oldHolesPtr = _holesPtr;
+            _holesPtr = null;
+        }
+
+        // move elements to copy
+        foreach (immutable oldIndex, ref oldBin; oldBins)
+        {
+            // TODO use non-member-version of `isOccupiedAtIndex`
+            if (!keyOf(oldBin).isNull)
+            {
+                static if (!hasAddressKey)
+                {
+                    if (!hasHoleAtPtrIndex(oldHolesPtr, oldIndex))
+                    {
+                        insertMoveWithoutGrowth(oldBin);
+                    }
+                }
+                else
+                {
+                    if (!isHoleKeyConstant(keyOf(oldBin)))
+                    {
+                        insertMoveWithoutGrowth(oldBin);
+                    }
+                }
+            }
+        }
+        version(internalUnittest) debug assert(oldCount == _count);
+
+        static if (!hasAddressKey)
+        {
+            static if (__traits(hasMember, Allocator, "deallocatePtr"))
+            {
+                Allocator.instance.deallocatePtr(oldHolesPtr);
+            }
+            else
+            {
+                Allocator.instance.deallocate(oldHolesPtr[0 .. holesWordCount(oldBins.length)]);
+            }
+        }
+
+        releaseBinsSlice(oldBins);
+
+        version(internalUnittest) assert(_bins.length);
     }
 
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).

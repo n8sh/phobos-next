@@ -2815,7 +2815,6 @@ version(unittest)
 
         @safe pure nothrow @nogc pragma(inline, true):
 
-        // Nullable trait:
         bool isNull() const { return zing is nullValue; }
         void nullify() { zing = nullValue; }
         enum nullValue = Zing.init;

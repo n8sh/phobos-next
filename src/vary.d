@@ -842,6 +842,8 @@ pure unittest
     w.clear();
     assert(!v.isNull);
     assert(w.isNull);
+    w = v;
+    assert(!w.isNull);
 
     v = V.init;
     assert(v == V.init);

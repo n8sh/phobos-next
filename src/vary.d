@@ -230,6 +230,8 @@ public:
     /// Release internal store.
     private void release() @trusted nothrow @nogc
     {
+        // import dbgio;
+        // dln(_tix, " Types.length:", Types.length);
         final switch (_tix)
         {
             foreach (const i, T; Types)
@@ -788,7 +790,8 @@ pure unittest
     String15 t = s;
     assert(t == s);
 
-    FastVariant!(String15, string) v = String15("first");
+    alias V = FastVariant!(String15, string);
+    V v = String15("first");
     assert(v.peek!String15);
     assert(!v.peek!string);
 
@@ -799,4 +802,7 @@ pure unittest
     v = "third";
     assert(!v.peek!String15);
     assert(v.peek!string);
+
+    v = V.init;
+    assert(v == V.init);
 }

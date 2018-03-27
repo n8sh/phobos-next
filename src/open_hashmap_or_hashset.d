@@ -2823,8 +2823,11 @@ version(unittest)
     alias X = OpenHashMapOrSet!(Zingrel, void, FNV!(64, true));
     X x;
 
-    // TODO assert(x.insert(new Zingrel()));
-    // TODO assert(x.contains(new Zingrel()));
+    auto e = Zingrel(new Zing(42), Alts.init);
+
+    assert(!x.contains(e));
+    assert(x.insert(e) == X.InsertionStatus.added);
+    assert(x.contains(e));
 }
 
 version(unittest)

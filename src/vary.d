@@ -223,11 +223,20 @@ public:
     void clear() @safe nothrow @nogc
     {
         pragma(inline, true);
-        release();
-        _tix = Ix.max; // this is enough to indicate undefined, no need to zero `_store`
+        if (_tix != Ix.max)
+        {
+            release();
+            _tix = Ix.max; // this is enough to indicate undefined, no need to zero `_store`
+        }
     }
+
     /// ditto
-    alias nullify = clear; // compatible with std.typecons.Nullable
+    void nullify()              // compatible with std.typecons.Nullable
+    {
+        import std.conv : emplace;
+        emplace(&this);         // default initialize in-place
+    }
+
     /// ditto
     void opAssign(typeof(null))
     {
@@ -238,8 +247,6 @@ public:
     /// Release internal store.
     private void release() @trusted nothrow @nogc
     {
-        // import dbgio;
-        // dln(_tix, " Types.length:", Types.length);
         final switch (_tix)
         {
             foreach (const i, T; Types)

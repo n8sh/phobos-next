@@ -308,7 +308,7 @@ template isSetOf(T, E)
                     __traits(compiles, { auto _ = T.init.byElement; }));
 }
 
-/** Is `true` iff `T` is a type with a standardized null value.
+/** Is `true` iff `T` is a type with a standardized null (zero address) value.
  */
 template hasStandardNullValue(T)
 {

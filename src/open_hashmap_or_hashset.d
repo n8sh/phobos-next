@@ -2814,7 +2814,6 @@ version(unittest)
         Alts alts;
 
         @safe pure nothrow @nogc pragma(inline, true):
-
         bool isNull() const { return zing is nullValue; }
         void nullify() { zing = nullValue; }
         enum nullValue = Zing.init;

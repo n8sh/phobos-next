@@ -232,6 +232,8 @@ public:
     /// ditto
     alias nullify = clear;      // compatible with std.typecons.Nullable
 
+    enum nullValue = typeof(this).init;
+
     /// ditto
     void opAssign(typeof(null))
     {

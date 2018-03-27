@@ -186,7 +186,7 @@ public:
     /// Get Value of type $(D T).
     @property auto ref inout(T) get(T)() inout @trusted
     {
-        version(LDC) pragma(inline, true);
+        version(LDC) pragma(inline, true); // DMD cannot inline
         if (!isOfType!T) throw new VaryNException("VaryN doesn't contain type");
         return as!T;
     }

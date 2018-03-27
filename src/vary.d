@@ -541,6 +541,7 @@ private:
 alias FastVariant(Types...) = VaryN!(false, Types);
 alias PackedVariant(Types...) = VaryN!(true, Types);
 
+/// Copied from std.variant
 private static template maxSize(T...)
 {
     static if (T.length == 1)

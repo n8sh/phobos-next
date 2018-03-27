@@ -78,6 +78,7 @@ public:
 
     auto ref to(U)() const // TODO pure @nogc
     {
+        pragma(inline, true);
         final switch (_tix)
         {
             import std.conv : to;
@@ -118,6 +119,7 @@ public:
     /** Returns: Name (as a $(D string)) of Currently Stored Type. */
     private auto ref typeName()() const @safe nothrow @nogc
     {
+        pragma(inline, true);
         return hasValue ? typeNamesRT[_tix] : null;
     }
 
@@ -132,6 +134,7 @@ public:
     /// Destruct.
     ~this()
     {
+        pragma(inline, true);
         release();
     }
 
@@ -170,6 +173,7 @@ public:
     */
     @property inout(T)* peek(T)() inout @trusted nothrow @nogc
     {
+        pragma(inline, true);
         alias MT = Unqual!T;
         static if (!is(MT == void))
         {
@@ -182,6 +186,7 @@ public:
     /// Get Value of type $(D T).
     @property auto ref inout(T) get(T)() inout @trusted
     {
+        version(LDC) pragma(inline, true);
         if (!isOfType!T) throw new VaryNException("VaryN doesn't contain type");
         return as!T;
     }
@@ -190,6 +195,7 @@ public:
     @property inout(Types[index]) get(uint index)() inout @safe
         if (index < Types.length)
     {
+        pragma(inline, true);
         return get!(Types[index]);
     }
 
@@ -211,21 +217,31 @@ public:
     /// Returns: $(D true) iff $(D this) $(D VaryN) can store an instance of $(D T).
     bool isOfType(T)() const @safe nothrow @nogc // TODO shorter name such `isA`, `ofType`
     {
+        pragma(inline, true);
         return _tix == indexOf!T;
     }
 
     /// Force $(D this) to the null/uninitialized/unset/undefined state.
     void clear() @safe nothrow @nogc
     {
+        pragma(inline, true);
         release();
         _tix = Ix.max; // this is enough to indicate undefined, no need to zero `_store`
     }
     /// ditto
     alias nullify = clear; // compatible with std.typecons.Nullable
     /// ditto
-    alias makeUndefined = clear;
-    /// ditto
-    pragma(inline) void opAssign(typeof(null)) { clear(); }
+    void opAssign(typeof(null))
+    {
+        pragma(inline, true);
+        clear();
+    }
+
+    bool isNull() const
+    {
+        pragma(inline, true);
+        return _tix == Ix.max;
+    }
 
     /// Release internal store.
     private void release() @trusted nothrow @nogc

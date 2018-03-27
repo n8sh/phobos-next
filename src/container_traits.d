@@ -308,37 +308,38 @@ template isSetOf(T, E)
                     __traits(compiles, { auto _ = T.init.byElement; }));
 }
 
-/** Is `true` iff `T` is a type with a "natural" null value.
+/** Is `true` iff `T` is a type with a standardized null value.
  */
-template hasNullValue(T)
+template hasStandardNullValue(T)
 {
     import std.traits : isPointer, isDynamicArray;
-    enum hasNullValue = (is(T == class) ||
-                         isPointer!T ||
-                         isDynamicArray!T ||
-                         is(T == typeof(null)));
+    enum hasStandardNullValue = (is(T == class) ||
+                                 isPointer!T ||
+                                 isDynamicArray!T ||
+                                 is(T == typeof(null)));
 }
 
 ///
 @safe pure nothrow @nogc unittest
 {
     class C {}
-    static assert( hasNullValue!(C));
-    static assert( hasNullValue!(int*));
-    static assert( hasNullValue!(int[]));
-    static assert( hasNullValue!(const(int)[]));
-    static assert(!hasNullValue!(int[3]));
-    static assert( hasNullValue!(string));
-    static assert(!hasNullValue!(int));
+    static assert( hasStandardNullValue!(C));
+    static assert( hasStandardNullValue!(int*));
+    static assert( hasStandardNullValue!(int[]));
+    static assert( hasStandardNullValue!(const(int)[]));
+    static assert(!hasStandardNullValue!(int[3]));
+    static assert( hasStandardNullValue!(string));
+    static assert(!hasStandardNullValue!(int));
 }
 
 /** Is `true` iff `T` is a nullable type.
  */
 template isNullable(T)
 {
-    enum isNullable = (hasNullValue!T ||
+    enum isNullable = (hasStandardNullValue!T ||
                        // std.traits.Nullable interface:
-                       (__traits(hasMember, T, "nullify") &&
+                       ((__traits(hasMember, T, "nullify") ||
+                         __traits(hasMember, T, "nullValue")) &&
                         __traits(hasMember, T, "isNull")));
 }
 

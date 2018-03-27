@@ -2794,6 +2794,37 @@ version(unittest)
     // TODO auto b = Array!(X.KeyType).withElementsOfRange_untested(X().byKey); // r-value byKey
 }
 
+@safe pure unittest
+{
+    static class Zing
+    {
+        @safe pure nothrow @nogc:
+
+        this(ulong value) { this._value = value; }
+
+        private ulong _value;
+    }
+
+    enum Alts { a, b, c, d }
+
+    struct Zingrel
+    {
+        @safe pure nothrow @nogc:
+
+        Zing zing;
+        Alts alts;
+
+        bool isNull() const { return zing is nullValue; }
+        void nullify() { zing = nullValue; }
+
+        enum nullValue = Zing.init;
+    }
+
+    alias X = OpenHashMapOrSet!(Zingrel, void, FNV!(64, true));
+    X x;
+    // TODO assert(x.insert(new Zingrel()));
+}
+
 version(unittest)
 {
     debug import std.exception : assertThrown, assertNotThrown;

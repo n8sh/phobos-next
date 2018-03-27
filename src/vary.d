@@ -812,9 +812,6 @@ unittest
 ///
 pure unittest
 {
-    import fixed_array : StringN, Checking;
-    alias String15 = StringN!(15, Checking.viaScope);
-
     String15 s;
     String15 t = s;
     assert(t == s);
@@ -842,8 +839,19 @@ pure unittest
 
     v = V.init;
     assert(v == V.init);
+}
 
+/// check default values
+@safe pure unittest
+{
+    alias V = FastVariant!(String15, string);
     V _;
     assert(_._tix == V.Ix.max);
     assert(V.init._tix == V.Ix.max);
+}
+
+version(unittest)
+{
+    import fixed_array : StringN, Checking;
+    alias String15 = StringN!(15, Checking.viaScope);
 }

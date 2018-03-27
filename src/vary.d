@@ -842,4 +842,8 @@ pure unittest
 
     v = V.init;
     assert(v == V.init);
+
+    V _;
+    assert(_._tix == V.Ix.max);
+    assert(V.init._tix == V.Ix.max);
 }

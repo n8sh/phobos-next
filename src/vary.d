@@ -232,6 +232,7 @@ public:
     /// ditto
     alias nullify = clear;      // compatible with std.typecons.Nullable
 
+    /// Nullable type support.
     enum nullValue = typeof(this).init;
 
     /// ditto

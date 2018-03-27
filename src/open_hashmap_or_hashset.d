@@ -2810,16 +2810,16 @@ version(unittest)
 
     struct Zingrel
     {
-        @safe pure nothrow @nogc:
-
         Zing zing;
         Alts alts;
 
-        // Nullable traits
-        bool isNull() const { return zing is nullValue; }
-        void nullify() { zing = nullValue; }
-
-        enum nullValue = Zing.init;
+        @safe pure nothrow @nogc
+        pragma(inline, true)
+        {
+            bool isNull() const { return zing is nullValue; }
+            void nullify() { zing = nullValue; }
+            enum nullValue = Zing.init;
+        }
     }
     static assert(isNullable!Zingrel);
 

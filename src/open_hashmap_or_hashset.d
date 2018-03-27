@@ -2815,11 +2815,13 @@ version(unittest)
         Zing zing;
         Alts alts;
 
+        // Nullable traits
         bool isNull() const { return zing is nullValue; }
         void nullify() { zing = nullValue; }
 
         enum nullValue = Zing.init;
     }
+    static assert(isNullable!Zingrel);
 
     alias X = OpenHashMapOrSet!(Zingrel, void, FNV!(64, true));
     X x;

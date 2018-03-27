@@ -13,13 +13,13 @@ import std.meta : AliasSeq;
 
 import bijections;
 
-/** Radix sort of $(D input).
+/** Radix sort of `input`.
 
-    Note that this implementation of non-inplace radix sort only requires $(D
-    input) to be a BidirectionalRange not a RandomAccessRange.
+    Note that this implementation of non-inplace radix sort only requires
+    `input` to be a `BidirectionalRange` not a `RandomAccessRange`.
 
-    Note that $(D input) can be a $(D BidirectionalRange) aswell as $(D
-    RandomAccessRange).
+    Note that `input` can be a `BidirectionalRange` aswell as
+    `RandomAccessRange`.
 
     `radixBitCount` is the number of bits in radix (digit)
 
@@ -265,7 +265,7 @@ version(benchmark)
 {
     import std.stdio : write, writef, writeln;
 
-    /** Test $(D radixSort) with ElementType $(D E) */
+    /** Test `radixSort` with element-type `E`. */
     void test(E)(int n) @safe
     {
         writef("%8-s, %10-s, ", E.stringof, n);

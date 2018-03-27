@@ -341,7 +341,7 @@ template isNullable(T)
                        (__traits(hasMember, T, "nullify") &&
                         __traits(hasMember, T, "isNull") &&
                         is(typeof(T.init.isNull()) == bool)//  &&
-                        // is(typeof(T.init.nullify()) == void)
+                        // TODO is(typeof(T.init.nullify()) == void)
                            ));
 }
 

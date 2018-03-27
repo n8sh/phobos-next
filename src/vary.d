@@ -274,20 +274,14 @@ public:
 
     size_t currentSize() const @safe nothrow @nogc
     {
-        if (hasValue)
+        if (isNull) { return 0; }
+        final switch (_tix)
         {
-            final switch (_tix)
+            foreach (const i, const typeSize; typeSizes)
             {
-                foreach (const i, const typeSize; typeSizes)
-                {
-                case i:
-                    return typeSize;
-                }
+            case i:
+                return typeSize;
             }
-        }
-        else
-        {
-            return 0;
         }
     }
 

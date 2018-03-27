@@ -671,14 +671,14 @@ struct OpenHashMapOrSet(K, V = void,
     private void tagAsLazilyDeletedElementAtIndex(size_t index)
     {
         pragma(inline, true);
-        static if (!hasAddressKey)
+        static if (hasAddressKey)
         {
-            keyOf(_bins[index]).nullify();
-            tagHoleAtIndex(index);
+            keyOf(_bins[index]) = holeKeyConstant;
         }
         else
         {
-            keyOf(_bins[index]) = holeKeyConstant;
+            keyOf(_bins[index]).nullify();
+            tagHoleAtIndex(index);
         }
         static if (hasElaborateDestructor!V) // if we should clear all
         {

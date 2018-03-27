@@ -2794,6 +2794,7 @@ version(unittest)
     // TODO auto b = Array!(X.KeyType).withElementsOfRange_untested(X().byKey); // r-value byKey
 }
 
+/// manual Nullable type
 @safe pure unittest
 {
     static class Zing

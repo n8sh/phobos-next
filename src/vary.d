@@ -78,7 +78,6 @@ public:
 
     auto ref to(U)() const // TODO pure @nogc
     {
-        pragma(inline, true);
         final switch (_tix)
         {
             import std.conv : to;

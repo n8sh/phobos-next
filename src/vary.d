@@ -237,12 +237,6 @@ public:
         clear();
     }
 
-    bool isNull() const
-    {
-        pragma(inline, true);
-        return _tix == Ix.max;
-    }
-
     /// Release internal store.
     private void release() @trusted nothrow @nogc
     {
@@ -267,7 +261,17 @@ public:
     }
 
     /// Returns: $(D true) if this has a defined value (is defined).
-    bool hasValue() const @safe nothrow @nogc { return _tix != Ix.max; }
+    bool hasValue() const @safe nothrow @nogc
+    {
+        pragma(inline, true);
+        return _tix != Ix.max;
+    }
+
+    bool isNull() const @safe nothrow @nogc
+    {
+        pragma(inline, true);
+        return _tix == Ix.max;
+    }
 
     size_t currentSize() const @safe nothrow @nogc
     {

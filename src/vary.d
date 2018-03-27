@@ -73,7 +73,6 @@ public:
                                           ((!hasIndirections!U) && // no indirections and
                                            indexOf!(Unqual!U) >= 0))); // ok to remove constness of value types
 
-    import std.variant : maxSize;
     enum dataMaxSize = maxSize!Types;
 
     auto ref to(U)() const // TODO pure @nogc
@@ -541,6 +540,20 @@ private:
 
 alias FastVariant(Types...) = VaryN!(false, Types);
 alias PackedVariant(Types...) = VaryN!(true, Types);
+
+private static template maxSize(T...)
+{
+    static if (T.length == 1)
+    {
+        enum size_t maxSize = T[0].sizeof;
+    }
+    else
+    {
+        import std.algorithm.comparison : max;
+        enum size_t maxSize = max(T[0].sizeof, maxSize!(T[1 .. $]));
+    }
+}
+
 
 @safe:
 

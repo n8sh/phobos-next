@@ -262,7 +262,15 @@ struct OpenHashMapOrSet(K, V = void,
             auto bins = cast(T[])Allocator.instance.allocate(byteCount);
             foreach (ref bin; bins)
             {
-                keyOf(bin).nullify(); // moveEmplace doesn't init source of type Nullable
+                static if (__traits(hasMember, K , "nullValue"))
+                {
+                    emplace(&keyOf(bin), K.nullValue);
+                }
+                else
+                {
+                    emplace(&keyOf(bin));
+                    keyOf(bin).nullify(); // moveEmplace doesn't init source of type Nullable
+                }
                 static if (hasValue)
                 {
                     // construct in-place
@@ -2814,9 +2822,9 @@ version(unittest)
         Alts alts;
 
         @safe pure nothrow @nogc pragma(inline, true):
-        bool isNull() const { return zing is nullValue; }
-        void nullify() { zing = nullValue; }
-        enum nullValue = Zing.init;
+        bool isNull() const { return zing is null; }
+        void nullify() { zing = null; }
+        enum nullValue = typeof(this).init;
     }
     static assert(isNullable!Zingrel);
 

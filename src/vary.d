@@ -837,6 +837,12 @@ pure unittest
     assert(!v.peek!String15);
     assert(v.peek!string);
 
+    auto w = v;
+    assert(v == w);
+    w.clear();
+    assert(!v.isNull);
+    assert(w.isNull);
+
     v = V.init;
     assert(v == V.init);
 }

@@ -229,13 +229,8 @@ public:
             _tix = Ix.max; // this is enough to indicate undefined, no need to zero `_store`
         }
     }
-
     /// ditto
-    void nullify()              // compatible with std.typecons.Nullable
-    {
-        import std.conv : emplace;
-        emplace(&this);         // default initialize in-place
-    }
+    alias nullify = clear;      // compatible with std.typecons.Nullable
 
     /// ditto
     void opAssign(typeof(null))

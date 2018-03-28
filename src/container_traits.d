@@ -332,6 +332,25 @@ template hasStandardNullValue(T)
     static assert(!hasStandardNullValue!(int));
 }
 
+/** Is `true` iff `T` is a type with a standardized null (zero address) value.
+ */
+template hasNullValue(T)
+{
+    import std.traits : isPointer, isDynamicArray;
+    enum hasNullValue = hasStandardNullValue!T || __traits(hasMember, T, "nullValue");
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    struct S
+    {
+        int value;
+        enum nullValue = typeof(this).init;
+    }
+    static assert(hasNullValue!S);
+}
+
 /** Is `true` iff `T` is a nullable type.
  */
 template isNullable(T)

@@ -239,6 +239,7 @@ A bool occupies 8 bits so `isAllOneBits!(bool, true) == false`
 
 See_Also:
 https://forum.dlang.org/post/hn11oh$1usk$1@digitalmars.com
+https://github.com/dlang/phobos/pull/6024
 +/
 private template isAllOneBits(T, T value)
 {
@@ -310,6 +311,7 @@ zero.
 
 See_Also:
 https://forum.dlang.org/post/hn11oh$1usk$1@digitalmars.com
+https://github.com/dlang/phobos/pull/6024
 +/
 package template isInitAllOneBits(T)
 {

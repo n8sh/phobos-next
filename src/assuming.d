@@ -2,7 +2,7 @@ module assuming;
 
 /**
    * See_Also: http://forum.dlang.org/post/nq4eol$2h34$1@digitalmars.com
-   * See also: https://dpaste.dzfl.pl/8c5ec90c5b39
+   * See_Also: https://dpaste.dzfl.pl/8c5ec90c5b39
    */
 void assumeNogc(alias Func, T...)(T xs)
     @nogc

@@ -23,7 +23,7 @@ void main(string[] args)
     const wakeupTime = MonoTime.currTime;
     writeln(`child (pid=`, thisPID, `): awoke (continued) at `, wakeupTime - MonoTime.zero);
 
-    // See also: http://forum.dlang.org/post/pziiwlhoyyolgvvljgcg@forum.dlang.org
+    // See_Also: http://forum.dlang.org/post/pziiwlhoyyolgvvljgcg@forum.dlang.org
     // TODO Use kill instead when thisProcessPid has been added
     // kill(new Pid(thisPID), SIGTSTP);
     writeln(`child (pid=`, thisPID, `): is exiting`);

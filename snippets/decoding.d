@@ -1,5 +1,5 @@
 /** Decoding Algorithms.
-    See also: https://forum.dlang.org/post/na7ov2$1np5$1@digitalmars.com
+    See_Also: https://forum.dlang.org/post/na7ov2$1np5$1@digitalmars.com
 */
 module decoding;
 

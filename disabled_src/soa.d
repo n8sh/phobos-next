@@ -1,7 +1,7 @@
 /** Structure of arrays.
 
-    See also: https://maikklein.github.io/post/soa-d/
-    See also: http://forum.dlang.org/post/wvulryummkqtskiwrusb@forum.dlang.org
+    See_Also: https://maikklein.github.io/post/soa-d/
+    See_Also: http://forum.dlang.org/post/wvulryummkqtskiwrusb@forum.dlang.org
  */
 module soa;
 

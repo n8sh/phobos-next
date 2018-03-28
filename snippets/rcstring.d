@@ -1,7 +1,7 @@
 #!/usr/bin/env rdmd-dev-module
 
 /** Reference Counted Array.
-    See also: http://dpaste.dzfl.pl/817283c163f5
+    See_Also: http://dpaste.dzfl.pl/817283c163f5
  */
 module rcstring;
 
@@ -18,7 +18,7 @@ alias RCString = RCXString!(immutable char);
     Configured with character type `E`, maximum length for the small string optimization,
     and the allocation function, which must have the same semantics as `realloc`.
 
-    See also: https://github.com/burner/std.rcstring
+    See_Also: https://github.com/burner/std.rcstring
 */
 struct RCXString(E = immutable char, size_t maxSmallSize = 23, alias realloc = GC.realloc)
 {

@@ -2,11 +2,11 @@
 
     Generalization of `bool` to three or more states.
 
-    See also: https://en.wikipedia.org/wiki/Three-state_logic
-    See also: https://en.wikipedia.org/wiki/Four-valued_logic
-    See also: https://en.wikipedia.org/wiki/Many-valued_logic
-    See also: https://en.wikipedia.org/wiki/Three-valued_logic
-    See also: https://forum.dlang.org/post/l4gnrc$2glg$1@digitalmars.com
+    See_Also: https://en.wikipedia.org/wiki/Three-state_logic
+    See_Also: https://en.wikipedia.org/wiki/Four-valued_logic
+    See_Also: https://en.wikipedia.org/wiki/Many-valued_logic
+    See_Also: https://en.wikipedia.org/wiki/Three-valued_logic
+    See_Also: https://forum.dlang.org/post/l4gnrc$2glg$1@digitalmars.com
  */
 module nstate;
 

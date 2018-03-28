@@ -3,8 +3,8 @@ module math_ex;
 import std.traits : isIntegral, isNumeric;
 
 /** Check if `x` is an exact (binary) power of 2.
-    See also: http://forum.dlang.org/thread/zumhmosfkvwjymjhmtlt@forum.dlang.org#post-fvnmurrctavpfkunssdf:40forum.dlang.org
-    See also: http://forum.dlang.org/post/hloonbgclzloqemycnth@forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/zumhmosfkvwjymjhmtlt@forum.dlang.org#post-fvnmurrctavpfkunssdf:40forum.dlang.org
+    See_Also: http://forum.dlang.org/post/hloonbgclzloqemycnth@forum.dlang.org
 */
 bool isPow2(T)(T x)
     if (isNumeric!T)

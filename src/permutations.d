@@ -5,7 +5,7 @@ module permutations;
 import std.range.primitives: isInputRange;
 
 /** Cartesian power.
-   See also: http://forum.dlang.org/thread/mailman.1434.1339436657.24740.digitalmars-d-learn@puremagic.com#post-uftixibnvfffugjwsdbl:40forum.dlang.org
+   See_Also: http://forum.dlang.org/thread/mailman.1434.1339436657.24740.digitalmars-d-learn@puremagic.com#post-uftixibnvfffugjwsdbl:40forum.dlang.org
  */
 struct CartesianPower(bool doCopy = true, T)
 {

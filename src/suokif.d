@@ -1,8 +1,8 @@
 /** SUO-KIF File Format.
 
-    See also: https://en.wikipedia.org/wiki/Knowledge_Interchange_Format
-    See also: http://sigmakee.cvs.sourceforge.net/viewvc/sigmakee/sigma/suo-kif.pdf
-    See also: http://forum.dlang.org/post/prsxfcmkngfwomygmthi@forum.dlang.org
+    See_Also: https://en.wikipedia.org/wiki/Knowledge_Interchange_Format
+    See_Also: http://sigmakee.cvs.sourceforge.net/viewvc/sigmakee/sigma/suo-kif.pdf
+    See_Also: http://forum.dlang.org/post/prsxfcmkngfwomygmthi@forum.dlang.org
 */
 module suokif;
 
@@ -58,7 +58,7 @@ alias Exprs = FixedArray!(Expr, 128, Checking.viaScope);
     Prior to parsing used to verify input to parsers that make use of
     sentinel-based search.
 
-    See also: https://en.wikipedia.org/wiki/Sentinel_value
+    See_Also: https://en.wikipedia.org/wiki/Sentinel_value
  */
 pragma(inline, true)
 bool isNullTerminated(const(char)[] s)

@@ -18,7 +18,7 @@ template bitsNeeded(size_t length)
 }
 
 /** Number of bits required to store a packed instance of `T`.
-    See also: http://forum.dlang.org/thread/okonqhnxzqlqtxijxsfg@forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/okonqhnxzqlqtxijxsfg@forum.dlang.org
 
     TODO Extend to continuous version; use std.numeric.sumOfLog2s. Ask on
     StackExchange Computer Science for the correct terminology.

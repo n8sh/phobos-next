@@ -52,8 +52,8 @@ enum hasStealableElements(R) = (hasPureCopy!(ElementType!R)); // TODO recurse
 /* } */
 
 /** Steal front from $(D r) destructively and return it.
-   See also: http://forum.dlang.org/thread/jkbhlezbcrufowxtthmy@forum.dlang.org#post-konhvblwbmpdrbeqhyuv:40forum.dlang.org
-   See also: http://forum.dlang.org/thread/onibkzepudfisxtrigsi@forum.dlang.org#post-dafmzroxvaeejyxrkbon:40forum.dlang.org
+   See_Also: http://forum.dlang.org/thread/jkbhlezbcrufowxtthmy@forum.dlang.org#post-konhvblwbmpdrbeqhyuv:40forum.dlang.org
+   See_Also: http://forum.dlang.org/thread/onibkzepudfisxtrigsi@forum.dlang.org#post-dafmzroxvaeejyxrkbon:40forum.dlang.org
 */
 ElementType!R frontPop(R)(ref R r)
     if (isInputRange!R &&
@@ -109,8 +109,8 @@ version(unittest)
 }
 
 /** Steal back from $(D r) destructively and return it.
-    See also: http://forum.dlang.org/thread/jkbhlezbcrufowxtthmy@forum.dlang.org#post-konhvblwbmpdrbeqhyuv:40forum.dlang.org
-    See also: http://forum.dlang.org/thread/onibkzepudfisxtrigsi@forum.dlang.org#post-dafmzroxvaeejyxrkbon:40forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/jkbhlezbcrufowxtthmy@forum.dlang.org#post-konhvblwbmpdrbeqhyuv:40forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/onibkzepudfisxtrigsi@forum.dlang.org#post-dafmzroxvaeejyxrkbon:40forum.dlang.org
 */
 ElementType!R backPop(R)(ref R r)
     if (isInputRange!R &&
@@ -161,8 +161,8 @@ alias takeBack = backPop;
 }
 
 /** Sliding Splitter.
-    See also: http://forum.dlang.org/thread/dndicafxfubzmndehzux@forum.dlang.org
-    See also: http://forum.dlang.org/thread/uzrbmjonrkixojzflbig@forum.dlang.org#epost-viwkavbmwouiquoqwntm:40forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/dndicafxfubzmndehzux@forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/uzrbmjonrkixojzflbig@forum.dlang.org#epost-viwkavbmwouiquoqwntm:40forum.dlang.org
 
     TODO Use size_t for _lower and _upper instead and reserve _upper =
     size_t.max for emptyness?
@@ -442,7 +442,7 @@ auto slidingSplitter(R)(R data, size_t lower, size_t upper)
 }
 
 /** Ring Buffer.
-    See also: http://forum.dlang.org/thread/ltpaqk$2dav$1@digitalmars.com
+    See_Also: http://forum.dlang.org/thread/ltpaqk$2dav$1@digitalmars.com
     TODO inout
  */
 struct RingBuffer(T)
@@ -471,7 +471,7 @@ private:
 }
 
 /** Same as $(D iota) but with explicit conversion to type $(D T).
-    See also: http://forum.dlang.org/thread/mailman.955.1444358510.22025.digitalmars-d@puremagic.com?page=1
+    See_Also: http://forum.dlang.org/thread/mailman.955.1444358510.22025.digitalmars-d@puremagic.com?page=1
 */
 auto iotaOf(T, B, E, S)(B begin = T.min,
                         E end = T.max,
@@ -517,8 +517,8 @@ auto iotaOfExceptional(T, B, E, S)(B begin = T.min, E end = T.max, S step = 1)
 // }
 
 /** Return Array of Key-Value Pairs of Associative Array $(D aa).
-    See also: https://github.com/D-Programming-Language/druntime/pull/574
-    See also: http://forum.dlang.org/thread/dxotcrutrlmszlidufcr@forum.dlang.org?page=2#post-fhkgitmifgnompkqiscd:40forum.dlang.org
+    See_Also: https://github.com/D-Programming-Language/druntime/pull/574
+    See_Also: http://forum.dlang.org/thread/dxotcrutrlmszlidufcr@forum.dlang.org?page=2#post-fhkgitmifgnompkqiscd:40forum.dlang.org
 */
 auto pairs(Key, Value)(Value[Key] aa)
 {
@@ -592,7 +592,7 @@ unittest
     static assert(isSortedRange!int == false);
 }
 
-/// See also: http://forum.dlang.org/post/gkdqakdogqevwzntpgtu@forum.dlang.org
+/// See_Also: http://forum.dlang.org/post/gkdqakdogqevwzntpgtu@forum.dlang.org
 template genTypeList(T, size_t n)
 {
     import std.meta : AliasSeq;
@@ -603,7 +603,7 @@ template genTypeList(T, size_t n)
 }
 
 /** Return Static Array $(D arr) as a $(D Tuple).
-    See also: http://forum.dlang.org/post/gkdqakdogqevwzntpgtu@forum.dlang.org
+    See_Also: http://forum.dlang.org/post/gkdqakdogqevwzntpgtu@forum.dlang.org
     Check if std.conv.to() support conversion from T[n] to std.typecons.Tuple(T, ...).
 */
 auto asTuple(T, size_t n)(ref T[n] arr)
@@ -616,7 +616,7 @@ auto asTuple(T, size_t n)(ref T[n] arr)
     TODO: Support ref return via $(D zip) for non-const case.
     TODO Use a ring buffer instead of copy?
     TODO Add a variant of adjacentTuples that return a static array instead?
-    See also: http://forum.dlang.org/post/gkdqakdogqevwzntpgtu@forum.dlang.org
+    See_Also: http://forum.dlang.org/post/gkdqakdogqevwzntpgtu@forum.dlang.org
  */
 auto adjacentTuples(size_t N, R)(R r)
     if (N >= 2 &&
@@ -670,7 +670,7 @@ auto adjacentTuples(size_t N, R)(R r)
                 // TODO use static foreach to do left-shifting
 
                 // Need $(D copy) because $(D source) and $(D dest) may overlap.
-                // See also: http://dlang.org/arrays.html#overlapping-copying
+                // See_Also: http://dlang.org/arrays.html#overlapping-copying
                 import std.algorithm.mutation : copy;
                 copy(_prevs[1 .. M], _prevs[0 .. M - 1]);
             }
@@ -774,7 +774,7 @@ unittest
 
 /** Overload has questionable memory safety.  Would be quite cool if DIP-1000
     could support this use case
-    See also: http://forum.dlang.org/post/qgrbmkqxffgeiqaigdic@forum.dlang.org
+    See_Also: http://forum.dlang.org/post/qgrbmkqxffgeiqaigdic@forum.dlang.org
 */
 auto staticLengthRange(T, size_t n)(ref T[n] arr)
 {

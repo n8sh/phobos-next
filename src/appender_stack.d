@@ -1,5 +1,5 @@
 /** Stack.
-    See also: http://forum.dlang.org/thread/wswbtzakdvpgaebuhbom@forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/wswbtzakdvpgaebuhbom@forum.dlang.org
 */
 
 struct Stack(T)

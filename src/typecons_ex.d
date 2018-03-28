@@ -60,7 +60,7 @@ auto nullableRef(T)(T* a) @safe pure nothrow
     assert(xr.isNull);
 }
 
-/** See also: http://forum.dlang.org/thread/jwdbjlobbilowlnpdzzo@forum.dlang.org
+/** See_Also: http://forum.dlang.org/thread/jwdbjlobbilowlnpdzzo@forum.dlang.org
  */
 template New(T)
     if (is(T == class))
@@ -82,7 +82,7 @@ enum isIndex(I) = (is(I == enum) ||
                    isCastableTo!(I, size_t));
 
 /** Check if `T` can be indexed by an instance of `I`.
-    See also: http://forum.dlang.org/post/ajxtksnsxqmeulsedmae@forum.dlang.org
+    See_Also: http://forum.dlang.org/post/ajxtksnsxqmeulsedmae@forum.dlang.org
     TODO move to traits_ex.d
     TODO Add to Phobos
  */
@@ -203,7 +203,7 @@ mixin template _genIndexAndSliceOps_unchecked(I)
 }
 
 /** Wrapper for `R` with Type-Safe `I`-Indexing.
-    See also: http://forum.dlang.org/thread/gayfjaslyairnzrygbvh@forum.dlang.org#post-gayfjaslyairnzrygbvh:40forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/gayfjaslyairnzrygbvh@forum.dlang.org#post-gayfjaslyairnzrygbvh:40forum.dlang.org
 
     TODO Merge with https://github.com/rcorre/enumap
 
@@ -650,7 +650,7 @@ template makeEnumFromSymbolNames(string prefix = `__`,
 }
 
 /**
-   See also: https://p0nce.github.io/d-idioms/#Rvalue-references:-Understanding-auto-ref-and-then-not-using-it
+   See_Also: https://p0nce.github.io/d-idioms/#Rvalue-references:-Understanding-auto-ref-and-then-not-using-it
    */
 mixin template RvalueRef()
 {

@@ -2,7 +2,7 @@
 
 /** Neuroevolution.
 
-   See also: https://en.wikipedia.org/wiki/Neuroevolution
+   See_Also: https://en.wikipedia.org/wiki/Neuroevolution
 
    TODO Profile use of cellops and logops in a specific domain or pattern och
    and use roulette wheel sampling based on these in future patterns.
@@ -18,8 +18,8 @@ module nevo;
 /** Low-Level (Genetic Programming) Operation Network Node Types often implemented
     in a modern hardware (CPU/GPU).
 
-    See also: http://llvm.org/docs/LangRef.html#typesystem
-    See also: http://llvm.org/docs/LangRef.html#instref
+    See_Also: http://llvm.org/docs/LangRef.html#typesystem
+    See_Also: http://llvm.org/docs/LangRef.html#instref
 */
 enum Lop : ubyte
 {

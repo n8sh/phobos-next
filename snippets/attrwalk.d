@@ -12,7 +12,7 @@ alias helper(alias T) = T;
 alias helper(T) = T;
 
 /** Find all functions with certain attribute.
-    See also: https://stackoverflow.com/questions/25555329/d-finding-all-functions-with-certain-attribute
+    See_Also: https://stackoverflow.com/questions/25555329/d-finding-all-functions-with-certain-attribute
 */
 void allWithSillyWalk(alias a, alias onEach)()
 {

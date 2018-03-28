@@ -22,7 +22,7 @@ alias Deduplicate = NoDuplicates;
 alias Uniq = NoDuplicates;
 
 /**
-   See also: http://forum.dlang.org/post/sulxqtfprmkeekjatqup@forum.dlang.org
+   See_Also: http://forum.dlang.org/post/sulxqtfprmkeekjatqup@forum.dlang.org
 */
 template Merge1(A...)
     if (!(A.length & 1))
@@ -53,7 +53,7 @@ template Merge1(A...)
 }
 
 /**
-   See also: http://forum.dlang.org/post/sulxqtfprmkeekjatqup@forum.dlang.org
+   See_Also: http://forum.dlang.org/post/sulxqtfprmkeekjatqup@forum.dlang.org
 */
 template Merge(A...)
 {
@@ -87,7 +87,7 @@ template Merge(A...)
 }
 
 /** Mixin for generating `struct` member `byRef`.
-    See also: http://forum.dlang.org/post/o0vk14$2j89$1@digitalmars.com
+    See_Also: http://forum.dlang.org/post/o0vk14$2j89$1@digitalmars.com
  */
 mixin template RvalueRef()
 {
@@ -139,7 +139,7 @@ import std.functional : unaryFun;
 
 /** Returns: `xs` forwarded through calls to `fun` and packed into a `std.typecons.Tuple`.
  *
- * See also: https://forum.dlang.org/post/zjxmreegqkxgdzvihvyk@forum.dlang.org
+ * See_Also: https://forum.dlang.org/post/zjxmreegqkxgdzvihvyk@forum.dlang.org
  */
 auto forwardMap(alias fun, Ts...)(Ts xs)
     if (is(typeof(unaryFun!(fun))))

@@ -4,7 +4,7 @@
     Copyright: Per Nordlöw 2014-.
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
     Authors: $(WEB Per Nordlöw)
-    See also: https://mentorembedded.github.io/cxx-abi/abi.html
+    See_Also: https://mentorembedded.github.io/cxx-abi/abi.html
  */
 module ada;
 

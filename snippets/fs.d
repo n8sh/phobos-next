@@ -6,16 +6,16 @@
    Make rich use of Sparse Distributed Representations (SDR) using Hash Digests
    for relating Data and its Relations/Properties/Meta-Data.
 
-   See also: http://stackoverflow.com/questions/12629749/how-does-grep-run-so-fast
-   See also: http:www.regular-expressions.info/powergrep.html
-   See also: http://ridiculousfish.com/blog/posts/old-age-and-treachery.html
-   See also: http://www.olark.com/spw/2011/08/you-can-list-a-directory-with-8-million-files-but-not-with-ls/
+   See_Also: http://stackoverflow.com/questions/12629749/how-does-grep-run-so-fast
+   See_Also: http:www.regular-expressions.info/powergrep.html
+   See_Also: http://ridiculousfish.com/blog/posts/old-age-and-treachery.html
+   See_Also: http://www.olark.com/spw/2011/08/you-can-list-a-directory-with-8-million-files-but-not-with-ls/
 
    TODO Make use parallelism_ex: pmap
 
    TODO Call filterUnderAnyOfPaths using std.algorithm.filter directly on AAs. Use byPair or use AA.get(key, defaultValue)
-         See also: http://forum.dlang.org/thread/mailman.75.1392335793.6445.digitalmars-d-learn@puremagic.com
-         See also: https://github.com/D-Programming-Language/druntime/pull/574
+         See_Also: http://forum.dlang.org/thread/mailman.75.1392335793.6445.digitalmars-d-learn@puremagic.com
+         See_Also: https://github.com/D-Programming-Language/druntime/pull/574
 
    TODO Count logical lines.
    TODO Lexers should be loosely coupled to FKinds instead of Files
@@ -1730,7 +1730,7 @@ class GStats
             "return", "static", "union", "while",
             ];
 
-        /* See also: https://en.wikipedia.org/wiki/Operators_in_C_and_C%2B%2B */
+        /* See_Also: https://en.wikipedia.org/wiki/Operators_in_C_and_C%2B%2B */
         auto opersCBasic = [
             // Arithmetic
             Op("+", OpArity.binary, OpAssoc.LR, 6, "Add"),
@@ -1792,7 +1792,7 @@ class GStats
 
             ];
 
-        /* See also: https://en.wikipedia.org/wiki/Iso646.h */
+        /* See_Also: https://en.wikipedia.org/wiki/Iso646.h */
         auto opersC_ISO646 = [
             OpAlias("and", "&&"),
             OpAlias("or", "||"),
@@ -1892,10 +1892,10 @@ class GStats
         /*                        FileContent.sourceCode, */
         /*                        FileKindDetection.equalsWhatsGiven); */
 
-        /* See also: http://msdn.microsoft.com/en-us/library/2e6a4at9.aspx */
+        /* See_Also: http://msdn.microsoft.com/en-us/library/2e6a4at9.aspx */
         static immutable opersCxxMicrosoft = ["__alignof"];
 
-        /* See also: http://msdn.microsoft.com/en-us/library/2e6a4at9.aspx */
+        /* See_Also: http://msdn.microsoft.com/en-us/library/2e6a4at9.aspx */
         static immutable keywordsCxxMicrosoft = (keywordsCxx ~ [/* __abstract 2 */
                                                      "__asm",
                                                      "__assume",

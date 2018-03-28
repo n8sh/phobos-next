@@ -27,8 +27,8 @@ private:
 };
 
 /** Fibonacci Heap Container.
-    See also: http://www.codeproject.com/Articles/42561/Dijkstra-s-Algorithm-for-Network-Optimization-Usin
-    See also: http://www.sanfoundry.com/cpp-program-implement-fibonacci-heap/
+    See_Also: http://www.codeproject.com/Articles/42561/Dijkstra-s-Algorithm-for-Network-Optimization-Usin
+    See_Also: http://www.sanfoundry.com/cpp-program-implement-fibonacci-heap/
  */
 struct FibonacciHeap(V)
 {

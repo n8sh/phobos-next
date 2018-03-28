@@ -25,8 +25,8 @@ module xxhash64;
 
         ulong result2 = XXHash64::hashOf(mypointer, numBytes, myseed);
 
-    See also: http://cyan4973.github.io/xxHash/
-    See also: http://create.stephan-brumme.com/xxhash/
+    See_Also: http://cyan4973.github.io/xxHash/
+    See_Also: http://create.stephan-brumme.com/xxhash/
 
     TODO make endian-aware
 **/

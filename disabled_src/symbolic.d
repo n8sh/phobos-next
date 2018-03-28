@@ -1098,7 +1098,7 @@ import assert_ex;
 
 /** Create Matcher for a UNIX Shell $(LUCKY Shebang) Pattern.
     Example: #!/bin/env rdmd
-    See also: https://en.wikipedia.org/wiki/Shebang_(Unix)
+    See_Also: https://en.wikipedia.org/wiki/Shebang_(Unix)
  */
 auto ref shebangLine(Patt interpreter) @safe pure nothrow
 {

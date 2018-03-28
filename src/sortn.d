@@ -2,9 +2,9 @@
 
 /** Fixed Length Sorting via Sorting Networks.
 
-    See also: http://forum.dlang.org/post/ne5m62$1gu5$1@digitalmars.com
-    See also: http://cpansearch.perl.org/src/JGAMBLE/Algorithm-Networksort-1.30/lib/Algorithm/Networksort.pm
-    See also: http://www.angelfire.com/blog/ronz/Articles/999SortingNetworksReferen.html
+    See_Also: http://forum.dlang.org/post/ne5m62$1gu5$1@digitalmars.com
+    See_Also: http://cpansearch.perl.org/src/JGAMBLE/Algorithm-Networksort-1.30/lib/Algorithm/Networksort.pm
+    See_Also: http://www.angelfire.com/blog/ronz/Articles/999SortingNetworksReferen.html
 
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
 
@@ -118,8 +118,8 @@ enum networkSortMaxLength = 22;
 
     Note: Sorting networks are not unique, not even optimal solutions.
 
-    See also: http://stackoverflow.com/questions/3903086/standard-sorting-networks-for-small-values-of-n
-    See also: http://www.cs.brandeis.edu/~hugues/sorting_networks.html
+    See_Also: http://stackoverflow.com/questions/3903086/standard-sorting-networks-for-small-values-of-n
+    See_Also: http://www.cs.brandeis.edu/~hugues/sorting_networks.html
  */
 auto networkSortUpTo(uint n, alias less = "a < b", Range)(Range r)
     if (isRandomAccessRange!Range)

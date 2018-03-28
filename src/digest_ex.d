@@ -10,8 +10,8 @@ module digest_ex;
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
     Authors: $(WEB Per Nordlöw)
 
-    See also: http://stackoverflow.com/questions/1902340/can-a-sha-1-hash-be-all-zeroes
-    See also: http://stackoverflow.com/questions/20179287/sha1-indexed-hash-table-in-d
+    See_Also: http://stackoverflow.com/questions/1902340/can-a-sha-1-hash-be-all-zeroes
+    See_Also: http://stackoverflow.com/questions/20179287/sha1-indexed-hash-table-in-d
 */
 struct Digest(size_t numBytes = 20, string name = "SHA-1")
 {

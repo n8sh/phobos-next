@@ -49,7 +49,7 @@ struct PureMallocator
     {
         pureFree(b.ptr);        // `free` doesn't need `b.length`
         // `true` indicates support,
-        // See also: https://dlang.org/phobos/std_experimental_allocator.html#.IAllocator.deallocate
+        // See_Also: https://dlang.org/phobos/std_experimental_allocator.html#.IAllocator.deallocate
         return true;
     }
 

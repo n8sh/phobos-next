@@ -36,7 +36,7 @@ import rational;
 import arsd.terminal;
 import core.time: Duration;
 
-/// See also: http://forum.dlang.org/thread/fihymjelvnwfevegwryt@forum.dlang.org#post-fihymjelvnwfevegwryt:40forum.dlang.org
+/// See_Also: http://forum.dlang.org/thread/fihymjelvnwfevegwryt@forum.dlang.org#post-fihymjelvnwfevegwryt:40forum.dlang.org
 template Concise(Tuple)
 {
     static if(isTuple!Tuple)
@@ -107,13 +107,13 @@ enum VizForm
     textAsciiDoc,               // TODO.
     textAsciiDocUTF8,           // TODO.
     HTML,
-    D3js,                       // TODO. See also: http://d3js.org/
+    D3js,                       // TODO. See_Also: http://d3js.org/
     LaTeX,                      // TODO.
-    jiraWikiMarkup, // TODO. See also: https://jira.atlassiana.com/secure/WikiRendererHelpAction.jspa?section=all
+    jiraWikiMarkup, // TODO. See_Also: https://jira.atlassiana.com/secure/WikiRendererHelpAction.jspa?section=all
     Markdown,       // TODO.
 }
 
-/** See also: http://ethanschoonover.com/solarized */
+/** See_Also: http://ethanschoonover.com/solarized */
 enum SolarizedLightColorTheme
 {
     base00  = `657b83`,
@@ -137,7 +137,7 @@ enum SolarizedLightColorTheme
 }
 
 /** HTML tags with no side-effect when its arguments is empty.
-    See also: http://www.w3schools.com/html/html_formatting.asp
+    See_Also: http://www.w3schools.com/html/html_formatting.asp
 */
 enum nonStateHTMLTags = [`b`, `i`, `strong`, `em`, `sub`, `sup`, `small`, `ins`, `del`, `mark`,
                          `code`, `kbd`, `samp`, `samp`, `var`, `pre`];
@@ -826,7 +826,7 @@ class Viz
         {
             bool capitalizeHeadings = true;
 
-            /* See also: http://forum.dlang.org/thread/wjksldfpkpenoskvhsqa@forum.dlang.org#post-jwfildowqrbwtamywsmy:40forum.dlang.org */
+            /* See_Also: http://forum.dlang.org/thread/wjksldfpkpenoskvhsqa@forum.dlang.org#post-jwfildowqrbwtamywsmy:40forum.dlang.org */
 
             // use aggregate members as header
             alias Front = ElementTypeOf!(arg.args[0]); // elementtype of Iteratable

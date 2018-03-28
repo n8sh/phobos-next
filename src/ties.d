@@ -96,7 +96,7 @@ auto tie(Ts...)(ref Ts vars)
 
     Underscore variables are ignored.
 
-    See also: http://forum.dlang.org/thread/hwuiieudmbdvixjejdvi@forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/hwuiieudmbdvixjejdvi@forum.dlang.org
  */
 template let(string expr)
 {

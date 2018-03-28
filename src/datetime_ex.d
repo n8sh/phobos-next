@@ -1,8 +1,8 @@
 import datetime_ex;
 
 /** UTC Offset.
-    See also: https://en.wikipedia.org/wiki/List_of_UTC_time_offsets
-    See also: http://forum.dlang.org/post/csurwdcdyfocrotojons@forum.dlang.org
+    See_Also: https://en.wikipedia.org/wiki/List_of_UTC_time_offsets
+    See_Also: http://forum.dlang.org/post/csurwdcdyfocrotojons@forum.dlang.org
 */
 struct UTCOffset
 {

@@ -31,7 +31,7 @@ enum MapInsertionStatus
  *      hasher = hash function or std.digest Hash.
  *      smallBinMinCapacity = minimum capacity of small bin
  *
- * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
+ * See_Also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  *
  * TODO support HashSet-in operator: assert(*("a" in s) == "a");
  *
@@ -272,7 +272,7 @@ struct HashMapOrSet(K, V = void,
                 else
                 {
                     auto elements = smallBinElementsAt(binIx);
-                    /** TODO functionize to `emplaceAll` in emplace_all.d. See also:
+                    /** TODO functionize to `emplaceAll` in emplace_all.d. See_Also:
                      * http://forum.dlang.org/post/xxigbqqflzwfgycrclyq@forum.dlang.org
                      */
                     static if (hasElaborateCopyConstructor!T)

@@ -3,7 +3,7 @@ module bimap;
 /** Bidirectional map between key-and-values of type `X` and `Y` inspired by C++
     Boost Bimap (`boost::bimap`).
 
-    See also: http://www.boost.org/doc/libs/1_65_1/libs/bimap/doc/html/boost_bimap/one_minute_tutorial.html
+    See_Also: http://www.boost.org/doc/libs/1_65_1/libs/bimap/doc/html/boost_bimap/one_minute_tutorial.html
  */
 struct BiMap(X, Y,
              alias Map = Y[X])

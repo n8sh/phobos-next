@@ -10,7 +10,7 @@ enum SuppressOptions
 
 /** Suppres.
  *
- * See also: http://forum.dlang.org/post/dxakoknmzblxpgiibfmu@forum.dlang.org
+ * See_Also: http://forum.dlang.org/post/dxakoknmzblxpgiibfmu@forum.dlang.org
  */
 struct Suppress(T, SuppressOptions options)
     if (options != 0)

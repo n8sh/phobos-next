@@ -24,8 +24,8 @@ static class VaryNException : Exception
     Victim* p;
     }
 
-    See also: http://forum.dlang.org/post/osfrjcuabwscvrecuvre@forum.dlang.org
-    See also: https://issues.dlang.org/show_bug.cgi?id=15399
+    See_Also: http://forum.dlang.org/post/osfrjcuabwscvrecuvre@forum.dlang.org
+    See_Also: https://issues.dlang.org/show_bug.cgi?id=15399
  */
 private struct VaryN(bool memoryPacked = false, TypesParam...)
 {

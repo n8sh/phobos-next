@@ -20,7 +20,7 @@ import std.traits : Unqual;
 
     TODO Use `std.traits.areCopyCompatibleArrays`
 
-    See also: https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md
+    See_Also: https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md
 */
 struct BasicArray(T,
                   alias Allocator = null, // null means means to qcmeman functions
@@ -1521,8 +1521,8 @@ unittest
 
 /** Variant of `BasicArray` with copy construction (postblit) enabled.
  *
- * See also: suppressing.d
- * See also: http://forum.dlang.org/post/eitlbtfbavdphbvplnrk@forum.dlang.org
+ * See_Also: suppressing.d
+ * See_Also: http://forum.dlang.org/post/eitlbtfbavdphbvplnrk@forum.dlang.org
  */
 struct BasicCopyableArray
 {

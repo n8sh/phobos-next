@@ -71,7 +71,7 @@ struct NotNull(T) if (isNullable!T)
 
     private T _value;
 
-    /* See also: http://forum.dlang.org/thread/aprsozwvnpnchbaswjxd@forum.dlang.org#post-aprsozwvnpnchbaswjxd:40forum.dlang.org */
+    /* See_Also: http://forum.dlang.org/thread/aprsozwvnpnchbaswjxd@forum.dlang.org#post-aprsozwvnpnchbaswjxd:40forum.dlang.org */
     version(none) { // NOTE: Disabled because it makes members inaccessible
         import std.traits: BaseClassesTuple;
         static if(is(T == class) && !is(T == Object)) {
@@ -196,7 +196,7 @@ unittest
     assert(a is b);
 }
 
-/** See also: http://forum.dlang.org/thread/mxpfzghydhirdtltmmvo@forum.dlang.org?page=3#post-ngtuwqiqumommfrlngjy:40forum.dlang.org */
+/** See_Also: http://forum.dlang.org/thread/mxpfzghydhirdtltmmvo@forum.dlang.org?page=3#post-ngtuwqiqumommfrlngjy:40forum.dlang.org */
 unittest
 {
     class A {}
@@ -207,7 +207,7 @@ unittest
 }
 
 /** by Andrej Mitrovic
-    See also: http://forum.dlang.org/thread/llezieyytpcbcaoqeajz@forum.dlang.org?page=6
+    See_Also: http://forum.dlang.org/thread/llezieyytpcbcaoqeajz@forum.dlang.org?page=6
 */
 struct CheckNull(T)
 {

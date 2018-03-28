@@ -15,7 +15,7 @@ struct CMatch(T...)
 }
 
 /** Pattern Matching.
-    See also: http://forum.dlang.org/post/ijjthwfezebkszkzrcgt@forum.dlang.org
+    See_Also: http://forum.dlang.org/post/ijjthwfezebkszkzrcgt@forum.dlang.org
  */
 auto ref match(Handlers...)(Variant v)
 {

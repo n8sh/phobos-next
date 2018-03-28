@@ -5,7 +5,7 @@ module tree;
     Because of this a region allocator can be used for internal memory
     allocation.
 
-    See also: http://forum.dlang.org/post/prsxfcmkngfwomygmthi@forum.dlang.org
+    See_Also: http://forum.dlang.org/post/prsxfcmkngfwomygmthi@forum.dlang.org
  */
 struct GrowOnlyNaryTree(E)
 {

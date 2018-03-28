@@ -209,7 +209,7 @@ bool hasContents(T)(in T a)
  *      T = the argument type, likely to be infered.
  *      a = a reference to a T.
  *
- * See also: std.typecons.Nullable.nullify
+ * See_Also: std.typecons.Nullable.nullify
  */
 auto ref reset(T)(ref T a) @trusted // pure nothrow
 {
@@ -283,8 +283,8 @@ auto findInOrder(alias pred = `a == b`,
 
 /** Returns: If `range` is symmetric.
  *
- * See also: http://forum.dlang.org/thread/dlfeiszyweafpjiocplf@forum.dlang.org#post-vpzuaqxvtdpzpeuorxdl:40forum.dlang.org
- * See also: https://stackoverflow.com/questions/21849580/equality-operator-in-favour-of-std-range-equal
+ * See_Also: http://forum.dlang.org/thread/dlfeiszyweafpjiocplf@forum.dlang.org#post-vpzuaqxvtdpzpeuorxdl:40forum.dlang.org
+ * See_Also: https://stackoverflow.com/questions/21849580/equality-operator-in-favour-of-std-range-equal
  *
  * TODO: Test graphemes in `string` and `wstring`.
  * TODO Move to Phobos
@@ -504,9 +504,9 @@ enum Reduction
 
 /** Generalized Windowed Reduce.
  *
- * See also: https://stackoverflow.com/questions/21004944/forward-difference-algorithm
- * See also: http://forum.dlang.org/thread/ujouqtqeehkegmtaxebg@forum.dlang.org#post-lczzsypupcfigttghkwx:40forum.dlang.org
- * See also: http://rosettacode.org/wiki/Forward_difference#D
+ * See_Also: https://stackoverflow.com/questions/21004944/forward-difference-algorithm
+ * See_Also: http://forum.dlang.org/thread/ujouqtqeehkegmtaxebg@forum.dlang.org#post-lczzsypupcfigttghkwx:40forum.dlang.org
+ * See_Also: http://rosettacode.org/wiki/Forward_difference#D
 */
 auto ref windowedReduce(Reduction reduction = Reduction.forwardDifference, R)(R range)
     if (isInputRange!R)
@@ -638,9 +638,9 @@ pure unittest
  *
  * TODO If `r` contains only one element return empty range.
  *
- * See also: https://stackoverflow.com/questions/21004944/forward-difference-algorithm
- * See also: http://forum.dlang.org/thread/ujouqtqeehkegmtaxebg@forum.dlang.org#post-lczzsypupcfigttghkwx:40forum.dlang.org
- * See also: http://rosettacode.org/wiki/Forward_difference#D
+ * See_Also: https://stackoverflow.com/questions/21004944/forward-difference-algorithm
+ * See_Also: http://forum.dlang.org/thread/ujouqtqeehkegmtaxebg@forum.dlang.org#post-lczzsypupcfigttghkwx:40forum.dlang.org
+ * See_Also: http://rosettacode.org/wiki/Forward_difference#D
  */
 auto forwardDifference(R)(R r)
     if (isInputRange!R)
@@ -748,8 +748,8 @@ unittest
 
 /** In Place Ordering (in Sorted Order) of all Elements `t`.
  *
- * See also: https://stackoverflow.com/questions/21102646/in-place-ordering-of-elements/
- * See also: http://forum.dlang.org/thread/eweortsmcmibppmvtriw@forum.dlang.org#post-eweortsmcmibppmvtriw:40forum.dlang.org
+ * See_Also: https://stackoverflow.com/questions/21102646/in-place-ordering-of-elements/
+ * See_Also: http://forum.dlang.org/thread/eweortsmcmibppmvtriw@forum.dlang.org#post-eweortsmcmibppmvtriw:40forum.dlang.org
 */
 void orderInPlace(T...)(ref T t) @trusted
 {
@@ -795,7 +795,7 @@ import std.algorithm: SwapStrategy;
 
 /** Allow static arrays to be sorted without [].
  *
- * See also: http://forum.dlang.org/thread/jhzurojjnlkatjdgcfhg@forum.dlang.org
+ * See_Also: http://forum.dlang.org/thread/jhzurojjnlkatjdgcfhg@forum.dlang.org
  */
 template sort(alias less = `a < b`, SwapStrategy ss = SwapStrategy.unstable)
 {
@@ -823,7 +823,7 @@ unittest
 
 /** Stable Variant of Quick Sort.
  *
- * See also: http://forum.dlang.org/thread/gjuvmrypvxeebvztszpr@forum.dlang.org
+ * See_Also: http://forum.dlang.org/thread/gjuvmrypvxeebvztszpr@forum.dlang.org
  */
 auto ref stableSort(T)(auto ref T a) pure
     if (isRandomAccessRange!T)
@@ -996,7 +996,7 @@ auto quadruple(T, U, V, W)(T t, U u, V v, W w) { return Quadruple!(T, U, V, W)(t
 
 /** Limit/Span (Min,Max) Pair.
     Todo: Decide on either Span, MinMax or Limits
-    See also: https://stackoverflow.com/questions/21241878/generic-span-type-in-phobos
+    See_Also: https://stackoverflow.com/questions/21241878/generic-span-type-in-phobos
 */
 struct Limits(T)
 {
@@ -1082,8 +1082,8 @@ bool areColinear(T)(T a, T b)
 enum isIntLike(T) = is(typeof({T t = 0; t = t+t;})); // More if needed
 
 /** $(LUCKY Fibonacci) Numbers (Infinite Range).
-    See also: http://forum.dlang.org/thread/dqlrfoxzsppylcgljyyf@forum.dlang.org#post-mailman.1072.1350619455.5162.digitalmars-d-learn:40puremagic.com
-    See also: https://www.reddit.com/r/programming/comments/rif9x/uniform_function_call_syntax_for_the_d/
+    See_Also: http://forum.dlang.org/thread/dqlrfoxzsppylcgljyyf@forum.dlang.org#post-mailman.1072.1350619455.5162.digitalmars-d-learn:40puremagic.com
+    See_Also: https://www.reddit.com/r/programming/comments/rif9x/uniform_function_call_syntax_for_the_d/
 */
 auto fibonacci(T = int)(T nth = 0)
     if (isIntLike!T)
@@ -1112,7 +1112,7 @@ unittest
 }
 
 /** Expand Static `array` into a parameter arguments (AliasSeq!).
-    See also: http://forum.dlang.org/thread/hwellpcaomwbpnpofzlx@forum.dlang.org?page=1
+    See_Also: http://forum.dlang.org/thread/hwellpcaomwbpnpofzlx@forum.dlang.org?page=1
 */
 template expand(alias array, size_t idx = 0)
     if (isStaticArray!(typeof(array)))
@@ -1174,7 +1174,7 @@ alias retroCycle = compose!(cycle, retro);
 import std.traits: isAggregateType, hasMember;
 
 /** Generic Member Setter.
-    See also: http://forum.dlang.org/thread/fdjkijrtduraaajlxxne@forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/fdjkijrtduraaajlxxne@forum.dlang.org
 */
 auto ref T set(string member, T, U)(auto ref T a, in U value)
     if (isAggregateType!T &&
@@ -1194,7 +1194,7 @@ unittest
 }
 
 /* Check if `part` is part of `whole`.
-   See also: http://forum.dlang.org/thread/ls9dbk$jkq$1@digitalmars.com
+   See_Also: http://forum.dlang.org/thread/ls9dbk$jkq$1@digitalmars.com
    TODO Standardize name and remove alises.
  */
 bool isSliceOf(T)(in T[] part,
@@ -1205,7 +1205,7 @@ bool isSliceOf(T)(in T[] part,
             whole.ptr + whole.length);
 }
 
-/* See also: http://forum.dlang.org/thread/cjpplpzdzebfxhyqtskw@forum.dlang.org#post-cjpplpzdzebfxhyqtskw:40forum.dlang.org */
+/* See_Also: http://forum.dlang.org/thread/cjpplpzdzebfxhyqtskw@forum.dlang.org#post-cjpplpzdzebfxhyqtskw:40forum.dlang.org */
 auto dropWhile(alias pred = `a == b`, R, E)(R range, E element)
     if (isInputRange!R &&
         is (typeof(binaryFun!pred(range.front, element)) : bool))
@@ -1231,7 +1231,7 @@ unittest
     assert(`aabc`.dropWhile('a') == `bc`); // TODO Remove restriction on cast to dchar
 }
 
-/* See also: http://forum.dlang.org/thread/cjpplpzdzebfxhyqtskw@forum.dlang.org#post-cjpplpzdzebfxhyqtskw:40forum.dlang.org */
+/* See_Also: http://forum.dlang.org/thread/cjpplpzdzebfxhyqtskw@forum.dlang.org#post-cjpplpzdzebfxhyqtskw:40forum.dlang.org */
 auto takeWhile(alias pred = `a == b`, R, E)(R range, E element)
     if (isInputRange!R &&
         is (typeof(binaryFun!pred(range.front, element)) : bool))
@@ -1603,7 +1603,7 @@ Tuple!(R, size_t)[] findAllOfAnyInOrder(alias pred = `a == b`, R)(R haystack, R[
  * args[1] < args[2] < ... .
  *
  * TODO: CT-variant
- * See also: http://forum.dlang.org/thread/wzsdhzycwqyrvqmmttix@forum.dlang.org?page=2#post-vprvhifglfegnlvzqmjj:40forum.dlang.org
+ * See_Also: http://forum.dlang.org/thread/wzsdhzycwqyrvqmmttix@forum.dlang.org?page=2#post-vprvhifglfegnlvzqmjj:40forum.dlang.org
  */
 bool areStrictlyOrdered(Ts...)(Ts args)
     if (args.length >= 2 &&
@@ -1629,7 +1629,7 @@ unittest
  * that is args[0] <= args[1] <= args[2] <= ... .
  *
  * TODO: CT-variant
- * See also: http://forum.dlang.org/thread/wzsdhzycwqyrvqmmttix@forum.dlang.org?page=2#post-vprvhifglfegnlvzqmjj:40forum.dlang.org
+ * See_Also: http://forum.dlang.org/thread/wzsdhzycwqyrvqmmttix@forum.dlang.org?page=2#post-vprvhifglfegnlvzqmjj:40forum.dlang.org
 */
 bool areUnstrictlyOrdered(Ts...)(Ts args)
     if (args.length >= 2 &&
@@ -1660,7 +1660,7 @@ alias smul = mulu;
  *
  * TODO Add support for other random-access-ranges such as array_ex.d.
  *
- * See also: http://forum.dlang.org/thread/mevnosveagdiswkxtbrv@forum.dlang.org?page=1
+ * See_Also: http://forum.dlang.org/thread/mevnosveagdiswkxtbrv@forum.dlang.org?page=1
  */
 ref R append(R, Args...)(ref R data,
                          auto ref Args args)
@@ -1763,8 +1763,8 @@ unittest
 
 /** Distinct Elements of `r`.
  *
- * See also: http://forum.dlang.org/thread/jufggxqwzhlsmhshtnfj@forum.dlang.org?page=2
- * See also: http://dpaste.dzfl.pl/7b4b37b490a7
+ * See_Also: http://forum.dlang.org/thread/jufggxqwzhlsmhshtnfj@forum.dlang.org?page=2
+ * See_Also: http://dpaste.dzfl.pl/7b4b37b490a7
  */
 auto distinct(R)(R r)
     if (isInputRange!(Unqual!R))
@@ -1861,8 +1861,8 @@ import std.algorithm.setops : cartesianProduct;
 alias elementCombinations = cartesianProduct;
 
 /** Reset all members in aggregate instance `c`.
- * See also: http://forum.dlang.org/post/ckitmpguywfitgadfpkv@forum.dlang.org
- * See also: http://forum.dlang.org/post/fbs8b5$5bu$1@digitalmars.com
+ * See_Also: http://forum.dlang.org/post/ckitmpguywfitgadfpkv@forum.dlang.org
+ * See_Also: http://forum.dlang.org/post/fbs8b5$5bu$1@digitalmars.com
 */
 void resetAllMembers(T)(T c)
     if (is(T == class))
@@ -1908,7 +1908,7 @@ void resetAllMembers(T)(T c)
 /** Returns: `true` iff `r` contains strictly values that are strictly increase
  * with the increment `step`.
  *
- * See also: http://forum.dlang.org/post/mqjyhvqxepgfljpkxvmd@forum.dlang.org
+ * See_Also: http://forum.dlang.org/post/mqjyhvqxepgfljpkxvmd@forum.dlang.org
  */
 bool isLinearRamp(R)(R r, size_t step = 1)
     if (isInputRange!R &&
@@ -2318,7 +2318,7 @@ auto splicer3(T)(T[] x) @trusted
 }
 
 /**
-   See also: http://forum.dlang.org/post/mqfaevkvhwwtzaafrtve@forum.dlang.org
+   See_Also: http://forum.dlang.org/post/mqfaevkvhwwtzaafrtve@forum.dlang.org
  */
 auto use(alias F, T)(T t)
     if (is(typeof(F(T.init))))  // is callable
@@ -2339,7 +2339,7 @@ auto use(alias F, T)(T t)
 
 /** Is `true` iff `x` is an ASCII character constant, false otherwise.
  *
- * See also: `std.ascii.isASCII`.
+ * See_Also: `std.ascii.isASCII`.
  */
 template isASCIIConstant(alias x)
 {

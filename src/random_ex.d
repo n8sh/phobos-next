@@ -6,7 +6,7 @@
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
     Authors: $(WEB Per Nordlöw)
 
-    See also: http://forum.dlang.org/thread/byonwfghdqgcirdjyboh@forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/byonwfghdqgcirdjyboh@forum.dlang.org
 
     TODO Can these be tagged with @nogc? Currently std.random.uniform may allocate.
     TODO Tags as nothrow when std.random gets there.
@@ -83,7 +83,7 @@ ref Rational!E randInPlace(Rational, E)(return ref Rational!E x) @trusted
 }
 
 /** Generate random value of $(D x).
-    See also: http://forum.dlang.org/thread/emlgflxpgecxsqweauhc@forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/emlgflxpgecxsqweauhc@forum.dlang.org
  */
 ref dchar randInPlace(return ref dchar x) @trusted
 {
@@ -363,9 +363,9 @@ alias randomized = randomInstanceOf;
 
 /** Random number generator xoroshiro128+
 
-   See also: http://xoroshiro.di.unimi.it/
-   See also: http://forum.dlang.org/post/kdobdorqztlsomweftmi@forum.dlang.org
-   See also: https://www.reddit.com/r/programming/comments/4gtlfz/xoroshiro128_the_fastest_fullperiod_pseudorandom/
+   See_Also: http://xoroshiro.di.unimi.it/
+   See_Also: http://forum.dlang.org/post/kdobdorqztlsomweftmi@forum.dlang.org
+   See_Also: https://www.reddit.com/r/programming/comments/4gtlfz/xoroshiro128_the_fastest_fullperiod_pseudorandom/
  */
 struct Xoroshiro128plus
 {

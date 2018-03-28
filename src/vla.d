@@ -1,5 +1,5 @@
 /** Variable-Length Aggregates (Structs).
-    See also: https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html
+    See_Also: https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html
  */
 module vla;
 

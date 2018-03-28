@@ -18,7 +18,7 @@ module combinations;
    1 3 4
    2 3 4
 
-   See also: http://rosettacode.org/wiki/Combinations
+   See_Also: http://rosettacode.org/wiki/Combinations
 */
 struct Combinations(T, bool copy = true, bool useArray = true)
 {
@@ -159,9 +159,9 @@ import std.range.primitives : isInputRange;
 
     TODO Add template parameter to decide if .array should be used internally.
 
-    See also: http://forum.dlang.org/thread/iqkybajwdzcvdytakgvw@forum.dlang.org#post-vhufbwsqbssyqwfxxbuu:40forum.dlang.org
-    See also: https://issues.dlang.org/show_bug.cgi?id=6788
-    See also: https://issues.dlang.org/show_bug.cgi?id=7128
+    See_Also: http://forum.dlang.org/thread/iqkybajwdzcvdytakgvw@forum.dlang.org#post-vhufbwsqbssyqwfxxbuu:40forum.dlang.org
+    See_Also: https://issues.dlang.org/show_bug.cgi?id=6788
+    See_Also: https://issues.dlang.org/show_bug.cgi?id=7128
 */
 auto pairwise(R)(R r)
     if (isInputRange!R)

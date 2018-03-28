@@ -82,7 +82,7 @@ struct StaticBitArray(uint len, Block = size_t)
 
         TODO Look at how std.container.array implements this.
 
-        See also: https://dlang.org/phobos/std_bitmanip.html#bitsSet
+        See_Also: https://dlang.org/phobos/std_bitmanip.html#bitsSet
     */
     struct Range()              // template-lazy
     {
@@ -205,7 +205,7 @@ struct StaticBitArray(uint len, Block = size_t)
     in
     {
         // import std.traits: isMutable;
-        // See also: http://stackoverflow.com/questions/19906516/static-parameter-function-specialization-in-d
+        // See_Also: http://stackoverflow.com/questions/19906516/static-parameter-function-specialization-in-d
         /* static if (!isMutable!Index2) { */
         /*     import std.conv: to; */
         /*     static assert(i < len, */
@@ -706,7 +706,7 @@ struct StaticBitArray(uint len, Block = size_t)
 
             Similar to: `std.bitmanip.bitsSet`
 
-            See also: https://dlang.org/phobos/std_bitmanip.html#bitsSet
+            See_Also: https://dlang.org/phobos/std_bitmanip.html#bitsSet
          */
         struct OneIndexes(Store)
             // TODO if (isInstanceOf!(StaticBitArray, Store))

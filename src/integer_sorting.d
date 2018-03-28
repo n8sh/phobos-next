@@ -33,9 +33,9 @@ import bijections;
     TODO Choose fastDigitDiscardal based on elementMin and elementMax (if they
     are given)
 
-    See also: https://probablydance.com/2016/12/27/i-wrote-a-faster-sorting-algorithm/
-    See also: https://github.com/skarupke/ska_sort/blob/master/ska_sort.hpp
-    See also: http://forum.dlang.org/thread/vmytpazcusauxypkwdbn@forum.dlang.org#post-vmytpazcusauxypkwdbn:40forum.dlang.org
+    See_Also: https://probablydance.com/2016/12/27/i-wrote-a-faster-sorting-algorithm/
+    See_Also: https://github.com/skarupke/ska_sort/blob/master/ska_sort.hpp
+    See_Also: http://forum.dlang.org/thread/vmytpazcusauxypkwdbn@forum.dlang.org#post-vmytpazcusauxypkwdbn:40forum.dlang.org
  */
 auto radixSort(R,
                alias fun = "a",

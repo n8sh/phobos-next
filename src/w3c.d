@@ -49,9 +49,9 @@ auto encodeHTML(string s, bool nbsp = true) @safe pure
            .equal(`&lt;!--&nbsp;--&gt;&lt;script&gt;/*&nbsp;*/&lt;/script&gt;`));
 }
 
-// See also: https://en.wikipedia.org/wiki/Character_entity_reference#Predefined_entities_in_XML
+// See_Also: https://en.wikipedia.org/wiki/Character_entity_reference#Predefined_entities_in_XML
 __gshared string[256] convLatin1ToXML;
-// See also: https://en.wikipedia.org/wiki/Character_entity_reference#Character_entity_references_in_HTML
+// See_Also: https://en.wikipedia.org/wiki/Character_entity_reference#Character_entity_references_in_HTML
 // string[256] convLatin1ToHTML;
 
 shared static this()

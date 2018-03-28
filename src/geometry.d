@@ -83,7 +83,7 @@ else
     static immutable defaultElementTypes = ["double"];
 }
 
-// See also: http://stackoverflow.com/questions/18552454/using-ctfe-to-generate-set-of-struct-aliases/18553026?noredirect=1#18553026
+// See_Also: http://stackoverflow.com/questions/18552454/using-ctfe-to-generate-set-of-struct-aliases/18553026?noredirect=1#18553026
 string makeInstanceAliases(in string templateName,
                            string aliasName = "",
                            in uint minDimension = 2,
@@ -223,7 +223,7 @@ enum Orient { column, row } // Vector Orientation.
 
 /** `D`-Dimensional Vector with Coordinate/Element (Component) Type `E`.
  *
- * See also: http://physics.stackexchange.com/questions/16850/is-0-0-0-an-undefined-vector
+ * See_Also: http://physics.stackexchange.com/questions/16850/is-0-0-0-an-undefined-vector
  */
 struct Vector(E, uint D,
               bool normalizedFlag = false, // set to true for UnitVectors
@@ -356,7 +356,7 @@ struct Vector(E, uint D,
                 _vector[0] = scaling*sin(angle);
                 _vector[1] = scaling*cos(angle);
             }
-            static if (D == 3)  // randomize on unit sphere: See also: http://mathworld.wolfram.com/SpherePointPicking.html
+            static if (D == 3)  // randomize on unit sphere: See_Also: http://mathworld.wolfram.com/SpherePointPicking.html
             {
                 alias P = real; // precision
                 immutable u = uniform(0, cast(P)1);
@@ -1532,7 +1532,7 @@ Box!(E,D) unite(E, uint D)(Box!(E,D) a,
                            Vector!(E,D) b) { return a.expand(b); }
 
 /** `D`-Dimensional Infinite Cartesian (Hyper)-Plane with Element (Component) Type `E`.
-    See also: http://stackoverflow.com/questions/18600328/preferred-representation-of-a-3d-plane-in-c-c
+    See_Also: http://stackoverflow.com/questions/18600328/preferred-representation-of-a-3d-plane-in-c-c
  */
 struct Plane(E, uint D)
     if (D >= 2 &&
@@ -1704,7 +1704,7 @@ struct Sphere(E, uint D)
     }
     else static if (D >= 4)
     {
-        // See also: https://en.wikipedia.org/wiki/Volume_of_an_n-ball
+        // See_Also: https://en.wikipedia.org/wiki/Volume_of_an_n-ball
         real n = D;
         auto volume()() const
         {
@@ -1730,7 +1730,7 @@ auto sphere(C, R)(C center, R radius)
 }
 
 /**
-   See also: http://stackoverflow.com/questions/401847/circle-rectangle-collision-detection-intersect
+   See_Also: http://stackoverflow.com/questions/401847/circle-rectangle-collision-detection-intersect
  */
 bool intersect(T)(Circle!T circle, Rect!T rect)
 {

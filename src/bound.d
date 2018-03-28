@@ -6,12 +6,12 @@
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
     Authors: $(WEB Per Nordlöw)
 
-    See also: http://en.wikipedia.org/wiki/Interval_arithmetic
-    See also: https://bitbucket.org/davidstone/bounded_integer
-    See also: http://stackoverflow.com/questions/18514806/ada-like-types-in-nimrod
-    See also: http://forum.dlang.org/thread/xogeuqdwdjghkklzkfhl@forum.dlang.org#post-rksboytciisyezkapxkr:40forum.dlang.org
-    See also: http://forum.dlang.org/thread/lxdtukwzlbmzebazusgb@forum.dlang.org#post-ymqdbvrwoupwjycpizdi:40forum.dlang.org
-    See also: http://dlang.org/operatoroverloading.html
+    See_Also: http://en.wikipedia.org/wiki/Interval_arithmetic
+    See_Also: https://bitbucket.org/davidstone/bounded_integer
+    See_Also: http://stackoverflow.com/questions/18514806/ada-like-types-in-nimrod
+    See_Also: http://forum.dlang.org/thread/xogeuqdwdjghkklzkfhl@forum.dlang.org#post-rksboytciisyezkapxkr:40forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/lxdtukwzlbmzebazusgb@forum.dlang.org#post-ymqdbvrwoupwjycpizdi:40forum.dlang.org
+    See_Also: http://dlang.org/operatoroverloading.html
 
     TODO Test with geometry.Vector or geometry.Point
 
@@ -96,7 +96,7 @@ class BoundOverflowException : Exception
 }
 
 /** Check if the value of `expr` is known at compile-time.
-    See also: http://forum.dlang.org/thread/owlwzvidwwpsrelpkbok@forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/owlwzvidwwpsrelpkbok@forum.dlang.org
 */
 enum isCTEable(alias expr) = __traits(compiles, { enum id = expr; });
 

@@ -20,8 +20,8 @@ import std.traits : Unqual;
     TODO fix compiler so that move kicks in here automatically and remove
     special case on `isCopyable`
 
-    See also: http://dpaste.dzfl.pl/d0059e6e6c09
-    See also: http://forum.dlang.org/post/oq0cd1$2ji3$1@digitalmars.com
+    See_Also: http://dpaste.dzfl.pl/d0059e6e6c09
+    See_Also: http://forum.dlang.org/post/oq0cd1$2ji3$1@digitalmars.com
 */
 Unqual!T[n] asStaticArray(T, size_t n)(T[n] x...) @trusted
 {

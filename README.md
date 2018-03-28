@@ -4,7 +4,7 @@ Various reusable D code.
 
 Most definitions are probably generic enough to be part of Phobos.
 
-See also: http://forum.dlang.org/post/tppptevxiygafzpicmgz@forum.dlang.org
+See_Also: http://forum.dlang.org/post/tppptevxiygafzpicmgz@forum.dlang.org
 
 It includes various kinds of
 

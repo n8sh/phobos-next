@@ -4,7 +4,7 @@
     Copyright: Per Nordlöw 2018-.
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
     Authors: $(WEB Per Nordlöw)
-    See also: https://mentorembedded.github.io/cxx-abi/abi.html
+    See_Also: https://mentorembedded.github.io/cxx-abi/abi.html
 
     TODO Only check for emptyness before any optionals.
 
@@ -73,7 +73,7 @@ string skipLiteral(R, E)(Demangler!R x, E lit)
 }
 
 /** Decode Unqualified C++ Type at $(D r).
-    See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangling-type
+    See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangling-type
 */
 R decodeCxxUnqualifiedType(R)(Demangler!R x)
     if (isInputRange!R)
@@ -114,7 +114,7 @@ struct CxxType
 }
 
 /** Decode C++ Type at $(D r).
-    See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangling-type
+    See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangling-type
 */
 R decodeCxxType(R)(Demangler!R x)
     if (isInputRange!R)
@@ -176,7 +176,7 @@ R decodeCxxType(R)(Demangler!R x)
     return cxxType.to!string;
 }
 
-/** See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.class-enum-type */
+/** See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.class-enum-type */
 R decodeCxxClassEnumType(R)(Demangler!R x)
     if (isInputRange!R)
 {
@@ -218,7 +218,7 @@ R decodeCxxExpression(R)(Demangler!R x)
     assert(0, "TODO");
 }
 
-/** See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.array-type */
+/** See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.array-type */
 R decodeCxxArrayType(R)(Demangler!R x)
     if (isInputRange!R)
 {
@@ -241,7 +241,7 @@ R decodeCxxArrayType(R)(Demangler!R x)
     return type;
 }
 
-/** See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.pointer-to-member-type */
+/** See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.pointer-to-member-type */
 R decodeCxxPointerToMemberType(R)(Demangler!R x)
     if (isInputRange!R)
 {
@@ -256,7 +256,7 @@ R decodeCxxPointerToMemberType(R)(Demangler!R x)
     return type;
 }
 
-/** See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.template-param */
+/** See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.template-param */
 R decodeCxxTemplateParam(R)(Demangler!R x)
     if (isInputRange!R)
 {
@@ -291,7 +291,7 @@ R decodeCxxTemplateTemplateParamAndArgs(R)(Demangler!R x)
     return value;
 }
 
-/** See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.decltype */
+/** See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.decltype */
 R decodeCxxDecltype(R)(Demangler!R x)
     if (isInputRange!R)
 {
@@ -316,7 +316,7 @@ R decodeCxxDigit(R)(Demangler!R x)
 }
 
 /** Try to Decode C++ Operator at $(D r).
-    See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangling-operator
+    See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangling-operator
 */
 R decodeCxxOperatorName(R)(Demangler!R x)
     if (isInputRange!R)
@@ -418,7 +418,7 @@ R decodeCxxOperatorName(R)(Demangler!R x)
 }
 
 /** Try to Decode C++ Builtin Type at $(D r).
-    See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.builtin-type
+    See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.builtin-type
 */
 R decodeCxxBuiltinType(R)(Demangler!R x)
     if (isInputRange!R)
@@ -489,7 +489,7 @@ R decodeCxxBuiltinType(R)(Demangler!R x)
 }
 
 /** Decode C++ Substitution Type at $(D r).
-    See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.substitution
+    See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.substitution
 */
 R decodeCxxSubstitution(R)(Demangler!R x, R stdPrefix = `::std::`)
     if (isInputRange!R)
@@ -498,12 +498,12 @@ R decodeCxxSubstitution(R)(Demangler!R x, R stdPrefix = `::std::`)
     R type;
     if (x.r.skipOver('S'))
     {
-        if (x.r.front == '_') // See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.seq-id
+        if (x.r.front == '_') // See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.seq-id
         {
             type = x.ids[0].to!R;
             x.r.popFront();
         }
-        else if ('0' <= x.r.front && x.r.front <= '9') // See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.seq-id
+        else if ('0' <= x.r.front && x.r.front <= '9') // See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.seq-id
         {
             const ix = (x.r.front - '0');
             auto ids_ = x.ids[min(x.ids.length - 1, ix + 1)]; // TODO Use of min here is hacky. Investigate.
@@ -519,7 +519,7 @@ R decodeCxxSubstitution(R)(Demangler!R x, R stdPrefix = `::std::`)
             x.r.popFront();
             x.r.skipOver('_'); // TODO Relaxed this to optional by removing surrounding assert. Investigate.
         }
-        else if ('A' <= x.r.front && x.r.front <= 'Z') // See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.seq-id
+        else if ('A' <= x.r.front && x.r.front <= 'Z') // See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.seq-id
         {
             const ix = (x.r.front - 'A' + 11);
             type = x.ids[ix].to!R;
@@ -550,7 +550,7 @@ R decodeCxxSubstitution(R)(Demangler!R x, R stdPrefix = `::std::`)
 }
 
 /** Try to Decode C++ Function Type at $(D r).
-    See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.function-type
+    See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.function-type
 */
 R decodeCxxFunctionType(R)(Demangler!R x)
     if (isInputRange!R)
@@ -595,7 +595,7 @@ struct CxxBareFunctionType(R)
     }
 }
 
-/** See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.bare-function-type */
+/** See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.bare-function-type */
 CxxBareFunctionType!R decodeCxxBareFunctionType(R)(Demangler!R x)
     if (isInputRange!R)
 {
@@ -648,7 +648,7 @@ struct CXXCVQualifiers
 }
 
 /** Decode <CV-qualifiers>
-    See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.CV-qualifiers
+    See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.CV-qualifiers
 */
 CXXCVQualifiers decodeCxxCVQualifiers(R)(ref R r)
     if (isInputRange!R)
@@ -667,7 +667,7 @@ enum CxxRefQualifier
     rvalueRef
 }
 
-/* See also: http://forum.dlang.org/thread/cvhapzsrhjdnpkdspavg@forum.dlang.org#post-cvhapzsrhjdnpkdspavg:40forum.dlang.org */
+/* See_Also: http://forum.dlang.org/thread/cvhapzsrhjdnpkdspavg@forum.dlang.org#post-cvhapzsrhjdnpkdspavg:40forum.dlang.org */
 string toCxxString(CxxRefQualifier refQ)
     @safe pure nothrow
 {
@@ -680,7 +680,7 @@ string toCxxString(CxxRefQualifier refQ)
 }
 
 /** Decode <ref-qualifier>
-    See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.ref-qualifier
+    See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.ref-qualifier
 */
 CxxRefQualifier decodeCxxRefQualifier(R)(Demangler!R x)
     if (isInputRange!R)
@@ -701,7 +701,7 @@ CxxRefQualifier decodeCxxRefQualifier(R)(Demangler!R x)
 }
 
 /** Decode Identifier <source-name>.
-    See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.source-name
+    See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.source-name
 */
 R decodeCxxSourceName(R)(Demangler!R x)
     if (isInputRange!R)
@@ -724,7 +724,7 @@ R decodeCxxSourceName(R)(Demangler!R x)
     return id;
 }
 
-/** See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.nested-name
+/** See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.nested-name
    Note: Second alternative
    <template-prefix> <template-args>
    in
@@ -752,7 +752,7 @@ R decodeCxxNestedName(R)(Demangler!R x)
 }
 
 /** TODO Use this
-    See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.ctor-dtor-name
+    See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.ctor-dtor-name
  */
 enum CtorDtorName
 {
@@ -764,7 +764,7 @@ enum CtorDtorName
     baseObjectDestructor
 }
 
-/** See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.ctor-dtor-name */
+/** See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.ctor-dtor-name */
 R decodeCxxCtorDtorName(R)(Demangler!R x)
     if (isInputRange!R)
 {
@@ -801,7 +801,7 @@ R decodeCxxUnqualifiedName(R)(Demangler!R x)
                   x.decodeCxxUnnamedTypeName());
 }
 
-/** See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.unnamed-type-name */
+/** See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.unnamed-type-name */
 R decodeCxxUnnamedTypeName(R)(Demangler!R x)
     if (isInputRange!R)
 {
@@ -815,7 +815,7 @@ R decodeCxxUnnamedTypeName(R)(Demangler!R x)
     return type;
 }
 
-/** See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.template-prefix
+/** See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.template-prefix
  */
 R decodeCxxTemplatePrefix(R)(Demangler!R x)
     if (isInputRange!R)
@@ -827,7 +827,7 @@ R decodeCxxTemplatePrefix(R)(Demangler!R x)
                   x.decodeCxxSubstitution());
 }
 
-/** See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.template-args */
+/** See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.template-args */
 R[] decodeCxxTemplateArgs(R)(Demangler!R x)
     if (isInputRange!R)
 {
@@ -853,7 +853,7 @@ R[] decodeCxxTemplateArgs(R)(Demangler!R x)
     return args;
 }
 
-/** See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.mangled-name */
+/** See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.mangled-name */
 R decodeCxxMangledName(R)(Demangler!R x)
     if (isInputRange!R)
 {
@@ -866,7 +866,7 @@ R decodeCxxMangledName(R)(Demangler!R x)
     return name;
 }
 
-/** See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.expr-primary */
+/** See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.expr-primary */
 R decodeCxxExprPrimary(R)(Demangler!R x)
     if (isInputRange!R)
 {
@@ -888,7 +888,7 @@ R decodeCxxExprPrimary(R)(Demangler!R x)
     return expr;
 }
 
-/** See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.template-arg */
+/** See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.template-arg */
 R decodeCxxTemplateArg(R)(Demangler!R x)
     if (isInputRange!R)
 {
@@ -942,7 +942,7 @@ R decodeCxxTemplatePrefixAndArgs(R)(Demangler!R x)
     return typeof(return).init;
 }
 
-/** See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.prefix */
+/** See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.prefix */
 R decodeCxxPrefix(R)(Demangler!R x)
     if (isInputRange!R)
 {
@@ -987,7 +987,7 @@ R decodeCxxPrefix(R)(Demangler!R x)
     return prefix;
 }
 
-/** See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.unscoped-name */
+/** See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.unscoped-name */
 R decodeCxxUnscopedName(R)(Demangler!R x)
     if (isInputRange!R)
 {
@@ -1005,7 +1005,7 @@ R decodeCxxUnscopedName(R)(Demangler!R x)
     }
 }
 
-/** See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.unscoped-template-name */
+/** See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.unscoped-template-name */
 R decodeCxxUnscopedTemplateName(R)(Demangler!R x)
     if (isInputRange!R)
 {
@@ -1014,7 +1014,7 @@ R decodeCxxUnscopedTemplateName(R)(Demangler!R x)
                   x.decodeCxxUnscopedName());
 }
 
-/** See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.unscoped-template-name */
+/** See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.unscoped-template-name */
 R decodeCxxUnscopedTemplateNameAndArgs(R)(Demangler!R x)
     if (isInputRange!R)
 {
@@ -1031,7 +1031,7 @@ R decodeCxxUnscopedTemplateNameAndArgs(R)(Demangler!R x)
     return nameAndArgs;
 }
 
-/** See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.number */
+/** See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.number */
 R decodeCxxNumber(R)(Demangler!R x)
     if (isInputRange!R)
 {
@@ -1047,7 +1047,7 @@ R decodeCxxNumber(R)(Demangler!R x)
     return number;
 }
 
-/** See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.discriminator */
+/** See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.discriminator */
 R decodeCxxDescriminator(R)(Demangler!R x)
     if (isInputRange!R)
 {
@@ -1079,7 +1079,7 @@ R decodeCxxDescriminator(R)(Demangler!R x)
     return descriminator;
 }
 
-/** See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.local-name */
+/** See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.local-name */
 R decodeCxxLocalName(R)(Demangler!R x)
     if (isInputRange!R)
 {
@@ -1106,7 +1106,7 @@ R decodeCxxLocalName(R)(Demangler!R x)
     return R.init;
 }
 
-/** See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.name */
+/** See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.name */
 R decodeCxxName(R)(Demangler!R x)
     if (isInputRange!R)
 {
@@ -1133,7 +1133,7 @@ R decodeCxxVOffset(R)(Demangler!R x)
     return offset ~ x.decodeCxxNumber();
 }
 
-/** See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.call-offset */
+/** See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.call-offset */
 R decodeCxxCallOffset(R)(Demangler!R x)
     if (isInputRange!R)
 {
@@ -1152,7 +1152,7 @@ R decodeCxxCallOffset(R)(Demangler!R x)
     return offset;
 }
 
-/** See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.special-name */
+/** See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.special-name */
 R decodeCxxSpecialName(R)(Demangler!R x)
     if (isInputRange!R)
 {
@@ -1195,7 +1195,7 @@ R decodeCxxSpecialName(R)(Demangler!R x)
 }
 
 /* Decode C++ Symbol.
-   See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.encoding
+   See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.encoding
  */
 R decodeCxxEncoding(R)(Demangler!R x) /* @safe pure nothrow @nogc */ if (isInputRange!R)
 {
@@ -1228,9 +1228,9 @@ struct Demangling
 }
 
 /** Demangle Symbol $(D r) and Detect Language.
-    See also: https://en.wikipedia.org/wiki/Name_mangling
-    See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangling
-    See also: https://gcc.gnu.org/onlinedocs/libstdc++/manual/ext_demangling.html
+    See_Also: https://en.wikipedia.org/wiki/Name_mangling
+    See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangling
+    See_Also: https://gcc.gnu.org/onlinedocs/libstdc++/manual/ext_demangling.html
 */
 Demangling decodeSymbol(R)(Demangler!R x) /* @safe pure nothrow @nogc */
     if (isInputRange!R)
@@ -1245,7 +1245,7 @@ Demangling decodeSymbol(R)(Demangler!R x) /* @safe pure nothrow @nogc */
         return Demangling(Lang.c, x.r); // assume C
     }
 
-    // See also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.mangled-name
+    // See_Also: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.mangled-name
     if (x.r.skipOver(`_Z`))
     {
         return Demangling(Lang.cxx,

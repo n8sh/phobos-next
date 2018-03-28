@@ -22,7 +22,7 @@
 
     TODO Add `c.insertAfter(r, x)` where `c` is a collection, `r` is a range
     previously extracted from `c`, and `x` is a value convertible to
-    collection's element type. See also:
+    collection's element type. See_Also:
     https://forum.dlang.org/post/n3qq6e$2bis$1@digitalmars.com
 
     TODO replace qcmeman with std.experimental.allocator parameter defaulting to
@@ -1666,7 +1666,7 @@ private:                        // data
             version(LittleEndian) // see: http://forum.dlang.org/posting/zifyahfohbwavwkwbgmw
             {
                 import std.bitmanip : taggedPointer;
-                mixin(taggedPointer!(uint*, "_uintptr", // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
+                mixin(taggedPointer!(uint*, "_uintptr", // GC-allocated store pointer. See_Also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
                                      bool, "isLarge", 1, // bit 0
                                      bool, "isBorrowed", 1, // bit 1
                           ));
@@ -1698,7 +1698,7 @@ private:                        // data
 
             static if (useGCAllocation)
             {
-                E* ptr; // GC-allocated store pointer. See also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
+                E* ptr; // GC-allocated store pointer. See_Also: http://forum.dlang.org/post/iubialncuhahhxsfvbbg@forum.dlang.org
             }
             else
             {
@@ -2778,7 +2778,7 @@ version(unittest)
 //     // assert(x[] == `abc`);
 // }
 
-/// See also: http://forum.dlang.org/post/omfm56$28nu$1@digitalmars.com
+/// See_Also: http://forum.dlang.org/post/omfm56$28nu$1@digitalmars.com
 @safe pure nothrow unittest
 {
     import std.range : ElementType;

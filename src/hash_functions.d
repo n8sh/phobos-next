@@ -7,7 +7,7 @@ import std.traits : isIntegral;
 pragma(inline, true)
 @safe nothrow:
 
-/** See also: http://forum.dlang.org/post/o1igoc$21ma$1@digitalmars.com
+/** See_Also: http://forum.dlang.org/post/o1igoc$21ma$1@digitalmars.com
     Doesn't work: integers are returned as is.
  */
 size_t typeidHashOf(T)(in T x) @trusted
@@ -39,8 +39,8 @@ unittest
 
 /** Mueller integer hash function (bit mixer) A (32-bit).
 
-    See also: https://stackoverflow.com/a/12996028/683710
-    See also: http://zimbry.blogspot.se/2011/09/better-bit-mixing-improving-on.html
+    See_Also: https://stackoverflow.com/a/12996028/683710
+    See_Also: http://zimbry.blogspot.se/2011/09/better-bit-mixing-improving-on.html
  */
 uint muellerHash32(uint x)
 {
@@ -55,9 +55,9 @@ uint muellerHash32(uint x)
     Based on splitmix64, which seems to be based on the blog article "Better Bit
     Mixing" (mix 13).
 
-    See also: https://stackoverflow.com/a/12996028/683710
-    See also: http://zimbry.blogspot.se/2011/09/better-bit-mixing-improving-on.html
-    See also: http://xorshift.di.unimi.it/splitmix64.c
+    See_Also: https://stackoverflow.com/a/12996028/683710
+    See_Also: http://zimbry.blogspot.se/2011/09/better-bit-mixing-improving-on.html
+    See_Also: http://xorshift.di.unimi.it/splitmix64.c
  */
 ulong muellerHash64(T)(T x)
     if (isIntegral!T &&
@@ -72,7 +72,7 @@ ulong muellerHash64(T)(T x)
 
 /** Thomas Wang 64-bit mix integer hash function.
 
-    See also: https://gist.github.com/badboy/6267743#64-bit-mix-functions
+    See_Also: https://gist.github.com/badboy/6267743#64-bit-mix-functions
  */
 public ulong wangMixHash64(ulong x)
 {

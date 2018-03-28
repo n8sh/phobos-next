@@ -1,7 +1,7 @@
 /** Extend std.algorithm.setopts to also operate on set- and map-like
     containers/ranges.
 
-    See also: http://forum.dlang.org/post/nvd09v$24e9$1@digitalmars.com
+    See_Also: http://forum.dlang.org/post/nvd09v$24e9$1@digitalmars.com
 */
 module setops_ex;
 

@@ -31,7 +31,7 @@ private alias CommonOriginalType(T...) = CommonType!(staticMap!(OriginalType, T)
 
 /** Chain (Append, Concatenate) Member Names of Enumerations $(D E).
     All enumerator names of $(D E) must be unique.
-    See also: http://forum.dlang.org/thread/f9vc6p$1b7k$1@digitalmars.com
+    See_Also: http://forum.dlang.org/thread/f9vc6p$1b7k$1@digitalmars.com
 */
 template ChainEnum(E...) if (E.length >= 2 &&
                              allSatisfy!(isEnum, E) &&

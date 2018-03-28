@@ -59,8 +59,8 @@ import std.uni: byGrapheme;
     letter not being detected as a “silent e”, “facebook” will return “3
     syllables.”
 
-    See also: http://eayd.in/?p=232
-    See also: http://forum.dlang.org/thread/ovzcetxbrdblpmyizdjr@forum.dlang.org#post-ovzcetxbrdblpmyizdjr:40forum.dlang.org
+    See_Also: http://eayd.in/?p=232
+    See_Also: http://forum.dlang.org/thread/ovzcetxbrdblpmyizdjr@forum.dlang.org#post-ovzcetxbrdblpmyizdjr:40forum.dlang.org
  */
 uint countSyllables(S)(S s, Lang lang = Lang.en) if (isSomeString!S)
 {

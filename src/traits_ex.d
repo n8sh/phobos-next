@@ -6,8 +6,8 @@
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
     Authors: $(WEB Per Nordlöw)
 
-    See also: http://forum.dlang.org/thread/jbyixfbuefvdlttnyclu@forum.dlang.org#post-mailman.2199.1353742037.5162.digitalmars-d-learn:40puremagic.com
-    See also: http://forum.dlang.org/post/rjrdgmijsmvvsbpinidz@forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/jbyixfbuefvdlttnyclu@forum.dlang.org#post-mailman.2199.1353742037.5162.digitalmars-d-learn:40puremagic.com
+    See_Also: http://forum.dlang.org/post/rjrdgmijsmvvsbpinidz@forum.dlang.org
 */
 module traits_ex;
 
@@ -37,7 +37,7 @@ bool isGCPointer(T)(const T* ptr)
 
 /** Returns: `true` iff all values `V` are the same.
  *
- * See also: https://forum.dlang.org/post/lnsreapgttmdeuscsupp@forum.dlang.org
+ * See_Also: https://forum.dlang.org/post/lnsreapgttmdeuscsupp@forum.dlang.org
 */
 template allSameIterative(V...)
 {
@@ -147,9 +147,9 @@ alias allSameType = allSameTypeIterative;
 
     Same as NoDuplicates!V.length == 1
 
-    See also: https://forum.dlang.org/post/ptnzlhnkuetijhgrgumd@forum.dlang.org
-    See also: http://forum.dlang.org/post/iflpslqgrixdjwrlqqvn@forum.dlang.org
-    See also: http://forum.dlang.org/post/mheumktihihfsxxxapff@forum.dlang.org
+    See_Also: https://forum.dlang.org/post/ptnzlhnkuetijhgrgumd@forum.dlang.org
+    See_Also: http://forum.dlang.org/post/iflpslqgrixdjwrlqqvn@forum.dlang.org
+    See_Also: http://forum.dlang.org/post/mheumktihihfsxxxapff@forum.dlang.org
 */
 template allSameRecursive(V...)
     if (isExpressions!V)
@@ -296,7 +296,7 @@ import std.typecons : isTuple;
 /**
    Returns $(D true) if all types in the $(D Tuple T) are the same.
    TODO: Remove when this is merged: https://github.com/D-Programming-Language/phobos/pull/3395
-   See also: https://github.com/D-Programming-Language/phobos/pull/1672/files
+   See_Also: https://github.com/D-Programming-Language/phobos/pull/1672/files
 */
 template allSameTypesInTuple(T)
     if (isTuple!T)
@@ -337,7 +337,7 @@ template allSameTypesInTuple(T)
 }
 
 /** Returns: tuple `tup` to a static array.
-    See also: http://dpaste.dzfl.pl/d0059e6e6c09
+    See_Also: http://dpaste.dzfl.pl/d0059e6e6c09
 */
 inout(T.Types[0])[T.length] toStaticArray(T)(inout T tup) @trusted
     if (allSameTypeRecursive!(T.Types))
@@ -498,7 +498,7 @@ enum isEnum(T) = is(T == enum);
     static assert(!isEnum!( int* ) );
 }
 
-/* See also: http://d.puremagic.com/issues/show_bug.cgi?id=4427 */
+/* See_Also: http://d.puremagic.com/issues/show_bug.cgi?id=4427 */
 enum isStruct(T) = is(T == struct);
 @safe pure nothrow @nogc unittest
 {
@@ -606,7 +606,7 @@ template Chainable()
 @safe pure nothrow @nogc unittest { mixin Chainable; }
 
 /** Returns true if `T` is an instance of the template `S`.
-    See also: http://forum.dlang.org/thread/mailman.2901.1316118301.14074.digitalmars-d-learn@puremagic.com#post-zzdpfhsgfdgpszdbgbbt:40forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/mailman.2901.1316118301.14074.digitalmars-d-learn@puremagic.com#post-zzdpfhsgfdgpszdbgbbt:40forum.dlang.org
 */
 template isA(alias S, T)
 {
@@ -623,8 +623,8 @@ template isA(alias S, T)
     static assert(isA!(SortedRange, typeof(x)));
 }
 
-/** See also: http://forum.dlang.org/thread/bug-6384-3@http.d.puremagic.com/issues/
-    See also: http://forum.dlang.org/thread/jrqiiicmtpenzokfxvlz@forum.dlang.org */
+/** See_Also: http://forum.dlang.org/thread/bug-6384-3@http.d.puremagic.com/issues/
+    See_Also: http://forum.dlang.org/thread/jrqiiicmtpenzokfxvlz@forum.dlang.org */
 enum isOpBinary(T, string op, U) = is(typeof(mixin("T.init" ~ op ~ "U.init")));
 
 enum isComparable(T) = is(typeof({ return T.init <  T.init; })); /// TODO Move to Phobos' std.traits
@@ -667,7 +667,7 @@ enum isReferenceType(T) = hasIndirections!T;
 enum arityMin0(alias fun) = __traits(compiles, fun());
 
 /** TODO Unite into a variadic.
-    See also: http://forum.dlang.org/thread/bfjwbhkyehcloqcjzxck@forum.dlang.org#post-atjmewbffdzeixrviyoa:40forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/bfjwbhkyehcloqcjzxck@forum.dlang.org#post-atjmewbffdzeixrviyoa:40forum.dlang.org
 */
 enum isCallableWith(alias fun, T) = (is(typeof(fun(T.init))) ||
                                      is(typeof(T.init.fun))); // TODO Are both these needed?
@@ -679,7 +679,7 @@ enum isCallableWith(alias fun, T) = (is(typeof(fun(T.init))) ||
 }
 
 /* TODO Unite into a variadic.
-   See also: http://forum.dlang.org/thread/bfjwbhkyehcloqcjzxck@forum.dlang.org#post-atjmewbffdzeixrviyoa:40forum.dlang.org
+   See_Also: http://forum.dlang.org/thread/bfjwbhkyehcloqcjzxck@forum.dlang.org#post-atjmewbffdzeixrviyoa:40forum.dlang.org
  */
 enum isCallableWith(alias fun, T, U) = (is(typeof(fun(T.init,
                                                       U.init))) ||
@@ -692,7 +692,7 @@ enum isCallableWith(alias fun, T, U) = (is(typeof(fun(T.init,
 }
 
 /** Check if `T` is a Sorted Range.
-    See also: http://forum.dlang.org/thread/lt1g3q$15fe$1@digitalmars.com
+    See_Also: http://forum.dlang.org/thread/lt1g3q$15fe$1@digitalmars.com
 */
 template isSortedRange(T)
 {
@@ -702,7 +702,7 @@ template isSortedRange(T)
 }
 
 /** Check if Function $(D expr) is callable at compile-time.
-    See also: http://forum.dlang.org/thread/owlwzvidwwpsrelpkbok@forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/owlwzvidwwpsrelpkbok@forum.dlang.org
 */
 template isCTFEable(alias fun)
 {
@@ -754,7 +754,7 @@ template isCTFEable2(fun...)
 }
 
 /** Check if the value of $(D expr) is known at compile-time.
-    See also: http://forum.dlang.org/thread/owlwzvidwwpsrelpkbok@forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/owlwzvidwwpsrelpkbok@forum.dlang.org
 */
 enum isCTEable(alias expr) = __traits(compiles, { enum id = expr; });
 
@@ -810,7 +810,7 @@ enum bool isPurelyCallableWith(alias fun, T...) = (isPure!fun &&
 }
 
 /** Check if $(D fun) is a @nogc function.
-    See also: http://forum.dlang.org/thread/dyumjfmxmstpgyxbozry@forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/dyumjfmxmstpgyxbozry@forum.dlang.org
 */
 enum bool isNogc(alias fun) = hasFunctionAttributes!(fun, `@nogc`);
 
@@ -845,7 +845,7 @@ auto persistentlyMemoizedCall(alias fun, T...)(T args)
 
 /** Move std.uni.newLine?
     TODO What to do with Windows style endings?
-    See also: https://en.wikipedia.org/wiki/Newline
+    See_Also: https://en.wikipedia.org/wiki/Newline
 */
 bool isNewline(C)(C c) @safe pure nothrow @nogc
     if (isSomeChar!C)
@@ -892,7 +892,7 @@ bool isNewline(S)(S s) @safe pure nothrow @nogc
 }
 
 /** Dynamic variant of $(D EnumMembers) returning enum member constants (enumerators) of `T`.
-    See also: http://forum.dlang.org/thread/bspwlfypfishykezzocx@forum.dlang.org#post-dguqnroxbfewerepomwq:40forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/bspwlfypfishykezzocx@forum.dlang.org#post-dguqnroxbfewerepomwq:40forum.dlang.org
 */
 auto enumMembers(T)()
     if (is(T == enum))
@@ -908,9 +908,9 @@ alias enumeratorsOf = enumMembers;
     yet or not. Should have linear complexity and much less memory usage than
     `uniqueEnumMembersHashed`.
 
-    See also: http://forum.dlang.org/post/ziappmtvucmuefphblse@forum.dlang.org
-    See also: http://forum.dlang.org/post/awihyvzjswwayeqtklly@forum.dlang.org
-    See also: http://forum.dlang.org/thread/bspwlfypfishykezzocx@forum.dlang.org#post-dguqnroxbfewerepomwq:40forum.dlang.org
+    See_Also: http://forum.dlang.org/post/ziappmtvucmuefphblse@forum.dlang.org
+    See_Also: http://forum.dlang.org/post/awihyvzjswwayeqtklly@forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/bspwlfypfishykezzocx@forum.dlang.org#post-dguqnroxbfewerepomwq:40forum.dlang.org
 */
 auto uniqueEnumMembers(T)()
     if (is(T == enum))
@@ -985,7 +985,7 @@ template stringsOf(T...)        // TODO Add to Phobos
 }
 
 /** Get Dimensionality of Type `T`.
-   See also: http://forum.dlang.org/thread/hiuhqdxtpifhzwebewjh@forum.dlang.org?page=2
+   See_Also: http://forum.dlang.org/thread/hiuhqdxtpifhzwebewjh@forum.dlang.org?page=2
 */
 
 template dimensionality (T)
@@ -1105,7 +1105,7 @@ template EntropyBitsOf(T)
 }
 
 /** Is `true` if `sym` is an l-value, `false` otherwise.
-    See also: https://forum.dlang.org/post/mailman.4192.1454351296.22025.digitalmars-d-learn@puremagic.com
+    See_Also: https://forum.dlang.org/post/mailman.4192.1454351296.22025.digitalmars-d-learn@puremagic.com
     TODO Add to Phobos
 */
 enum isLvalue(alias sym) = is(typeof((ref _){}(sym)));
@@ -1389,7 +1389,7 @@ unittest
 
 /** Is `true` iff DIP-1000 checking is enabled via compiler flag -dip1000.
  *
- * See also: https://forum.dlang.org/post/qglynupcootocnnnpmhj@forum.dlang.org
+ * See_Also: https://forum.dlang.org/post/qglynupcootocnnnpmhj@forum.dlang.org
  */
 enum isDIP1000 = __traits(compiles, () @safe {
          int x;

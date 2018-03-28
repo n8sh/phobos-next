@@ -25,9 +25,9 @@ string toMathML(T)(T x) @trusted /* pure nothrow */
 }
 
 /** Return x in $(D MarkupLang) format.
-    See also: http://forum.dlang.org/thread/awkynfizwqjnbilgddbh@forum.dlang.org#post-awkynfizwqjnbilgddbh:40forum.dlang.org
-    See also: https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mn
-    See also: https://developer.mozilla.org/en-US/docs/Web/MathML/Element/msup
+    See_Also: http://forum.dlang.org/thread/awkynfizwqjnbilgddbh@forum.dlang.org#post-awkynfizwqjnbilgddbh:40forum.dlang.org
+    See_Also: https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mn
+    See_Also: https://developer.mozilla.org/en-US/docs/Web/MathML/Element/msup
  */
 string toML(T)(T x,
                bool usePowPlus = false,
@@ -95,7 +95,7 @@ auto toHTML(T)(T x, bool usePowPlus = false, bool useLeadZeros = false) @trusted
 
 /**
    Returns: MathML Representation of $(D x).
-   See also: https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mfrac
+   See_Also: https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mfrac
  */
 string toMathML(T)(Rational!T x,
                    bool bevelled = false,

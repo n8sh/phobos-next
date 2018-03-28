@@ -45,7 +45,7 @@ bool assertThrows(T:Throwable = Exception, E)(lazy E expression,
 nothrow:
 
 /** A Better assert.
-    See also: http://poita.org/2012/09/02/a-better-assert-for-d.html?utm_source=feedburner&utm_medium=feed&utm_campaign=Feed%3A+poita+%28poita.org%29
+    See_Also: http://poita.org/2012/09/02/a-better-assert-for-d.html?utm_source=feedburner&utm_medium=feed&utm_campaign=Feed%3A+poita+%28poita.org%29
     TODO Can we convert args to strings like GCC's __STRING(expression)?
     TODO Make these be able to be called in unittest placed in struct scopes
 */

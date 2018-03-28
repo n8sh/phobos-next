@@ -8,7 +8,7 @@
 module csunits;
 
 /** Prefix Multipliers.
-    See also: http://searchstorage.techtarget.com/definition/Kilo-mega-giga-tera-peta-and-all-that
+    See_Also: http://searchstorage.techtarget.com/definition/Kilo-mega-giga-tera-peta-and-all-that
 */
 enum PrefixMultipliers
 {
@@ -43,8 +43,8 @@ struct Bytes(T: ulong)
     inout(T) value() @property inout @safe pure nothrow { return _value; }
 
     /**
-       See also: http://searchstorage.techtarget.com/definition/Kilo-mega-giga-tera-peta-and-all-that
-       See also: https://en.wikipedia.org/wiki/Exabyte
+       See_Also: http://searchstorage.techtarget.com/definition/Kilo-mega-giga-tera-peta-and-all-that
+       See_Also: https://en.wikipedia.org/wiki/Exabyte
      */
     string toString(bool inBits = false) const @property @trusted /* pure nothrow */
     {

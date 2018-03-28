@@ -1,5 +1,5 @@
 /** Generic Language Constructs.
-    See also: https://en.wikipedia.org/wiki/Predicate_(grammar)
+    See_Also: https://en.wikipedia.org/wiki/Predicate_(grammar)
 
     Note that ! and ? are more definite sentence enders than .
 
@@ -7,7 +7,7 @@
 
     TODO Use static foreach to add declarations for all isX, for each X
 
-    See also: http://forum.dlang.org/thread/mgdtuxkuswfxxoithwxh@forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/mgdtuxkuswfxxoithwxh@forum.dlang.org
 */
 module lingua;
 
@@ -97,7 +97,7 @@ bool isGermanArticle(S)(S s)
 /// ================ Vowels
 
 /** English vowel type.
-    See also: https://simple.wikipedia.org/wiki/Vowel
+    See_Also: https://simple.wikipedia.org/wiki/Vowel
 */
 enum EnglishVowel { a, o, u, e, i, y,
                     A, O, U, E, I, Y }
@@ -203,7 +203,7 @@ nothrow @nogc unittest
 }
 
 /** English consonant type.
-    See also: https://simple.wikipedia.org/wiki/Consonant
+    See_Also: https://simple.wikipedia.org/wiki/Consonant
 */
 enum EnglishConsonant { b, c, d, f, g, h, j, k, l, m, n, p, q, r, s, t, v, w, x }
 
@@ -280,8 +280,8 @@ enum TokenId : ubyte
 
 /** Swedish Verb Inflection (conjugation of a verb).
 
-    See also: http://www.101languages.net/swedish/swedish-verb-conjugator/
-    See also: http://www.verbix.com/webverbix/Swedish/springa.html
+    See_Also: http://www.101languages.net/swedish/swedish-verb-conjugator/
+    See_Also: http://www.verbix.com/webverbix/Swedish/springa.html
  */
 enum SwedishVerbInflection : ubyte
 {
@@ -290,7 +290,7 @@ enum SwedishVerbInflection : ubyte
 
 /** Verb Form.
 
-    See also: http://verb.woxikon.se/sv/springa
+    See_Also: http://verb.woxikon.se/sv/springa
  */
 enum VerbForm : ubyte
 {
@@ -356,7 +356,7 @@ struct Noun(S)
 }
 
 /** Comparation.
-    See also: https://en.wikipedia.org/wiki/Comparison_(grammar)
+    See_Also: https://en.wikipedia.org/wiki/Comparison_(grammar)
 */
 enum Comparation : ubyte
 {
@@ -380,8 +380,8 @@ struct Adjective(S)
 
     Same as "tempus" in Swedish.
 
-    See also: http://www.ego4u.com/en/cram-up/grammar/tenses-graphic
-    See also: http://www.ego4u.com/en/cram-up/grammar/tenses-examples
+    See_Also: http://www.ego4u.com/en/cram-up/grammar/tenses-graphic
+    See_Also: http://www.ego4u.com/en/cram-up/grammar/tenses-examples
 */
 enum Tense : ubyte
 {
@@ -505,7 +505,7 @@ enum Gender : ubyte
 /** (Grammatical) Mood.
     Sometimes also called Mode.
     Modus in Swedish.
-    See also: https://en.wikipedia.org/wiki/Grammatical_mood
+    See_Also: https://en.wikipedia.org/wiki/Grammatical_mood
 */
 enum Mood : ubyte
 {
@@ -525,7 +525,7 @@ enum Mood : ubyte
 }
 
 /** Check if $(D mood) is a Realis Mood.
-    See also: https://en.wikipedia.org/wiki/Grammatical_mood#Realis_moods
+    See_Also: https://en.wikipedia.org/wiki/Grammatical_mood#Realis_moods
  */
 bool isRealis(Mood mood) @nogc nothrow
 {
@@ -536,7 +536,7 @@ bool isRealis(Mood mood) @nogc nothrow
 enum realisMoods = [Mood.indicative];
 
 /** Check if $(D mood) is a Irrealis Mood.
-    See also: https://en.wikipedia.org/wiki/Grammatical_mood#Irrealis_moods
+    See_Also: https://en.wikipedia.org/wiki/Grammatical_mood#Irrealis_moods
 */
 bool isIrrealis(Mood mood) @nogc nothrow
 {
@@ -559,14 +559,14 @@ enum irrealisMoods = [Mood.subjunctive,
                       Mood.inferential];
 
 /** English Negation Prefixes.
-    See also: http://www.english-for-students.com/Negative-Prefixes.html
+    See_Also: http://www.english-for-students.com/Negative-Prefixes.html
 */
 static immutable englishNegationPrefixes = [ `un`, `non`, `dis`, `im`, `in`, `il`, `ir`, ];
 
 static immutable swedishNegationPrefixes = [ `icke`, `o`, ];
 
 /** English Noun Suffixes.
-    See also: http://www.english-for-students.com/Noun-Suffixes.html
+    See_Also: http://www.english-for-students.com/Noun-Suffixes.html
  */
 static immutable adjectiveNounSuffixes = [ `ness`, `ity`, `ment`, `ance` ];
 static immutable verbNounSuffixes = [ `tion`, `sion`, `ment`, `ence` ];
@@ -584,7 +584,7 @@ static immutable adjectiveSuffixes = [ `er`, `est`, `er`, `est` ];
 
 /** English Job/Professin Title Suffixes.
     Typically built from noun or verb bases.
-    See also: http://www.english-for-students.com/Job-Title-Suffixes.html
+    See_Also: http://www.english-for-students.com/Job-Title-Suffixes.html
 */
 static immutable jobTitleSuffixes = [ `or`, // traitor
                                       `er`, // builder
@@ -634,7 +634,7 @@ string inPlural(string word, int count = 2,
 }
 
 /** Return $(D s) lemmatized (normalized).
-    See also: https://en.wikipedia.org/wiki/Lemmatisation
+    See_Also: https://en.wikipedia.org/wiki/Lemmatisation
  */
 S lemmatized(S)(S s) nothrow
     if (isSomeString!S)
@@ -667,7 +667,7 @@ enum Manner : ubyte
 }
 
 /** Grammatical Case.
-    See also: https://en.wikipedia.org/wiki/Grammatical_case
+    See_Also: https://en.wikipedia.org/wiki/Grammatical_case
 */
 enum Case : ubyte
 {
@@ -680,7 +680,7 @@ enum Case : ubyte
 }
 
 /** English Subject Pronouns.
-   See also: https://en.wikipedia.org/wiki/Subject_pronoun
+   See_Also: https://en.wikipedia.org/wiki/Subject_pronoun
 */
 enum englishSubjectPronouns = [`I`, // 1st-person singular
                                `you`, // 2nd-person singular
@@ -691,7 +691,7 @@ enum englishSubjectPronouns = [`I`, // 1st-person singular
                                `who`];            // interrogate singular
 
 /** Swedish Subject Pronouns.
-    See also: https://en.wikipedia.org/wiki/Subject_pronoun
+    See_Also: https://en.wikipedia.org/wiki/Subject_pronoun
 */
 enum swedishSubjectPronouns = [`jag`, // 1st-person singular
                                `du`,  // 2nd-person singular
@@ -703,7 +703,7 @@ enum swedishSubjectPronouns = [`jag`, // 1st-person singular
                                `vilka`];                   // interrogate plural
 
 /** English Object Pronouns.
-    See also: https://en.wikipedia.org/wiki/Object_pronoun
+    See_Also: https://en.wikipedia.org/wiki/Object_pronoun
 */
 enum englishObjectPronouns = [`me`, // 1st-person singular
                               `you`, // 2nd-person singular
@@ -713,7 +713,7 @@ enum englishObjectPronouns = [`me`, // 1st-person singular
                               `whom`];       // interrogate singular
 
 /** Swedish Object Pronouns.
-    See also: https://en.wikipedia.org/wiki/Object_pronoun
+    See_Also: https://en.wikipedia.org/wiki/Object_pronoun
 */
 enum swedishObjectPronouns = [`mig`, `dig`,
                               `honom,`, `henne`,

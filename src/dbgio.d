@@ -48,7 +48,7 @@ void dln(string file = __FILE__,
 }
 
 /** Show the symbol name and variable of $(D Args).
-    See also: http://forum.dlang.org/thread/yczwqrbkxdiqijtiynrh@forum.dlang.org?page=1
+    See_Also: http://forum.dlang.org/thread/yczwqrbkxdiqijtiynrh@forum.dlang.org?page=1
 
     TODO is using this https://dlang.org/changelog/2.079.0.html#default_after_variadic preferred?
 

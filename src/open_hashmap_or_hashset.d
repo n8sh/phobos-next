@@ -25,9 +25,9 @@ import pure_mallocator : PureMallocator;
  *      hasher = hash function or std.digest Hash.
  *      Allocator = memory allocator for bin array
  *
- * See also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
- * See also: https://en.wikipedia.org/wiki/Lazy_deletion
- * See also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
+ * See_Also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
+ * See_Also: https://en.wikipedia.org/wiki/Lazy_deletion
+ * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  *
  * TODO remove dependency on Nullable and use bitarrays for nulls and holes
  *
@@ -88,7 +88,7 @@ struct OpenHashMapOrSet(K, V = void,
         enum holeKeyAddress = cast(void*)holeKeyOffset;
 
         /**
-         * See also: https://forum.dlang.org/post/p7726n$2apd$1@digitalmars.com
+         * See_Also: https://forum.dlang.org/post/p7726n$2apd$1@digitalmars.com
          * TODO test if ulong.max gives better performance
          */
         static K holeKeyConstant() @trusted pure nothrow @nogc
@@ -211,7 +211,7 @@ struct OpenHashMapOrSet(K, V = void,
 
     /** Make with room for storing at least `capacity` number of elements.
      *
-     * See also:
+     * See_Also:
      * https://forum.dlang.org/post/nyngzsaeqxzzuumivtze@forum.dlang.org
      */
     static typeof(this) withCapacity()(size_t capacity) // template-lazy

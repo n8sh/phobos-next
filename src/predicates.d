@@ -30,7 +30,7 @@ unittest { assert([11, 11].allEqual); }
 unittest { assert(![11, 12].allEqual); }
 unittest { int[] x; assert(x.allEqual); }
 
-/* See also: http://forum.dlang.org/thread/febepworacvbapkpozjl@forum.dlang.org#post-gbqvablzsbdowqoijxpn:40forum.dlang.org */
+/* See_Also: http://forum.dlang.org/thread/febepworacvbapkpozjl@forum.dlang.org#post-gbqvablzsbdowqoijxpn:40forum.dlang.org */
 /* import std.range: InputRange; */
 /* bool allEqual_(T)(InputRange!T range) @safe pure nothrow */
 /* { */

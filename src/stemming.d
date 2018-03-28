@@ -948,9 +948,9 @@ Tuple!(bool, Lang) stemize(S)(ref S s, Lang lang = Lang.unknown) if (isSomeStrin
 }
 
 /** Return Stem of $(D s) using Porter's algorithm
-    See also: https://en.wikipedia.org/wiki/I_m_still_remembering
-    See also: https://en.wikipedia.org/wiki/Martin_Porter
-    See also: https://www.youtube.com/watch?v=2s7f8mBwnko&list=PL6397E4B26D00A269&index=4.
+    See_Also: https://en.wikipedia.org/wiki/I_m_still_remembering
+    See_Also: https://en.wikipedia.org/wiki/Martin_Porter
+    See_Also: https://www.youtube.com/watch?v=2s7f8mBwnko&list=PL6397E4B26D00A269&index=4.
 */
 S alternativePorterStemEnglish(S)(S s) if (isSomeString!S)
 {

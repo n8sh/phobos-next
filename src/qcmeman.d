@@ -6,7 +6,7 @@ extern(C)
     // qualified C memory allocations
     pure nothrow @nogc:
 
-    /* See also:
+    /* See_Also:
      * https://forum.dlang.org/post/mailman.1130.1521239659.3374.digitalmars-d@puremagic.com
      * for an explanation of why `pureMalloc` and `pureCalloc` both can
      * be @trusted. */

@@ -5,7 +5,7 @@
 
 module parallelism_ex;
 
-/** See also: http://forum.dlang.org/thread/irlkdkrgrnadgsgkvcjt@forum.dlang.org#post-vxbhxqgfhuwytdqkripq:40forum.dlang.org
+/** See_Also: http://forum.dlang.org/thread/irlkdkrgrnadgsgkvcjt@forum.dlang.org#post-vxbhxqgfhuwytdqkripq:40forum.dlang.org
  */
 private auto pmap(alias fun, R)(R range) if(isInputRange!R)
 {

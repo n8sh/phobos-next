@@ -10,7 +10,7 @@ import std.traits : isAggregateType;
 import std.range : ElementType, isRandomAccessRange;
 
 /** Sort random access range $(D R) of aggregates on value of calls to $(D xtor).
-    See also: http://forum.dlang.org/thread/nqwzojnlidlsmpunpqqy@forum.dlang.org#post-dmfvkbfhzigecnwglrur:40forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/nqwzojnlidlsmpunpqqy@forum.dlang.org#post-dmfvkbfhzigecnwglrur:40forum.dlang.org
  */
 auto sortBy(alias xtor, R)(R r)
     if (isRandomAccessRange!R &&
@@ -23,7 +23,7 @@ auto sortBy(alias xtor, R)(R r)
 }
 
 /** Reverse sort random access range $(D R) of aggregates on value of calls to $(D xtor).
-    See also: http://forum.dlang.org/thread/nqwzojnlidlsmpunpqqy@forum.dlang.org#post-dmfvkbfhzigecnwglrur:40forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/nqwzojnlidlsmpunpqqy@forum.dlang.org#post-dmfvkbfhzigecnwglrur:40forum.dlang.org
 */
 auto rsortBy(alias xtor, R)(R r)
     if (isRandomAccessRange!R &&
@@ -115,7 +115,7 @@ private static template xtorFun(alias xtor)
 
 /** Returns: $(D r) sorted.
     If needed a GC-copy of $(D r) is allocated, sorted and returned.
-    See also: http://forum.dlang.org/thread/tnrvudehinmkvbifovwo@forum.dlang.org#post-tnrvudehinmkvbifovwo:40forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/tnrvudehinmkvbifovwo@forum.dlang.org#post-tnrvudehinmkvbifovwo:40forum.dlang.org
     TODO Add to Phobos
 */
 auto sorted(R, E = ElementType!R)(R r)

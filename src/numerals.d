@@ -5,7 +5,7 @@ import std.conv: to;
 import std.traits: isIntegral, isUnsigned, isSomeString;
 
 /** Get English ordinal number of unsigned integer $(D n).
-    See also: https://en.wikipedia.org/wiki/Ordinal_number_(linguistics)
+    See_Also: https://en.wikipedia.org/wiki/Ordinal_number_(linguistics)
  */
 string toOrdinal(T)(T n)
     if (isUnsinged!T)
@@ -41,7 +41,7 @@ string toOrdinal(T)(T n)
 }
 
 /** Get English ordinal number of unsigned integer $(D n).
-    See also: https://en.wikipedia.org/wiki/Ordinal_number_(linguistics)
+    See_Also: https://en.wikipedia.org/wiki/Ordinal_number_(linguistics)
  */
 T fromOrdinalTo(T)(scope const(char)[] ordinal)
     if (isUnsigned!T)
@@ -125,7 +125,7 @@ static immutable ubyte[string] _onesPlaceWordsAA;
 
 /* NOTE Be careful with this logic
    This fails: foreach (ubyte i, e; onesNumerals) { _onesPlaceWordsAA[e] = i; }
-   See also: http://forum.dlang.org/thread/vtenbjmktplcxxmbyurt@forum.dlang.org#post-iejbrphbqsszlxcxjpef:40forum.dlang.org
+   See_Also: http://forum.dlang.org/thread/vtenbjmktplcxxmbyurt@forum.dlang.org#post-iejbrphbqsszlxcxjpef:40forum.dlang.org
    */
 static this()
 {
@@ -143,8 +143,8 @@ import std.traits: isIntegral;
 /** Convert the number $(D number) to its English textual representation
     (numeral) also called cardinal number.
     Opposite: fromNumeral
-    See also: https://en.wikipedia.org/wiki/Numeral_(linguistics)
-    See also: https://en.wikipedia.org/wiki/Cardinal_number_(linguistics)
+    See_Also: https://en.wikipedia.org/wiki/Numeral_(linguistics)
+    See_Also: https://en.wikipedia.org/wiki/Cardinal_number_(linguistics)
 */
 string toNumeral(T)(T number, string minusName = `minus`) if (isIntegral!T)
 {

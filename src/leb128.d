@@ -1,7 +1,7 @@
 /** LEB128 (Little Endian Base 128).
 
-    See also: https://en.wikipedia.org/wiki/LEB128
-    See also: http://forum.dlang.org/post/ykskvwqdsxlyjispappj@forum.dlang.org
+    See_Also: https://en.wikipedia.org/wiki/LEB128
+    See_Also: http://forum.dlang.org/post/ykskvwqdsxlyjispappj@forum.dlang.org
 
     TODO Move to Phobos at std/experimental/codings/leb128.d
 */

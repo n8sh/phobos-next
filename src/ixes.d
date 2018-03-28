@@ -5,7 +5,7 @@ import std.meta : allSatisfy;
 import std.range : isInputRange, isBidirectionalRange;
 
 /** Get length of Common Prefix of $(D a) and $(D b).
-    See also: http://forum.dlang.org/thread/bmbhovkgqomaidnyakvy@forum.dlang.org#post-bmbhovkgqomaidnyakvy:40forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/bmbhovkgqomaidnyakvy@forum.dlang.org#post-bmbhovkgqomaidnyakvy:40forum.dlang.org
 */
 auto commonPrefixLength(alias pred = "a == b", Rs...)(Rs rs)
     if (rs.length >= 2 &&
@@ -46,7 +46,7 @@ auto commonPrefixLength(alias pred = "a == b", Rs...)(Rs rs)
 }
 
 /** Get length of Suffix of $(D a) and $(D b).
-    See also: http://forum.dlang.org/thread/bmbhovkgqomaidnyakvy@forum.dlang.org#post-bmbhovkgqomaidnyakvy:40forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/bmbhovkgqomaidnyakvy@forum.dlang.org#post-bmbhovkgqomaidnyakvy:40forum.dlang.org
 */
 auto commonSuffixLength(Rs...)(Rs rs)
     if (rs.length == 2 &&
@@ -89,7 +89,7 @@ auto commonSuffixLength(Rs...)(Rs rs)
 }
 
 /** Get Count of Prefix of $(D a) and $(D b).
-    See also: http://forum.dlang.org/thread/bmbhovkgqomaidnyakvy@forum.dlang.org#post-bmbhovkgqomaidnyakvy:40forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/bmbhovkgqomaidnyakvy@forum.dlang.org#post-bmbhovkgqomaidnyakvy:40forum.dlang.org
 */
 auto commonPrefixCount(alias pred = "a == b", Rs...)(Rs rs)
     if (rs.length == 2 &&
@@ -152,7 +152,7 @@ auto commonSuffix(Rs...)(Rs rs)
 // }
 
 /** Get Count of Common Suffix of $(D a) and $(D b).
-    See also: http://forum.dlang.org/thread/bmbhovkgqomaidnyakvy@forum.dlang.org#post-bmbhovkgqomaidnyakvy:40forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/bmbhovkgqomaidnyakvy@forum.dlang.org#post-bmbhovkgqomaidnyakvy:40forum.dlang.org
 */
 auto commonSuffixCount(alias pred = "a == b", Rs...)(Rs rs)
     if (rs.length == 2 &&
@@ -176,7 +176,7 @@ auto commonSuffixCount(alias pred = "a == b", Rs...)(Rs rs)
 }
 
 /** Get length of Common Prefix of rs $(D rs).
-    See also: http://forum.dlang.org/thread/bmbhovkgqomaidnyakvy@forum.dlang.org#post-bmbhovkgqomaidnyakvy:40forum.dlang.org
+    See_Also: http://forum.dlang.org/thread/bmbhovkgqomaidnyakvy@forum.dlang.org#post-bmbhovkgqomaidnyakvy:40forum.dlang.org
 */
 // auto commonPrefixLengthN(R...)(R rs) if (rs.length == 2)
 // {

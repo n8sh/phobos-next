@@ -30,8 +30,8 @@ template UnsignedOfModulo(size_t m)
 
     Similar to Ada's modulo type `0 mod m`.
 
-    See also: https://forum.dlang.org/post/hmrpwyqfoxwtywbznbrr@forum.dlang.org
-    See also: http://codeforces.com/contest/628/submission/16212299
+    See_Also: https://forum.dlang.org/post/hmrpwyqfoxwtywbznbrr@forum.dlang.org
+    See_Also: http://codeforces.com/contest/628/submission/16212299
 
     TODO reuse ideas from bound.d
 

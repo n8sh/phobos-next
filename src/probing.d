@@ -14,7 +14,7 @@ import std.functional : unaryFun, binaryFun;
  *
  * Returns: index into `haystack` upon hit, `haystack.length` upon miss.
  * Note: `haystack.length` must be a power of two (or 1 or zero).
- * See also: https://fgiesen.wordpress.com/2015/02/22/triangular-numbers-mod-2n/
+ * See_Also: https://fgiesen.wordpress.com/2015/02/22/triangular-numbers-mod-2n/
  */
 size_t triangularProbeFromIndex(alias pred,
                                 alias assumeNonFullHaystack = false,

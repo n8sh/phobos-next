@@ -12,8 +12,8 @@
    +
    ?+BHB/DIH@
 
-   See also: https://en.wikipedia.org/wiki/FASTQ_format
-   See also: http://forum.dlang.org/post/nd01qd$2k8c$1@digitalmars.com
+   See_Also: https://en.wikipedia.org/wiki/FASTQ_format
+   See_Also: http://forum.dlang.org/post/nd01qd$2k8c$1@digitalmars.com
    */
 module fastq;
 

@@ -3,7 +3,7 @@ module cpuid_ex;
 version(none)
 {
 /**
-   See also: http://blog.melkerlitsgard.se/2016/05/12/cache-sizes-with-cpuid/
+   See_Also: http://blog.melkerlitsgard.se/2016/05/12/cache-sizes-with-cpuid/
 */
     int getCacheSize(int cacheLevel)
     {

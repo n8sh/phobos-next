@@ -6,7 +6,7 @@
     These higher bits are normally unused on 64-bit systems (tested on
     Linux). 16 higher bits are, on Linux, either 1 (kernel-space) or 0 (user-space).
 
-    See also: http://forum.dlang.org/post/sybuoliqhhefcovxjfjv@forum.dlang.org
+    See_Also: http://forum.dlang.org/post/sybuoliqhhefcovxjfjv@forum.dlang.org
 
     TODO Ask forum.dlang.org: Is it safe to assume that `typeBits` most significant bits of a
     pointer are zero? If not put them in least significant part.
@@ -312,7 +312,7 @@ pure nothrow unittest
 }
 
 /** A typed pointer to a variant of `Types`, packed into a word (`size_t`).
-    See also: `std.bitmanip.taggedPointer`.
+    See_Also: `std.bitmanip.taggedPointer`.
  */
 struct VariantPointerTo(Types...)
 {

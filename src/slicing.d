@@ -6,8 +6,8 @@ module slicing;
     element and $(D true) at current.
 
     TODO: Can this be replaced by chunkBy
-    See also: http://dlang.org/library/std/algorithm/splitter.html.
-    See also: http://forum.dlang.org/post/cwqeywykubsuynkidlux@forum.dlang.org
+    See_Also: http://dlang.org/library/std/algorithm/splitter.html.
+    See_Also: http://forum.dlang.org/post/cwqeywykubsuynkidlux@forum.dlang.org
 */
 auto preSlicer(alias isTerminator, R)(R input)
 /* if (((isRandomAccessRange!R && */

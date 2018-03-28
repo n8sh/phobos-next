@@ -139,7 +139,7 @@ template isAllZeroBits(T, T value)
 Is the representation of T.init known at compile time to consist of nothing but
 zero bits? Padding between a struct's fields is not considered.
 +/
-package template isInitAllZeroBits(T)
+template isInitAllZeroBits(T)
 {
     import std.traits : isStaticArray;
     static if (isStaticArray!T && __traits(compiles, T.init[0]))
@@ -313,7 +313,7 @@ See_Also:
 https://forum.dlang.org/post/hn11oh$1usk$1@digitalmars.com
 https://github.com/dlang/phobos/pull/6024
 +/
-package template isInitAllOneBits(T)
+template isInitAllOneBits(T)
 {
     import std.traits : isStaticArray;
     static if (isStaticArray!T && __traits(compiles, T.init[0]))

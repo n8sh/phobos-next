@@ -337,12 +337,15 @@ template hasStandardNullValue(T)
 template hasNullValue(T)
 {
     import std.traits : isPointer, isDynamicArray;
-    enum hasNullValue = hasStandardNullValue!T || __traits(hasMember, T, "nullValue");
+    enum hasNullValue = (__traits(hasMember, T, "nullValue") ||
+                         hasStandardNullValue!T);
 }
 
 ///
 @safe pure nothrow @nogc unittest
 {
+    static assert(!hasNullValue!int);
+    static assert(!hasNullValue!float);
     struct S
     {
         int value;

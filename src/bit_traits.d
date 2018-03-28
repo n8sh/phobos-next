@@ -364,19 +364,31 @@ package template isInitAllOneBits(T)
     }
     static assert(!isInitAllOneBits!S4);
 
-    static struct S5
+    static struct Sshort
+    {
+        short r = cast(short)0xffff;
+    }
+    static assert(isInitAllOneBits!Sshort);
+
+    static struct Sint
     {
         int r = 0xffff_ffff;
     }
-    static assert(isInitAllOneBits!S5);
+    static assert(isInitAllOneBits!Sint);
+
+    static struct Slong
+    {
+        long r = 0xffff_ffff_ffff_ffff;
+    }
+    static assert(isInitAllOneBits!Slong);
 
     // Verify that when there is padding between fields isInitAllOneBits is false.
-    static struct S6
+    static struct S10
     {
         align(4) char a;
         align(4) char b;
     }
-    static assert(!isInitAllOneBits!S6);
+    static assert(!isInitAllOneBits!S10);
 
     static class C1
     {

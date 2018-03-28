@@ -244,9 +244,9 @@ struct OpenHashMapOrSet(K, V = void,
             /* prefer call to calloc before malloc+memset:
              * https://stackoverflow.com/questions/2688466/why-mallocmemset-is-slower-than-calloc */
             // TODO functionize to `makeZeroInitArray`
-            static if (__traits(hasMember, Allocator, "zeroallocate"))
+            static if (__traits(hasMember, Allocator, "allocateZeros"))
             {
-                auto bins = cast(T[])Allocator.instance.zeroallocate(byteCount);
+                auto bins = cast(T[])Allocator.instance.allocateZeros(byteCount);
             }
             else
             {
@@ -2256,7 +2256,7 @@ pure nothrow unittest
     {
         uint value;
     }
-    alias K = Nullable!(S, S(uint.min)); // use uint.min to trigger use of faster `Allocator.zeroallocate`
+    alias K = Nullable!(S, S(uint.min)); // use uint.min to trigger use of faster `Allocator.allocateZeros`
 
     class V
     {

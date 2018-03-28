@@ -162,10 +162,10 @@ pragma(inline, true)
 size_t* makeZeroedBitArray(alias Allocator)(size_t bitCount)
     @trusted pure nothrow @nogc
 {
-    static if (__traits(hasMember, Allocator, "zeroallocate"))
+    static if (__traits(hasMember, Allocator, "allocateZeros"))
     {
         immutable byteCount = binBlockBytes(bitCount);
-        return cast(typeof(return))Allocator.instance.zeroallocate(byteCount);
+        return cast(typeof(return))Allocator.instance.allocateZeros(byteCount);
     }
     else
     {

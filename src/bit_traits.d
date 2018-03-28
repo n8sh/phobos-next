@@ -75,9 +75,8 @@ template packedBitSizeOf(T)
     static assert(packedBitSizeOf!E9 == 4);
 }
 
-/+
-Can the representation be determined at compile time to consist of nothing but
-zero bits? Padding between a struct's fields is not considered.
+/+ Can the representation be determined at compile time to consist of nothing
+but zero bits? Padding between a struct's fields is not considered.
 +/
 template isAllZeroBits(T, T value)
 {
@@ -135,9 +134,8 @@ template isAllZeroBits(T, T value)
     static assert(isAllZeroBits!(Object, null));
 }
 
-/+
-Is the representation of T.init known at compile time to consist of nothing but
-zero bits? Padding between a struct's fields is not considered.
+/+ Is the representation of `T.init` known at compile time to consist of nothing
+but zero bits? Padding between a struct's fields is not considered.
 +/
 template isInitAllZeroBits(T)
 {
@@ -231,11 +229,9 @@ template isInitAllZeroBits(T)
     static assert(isInitAllZeroBits!(const(S5)) == isInitAllZeroBits!S5);
 }
 
-/+
-Can the representation be determined at compile time to consist of nothing but
-1 bits? This is reported as $(B false) for structs with padding between
-their fields because `opEquals` and hashing may rely on those bits being
-zero.
+/+ Can the representation be determined at compile time to consist of nothing
+but 1 bits? This is reported as $(B false) for structs with padding between
+their fields because `opEquals` and hashing may rely on those bits being zero.
 
 Note:
 A bool occupies 8 bits so `isAllOneBits!(bool, true) == false`
@@ -306,11 +302,9 @@ template isAllOneBits(T, T value)
     static assert(!isAllOneBits!(Object, Object.init));
 }
 
-/+
-Can the representation be determined at compile time to consist of nothing but
-1 bits? This is reported as $(B false) for structs with padding between
-their fields because `opEquals` and hashing may rely on those bits being
-zero.
+/+ Can the representation be determined at compile time to consist of nothing
+but 1 bits? This is reported as $(B false) for structs with padding between
+their fields because `opEquals` and hashing may rely on those bits being zero.
 
 See_Also:
 https://forum.dlang.org/post/hn11oh$1usk$1@digitalmars.com

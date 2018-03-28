@@ -79,7 +79,7 @@ template packedBitSizeOf(T)
 Can the representation be determined at compile time to consist of nothing but
 zero bits? Padding between a struct's fields is not considered.
 +/
-private template isAllZeroBits(T, T value)
+template isAllZeroBits(T, T value)
 {
     import std.traits : isDynamicArray, isStaticArray;
     static if (isDynamicArray!(typeof(value)))
@@ -241,7 +241,7 @@ See_Also:
 https://forum.dlang.org/post/hn11oh$1usk$1@digitalmars.com
 https://github.com/dlang/phobos/pull/6024
 +/
-private template isAllOneBits(T, T value)
+template isAllOneBits(T, T value)
 {
     import std.traits : isIntegral, isSomeChar, Unsigned, isStaticArray;
     static if (isIntegral!T || isSomeChar!T)

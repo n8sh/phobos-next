@@ -238,7 +238,8 @@ struct OpenHashMapOrSet(K, V = void,
 
         immutable byteCount = T.sizeof*capacity;
 
-        static if (hasAddressKey) // addresses are always default-initialized to zero (null)
+        import bit_traits : isInitAllZeroBits;
+        static if (isInitAllZeroBits!T) // addresses are always default-initialized to zero (null)
         {
             /* prefer call to calloc before malloc+memset:
              * https://stackoverflow.com/questions/2688466/why-mallocmemset-is-slower-than-calloc */

@@ -158,6 +158,9 @@ template isInitAllZeroBits(T)
     static assert(isInitAllZeroBits!(void*));
     static assert(isInitAllZeroBits!uint);
     static assert(isInitAllZeroBits!(uint[2]));
+    static assert(isInitAllZeroBits!(string));
+    static assert(isInitAllZeroBits!(wstring));
+    static assert(isInitAllZeroBits!(dstring));
 
     static assert(!isInitAllZeroBits!float);
     static assert(isInitAllZeroBits!(float[0]));

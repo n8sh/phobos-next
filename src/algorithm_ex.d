@@ -2505,7 +2505,6 @@ auto splitterN(R, S)(scope return R range,
                      const scope S separators)
 {
     import std.algorithm : splitter, canFind;
-    // TODO infer nothrow if separators are all ASCII char's
     return range.splitter!(c => separators.canFind(c));
 }
 

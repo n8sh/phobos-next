@@ -188,7 +188,7 @@ template findSplitN(needles...)
             Haystack pre;
             Haystack separator;
             Haystack post;
-            bool opCast(T : bool)()
+            bool opCast(T : bool)() const
             {
                 import std.range : empty;
                 return !separator.empty;
@@ -211,16 +211,19 @@ template findSplitN(needles...)
 @safe pure nothrow @nogc unittest
 {
     const r1 = "a+b*c".findSplitN!('+', '-');
+    assert(r1);
     assert(r1.pre == "a");
     assert(r1.separator == "+");
     assert(r1.post == "b*c");
 
     const r2 = "a+b*c".findSplitN!('-', '*');
+    assert(r2);
     assert(r2.pre == "a+b");
     assert(r2.separator == "*");
     assert(r2.post == "c");
 
     const r3 = "a+b*c".findSplitN!('/');
+    assert(!r3);
     assert(r3.pre == "a+b*c");
     assert(r3.separator == []);
     assert(r3.post == []);

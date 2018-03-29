@@ -2501,18 +2501,26 @@ nothrow pure @nogc unittest
  *
  * See_Also: https://forum.dlang.org/post/nv60ra$9vc$1@digitalmars.com
  */
-auto splitterNSeparators(R, S)(scope return R range,
-                               const scope S separators)
+auto splitterN(R, S)(scope return R range,
+                     const scope S separators)
 {
     import std.algorithm : splitter, canFind;
     // TODO infer nothrow if separators are all ASCII char's
     return range.splitter!(c => separators.canFind(c));
 }
 
+///
 @safe pure unittest
 {
     immutable separators = "+-";
-    auto result = "a-b+c".splitterNSeparators(separators);
+    auto result = "a-b+c".splitterN(separators);
+    assert(result.equal(["a", "b", "c"].s[]));
+}
+
+@safe pure nothrow @nogc unittest
+{
+    import std.algorithm : splitter;
+    auto result = "a b c".splitter(" ");
     assert(result.equal(["a", "b", "c"].s[]));
 }
 

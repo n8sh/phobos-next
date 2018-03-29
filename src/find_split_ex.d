@@ -7,7 +7,7 @@ import traits_ex : allSameTypeIterative;
  * prevent `NarrowString` decoding.
  */
 template findSplitAmong(needles...)
-    if (isExpressions!needles)
+    if (isExpressions!needles)  // all needs
 {
     import std.meta : staticMap;
     import std.traits : Unqual;
@@ -18,7 +18,6 @@ template findSplitAmong(needles...)
             allSameTypeIterative!(Unqual!(typeof(Haystack.init[0])),
                                   staticMap!(Unqual, typeof(needles))))
     {
-        import std.algorithm.searching : findSplit;
         static struct Result
         {
             private Haystack[3] _tuple;

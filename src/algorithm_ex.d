@@ -18,11 +18,6 @@ import traits_ex : allSame;
 import std.functional : unaryFun, binaryFun;
 import std.algorithm.searching : find;
 
-version(unittest)
-{
-    import std.algorithm.comparison : equal;
-}
-
 version(print)
 {
     import dbgio : dln;
@@ -2516,12 +2511,11 @@ auto splitterWithSeparators(R, S)(return R range,
 @safe pure unittest
 {
     auto result = "a-b+c".splitterWithSeparators("+-".s[]);
-    assert(result.equal (["a", "b", "c"].s[]));
-    import dbgio;
-    dln(result);
+    assert(result.equal(["a", "b", "c"].s[]));
 }
 
 version(unittest)
 {
+    import std.algorithm.comparison : equal;
     import array_help : s;
 }

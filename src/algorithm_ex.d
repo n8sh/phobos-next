@@ -2368,6 +2368,7 @@ template isASCIIConstant(alias x)
     static assert(!isASCIIConstant!dch_);
 }
 
+/** TOOD Merge into Phobos' startsWith. */
 template startsWith(needles...)
     if (isExpressionTuple!needles &&
         needles.length >= 1)
@@ -2423,6 +2424,7 @@ template startsWith(needles...)
                                 'a') == 2);
 }
 
+/** TOOD Merge into Phobos' endsWith. */
 template endsWith(needles...)
     if (isExpressionTuple!needles &&
         needles.length >= 1)

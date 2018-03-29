@@ -204,9 +204,7 @@ template findSplitN(needles...)
                               haystack[offset + 1 .. $]);
             }
         }
-        return Result(haystack,
-                      null,
-                      null);
+        return Result(haystack, [], []);
     }
 }
 
@@ -221,6 +219,11 @@ template findSplitN(needles...)
     assert(r2.pre == "a+b");
     assert(r2.separator == "*");
     assert(r2.post == "c");
+
+    const r3 = "a+b*c".findSplitN!('/');
+    assert(r3.pre == "a+b*c");
+    assert(r3.separator == []);
+    assert(r3.post == []);
 }
 
 version(unittest)

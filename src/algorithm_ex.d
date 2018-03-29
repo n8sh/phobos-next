@@ -2497,7 +2497,7 @@ nothrow pure @nogc unittest
     assert(len == array.length);
 }
 
-/** Split `range` using multiple separators `separators`.
+/** Split `range` using multiple separators stored in the range `separators`.
  *
  * See_Also: https://forum.dlang.org/post/nv60ra$9vc$1@digitalmars.com
  */
@@ -2505,7 +2505,8 @@ auto splitterWithSeparators(R, S)(return R range,
                                   const scope S separators)
 {
     import std.algorithm : splitter, canFind;
-    return range.splitter!(c => separators.canFind(c)); // TODO this should be nothorw if separators are char's
+    // TODO infer nothrow if separators are all ASCII char's
+    return range.splitter!(c => separators.canFind(c));
 }
 
 @safe pure unittest

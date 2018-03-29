@@ -2516,6 +2516,7 @@ auto splitterN(R, S)(scope return R range,
     assert(result.equal(["a", "b", "c"].s[]));
 }
 
+// splitter is nothrow @nogc when `haystack` is of same NarrowString as `needle`
 @safe pure nothrow @nogc unittest
 {
     import std.algorithm : splitter;

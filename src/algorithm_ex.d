@@ -2497,7 +2497,8 @@ nothrow pure @nogc unittest
     assert(len == array.length);
 }
 
-/** Split `range` using multiple separators stored in the range `separators`.
+/** Split `range` using multiple separators stored as elements in the range
+ * `separators`.
  *
  * See_Also: https://forum.dlang.org/post/nv60ra$9vc$1@digitalmars.com
  */

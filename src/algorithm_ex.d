@@ -2512,8 +2512,7 @@ auto splitterN(R, S)(scope return R range,
 ///
 @safe pure unittest
 {
-    immutable separators = "+-";
-    auto result = "a-b+c".splitterN(separators);
+    auto result = "a-b+c".splitterN("+-");
     assert(result.equal(["a", "b", "c"].s[]));
 }
 

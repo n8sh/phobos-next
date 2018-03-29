@@ -12,7 +12,7 @@ module algorithm_ex;
 /* version = print; */
 
 import std.algorithm : min, max;
-import std.traits : isArray, Unqual, isIntegral, CommonType, isIterable, isStaticArray, isFloatingPoint, arity, isSomeString, isSomeChar, isExpressionTuple;
+import std.traits : isArray, Unqual, isIntegral, CommonType, isIterable, isStaticArray, isFloatingPoint, arity, isSomeString, isSomeChar, isExpressionTuple, isExpressions;
 import std.range : ElementType, isInputRange, isForwardRange, isBidirectionalRange, isRandomAccessRange, isOutputRange, front, back;
 import traits_ex : allSame;
 import std.functional : unaryFun, binaryFun;

@@ -210,7 +210,7 @@ template findSplitN(needles...)
 
 @safe pure nothrow @nogc unittest
 {
-    const r1 = "a+b*c".findSplitN!('+', '-');
+    auto r1 = "a+b*c".findSplitN!('+', '-');
     assert(r1);
     assert(r1.pre == "a");
     assert(r1.separator == "+");
@@ -222,7 +222,7 @@ template findSplitN(needles...)
     assert(r2.separator == "*");
     assert(r2.post == "c");
 
-    const r3 = "a+b*c".findSplitN!('/');
+    immutable r3 = "a+b*c".findSplitN!('/');
     assert(!r3);
     assert(r3.pre == "a+b*c");
     assert(r3.separator == []);

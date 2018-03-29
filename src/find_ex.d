@@ -164,3 +164,61 @@ Tuple!(R, ptrdiff_t[]) findAcronymAt(alias pred = "a == b",
     assert("f_open".findAcronymAt("fpn", FindContext.inWord)[0] == []);
     assert("f_open".findAcronymAt("fpn", FindContext.inSymbol)[0] == "f_open");
 }
+
+import std.traits : isExpressions;
+import traits_ex : allSameTypeIterative;
+
+/** Like `findSplit` but with multiple `needles` known at compile-time.
+ */
+template findSplitN(needles...)
+    if (isExpressions!needles)
+{
+    import std.meta : staticMap;
+    import std.traits : isArray, Unqual;
+
+    auto findSplitN(Haystack)(scope return Haystack haystack)
+        if (isArray!Haystack &&
+            allSameTypeIterative!(Unqual!(typeof(Haystack.init[0])),
+                                  staticMap!(Unqual, typeof(needles))))
+    {
+        import std.algorithm.searching : findSplit;
+        static struct Result
+        {
+            Haystack pre;
+            Haystack separator;
+            Haystack post;
+            bool opCast(T : bool)()
+            {
+                import std.range : empty;
+                return !separator.empty;
+            }
+        }
+        foreach (immutable offset; 0 .. haystack.length)
+        {
+            import std.algorithm.comparison : among;
+            if (const uint hitIndex = haystack[offset].among!(needles))
+            {
+                return Result(haystack[0 .. offset],
+                              haystack[offset .. offset + 1],
+                              haystack[offset + 1 .. $]);
+            }
+        }
+        return Result(haystack,
+                      null,
+                      null);
+    }
+}
+
+@safe pure nothrow @nogc unittest
+{
+    auto result = "a+b*c/d".findSplitN!('+', '-', '*', '/');
+    assert(result.pre == "a");
+    assert(result.separator == "+");
+    assert(result.post == "b*c/d");
+}
+
+version(unittest)
+{
+    import std.algorithm.comparison : equal;
+    import array_help : s;
+}

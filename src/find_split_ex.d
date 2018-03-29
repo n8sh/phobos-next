@@ -15,7 +15,7 @@ template findSplitAmong(needles...)
     auto findSplitAmong(Haystack)(scope return Haystack haystack)
         if (is(typeof(Haystack.init[0 .. 0])) && // can be sliced
             allSameTypeIterative!(Unqual!(typeof(Haystack.init[0])),
-                                  staticMap!(Unqual, typeof(needles))))
+                                  staticMap!(Unqual, typeof(needles)))) // TODO allCompareable to Haystack element
     {
         import std.algorithm.searching : findSplit;
         static struct Result

@@ -20,9 +20,14 @@ template findSplitAmong(needles...)
         import std.algorithm.searching : findSplit;
         static struct Result
         {
-            Haystack pre;
-            Haystack separator;
-            Haystack post;
+            private Haystack[3] _tuple;
+            alias _tuple this;
+
+            @property inout:
+            ref inout(Haystack) pre() { return _tuple[0]; };
+            ref inout(Haystack) separator() { return _tuple[1]; };
+            ref inout(Haystack) post() { return _tuple[2]; };
+
             bool opCast(T : bool)() const
             {
                 import std.range : empty;
@@ -34,15 +39,16 @@ template findSplitAmong(needles...)
             import std.algorithm.comparison : among;
             if (const uint hitIndex = haystack[offset].among!(needles))
             {
-                return Result(haystack[0 .. offset],
-                              haystack[offset .. offset + 1],
-                              haystack[offset + 1 .. $]);
+                return Result([haystack[0 .. offset],
+                               haystack[offset .. offset + 1],
+                               haystack[offset + 1 .. $]]);
             }
         }
-        return Result(haystack, [], []);
+        return Result([haystack, [], []]);
     }
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     auto r1 = "a+b*c".findSplitAmong!('+', '-');

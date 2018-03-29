@@ -70,9 +70,3 @@ template findSplitAmong(needles...)
     assert(r3.separator == []);
     assert(r3.post == []);
 }
-
-version(unittest)
-{
-    import std.algorithm.comparison : equal;
-    import array_help : s;
-}

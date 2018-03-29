@@ -2520,8 +2520,7 @@ auto splitterN(R, S)(scope return R range,
 @safe pure nothrow @nogc unittest
 {
     import std.algorithm : splitter;
-    auto result = "a b c".splitter(" ");
-    assert(result.equal(["a", "b", "c"].s[]));
+    assert("a b".splitter(" ").equal(["a", "b"].s[]));
 }
 
 version(unittest)

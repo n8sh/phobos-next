@@ -2505,7 +2505,7 @@ auto splitterN(R, S)(scope return R range,
                      const scope S separators)
 {
     import std.algorithm : splitter, canFind;
-    return range.splitter!(c => separators.canFind(c));
+    return range.splitter!(element => separators.canFind(element));
 }
 
 ///

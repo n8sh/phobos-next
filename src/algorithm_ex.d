@@ -2502,6 +2502,25 @@ nothrow pure @nogc unittest
     assert(len == array.length);
 }
 
+/** Split `range` using multiple separators `separators`.
+ *
+ * See_Also: https://forum.dlang.org/post/nv60ra$9vc$1@digitalmars.com
+ */
+auto splitterWithSeparators(R, S)(return R range,
+                                  const scope S separators)
+{
+    import std.algorithm : splitter, canFind;
+    return range.splitter!(c => separators.canFind(c)); // TODO this should be nothorw if separators are char's
+}
+
+@safe pure unittest
+{
+    auto result = "a-b+c".splitterWithSeparators("+-".s[]);
+    assert(result.equal (["a", "b", "c"].s[]));
+    import dbgio;
+    dln(result);
+}
+
 version(unittest)
 {
     import array_help : s;

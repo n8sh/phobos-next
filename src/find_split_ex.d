@@ -18,7 +18,7 @@ template findSplitAmong(needles...)
             allSameTypeIterative!(Unqual!(typeof(Haystack.init[0])),
                                   staticMap!(Unqual, typeof(needles))))
     {
-        // same as in std.algorithm.searching : findSplit;
+        // same as in `std.algorithm.searching.findSplit`
         static struct Result
         {
             private Haystack[3] _tuple;

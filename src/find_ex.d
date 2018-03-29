@@ -171,13 +171,13 @@ import traits_ex : allSameTypeIterative;
 /** Like `findSplit` but with multiple `needles` known at compile-time to
  * prevent `NarrowString` decoding.
  */
-template findSplitN(needles...)
+template findSplitAmong(needles...)
     if (isExpressions!needles)
 {
     import std.meta : staticMap;
     import std.traits : Unqual;
 
-    auto findSplitN(Haystack)(scope return Haystack haystack)
+    auto findSplitAmong(Haystack)(scope return Haystack haystack)
         if (is(typeof(Haystack.init[0 .. 0])) && // can be sliced
             allSameTypeIterative!(Unqual!(typeof(Haystack.init[0])),
                                   staticMap!(Unqual, typeof(needles))))
@@ -210,19 +210,19 @@ template findSplitN(needles...)
 
 @safe pure nothrow @nogc unittest
 {
-    auto r1 = "a+b*c".findSplitN!('+', '-');
+    auto r1 = "a+b*c".findSplitAmong!('+', '-');
     assert(r1);
     assert(r1.pre == "a");
     assert(r1.separator == "+");
     assert(r1.post == "b*c");
 
-    const r2 = "a+b*c".findSplitN!('-', '*');
+    const r2 = "a+b*c".findSplitAmong!('-', '*');
     assert(r2);
     assert(r2.pre == "a+b");
     assert(r2.separator == "*");
     assert(r2.post == "c");
 
-    immutable r3 = "a+b*c".findSplitN!('/');
+    immutable r3 = "a+b*c".findSplitAmong!('/');
     assert(!r3);
     assert(r3.pre == "a+b*c");
     assert(r3.separator == []);

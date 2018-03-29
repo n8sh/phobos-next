@@ -7,8 +7,8 @@ void main(string[] args)
     import std.stdio : writeln;
 
     alias Types = AliasSeq!(long, double);
-    alias P = PackedVariant!Types;
-    alias F = FastVariant!Types;
+    alias P = PackedAlgebraic!Types;
+    alias F = FastAlgebraic!Types;
     alias A = Algebraic!Types;
 
     writeln(P.sizeof);

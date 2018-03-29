@@ -285,9 +285,9 @@ import basic_array : BasicArray;
 import typecons_ex : IndexedBy;
 import owned : Owned;
 
-import vary : FastVariant;
+import vary : FastAlgebraic;
 
-alias Data = FastVariant!(long, double);
+alias Data = FastAlgebraic!(long, double);
 alias Datas = Owned!(BasicArray!Data);
 
 /// Scalar Operation Count.

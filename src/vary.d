@@ -543,8 +543,8 @@ private:
     Ix _tix = Ix.max; // Type Index if != Ix.max
 }
 
-alias FastVariant(Types...) = LightAlgebraic!(false, Types);
-alias PackedVariant(Types...) = LightAlgebraic!(true, Types);
+alias FastAlgebraic(Types...) = LightAlgebraic!(false, Types);
+alias PackedAlgebraic(Types...) = LightAlgebraic!(true, Types);
 
 /// Copied from std.variant.
 private static template maxSize(T...)
@@ -565,7 +565,7 @@ private static template maxSize(T...)
 
 unittest
 {
-    // FastVariant!(float, double, bool) a;
+    // FastAlgebraic!(float, double, bool) a;
     // a = 2.1;  assert(a.to!string == "2.1");  assert(a.toHTML == "<dlang-double>2.1</dlang-double>");
     // a = 2.1f; assert(a.to!string == "2.1");  assert(a.toHTML == "<dlang-float>2.1</dlang-float>");
     // a = true; assert(a.to!string == "true"); assert(a.toHTML == "<dlang-bool>true</dlang-bool>");
@@ -575,12 +575,12 @@ pure:
 
 nothrow @nogc unittest
 {
-    static assert(FastVariant!(float, float, double).typeCount == 2);
+    static assert(FastAlgebraic!(float, float, double).typeCount == 2);
 }
 
 nothrow @nogc unittest
 {
-    alias C = FastVariant!(float, double);
+    alias C = FastAlgebraic!(float, double);
     C a = 1.0;
     const C b = 2.0;
     const C c = 2.0f;
@@ -612,15 +612,15 @@ nothrow @nogc unittest
 nothrow @nogc unittest
 {
     import std.traits : hasAliasing;
-    static assert(!hasAliasing!(FastVariant!(long, double)));
-    static assert(!hasAliasing!(FastVariant!(long, string)));
-    static assert(!hasAliasing!(FastVariant!(long, immutable(double)*)));
-    static assert(hasAliasing!(FastVariant!(long, double*)));
+    static assert(!hasAliasing!(FastAlgebraic!(long, double)));
+    static assert(!hasAliasing!(FastAlgebraic!(long, string)));
+    static assert(!hasAliasing!(FastAlgebraic!(long, immutable(double)*)));
+    static assert(hasAliasing!(FastAlgebraic!(long, double*)));
 }
 
 nothrow @nogc unittest
 {
-    alias V = FastVariant!(long, double);
+    alias V = FastAlgebraic!(long, double);
     const a = V(1.0);
 
     static assert(a.hasFixedSize);
@@ -636,7 +636,7 @@ nothrow @nogc unittest
 /// equality and comparison
 unittest
 {
-    FastVariant!(float, double, string) a, b;
+    FastAlgebraic!(float, double, string) a, b;
 
     static assert(!a.hasFixedSize);
 
@@ -664,7 +664,7 @@ unittest
 /// AA keys
 nothrow unittest
 {
-    alias C = FastVariant!(float, double);
+    alias C = FastAlgebraic!(float, double);
     static assert(!C.hasFixedSize);
     string[C] a;
     a[C(1.0f)] = "1.0f";
@@ -676,7 +676,7 @@ nothrow unittest
 /// verify nothrow comparisons
 nothrow @nogc unittest
 {
-    alias C = FastVariant!(int, float, double);
+    alias C = FastAlgebraic!(int, float, double);
     static assert(!C.hasFixedSize);
     assert(C(1.0) < 2);
     assert(C(1.0) < 2.0);
@@ -688,8 +688,8 @@ nothrow @nogc unittest
 /// TODO
 nothrow @nogc unittest
 {
-    // alias C = FastVariant!(int, float, double);
-    // alias D = FastVariant!(float, double);
+    // alias C = FastAlgebraic!(int, float, double);
+    // alias D = FastAlgebraic!(float, double);
     // assert(C(1) < D(2.0));
     // assert(C(1) < D(1.0));
     // static assert(!__traits(compiles, { C(1.0) < "a"; })); // cannot compare with string
@@ -698,7 +698,7 @@ nothrow @nogc unittest
 /// if types have CommonType comparison is nothrow @nogc
 nothrow @nogc unittest
 {
-    alias C = FastVariant!(short, int, long, float, double);
+    alias C = FastAlgebraic!(short, int, long, float, double);
     static assert(!C.hasFixedSize);
     assert(C(1) != C(2.0));
     assert(C(1) == C(1.0));
@@ -711,14 +711,14 @@ unittest
     static assert(hasElaborateCopyConstructor!(char[2]) == false);
     static assert(hasElaborateCopyConstructor!(char[]) == false);
 
-    // static assert(FastVariant!(char, wchar).sizeof == 2 + 1);
-    // static assert(FastVariant!(wchar, dchar).sizeof == 4 + 1);
-    // static assert(FastVariant!(long, double).sizeof == 8 + 1);
-    // static assert(FastVariant!(int, float).sizeof == 4 + 1);
-    // static assert(FastVariant!(char[2], wchar[2]).sizeof == 2 * 2 + 1);
+    // static assert(FastAlgebraic!(char, wchar).sizeof == 2 + 1);
+    // static assert(FastAlgebraic!(wchar, dchar).sizeof == 4 + 1);
+    // static assert(FastAlgebraic!(long, double).sizeof == 8 + 1);
+    // static assert(FastAlgebraic!(int, float).sizeof == 4 + 1);
+    // static assert(FastAlgebraic!(char[2], wchar[2]).sizeof == 2 * 2 + 1);
 
     import std.datetime : Date, TimeOfDay;
-    alias C = FastVariant!(string,
+    alias C = FastAlgebraic!(string,
                         // fixed length strings: small string optimizations (SSOs)
                         int, float,
                         long, double, Date, TimeOfDay);
@@ -819,7 +819,7 @@ pure unittest
     String15 t = s;
     assert(t == s);
 
-    alias V = FastVariant!(String15, string);
+    alias V = FastAlgebraic!(String15, string);
     V v = String15("first");
     assert(v.peek!String15);
     assert(!v.peek!string);
@@ -847,7 +847,7 @@ pure unittest
 /// check default values
 @safe pure unittest
 {
-    alias V = FastVariant!(String15, string);
+    alias V = FastAlgebraic!(String15, string);
     V _;
     assert(_._tix == V.Ix.max);
     assert(V.init._tix == V.Ix.max);

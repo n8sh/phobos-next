@@ -5,9 +5,9 @@ pure unittest
 {
     import digestx.fnv : FNV;
     import sso_hashmap : HashMap;
-    import vary : FastVariant;
+    import vary : FastAlgebraic;
 
-    alias K = FastVariant!(size_t, string);
+    alias K = FastAlgebraic!(size_t, string);
     alias V = K;
     alias X = HashMap!(K, V, null, FNV!(64, true));
 

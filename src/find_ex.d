@@ -168,7 +168,8 @@ Tuple!(R, ptrdiff_t[]) findAcronymAt(alias pred = "a == b",
 import std.traits : isExpressions;
 import traits_ex : allSameTypeIterative;
 
-/** Like `findSplit` but with multiple `needles` known at compile-time.
+/** Like `findSplit` but with multiple `needles` known at compile-time to
+ * prevent `NarrowString` decoding.
  */
 template findSplitN(needles...)
     if (isExpressions!needles)
@@ -211,10 +212,15 @@ template findSplitN(needles...)
 
 @safe pure nothrow @nogc unittest
 {
-    auto result = "a+b*c/d".findSplitN!('+', '-', '*', '/');
-    assert(result.pre == "a");
-    assert(result.separator == "+");
-    assert(result.post == "b*c/d");
+    const r1 = "a+b*c".findSplitN!('+', '-');
+    assert(r1.pre == "a");
+    assert(r1.separator == "+");
+    assert(r1.post == "b*c");
+
+    const r2 = "a+b*c".findSplitN!('-', '*');
+    assert(r2.pre == "a+b");
+    assert(r2.separator == "*");
+    assert(r2.post == "c");
 }
 
 version(unittest)

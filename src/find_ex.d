@@ -17,7 +17,10 @@ bool isSymbol(T)(in T a)
 
 bool isSymbolASCII(string rest, ptrdiff_t off, size_t end)
     @safe pure nothrow @nogc
-    in { assert(end <= rest.length); }
+in
+{
+    assert(end <= rest.length);
+}
 body
 {
     import std.ascii: isAlphaNum;

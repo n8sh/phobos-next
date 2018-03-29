@@ -38,8 +38,12 @@ body
     assert(!isSymbolASCII("first_a_word", 6, 7));
 }
 
-bool isWordASCII(string rest, ptrdiff_t off, size_t end) @safe pure nothrow @nogc
-    in { assert(end <= rest.length); }
+bool isWordASCII(string rest, ptrdiff_t off, size_t end)
+    @safe pure nothrow @nogc
+in
+{
+    assert(end <= rest.length);
+}
 body
 {
     import std.ascii: isAlphaNum;

@@ -178,7 +178,7 @@ template findSplitN(needles...)
     import std.traits : Unqual;
 
     auto findSplitN(Haystack)(scope return Haystack haystack)
-        if (is(typeof(Haystack.init[0])) &&
+        if (is(typeof(Haystack.init[0 .. 0])) && // can be sliced
             allSameTypeIterative!(Unqual!(typeof(Haystack.init[0])),
                                   staticMap!(Unqual, typeof(needles))))
     {

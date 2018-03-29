@@ -175,10 +175,10 @@ template findSplitN(needles...)
     if (isExpressions!needles)
 {
     import std.meta : staticMap;
-    import std.traits : isArray, Unqual;
+    import std.traits : Unqual;
 
     auto findSplitN(Haystack)(scope return Haystack haystack)
-        if (isArray!Haystack &&
+        if (is(typeof(Haystack.init[0])) &&
             allSameTypeIterative!(Unqual!(typeof(Haystack.init[0])),
                                   staticMap!(Unqual, typeof(needles))))
     {

@@ -1,7 +1,6 @@
 module find_split_ex;
 
 import std.traits : isExpressions;
-import traits_ex : allSameTypeIterative;
 
 /** Like `findSplit` but with multiple `needles` known at compile-time to
  * prevent `NarrowString` decoding.
@@ -11,6 +10,7 @@ template findSplitAmong(needles...)
 {
     import std.meta : staticMap;
     import std.traits : Unqual;
+    import traits_ex : allSameTypeIterative;
 
     auto findSplitAmong(Haystack)(scope return Haystack haystack)
         if (is(typeof(Haystack.init[0 .. 0])) && // can be sliced

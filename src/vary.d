@@ -3,7 +3,7 @@ module vary;
 import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor;;
 import traits_ex : haveCommonType;
 
-static class VaryNException : Exception
+static class LightAlgebraicException : Exception
 {
     this(string s) pure @nogc
     {
@@ -27,7 +27,7 @@ static class VaryNException : Exception
     See_Also: http://forum.dlang.org/post/osfrjcuabwscvrecuvre@forum.dlang.org
     See_Also: https://issues.dlang.org/show_bug.cgi?id=15399
  */
-private struct VaryN(bool memoryPacked = false, TypesParam...)
+private struct LightAlgebraic(bool memoryPacked = false, TypesParam...)
 {
     alias Ix = ubyte; // type index type
     enum maxTypesCount = 2^^(Ix.sizeof * 8) - 1; // maximum number of allowed type parameters
@@ -40,7 +40,7 @@ private struct VaryN(bool memoryPacked = false, TypesParam...)
 
 public:
 
-    enum name = VaryN.stringof;
+    enum name = LightAlgebraic.stringof;
     alias Types = NoDuplicates!TypesParam;
     alias CommonType = StdCommonType!Types;
     enum hasCommonType = !is(CommonType == void);
@@ -54,7 +54,7 @@ public:
 
     immutable static typeNamesRT = [typeNames]; // typeNames accessible at run-time, because `[typeNames]` is not @nogc
 
-    /// Is $(D true) if all $(D Types) stored in this $(D VaryN) has the same length.
+    /// Is $(D true) if all $(D Types) stored in this $(D LightAlgebraic) has the same length.
     enum hasFixedSize = allSame!typeSizes;
 
     private enum N = typeCount; // useful local shorthand
@@ -90,7 +90,7 @@ public:
     @property void toString()(scope void delegate(const(char)[]) sink) const // template-lazy. TODO pure
     {
         import std.format : formattedWrite;
-        if (!hasValue) { return sink("<Uninitialized VaryN>"); }
+        if (!hasValue) { return sink("<Uninitialized LightAlgebraic>"); }
         final switch (_tix)
         {
             foreach (const i, T; Types)
@@ -122,7 +122,7 @@ public:
     }
 
     /** Copy construct from `that`. */
-    this()(in VaryN that) @safe nothrow @nogc
+    this()(in LightAlgebraic that) @safe nothrow @nogc
     {
         _store = that._store;
         _tix = that._tix;
@@ -149,7 +149,7 @@ public:
         _tix = cast(Ix)indexOf!MT; // set type tag
     }
 
-    VaryN opAssign(T)(T that) @trusted nothrow @nogc
+    LightAlgebraic opAssign(T)(T that) @trusted nothrow @nogc
         if (allowsAssignmentFrom!T)
     {
         import std.algorithm.mutation : moveEmplace;
@@ -165,7 +165,7 @@ public:
         return this;
     }
 
-    /** If the $(D VaryN) object holds a value of the $(I exact) type $(D T),
+    /** If the $(D LightAlgebraic) object holds a value of the $(I exact) type $(D T),
         returns a pointer to that value. Otherwise, returns $(D null). In cases
         where $(D T) is statically disallowed, $(D peek) will not compile.
     */
@@ -185,7 +185,7 @@ public:
     @property auto ref inout(T) get(T)() inout @trusted
     {
         version(LDC) pragma(inline, true); // DMD cannot inline
-        if (!isOfType!T) throw new VaryNException("VaryN doesn't contain type");
+        if (!isOfType!T) throw new LightAlgebraicException("LightAlgebraic doesn't contain type");
         return as!T;
     }
 
@@ -212,7 +212,7 @@ public:
         }
     }
 
-    /// Returns: $(D true) iff $(D this) $(D VaryN) can store an instance of $(D T).
+    /// Returns: $(D true) iff $(D this) $(D LightAlgebraic) can store an instance of $(D T).
     bool isOfType(T)() const @safe nothrow @nogc // TODO shorter name such `isA`, `ofType`
     {
         pragma(inline, true);
@@ -323,7 +323,7 @@ public:
     {
         static if (hasCommonType)
         {
-            bool opEquals(in VaryN that) const @trusted nothrow @nogc // opEquals is nothrow @nogc
+            bool opEquals(in LightAlgebraic that) const @trusted nothrow @nogc // opEquals is nothrow @nogc
             {
                 if (_tix != that._tix)
                 {
@@ -349,7 +349,7 @@ public:
         }
         else
         {
-            bool opEquals(in VaryN that) const @trusted nothrow
+            bool opEquals(in LightAlgebraic that) const @trusted nothrow
             {
                 if (_tix != that._tix)
                 {
@@ -387,10 +387,10 @@ public:
         {
             // TODO assert failure only if none of the Types isComparable to T
             static assert (allowsAssignmentFrom!T,
-                           "Cannot equal any possible type of " ~ VaryN.stringof ~
+                           "Cannot equal any possible type of " ~ LightAlgebraic.stringof ~
                            " with " ~ T.stringof);
 
-            if (!isOfType!T) return false; // throw new VaryNException("Cannot equal VaryN with current type " ~ "[Types][_tix]" ~ " with different types " ~ "T.stringof");
+            if (!isOfType!T) return false; // throw new LightAlgebraicException("Cannot equal LightAlgebraic with current type " ~ "[Types][_tix]" ~ " with different types " ~ "T.stringof");
 
             static if (isIntegral!T) // TODO extend by reusing some generic trait, say isBitwiseComparable
             {
@@ -406,7 +406,7 @@ public:
 
     static if (allSatisfy!(isComparable, Types))
     {
-        int opCmp(in VaryN that) const @trusted // TODO extend to VaryN!(ThatTypes)
+        int opCmp(in LightAlgebraic that) const @trusted // TODO extend to LightAlgebraic!(ThatTypes)
         {
             static if (hasCommonType) // TODO extend to haveCommonType!(Types, ThatTypes)
             {
@@ -422,8 +422,8 @@ public:
             {
                 if (_tix != that._tix)
                 {
-                    throw new VaryNException("Cannot compare VaryN of type " ~ typeNamesRT[_tix] ~
-                                             " with VaryN of type " ~ typeNamesRT[that._tix]);
+                    throw new LightAlgebraicException("Cannot compare LightAlgebraic of type " ~ typeNamesRT[_tix] ~
+                                             " with LightAlgebraic of type " ~ typeNamesRT[that._tix]);
                 }
             }
 
@@ -457,10 +457,10 @@ public:
             else
             {
                 static assert(allowsAssignmentFrom!U, // TODO relax to allowsComparisonWith!U
-                              "Cannot compare " ~ VaryN.stringof ~ " with " ~ U.stringof);
+                              "Cannot compare " ~ LightAlgebraic.stringof ~ " with " ~ U.stringof);
                 if (!isOfType!U)
                 {
-                    throw new VaryNException("Cannot compare " ~ VaryN.stringof ~ " with " ~ U.stringof);
+                    throw new LightAlgebraicException("Cannot compare " ~ LightAlgebraic.stringof ~ " with " ~ U.stringof);
                 }
                 // TODO functionize to defaultOpCmp to avoid postblits:
                 const a = this.as!U;
@@ -511,7 +511,7 @@ public:
 private:
     static if (memoryPacked)
     {
-        // immutable to make hasAliasing!(VaryN!(...)) false
+        // immutable to make hasAliasing!(LightAlgebraic!(...)) false
         static if (mayHaveAliasing)
         {
             ubyte[dataMaxSize] _store;
@@ -524,7 +524,7 @@ private:
     }
     else
     {
-        // immutable to make hasAliasing!(VaryN!(...)) false
+        // immutable to make hasAliasing!(LightAlgebraic!(...)) false
         union
         {
             static if (mayHaveAliasing)
@@ -543,8 +543,8 @@ private:
     Ix _tix = Ix.max; // Type Index if != Ix.max
 }
 
-alias FastVariant(Types...) = VaryN!(false, Types);
-alias PackedVariant(Types...) = VaryN!(true, Types);
+alias FastVariant(Types...) = LightAlgebraic!(false, Types);
+alias PackedVariant(Types...) = LightAlgebraic!(true, Types);
 
 /// Copied from std.variant.
 private static template maxSize(T...)
@@ -743,7 +743,7 @@ unittest
     // TODO Allow this d = cast(ubyte)255;
 
     d = 1.0f;
-    assertThrown!VaryNException(d.get!double);
+    assertThrown!LightAlgebraicException(d.get!double);
     assert(d.hasValue);
     assert(d.isOfType!float);
     assert(d.peek!float !is null);
@@ -754,8 +754,8 @@ unittest
     assert(d != 2.0f);
     assert(d < 2.0f);
     assert(d != "2.0f");
-    assertThrown!VaryNException(d < 2.0);
-    assertThrown!VaryNException(d < "2.0");
+    assertThrown!LightAlgebraicException(d < 2.0);
+    assertThrown!LightAlgebraicException(d < "2.0");
     assert(d.currentSize == float.sizeof);
 
     d = 2;
@@ -767,8 +767,8 @@ unittest
     assert(d == 2);
     assert(d != 3);
     assert(d < 3);
-    assertThrown!VaryNException(d < 2.0f);
-    assertThrown!VaryNException(d < "2.0");
+    assertThrown!LightAlgebraicException(d < 2.0f);
+    assertThrown!LightAlgebraicException(d < "2.0");
     assert(d.currentSize == int.sizeof);
 
     d = "abc";
@@ -780,8 +780,8 @@ unittest
     assert(d == "abc");
     assert(d != "abcd");
     assert(d < "abcd");
-    assertThrown!VaryNException(d < 2.0f);
-    assertThrown!VaryNException(d < 2.0);
+    assertThrown!LightAlgebraicException(d < 2.0f);
+    assertThrown!LightAlgebraicException(d < 2.0);
     assert(d.currentSize == string.sizeof);
 
     d = 2.0;
@@ -792,8 +792,8 @@ unittest
     assert(d == 2.0);
     assert(d != 3.0);
     assert(d < 3.0);
-    assertThrown!VaryNException(d < 2.0f);
-    assertThrown!VaryNException(d < "2.0");
+    assertThrown!LightAlgebraicException(d < 2.0f);
+    assertThrown!LightAlgebraicException(d < "2.0");
     assert(d.currentSize == double.sizeof);
 
     d.clear();
@@ -808,8 +808,8 @@ unittest
     assert(C(1.0f) <  C(2.0f));
     assert(C(2.0f) >  C(1.0f));
 
-    assertThrown!VaryNException(C(1.0f) <  C(1.0));
-    // assertThrown!VaryNException(C(1.0f) == C(1.0));
+    assertThrown!LightAlgebraicException(C(1.0f) <  C(1.0));
+    // assertThrown!LightAlgebraicException(C(1.0f) == C(1.0));
 }
 
 ///

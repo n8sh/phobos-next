@@ -151,6 +151,7 @@ Tuple!(R, ptrdiff_t[]) findAcronymAt(alias pred = "a == b",
     return tuple(R.init, ptrdiff_t[].init); // no hit
 }
 
+///
 @safe pure unittest
 {
     assert("size_t".findAcronymAt("sz_t", FindContext.inWord)[0] == "size_t");

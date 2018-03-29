@@ -32,6 +32,7 @@ body
              rest[end] != '_'));
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     assert(isSymbolASCII("alpha", 0, 5));
@@ -56,6 +57,7 @@ body
              !rest[end].isAlphaNum));
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     assert(isSymbolASCII("alpha", 0, 5));

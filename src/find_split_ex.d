@@ -24,11 +24,18 @@ template findSplitAmong(needles...)
             private Haystack _haystack; // original copy of haystack
             private size_t _offset; // hit offset if any, or `_haystack.length` if miss
 
+            bool opCast(T : bool)() const
+            {
+                return !empty;
+            }
+
             @property inout:
+
             inout(Haystack) pre()
             {
                 return _haystack[0 .. _offset];
             }
+
             inout(Haystack) separator()
             {
                 if (empty)
@@ -37,6 +44,7 @@ template findSplitAmong(needles...)
                 }
                 return _haystack[_offset .. _offset + 1];
             }
+
             inout(Haystack) post()
             {
                 if (empty)
@@ -49,10 +57,6 @@ template findSplitAmong(needles...)
             bool empty() const
             {
                 return _haystack.length == _offset;
-            }
-            bool opCast(T : bool)() const
-            {
-                return !empty;
             }
         }
         foreach (immutable offset; 0 .. haystack.length)

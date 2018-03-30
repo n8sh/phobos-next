@@ -2332,7 +2332,8 @@ auto use(alias F, T)(T t)
     }
 }
 
-/** Is `true` iff `x` is an ASCII character compile-time constant, `false` otherwise.
+/** Is `true` iff `x` is an ASCII character compile-time constant, `false`
+ * otherwise.
  *
  * See_Also: `std.ascii.isASCII`.
  */

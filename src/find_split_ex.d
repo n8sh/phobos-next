@@ -8,15 +8,16 @@ import std.traits : isExpressions;
 template findSplitAmong(needles...)
     if (isExpressions!needles)  // all needs
 {
-    import std.meta : staticMap;
+    import std.meta : staticMap, allSatisfy;
     import std.traits : Unqual;
-    import traits_ex : allSameTypeIterative;
+    import traits_ex : allSameTypeIterative, isASCII;
 
     auto findSplitAmong(Haystack)(scope return Haystack haystack)
         if (is(typeof(Haystack.init[0 .. 0])) && // can be sliced
             // TODO allCompareable to Haystack element except for `NarrowStrings`
             allSameTypeIterative!(Unqual!(typeof(Haystack.init[0])),
-                                  staticMap!(Unqual, typeof(needles))))
+                                  staticMap!(Unqual, typeof(needles))) &&
+            allSatisfy!(isASCII, needles))
     {
         // similar return result to `std.algorithm.searching.findSplit`
         static struct Result

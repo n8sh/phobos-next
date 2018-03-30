@@ -14,7 +14,6 @@ template findSplitAmong(needles...)
 
     auto findSplitAmong(Haystack)(scope return Haystack haystack)
         if (is(typeof(Haystack.init[0 .. 0])) && // can be sliced
-            // TODO allCompareable to Haystack element except for `NarrowStrings`
             is(typeof(Haystack.init[0]) : char) &&
             allSatisfy!(isASCII, needles))
     {

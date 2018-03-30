@@ -18,21 +18,47 @@ template findSplitAmong(needles...)
             allSameTypeIterative!(Unqual!(typeof(Haystack.init[0])),
                                   staticMap!(Unqual, typeof(needles))))
     {
-        // same as in `std.algorithm.searching.findSplit`
+        // similar return result to `std.algorithm.searching.findSplit`
         static struct Result
         {
-            private Haystack[3] _tuple;
-            alias _tuple this;
+            private Haystack _haystack; // original copy of haystack
+            private size_t _offset; // hit offset if any, or `_haystack.length` if miss
 
-            @property inout:
-            ref inout(Haystack) pre() { return _tuple[0]; };
-            ref inout(Haystack) separator() { return _tuple[1]; };
-            ref inout(Haystack) post() { return _tuple[2]; };
+            @property @safe pure nothrow @nogc inout:
+            inout(Haystack) pre()
+            {
+                return _haystack[0 .. _offset];
+            }
+            inout(Haystack) separator()
+            {
+                if (!empty)
+                {
+                    return _haystack[_offset .. _offset + 1];
+                }
+                else
+                {
+                    return _haystack[$ .. $];
+                }
+            }
+            inout(Haystack) post()
+            {
+                if (!empty)
+                {
+                    return _haystack[_offset + 1 .. $];
+                }
+                else
+                {
+                    return _haystack[$ .. $];
+                }
+            }
 
+            bool empty() const
+            {
+                return _haystack.length == _offset;
+            }
             bool opCast(T : bool)() const
             {
-                import std.range : empty;
-                return !separator.empty;
+                return !empty;
             }
         }
         foreach (immutable offset; 0 .. haystack.length)
@@ -40,12 +66,10 @@ template findSplitAmong(needles...)
             import std.algorithm.comparison : among;
             if (const uint hitIndex = haystack[offset].among!(needles))
             {
-                return Result([haystack[0 .. offset],
-                               haystack[offset .. offset + 1],
-                               haystack[offset + 1 .. $]]);
+                return Result(haystack, offset);
             }
         }
-        return Result([haystack, [], []]);
+        return Result(haystack, haystack.length);
     }
 }
 

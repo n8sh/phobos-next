@@ -29,14 +29,14 @@ template findSplitAmong(needles...)
                 return !empty;
             }
 
-            @property inout:
+            @property:
 
-            inout(Haystack) pre()
+            Haystack pre() const
             {
                 return _haystack[0 .. _offset];
             }
 
-            inout(Haystack) separator()
+            Haystack separator() const
             {
                 if (empty)
                 {
@@ -45,7 +45,7 @@ template findSplitAmong(needles...)
                 return _haystack[_offset .. _offset + 1];
             }
 
-            inout(Haystack) post()
+            Haystack post() const
             {
                 if (empty)
                 {
@@ -81,12 +81,18 @@ template findSplitAmong(needles...)
     assert(r1.post == "b*c");
 
     const r2 = "a+b*c".findSplitAmong!('-', '*');
+    static assert(is(typeof(r2.pre) == string));
+    static assert(is(typeof(r2.separator) == string));
+    static assert(is(typeof(r2.post) == string));
     assert(r2);
     assert(r2.pre == "a+b");
     assert(r2.separator == "*");
     assert(r2.post == "c");
 
     immutable r3 = "a+b*c".findSplitAmong!('/');
+    static assert(is(typeof(r3.pre) == string));
+    static assert(is(typeof(r3.separator) == string));
+    static assert(is(typeof(r3.post) == string));
     assert(!r3);
     assert(r3.pre == "a+b*c");
     assert(r3.separator == []);

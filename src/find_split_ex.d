@@ -26,7 +26,7 @@ template findSplitAmong(needles...)
 
             bool opCast(T : bool)() const
             {
-                return !empty;
+                return !_empty;
             }
 
             @property:
@@ -38,7 +38,7 @@ template findSplitAmong(needles...)
 
             Haystack separator() const
             {
-                if (empty)
+                if (_empty)
                 {
                     return _haystack[$ .. $];
                 }
@@ -47,14 +47,14 @@ template findSplitAmong(needles...)
 
             Haystack post() const
             {
-                if (empty)
+                if (_empty)
                 {
                     return _haystack[$ .. $];
                 }
                 return _haystack[_offset + 1 .. $];
             }
 
-            bool empty() const
+            private bool _empty() const
             {
                 return _haystack.length == _offset;
             }

@@ -2339,9 +2339,10 @@ auto use(alias F, T)(T t)
 template isASCIIConstant(alias x)
 {
     alias T = typeof(x);
-    enum isASCIIConstant = (is(T : char) ||
-                            is(T : wchar) ||
-                            is(T : dchar)) && x < 128;
+    enum isASCIIConstant = ((is(T : char) ||
+                             is(T : wchar) ||
+                             is(T : dchar)) &&
+                            x < 128);
 }
 
 @safe pure nothrow @nogc unittest

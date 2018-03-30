@@ -27,7 +27,8 @@ static class LightAlgebraicException : Exception
     See_Also: http://forum.dlang.org/post/osfrjcuabwscvrecuvre@forum.dlang.org
     See_Also: https://issues.dlang.org/show_bug.cgi?id=15399
  */
-private struct LightAlgebraic(bool memoryPacked = false, TypesParam...)
+private struct LightAlgebraic(bool memoryPacked = false,
+                              TypesParam...)
 {
     alias Ix = ubyte; // type index type
     enum maxTypesCount = 2^^(Ix.sizeof * 8) - 1; // maximum number of allowed type parameters
@@ -544,6 +545,7 @@ private:
 }
 
 alias FastAlgebraic(Types...) = LightAlgebraic!(false, Types);
+
 alias PackedAlgebraic(Types...) = LightAlgebraic!(true, Types);
 
 /// Copied from std.variant.

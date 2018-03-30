@@ -2336,37 +2336,38 @@ auto use(alias F, T)(T t)
  *
  * See_Also: `std.ascii.isASCII`.
  */
-template isASCIIConstant(alias x)
+template isASCII(alias x)
 {
     alias T = typeof(x);
-    enum isASCIIConstant = ((is(T : char) ||
-                             is(T : wchar) ||
-                             is(T : dchar)) &&
-                            x < 128);
+    enum isASCII = ((is(T : char) ||
+                     is(T : wchar) ||
+                     is(T : dchar)) &&
+                    x < 128);
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
-    static assert(isASCIIConstant!'a');
-    static assert(!isASCIIConstant!'ä');
+    static assert(isASCII!'a');
+    static assert(!isASCII!'ä');
 
     immutable ch = 'a';
-    static assert(isASCIIConstant!ch);
+    static assert(isASCII!ch);
 
     const cch = 'a';
-    static assert(isASCIIConstant!cch);
+    static assert(isASCII!cch);
 
     const wchar wch = 'a';
-    static assert(isASCIIConstant!wch);
+    static assert(isASCII!wch);
 
     const wchar wch_ = 'ä';
-    static assert(!isASCIIConstant!wch_);
+    static assert(!isASCII!wch_);
 
     const dchar dch = 'a';
-    static assert(isASCIIConstant!dch);
+    static assert(isASCII!dch);
 
     const dchar dch_ = 'ä';
-    static assert(!isASCIIConstant!dch_);
+    static assert(!isASCII!dch_);
 }
 
 /** TOOD Merge into Phobos' startsWith. */
@@ -2381,7 +2382,7 @@ template startsWith(needles...)
         if (haystack.length == 0) { return 0; }
         static if (isArray!Haystack &&
                    is(Unqual!(typeof(Haystack.init[0])) == char) && // TODO reuse existing trait
-                   allSatisfy!(isASCIIConstant, needles))
+                   allSatisfy!(isASCII, needles))
         {
             // no front decoding needed
             static if (needles.length == 1)
@@ -2437,7 +2438,7 @@ template endsWith(needles...)
         if (haystack.length == 0) { return 0; }
         static if (isArray!Haystack &&
                    is(Unqual!(typeof(Haystack.init[0])) == char) && // TODO reuse existing trait
-                   allSatisfy!(isASCIIConstant, needles))
+                   allSatisfy!(isASCII, needles))
         {
             // no back decoding needed
             static if (needles.length == 1)

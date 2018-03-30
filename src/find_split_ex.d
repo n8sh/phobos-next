@@ -8,9 +8,8 @@ import std.traits : isExpressions;
 template findSplitAmong(needles...)
     if (isExpressions!needles)  // all needs
 {
-    import std.meta : staticMap, allSatisfy;
-    import std.traits : Unqual;
-    import traits_ex : allSameTypeIterative, isASCII;
+    import std.meta : allSatisfy;
+    import traits_ex : isASCII;
 
     auto findSplitAmong(Haystack)(scope return Haystack haystack)
         if (is(typeof(Haystack.init[0 .. 0])) && // can be sliced

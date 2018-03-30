@@ -31,25 +31,19 @@ template findSplitAmong(needles...)
             }
             inout(Haystack) separator()
             {
-                if (!empty)
-                {
-                    return _haystack[_offset .. _offset + 1];
-                }
-                else
+                if (empty)
                 {
                     return _haystack[$ .. $];
                 }
+                return _haystack[_offset .. _offset + 1];
             }
             inout(Haystack) post()
             {
-                if (!empty)
-                {
-                    return _haystack[_offset + 1 .. $];
-                }
-                else
+                if (empty)
                 {
                     return _haystack[$ .. $];
                 }
+                return _haystack[_offset + 1 .. $];
             }
 
             bool empty() const

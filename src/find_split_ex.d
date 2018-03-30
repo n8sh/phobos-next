@@ -2,8 +2,8 @@ module find_split_ex;
 
 import std.traits : isExpressions;
 
-/** Like `findSplit` but with multiple `needles` known at compile-time to
- * prevent `NarrowString` decoding.
+/** Like `findSplit` but with multiple separator `needles` known at compile-time
+ * to prevent `NarrowString` decoding.
  */
 template findSplitAmong(needles...)
     if (isExpressions!needles)  // all needs

@@ -2376,8 +2376,7 @@ template startsWith(needles...)
     if (isExpressionTuple!needles &&
         needles.length >= 1)
 {
-    uint startsWith(Haystack)(Haystack haystack)
-        @trusted
+    uint startsWith(Haystack)(Haystack haystack) @trusted
         if (!is(CommonType!(typeof(Haystack.front), needles) == void))
     {
         if (haystack.length == 0) { return 0; }

@@ -2382,7 +2382,7 @@ template startsWith(needles...)
     {
         if (haystack.length == 0) { return 0; }
         static if (isArray!Haystack &&
-                   is(Unqual!(typeof(Haystack.init[0])) == char) && // TODO reuse existing trait
+                   is(typeof(Haystack.init[0]) : char) &&
                    allSatisfy!(isASCII, needles))
         {
             // no front decoding needed

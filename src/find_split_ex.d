@@ -24,7 +24,7 @@ template findSplitAmong(needles...)
             private Haystack _haystack; // original copy of haystack
             private size_t _offset; // hit offset if any, or `_haystack.length` if miss
 
-            @property @safe pure nothrow @nogc inout:
+            @property inout:
             inout(Haystack) pre()
             {
                 return _haystack[0 .. _offset];

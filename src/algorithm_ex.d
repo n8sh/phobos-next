@@ -2332,44 +2332,7 @@ auto use(alias F, T)(T t)
     }
 }
 
-/** Is `true` iff `x` is an ASCII character compile-time constant, `false`
- * otherwise.
- *
- * See_Also: `std.ascii.isASCII`.
- */
-template isASCII(alias x)
-{
-    alias T = typeof(x);
-    enum isASCII = ((is(T : char) ||
-                     is(T : wchar) ||
-                     is(T : dchar)) &&
-                    x < 128);
-}
-
-///
-@safe pure nothrow @nogc unittest
-{
-    static assert(isASCII!'a');
-    static assert(!isASCII!'ä');
-
-    immutable ch = 'a';
-    static assert(isASCII!ch);
-
-    const cch = 'a';
-    static assert(isASCII!cch);
-
-    const wchar wch = 'a';
-    static assert(isASCII!wch);
-
-    const wchar wch_ = 'ä';
-    static assert(!isASCII!wch_);
-
-    const dchar dch = 'a';
-    static assert(isASCII!dch);
-
-    const dchar dch_ = 'ä';
-    static assert(!isASCII!dch_);
-}
+import traits_ex : isASCII;
 
 /** TOOD Merge into Phobos' startsWith. */
 template startsWith(needles...)

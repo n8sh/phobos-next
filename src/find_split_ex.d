@@ -6,7 +6,7 @@ import std.traits : isExpressions;
  * to prevent `NarrowString` decoding.
  */
 template findSplitAmong(needles...)
-    if (isExpressions!needles)  // all needs
+    if (isExpressions!needles)
 {
     import std.meta : allSatisfy;
     import traits_ex : isASCII;

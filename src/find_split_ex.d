@@ -75,6 +75,9 @@ template findSplitAmong(needles...)
 @safe pure nothrow @nogc unittest
 {
     auto r1 = "a+b*c".findSplitAmong!('+', '-');
+    static assert(is(typeof(r1.pre) == string));
+    static assert(is(typeof(r1.separator) == string));
+    static assert(is(typeof(r1.post) == string));
     assert(r1);
     assert(r1.pre == "a");
     assert(r1.separator == "+");

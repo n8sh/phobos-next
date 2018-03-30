@@ -1,0 +1,14 @@
+.dub
+docs.json
+__dummy.html
+docs/
+allocators.so
+allocators.dylib
+allocators.dll
+allocators.a
+allocators.lib
+allocators-test-*
+*.exe
+*.o
+*.obj
+*.lst

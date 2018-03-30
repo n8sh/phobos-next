@@ -2,7 +2,7 @@ import std.stdio;
 import std.experimental.allocator;
 import std.experimental.allocator.building_blocks;
 
-void main()
+void testAllocators()
 {
     alias FList = FreeList!(GCAllocator, 0, unbounded);
     alias A = Segregator!(
@@ -19,4 +19,9 @@ void main()
     A a;
     auto x = a.allocate(7);
     a.deallocate(x);
+}
+
+void main()
+{
+    testAllocators();
 }

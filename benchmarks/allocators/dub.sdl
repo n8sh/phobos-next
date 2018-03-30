@@ -1,0 +1,5 @@
+name "allocators"
+description "Benchmark std.experimental.allocator"
+authors "Per Nordlöw"
+copyright "Copyright © 2018, Per Nordlöw"
+license "Boost Software License, Version 1.0"

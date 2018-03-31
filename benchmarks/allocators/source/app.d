@@ -22,17 +22,17 @@ void testAllocators()
     immutable n = 10_000_000;
     immutable wordCount = 8;
 
-    void trad()
+    void testNew()
     {
         auto x = new size_t[wordCount];
     }
 
-    void alloc()
+    void testAllocator()
     {
         auto x = a.allocate(size_t.sizeof*wordCount);
     }
 
-    auto r = benchmark!(trad, alloc)(n);
+    auto r = benchmark!(testNew, testAllocator)(n);
     writeln("new-allocation: ", r[0]);
     writeln("stdx-allocation: ", r[1]);
 }

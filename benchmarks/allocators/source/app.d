@@ -25,12 +25,14 @@ class Graph
     {
         _region = GCAllocator.instance.allocate(1024*1024);
         _allocator = NodeAllocator(cast(ubyte[])_region);
+
+        auto sampeNode = make!Node(42);
     }
 
-    Type make(Type)()
+    Type make(Type, Args...)(Args args)
         if (is(Type == class))
     {
-        return _allocator.make!Type();
+        return _allocator.make!Type(args);
     }
 
     NodeAllocator _allocator;   // allocator over `_region`

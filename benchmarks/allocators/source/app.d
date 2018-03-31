@@ -8,7 +8,7 @@ enum wordSize = size_t.sizeof;
 /** A node in the graph. */
 extern(C++) class Node
 {
-extern(D):
+extern(D):                      // makes memory overhead 1 word instead of 2
     this(const double value) { this.value = value; }
     double value;
 }

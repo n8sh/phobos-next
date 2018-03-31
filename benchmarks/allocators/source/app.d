@@ -3,22 +3,43 @@ import std.stdio;
 import std.experimental.allocator;
 import std.experimental.allocator.building_blocks;
 
-void benchmarkAllocatorsRegion()
+class Node
 {
-    class Node
+    this(const double value)
     {
-        this(const double value)
-        {
-            this.value = value;
-        }
-        double value;
+        this.value = value;
+    }
+    double value;
+}
+
+enum nodeSize = __traits(classInstanceSize, Node);
+enum classWordOverhead = 2; // class size overhead is 3 words
+enum wordSize = size_t.sizeof;
+
+static assert(nodeSize == (classWordOverhead + 1)*wordSize);
+
+class Graph
+{
+    alias NodeAllocator = Region!(NullAllocator, 8);
+    this()
+    {
+        _region = GCAllocator.instance.allocate(1024*1024);
+        _allocator = NodeAllocator(cast(ubyte[])_region);
     }
 
-    enum nodeSize = __traits(classInstanceSize, Node);
-    enum classWordOverhead = 3; // class size overhead is 3 words
-    enum wordSize = size_t.sizeof;
+    Type make(Type)()
+        if (is(Type == class))
+    {
+        return _allocator.make!Type();
+    }
 
-    static assert(nodeSize == (classWordOverhead + 1)*wordSize);
+    NodeAllocator _allocator;   // allocator over `_region`
+    void[] _region;             // raw data for allocator
+}
+
+void benchmarkAllocatorsRegion()
+{
+    Graph graph;
 
     immutable nodeCount = 1000_000; // number of `Nodes`s to allocate
     void[] buf = GCAllocator.instance.allocate(nodeCount * nodeSize);

@@ -20,7 +20,7 @@ void testAllocators()
     A a;
 
     immutable n = 10_000_000;
-    immutable wordCount = 16;
+    immutable wordCount = 8;
 
     void trad()
     {

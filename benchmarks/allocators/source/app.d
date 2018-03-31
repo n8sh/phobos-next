@@ -17,7 +17,8 @@ static assert(__traits(classInstanceSize, NodeD) == 24);
 }
 
 extern(C++) class NodeCxx
-{ extern(D):
+{
+extern(D):
     this(const double value) { this.value = value; }
     double value;
 }

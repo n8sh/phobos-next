@@ -63,7 +63,7 @@ void benchmarkAllocatorsRegion()
     void[] buf = GCAllocator.instance.allocate(nodeCount * __traits(classInstanceSize, DoubleNode));
     auto allocator = Region!(NullAllocator, 8)(cast(ubyte[])buf);
 
-    Type make(Type, Args...)(Args args) // TODO pure
+    Type make(Type, Args...)(Args args) // TODO this should be pure
     {
         pragma(inline, true);
         return allocator.make!Type(args);

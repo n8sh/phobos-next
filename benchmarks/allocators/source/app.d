@@ -3,7 +3,7 @@ import std.stdio;
 import std.experimental.allocator;
 import std.experimental.allocator.building_blocks;
 
-void testAllocatorsFreeList()
+void benchmarkAllocatorsFreeList()
 {
     alias UnboundedFreeList = FreeList!(GCAllocator, 0, unbounded);
     alias A = Segregator!(
@@ -45,5 +45,5 @@ void testAllocatorsFreeList()
 
 void main()
 {
-    testAllocatorsFreeList();
+    benchmarkAllocatorsFreeList();
 }

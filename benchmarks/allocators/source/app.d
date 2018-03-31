@@ -3,6 +3,10 @@ import std.stdio;
 import std.experimental.allocator;
 import std.experimental.allocator.building_blocks;
 
+void benchmarkAllocatorsRegion()
+{
+}
+
 void benchmarkAllocatorsFreeList()
 {
     alias UnboundedFreeList = FreeList!(GCAllocator, 0, unbounded);
@@ -45,5 +49,6 @@ void benchmarkAllocatorsFreeList()
 
 void main()
 {
+    benchmarkAllocatorsRegion();
     benchmarkAllocatorsFreeList();
 }

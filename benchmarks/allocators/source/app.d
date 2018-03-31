@@ -73,7 +73,13 @@ void benchmarkAllocatorsRegion()
      * compilers such as LDC */
     void* latestPtr;
 
-    void testNew()
+    void testRegionAllocator()
+    {
+        auto x = allocate!DoubleNode(42);
+        latestPtr = cast(void*)x;
+    }
+
+    void testNewAllocation()
     {
         auto x = new DoubleNode(42);
         assert(x);
@@ -81,7 +87,7 @@ void benchmarkAllocatorsRegion()
         latestPtr = cast(void*)x;
     }
 
-    void testGlobalDefaultAllocator()
+    void testGlobalAllocator()
     {
         auto x = theAllocator.make!DoubleNode(42);
         assert(x);
@@ -89,15 +95,9 @@ void benchmarkAllocatorsRegion()
         latestPtr = cast(void*)x;
     }
 
-    void testAllocator()
-    {
-        auto x = allocate!DoubleNode(42);
-        latestPtr = cast(void*)x;
-    }
-
-    const results = benchmark!(testAllocator,
-                               testNew,
-                               testGlobalDefaultAllocator)(nodeCount);
+    const results = benchmark!(testRegionAllocator,
+                               testNewAllocation,
+                               testGlobalAllocator)(nodeCount);
     writeln("DoubleNode Region allocator: ", results[0]);
     writeln("DoubleNode new-allocation: ", results[1]);
     writeln("DoubleNode with global allocator: ", results[2]);
@@ -124,19 +124,19 @@ void benchmarkAllocatorsFreeList()
      * compilers such as LDC */
     void* latestPtr;
 
-    void testNew()
+    void testNewAllocation()
     {
         auto x = new size_t[wordCount];
         latestPtr = x.ptr;
     }
 
-    void testAllocator()
+    void testRegionAllocator()
     {
         auto x = allocator.allocate(size_t.sizeof*wordCount);
         latestPtr = x.ptr;
     }
 
-    const results = benchmark!(testNew, testAllocator)(nodeCount);
+    const results = benchmark!(testNewAllocation, testRegionAllocator)(nodeCount);
     writeln("new-allocation: ", results[0]);
     writeln("stdx-allocation: ", results[1]);
 }

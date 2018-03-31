@@ -30,15 +30,24 @@ void benchmarkAllocatorsRegion()
         latestPtr = cast(void*)x;
     }
 
+    void testGlobalDefaultAllocator()
+    {
+        auto x = theAllocator.make!Node();
+        latestPtr = cast(void*)x;
+    }
+
     void testAllocator()
     {
         auto x = allocator.make!Node();
         latestPtr = cast(void*)x;
     }
 
-    const results = benchmark!(testNew, testAllocator)(nodeCount);
+    const results = benchmark!(testNew,
+                               testGlobalDefaultAllocator,
+                               testAllocator)(nodeCount);
     writeln("Node new-allocation: ", results[0]);
-    writeln("Node stdx-allocation: ", results[1]);
+    writeln("Node with global allocator: ", results[1]);
+    writeln("Node region allocator: ", results[2]);
 }
 
 void benchmarkAllocatorsFreeList()

@@ -69,6 +69,11 @@ void benchmarkAllocatorsRegion()
         return allocator.make!Type(args);
     }
 
+    void[] allocate(size_t bytes)
+    {
+        return allocator.allocate(bytes); // TODO should be @safe pure
+    }
+
     /* store latest pointer here to prevent scoped allocation in clever
      * compilers such as LDC */
     void* latestPtr;

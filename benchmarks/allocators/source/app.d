@@ -16,6 +16,11 @@ class NodeD
 
 static assert(__traits(classInstanceSize, NodeD) == 24);
 
+@safe pure unittest
+{
+    assert(NodeD.classinfo.m_init.length == 24);
+}
+
 extern(C++) class NodeCxx
 {
     extern(D):
@@ -27,6 +32,11 @@ extern(C++) class NodeCxx
 }
 
 static assert(__traits(classInstanceSize, NodeCxx) == 16);
+
+@safe pure unittest
+{
+    assert(NodeCxx.classinfo.m_init.length == 16);
+}
 
 class Graph
 {

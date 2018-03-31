@@ -7,33 +7,22 @@ enum wordSize = size_t.sizeof;
 
 class NodeD
 {
-    this(const double value)
-    {
-        this.value = value;
-    }
+    this(const double value) { this.value = value; }
     double value;
 }
-
 static assert(__traits(classInstanceSize, NodeD) == 24);
-
-@safe pure unittest
+@safe pure nothrow @nogc unittest
 {
     assert(NodeD.classinfo.m_init.length == 24);
 }
 
 extern(C++) class NodeCxx
-{
-    extern(D):
-    this(const double value)
-    {
-        this.value = value;
-    }
+{ extern(D):
+    this(const double value) { this.value = value; }
     double value;
 }
-
 static assert(__traits(classInstanceSize, NodeCxx) == 16);
-
-@safe pure unittest
+@safe pure nothrow @nogc unittest
 {
     assert(NodeCxx.classinfo.m_init.length == 16);
 }

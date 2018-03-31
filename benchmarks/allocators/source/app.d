@@ -14,9 +14,7 @@ class NodeD
     double value;
 }
 
-enum nodeSize = __traits(classInstanceSize, NodeD);
-enum classDWordOverhead = 2; // class size overhead is 3 words
-static assert(nodeSize == (classDWordOverhead + 1)*wordSize);
+static assert(__traits(classInstanceSize, NodeD) == 24);
 
 extern(C++) class NodeCxx
 {
@@ -28,9 +26,7 @@ extern(C++) class NodeCxx
     double value;
 }
 
-enum nodeCxxSize = __traits(classInstanceSize, NodeCxx);
-enum classCxxWordOverhead = 2; // class size overhead is 3 words
-static assert(nodeSize == (classCxxWordOverhead + 1)*wordSize);
+static assert(__traits(classInstanceSize, NodeCxx) == 16);
 
 class Graph
 {
@@ -58,7 +54,7 @@ void benchmarkAllocatorsRegion()
     Graph graph;
 
     immutable nodeCount = 1000_000; // number of `Nodes`s to allocate
-    void[] buf = GCAllocator.instance.allocate(nodeCount * nodeSize);
+    void[] buf = GCAllocator.instance.allocate(nodeCount * __traits(classInstanceSize, NodeD));
     auto allocator = Region!(NullAllocator, 8)(cast(ubyte[])buf);
 
     auto allocate(Type)(double value)

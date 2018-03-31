@@ -1,3 +1,4 @@
+import std.datetime.stopwatch : benchmark;
 import std.stdio;
 import std.experimental.allocator;
 import std.experimental.allocator.building_blocks;
@@ -18,12 +19,22 @@ void testAllocators()
         );
     A a;
 
-    immutable n = 50_000_000;
-    foreach (i; 0 .. n)
+    immutable n = 10_000_000;
+    immutable wordCount = 16;
+
+    void trad()
     {
-        // auto x = new size_t[16];
-        // auto x = a.allocate(128);
+        auto x = new size_t[wordCount];
     }
+
+    void alloc()
+    {
+        auto x = a.allocate(size_t.sizeof*wordCount);
+    }
+
+    auto r = benchmark!(trad, alloc)(n);
+    writeln("new-allocation: ", r[0]);
+    writeln("stdx-allocation: ", r[1]);
 }
 
 void main()

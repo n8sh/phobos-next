@@ -57,16 +57,16 @@ void benchmarkAllocatorsRegion()
 {
     Graph graph;
 
-    immutable nodeCount = 1_000_000; // number of `Nodes`s to allocate
+    immutable nodeCount = 10_000_000; // number of `Nodes`s to allocate
 
     void[] buf = GCAllocator.instance.allocate(nodeCount * __traits(classInstanceSize, DoubleNode));
     auto allocator = Region!(NullAllocator, 8)(cast(ubyte[])buf);
 
-    auto allocate(Type)(double value)
+    auto make(Type, Args...)(Args args)
         // TODO pure
     {
         pragma(inline, true);
-        return allocator.make!Type(value);
+        return allocator.make!Type(args);
     }
 
     /* store latest pointer here to prevent scoped allocation in clever
@@ -75,7 +75,7 @@ void benchmarkAllocatorsRegion()
 
     void testRegionAllocator()
     {
-        auto x = allocate!DoubleNode(42);
+        auto x = make!DoubleNode(42);
         assert(x);
         latestPtr = cast(void*)x;
     }

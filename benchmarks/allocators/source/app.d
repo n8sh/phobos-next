@@ -10,7 +10,7 @@ class NodeD
     this(const double value) { this.value = value; }
     double value;
 }
-static assert(__traits(classInstanceSize, NodeD) == 24);
+static assert(__traits(classInstanceSize, NodeD) == 24); // 2-word-overhead
 @safe pure nothrow @nogc unittest
 {
     assert(NodeD.classinfo.m_init.length == 24);
@@ -22,7 +22,7 @@ extern(D):
     this(const double value) { this.value = value; }
     double value;
 }
-static assert(__traits(classInstanceSize, NodeCxx) == 16);
+static assert(__traits(classInstanceSize, NodeCxx) == 16); // 1-word-overhead
 @safe pure nothrow @nogc unittest
 {
     assert(NodeCxx.classinfo.m_init.length == 16);

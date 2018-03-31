@@ -46,6 +46,7 @@ class Graph
     Type make(Type, Args...)(Args args)
         if (is(Type == class))
     {
+        pragma(inline, true);
         return _allocator.make!Type(args);
     }
 

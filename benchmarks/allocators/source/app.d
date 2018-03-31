@@ -20,7 +20,7 @@ void benchmarkAllocatorsRegion()
 
     static assert(nodeSize == (classWordOverhead + 1)*wordSize);
 
-    immutable nodeCount = 1000_000;
+    immutable nodeCount = 1000_000; // number of `Nodes`s to allocate
     void[] buf = GCAllocator.instance.allocate(nodeCount * nodeSize);
     auto allocator = Region!(NullAllocator, 8)(cast(ubyte[])buf);
 

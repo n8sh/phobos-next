@@ -58,6 +58,7 @@ void benchmarkAllocatorsRegion()
     Graph graph;
 
     immutable nodeCount = 1_000_000; // number of `Nodes`s to allocate
+
     void[] buf = GCAllocator.instance.allocate(nodeCount * __traits(classInstanceSize, DoubleNode));
     auto allocator = Region!(NullAllocator, 8)(cast(ubyte[])buf);
 

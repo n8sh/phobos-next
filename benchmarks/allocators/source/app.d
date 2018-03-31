@@ -7,6 +7,10 @@ void benchmarkAllocatorsRegion()
 {
     class Node
     {
+        this(const double value)
+        {
+            this.value = value;
+        }
         double value;
     }
 
@@ -26,19 +30,19 @@ void benchmarkAllocatorsRegion()
 
     void testNew()
     {
-        auto x = new Node();
+        auto x = new Node(42);
         latestPtr = cast(void*)x;
     }
 
     void testGlobalDefaultAllocator()
     {
-        auto x = theAllocator.make!Node();
+        auto x = theAllocator.make!Node(42);
         latestPtr = cast(void*)x;
     }
 
     void testAllocator()
     {
-        auto x = allocator.make!Node();
+        auto x = allocator.make!Node(42);
         latestPtr = cast(void*)x;
     }
 

@@ -55,7 +55,7 @@ void benchmarkAllocatorsFreeList()
                                   GCAllocator);
     Allocator allocator;
 
-    immutable nodeCount = 10_000_000;
+    immutable nodeCount = 1_000_000;
     immutable wordCount = 4;
 
     /* store latest pointer here to prevent scoped allocation in clever

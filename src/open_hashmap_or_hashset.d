@@ -989,7 +989,7 @@ struct OpenHashMapOrSet(K, V = void,
         scope inout(V)* opBinaryRight(string op)(const scope K key) inout return // `auto ref` here makes things slow
             if (op == "in")
         {
-            pragma(inline, true);
+            version(LDC) pragma(inline, true);
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
             if (hitIndex != _bins.length &&
                 isOccupiedAtIndex(hitIndex))
@@ -1345,9 +1345,9 @@ private:
     }
 
     /** Returns: bin index of `key`. */
-    pragma(inline, true)
     private size_t keyToIndex(const scope K key) const
     {
+        version(LDC) pragma(inline, true);
         return hashOf2!(hasher)(key) & powerOf2Mask;
     }
 

@@ -5,29 +5,20 @@ import std.experimental.allocator.building_blocks;
 
 enum wordSize = size_t.sizeof;
 
-class NodeD
-{
-    this(const double value) { this.value = value; }
-    double value;
-}
-static assert(__traits(classInstanceSize, NodeD) == 24); // 2-word-overhead
-@safe pure nothrow @nogc unittest
-{
-    assert(NodeD.classinfo.m_init.length == 24);
-}
-
-extern(C++) class NodeCxx
+/** A node in the graph. */
+extern(C++) class Node
 {
 extern(D):
     this(const double value) { this.value = value; }
     double value;
 }
-static assert(__traits(classInstanceSize, NodeCxx) == 16); // 1-word-overhead
+static assert(__traits(classInstanceSize, Node) == 16); // 1-word-overhead
 @safe pure nothrow @nogc unittest
 {
-    assert(NodeCxx.classinfo.m_init.length == 16);
+    assert(Node.classinfo.m_init.length == 16);
 }
 
+/** Graph managing objects. */
 class Graph
 {
     alias NodeAllocator = Region!(NullAllocator, 8);
@@ -36,7 +27,7 @@ class Graph
         _region = GCAllocator.instance.allocate(1024*1024);
         _allocator = NodeAllocator(cast(ubyte[])_region);
 
-        auto sampeNode = make!NodeD(42);
+        auto sampeNode = make!Node(42);
     }
 
     Type make(Type, Args...)(Args args)
@@ -54,7 +45,7 @@ void benchmarkAllocatorsRegion()
     Graph graph;
 
     immutable nodeCount = 1000_000; // number of `Nodes`s to allocate
-    void[] buf = GCAllocator.instance.allocate(nodeCount * __traits(classInstanceSize, NodeD));
+    void[] buf = GCAllocator.instance.allocate(nodeCount * __traits(classInstanceSize, Node));
     auto allocator = Region!(NullAllocator, 8)(cast(ubyte[])buf);
 
     auto allocate(Type)(double value)
@@ -70,28 +61,28 @@ void benchmarkAllocatorsRegion()
 
     void testNew()
     {
-        auto x = new NodeD(42);
+        auto x = new Node(42);
         latestPtr = cast(void*)x;
     }
 
     void testGlobalDefaultAllocator()
     {
-        auto x = theAllocator.make!NodeD(42);
+        auto x = theAllocator.make!Node(42);
         latestPtr = cast(void*)x;
     }
 
     void testAllocator()
     {
-        auto x = allocate!NodeD(42);
+        auto x = allocate!Node(42);
         latestPtr = cast(void*)x;
     }
 
     const results = benchmark!(testNew,
                                testGlobalDefaultAllocator,
                                testAllocator)(nodeCount);
-    writeln("NodeD new-allocation: ", results[0]);
-    writeln("NodeD with global allocator: ", results[1]);
-    writeln("NodeD region allocator: ", results[2]);
+    writeln("Node new-allocation: ", results[0]);
+    writeln("Node with global allocator: ", results[1]);
+    writeln("Node region allocator: ", results[2]);
 }
 
 void benchmarkAllocatorsFreeList()

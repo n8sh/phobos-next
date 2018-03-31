@@ -24,6 +24,13 @@ void benchmarkAllocatorsRegion()
     void[] buf = GCAllocator.instance.allocate(nodeCount * nodeSize);
     auto allocator = Region!(NullAllocator, 8)(cast(ubyte[])buf);
 
+    auto allocate(Type)(double value)
+        // TODO pure
+    {
+        pragma(inline, true);
+        return allocator.make!Type(value);
+    }
+
     /* store latest pointer here to prevent scoped allocation in clever
      * compilers such as LDC */
     void* latestPtr;
@@ -42,7 +49,7 @@ void benchmarkAllocatorsRegion()
 
     void testAllocator()
     {
-        auto x = allocator.make!Node(42);
+        auto x = allocate!Node(42);
         latestPtr = cast(void*)x;
     }
 

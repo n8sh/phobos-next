@@ -1,7 +1,6 @@
-# See also: https://forum.dlang.org/post/avistfdwsutzpjjgyhyp@forum.dlang.org
-
 name "allocators"
 description "Benchmark std.experimental.allocator"
 authors "Per Nordlöw"
 copyright "Copyright © 2018, Per Nordlöw"
 license "Boost Software License, Version 1.0"
+seeAlso "https://forum.dlang.org/post/avistfdwsutzpjjgyhyp@forum.dlang.org"

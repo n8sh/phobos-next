@@ -57,9 +57,9 @@ void benchmarkAllocatorsRegion()
 {
     Graph graph;
 
-    immutable nodeCount = 1_000_000; // number of `Nodes`s to allocate
+    immutable nodeCount = 10_000_000; // number of `Nodes`s to allocate
 
-    void[] buf = GCAllocator.instance.allocate(nodeCount * __traits(classInstanceSize, DoubleNode));
+    void[] buf = GCAllocator.instance.allocate(1 * __traits(classInstanceSize, DoubleNode));
     auto allocator = Region!(NullAllocator, 8)(cast(ubyte[])buf);
 
     auto allocate(Type)(double value)
@@ -77,6 +77,7 @@ void benchmarkAllocatorsRegion()
     {
         auto x = new DoubleNode(42);
         assert(x);
+        x.value = 43;
         latestPtr = cast(void*)x;
     }
 
@@ -84,6 +85,7 @@ void benchmarkAllocatorsRegion()
     {
         auto x = theAllocator.make!DoubleNode(42);
         assert(x);
+        x.value = 43;
         latestPtr = cast(void*)x;
     }
 
@@ -93,12 +95,12 @@ void benchmarkAllocatorsRegion()
         latestPtr = cast(void*)x;
     }
 
-    const results = benchmark!(testNew,
-                               testGlobalDefaultAllocator,
-                               testAllocator)(nodeCount);
-    writeln("DoubleNode new-allocation: ", results[0]);
-    writeln("DoubleNode with global allocator: ", results[1]);
-    writeln("DoubleNode region allocator: ", results[2]);
+    const results = benchmark!(testAllocator,
+                               testNew,
+                               testGlobalDefaultAllocator)(nodeCount);
+    writeln("DoubleNode region allocator: ", results[0]);
+    writeln("DoubleNode new-allocation: ", results[1]);
+    writeln("DoubleNode with global allocator: ", results[2]);
 }
 
 void benchmarkAllocatorsFreeList()

@@ -38,9 +38,9 @@ void testAllocators()
         latestPtr = x.ptr;
     }
 
-    auto r = benchmark!(testNew, testAllocator)(n);
-    writeln("new-allocation: ", r[0]);
-    writeln("stdx-allocation: ", r[1]);
+    const results = benchmark!(testNew, testAllocator)(n);
+    writeln("new-allocation: ", results[0]);
+    writeln("stdx-allocation: ", results[1]);
 }
 
 void main()

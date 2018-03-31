@@ -40,7 +40,7 @@ class Graph
         _region = GCAllocator.instance.allocate(1024*1024);
         _allocator = NodeAllocator(cast(ubyte[])_region);
 
-        auto sampeNode = make!DoubleNode(42);
+        auto sampelNode = make!DoubleNode(42);
     }
 
     Type make(Type, Args...)(Args args)

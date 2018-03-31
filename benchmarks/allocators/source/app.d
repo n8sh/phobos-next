@@ -20,16 +20,22 @@ void testAllocators()
     A a;
 
     immutable n = 10_000_000;
-    immutable wordCount = 8;
+    immutable wordCount = 4;
+
+    /* store latest pointer here to prevent scoped allocation in clever
+     * compilers such as LDC */
+    void* latestPtr;
 
     void testNew()
     {
         auto x = new size_t[wordCount];
+        latestPtr = x.ptr;
     }
 
     void testAllocator()
     {
         auto x = a.allocate(size_t.sizeof*wordCount);
+        latestPtr = x.ptr;
     }
 
     auto r = benchmark!(testNew, testAllocator)(n);

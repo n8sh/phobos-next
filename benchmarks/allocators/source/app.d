@@ -98,7 +98,7 @@ void benchmarkAllocatorsRegion()
     const results = benchmark!(testAllocator,
                                testNew,
                                testGlobalDefaultAllocator)(nodeCount);
-    writeln("DoubleNode region allocator: ", results[0]);
+    writeln("DoubleNode Region allocator: ", results[0]);
     writeln("DoubleNode new-allocation: ", results[1]);
     writeln("DoubleNode with global allocator: ", results[2]);
 }

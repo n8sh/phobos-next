@@ -7,10 +7,11 @@ void benchmarkAllocatorsRegion()
 {
     class Node
     {
-        string name;
+        double value;
     }
 
     enum nodeSize = __traits(classInstanceSize, Node);
+    static assert(nodeSize == 32); // class size overhead is 3 words
     immutable nodeCount = 1000_000;
     void[] buf = GCAllocator.instance.allocate(nodeCount * nodeSize);
     auto allocator = Region!(NullAllocator, 8)(cast(ubyte[])buf);

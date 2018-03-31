@@ -12,7 +12,7 @@ extern(D):                      // makes memory overhead 1 word instead of 2
     this(const double value) { this.value = value; }
     double value;
 }
-static assert(__traits(classInstanceSize, Node) == 16); // 1-word-overhead
+static assert(__traits(classInstanceSize, Node) == (1 + 1)*wordSize); // 1-word-overhead
 @safe pure nothrow @nogc unittest
 {
     assert(Node.classinfo.m_init.length == 16);

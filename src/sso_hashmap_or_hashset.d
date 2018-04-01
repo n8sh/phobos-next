@@ -73,11 +73,11 @@ enum MapInsertionStatus
  * TODO benchmark against https://github.com/greg7mdp/sparsepp
  */
 struct SSOHashMapOrSet(K, V = void,
-                    alias Allocator = null,
-                    alias hasher = hashOf,
-                    uint smallBinMinCapacity = 1,
-                    uint capacityScaleNumerator = 2,
-                    uint capacityScaleDenominator = 1)
+                       alias Allocator = null,
+                       alias hasher = hashOf,
+                       uint smallBinMinCapacity = 1,
+                       uint capacityScaleNumerator = 2,
+                       uint capacityScaleDenominator = 1)
     if (// isHashable!K &&
         smallBinMinCapacity >= 1) // no use having empty small bins
 {

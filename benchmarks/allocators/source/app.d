@@ -34,7 +34,7 @@ static assert(__traits(classInstanceSize, DoubleNode) == (1 + 1)*wordSize); // 1
 /** Graph managing objects. */
 class Graph
 {
-    alias NodeAllocator = Region!(NullAllocator, 8);
+    alias NodeAllocator = Region!(NullAllocator, Node.alignof);
     this()
     {
         _region = GCAllocator.instance.allocate(1024*1024);
@@ -61,7 +61,7 @@ void benchmarkAllocatorsRegion()
     immutable nodeCount = 10_000_000; // number of `Nodes`s to allocate
 
     void[] buf = GCAllocator.instance.allocate(nodeCount * __traits(classInstanceSize, DoubleNode));
-    auto allocator = Region!(NullAllocator, 8)(cast(ubyte[])buf);
+    auto allocator = Region!(NullAllocator, platformAlignment)(cast(ubyte[])buf);
 
     Type make(Type, Args...)(Args args) // TODO this should be pure
     {

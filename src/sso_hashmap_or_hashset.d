@@ -72,7 +72,7 @@ enum MapInsertionStatus
  *
  * TODO benchmark against https://github.com/greg7mdp/sparsepp
  */
-struct HashMapOrSet(K, V = void,
+struct SSOHashMapOrSet(K, V = void,
                     alias Allocator = null,
                     alias hasher = hashOf,
                     uint smallBinMinCapacity = 1,
@@ -1230,6 +1230,26 @@ private:
     }
 }
 
+/** Hash map storing keys of type `K` and values of type `V`.
+ */
+alias SSOHashMap(K, V,
+                 alias Allocator = null,
+                 alias hasher = hashOf,
+                 uint smallBinMinCapacity = 1) = SSOHashMapOrSet!(K, V,
+                                                               Allocator,
+                                                               hasher,
+                                                               smallBinMinCapacity);
+
+/** Hash map storing keys of type `K`.
+ */
+alias SSOHashSet(K,
+                 alias Allocator = null,
+                 alias hasher = hashOf,
+                 uint smallBinMinCapacity = 1) = SSOHashMapOrSet!(K, void,
+                                                               Allocator,
+                                                               hasher,
+                                                               smallBinMinCapacity);
+
 import std.traits : isInstanceOf;
 import std.functional : unaryFun;
 
@@ -1238,7 +1258,7 @@ import std.functional : unaryFun;
 */
 void removeAllMatching(alias predicate, SomeHashMapOrSet)(auto ref SomeHashMapOrSet x)
     @trusted
-    if (isInstanceOf!(HashMapOrSet,
+    if (isInstanceOf!(SSOHashMapOrSet,
                       SomeHashMapOrSet))
 {
     import std.algorithm.mutation : moveEmplace;
@@ -1284,7 +1304,7 @@ void removeAllMatching(alias predicate, SomeHashMapOrSet)(auto ref SomeHashMapOr
 */
 SomeHashMapOrSet filtered(alias predicate, SomeHashMapOrSet)(SomeHashMapOrSet x)
     @trusted
-    if (isInstanceOf!(HashMapOrSet,
+    if (isInstanceOf!(SSOHashMapOrSet,
                       SomeHashMapOrSet))
 {
     import std.functional : not;
@@ -1297,8 +1317,8 @@ SomeHashMapOrSet filtered(alias predicate, SomeHashMapOrSet)(SomeHashMapOrSet x)
     TODO move to container_algorithm.d.
  */
 auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
-    if (isInstanceOf!(HashMapOrSet, C1) &&
-        isInstanceOf!(HashMapOrSet, C2))
+    if (isInstanceOf!(SSOHashMapOrSet, C1) &&
+        isInstanceOf!(SSOHashMapOrSet, C2))
 {
     import std.algorithm.mutation : move;
     static if (__traits(isRef, y)) // y is l-value
@@ -1326,7 +1346,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 @safe pure nothrow @nogc unittest
 {
     alias K = uint;
-    alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
+    alias X = SSOHashMapOrSet!(K, void, null, FNV!(64, true));
 
     auto x = X.withElements([12, 13].s);
     auto y = X.withElements([10, 12, 13, 15].s).intersectedWith(x);
@@ -1339,7 +1359,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 @safe pure nothrow @nogc unittest
 {
     alias K = uint;
-    alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
+    alias X = SSOHashMapOrSet!(K, void, null, FNV!(64, true));
 
     auto y = X.withElements([10, 12, 13, 15].s).intersectedWith(X.withElements([12, 13].s));
     assert(y.length == 2);
@@ -1352,8 +1372,8 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
  */
 auto intersectWith(C1, C2)(ref C1 x,
                            auto ref const(C2) y)
-    if (isInstanceOf!(HashMapOrSet, C1) &&
-        isInstanceOf!(HashMapOrSet, C2))
+    if (isInstanceOf!(SSOHashMapOrSet, C1) &&
+        isInstanceOf!(SSOHashMapOrSet, C2))
 {
     return x.removeAllMatching!(_ => !y.contains(_));
 }
@@ -1362,7 +1382,7 @@ auto intersectWith(C1, C2)(ref C1 x,
 @safe pure nothrow @nogc unittest
 {
     alias K = uint;
-    alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
+    alias X = SSOHashMapOrSet!(K, void, null, FNV!(64, true));
 
     auto x = X.withElements([12, 13].s);
     auto y = X.withElements([10, 12, 13, 15].s);
@@ -1375,7 +1395,7 @@ auto intersectWith(C1, C2)(ref C1 x,
 /// Returns forward range that iterates through the elements of `c`.
 auto byElement(SomeHashMapOrSet)(auto ref inout(SomeHashMapOrSet) c)
     @trusted
-    if (isInstanceOf!(HashMapOrSet,
+    if (isInstanceOf!(SSOHashMapOrSet,
                       SomeHashMapOrSet))
 {
     alias C = const(SomeHashMapOrSet);
@@ -1401,7 +1421,7 @@ alias range = byElement;        // EMSI-container naming
 pure nothrow @nogc unittest
 {
     alias K = uint;
-    alias X = HashMapOrSet!(K, void, null, FNV!(64, true));
+    alias X = SSOHashMapOrSet!(K, void, null, FNV!(64, true));
 
     immutable a = [11, 22].s;
 
@@ -1435,7 +1455,7 @@ pure nothrow @nogc unittest
     import std.meta : AliasSeq;
     foreach (V; AliasSeq!(void, string))
     {
-        alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
+        alias X = SSOHashMapOrSet!(K, V, null, FNV!(64, true));
 
         static if (!X.hasValue)
         {
@@ -1723,7 +1743,7 @@ pure nothrow @nogc unittest
 
     alias K = uint;
 
-    alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
+    alias X = SSOHashMapOrSet!(K, V, null, FNV!(64, true));
 
     auto s = X.withCapacity(n);
 
@@ -1773,7 +1793,7 @@ pure nothrow @nogc unittest
         uint data;
     }
 
-    alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
+    alias X = SSOHashMapOrSet!(K, V, null, FNV!(64, true));
 
     auto s = X.withCapacity(n);
 
@@ -1824,7 +1844,7 @@ pure nothrow unittest
         uint data;
     }
 
-    alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
+    alias X = SSOHashMapOrSet!(K, V, null, FNV!(64, true));
     const x = X();
 
     foreach (e; x.byKey)
@@ -1860,7 +1880,7 @@ pure nothrow unittest
         uint data;
     }
 
-    alias X = HashMapOrSet!(K, V, null, FNV!(64, true));
+    alias X = SSOHashMapOrSet!(K, V, null, FNV!(64, true));
     auto x = X();
 
     x[K(42)] = new V(43);

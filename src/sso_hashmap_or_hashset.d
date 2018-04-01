@@ -1236,9 +1236,9 @@ alias SSOHashMap(K, V,
                  alias Allocator = null,
                  alias hasher = hashOf,
                  uint smallBinMinCapacity = 1) = SSOHashMapOrSet!(K, V,
-                                                               Allocator,
-                                                               hasher,
-                                                               smallBinMinCapacity);
+                                                                  Allocator,
+                                                                  hasher,
+                                                                  smallBinMinCapacity);
 
 /** Hash map storing keys of type `K`.
  */
@@ -1246,9 +1246,9 @@ alias SSOHashSet(K,
                  alias Allocator = null,
                  alias hasher = hashOf,
                  uint smallBinMinCapacity = 1) = SSOHashMapOrSet!(K, void,
-                                                               Allocator,
-                                                               hasher,
-                                                               smallBinMinCapacity);
+                                                                  Allocator,
+                                                                  hasher,
+                                                                  smallBinMinCapacity);
 
 import std.traits : isInstanceOf;
 import std.functional : unaryFun;

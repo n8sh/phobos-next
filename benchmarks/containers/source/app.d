@@ -9,8 +9,7 @@ void main()
     import basic_array : BasicArray;
     import array_help : toUbytes;
     import variant_arrays : VariantArrays;
-    import sso_hashset : HashSet;
-    import sso_hashmap : HashMap;
+    import sso_hashmap_or_hashset : SSOHashSet, SSOHashMap;
     import open_hashmap_or_hashset : OpenHashMap, OpenHashSet;
 
     import std.digest.murmurhash : MurmurHash3;
@@ -89,25 +88,25 @@ void main()
                           DenseSetFilterGrowableArray!(uint),
 
                           // functions
-                          HashSet!(uint, null, identityHash64Of),
-                          HashSet!(uint, null, typeidHashOf),
-                          HashSet!(uint, null, hashOf),
+                          SSOHashSet!(uint, null, identityHash64Of),
+                          SSOHashSet!(uint, null, typeidHashOf),
+                          SSOHashSet!(uint, null, hashOf),
 
-                          HashSet!(uint, null, muellerHash64),
-                          HashSet!(uint, null, wangMixHash64),
-                          HashSet!(uint, null, FNV!(64, true)),
+                          SSOHashSet!(uint, null, muellerHash64),
+                          SSOHashSet!(uint, null, wangMixHash64),
+                          SSOHashSet!(uint, null, FNV!(64, true)),
 
                           // std.digests
-                          HashSet!(uint, null, MurmurHash3!(128)),
-                          HashSet!(uint, null, XXHash64),
+                          SSOHashSet!(uint, null, MurmurHash3!(128)),
+                          SSOHashSet!(uint, null, XXHash64),
 
                           OpenHashSet!(Nullable!(uint, uint.max), FNV!(64, true)),
 
-                          HashSet!(ulong, null, wangMixHash64),
-                          HashSet!(ulong, null, muellerHash64),
-                          HashSet!(ulong, null, FNV!(64, true), 2),
-                          HashSet!(ulong, null, FNV!(64, true), 3),
-                          HashSet!(ulong, null, FNV!(64, true), 4),
+                          SSOHashSet!(ulong, null, wangMixHash64),
+                          SSOHashSet!(ulong, null, muellerHash64),
+                          SSOHashSet!(ulong, null, FNV!(64, true), 2),
+                          SSOHashSet!(ulong, null, FNV!(64, true), 3),
+                          SSOHashSet!(ulong, null, FNV!(64, true), 4),
 
                           OpenHashSet!(Nullable!(ulong, ulong.max), FNV!(64, true)),
 
@@ -233,14 +232,14 @@ void main()
 
     writefln("\nMaps:\n");
 
-    foreach (A; AliasSeq!(HashMap!(uint, uint, null, muellerHash64),
-                          HashMap!(uint, uint, null, wangMixHash64),
-                          HashMap!(uint, uint, null, FNV!(64, true)),
+    foreach (A; AliasSeq!(SSOHashMap!(uint, uint, null, muellerHash64),
+                          SSOHashMap!(uint, uint, null, wangMixHash64),
+                          SSOHashMap!(uint, uint, null, FNV!(64, true)),
                           OpenHashMap!(Nullable!(uint, uint.max), uint, FNV!(64, true)),
 
-                          HashMap!(ulong, ulong, null, muellerHash64),
-                          HashMap!(ulong, ulong, null, wangMixHash64),
-                          HashMap!(ulong, ulong, null, FNV!(64, true)),
+                          SSOHashMap!(ulong, ulong, null, muellerHash64),
+                          SSOHashMap!(ulong, ulong, null, wangMixHash64),
+                          SSOHashMap!(ulong, ulong, null, FNV!(64, true)),
                           OpenHashMap!(Nullable!(ulong, ulong.max), ulong, FNV!(64, true)),
 
                           OpenHashMap!(string, string, FNV!(64, true)),

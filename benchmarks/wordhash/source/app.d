@@ -5,7 +5,7 @@ void main()
     import std.algorithm : max;
     import digestx.fnv : FNV;
 
-    import sso_hashset : HashSet;
+    import sso_hashmap_or_hashset : HashSet;
     import sso_hashmap : HashMap;
     import basic_array : BasicArray;
 

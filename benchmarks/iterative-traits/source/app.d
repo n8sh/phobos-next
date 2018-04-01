@@ -40,15 +40,15 @@ void main()
     {
         // uncomment what you like and measure compilation speed:
 
-        // best-case input for allSatisfy:
+        // largest speed-up for `allSatisfyIterative` over allSatisfy
         // static if (allSatisfyIterative!(isIntegral, Ts!(i))) {} // 0.99 secs
         // static if (allSatisfy!(isIntegral, Ts!(i))) {} // 7.5 secs
 
-        // worst-case input for anySatisfy:
+        // smallest speed-up for `allSatisfyIterative` over allSatisfy
         // static if (anySatisfyIterative!(isIntegral, Ts!(i))) {} // 7.2 secs
         // static if (anySatisfy!(isIntegral, Ts!(i))) {} // 7.6 secs
 
-        // best-case input for allSame
+        // even larger speed-up for `allSameIterative` over `allSameUsingNoDuplicates`
         // static if (allSameIterative!(Ts!(i))) {} // 0.60 secs
         // static if (allSameUsingNoDuplicates!(Ts!(i))) {} // 9.3 secs
     }

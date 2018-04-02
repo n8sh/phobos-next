@@ -1957,10 +1957,10 @@ pragma(inline, true):
 
 /** Returns: range that iterates through the elements of `c` in undefined order.
  */
-auto byElement(T)(auto ref return inout(T) c) @trusted
-    if (isInstanceOf!(OpenHashMapOrSet, T))
+auto byElement(Table)(auto ref return inout(Table) c) @trusted
+    if (isInstanceOf!(OpenHashMapOrSet, Table))
 {
-    alias C = const(T);
+    alias C = const(Table);
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
         auto result = ByLvalueElement!C((LvalueElementRef!(C)(cast(C*)&c)));
@@ -1968,7 +1968,7 @@ auto byElement(T)(auto ref return inout(T) c) @trusted
     else                        // `c` was is an r-value and can be moved
     {
         import std.algorithm.mutation : move;
-        auto result = ByRvalueElement!C((RvalueElementRef!C(move(*(cast(T*)&c))))); // reinterpret
+        auto result = ByRvalueElement!C((RvalueElementRef!C(move(*(cast(Table*)&c))))); // reinterpret
     }
     result.findNextNonEmptyBin();
     return result;
@@ -1999,9 +1999,9 @@ static private struct ByKey_rvalue(Table)
 
 /** Returns: range that iterates through the keys of `c` in undefined order.
  */
-auto byKey(T)(auto ref return inout(T) c) @trusted
+auto byKey(Table)(auto ref return inout(Table) c) @trusted
 {
-    alias C = const(T);
+    alias C = const(Table);
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
         auto result = ByKey_lvalue!C((LvalueElementRef!(C)(cast(C*)&c)));
@@ -2009,7 +2009,7 @@ auto byKey(T)(auto ref return inout(T) c) @trusted
     else                        // `c` was is an r-value and can be moved
     {
         import std.algorithm.mutation : move;
-        auto result = ByKey_rvalue!C((RvalueElementRef!C(move(*(cast(T*)&c))))); // reinterpret
+        auto result = ByKey_rvalue!C((RvalueElementRef!C(move(*(cast(Table*)&c))))); // reinterpret
     }
     result.findNextNonEmptyBin();
     return result;
@@ -2039,9 +2039,9 @@ static private struct ByValue_rvalue(Table)
 
 /** Returns: range that iterates through the values of `c` in undefined order.
  */
-auto byValue(T)(auto ref return inout(T) c) @trusted
+auto byValue(Table)(auto ref return inout(Table) c) @trusted
 {
-    alias C = const(T);
+    alias C = const(Table);
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
         auto result = ByValue_lvalue!C((LvalueElementRef!(C)(cast(C*)&c)));
@@ -2049,7 +2049,7 @@ auto byValue(T)(auto ref return inout(T) c) @trusted
     else                        // `c` was is an r-value and can be moved
     {
         import std.algorithm.mutation : move;
-        auto result = ByValue_rvalue!C((RvalueElementRef!C(move(*(cast(T*)&c))))); // reinterpret
+        auto result = ByValue_rvalue!C((RvalueElementRef!C(move(*(cast(Table*)&c))))); // reinterpret
     }
     result.findNextNonEmptyBin();
     return result;
@@ -2077,16 +2077,16 @@ static private struct ByKeyValue_lvalue(Table)
 
 /** Returns: range that iterates through the key-value-pairs of `c` in undefined order.
  */
-auto byKeyValue(T)(auto ref return inout(T) c) @trusted
+auto byKeyValue(Table)(auto ref return inout(Table) c) @trusted
 {
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
-        auto result = ByKeyValue_lvalue!T((LvalueElementRef!(T)(cast(T*)&c)));
+        auto result = ByKeyValue_lvalue!Table((LvalueElementRef!(Table)(cast(Table*)&c)));
     }
     else                        // `c` was is an r-value and can be moved
     {
         import std.algorithm.mutation : move;
-        auto result = ByKeyValue_rvalue!T((RvalueElementRef!T(move(*(cast(T*)&c))))); // reinterpret
+        auto result = ByKeyValue_rvalue!Table((RvalueElementRef!Table(move(*(cast(Table*)&c))))); // reinterpret
     }
     result.findNextNonEmptyBin();
     return result;

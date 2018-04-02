@@ -443,10 +443,7 @@ bool isNull(T)(const scope auto ref T x)
     @safe pure nothrow @nogc
 if (isNullable!(T))
 {
-    import std.traits : isPointer, isDynamicArray;
-    static if (isAddress!T ||
-               isDynamicArray!T ||
-               is(T == typeof(null)))
+    static if (hasStandardNullValue!T)
     {
         return x is T.init;
     }
@@ -465,10 +462,7 @@ void nullify(T)(scope ref T x)
     @safe pure nothrow @nogc
 if (isNullable!(T))
 {
-    import std.traits : isPointer, isDynamicArray;
-    static if (isAddress!T ||
-               isDynamicArray!T ||
-               is(T == typeof(null)))
+    static if (hasStandardNullValue!T)
     {
         x = T.init;
     }

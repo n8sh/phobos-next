@@ -1296,6 +1296,7 @@ auto propertySemantics(T, string name)()
 
     enum overloads = __traits(getOverloads, T, name).length;
     enum canInstantiateAsField = is(typeof(mixin("T.init." ~ name)));
+
     static if (overloads > 1 || canInstantiateAsField)
     {
         enum canRead = true;
@@ -1312,6 +1313,7 @@ auto propertySemantics(T, string name)()
     {
         enum canWrite = false;
     }
+
     return tuple!("canRead", "canWrite")(canRead, canWrite);
 }
 

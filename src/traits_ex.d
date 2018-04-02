@@ -1396,6 +1396,7 @@ enum isDIP1000 = __traits(compiles, () @safe {
          int* p;
          p = &x;
     });
+
 /** Is `true` iff `x` is an ASCII character compile-time constant, `false`
  * otherwise.
  *

@@ -1438,3 +1438,17 @@ template isASCII(alias x)
 /** Is `true` iff `T` is a memory address. */
 enum isAddress(T) = (is(T == class) || // a class is memory-wise
                      isPointer!T);     // just a pointer, consistent with opCmp
+
+///
+@safe pure nothrow @nogc unittest
+{
+    static assert( isAddress!(int*));
+    static assert(!isAddress!(int));
+
+    class C {}
+    static assert( isAddress!(C));
+
+    struct S {}
+    static assert(!isAddress!(S));
+    static assert( isAddress!(S*));
+}

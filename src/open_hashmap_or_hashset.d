@@ -300,7 +300,13 @@ struct OpenHashMapOrSet(K, V = void,
             auto bins = cast(T[])Allocator.instance.allocate(byteCount);
             foreach (ref bin; bins)
             {
-                static if (__traits(hasMember, K , "nullValue"))
+                static if (__traits(hasMember, K , "nullValue") &&
+                           !__traits(compiles, { emplace(&keyOf(bin), K.nullValue); })) // TODO remove
+                {
+                    pragma(msg, "warning: emplace fails for key of type ", K);
+                }
+                static if (__traits(hasMember, K , "nullValue") &&
+                           __traits(compiles, { emplace(&keyOf(bin), K.nullValue); })) // TODO remove
                 {
                     pragma(msg, "nullValue for ", K);
                     emplace(&keyOf(bin), K.nullValue);

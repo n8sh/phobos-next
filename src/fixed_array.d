@@ -13,9 +13,7 @@ module fixed_array;
 
     TODO Add @safe nothrow @nogc ctor from static array (of known length)
 */
-struct FixedArray(T,
-                  uint requestedCapacity,
-                  bool borrowChecked = false)
+struct FixedArray(T, uint capacity_, bool borrowChecked = false)
 {
     @safe:
     import std.bitmanip : bitfields;
@@ -26,7 +24,7 @@ struct FixedArray(T,
     import qcmeman : gc_addRange, gc_removeRange;
     import container_traits : mustAddGCRange;
 
-    alias capacity = requestedCapacity; // for public use
+    alias capacity = capacity_; // for public use
 
     /// Store of `capacity` number of elements.
     T[capacity] _store;         // TODO use store constructor
@@ -454,19 +452,19 @@ pragma(inline, true):
     }
 }
 
-/** Stack-allocated string of maximum length of `requestedCapacity.` */
-alias StringN(uint requestedCapacity, bool borrowChecked = false) = FixedArray!(immutable(char), requestedCapacity, borrowChecked);
-/** Stack-allocated wstring of maximum length of `requestedCapacity.` */
-alias WStringN(uint requestedCapacity, bool borrowChecked = false) = FixedArray!(immutable(wchar), requestedCapacity, borrowChecked);
-/** Stack-allocated dstring of maximum length of `requestedCapacity.` */
-alias DStringN(uint requestedCapacity, bool borrowChecked = false) = FixedArray!(immutable(dchar), requestedCapacity, borrowChecked);
+/** Stack-allocated string of maximum length of `capacity.` */
+alias StringN(uint capacity, bool borrowChecked = false) = FixedArray!(immutable(char), capacity, borrowChecked);
+/** Stack-allocated wstring of maximum length of `capacity.` */
+alias WStringN(uint capacity, bool borrowChecked = false) = FixedArray!(immutable(wchar), capacity, borrowChecked);
+/** Stack-allocated dstring of maximum length of `capacity.` */
+alias DStringN(uint capacity, bool borrowChecked = false) = FixedArray!(immutable(dchar), capacity, borrowChecked);
 
-/** Stack-allocated mutable string of maximum length of `requestedCapacity.` */
-alias MutableStringN(uint requestedCapacity, bool borrowChecked = false) = FixedArray!(char, requestedCapacity, borrowChecked);
-/** Stack-allocated mutable wstring of maximum length of `requestedCapacity.` */
-alias MutableWStringN(uint requestedCapacity, bool borrowChecked = false) = FixedArray!(char, requestedCapacity, borrowChecked);
-/** Stack-allocated mutable dstring of maximum length of `requestedCapacity.` */
-alias MutableDStringN(uint requestedCapacity, bool borrowChecked = false) = FixedArray!(char, requestedCapacity, borrowChecked);
+/** Stack-allocated mutable string of maximum length of `capacity.` */
+alias MutableStringN(uint capacity, bool borrowChecked = false) = FixedArray!(char, capacity, borrowChecked);
+/** Stack-allocated mutable wstring of maximum length of `capacity.` */
+alias MutableWStringN(uint capacity, bool borrowChecked = false) = FixedArray!(char, capacity, borrowChecked);
+/** Stack-allocated mutable dstring of maximum length of `capacity.` */
+alias MutableDStringN(uint capacity, bool borrowChecked = false) = FixedArray!(char, capacity, borrowChecked);
 
 /// construct from array may throw
 @safe pure unittest

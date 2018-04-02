@@ -339,8 +339,7 @@ template hasStandardNullValue(T)
  */
 template hasMemberNullValue(T)
 {
-    enum hasMemberNullValue = (// __traits(hasMember, T, "nullValue") &&
-                               __traits(compiles, { T _; _ = T.nullValue; }));
+    enum hasMemberNullValue = __traits(compiles, { T _; _ = T.nullValue; });
 }
 
 ///

@@ -6,13 +6,6 @@ module fixed_array;
 
 @safe:
 
-/** Type of index and slice lifetime checking. */
-enum Checking
-{
-    viaScope,     // compile-time checking of slice lifetimes (via DIP-1000 `scope`)
-    viaScopeAndBorrowing // run-time checking of slice lifetimes and borrows (includes iterator invalidation checking)
-}
-
 /** Statically allocated `T`-array of fixed pre-allocated length.  Similar to
     Rust's `fixedvec`: https://docs.rs/fixedvec/0.2.3/fixedvec/
 
@@ -22,7 +15,7 @@ enum Checking
 */
 struct FixedArray(T,
                   uint requestedCapacity,
-                  Checking checking = Checking.viaScope)
+                  bool borrowChecked = false)
 {
     @safe:
     import std.bitmanip : bitfields;
@@ -37,9 +30,6 @@ struct FixedArray(T,
 
     /// Store of `capacity` number of elements.
     T[capacity] _store;         // TODO use store constructor
-
-    /// Is `true` iff `this` has borrow-checked slicing.
-    enum borrowChecked = checking == Checking.viaScopeAndBorrowing;
 
     static if (borrowChecked)
     {
@@ -465,18 +455,18 @@ pragma(inline, true):
 }
 
 /** Stack-allocated string of maximum length of `requestedCapacity.` */
-alias StringN(uint requestedCapacity, Checking checking = Checking.viaScope) = FixedArray!(immutable(char), requestedCapacity, checking);
+alias StringN(uint requestedCapacity, bool borrowChecked = false) = FixedArray!(immutable(char), requestedCapacity, borrowChecked);
 /** Stack-allocated wstring of maximum length of `requestedCapacity.` */
-alias WStringN(uint requestedCapacity, Checking checking = Checking.viaScope) = FixedArray!(immutable(wchar), requestedCapacity, checking);
+alias WStringN(uint requestedCapacity, bool borrowChecked = false) = FixedArray!(immutable(wchar), requestedCapacity, borrowChecked);
 /** Stack-allocated dstring of maximum length of `requestedCapacity.` */
-alias DStringN(uint requestedCapacity, Checking checking = Checking.viaScope) = FixedArray!(immutable(dchar), requestedCapacity, checking);
+alias DStringN(uint requestedCapacity, bool borrowChecked = false) = FixedArray!(immutable(dchar), requestedCapacity, borrowChecked);
 
 /** Stack-allocated mutable string of maximum length of `requestedCapacity.` */
-alias MutableStringN(uint requestedCapacity, Checking checking = Checking.viaScope) = FixedArray!(char, requestedCapacity, checking);
+alias MutableStringN(uint requestedCapacity, bool borrowChecked = false) = FixedArray!(char, requestedCapacity, borrowChecked);
 /** Stack-allocated mutable wstring of maximum length of `requestedCapacity.` */
-alias MutableWStringN(uint requestedCapacity, Checking checking = Checking.viaScope) = FixedArray!(char, requestedCapacity, checking);
+alias MutableWStringN(uint requestedCapacity, bool borrowChecked = false) = FixedArray!(char, requestedCapacity, borrowChecked);
 /** Stack-allocated mutable dstring of maximum length of `requestedCapacity.` */
-alias MutableDStringN(uint requestedCapacity, Checking checking = Checking.viaScope) = FixedArray!(char, requestedCapacity, checking);
+alias MutableDStringN(uint requestedCapacity, bool borrowChecked = false) = FixedArray!(char, requestedCapacity, borrowChecked);
 
 /// construct from array may throw
 @safe pure unittest
@@ -523,7 +513,7 @@ alias MutableDStringN(uint requestedCapacity, Checking checking = Checking.viaSc
     foreach (StrN; AliasSeq!(StringN// , WStringN, DStringN
                  ))
     {
-        alias String15 = StrN!(capacity, Checking.viaScope);
+        alias String15 = StrN!(capacity);
 
         typeof(String15.init[0])[] xs;
         auto x = String15("alphas");
@@ -546,7 +536,7 @@ version(none) pure unittest     // TODO activate
     foreach (StrN; AliasSeq!(StringN, WStringN, DStringN))
     {
         static assert(!mustAddGCRange!StrN);
-        alias String15 = StrN!(capacity, Checking.viaScope);
+        alias String15 = StrN!(capacity);
         assertThrown!AssertError(String15("åäö_åäöå_"));
     }
 }
@@ -555,7 +545,7 @@ version(none) pure unittest     // TODO activate
 @safe pure unittest
 {
     enum capacity = 15;
-    alias String15 = StringN!(capacity, Checking.viaScope);
+    alias String15 = StringN!(capacity);
     static assert(!mustAddGCRange!String15);
 
     string f() @safe pure
@@ -575,7 +565,7 @@ version(none) pure unittest     // TODO activate
     alias T = char;
     enum capacity = 3;
 
-    alias A = FixedArray!(T, capacity, Checking.viaScopeAndBorrowing);
+    alias A = FixedArray!(T, capacity, true);
     static assert(!mustAddGCRange!A);
     static assert(A.sizeof == T.sizeof*capacity + 1);
 
@@ -639,7 +629,7 @@ version(none) pure unittest     // TODO activate
     static void testAsSomeString(T)()
     {
         enum capacity = 15;
-        alias A = FixedArray!(immutable(T), capacity, Checking.viaScopeAndBorrowing);
+        alias A = FixedArray!(immutable(T), capacity, true);
         static assert(!mustAddGCRange!A);
         auto a = A("abc");
         assert(a[] == "abc");
@@ -660,7 +650,7 @@ version(none) pure unittest     // TODO activate
 @safe pure unittest
 {
     enum capacity = 15;
-    alias String15 = StringN!(capacity, Checking.viaScopeAndBorrowing);
+    alias String15 = StringN!(capacity, true);
     static assert(!mustAddGCRange!String15);
     static assert(String15.readBorrowCountMax == 7);
     auto x = String15("alpha");
@@ -705,7 +695,7 @@ version(none) pure unittest     // TODO activate
 @safe pure unittest
 {
     enum capacity = 15;
-    alias String15 = StringN!(capacity, Checking.viaScopeAndBorrowing);
+    alias String15 = StringN!(capacity, true);
     static assert(!mustAddGCRange!String15);
 
     const char[4] _ = ['a', 'b', 'c', 'd'];
@@ -718,7 +708,7 @@ version(none) pure unittest     // TODO activate
 @system pure unittest
 {
     enum capacity = 15;
-    alias String15 = StringN!(capacity, Checking.viaScopeAndBorrowing);
+    alias String15 = StringN!(capacity, true);
     static assert(!mustAddGCRange!String15);
 
     auto x = String15("alpha");
@@ -760,7 +750,7 @@ version(none) pure unittest     // TODO activate
 @safe pure nothrow @nogc unittest
 {
     enum capacity = 4;
-    // TODO alias A = FixedArray!(int*, capacity, Checking.viaScopeAndBorrowing);
+    // TODO alias A = FixedArray!(int*, capacity, true);
 }
 
 version(unittest)

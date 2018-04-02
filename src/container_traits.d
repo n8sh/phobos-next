@@ -335,13 +335,21 @@ template hasStandardNullValue(T)
     static assert(!hasStandardNullValue!(int));
 }
 
+/** Is `true` iff `T` is a type with a member null value.
+ */
+template hasMemberNullValue(T)
+{
+    enum hasMemberNullValue = (__traits(hasMember, T, "nullValue") &&
+                               is(typeof(T.nullValue) == immutable(T)));
+}
+
 /** Is `true` iff `T` is a type with a standardized null (zero address) value.
  */
 template hasNullValue(T)
 {
     import std.traits : isPointer, isDynamicArray;
-    enum hasNullValue = (__traits(hasMember, T, "nullValue") ||
-                         hasStandardNullValue!T);
+    enum hasNullValue = (hasStandardNullValue!T ||
+                         hasMemberNullValue!T);
 }
 
 ///
@@ -442,6 +450,10 @@ bool isNull(T)(const scope auto ref T x)
     {
         return x is T.init;
     }
+    else static if (hasMemberNullValue!T)
+    {
+        return x == T.nullValue;
+    }
     else
     {
         static assert(0, "Unsupported type " ~ T.stringof);
@@ -459,6 +471,10 @@ void nullify(T)(ref T x)
                is(T == typeof(null)))
     {
         x = T.init;
+    }
+    else static if (hasMemberNullValue!T)
+    {
+        x = T.nullValue;
     }
     else
     {
@@ -482,6 +498,15 @@ void nullify(T)(ref T x)
 
     const Ni ni2 = 3;
     assert(!ni2.isNull);
+
+    struct S
+    {
+        int value;
+        static immutable nullValue = typeof(this).init;
+    }
+    S s;
+    s.nullify();
+    assert(s.isNull);
 }
 
 ///

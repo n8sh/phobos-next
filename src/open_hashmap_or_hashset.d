@@ -2000,6 +2000,7 @@ static private struct ByKey_rvalue(Table)
 /** Returns: range that iterates through the keys of `c` in undefined order.
  */
 auto byKey(Table)(auto ref return inout(Table) c) @trusted
+    if (isInstanceOf!(OpenHashMapOrSet, Table))
 {
     alias C = const(Table);
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
@@ -2040,6 +2041,7 @@ static private struct ByValue_rvalue(Table)
 /** Returns: range that iterates through the values of `c` in undefined order.
  */
 auto byValue(Table)(auto ref return inout(Table) c) @trusted
+    if (isInstanceOf!(OpenHashMapOrSet, Table))
 {
     alias C = const(Table);
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
@@ -2078,6 +2080,7 @@ static private struct ByKeyValue_lvalue(Table)
 /** Returns: range that iterates through the key-value-pairs of `c` in undefined order.
  */
 auto byKeyValue(Table)(auto ref return inout(Table) c) @trusted
+    if (isInstanceOf!(OpenHashMapOrSet, Table))
 {
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {

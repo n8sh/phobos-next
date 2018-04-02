@@ -72,7 +72,7 @@ void benchmarkAllocatorsRegion()
         return allocator.allocate(bytes); // TODO should be @safe pure
     }
 
-    /* store latest pointer here to prevent scoped allocation in clever
+    /* store latest pointer here to prevent fast scoped allocation in clever
      * compilers such as LDC */
     void* latestPtr;
 

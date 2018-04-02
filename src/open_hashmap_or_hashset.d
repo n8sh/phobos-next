@@ -63,7 +63,7 @@ import pure_mallocator : PureMallocator;
 struct OpenHashMapOrSet(K, V = void,
                         alias hasher = hashOf,
                         alias Allocator = PureMallocator.instance,
-                        bool borrowChecked = false)
+                        bool borrowChecked = true)
     if (isNullable!K
         // isHashable!K
         )
@@ -79,6 +79,8 @@ struct OpenHashMapOrSet(K, V = void,
     import qcmeman : gc_addRange, gc_removeRange;
     import digestion : hashOf2;
     import probing : triangularProbeFromIndex, triangularProbeCountFromIndex;
+
+    enum isBorrowChecked = borrowChecked;
 
     /** In the hash map case, `V` is non-void, and a value is stored alongside
      * the key of type `K`.
@@ -512,12 +514,15 @@ struct OpenHashMapOrSet(K, V = void,
 
     }
 
-    static immutable borrowedErrorMessage = "cannot mutate this when it's borrowed";
+    static if (borrowChecked)
+    {
+        static immutable borrowedErrorMessage = "cannot mutate this when it's borrowed";
+    }
 
     /// Empty.
     void clear()()              // template-lazy
     {
-        debug assert(!isBorrowed, borrowedErrorMessage);
+        static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
         release();
         _bins = typeof(_bins).init;
         static if (!hasAddressKey)
@@ -602,7 +607,7 @@ struct OpenHashMapOrSet(K, V = void,
     InsertionStatus insert()(T element) // template-lazy
     {
         version(LDC) pragma(inline, true);
-        debug assert(!isBorrowed, borrowedErrorMessage);
+        static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
         assert(!keyOf(element).isNull);
         reserveExtra(1);
         return insertWithoutGrowth(move(element));
@@ -623,7 +628,7 @@ struct OpenHashMapOrSet(K, V = void,
         if (isIterable!R &&
             isCopyable!T)       // TODO support uncopyable T?
     {
-        debug assert(!isBorrowed, borrowedErrorMessage);
+        static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
         import std.range : hasLength;
         static if (hasLength!R)
         {
@@ -654,7 +659,7 @@ struct OpenHashMapOrSet(K, V = void,
     void reserveExtra(size_t extraCapacity) // not template-lazy
     {
         version(LDC) pragma(inline, true);
-        debug assert(!isBorrowed, borrowedErrorMessage);
+        static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
         immutable newCapacity = (_count + extraCapacity)*growScaleP/growScaleQ;
         if (newCapacity > _bins.length)
         {
@@ -963,7 +968,7 @@ struct OpenHashMapOrSet(K, V = void,
                     return _table._bins[_binIndex];
                 }
             }
-            public LvalueElementRef!(Table) _elementRef;
+            public LvalueElementRef!(Table, borrowChecked) _elementRef;
             alias _elementRef this;
         }
 
@@ -1027,7 +1032,7 @@ struct OpenHashMapOrSet(K, V = void,
             {
                 return _table._bins[_binIndex].key;
             }
-            public LvalueElementRef!(Table) _elementRef;
+            public LvalueElementRef!(Table, borrowChecked) _elementRef;
             alias _elementRef this;
         }
 
@@ -1049,7 +1054,7 @@ struct OpenHashMapOrSet(K, V = void,
             {
                 return *(cast(ValueType*)&_table._bins[_binIndex].value);
             }
-            public LvalueElementRef!(Table) _elementRef;
+            public LvalueElementRef!(Table, borrowChecked) _elementRef;
             alias _elementRef this;
         }
 
@@ -1100,7 +1105,7 @@ struct OpenHashMapOrSet(K, V = void,
                 }
                 return *(cast(E*)&_table._bins[_binIndex]);
             }
-            public LvalueElementRef!(Table) _elementRef;
+            public LvalueElementRef!(Table, borrowChecked) _elementRef;
             alias _elementRef this;
         }
 
@@ -1108,7 +1113,7 @@ struct OpenHashMapOrSet(K, V = void,
         @property scope auto byKeyValue()() return @trusted // template-lazy property
         {
             alias This = MutableThis;
-            auto result = ByKeyValue_lvalue!This((LvalueElementRef!(This)(cast(This*)&this)));
+            auto result = ByKeyValue_lvalue!This((LvalueElementRef!(This, borrowChecked)(cast(This*)&this)));
             result.findNextNonEmptyBin();
             return result;
         }
@@ -1116,7 +1121,7 @@ struct OpenHashMapOrSet(K, V = void,
         @property scope auto byKeyValue()() const return @trusted // template-lazy property
         {
             alias This = ConstThis;
-            auto result = ByKeyValue_lvalue!This((LvalueElementRef!(This)(cast(This*)&this)));
+            auto result = ByKeyValue_lvalue!This((LvalueElementRef!(This, borrowChecked)(cast(This*)&this)));
             result.findNextNonEmptyBin();
             return result;
         }
@@ -1204,7 +1209,7 @@ struct OpenHashMapOrSet(K, V = void,
     bool remove()(const scope K key) // template-lazy
     {
         version(LDC) pragma(inline, true);
-        debug assert(!isBorrowed, borrowedErrorMessage);
+        static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
         if (hitIndex != _bins.length &&
             isOccupiedAtIndex(hitIndex))
@@ -1235,7 +1240,7 @@ struct OpenHashMapOrSet(K, V = void,
         if (isRefIterable!Keys &&
             is(typeof(Keys.front == K.init)))
     {
-        debug assert(!isBorrowed, borrowedErrorMessage);
+        static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
         rehash!("!a.isNull && keys.canFind(a)")(); // TODO make this work
         return 0;
     }
@@ -1294,43 +1299,50 @@ private:
         T[] _bins;              // one element per bin
     }
 
-    debug                       // use Rust-style borrow checking at run-time
+    static if (borrowChecked)
     {
-        /// Number of bits needed to store number of read borrows.
-        enum borrowCountBits = 24;
+        debug // use Rust-style borrow checking at run-time
+        {
+            /// Number of bits needed to store number of read borrows.
+            enum borrowCountBits = 24;
 
-        /// Maximum value possible for `_borrowCount`.
-        enum borrowCountMax = 2^^borrowCountBits - 1;
+            /// Maximum value possible for `_borrowCount`.
+            enum borrowCountMax = 2^^borrowCountBits - 1;
 
-        import std.bitmanip : bitfields;
-        mixin(bitfields!(size_t, "_count", 8*size_t.sizeof - borrowCountBits,
-                         uint, "_borrowCount", borrowCountBits,
-                  ));
+            import std.bitmanip : bitfields;
+            mixin(bitfields!(size_t, "_count", 8*size_t.sizeof - borrowCountBits,
+                             uint, "_borrowCount", borrowCountBits,
+                      ));
 
         pragma(inline, true):
-        @safe pure nothrow @nogc:
+            @safe pure nothrow @nogc:
 
-        @property
-        {
-            /// Returns: `true` iff `this` is borrowed (either read or write).
-            bool isBorrowed() const { return _borrowCount >= 1; }
+            @property
+            {
+                /// Returns: `true` iff `this` is borrowed (either read or write).
+                bool isBorrowed() const { return _borrowCount >= 1; }
 
-            /// Returns: number of borrowers of `this` (both read and write).
-            uint borrowCount() const { return _borrowCount; }
+                /// Returns: number of borrowers of `this` (both read and write).
+                uint borrowCount() const { return _borrowCount; }
+            }
+
+            /// Increase borrow count.
+            void incBorrowCount()
+            {
+                assert(_borrowCount + 1 != borrowCountMax);
+                _borrowCount = _borrowCount + 1;
+            }
+
+            /// Decrease borrow count.
+            void decBorrowCount()
+            {
+                assert(_borrowCount != 0);
+                _borrowCount = _borrowCount - 1;
+            }
         }
-
-        /// Increase borrow count.
-        void incBorrowCount()
+        else
         {
-            assert(_borrowCount + 1 != borrowCountMax);
-            _borrowCount = _borrowCount + 1;
-        }
-
-        /// Decrease borrow count.
-        void decBorrowCount()
-        {
-            assert(_borrowCount != 0);
-            _borrowCount = _borrowCount - 1;
+            size_t _count;        // total number of non-null elements stored in `_bins`
         }
     }
     else
@@ -1525,7 +1537,7 @@ static private void duplicateEmplace(T)(const scope ref T src,
 
 /** L-value element reference (and in turn range iterator).
  */
-static private struct LvalueElementRef(Table)
+static private struct LvalueElementRef(Table, bool borrowChecked)
 {
     import std.traits : Unqual;
 
@@ -1542,28 +1554,37 @@ static private struct LvalueElementRef(Table)
     {
         pragma(inline, true);
         this._table = table;
-        debug
+        static if (borrowChecked)
         {
-            (cast(MutableTable*)(_table)).incBorrowCount();
+            debug
+            {
+                (cast(MutableTable*)(_table)).incBorrowCount();
+            }
         }
     }
 
     ~this() @trusted
     {
         pragma(inline, true);
-        debug
+        static if (borrowChecked)
         {
-            (cast(MutableTable*)(_table)).decBorrowCount();
+            debug
+            {
+                (cast(MutableTable*)(_table)).decBorrowCount();
+            }
         }
     }
 
     this(this) @trusted
     {
         pragma(inline, true);
-        debug
+        static if (borrowChecked)
         {
-            assert(_table._borrowCount != 0);
-            (cast(MutableTable*)(_table)).incBorrowCount();
+            debug
+            {
+                assert(_table._borrowCount != 0);
+                (cast(MutableTable*)(_table)).incBorrowCount();
+            }
         }
     }
 
@@ -2016,7 +2037,7 @@ auto byElement(T)(auto ref return inout(T) c) @trusted
     alias C = const(T);
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
-        auto result = C.ByLvalueElement!C((LvalueElementRef!(C)(cast(C*)&c)));
+        auto result = C.ByLvalueElement!C((LvalueElementRef!(C, T.isBorrowChecked)(cast(C*)&c)));
     }
     else                        // `c` was is an r-value and can be moved
     {
@@ -2035,7 +2056,7 @@ auto byKey(T)(auto ref return inout(T) c) @trusted
     alias C = const(T);
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
-        auto result = C.ByKey_lvalue!C((LvalueElementRef!(C)(cast(C*)&c)));
+        auto result = C.ByKey_lvalue!C((LvalueElementRef!(C, T.isBorrowChecked)(cast(C*)&c)));
     }
     else                        // `c` was is an r-value and can be moved
     {
@@ -2053,7 +2074,7 @@ auto byValue(T)(auto ref return inout(T) c) @trusted
     alias C = const(T);
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
-        auto result = C.ByValue_lvalue!C((LvalueElementRef!(C)(cast(C*)&c)));
+        auto result = C.ByValue_lvalue!C((LvalueElementRef!(C, T.isBorrowChecked)(cast(C*)&c)));
     }
     else                        // `c` was is an r-value and can be moved
     {

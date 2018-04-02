@@ -1346,6 +1346,7 @@ unittest
 
     static assert(!__traits(compiles, propertySemantics!(S, "na")));
     static assert(!__traits(compiles, propertySemantics!(S, "m")));
+
     static assert(propertySemantics!(S, "rp") == tuple!("canRead", "canWrite")(true, false));
     static assert(propertySemantics!(S, "wp") == tuple!("canRead", "canWrite")(false, true));
     static assert(propertySemantics!(S, "rwp") == tuple!("canRead", "canWrite")(true, true));

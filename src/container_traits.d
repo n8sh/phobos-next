@@ -340,7 +340,19 @@ template hasStandardNullValue(T)
 template hasMemberNullValue(T)
 {
     enum hasMemberNullValue = (__traits(hasMember, T, "nullValue") &&
-                               is(typeof(T.nullValue) == immutable(T)));
+                               __traits(compiles, { T _; _ = T.nullValue; }));
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    class S1
+    {
+        int x;
+        int* xp;
+        static nullValue = typeof(this).init;
+    }
+    static assert(hasMemberNullValue!S1);
 }
 
 /** Is `true` iff `T` is a type with a standardized null (zero address) value.

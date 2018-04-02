@@ -296,6 +296,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
         else                    // when default null key is not represented by zeros
         {
+            pragma(msg, "K:", K, " V:", V);
             auto bins = cast(T[])Allocator.instance.allocate(byteCount);
             foreach (ref bin; bins)
             {

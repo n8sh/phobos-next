@@ -3,7 +3,19 @@
 module notnull;
 
 import std.traits: isAssignable;
-import traits_ex: isNullable;
+
+/** Note that `NotNull!T` is not `isNullAssignable`. */
+template isNullAssignable(T)
+{
+    import std.traits: isAssignable;
+    enum isNullAssignable = isAssignable!(T, typeof(null));
+}
+///
+@safe pure nothrow @nogc unittest
+{
+    static assert( isNullAssignable!(int*));
+    static assert(!isNullAssignable!(int));
+}
 
 /**
    NotNull ensures a null value can never be stored.
@@ -33,7 +45,8 @@ import traits_ex: isNullable;
    // it never stored null.
    ---
 */
-struct NotNull(T) if (isNullable!T)
+struct NotNull(T)
+if (isNullAssignable!T)
 {
     @disable this(); // Disallow default initialized (to null)
 
@@ -72,16 +85,21 @@ struct NotNull(T) if (isNullable!T)
     private T _value;
 
     /* See_Also: http://forum.dlang.org/thread/aprsozwvnpnchbaswjxd@forum.dlang.org#post-aprsozwvnpnchbaswjxd:40forum.dlang.org */
-    version(none) { // NOTE: Disabled because it makes members inaccessible
+    version(none)        // NOTE: Disabled because it makes members inaccessible
+    {
         import std.traits: BaseClassesTuple;
-        static if(is(T == class) && !is(T == Object)) {
-            @property NotNull!(BaseClassesTuple!T[0]) _valueHelper() inout @trusted pure nothrow {
+        static if (is(T == class) && !is(T == Object))
+        {
+            @property NotNull!(BaseClassesTuple!T[0]) _valueHelper() inout @trusted pure nothrow
+            {
                 assert(_value !is null); // sanity check of invariant
                 return assumeNotNull(cast(BaseClassesTuple!T[0]) _value);
             }
         }
-        else {
-            @property inout(T) _valueHelper() inout @safe pure nothrow {
+        else
+        {
+            @property inout(T) _valueHelper() inout @safe pure nothrow
+            {
                 assert(_value !is null); // sanity check of invariant
                 return _value;
             }
@@ -105,7 +123,8 @@ struct NotNull(T) if (isNullable!T)
 /** A convenience function to construct a NotNull value from something $(D t)
     you know isn't null.
 */
-NotNull!T assumeNotNull(T)(T t) if (isNullable!T)
+NotNull!T assumeNotNull(T)(T t)
+if (isNullAssignable!T)
 {
     return NotNull!T(t); // note the constructor asserts it is not null
 }
@@ -113,7 +132,8 @@ NotNull!T assumeNotNull(T)(T t) if (isNullable!T)
 /** A convenience function to check for null $(D t). If you pass null to $(D t),
     it will throw an exception. Otherwise, return NotNull!T.
 */
-NotNull!T enforceNotNull(T, string file = __FILE__, size_t line = __LINE__)(T t) if (isNullable!T)
+NotNull!T enforceNotNull(T, string file = __FILE__, size_t line = __LINE__)(T t)
+if (isNullAssignable!T)
 {
     import std.exception: enforce;
     enforce(t !is null, "t is null!", file, line);

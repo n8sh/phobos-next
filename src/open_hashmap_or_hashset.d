@@ -296,7 +296,6 @@ struct OpenHashMapOrSet(K, V = void,
         }
         else                    // when default null key is not represented by zeros
         {
-            // TODO detect when initial zeroing is enough and use also here
             auto bins = cast(T[])Allocator.instance.allocate(byteCount);
             foreach (ref bin; bins)
             {

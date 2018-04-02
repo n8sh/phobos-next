@@ -111,10 +111,10 @@ C filteredInplace(alias predicate, C)(C r)
 @safe pure nothrow @nogc unittest
 {
     import std.algorithm.iteration : filter;
-    import sso_hashmap_or_hashset : HashSet, byElement;
+    import sso_hashmap_or_hashset : SSOHashSet, byElement;
     import digestx.fnv : FNV;
 
-    alias X = HashSet!(uint, null, FNV!(64, true));
+    alias X = SSOHashSet!(uint, null, FNV!(64, true));
     enum pred = "a != 11";
     // alias pred = (_) => _ != 1;
 

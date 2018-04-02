@@ -1370,6 +1370,7 @@ unittest
     static assert(areFlatteninglyCombinable!(int, int, int));
     static assert(areFlatteninglyCombinable!(float[], int, char[]));
     static assert(areFlatteninglyCombinable!(string, int, int));
+
     // Works with string because:
     import std.traits : CommonType;
     import std.range : ElementType;

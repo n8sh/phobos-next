@@ -12,3 +12,4 @@ allocators-test-*
 *.o
 *.obj
 *.lst
+allocators

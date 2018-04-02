@@ -629,7 +629,7 @@ version(none) pure unittest     // TODO activate
     static void testAsSomeString(T)()
     {
         enum capacity = 15;
-        alias A = FixedArray!(immutable(T), capacity, true);
+        alias A = FixedArray!(immutable(T), capacity);
         static assert(!mustAddGCRange!A);
         auto a = A("abc");
         assert(a[] == "abc");

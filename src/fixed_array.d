@@ -695,7 +695,7 @@ version(none) pure unittest     // TODO activate
 @safe pure unittest
 {
     enum capacity = 15;
-    alias String15 = StringN!(capacity, true);
+    alias String15 = StringN!(capacity);
     static assert(!mustAddGCRange!String15);
 
     const char[4] _ = ['a', 'b', 'c', 'd'];
@@ -704,7 +704,7 @@ version(none) pure unittest     // TODO activate
     assert(x[] == "abcd");
 }
 
-///
+/// borrow checking
 @system pure unittest
 {
     enum capacity = 15;

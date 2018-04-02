@@ -213,7 +213,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
 
         /// Get key part.
-        static auto ref inout(V) keyOf()(auto ref return scope inout(KeyValueType) element)
+        static auto ref inout(K) keyOf()(auto ref return scope inout(KeyValueType) element)
         {
             pragma(inline, true);
             return element.key;
@@ -2081,7 +2081,6 @@ auto byKeyValue(T)(auto ref return inout(T) c) @trusted
 {
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
-        pragma(msg, "l-value");
         auto result = ByKeyValue_lvalue!T((LvalueElementRef!(T)(cast(T*)&c)));
     }
     else                        // `c` was is an r-value and can be moved

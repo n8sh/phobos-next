@@ -72,7 +72,7 @@ void benchmarkAllocatorsRegion()
         return allocator.allocate(bytes); // TODO should be @safe pure
     }
 
-    /* store latest pointer here to prevent fast scoped allocation in LDC */
+    /* store latest pointer here to prevent fast scoped non-GC allocation in LDC */
     void* latestPtr;
 
     void testRegionAllocator()

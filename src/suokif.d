@@ -48,10 +48,10 @@ struct Expr
     Expr[] subs;
 }
 
-import fixed_array : FixedArray, Checking;
+import fixed_array : FixedArray;
 import file_ex : rawReadNullTerminated;
 
-alias Exprs = FixedArray!(Expr, 128, Checking.viaScope);
+alias Exprs = FixedArray!(Expr, 128);
 
 /** Returns: true if `s` is null-terminated (ending with `'\0'`).
 

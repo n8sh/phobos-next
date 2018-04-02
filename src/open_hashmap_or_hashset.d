@@ -302,7 +302,14 @@ struct OpenHashMapOrSet(K, V = void,
             auto bins = cast(T[])Allocator.instance.allocate(byteCount);
             foreach (ref bin; bins)
             {
-                static if (__traits(hasMember, K, "nullValue"))
+                enum hasNullValueKey = __traits(hasMember, K, "nullValue");
+                static if (hasNullValueKey &&
+                           !__traits(compiles, { emplace(&keyOf(bin), K.nullValue); }))
+                {
+                    pragma(msg, __FILE__, ":", __LINE__, ":warning: emplace fails for null-Value key type ", K);
+                }
+                static if (hasNullValueKey &&
+                           __traits(compiles, { emplace(&keyOf(bin), K.nullValue); }))
                 {
                     emplace(&keyOf(bin), K.nullValue);
                 }

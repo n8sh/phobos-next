@@ -454,15 +454,19 @@ pragma(inline, true):
 
 /** Stack-allocated string of maximum length of `capacity.` */
 alias StringN(uint capacity, bool borrowChecked = false) = FixedArray!(immutable(char), capacity, borrowChecked);
+
 /** Stack-allocated wstring of maximum length of `capacity.` */
 alias WStringN(uint capacity, bool borrowChecked = false) = FixedArray!(immutable(wchar), capacity, borrowChecked);
+
 /** Stack-allocated dstring of maximum length of `capacity.` */
 alias DStringN(uint capacity, bool borrowChecked = false) = FixedArray!(immutable(dchar), capacity, borrowChecked);
 
 /** Stack-allocated mutable string of maximum length of `capacity.` */
 alias MutableStringN(uint capacity, bool borrowChecked = false) = FixedArray!(char, capacity, borrowChecked);
+
 /** Stack-allocated mutable wstring of maximum length of `capacity.` */
 alias MutableWStringN(uint capacity, bool borrowChecked = false) = FixedArray!(char, capacity, borrowChecked);
+
 /** Stack-allocated mutable dstring of maximum length of `capacity.` */
 alias MutableDStringN(uint capacity, bool borrowChecked = false) = FixedArray!(char, capacity, borrowChecked);
 

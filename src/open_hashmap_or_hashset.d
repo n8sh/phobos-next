@@ -26,6 +26,9 @@ import pure_mallocator : PureMallocator;
  *      hasher = hash function or std.digest Hash.
  *      Allocator = memory allocator for bin array
  *
+ *      borrowChecked = only activate when it's certain that this won't be moved
+ *      via std.algorithm.mutation.move()
+ *
  * See_Also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  * See_Also: https://en.wikipedia.org/wiki/Lazy_deletion
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
@@ -53,10 +56,14 @@ import pure_mallocator : PureMallocator;
  * algorithm moves elements from source if they are not already in `this`
  *
  * TODO Robin-Hood-hashing
+ *
+ * TODO enable `borrowChecked` unconditionally if and when `opMove` is
+ * implemented. See: https://github.com/dlang/DIPs/pull/109
  */
 struct OpenHashMapOrSet(K, V = void,
                         alias hasher = hashOf,
-                        alias Allocator = PureMallocator.instance)
+                        alias Allocator = PureMallocator.instance,
+                        bool borrowChecked = false)
     if (isNullable!K
         // isHashable!K
         )

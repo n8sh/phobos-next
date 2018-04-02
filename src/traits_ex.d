@@ -17,8 +17,7 @@ import std.range: ElementType, isForwardRange, isRandomAccessRange, isInputRange
 
 public import std.traits : isCopyable;
 
-/** Returns: `true` iff $(D ptr) is handled by D's built-in garbage collector
- * (GC).
+/** Returns: `true` iff $(D ptr) is handled by D's garbage collector.
  */
 bool isGCPointer(T)(const T* ptr)
     @trusted nothrow @nogc

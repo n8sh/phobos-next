@@ -234,7 +234,7 @@ public:
     alias nullify = clear;      // compatible with std.typecons.Nullable
 
     /// Nullable type support.
-    enum nullValue = typeof(this).init;
+    static immutable nullValue = typeof(this).init;
 
     /// ditto
     void opAssign(typeof(null))

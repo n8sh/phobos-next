@@ -352,7 +352,7 @@ template hasNullValue(T)
     struct S
     {
         int value;
-        enum nullValue = typeof(this).init;
+        static immutable nullValue = typeof(this).init;
     }
     static assert(hasNullValue!S);
 }

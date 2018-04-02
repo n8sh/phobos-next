@@ -381,9 +381,7 @@ template hasNullValue(T)
 template isNullable(T)
 {
     enum isNullable = (hasNullValue!T ||
-                       // std.traits.Nullable interface:
-                       (__traits(hasMember, T, "isNull") &&
-                        __traits(hasMember, T, "nullify") &&
+                       (__traits(hasMember, T, "nullify") &&
                         is(typeof(T.init.isNull()) == bool)//  &&
                         // TODO is(typeof(T.init.nullify()) == void)
                            ));

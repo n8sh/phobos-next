@@ -63,7 +63,7 @@ import pure_mallocator : PureMallocator;
 struct OpenHashMapOrSet(K, V = void,
                         alias hasher = hashOf,
                         alias Allocator = PureMallocator.instance,
-                        bool borrowChecked = true)
+                        bool borrowChecked = false)
     if (isNullable!K
         // isHashable!K
         )
@@ -1675,14 +1675,14 @@ static private struct RvalueElementRef(Table)
 alias OpenHashSet(K,
                   alias hasher = hashOf,
                   alias Allocator = PureMallocator.instance,
-                  bool borrowChecked = true) = OpenHashMapOrSet!(K, void, hasher, Allocator, borrowChecked);
+                  bool borrowChecked = false) = OpenHashMapOrSet!(K, void, hasher, Allocator, borrowChecked);
 
 /** Immutable hash map storing keys of type `K` and values of type `V`.
  */
 alias OpenHashMap(K, V,
                   alias hasher = hashOf,
                   alias Allocator = PureMallocator.instance,
-                  bool borrowChecked = true) = OpenHashMapOrSet!(K, V, hasher, Allocator, borrowChecked);
+                  bool borrowChecked = false) = OpenHashMapOrSet!(K, V, hasher, Allocator, borrowChecked);
 
 import std.traits : isInstanceOf;
 import std.functional : unaryFun;
@@ -2090,7 +2090,8 @@ auto byValue(T)(auto ref return inout(T) c) @trusted
 {
     version(showEntries) dln();
     alias K = Nullable!(uint, uint.max);
-    alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
+    alias X = OpenHashMapOrSet!(K, void,
+                                FNV!(64, true), PureMallocator.instance, true);
 
     auto k11 = K(11);
     auto k22 = K(22);

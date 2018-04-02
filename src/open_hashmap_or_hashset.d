@@ -274,8 +274,10 @@ struct OpenHashMapOrSet(K, V = void,
 
         immutable byteCount = T.sizeof*capacity;
 
-        import bit_traits : isInitAllZeroBits;
-        static if (isInitAllZeroBits!T)
+        import bit_traits : isInitAllZeroBits, isAllZeroBits;
+        static if (isInitAllZeroBits!T &&
+                   (!__traits(hasMember, K , "nullValue") ||
+                    isAllZeroBits!(K, K.nullValue)))
         {
             /* prefer call to calloc before malloc+memset:
              * https://stackoverflow.com/questions/2688466/why-mallocmemset-is-slower-than-calloc */
@@ -297,12 +299,12 @@ struct OpenHashMapOrSet(K, V = void,
             auto bins = cast(T[])Allocator.instance.allocate(byteCount);
             foreach (ref bin; bins)
             {
-                // TODO make this work
-                // static if (__traits(hasMember, K , "nullValue"))
-                // {
-                //     emplace(&keyOf(bin), K.nullValue);
-                // }
-                // else
+                static if (__traits(hasMember, K , "nullValue"))
+                {
+                    pragma(msg, "nullValue for ", K);
+                    emplace(&keyOf(bin), K.nullValue);
+                }
+                else
                 {
                     emplace(&keyOf(bin));
                     keyOf(bin).nullify(); // moveEmplace doesn't init source of type Nullable

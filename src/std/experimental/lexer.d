@@ -153,7 +153,7 @@ template TokenIdType(alias staticTokens, alias dynamicTokens,
  * alias str = tokenStringRepresentation(IdType, staticTokens, dynamicTokens, possibleDefaultTokens);
  * assert (str(tok!"*") == "*");
  * ---
- * See_also: $(LREF TokenId)
+ * See_Also: $(LREF TokenId)
  */
 string tokenStringRepresentation(IdType, alias staticTokens, alias dynamicTokens,
     alias possibleDefaultTokens)(IdType type) pure nothrow @property @nogc @safe

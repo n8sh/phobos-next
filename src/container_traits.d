@@ -10,7 +10,10 @@ import traits_ex : isAddress;
 
 @safe:
 
-/// True if a `T` needs to be passed by move instead of value.
+/** True if a `T` needs to be passed by move instead of value.
+ *
+ * See_Also:
+ */
 template needsMove(T)
 {
     import std.traits : hasElaborateDestructor, isCopyable;

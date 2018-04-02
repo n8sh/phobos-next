@@ -10,7 +10,7 @@ module stringcache;
  * Default and postbilt constructors are disabled. When a StringCache goes out
  * of scope, the memory held by it is freed.
  *
- * See_also: $(LINK http://en.wikipedia.org/wiki/String_interning)
+ * See_Also: $(LINK http://en.wikipedia.org/wiki/String_interning)
  */
 struct StringCache
 {

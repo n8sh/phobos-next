@@ -95,11 +95,15 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
 
         foreach (immutable ix, ref value; values)
         {
-            static if (hasElaborateDestructor!(typeof(value)))
+            import container_traits : needsMove;
+            static if (needsMove!(typeof(value)))
             {
-                // TODO moveEmplace
+                moveEmplace(value, _store[ix]);
             }
-            _store[ix] = value;
+            else
+            {
+                _store[ix] = value;
+            }
         }
         _length = cast(Length)values.length;
         static if (borrowChecked)

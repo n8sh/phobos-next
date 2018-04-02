@@ -1355,7 +1355,7 @@ unittest
  * This basically answers the question: $(I Can I combine these ranges and
  * values into a single range of a common type?).
  *
- * See_also: `meta_ex.FlattenedRanges`
+ * See_Also: `meta_ex.FlattenedRanges`
 */
 template areFlatteninglyCombinable(Values...)
 {

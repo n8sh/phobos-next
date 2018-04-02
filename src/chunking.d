@@ -321,7 +321,7 @@ if (isForwardRange!Range)
  * equivalence. Elements in the subranges will always appear in the same order
  * they appear in the original range.
  *
- * See_also:
+ * See_Also:
  * $(LREF group), which collapses adjacent equivalent elements into a single
  * element.
  */

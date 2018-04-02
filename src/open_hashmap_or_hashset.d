@@ -207,7 +207,7 @@ struct OpenHashMapOrSet(K, V = void,
         /// Get key part of element.
         static auto ref inout(K) keyOf()(auto ref return inout(T) element)
         {
-            pragma(inline, true);
+            version(LDC) pragma(inline, true);
             return element;
         }
 
@@ -898,7 +898,7 @@ struct OpenHashMapOrSet(K, V = void,
      */
     private InsertionStatus insertMoveWithoutGrowth()(ref T element) // template-lazy
     {
-        pragma(inline, true);
+        version(LDC) pragma(inline, true);
         return insertWithoutGrowth(move(element));
     }
 

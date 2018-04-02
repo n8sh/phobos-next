@@ -1539,7 +1539,7 @@ static private struct LvalueElementRef(Table)
 {
     import std.traits : Unqual;
 
-    private Table* _table;
+    private Table* _table;      // scoped access
     private size_t _binIndex;   // index to bin inside `table`
     private size_t _iterationCounter; // counter over number of elements popped. TODO needed?
 

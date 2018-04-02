@@ -380,8 +380,9 @@ template hasNullValue(T)
  */
 template isNullable(T)
 {
-    enum isNullable = (hasNullValue!T || // TODO remove this and rely on T.nullify and T.init.isNull()
-                       (__traits(hasMember, T, "nullify") &&
+    enum isNullable = (hasNullValue!T || // TODO remove this and rely solely on T.nullify and T.init.isNull()
+                       (__traits(hasMember, T, "isNull") &&
+                        __traits(hasMember, T, "nullify") &&
                         is(typeof(T.init.isNull()) == bool)//  &&
                         // TODO is(typeof(T.init.nullify()) == void)
                            ));

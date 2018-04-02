@@ -88,10 +88,10 @@ struct OpenHashMapOrSet(K, V = void,
     /** Is `true` iff `K` is an address, in which case holes are represented by
      * a specific value `holeKeyConstant`.
      */
-    enum hasAddressKey = (isAddress!K ||
-                          isDynamicArray!K);
+    enum hasAddressLikeKey = (isAddress!K ||
+                              isDynamicArray!K);
 
-    static if (hasAddressKey)
+    static if (hasAddressLikeKey)
     {
         enum holeKeyOffset = 0x1;
         enum holeKeyAddress = cast(void*)holeKeyOffset;
@@ -375,7 +375,7 @@ struct OpenHashMapOrSet(K, V = void,
                 keyOf(binsCopy[index]).nullify();
             }
         }
-        static if (!hasAddressKey)
+        static if (!hasAddressLikeKey)
         {
             if (_holesPtr)
             {
@@ -428,7 +428,7 @@ struct OpenHashMapOrSet(K, V = void,
     pragma(inline, true):
     private:
 
-        static if (!hasAddressKey)
+        static if (!hasAddressLikeKey)
         {
             void deallocateHoles() @trusted
             {
@@ -496,7 +496,7 @@ struct OpenHashMapOrSet(K, V = void,
         void tagHoleAtIndex(size_t index) @trusted
         {
             version(internalUnittest) assert(index < _bins.length);
-            static if (!hasAddressKey)
+            static if (!hasAddressLikeKey)
             {
                 if (_holesPtr is null) // lazy allocation
                 {
@@ -523,7 +523,7 @@ struct OpenHashMapOrSet(K, V = void,
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
         release();
         _bins = typeof(_bins).init;
-        static if (!hasAddressKey)
+        static if (!hasAddressLikeKey)
         {
             _holesPtr = null;
         }
@@ -553,7 +553,7 @@ struct OpenHashMapOrSet(K, V = void,
     private void releaseBinsAndHolesSlices()
     {
         releaseBinsSlice(_bins);
-        static if (!hasAddressKey)
+        static if (!hasAddressLikeKey)
         {
             deallocateHoles();
         }
@@ -691,7 +691,7 @@ struct OpenHashMapOrSet(K, V = void,
     private void tagAsLazilyDeletedElementAtIndex(size_t index)
     {
         pragma(inline, true);
-        static if (hasAddressKey)
+        static if (hasAddressLikeKey)
         {
             keyOf(_bins[index]) = holeKeyConstant;
         }
@@ -776,7 +776,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         Allocator.instance.deallocate(cast(void[])(dones[0 .. wordCountOfBitCount(_bins.length)]));
 
-        static if (!hasAddressKey)
+        static if (!hasAddressLikeKey)
         {
             clearHoles();
         }
@@ -808,7 +808,7 @@ struct OpenHashMapOrSet(K, V = void,
                 gc_addRange(_bins.ptr, newByteCount);
             }
 
-            static if (!hasAddressKey)
+            static if (!hasAddressLikeKey)
             {
                 if (_holesPtr)
                 {
@@ -845,7 +845,7 @@ struct OpenHashMapOrSet(K, V = void,
             if (isOccupiedAtIndex(index))
             {
                 next.insertMoveWithoutGrowth(bin); // value is zeroed but
-                static if (!hasAddressKey)
+                static if (!hasAddressLikeKey)
                 {
                     keyOf(bin).nullify(); // keyC must zeroed
                 }
@@ -860,7 +860,7 @@ struct OpenHashMapOrSet(K, V = void,
         version(internalUnittest)
         {
             assert(!keyOf(element).isNull);
-            static if (hasAddressKey)
+            static if (hasAddressLikeKey)
             {
                 assert(!isHoleKeyConstant(keyOf(element)));
             }
@@ -873,7 +873,7 @@ struct OpenHashMapOrSet(K, V = void,
             immutable hitIndex1 = indexOfHoleOrNullForKey(keyOf(element)); // try again to reuse hole
             version(internalUnittest) assert(hitIndex1 != _bins.length, "no null or hole slot");
             insertMoveElementAtIndex(element, hitIndex1);
-            static if (!hasAddressKey)
+            static if (!hasAddressLikeKey)
             {
                 untagHoleAtIndex(hitIndex1);
             }
@@ -1350,14 +1350,14 @@ private:
 
     static if (hasFunctionAttributes!(Allocator.allocate, "@nogc"))
     {
-        static if (!hasAddressKey)
+        static if (!hasAddressLikeKey)
         {
             @NoGc size_t* _holesPtr; // bit array describing which bin elements that has been removed (holes)
         }
     }
     else
     {
-        static if (!hasAddressKey)
+        static if (!hasAddressLikeKey)
         {
             size_t* _holesPtr; // bit array describing which bin elements that has been removed (holes)
         }
@@ -1388,7 +1388,7 @@ private:
         version(internalUnittest)
         {
             assert(!key.isNull);
-            static if (hasAddressKey)
+            static if (hasAddressLikeKey)
             {
                 assert(!isHoleKeyConstant(key));
             }
@@ -1398,7 +1398,7 @@ private:
             /* don't use `auto ref` for copyable `T`'s to prevent
              * massive performance drop for small elements when compiled
              * with LDC. TODO remove when LDC is fixed. */
-            static if (hasAddressKey)
+            static if (hasAddressLikeKey)
             {
                 alias pred = (const scope element) => (keyOf(element).isNull ||
                                                        keyOf(element) is key);
@@ -1413,7 +1413,7 @@ private:
         }
         else
         {
-            static if (hasAddressKey)
+            static if (hasAddressLikeKey)
             {
                 alias pred = (const scope auto ref element) => (keyOf(element).isNull ||
                                                                 keyOf(element) is key);
@@ -1435,7 +1435,7 @@ private:
         version(internalUnittest)
         {
             assert(!key.isNull);
-            static if (hasAddressKey)
+            static if (hasAddressLikeKey)
             {
                 assert(!isHoleKeyConstant(key));
             }
@@ -1445,7 +1445,7 @@ private:
             /* don't use `auto ref` for copyable `T`'s to prevent
              * massive performance drop for small elements when compiled
              * with LDC. TODO remove when LDC is fixed. */
-            static if (hasAddressKey)
+            static if (hasAddressLikeKey)
             {
                 alias pred = (const scope element) => (isHoleKeyConstant(keyOf(element)) ||
                                                        keyOf(element).isNull);
@@ -1459,7 +1459,7 @@ private:
         }
         else
         {
-            static if (hasAddressKey)
+            static if (hasAddressLikeKey)
             {
                 alias pred = (const scope auto ref element) => (isHoleKeyConstant(keyOf(element)) ||
                                                                 keyOf(element).isNull);
@@ -1482,7 +1482,7 @@ private:
         pragma(inline, true);
         version(internalUnittest) assert(index < _bins.length);
         if (keyOf(_bins[index]).isNull) { return false; }
-        static if (hasAddressKey)
+        static if (hasAddressLikeKey)
         {
             return !isHoleKeyConstant(keyOf(_bins[index]));
         }
@@ -1764,7 +1764,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     alias E = string;
     alias X = OpenHashMapOrSet!(E, void, FNV!(64, true));
     static assert(!mustAddGCRange!X);
-    static assert(X.sizeof == 24); // dynamic arrays also `hasAddressKey`
+    static assert(X.sizeof == 24); // dynamic arrays also `hasAddressLikeKey`
 
     auto x = X();
 

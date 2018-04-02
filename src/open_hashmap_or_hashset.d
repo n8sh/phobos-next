@@ -191,6 +191,33 @@ struct OpenHashMapOrSet(K, V = void,
         enum keyEqualPred = "a.key is b";
 
         enum nullKeyElement = T(defaultNullKeyConstantOf!K, V.init);
+
+        /// Key-value element reference with head-const for `class` keys and mutable value.
+        static private struct KeyValueType
+        {
+            static if (isAddress!K) // for reference types
+            {
+                K _key;          // no const because
+
+                /** Key access is head-const. */
+                K key() @property @safe pure nothrow @nogc
+                {
+                    return _key;
+                }
+            }
+            else
+            {
+                const K key;
+            }
+            V value;
+        }
+
+        /// Get key part.
+        static auto ref inout(V) keyOf()(auto ref return scope inout(KeyValueType) element)
+        {
+            pragma(inline, true);
+            return element.key;
+        }
     }
     else                        // HashSet
     {
@@ -2028,26 +2055,6 @@ auto byValue(T)(auto ref return inout(T) c) @trusted
     return result;
 }
 
-/// Key-value element reference with head-const for `class` keys and mutable value.
-static private struct KeyValueType(K, V)
-{
-    static if (isAddress!K) // for reference types
-    {
-        K _key;          // no const because
-
-        /** Key access is head-const. */
-        K key() @property @safe pure nothrow @nogc
-        {
-            return _key;
-        }
-    }
-    else
-    {
-        const K key;
-    }
-    V value;
-}
-
 static private struct ByKeyValue_lvalue(Table)
 {
     pragma(inline, true)
@@ -2056,7 +2063,7 @@ static private struct ByKeyValue_lvalue(Table)
         import std.traits : isMutable;
         static if (isMutable!(Table)) // TODO can this be solved without this `static if`?
         {
-            alias E = KeyValueType!(Table.KeyType, Table.ValueType);
+            alias E = Table.KeyValueType;
         }
         else
         {

@@ -276,9 +276,9 @@ struct OpenHashMapOrSet(K, V = void,
 
         import bit_traits : isInitAllZeroBits, isAllZeroBits;
 
-        static if (isInitAllZeroBits!T &&                    // TODO only check value type
-                   (!__traits(hasMember, T, "nullValue") || // if key has a null value
-                    isAllZeroBits!(T, T.nullValue))) // check that it's zero bits only
+        static if (hasAddressLikeKey ||
+                   (__traits(hasMember, K, "nullValue") && // if key has a null value
+                    isAllZeroBits!(K, K.nullValue))) // check that it's zero bits only
         {
             /* prefer call to calloc before malloc+memset:
              * https://stackoverflow.com/questions/2688466/why-mallocmemset-is-slower-than-calloc */

@@ -317,21 +317,21 @@ struct FixedArray(T,
 pragma(inline, true):
 
     /** Index operator. */
-    ref inout(T) opIndex(size_t i) inout @trusted return scope
+    scope ref inout(T) opIndex(size_t i) inout @trusted return
     {
         assert(i < _length);
         return _store.ptr[i];
     }
 
     /** First (front) element. */
-    ref inout(T) front() inout @trusted return scope
+    scope ref inout(T) front() inout @trusted return
     {
         assert(!empty);
         return _store.ptr[0];
     }
 
     /** Last (back) element. */
-    ref inout(T) back() inout @trusted return scope
+    scope ref inout(T) back() inout @trusted return
     {
         assert(!empty);
         return _store.ptr[_length - 1];
@@ -342,17 +342,17 @@ pragma(inline, true):
         import borrowed : ReadBorrowed, WriteBorrowed;
 
         /// Get read-only slice in range `i` .. `j`.
-        auto opSlice(size_t i, size_t j) const return scope { return sliceRO(i, j); }
+        scope auto opSlice(size_t i, size_t j) const return { return sliceRO(i, j); }
         /// Get read-write slice in range `i` .. `j`.
-        auto opSlice(size_t i, size_t j) return scope { return sliceRW(i, j); }
+        scope auto opSlice(size_t i, size_t j) return { return sliceRW(i, j); }
 
         /// Get read-only full slice.
-        auto opSlice() const return scope { return sliceRO(); }
+        scope auto opSlice() const return { return sliceRO(); }
         /// Get read-write full slice.
-        auto opSlice() return scope { return sliceRW(); }
+        scope auto opSlice() return { return sliceRW(); }
 
         /// Get full read-only slice.
-        ReadBorrowed!(T[], typeof(this)) sliceRO() const @trusted return scope
+        scope ReadBorrowed!(T[], typeof(this)) sliceRO() const @trusted return
         {
             import std.traits : Unqual;
             assert(!_writeBorrowed, "Already write-borrowed");
@@ -361,7 +361,7 @@ pragma(inline, true):
         }
 
         /// Get read-only slice in range `i` .. `j`.
-        ReadBorrowed!(T[], typeof(this)) sliceRO(size_t i, size_t j) const @trusted return scope
+        scope ReadBorrowed!(T[], typeof(this)) sliceRO(size_t i, size_t j) const @trusted return
         {
             import std.traits : Unqual;
             assert(!_writeBorrowed, "Already write-borrowed");
@@ -370,7 +370,7 @@ pragma(inline, true):
         }
 
         /// Get full read-write slice.
-        WriteBorrowed!(T[], typeof(this)) sliceRW() @trusted return scope
+        scope WriteBorrowed!(T[], typeof(this)) sliceRW() @trusted return
         {
             assert(!_writeBorrowed, "Already write-borrowed");
             assert(_readBorrowCount == 0, "Already read-borrowed");
@@ -378,7 +378,7 @@ pragma(inline, true):
         }
 
         /// Get read-write slice in range `i` .. `j`.
-        WriteBorrowed!(T[], typeof(this)) sliceRW(size_t i, size_t j) @trusted return scope
+        scope WriteBorrowed!(T[], typeof(this)) sliceRW(size_t i, size_t j) @trusted return
         {
             assert(!_writeBorrowed, "Already write-borrowed");
             assert(_readBorrowCount == 0, "Already read-borrowed");
@@ -400,7 +400,7 @@ pragma(inline, true):
     else
     {
         /// Get slice in range `i` .. `j`.
-        inout(T)[] opSlice(size_t i, size_t j) @trusted inout return scope
+        scope inout(T)[] opSlice(size_t i, size_t j) @trusted inout return
         {
             assert(i <= j);
             assert(j <= _length);
@@ -408,7 +408,7 @@ pragma(inline, true):
         }
 
         /// Get full slice.
-        inout(T)[] opSlice() @trusted inout return scope
+        scope inout(T)[] opSlice() @trusted inout return
         {
             return _store.ptr[0 .. _length];
         }
@@ -429,7 +429,7 @@ pragma(inline, true):
         static if (isSomeChar!T)
         {
             /** Get as `string`. */
-            const(T)[] toString() const return scope
+            scope const(T)[] toString() const return
             {
                 return opSlice();
             }
@@ -548,7 +548,7 @@ version(none) pure unittest     // TODO activate
     alias String15 = StringN!(capacity);
     static assert(!mustAddGCRange!String15);
 
-    string f() @safe pure
+    auto f() @safe pure
     {
         auto x = String15("alphas");
         auto y = x[];           // slice to stack allocated (scoped) string

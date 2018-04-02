@@ -238,7 +238,7 @@ struct FixedArray(T,
             values.length >= 1 &&
             allSatisfy!(isElementAssignable, Us))
     {
-        insertBack(move(values)); // TODO remove `move` when compiler does it for
+        insertBack(values.move()); // TODO remove `move` when compiler does it for
     }
 
     import std.traits : isMutable;
@@ -305,10 +305,10 @@ struct FixedArray(T,
         @("complexity", "O(length)")
         {
             assert(index < this.length);
-            auto value = move(_store.ptr[index]);
+            auto value = _store.ptr[index].move();
             shiftToFrontAt(index);
             _length = cast(Length)(_length - 1);
-            return move(value); // TODO remove `move` when compiler does it for us
+            return value;
         }
 
         private void shiftToFrontAt()(size_t index) // template-lazy

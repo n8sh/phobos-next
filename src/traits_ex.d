@@ -566,19 +566,6 @@ template isType(alias T) { enum isType = false; }
     static assert(!isType!"Hello world!" );
 }
 
-/** Note that `NotNull!T` is not `isNullable`. */
-template isNullable(T)
-{
-    import std.traits: isAssignable;
-    enum isNullable = isAssignable!(T, typeof(null));
-}
-///
-@safe pure nothrow @nogc unittest
-{
-    static assert( isNullable!(int*));
-    static assert(!isNullable!(int));
-}
-
 enum nameOf(alias a) = a.stringof;
 ///
 @safe pure nothrow @nogc unittest

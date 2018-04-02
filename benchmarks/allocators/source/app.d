@@ -56,8 +56,6 @@ class Graph
 
 void benchmarkAllocatorsRegion()
 {
-    Graph graph;
-
     immutable nodeCount = 10_000_000; // number of `Nodes`s to allocate
 
     void[] buf = GCAllocator.instance.allocate(nodeCount * __traits(classInstanceSize, DoubleNode));

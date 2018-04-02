@@ -280,7 +280,7 @@ struct OpenHashMapOrSet(K, V = void,
                    (__traits(hasMember, K, "nullValue") && // if key has a null value
                     isAllZeroBits!(K, K.nullValue))) // check that it's zero bits only
         {
-            pragma(msg, "zero-allocate:", "K:", K, " V:", V);
+            // pragma(msg, "zero-allocate:", "K:", K, " V:", V);
             /* prefer call to calloc before malloc+memset:
              * https://stackoverflow.com/questions/2688466/why-mallocmemset-is-slower-than-calloc */
             // TODO functionize to `makeZeroInitArray`
@@ -297,7 +297,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
         else                    // when default null key is not represented by zeros
         {
-            pragma(msg, "emplace:", "K:", K, " V:", V);
+            // pragma(msg, "emplace:", "K:", K, " V:", V);
             auto bins = cast(T[])Allocator.instance.allocate(byteCount);
             foreach (ref bin; bins)
             {

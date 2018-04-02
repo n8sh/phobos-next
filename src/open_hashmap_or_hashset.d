@@ -303,7 +303,7 @@ struct OpenHashMapOrSet(K, V = void,
                 static if (__traits(hasMember, K , "nullValue") &&
                            !__traits(compiles, { emplace(&keyOf(bin), K.nullValue); })) // TODO remove
                 {
-                    pragma(msg, __FILE__, ":", __LINE__, ":warning: emplace fails for key of type ", K);
+                    pragma(msg, __FILE__, ":", __LINE__, ":warning: emplace fails for null-Value key type ", K);
                 }
                 static if (__traits(hasMember, K , "nullValue") &&
                            __traits(compiles, { emplace(&keyOf(bin), K.nullValue); })) // TODO remove

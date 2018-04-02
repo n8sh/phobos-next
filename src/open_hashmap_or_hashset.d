@@ -1305,10 +1305,10 @@ private:
 
         @property
         {
-            /// Returns: `true` iff `this` is either write or read borrowed.
+            /// Returns: `true` iff `this` is borrowed (either read or write).
             bool isBorrowed() const { return _borrowCount >= 1; }
 
-            /// Returns: number of read-only borrowers of `this`.
+            /// Returns: number of borrowers of `this` (both read and write).
             uint borrowCount() const { return _borrowCount; }
         }
 

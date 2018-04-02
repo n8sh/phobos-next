@@ -361,7 +361,7 @@ template hasNullValue(T)
  */
 template isNullable(T)
 {
-    enum isNullable = (hasStandardNullValue!T ||
+    enum isNullable = (hasNullValue!T ||
                        // std.traits.Nullable interface:
                        (__traits(hasMember, T, "isNull") &&
                         __traits(hasMember, T, "nullify") &&
@@ -382,6 +382,12 @@ template isNullable(T)
     static assert( isNullable!(string));
     static assert( isNullable!(Nullable!int));
     static assert(!isNullable!(int));
+    struct S
+    {
+        int value;
+        static immutable nullValue = typeof(this).init;
+    }
+    static assert(isNullable!S);
 }
 
 /** Default null key of type `T`,

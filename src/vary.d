@@ -857,6 +857,6 @@ pure unittest
 
 version(unittest)
 {
-    import fixed_array : StringN, Checking;
-    alias String15 = StringN!(15, Checking.viaScope);
+    import fixed_array : StringN;
+    alias String15 = StringN!(15);
 }

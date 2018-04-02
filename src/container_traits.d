@@ -6,6 +6,8 @@
  */
 module container_traits;
 
+import traits_ex : isAddress;
+
 @safe:
 
 /// True if a `T` needs to be passed by move instead of value.
@@ -124,8 +126,7 @@ private template isTemplateInstance(T)
 template mustAddGCRange(T)
 {
     import std.traits : isPointer, isArray, isStaticArray, isScalarType;
-    static if (is(T == class) ||
-               isPointer!T)
+    static if (isAddress!T)
     {
         enum mustAddGCRange = true;
     }
@@ -313,8 +314,7 @@ template isSetOf(T, E)
 template hasStandardNullValue(T)
 {
     import std.traits : isPointer, isDynamicArray;
-    enum hasStandardNullValue = (is(T == class) ||
-                                 isPointer!T ||
+    enum hasStandardNullValue = (isAddress!T ||
                                  isDynamicArray!T ||
                                  is(T == typeof(null)));
 }
@@ -427,8 +427,7 @@ bool isNull(T)(const scope auto ref T x)
     if (isNullable!(T))
 {
     import std.traits : isPointer, isDynamicArray;
-    static if (is(T == class) ||
-               isPointer!T ||
+    static if (isAddress!T ||
                isDynamicArray!T ||
                is(T == typeof(null)))
     {
@@ -446,8 +445,7 @@ void nullify(T)(ref T x)
     if (isNullable!(T))
 {
     import std.traits : isPointer, isDynamicArray;
-    static if (is(T == class) ||
-               isPointer!T ||
+    static if (isAddress!T ||
                isDynamicArray!T ||
                is(T == typeof(null)))
     {

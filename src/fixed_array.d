@@ -435,17 +435,17 @@ pragma(inline, true):
     }
 
     /** Comparison for equality. */
-    bool opEquals(in typeof(this) rhs) const
+    bool opEquals(const scope typeof(this) rhs) const
     {
         return this[] == rhs[];
     }
     /// ditto
-    bool opEquals(in ref typeof(this) rhs) const
+    bool opEquals(const scope ref typeof(this) rhs) const
     {
         return this[] == rhs[];
     }
     /// ditto
-    bool opEquals(U)(in U[] rhs) const
+    bool opEquals(U)(const scope U[] rhs) const
         if (is(typeof(T[].init == U[].init)))
     {
         return this[] == rhs;

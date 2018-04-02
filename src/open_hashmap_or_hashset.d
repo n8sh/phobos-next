@@ -55,8 +55,8 @@ import pure_mallocator : PureMallocator;
  *
  * TODO Robin-Hood-hashing
  *
- * TODO enable `borrowChecked` unconditionally if and when `opMove` is
- * implemented. See: https://github.com/dlang/DIPs/pull/109
+ * TODO enable `borrowChecked` unconditionally in version(debug) if and when
+ * `opMove` is implemented. See: https://github.com/dlang/DIPs/pull/109
  */
 struct OpenHashMapOrSet(K, V = void,
                         alias hasher = hashOf,

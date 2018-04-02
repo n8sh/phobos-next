@@ -3,6 +3,7 @@ module open_hashmap_or_hashset;
 // version = showEntries;
 // version = internalUnittest; // fed by dub (see dub.sdl) in unittest-internal mode
 
+import traits_ex : isAddress;
 import container_traits : isNullable;
 import pure_mallocator : PureMallocator;
 
@@ -64,7 +65,7 @@ struct OpenHashMapOrSet(K, V = void,
     import std.conv : emplace;
     import std.math : nextPow2;
     import std.traits : hasElaborateDestructor, isCopyable, isMutable, hasIndirections,
-        isPointer, isDynamicArray, Unqual, hasFunctionAttributes;
+        isDynamicArray, Unqual, hasFunctionAttributes;
     import std.typecons : Nullable;
 
     import container_traits : defaultNullKeyConstantOf, mustAddGCRange, isNull, nullify;
@@ -80,7 +81,8 @@ struct OpenHashMapOrSet(K, V = void,
     /** Is `true` iff `K` is an address, in which case holes are represented by
      * a specific value `holeKeyConstant`.
      */
-    enum hasAddressKey = (is(K == class) || isPointer!K || isDynamicArray!K);
+    enum hasAddressKey = (isAddress!K ||
+                          isDynamicArray!K);
 
     static if (hasAddressKey)
     {
@@ -937,7 +939,7 @@ struct OpenHashMapOrSet(K, V = void,
         static private struct ByLvalueElement(Table)
         {
         pragma(inline, true):
-            static if (is(K == class) || isPointer!K) // for reference types
+            static if (isAddress!K) // for reference types
             {
                 /// Get reference to front element (key and value).
                 @property scope K front()() return @trusted
@@ -962,7 +964,7 @@ struct OpenHashMapOrSet(K, V = void,
         static private struct ByRvalueElement(Table)
         {
         pragma(inline, true):
-            static if (is(K == class) || isPointer!K) // for reference types
+            static if (isAddress!K) // for reference types
             {
                 /// Get reference to front element (key and value).
                 @property scope K front()() return @trusted
@@ -1058,7 +1060,7 @@ struct OpenHashMapOrSet(K, V = void,
         /// Key-value element reference with head-const for `class` keys.
         static private struct KeyValueType
         {
-            static if (is(K == class) || isPointer!K) // for reference types
+            static if (isAddress!K) // for reference types
             {
                 K _key;          // no const because
 

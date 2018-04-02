@@ -15,6 +15,7 @@ module digestion;
 
 import std.traits : hasMember, isScalarType, hasIndirections, isArray, isPointer;
 import std.digest.digest : isDigest;
+import traits_ex : isAddress;
 
 @safe:
 
@@ -62,9 +63,6 @@ void digestAny(Digest, T)(ref Digest digest,
         static assert(0, "handle type " ~ T.stringof);
     }
 }
-
-private enum isAddress(T) = (is(T == class) || // a class is memory-wise
-                             isPointer!T);     // just a pointer, consistent with opCmp
 
 /** Digest the `value` as an address (pointer). */
 pragma(inline, true)

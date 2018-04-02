@@ -11,7 +11,7 @@
 */
 module traits_ex;
 
-import std.traits: isArray, ParameterTypeTuple, isStaticArray, isDynamicArray, isSomeChar, isSomeString, isExpressions, isIntegral, isSigned, isUnsigned, isAssignable, isIterable;
+import std.traits: isArray, ParameterTypeTuple, isStaticArray, isDynamicArray, isSomeChar, isSomeString, isExpressions, isIntegral, isSigned, isUnsigned, isAssignable, isIterable, isPointer;
 import std.meta : allSatisfy;
 import std.range: ElementType, isForwardRange, isRandomAccessRange, isInputRange, isBidirectionalRange, isOutputRange;
 
@@ -1434,3 +1434,6 @@ template isASCII(alias x)
     const dchar dch_ = 'ä';
     static assert(!isASCII!dch_);
 }
+
+enum isAddress(T) = (is(T == class) || // a class is memory-wise
+                     isPointer!T);     // just a pointer, consistent with opCmp

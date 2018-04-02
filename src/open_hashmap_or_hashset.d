@@ -1627,6 +1627,8 @@ static private struct LvalueElementRef(Table)
 }
 
 /** R-value element reference (and in turn range iterator).
+ *
+ * Does need to do borrow-checking.
  */
 static private struct RvalueElementRef(Table)
 {

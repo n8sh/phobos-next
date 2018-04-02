@@ -966,7 +966,7 @@ struct OpenHashMapOrSet(K, V = void,
                     return _table._bins[_binIndex];
                 }
             }
-            public LvalueElementRef!(Table, borrowChecked) _elementRef;
+            public LvalueElementRef!(Table) _elementRef;
             alias _elementRef this;
         }
 
@@ -1030,7 +1030,7 @@ struct OpenHashMapOrSet(K, V = void,
             {
                 return _table._bins[_binIndex].key;
             }
-            public LvalueElementRef!(Table, borrowChecked) _elementRef;
+            public LvalueElementRef!(Table) _elementRef;
             alias _elementRef this;
         }
 
@@ -1052,7 +1052,7 @@ struct OpenHashMapOrSet(K, V = void,
             {
                 return *(cast(ValueType*)&_table._bins[_binIndex].value);
             }
-            public LvalueElementRef!(Table, borrowChecked) _elementRef;
+            public LvalueElementRef!(Table) _elementRef;
             alias _elementRef this;
         }
 
@@ -1103,7 +1103,7 @@ struct OpenHashMapOrSet(K, V = void,
                 }
                 return *(cast(E*)&_table._bins[_binIndex]);
             }
-            public LvalueElementRef!(Table, borrowChecked) _elementRef;
+            public LvalueElementRef!(Table) _elementRef;
             alias _elementRef this;
         }
 
@@ -1111,7 +1111,7 @@ struct OpenHashMapOrSet(K, V = void,
         @property scope auto byKeyValue()() return @trusted // template-lazy property
         {
             alias This = MutableThis;
-            auto result = ByKeyValue_lvalue!This((LvalueElementRef!(This, borrowChecked)(cast(This*)&this)));
+            auto result = ByKeyValue_lvalue!This((LvalueElementRef!(This)(cast(This*)&this)));
             result.findNextNonEmptyBin();
             return result;
         }
@@ -1119,7 +1119,7 @@ struct OpenHashMapOrSet(K, V = void,
         @property scope auto byKeyValue()() const return @trusted // template-lazy property
         {
             alias This = ConstThis;
-            auto result = ByKeyValue_lvalue!This((LvalueElementRef!(This, borrowChecked)(cast(This*)&this)));
+            auto result = ByKeyValue_lvalue!This((LvalueElementRef!(This)(cast(This*)&this)));
             result.findNextNonEmptyBin();
             return result;
         }
@@ -1535,7 +1535,7 @@ static private void duplicateEmplace(T)(const scope ref T src,
 
 /** L-value element reference (and in turn range iterator).
  */
-static private struct LvalueElementRef(Table, bool borrowChecked)
+static private struct LvalueElementRef(Table)
 {
     import std.traits : Unqual;
 
@@ -1552,7 +1552,7 @@ static private struct LvalueElementRef(Table, bool borrowChecked)
     {
         pragma(inline, true);
         this._table = table;
-        static if (borrowChecked)
+        static if (Table.isBorrowChecked)
         {
             debug
             {
@@ -1564,7 +1564,7 @@ static private struct LvalueElementRef(Table, bool borrowChecked)
     ~this() @trusted
     {
         pragma(inline, true);
-        static if (borrowChecked)
+        static if (Table.isBorrowChecked)
         {
             debug
             {
@@ -1576,7 +1576,7 @@ static private struct LvalueElementRef(Table, bool borrowChecked)
     this(this) @trusted
     {
         pragma(inline, true);
-        static if (borrowChecked)
+        static if (Table.isBorrowChecked)
         {
             debug
             {
@@ -2035,7 +2035,7 @@ auto byElement(T)(auto ref return inout(T) c) @trusted
     alias C = const(T);
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
-        auto result = C.ByLvalueElement!C((LvalueElementRef!(C, T.isBorrowChecked)(cast(C*)&c)));
+        auto result = C.ByLvalueElement!C((LvalueElementRef!(C)(cast(C*)&c)));
     }
     else                        // `c` was is an r-value and can be moved
     {
@@ -2054,7 +2054,7 @@ auto byKey(T)(auto ref return inout(T) c) @trusted
     alias C = const(T);
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
-        auto result = C.ByKey_lvalue!C((LvalueElementRef!(C, T.isBorrowChecked)(cast(C*)&c)));
+        auto result = C.ByKey_lvalue!C((LvalueElementRef!(C)(cast(C*)&c)));
     }
     else                        // `c` was is an r-value and can be moved
     {
@@ -2072,7 +2072,7 @@ auto byValue(T)(auto ref return inout(T) c) @trusted
     alias C = const(T);
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
-        auto result = C.ByValue_lvalue!C((LvalueElementRef!(C, T.isBorrowChecked)(cast(C*)&c)));
+        auto result = C.ByValue_lvalue!C((LvalueElementRef!(C)(cast(C*)&c)));
     }
     else                        // `c` was is an r-value and can be moved
     {

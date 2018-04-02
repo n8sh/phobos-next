@@ -1674,15 +1674,15 @@ static private struct RvalueElementRef(Table)
  */
 alias OpenHashSet(K,
                   alias hasher = hashOf,
-                  alias Allocator =
-                  PureMallocator.instance) = OpenHashMapOrSet!(K, void, hasher, Allocator);
+                  alias Allocator = PureMallocator.instance,
+                  bool borrowChecked = true) = OpenHashMapOrSet!(K, void, hasher, Allocator, borrowChecked);
 
 /** Immutable hash map storing keys of type `K` and values of type `V`.
  */
-alias OpenHashMap(K,
-                  V,
+alias OpenHashMap(K, V,
                   alias hasher = hashOf,
-                  alias Allocator = PureMallocator.instance) = OpenHashMapOrSet!(K, V, hasher, Allocator);
+                  alias Allocator = PureMallocator.instance,
+                  bool borrowChecked = true) = OpenHashMapOrSet!(K, V, hasher, Allocator, borrowChecked);
 
 import std.traits : isInstanceOf;
 import std.functional : unaryFun;

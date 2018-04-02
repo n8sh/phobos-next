@@ -278,6 +278,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         static if (hasAddressLikeKey ||
                    (__traits(hasMember, K, "nullValue") && // if key has a null value
+                    __traits(compiles, { enum _ = isAllZeroBits!(K, K.nullValue); }) && // prevent strange error given when `K` is `knet.data.Data`
                     isAllZeroBits!(K, K.nullValue))) // check that it's zero bits only
         {
             // pragma(msg, "zero-allocate:", "K:", K, " V:", V);

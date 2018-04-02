@@ -461,7 +461,7 @@ if (isNullable!(T))
 }
 
 pragma(inline, true)
-void nullify(T)(ref T x)
+void nullify(T)(scope ref T x)
     @safe pure nothrow @nogc
 if (isNullable!(T))
 {

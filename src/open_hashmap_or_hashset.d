@@ -25,9 +25,7 @@ import pure_mallocator : PureMallocator;
  *      V = value type.
  *      hasher = hash function or std.digest Hash.
  *      Allocator = memory allocator for bin array
- *
- *      borrowChecked = only activate when it's certain that this won't be moved
- *      via std.algorithm.mutation.move()
+ *      borrowChecked = only activate when it's certain that this won't be moved via std.algorithm.mutation.move()
  *
  * See_Also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  * See_Also: https://en.wikipedia.org/wiki/Lazy_deletion

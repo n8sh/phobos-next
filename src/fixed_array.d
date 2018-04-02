@@ -746,13 +746,6 @@ version(none) pure unittest     // TODO activate
     assertThrown!AssertError((cast(const)x)[]);
 }
 
-///
-@safe pure nothrow @nogc unittest
-{
-    enum capacity = 4;
-    // TODO alias A = FixedArray!(int*, capacity, true);
-}
-
 version(unittest)
 {
     import std.algorithm.comparison : equal;

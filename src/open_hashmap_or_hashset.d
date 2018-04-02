@@ -1110,7 +1110,7 @@ struct OpenHashMapOrSet(K, V = void,
         version(LDC) pragma(inline, true); // LDC needs this or to prevent 10x performance regression in contains()
         static if (hasValue)
         {
-            auto range = this.byKeyValue;
+            auto range = byKeyValue(this);
         }
         else
         {

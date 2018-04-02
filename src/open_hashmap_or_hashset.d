@@ -245,16 +245,16 @@ struct OpenHashMapOrSet(K, V = void,
 
     alias ElementType = T;
 
-    /** Make with room for storing at least `capacity` number of elements.
+    /** Make with room for storing at least `minimumCapacity` number of elements.
      *
      * See_Also:
      * https://forum.dlang.org/post/nyngzsaeqxzzuumivtze@forum.dlang.org
      */
-    static typeof(this) withCapacity()(size_t capacity) // template-lazy
+    static typeof(this) withCapacity()(size_t minimumCapacity) // template-lazy
     {
         version(LDC) pragma(inline, true);
-        version(showEntries) dln(__FUNCTION__, " capacity:", capacity);
-        return typeof(return)(makeDefaultInitializedBins(capacity), 0);
+        version(showEntries) dln(__FUNCTION__, " minimumCapacity:", minimumCapacity);
+        return typeof(return)(makeDefaultInitializedBins(minimumCapacity), 0);
     }
 
     /** Make default-initialized bins with room for storing for at least

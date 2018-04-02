@@ -1382,8 +1382,8 @@ unittest
 
     static assert(!areFlatteninglyCombinable!(A, int, int));
     static assert(!areFlatteninglyCombinable!(A[], int[]));
-    static assert(areFlatteninglyCombinable!(A[], A[]));
-    static assert(areFlatteninglyCombinable!(A[], A[], A));
+    static assert( areFlatteninglyCombinable!(A[], A[]));
+    static assert( areFlatteninglyCombinable!(A[], A[], A));
     static assert(!areFlatteninglyCombinable!(int[], A));
 }
 

@@ -174,8 +174,8 @@ private template mustAddGCRangeOfMember(alias member)
 
 /// Helper for `mustAddGCRange`.
 private template mustAddGCRangeOfStructOrUnion(T)
-    if (is(T == struct) ||
-        is(T == union))
+if (is(T == struct) ||
+    is(T == union))
 {
     import std.traits : hasUDA;
     import std.meta : anySatisfy;
@@ -441,7 +441,7 @@ template defaultNullKeyConstantOf(T)
 pragma(inline, true)
 bool isNull(T)(const scope auto ref T x)
     @safe pure nothrow @nogc
-    if (isNullable!(T))
+if (isNullable!(T))
 {
     import std.traits : isPointer, isDynamicArray;
     static if (isAddress!T ||
@@ -463,7 +463,7 @@ bool isNull(T)(const scope auto ref T x)
 pragma(inline, true)
 void nullify(T)(ref T x)
     @safe pure nothrow @nogc
-    if (isNullable!(T))
+if (isNullable!(T))
 {
     import std.traits : isPointer, isDynamicArray;
     static if (isAddress!T ||

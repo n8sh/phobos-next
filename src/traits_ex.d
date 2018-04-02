@@ -1435,5 +1435,6 @@ template isASCII(alias x)
     static assert(!isASCII!dch_);
 }
 
+/** Is `true` iff `T` is a memory address. */
 enum isAddress(T) = (is(T == class) || // a class is memory-wise
                      isPointer!T);     // just a pointer, consistent with opCmp

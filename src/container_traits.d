@@ -449,7 +449,7 @@ if (isNullable!(T))
     }
     else static if (hasMemberNullValue!T)
     {
-        return x == T.nullValue;
+        return x is T.nullValue;
     }
     else
     {

@@ -646,16 +646,6 @@ version(none) pure unittest     // TODO activate
     }
 }
 
-///
-@safe pure unittest
-{
-    enum capacity = 15;
-    alias String15 = StringN!(capacity, true);
-    static assert(!mustAddGCRange!String15);
-    static assert(String15.readBorrowCountMax == 7);
-    auto x = String15("alpha");
-}
-
 /// equality
 @safe pure unittest
 {
@@ -709,6 +699,7 @@ version(none) pure unittest     // TODO activate
 {
     enum capacity = 15;
     alias String15 = StringN!(capacity, true);
+    static assert(String15.readBorrowCountMax == 7);
     static assert(!mustAddGCRange!String15);
 
     auto x = String15("alpha");

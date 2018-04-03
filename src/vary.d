@@ -116,7 +116,7 @@ public:
     pure:
 
     /** Returns: Name (as a $(D string)) of Currently Stored Type. */
-    private auto ref typeName()() const @safe nothrow @nogc
+    private auto ref typeName()() const @safe nothrow @nogc // template-lazy
     {
         pragma(inline, true);
         return hasValue ? typeNamesRT[_tix] : null;
@@ -277,7 +277,7 @@ public:
         return _tix == Ix.max;
     }
 
-    size_t currentSize() const @safe nothrow @nogc
+    size_t currentSize()() const @safe nothrow @nogc // template-lazy
     {
         if (isNull) { return 0; }
         final switch (_tix)
@@ -324,7 +324,7 @@ public:
     {
         static if (hasCommonType)
         {
-            bool opEquals(in LightAlgebraic that) const @trusted nothrow @nogc // opEquals is nothrow @nogc
+            bool opEquals()(in LightAlgebraic that) const @trusted nothrow @nogc // template-lazy, opEquals is nothrow @nogc
             {
                 if (_tix != that._tix)
                 {
@@ -350,7 +350,7 @@ public:
         }
         else
         {
-            bool opEquals(in LightAlgebraic that) const @trusted nothrow
+            bool opEquals()(in LightAlgebraic that) const @trusted nothrow // template-lazy
             {
                 if (_tix != that._tix)
                 {
@@ -407,7 +407,7 @@ public:
 
     static if (allSatisfy!(isComparable, Types))
     {
-        int opCmp(in LightAlgebraic that) const @trusted // TODO extend to LightAlgebraic!(ThatTypes)
+        int opCmp()(in LightAlgebraic that) const @trusted // template-lazy, TODO extend to LightAlgebraic!(ThatTypes)
         {
             static if (hasCommonType) // TODO extend to haveCommonType!(Types, ThatTypes)
             {

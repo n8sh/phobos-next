@@ -544,11 +544,11 @@ T[] makeInitZeroArray(T, alias Allocator)(const size_t length) @trusted
     static if (__traits(hasMember, Allocator, "allocateZeros"))
     {
         pragma(inline, true);
-        return cast(typeof(return))Allocator.instance.allocateZeros(byteCount);
+        return cast(typeof(return))Allocator.allocateZeros(byteCount);
     }
     else
     {
-        auto array = cast(typeof(return))Allocator.instance.allocate(byteCount);
+        auto array = cast(typeof(return))Allocator.allocate(byteCount);
         import core.stdc.string : memset;
         memset(array.ptr, 0, byteCount);
         return array;

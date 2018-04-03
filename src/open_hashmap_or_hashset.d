@@ -31,7 +31,7 @@ import pure_mallocator : PureMallocator;
  * See_Also: https://en.wikipedia.org/wiki/Lazy_deletion
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  *
- * TODO remove dependency on Nullable and use bitarrays for nulls and holes
+ * TODO support isHole, holeify and holeValue
  *
  * TODO alternatively use extra template arguments for nulls and hole values for
  * instance uint.max and uint.max-1

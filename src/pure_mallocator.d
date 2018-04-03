@@ -85,7 +85,7 @@ struct PureMallocator
      * thread-safe, therefore all of its methods and `it` itself are
      * $(D x).
      */
-    static immutable PureMallocator instance;
+    static shared PureMallocator instance;
 }
 
 ///

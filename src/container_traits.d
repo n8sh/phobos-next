@@ -535,6 +535,26 @@ if (isNullable!(T))
     assert(!y.isNull);
 }
 
+/** Allocate an array of `T`-elements of length `length` */
+T[] makeInitZeroArray(T, alias Allocator)(const size_t length) @trusted
+{
+    immutable byteCount = T.sizeof * length;
+    /* when possible prefer call to calloc before malloc+memset:
+     * https://stackoverflow.com/questions/2688466/why-mallocmemset-is-slower-than-calloc */
+    static if (__traits(hasMember, Allocator, "allocateZeros"))
+    {
+        pragma(inline, true);
+        auto bins = cast(typeof(return))Allocator.instance.allocateZeros(byteCount);
+    }
+    else
+    {
+        auto bins = cast(typeof(return))Allocator.instance.allocate(byteCount);
+        import core.stdc.string : memset;
+        memset(bins.ptr, 0, byteCount);
+    }
+    return bins;
+}
+
 version(unittest)
 {
     import std.typecons : Nullable;

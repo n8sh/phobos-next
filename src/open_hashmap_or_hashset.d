@@ -272,9 +272,9 @@ struct OpenHashMapOrSet(K, V = void,
         // import std.experimental.allocator : makeArray;
         // auto bins = Allocator.makeArray!T(capacity, nullKeyElement);
 
-        immutable byteCount = T.sizeof*capacity;
-
         import bit_traits : isInitAllZeroBits, isAllZeroBits;
+
+        immutable byteCount = T.sizeof*capacity;
 
         static if (hasAddressLikeKey ||
                    (__traits(hasMember, K, "nullValue") && // if key has a null value
@@ -282,19 +282,8 @@ struct OpenHashMapOrSet(K, V = void,
                     isAllZeroBits!(K, K.nullValue))) // check that it's zero bits only
         {
             // pragma(msg, "zero-allocate:", "K:", K, " V:", V);
-            /* prefer call to calloc before malloc+memset:
-             * https://stackoverflow.com/questions/2688466/why-mallocmemset-is-slower-than-calloc */
-            // TODO functionize to `makeZeroInitArray`
-            static if (__traits(hasMember, Allocator, "allocateZeros"))
-            {
-                auto bins = cast(T[])Allocator.instance.allocateZeros(byteCount);
-            }
-            else
-            {
-                auto bins = cast(T[])Allocator.instance.allocate(byteCount);
-                import core.stdc.string : memset;
-                memset(bins.ptr, 0, byteCount);
-            }
+            import container_traits : makeInitZeroArray;
+            auto bins = makeInitZeroArray!(T, Allocator)(capacity);
         }
         else                    // when default null key is not represented by zeros
         {
@@ -2868,7 +2857,7 @@ version(unittest)
 
     enum Alts { a, b, c, d }
 
-    struct Zingrel
+    struct ZingRel
     {
         Zing zing;
         Alts alts;
@@ -2878,12 +2867,12 @@ version(unittest)
         void nullify() { zing = null; }
         static immutable nullValue = typeof(this).init;
     }
-    static assert(isNullable!Zingrel);
+    static assert(isNullable!ZingRel);
 
-    alias X = OpenHashMapOrSet!(Zingrel, void, FNV!(64, true));
+    alias X = OpenHashMapOrSet!(ZingRel, void, FNV!(64, true));
     X x;
 
-    auto e = Zingrel(new Zing(42), Alts.init);
+    auto e = ZingRel(new Zing(42), Alts.init);
 
     assert(!x.contains(e));
     assert(x.insert(e) == X.InsertionStatus.added);

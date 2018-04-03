@@ -288,7 +288,7 @@ struct OpenHashMapOrSet(K, V = void,
         else                    // when default null key is not represented by zeros
         {
             // pragma(msg, "emplace:", "K:", K, " V:", V);
-            auto bins = cast(T[])Allocator.instance.allocate(byteCount);
+            auto bins = cast(T[])Allocator.allocate(byteCount);
             foreach (ref bin; bins)
             {
                 enum hasNullValueKey = __traits(hasMember, K, "nullValue");
@@ -329,7 +329,7 @@ struct OpenHashMapOrSet(K, V = void,
         version(LDC) pragma(inline, true);
         version(showEntries) dln(__FUNCTION__, " newCapacity:", capacity);
         immutable byteCount = T.sizeof*capacity;
-        auto bins = cast(typeof(return))Allocator.instance.allocate(byteCount);
+        auto bins = cast(typeof(return))Allocator.allocate(byteCount);
         static if (mustAddGCRange!T)
         {
             gc_addRange(bins.ptr, byteCount);
@@ -463,11 +463,11 @@ struct OpenHashMapOrSet(K, V = void,
                 {
                     static if (__traits(hasMember, Allocator, "deallocatePtr"))
                     {
-                        Allocator.instance.deallocatePtr(_holesPtr);
+                        Allocator.deallocatePtr(_holesPtr);
                     }
                     else
                     {
-                        Allocator.instance.deallocate(_holesPtr[0 .. holesWordCount(_bins.length)]);
+                        Allocator.deallocate(_holesPtr[0 .. holesWordCount(_bins.length)]);
                     }
                 }
             }
@@ -475,7 +475,7 @@ struct OpenHashMapOrSet(K, V = void,
             static size_t* reallocateHoles(size_t[] holes, size_t byteCount) @trusted
             {
                 auto rawHoles = cast(void[])holes;
-                const ok = Allocator.instance.reallocate(rawHoles, byteCount);
+                const ok = Allocator.reallocate(rawHoles, byteCount);
                 assert(ok, "couldn't reallocate holes");
                 return cast(typeof(return))rawHoles.ptr;
             }
@@ -596,11 +596,11 @@ struct OpenHashMapOrSet(K, V = void,
         }
         static if (__traits(hasMember, Allocator, "deallocatePtr"))
         {
-            Allocator.instance.deallocatePtr(bins.ptr);
+            Allocator.deallocatePtr(bins.ptr);
         }
         else
         {
-            Allocator.instance.deallocate(bins);
+            Allocator.deallocate(bins);
         }
     }
 
@@ -801,7 +801,7 @@ struct OpenHashMapOrSet(K, V = void,
             bts(dones, doneIndex); // _bins[doneIndex] is at it's correct position
         }
 
-        Allocator.instance.deallocate(cast(void[])(dones[0 .. wordCountOfBitCount(_bins.length)]));
+        Allocator.deallocate(cast(void[])(dones[0 .. wordCountOfBitCount(_bins.length)]));
 
         static if (!hasAddressLikeKey)
         {
@@ -823,7 +823,7 @@ struct OpenHashMapOrSet(K, V = void,
         immutable oldLength = _bins.length;
 
         auto rawBins = cast(void[])_bins;
-        if (Allocator.instance.reallocate(rawBins, newByteCount))
+        if (Allocator.reallocate(rawBins, newByteCount))
         {
             _bins = cast(T[])rawBins;
             static if (mustAddGCRange!T)

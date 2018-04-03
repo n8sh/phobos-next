@@ -535,7 +535,7 @@ if (isNullable!(T))
     assert(!y.isNull);
 }
 
-/** Allocate an array of `T`-elements of length `length` from `Allocator`. */
+/** Allocate an array of `T`-elements of length `length` using `Allocator`. */
 T[] makeInitZeroArray(T, alias Allocator)(const size_t length) @trusted
 {
     immutable byteCount = T.sizeof * length;

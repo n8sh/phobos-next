@@ -548,10 +548,10 @@ T[] makeInitZeroArray(T, alias Allocator)(const size_t length) @trusted
     }
     else
     {
-        auto slice = cast(typeof(return))Allocator.instance.allocate(byteCount);
+        auto array = cast(typeof(return))Allocator.instance.allocate(byteCount);
         import core.stdc.string : memset;
-        memset(slice.ptr, 0, byteCount);
-        return slice;
+        memset(array.ptr, 0, byteCount);
+        return array;
     }
 }
 

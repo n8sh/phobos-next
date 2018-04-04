@@ -46,10 +46,10 @@ struct PureMallocator
     }
 
     /// ditto
-    pragma(inline, true)
     bool deallocate(void[] b)
         @system
     {
+        pragma(inline, true);
         pureFree(b.ptr);        // `free` doesn't need `b.length`
         // `true` indicates support,
         // See_Also: https://dlang.org/phobos/std_experimental_allocator.html#.IAllocator.deallocate
@@ -75,10 +75,10 @@ struct PureMallocator
     }
 
     /// Deallocate using a pointer only like what `free` does.
-    pragma(inline, true)
     bool deallocatePtr(void* b)
         @system
     {
+        pragma(inline, true);
         pureFree(b);            // `free` doesn't need `b.length`
         return true; // `true` indicates support, https://dlang.org/phobos/std_experimental_allocator.html#.IAllocator.deallocate
     }

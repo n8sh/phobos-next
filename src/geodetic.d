@@ -71,8 +71,8 @@ unittest
 
     import std.conv : to;
     assert(wgs84Coordinate(latitude, longitude) ==
-           wgs84Coordinate!T("1.5 2.5"));
+           wgs84Coordinate!T(`1.5 2.5`));
 
-    auto x = wgs84Coordinate("36.7,3.216666666666667", ",");
-    assert(x.to!string == "36.700000° N 3.216667° W");
+    auto x = wgs84Coordinate(`36.7,3.216666666666667`, `,`);
+    assert(x.to!string == `36.700000° N 3.216667° W`);
 }

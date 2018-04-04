@@ -37,10 +37,10 @@ struct WGS84Coordinate(T = double)
     }
 
     /// Convert to `string`.
-    auto toString() const
+    auto toString(scope void delegate(const(char)[]) sink) const @trusted
     {
-        import std.conv : to;
-        return latitude.to!string ~ `° N ` ~ longitude.to!string ~ `° W`;
+        import std.format : formattedWrite;
+        sink.formattedWrite!(`%f° N %f° W`)(latitude, longitude);
     }
 
     T latitude;
@@ -74,5 +74,5 @@ unittest
            wgs84Coordinate!T("1.5 2.5"));
 
     auto x = wgs84Coordinate("36.7,3.216666666666667", ",");
-    assert(x.to!string == "36.7° N 3.21667° W");
+    assert(x.to!string == "36.700000° N 3.216667° W");
 }

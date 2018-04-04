@@ -5,8 +5,8 @@ import std.experimental.allocator.common;
 /**
  * The C heap allocator purified.
  *
- * Remove when https://github.com/dlang/phobos/pull/6411 has been merged that
- * adds `calloc`.
+ * TODO Remove when https://github.com/dlang/phobos/pull/6411 has been merged
+ * that adds `calloc`.
  */
 struct PureMallocator
 {

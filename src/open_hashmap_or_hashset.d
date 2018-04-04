@@ -272,7 +272,7 @@ struct OpenHashMapOrSet(K, V = void,
         // import std.experimental.allocator : makeArray;
         // auto bins = Allocator.makeArray!T(capacity, nullKeyElement);
 
-        import bit_traits : isInitAllZeroBits, isAllZeroBits;
+        import bit_traits : isAllZeroBits;
 
         immutable byteCount = T.sizeof*capacity;
 

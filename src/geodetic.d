@@ -2,7 +2,7 @@ module geodetic;
 
 import std.traits : isFloatingPoint, isSomeString;
 
-/** WGS84 Coordinate
+/** WGS84 coordinate.
     See_Also: https://en.wikipedia.org/wiki/World_Geodetic_System
    */
 struct WGS84Coordinate(T = double)

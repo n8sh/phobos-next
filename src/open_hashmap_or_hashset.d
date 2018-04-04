@@ -200,7 +200,7 @@ struct OpenHashMapOrSet(K, V = void,
                 K _key;          // no const because
 
                 /** Key access is head-const. */
-                K key() @property @safe pure nothrow @nogc
+                inout(K) key() @property inout @safe pure nothrow @nogc
                 {
                     return _key;
                 }

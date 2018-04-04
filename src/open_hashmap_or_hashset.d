@@ -293,12 +293,12 @@ struct OpenHashMapOrSet(K, V = void,
             {
                 enum hasNullValueKey = __traits(hasMember, K, "nullValue");
                 static if (hasNullValueKey &&
-                           !__traits(compiles, { emplace(&keyOf(bin), K.nullValue); }))
+                           !is(typeof(emplace(&keyOf(bin), K.nullValue)))) // __traits(compiles) fails here when building knet
                 {
                     pragma(msg, __FILE__, ":", __LINE__, ":warning: emplace fails for null-Value key type ", K);
                 }
                 static if (hasNullValueKey &&
-                           __traits(compiles, { emplace(&keyOf(bin), K.nullValue); }))
+                           is(typeof(emplace(&keyOf(bin), K.nullValue)))) // __traits(compiles) fails here when building knet
                 {
                     emplace(&keyOf(bin), K.nullValue);
                 }

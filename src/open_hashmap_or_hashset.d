@@ -1393,6 +1393,7 @@ static private void duplicateEmplace(T)(const scope ref T src,
         else                    // TODO can this case occur?
         {
             import std.conv : emplace;
+            import std.traits : Unqual;
             emplace(&dst, cast(Unqual!T)src);
         }
     }

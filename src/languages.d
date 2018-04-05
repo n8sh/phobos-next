@@ -344,16 +344,6 @@ enum Lang:ushort
     regularExpression, regexp = regularExpression,
 }
 
-bool isNull(Lang lang) @safe pure @nogc nothrow
-{
-    return lang is Lang.nullValue;
-}
-
-void nullify(ref Lang lang) @safe pure @nogc nothrow
-{
-    lang = Lang.nullValue;
-}
-
 /** Return true if $(D lang) is case-sensitive. */
 bool hasCase(Lang lang) @safe pure @nogc nothrow
 {

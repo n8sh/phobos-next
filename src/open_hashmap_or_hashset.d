@@ -980,14 +980,7 @@ struct OpenHashMapOrSet(K, V = void,
                                 auto ref V defaultValue) inout
         {
             auto value = key in this;
-            if (value !is null)
-            {
-                return *value;
-            }
-            else
-            {
-                return defaultValue;
-            }
+            return (value !is null) ? *value : defaultValue;
         }
 
 	/** Supports $(B aa[key] = value;) syntax.

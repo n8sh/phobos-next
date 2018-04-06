@@ -2880,6 +2880,17 @@ version(unittest)
     assert(x.contains(e));
 }
 
+/// enumeration key
+@safe pure unittest
+{
+    enum Alts
+    {
+        nullValue, a, b, c, d
+    }
+
+    alias X = OpenHashSet!(Alts, FNV!(64, true));
+}
+
 version(unittest)
 {
     debug import std.exception : assertThrown, assertNotThrown;

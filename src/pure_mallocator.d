@@ -41,7 +41,7 @@ struct PureMallocator
         return p ? p[0 .. bytes] : null;
     }
 
-    void[] allocateZeros(size_t bytes)
+    void[] allocateZeroed(size_t bytes)
         @trusted
     {
         version(LDC) pragma(inline, true);

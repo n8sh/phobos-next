@@ -364,9 +364,9 @@ struct BasicArray(T,
         {
             if (zero)
             {
-                static if (__traits(hasMember, Allocator, "allocateZeros"))
+                static if (__traits(hasMember, Allocator, "allocateZeroed"))
                 {
-                    ptr = cast(typeof(return))Allocator.allocateZeros(numBytes).ptr; // TODO set length
+                    ptr = cast(typeof(return))Allocator.allocateZeroed(numBytes).ptr; // TODO set length
                 }
                 else
                 {

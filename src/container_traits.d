@@ -541,10 +541,10 @@ T[] makeInitZeroArray(T, alias Allocator)(const size_t length) @trusted
     immutable byteCount = T.sizeof * length;
     /* when possible prefer call to calloc before malloc+memset:
      * https://stackoverflow.com/questions/2688466/why-mallocmemset-is-slower-than-calloc */
-    static if (__traits(hasMember, Allocator, "allocateZeros"))
+    static if (__traits(hasMember, Allocator, "allocateZeroed"))
     {
         pragma(inline, true);
-        return cast(typeof(return))Allocator.allocateZeros(byteCount);
+        return cast(typeof(return))Allocator.allocateZeroed(byteCount);
     }
     else
     {

@@ -144,11 +144,6 @@ struct OpenHashMapOrSet(K, V = void,
     alias MutableThis = Unqual!(typeof(this));
     alias ConstThis = const(MutableThis);
 
-    static if (isInstanceOf!(Nullable, K))
-    {
-        alias WrappedKey = Unqual!(typeof(K.get));
-    }
-
     /// Element type.
     static if (hasValue)
     {
@@ -614,14 +609,6 @@ struct OpenHashMapOrSet(K, V = void,
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
         return (hitIndex != _bins.length &&
                 isOccupiedAtIndex(hitIndex));
-    }
-    static if (isInstanceOf!(Nullable, K))
-    {
-        bool contains(const scope WrappedKey wrappedKey) const // template-lazy, `auto ref` here makes things slow
-        {
-            pragma(inline, true);
-            return contains(K(wrappedKey));
-        }
     }
 
     /** Insert `element`, being either a key-value (map-case) or a just a key
@@ -1768,7 +1755,6 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 
     auto x1 = X.withElements([K(12)].s);
     assert(x1.length == 1);
-    assert(x1.contains(12));
     assert(x1.contains(K(12)));
 
     auto x2 = X.withElements([K(10), K(12)].s);

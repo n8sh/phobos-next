@@ -539,6 +539,14 @@ if (isNullable!(T))
  */
 T[] makeInitZeroArray(T, alias Allocator)(const size_t length) @trusted
 {
+    static if (__VERSION__ >= 2080)
+    {
+        import std.experimental.allocator.gc_allocator : GCAllocator;
+        static if (__traits(hasMember, GCAllocator, "allocateZeroed"))
+        {
+            static assert(0, "Use std.experimental.allocator.package.make!(T) instead because it makes use of allocateZeroed.");
+        }
+    }
     immutable byteCount = T.sizeof * length;
     /* when possible prefer call to calloc before malloc+memset:
      * https://stackoverflow.com/questions/2688466/why-mallocmemset-is-slower-than-calloc */

@@ -637,15 +637,6 @@ struct OpenHashMapOrSet(K, V = void,
         reserveExtra(1);
         return insertWithoutGrowth(move(element));
     }
-    static if (!hasValue &&
-               isInstanceOf!(Nullable, K))
-    {
-        InsertionStatus insert()(WrappedKey wrappedElement) // template-lazy
-        {
-            pragma(inline, true);
-            return insert(K(wrappedElement));
-        }
-    }
 
     /** Insert `elements`, all being either a key-value (map-case) or a just a key (set-case).
      */
@@ -938,14 +929,6 @@ struct OpenHashMapOrSet(K, V = void,
             return insert(T(move(key),
                             move(value)));
         }
-        static if (isInstanceOf!(Nullable, K))
-        {
-            pragma(inline, true)    // LDC must have this
-            InsertionStatus insert()(WrappedKey wrappedKey, V value) // template-lazy
-            {
-                return insert(K(wrappedKey), move(value));
-            }
-        }
     }
 
     static if (!hasValue)       // HashSet
@@ -961,15 +944,6 @@ struct OpenHashMapOrSet(K, V = void,
             null; /* TODO instead of null return a reference to a struct SlotRef
                    * when assigned to sets value in slot and increases
                    * table._count += 1; */
-        }
-        static if (isInstanceOf!(Nullable, K))
-        {
-            scope const(K)* opBinaryRight(string op)(const scope WrappedKey wrappedKey) const return
-                if (op == "in")
-            {
-                pragma(inline, true);
-                return opBinaryRight!"in"(K(wrappedKey));
-            }
         }
     }
 
@@ -990,15 +964,6 @@ struct OpenHashMapOrSet(K, V = void,
                 return null;    // TODO return reference to where element should be placed
             }
         }
-        static if (isInstanceOf!(Nullable, K))
-        {
-            pragma(inline, true)    // LDC must have this
-            scope inout(V)* opBinaryRight(string op)(const scope WrappedKey wrappedKey) inout return // `auto ref` here makes things slow
-                if (op == "in")
-            {
-                return opBinaryRight!"in"(K(wrappedKey));
-            }
-        }
 
         /// Indexing.
         scope ref inout(V) opIndex()(const scope K key) inout return // `auto ref` here makes things slow
@@ -1014,14 +979,6 @@ struct OpenHashMapOrSet(K, V = void,
             {
                 import core.exception : RangeError;
                 throw new RangeError("key not found");
-            }
-        }
-        static if (isInstanceOf!(Nullable, K))
-        {
-            scope ref inout(V) opIndex()(const scope WrappedKey wrappedKey) inout return // `auto ref` here makes things slow
-            {
-                pragma(inline, true);
-                return opIndex(K(wrappedKey));
             }
         }
 
@@ -1045,16 +1002,6 @@ struct OpenHashMapOrSet(K, V = void,
                 return defaultValue;
             }
         }
-        static if (isInstanceOf!(Nullable, K))
-        {
-            auto ref V get()(const scope WrappedKey wrappedKey, // template-lazy
-                             auto ref V defaultValue) inout
-            {
-                pragma(inline, true);
-                return get(K(wrappedKey),
-                           defaultValue);
-            }
-        }
 
 	/** Supports $(B aa[key] = value;) syntax.
 	 */
@@ -1065,16 +1012,6 @@ struct OpenHashMapOrSet(K, V = void,
                      move(value)));
             // TODO return reference to value
 	}
-        static if (isInstanceOf!(Nullable, K))
-        {
-            void opIndexAssign()(V value, WrappedKey wrappedKey) // template-lazy
-            {
-                version(LDC) pragma(inline, true);
-                insert(T(K(move(wrappedKey)),
-                         move(value)));
-                // TODO return reference to value
-            }
-        }
     }
 
     /** Remove `element`.
@@ -1093,14 +1030,6 @@ struct OpenHashMapOrSet(K, V = void,
             return true;
         }
         return false;
-    }
-    static if (isInstanceOf!(Nullable, K))
-    {
-        bool remove()(const scope WrappedKey wrappedKey) // template-lazy
-        {
-            pragma(inline, true);
-            return remove(K(wrappedKey));
-        }
     }
 
     import traits_ex : isRefIterable;

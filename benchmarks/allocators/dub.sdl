@@ -4,3 +4,5 @@ authors "Per Nordlöw"
 copyright "Copyright © 2018, Per Nordlöw"
 license "Boost Software License, Version 1.0"
 seeAlso "https://forum.dlang.org/post/avistfdwsutzpjjgyhyp@forum.dlang.org"
+
+dependency "phobos-next" path="../../"

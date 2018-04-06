@@ -979,10 +979,10 @@ struct OpenHashMapOrSet(K, V = void,
         auto ref inout(V) get()(const scope K key, // template-lazy
                                 auto ref V defaultValue) inout
         {
-            auto value = key in this;
-            if (value !is null)
+            auto valuePtr = key in this;
+            if (valuePtr !is null)
             {
-                return *value;
+                return *valuePtr;
             }
             else
             {

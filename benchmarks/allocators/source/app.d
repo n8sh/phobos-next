@@ -62,15 +62,15 @@ void benchmarkAllocatorsRegion()
     void[] buf = GCAllocator.instance.allocate(nodeCount * __traits(classInstanceSize, DoubleNode));
     auto allocator = Region!(NullAllocator, platformAlignment)(cast(ubyte[])buf);
 
-    Type make(Type, Args...)(Args args) // TODO this should be pure
+    Type make(Type, Args...)(Args args) // TODO @safe pure
     {
         pragma(inline, true);
         return allocator.make!Type(args);
     }
 
-    void[] allocate(size_t bytes)
+    void[] allocate(size_t bytes) // TOTDO @trusted pure
     {
-        return allocator.allocate(bytes); // TODO should be @safe pure
+        return allocator.allocate(bytes);/
     }
 
     /* latest pointer here to prevent fast scoped non-GC allocation in LDC */

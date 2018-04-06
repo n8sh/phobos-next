@@ -976,8 +976,8 @@ struct OpenHashMapOrSet(K, V = void,
          *
          * TODO make `defaultValue` `lazy` when that can be `nothrow`
          */
-        auto ref V get()(const scope K key, // template-lazy
-                         auto ref V defaultValue) inout
+        auto ref inout(V) get()(const scope K key, // template-lazy
+                                auto ref V defaultValue) inout
         {
             auto value = key in this;
             if (value !is null)

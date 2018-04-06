@@ -70,7 +70,7 @@ void benchmarkAllocatorsRegion()
 
     void[] allocate(size_t bytes) // TOTDO @trusted pure
     {
-        return allocator.allocate(bytes);/
+        return allocator.allocate(bytes);
     }
 
     /* latest pointer here to prevent fast scoped non-GC allocation in LDC */

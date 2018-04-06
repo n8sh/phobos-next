@@ -1,7 +1,8 @@
 import std.datetime.stopwatch : benchmark;
 import std.stdio;
 import std.experimental.allocator;
-import std.experimental.allocator.building_blocks;
+import std.experimental.allocator.building_blocks : GCAllocator, NullAllocator, FreeList, Segregator;
+import region_allocator : Region; // using my own until @safe fixes has been merged
 
 enum wordSize = size_t.sizeof;
 

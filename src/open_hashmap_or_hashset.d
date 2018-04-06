@@ -1296,6 +1296,7 @@ static private void duplicateEmplace(T)(const scope ref T src,
     import std.traits : hasElaborateCopyConstructor, isCopyable, isBasicType, isInstanceOf;
     static if (!hasElaborateCopyConstructor!T)
     {
+        import std.typecons : Nullable;
         static if (is(T == class) ||
                    is(T == string))
         {

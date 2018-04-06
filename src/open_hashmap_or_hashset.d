@@ -2856,12 +2856,12 @@ version(unittest)
         private ulong _value;
     }
 
-    enum Alts { a, b, c, d }
+    enum Alt { a, b, c, d }
 
     struct ZingRel
     {
         Zing zing;
-        Alts alts;
+        Alt alts;
 
         @safe pure nothrow @nogc pragma(inline, true):
         bool isNull() const { return zing is null; }
@@ -2873,7 +2873,7 @@ version(unittest)
     alias X = OpenHashMapOrSet!(ZingRel, void, FNV!(64, true));
     X x;
 
-    auto e = ZingRel(new Zing(42), Alts.init);
+    auto e = ZingRel(new Zing(42), Alt.init);
 
     assert(!x.contains(e));
     assert(x.insert(e) == X.InsertionStatus.added);
@@ -2883,12 +2883,24 @@ version(unittest)
 /// enumeration key
 @safe pure unittest
 {
-    enum Alts
+    enum Alt
     {
-        nullValue, a, b, c, d
+        nullValue,              // trait
+        a, b, c, d
     }
+    alias X = OpenHashSet!(Alt, FNV!(64, true));
+    X x;
+    assert(!x.contains(Alt.a));
 
-    alias X = OpenHashSet!(Alts, FNV!(64, true));
+    assert(x.insert(Alt.a) == X.InsertionStatus.added);
+
+    assert(x.contains(Alt.a));
+    assert(!x.contains(Alt.b));
+    assert(!x.contains(Alt.c));
+    assert(!x.contains(Alt.d));
+
+    assert(x.remove(Alt.a));
+    assert(!x.contains(Alt.a));
 }
 
 version(unittest)

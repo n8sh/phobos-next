@@ -1,5 +1,10 @@
 module pure_mallocator;
 
+static if (__VERSION__ >= 2080)
+{
+    static assert(0, "Use std.experimental.allocator.building_blocks.mallocator instead of this module");
+}
+
 import std.experimental.allocator.common;
 
 /**

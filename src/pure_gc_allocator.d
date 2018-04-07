@@ -127,8 +127,6 @@ struct PureGCAllocator
     }
 }
 
-version(none):
-
 ///
 pure @system unittest
 {

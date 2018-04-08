@@ -615,23 +615,12 @@ struct OpenHashMapOrSet(K, V = void,
 
     /** Check if `element` is stored. Move found element to a hole if possible.
         Returns: `true` if element is present, `false` otherwise.
-
-        Mutating in the same way as sentinel-based-optimized `haystack`-mutating
-        variant of `find`.
     */
-    bool contains()(const scope K key) // template-lazy, `auto ref` here makes things slow
-    {
-        version(LDC) pragma(inline, true);
-        return toHoleMovingContains(key);
-    }
-
-    /** Check if `element` is stored. Move found element to a hole if possible.
-        Returns: `true` if element is present, `false` otherwise.
-    */
-    bool toHoleMovingContains()(const scope K key) // template-lazy, `auto ref` here makes things slow
+    bool containsWithHoleMoving()(const scope K key) // template-lazy, `auto ref` here makes things slow
     {
         version(LDC) pragma(inline, true);
         assert(!key.isNull);
+        static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
         // TODO update holes
         return (hitIndex != _bins.length &&

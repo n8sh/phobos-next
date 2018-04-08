@@ -31,9 +31,6 @@ import pure_mallocator : PureMallocator;
  * See_Also: https://en.wikipedia.org/wiki/Lazy_deletion
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  *
- * TODO `contains` should try to fill in holes if this is mutable (via static
- * if) similar to when sentinel-based search can be used in find
- *
  * TODO fix and activate constness of `byKeyValue`
  *
  * TODO support isHole, holeify and holeValue
@@ -616,8 +613,10 @@ struct OpenHashMapOrSet(K, V = void,
                 isOccupiedAtIndex(hitIndex));
     }
 
-    /** Check if `element` is stored. Move found element a hole if possible.
+    /** Check if `element` is stored. Move found element to a hole if possible.
         Returns: `true` if element is present, `false` otherwise.
+
+        Similar in idea to sentinel-based search.
     */
     bool contains()(const scope K key) // template-lazy, `auto ref` here makes things slow
     {
@@ -625,7 +624,7 @@ struct OpenHashMapOrSet(K, V = void,
         return containsMutated(key);
     }
 
-    /** Check if `element` is stored. Move found element a hole if possible.
+    /** Check if `element` is stored. Move found element to a hole if possible.
         Returns: `true` if element is present, `false` otherwise.
     */
     bool containsMutated()(const scope K key) // template-lazy, `auto ref` here makes things slow

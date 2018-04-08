@@ -616,7 +616,8 @@ struct OpenHashMapOrSet(K, V = void,
     /** Check if `element` is stored. Move found element to a hole if possible.
         Returns: `true` if element is present, `false` otherwise.
 
-        Similar in idea to sentinel-based search.
+        Similar in idea to sentinel-based optimized `haystack`-mutating variant
+        of `find`.
     */
     bool contains()(const scope K key) // template-lazy, `auto ref` here makes things slow
     {

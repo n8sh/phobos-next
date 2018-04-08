@@ -31,8 +31,8 @@ import pure_mallocator : PureMallocator;
  * See_Also: https://en.wikipedia.org/wiki/Lazy_deletion
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  *
- * TODO contains should try to fill in holes if this is mutable (via static if)
- * similar to when sentinel-based search can be used in find
+ * TODO `contains` should try to fill in holes if this is mutable (via static
+ * if) similar to when sentinel-based search can be used in find
  *
  * TODO fix and activate constness of `byKeyValue`
  *

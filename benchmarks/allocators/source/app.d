@@ -57,6 +57,7 @@ class Graph
     void[] _region;             // raw data for allocator
 }
 
+/** Benchmark `Region` vs `GCAllocator`. */
 void benchmarkAllocatorsRegion()
 {
     immutable nodeCount = 10_000_000; // number of `Nodes`s to allocate

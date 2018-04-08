@@ -81,6 +81,7 @@ void benchmarkAllocatorsRegion()
 
     void testRegionAllocator()
     {
+        version(LDC) pragma(inline, true);
         auto x = make!DoubleNode(42);
         assert(x);
         latestPtr = cast(void*)x;
@@ -88,12 +89,14 @@ void benchmarkAllocatorsRegion()
 
     void testNewAllocation()
     {
+        version(LDC) pragma(inline, true);
         auto x = new DoubleNode(42);
         latestPtr = cast(void*)x;
     }
 
     void testGlobalAllocator()
     {
+        version(LDC) pragma(inline, true);
         auto x = theAllocator.make!DoubleNode(42);
         latestPtr = cast(void*)x;
     }

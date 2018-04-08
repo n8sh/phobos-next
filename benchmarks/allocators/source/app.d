@@ -2,7 +2,9 @@ import std.datetime.stopwatch : benchmark;
 import std.stdio;
 import std.experimental.allocator;
 import std.experimental.allocator.building_blocks : GCAllocator, NullAllocator, FreeList, Segregator;
+
 import region_allocator : Region; // using my own until @safe fixes has been merged
+import pure_gc_allocator : PureGCAllocator; // using my own until @safe fixes has been merged
 
 enum wordSize = size_t.sizeof;
 
@@ -101,6 +103,8 @@ void benchmarkAllocatorsRegion()
     writeln("DoubleNode Region allocator: ", results[0]);
     writeln("DoubleNode new-allocation: ", results[1]);
     writeln("DoubleNode with global allocator: ", results[2]);
+
+    GCAllocator.instance.deallocate(buf);
 }
 
 void benchmarkAllocatorsFreeList()

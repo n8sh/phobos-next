@@ -67,7 +67,7 @@ size_t triangularProbeFromIndexIncludingHoles(alias hitPred,
                                               alias assumeNonFullHaystack = false,
                                               T)(const scope T[] haystack,
                                                  size_t index,
-                                                 out size_t firstHoleIndex = size_t.max)
+                                                 out size_t holeIndex = size_t.max) // first hole index
     if ((is(typeof(unaryFun!hitPred(T.init))) ||
          is(typeof(binaryFun!hitPred(size_t.init, T.init)))) ||
         (is(typeof(unaryFun!holePred(T.init))) ||
@@ -110,11 +110,11 @@ size_t triangularProbeFromIndexIncludingHoles(alias hitPred,
 
         static if (is(typeof(unaryFun!holePred(T.init))))
         {
-            if (unaryFun!holePred(haystack[index])) { firstHoleIndex = index; }
+            if (unaryFun!holePred(haystack[index])) { holeIndex = index; }
         }
         else static if (is(typeof(binaryFun!holePred(size_t.min, T.init))))
         {
-            if (binaryFun!holePred(index, haystack[index])) { firstHoleIndex = index; }
+            if (binaryFun!holePred(index, haystack[index])) { holeIndex = index; }
         }
         else
         {

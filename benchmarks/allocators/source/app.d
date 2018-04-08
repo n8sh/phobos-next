@@ -1,7 +1,7 @@
 import std.datetime.stopwatch : benchmark;
 import std.stdio;
 import std.experimental.allocator;
-import std.experimental.allocator.building_blocks : GCAllocator, NullAllocator, FreeList, Segregator;
+import std.experimental.allocator.building_blocks : NullAllocator, FreeList, Segregator;
 
 import region_allocator : Region; // using my own until @safe fixes has been merged
 import pure_gc_allocator : PureGCAllocator; // using my own until @safe fixes has been merged
@@ -40,7 +40,7 @@ class Graph
     alias NodeAllocator = Region!(NullAllocator, Node.alignof);
     this()
     {
-        _region = GCAllocator.instance.allocate(1024*1024);
+        _region = PureGCAllocator.instance.allocate(1024*1024);
         _allocator = NodeAllocator(cast(ubyte[])_region);
 
         auto sampelNode = make!DoubleNode(42);
@@ -57,12 +57,12 @@ class Graph
     void[] _region;             // raw data for allocator
 }
 
-/** Benchmark `Region` vs `GCAllocator`. */
+/** Benchmark `Region` vs `PureGCAllocator`. */
 void benchmarkAllocatorsRegion()
 {
     immutable nodeCount = 10_000_000; // number of `Nodes`s to allocate
 
-    void[] buf = GCAllocator.instance.allocate(nodeCount * __traits(classInstanceSize, DoubleNode));
+    void[] buf = PureGCAllocator.instance.allocate(nodeCount * __traits(classInstanceSize, DoubleNode));
     auto allocator = Region!(NullAllocator, platformAlignment)(cast(ubyte[])buf);
 
     Type make(Type, Args...)(Args args) // TODO @safe pure
@@ -108,21 +108,21 @@ void benchmarkAllocatorsRegion()
     writeln("DoubleNode new-allocation: ", results[1]);
     writeln("DoubleNode with global allocator: ", results[2]);
 
-    GCAllocator.instance.deallocate(buf);
+    PureGCAllocator.instance.deallocate(buf);
 }
 
 void benchmarkAllocatorsFreeList()
 {
-    alias UnboundedFreeList = FreeList!(GCAllocator, 0, unbounded);
-    alias Allocator = Segregator!(8, FreeList!(GCAllocator, 1, 8),
-                                  16, FreeList!(GCAllocator, 9, 16),
+    alias UnboundedFreeList = FreeList!(PureGCAllocator, 0, unbounded);
+    alias Allocator = Segregator!(8, FreeList!(PureGCAllocator, 1, 8),
+                                  16, FreeList!(PureGCAllocator, 9, 16),
                                   // 128, Bucketizer!(UnboundedFreeList, 1, 128, 16),
                                   // 256, Bucketizer!(UnboundedFreeList, 129, 256, 32),
                                   // 512, Bucketizer!(UnboundedFreeList, 257, 512, 64),
                                   // 1024, Bucketizer!(UnboundedFreeList, 513, 1024, 128),
                                   // 2048, Bucketizer!(UnboundedFreeList, 1025, 2048, 256),
                                   // 3584, Bucketizer!(UnboundedFreeList, 2049, 3584, 512),
-                                  GCAllocator);
+                                  PureGCAllocator);
     Allocator allocator;
 
     immutable nodeCount = 1_000_000;

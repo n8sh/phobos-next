@@ -62,6 +62,70 @@ size_t triangularProbeFromIndex(alias pred,
     }
 }
 
+size_t triangularProbeFromIndexIncludingHoles(alias hitPred,
+                                              alias holePred,
+                                              alias assumeNonFullHaystack = false,
+                                              T)(const scope T[] haystack,
+                                                 size_t index,
+                                                 out size_t firstHoleIndex = size_t.max)
+    if ((is(typeof(unaryFun!hitPred(T.init))) ||
+         is(typeof(binaryFun!hitPred(size_t.init, T.init)))) ||
+        (is(typeof(unaryFun!holePred(T.init))) ||
+         is(typeof(binaryFun!holePred(size_t.init, T.init)))))
+{
+    immutable mask = haystack.length - 1;
+    assert((~mask ^ mask) == typeof(return).max); // std.math.isPowerOf2(haystack.length)
+
+    static if (assumeNonFullHaystack)
+    {
+        assert(haystack.length != 0, "haystack cannot be empty");
+    }
+
+    // search using triangular numbers as increments
+    size_t indexIncrement = 0;
+    while (true)
+    {
+        static if (assumeNonFullHaystack)
+        {
+            assert(indexIncrement != haystack.length,
+                   "no element in `haystack` matches `hitPred`, cannot used sentinel-based probing");
+        }
+        else
+        {
+            if (indexIncrement == haystack.length) { return haystack.length; }
+        }
+
+        static if (is(typeof(unaryFun!hitPred(T.init))))
+        {
+            if (unaryFun!hitPred(haystack[index])) { return index; }
+        }
+        else static if (is(typeof(binaryFun!hitPred(size_t.min, T.init))))
+        {
+            if (binaryFun!hitPred(index, haystack[index])) { return index; }
+        }
+        else
+        {
+            static assert(0, "Unsupported hit predicate of type " ~ typeof(hitPred).stringof);
+        }
+
+        static if (is(typeof(unaryFun!holePred(T.init))))
+        {
+            if (unaryFun!holePred(haystack[index])) { firstHoleIndex = index; }
+        }
+        else static if (is(typeof(binaryFun!holePred(size_t.min, T.init))))
+        {
+            if (binaryFun!holePred(index, haystack[index])) { firstHoleIndex = index; }
+        }
+        else
+        {
+            static assert(0, "Unsupported hol predicate of type " ~ typeof(holePred).stringof);
+        }
+
+        indexIncrement += 1;
+        index = (index + indexIncrement) & mask; // next triangular number modulo length
+    }
+}
+
 size_t triangularProbeCountFromIndex(alias pred,
                                      T)(const scope T[] haystack, size_t index)
     if (is(typeof(unaryFun!pred(T.init))))

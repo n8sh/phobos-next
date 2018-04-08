@@ -622,13 +622,13 @@ struct OpenHashMapOrSet(K, V = void,
     bool contains()(const scope K key) // template-lazy, `auto ref` here makes things slow
     {
         version(LDC) pragma(inline, true);
-        return containsMutated(key);
+        return toHoleMovingContains(key);
     }
 
     /** Check if `element` is stored. Move found element to a hole if possible.
         Returns: `true` if element is present, `false` otherwise.
     */
-    bool containsMutated()(const scope K key) // template-lazy, `auto ref` here makes things slow
+    bool toHoleMovingContains()(const scope K key) // template-lazy, `auto ref` here makes things slow
     {
         version(LDC) pragma(inline, true);
         assert(!key.isNull);

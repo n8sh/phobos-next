@@ -43,7 +43,7 @@ class Graph
         _region = PureGCAllocator.instance.allocate(1024*1024);
         _allocator = NodeAllocator(cast(ubyte[])_region);
 
-        auto sampelNode = make!DoubleNode(42);
+        auto sampleNode = make!DoubleNode(42);
     }
 
     Type make(Type, Args...)(Args args)

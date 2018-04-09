@@ -887,7 +887,6 @@ struct OpenHashMapOrSet(K, V = void,
             }
         }
 
-        immutable startIndex = keyToIndex(keyOf(element));
         size_t holeIndex = size_t.max; // first hole index to written to if hole found
         immutable hitIndex0 = indexOfKeyOrVacancyAndFirstHole(keyOf(element), holeIndex);
         if (hitIndex0 == _bins.length || // keys miss and holes may have filled all empty slots

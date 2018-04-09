@@ -1279,7 +1279,7 @@ private:
                                  const scope element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
                                                           (keyOf(element).isNull ||
                                                            keyOf(element) is key));
-                alias holePred = (const scope index,
+                alias holePred = (const scope index, // TODO use only index
                                   const scope element) => (hasHoleAtPtrIndex(_holesPtr, index));
             }
         }
@@ -1297,7 +1297,7 @@ private:
                                  const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
                                                                    (keyOf(element).isNull ||
                                                                     keyOf(element) is key));
-                alias holePred = (const scope index,
+                alias holePred = (const scope index, // TODO use only index
                                   const scope auto ref element) => (hasHoleAtPtrIndex(_holesPtr, index));
             }
         }

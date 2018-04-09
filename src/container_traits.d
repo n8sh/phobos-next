@@ -404,8 +404,7 @@ template isNullable(T)
     {
         import std.meta : anySatisfy;
         static if ((is(T == struct) && // unions excluded for now
-                    anySatisfy!(isNullable,
-                                typeof(T.init.tupleof))))
+                    anySatisfy!(isNullable, typeof(T.init.tupleof))))
         {
             enum isNullable = true;
         }

@@ -524,7 +524,7 @@ if (isNullable!(T))
     }
     else static if (__traits(hasMember, T, "nullifier"))
     {
-        T.nullifier.nullify();
+        x.nullifier.nullify();
     }
     else
     {

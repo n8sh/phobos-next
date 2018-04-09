@@ -393,9 +393,10 @@ template isNullable(T)
     {
         enum isNullable = true;
     }
-    else static if ((__traits(hasMember, T, "isNull") &&
-                     __traits(hasMember, T, "nullify")))
+    else static if ((__traits(hasMember, T, "isNull") && // fast
+                     __traits(hasMember, T, "nullify"))) // fast
     {
+        // lazy: only try semantic analysis when members exists
         enum isNullable = (is(typeof(T.init.isNull()) == bool)  &&
                            is(typeof(T.init.nullify()) == void));
     }

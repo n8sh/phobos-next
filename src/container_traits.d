@@ -395,9 +395,8 @@ template isNullable(T)
     }
     else static if ((__traits(hasMember, T, "isNull") &&
                      __traits(hasMember, T, "nullify") &&
-                     is(typeof(T.init.isNull()) == bool)//  &&
-                     // TODO is(typeof(T.init.nullify()) == void)
-                        ))
+                     is(typeof(T.init.isNull()) == bool)  &&
+                     is(typeof(T.init.nullify()) == void)))
     {
         enum isNullable = true;
     }
@@ -466,8 +465,8 @@ template defaultNullKeyConstantOf(T)
     alias Ni = Nullable!int;
     static assert(defaultNullKeyConstantOf!(Ni) == Ni.init);
 
-    alias cNi = const(Nullable!int);
-    static assert(defaultNullKeyConstantOf!(cNi) == cNi.init);
+    // alias cNi = const(Nullable!int);
+    // static assert(defaultNullKeyConstantOf!(cNi) == cNi.init);
 
     alias NubM = Nullable!(ubyte, ubyte.max);
     assert(defaultNullKeyConstantOf!(NubM).isNull);

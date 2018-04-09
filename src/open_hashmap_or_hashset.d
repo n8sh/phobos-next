@@ -888,9 +888,9 @@ struct OpenHashMapOrSet(K, V = void,
         }
 
         size_t holeIndex = size_t.max; // first hole index to written to if hole found
-        immutable hitIndex0 = indexOfKeyOrVacancyAndFirstHole(keyOf(element), holeIndex);
-        if (hitIndex0 == _bins.length || // keys miss and holes may have filled all empty slots
-            keyOf(_bins[hitIndex0]).isNull) // just key miss but a hole may have been found on the way
+        immutable hitIndexPrel = indexOfKeyOrVacancyAndFirstHole(keyOf(element), holeIndex);
+        if (hitIndexPrel == _bins.length || // keys miss and holes may have filled all empty slots
+            keyOf(_bins[hitIndexPrel]).isNull) // just key miss but a hole may have been found on the way
         {
             immutable bool hasHole = holeIndex != size_t.max; // hole was found along the way
             size_t hitIndex;
@@ -900,16 +900,13 @@ struct OpenHashMapOrSet(K, V = void,
             }
             else
             {
-                hitIndex = hitIndex0; // normal hit
+                hitIndex = hitIndexPrel; // normal hit
             }
             version(internalUnittest) assert(hitIndex != _bins.length, "no null or hole slot");
             insertMoveElementAtIndex(element, hitIndex);
             static if (!hasAddressLikeKey)
             {
-                if (hasHole)
-                {
-                    untagHoleAtIndex(hitIndex);
-                }
+                if (hasHole) { untagHoleAtIndex(hitIndex); }
             }
             _count = _count + 1;
             return InsertionStatus.added;
@@ -918,10 +915,10 @@ struct OpenHashMapOrSet(K, V = void,
         static if (hasValue)
         {
             if (valueOf(element) !is
-                valueOf(_bins[hitIndex0])) // only value changed
+                valueOf(_bins[hitIndexPrel])) // only value changed
             {
                 move(valueOf(element),
-                     valueOf(_bins[hitIndex0])); // value is defined so overwrite it
+                     valueOf(_bins[hitIndexPrel])); // value is defined so overwrite it
                 return InsertionStatus.modified;
             }
         }

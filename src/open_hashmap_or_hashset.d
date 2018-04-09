@@ -31,7 +31,7 @@ import pure_mallocator : PureMallocator;
  * See_Also: https://en.wikipedia.org/wiki/Lazy_deletion
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  *
- * TODO add support for checking existence `K.nullMember` that infers, for
+ * TODO add support for checking existence `K.nullifier` that infers, for
  * instance, how tag ZingRel as null or hole
  *
  * TODO fix and activate constness of `byKeyValue`
@@ -2871,12 +2871,8 @@ version(unittest)
     {
         Zing zing;
         Alt alts;
-
-        @safe pure nothrow @nogc pragma(inline, true):
-        bool isNull() const { return zing is null; }
-        void nullify() { zing = null; }
+        alias nullifier = zing;
         static immutable nullValue = typeof(this).init;
-        alias nullMember = zing;
     }
     static assert(isNullable!ZingRel);
 

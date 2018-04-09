@@ -376,7 +376,7 @@ template hasNullValue(T)
     static assert(hasNullValue!S);
 }
 
-/** Is `true` iff `T` is a nullable type.
+/** Is `true` iff `T` is type with a predefined undefined (`null`) value.
  */
 template isNullable(T)
 {
@@ -404,7 +404,7 @@ template isNullable(T)
     else
     {
         import std.meta : anySatisfy;
-        static if ((is(T == struct) &&
+        static if ((is(T == struct) && // unions excluded for now
                     anySatisfy!(isNullable,
                                 typeof(T.init.tupleof))))
         {

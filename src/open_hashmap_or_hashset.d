@@ -78,7 +78,7 @@ struct OpenHashMapOrSet(K, V = void,
     import container_traits : defaultNullKeyConstantOf, mustAddGCRange, isNull, nullify;
     import qcmeman : gc_addRange, gc_removeRange;
     import digestion : hashOf2;
-    import probing : triangularProbeFromIndex, triangularProbeCountFromIndex;
+    import probing : triangularProbeFromIndex, triangularProbeFromIndexIncludingHoles, triangularProbeCountFromIndex;
 
     enum isBorrowChecked = borrowChecked;
 
@@ -887,16 +887,30 @@ struct OpenHashMapOrSet(K, V = void,
             }
         }
 
-        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(keyOf(element));
-        if (hitIndex == _bins.length || // keys miss and holes may have filled all empty slots
-            keyOf(_bins[hitIndex]).isNull) // just key miss but a hole may be have be found on the way
+        immutable startIndex = keyToIndex(keyOf(element));
+        size_t holeIndex = size_t.max; // first hole index to written to if hole found
+        immutable hitIndex0 = indexOfKeyOrVacancyAndFirstHole(keyOf(element), holeIndex);
+        if (hitIndex0 == _bins.length || // keys miss and holes may have filled all empty slots
+            keyOf(_bins[hitIndex0]).isNull) // just key miss but a hole may have been found on the way
         {
-            immutable hitIndex1 = indexOfHoleOrNullForKey(keyOf(element)); // try again to reuse hole
-            version(internalUnittest) assert(hitIndex1 != _bins.length, "no null or hole slot");
-            insertMoveElementAtIndex(element, hitIndex1);
+            immutable bool hasHole = holeIndex != size_t.max; // hole was found along the way
+            size_t hitIndex;
+            if (hasHole)
+            {
+                hitIndex = holeIndex; // pick hole instead
+            }
+            else
+            {
+                hitIndex = hitIndex0; // normal hit
+            }
+            version(internalUnittest) assert(hitIndex != _bins.length, "no null or hole slot");
+            insertMoveElementAtIndex(element, hitIndex);
             static if (!hasAddressLikeKey)
             {
-                untagHoleAtIndex(hitIndex1);
+                if (hasHole)
+                {
+                    untagHoleAtIndex(hitIndex);
+                }
             }
             _count = _count + 1;
             return InsertionStatus.added;
@@ -905,10 +919,10 @@ struct OpenHashMapOrSet(K, V = void,
         static if (hasValue)
         {
             if (valueOf(element) !is
-                valueOf(_bins[hitIndex])) // only value changed
+                valueOf(_bins[hitIndex0])) // only value changed
             {
                 move(valueOf(element),
-                     valueOf(_bins[hitIndex])); // value is defined so overwrite it
+                     valueOf(_bins[hitIndex0])); // value is defined so overwrite it
                 return InsertionStatus.modified;
             }
         }
@@ -1237,6 +1251,62 @@ private:
         return _bins[].triangularProbeFromIndex!(pred)(keyToIndex(key));
     }
 
+    private size_t indexOfKeyOrVacancyAndFirstHole(const scope K key, // `auto ref` here makes things slow
+                                                   ref size_t holeIndex) const
+    {
+        version(LDC) pragma(inline, true);
+        version(internalUnittest)
+        {
+            assert(!key.isNull);
+            static if (hasAddressLikeKey)
+            {
+                assert(!isHoleKeyConstant(key));
+            }
+        }
+        static if (isCopyable!T)
+        {
+            /* don't use `auto ref` for copyable `T`'s to prevent
+             * massive performance drop for small elements when compiled
+             * with LDC. TODO remove when LDC is fixed. */
+            static if (hasAddressLikeKey)
+            {
+                alias hitPred = (const scope element) => (keyOf(element).isNull ||
+                                                          keyOf(element) is key);
+                alias holePred = (const scope element) => (isHoleKeyConstant(keyOf(element)));
+            }
+            else
+            {
+                alias hitPred = (const scope index,
+                                 const scope element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
+                                                          (keyOf(element).isNull ||
+                                                           keyOf(element) is key));
+                alias holePred = (const scope index,
+                                  const scope element) => (hasHoleAtPtrIndex(_holesPtr, index));
+            }
+        }
+        else
+        {
+            static if (hasAddressLikeKey)
+            {
+                alias hitPred = (const scope auto ref element) => (keyOf(element).isNull ||
+                                                                   keyOf(element) is key);
+                alias holePred = (const scope auto ref element) => (isHoleKeyConstant(keyOf(element)));
+            }
+            else
+            {
+                alias hitPred = (const scope index,
+                                 const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
+                                                                   (keyOf(element).isNull ||
+                                                                    keyOf(element) is key));
+                alias holePred = (const scope index,
+                                  const scope auto ref element) => (hasHoleAtPtrIndex(_holesPtr, index));
+            }
+        }
+        return _bins[].triangularProbeFromIndexIncludingHoles!(hitPred, holePred)(keyToIndex(key),
+                                                                                  holeIndex);
+    }
+
+    version(none)
     private size_t indexOfHoleOrNullForKey()(const scope K key) const // template-lazy
     {
         version(LDC) pragma(inline, true);
@@ -1595,8 +1665,9 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     }
 
     x.insert("a");
-    x.insert("b");
     assert(x.contains("a"));
+
+    x.insert("b");
     assert(x.contains("b"));
 
     x.remove("a");

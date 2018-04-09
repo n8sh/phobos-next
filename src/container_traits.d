@@ -393,6 +393,10 @@ template isNullable(T)
     {
         enum isNullable = true;
     }
+    else static if (__traits(hasMember, T, "nullifier"))
+    {
+        enum isNullable = isNullable!(typeof(T.nullifier)); // TODO require it to be an alias?
+    }
     else static if ((__traits(hasMember, T, "isNull") && // fast
                      __traits(hasMember, T, "nullify"))) // fast
     {
@@ -402,16 +406,16 @@ template isNullable(T)
     }
     else
     {
-        import std.meta : anySatisfy;
-        static if ((is(T == struct) && // unions excluded for now
-                    anySatisfy!(isNullable, typeof(T.init.tupleof))))
-        {
-            enum isNullable = true;
-        }
-        else
-        {
+        // import std.meta : anySatisfy;
+        // static if ((is(T == struct) && // unions excluded for now
+        //             anySatisfy!(isNullable, typeof(T.init.tupleof))))
+        // {
+        //     enum isNullable = true;
+        // }
+        // else
+        // {
             enum isNullable = false;
-        }
+        // }
     }
 }
 
@@ -436,10 +440,13 @@ template isNullable(T)
     }
 
     struct S2 { C x, y; }
-    static assert( isNullable!S2);
+    static assert(!isNullable!S2);
 
     struct S3 { int x, y; }
     static assert(!isNullable!S3);
+
+    struct S4 { C x, y; alias nullifier = x; }
+    static assert(isNullable!S4);
 }
 
 /** Default null key of type `T`,

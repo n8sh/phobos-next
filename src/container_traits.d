@@ -394,23 +394,19 @@ template isNullable(T)
     }
     else
     {
-        static if (is(T == struct))
+        import std.meta : anySatisfy;
+        static if ((is(T == struct) &&
+                    anySatisfy!(isNullable,
+                                typeof(T.init.tupleof))))
         {
-            enum isNullable = isNullableStruct!T;
+            enum isNullable = true;
         }
         else
         {
             enum isNullable = false;
         }
     }
-}
-
-template isNullableStruct(T)
-    if (is(T == struct))
-{
-    import std.meta : anySatisfy;
-    enum isNullableStruct = anySatisfy!(isNullable, T.tupleof);
-}
+    }
 
 ///
 @safe pure nothrow @nogc unittest
@@ -434,7 +430,7 @@ template isNullableStruct(T)
         C x;
         C y;
     }
-    // TODO static assert(isNullable!S2);
+    static assert(isNullable!S2);
 }
 
 /** Default null key of type `T`,

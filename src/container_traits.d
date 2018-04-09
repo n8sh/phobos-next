@@ -490,11 +490,11 @@ template defaultNullKeyConstantOf(T)
 
 /** Returns: `true` iff `x` has a null value.
  */
-pragma(inline, true)
 bool isNull(T)(const scope auto ref T x)
     @safe pure nothrow @nogc
 if (isNullable!(T))
 {
+    pragma(inline, true);
     static if (hasStandardNullValue!T)
     {
         return x is T.init;
@@ -509,11 +509,11 @@ if (isNullable!(T))
     }
 }
 
-pragma(inline, true)
 void nullify(T)(scope ref T x)
     @safe pure nothrow @nogc
 if (isNullable!(T))
 {
+    pragma(inline, true);
     static if (hasStandardNullValue!T)
     {
         x = T.init;

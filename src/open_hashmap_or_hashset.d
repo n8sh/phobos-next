@@ -2860,9 +2860,7 @@ version(unittest)
     static class Zing
     {
         @safe pure nothrow @nogc:
-
         this(ulong value) { this._value = value; }
-
         private ulong _value;
     }
     static assert(isNullable!Zing);

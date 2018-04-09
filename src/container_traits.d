@@ -412,6 +412,7 @@ template isNullable(T)
 @safe pure nothrow @nogc unittest
 {
     class C {}
+
     static assert( isNullable!(C));
     static assert( isNullable!(int*));
     static assert( isNullable!(int[]));
@@ -420,17 +421,18 @@ template isNullable(T)
     static assert( isNullable!(string));
     static assert( isNullable!(Nullable!int));
     static assert(!isNullable!(int));
+
     struct S
     {
         int value;
         static immutable nullValue = typeof(this).init;
     }
-    struct S2
-    {
-        C x;
-        C y;
-    }
-    static assert(isNullable!S2);
+
+    struct S2 { C x, y; }
+    static assert( isNullable!S2);
+
+    struct S3 { int x, y; }
+    static assert(!isNullable!S3);
 }
 
 /** Default null key of type `T`,

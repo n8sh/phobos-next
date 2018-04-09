@@ -2865,6 +2865,7 @@ version(unittest)
 
         private ulong _value;
     }
+    static assert(isNullable!Zing);
 
     enum Alt { a, b, c, d }
 

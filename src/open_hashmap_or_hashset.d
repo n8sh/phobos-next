@@ -2879,6 +2879,7 @@ version(unittest)
         static immutable nullValue = typeof(this).init;
         alias nullMember = zing;
     }
+    static assert(isNullable!ZingRel);
 
     alias X = OpenHashMapOrSet!(ZingRel, void, FNV!(64, true));
     X x;

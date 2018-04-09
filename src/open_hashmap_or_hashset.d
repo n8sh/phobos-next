@@ -2494,7 +2494,7 @@ version(unittest)
 @trusted unittest
 {
     version(showEntries) dln();
-    const n = 600;
+    const n = 100;
 
     void testEmptyAll(K, V, X)(ref X x, size_t n,
                                scope K[] keys)

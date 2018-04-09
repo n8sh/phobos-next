@@ -31,6 +31,9 @@ import pure_mallocator : PureMallocator;
  * See_Also: https://en.wikipedia.org/wiki/Lazy_deletion
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  *
+ * TODO add support for checking existence `K.nullMember` that infers, for
+ * instance, how tag ZingRel as null or hole
+ *
  * TODO fix and activate constness of `byKeyValue`
  *
  * TODO support isHole, holeify and holeValue
@@ -991,7 +994,7 @@ struct OpenHashMapOrSet(K, V = void,
             else
             {
                 import core.exception : RangeError;
-                throw new RangeError("key not found");
+                throw new RangeError("Key not found");
             }
         }
 
@@ -2874,8 +2877,8 @@ version(unittest)
         bool isNull() const { return zing is null; }
         void nullify() { zing = null; }
         static immutable nullValue = typeof(this).init;
+        alias nullMember = zing;
     }
-    static assert(isNullable!ZingRel);
 
     alias X = OpenHashMapOrSet!(ZingRel, void, FNV!(64, true));
     X x;

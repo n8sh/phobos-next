@@ -394,11 +394,10 @@ template isNullable(T)
         enum isNullable = true;
     }
     else static if ((__traits(hasMember, T, "isNull") &&
-                     __traits(hasMember, T, "nullify") &&
-                     is(typeof(T.init.isNull()) == bool)  &&
-                     is(typeof(T.init.nullify()) == void)))
+                     __traits(hasMember, T, "nullify")))
     {
-        enum isNullable = true;
+        enum isNullable = (is(typeof(T.init.isNull()) == bool)  &&
+                           is(typeof(T.init.nullify()) == void));
     }
     else
     {

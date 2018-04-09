@@ -522,6 +522,10 @@ if (isNullable!(T))
     {
         x = T.nullValue;
     }
+    else static if (__traits(hasMember, T, "nullifier"))
+    {
+        T.nullifier.nullify();
+    }
     else
     {
         static assert(0, "Unsupported type " ~ T.stringof);

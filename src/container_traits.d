@@ -415,7 +415,7 @@ template isNullable(T)
             enum isNullable = false;
         }
     }
-    }
+}
 
 ///
 @safe pure nothrow @nogc unittest

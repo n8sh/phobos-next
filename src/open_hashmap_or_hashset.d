@@ -2877,6 +2877,7 @@ version(unittest)
     static assert(isNullable!ZingRel);
 
     alias X = OpenHashMapOrSet!(ZingRel, void, FNV!(64, true));
+    static assert(X.sizeof == 32); // TODO fix hole handling and change to 24
     X x;
 
     auto e = ZingRel(new Zing(42), Alt.init);

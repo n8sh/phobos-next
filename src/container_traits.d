@@ -380,7 +380,16 @@ template hasNullValue(T)
  */
 template isNullable(T)
 {
-    static if (hasNullValue!T) // TODO remove this and rely solely on T.nullify and T.init.isNull()
+    /* TODO remove this two first cases and rely solely on
+     * is(typeof(T.init.nullify()) == void) and
+     * is(typeof(T.init.isNull()) == bool)
+     */
+    // use static if's for full lazyness of trait evaluations in order of likelyhood
+    static if (hasStandardNullValue!T)
+    {
+        enum isNullable = true;
+    }
+    else static if (hasMemberNullValue!T)
     {
         enum isNullable = true;
     }

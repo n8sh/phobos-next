@@ -1211,32 +1211,38 @@ template RawRadixTree(Value = void)
 
         @safe pure nothrow:
 
-        pragma(inline, true) this(size_t subCapacity)
+        this(size_t subCapacity)
         {
+            version(LDC) pragma(inline, true);
             initialize(subCapacity);
         }
 
-        pragma(inline, true) this(size_t subCapacity, const Ix[] prefix, Leaf1!Value leaf1)
+        this(size_t subCapacity, const Ix[] prefix, Leaf1!Value leaf1)
         {
+            version(LDC) pragma(inline, true);
             initialize(subCapacity);
             this.prefix = prefix;
             this.leaf1 = leaf1;
         }
 
-        pragma(inline, true) this(size_t subCapacity, const Ix[] prefix)
+        this(size_t subCapacity, const Ix[] prefix)
         {
+            version(LDC) pragma(inline, true);
             initialize(subCapacity);
             this.prefix = prefix;
         }
 
-        pragma(inline, true) this(size_t subCapacity, Leaf1!Value leaf1)
+        this(size_t subCapacity, Leaf1!Value leaf1)
         {
+            version(LDC) pragma(inline, true);
             initialize(subCapacity);
             this.leaf1 = leaf1;
         }
 
-        pragma(inline, true) this(size_t subCapacity, const Ix[] prefix, IxSub sub)
+        this(size_t subCapacity, const Ix[] prefix, IxSub sub)
         {
+            version(LDC) pragma(inline, true);
+
             assert(subCapacity);
 
             initialize(subCapacity);
@@ -1247,7 +1253,7 @@ template RawRadixTree(Value = void)
             this.subNodeSlots[0] = sub.node;
         }
 
-        pragma(inline, true) this(size_t subCapacity, typeof(this)* rhs)
+        this(size_t subCapacity, typeof(this)* rhs)
         in
         {
             assert(subCapacity > rhs.subCapacity);
@@ -1255,6 +1261,7 @@ template RawRadixTree(Value = void)
         }
         body
         {
+            version(LDC) pragma(inline, true);
             // these two must be in this order:
             // 1.
             move(rhs.leaf1, this.leaf1);
@@ -2275,7 +2282,6 @@ template RawRadixTree(Value = void)
 
         this(Node root)
         {
-            pragma(inline, true);
             if (root)
             {
                 diveAndVisitTreeUnder(root, 0);
@@ -2684,7 +2690,7 @@ template RawRadixTree(Value = void)
     /** Set sub-`Node` of branch `Node curr` at index `ix` to `subNode`. */
     Branch setSub(Branch curr, UIx subIx, Node subNode) @safe pure nothrow @nogc
     {
-        pragma(inline, true);
+        version(LDC) pragma(inline, true);
         final switch (curr.typeIx) with (Branch.Ix)
         {
         case ix_SparseBranchPtr: return setSub(curr.as!(SparseBranch*), subIx, subNode);
@@ -2696,7 +2702,7 @@ template RawRadixTree(Value = void)
     /** Get sub-`Node` of branch `Node curr` at index `subIx`. */
     Node getSub(Branch curr, UIx subIx) @safe pure nothrow @nogc
     {
-        pragma(inline, true);
+        version(LDC) pragma(inline, true);
         final switch (curr.typeIx) with (Branch.Ix)
         {
         case ix_SparseBranchPtr: return getSub(curr.as!(SparseBranch*), subIx);
@@ -2707,7 +2713,7 @@ template RawRadixTree(Value = void)
     /// ditto
     Node getSub(SparseBranch* curr, UIx subIx) @safe pure nothrow @nogc
     {
-        pragma(inline, true);
+        version(LDC) pragma(inline, true);
         if (auto subNode = curr.subNodeAt(subIx)) { return subNode; }
         return Node.init;
     }
@@ -2723,7 +2729,7 @@ template RawRadixTree(Value = void)
     /** Get leaves of node `curr`. */
     inout(Leaf1!Value) getLeaf1(inout Branch curr) @safe pure nothrow @nogc
     {
-        pragma(inline, true);
+        version(LDC) pragma(inline, true);
         final switch (curr.typeIx) with (Branch.Ix)
         {
         case ix_SparseBranchPtr: return curr.as!(SparseBranch*).leaf1;
@@ -2735,7 +2741,7 @@ template RawRadixTree(Value = void)
     /** Set direct leaves node of node `curr` to `leaf1`. */
     void setLeaf1(Branch curr, Leaf1!Value leaf1) @safe pure nothrow @nogc
     {
-        pragma(inline, true);
+        version(LDC) pragma(inline, true);
         final switch (curr.typeIx) with (Branch.Ix)
         {
         case ix_SparseBranchPtr: curr.as!(SparseBranch*).leaf1 = leaf1; break;
@@ -2747,7 +2753,7 @@ template RawRadixTree(Value = void)
     /** Get prefix of node `curr`. */
     auto getPrefix(inout Branch curr) @safe pure nothrow @nogc
     {
-        pragma(inline, true);
+        version(LDC) pragma(inline, true);
         final switch (curr.typeIx) with (Branch.Ix)
         {
         case ix_SparseBranchPtr: return curr.as!(SparseBranch*).prefix[];
@@ -2771,7 +2777,7 @@ template RawRadixTree(Value = void)
     /** Pop `n` from prefix. */
     void popFrontNPrefix(Branch curr, size_t n) @safe pure nothrow @nogc
     {
-        pragma(inline, true);
+        version(LDC) pragma(inline, true);
         final switch (curr.typeIx) with (Branch.Ix)
         {
         case ix_SparseBranchPtr: curr.as!(SparseBranch*).prefix.popFrontN(n); break;
@@ -2783,7 +2789,7 @@ template RawRadixTree(Value = void)
     /** Get number of sub-nodes of node `curr`. */
     SubCount getSubCount(inout Branch curr) @safe pure nothrow @nogc
     {
-        pragma(inline, true);
+        version(LDC) pragma(inline, true);
         final switch (curr.typeIx) with (Branch.Ix)
         {
         case ix_SparseBranchPtr: return cast(typeof(return))curr.as!(SparseBranch*).subCount;
@@ -2799,7 +2805,7 @@ template RawRadixTree(Value = void)
         /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
         inout(Value*) containsAt(inout Leaf1!Value curr, UKey key)
         {
-            pragma(inline, true);
+            version(LDC) pragma(inline, true);
             // debug if (willFail) { dln("curr:", curr); }
             // debug if (willFail) { dln("key:", key); }
             switch (curr.typeIx) with (Leaf1!Value.Ix)
@@ -4107,7 +4113,7 @@ template RawRadixTree(Value = void)
             {
                 Node insert(UKey key, in Value value, out ElementRef elementRef)
                 {
-                    pragma(inline, true);
+                    version(LDC) pragma(inline, true);
                     return _root = insertAt(_root, Elt!Value(key, value), elementRef);
                 }
             }
@@ -4115,7 +4121,7 @@ template RawRadixTree(Value = void)
             {
                 Node insert(UKey key, out ElementRef elementRef)
                 {
-                    pragma(inline, true);
+                    version(LDC) pragma(inline, true);
                     return _root = insertAt(_root, key, elementRef);
                 }
             }
@@ -4527,7 +4533,7 @@ if (allSatisfy!(isTrieableKeyType, K))
         /** Returns: pointer to value if `key` is contained in set, null otherwise. */
         inout(V*) contains(in K key) inout @nogc
         {
-            pragma(inline, true);
+            version(LDC) pragma(inline, true);
             Array!Ix rawUKey;
             auto rawKey = key.toRawKey(rawUKey); // TODO DIP-1000 scope
             return _rawTree.contains(rawKey);
@@ -4567,7 +4573,7 @@ if (allSatisfy!(isTrieableKeyType, K))
         /** Returns: `true` if `key` is stored, `false` otherwise. */
         bool contains(in K key) inout
         {
-            pragma(inline, true);
+            version(LDC) pragma(inline, true);
             Array!Ix rawUKey;
             auto rawKey = key.toRawKey(rawUKey); // TODO DIP-1000 scope
             return _rawTree.contains(rawKey);
@@ -4591,7 +4597,7 @@ if (allSatisfy!(isTrieableKeyType, K))
 
     Range opSlice() @system @nogc // TODO inout?
     {
-        pragma(inline, true);
+        version(LDC) pragma(inline, true);
         return Range(_root, []);
     }
 
@@ -4652,7 +4658,7 @@ if (allSatisfy!(isTrieableKeyType, K))
 
         @property typeof(this) save()
         {
-            pragma(inline, true);
+            version(LDC) pragma(inline, true);
             typeof(return) copy;
             copy._rawRange = this._rawRange.save;
             return copy;

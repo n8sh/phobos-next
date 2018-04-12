@@ -101,12 +101,12 @@ struct StaticModArray(uint capacity,
         return s;
     }
 
-    pragma(inline)
     @safe pure nothrow @nogc:
 
     /** Get first element. */
     auto front() inout
     {
+        pragma(inline, true);
         assert(!empty);
         return _store[0];
     }
@@ -114,15 +114,24 @@ struct StaticModArray(uint capacity,
     /** Get last element. */
     auto back() inout
     {
+        pragma(inline, true);
         assert(!empty);
         return _store[_length - 1];
     }
 
     /** Returns: `true` if `this` is empty, `false` otherwise. */
-    bool empty() const { return _length == 0; }
+    bool empty() const
+    {
+        pragma(inline, true);
+        return _length == 0;
+    }
 
     /** Returns: `true` if `this` is full, `false` otherwise. */
-    bool full() const { return _length == capacity; }
+    bool full() const
+    {
+        pragma(inline, true);
+        return _length == capacity;
+    }
 
     /** Pop first (front) element. */
     auto ref popFront()
@@ -153,6 +162,7 @@ struct StaticModArray(uint capacity,
     /** Pop last (back) element. */
     auto ref popBack()
     {
+        version(LDC) pragma(inline, true);
         assert(!empty);
         _length = cast(typeof(_length))(_length - 1); // TODO better?
         return this;
@@ -176,6 +186,7 @@ struct StaticModArray(uint capacity,
     /** Returns: `true` if `key` is contained in `this`. */
     bool contains(in Ix[] key) const @nogc
     {
+        pragma(inline, true);
         // TODO use binarySearch instead of canFind
         import std.algorithm.searching : canFind;
         if (key.length != L) { return false; }
@@ -192,6 +203,7 @@ struct StaticModArray(uint capacity,
             bool contains(ModUInt)(in Mod!(radix, ModUInt) ix) const @nogc
                 if (isUnsigned!ModUInt)
             {
+                pragma(inline, true);
                 // TODO use binarySearch instead of canFind
                 import std.algorithm.searching : canFind;
                 return (chunks.canFind(ix));
@@ -202,6 +214,7 @@ struct StaticModArray(uint capacity,
             bool contains(UInt)(in UInt ix) const @nogc
                 if (isUnsigned!UInt)
             {
+                pragma(inline, true);
                 // TODO use binarySearch instead of canFind
                 import std.algorithm.searching : canFind;
                 return (chunks.canFind(cast(T)ix));
@@ -210,24 +223,37 @@ struct StaticModArray(uint capacity,
     }
 
     /** Returns: elements as a slice. */
-    auto chunks() inout { return _store[0 .. _length]; }
+    auto chunks() inout
+    {
+        pragma(inline, true);
+        return _store[0 .. _length];
+    }
     alias chunks this;
 
     /** Variant of `opIndex` with compile-time range checking. */
     auto ref at(uint ix)() inout @trusted
         if (ix < capacity)      // assert below memory allocation bound
     {
+        pragma(inline, true);
         assert(ix < _length);   // assert accessing initialized elements
         return _store.ptr[ix];    // uses `.ptr` because `ix` known at compile-time to be within bounds; `ix < capacity`
     }
 
     /** Get length. */
-    auto length() const { return _length; }
+    auto length() const
+    {
+        pragma(inline, true);
+        return _length;
+    }
 
     /** Get remaining space available.
         Name taken from the same member of https://docs.rs/fixedvec/0.2.3/fixedvec/
      */
-    auto available() const { return capacity - _length; }
+    auto available() const
+    {
+        pragma(inline, true);
+        return capacity - _length;
+    }
 
     enum typeBits = 4; // number of bits in enclosing type used for representing type
 

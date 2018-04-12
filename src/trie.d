@@ -40,7 +40,8 @@
 
     TODO Use scope on `Range`, `RawRange` and members that return key and value reference when DIP-1000 has been implemented
 
-    TODO Encode and `string` with zero-terminating 0 byte when it's not the last member in a key aggregate
+    TODO Encode `string` with zero-terminating 0 byte when it's not the last
+    member in a key aggregate
 
     TODO
 

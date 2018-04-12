@@ -199,7 +199,7 @@ version(unittest)
 {
     version = useModulo;
 }
-version = useModulo;
+version = useModulo;            // TODO remove and activate only in version(unittest)
 
 /** Radix Modulo Index
     Restricted index type avoids range checking in array indexing below.

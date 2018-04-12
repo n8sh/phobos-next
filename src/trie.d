@@ -4431,6 +4431,7 @@ struct RadixTree(K, V)
 
     static if (RawTree.hasValue)
     {
+        /// Element type with typed key and value.
         struct TypedElt
         {
             K key;

@@ -145,6 +145,7 @@ import basic_array : Array = BasicArray;
 version = benchmark;
 version = print;
 // version = useMemoryErrorHandler;
+version = showBranchSizes;
 
 alias isFixedTrieableKeyType = isIntegralBijectableType;
 
@@ -1545,12 +1546,16 @@ template RawRadixTree(Value = void)
         IndexedBy!(Node[radix], UIx) subNodes;
     }
 
-    static if (false)
+    version(showBranchSizes)
     {
         pragma(msg, "SparseBranch.sizeof:", SparseBranch.sizeof, " SparseBranch.alignof:", SparseBranch.alignof);
-        pragma(msg, "SparseBranch.subNodes.sizeof:", SparseBranch.subNodes.sizeof, " SparseBranch.subNodes.alignof:", SparseBranch.subNodes.alignof);
+        pragma(msg, "DenseBranch.sizeof:", DenseBranch.sizeof, " DenseBranch.alignof:", DenseBranch.alignof);
+
         pragma(msg, "SparseBranch.prefix.sizeof:", SparseBranch.prefix.sizeof, " SparseBranch.prefix.alignof:", SparseBranch.prefix.alignof);
-        pragma(msg, "SparseBranch.subIxs.sizeof:", SparseBranch.subIxs.sizeof, " SparseBranch.subIxs.alignof:", SparseBranch.subIxs.alignof);
+        pragma(msg, "DenseBranch.prefix.sizeof:", DenseBranch.prefix.sizeof, " DenseBranch.prefix.alignof:", DenseBranch.prefix.alignof);
+
+        // pragma(msg, "SparseBranch.subNodes.sizeof:", SparseBranch.subNodes.sizeof, " SparseBranch.subNodes.alignof:", SparseBranch.subNodes.alignof);
+        // pragma(msg, "SparseBranch.subIxs.sizeof:", SparseBranch.subIxs.sizeof, " SparseBranch.subIxs.alignof:", SparseBranch.subIxs.alignof);
     }
 
     // TODO make these run-time arguments at different key depths and map to statistics of typed-key

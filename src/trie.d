@@ -1039,7 +1039,7 @@ alias Leaf1(Value) = WordVariant!(HeptLeaf1, // TODO remove from case when Value
                                   DenseLeaf1!Value*);
 
 /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
-pragma(inline) UIx firstIx(Value)(Leaf1!Value curr)
+UIx firstIx(Value)(Leaf1!Value curr)
 {
     final switch (curr.typeIx) with (Leaf1!Value.Ix)
     {
@@ -1168,31 +1168,31 @@ template RawRadixTree(Value = void)
 
         @safe pure nothrow:
 
-        pragma(inline) this(size_t subCapacity)
+        pragma(inline, true) this(size_t subCapacity)
         {
             initialize(subCapacity);
         }
 
-        pragma(inline) this(size_t subCapacity, const Ix[] prefix, Leaf1!Value leaf1)
+        pragma(inline, true) this(size_t subCapacity, const Ix[] prefix, Leaf1!Value leaf1)
         {
             initialize(subCapacity);
             this.prefix = prefix;
             this.leaf1 = leaf1;
         }
 
-        pragma(inline) this(size_t subCapacity, const Ix[] prefix)
+        pragma(inline, true) this(size_t subCapacity, const Ix[] prefix)
         {
             initialize(subCapacity);
             this.prefix = prefix;
         }
 
-        pragma(inline) this(size_t subCapacity, Leaf1!Value leaf1)
+        pragma(inline, true) this(size_t subCapacity, Leaf1!Value leaf1)
         {
             initialize(subCapacity);
             this.leaf1 = leaf1;
         }
 
-        pragma(inline) this(size_t subCapacity, const Ix[] prefix, IxSub sub)
+        pragma(inline, true) this(size_t subCapacity, const Ix[] prefix, IxSub sub)
         {
             assert(subCapacity);
 
@@ -1204,7 +1204,7 @@ template RawRadixTree(Value = void)
             this.subNodeSlots[0] = sub.node;
         }
 
-        pragma(inline) this(size_t subCapacity, typeof(this)* rhs)
+        pragma(inline, true) this(size_t subCapacity, typeof(this)* rhs)
         in
         {
             assert(subCapacity > rhs.subCapacity);
@@ -1229,7 +1229,7 @@ template RawRadixTree(Value = void)
             assert(this.subCapacity > rhs.subCapacity);
         }
 
-        private pragma(inline) void initialize(size_t subCapacity)
+        private pragma(inline, true) void initialize(size_t subCapacity)
         {
             // assert(subCapacity != 4);
             this.subCapacity = subCapacity;
@@ -1258,9 +1258,9 @@ template RawRadixTree(Value = void)
             return copy;
         }
 
-        pragma(inline) ~this() @nogc { deinit(); }
+        pragma(inline, true) ~this() @nogc { deinit(); }
 
-        private pragma(inline) void deinit() @nogc { /* nothing for now */ }
+        private pragma(inline, true) void deinit() @nogc { /* nothing for now */ }
 
         /** Insert `sub`, possibly self-reallocating `this` (into return).
          */
@@ -1300,7 +1300,7 @@ template RawRadixTree(Value = void)
             return next;
         }
 
-        pragma(inline) private void insertAt(size_t index, IxSub sub)
+        private void insertAt(size_t index, IxSub sub)
         {
             assert(index <= subCount);
             foreach (immutable i; 0 .. subCount - index) // TODO functionize this loop or reuse memmove:
@@ -1322,18 +1322,18 @@ template RawRadixTree(Value = void)
             return (hitIndex != typeof(hitIndex).max) ? subNodeSlots[hitIndex] : Node.init;
         }
 
-        pragma(inline) bool empty() const @nogc { return subCount == 0; }
-        pragma(inline) bool full()  const @nogc { return subCount == subCapacity; }
+        pragma(inline, true) bool empty() const @nogc { return subCount == 0; }
+        pragma(inline, true) bool full()  const @nogc { return subCount == subCapacity; }
 
-        pragma(inline) auto subIxs() inout @nogc
+        pragma(inline, true) auto subIxs() inout @nogc
         {
             import std.algorithm.sorting : assumeSorted;
             return subIxSlots[0 .. subCount].assumeSorted;
         }
 
-        pragma(inline) auto subNodes() inout @nogc { return subNodeSlots[0 .. subCount]; }
+        pragma(inline, true) auto subNodes() inout @nogc { return subNodeSlots[0 .. subCount]; }
 
-        pragma(inline) Node firstSubNode() @nogc
+        pragma(inline, true) Node firstSubNode() @nogc
         {
             return subCount ? subNodeSlots[0] : typeof(return).init;
         }
@@ -1475,7 +1475,7 @@ template RawRadixTree(Value = void)
             return count;
         }
 
-        pragma(inline) bool findSubNodeAtIx(size_t currIx, out UIx nextIx) inout @nogc
+        bool findSubNodeAtIx(size_t currIx, out UIx nextIx) inout @nogc
         {
             import std.algorithm : countUntil;
             immutable cnt = subNodes[currIx .. $].countUntil!(subNode => cast(bool)subNode);
@@ -1601,13 +1601,13 @@ template RawRadixTree(Value = void)
             cacheFront();
         }
 
-        pragma(inline) UIx frontIx() const @nogc
+        pragma(inline, true) UIx frontIx() const @nogc
         {
             assert(!empty);
             return _cachedFrontIx;
         }
 
-        pragma(inline) bool atLeaf1() const @nogc
+        pragma(inline, true) bool atLeaf1() const @nogc
         {
             assert(!empty);
             return _frontAtLeaf1;
@@ -1660,8 +1660,8 @@ template RawRadixTree(Value = void)
             }
         }
 
-        pragma(inline) bool empty() const @nogc { return leaf1Range.empty && _subsEmpty; }
-        pragma(inline) bool subsEmpty() const @nogc { return _subsEmpty; }
+        pragma(inline, true) bool empty() const @nogc { return leaf1Range.empty && _subsEmpty; }
+        pragma(inline, true) bool subsEmpty() const @nogc { return _subsEmpty; }
 
         /** Try to iterated forward.
             Returns: `true` upon successful forward iteration, `false` otherwise (upon completion of iteration),
@@ -2008,9 +2008,9 @@ template RawRadixTree(Value = void)
             }
         }
 
-        pragma(inline) bool empty() const @nogc { return !leaf; }
+        pragma(inline, true) bool empty() const @nogc { return !leaf; }
 
-        pragma(inline) void makeEmpty() @nogc { leaf = null; }
+        pragma(inline, true) void makeEmpty() @nogc { leaf = null; }
 
         /** Pop front element. */
         void popFront()
@@ -2121,36 +2121,40 @@ template RawRadixTree(Value = void)
             assert(_branch1Depth == get1DepthAt(0));
         }
 
-    pragma(inline):
-
         size_t getNext1DepthAt() const
         {
+            pragma(inline, true);
             return get1DepthAt(_branch1Depth + 1);
         }
 
         bool hasBranch1Front() const
         {
+            pragma(inline, true);
             return _branch1Depth != typeof(_branch1Depth).max;
         }
 
         void popBranch1Front()
         {
+            pragma(inline, true);
             // _branchesKeyPrefix.popBackN(_bRanges.back);
             _bRanges[_branch1Depth].popFront();
         }
 
         bool emptyBranch1() const
         {
+            pragma(inline, true);
             return _bRanges[_branch1Depth].empty;
         }
 
         bool atLeaf1() const
         {
+            pragma(inline, true);
             return _bRanges[_branch1Depth].atLeaf1;
         }
 
         void shrinkTo(size_t newLength)
         {
+            pragma(inline, true);
             // turn emptyness exception into an assert like ranges do
             // size_t suffixLength = 0;
             // foreach (const ref branchRange; _bRanges[$ - newLength .. $]) // TODO reverse isearch
@@ -2163,33 +2167,39 @@ template RawRadixTree(Value = void)
 
         void push(ref BranchRange branchRange)
         {
+            pragma(inline, true);
             // branchRange.appendFrontIxsToKey(_branchesKeyPrefix);
             _bRanges ~= branchRange;
         }
 
         size_t branchCount() const @safe pure nothrow @nogc
         {
+            pragma(inline, true);
             return _bRanges.length;
         }
 
         void pop()
         {
+            pragma(inline, true);
             // _branchesKeyPrefix.popBackN(_bRanges.back.prefixLength + 1);
             _bRanges.popBack();
         }
 
         ref BranchRange bottom()
         {
+            pragma(inline, true);
             return _bRanges.back;
         }
 
         private void verifyBranch1Depth()
         {
+            pragma(inline, true);
             assert(_branch1Depth == get1DepthAt(0));
         }
 
         void resetBranch1Depth()
         {
+            pragma(inline, true);
             _branch1Depth = typeof(_branch1Depth).max;
         }
 
@@ -2217,6 +2227,7 @@ template RawRadixTree(Value = void)
 
         this(Node root)
         {
+            pragma(inline, true);
             if (root)
             {
                 diveAndVisitTreeUnder(root, 0);
@@ -2358,8 +2369,6 @@ template RawRadixTree(Value = void)
             while (next);
         }
 
-    pragma(inline):
-
         @property typeof(this) save() @trusted // TODO remove @trusted
         {
             typeof(this) copy;
@@ -2376,17 +2385,26 @@ template RawRadixTree(Value = void)
         /** Check if empty. */
         bool empty() const
         {
+            pragma(inline, true);
             return (leafNRange.empty &&
                     branchRanges.branchCount == 0);
         }
 
         /** Get front key. */
-        auto frontKey() const @trusted { return _cachedFrontKey[]; } // TODO replace @trusted with DIP-1000 scope
+        auto frontKey() const @trusted
+        {
+            pragma(inline, true);
+            return _cachedFrontKey[]; // TODO replace @trusted with DIP-1000 scope
+        }
 
         static if (isValue)
         {
             /** Get front value. */
-            auto frontValue() const { return _cachedFrontValue; }
+            auto frontValue() const
+            {
+                pragma(inline, true);
+                return _cachedFrontValue;
+            }
         }
 
     private:
@@ -2409,7 +2427,6 @@ template RawRadixTree(Value = void)
         import std.algorithm : startsWith;
 
         pure nothrow @nogc:
-        pragma(inline):
 
         this(Node root, UKey keyPrefix)
         {
@@ -2436,11 +2453,20 @@ template RawRadixTree(Value = void)
 
         bool empty() const
         {
+            pragma(inline, true);
             return _front.empty; // TODO _front == _back;
         }
 
-        auto lowKey() const { return _front.frontKey[_rawKeyPrefix.length .. $]; }
-        auto highKey() const { return _back.frontKey[_rawKeyPrefix.length .. $]; }
+        auto lowKey() const
+        {
+            pragma(inline, true);
+            return _front.frontKey[_rawKeyPrefix.length .. $];
+        }
+        auto highKey() const
+        {
+            pragma(inline, true);
+            return _back.frontKey[_rawKeyPrefix.length .. $];
+        }
 
         void popFront()
         {
@@ -2597,8 +2623,9 @@ template RawRadixTree(Value = void)
     }
 
     /// ditto
-    pragma(inline) Branch setSub(DenseBranch* curr, UIx subIx, Node subNode) @safe pure nothrow @nogc
+    Branch setSub(DenseBranch* curr, UIx subIx, Node subNode) @safe pure nothrow @nogc
     {
+        pragma(inline, true);
         debug assert(!curr.subNodes[subIx], "sub-Node already set ");
         // "sub-Node at index " ~ subIx.to!string ~
         // " already set to " ~ subNode.to!string);
@@ -2607,8 +2634,9 @@ template RawRadixTree(Value = void)
     }
 
     /** Set sub-`Node` of branch `Node curr` at index `ix` to `subNode`. */
-    pragma(inline) Branch setSub(Branch curr, UIx subIx, Node subNode) @safe pure nothrow @nogc
+    Branch setSub(Branch curr, UIx subIx, Node subNode) @safe pure nothrow @nogc
     {
+        pragma(inline, true);
         final switch (curr.typeIx) with (Branch.Ix)
         {
         case ix_SparseBranchPtr: return setSub(curr.as!(SparseBranch*), subIx, subNode);
@@ -2618,8 +2646,9 @@ template RawRadixTree(Value = void)
     }
 
     /** Get sub-`Node` of branch `Node curr` at index `subIx`. */
-    pragma(inline) Node getSub(Branch curr, UIx subIx) @safe pure nothrow @nogc
+    Node getSub(Branch curr, UIx subIx) @safe pure nothrow @nogc
     {
+        pragma(inline, true);
         final switch (curr.typeIx) with (Branch.Ix)
         {
         case ix_SparseBranchPtr: return getSub(curr.as!(SparseBranch*), subIx);
@@ -2628,22 +2657,25 @@ template RawRadixTree(Value = void)
         }
     }
     /// ditto
-    pragma(inline) Node getSub(SparseBranch* curr, UIx subIx) @safe pure nothrow @nogc
+    Node getSub(SparseBranch* curr, UIx subIx) @safe pure nothrow @nogc
     {
+        pragma(inline, true);
         if (auto subNode = curr.subNodeAt(subIx)) { return subNode; }
         return Node.init;
     }
     /// ditto
-    pragma(inline) Node getSub(DenseBranch* curr, UIx subIx) @safe pure nothrow @nogc
+    Node getSub(DenseBranch* curr, UIx subIx) @safe pure nothrow @nogc
     {
+        pragma(inline, true);
         auto sub = curr.subNodes[subIx];
         debug curr.subNodes[subIx] = Node.init; // zero it to prevent multiple references
         return sub;
     }
 
     /** Get leaves of node `curr`. */
-    pragma(inline) inout(Leaf1!Value) getLeaf1(inout Branch curr) @safe pure nothrow @nogc
+    inout(Leaf1!Value) getLeaf1(inout Branch curr) @safe pure nothrow @nogc
     {
+        pragma(inline, true);
         final switch (curr.typeIx) with (Branch.Ix)
         {
         case ix_SparseBranchPtr: return curr.as!(SparseBranch*).leaf1;
@@ -2653,8 +2685,9 @@ template RawRadixTree(Value = void)
     }
 
     /** Set direct leaves node of node `curr` to `leaf1`. */
-    pragma(inline) void setLeaf1(Branch curr, Leaf1!Value leaf1) @safe pure nothrow @nogc
+    void setLeaf1(Branch curr, Leaf1!Value leaf1) @safe pure nothrow @nogc
     {
+        pragma(inline, true);
         final switch (curr.typeIx) with (Branch.Ix)
         {
         case ix_SparseBranchPtr: curr.as!(SparseBranch*).leaf1 = leaf1; break;
@@ -2664,8 +2697,9 @@ template RawRadixTree(Value = void)
     }
 
     /** Get prefix of node `curr`. */
-    pragma(inline) auto getPrefix(inout Branch curr) @safe pure nothrow @nogc
+    auto getPrefix(inout Branch curr) @safe pure nothrow @nogc
     {
+        pragma(inline, true);
         final switch (curr.typeIx) with (Branch.Ix)
         {
         case ix_SparseBranchPtr: return curr.as!(SparseBranch*).prefix[];
@@ -2675,8 +2709,9 @@ template RawRadixTree(Value = void)
     }
 
     /** Set prefix of branch node `curr` to `prefix`. */
-    pragma(inline) void setPrefix(Branch curr, const Ix[] prefix) @safe pure nothrow @nogc
+    void setPrefix(Branch curr, const Ix[] prefix) @safe pure nothrow @nogc
     {
+        pragma(inline, true);
         final switch (curr.typeIx) with (Branch.Ix)
         {
         case ix_SparseBranchPtr: curr.as!(SparseBranch*).prefix = typeof(curr.as!(SparseBranch*).prefix)(prefix); break;
@@ -2686,8 +2721,9 @@ template RawRadixTree(Value = void)
     }
 
     /** Pop `n` from prefix. */
-    pragma(inline) void popFrontNPrefix(Branch curr, size_t n) @safe pure nothrow @nogc
+    void popFrontNPrefix(Branch curr, size_t n) @safe pure nothrow @nogc
     {
+        pragma(inline, true);
         final switch (curr.typeIx) with (Branch.Ix)
         {
         case ix_SparseBranchPtr: curr.as!(SparseBranch*).prefix.popFrontN(n); break;
@@ -2697,8 +2733,9 @@ template RawRadixTree(Value = void)
     }
 
     /** Get number of sub-nodes of node `curr`. */
-    pragma(inline) SubCount getSubCount(inout Branch curr) @safe pure nothrow @nogc
+    SubCount getSubCount(inout Branch curr) @safe pure nothrow @nogc
     {
+        pragma(inline, true);
         final switch (curr.typeIx) with (Branch.Ix)
         {
         case ix_SparseBranchPtr: return cast(typeof(return))curr.as!(SparseBranch*).subCount;
@@ -2712,8 +2749,9 @@ template RawRadixTree(Value = void)
         @safe pure nothrow @nogc:
 
         /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
-        pragma(inline) inout(Value*) containsAt(inout Leaf1!Value curr, UKey key)
+        inout(Value*) containsAt(inout Leaf1!Value curr, UKey key)
         {
+            pragma(inline, true);
             // debug if (willFail) { dln("curr:", curr); }
             // debug if (willFail) { dln("key:", key); }
             switch (curr.typeIx) with (Leaf1!Value.Ix)
@@ -2726,7 +2764,7 @@ template RawRadixTree(Value = void)
         }
 
         /// ditto
-        pragma(inline) inout(Value*) containsAt(inout Node curr, UKey key)
+        inout(Value*) containsAt(inout Node curr, UKey key)
         {
             assert(key.length);
             // debug if (willFail) { dln("key:", key); }
@@ -3081,7 +3119,7 @@ template RawRadixTree(Value = void)
     }
 
     /** Insert `key` into sub-tree under root `curr`. */
-    pragma(inline) Node insertAt(Node curr, Elt!Value elt, out ElementRef elementRef) @safe pure nothrow @nogc
+    Node insertAt(Node curr, Elt!Value elt, out ElementRef elementRef) @safe pure nothrow @nogc
     {
         auto key = eltKey!Value(elt);
         // debug if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr); }
@@ -3258,6 +3296,7 @@ template RawRadixTree(Value = void)
         currently not stored under `curr`. */
     pragma(inline) Branch insertNewAtAbovePrefix(Branch curr, Elt!Value elt) @safe pure nothrow @nogc
     {
+        pragma(inline, true);
         ElementRef elementRef;
         auto next = insertAtAbovePrefix(curr, elt, elementRef);
         assert(elementRef);
@@ -3324,8 +3363,9 @@ template RawRadixTree(Value = void)
         }
     }
 
-    pragma(inline) Branch insertNewAtBelowPrefix(Branch curr, Elt!Value elt) @safe pure nothrow @nogc
+    Branch insertNewAtBelowPrefix(Branch curr, Elt!Value elt) @safe pure nothrow @nogc
     {
+        pragma(inline, true);
         ElementRef elementRef;
         auto next = insertAtBelowPrefix(curr, elt, elementRef);
         assert(elementRef);
@@ -3705,8 +3745,8 @@ template RawRadixTree(Value = void)
 
     @safe pure nothrow @nogc
     {
-        pragma(inline) void release(SparseLeaf1!Value* curr) { freeNode(curr); }
-        pragma(inline) void release(DenseLeaf1!Value* curr) { freeNode(curr); }
+        pragma(inline, true) void release(SparseLeaf1!Value* curr) { freeNode(curr); }
+        pragma(inline, true) void release(DenseLeaf1!Value* curr) { freeNode(curr); }
 
         void release(SparseBranch* curr)
         {
@@ -3734,10 +3774,10 @@ template RawRadixTree(Value = void)
             freeNode(curr);
         }
 
-        void release(OneLeafMax7 curr) { freeNode(curr); }
-        void release(TwoLeaf3 curr) { freeNode(curr); }
-        void release(TriLeaf2 curr) { freeNode(curr); }
-        void release(HeptLeaf1 curr) { freeNode(curr); }
+        pragma(inline, true) void release(OneLeafMax7 curr) { freeNode(curr); }
+        pragma(inline, true) void release(TwoLeaf3 curr) { freeNode(curr); }
+        pragma(inline, true) void release(TriLeaf2 curr) { freeNode(curr); }
+        pragma(inline, true) void release(HeptLeaf1 curr) { freeNode(curr); }
 
         /// Release `Leaf1!Value curr`.
         void release(Leaf1!Value curr)
@@ -3937,8 +3977,9 @@ template RawRadixTree(Value = void)
         */
         alias hasValue = isValue;
 
-        pragma(inline) Range opSlice() pure nothrow // TODO DIP-1000 scope
+        Range opSlice() pure nothrow // TODO DIP-1000 scope
         {
+            pragma(inline, true);
             return Range(_root, []);
         }
 
@@ -3947,6 +3988,7 @@ template RawRadixTree(Value = void)
         */
         typeof(this) dup() @trusted
         {
+            pragma(inline, true);
             return typeof(return)(dupAt(_root), length);
         }
 
@@ -3960,25 +4002,28 @@ template RawRadixTree(Value = void)
 
         @disable this(this);
 
-        pragma(inline) ~this() @nogc
+        ~this() @nogc
         {
+            pragma(inline, true);
             release(_root);
             debug _root = Node.init;
         }
 
         /// Removes all contents (elements).
-        pragma(inline) void clear() @nogc
+        void clear() @nogc
         {
+            pragma(inline, true);
             release(_root);
             _root = null;
             _length = 0;
         }
 
-        @safe pure nothrow @nogc pragma(inline)
+        @safe pure nothrow @nogc
         {
             /** Returns: `true` if `key` is stored, `false` otherwise. */
             inout(Node) prefix(UKey keyPrefix, out UKey keyPrefixRest) inout
             {
+                pragma(inline, true);
                 return prefixAt(_root, keyPrefix, keyPrefixRest);
             }
 
@@ -3986,6 +4031,7 @@ template RawRadixTree(Value = void)
             /** Lookup deepest node having whose key starts with `key`. */
             inout(Node) matchCommonPrefix(UKey key, out UKey keyRest) inout
             {
+                pragma(inline, true);
                 return matchCommonPrefixAt(_root, key, keyRest);
             }
 
@@ -3994,6 +4040,7 @@ template RawRadixTree(Value = void)
                 /** Returns: `true` if `key` is stored, `false` otherwise. */
                 inout(Value*) contains(UKey key) inout
                 {
+                    pragma(inline, true);
                     return containsAt(_root, key);
                 }
             }
@@ -4002,6 +4049,7 @@ template RawRadixTree(Value = void)
                 /** Returns: `true` if `key` is stored, `false` otherwise. */
                 bool contains(UKey key) const
                 {
+                    pragma(inline, true);
                     return containsAt(_root, key);
                 }
             }
@@ -4011,6 +4059,7 @@ template RawRadixTree(Value = void)
             {
                 Node insert(UKey key, in Value value, out ElementRef elementRef)
                 {
+                    pragma(inline, true);
                     return _root = insertAt(_root, Elt!Value(key, value), elementRef);
                 }
             }
@@ -4018,29 +4067,34 @@ template RawRadixTree(Value = void)
             {
                 Node insert(UKey key, out ElementRef elementRef)
                 {
+                    pragma(inline, true);
                     return _root = insertAt(_root, key, elementRef);
                 }
             }
 
             size_t countHeapNodes()
             {
+                pragma(inline, true);
                 return countHeapNodesAt(_root);
             }
 
             /** Returns: `true` iff tree is empty (no elements stored). */
             bool empty() const
             {
+                pragma(inline, true);
                 return !_root;
             }
 
             /** Returns: number of elements stored. */
             size_t length() const
             {
+                pragma(inline, true);
                 return _length;
             }
 
             Node rootNode() const
             {
+                pragma(inline, true);
                 return _root;
             }
 
@@ -4054,7 +4108,11 @@ template RawRadixTree(Value = void)
             printAt(_root, 0);
         }
 
-        Node getRoot() { return _root; }
+        Node getRoot()
+        {
+            pragma(inline, true);
+            return _root;
+        }
 
     private:
         Node _root;
@@ -4342,6 +4400,7 @@ struct RadixTree(K, V)
 
         ref V opIndex(K key)
         {
+            pragma(inline, true);
             V* value = contains(key);
             if (value is null)
             {
@@ -4414,6 +4473,7 @@ struct RadixTree(K, V)
         /** Returns: pointer to value if `key` is contained in set, null otherwise. */
         inout(V*) contains(in K key) inout @nogc
         {
+            pragma(inline, true);
             Array!Ix rawUKey;
             auto rawKey = key.toRawKey(rawUKey); // TODO DIP-1000 scope
             return _rawTree.contains(rawKey);
@@ -4422,6 +4482,7 @@ struct RadixTree(K, V)
         /// AA-style key-value range.
         pragma(inline) Range byKeyValue() @nogc // TODO inout?, TODO DIP-1000 scope
         {
+            pragma(inline, true);
             return this.opSlice;
         }
     }
@@ -4452,6 +4513,7 @@ struct RadixTree(K, V)
         /** Returns: `true` if `key` is stored, `false` otherwise. */
         bool contains(in K key) inout
         {
+            pragma(inline, true);
             Array!Ix rawUKey;
             auto rawKey = key.toRawKey(rawUKey); // TODO DIP-1000 scope
             return _rawTree.contains(rawKey);
@@ -4460,6 +4522,7 @@ struct RadixTree(K, V)
         /// AA-style key range.
         pragma(inline) Range byKey() @nogc // TODO inout?. TODO DIP-1000 scope
         {
+            pragma(inline, true);
             return this.opSlice;
         }
     }
@@ -4468,11 +4531,13 @@ struct RadixTree(K, V)
     auto opBinaryRight(string op)(in K key) inout
         if (op == "in")
     {
+        pragma(inline, true);
         return contains(key);   // TODO return `_rawTree.ElementRefType`
     }
 
     pragma(inline) Range opSlice() @system @nogc // TODO inout?
     {
+        pragma(inline, true);
         return Range(_root, []);
     }
 
@@ -4499,11 +4564,13 @@ struct RadixTree(K, V)
         this(RawTree.NodeType root,
              UKey keyPrefixRest)
         {
+            pragma(inline, true);
             _rawRange = _rawTree.RangeType(root, keyPrefixRest);
         }
 
         TypedElt front() const
         {
+            pragma(inline, true);
             static if (RawTree.hasValue)
             {
                 return typeof(return)(_rawRange.lowKey.toTypedKey!K,
@@ -4517,6 +4584,7 @@ struct RadixTree(K, V)
 
         TypedElt back() const
         {
+            pragma(inline, true);
             static if (RawTree.hasValue)
             {
                 return typeof(return)(_rawRange.highKey.toTypedKey!K,
@@ -4530,6 +4598,7 @@ struct RadixTree(K, V)
 
         @property typeof(this) save()
         {
+            pragma(inline, true);
             typeof(return) copy;
             copy._rawRange = this._rawRange.save;
             return copy;
@@ -4545,6 +4614,7 @@ struct RadixTree(K, V)
         this(RawTree.NodeType root,
              UKey keyPrefixRest)
         {
+            pragma(inline, true);
             this._rawRange = _rawTree.RangeType(root, keyPrefixRest);
         }
 
@@ -4552,12 +4622,14 @@ struct RadixTree(K, V)
         {
             const(Elt!V) front() const
             {
+                pragma(inline, true);
                 return typeof(return)(_rawRange.lowKey,
                                       _rawRange._front._cachedFrontValue);
             }
 
             const(Elt!V) back() const
             {
+                pragma(inline, true);
                 return typeof(return)(_rawRange.highKey,
                                       _rawRange._back._cachedFrontValue);
             }
@@ -4566,16 +4638,19 @@ struct RadixTree(K, V)
         {
             const(Elt!V) front() const
             {
+                pragma(inline, true);
                 return _rawRange.lowKey;
             }
             const(Elt!V) back() const
             {
+                pragma(inline, true);
                 return _rawRange.highKey;
             }
         }
 
         @property typeof(this) save()
         {
+            pragma(inline, true);
             typeof(return) copy;
             copy._rawRange = this._rawRange.save;
             return copy;
@@ -4645,6 +4720,7 @@ struct RadixTree(K, V)
 
         @property typeof(this) save()
         {
+            pragma(inline, true);
             typeof(return) copy;
             copy._rawRange = this._rawRange.save;
             copy._rawKeyPrefix = this._rawKeyPrefix.dup;

@@ -5607,7 +5607,6 @@ auto checkNumeric(Keys...)() @safe
 /// Benchmark performance and memory usage when span is `span`.
 void benchmark()()
 {
-    import core.thread : sleep;
     import std.stdio : writeln;
 
     import std.algorithm : equal;
@@ -5653,12 +5652,8 @@ void benchmark()()
                 static if (false) { assert(!set.insert(k)); }
             }
 
-            writeln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
-
+            writeln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration);
             set.showStatistics();
-
-            sleep(2);
-            writeln("Sleeping done");
         }
 
         {
@@ -5667,9 +5662,7 @@ void benchmark()()
 
             foreach (Key k; randomSamples) { aa[k] = true; }
 
-            writeln("D-AA: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration, ". Sleeping...");
-            sleep(2);
-            writeln("Sleeping done");
+            writeln("D-AA: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration);
         }
 
         auto map = radixTreeMap!(Key, Value);

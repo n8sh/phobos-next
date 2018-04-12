@@ -148,7 +148,7 @@ import container_traits : mustAddGCRange;
 import basic_array : Array = BasicArray;
 
 // version = enterSingleInfiniteMemoryLeakTest;
-version = benchmark;
+// version = benchmark;
 version = print;
 // version = useMemoryErrorHandler;
 // version = showBranchSizes;

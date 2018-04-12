@@ -134,7 +134,8 @@
 */
 module trie;
 
-import std.algorithm : move, min, max;
+import std.algorithm.mutation : move;
+import std.algorithm.comparison : min, max;
 import std.meta : allSatisfy;
 import std.traits : isSomeString, isArray, isPointer, Unqual;
 import std.range : isInputRange, isBidirectionalRange, ElementType;
@@ -436,15 +437,14 @@ struct TriLeaf2
     {
         // version(LDC) pragma(inline, true);
         assert(!keys.empty);
+        import std.algorithm.searching : commonPrefix;
         final switch (keys.length)
         {
         case 1:
             return keys.at!0[];
         case 2:
-            import std.algorithm.searching : commonPrefix;
             return commonPrefix(keys.at!0[], keys.at!1[]);
         case 3:
-            import std.algorithm.searching : commonPrefix;
             return commonPrefix(keys.at!0[],
                                 commonPrefix(keys.at!1[],
                                              keys.at!2[])); // TODO make and reuse variadic commonPrefix

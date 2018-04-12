@@ -121,7 +121,14 @@ void main()
                  ))
     {
         // scope
-        A a;
+        static if (is(A == class))
+        {
+            auto a = new A();
+        }
+        else
+        {
+            auto a = A();
+        }
 
         // TODO const elements = iotaArrayOf!(A.ElementType)(n);
 

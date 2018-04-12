@@ -1131,7 +1131,6 @@ template RawRadixTree(Value = void)
     import std.conv : to;
     import std.algorithm : filter;
     import std.meta : AliasSeq, staticMap;
-    import std.typecons : ConstOf;
 
     import static_bitarray : StaticBitArray;
 
@@ -1546,6 +1545,7 @@ template RawRadixTree(Value = void)
 
     /** Constant node. */
     // TODO make work with indexNaming
+    // import std.typecons : ConstOf;
     // alias ConstNodePtr = WordVariant!(staticMap!(ConstOf, Node));
 
     static assert(span <= 8*Ix.sizeof, "Need more precision in Ix");

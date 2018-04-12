@@ -188,7 +188,7 @@ version = useModulo;
 */
 version(useModulo)
 {
-    import modulo : Mod, mod;
+    import modulo : Mod, mod;   // TODO remove these if radix is `256`
     alias Ix = Mod!(radix, ubyte);
     alias UIx = Mod!(radix, size_t); // `size_t` is faster than `uint` on Intel Haswell
 

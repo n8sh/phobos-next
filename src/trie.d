@@ -148,7 +148,7 @@ import container_traits : mustAddGCRange;
 import basic_array : Array = BasicArray;
 
 // version = enterSingleInfiniteMemoryLeakTest;
-// version = benchmark;
+version = benchmark;
 version = print;
 // version = useMemoryErrorHandler;
 // version = showBranchSizes;
@@ -480,6 +480,10 @@ struct HeptLeaf1
         Keys.length <= capacity)
     {
         pragma(inline, true);
+        // static foreach (const ix, const key; keys)
+        // {
+        //     this.keys[ix] = cast(Ix)key;
+        // }
         this.keys = keys;
     }
 
@@ -589,7 +593,7 @@ static private struct SparseLeaf1(Value)
 
     this(size_t capacity)
     {
-        _capacity = capacity;
+        _capacity = cast(Capacity)capacity;
         _length = 0;
     }
 
@@ -647,8 +651,8 @@ static private struct SparseLeaf1(Value)
         }
         body
         {
-            _capacity = capacity;
-            _length = ixs.length;
+            _capacity = cast(Capacity)capacity;
+            _length = cast(Length)ixs.length;
             foreach (immutable i, immutable ix; ixs) { ixsSlots[i] = ix; }
         }
     }
@@ -758,7 +762,7 @@ static private struct SparseLeaf1(Value)
         }
         else
         {
-            ixsSlots[index] = elt;
+            ixsSlots[index] = cast(Ix)elt;
         }
 
         ++_length;
@@ -1349,7 +1353,7 @@ template RawRadixTree(Value = void)
                 subIxSlots[iD] = subIxSlots[iS];
                 subNodeSlots[iD] = subNodeSlots[iS];
             }
-            subIxSlots[index] = sub.ix; // set new element
+            subIxSlots[index] = cast(Ix)sub.ix; // set new element
             subNodeSlots[index] = sub.node; // set new element
             ++subCount;
         }
@@ -3639,7 +3643,7 @@ template RawRadixTree(Value = void)
             if (!curr.keys.full)
             {
                 elementRef = ElementRef(Node(curr), UIx(curr.keys.back), ModStatus.added);
-                curr.keys.pushBack(key);
+                curr.keys.pushBack(cast(Ix)key);
                 return Leaf1!Value(curr);
             }
             else            // curr is full
@@ -3649,7 +3653,7 @@ template RawRadixTree(Value = void)
                 // pack `curr.keys` plus `key` into `nextKeys`
                 Ix[curr.capacity + 1] nextKeys;
                 nextKeys[0 .. curr.capacity] = curr.keys;
-                nextKeys[curr.capacity] = key;
+                nextKeys[curr.capacity] = cast(Ix)key;
 
                 import std.algorithm.sorting : sort;
                 sort(nextKeys[]); // TODO move this sorting elsewhere

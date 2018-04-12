@@ -4351,6 +4351,12 @@ inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey) @trusted
     enum radix = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
     alias Ix = Mod!radix;
 
+    import traits_ex : isAddress;
+    static if (isAddress!TypedKey)
+    {
+        static assert(0, "Shift TypedKey " ~ TypedKey.stringof ~ " by its alignment");
+    }
+
     static if (isFixedTrieableKeyType!TypedKey)
     {
         enum nbits = 8*TypedKey.sizeof; // number of bits in key

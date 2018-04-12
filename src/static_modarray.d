@@ -3,9 +3,9 @@ module static_modarray;
 version = useModulo;
 
 /** Statically allocated `Mod`-array of fixed pre-allocated length `capacity` of
-    `Mod`-elements in chunks of `elementLength`. `ElementType` is
-    `Mod[elementLength]`.
-*/
+ * `Mod`-elements in chunks of `elementLength`. `ElementType` is
+ * `Mod[elementLength]`.
+ */
 struct StaticModArray(uint capacity,
                       uint elementLength,
                       uint span,

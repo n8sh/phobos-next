@@ -31,7 +31,7 @@
     See_Also: $(HTTP en.wikipedia.org/wiki/Radix_tree)
     See_Also: $(HTTP github.com/nordlow/phobos-next/blob/master/src/test_trie_prefix.d) for a descriptive usage of prefixed access.
 
-    TODO use fast bit-scanning functions in core.bitop
+    TODO use fast bit-scanning functions in core.bitop for DenseBranch and DenseLeaf iterators
 
     TODO shift addresses of class and pointers by its alignment before adding them to make top-branch as dense possible
 

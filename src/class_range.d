@@ -4,16 +4,17 @@ import std.traits : isArray;
 import std.range : isInputRange, ElementType;
 
 /// ditto
-auto upcastElementsTo(U, R)(inout(R) x) @trusted
-    if (!isArray!R &&
-        is(U == class) &&
-        isInputRange!R && is(ElementType!R == class)
-        // TODO also check that `ElementType!R` is a subclass of `U`
-        )
-    {
-        import std.algorithm.iteration : map;
-        return x.map!(_ => cast(U)_);
-    }
+auto upcastElementsTo(U, R)(inout(R) x)
+    @trusted
+if (!isArray!R &&
+    is(U == class) &&
+    isInputRange!R && is(ElementType!R == class)
+    // TODO also check that `ElementType!R` is a subclass of `U`
+    )
+{
+    import std.algorithm.iteration : map;
+    return x.map!(_ => cast(U)_);
+}
 
 /** Variant of std.algorithm.iteration : that filters out all elements of
  * `range` that are instances of `Subclass`. */
@@ -22,11 +23,11 @@ template downcastingFilter(Subclass)
     import std.range : isInputRange, ElementType;
     import std.traits : Unqual;
     auto downcastingFilter(Range)(Range range)
-        if (isInputRange!(Unqual!Range) &&
-            is(ElementType!Range == class)) // TODO and subclass of `Subclass`
-        {
-            return UpcastingFilterResult!(Subclass, Range)(range);
-        }
+    if (isInputRange!(Unqual!Range) &&
+        is(ElementType!Range == class)) // TODO and subclass of `Subclass`
+    {
+        return UpcastingFilterResult!(Subclass, Range)(range);
+    }
 }
 
 private struct UpcastingFilterResult(Subclass, Range)

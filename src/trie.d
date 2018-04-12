@@ -31,6 +31,8 @@
     See_Also: $(HTTP en.wikipedia.org/wiki/Radix_tree)
     See_Also: $(HTTP github.com/nordlow/phobos-next/blob/master/src/test_trie_prefix.d) for a descriptive usage of prefixed access.
 
+    TODO split up file into raw_trie.d, trie.d
+
     TODO use fast bit-scanning functions in core.bitop for DenseBranch and DenseLeaf iterators
 
     TODO shift addresses of class and pointers by its alignment before adding them to make top-branch as dense possible
@@ -4233,7 +4235,7 @@ static private void calculate(Value)(Leaf1!Value curr,
 /** Remap fixed-length typed key `typedKey` to raw (untyped) key of type `UKey`.
     TODO DIP-1000 scope
 */
-UKey toFixedRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @trusted
+UKey toFixedRawKey(TypedKey)(const scope TypedKey typedKey, UKey preallocatedFixedUKey) @trusted
 {
     enum radix = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
     immutable key_ = typedKey.bijectToUnsigned;

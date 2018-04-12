@@ -35,14 +35,16 @@
 
     TODO use fast bit-scanning functions in core.bitop for DenseBranch and DenseLeaf iterators
 
-    TODO shift addresses of class and pointers by its alignment before adding them to make top-branch as dense possible
+    TODO shift addresses of class and pointers by its alignment before adding
+    them to make top-branch as dense possible
 
     TODO Allow slicing from non-mutable tries and add test-case at line 5300
 
     TODO 2. Make as many members as possible free functionss free-functions to
     reduce compilation times. Alternative make them templates (`template-lazy` )
 
-    TODO Use scope on `Range`, `RawRange` and members that return key and value reference when DIP-1000 has been implemented
+    TODO Use scope on `Range`, `RawRange` and members that return key and value
+    reference when DIP-1000 has been implemented
 
     TODO Encode `string` with zero-terminating 0 byte when it's not the last
     member in a key aggregate

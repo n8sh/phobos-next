@@ -4283,7 +4283,6 @@ if (isTrieableKeyType!TypedKey)
     }
     else static if (isArray!TypedKey)
     {
-        alias Ix = Mod!radix;
         alias EType = Unqual!(typeof(TypedKey.init[0]));
         static if (is(EType == char)) // TODO extend to support isTrieableKeyType!TypedKey
         {
@@ -4322,8 +4321,6 @@ if (isTrieableKeyType!TypedKey)
         }
         else
         {
-            alias Ix = Mod!radix;
-
             enum members = __traits(allMembers, TypedKey);
             foreach (immutable i, immutable memberName; members) // for each member name in `struct TypedKey`
             {
@@ -4358,9 +4355,6 @@ if (isTrieableKeyType!TypedKey)
 inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey) @trusted
 if (isTrieableKeyType!TypedKey)
 {
-    enum radix = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
-    alias Ix = Mod!radix;
-
     import traits_ex : isAddress;
     static if (isAddress!TypedKey)
     {

@@ -444,15 +444,17 @@ struct HeptLeaf1
 
     @safe pure nothrow @nogc:
 
-    pragma(inline) this(Keys...)(Keys keys)
+    this(Keys...)(Keys keys)
         if (Keys.length >= 1 &&
             Keys.length <= capacity)
     {
+        pragma(inline, true);
         this.keys = keys;
     }
 
     pragma(inline) bool contains(UIx key) const
     {
+        pragma(inline, true);
         assert(!keys.empty);
         // final switch (keys.length)
         // {
@@ -466,7 +468,12 @@ struct HeptLeaf1
         // }
         return keys.contains(key);
     }
-    pragma(inline) bool contains(UKey key) const { return key.length == 1 && keys.contains(UIx(key[0])); }
+    bool contains(UKey key) const
+    {
+        pragma(inline, true);
+        return (key.length == 1 &&
+                keys.contains(UIx(key[0])));
+    }
 
     IxsN!(capacity, 1) keys;    // should never be empty
 }
@@ -613,13 +620,15 @@ static private struct SparseLeaf1(Value)
         }
     }
 
-    pragma(inline) ~this()
+    ~this()
     {
+        pragma(inline, true);
         deinit();
     }
 
-    private pragma(inline) void deinit() @trusted
+    private void deinit() @trusted
     {
+        pragma(inline, true);
         static if (hasValue &&
                    mustAddGCRange!Value)
         {
@@ -698,7 +707,7 @@ static private struct SparseLeaf1(Value)
         return next;
     }
 
-    pragma(inline) private void insertAt(size_t index, IxElt!Value elt)
+    private void insertAt(size_t index, IxElt!Value elt)
     {
         assert(index <= _length);
 
@@ -722,19 +731,19 @@ static private struct SparseLeaf1(Value)
         ++_length;
     }
 
-    pragma(inline) Length length() const @safe @nogc { return _length; }
-    pragma(inline) Capacity capacity() const @safe @nogc { return _capacity; }
+    pragma(inline, true) Length length() const @safe @nogc { return _length; }
+    pragma(inline, true) Capacity capacity() const @safe @nogc { return _capacity; }
 
-    pragma(inline) bool empty() const @safe @nogc { return _length == 0; }
-    pragma(inline) bool full() const @safe @nogc { return _length == _capacity; }
+    pragma(inline, true) bool empty() const @safe @nogc { return _length == 0; }
+    pragma(inline, true) bool full() const @safe @nogc { return _length == _capacity; }
 
     /** Get all initialized keys. */
-    pragma(inline) auto ixs() inout @trusted @nogc { return ixsSlots[0 .. _length]; }
+    pragma(inline, true) auto ixs() inout @trusted @nogc { return ixsSlots[0 .. _length]; }
 
     static if (hasValue)
     {
         /** Get all intialized values. */
-        pragma(inline) auto values() inout @trusted @nogc { return valuesSlots[0 .. _length]; }
+        pragma(inline, true) auto values() inout @trusted @nogc { return valuesSlots[0 .. _length]; }
 
         pragma(inline) void setValue(UIx ix, in Value value) @trusted
         {
@@ -745,8 +754,9 @@ static private struct SparseLeaf1(Value)
             values[index] = value;
         }
 
-        pragma(inline) inout(Value*) contains(UIx key) inout @nogc
+        inout(Value*) contains(UIx key) inout @nogc
         {
+            pragma(inline, true);
             size_t index;
             if (ixs.assumeSorted.containsStoreIndex(key, index))
             {
@@ -760,15 +770,17 @@ static private struct SparseLeaf1(Value)
     }
     else
     {
-        pragma(inline) bool contains(UIx key) const @nogc
+        bool contains(UIx key) const @nogc
         {
+            pragma(inline, true);
             return ixs.assumeSorted.contains(key);
         }
     }
 
     /** Get all reserved keys. */
-    private pragma(inline) auto ixsSlots() inout @trusted @nogc
+    private auto ixsSlots() inout @trusted @nogc
     {
+        pragma(inline, true);
         static if (hasValue)
         {
             return (cast(Ix*)(_values.ptr + _capacity))[0 .. _capacity];
@@ -781,8 +793,9 @@ static private struct SparseLeaf1(Value)
     static if (hasValue)
     {
         /** Get all reserved values. */
-        private pragma(inline) auto valuesSlots() inout @trusted @nogc
+        private auto valuesSlots() inout @trusted @nogc
         {
+            pragma(inline, true);
             return _values.ptr[0 .. _capacity];
         }
     }
@@ -896,6 +909,7 @@ static private struct DenseLeaf1(Value)
     */
     typeof(this)* dup()
     {
+        pragma(inline, true);
         static if (hasValue)
         {
             return construct!(typeof(this)*)(_ixBits, _values);
@@ -908,26 +922,27 @@ static private struct DenseLeaf1(Value)
 
     ~this()
     {
+        pragma(inline, true);
         static if (hasGCScannedValues)
         {
             GC.removeRange(_values.ptr, capacity * Value.size);
         }
     }
 
-    pragma(inline) bool empty() const { return _ixBits.allZero; }
-    pragma(inline) bool full() const { return _ixBits.allOne; }
-    pragma(inline) size_t count() const { return _ixBits.countOnes; }
+    pragma(inline, true) bool empty() const { return _ixBits.allZero; }
+    pragma(inline, true) bool full() const { return _ixBits.allOne; }
+    pragma(inline, true) size_t count() const { return _ixBits.countOnes; }
 
     static if (hasValue)
     {
-        pragma(inline) inout(Value*) contains(UIx ix) inout
+        pragma(inline, true) inout(Value*) contains(UIx ix) inout
         {
             return _ixBits[ix] ? &(_values[ix]) : null;
         }
     }
     else
     {
-        pragma(inline) bool contains(UIx ix) const { return _ixBits[ix]; }
+        pragma(inline, true) bool contains(UIx ix) const { return _ixBits[ix]; }
     }
 
     pragma(inline) ModStatus insert(IxElt!Value elt)
@@ -975,12 +990,14 @@ static private struct DenseLeaf1(Value)
      */
     bool tryFindSetBitIx(UIx ix, out UIx nextIx) const
     {
+        pragma(inline, true);
         assert(!_ixBits.allZero);
         return _ixBits.canFindIndexOf(true, ix, nextIx);
     }
 
     bool tryFindNextSetBitIx(UIx ix, out UIx nextIx) const
     {
+        pragma(inline, true);
         immutable ix1 = cast(uint)(ix + 1);
         return ix1 != radix && tryFindSetBitIx(UIx(ix1), nextIx);
     }
@@ -988,9 +1005,9 @@ static private struct DenseLeaf1(Value)
     static if (hasValue)
     {
         /// Set value at index `ix` to `value`.
-        void setValue(UIx ix, in Value value) { _values[ix] = value; }
+        pragma(inline, true) void setValue(UIx ix, in Value value) { _values[ix] = value; }
 
-        auto values() inout { return _values; }
+        pragma(inline, true) auto values() inout { return _values; }
     }
 
 private:

@@ -215,6 +215,8 @@ else
     alias IKey(size_t span) = immutable(ubyte)[]; // TODO use static_bitarray to more naturally support span != 8.
     /** Fixed-Length RawTree Key. */
     alias KeyN(size_t span, size_t N) = ubyte[N];
+
+    enum useModuloFlag = false;
 }
 
 import static_modarray : StaticModArray;
@@ -1249,7 +1251,7 @@ template RawRadixTree(Value = void)
         private pragma(inline, true) void initialize(size_t subCapacity)
         {
             // assert(subCapacity != 4);
-            this.subCapacity = subCapacity;
+            this.subCapacity = cast(Count)subCapacity;
             debug           // only zero-initialize in debug mode
             {
                 // zero-initialize variable-length part
@@ -1665,7 +1667,7 @@ template RawRadixTree(Value = void)
                 key ~= branch.as!(DenseBranch*).prefix[];
                 break;
             }
-            key ~= Ix(frontIx); // uses cached data so ok to not depend on branch type
+            key ~= cast(Ix)frontIx; // uses cached data so ok to not depend on branch type
         }
 
         size_t prefixLength() const @nogc
@@ -2020,7 +2022,7 @@ template RawRadixTree(Value = void)
                 key ~= Ix(leaf.as!(SparseLeaf1!Value*).ixs[ix]);
                 break;
             case ix_DenseLeaf1Ptr:
-                key ~= Ix(ix);
+                key ~= cast(Ix)ix;
                 break;
             default: assert(false, "Unsupported Node type");
             }

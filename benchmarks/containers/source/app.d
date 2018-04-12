@@ -103,6 +103,9 @@ void main()
 
                           OpenHashSet!(Nullable!(uint, uint.max), FNV!(64, true)),
 
+                          RadixTreeSetGrowOnly!(uint),
+                          RedBlackTree!(uint),
+
                           SSOHashSet!(ulong, null, wangMixHash64),
                           SSOHashSet!(ulong, null, muellerHash64),
                           SSOHashSet!(ulong, null, FNV!(64, true), 2),
@@ -111,13 +114,10 @@ void main()
 
                           OpenHashSet!(Nullable!(ulong, ulong.max), FNV!(64, true)),
 
+                          RadixTreeSetGrowOnly!(ulong),
+                          RedBlackTree!(ulong),
+
                           // TODO OpenHashMap!(string, void, FNV!(64, true)),
-
-                          // radix tree
-                          RadixTreeSetGrowOnly!(uint),
-
-                          // red-black tree
-                          RedBlackTree!(uint),
                  ))
     {
         // scope

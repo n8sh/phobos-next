@@ -181,7 +181,10 @@ private enum radix = 2^^span;
 static assert(span == 8, "Radix is currently limited to 8");
 static assert(size_t.sizeof == 8, "Currently requires a 64-bit CPU (size_t.sizeof == 8)");
 
-version = useModulo;
+version(unittest)
+{
+    version = useModulo;
+}
 
 /** Radix Modulo Index
     Restricted index type avoids range checking in array indexing below.
@@ -198,6 +201,8 @@ version(useModulo)
     alias IKey(size_t span) = immutable(Mod!(2^^span))[]; // TODO use static_bitarray to more naturally support span != 8.
     /** Fixed-Length RawTree Key. */
     alias KeyN(size_t span, size_t N) = Mod!(2^^span)[N];
+
+    enum useModuloFlag = true;
 }
 else
 {
@@ -213,7 +218,11 @@ else
 }
 
 import static_modarray : StaticModArray;
-alias IxsN = StaticModArray;
+alias IxsN(uint capacity,
+           uint elementLength) = StaticModArray!(capacity,
+                                                 elementLength,
+                                                 8,
+                                                 useModuloFlag);
 
 alias UKey = Key!span;
 bool empty(UKey ukey) @safe pure nothrow @nogc
@@ -1397,7 +1406,7 @@ template RawRadixTree(Value = void)
         // members in order of decreasing `alignof`:
         Leaf1!Value leaf1;
 
-        IxsN!prefixCapacity prefix; // prefix common to all `subNodes` (also called edge-label)
+        IxsN!(prefixCapacity, 1) prefix; // prefix common to all `subNodes` (also called edge-label)
         Count subCount;
         Count subCapacity;
         static assert(prefix.sizeof + subCount.sizeof + subCapacity.sizeof == 8); // assert alignment
@@ -1517,7 +1526,7 @@ template RawRadixTree(Value = void)
     private:
         // members in order of decreasing `alignof`:
         Leaf1!Value leaf1;
-        IxsN!prefixCapacity prefix; // prefix (edge-label) common to all `subNodes`
+        IxsN!(prefixCapacity, 1) prefix; // prefix (edge-label) common to all `subNodes`
         IndexedBy!(Node[radix], UIx) subNodes;
     }
 
@@ -1548,9 +1557,9 @@ template RawRadixTree(Value = void)
     alias Branch = WordVariant!(SparseBranch*,
                                 DenseBranch*);
 
-    static assert(Node.typeBits <= IxsN!(7, 1, 8).typeBits);
-    static assert(Leaf1!Value.typeBits <= IxsN!(7, 1, 8).typeBits);
-    static assert(Branch.typeBits <= IxsN!(7, 1, 8).typeBits);
+    static assert(Node.typeBits <= IxsN!(7, 1).typeBits);
+    static assert(Leaf1!Value.typeBits <= IxsN!(7, 1).typeBits);
+    static assert(Branch.typeBits <= IxsN!(7, 1).typeBits);
 
     /** Constant node. */
     // TODO make work with indexNaming

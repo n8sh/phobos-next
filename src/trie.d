@@ -456,17 +456,18 @@ struct HeptLeaf1
     {
         pragma(inline, true);
         assert(!keys.empty);
-        final switch (keys.length)
-        {
-        case 1: return keys[0] == key;
-        case 2: return keys[0] == key || keys[1] == key;
-        case 3: return keys[0] == key || keys[1] == key || keys[2] == key;
-        case 4: return keys[0] == key || keys[1] == key || keys[2] == key || keys[3] == key;
-        case 5: return keys[0] == key || keys[1] == key || keys[2] == key || keys[3] == key || keys[4] == key;
-        case 6: return keys[0] == key || keys[1] == key || keys[2] == key || keys[3] == key || keys[4] == key || keys[5] == key;
-        case 7: return keys[0] == key || keys[1] == key || keys[2] == key || keys[3] == key || keys[4] == key || keys[5] == key || keys[6] == key;
-        }
-        // return keys.contains(key);
+        // NOTE this is not noticably faster
+        // final switch (keys.length)
+        // {
+        // case 1: return keys[0] == key;
+        // case 2: return keys[0] == key || keys[1] == key;
+        // case 3: return keys[0] == key || keys[1] == key || keys[2] == key;
+        // case 4: return keys[0] == key || keys[1] == key || keys[2] == key || keys[3] == key;
+        // case 5: return keys[0] == key || keys[1] == key || keys[2] == key || keys[3] == key || keys[4] == key;
+        // case 6: return keys[0] == key || keys[1] == key || keys[2] == key || keys[3] == key || keys[4] == key || keys[5] == key;
+        // case 7: return keys[0] == key || keys[1] == key || keys[2] == key || keys[3] == key || keys[4] == key || keys[5] == key || keys[6] == key;
+        // }
+        return keys.contains(key);
     }
     bool contains(UKey key) const
     {

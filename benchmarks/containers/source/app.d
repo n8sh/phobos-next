@@ -113,6 +113,9 @@ void main()
 
                           // TODO OpenHashMap!(string, void, FNV!(64, true)),
 
+                          // red-black tree
+                          RedBlackTree!(uint),
+
                           // radix tree
                           RadixTreeSetGrowOnly!(uint),
                  ))
@@ -170,7 +173,14 @@ void main()
                     {
                         const element = i;
                     }
-                    hitCount += a.contains(element);
+                    static if (hasMember!(A, "contains"))
+                    {
+                        hitCount += a.contains(element);
+                    }
+                    else
+                    {
+                        hitCount += element in a;
+                    }
                 }
             }
             const ok = hitCount = n; // for side effect in output

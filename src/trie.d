@@ -380,8 +380,8 @@ struct TwoLeaf3
     @safe pure nothrow @nogc:
 
     this(Keys...)(Keys keys)
-        if (Keys.length >= 1 &&
-            Keys.length <= capacity)
+    if (Keys.length >= 1 &&
+        Keys.length <= capacity)
     {
         pragma(inline, true);
         this.keys = keys;
@@ -425,8 +425,8 @@ struct TriLeaf2
     @safe pure nothrow @nogc:
 
     this(Keys...)(Keys keys)
-        if (Keys.length >= 1 &&
-            Keys.length <= capacity)
+    if (Keys.length >= 1 &&
+        Keys.length <= capacity)
     {
         pragma(inline, true);
         this.keys = keys;
@@ -476,8 +476,8 @@ struct HeptLeaf1
     @safe pure nothrow @nogc:
 
     this(Keys...)(Keys keys)
-        if (Keys.length >= 1 &&
-            Keys.length <= capacity)
+    if (Keys.length >= 1 &&
+        Keys.length <= capacity)
     {
         pragma(inline, true);
         this.keys = keys;
@@ -516,7 +516,7 @@ import vla : hasVariableLength, constructVariableLength;
     using constructor arguments `args` of `Args`.
 */
 auto construct(NodeType, Args...)(Args args) @trusted pure nothrow @nogc
-    if (!hasVariableLength!NodeType)
+if (!hasVariableLength!NodeType)
 {
     // debug ++nodeCountsByIx[Node.indexOf!NodeType];
     static if (isPointer!NodeType)
@@ -4262,9 +4262,15 @@ UKey toFixedRawKey(TypedKey)(const scope TypedKey typedKey, UKey preallocatedFix
 /** Remap typed key `typedKey` to raw (untyped) key of type `UKey`.
  */
 UKey toRawKey(TypedKey)(in TypedKey typedKey, ref Array!Ix rawUKey) @trusted
-    if (isTrieableKeyType!TypedKey)
+if (isTrieableKeyType!TypedKey)
 {
     enum radix = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
+
+    import traits_ex : isAddress;
+    static if (isAddress!TypedKey)
+    {
+        static assert(0, "Shift TypedKey " ~ TypedKey.stringof ~ " down by its alignment before returning");
+    }
 
     static if (isFixedTrieableKeyType!TypedKey)
     {
@@ -4346,7 +4352,7 @@ UKey toRawKey(TypedKey)(in TypedKey typedKey, ref Array!Ix rawUKey) @trusted
 
 /** Remap raw untyped key `ukey` to typed key of type `TypedKey`. */
 inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey) @trusted
-    if (isTrieableKeyType!TypedKey)
+if (isTrieableKeyType!TypedKey)
 {
     enum radix = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
     alias Ix = Mod!radix;
@@ -4354,7 +4360,7 @@ inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey) @trusted
     import traits_ex : isAddress;
     static if (isAddress!TypedKey)
     {
-        static assert(0, "Shift TypedKey " ~ TypedKey.stringof ~ " by its alignment before converting it and dadress");
+        static assert(0, "Shift TypedKey " ~ TypedKey.stringof ~ " up by its alignment before returning");
     }
 
     static if (isFixedTrieableKeyType!TypedKey)
@@ -4432,7 +4438,7 @@ inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey) @trusted
 
 /// Radix-Tree with key of type `K` and value of type `V` (if non-`void`).
 struct RadixTree(K, V)
-    if (allSatisfy!(isTrieableKeyType, K))
+if (allSatisfy!(isTrieableKeyType, K))
 {
     alias RawTree = RawRadixTree!(V);
 
@@ -4816,7 +4822,7 @@ alias CompactPrefixTree = RadixTree;
 
 /** Print `tree`. */
 void print(Key, Value)(const ref RadixTree!(Key, Value) tree) @safe
-    if (allSatisfy!(isTrieableKeyType, Key))
+if (allSatisfy!(isTrieableKeyType, Key))
 {
     print(tree._rawTree);
 }
@@ -4999,8 +5005,9 @@ auto radixTreeMapGrowOnly(Key, Value)()
     assert(set[].isSorted);
 }
 
-version(unittest) auto testScalar(uint span, Keys...)()
-    if (Keys.length >= 1)
+version(unittest)
+auto testScalar(uint span, Keys...)()
+if (Keys.length >= 1)
 {
     import std.traits : isIntegral, isFloatingPoint;
     import std.range : iota;
@@ -5196,7 +5203,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
 
 /// Check string types in `Keys`.
 auto testString(Keys...)(size_t count, uint maxLength) @safe
-    if (Keys.length >= 1)
+if (Keys.length >= 1)
 {
     void testContainsAndInsert(Set, Key)(ref Set set, Key key)
         if (isSomeString!Key)
@@ -5555,7 +5562,7 @@ bool testEqual(T, U)(ref T x, ref U y)
 
 /// Check correctness when span is `span` and for each `Key` in `Keys`.
 auto checkNumeric(Keys...)() @safe
-    if (Keys.length >= 1)
+if (Keys.length >= 1)
 {
     import std.traits : isIntegral, isFloatingPoint;
     import std.range : iota;
@@ -5751,9 +5758,9 @@ void benchmark()()
     TODO Move to Phobos std.range.
  */
 template iota(size_t from, size_t to)
-    if (from <= to)
+if (from <= to)
 {
-        alias iota = iotaImpl!(to - 1, from);
+    alias iota = iotaImpl!(to - 1, from);
 }
 private template iotaImpl(size_t to, size_t now)
 {

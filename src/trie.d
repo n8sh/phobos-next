@@ -452,21 +452,21 @@ struct HeptLeaf1
         this.keys = keys;
     }
 
-    pragma(inline) bool contains(UIx key) const
+    bool contains(UIx key) const
     {
         pragma(inline, true);
         assert(!keys.empty);
-        // final switch (keys.length)
-        // {
-        // case 1: return keys[0] == key;
-        // case 2: return keys[0] == key || keys[1] == key;
-        // case 3: return keys[0] == key || keys[1] == key || keys[2] == key;
-        // case 4: return keys[0] == key || keys[1] == key || keys[2] == key || keys[3] == key;
-        // case 5: return keys[0] == key || keys[1] == key || keys[2] == key || keys[3] == key || keys[4] == key;
-        // case 6: return keys[0] == key || keys[1] == key || keys[2] == key || keys[3] == key || keys[4] == key || keys[5] == key;
-        // case 7: return keys[0] == key || keys[1] == key || keys[2] == key || keys[3] == key || keys[4] == key || keys[5] == key || keys[6] == key;
-        // }
-        return keys.contains(key);
+        final switch (keys.length)
+        {
+        case 1: return keys[0] == key;
+        case 2: return keys[0] == key || keys[1] == key;
+        case 3: return keys[0] == key || keys[1] == key || keys[2] == key;
+        case 4: return keys[0] == key || keys[1] == key || keys[2] == key || keys[3] == key;
+        case 5: return keys[0] == key || keys[1] == key || keys[2] == key || keys[3] == key || keys[4] == key;
+        case 6: return keys[0] == key || keys[1] == key || keys[2] == key || keys[3] == key || keys[4] == key || keys[5] == key;
+        case 7: return keys[0] == key || keys[1] == key || keys[2] == key || keys[3] == key || keys[4] == key || keys[5] == key || keys[6] == key;
+        }
+        // return keys.contains(key);
     }
     bool contains(UKey key) const
     {
@@ -744,10 +744,15 @@ static private struct SparseLeaf1(Value)
     static if (hasValue)
     {
         /** Get all intialized values. */
-        pragma(inline, true) auto values() inout @trusted @nogc { return valuesSlots[0 .. _length]; }
-
-        pragma(inline) void setValue(UIx ix, in Value value) @trusted
+        auto values() inout @trusted @nogc
         {
+            pragma(inline, true)
+            return valuesSlots[0 .. _length];
+        }
+
+        void setValue(UIx ix, in Value value) @trusted
+        {
+            pragma(inline, true);
             size_t index;
             immutable hit = ixs.assumeSorted.containsStoreIndex(ix, index);
             assert(hit);        // assert hit for now
@@ -946,8 +951,10 @@ static private struct DenseLeaf1(Value)
         pragma(inline, true) bool contains(UIx ix) const { return _ixBits[ix]; }
     }
 
-    pragma(inline) ModStatus insert(IxElt!Value elt)
+    ModStatus insert(IxElt!Value elt)
     {
+        pragma(inline, true);
+
         ModStatus modStatus;
 
         static if (hasValue)
@@ -4104,7 +4111,7 @@ template RawRadixTree(Value = void)
             // debug size_t heapAllocationBalance() { return _heapAllocBalance; }
         }
 
-        pragma(inline) void print() @safe const
+        void print() @safe const
         {
             printAt(_root, 0);
         }
@@ -4481,7 +4488,7 @@ struct RadixTree(K, V)
         }
 
         /// AA-style key-value range.
-        pragma(inline) Range byKeyValue() @nogc // TODO inout?, TODO DIP-1000 scope
+        Range byKeyValue() @nogc // TODO inout?, TODO DIP-1000 scope
         {
             pragma(inline, true);
             return this.opSlice;
@@ -4521,7 +4528,7 @@ struct RadixTree(K, V)
         }
 
         /// AA-style key range.
-        pragma(inline) Range byKey() @nogc // TODO inout?. TODO DIP-1000 scope
+        Range byKey() @nogc // TODO inout?. TODO DIP-1000 scope
         {
             pragma(inline, true);
             return this.opSlice;
@@ -4536,7 +4543,7 @@ struct RadixTree(K, V)
         return contains(key);   // TODO return `_rawTree.ElementRefType`
     }
 
-    pragma(inline) Range opSlice() @system @nogc // TODO inout?
+    Range opSlice() @system @nogc // TODO inout?
     {
         pragma(inline, true);
         return Range(_root, []);
@@ -4545,7 +4552,7 @@ struct RadixTree(K, V)
     /** Get range over elements whose key starts with `keyPrefix`.
         The element equal to `keyPrefix` is return as an empty instance of the type.
      */
-    pragma(inline) auto prefix(K keyPrefix) @system
+    auto prefix(K keyPrefix) @system
     {
         Array!Ix rawUKey;
         auto rawKeyPrefix = keyPrefix.toRawKey(rawUKey);
@@ -4670,7 +4677,7 @@ struct RadixTree(K, V)
         TODO replace `matchCommonPrefix` with something more clever directly
         finds the next element after rawKey and returns a TreeRange at that point
     */
-    pragma(inline) auto upperBound(K key) @system
+    auto upperBound(K key) @system
     {
         Array!Ix rawUKey;
         auto rawKey = key.toRawKey(rawUKey);

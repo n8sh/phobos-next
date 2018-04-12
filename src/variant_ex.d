@@ -312,7 +312,8 @@ pure nothrow unittest
 }
 
 /** A typed pointer to a variant of `Types`, packed into a word (`size_t`).
-    See_Also: `std.bitmanip.taggedPointer`.
+ *
+ * See_Also: `std.bitmanip.taggedPointer`.
  */
 struct VariantPointerTo(Types...)
 {

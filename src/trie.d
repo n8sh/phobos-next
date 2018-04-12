@@ -912,7 +912,7 @@ static private struct DenseLeaf1(Value)
         {
             assert(ixBits.length == values.length);
             _ixBits = ixBits;
-            _values[] = values[];
+            _values[] = values[]; // TODO commenting out does not affect unittests
             static if (hasGCScannedValues)
             {
                 GC.addRange(_values.ptr, capacity * Value.size);

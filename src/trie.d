@@ -4354,7 +4354,7 @@ inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey) @trusted
     import traits_ex : isAddress;
     static if (isAddress!TypedKey)
     {
-        static assert(0, "Shift TypedKey " ~ TypedKey.stringof ~ " by its alignment");
+        static assert(0, "Shift TypedKey " ~ TypedKey.stringof ~ " by its alignment before converting it and dadress");
     }
 
     static if (isFixedTrieableKeyType!TypedKey)

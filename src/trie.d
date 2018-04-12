@@ -33,7 +33,7 @@
 
     TODO shift addresses of class and pointers by its alignment before adding them
 
-    TODO Allow slicing from non-mutlabe tries and add test-case at line 5300
+    TODO Allow slicing from non-mutable tries and add test-case at line 5300
 
     TODO 2. Make as many members as possible free functionss, such as lowerBound, free-functions to reduce compilation times.
 

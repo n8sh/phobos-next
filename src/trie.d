@@ -57,12 +57,19 @@
     make `toRawKey` and `toTypedKey` accept return const-slices
 
     TODO Remove @trusted from VLA (variable length array)-members of SparseBranch/SparseLeaf and make their callers @trusted instead.
+
     TODO Assure that ~this() is run for argument `nt` in `freeNode`. Can we use `postblit()` for this?
+
     TODO Search for "functionize this loop or reuse memmove" and use move()
+
     TODO Add Branch-hint allocation flag and re-benchmark construction of `radixTreeSet` with 10000000 uints
+
     TODO Add sortedness to `IxsN` and make `IxsN.contains()` use `binarySearch()`. Make use of `sortn`.
+
     TODO Check for case when expanding to bit-branch instead of `SparseBranch` in all `expand()` overloads
+
     TODO Make array indexing/slicing as @trusted and use .ptr[] instead of [] when things are stable.
+
     TODO Add various extra packings in MixLeaf1to4: number of
     - Ix  (0,1,2,3,4,5,6): 3-bits
     - Ix2 (0,1,2,3): 2-bits

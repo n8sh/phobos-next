@@ -31,11 +31,12 @@
     See_Also: $(HTTP en.wikipedia.org/wiki/Radix_tree)
     See_Also: $(HTTP github.com/nordlow/phobos-next/blob/master/src/test_trie_prefix.d) for a descriptive usage of prefixed access.
 
-    TODO shift addresses of class and pointers by its alignment before adding them
+    TODO shift addresses of class and pointers by its alignment before adding them to make top-branch as dense possible
 
     TODO Allow slicing from non-mutable tries and add test-case at line 5300
 
-    TODO 2. Make as many members as possible free functionss, such as lowerBound, free-functions to reduce compilation times.
+    TODO 2. Make as many members as possible free functionss free-functions to
+    reduce compilation times. Alternative make them templates (`template-lazy` )
 
     TODO Use scope on `Range`, `RawRange` and members that return key and value reference when DIP-1000 has been implemented
 

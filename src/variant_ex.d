@@ -23,10 +23,10 @@
 module variant_ex;
 
 /** A variant of `Types` packed into a word (`size_t`).
-
-    Suitable for use in tree-data containers, such as radix trees (tries), where
-    hybrid value (sparsely packed sub-tree) and pointer (to dense sub-tree)
-    packing of sub-nodes is needed.
+ *
+ * Suitable for use in tree-data containers, such as radix trees (tries), where
+ * hybrid value (sparsely packed sub-tree) and pointer (to dense sub-tree)
+ * packing of sub-nodes is needed.
  */
 struct WordVariant(Types...)
 {

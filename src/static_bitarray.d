@@ -50,6 +50,7 @@ struct StaticBitArray(uint len, Block = size_t)
     /** Data as an array of unsigned bytes. */
     inout(ubyte)[] ubytes()() inout @trusted
     {
+        pragma(inline, true);
         return (cast(ubyte*)&_blocks)[0 .. _blocks.sizeof];
     }
 
@@ -57,18 +58,21 @@ struct StaticBitArray(uint len, Block = size_t)
     @property inout(Block*) ptr() inout @system
 
     {
+        pragma(inline, true);
         return _blocks.ptr;
     }
 
     /** Reset all bits (to zero). */
     void reset()()
     {
+        pragma(inline, true);
         _blocks[] = 0;
     }
 
     /** Gets the amount of native words backing this $(D StaticBitArray). */
     @property static uint dim()
     {
+        pragma(inline, true);
         return blockCount;
     }
 
@@ -89,9 +93,17 @@ struct StaticBitArray(uint len, Block = size_t)
         @safe pure nothrow @nogc:
 
         /// Returns: `true` iff `this` is empty.
-        bool   empty()  const { return _i == _j; }
+        bool   empty()  const
+        {
+            pragma(inline, true);
+            return _i == _j;
+        }
         /// Returns: `this` length.
-        size_t length() const { return _j - _i; }
+        size_t length() const
+        {
+            pragma(inline, true);
+            return _j - _i;
+        }
 
         import std.traits : isMutable;
         static if (isMutable!(typeof(_store)))
@@ -102,6 +114,7 @@ struct StaticBitArray(uint len, Block = size_t)
         /// Get front.
         bool front() const
         {
+            pragma(inline, true);
             assert(!empty); // only in debug mode since _store is range-checked
             return (*_store)[_i];
         }
@@ -109,15 +122,26 @@ struct StaticBitArray(uint len, Block = size_t)
         /// Get back.
         bool back() const
         {
+            pragma(inline, true);
             assert(!empty);  // only in debug mode since _store is range-checked
             return (*_store)[_j - 1];
         }
 
         /// Pop front.
-        void popFront() { assert(!empty); ++_i; }
+        void popFront()
+        {
+            pragma(inline, true);
+            assert(!empty);
+            ++_i;
+        }
 
         /// Pop back.
-        void popBack()  { assert(!empty); ++_i; }
+        void popBack()
+        {
+            pragma(inline, true);
+            assert(!empty);
+            ++_i;
+        }
 
     private:
         StaticBitArray* _store;
@@ -125,20 +149,19 @@ struct StaticBitArray(uint len, Block = size_t)
         size_t _j = _store.length; // back iterator into _store
     }
 
-    pragma(inline, true)
     scope inout(Range!()) opSlice()() inout return @trusted
     {
+        pragma(inline, true);
         return typeof(return)(&this);
     }
 
-    pragma(inline, true)
     scope inout(Range!()) opSlice()(size_t i, size_t j) inout return @trusted
     {
+        pragma(inline, true);
         return typeof(return)(&this, i, j);
     }
 
     /** Gets the $(D i)'th bit. */
-    pragma(inline, true)
     bool opIndex()(size_t i) const @trusted
     in
     {
@@ -146,6 +169,7 @@ struct StaticBitArray(uint len, Block = size_t)
     }
     body
     {
+        pragma(inline, true);
         // Andrei: review for @@@64-bit@@@
         static if (Block.sizeof == 8)
         {
@@ -164,10 +188,10 @@ struct StaticBitArray(uint len, Block = size_t)
 
             Avoids range-checking because `i` of type is bound to (0 .. len-1).
         */
-        pragma(inline)
         bool opIndex(ModUInt)(Mod!(len, ModUInt) i) const @trusted
             if (isUnsigned!ModUInt)
         {
+            pragma(inline, true);
             static if (Block.sizeof == 8)
             {
                 return cast(bool)bt(ptr, cast(size_t)i);
@@ -181,25 +205,24 @@ struct StaticBitArray(uint len, Block = size_t)
         /** Get the $(D i)'th bit.
             Statically verifies that i is < StaticBitArray length.
         */
-        pragma(inline)
         bool at(size_t i)() const @trusted
             if (i < len)
         {
+            pragma(inline, true);
             return this[i];
         }
     }
 
     /** Puts the $(D i)'th bit to $(D b). */
-    pragma(inline)              // DMD cannot inline
     typeof(this) put()(size_t i, bool b) @trusted
     {
+        version(LDC) pragma(inline, true);
         this[i] = b;
         return this;
     }
 
     /** Sets the $(D i)'th bit. */
     import std.traits : isIntegral;
-    pragma(inline, true)
     bool opIndexAssign(Index2)(bool b, Index2 i) @trusted
         if (isIntegral!Index2)
     in
@@ -215,6 +238,7 @@ struct StaticBitArray(uint len, Block = size_t)
     }
     body
     {
+        pragma(inline, true);
         if (b)
         {
             bts(ptr, cast(size_t)i);
@@ -346,9 +370,9 @@ struct StaticBitArray(uint len, Block = size_t)
     }
 
     /** Reverse block `Block`. */
-    pragma(inline, true)
     static @property Block reverseBlock()(in Block block)
     {
+        pragma(inline, true);
         static if (Block.sizeof == 4)
         {
             return cast(uint)block.bitswap;
@@ -736,24 +760,24 @@ struct StaticBitArray(uint len, Block = size_t)
                 @disable this(this); // Rust-style mutable reference semantics
             }
 
-            pragma(inline, true)
             bool empty() const
             {
+                pragma(inline, true);
                 return _i > _j;
             }
 
             /// Get front.
-            pragma(inline, true)
             Mod!len front() const
             {
+                pragma(inline, true);
                 assert(!empty); // TODO use enforce when it's @nogc
                 return typeof(return)(_i);
             }
 
             /// Get back.
-            pragma(inline, true)
             Mod!len back() const
             {
+                pragma(inline, true);
                 assert(!empty); // TODO use enforce when it's @nogc
                 return typeof(return)(_j);
             }
@@ -822,7 +846,6 @@ struct StaticBitArray(uint len, Block = size_t)
         }
 
         /** Get number of bits set divided by length. */
-        pragma(inline, true)
         auto denseness()(int depth = -1) const
         {
             import rational : Rational;
@@ -831,7 +854,6 @@ struct StaticBitArray(uint len, Block = size_t)
         }
 
         /** Get number of bits unset divided by length. */
-        pragma(inline, true)
         auto sparseness()(int depth = -1) const
         {
             import rational : Rational;

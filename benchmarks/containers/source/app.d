@@ -4,6 +4,7 @@ void main()
     import std.traits : hasMember;
     import std.array : Appender;
     import std.container.array : StdArray = Array;
+    import std.container.rbtree : RedBlackTree;
 
     // my containers
     import basic_array : BasicArray;

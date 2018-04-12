@@ -33,7 +33,8 @@
 
     TODO split up file into raw_trie.d, trie.d
 
-    TODO use fast bit-scanning functions in core.bitop for DenseBranch and DenseLeaf iterators
+    TODO use fast bit-scanning functions in core.bitop for DenseBranch and
+    DenseLeaf iterators
 
     TODO shift addresses of class and pointers by its alignment before adding
     them to make top-branch as dense possible

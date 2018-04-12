@@ -3,6 +3,20 @@ module class_range;
 import std.traits : isArray;
 import std.range : isInputRange, ElementType;
 
+/** Upcast all elements in `x` of type `T` to the type `U`, where `U` is a
+ * superclass of `T`.
+ *
+ * TODO move to phobos-next
+ */
+inout(U)[] upcastElementsTo(U, T)(inout(T)[] x) @trusted
+if (is(T == class) &&
+    is(U == class)
+    // TODO also check that `T` is a subclass of `U`
+    )
+{
+    return cast(typeof(return))x;
+}
+
 /// ditto
 auto upcastElementsTo(U, R)(inout(R) x)
     @trusted

@@ -7,14 +7,15 @@ version = useModulo;
     `Mod[elementLength]`.
 */
 struct StaticModArray(uint capacity,
-                      uint elementLength = 1,
-                      uint span = 8)
+                      uint elementLength,
+                      uint span,
+                      bool useModuloFlag)
     if (capacity*elementLength >= 2) // no use storing less than 2 bytes
 {
     private enum radix = 2^^span;
 
     /// Index modulo `radix` type.
-    version(useModulo)
+    static if (useModuloFlag)
     {
         import modulo : Mod;
         alias Ix = Mod!(radix, ubyte);
@@ -39,7 +40,7 @@ struct StaticModArray(uint capacity,
     /** Construct with `rhsCapacity`. */
     this(uint rhsCapacity)(in StaticModArray!(rhsCapacity,
                                               elementLength,
-                                              span) rhs)
+                                              span, useModuloFlag) rhs)
     {
         static if (capacity < rhsCapacity)
         {
@@ -198,7 +199,7 @@ struct StaticModArray(uint capacity,
         import std.traits : isUnsigned;
 
         /** Returns: `true` if `ix` is contained in `this`. */
-        version(useModulo)
+        static if (useModuloFlag)
         {
             bool contains(ModUInt)(in Mod!(radix, ModUInt) ix) const @nogc
                 if (isUnsigned!ModUInt)
@@ -277,10 +278,10 @@ private:
                      ubyte, "_mustBeIgnored", typeBits)); // must be here and ignored because it contains `WordVariant` type of `Node`
 }
 
-static assert(StaticModArray!(3, 1, 8).sizeof == 4);
-static assert(StaticModArray!(7, 1, 8).sizeof == 8);
-static assert(StaticModArray!(3, 2, 8).sizeof == 8);
-static assert(StaticModArray!(2, 3, 8).sizeof == 8);
+static assert(StaticModArray!(3, 1, 8, false).sizeof == 4);
+static assert(StaticModArray!(7, 1, 8, false).sizeof == 8);
+static assert(StaticModArray!(3, 2, 8, false).sizeof == 8);
+static assert(StaticModArray!(2, 3, 8, false).sizeof == 8);
 
 ///
 @safe pure nothrow @nogc unittest
@@ -310,8 +311,8 @@ static assert(StaticModArray!(2, 3, 8).sizeof == 8);
     const ixs = [mk(11), mk(22), mk(33), mk(44)].s;
     enum capacity = 7;
 
-    auto x = StaticModArray!(capacity, 1)(ixs);
-    auto y = StaticModArray!(capacity, 1)(mk(11), mk(22), mk(33), mk(44));
+    auto x = StaticModArray!(capacity, 1, 8, true)(ixs);
+    auto y = StaticModArray!(capacity, 1, 8, true)(mk(11), mk(22), mk(33), mk(44));
 
     assert(x == y);
 
@@ -405,7 +406,7 @@ static assert(StaticModArray!(2, 3, 8).sizeof == 8);
 
     const ixs = [mk(11), mk(22), mk(33), mk(44)].s;
     enum capacity = 7;
-    auto z = StaticModArray!(capacity, 1)(ixs);
+    auto z = StaticModArray!(capacity, 1, 8, true)(ixs);
     assert(z.sizeof == 8);
     try
     {

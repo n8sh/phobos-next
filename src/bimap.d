@@ -11,19 +11,18 @@ struct BiMap(X, Y,
     alias LeftMap = Map!(X, Y);
     alias RightMap = Map!(Y, X);
 
-    pragma(inline, true):
-
     /// Insert (`x`, `y`).
     void insert(X x, Y y)
     {
+        pragma(inline, true);
         _left[x] = y;
         _right[y] = x;
     }
 
     /// Check if (`x`, `y`) is stored.
-    pragma(inline)              // DMD cannot inline
     bool contains(in X x, in Y y) const
     {
+        version(LDC) pragma(inline, true);
         // TODO do this symmetric?
         if (const hitPtr = x in _left)
         {
@@ -35,6 +34,7 @@ struct BiMap(X, Y,
     /// Clear contents.
     void clear() @trusted       // TODO ok for this to be `@trusted`?
     {
+        pragma(inline, true);
         _left.clear();
         _right.clear();
     }
@@ -42,16 +42,32 @@ struct BiMap(X, Y,
     @safe pure nothrow @nogc:
 
     /// Check if empty.
-    bool empty() const { return length == 0; }
+    bool empty() const
+    {
+        pragma(inline, true);
+        return length == 0;
+    }
 
     /// Get length.
-    size_t length() const { return _left.length; }
+    size_t length() const
+    {
+        pragma(inline, true);
+        return _left.length;
+    }
 
     /// Access to left map must be non-mutating.
-    ref const(LeftMap) left() const { return _left; }
+    ref const(LeftMap) left() const
+    {
+        pragma(inline, true);
+        return _left;
+    }
 
     /// Access to right map must be non-mutating.
-    ref const(RightMap) right() const { return _right; }
+    ref const(RightMap) right() const
+    {
+        pragma(inline, true);
+        return _right;
+    }
 
     LeftMap _left;
     RightMap _right;

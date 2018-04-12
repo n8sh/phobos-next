@@ -145,7 +145,7 @@ import basic_array : Array = BasicArray;
 version = benchmark;
 version = print;
 // version = useMemoryErrorHandler;
-version = showBranchSizes;
+// version = showBranchSizes;
 
 alias isFixedTrieableKeyType = isIntegralBijectableType;
 

@@ -311,14 +311,16 @@ struct OneLeafMax7
     @safe pure:
     enum capacity = 7;
 
-    pragma(inline) this(Ix[] key) nothrow @nogc
+    this(Ix[] key) nothrow @nogc
     {
+        pragma(inline, true);
         assert(key.length != 0);
         this.key = key;
     }
 
-    pragma(inline) bool contains(UKey key) const nothrow @nogc
+    bool contains(UKey key) const nothrow @nogc
     {
+        pragma(inline, true);
         return this.key == key;
     }
 
@@ -346,15 +348,17 @@ struct TwoLeaf3
 
     @safe pure nothrow @nogc:
 
-    pragma(inline) this(Keys...)(Keys keys)
+    this(Keys...)(Keys keys)
         if (Keys.length >= 1 &&
             Keys.length <= capacity)
     {
+        pragma(inline, true);
         this.keys = keys;
     }
 
     inout(Ix)[] prefix() inout
     {
+        // version(LDC) pragma(inline, true);
         assert(!keys.empty);
         final switch (keys.length)
         {
@@ -366,8 +370,9 @@ struct TwoLeaf3
         }
     }
 
-    pragma(inline) bool contains(UKey key) const
+    bool contains(UKey key) const
     {
+        version(LDC) pragma(inline, true);
         assert(!keys.empty);
         final switch (keys.length)
         {
@@ -388,15 +393,17 @@ struct TriLeaf2
 
     @safe pure nothrow @nogc:
 
-    pragma(inline) this(Keys...)(Keys keys)
+    this(Keys...)(Keys keys)
         if (Keys.length >= 1 &&
             Keys.length <= capacity)
     {
+        pragma(inline, true);
         this.keys = keys;
     }
 
     inout(Ix)[] prefix() inout
     {
+        // version(LDC) pragma(inline, true);
         assert(!keys.empty);
         final switch (keys.length)
         {
@@ -413,8 +420,9 @@ struct TriLeaf2
         }
     }
 
-    pragma(inline) bool contains(UKey key) const
+    bool contains(UKey key) const
     {
+        version(LDC) pragma(inline, true);
         assert(!keys.empty);
         final switch (keys.length)
         {

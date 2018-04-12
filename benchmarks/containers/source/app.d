@@ -113,11 +113,11 @@ void main()
 
                           // TODO OpenHashMap!(string, void, FNV!(64, true)),
 
-                          // red-black tree
-                          RedBlackTree!(uint),
-
                           // radix tree
                           RadixTreeSetGrowOnly!(uint),
+
+                          // red-black tree
+                          RedBlackTree!(uint),
                  ))
     {
         // scope

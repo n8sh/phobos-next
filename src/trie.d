@@ -526,7 +526,8 @@ void freeNode(NodeType)(NodeType nt) @trusted pure nothrow @nogc
 static private struct SparseLeaf1(Value)
 {
     import searching_ex : containsStoreIndex;
-    import std.algorithm.sorting : assumeSorted, isSorted;
+    import std.range : assumeSorted;
+    import std.algorithm.sorting : isSorted;
 
     enum hasValue = !is(Value == void);
 
@@ -1326,7 +1327,7 @@ template RawRadixTree(Value = void)
 
         pragma(inline, true) auto subIxs() inout @nogc
         {
-            import std.algorithm.sorting : assumeSorted;
+            import std.range : assumeSorted;
             return subIxSlots[0 .. subCount].assumeSorted;
         }
 
@@ -5407,11 +5408,10 @@ private static auto randomUniqueSortedStrings(size_t count, uint maxLength)
 void testWords(Value)()
 {
     import std.datetime.stopwatch : StopWatch, AutoStart;
-    import std.datetime : Duration;
     import std.stdio : File;
     import std.range : chain;
 
-    immutable path = "/usr/share/dict/words";
+    const path = "/usr/share/dict/words";
 
     enum hasValue = !is(Value == void);
 
@@ -5479,6 +5479,7 @@ void testWords(Value)()
     {
         import std.conv : to;
         import std.stdio : writeln;
+        import std.datetime : Duration;
         writeln("Added ", count, " words from ", path, " in ", sw.peek().to!Duration);
         rtr.showStatistics();
     }

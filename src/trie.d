@@ -4255,7 +4255,6 @@ UKey toFixedRawKey(TypedKey)(in TypedKey typedKey, UKey preallocatedFixedUKey) @
 }
 
 /** Remap typed key `typedKey` to raw (untyped) key of type `UKey`.
-    TODO DIP-1000 scope
  */
 UKey toRawKey(TypedKey)(in TypedKey typedKey, ref Array!Ix rawUKey) @trusted
     if (isTrieableKeyType!TypedKey)

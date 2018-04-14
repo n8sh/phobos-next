@@ -36,9 +36,9 @@ import pure_mallocator : PureMallocator;
  *
  * TODO allocate _holesPtr array together with _bins to reduce size of `OpenHashMapOrSet` to 3 words
  *
- * TODO fix and activate constness of `byKeyValue`
- *
  * TODO support isHole, holeify and holeValue
+ *
+ * TODO fix and activate constness of `byKeyValue`
  *
  * TODO alternatively use extra template arguments for nulls and hole values for
  * instance uint.max and uint.max-1

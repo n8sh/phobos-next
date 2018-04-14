@@ -45,9 +45,6 @@ import pure_mallocator : PureMallocator;
  * module prime) to maximize memory locality when adding successively allocated
  * pointers
  *
- * TODO keep only predicates with ref arguments when LDC can optimize those as
- * fast as value passing. add LDC issue for this
- *
  * TODO fix bug in `growInPlaceWithCapacity` and benchmarka
  *
  * TODO add extractElement that moves it out similar to
@@ -61,6 +58,9 @@ import pure_mallocator : PureMallocator;
  *
  * TODO enable `borrowChecked` unconditionally in version(debug) if and when
  * `opMove` is implemented. See: https://github.com/dlang/DIPs/pull/109
+ *
+ * TODO keep only predicates with ref arguments when LDC can optimize those as
+ * fast as value passing. add LDC issue for this
  */
 struct OpenHashMapOrSet(K, V = void,
                         alias hasher = hashOf,

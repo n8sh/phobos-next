@@ -2921,15 +2921,17 @@ struct FixedArrayOrOpenHashSet(K,
                                alias Allocator = PureMallocator.instance)
 {
     static typeof(this) withCapacity()(size_t minimumCapacity) // template-lazy
+        @trusted
     {
-        if (minimumCapacity <= smallCapacity)
+        typeof(return) result = void;
+        if (minimumCapacity <= fixedArray.smallCapacity) // small
         {
-            // use small
+            result.fixedArray.count = 0;
         }
-        else
+        else                    // large
         {
-            // use large
         }
+        return result;
     }
 private:
     enum borrowChecked = false; // only works if set is not borrow checked
@@ -2955,7 +2957,7 @@ private:
         }
         uint value;
     }
-    FixedArrayOrOpenHashSet!(K, FNV!(64, true)) x;
+    // auto x = FixedArrayOrOpenHashSet!(K, FNV!(64, true)).withCapacity(2);
 }
 
 version(unittest)

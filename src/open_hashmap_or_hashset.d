@@ -1110,7 +1110,7 @@ struct OpenHashMapOrSet(K, V = void,
     /** Returns: average probe count for all elements stored. */
     double averageProbeCount()() const // template-lazy
     {
-        return totalProbeCount/length;
+        return cast(typeof(return))totalProbeCount/length;
     }
 
 private:

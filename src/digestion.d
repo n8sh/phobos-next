@@ -65,12 +65,12 @@ void digestAny(Digest, T)(ref Digest digest,
 }
 
 /** Digest the `value` as an address (pointer). */
-pragma(inline, true)
 private void digestAddress(Digest, T)(scope ref Digest digest,
                                       const scope T value) // pointer passed by value
     if (isDigest!Digest &&
         isAddress!T)
 {
+    pragma(inline, true);
     digestRaw(digest, value);
 }
 

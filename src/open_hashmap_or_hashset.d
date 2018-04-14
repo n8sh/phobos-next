@@ -31,7 +31,7 @@ import pure_mallocator : PureMallocator;
  * See_Also: https://en.wikipedia.org/wiki/Lazy_deletion
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  *
- * TODO allocate holes together with _bins to reduce start size
+ * TODO allocate _holesPtr array together with _bins to reduce size of `OpenHashMapOrSet` to 3 words
  *
  * TODO add support for checking existence `K.nullifier` that infers, for
  * instance, how tag ZingRel as null or hole

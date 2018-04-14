@@ -2916,6 +2916,48 @@ version(unittest)
     assert(!x.contains(Alt.a));
 }
 
+struct FixedArrayOrOpenHashSet(K,
+                               alias hasher = hashOf,
+                               alias Allocator = PureMallocator.instance)
+{
+    static typeof(this) withCapacity()(size_t minimumCapacity) // template-lazy
+    {
+        if (minimumCapacity <= smallCapacity)
+        {
+            // use small
+        }
+        else
+        {
+            // use large
+        }
+    }
+private:
+    enum borrowChecked = false; // only works if set is not borrow checked
+    union
+    {
+        OpenHashSet!(K, hasher, Allocator, borrowChecked) hashSet;
+        struct fixedArray
+        {
+            enum smallCapacity = (hashSet.sizeof - count.sizeof)/K.sizeof;
+            K[smallCapacity] fixedArrayStore;
+            size_t count;       // 0,1,2 means use fixedArrayStore
+        }
+    };
+}
+
+@safe pure unittest
+{
+    class K
+    {
+        this(uint value)
+        {
+            this.value = value;
+        }
+        uint value;
+    }
+    FixedArrayOrOpenHashSet!(K, FNV!(64, true)) x;
+}
+
 version(unittest)
 {
     debug import std.exception : assertThrown, assertNotThrown;

@@ -40,9 +40,6 @@ import pure_mallocator : PureMallocator;
  *
  * TODO fix and activate constness of `byKeyValue`
  *
- * TODO alternatively use extra template arguments for nulls and hole values for
- * instance uint.max and uint.max-1
- *
  * TODO if hash-function is cast(size_t)(classInstance) always use prime length
  * and shift pointer before hash based on alignof (might not be needed when
  * module prime) to maximize memory locality when adding successively allocated

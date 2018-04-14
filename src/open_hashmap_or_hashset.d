@@ -213,10 +213,10 @@ struct OpenHashMapOrSet(K, V = void,
         }
 
         /// Get key part.
-        static auto ref inout(K) keyOf()(auto ref return scope inout(KeyValueType) element)
+        static auto ref inout(K) keyOf()(auto ref return scope inout(KeyValueType) element) @trusted
         {
             pragma(inline, true);
-            return element.key;
+            return cast(typeof(return))element.key; // needed for case: `inout(const(K)) => inout(K)`
         }
     }
     else                        // HashSet
@@ -1105,6 +1105,12 @@ struct OpenHashMapOrSet(K, V = void,
             totalCount += triangularProbeCountFromIndex!pred(_bins[], keyToIndex(keyOf(currentElement)));
         }
         return totalCount;
+    }
+
+    /** Returns: average probe count for all elements stored. */
+    double averageProbeCount()() const // template-lazy
+    {
+        return totalProbeCount/length;
     }
 
 private:

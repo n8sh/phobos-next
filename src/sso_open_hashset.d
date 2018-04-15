@@ -62,7 +62,7 @@ struct SSOOpenHashSet(K,
                             result.small._bins.sizeof);
             }
 
-            result.small._capacityDummy = 2;
+            result.small._capacityDummy = 2; // tag as small
         }
         return result;
     }

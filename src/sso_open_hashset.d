@@ -206,6 +206,7 @@ private:
 
     alias X3 = SSOOpenHashSet!(K, FNV!(64, true));
     auto x3 = X3.withCapacity(3);
+    assert(x3.isLarge);
     assert(x3.capacity == 4);   // nextPow2
     assert(x3.length == 0);
     assert(x3.insert(new K(42)) == x3.InsertionStatus.added);

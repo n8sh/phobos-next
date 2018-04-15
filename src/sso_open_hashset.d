@@ -8,7 +8,8 @@ import pure_mallocator : PureMallocator;
 
 /** Small-set-optimized `OpenHashSet`.
  *
- * TODO use opMove to update `gc_addRange` and `gc_removeRange` when implemented. See: https://github.com/dlang/DIPs/pull/109
+ * TODO use opMove to update `gc_addRange` and `gc_removeRange` when
+ * implemented. See: https://github.com/dlang/DIPs/pull/109
  */
 struct SSOOpenHashSet(K,
                       alias hasher = hashOf,

@@ -138,6 +138,10 @@ struct SSOOpenHashSet(K,
         if (isLarge)
         {
             const hit = large.remove(key);
+            if (large.length <= small.maxCapacity)
+            {
+                // TODO shrink
+            }
             return hit;
         }
         else

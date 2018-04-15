@@ -141,7 +141,7 @@ struct SSOOpenHashSet(K,
             const hit = large.remove(key);
             if (large.length <= small.maxCapacity)
             {
-                shrinkToSmall();
+                shrinkLargeToSmall();
             }
             return hit;
         }
@@ -159,10 +159,11 @@ struct SSOOpenHashSet(K,
         }
     }
 
-    private void shrinkToSmall()() @trusted // template-lazy
+    private void shrinkLargeToSmall()() @trusted // template-lazy
     {
         Large largeCopy = void;
         moveEmplace(large, largeCopy); // TODO no need to reset `large`
+
         size_t count = 0;
         foreach (ref e; largeCopy.rawBins)
         {

@@ -303,22 +303,30 @@ alias range = byElement;        // EMSI-container naming
     auto k44 = new K(44);
 
     // insert first into small
+
     assert(!x.contains(k42));
+
     assert(x.insert(k42) == x.InsertionStatus.added);
     assert(x.contains(k42));
+
     assert(x.remove(k42));
     assert(!x.contains(k42));
+
     assert(x.insert(k42) == x.InsertionStatus.added);
     assert(x.contains(k42));
+
     assert(x.byElement.equal!((a, b) => a is b)([k42].s[]));
     assert(x.isSmall);
     assert(x.length == 1);
 
     // insert second into small
+
     assert(!x.contains(k43));
+
     assert(x.insert(k43) == x.InsertionStatus.added);
     assert(x.contains(k42));
     assert(x.contains(k43));
+
     assert(x.byElement.equal!((a, b) => a is b)([k42, k43].s[]));
     assert(x.isSmall);
     assert(x.length == 2);

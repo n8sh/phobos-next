@@ -39,10 +39,16 @@ struct SSOOpenHashSet(K,
         else
         {
             result.small._capacityDummy = 2;
-            static foreach (immutable index; 0 .. small.maxCapacity)
+
+            enum needsNullify = true;
+            static if (needsNullify)
             {
-                result.small._bins[index].nullify();
+                static foreach (immutable index; 0 .. small.maxCapacity)
+                {
+                    result.small._bins[index].nullify();
+                }
             }
+
             static if (mustAddGCRange!K)
             {
                 gc_addRange(result.small._bins.ptr,

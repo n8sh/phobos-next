@@ -171,50 +171,57 @@ private:
     };
 }
 
+/// start small and expand to large
 @safe pure unittest
+{
+    // construct small
+    alias X = SSOOpenHashSet!(K, FNV!(64, true));
+    auto x = X.withCapacity(X.small.maxCapacity);
+    assert(x.isSmall);
+    assert(x.capacity == X.small.maxCapacity);
+    assert(x.length == 0);
+
+    // insert first into small
+    assert(x.insert(new K(42)) == x.InsertionStatus.added);
+    assert(x.isSmall);
+    assert(x.length == 1);
+
+    // insert second into small
+    assert(x.insert(new K(43)) == x.InsertionStatus.added);
+    assert(x.isSmall);
+    assert(x.length == 2);
+
+    // expanding insert third into large
+    assert(x.insert(new K(43)) == x.InsertionStatus.added);
+    assert(x.isLarge);
+    assert(x.length == 3);
+}
+
+/// start large
+@safe pure unittest
+{
+    alias X = SSOOpenHashSet!(K, FNV!(64, true));
+    auto x = X.withCapacity(3);
+    assert(x.isLarge);
+    assert(x.capacity == 4);   // nextPow2
+    assert(x.length == 0);
+    assert(x.insert(new K(42)) == x.InsertionStatus.added);
+    assert(x.length == 1);
+    assert(x.insert(new K(43)) == x.InsertionStatus.added);
+    assert(x.length == 2);
+}
+
+version(unittest)
 {
     class K
     {
-        this(uint value)
+        this(uint value) @safe pure nothrow @nogc
         {
             this.value = value;
         }
         uint value;
     }
 
-    // construct small
-    alias X2 = SSOOpenHashSet!(K, FNV!(64, true));
-    auto x2 = X2.withCapacity(X2.small.maxCapacity);
-    assert(x2.isSmall);
-    assert(x2.capacity == X2.small.maxCapacity);
-    assert(x2.length == 0);
-
-    // insert first into small
-    assert(x2.insert(new K(42)) == x2.InsertionStatus.added);
-    assert(x2.isSmall);
-    assert(x2.length == 1);
-
-    // insert second into small
-    assert(x2.insert(new K(43)) == x2.InsertionStatus.added);
-    assert(x2.isSmall);
-    assert(x2.length == 2);
-
-    // expanding insert third into large
-    assert(x2.insert(new K(43)) == x2.InsertionStatus.added);
-    assert(x2.isLarge);
-    assert(x2.length == 3);
-
-    alias X3 = SSOOpenHashSet!(K, FNV!(64, true));
-    auto x3 = X3.withCapacity(3);
-    assert(x3.isLarge);
-    assert(x3.capacity == 4);   // nextPow2
-    assert(x3.length == 0);
-    assert(x3.insert(new K(42)) == x3.InsertionStatus.added);
-    assert(x3.length == 1);
-}
-
-version(unittest)
-{
     debug import std.exception : assertThrown, assertNotThrown;
     import core.exception : RangeError, AssertError;
     import std.algorithm : count;

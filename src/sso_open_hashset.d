@@ -98,10 +98,9 @@ if (isNullable!K)
             // try insert in small array
             static foreach (immutable index; 0 .. small.maxCapacity)
             {
-                if (!small._bins[index].isNull)
+                if (small._bins[index].isNull)
                 {
                     move(key, small._bins[index]);
-                    dln("Small inserted at index:", index);
                     return InsertionStatus.added;
                 }
             }

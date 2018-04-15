@@ -150,7 +150,7 @@ struct SSOOpenHashSet(K,
         // TODO merge these lines?
         emplace!Large(&large);
         large.reserveExtra(Small.maxCapacity + extraCapacity);
-        large.insertN(small._bins[]);
+        large.insertN(binsCopy);
         static if (mustAddGCRange!K)
         {
             gc_removeRange(small._bins.ptr);
@@ -266,13 +266,9 @@ alias range = byElement;        // EMSI-container naming
     assert(x.contains(k42));
     assert(x.contains(k43));
     assert(x.contains(k44));
-    size_t index = 0;
     foreach (ref e; x.byElement)
     {
-        // dln("index:", index);
-        // dln("e.value:", e.value);
         assert(x.contains(e));
-        index += 1;
     }
     assert(x.isLarge);
     assert(x.length == 3);

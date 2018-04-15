@@ -233,7 +233,8 @@ struct SSOOpenHashSet(K,
 
     auto byLvalueElement()() const @safe return // template-lazy
     {
-        return bins[].filter!(bin => !bin.isNull);
+        return bins[].filter!(key => (!key.isNull &&
+                                      !Large.isHoleKeyConstant(key)));
     }
 
     private scope inout(K)[] bins() inout @trusted return

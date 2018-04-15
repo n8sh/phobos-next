@@ -1113,6 +1113,15 @@ struct OpenHashMapOrSet(K, V = void,
         return cast(typeof(return))totalProbeCount/length;
     }
 
+    /** Unsafe access to bins.
+     *
+     * Needed by wrapper containers such as SSOOpenHashSet.
+     */
+    inout(T)[] binsUnsafe() inout @system
+    {
+        return _bins;
+    }
+
 private:
     static if (hasFunctionAttributes!(Allocator.allocate, "@nogc"))
     {

@@ -2928,12 +2928,26 @@ struct FixedArrayOrOpenHashSet(K,
         typeof(return) result;                      // TODO check zero init
         if (minimumCapacity <= Small.capacity) // small
         {
+            dln("Small init");
             result.small.count = 0;
         }
         else
         {
+            dln("Large init");
+            result.large = Large.withCapacity(minimumCapacity);
         }
         return result;
+    }
+
+    @disable this(this);
+
+    ~this() @trusted
+    {
+        if (isLarge)
+        {
+            dln(small.count);
+            .destroy(large);
+        }
     }
 
 private:
@@ -2968,7 +2982,8 @@ private:
         }
         uint value;
     }
-    auto x = FixedArrayOrOpenHashSet!(K, FNV!(64, true)).withCapacity(2);
+    auto x2 = FixedArrayOrOpenHashSet!(K, FNV!(64, true)).withCapacity(2);
+    auto x3 = FixedArrayOrOpenHashSet!(K, FNV!(64, true)).withCapacity(3);
     // x.insert(new K(42));
 }
 

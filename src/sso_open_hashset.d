@@ -2,6 +2,7 @@ module sso_open_hashset;
 
 import open_hashmap_or_hashset;
 
+import std.traits : isInstanceOf;
 import traits_ex : isAddress;
 import container_traits : isNullable;
 import pure_mallocator : PureMallocator;
@@ -188,6 +189,22 @@ private:
         Small small;
     };
 }
+
+/** Returns: range that iterates through the elements of `c` in undefined order.
+ */
+auto byElement(Table)(auto ref return inout(Table) c) @trusted
+    if (isInstanceOf!(SSOOpenHashSet, Table))
+{
+    static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
+    {
+        return c.byLvalueElement();
+    }
+    else                        // `c` was is an r-value and can be moved
+    {
+        static assert(0, "R-value case not supported");
+    }
+}
+alias range = byElement;        // EMSI-container naming
 
 /// start small and expand to large
 @safe pure unittest

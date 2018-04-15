@@ -2920,21 +2920,23 @@ struct FixedArrayOrOpenHashSet(K,
                                alias hasher = hashOf,
                                alias Allocator = PureMallocator.instance)
 {
+    import std.traits : hasElaborateDestructor;
+
     @safe:
 
     static typeof(this) withCapacity()(size_t minimumCapacity) // template-lazy
         @trusted
     {
         typeof(return) result;                      // TODO check zero init
-        if (minimumCapacity <= Small.capacity) // small
+        if (minimumCapacity > Small.maxCapacity)   // small
         {
-            dln("Small init");
-            result.small.count = 0;
+            dln("Large init, minimumCapacity:", minimumCapacity);
+            result.large = Large.withCapacity(minimumCapacity);
         }
         else
         {
-            dln("Large init");
-            result.large = Large.withCapacity(minimumCapacity);
+            dln("Small init, minimumCapacity:", minimumCapacity);
+            result.small._capacityDummy = 2;
         }
         return result;
     }
@@ -2945,9 +2947,21 @@ struct FixedArrayOrOpenHashSet(K,
     {
         if (isLarge)
         {
-            dln(small.count);
-            .destroy(large);
+            dln("Large destroy, capacity:", capacity);
+            static if (hasElaborateDestructor!Large)
+            {
+                .destroy(large);
+            }
         }
+        else
+        {
+            dln("Small destroy, capacity:", capacity);
+        }
+    }
+
+    @property size_t capacity() pure nothrow @trusted @nogc
+    {
+        return small._capacityDummy;
     }
 
 private:
@@ -2955,7 +2969,7 @@ private:
 
     bool isLarge() const pure nothrow @trusted @nogc
     {
-        return small.count > Small.capacity;
+        return small._capacityDummy > Small.maxCapacity;
     }
 
     union
@@ -2964,9 +2978,10 @@ private:
         Large large;
         static struct Small
         {
-            enum capacity = (large.sizeof - count.sizeof)/K.sizeof;
-            K[capacity] smallStore;
-            size_t count;       // 0,1,2 means use smallStore
+            size_t _capacityDummy;    // should always be 2 and must be placed at beginning of Small
+            enum maxCapacity = (large.sizeof - _capacityDummy.sizeof)/K.sizeof;
+            static assert(maxCapacity, "Cannot fit a single element in a Small");
+            K[maxCapacity] smallStore;
         }
         Small small;
     };

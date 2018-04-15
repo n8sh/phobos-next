@@ -129,7 +129,8 @@ struct SSOOpenHashSet(K,
         {
             // TODO use static foreach instead?
             import std.algorithm.searching : canFind;
-            return small._bins[].canFind(key);
+            alias pred = (a, b) => a is b;            // TODO add to template
+            return small._bins[].canFind!(pred)(key);
         }
     }
 
@@ -199,9 +200,12 @@ private:
     assert(x.length == 0);
 
     // insert first into small
-    assert(x.insert(new K(42)) == x.InsertionStatus.added);
+    auto k42 = new K(42);
+    assert(!x.contains(k42));
+    assert(x.insert(k42) == x.InsertionStatus.added);
     assert(x.isSmall);
     assert(x.length == 1);
+    assert(x.contains(k42));
 
     // insert second into small
     assert(x.insert(new K(43)) == x.InsertionStatus.added);
@@ -209,7 +213,7 @@ private:
     assert(x.length == 2);
 
     // expanding insert third into large
-    assert(x.insert(new K(43)) == x.InsertionStatus.added);
+    assert(x.insert(new K(44)) == x.InsertionStatus.added);
     assert(x.isLarge);
     assert(x.length == 3);
 }

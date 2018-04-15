@@ -2964,6 +2964,19 @@ struct FixedArrayOrOpenHashSet(K,
         return small._capacityDummy;
     }
 
+    @property size_t length() pure nothrow @trusted @nogc
+    {
+        if (isLarge)
+        {
+            return large.length;
+        }
+        else
+        {
+            import std.algorithm.searching : count;
+            return small._bins[].count!(_ => _ !is _.init);
+        }
+    }
+
 private:
     enum borrowChecked = false; // only works if set is not borrow checked
 
@@ -2981,7 +2994,7 @@ private:
             size_t _capacityDummy;    // should always be 2 and must be placed at beginning of Small
             enum maxCapacity = (large.sizeof - _capacityDummy.sizeof)/K.sizeof;
             static assert(maxCapacity, "Cannot fit a single element in a Small");
-            K[maxCapacity] smallStore;
+            K[maxCapacity] _bins;
         }
         Small small;
     };
@@ -3000,9 +3013,11 @@ private:
 
     auto x2 = FixedArrayOrOpenHashSet!(K, FNV!(64, true)).withCapacity(2);
     assert(x2.capacity == 2);
+    assert(x2.length == 0);
 
     auto x3 = FixedArrayOrOpenHashSet!(K, FNV!(64, true)).withCapacity(3);
     assert(x3.capacity == 4);   // nextPow2
+    assert(x3.length == 0);
 
     // x.insert(new K(42));
 }

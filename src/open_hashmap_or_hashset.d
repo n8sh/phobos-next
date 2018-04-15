@@ -2920,30 +2920,41 @@ struct FixedArrayOrOpenHashSet(K,
                                alias hasher = hashOf,
                                alias Allocator = PureMallocator.instance)
 {
+    @safe:
+
     static typeof(this) withCapacity()(size_t minimumCapacity) // template-lazy
         @trusted
     {
-        typeof(return) result = void;
-        if (minimumCapacity <= fixedArray.smallCapacity) // small
+        typeof(return) result;                      // TODO check zero init
+        if (minimumCapacity <= Small.capacity) // small
         {
-            result.fixedArray.count = 0;
+            result.small.count = 0;
         }
-        else                    // large
+        else
         {
         }
         return result;
     }
+
 private:
     enum borrowChecked = false; // only works if set is not borrow checked
+
+    bool isLarge() const pure nothrow @trusted @nogc
+    {
+        return small.count > Small.capacity;
+    }
+
     union
     {
-        OpenHashSet!(K, hasher, Allocator, borrowChecked) hashSet;
-        struct fixedArray
+        alias Large = OpenHashSet!(K, hasher, Allocator, borrowChecked);
+        Large large;
+        static struct Small
         {
-            enum smallCapacity = (hashSet.sizeof - count.sizeof)/K.sizeof;
-            K[smallCapacity] fixedArrayStore;
-            size_t count;       // 0,1,2 means use fixedArrayStore
+            enum capacity = (large.sizeof - count.sizeof)/K.sizeof;
+            K[capacity] smallStore;
+            size_t count;       // 0,1,2 means use smallStore
         }
+        Small small;
     };
 }
 
@@ -2957,7 +2968,8 @@ private:
         }
         uint value;
     }
-    // auto x = FixedArrayOrOpenHashSet!(K, FNV!(64, true)).withCapacity(2);
+    auto x = FixedArrayOrOpenHashSet!(K, FNV!(64, true)).withCapacity(2);
+    // x.insert(new K(42));
 }
 
 version(unittest)

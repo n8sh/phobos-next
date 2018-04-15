@@ -277,7 +277,7 @@ struct OpenHashMapOrSet(K, V = void,
         immutable byteCount = T.sizeof*capacity;
 
         static if (hasAddressLikeKey ||
-                   (__traits(hasMember, K, "nullValue") && // if key has a null value
+                   (__traits(hasMember, K, `nullValue`) && // if key has a null value
                     __traits(compiles, { enum _ = isAllZeroBits!(K, K.nullValue); }) && // prevent strange error given when `K` is `knet.data.Data`
                     isAllZeroBits!(K, K.nullValue))) // check that it's zero bits only
         {
@@ -291,7 +291,7 @@ struct OpenHashMapOrSet(K, V = void,
             auto bins = cast(T[])Allocator.allocate(byteCount);
             foreach (ref bin; bins)
             {
-                enum hasNullValueKey = __traits(hasMember, K, "nullValue");
+                enum hasNullValueKey = __traits(hasMember, K, `nullValue`);
                 static if (hasNullValueKey &&
                            !is(typeof(emplace(&keyOf(bin), K.nullValue)))) // __traits(compiles) fails here when building knet
                 {

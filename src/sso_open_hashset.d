@@ -137,7 +137,8 @@ struct SSOOpenHashSet(K,
         assert(!key.isNull);
         if (isLarge)
         {
-            return large.remove(key);
+            const hit = large.remove(key);
+            return hit;
         }
         else
         {

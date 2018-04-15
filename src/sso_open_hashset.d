@@ -159,6 +159,25 @@ struct SSOOpenHashSet(K,
         }
     }
 
+    auto byLvalueElement()()    // template-lazy
+    {
+        import std.algorithm.iteration : filter;
+        return bins[].filter!(bin => !bin.isNull); // TODO !bins.isDull
+    }
+
+    private inout(K)[] bins() inout @trusted
+    {
+        pragma(inline, true)
+        if (isLarge)
+        {
+            return large.binsUnsafe[];
+        }
+        else
+        {
+            return small._bins[];
+        }
+    }
+
 private:
     enum borrowChecked = false; // only works if set is not borrow checked
 

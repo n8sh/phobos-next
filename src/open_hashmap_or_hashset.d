@@ -2930,24 +2930,22 @@ struct FixedArrayOrOpenHashSet(K,
         typeof(return) result;                      // TODO check zero init
         if (minimumCapacity > Small.maxCapacity)   // small
         {
-            dln("Large init, minimumCapacity:", minimumCapacity);
+            // dln("Large init, minimumCapacity:", minimumCapacity);
             result.large = Large.withCapacity(minimumCapacity);
         }
         else
         {
-            dln("Small init, minimumCapacity:", minimumCapacity);
+            // dln("Small init, minimumCapacity:", minimumCapacity);
             result.small._capacityDummy = 2;
         }
         return result;
     }
 
-    @disable this(this);
-
     ~this() @trusted
     {
         if (isLarge)
         {
-            dln("Large destroy, capacity:", capacity);
+            // dln("Large destroy, capacity:", capacity);
             static if (hasElaborateDestructor!Large)
             {
                 .destroy(large);
@@ -2955,9 +2953,11 @@ struct FixedArrayOrOpenHashSet(K,
         }
         else
         {
-            dln("Small destroy, capacity:", capacity);
+            // dln("Small destroy, capacity:", capacity);
         }
     }
+
+    @disable this(this);
 
     @property size_t capacity() pure nothrow @trusted @nogc
     {

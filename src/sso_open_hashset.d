@@ -77,6 +77,7 @@ if (isNullable!K)
 
     @property size_t length() pure nothrow @trusted @nogc
     {
+        version(LDC) pragma(inline, true);
         if (isLarge)
         {
             return large.length;

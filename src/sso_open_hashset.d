@@ -223,7 +223,7 @@ auto byElement(Table)(auto ref return const(Table) c) @trusted
     }
     else                        // `c` was is an r-value and can be moved
     {
-        static assert(0, "R-value case not supported");
+        static assert(0, "R-value Table not supported");
     }
 }
 alias range = byElement;        // EMSI-container naming

@@ -116,7 +116,7 @@ struct SSOOpenHashSet(K,
             assert(!key.isNull);
 
             // try inserting into small
-            foreach (immutable index; 0 .. small.maxCapacity) // TODO benchmark with static foreach
+            foreach (immutable index; 0 .. small.maxCapacity) // TODO benchmark with `static foreach`
             {
                 if (small._bins[index].isNull) // free slot
                 {
@@ -141,7 +141,7 @@ struct SSOOpenHashSet(K,
         }
         else
         {
-            foreach (immutable index; 0 .. small.maxCapacity)
+            foreach (immutable index; 0 .. small.maxCapacity) // TODO benchmark with `static foreach`
             {
                 if (small._bins[index] is key)
                 {

@@ -353,6 +353,12 @@ alias range = byElement;        // EMSI-container naming
     }
     assert(x.isLarge);
     assert(x.length == 3);
+
+    // shrinking remove third into small
+    assert(x.remove(k44));
+    assert(!x.contains(k44));
+    assert(x.isSmall);
+    assert(x.byElement.equal!((a, b) => a is b)([k43, k42].s[]));
 }
 
 /// start large

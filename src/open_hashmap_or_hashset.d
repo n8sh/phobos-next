@@ -2993,7 +2993,7 @@ private:
         Large large;
         static struct Small
         {
-            size_t _capacityDummy;    // should always be 2 and must be placed at beginning of Small
+            size_t _capacityDummy; // must be placed at exactly here
             enum maxCapacity = (large.sizeof - _capacityDummy.sizeof)/K.sizeof;
             static assert(maxCapacity, "Cannot fit a single element in a Small");
             K[maxCapacity] _bins;

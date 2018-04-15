@@ -175,13 +175,13 @@ struct SSOOpenHashSet(K,
         }
     }
 
-    auto byLvalueElement()() const @safe // template-lazy
+    auto byLvalueElement()() const @safe return // template-lazy
     {
         import std.algorithm.iteration : filter;
         return bins[].filter!(bin => !bin.isNull);
     }
 
-    private inout(K)[] bins() inout @trusted
+    private scope inout(K)[] bins() inout @trusted return
     {
         pragma(inline, true);
         if (isLarge)

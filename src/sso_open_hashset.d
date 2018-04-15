@@ -159,7 +159,7 @@ struct SSOOpenHashSet(K,
         }
     }
 
-    private void shrinkToSmall() @trusted
+    private void shrinkToSmall()() @trusted // template-lazy
     {
         Large largeCopy = void;
         moveEmplace(large, largeCopy); // TODO no need to reset `large`

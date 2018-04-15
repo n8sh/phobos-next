@@ -175,7 +175,7 @@ struct SSOOpenHashSet(K,
         }
     }
 
-    auto byLvalueElement()() const // template-lazy
+    auto byLvalueElement()() const @safe // template-lazy
     {
         import std.algorithm.iteration : filter;
         return bins[].filter!(bin => !bin.isNull);

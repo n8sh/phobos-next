@@ -132,6 +132,26 @@ struct SSOOpenHashSet(K,
         }
     }
 
+    bool remove()(const scope K key) // template-lazy
+    {
+        version(LDC) pragma(inline, true);
+        assert(!key.isNull);
+        if (isLarge)
+        {
+            return large.remove(key);
+        }
+        else
+        {
+            static foreach (immutable index; 0 .. small.maxCapacity)
+            {
+                if (small._bins[index] is key)
+                {
+                    small._bins[index].nullify(); // don't need holes for small array
+                }
+            }
+        }
+    }
+
     /** Check if `element` is stored.
         Returns: `true` if element is present, `false` otherwise.
     */

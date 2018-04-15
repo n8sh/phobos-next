@@ -132,7 +132,7 @@ struct SSOOpenHashSet(K,
         }
     }
 
-    bool remove()(const scope K key) // template-lazy
+    bool remove()(const scope K key) @trusted // template-lazy
     {
         version(LDC) pragma(inline, true);
         assert(!key.isNull);
@@ -147,8 +147,10 @@ struct SSOOpenHashSet(K,
                 if (small._bins[index] is key)
                 {
                     small._bins[index].nullify(); // don't need holes for small array
+                    return true;
                 }
             }
+            return false;
         }
     }
 
@@ -277,6 +279,10 @@ alias range = byElement;        // EMSI-container naming
     auto k44 = new K(44);
 
     // insert first into small
+    assert(!x.contains(k42));
+    assert(x.insert(k42) == x.InsertionStatus.added);
+    assert(x.contains(k42));
+    assert(x.remove(k42));
     assert(!x.contains(k42));
     assert(x.insert(k42) == x.InsertionStatus.added);
     assert(x.contains(k42));

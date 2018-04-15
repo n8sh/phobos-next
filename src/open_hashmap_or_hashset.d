@@ -62,6 +62,9 @@ import pure_mallocator : PureMallocator;
  *
  * TODO keep only predicates with ref arguments when LDC can optimize those as
  * fast as value passing. add LDC issue for this
+ *
+ * TODO always use `const scope auto ref` in predicates (including when
+ * `isCopyable!K` is true) to reduce static if branch complexity
  */
 struct OpenHashMapOrSet(K, V = void,
                         alias hasher = hashOf,

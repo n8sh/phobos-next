@@ -14,7 +14,7 @@ import pure_mallocator : PureMallocator;
 struct SSOOpenHashSet(K,
                       alias hasher = hashOf,
                       alias Allocator = PureMallocator.instance)
-if (isNullable!K)
+    if (isNullable!K)
 {
     import qcmeman : gc_addRange, gc_removeRange;
     import std.algorithm.mutation : move;
@@ -149,6 +149,9 @@ private:
         return small._capacityDummy > Small.maxCapacity;
     }
 
+    /// Returns: `true` if `this` currently uses small (packed) array storage.
+    bool isSmall() const pure nothrow @trusted @nogc { return !isLarge; }
+
     union
     {
         alias Large = OpenHashSet!(K, hasher, Allocator, borrowChecked);
@@ -182,18 +185,18 @@ private:
     // construct small
     alias X2 = SSOOpenHashSet!(K, FNV!(64, true));
     auto x2 = X2.withCapacity(X2.small.maxCapacity);
-    assert(!x2.isLarge);
+    assert(x2.isSmall);
     assert(x2.capacity == X2.small.maxCapacity);
     assert(x2.length == 0);
 
     // insert first into small
     assert(x2.insert(new K(42)) == x2.InsertionStatus.added);
-    assert(!x2.isLarge);
+    assert(x2.isSmall);
     assert(x2.length == 1);
 
     // insert second into small
     assert(x2.insert(new K(43)) == x2.InsertionStatus.added);
-    assert(!x2.isLarge);
+    assert(x2.isSmall);
     assert(x2.length == 2);
 
     // expanding insert third into large

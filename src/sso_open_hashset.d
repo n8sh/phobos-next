@@ -151,7 +151,10 @@ private:
         Large large;
         static struct Small
         {
-            size_t _capacityDummy; // must be placed at exactly here
+            /* must be placed at exactly here (maps to position of
+             * `large._bins.length`) and always contain `maxCapacity` when this
+             * is small */
+            size_t _capacityDummy;
             enum maxCapacity = (large.sizeof - _capacityDummy.sizeof)/K.sizeof;
             static assert(maxCapacity, "Cannot fit a single element in a Small");
             alias Bins = K[maxCapacity];

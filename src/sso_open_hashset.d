@@ -9,6 +9,8 @@ import pure_mallocator : PureMallocator;
 
 /** Small-set-optimized `OpenHashSet`.
  *
+ * TODO search for `isNull` and support deleted keys (`isDull`)
+ *
  * TODO use opMove to update `gc_addRange` and `gc_removeRange` when
  * implemented. See: https://github.com/dlang/DIPs/pull/109
  */
@@ -128,6 +130,7 @@ struct SSOOpenHashSet(K,
         }
         else
         {
+            assert(!key.isNull);
             // TODO use static foreach instead?
             import std.algorithm.searching : canFind;
             alias pred = (a, b) => a is b;            // TODO add to template

@@ -2924,6 +2924,8 @@ struct FixedArrayOrOpenHashSet(K,
     import std.traits : hasElaborateDestructor;
     import container_traits : defaultNullKeyConstantOf, isNull, nullify;
 
+    alias InsertionStatus = Large.InsertionStatus;
+
     @safe:
 
     static typeof(this) withCapacity()(size_t minimumCapacity) // template-lazy
@@ -2979,6 +2981,18 @@ struct FixedArrayOrOpenHashSet(K,
         }
     }
 
+    Large.InsertionStatus insert(K key) @trusted
+    {
+        if (isLarge)
+        {
+            return large.insert(key);
+        }
+        else
+        {
+            assert(0, "Use static foreach or find");
+        }
+    }
+
 private:
     enum borrowChecked = false; // only works if set is not borrow checked
 
@@ -3013,15 +3027,18 @@ private:
         uint value;
     }
 
-    auto x2 = FixedArrayOrOpenHashSet!(K, FNV!(64, true)).withCapacity(2);
+    alias X2 = FixedArrayOrOpenHashSet!(K, FNV!(64, true));
+    auto x2 = X2.withCapacity(2);
     assert(x2.capacity == 2);
     assert(x2.length == 0);
 
-    auto x3 = FixedArrayOrOpenHashSet!(K, FNV!(64, true)).withCapacity(3);
+    alias X3 = FixedArrayOrOpenHashSet!(K, FNV!(64, true));
+    auto x3 = X3.withCapacity(3);
     assert(x3.capacity == 4);   // nextPow2
     assert(x3.length == 0);
 
-    // x.insert(new K(42));
+    assert(x3.insert(new K(42)) == x3.InsertionStatus.added);
+    assert(x3.length == 1);
 }
 
 version(unittest)

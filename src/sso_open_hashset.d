@@ -7,6 +7,8 @@ import container_traits : isNullable;
 import pure_mallocator : PureMallocator;
 
 /** Small-set-optimized `OpenHashSet`.
+ *
+ * TODO use opMove when implemented. See: https://github.com/dlang/DIPs/pull/109
  */
 struct SSOOpenHashSet(K,
                       alias hasher = hashOf,

@@ -25,9 +25,6 @@ struct SSOOpenHashSet(K,
     import std.conv : emplace;
     import container_traits : defaultNullKeyConstantOf, isNull, nullify, mustAddGCRange;
 
-    enum hasAddressLikeKey = (isAddress!K ||
-                              isDynamicArray!K);
-
     alias InsertionStatus = Large.InsertionStatus;
 
     @safe:
@@ -42,7 +39,7 @@ struct SSOOpenHashSet(K,
         else
         {
             import bit_traits : isAllZeroBits;
-            static if (hasAddressLikeKey ||
+            static if (Large.hasAddressLikeKey ||
                        (__traits(hasMember, K, `nullValue`) && // if key has a null value
                         __traits(compiles, { enum _ = isAllZeroBits!(K, K.nullValue); }) && // prevent strange error given when `K` is `knet.data.Data`
                         isAllZeroBits!(K, K.nullValue))) // check that it's zero bits only

@@ -167,12 +167,13 @@ struct SSOOpenHashSet(K,
         size_t count = 0;
         foreach (ref e; largeCopy.rawBins)
         {
-            if (!e.isNull &&
-                !Large.isHoleKeyConstant(e))
+            if (e.isNull) { continue; }
+            static if (Large.hasAddressLikeKey)
             {
-                moveEmplace(e, small._bins[count]);
-                count += 1;
+                if (Large.isHoleKeyConstant(e)) { continue; }
             }
+            moveEmplace(e, small._bins[count]);
+            count += 1;
         }
         foreach (immutable index; count .. small.maxCapacity)
         {

@@ -9,7 +9,7 @@ import pure_mallocator : PureMallocator;
 
 /** Small-set-optimized `OpenHashSet`.
  *
- * TODO search for `isNull` and support deleted keys (`isDull`)
+ * TODO search for `nullify`, `isNull`, `nullValue` and support deleted keys (`isDull`)
  *
  * TODO use opMove to update `gc_addRange` and `gc_removeRange` when
  * implemented. See: https://github.com/dlang/DIPs/pull/109
@@ -31,8 +31,8 @@ struct SSOOpenHashSet(K,
 
     static typeof(this) withCapacity()(size_t minimumCapacity) @trusted // template-lazy
     {
-        typeof(return) result;                      // TODO check zero init
-        if (minimumCapacity > Small.maxCapacity)   // small
+        typeof(return) result;                   // TODO check zero init
+        if (minimumCapacity > Small.maxCapacity)    // small
         {
             // dln("Large init, minimumCapacity:", minimumCapacity);
             result.large = Large.withCapacity(minimumCapacity);

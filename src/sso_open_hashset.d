@@ -134,7 +134,6 @@ struct SSOOpenHashSet(K,
 
     bool remove()(const scope K key) @trusted // template-lazy
     {
-        version(LDC) pragma(inline, true);
         assert(!key.isNull);
         if (isLarge)
         {
@@ -142,7 +141,7 @@ struct SSOOpenHashSet(K,
         }
         else
         {
-            static foreach (immutable index; 0 .. small.maxCapacity)
+            foreach (immutable index; 0 .. small.maxCapacity)
             {
                 if (small._bins[index] is key)
                 {

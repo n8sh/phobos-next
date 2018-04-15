@@ -1119,6 +1119,7 @@ struct OpenHashMapOrSet(K, V = void,
      */
     inout(T)[] rawBins() inout @system pure nothrow @nogc
     {
+        pragma(inline, true);
         return _bins;
     }
 

@@ -41,8 +41,6 @@ struct SSOOpenHashSet(K,
         }
         else
         {
-            result.small._capacityDummy = 2;
-
             static if (hasAddressLikeKey ||
                        (__traits(hasMember, K, "nullValue") && // if key has a null value
                         __traits(compiles, { enum _ = isAllZeroBits!(K, K.nullValue); }) && // prevent strange error given when `K` is `knet.data.Data`
@@ -63,6 +61,8 @@ struct SSOOpenHashSet(K,
                 gc_addRange(result.small._bins.ptr,
                             result.small._bins.sizeof);
             }
+
+            result.small._capacityDummy = 2;
         }
         return result;
     }
@@ -214,9 +214,9 @@ private:
         Large large;
         static struct Small
         {
-            /* must be placed at exactly here (maps to position of
-             * `large._bins.length`) and always contain `maxCapacity` when this
-             * is small */
+            /* discriminator between large and small storage; must be placed at
+             * exactly here (maps to position of `large._bins.length`) and
+             * always contain `maxCapacity` when this is small */
             size_t _capacityDummy;
             enum maxCapacity = (large.sizeof - _capacityDummy.sizeof)/K.sizeof;
             static assert(maxCapacity, "Cannot fit a single element in a Small");

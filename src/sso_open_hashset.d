@@ -327,10 +327,10 @@ alias range = byElement;        // EMSI-container naming
     assert(x.contains(k42));
     assert(x.contains(k43));
 
-    assert(x.remove(k42));
     assert(x.remove(k43));
-    assert(!x.contains(k42));
+    assert(x.remove(k42));
     assert(!x.contains(k43));
+    assert(!x.contains(k42));
 
     assert(x.insert(k42) == x.InsertionStatus.added);
     assert(x.insert(k43) == x.InsertionStatus.added);

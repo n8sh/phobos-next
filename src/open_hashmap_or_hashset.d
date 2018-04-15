@@ -1113,7 +1113,7 @@ struct OpenHashMapOrSet(K, V = void,
         return cast(typeof(return))totalProbeCount/length;
     }
 
-    /** Unsafe access to bins.
+    /** Unsafe access to raw bins.
      *
      * Needed by wrapper containers such as SSOOpenHashSet.
      */

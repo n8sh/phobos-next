@@ -47,7 +47,7 @@ struct SSOOpenHashSet(K,
                         __traits(compiles, { enum _ = isAllZeroBits!(K, K.nullValue); }) && // prevent strange error given when `K` is `knet.data.Data`
                         isAllZeroBits!(K, K.nullValue))) // check that it's zero bits only
             {
-                                // zero init is sufficient
+                // zero init is sufficient
             }
             else                // needs explicit null
             {

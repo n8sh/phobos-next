@@ -21,9 +21,12 @@ struct SSOOpenHashSet(K,
 {
     import qcmeman : gc_addRange, gc_removeRange;
     import std.algorithm.mutation : move;
-    import std.traits : hasElaborateDestructor;
+    import std.traits : hasElaborateDestructor, isDynamicArray;
     import std.conv : emplace;
     import container_traits : defaultNullKeyConstantOf, isNull, nullify, mustAddGCRange;
+
+    enum hasAddressLikeKey = (isAddress!K ||
+                              isDynamicArray!K);
 
     alias InsertionStatus = Large.InsertionStatus;
 
@@ -40,8 +43,14 @@ struct SSOOpenHashSet(K,
         {
             result.small._capacityDummy = 2;
 
-            enum needsNullify = true;
-            static if (needsNullify)
+            static if (hasAddressLikeKey ||
+                       (__traits(hasMember, K, "nullValue") && // if key has a null value
+                        __traits(compiles, { enum _ = isAllZeroBits!(K, K.nullValue); }) && // prevent strange error given when `K` is `knet.data.Data`
+                        isAllZeroBits!(K, K.nullValue))) // check that it's zero bits only
+            {
+                                // zero init is sufficient
+            }
+            else                // needs explicit null
             {
                 static foreach (immutable index; 0 .. small.maxCapacity)
                 {

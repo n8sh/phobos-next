@@ -2919,8 +2919,10 @@ version(unittest)
 struct FixedArrayOrOpenHashSet(K,
                                alias hasher = hashOf,
                                alias Allocator = PureMallocator.instance)
+    if (isNullable!K)
 {
     import std.traits : hasElaborateDestructor;
+    import container_traits : defaultNullKeyConstantOf, isNull, nullify;
 
     @safe:
 
@@ -2973,7 +2975,7 @@ struct FixedArrayOrOpenHashSet(K,
         else
         {
             import std.algorithm.searching : count;
-            return small._bins[].count!(_ => _ !is _.init);
+            return small._bins[].count!(_ => !_.isNull);
         }
     }
 

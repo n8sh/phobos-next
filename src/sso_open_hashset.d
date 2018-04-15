@@ -162,7 +162,7 @@ struct SSOOpenHashSet(K,
         }
     }
 
-    auto byLvalueElement()()    // template-lazy
+    auto byLvalueElement()() const // template-lazy
     {
         import std.algorithm.iteration : filter;
         return bins[].filter!(bin => !bin.isNull);
@@ -214,7 +214,7 @@ private:
 
 /** Returns: range that iterates through the elements of `c` in undefined order.
  */
-auto byElement(Table)(auto ref return inout(Table) c) @trusted
+auto byElement(Table)(auto ref return const(Table) c) @trusted
     if (isInstanceOf!(SSOOpenHashSet, Table))
 {
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
@@ -246,20 +246,33 @@ alias range = byElement;        // EMSI-container naming
     assert(!x.contains(k42));
     assert(x.insert(k42) == x.InsertionStatus.added);
     assert(x.contains(k42));
+    assert(x.byElement.equal!((a, b) => a is b)([k42].s[]));
     assert(x.isSmall);
     assert(x.length == 1);
 
     // insert second into small
     assert(!x.contains(k43));
     assert(x.insert(k43) == x.InsertionStatus.added);
+    assert(x.contains(k42));
     assert(x.contains(k43));
+    assert(x.byElement.equal!((a, b) => a is b)([k42, k43].s[]));
     assert(x.isSmall);
     assert(x.length == 2);
 
     // expanding insert third into large
     assert(!x.contains(k44));
     assert(x.insert(k44) == x.InsertionStatus.added);
+    assert(x.contains(k42));
+    assert(x.contains(k43));
     assert(x.contains(k44));
+    size_t index = 0;
+    foreach (ref e; x.byElement)
+    {
+        // dln("index:", index);
+        // dln("e.value:", e.value);
+        assert(x.contains(e));
+        index += 1;
+    }
     assert(x.isLarge);
     assert(x.length == 3);
 }
@@ -289,6 +302,7 @@ version(unittest)
         uint value;
     }
 
+    import std.algorithm.comparison : equal;
     import digestx.fnv : FNV;
     import array_help : s;
 

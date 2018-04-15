@@ -203,7 +203,7 @@ private:
     alias X = SSOOpenHashSet!(K, FNV!(64, true));
     auto x = X.withCapacity(3);
     assert(x.isLarge);
-    assert(x.capacity == 4);   // nextPow2
+    assert(x.capacity == 4);    // nextPow2(3)
     assert(x.length == 0);
     assert(x.insert(new K(42)) == x.InsertionStatus.added);
     assert(x.length == 1);

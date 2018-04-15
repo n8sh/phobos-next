@@ -34,8 +34,8 @@ struct SSOOpenHashSet(K,
 
     static typeof(this) withCapacity()(size_t minimumCapacity) @trusted // template-lazy
     {
-        typeof(return) result;                   // TODO check zero init
-        if (minimumCapacity > Small.maxCapacity)    // small
+        typeof(return) result;                   // TODO make = void for nullify case
+        if (minimumCapacity > Small.maxCapacity) // will be small
         {
             result.large = Large.withCapacity(minimumCapacity);
         }

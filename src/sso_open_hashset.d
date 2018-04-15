@@ -170,10 +170,10 @@ struct SSOOpenHashSet(K,
 
     private inout(K)[] bins() inout @trusted
     {
-        pragma(inline, true)
+        pragma(inline, true);
         if (isLarge)
         {
-            return large.binsUnsafe[];
+            return large.rawBins[];
         }
         else
         {

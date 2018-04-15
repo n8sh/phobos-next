@@ -6,104 +6,146 @@ import traits_ex : isAddress;
 import container_traits : isNullable;
 import pure_mallocator : PureMallocator;
 
+/** Small-set-optimized `OpenHashSet`.
+ */
 struct SSOOpenHashSet(K,
                       alias hasher = hashOf,
                       alias Allocator = PureMallocator.instance)
-    if (isNullable!K)
+if (isNullable!K)
+{
+    import qcmeman : gc_addRange, gc_removeRange;
+    import std.traits : hasElaborateDestructor;
+    import std.conv : emplace;
+    import container_traits : defaultNullKeyConstantOf, isNull, nullify, mustAddGCRange;
+
+    alias InsertionStatus = Large.InsertionStatus;
+
+    @safe:
+
+    static typeof(this) withCapacity()(size_t minimumCapacity) @trusted // template-lazy
     {
-        import std.traits : hasElaborateDestructor;
-        import container_traits : defaultNullKeyConstantOf, isNull, nullify;
-
-        alias InsertionStatus = Large.InsertionStatus;
-
-        @safe:
-
-        static typeof(this) withCapacity()(size_t minimumCapacity) // template-lazy
-            @trusted
+        typeof(return) result;                      // TODO check zero init
+        if (minimumCapacity > Small.maxCapacity)   // small
         {
-            typeof(return) result;                      // TODO check zero init
-            if (minimumCapacity > Small.maxCapacity)   // small
-            {
-                // dln("Large init, minimumCapacity:", minimumCapacity);
-                result.large = Large.withCapacity(minimumCapacity);
-            }
-            else
-            {
-                // dln("Small init, minimumCapacity:", minimumCapacity);
-                result.small._capacityDummy = 2;
-            }
-            return result;
+            // dln("Large init, minimumCapacity:", minimumCapacity);
+            result.large = Large.withCapacity(minimumCapacity);
         }
-
-        ~this() @trusted
+        else
         {
-            if (isLarge)
+            // dln("Small init, minimumCapacity:", minimumCapacity);
+            result.small._capacityDummy = 2;
+        }
+        return result;
+    }
+
+    ~this() @trusted
+    {
+        if (isLarge)
+        {
+            // dln("Large destroy, capacity:", capacity);
+            static if (hasElaborateDestructor!Large)
             {
-                // dln("Large destroy, capacity:", capacity);
-                static if (hasElaborateDestructor!Large)
+                .destroy(large);
+            }
+        }
+        else
+        {
+            // dln("Small destroy, capacity:", capacity);
+        }
+    }
+
+    @disable this(this);
+
+    @property size_t capacity() pure nothrow @trusted @nogc
+    {
+        pragma(inline, true);
+        return small._capacityDummy;
+    }
+
+    @property size_t length() pure nothrow @trusted @nogc
+    {
+        if (isLarge)
+        {
+            return large.length;
+        }
+        else
+        {
+            import std.algorithm.searching : count;
+            return small._bins[].count!(_ => !_.isNull);
+        }
+    }
+
+    InsertionStatus insert(K key) @trusted
+    {
+        if (isLarge)
+        {
+            return large.insert(key);
+        }
+        else
+        {
+            assert(!key.isNull);
+            static foreach (immutable index; 0 .. small.maxCapacity)
+            {
+                if (!small._bins[index].isNull)
                 {
-                    .destroy(large);
+                    small._bins[index] = key;
+                    return InsertionStatus.added;
                 }
             }
-            else
-            {
-                // dln("Small destroy, capacity:", capacity);
-            }
+            expand(1);
+            assert(isLarge);
+            return large.insert(key);
+        }
+    }
+
+    private void expand(size_t extraCapacity) @trusted
+    {
+        Small.Bins binsCopy = small._bins;
+        static if (mustAddGCRange!K)
+        {
+            gc_addRange(binsCopy.ptr,
+                        binsCopy.sizeof);
         }
 
-        @disable this(this);
+        // TODO merge these two lines when emplace supports uncopyable types or
+        // `large` can be constructed from size_t
+        emplace!Large(&large);
+        large.reserveExtra(Small.maxCapacity + extraCapacity);
 
-        @property size_t capacity() pure nothrow @trusted @nogc
+        static foreach (immutable index; 0 .. small.maxCapacity)
         {
-            return small._capacityDummy;
+
         }
 
-        @property size_t length() pure nothrow @trusted @nogc
+        static if (mustAddGCRange!K)
         {
-            if (isLarge)
-            {
-                return large.length;
-            }
-            else
-            {
-                import std.algorithm.searching : count;
-                return small._bins[].count!(_ => !_.isNull);
-            }
+            gc_removeRange(binsCopy.ptr);
         }
+    }
 
-        Large.InsertionStatus insert(K key) @trusted
+private:
+    enum borrowChecked = false; // only works if set is not borrow checked
+
+    bool isLarge() const pure nothrow @trusted @nogc
+    {
+        pragma(inline, true);
+        return small._capacityDummy > Small.maxCapacity;
+    }
+
+    union
+    {
+        alias Large = OpenHashSet!(K, hasher, Allocator, borrowChecked);
+        Large large;
+        static struct Small
         {
-            if (isLarge)
-            {
-                return large.insert(key);
-            }
-            else
-            {
-                assert(0, "Use static foreach or find");
-            }
+            size_t _capacityDummy; // must be placed at exactly here
+            enum maxCapacity = (large.sizeof - _capacityDummy.sizeof)/K.sizeof;
+            static assert(maxCapacity, "Cannot fit a single element in a Small");
+            alias Bins = K[maxCapacity];
+            Bins _bins;
         }
-
-    private:
-        enum borrowChecked = false; // only works if set is not borrow checked
-
-        bool isLarge() const pure nothrow @trusted @nogc
-        {
-            return small._capacityDummy > Small.maxCapacity;
-        }
-
-        union
-        {
-            alias Large = OpenHashSet!(K, hasher, Allocator, borrowChecked);
-            Large large;
-            static struct Small
-            {
-                size_t _capacityDummy; // must be placed at exactly here
-                enum maxCapacity = (large.sizeof - _capacityDummy.sizeof)/K.sizeof;
-                static assert(maxCapacity, "Cannot fit a single element in a Small");
-                K[maxCapacity] _bins;
-            }
-            Small small;
-        };
+        Small small;
+    };
 }
 
 @safe pure unittest

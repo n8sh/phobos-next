@@ -177,7 +177,7 @@ struct SSOOpenHashSet(K,
         }
         foreach (immutable index; count .. small.maxCapacity)
         {
-            emplace(&small._bins[index]); // reset
+            emplace(&small._bins[index]); // reset reset
         }
     }
 

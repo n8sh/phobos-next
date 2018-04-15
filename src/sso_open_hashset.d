@@ -116,6 +116,23 @@ struct SSOOpenHashSet(K,
         }
     }
 
+    /** Check if `element` is stored.
+        Returns: `true` if element is present, `false` otherwise.
+    */
+    bool contains(const scope K key) const @trusted // template-lazy, `auto ref` here makes things slow
+    {
+        if (isLarge)
+        {
+            return large.contains(key);
+        }
+        else
+        {
+            // TODO use static foreach instead?
+            import std.algorithm.searching : canFind;
+            return small._bins[].canFind(key);
+        }
+    }
+
     private void expandWithExtraCapacity(size_t extraCapacity) @trusted
     {
         Small.Bins binsCopy = small._bins;
@@ -221,11 +238,6 @@ version(unittest)
         }
         uint value;
     }
-
-    debug import std.exception : assertThrown, assertNotThrown;
-    import core.exception : RangeError, AssertError;
-    import std.algorithm : count;
-    import std.algorithm.comparison : equal;
 
     import digestx.fnv : FNV;
     import array_help : s;

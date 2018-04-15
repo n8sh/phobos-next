@@ -131,7 +131,7 @@ struct SSOOpenHashSet(K,
         else
         {
             assert(!key.isNull);
-            // TODO use static foreach instead?
+            // TODO is static foreach faster here?
             import std.algorithm.searching : canFind;
             alias pred = (a, b) => a is b;            // TODO add to template
             return small._bins[].canFind!(pred)(key);

@@ -199,21 +199,28 @@ private:
     assert(x.capacity == X.small.maxCapacity);
     assert(x.length == 0);
 
-    // insert first into small
     auto k42 = new K(42);
+    auto k43 = new K(43);
+    auto k44 = new K(44);
+
+    // insert first into small
     assert(!x.contains(k42));
     assert(x.insert(k42) == x.InsertionStatus.added);
+    assert(x.contains(k42));
     assert(x.isSmall);
     assert(x.length == 1);
-    assert(x.contains(k42));
 
     // insert second into small
-    assert(x.insert(new K(43)) == x.InsertionStatus.added);
+    assert(!x.contains(k43));
+    assert(x.insert(k43) == x.InsertionStatus.added);
+    assert(x.contains(k43));
     assert(x.isSmall);
     assert(x.length == 2);
 
     // expanding insert third into large
+    // assert(!x.contains(k44));
     assert(x.insert(new K(44)) == x.InsertionStatus.added);
+    // assert(x.contains(k44));
     assert(x.isLarge);
     assert(x.length == 3);
 }

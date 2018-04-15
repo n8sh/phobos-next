@@ -2997,8 +2997,13 @@ private:
         }
         uint value;
     }
+
     auto x2 = FixedArrayOrOpenHashSet!(K, FNV!(64, true)).withCapacity(2);
+    assert(x2.capacity == 2);
+
     auto x3 = FixedArrayOrOpenHashSet!(K, FNV!(64, true)).withCapacity(3);
+    assert(x3.capacity == 4);   // nextPow2
+
     // x.insert(new K(42));
 }
 

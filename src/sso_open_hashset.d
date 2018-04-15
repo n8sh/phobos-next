@@ -110,13 +110,13 @@ if (isNullable!K)
             }
 
             // not hit
-            expand(1);
+            expandWithExtraCapacity(1);
             assert(isLarge);
             return large.insert(key);
         }
     }
 
-    private void expand(size_t extraCapacity) @trusted
+    private void expandWithExtraCapacity(size_t extraCapacity) @trusted
     {
         Small.Bins binsCopy = small._bins;
         static if (mustAddGCRange!K)

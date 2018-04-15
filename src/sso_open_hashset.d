@@ -192,6 +192,10 @@ struct SSOOpenHashSet(K,
         else
         {
             assert(!key.isNull);
+            static if (Large.hasAddressLikeKey)
+            {
+                assert(!Large.isHoleKeyConstant(key));
+            }
             // TODO is static foreach faster here?
             import std.algorithm.searching : canFind;
             alias pred = (a, b) => a is b;            // TODO add to template

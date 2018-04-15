@@ -20,7 +20,8 @@ struct SSOOpenHashSet(K,
     if (isNullable!K)
 {
     import qcmeman : gc_addRange, gc_removeRange;
-    import std.algorithm.mutation : move;
+    import std.algorithm.iteration : filter;
+    import std.algorithm.mutation : move, moveEmplace;
     import std.traits : hasElaborateDestructor, isDynamicArray;
     import std.conv : emplace;
     import container_traits : defaultNullKeyConstantOf, isNull, nullify, mustAddGCRange;
@@ -140,7 +141,7 @@ struct SSOOpenHashSet(K,
             const hit = large.remove(key);
             if (large.length <= small.maxCapacity)
             {
-                // TODO shrink
+                shrinkToSmall();
             }
             return hit;
         }
@@ -155,6 +156,25 @@ struct SSOOpenHashSet(K,
                 }
             }
             return false;
+        }
+    }
+
+    private void shrinkToSmall() @trusted
+    {
+        Large largeCopy = void;
+        moveEmplace(large, largeCopy); // TODO no need to reset `large`
+        size_t count = 0;
+        foreach (ref e; largeCopy.rawBins)
+        {
+            if (!e.isNull)
+            {
+                moveEmplace(e, small._bins[count]);
+                count += 1;
+            }
+        }
+        foreach (const index; count .. small.maxCapacity)
+        {
+            emplace(&small._bins[index]); // reset
         }
     }
 
@@ -179,7 +199,7 @@ struct SSOOpenHashSet(K,
 
     private void expandWithExtraCapacity(size_t extraCapacity) @trusted
     {
-        Small.Bins binsCopy = small._bins;
+        Small.Bins binsCopy = small._bins; // TODO moveEmplace
         static if (mustAddGCRange!K)
         {
             gc_addRange(binsCopy.ptr,
@@ -203,7 +223,6 @@ struct SSOOpenHashSet(K,
 
     auto byLvalueElement()() const @safe return // template-lazy
     {
-        import std.algorithm.iteration : filter;
         return bins[].filter!(bin => !bin.isNull);
     }
 

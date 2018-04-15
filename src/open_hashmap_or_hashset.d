@@ -1117,7 +1117,7 @@ struct OpenHashMapOrSet(K, V = void,
      *
      * Needed by wrapper containers such as SSOOpenHashSet.
      */
-    inout(T)[] binsUnsafe() inout @system pure nothrow @nogc
+    inout(T)[] rawBins() inout @system pure nothrow @nogc
     {
         return _bins;
     }

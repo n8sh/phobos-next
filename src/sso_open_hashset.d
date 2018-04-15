@@ -262,6 +262,7 @@ alias range = byElement;        // EMSI-container naming
     // expanding insert third into large
     assert(!x.contains(k44));
     assert(x.insert(k44) == x.InsertionStatus.added);
+    // unordered store so equal doesn't work anymore
     assert(x.contains(k42));
     assert(x.contains(k43));
     assert(x.contains(k44));

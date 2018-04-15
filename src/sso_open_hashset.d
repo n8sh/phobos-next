@@ -219,8 +219,8 @@ private:
 
     // expanding insert third into large
     assert(!x.contains(k44));
-    assert(x.insert(new K(44)) == x.InsertionStatus.added);
-    // TODO assert(x.contains(k44));
+    assert(x.insert(k44) == x.InsertionStatus.added);
+    assert(x.contains(k44));
     assert(x.isLarge);
     assert(x.length == 3);
 }

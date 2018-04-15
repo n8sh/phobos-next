@@ -173,7 +173,7 @@ struct SSOOpenHashSet(K,
         pragma(inline, true);
         if (isLarge)
         {
-            return large.rawBins[];
+            return large.rawBins;
         }
         else
         {

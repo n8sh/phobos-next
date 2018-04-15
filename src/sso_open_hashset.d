@@ -233,6 +233,7 @@ alias range = byElement;        // EMSI-container naming
 {
     // construct small
     alias X = SSOOpenHashSet!(K, FNV!(64, true));
+    static assert(X.sizeof == 24);
     auto x = X.withCapacity(X.small.maxCapacity);
     assert(x.isSmall);
     assert(x.capacity == X.small.maxCapacity);

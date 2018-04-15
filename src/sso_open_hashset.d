@@ -99,10 +99,10 @@ struct SSOOpenHashSet(K,
         {
             assert(!key.isNull);
 
-            // try insert in small array
+            // try inserting into small
             static foreach (immutable index; 0 .. small.maxCapacity)
             {
-                if (small._bins[index].isNull)
+                if (small._bins[index].isNull) // free slot
                 {
                     move(key, small._bins[index]);
                     return InsertionStatus.added;
@@ -218,9 +218,9 @@ private:
     assert(x.length == 2);
 
     // expanding insert third into large
-    // assert(!x.contains(k44));
+    assert(!x.contains(k44));
     assert(x.insert(new K(44)) == x.InsertionStatus.added);
-    // assert(x.contains(k44));
+    assert(x.contains(k44));
     assert(x.isLarge);
     assert(x.length == 3);
 }

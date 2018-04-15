@@ -14,6 +14,7 @@ struct SSOOpenHashSet(K,
 if (isNullable!K)
 {
     import qcmeman : gc_addRange, gc_removeRange;
+    import std.algorithm.mutation : move;
     import std.traits : hasElaborateDestructor;
     import std.conv : emplace;
     import container_traits : defaultNullKeyConstantOf, isNull, nullify, mustAddGCRange;
@@ -34,6 +35,15 @@ if (isNullable!K)
         {
             // dln("Small init, minimumCapacity:", minimumCapacity);
             result.small._capacityDummy = 2;
+            static foreach (immutable index; 0 .. small.maxCapacity)
+            {
+                result.small._bins[index].nullify();
+            }
+            static if (mustAddGCRange!K)
+            {
+                gc_addRange(result.small._bins.ptr,
+                            result.small._bins.sizeof);
+            }
         }
         return result;
     }
@@ -84,14 +94,19 @@ if (isNullable!K)
         else
         {
             assert(!key.isNull);
+
+            // try insert in small array
             static foreach (immutable index; 0 .. small.maxCapacity)
             {
                 if (!small._bins[index].isNull)
                 {
-                    small._bins[index] = key;
+                    move(key, small._bins[index]);
+                    dln("Small inserted at index:", index);
                     return InsertionStatus.added;
                 }
             }
+
+            // not hit
             expand(1);
             assert(isLarge);
             return large.insert(key);
@@ -107,14 +122,13 @@ if (isNullable!K)
                         binsCopy.sizeof);
         }
 
-        // TODO merge these two lines when emplace supports uncopyable types or
-        // `large` can be constructed from size_t
+        // TODO merge these lines?
         emplace!Large(&large);
         large.reserveExtra(Small.maxCapacity + extraCapacity);
-
-        static foreach (immutable index; 0 .. small.maxCapacity)
+        large.insertN(small._bins[]);
+        static if (mustAddGCRange!K)
         {
-
+            gc_removeRange(small._bins.ptr);
         }
 
         static if (mustAddGCRange!K)
@@ -159,16 +173,32 @@ private:
         uint value;
     }
 
+    // construct small
     alias X2 = SSOOpenHashSet!(K, FNV!(64, true));
-    auto x2 = X2.withCapacity(2);
-    assert(x2.capacity == 2);
+    auto x2 = X2.withCapacity(X2.small.maxCapacity);
+    assert(!x2.isLarge);
+    assert(x2.capacity == X2.small.maxCapacity);
     assert(x2.length == 0);
+
+    // insert first into small
+    assert(x2.insert(new K(42)) == x2.InsertionStatus.added);
+    assert(!x2.isLarge);
+    assert(x2.length == 1);
+
+    // insert second into small
+    assert(x2.insert(new K(43)) == x2.InsertionStatus.added);
+    assert(!x2.isLarge);
+    assert(x2.length == 2);
+
+    // expanding insert third into large
+    assert(x2.insert(new K(43)) == x2.InsertionStatus.added);
+    assert(x2.isLarge);
+    assert(x2.length == 3);
 
     alias X3 = SSOOpenHashSet!(K, FNV!(64, true));
     auto x3 = X3.withCapacity(3);
     assert(x3.capacity == 4);   // nextPow2
     assert(x3.length == 0);
-
     assert(x3.insert(new K(42)) == x3.InsertionStatus.added);
     assert(x3.length == 1);
 }

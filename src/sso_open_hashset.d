@@ -167,7 +167,8 @@ struct SSOOpenHashSet(K,
         size_t count = 0;
         foreach (ref e; largeCopy.rawBins)
         {
-            if (!e.isNull)
+            if (!e.isNull &&
+                !Large.isHoleKeyConstant(e))
             {
                 moveEmplace(e, small._bins[count]);
                 count += 1;

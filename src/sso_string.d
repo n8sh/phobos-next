@@ -31,7 +31,7 @@ struct SSOArray(T)
             RawLarge copy = void;
             copy.large = cast(Large)large;
             copy.raw.length /= 2; // adjust length
-            return large;
+            return copy.large;
         }
         else
         {

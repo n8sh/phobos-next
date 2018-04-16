@@ -36,6 +36,7 @@ struct SSOArray(T)
 private:
     alias Large = T[];
     enum smallCapacity = Large.sizeof - Small.length.sizeof;
+    static assert(smallCapacity > 0, "No room for small elements for T being " ~ T.stringof);
     struct Small
     {
         T[smallCapacity] data;

@@ -1,6 +1,6 @@
 module sso_string;
 
-struct SSOArray(T, uint smallSize)
+struct SSOArray(T)
 {
     this(T[] elements)
     {
@@ -28,6 +28,7 @@ struct SSOArray(T, uint smallSize)
 
 private:
     alias Large = T[];
+    enum smallSize = Large.sizeof - Small.length.sizeof;
     struct Small
     {
         T[smallSize] data;
@@ -43,6 +44,7 @@ private:
 ///
 @safe pure nothrow @nogc unittest
 {
-    alias X = SSOArray!(char, 15);
+    alias X = SSOArray!(char);
+    static assert(X.smallSize == 15);
     X x;
 }

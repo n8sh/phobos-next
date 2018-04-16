@@ -53,11 +53,11 @@ struct SSOArray(E)
     {
         if (isLarge)
         {
-            return large.length/2;
+            return large.length/2; // skip first bit
         }
         else
         {
-            return small.length/2;
+            return small.length/2; // skip fist bit
         }
     }
 

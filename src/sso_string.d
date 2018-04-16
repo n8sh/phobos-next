@@ -56,7 +56,7 @@ private:
     }
 }
 
-alias SSOString = SSOArray!char;
+alias SSOString = SSOArray!(immutable(char));
 
 ///
 @safe pure nothrow @nogc unittest

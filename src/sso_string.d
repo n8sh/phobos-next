@@ -40,7 +40,8 @@ private:
     }
 }
 
-@safe pure unittest
+///
+@safe pure nothrow @nogc unittest
 {
     alias X = SSOArray!(char, 15);
     X x;

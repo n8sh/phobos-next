@@ -47,11 +47,6 @@ struct SSOString
         }
     }
 
-    @property bool isLarge() const @trusted
-    {
-        return large.length & 1; // first bit discriminates small from large
-    }
-
     @property size_t length() const @trusted
     {
         if (isLarge)
@@ -87,6 +82,11 @@ struct SSOString
         {
             return small.data[0 .. small.length/2]; // scoped
         }
+    }
+
+    private @property bool isLarge() const @trusted
+    {
+        return large.length & 1; // first bit discriminates small from large
     }
 
 private:

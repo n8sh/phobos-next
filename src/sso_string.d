@@ -9,6 +9,7 @@ struct SSOString
     pure nothrow:
 
     /** Construct from `elements`.
+     *
      * Will GC-allocate iff `elements.length > smallCapacity`.
      */
     this(scope ME[] elements) @trusted
@@ -30,8 +31,7 @@ struct SSOString
 
     // TODO add @nogc overload to construct from mutable static array <= smallCapacity
 
-    /** Construct from `elements`.
-     * Will never allocate.
+    /** Construct from `elements` without any kind of heap allocation.
      */
     this(immutable(E)[] elements) @trusted
     {

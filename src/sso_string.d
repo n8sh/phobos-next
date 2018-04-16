@@ -3,8 +3,8 @@ module sso_string;
 /** Small-size-optimized `string`. */
 struct SSOString
 {
-    alias ME = char;
-    alias E = immutable(char);
+    alias ME = char;            // mutable element type
+    alias E = immutable(char);  // element type
 
     pure nothrow:
 

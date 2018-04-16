@@ -2,7 +2,7 @@ module sso_string;
 
 struct SSOArray(T)
 {
-    this(T[] elements)
+    this(const scope T[] elements)
     {
         assert(0, "construct from elements");
     }
@@ -41,10 +41,12 @@ private:
     }
 }
 
+alias SSOString = SSOArray!char;
+
 ///
 @safe pure nothrow @nogc unittest
 {
-    alias X = SSOArray!(char);
+    alias X = SSOString;
     static assert(X.smallSize == 15);
     X x;
 }

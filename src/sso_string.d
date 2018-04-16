@@ -65,5 +65,14 @@ alias SSOMutString = SSOArray!(char);
     alias X = SSOString;
     static assert(X.smallCapacity == 15);
     X x;
-    static assert(is(typeof(x[]) == string)); // scoped string
+    static assert(is(typeof(x[]) == string)); // TODO scoped
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    alias X = SSOMutString;
+    static assert(X.smallCapacity == 15);
+    X x;
+    static assert(is(typeof(x[]) == char[])); // TODO scoped
 }

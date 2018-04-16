@@ -2,9 +2,16 @@ module sso_string;
 
 struct SSOArray(T)
 {
-    this(const scope T[] elements)
+    this(scope T[] elements)
     {
-        assert(0, "construct from elements");
+        if (elements.length <= smallCapacity)
+        {
+            small.data[0 .. elements.length] = elements;
+        }
+        else
+        {
+            large = elements;
+        }
     }
 
     pure nothrow @nogc:
@@ -13,7 +20,7 @@ struct SSOArray(T)
     {
         if (isLarge)
         {
-            return large;
+            return large;       // as is
         }
         else
         {
@@ -28,10 +35,10 @@ struct SSOArray(T)
 
 private:
     alias Large = T[];
-    enum smallSize = Large.sizeof - Small.length.sizeof;
+    enum smallCapacity = Large.sizeof - Small.length.sizeof;
     struct Small
     {
-        T[smallSize] data;
+        T[smallCapacity] data;
         ubyte length;
     }
     union
@@ -47,6 +54,6 @@ alias SSOString = SSOArray!char;
 @safe pure nothrow @nogc unittest
 {
     alias X = SSOString;
-    static assert(X.smallSize == 15);
+    static assert(X.smallCapacity == 15);
     X x;
 }

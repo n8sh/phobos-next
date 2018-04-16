@@ -94,20 +94,20 @@ alias SSOMutString = SSOArray!(char);
 ///
 @safe pure nothrow @nogc unittest
 {
-    alias X = SSOString;
-    static assert(X.smallCapacity == 15);
+    alias S = SSOString;
+    static assert(S.smallCapacity == 15);
 
-    auto x15 = X("012345678901234");
-    static assert(is(typeof(x15[]) == string)); // TODO scoped
-    assert(!x15.isLarge);
-    assert(x15.length == 15);
-    assert(x15[] == "012345678901234");
+    auto s15 = S("012345678901234");
+    static assert(is(typeof(s15[]) == string)); // TODO scoped
+    assert(!s15.isLarge);
+    assert(s15.length == 15);
+    assert(s15[] == "012345678901234");
 
-    auto x16 = X("0123456789012345");
-    static assert(is(typeof(x16[]) == string)); // TODO scoped
-    assert(x16.isLarge);
-    assert(x16.length == 16);
-    // TODO assert(x16[] == "0123456789012345");
+    auto s16 = S("0123456789012345");
+    static assert(is(typeof(s16[]) == string)); // TODO scoped
+    assert(s16.isLarge);
+    assert(s16.length == 16);
+    // TODO assert(s16[] == "0123456789012345");
 }
 
 version(unittest)

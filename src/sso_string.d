@@ -16,7 +16,7 @@ struct SSOArray(T)
 
     pure nothrow @nogc:
 
-    scope inout(T)[] opSlice() inout
+    scope inout(T)[] opSlice() inout return
     {
         if (isLarge)
         {
@@ -39,8 +39,8 @@ private:
     static assert(smallCapacity > 0, "No room for small elements for T being " ~ T.stringof);
     struct Small
     {
+        ubyte length;           // little-endian first
         T[smallCapacity] data;
-        ubyte length;
     }
     union
     {

@@ -46,7 +46,7 @@ struct SSOArray(E)
 
     @property bool isLarge() const @trusted
     {
-        return large.length & 1; // first bit is discriminator between small and large
+        return large.length & 1; // first bit discriminates small from large
     }
 
     @property size_t length() const @trusted

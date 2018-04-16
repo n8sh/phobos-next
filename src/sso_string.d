@@ -15,7 +15,7 @@ struct SSOArray(E)
     /** Construct from `elements`, with potential GC-allocation (iff
      * `elements.length > smallCapacity`).
      */
-    this(scope ME[] elements) @trusted
+    this()(scope ME[] elements) @trusted // template-lazy
     {
         if (elements.length <= smallCapacity)
         {
@@ -36,7 +36,7 @@ struct SSOArray(E)
 
     /** Construct from `elements` without any kind of heap allocation.
      */
-    this(immutable(E)[] elements) @trusted
+    this()(immutable(E)[] elements) @trusted // template-lazy
     {
         if (elements.length <= smallCapacity)
         {
@@ -154,4 +154,6 @@ alias SSOString = SSOArray!char;
     assert(s16[0] == '0');
     assert(s16[10] == 'a');
     assert(s16[15] == 'f');
+
+    // TODO static assert(!__traits(compiles, { auto _ = S((char[]).init); }));
 }

@@ -65,7 +65,7 @@ struct SSOArray(E)
 
     ref inout(E) opIndex(size_t index) inout return scope @trusted
     {
-        return opSlice()[index];
+        return opSlice()[index]; // automatic range checking
     }
 
     scope inout(E)[] opSlice() inout return @trusted

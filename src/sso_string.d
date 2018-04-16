@@ -130,7 +130,10 @@ alias SSOString = SSOArray!char;
 ///
 @safe pure nothrow @nogc unittest
 {
+    import container_traits : mustAddGCRange;
     alias S = SSOString;
+
+    static assert(mustAddGCRange!S);
     static assert(S.smallCapacity == 15);
 
     auto s0 = S.init;

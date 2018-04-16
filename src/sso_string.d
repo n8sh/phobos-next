@@ -115,12 +115,14 @@ alias SSOMutString = SSOArray!(char);
     assert(s15.length == 15);
     assert(s15[] == "012345678901234");
 
-    auto s16 = S("0123456789012345");
+    auto s16 = S("0123456789abcdef");
     static assert(is(typeof(s16[]) == string)); // TODO DIP-1000
     assert(s16.isLarge);
     assert(s16.length == 16);
-    assert(s16[] == "0123456789012345");
+    assert(s16[] == "0123456789abcdef");
     assert(s16[0] == '0');
+    assert(s16[10] == 'a');
+    assert(s16[15] == 'f');
 }
 
 version(unittest)

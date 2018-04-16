@@ -136,24 +136,24 @@ alias SSOString = SSOArray!char;
     string f() @safe pure nothrow @nogc
     {
         S x;
-        return x[];             // TODO should fail
+        return x[];             // TODO should fail with -dip1000
     }
 
     const s7 = S("0123456");
-    static assert(is(typeof(s7[]) == string)); // TODO DIP-1000
+    static assert(is(typeof(s7[]) == string));
     assert(!s7.isLarge);
     assert(s7.length == 7);
     assert(s7[] == "0123456");
     // TODO assert(s7[0 .. 4] == "0123");
 
     const s15 = S("012345678901234");
-    static assert(is(typeof(s15[]) == string)); // TODO DIP-1000
+    static assert(is(typeof(s15[]) == string));
     assert(!s15.isLarge);
     assert(s15.length == 15);
     assert(s15[] == "012345678901234");
 
     const s16 = S("0123456789abcdef");
-    static assert(is(typeof(s16[]) == string)); // TODO DIP-1000
+    static assert(is(typeof(s16[]) == string));
     assert(s16.isLarge);
     assert(s16.length == 16);
     assert(s16[] == "0123456789abcdef");

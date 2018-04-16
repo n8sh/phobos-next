@@ -102,20 +102,20 @@ alias SSOMutString = SSOArray!(char);
     alias S = SSOString;
     static assert(S.smallCapacity == 15);
 
-    auto s7 = S("0123456");
+    const s7 = S("0123456");
     static assert(is(typeof(s7[]) == string)); // TODO DIP-1000
     assert(!s7.isLarge);
     assert(s7.length == 7);
     assert(s7[] == "0123456");
     // TODO assert(s7[0 .. 4] == "0123");
 
-    auto s15 = S("012345678901234");
+    const s15 = S("012345678901234");
     static assert(is(typeof(s15[]) == string)); // TODO DIP-1000
     assert(!s15.isLarge);
     assert(s15.length == 15);
     assert(s15[] == "012345678901234");
 
-    auto s16 = S("0123456789abcdef");
+    const s16 = S("0123456789abcdef");
     static assert(is(typeof(s16[]) == string)); // TODO DIP-1000
     assert(s16.isLarge);
     assert(s16.length == 16);

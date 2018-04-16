@@ -23,7 +23,8 @@ struct SSOArray(T)
     {
         if (isLarge)
         {
-            return large;       // as is
+            assert(0, "shift length of slice down before returning");
+            //return large;       // as is
         }
         else
         {
@@ -37,7 +38,14 @@ struct SSOArray(T)
     }
 
 private:
+    struct Raw
+    {
+        size_t length;          // can be changed without GC allocation
+        T* ptr;
+    }
+
     alias Large = T[];
+
     enum smallCapacity = Large.sizeof - Small.length.sizeof;
     static assert(smallCapacity > 0, "No room for small elements for T being " ~ T.stringof);
     version(LittleEndian) // see: http://forum.dlang.org/posting/zifyahfohbwavwkwbgmw
@@ -54,6 +62,7 @@ private:
     }
     union
     {
+        Raw raw;
         Large large;
         Small small;
     }

@@ -8,6 +8,7 @@ struct SSOString
 
     pure nothrow:
 
+    /// Will allocate string iff `elements.length >= smallCapacity`.
     this(scope ME[] elements) @trusted
     {
         if (elements.length <= smallCapacity)

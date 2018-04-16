@@ -9,7 +9,7 @@ struct SSOString
     pure nothrow:
 
     /** Construct from `elements`.
-     * Will GC-allocate a large string iff `elements.length >= smallCapacity`.
+     * Will GC-allocate iff `elements.length >= smallCapacity`.
      */
     this(scope ME[] elements) @trusted
     {

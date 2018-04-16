@@ -3,6 +3,8 @@ module sso_string;
 /** Small-size-optimized `string`. */
 struct SSOArray(E)
 {
+    pure nothrow @nogc:
+
     this(scope E[] elements) @trusted
     {
         if (elements.length <= smallCapacity)
@@ -17,8 +19,6 @@ struct SSOArray(E)
             raw.length |= 1;  // tag as large
         }
     }
-
-    pure nothrow @nogc:
 
     ref inout(E) opIndex(size_t index) inout return scope @trusted
     {

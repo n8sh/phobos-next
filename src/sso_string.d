@@ -28,7 +28,7 @@ struct SSOString
 
     // TODO add @nogc overload to construct from mutable static array <= smallCapacity
 
-    /// Will never allocate string iff `elements.length >= smallCapacity`.
+    /// Will never allocate.
     this(immutable(E)[] elements) @trusted
     {
         if (elements.length <= smallCapacity)

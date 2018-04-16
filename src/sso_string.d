@@ -2,7 +2,7 @@ module sso_string;
 
 /** Small-size-optimized `string`.
  *
- * Stores on the stack if constructed with <= `smallCapacity` number of
+ * Store on the stack if constructed with <= `smallCapacity` number of
  * characters, otherwise on the GC heap.
  */
 struct SSOString

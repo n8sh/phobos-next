@@ -133,6 +133,11 @@ alias SSOString = SSOArray!char;
     alias S = SSOString;
     static assert(S.smallCapacity == 15);
 
+    auto s0 = S.init;
+    assert(s0.length == 0);
+    assert(!s0.isLarge);
+    assert(s0[] == []);
+
     const s7 = S("0123456");
     static assert(is(typeof(s7[]) == string));
     assert(!s7.isLarge);

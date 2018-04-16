@@ -20,6 +20,23 @@ struct SSOArray(E)
         }
     }
 
+    @property bool isLarge() const @trusted
+    {
+        return large.length & 1; // first bit discriminates small from large
+    }
+
+    @property size_t length() const @trusted
+    {
+        if (isLarge)
+        {
+            return large.length/2; // skip first bit
+        }
+        else
+        {
+            return small.length/2; // skip fist bit
+        }
+    }
+
     ref inout(E) opIndex(size_t index) inout return scope @trusted
     {
         return opSlice()[index];
@@ -42,23 +59,6 @@ struct SSOArray(E)
         else
         {
             return small.data[0 .. small.length/2]; // scoped
-        }
-    }
-
-    @property bool isLarge() const @trusted
-    {
-        return large.length & 1; // first bit discriminates small from large
-    }
-
-    @property size_t length() const @trusted
-    {
-        if (isLarge)
-        {
-            return large.length/2; // skip first bit
-        }
-        else
-        {
-            return small.length/2; // skip fist bit
         }
     }
 

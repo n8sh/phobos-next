@@ -133,12 +133,6 @@ alias SSOString = SSOArray!char;
     alias S = SSOString;
     static assert(S.smallCapacity == 15);
 
-    string f() @safe pure nothrow @nogc
-    {
-        S x;
-        return x[];             // TODO should fail with -dip1000
-    }
-
     const s7 = S("0123456");
     static assert(is(typeof(s7[]) == string));
     assert(!s7.isLarge);
@@ -162,4 +156,10 @@ alias SSOString = SSOArray!char;
     assert(s16[15] == 'f');
 
     // TODO static assert(!__traits(compiles, { auto _ = S((char[]).init); }));
+
+    string f() @safe pure nothrow @nogc
+    {
+        S x;
+        return x[];             // TODO should fail with -dip1000
+    }
 }

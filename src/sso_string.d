@@ -163,6 +163,7 @@ alias SSOString = SSOArray!char;
         return x[];             // TODO should fail with -dip1000
     }
 
+    // TODO activate
     // ref char g() @safe pure nothrow @nogc
     // {
     //     S x;

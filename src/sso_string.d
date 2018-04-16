@@ -8,9 +8,8 @@ struct SSOString
 
     pure nothrow:
 
-    /** Construct from `elements`.
-     *
-     * Will GC-allocate iff `elements.length > smallCapacity`.
+    /** Construct from `elements`, with potential GC-allocation (iff
+     * `elements.length > smallCapacity`).
      */
     this(scope ME[] elements) @trusted
     {

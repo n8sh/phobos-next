@@ -1,8 +1,8 @@
 module sso_string;
 
-struct SSOArray(T)
+struct SSOArray(E)
 {
-    this(scope T[] elements) @trusted
+    this(scope E[] elements) @trusted
     {
         if (elements.length <= smallCapacity)
         {
@@ -19,7 +19,12 @@ struct SSOArray(T)
 
     pure nothrow @nogc:
 
-    scope inout(T)[] opSlice() inout return @trusted
+    ref inout(E) opIndex(size_t index) inout return scope @trusted
+    {
+        return opSlice()[index];
+    }
+
+    scope inout(E)[] opSlice() inout return @trusted
     {
         if (isLarge)
         {
@@ -60,19 +65,19 @@ private:
     struct Raw
     {
         size_t length;          // can be changed without GC allocation
-        T* ptr;
+        E* ptr;
     }
 
-    alias Large = T[];
+    alias Large = E[];
 
     enum smallCapacity = Large.sizeof - Small.length.sizeof;
-    static assert(smallCapacity > 0, "No room for small elements for T being " ~ T.stringof);
+    static assert(smallCapacity > 0, "No room for small elements for E being " ~ E.stringof);
     version(LittleEndian) // see: http://forum.dlang.org/posting/zifyahfohbwavwkwbgmw
     {
         struct Small
         {
             ubyte length;
-            T[smallCapacity] data;
+            E[smallCapacity] data;
         }
     }
     else
@@ -115,6 +120,7 @@ alias SSOMutString = SSOArray!(char);
     assert(s16.isLarge);
     assert(s16.length == 16);
     assert(s16[] == "0123456789012345");
+    assert(s16[0] == '0');
 }
 
 version(unittest)

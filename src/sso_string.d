@@ -7,8 +7,8 @@ module sso_string;
  */
 struct SSOString
 {
+    private alias E = immutable(char); // immutable element type
     private alias ME = char;           // mutable element type
-    private alias E = immutable(char); // element type
 
     pure nothrow:
 

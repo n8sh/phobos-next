@@ -96,7 +96,7 @@ struct SSOArray(E)
 private:
     struct Raw
     {
-        size_t length;          // can be changed without GC allocation
+        size_t length;          // can be bit-fiddled without GC allocation
         E* ptr;
     }
 

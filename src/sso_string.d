@@ -3,11 +3,12 @@ module sso_string;
 /** Small-size-optimized `string`. */
 struct SSOString
 {
+    alias ME = char;
     alias E = immutable(char);
 
     pure nothrow:
 
-    this(scope E[] elements) @trusted
+    this(scope ME[] elements) @trusted
     {
         if (elements.length <= smallCapacity)
         {
@@ -16,7 +17,7 @@ struct SSOString
         }
         else
         {
-            large = elements;
+            large = elements.idup;
             raw.length *= 2;  // shift up
             raw.length |= 1;  // tag as large
         }

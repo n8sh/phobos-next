@@ -1,8 +1,10 @@
 module sso_string;
 
 /** Small-size-optimized `string`. */
-struct SSOArray(E)
+struct SSOString
 {
+    alias E = immutable(char);
+
     pure nothrow @nogc:
 
     this(scope E[] elements) @trusted
@@ -93,9 +95,6 @@ private:
         Small small;
     }
 }
-
-alias SSOString = SSOArray!(immutable(char));
-alias SSOMutString = SSOArray!(char);
 
 ///
 @safe pure nothrow @nogc unittest

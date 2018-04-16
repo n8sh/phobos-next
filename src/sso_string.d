@@ -100,7 +100,6 @@ alias SSOMutString = SSOArray!(char);
     auto x15 = X("012345678901234");
     static assert(is(typeof(x15[]) == string)); // TODO scoped
     assert(!x15.isLarge);
-    dln(x15.length);
     assert(x15.length == 15);
     assert(x15[] == "012345678901234");
 

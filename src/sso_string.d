@@ -23,7 +23,14 @@ struct SSOArray(T)
     {
         if (isLarge)
         {
-            auto largeCopy = large;
+            union RawLarge
+            {
+                Raw raw;
+                Large large;
+            }
+            RawLarge copy = void;
+            copy.large = cast(Large)large;
+            copy.raw.length /= 2; // adjust length
             return large;
         }
         else
@@ -60,6 +67,7 @@ private:
     {
         static assert(0, "BigEndian support and test");
     }
+
     union
     {
         Raw raw;

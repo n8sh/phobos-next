@@ -7,13 +7,13 @@ struct SSOArray(T)
         if (elements.length <= smallCapacity)
         {
             small.data[0 .. elements.length] = elements;
-            small.length *= 2;  // shift up
+            raw.length *= 2;  // shift up (tag as small)
         }
         else
         {
             large = elements;
-            large.length *= 2;  // shift up
-            small.length |= 1;  // tag as large
+            raw.length *= 2;  // shift up
+            raw.length |= 1;  // tag as large
         }
     }
 
@@ -23,18 +23,18 @@ struct SSOArray(T)
     {
         if (isLarge)
         {
-            assert(0, "shift length of slice down before returning");
-            //return large;       // as is
+            auto largeCopy = large;
+            return large;
         }
         else
         {
-            return small.data[0 .. small.length];
+            return small.data[0 .. small.length]; // scoped
         }
     }
 
     @property bool isLarge() const @trusted
     {
-        return large.length & 1;
+        return large.length & 1; // first bit is discriminator
     }
 
 private:
@@ -52,7 +52,7 @@ private:
     {
         struct Small
         {
-            ubyte length;           // little-endian first
+            ubyte length;
             T[smallCapacity] data;
         }
     }

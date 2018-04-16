@@ -64,5 +64,5 @@ alias SSOString = SSOArray!(immutable(char));
     alias X = SSOString;
     static assert(X.smallCapacity == 15);
     X x;
-    static assert(is(typeof(x[]) == string));
+    static assert(is(typeof(x[]) == string)); // scoped string
 }

@@ -236,6 +236,12 @@ struct SSOOpenHashSet(K,
         return bins[].filter!(key => (!key.isNull &&
                                       !Large.isHoleKeyConstant(key)));
     }
+    /// ditto. TODO remove this overload when filter can take an inout parameter
+    auto byLvalueElement()() @safe return // template-lazy
+    {
+        return bins[].filter!(key => (!key.isNull &&
+                                      !Large.isHoleKeyConstant(key)));
+    }
 
     private scope inout(K)[] bins() inout @trusted return
     {
@@ -283,7 +289,7 @@ private:
 
 /** Returns: range that iterates through the elements of `c` in undefined order.
  */
-auto byElement(Table)(auto ref return const(Table) c) @trusted
+auto byElement(Table)(auto ref return inout(Table) c) @trusted
     if (isInstanceOf!(SSOOpenHashSet, Table))
 {
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed

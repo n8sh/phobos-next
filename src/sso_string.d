@@ -24,9 +24,9 @@ struct SSOString
         }
     }
 
-    // TODO add @nogc overload to construct from mutable static array <= smallCapacity
-
     @nogc:
+
+    // TODO add @nogc overload to construct from mutable static array <= smallCapacity
 
     this(immutable(E)[] elements) @trusted
     {

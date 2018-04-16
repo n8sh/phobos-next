@@ -2,12 +2,12 @@ module sso_string;
 
 struct SSOArray(T)
 {
-    this(scope T[] elements)
+    this(scope T[] elements) @trusted
     {
         if (elements.length <= smallCapacity)
         {
             small.data[0 .. elements.length] = elements;
-            raw.length *= 2;  // shift up (tag as small)
+            small.length = cast(typeof(small.length))(2*elements.length);
         }
         else
         {
@@ -19,7 +19,7 @@ struct SSOArray(T)
 
     pure nothrow @nogc:
 
-    scope inout(T)[] opSlice() inout return
+    scope inout(T)[] opSlice() inout return @trusted
     {
         if (isLarge)
         {
@@ -35,13 +35,25 @@ struct SSOArray(T)
         }
         else
         {
-            return small.data[0 .. small.length]; // scoped
+            return small.data[0 .. small.length/2]; // scoped
         }
     }
 
     @property bool isLarge() const @trusted
     {
         return large.length & 1; // first bit is discriminator
+    }
+
+    @property size_t length() const @trusted
+    {
+        if (isLarge)
+        {
+            return large.length/2;
+        }
+        else
+        {
+            return small.length/2;
+        }
     }
 
 private:
@@ -84,15 +96,22 @@ alias SSOMutString = SSOArray!(char);
 {
     alias X = SSOString;
     static assert(X.smallCapacity == 15);
-    X x;
-    static assert(is(typeof(x[]) == string)); // TODO scoped
+
+    auto x15 = X("012345678901234");
+    static assert(is(typeof(x15[]) == string)); // TODO scoped
+    assert(!x15.isLarge);
+    dln(x15.length);
+    assert(x15.length == 15);
+    assert(x15[] == "012345678901234");
+
+    auto x16 = X("0123456789012345");
+    static assert(is(typeof(x16[]) == string)); // TODO scoped
+    assert(x16.isLarge);
+    assert(x16.length == 16);
+    // TODO assert(x16[] == "0123456789012345");
 }
 
-///
-@safe pure nothrow @nogc unittest
+version(unittest)
 {
-    alias X = SSOMutString;
-    static assert(X.smallCapacity == 15);
-    X x;
-    static assert(is(typeof(x[]) == char[])); // TODO scoped
+    import dbgio;
 }

@@ -5,7 +5,7 @@ struct SSOString
 {
     alias E = immutable(char);
 
-    pure nothrow @nogc:
+    pure nothrow:
 
     this(scope E[] elements) @trusted
     {
@@ -19,6 +19,23 @@ struct SSOString
             large = elements;
             raw.length *= 2;  // shift up
             raw.length |= 1;  // tag as large
+        }
+    }
+
+    @nogc:
+
+    this(immutable(E)[] elements) @trusted
+    {
+        if (elements.length <= smallCapacity)
+        {
+            small.data[0 .. elements.length] = elements;
+            small.length = cast(typeof(small.length))(2*elements.length);
+        }
+        else
+        {
+            large = elements;   // @nogc
+            raw.length *= 2;    // shift up
+            raw.length |= 1;    // tag as large
         }
     }
 

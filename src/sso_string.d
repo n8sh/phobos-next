@@ -107,7 +107,7 @@ alias SSOMutString = SSOArray!(char);
     static assert(is(typeof(s16[]) == string)); // TODO scoped
     assert(s16.isLarge);
     assert(s16.length == 16);
-    // TODO assert(s16[] == "0123456789012345");
+    assert(s16[] == "0123456789012345");
 }
 
 version(unittest)

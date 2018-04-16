@@ -133,7 +133,7 @@ alias SSOString = SSOArray!char;
     import container_traits : mustAddGCRange;
     alias S = SSOString;
 
-    static assert(S.sizeof == 16); // two words
+    static assert(S.sizeof == 2*size_t.sizeof); // two words
     static assert(S.smallCapacity == 15);
     static assert(mustAddGCRange!S); // `Large large.ptr` must be scanned
 

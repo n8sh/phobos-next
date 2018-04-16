@@ -1,5 +1,6 @@
 module sso_string;
 
+/** Small-size-optimized `string`. */
 struct SSOArray(E)
 {
     this(scope E[] elements) @trusted

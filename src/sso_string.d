@@ -136,7 +136,7 @@ alias SSOString = SSOArray!char;
     string f() @safe pure nothrow @nogc
     {
         S x;
-        return x[];             // should fail
+        return x[];             // TODO should fail
     }
 
     const s7 = S("0123456");

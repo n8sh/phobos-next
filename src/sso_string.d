@@ -124,8 +124,3 @@ alias SSOMutString = SSOArray!(char);
     assert(s16[10] == 'a');
     assert(s16[15] == 'f');
 }
-
-version(unittest)
-{
-    import dbgio;
-}

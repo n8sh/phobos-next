@@ -94,7 +94,7 @@ struct SSOArray(E)
     }
 
 private:
-    struct Raw
+    struct Raw                  // same memory layout as `E[]`
     {
         size_t length;          // can be bit-fiddled without GC allocation
         E* ptr;

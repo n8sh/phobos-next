@@ -1688,7 +1688,7 @@ private:                        // data
             }
             else
             {
-                static assert("BigEndian support and test");
+                static assert(0, "BigEndian support and test");
             }
         }
         else

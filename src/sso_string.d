@@ -57,6 +57,7 @@ private:
 }
 
 alias SSOString = SSOArray!(immutable(char));
+alias SSOMutString = SSOArray!(char);
 
 ///
 @safe pure nothrow @nogc unittest

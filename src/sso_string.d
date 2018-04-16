@@ -7,10 +7,13 @@ struct SSOArray(T)
         if (elements.length <= smallCapacity)
         {
             small.data[0 .. elements.length] = elements;
+            small.length *= 2;  // shift up
         }
         else
         {
             large = elements;
+            large.length *= 2;  // shift up
+            small.length |= 1;  // tag as large
         }
     }
 
@@ -28,9 +31,9 @@ struct SSOArray(T)
         }
     }
 
-    @property bool isLarge() const @safe
+    @property bool isLarge() const @trusted
     {
-        return true;
+        return large.length & 1;
     }
 
 private:

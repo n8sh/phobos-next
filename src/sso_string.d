@@ -70,6 +70,7 @@ struct SSOString
 
     @property size_t length() const @trusted
     {
+        pragma(inline, true);
         if (isLarge)
         {
             return large.length/2; // skip first bit
@@ -82,6 +83,7 @@ struct SSOString
 
     scope ref inout(E) opIndex(size_t index) inout return @trusted
     {
+        pragma(inline, true);
         return opSlice()[index]; // automatic range checking
     }
 
@@ -107,6 +109,7 @@ struct SSOString
 
     private @property bool isLarge() const @trusted
     {
+        pragma(inline, true);
         return large.length & 1; // first bit discriminates small from large
     }
 

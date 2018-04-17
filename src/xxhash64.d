@@ -269,13 +269,13 @@ unittest
 
 version(unittest)
 {
-    import std.digest.digest : hexDigest, isDigest;
+    import std.digest : hexDigest, isDigest;
     static assert(isDigest!(XXHash64));
 }
 
 /// `std.digest` conformance
 unittest
 {
-    import std.digest.digest;
+    import std.digest;
     assert(hexDigest!XXHash64(`xxhash`) == `32DD38952C4BC720`);
 }

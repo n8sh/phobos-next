@@ -1,6 +1,6 @@
 module pure_gc_allocator;
 
-static if (__VERSION__ >= 2080)
+static if (__VERSION__ >= 2081)
 {
     static assert(0, "Use std.experimental.allocator.building_blocks.gc_allocator.d instead of this module");
 }

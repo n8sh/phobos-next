@@ -385,6 +385,12 @@ alias range = byElement;        // EMSI-container naming
     import container_traits : mustAddGCRange;
     static assert(!mustAddGCRange!S);
     static assert(!mustAddGCRange!X);
+
+    X x;
+    // TODO
+    // assert(!x.contains(S(0)));
+    // assert(x.insert(S(0)) == X.InsertionStatus.added);
+    // assert(x.contains(S(0)));
 }
 
 version(unittest)

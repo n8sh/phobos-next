@@ -33,13 +33,14 @@ struct SSOOpenHashSet(K,
     static typeof(this) withCapacity()(size_t minimumCapacity) @trusted // template-lazy
     {
         typeof(return) result;                   // TODO `result = void` for nullify case
-        if (minimumCapacity > Small.maxCapacity) // will be small
+        if (minimumCapacity > Small.maxCapacity) // will be large
         {
             result.large = Large.withCapacity(minimumCapacity);
         }
-        else
+        else                    // small
         {
             import bit_traits : isAllZeroBits;
+            // pragma(msg, "isAllZeroBits!(K, K.nullValue): ", isAllZeroBits!(K, K.nullValue));
             static if (Large.hasAddressLikeKey ||
                        (__traits(hasMember, K, `nullValue`) && // if key has a null value
                         __traits(compiles, { enum _ = isAllZeroBits!(K, K.nullValue); }) && // prevent strange error given when `K` is `knet.data.Data`
@@ -49,6 +50,7 @@ struct SSOOpenHashSet(K,
             }
             else                // needs explicit null
             {
+                pragma(msg, K);
                 static foreach (immutable index; 0 .. small.maxCapacity)
                 {
                     result.small._bins[index].nullify();
@@ -396,16 +398,14 @@ alias range = byElement;        // EMSI-container naming
     static assert(!mustAddGCRange!S);
     static assert(!mustAddGCRange!X);
 
-    X x;
+    auto x = X.withCapacity(X.Small.maxCapacity);
 
-    assert(!x.contains(S(1)));
-    assert(x.insert(S(1)) == X.InsertionStatus.added);
-    assert(x.contains(S(1)));
-
-    // TODO
-    // assert(!x.contains(S(0)));
-    // assert(x.insert(S(0)) == X.InsertionStatus.added);
-    // assert(x.contains(S(0)));
+    foreach (immutable i; 0 .. X.Small.maxCapacity)
+    {
+        assert(!x.contains(S(i)));
+        assert(x.insert(S(i)) == X.InsertionStatus.added);
+        assert(x.contains(S(i)));
+    }
 }
 
 version(unittest)

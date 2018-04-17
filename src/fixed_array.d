@@ -4,8 +4,6 @@
  */
 module fixed_array;
 
-@safe:
-
 /** Statically allocated `T`-array of fixed pre-allocated length.  Similar to
     Rust's `fixedvec`: https://docs.rs/fixedvec/0.2.3/fixedvec/
 
@@ -15,7 +13,6 @@ module fixed_array;
 */
 struct FixedArray(T, uint capacity_, bool borrowChecked = false)
 {
-    @safe:
     import std.bitmanip : bitfields;
     import std.traits : Unqual;
     import std.traits : isSomeChar, hasElaborateDestructor, isAssignable, isCopyable;
@@ -78,8 +75,6 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
 
     /// Is `true` iff `U` can be assign to the element type `T` of `this`.
     private enum isElementAssignable(U) = isAssignable!(T, U);
-
-    @safe:
 
     /// Construct from element `values`.
     this(Us...)(Us values) @trusted
@@ -638,6 +633,13 @@ version(none) pure unittest     // TODO activate
            S([1, 2, 3].s[]));
     assert(S([1, 2, 3].s[]) ==
            [1, 2, 3]);
+}
+
+@safe pure unittest
+{
+    class C { int value; }
+    alias S = FixedArray!(C, 2);
+    static assert(mustAddGCRange!S);
 }
 
 /// equality

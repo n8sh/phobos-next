@@ -555,10 +555,11 @@ if (isNullable!(T))
 
     struct S
     {
-        int value;
-        static immutable nullValue = typeof(this).init;
+        uint value;
+        static immutable nullValue = S(value.max);
     }
     S s;
+    assert(!s.isNull);
     s.nullify();
     assert(s.isNull);
 }

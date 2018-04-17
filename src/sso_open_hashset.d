@@ -36,7 +36,7 @@ struct SSOOpenHashSet(K,
                 __traits(compiles, { enum _ = isAllZeroBits!(K, K.nullValue); }) && // prevent strange error given when `K` is `knet.data.Data`
                 !isAllZeroBits!(K, K.nullValue)))
     {
-        pragma(msg, "TODO warning key type ", K, " has non-zero-bit init value, default construction should be disabled or Small._bins");
+        pragma(msg, "TODO warning key type ", K, " has non-zero-bit init value, default construction should be disabled or Small._bins should be set to init value");
     }
     // TODO @disable this();
 

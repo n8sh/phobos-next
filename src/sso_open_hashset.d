@@ -24,7 +24,7 @@ struct SSOOpenHashSet(K,
     import std.algorithm.mutation : move, moveEmplace;
     import std.traits : hasElaborateDestructor, isDynamicArray;
     import std.conv : emplace;
-    import container_traits : defaultNullKeyConstantOf, isNull, nullify, mustAddGCRange;
+    import container_traits : defaultNullKeyConstantOf, isNull, nullify;
 
     alias InsertionStatus = Large.InsertionStatus;
 
@@ -53,12 +53,6 @@ struct SSOOpenHashSet(K,
                 {
                     result.small._bins[index].nullify();
                 }
-            }
-
-            static if (mustAddGCRange!K)
-            {
-                gc_addRange(result.small._bins.ptr,
-                            result.small._bins.sizeof);
             }
 
             result.small._capacityDummy = 2; // tag as small
@@ -210,25 +204,10 @@ struct SSOOpenHashSet(K,
     private void expandWithExtraCapacity(size_t extraCapacity) @trusted
     {
         Small.Bins binsCopy = small._bins; // TODO moveEmplace
-        static if (mustAddGCRange!K)
-        {
-            gc_addRange(binsCopy.ptr,
-                        binsCopy.sizeof);
-        }
-
         // TODO merge these lines?
         emplace!Large(&large);
         large.reserveExtra(Small.maxCapacity + extraCapacity);
         large.insertN(binsCopy);
-        static if (mustAddGCRange!K)
-        {
-            gc_removeRange(small._bins.ptr);
-        }
-
-        static if (mustAddGCRange!K)
-        {
-            gc_removeRange(binsCopy.ptr);
-        }
     }
 
     auto byLvalueElement()() const @safe return // template-lazy
@@ -381,6 +360,9 @@ alias range = byElement;        // EMSI-container naming
 @safe pure unittest
 {
     alias X = SSOOpenHashSet!(K, FNV!(64, true));
+    import container_traits : mustAddGCRange;
+    static assert(mustAddGCRange!K);
+    static assert(mustAddGCRange!X);
     auto x = X.withCapacity(3);
     assert(x.isLarge);
     assert(x.capacity == 4);    // nextPow2(3)
@@ -389,6 +371,20 @@ alias range = byElement;        // EMSI-container naming
     assert(x.length == 1);
     assert(x.insert(new K(43)) == x.InsertionStatus.added);
     assert(x.length == 2);
+}
+
+/// start large
+@safe pure unittest
+{
+    struct S
+    {
+        uint value;
+        static immutable nullValue = S(value.max);
+    }
+    alias X = SSOOpenHashSet!(S, FNV!(64, true));
+    import container_traits : mustAddGCRange;
+    static assert(!mustAddGCRange!S);
+    static assert(!mustAddGCRange!X);
 }
 
 version(unittest)

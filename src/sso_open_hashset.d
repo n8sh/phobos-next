@@ -221,14 +221,14 @@ struct SSOOpenHashSet(K,
 
     auto byLvalueElement()() const @safe return // template-lazy
     {
-        return bins[].filter!(key => (!key.isNull &&
-                                      !Large.isHoleKeyConstant(key)));
+        return bins.filter!(key => (!key.isNull &&
+                                    !Large.isHoleKeyConstant(key)));
     }
     /// ditto. TODO remove this overload when filter can take an inout parameter
     auto byLvalueElement()() @safe return // template-lazy
     {
-        return bins[].filter!(key => (!key.isNull &&
-                                      !Large.isHoleKeyConstant(key)));
+        return bins.filter!(key => (!key.isNull &&
+                                    !Large.isHoleKeyConstant(key)));
     }
 
     private scope inout(K)[] bins() inout @trusted return

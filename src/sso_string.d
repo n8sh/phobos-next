@@ -15,7 +15,7 @@ struct SSOString
     /** Construct from `elements`, with potential GC-allocation (iff
      * `elements.length > smallCapacity`).
      */
-    this()(const scope ME[] elements) @trusted // template-lazy
+    this(const scope ME[] elements) @trusted
     {
         if (elements.length <= smallCapacity)
         {
@@ -36,7 +36,7 @@ struct SSOString
 
     /** Construct from `elements` without any kind of heap allocation.
      */
-    this()(const scope E[] elements) @trusted // template-lazy
+    this(const scope E[] elements) @trusted
     {
         if (elements.length <= smallCapacity)
         {

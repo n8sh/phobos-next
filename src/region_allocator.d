@@ -2,7 +2,7 @@ module region_allocator;
 
 static if (__VERSION__ >= 2080)
 {
-    static assert(0, "Use std.experimental.allocator.building_blocks.region instead of this module");
+    pragma(msg, "TODO: Use std.experimental.allocator.building_blocks.region instead of this module");
 }
 
 import std.experimental.allocator.building_blocks.null_allocator;

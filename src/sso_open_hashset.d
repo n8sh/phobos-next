@@ -362,6 +362,8 @@ alias range = byElement;        // EMSI-container naming
     xr.popFront();
     assert(xr.front.value == 42);
     // TODO assert(xr.front is k42);
+    xr.popFront();
+    assert(xr.empty);
 
     // TODO assert(x.byElement.equal!((a, b) => a is b)([k43, k42].s[]));
 }

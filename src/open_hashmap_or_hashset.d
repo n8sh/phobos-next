@@ -1188,16 +1188,13 @@ private:
         size_t _count;        // total number of non-null elements stored in `_bins`
     }
 
-    static if (hasFunctionAttributes!(Allocator.allocate, "@nogc"))
+    static if (!hasAddressLikeKey)
     {
-        static if (!hasAddressLikeKey)
+        static if (hasFunctionAttributes!(Allocator.allocate, "@nogc"))
         {
             @NoGc size_t* _holesPtr; // bit array describing which bin elements that has been removed (holes)
         }
-    }
-    else
-    {
-        static if (!hasAddressLikeKey)
+        else
         {
             size_t* _holesPtr; // bit array describing which bin elements that has been removed (holes)
         }

@@ -30,9 +30,26 @@ struct SSOString
         }
     }
 
-    @nogc:
+    /** Construct from `elements` without any kind of heap allocation.
+     */
+    version(none)
+    this(size_t n)(const scope ME[n] elements) @trusted // inferred @nogc
+    {
+        static if (elements.length <= smallCapacity)
+        {
+            // @nogc
+            small.data[0 .. elements.length] = elements;
+            small.length = cast(typeof(small.length))(2*elements.length);
+        }
+        else
+        {
+            large = elements.idup; // GC-allocate
+            raw.length *= 2;  // shift up
+            raw.length |= 1;  // tag as large
+        }
+    }
 
-    // TODO add @nogc overload to construct from mutable static array <= smallCapacity
+    @nogc:
 
     /** Construct from `elements` without any kind of heap allocation.
      */

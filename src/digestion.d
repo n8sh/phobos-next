@@ -14,7 +14,7 @@
 module digestion;
 
 import std.traits : hasMember, isScalarType, hasIndirections, isArray, isPointer;
-import std.digest.digest : isDigest;
+import std.digest : isDigest;
 import traits_ex : isAddress;
 
 @safe:

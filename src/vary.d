@@ -487,7 +487,7 @@ public:
         return hash;
     }
 
-    import std.digest.digest : isDigest;
+    import std.digest : isDigest;
 
     /// TODO use `isHashable`?
     void toDigest(Digest)(scope ref Digest digest) const nothrow @nogc

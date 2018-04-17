@@ -151,7 +151,7 @@ hash_t hashOf2(alias hasher, T)(const scope auto ref T value)
                     isDigest!hasher &&
                     hasMember!(hasher, "get"))
     {
-        import std.digest.digest : makeDigest;
+        import std.digest : makeDigest;
 
         auto digest = makeDigest!(hasher);
         static if (hasMember!(T, "toDigest"))

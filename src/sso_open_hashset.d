@@ -25,11 +25,19 @@ struct SSOOpenHashSet(K,
     import std.traits : hasElaborateDestructor, isDynamicArray;
     import std.conv : emplace;
     import container_traits : defaultNullKeyConstantOf, isNull, nullify;
+    import bit_traits : isAllZeroBits;
 
     alias InsertionStatus = Large.InsertionStatus;
 
     @safe:
 
+    static if (!large.hasAddressLikeKey &&
+               (__traits(hasMember, K, `nullValue`) && // if key has a null value
+                __traits(compiles, { enum _ = isAllZeroBits!(K, K.nullValue); }) && // prevent strange error given when `K` is `knet.data.Data`
+                !isAllZeroBits!(K, K.nullValue)))
+    {
+        pragma(msg, "TODO warning key type ", K, " has non-zero-bit init value, default construction should be disabled or Small._bins");
+    }
     // TODO @disable this();
 
     static typeof(this) withCapacity()(size_t minimumCapacity) @trusted // template-lazy
@@ -41,7 +49,6 @@ struct SSOOpenHashSet(K,
         }
         else                    // small
         {
-            import bit_traits : isAllZeroBits;
             static if (Large.hasAddressLikeKey ||
                        (__traits(hasMember, K, `nullValue`) && // if key has a null value
                         __traits(compiles, { enum _ = isAllZeroBits!(K, K.nullValue); }) && // prevent strange error given when `K` is `knet.data.Data`
@@ -51,7 +58,6 @@ struct SSOOpenHashSet(K,
             }
             else                // needs explicit null
             {
-                pragma(msg, K);
                 static foreach (immutable index; 0 .. small.maxCapacity)
                 {
                     result.small._bins[index].nullify();

@@ -5,7 +5,7 @@ module sso_string;
  * Store on the stack if constructed with <= `smallCapacity` number of
  * characters, otherwise on the GC heap.
  */
-struct SSOSlice(E)
+struct SSOString
 {
     private alias E = immutable(char); // immutable element type
     private alias ME = char;           // mutable element type
@@ -124,8 +124,6 @@ private:
         Small small;
     }
 }
-
-alias SSOString = SSOSlice!char;
 
 ///
 @safe pure nothrow @nogc unittest

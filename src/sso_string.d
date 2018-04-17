@@ -1,6 +1,6 @@
 module sso_string;
 
-/** Small-size-optimized slice of element type `E`.
+/** Small-size-optimized string.
  *
  * Store on the stack if constructed with <= `smallCapacity` number of
  * characters, otherwise on the GC heap.

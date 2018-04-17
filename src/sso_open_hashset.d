@@ -30,6 +30,8 @@ struct SSOOpenHashSet(K,
 
     @safe:
 
+    // TODO @disable this();
+
     static typeof(this) withCapacity()(size_t minimumCapacity) @trusted // template-lazy
     {
         typeof(return) result;                   // TODO `result = void` for nullify case
@@ -40,7 +42,6 @@ struct SSOOpenHashSet(K,
         else                    // small
         {
             import bit_traits : isAllZeroBits;
-            // pragma(msg, "isAllZeroBits!(K, K.nullValue): ", isAllZeroBits!(K, K.nullValue));
             static if (Large.hasAddressLikeKey ||
                        (__traits(hasMember, K, `nullValue`) && // if key has a null value
                         __traits(compiles, { enum _ = isAllZeroBits!(K, K.nullValue); }) && // prevent strange error given when `K` is `knet.data.Data`

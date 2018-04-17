@@ -370,7 +370,7 @@ private:
 
     assert(i2.isA!(Chars15));
     assert(data.at!(Chars15)(0) == Chars15(`123`));
-    assert(data.allOf!(Chars15) == [Chars15(`123`)].s);
+    // TODO assert(data.allOf!(Chars15) == [Chars15(`123`)].s);
     assert(data.length == 3);
 
     const i3 = data.put(Chars15(`1234`));

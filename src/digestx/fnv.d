@@ -1,10 +1,10 @@
 /** FNV(Fowler-Noll-Vo) hash implementation.
  *
- * This module conforms to the APIs defined in std.digest.digest.
+ * This module conforms to the APIs defined in std.digest.
  */
 module digestx.fnv;
 
-public import std.digest.digest;
+public import std.digest;
 
 /**
  * Template API FNV-1(a) hash implementation.
@@ -140,7 +140,7 @@ unittest
     assert(d == hexString!"FDC422FD");
 }
 
-/// Convenience aliases for std.digest.digest.digest using the FNV implementation.
+/// Convenience aliases for std.digest.digest using the FNV implementation.
 auto fnv32Of(T...)(in T data)
 {
     return digest!(FNV32, T)(data);

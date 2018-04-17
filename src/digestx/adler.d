@@ -1,9 +1,9 @@
 /**
-   Adler-32 implementation. This module conforms to the APIs defined in std.digest.digest.
+   Adler-32 implementation. This module conforms to the APIs defined in std.digest.
 */
 module digestx.adler;
 
-public import std.digest.digest;
+public import std.digest;
 
 /// Template API Adler32 implementation.
 struct Adler32
@@ -81,7 +81,7 @@ unittest
     assert(adler.finish() == hexString!"025F0130");
 }
 
-/// Convenience alias for $(D digest) function in std.digest.digest using the Adler32 implementation.
+/// Convenience alias for $(D digest) function in std.digest using the Adler32 implementation.
 auto adler32Of(T...)(T data)
 {
     return digest!(Adler32, T)(data);

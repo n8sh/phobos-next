@@ -1,9 +1,9 @@
 /**
-   Tiger algorithm implementation. This module conforms to the APIs defined in std.digest.digest.
+   Tiger algorithm implementation. This module conforms to the APIs defined in std.digest.
 */
 module digestx.tiger;
 
-public import std.digest.digest;
+public import std.digest;
 
 /**
    Template API Tiger implementation.
@@ -265,7 +265,7 @@ alias Tiger2_128Digest = WrapperDigest!Tiger2_128;
     assert(t.finish() == hexString!"FE40798B8EB937FD977608930548D6A894C20B04CBEF7A42");
 }
 
-/// Convenience alias for std.digest.digest using Tiger-192.
+/// Convenience alias for std.digest using Tiger-192.
 auto tigerOf(T...)(T data)
 {
     return digest!(Tiger, T)(data);
@@ -277,7 +277,7 @@ auto tigerOf(T...)(T data)
     assert(tigerOf("abc") == hexString!"2AAB1484E8C158F2BFB8C5FF41B57A525129131C957B5F93");
 }
 
-/// Convenience alias for std.digest.digest using Tiger2-192.
+/// Convenience alias for std.digest using Tiger2-192.
 auto tiger2Of(T...)(T data)
 {
     return digest!(Tiger2, T)(data);

@@ -1,11 +1,11 @@
 /**
-   Whirlpool hashing algorithm implementation. This module conforms to the APIs defined in std.digest.digest.
+   Whirlpool hashing algorithm implementation. This module conforms to the APIs defined in std.digest.
 
    Based on the original Whirlpool implementation by Paulo S.L.M. Barreto and Vincent Rijmen.
 */
 module digestx.whirlpool;
 
-public import std.digest.digest;
+public import std.digest;
 import std.range;
 
 /**
@@ -207,7 +207,7 @@ private:
     }
 }
 
-/// Convenience alias for digest function in std.digest.digest using the Whirlpool implementation.
+/// Convenience alias for digest function in std.digest using the Whirlpool implementation.
 auto whirlpoolOf(T...)(T data)
 {
     return digest!(Whirlpool, T)(data);

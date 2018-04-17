@@ -401,7 +401,7 @@ alias range = byElement;        // EMSI-container naming
 
     auto x = X.withCapacity(X.Small.maxCapacity);
 
-    foreach (immutable i; 0 .. X.Small.maxCapacity)
+    foreach (immutable i; 0 .. X.Small.maxCapacity + 2)
     {
         assert(!x.contains(S(i)));
         assert(x.insert(S(i)) == X.InsertionStatus.added);

@@ -354,18 +354,15 @@ alias range = byElement;        // EMSI-container naming
     assert(!x.contains(k44));
     assert(x.isSmall);
     assert(x.length == 2);
-    size_t i = 0;
-
-    auto xr = x.byElement;
-    assert(xr.front.value == 43);
-    assert(xr.front is k43);
-    xr.popFront();
-    assert(xr.front.value == 42);
-    // TODO assert(xr.front is k42);
-    xr.popFront();
-    assert(xr.empty);
-
-    // TODO assert(x.byElement.equal!((a, b) => a is b)([k43, k42].s[]));
+    assert(x.byElement.equal!((a, b) => a is b)([k43, k42].s[]));
+    // auto xr = x.byElement;
+    // assert(xr.front.value == 43);
+    // assert(xr.front is k43);
+    // xr.popFront();
+    // assert(xr.front.value == 42);
+    // assert(xr.front is k42);
+    // xr.popFront();
+    // assert(xr.empty);
 }
 
 /// start large

@@ -396,6 +396,11 @@ alias range = byElement;        // EMSI-container naming
     static assert(!mustAddGCRange!X);
 
     X x;
+
+    assert(!x.contains(S(1)));
+    assert(x.insert(S(1)) == X.InsertionStatus.added);
+    assert(x.contains(S(1)));
+
     // TODO
     // assert(!x.contains(S(0)));
     // assert(x.insert(S(0)) == X.InsertionStatus.added);

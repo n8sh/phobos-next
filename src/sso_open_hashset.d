@@ -373,7 +373,7 @@ alias range = byElement;        // EMSI-container naming
     assert(x.length == 2);
 }
 
-/// start large
+/// struct value
 @safe pure unittest
 {
     struct S

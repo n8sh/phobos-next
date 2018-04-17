@@ -388,8 +388,8 @@ alias range = byElement;        // EMSI-container naming
     struct S
     {
         uint value;
-        static immutable nullValue = S(value.max);
-        static immutable dullValue = S(value.max - 1);
+        static immutable nullValue = S(value.max); // null
+        static immutable dullValue = S(value.max - 1); // lazy deletion
     }
     alias X = SSOOpenHashSet!(S, FNV!(64, true));
     import container_traits : mustAddGCRange;

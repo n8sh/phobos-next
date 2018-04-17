@@ -1,11 +1,11 @@
 module sso_string;
 
-/** Small-size-optimized `string`.
+/** Small-size-optimized slice of element type `E`.
  *
  * Store on the stack if constructed with <= `smallCapacity` number of
  * characters, otherwise on the GC heap.
  */
-struct SSOArray(E)
+struct SSOSlice(E)
 {
     private alias E = immutable(char); // immutable element type
     private alias ME = char;           // mutable element type
@@ -125,7 +125,7 @@ private:
     }
 }
 
-alias SSOString = SSOArray!char;
+alias SSOString = SSOSlice!char;
 
 ///
 @safe pure nothrow @nogc unittest

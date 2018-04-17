@@ -21,9 +21,6 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     import std.traits : isSomeChar, hasElaborateDestructor, isAssignable, isCopyable;
     import std.algorithm.mutation : move, moveEmplace;
 
-    // import qcmeman : gc_addRange, gc_removeRange;
-    // import container_traits : mustAddGCRange;
-
     alias capacity = capacity_; // for public use
 
     /// Store of `capacity` number of elements.
@@ -88,11 +85,6 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     this(Us...)(Us values) @trusted
         if (Us.length <= capacity)
     {
-        // static if (mustAddGCRange!T)
-        // {
-        //     gc_addRange(_store.ptr, _store.sizeof);
-        // }
-
         foreach (immutable ix, ref value; values)
         {
             import container_traits : needsMove;
@@ -122,11 +114,6 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
         import std.exception : enforce;
         enforce(values.length <= capacity, `Arguments don't fit in array`);
 
-        // static if (mustAddGCRange!T)
-        // {
-        //     gc_addRange(_store.ptr, _store.sizeof);
-        // }
-
         _store[0 .. values.length] = values;
         _length = cast(Length)values.length;
         static if (borrowChecked)
@@ -143,10 +130,6 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
             ) // prevent accidental move of l-value `values` in array calls
     {
         typeof(return) that;              // TODO use Store constructor:
-        // static if (mustAddGCRange!T)
-        // {
-        //     gc_addRange(that._store.ptr, that._store.sizeof);
-        // }
 
         that._store[0 .. values.length] = values;
         that._length = cast(Length)values.length;
@@ -161,9 +144,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     }
 
     static if (borrowChecked ||
-               hasElaborateDestructor!T//  ||
-               // mustAddGCRange!T
-        )
+               hasElaborateDestructor!T)
     {
         /** Destruct. */
         ~this() @trusted
@@ -176,13 +157,6 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
                     .destroy(_store.ptr[i]);
                 }
             }
-            // static if (mustAddGCRange!T)
-            // {
-            //     if (_store.ptr !is null)
-            //     {
-            //         gc_removeRange(_store.ptr);
-            //     }
-            // }
         }
     }
 

@@ -295,6 +295,7 @@ alias range = byElement;        // EMSI-container naming
 @safe pure nothrow unittest
 {
     import std.algorithm.comparison : equal;
+    import digestx.fnv : FNV;
     import array_help : s;
 
     // construct small
@@ -380,6 +381,7 @@ alias range = byElement;        // EMSI-container naming
 /// start large
 @safe pure nothrow unittest
 {
+    import digestx.fnv : FNV;
     alias X = SSOOpenHashSet!(K, FNV!(64, true));
     import container_traits : mustAddGCRange;
     static assert(mustAddGCRange!K);
@@ -397,6 +399,7 @@ alias range = byElement;        // EMSI-container naming
 /// struct value
 @safe pure nothrow unittest
 {
+    import digestx.fnv : FNV;
     struct S
     {
         uint value;
@@ -428,6 +431,4 @@ version(unittest)
         }
         uint value;
     }
-
-    import digestx.fnv : FNV;
 }

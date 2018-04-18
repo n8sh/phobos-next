@@ -294,6 +294,9 @@ alias range = byElement;        // EMSI-container naming
 /// start small and expand to large
 @safe pure nothrow unittest
 {
+    import std.algorithm.comparison : equal;
+    import array_help : s;
+
     // construct small
     alias X = SSOOpenHashSet!(K, FNV!(64, true));
     static assert(X.sizeof == 24);
@@ -426,9 +429,5 @@ version(unittest)
         uint value;
     }
 
-    import std.algorithm.comparison : equal;
     import digestx.fnv : FNV;
-    import array_help : s;
-
-    import dbgio;
 }

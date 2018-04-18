@@ -2,7 +2,7 @@ module pure_gc_allocator;
 
 static if (__VERSION__ >= 2081)
 {
-    pragma(msg, "TODO Use std.experimental.allocator.building_blocks.gc_allocator.d instead of this module");
+    version(LDC) static assert(0, "TODO Use std.experimental.allocator.building_blocks.gc_allocator.d instead of this module");
 }
 
 import std.experimental.allocator.common;

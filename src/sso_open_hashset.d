@@ -292,7 +292,7 @@ auto byElement(Table)(auto ref return inout(Table) c) @trusted
 alias range = byElement;        // EMSI-container naming
 
 /// start small and expand to large
-@safe pure unittest
+@safe pure nothrow unittest
 {
     // construct small
     alias X = SSOOpenHashSet!(K, FNV!(64, true));
@@ -375,7 +375,7 @@ alias range = byElement;        // EMSI-container naming
 }
 
 /// start large
-@safe pure unittest
+@safe pure nothrow unittest
 {
     alias X = SSOOpenHashSet!(K, FNV!(64, true));
     import container_traits : mustAddGCRange;
@@ -392,7 +392,7 @@ alias range = byElement;        // EMSI-container naming
 }
 
 /// struct value
-@safe pure unittest
+@safe pure nothrow unittest
 {
     struct S
     {

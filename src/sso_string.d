@@ -14,38 +14,38 @@ struct SSOString
 
     pure nothrow:
 
-    /** Construct from `elements`, with potential GC-allocation (iff
-     * `elements.length > smallCapacity`).
+    /** Construct from `source`, with potential GC-allocation (iff
+     * `source.length > smallCapacity`).
      */
-    this(const scope ME[] elements) @trusted
+    this(const scope ME[] source) @trusted
     {
-        if (elements.length <= smallCapacity)
+        if (source.length <= smallCapacity)
         {
-            small.data[0 .. elements.length] = elements;
-            small.length = cast(typeof(small.length))(2*elements.length);
+            small.data[0 .. source.length] = source;
+            small.length = cast(typeof(small.length))(2*source.length);
         }
         else
         {
-            large = elements.idup; // GC-allocate
+            large = source.idup; // GC-allocate
             raw.length *= 2;  // shift up
             raw.length |= 1;  // tag as large
         }
     }
 
-    /** Construct from static array `elements` of length `n`.
+    /** Construct from static array `source` of length `n`.
      */
     version(none)
-    this(size_t n)(const scope ME[n] elements) @trusted // inferred @nogc
+    this(size_t n)(const scope ME[n] source) @trusted // inferred @nogc
     {
-        static if (elements.length <= smallCapacity)
+        static if (source.length <= smallCapacity)
         {
             // @nogc
-            small.data[0 .. elements.length] = elements;
-            small.length = cast(typeof(small.length))(2*elements.length);
+            small.data[0 .. source.length] = source;
+            small.length = cast(typeof(small.length))(2*source.length);
         }
         else
         {
-            large = elements.idup; // GC-allocate
+            large = source.idup; // GC-allocate
             raw.length *= 2;  // shift up
             raw.length |= 1;  // tag as large
         }
@@ -53,18 +53,18 @@ struct SSOString
 
     @nogc:
 
-    /** Construct from `elements` without any kind of heap allocation.
+    /** Construct from `source` without any kind of heap allocation.
      */
-    this(const scope E[] elements) @trusted
+    this(const scope E[] source) @trusted
     {
-        if (elements.length <= smallCapacity)
+        if (source.length <= smallCapacity)
         {
-            small.data[0 .. elements.length] = elements;
-            small.length = cast(typeof(small.length))(2*elements.length);
+            small.data[0 .. source.length] = source;
+            small.length = cast(typeof(small.length))(2*source.length);
         }
         else
         {
-            large = elements;   // @nogc
+            large = source;   // @nogc
             raw.length *= 2;    // shift up
             raw.length |= 1;    // tag as large
         }
@@ -142,7 +142,7 @@ private:
     alias Large = E[];
 
     enum smallCapacity = Large.sizeof - Small.length.sizeof;
-    static assert(smallCapacity > 0, "No room for small elements for E being " ~ E.stringof);
+    static assert(smallCapacity > 0, "No room for small source for E being " ~ E.stringof);
     version(LittleEndian) // see: http://forum.dlang.org/posting/zifyahfohbwavwkwbgmw
     {
         struct Small

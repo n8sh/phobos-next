@@ -124,6 +124,7 @@ struct SSOString
         return opSlice();
     }
 
+    /** Returns: `true` iff this is a large string, otherwise `false.` */
     private @property bool isLarge() const @trusted
     {
         pragma(inline, true);

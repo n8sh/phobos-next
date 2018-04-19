@@ -13,6 +13,8 @@ import pure_mallocator : PureMallocator;
  *
  * TODO use opMove to update `gc_addRange` and `gc_removeRange` when
  * implemented. See: https://github.com/dlang/DIPs/pull/109
+ *
+ * See_Also: https://forum.dlang.org/post/pb87rn$2icb$1@digitalmars.com
  */
 struct SSOOpenHashSet(K,
                       alias hasher = hashOf,

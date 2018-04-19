@@ -179,13 +179,13 @@ private:
     assert(s7[] == "0123456");
     assert(s7[0 .. 4] == "0123");
 
-    const s15 = S("01234567890abcd");
+    const s15 = S("0123456789abcde");
     static assert(is(typeof(s15[]) == string));
     assert(!s15.isLarge);
     assert(s15.length == 15);
-    assert(s15[] == "01234567890abcd");
+    assert(s15[] == "0123456789abcde");
     assert(s15[0 .. 4] == "0123");
-    // assert(s15[10 .. 14] == "abcd");
+    assert(s15[10 .. 15] == "abcde");
 
     const s16 = S("0123456789abcdef");
     static assert(is(typeof(s16[]) == string));

@@ -113,6 +113,7 @@ struct SSOString
 
     scope inout(E)[] opSlice(size_t i, size_t j) inout return @trusted // TODO @safe for -dip1000?
     {
+        pragma(inline, true);
         return opSlice()[i .. j];
     }
 
@@ -198,6 +199,9 @@ private:
     assert(s16[0] == '0');
     assert(s16[10] == 'a');
     assert(s16[15] == 'f');
+    assert(s16[0 .. 4] == "0123");
+    assert(s16[10 .. 16] == "abcdef");
+    assert(s16[10 .. $] == "abcdef");
 
     // TODO static assert(!__traits(compiles, { auto _ = S((char[]).init); }));
 

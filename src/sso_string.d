@@ -89,7 +89,7 @@ struct SSOString
         return opSlice()[index]; // automatic range checking
     }
 
-    scope inout(E)[] opSlice() inout return @trusted
+    scope inout(E)[] opSlice() inout return @trusted // TODO @safe for -dip1000?
     {
         if (isLarge)
         {
@@ -105,8 +105,13 @@ struct SSOString
         }
         else
         {
-            return small.data[0 .. small.length/2]; // scoped
+            return small.data[0 .. small.length/2]; // scoped. TODO use .ptr when proved stable
         }
+    }
+
+    scope inout(E)[] opSlice(size_t i, size_t j) inout return @trusted // TODO @safe for -dip1000?
+    {
+        return opSlice()[i .. j];
     }
 
     private @property bool isLarge() const @trusted

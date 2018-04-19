@@ -406,7 +406,7 @@ alias range = byElement;        // EMSI-container naming
     {
         uint value;
         static immutable nullValue = S(value.max); // null
-        static immutable removedValue = S(value.max - 1); // TODO make use
+        static immutable removedValue = S(value.max - 1); // TODO make use of this
     }
     alias X = SSOOpenHashSet!(S, FNV!(64, true));
     import container_traits : mustAddGCRange;

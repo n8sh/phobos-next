@@ -1521,6 +1521,9 @@ static private struct LvalueElementRef(Table)
  */
 static private struct RvalueElementRef(Table)
 {
+    import std.traits : isMutable;
+    debug static assert(isMutable!Table, "Table type should always be mutable");
+
     Table _table;                // owned table
     size_t _binIndex;            // index to bin inside table
     size_t _iterationCounter;    // counter over number of elements popped
@@ -1973,10 +1976,11 @@ pragma(inline, true):
         /// Get reference to front element.
         @property scope auto ref front() return
         {
-            return _table._bins[_binIndex];
+            return *(cast(const(Table.ElementType)*)&_table._bins[_binIndex]); // propagate constnes
         }
     }
-    public RvalueElementRef!Table _elementRef;
+    import std.traits : Unqual;
+    public RvalueElementRef!(Unqual!Table) _elementRef;
     alias _elementRef this;
 }
 
@@ -1995,7 +1999,7 @@ auto byElement(Table)(auto ref return Table c) @trusted
     else                        // `c` was is an r-value and can be moved
     {
         import std.algorithm.mutation : move;
-        auto result = ByRvalueElement!C((RvalueElementRef!C(move(*(cast(Table*)&c))))); // reinterpret
+        auto result = ByRvalueElement!C((RvalueElementRef!(M)(move(*(cast(M*)&c))))); // reinterpret
     }
     result.findNextNonEmptyBin();
     return result;
@@ -2021,7 +2025,8 @@ static private struct ByKey_rvalue(Table)
     {
         return _table._bins[_binIndex].key;
     }
-    public RvalueElementRef!(Table) _elementRef;
+    import std.traits : Unqual;
+    public RvalueElementRef!(Unqual!Table) _elementRef;
     alias _elementRef this;
 }
 
@@ -2040,7 +2045,7 @@ auto byKey(Table)(auto ref return Table c) @trusted
     else                        // `c` was is an r-value and can be moved
     {
         import std.algorithm.mutation : move;
-        auto result = ByKey_rvalue!C((RvalueElementRef!C(move(*(cast(Table*)&c))))); // reinterpret
+        auto result = ByKey_rvalue!C((RvalueElementRef!M(move(*(cast(M*)&c))))); // reinterpret
     }
     result.findNextNonEmptyBin();
     return result;
@@ -2085,7 +2090,8 @@ static private struct ByValue_rvalue(Table)
         }
         return *(cast(E*)&_table._bins[_binIndex].value);
     }
-    public RvalueElementRef!(Table) _elementRef;
+    import std.traits : Unqual;
+    public RvalueElementRef!(Unqual!Table) _elementRef;
     alias _elementRef this;
 }
 
@@ -2097,6 +2103,7 @@ auto byValue(Table)(auto ref return Table c) @trusted
     import std.traits : Unqual;
     import std.traits : isMutable;
     alias M = Unqual!Table;
+    alias C = const(Table);
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
         auto result = ByValue_lvalue!Table((LvalueElementRef!(M)(cast(M*)&c)));
@@ -2104,7 +2111,7 @@ auto byValue(Table)(auto ref return Table c) @trusted
     else                        // `c` was is an r-value and can be moved
     {
         import std.algorithm.mutation : move;
-        auto result = ByValue_rvalue!C((RvalueElementRef!C(move(*(cast(Table*)&c))))); // reinterpret
+        auto result = ByValue_rvalue!C((RvalueElementRef!M(move(*(cast(M*)&c))))); // reinterpret
     }
     result.findNextNonEmptyBin();
     return result;
@@ -2146,7 +2153,7 @@ auto byKeyValue(Table)(auto ref return Table c) @trusted
     else                        // `c` was is an r-value and can be moved
     {
         import std.algorithm.mutation : move;
-        auto result = ByKeyValue_rvalue!Table((RvalueElementRef!Table(move(*(cast(Table*)&c))))); // reinterpret
+        auto result = ByKeyValue_rvalue!Table((RvalueElementRef!M(move(*(cast(M*)&c))))); // reinterpret
     }
     result.findNextNonEmptyBin();
     return result;

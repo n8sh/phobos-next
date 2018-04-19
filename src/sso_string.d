@@ -111,10 +111,17 @@ struct SSOString
         }
     }
 
+    /// ditto
     scope inout(E)[] opSlice(size_t i, size_t j) inout return @trusted // TODO @safe for -dip1000?
     {
         pragma(inline, true);
         return opSlice()[i .. j];
+    }
+
+    /** Get as `string`. */
+    @property scope inout(E)[] toString() inout return @trusted
+    {
+        return opSlice();
     }
 
     private @property bool isLarge() const @trusted
@@ -196,6 +203,7 @@ private:
     assert(s16.isLarge);
     assert(s16.length == 16);
     assert(s16[] == "0123456789abcdef");
+    assert(s16.toString == "0123456789abcdef");
     assert(s16[0] == '0');
     assert(s16[10] == 'a');
     assert(s16[15] == 'f');

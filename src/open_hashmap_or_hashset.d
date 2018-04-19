@@ -1430,6 +1430,9 @@ static private void duplicateEmplace(T)(const scope ref T src,
  */
 static private struct LvalueElementRef(Table)
 {
+    import std.traits : isMutable;
+    debug static assert(isMutable!Table, "Table type should always be mutable");
+
     private Table* _table;      // scoped access
     private size_t _binIndex;   // index to bin inside `table`
     private size_t _iterationCounter; // counter over number of elements popped. TODO needed?

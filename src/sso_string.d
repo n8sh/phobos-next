@@ -124,14 +124,14 @@ struct SSOString
         return opSlice();
     }
 
+private:
     /** Returns: `true` iff this is a large string, otherwise `false.` */
-    private @property bool isLarge() const @trusted
+    @property bool isLarge() const @trusted
     {
         pragma(inline, true);
         return large.length & 1; // first bit discriminates small from large
     }
 
-private:
     struct Raw                  // same memory layout as `E[]`
     {
         size_t length;          // can be bit-fiddled without GC allocation

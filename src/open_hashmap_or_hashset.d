@@ -2048,10 +2048,17 @@ static private struct ByValue_lvalue(Table)
     pragma(inline, true)
     @property scope auto ref front() return @trusted // TODO auto ref => ref V
     {
-        pragma(msg, "Table:", Table);
-        pragma(msg, "Table.KeyType:", Table.KeyType);
-        pragma(msg, "Table.ValueType:", Table.ValueType);
-        return *(cast(Table.ValueType*)&_table._bins[_binIndex].value);
+        // TODO functionize
+        import std.traits : isMutable;
+        static if (isMutable!(Table)) // TODO can this be solved without this `static if`?
+        {
+            alias E = Table.ValueType;
+        }
+        else
+        {
+            alias E = const(Table.ValueType);
+        }
+        return *(cast(E*)&_table._bins[_binIndex].value);
     }
     public LvalueElementRef!(Table) _elementRef;
     alias _elementRef this;
@@ -2062,7 +2069,17 @@ static private struct ByValue_rvalue(Table)
     pragma(inline, true)
     @property scope auto ref front() return @trusted // TODO auto ref => ref V
     {
-        return *(cast(Table.ValueType*)&_table._bins[_binIndex].value);
+        // TODO functionize
+        import std.traits : isMutable;
+        static if (isMutable!(Table)) // TODO can this be solved without this `static if`?
+        {
+            alias E = Table.ValueType;
+        }
+        else
+        {
+            alias E = const(Table.ValueType);
+        }
+        return *(cast(E*)&_table._bins[_binIndex].value);
     }
     public RvalueElementRef!(Table) _elementRef;
     alias _elementRef this;
@@ -2092,6 +2109,7 @@ static private struct ByKeyValue_lvalue(Table)
     pragma(inline, true)
     @property scope auto ref front() return @trusted // TODO auto ref => ref T
     {
+        // TODO functionize
         import std.traits : isMutable;
         static if (isMutable!(Table)) // TODO can this be solved without this `static if`?
         {
@@ -2308,7 +2326,7 @@ pure nothrow unittest
 
     foreach (ref e; x.byValue)
     {
-        // TODO static assert(is(typeof(e) == const(X.ValueType))); // TODO should be const(X.ValueType)
+        static assert(is(typeof(e) == const(X.ValueType))); // TODO should be const(X.ValueType)
     }
 
     foreach (e; x.byKeyValue)

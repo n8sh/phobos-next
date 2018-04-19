@@ -162,6 +162,11 @@ private:
     assert(!s0.isLarge);
     assert(s0[] == []);
 
+    const s0_ = S("");
+    assert(s0 == s0_);
+
+    // TODO assert(s0 !is s0_);
+
     const s7 = S("0123456");
     static assert(is(typeof(s7[]) == string));
     assert(!s7.isLarge);

@@ -221,13 +221,8 @@ struct SSOOpenHashSet(K,
         large.insertN(binsCopy);
     }
 
-    auto byLvalueElement()() const @safe return // template-lazy
-    {
-        return bins.filter!(key => (!key.isNull &&
-                                    !Large.isHoleKeyConstant(key)));
-    }
-    /// ditto. TODO remove this overload when filter can take an inout parameter
-    auto byLvalueElement()() @safe return // template-lazy
+    /** Constant iteration over elements. */
+    auto byLvalueElement()() const return // template-lazy
     {
         return bins.filter!(key => (!key.isNull &&
                                     !Large.isHoleKeyConstant(key)));

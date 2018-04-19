@@ -32,7 +32,7 @@ struct SSOString
         }
     }
 
-    /** Construct from `elements` without any kind of heap allocation.
+    /** Construct from static array `elements` of length `n`.
      */
     version(none)
     this(size_t n)(const scope ME[n] elements) @trusted // inferred @nogc

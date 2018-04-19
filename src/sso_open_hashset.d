@@ -91,13 +91,13 @@ struct SSOOpenHashSet(K,
 
     @disable this(this);
 
-    @property size_t capacity() pure nothrow @trusted @nogc
+    @property size_t capacity() const pure nothrow @trusted @nogc
     {
         pragma(inline, true);
         return small._capacityDummy;
     }
 
-    @property size_t length() pure nothrow @trusted @nogc
+    @property size_t length() const pure nothrow @trusted @nogc
     {
         version(LDC) pragma(inline, true);
         if (isLarge)
@@ -223,6 +223,11 @@ struct SSOOpenHashSet(K,
 
     /** Constant iteration over elements. */
     auto byLvalueElement()() const return // template-lazy
+    {
+        return bins.filter!(key => (!key.isNull &&
+                                    !Large.isHoleKeyConstant(key)));
+    }
+    auto byLvalueElement()() return // template-lazy
     {
         return bins.filter!(key => (!key.isNull &&
                                     !Large.isHoleKeyConstant(key)));

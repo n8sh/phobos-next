@@ -38,8 +38,6 @@ import pure_mallocator : PureMallocator;
  *
  * TODO support isHole, holeify and holeValue
  *
- * TODO fix and activate constness of `byKeyValue`
- *
  * TODO if hash-function is cast(size_t)(classInstance) always use prime length
  * and shift pointer before hash based on alignof (might not be needed when
  * module prime) to maximize memory locality when adding successively allocated

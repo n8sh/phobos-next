@@ -85,13 +85,13 @@ struct SSOString
     /// ditto
     alias opDollar = length;
 
-    scope ref inout(E) opIndex(size_t index) inout return @trusted
+    scope ref E opIndex(size_t index) const return @trusted
     {
         pragma(inline, true);
         return opSlice()[index]; // automatic range checking
     }
 
-    scope inout(E)[] opSlice() inout return @trusted // TODO @safe for -dip1000?
+    scope E[] opSlice() const return @trusted // TODO @safe for -dip1000?
     {
         if (isLarge)
         {
@@ -112,14 +112,14 @@ struct SSOString
     }
 
     /// ditto
-    scope inout(E)[] opSlice(size_t i, size_t j) inout return @trusted // TODO @safe for -dip1000?
+    scope E[] opSlice(size_t i, size_t j) const return @trusted // TODO @safe for -dip1000?
     {
         pragma(inline, true);
         return opSlice()[i .. j];
     }
 
     /** Get as `string`. */
-    @property scope inout(E)[] toString() inout return @trusted
+    @property E[] toString() const return @trusted
     {
         return opSlice();
     }

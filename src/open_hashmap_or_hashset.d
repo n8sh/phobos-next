@@ -2111,7 +2111,7 @@ static private struct ByKeyValue_lvalue(Table)
     {
         // TODO functionize
         import std.traits : isMutable;
-        static if (isMutable!(Table)) // TODO can this be solved without this `static if`?
+        static if (isMutable!(Table))
         {
             alias E = Table.KeyValueType;
         }

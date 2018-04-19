@@ -136,7 +136,7 @@ private:
     }
     else
     {
-        static assert(0, "TODO add BigEndian support and test");
+        static assert(0, "TODO: Add BigEndian support and test");
     }
 
     union

@@ -279,7 +279,7 @@ private:
 
 /** Returns: range that iterates through the elements of `c` in undefined order.
  */
-auto byElement(Table)(auto ref return inout(Table) c) @trusted
+auto byElement(Table)(auto ref return const Table c) @trusted
     if (isInstanceOf!(SSOOpenHashSet, Table))
 {
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
@@ -359,6 +359,7 @@ alias range = byElement;        // EMSI-container naming
     assert(x.contains(k44));
     foreach (ref e; x.byElement)
     {
+        static assert(is(typeof(e) == const(K)));
         assert(x.contains(e));
     }
     assert(x.isLarge);

@@ -1984,10 +1984,10 @@ pragma(inline, true):
 
 /** Returns: range that iterates through the elements of `c` in undefined order.
  */
-auto byElement(Table)(auto ref return inout(Table) c) @trusted
+auto byElement(Table)(auto ref return Table c) @trusted
     if (isInstanceOf!(OpenHashMapOrSet, Table))
 {
-    alias C = const(Table);
+    alias C = const(Table);        // be const for now
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
         auto result = ByLvalueElement!C((LvalueElementRef!(C)(cast(C*)&c)));
@@ -2026,10 +2026,10 @@ static private struct ByKey_rvalue(Table)
 
 /** Returns: range that iterates through the keys of `c` in undefined order.
  */
-auto byKey(Table)(auto ref return inout(Table) c) @trusted
+auto byKey(Table)(auto ref return Table c) @trusted
     if (isInstanceOf!(OpenHashMapOrSet, Table))
 {
-    alias C = const(Table);
+    alias C = const(Table);        // be const
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
         auto result = ByKey_lvalue!C((LvalueElementRef!(C)(cast(C*)&c)));
@@ -2048,6 +2048,9 @@ static private struct ByValue_lvalue(Table)
     pragma(inline, true)
     @property scope auto ref front() return @trusted // TODO auto ref => ref V
     {
+        pragma(msg, "Table:", Table);
+        pragma(msg, "Table.KeyType:", Table.KeyType);
+        pragma(msg, "Table.ValueType:", Table.ValueType);
         return *(cast(Table.ValueType*)&_table._bins[_binIndex].value);
     }
     public LvalueElementRef!(Table) _elementRef;
@@ -2067,13 +2070,13 @@ static private struct ByValue_rvalue(Table)
 
 /** Returns: range that iterates through the values of `c` in undefined order.
  */
-auto byValue(Table)(auto ref return inout(Table) c) @trusted
+auto byValue(Table)(auto ref return Table c) @trusted
     if (isInstanceOf!(OpenHashMapOrSet, Table))
 {
-    alias C = const(Table);
+    import std.traits : isMutable;
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
-        auto result = ByValue_lvalue!C((LvalueElementRef!(C)(cast(C*)&c)));
+        auto result = ByValue_lvalue!Table((LvalueElementRef!(Table)(cast(Table*)&c)));
     }
     else                        // `c` was is an r-value and can be moved
     {
@@ -2096,7 +2099,7 @@ static private struct ByKeyValue_lvalue(Table)
         }
         else
         {
-            alias E = const(T);
+            alias E = const(Table.T);
         }
         return *(cast(E*)&_table._bins[_binIndex]);
     }
@@ -2106,7 +2109,7 @@ static private struct ByKeyValue_lvalue(Table)
 
 /** Returns: range that iterates through the key-value-pairs of `c` in undefined order.
  */
-auto byKeyValue(Table)(auto ref return inout(Table) c) @trusted
+auto byKeyValue(Table)(auto ref return Table c) @trusted
     if (isInstanceOf!(OpenHashMapOrSet, Table))
 {
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
@@ -2298,14 +2301,14 @@ pure nothrow unittest
     alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
     const x = X();
 
-    foreach (e; x.byKey)
+    foreach (ref e; x.byKey)
     {
         static assert(is(typeof(e) == const(X.KeyType)));
     }
 
-    foreach (e; x.byValue)
+    foreach (ref e; x.byValue)
     {
-        static assert(is(typeof(e) == X.ValueType)); // TODO should be const(X.ValueType)
+        // TODO static assert(is(typeof(e) == const(X.ValueType))); // TODO should be const(X.ValueType)
     }
 
     foreach (e; x.byKeyValue)

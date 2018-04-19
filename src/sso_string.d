@@ -215,6 +215,7 @@ private:
 
     // TODO static assert(!__traits(compiles, { auto _ = S((char[]).init); }));
 
+    // TODO this shouldn't compile
     string f() @safe pure nothrow @nogc
     {
         S x;

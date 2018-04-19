@@ -125,6 +125,7 @@ struct SSOString
     }
 
 private:
+
     /** Returns: `true` iff this is a large string, otherwise `false.` */
     @property bool isLarge() const @trusted
     {

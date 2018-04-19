@@ -274,12 +274,20 @@ private:
 
 /** Returns: range that iterates through the elements of `c` in undefined order.
  */
-auto byElement(Table)(auto ref return const Table c) @trusted
+auto byElement(Table)(auto ref return Table c) @trusted
     if (isInstanceOf!(SSOOpenHashSet, Table))
 {
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
-        return c.byLvalueElement();
+        static if (Table.Large.hasAddressLikeKey)
+        {
+            import std.traits : Unqual;
+            return (cast(Unqual!Table)c).byLvalueElement();
+        }
+        else
+        {
+            return c.byLvalueElement();
+        }
     }
     else                        // `c` was is an r-value and can be moved
     {

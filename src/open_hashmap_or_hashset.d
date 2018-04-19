@@ -1430,16 +1430,9 @@ static private void duplicateEmplace(T)(const scope ref T src,
  */
 static private struct LvalueElementRef(Table)
 {
-    import std.traits : Unqual;
-
     private Table* _table;      // scoped access
     private size_t _binIndex;   // index to bin inside `table`
     private size_t _iterationCounter; // counter over number of elements popped. TODO needed?
-
-    debug
-    {
-        alias MutableTable = Unqual!(typeof(*_table));
-    }
 
     this(Table* table) @trusted
     {
@@ -1449,7 +1442,7 @@ static private struct LvalueElementRef(Table)
         {
             debug
             {
-                (cast(MutableTable*)(_table)).incBorrowCount();
+                _table.incBorrowCount();
             }
         }
     }
@@ -1461,7 +1454,7 @@ static private struct LvalueElementRef(Table)
         {
             debug
             {
-                (cast(MutableTable*)(_table)).decBorrowCount();
+                _table.decBorrowCount();
             }
         }
     }
@@ -1474,7 +1467,7 @@ static private struct LvalueElementRef(Table)
             debug
             {
                 assert(_table._borrowCount != 0);
-                (cast(MutableTable*)(_table)).incBorrowCount();
+                _table.incBorrowCount();
             }
         }
     }
@@ -2013,7 +2006,8 @@ static private struct ByKey_lvalue(Table)
     {
         return _table._bins[_binIndex].key;
     }
-    public LvalueElementRef!(Table) _elementRef;
+    import std.traits : Unqual;
+    public LvalueElementRef!(Unqual!Table) _elementRef;
     alias _elementRef this;
 }
 
@@ -2033,10 +2027,12 @@ static private struct ByKey_rvalue(Table)
 auto byKey(Table)(auto ref return Table c) @trusted
     if (isInstanceOf!(OpenHashMapOrSet, Table))
 {
+    import std.traits : Unqual;
+    alias M = Unqual!Table;
     alias C = const(Table);        // be const
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
-        auto result = ByKey_lvalue!C((LvalueElementRef!(C)(cast(C*)&c)));
+        auto result = ByKey_lvalue!C((LvalueElementRef!(M)(cast(M*)&c)));
     }
     else                        // `c` was is an r-value and can be moved
     {
@@ -2064,7 +2060,8 @@ static private struct ByValue_lvalue(Table)
         }
         return *(cast(E*)&_table._bins[_binIndex].value);
     }
-    public LvalueElementRef!(Table) _elementRef;
+    import std.traits : Unqual;
+    public LvalueElementRef!(Unqual!Table) _elementRef;
     alias _elementRef this;
 }
 
@@ -2094,10 +2091,12 @@ static private struct ByValue_rvalue(Table)
 auto byValue(Table)(auto ref return Table c) @trusted
     if (isInstanceOf!(OpenHashMapOrSet, Table))
 {
+    import std.traits : Unqual;
     import std.traits : isMutable;
+    alias M = Unqual!Table;
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
-        auto result = ByValue_lvalue!Table((LvalueElementRef!(Table)(cast(Table*)&c)));
+        auto result = ByValue_lvalue!Table((LvalueElementRef!(M)(cast(M*)&c)));
     }
     else                        // `c` was is an r-value and can be moved
     {
@@ -2125,7 +2124,8 @@ static private struct ByKeyValue_lvalue(Table)
         }
         return *(cast(E*)&_table._bins[_binIndex]);
     }
-    public LvalueElementRef!(Table) _elementRef;
+    import std.traits : Unqual;
+    public LvalueElementRef!(Unqual!Table) _elementRef;
     alias _elementRef this;
 }
 
@@ -2134,9 +2134,11 @@ static private struct ByKeyValue_lvalue(Table)
 auto byKeyValue(Table)(auto ref return Table c) @trusted
     if (isInstanceOf!(OpenHashMapOrSet, Table))
 {
+    import std.traits : Unqual;
+    alias M = Unqual!Table;
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
-        auto result = ByKeyValue_lvalue!Table((LvalueElementRef!(Table)(cast(Table*)&c)));
+        auto result = ByKeyValue_lvalue!Table((LvalueElementRef!(M)(cast(M*)&c)));
     }
     else                        // `c` was is an r-value and can be moved
     {

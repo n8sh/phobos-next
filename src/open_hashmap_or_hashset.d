@@ -2326,7 +2326,7 @@ pure nothrow unittest
 
     foreach (ref e; x.byValue)
     {
-        static assert(is(typeof(e) == const(X.ValueType))); // TODO should be const(X.ValueType)
+        static assert(is(typeof(e) == const(X.ValueType)));
     }
 
     foreach (e; x.byKeyValue)

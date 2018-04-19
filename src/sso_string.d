@@ -6,7 +6,7 @@ module sso_string;
  * characters, otherwise on the GC heap.
  *
  * See_Also: https://forum.dlang.org/post/pb87rn$2icb$1@digitalmars.com
-  */
+ */
 struct SSOString
 {
     private alias E = immutable(char); // immutable element type

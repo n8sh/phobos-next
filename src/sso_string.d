@@ -82,6 +82,8 @@ struct SSOString
             return small.length/2; // skip fist bit
         }
     }
+    /// ditto
+    alias opDollar = length;
 
     scope ref inout(E) opIndex(size_t index) inout return @trusted
     {
@@ -186,6 +188,7 @@ private:
     assert(s15[] == "0123456789abcde");
     assert(s15[0 .. 4] == "0123");
     assert(s15[10 .. 15] == "abcde");
+    assert(s15[10 .. $] == "abcde");
 
     const s16 = S("0123456789abcdef");
     static assert(is(typeof(s16[]) == string));

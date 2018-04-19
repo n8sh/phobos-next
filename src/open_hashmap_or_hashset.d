@@ -1934,24 +1934,28 @@ auto intersectWith(C1, C2)(ref C1 x,
 static private struct ByLvalueElement(Table)
 {
 pragma(inline, true):
+    // TODO functionize
+    import std.traits : isMutable;
     static if (isAddress!(Table.ElementType)) // for reference types
     {
         /// Get reference to front element.
         @property scope Table.ElementType front()() return @trusted
         {
             // cast to head-const for class key
-            return cast(typeof(return))_table._bins[_binIndex];
+            return (cast(typeof(return))_table._bins[_binIndex]);
         }
     }
     else
     {
         /// Get reference to front element.
-        @property scope auto ref front() return
+        @property scope auto ref front() return @trusted
         {
-            return _table._bins[_binIndex];
+            return *(cast(const(Table.ElementType)*)&_table._bins[_binIndex]); // propagate constnes
         }
     }
-    public LvalueElementRef!(Table) _elementRef;
+    import std.traits : Unqual;
+    // unqual to reduce number of instantations of `LvalueElementRef`
+    public LvalueElementRef!(Unqual!Table) _elementRef;
     alias _elementRef this;
 }
 
@@ -1985,10 +1989,12 @@ pragma(inline, true):
 auto byElement(Table)(auto ref return Table c) @trusted
     if (isInstanceOf!(OpenHashMapOrSet, Table))
 {
+    import std.traits : Unqual;
+    alias M = Unqual!Table;
     alias C = const(Table);        // be const for now
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
-        auto result = ByLvalueElement!C((LvalueElementRef!(C)(cast(C*)&c)));
+        auto result = ByLvalueElement!C((LvalueElementRef!(M)(cast(M*)&c)));
     }
     else                        // `c` was is an r-value and can be moved
     {

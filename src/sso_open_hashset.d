@@ -110,6 +110,8 @@ struct SSOOpenHashSet(K,
             return small._bins[].count!(_ => !_.isNull);
         }
     }
+    /// ditto
+    alias opDollar = length;
 
     InsertionStatus insert(K key) @trusted
     {

@@ -222,7 +222,7 @@ struct SSOOpenHashSet(K,
     }
 
     /** Constant iteration over elements. */
-    private auto byLvalueConstElement()() const return // template-lazy
+    private auto byLvalueElement()() const return // template-lazy
     {
         return bins.filter!(key => (!key.isNull &&
                                     !Large.isHoleKeyConstant(key)));
@@ -285,21 +285,9 @@ auto byElement(Table)(auto ref return Table c) @trusted
 {
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
-        // static if (Table.Large.hasAddressLikeKey)
-        // {
-        // }
-        // else
-        // {
-        // }
-        import std.traits : isMutable;
-        static if (isMutable!Table)
-        {
-            return c.byLvalueElement();
-        }
-        else
-        {
-            return c.byLvalueConstElement();
-        }
+        // static if (Table.Large.hasAddressLikeKey) {}
+        // import std.traits : isMutable;
+        return c.byLvalueElement();
     }
     else                        // `c` was is an r-value and can be moved
     {

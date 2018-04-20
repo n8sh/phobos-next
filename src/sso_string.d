@@ -119,7 +119,7 @@ struct SSOString
     }
 
     /** Get as `string`. */
-    @property E[] toString() const return @trusted
+    @property scope E[] toString() const return @trusted
     {
         return opSlice();
     }
@@ -216,10 +216,17 @@ private:
     // TODO static assert(!__traits(compiles, { auto _ = S((char[]).init); }));
 
     // TODO this shouldn't compile
-    string f() @safe pure nothrow @nogc
+    string f1() @safe pure nothrow @nogc
     {
         S x;
         return x[];             // TODO should fail with -dip1000
+    }
+
+    // TODO this shouldn't compile
+    string f2() @safe pure nothrow @nogc
+    {
+        S x;
+        return x.toString; // TODO should fail with -dip1000
     }
 
     // TODO activate

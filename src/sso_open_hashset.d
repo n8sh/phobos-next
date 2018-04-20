@@ -224,14 +224,12 @@ struct SSOOpenHashSet(K,
     /** Constant iteration over elements. */
     private auto byLvalueElement()() const return // template-lazy
     {
-        return bins.filter!(key => (!key.isNull &&
-                                    !Large.isHoleKeyConstant(key)));
+        return bins.filter!(key => (!key.isNull && !Large.isHoleKeyConstant(key))); // TODO functionize
     }
     /** Mutable iteration over elements. */
     private auto byLvalueElement()() return // template-lazy
     {
-        return bins.filter!(key => (!key.isNull &&
-                                    !Large.isHoleKeyConstant(key)));
+        return bins.filter!(key => (!key.isNull && !Large.isHoleKeyConstant(key))); // TODO functionize
     }
 
     private scope inout(K)[] bins() inout @trusted return

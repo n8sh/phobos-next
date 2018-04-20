@@ -1435,7 +1435,7 @@ static private struct LvalueElementRef(Table)
 
     private Table* _table;      // scoped access
     private size_t _binIndex;   // index to bin inside `table`
-    private size_t _iterationCounter; // counter over number of elements popped. TODO needed?
+    private size_t _hitCounter; // counter over number of elements popped. TODO needed?
 
     this(Table* table) @trusted
     {
@@ -1486,7 +1486,7 @@ static private struct LvalueElementRef(Table)
     @property size_t length() const @safe pure nothrow @nogc
     {
         pragma(inline, true);
-        return _table.length - _iterationCounter;
+        return _table.length - _hitCounter;
     }
 
     @property typeof(this) save() // ForwardRange
@@ -1501,7 +1501,7 @@ static private struct LvalueElementRef(Table)
         assert(!empty);
         _binIndex += 1;
         findNextNonEmptyBin();
-        _iterationCounter += 1;
+        _hitCounter += 1;
     }
 
     private void findNextNonEmptyBin()
@@ -1526,7 +1526,7 @@ static private struct RvalueElementRef(Table)
 
     Table _table;                // owned table
     size_t _binIndex;            // index to bin inside table
-    size_t _iterationCounter;    // counter over number of elements popped
+    size_t _hitCounter;    // counter over number of elements popped
 
     /// Check if empty.
     @property bool empty() const @safe pure nothrow @nogc
@@ -1539,7 +1539,7 @@ static private struct RvalueElementRef(Table)
     @property size_t length() const @safe pure nothrow @nogc
     {
         pragma(inline, true);
-        return _table.length - _iterationCounter;
+        return _table.length - _hitCounter;
     }
 
     void popFront()
@@ -1548,7 +1548,7 @@ static private struct RvalueElementRef(Table)
         assert(!empty);
         _binIndex += 1;
         findNextNonEmptyBin();
-        _iterationCounter += 1;
+        _hitCounter += 1;
     }
 
     private void findNextNonEmptyBin()

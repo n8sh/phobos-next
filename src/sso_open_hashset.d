@@ -222,13 +222,15 @@ struct SSOOpenHashSet(K,
     }
 
     /** Constant iteration over elements. */
-    auto byLvalueElement()() const return // template-lazy
+    private auto byLvalueElement()() const return // template-lazy
     {
+        pragma(msg, "const: ", typeof(this));
         return bins.filter!(key => (!key.isNull &&
                                     !Large.isHoleKeyConstant(key)));
     }
-    auto byLvalueElement()() return // template-lazy
+    private auto byLvalueElement()() return // template-lazy
     {
+        pragma(msg, "mutable: ", typeof(this));
         return bins.filter!(key => (!key.isNull &&
                                     !Large.isHoleKeyConstant(key)));
     }
@@ -284,15 +286,7 @@ auto byElement(Table)(auto ref return Table c) @trusted
 {
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
-        static if (Table.Large.hasAddressLikeKey)
-        {
-            import std.traits : Unqual;
-            return (cast(Unqual!Table)c).byLvalueElement();
-        }
-        else
-        {
-            return c.byLvalueElement();
-        }
+        return c.byLvalueElement();
     }
     else                        // `c` was is an r-value and can be moved
     {
@@ -387,6 +381,12 @@ alias range = byElement;        // EMSI-container naming
     // assert(xr.front is k42);
     // xr.popFront();
     // assert(xr.empty);
+
+    auto cx = X.withCapacity(X.small.maxCapacity);
+    foreach (ref e; cx.byElement)
+    {
+        static assert(is(typeof(e) == const(K)));
+    }
 }
 
 /// start large

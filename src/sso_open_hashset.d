@@ -367,7 +367,7 @@ alias range = byElement;        // EMSI-container naming
     assert(x.contains(k44));
     foreach (ref e; x.byElement)
     {
-        static assert(is(typeof(e) == const(K)));
+        static assert(is(typeof(e) == K));
         assert(x.contains(e));
     }
     assert(x.isLarge);

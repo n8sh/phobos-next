@@ -1126,7 +1126,7 @@ struct OpenHashMapOrSet(K, V = void,
 
     static if (hasAddressLikeKey)
     {
-        static bool isOccupiedBin(scope ref T bin)
+        static bool isOccupiedBin(const scope ref T bin)
         {
             pragma(inline, true);
             if (keyOf(bin).isNull) { return false; }

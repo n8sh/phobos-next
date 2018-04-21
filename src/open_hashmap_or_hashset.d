@@ -1124,6 +1124,16 @@ struct OpenHashMapOrSet(K, V = void,
         return _bins;
     }
 
+    static if (hasAddressLikeKey)
+    {
+        static bool isOccupiedBin(scope ref T bin)
+        {
+            pragma(inline, true);
+            if (keyOf(bin).isNull) { return false; }
+            return !isHoleKeyConstant(keyOf(bin));
+        }
+    }
+
 private:
     static if (hasFunctionAttributes!(Allocator.allocate, "@nogc"))
     {
@@ -1382,7 +1392,6 @@ private:
             return !hasHoleAtPtrIndex(_holesPtr, index);
         }
     }
-
 }
 
 /** Duplicate `src` into uninitialized `dst` ignoring prior destruction of `dst`.

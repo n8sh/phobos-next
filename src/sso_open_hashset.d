@@ -22,7 +22,6 @@ struct SSOOpenHashSet(K,
     if (isNullable!K)
 {
     import qcmeman : gc_addRange, gc_removeRange;
-    import std.algorithm.iteration : filter;
     import std.algorithm.mutation : move, moveEmplace;
     import std.traits : hasElaborateDestructor, isDynamicArray;
     import std.conv : emplace;
@@ -107,7 +106,7 @@ struct SSOOpenHashSet(K,
         else
         {
             import std.algorithm.searching : count;
-            return small._bins[].count!(_ => !_.isNull);
+            return small._bins[].count!(bin => Large.isOccupiedBin(bin));
         }
     }
 
@@ -221,18 +220,21 @@ struct SSOOpenHashSet(K,
         large.insertN(binsCopy);
     }
 
-    /** Constant iteration over elements. */
-    private auto byLvalueElement()() const return // template-lazy
+    /// Get bin count.
+    @property size_t binCount() const @trusted
     {
-        return bins.filter!(key => (!key.isNull && !Large.isHoleKeyConstant(key))); // TODO functionize
-    }
-    /** Mutable iteration over elements. */
-    private auto byLvalueElement()() return // template-lazy
-    {
-        return bins.filter!(key => (!key.isNull && !Large.isHoleKeyConstant(key))); // TODO functionize
+        pragma(inline, true)
+        if (isLarge)
+        {
+            return large.binCount;
+        }
+        else
+        {
+            return small.maxCapacity;
+        }
     }
 
-    private scope inout(K)[] bins() inout @trusted return
+    @property private scope inout(K)[] bins() inout @trusted return
     {
         pragma(inline, true);
         if (isLarge)
@@ -276,21 +278,142 @@ private:
     };
 }
 
+/** L-value element reference (and in turn range iterator).
+ */
+static private struct LvalueElementRef(Table)
+{
+    import std.traits : isMutable;
+    debug static assert(isMutable!Table, "Table type should always be mutable");
+
+    private Table* _table;      // scoped access
+    private size_t _binIndex;   // index to bin inside `table`
+    private size_t _hitCounter; // counter over number of elements popped. TODO needed?
+
+    this(Table* table) @trusted
+    {
+        pragma(inline, true);
+        this._table = table;
+        // static if (Table.isBorrowChecked)
+        // {
+        //     debug
+        //     {
+        //         _table.incBorrowCount();
+        //     }
+        // }
+    }
+
+    ~this() @trusted
+    {
+        pragma(inline, true);
+        // static if (Table.isBorrowChecked)
+        // {
+        //     debug
+        //     {
+        //         _table.decBorrowCount();
+        //     }
+        // }
+    }
+
+    this(this) @trusted
+    {
+        pragma(inline, true);
+        // static if (Table.isBorrowChecked)
+        // {
+        //     debug
+        //     {
+        //         assert(_table._borrowCount != 0);
+        //         _table.incBorrowCount();
+        //     }
+        // }
+    }
+
+    /// Check if empty.
+    @property bool empty() const @safe pure nothrow @nogc
+    {
+        pragma(inline, true);
+        return _binIndex == _table.binCount;
+    }
+
+    /// Get number of element left to pop.
+    @property size_t length() const @safe pure nothrow @nogc
+    {
+        pragma(inline, true);
+        return _table.length - _hitCounter;
+    }
+
+    @property typeof(this) save() // ForwardRange
+    {
+        pragma(inline, true);
+        return this;
+    }
+
+    void popFront()
+    {
+        version(LDC) pragma(inline, true);
+        assert(!empty);
+        _binIndex += 1;
+        findNextNonEmptyBin();
+        _hitCounter += 1;
+    }
+
+    private void findNextNonEmptyBin()
+    {
+        pragma(inline, true);
+        while (_binIndex != (*_table).binCount &&
+               Table.Large.isOccupiedBin(_table.bins[_binIndex]))
+        {
+            _binIndex += 1;
+        }
+    }
+}
+
+/// Range over elements of l-value instance of this.
+static private struct ByLvalueElement(Table)
+{
+pragma(inline, true):
+    // TODO functionize
+    import std.traits : isMutable;
+    static if (isAddress!(Table.Large.ElementType)) // for reference types
+    {
+        /// Get reference to front element.
+        @property scope Table.Large.ElementType front()() return @trusted
+        {
+            // cast to head-const for class key
+            return (cast(typeof(return))_table.bins[_binIndex]);
+        }
+    }
+    else
+    {
+        /// Get reference to front element.
+        @property scope auto ref front() return @trusted
+        {
+            return *(cast(const(Table.ElementType)*)&_table._bins[_binIndex]); // propagate constnes
+        }
+    }
+    import std.traits : Unqual;
+    // unqual to reduce number of instantations of `LvalueElementRef`
+    public LvalueElementRef!(Unqual!Table) _elementRef;
+    alias _elementRef this;
+}
+
 /** Returns: range that iterates through the elements of `c` in undefined order.
  */
 auto byElement(Table)(auto ref return Table c) @trusted
     if (isInstanceOf!(SSOOpenHashSet, Table))
 {
+    import std.traits : Unqual;
+    alias M = Unqual!Table;
+    alias C = const(Table);        // be const for now
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
-        // static if (Table.Large.hasAddressLikeKey) {}
-        // import std.traits : isMutable;
-        return c.byLvalueElement();
+        auto result = ByLvalueElement!C((LvalueElementRef!(M)(cast(M*)&c)));
     }
     else                        // `c` was is an r-value and can be moved
     {
         static assert(0, "R-value parameter not supported");
     }
+    result.findNextNonEmptyBin();
+    return result;
 }
 alias range = byElement;        // EMSI-container naming
 
@@ -384,7 +507,7 @@ alias range = byElement;        // EMSI-container naming
     const cx = X.withCapacity(X.small.maxCapacity);
     foreach (ref e; cx.byElement)
     {
-        static assert(is(typeof(e) == const(K)));
+        // static assert(is(typeof(e) == const(K)));
     }
 }
 
@@ -410,24 +533,17 @@ alias range = byElement;        // EMSI-container naming
 @safe pure nothrow unittest
 {
     import digestx.fnv : FNV;
-    struct S
-    {
-        uint value;
-        static immutable nullValue = S(value.max); // null
-        static immutable removedValue = S(value.max - 1); // TODO make use of this
-    }
-    alias X = SSOOpenHashSet!(S, FNV!(64, true));
+    alias X = SSOOpenHashSet!(K, FNV!(64, true));
     import container_traits : mustAddGCRange;
-    static assert(!mustAddGCRange!S);
-    static assert(!mustAddGCRange!X);
+    static assert(mustAddGCRange!K);
 
     auto x = X.withCapacity(X.Small.maxCapacity);
 
     foreach (immutable i; 0 .. X.Small.maxCapacity + 2)
     {
-        assert(!x.contains(S(i)));
-        assert(x.insert(S(i)) == X.InsertionStatus.added);
-        assert(x.contains(S(i)));
+        // assert(!x.contains(K(i)));
+        // assert(x.insert(S(i)) == X.InsertionStatus.added);
+        // assert(x.contains(S(i)));
     }
 }
 

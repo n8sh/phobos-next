@@ -287,7 +287,7 @@ static private struct LvalueElementRef(Table)
 
     private Table* _table;      // scoped access
     private size_t _binIndex;   // index to bin inside `table`
-    private size_t _hitCounter; // counter over number of elements popped. TODO needed?
+    private size_t _hitCounter; // counter over number of elements popped
 
     this(Table* table) @trusted
     {
@@ -371,7 +371,6 @@ static private struct LvalueElementRef(Table)
 static private struct ByLvalueElement(Table)
 {
 pragma(inline, true):
-    // TODO functionize
     import std.traits : isMutable;
     static if (isAddress!(Table.Large.ElementType)) // for reference types
     {

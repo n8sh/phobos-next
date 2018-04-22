@@ -360,7 +360,7 @@ static private struct LvalueElementRef(Table)
     {
         pragma(inline, true);
         while (_binIndex != (*_table).binCount &&
-               Table.Large.isOccupiedBin(_table.bins[_binIndex]))
+               !Table.Large.isOccupiedBin(_table.bins[_binIndex]))
         {
             _binIndex += 1;
         }

@@ -287,7 +287,7 @@ static private struct LvalueElementRef(Table)
 
     private Table* _table;      // scoped access
     private size_t _binIndex;   // index to bin inside `table`
-    private size_t _hitCounter; // counter over number of elements popped
+    private size_t _hitCounter; // counter over number of elements popped (needed for length)
 
     this(Table* table) @trusted
     {

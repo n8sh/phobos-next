@@ -285,7 +285,7 @@ static private struct LvalueElementRef(Table)
     import std.traits : isMutable;
     debug static assert(isMutable!Table, "Table type should always be mutable");
 
-    private Table* _table;
+    private Table* _table;      // scoped access
     private size_t _binIndex;   // index to bin inside `table`
     private size_t _hitCounter; // counter over number of elements popped (needed for length)
 

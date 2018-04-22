@@ -506,7 +506,7 @@ alias range = byElement;        // EMSI-container naming
     const cx = X.withCapacity(X.small.maxCapacity);
     foreach (ref e; cx.byElement)
     {
-        // static assert(is(typeof(e) == const(K)));
+        static assert(is(typeof(e) == K));
     }
 }
 

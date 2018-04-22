@@ -528,24 +528,6 @@ alias range = byElement;        // EMSI-container naming
     assert(x.length == 2);
 }
 
-/// struct value
-@safe pure nothrow unittest
-{
-    import digestx.fnv : FNV;
-    alias X = SSOOpenHashSet!(K, FNV!(64, true));
-    import container_traits : mustAddGCRange;
-    static assert(mustAddGCRange!K);
-
-    auto x = X.withCapacity(X.Small.maxCapacity);
-
-    foreach (immutable i; 0 .. X.Small.maxCapacity + 2)
-    {
-        // assert(!x.contains(K(i)));
-        // assert(x.insert(S(i)) == X.InsertionStatus.added);
-        // assert(x.contains(S(i)));
-    }
-}
-
 version(unittest)
 {
     class K

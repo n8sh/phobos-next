@@ -76,7 +76,7 @@ struct OpenHashMapOrSet(K, V = void,
     import std.conv : emplace;
     import std.math : nextPow2;
     import std.traits : hasElaborateDestructor, isCopyable, hasIndirections,
-        isDynamicArray, Unqual, hasFunctionAttributes;
+        isDynamicArray, isStaticArray, Unqual, hasFunctionAttributes;
     import std.typecons : Nullable;
 
     import container_traits : defaultNullKeyConstantOf, mustAddGCRange, isNull, nullify;
@@ -918,8 +918,19 @@ struct OpenHashMapOrSet(K, V = void,
 
         static if (hasValue)
         {
-            if (valueOf(element) !is
-                valueOf(_bins[hitIndexPrel])) // only value changed
+            static if (isStaticArray!V)
+            {
+                // identity comparison of static arrays implicitly coerces them
+                // to slices, which are compared by reference, so don't use !is here
+                immutable valueDiffers = (valueOf(element) !=
+                                          valueOf(_bins[hitIndexPrel])); // only value changed
+            }
+            else
+            {
+                immutable valueDiffers = (valueOf(element) !is
+                                          valueOf(_bins[hitIndexPrel])); // only value changed
+            }
+            if (valueDiffers) // only value changed
             {
                 move(valueOf(element),
                      valueOf(_bins[hitIndexPrel])); // value is defined so overwrite it

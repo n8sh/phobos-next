@@ -89,11 +89,9 @@ private:
 ///
 @safe pure nothrow @nogc unittest
 {
-    alias S = SSOString;
-
-    string f1() @safe pure nothrow @nogc
+    string shouldFail() @safe pure nothrow @nogc
     {
-        S x;
+        SSOString x;
         return x[];             // TODO should fail with -dip1000
     }
 }

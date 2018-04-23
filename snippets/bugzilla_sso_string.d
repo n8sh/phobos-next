@@ -1,3 +1,5 @@
+module bugzilla_sso_string;
+
 /** Small-size-optimized (SSO) variant of `string`.
  *
  * Store on the stack if constructed with <= `smallCapacity` number of

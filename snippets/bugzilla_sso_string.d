@@ -91,7 +91,6 @@ private:
 {
     alias S = SSOString;
 
-    // TODO this shouldn't compile
     string f1() @safe pure nothrow @nogc
     {
         S x;

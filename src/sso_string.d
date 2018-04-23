@@ -241,7 +241,6 @@ private:
         S x;
         return x[];             // TODO should fail with -dip1000
     }
-
     const f1_ = f1();
 
     // TODO this shouldn't compile
@@ -250,7 +249,6 @@ private:
         S x;
         return x.toString; // TODO should fail with -dip1000
     }
-
     const f2_ = f2();
 
     // TODO activate

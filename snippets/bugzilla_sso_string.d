@@ -40,12 +40,6 @@ struct SSOString
         return opSlice()[i .. j];
     }
 
-    /** Get as `string`. */
-    @property scope E[] toString() const return @trusted
-    {
-        return opSlice();
-    }
-
 private:
 
     /** Returns: `true` iff this is a large string, otherwise `false.` */

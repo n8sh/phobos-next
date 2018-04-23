@@ -36,7 +36,6 @@ struct SSOString
     /// ditto
     scope E[] opSlice(size_t i, size_t j) const return @trusted // TODO @safe for -dip1000?
     {
-        pragma(inline, true);
         return opSlice()[i .. j];
     }
 
@@ -45,7 +44,6 @@ private:
     /** Returns: `true` iff this is a large string, otherwise `false.` */
     @property bool isLarge() const @trusted
     {
-        pragma(inline, true);
         return large.length & 1; // first bit discriminates small from large
     }
 

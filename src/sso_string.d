@@ -164,6 +164,22 @@ private:
     }
 }
 
+/// construct from non-immutable source is allowed in non-@nogc context
+@safe pure nothrow unittest
+{
+    alias S = SSOString;
+    char[] s;
+    const s0_ = S(s);
+}
+
+/// construct from non-immutable source is not allowed in @nogc context
+@safe pure nothrow @nogc unittest
+{
+    alias S = SSOString;
+    char[] s;
+    static assert(__traits(compiles, { const s0_ = S(s); }));
+}
+
 ///
 @safe pure nothrow @nogc unittest
 {

@@ -83,9 +83,14 @@ private:
 ///
 @safe pure nothrow @nogc unittest
 {
-    string shouldFail() @safe pure nothrow @nogc
+    string shouldFail1() @safe pure nothrow @nogc
     {
         SSOString x;
         return x[];             // TODO should fail with -dip1000
+    }
+    string shouldFail2() @safe pure nothrow @nogc
+    {
+        SSOString x;
+        return x[0 .. 1];       // TODO should fail with -dip1000
     }
 }

@@ -169,10 +169,10 @@ private:
 {
     alias S = SSOString;
 
-    char[] x0;
+    const char[] x0;
     const s0 = S(x0);           // no .idup
 
-    char[] x16 = new char[16];
+    const char[] x16 = new char[16];
     const s16 = S(x16);         // will call .idup
 }
 
@@ -180,7 +180,7 @@ private:
 @safe pure nothrow @nogc unittest
 {
     alias S = SSOString;
-    char[] s;
+    const char[] s;
     static assert(__traits(compiles, { const s0_ = S(s); }));
 }
 

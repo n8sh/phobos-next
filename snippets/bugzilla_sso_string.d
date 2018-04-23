@@ -91,6 +91,6 @@ private:
     string shouldFail2() @safe pure nothrow @nogc
     {
         SSOString x;
-        return x[0 .. 1];       // TODO should fail with -dip1000
+        return x[0 .. 0];       // TODO should fail with -dip1000
     }
 }

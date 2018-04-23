@@ -168,8 +168,12 @@ private:
 @safe pure nothrow unittest
 {
     alias S = SSOString;
-    char[] s;
-    const s0_ = S(s);
+
+    char[] x0;
+    const s0 = S(x0);           // no .idup
+
+    char[] x16 = new char[16];
+    const s16 = S(x16);         // will call .idup
 }
 
 /// construct from non-immutable source is not allowed in @nogc context

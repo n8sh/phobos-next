@@ -241,15 +241,15 @@ private:
         S x;
         return x[];             // TODO should fail with -dip1000
     }
-    const f1_ = f1();
+    const f1_ = f1();           // TODO should fail with -dip1000
 
     // TODO this shouldn't compile
     string f2() @safe pure nothrow @nogc
     {
         S x;
-        return x.toString; // TODO should fail with -dip1000
+        return x.toString;      // TODO should fail with -dip1000
     }
-    const f2_ = f2();
+    const f2_ = f2();           // TODO should fail with -dip1000
 
     // TODO activate
     // ref char g() @safe pure nothrow @nogc

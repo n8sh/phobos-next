@@ -10,7 +10,6 @@ module bugzilla_sso_string;
 struct SSOString
 {
     private alias E = immutable(char); // immutable element type
-    private alias ME = char;           // mutable element type
 
     pure nothrow @nogc:
 

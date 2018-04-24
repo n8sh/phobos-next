@@ -9,15 +9,14 @@ module sso_string;
  */
 struct SSOString
 {
-    private alias E = immutable(char); // immutable element type
-    private alias ME = char;           // mutable element type
+    private alias E = char;     // element type
 
     pure nothrow:
 
     /** Construct from `source`, with potential GC-allocation (iff
      * `source.length > smallCapacity`).
      */
-    this(const scope ME[] source) @trusted
+    this(const scope E[] source) @trusted
     {
         if (source.length <= smallCapacity)
         {
@@ -35,7 +34,7 @@ struct SSOString
     /** Construct from static array `source` of length `n`.
      */
     version(none)
-    this(size_t n)(const scope ME[n] source) @trusted // inferred @nogc
+    this(size_t n)(const scope E[n] source) @trusted // inferred @nogc
     {
         static if (source.length <= smallCapacity)
         {
@@ -55,7 +54,7 @@ struct SSOString
 
     /** Construct from `source` without any kind of heap allocation.
      */
-    this(const scope E[] source) @trusted
+    this(const scope immutable(E)[] source) @trusted
     {
         if (source.length <= smallCapacity)
         {
@@ -85,13 +84,13 @@ struct SSOString
     /// ditto
     alias opDollar = length;
 
-    scope ref E opIndex(size_t index) const return @trusted
+    scope ref immutable(E) opIndex(size_t index) const return @trusted
     {
         pragma(inline, true);
         return opSlice()[index]; // automatic range checking
     }
 
-    scope E[] opSlice() const return @trusted // TODO @safe for -dip1000?
+    scope immutable(E)[] opSlice() const return @trusted // TODO @safe for -dip1000?
     {
         if (isLarge)
         {
@@ -112,14 +111,14 @@ struct SSOString
     }
 
     /// ditto
-    scope E[] opSlice(size_t i, size_t j) const return @trusted // TODO @safe for -dip1000?
+    scope immutable(E)[] opSlice(size_t i, size_t j) const return @trusted // TODO @safe for -dip1000?
     {
         pragma(inline, true);
         return opSlice()[i .. j];
     }
 
     /** Get as `string`. */
-    @property scope E[] toString() const return @trusted
+    @property scope immutable(E)[] toString() const return @trusted
     {
         return opSlice();
     }
@@ -133,22 +132,22 @@ private:
         return large.length & 1; // first bit discriminates small from large
     }
 
-    struct Raw                  // same memory layout as `E[]`
+    struct Raw                  // same memory layout as `immutable(E)[]`
     {
         size_t length;          // can be bit-fiddled without GC allocation
-        E* ptr;
+        immutable(E)* ptr;
     }
 
-    alias Large = E[];
+    alias Large = immutable(E)[];
 
     enum smallCapacity = Large.sizeof - Small.length.sizeof;
-    static assert(smallCapacity > 0, "No room for small source for E being " ~ E.stringof);
+    static assert(smallCapacity > 0, "No room for small source for immutable(E) being " ~ immutable(E).stringof);
     version(LittleEndian) // see: http://forum.dlang.org/posting/zifyahfohbwavwkwbgmw
     {
         struct Small
         {
             ubyte length; // TODO only first 4 bits are needed to represent a length between 0-15, use other 4 bits
-            E[smallCapacity] data;
+            immutable(E)[smallCapacity] data;
         }
     }
     else

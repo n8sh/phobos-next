@@ -83,7 +83,7 @@ private:
     static struct Store
     {
         size_t length;
-        import container_traits : NoGc;
+        import gc_traits : NoGc;
         @NoGc T* ptr;           // non-GC-allocated store pointer
     }
     Store _store;

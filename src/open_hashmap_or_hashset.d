@@ -1151,7 +1151,7 @@ struct OpenHashMapOrSet(K, V = void,
 private:
     static if (hasFunctionAttributes!(Allocator.allocate, "@nogc"))
     {
-        import container_traits : NoGc;
+        import gc_traits : NoGc;
         @NoGc T[] _bins;        // one element per bin
     }
     else

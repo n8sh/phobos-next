@@ -158,7 +158,7 @@ private:
     }
     else
     {
-        import container_traits : NoGc;
+        import gc_traits : NoGc;
         @NoGc Block* _blockPtr; // non-GC-allocated store pointer
     }
 

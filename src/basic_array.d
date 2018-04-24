@@ -933,7 +933,7 @@ private:
         }
         else
         {
-            import container_traits : NoGc;
+            import gc_traits : NoGc;
             @NoGc T* ptr;       // non-GC-allocated store pointer
         }
 
@@ -1329,7 +1329,7 @@ unittest
             freeCount += 1;
         }
 
-        import container_traits : NoGc;
+        import gc_traits : NoGc;
         @NoGc E* _ptr;
     }
 

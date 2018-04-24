@@ -8,7 +8,7 @@ import std.traits: isSomeString;
     See_Also: http://www.mathguide.de/info/tools/languagecode.html
     See_Also: http://msdn.microsoft.com/en-us/library/ms533052(v=vs.85).aspx
 */
-enum Lang:ushort
+enum Lang
 {
     unknown,
     nullValue = unknown,

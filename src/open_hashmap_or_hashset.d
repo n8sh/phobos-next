@@ -31,6 +31,9 @@ import pure_mallocator : PureMallocator;
  * See_Also: https://en.wikipedia.org/wiki/Lazy_deletion
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  *
+ * TODO use allocator.dispose() instead of allocator.deallocate() as in
+ * https://github.com/dlang-community/containers
+ *
  * TODO add support for checking existence `K.nullifier` that infers, for
  * instance, how tag ZingRel as null or hole
  *

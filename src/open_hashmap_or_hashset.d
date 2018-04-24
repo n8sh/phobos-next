@@ -1953,7 +1953,7 @@ auto intersectWith(C1, C2)(ref C1 x,
 }
 
 /// Range over elements of l-value instance of this.
-static private struct ByLvalueElement(Table)
+static struct ByLvalueElement(Table) // public for now because this is needed in `knet.zing.Zing.EdgesOfRels`
 {
 pragma(inline, true):
     // TODO functionize

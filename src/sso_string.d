@@ -190,7 +190,7 @@ private:
 
     static assert(S.sizeof == 2*size_t.sizeof); // two words
     static assert(S.smallCapacity == 15);
-    import container_traits : mustAddGCRange;
+    import gc_traits : mustAddGCRange;
     static assert(mustAddGCRange!S); // `Large large.ptr` must be scanned
 
     auto s0 = S.init;

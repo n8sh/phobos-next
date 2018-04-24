@@ -165,8 +165,6 @@ private:
     size_t _length;
 }
 
-version = show;
-
 @safe pure nothrow @nogc unittest
 {
     const bitCount = 100;

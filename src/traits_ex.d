@@ -883,7 +883,7 @@ bool isNewline(S)(S s) @safe pure nothrow @nogc
     See_Also: http://forum.dlang.org/thread/bspwlfypfishykezzocx@forum.dlang.org#post-dguqnroxbfewerepomwq:40forum.dlang.org
 */
 auto enumMembers(T)()
-    if (is(T == enum))
+if (is(T == enum))
 {
     import std.traits : EnumMembers;
     return [EnumMembers!T];
@@ -901,7 +901,7 @@ alias enumeratorsOf = enumMembers;
     See_Also: http://forum.dlang.org/thread/bspwlfypfishykezzocx@forum.dlang.org#post-dguqnroxbfewerepomwq:40forum.dlang.org
 */
 auto uniqueEnumMembers(T)()
-    if (is(T == enum))
+if (is(T == enum))
 {
     import std.meta : NoDuplicates;
     import std.traits : EnumMembers;
@@ -909,7 +909,7 @@ auto uniqueEnumMembers(T)()
     return [NoDuplicates!(EnumMembers!T)];
 }
 
-auto uniqueEnumMembers_slower(T)()
+private auto uniqueEnumMembers_slower(T)()
 if (is(T == enum))
 {
     import std.traits : EnumMembers;
@@ -919,7 +919,7 @@ if (is(T == enum))
 
 /** Hash-table version of `uniqueEnumMembers`. */
 auto uniqueEnumMembersHashed(T)()
-    if (is(T == enum))
+if (is(T == enum))
 {
     import std.traits : EnumMembers;
     bool[T] uniquifier;

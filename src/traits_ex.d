@@ -903,6 +903,15 @@ alias enumeratorsOf = enumMembers;
 auto uniqueEnumMembers(T)()
     if (is(T == enum))
 {
+    import std.meta : NoDuplicates;
+    import std.traits : EnumMembers;
+    import std.algorithm : sort, uniq;
+    return [NoDuplicates!(EnumMembers!T)];
+}
+
+auto uniqueEnumMembers_slower(T)()
+if (is(T == enum))
+{
     import std.traits : EnumMembers;
     import std.algorithm : sort, uniq;
     return [EnumMembers!T].sort().uniq; // TODO isn't really only uniq needed?

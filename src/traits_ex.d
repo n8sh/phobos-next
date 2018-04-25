@@ -906,7 +906,7 @@ if (is(T == enum))
 {
     import std.traits : EnumMembers;
     import std.algorithm : sort, uniq;
-    return [EnumMembers!T].sort().uniq; // TODO isn't really only uniq needed?
+    return [EnumMembers!T].sort().uniq;
 }
 
 // TODO warning this sucks up my dmd memory for a large project

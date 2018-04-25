@@ -899,6 +899,7 @@ alias enumeratorsOf = enumMembers;
     See_Also: http://forum.dlang.org/post/ziappmtvucmuefphblse@forum.dlang.org
     See_Also: http://forum.dlang.org/post/awihyvzjswwayeqtklly@forum.dlang.org
     See_Also: http://forum.dlang.org/thread/bspwlfypfishykezzocx@forum.dlang.org#post-dguqnroxbfewerepomwq:40forum.dlang.org
+    See_Also: https://issues.dlang.org/show_bug.cgi?id=10951
 */
 auto uniqueEnumMembers(T)()
 if (is(T == enum))

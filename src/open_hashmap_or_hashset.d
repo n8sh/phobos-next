@@ -245,30 +245,19 @@ struct OpenHashMapOrSet(K, V = void,
 
     static if (isArray!K)
     {
-        // we want to compare array elements possibly at different locations
-        static if (isCopyable!K)
-        {
-            alias keyEqualPred = (const scope a,
-                                  const scope b) => a == b;
-        }
-        else
-        {
-            alias keyEqualPred = (const scope ref a,
-                                  const scope ref b) => a == b;
-        }
+        // compare arrays by elements only, regardless of location
+        alias keyEqualPred = (const scope a,
+                              const scope b) => a == b;
+    }
+    else static if (isCopyable!K)
+    {
+        alias keyEqualPred = (const scope a,
+                              const scope b) => a is b;
     }
     else
     {
-        static if (isCopyable!K)
-        {
-            alias keyEqualPred = (const scope a,
-                                  const scope b) => a is b;
-        }
-        else
-        {
-            alias keyEqualPred = (const scope ref a,
-                                  const scope ref b) => a is b;
-        }
+        alias keyEqualPred = (const scope ref a,
+                              const scope ref b) => a is b;
     }
 
     alias ElementType = T;

@@ -1746,17 +1746,26 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
         return x.byElement.front;
     }
 
-    x.insert("a");
-    assert(x.contains("a"));
+    assert("a".ptr is "a".ptr); // string literals are store in common place
 
-    x.insert("b");
-    assert(x.contains("b"));
+    const aa = "aa";
 
-    x.remove("a");
-    assert(!x.contains("a"));
+    // string slices are equal when elements are equal regardless of position
+    // (.ptr) in memory
+    x.insert(aa[0 .. 1]);
+    assert(x.contains(aa[1 .. 2]));
 
-    x.remove("b");
-    assert(!x.contains("b"));
+    const bb = "bb";
+
+    x.insert(bb[0 .. 1]);
+    assert(x.contains(bb[1 .. 2]));
+
+    x.remove(aa[0 .. 1]);
+    assert(!x.contains(aa[1 .. 2]));
+    assert(x.contains(bb[1 .. 2]));
+
+    x.remove(bb[0 .. 1]);
+    assert(!x.contains(bb[1 .. 2]));
 
     x.insert("a");
     x.insert("b");

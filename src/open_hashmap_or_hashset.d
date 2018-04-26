@@ -246,11 +246,13 @@ struct OpenHashMapOrSet(K, V = void,
     static if (isArray!K)
     {
         // we want to compare array elements possibly at different locations
-        enum keyEqualPred = "a == b";
+        alias keyEqualPred = (const scope a,
+                              const scope b) => a == b;
     }
     else
     {
-        enum keyEqualPred = "a is b";
+        alias keyEqualPred = (const scope a,
+                              const scope b) => a is b;
     }
 
     alias ElementType = T;
@@ -1117,11 +1119,13 @@ struct OpenHashMapOrSet(K, V = void,
                 /* don't use `auto ref` for copyable `T`'s to prevent
                  * massive performance drop for small elements when compiled
                  * with LDC. TODO remove when LDC is fixed. */
-                alias pred = (const scope element) => (keyOf(element) is keyOf(currentElement));
+                alias pred = (const scope element) => (keyOf(element) is
+                                                       keyOf(currentElement));
             }
             else
             {
-                alias pred = (const scope auto ref element) => (keyOf(element) is keyOf(currentElement));
+                alias pred = (const scope auto ref element) => (keyOf(element) is
+                                                                keyOf(currentElement));
             }
             totalCount += triangularProbeCountFromIndex!pred(_bins[], keyToIndex(keyOf(currentElement)));
         }

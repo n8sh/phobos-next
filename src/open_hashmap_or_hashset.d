@@ -1124,13 +1124,29 @@ struct OpenHashMapOrSet(K, V = void,
                 /* don't use `auto ref` for copyable `T`'s to prevent
                  * massive performance drop for small elements when compiled
                  * with LDC. TODO remove when LDC is fixed. */
-                alias pred = (const scope element) => (keyEqualPred(keyOf(element),
-                                                                    keyOf(currentElement)));
+                static if (isDynamicArray!K)
+                {
+                    alias pred = (const scope element) => (keyOf(element) ==
+                                                           keyOf(currentElement));
+                }
+                else
+                {
+                    alias pred = (const scope element) => (keyOf(element) is
+                                                           keyOf(currentElement));
+                }
             }
             else
             {
-                alias pred = (const scope auto ref element) => (keyEqualPred(keyOf(element),
-                                                                             keyOf(currentElement)));
+                static if (isDynamicArray!K)
+                {
+                    alias pred = (const scope auto ref element) => (keyOf(element) ==
+                                                                    keyOf(currentElement));
+                }
+                else
+                {
+                    alias pred = (const scope auto ref element) => (keyOf(element) is
+                                                                    keyOf(currentElement));
+                }
             }
             totalCount += triangularProbeCountFromIndex!pred(_bins[], keyToIndex(keyOf(currentElement)));
         }

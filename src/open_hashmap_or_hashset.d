@@ -1406,52 +1406,6 @@ private:
                                                                                   holeIndex);
     }
 
-    version(none)
-    private size_t indexOfHoleOrNullForKey()(const scope K key) const // template-lazy
-    {
-        version(LDC) pragma(inline, true);
-        version(internalUnittest)
-        {
-            assert(!key.isNull);
-            static if (hasAddressLikeKey)
-            {
-                assert(!isHoleKeyConstant(key));
-            }
-        }
-        static if (isCopyable!T)
-        {
-            /* don't use `auto ref` for copyable `T`'s to prevent
-             * massive performance drop for small elements when compiled
-             * with LDC. TODO remove when LDC is fixed. */
-            static if (hasAddressLikeKey)
-            {
-                alias pred = (const scope element) => (isHoleKeyConstant(keyOf(element)) ||
-                                                       keyOf(element).isNull);
-            }
-            else
-            {
-                alias pred = (const scope index,
-                              const scope element) => (hasHoleAtPtrIndex(_holesPtr, index) ||
-                                                       keyOf(element).isNull);
-            }
-        }
-        else
-        {
-            static if (hasAddressLikeKey)
-            {
-                alias pred = (const scope auto ref element) => (isHoleKeyConstant(keyOf(element)) ||
-                                                                keyOf(element).isNull);
-            }
-            else
-            {
-                alias pred = (const scope index,
-                              const scope auto ref element) => (hasHoleAtPtrIndex(_holesPtr, index) ||
-                                                                keyOf(element).isNull);
-            }
-        }
-        return _bins[].triangularProbeFromIndex!(pred)(keyToIndex(key));
-    }
-
     /** Returns: `true` iff `index` indexes a non-null element, `false`
      * otherwise.
      */

@@ -1734,6 +1734,35 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     }
 }
 
+@safe pure nothrow /*@nogc*/ unittest
+{
+    enum Pot { noun, verb }
+    struct ExprPot
+    {
+        string expr;
+        Pot pot;
+        alias nullifier = expr;
+        static immutable nullValue = typeof(this).init;
+    }
+    alias Sense = ubyte;
+
+    import digestx.fnv : FNV;
+    alias X = OpenHashMapOrSet!(ExprPot, Sense, FNV!(64, true));
+
+    X x;
+
+    const aa = "aa";
+    const key1 = ExprPot(aa[0 .. 1], Pot.noun);
+    const key2 = ExprPot(aa[1 .. 2], Pot.noun);
+
+    assert(key1 == key2);
+    assert(key1 !is key2);
+
+    x[key1] = Sense(1);
+    assert(key1 in x);
+    // TODO assert(key2 in x);
+}
+
 /// `string` as key
 @safe pure nothrow @nogc unittest
 {

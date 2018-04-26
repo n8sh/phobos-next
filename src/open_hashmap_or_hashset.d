@@ -934,7 +934,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         static if (hasValue)
         {
-            static if (isArray!V)
+            static if (isStaticArray!V)
             {
                 // identity comparison of static arrays implicitly coerces them
                 // to slices, which are compared by reference, so don't use !is here

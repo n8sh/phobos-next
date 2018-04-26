@@ -1274,7 +1274,7 @@ private:
              * with LDC. TODO remove when LDC is fixed. */
             static if (hasAddressLikeKey)
             {
-                static if (isArray!K)
+                static if (isDynamicArray!K)
                 {
                     alias pred = (const scope element) => (keyOf(element).isNull ||
                                                            keyOf(element) == key);
@@ -1297,8 +1297,16 @@ private:
         {
             static if (hasAddressLikeKey)
             {
-                alias pred = (const scope auto ref element) => (keyOf(element).isNull ||
-                                                                keyOf(element) is key);
+                static if (isDynamicArray!K)
+                {
+                    alias pred = (const scope auto ref element) => (keyOf(element).isNull ||
+                                                                    keyOf(element) == key);
+                }
+                else
+                {
+                    alias pred = (const scope auto ref element) => (keyOf(element).isNull ||
+                                                                    keyOf(element) is key);
+                }
             }
             else
             {
@@ -1330,8 +1338,16 @@ private:
              * with LDC. TODO remove when LDC is fixed. */
             static if (hasAddressLikeKey)
             {
-                alias hitPred = (const scope element) => (keyOf(element).isNull ||
-                                                          keyOf(element) is key);
+                static if (isDynamicArray!K)
+                {
+                    alias hitPred = (const scope element) => (keyOf(element).isNull ||
+                                                              keyOf(element) == key);
+                }
+                else
+                {
+                    alias hitPred = (const scope element) => (keyOf(element).isNull ||
+                                                              keyOf(element) is key);
+                }
                 alias holePred = (const scope element) => (isHoleKeyConstant(keyOf(element)));
             }
             else
@@ -1348,8 +1364,16 @@ private:
         {
             static if (hasAddressLikeKey)
             {
-                alias hitPred = (const scope auto ref element) => (keyOf(element).isNull ||
-                                                                   keyOf(element) is key);
+                static if (isDynamicArray!K)
+                {
+                    alias hitPred = (const scope auto ref element) => (keyOf(element).isNull ||
+                                                                       keyOf(element) == key);
+                }
+                else
+                {
+                    alias hitPred = (const scope auto ref element) => (keyOf(element).isNull ||
+                                                                       keyOf(element) is key);
+                }
                 alias holePred = (const scope auto ref element) => (isHoleKeyConstant(keyOf(element)));
             }
             else

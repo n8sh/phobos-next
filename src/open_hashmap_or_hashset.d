@@ -1306,7 +1306,7 @@ private:
                 alias pred = (const scope index,
                               const scope element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
                                                        (keyOf(element).isNull ||
-                                                        keyOf(element) is key));
+                                                        keyOf(element) == key));
             }
         }
         else
@@ -1329,7 +1329,7 @@ private:
                 alias pred = (const scope index,
                               const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
                                                                 (keyOf(element).isNull ||
-                                                                 keyOf(element) is key));
+                                                                 keyOf(element) == key));
             }
         }
         return _bins[].triangularProbeFromIndex!(pred)(keyToIndex(key));
@@ -1371,7 +1371,7 @@ private:
                 alias hitPred = (const scope index,
                                  const scope element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
                                                           (keyOf(element).isNull ||
-                                                           keyOf(element) is key));
+                                                           keyOf(element) == key));
                 alias holePred = (const scope index, // TODO use only index
                                   const scope element) => (hasHoleAtPtrIndex(_holesPtr, index));
             }
@@ -1397,7 +1397,7 @@ private:
                 alias hitPred = (const scope index,
                                  const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
                                                                    (keyOf(element).isNull ||
-                                                                    keyOf(element) is key));
+                                                                    keyOf(element) == key));
                 alias holePred = (const scope index, // TODO use only index
                                   const scope auto ref element) => (hasHoleAtPtrIndex(_holesPtr, index));
             }
@@ -1741,8 +1741,15 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     {
         string expr;
         Pot pot;
+
         alias nullifier = expr;
         static immutable nullValue = typeof(this).init;
+
+        bool opEquals(const scope typeof(this) that) const @safe pure nothrow @nogc
+        {
+            return (this.expr == that.expr &&
+                    this.pot == that.pot);
+        }
     }
 
     import digestx.fnv : FNV;
@@ -1758,8 +1765,10 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     assert(key1 !is key2);
 
     x.insert(key1);
+    assert(x.contains(key1));
+    assert(x.contains(key2));
     assert(key1 in x);
-    // TODO assert(key2 in x);
+    assert(key2 in x);
 }
 
 /// `string` as key
@@ -3047,8 +3056,15 @@ version(unittest)
     {
         Zing zing;
         Alt alts;
+
         alias nullifier = zing;
         static immutable nullValue = typeof(this).init;
+
+        bool opEquals(const scope typeof(this) that) const @safe pure nothrow @nogc
+        {
+            return (this.zing is that.zing &&
+                    this.alts == that.alts);
+        }
     }
     static assert(isNullable!ZingRel);
 

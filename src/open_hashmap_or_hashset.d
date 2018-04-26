@@ -79,7 +79,7 @@ struct OpenHashMapOrSet(K, V = void,
     import std.conv : emplace;
     import std.math : nextPow2;
     import std.traits : hasElaborateDestructor, isCopyable, hasIndirections,
-        isDynamicArray, isStaticArray, Unqual, hasFunctionAttributes;
+        isArray, isDynamicArray, isStaticArray, Unqual, hasFunctionAttributes;
     import std.typecons : Nullable;
 
     import container_traits : defaultNullKeyConstantOf, mustAddGCRange, isNull, nullify;
@@ -192,8 +192,6 @@ struct OpenHashMapOrSet(K, V = void,
         /** Type of value stored. */
         alias ValueType = V;
 
-        enum keyEqualPred = "a.key is b";
-
         enum nullKeyElement = T(defaultNullKeyConstantOf!K, V.init);
 
         /// Key-value element reference with head-const for `class` keys and mutable value.
@@ -242,9 +240,16 @@ struct OpenHashMapOrSet(K, V = void,
             return element;
         }
 
-        enum keyEqualPred = "a is b";
-
         enum nullKeyElement = defaultNullKeyConstantOf!K;
+    }
+
+    static if (isArray!K)
+    {
+        enum keyEqualPred = "a == b"; // we want to compare array elements possibly at different locations
+    }
+    else
+    {
+        enum keyEqualPred = "a is b";
     }
 
     alias ElementType = T;
@@ -921,7 +926,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         static if (hasValue)
         {
-            static if (isStaticArray!V)
+            static if (isArray!V)
             {
                 // identity comparison of static arrays implicitly coerces them
                 // to slices, which are compared by reference, so don't use !is here

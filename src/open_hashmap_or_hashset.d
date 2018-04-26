@@ -1744,10 +1744,9 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
         alias nullifier = expr;
         static immutable nullValue = typeof(this).init;
     }
-    alias Sense = ubyte;
 
     import digestx.fnv : FNV;
-    alias X = OpenHashMapOrSet!(ExprPot, Sense, FNV!(64, true));
+    alias X = OpenHashMapOrSet!(ExprPot, void, FNV!(64, true));
 
     X x;
 
@@ -1758,7 +1757,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     assert(key1 == key2);
     assert(key1 !is key2);
 
-    x[key1] = Sense(1);
+    x.insert(key1);
     assert(key1 in x);
     // TODO assert(key2 in x);
 }

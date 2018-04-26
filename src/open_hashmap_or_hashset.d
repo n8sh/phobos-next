@@ -1274,8 +1274,16 @@ private:
              * with LDC. TODO remove when LDC is fixed. */
             static if (hasAddressLikeKey)
             {
-                alias pred = (const scope element) => (keyOf(element).isNull ||
-                                                       keyOf(element) is key);
+                static if (isArray!K)
+                {
+                    alias pred = (const scope element) => (keyOf(element).isNull ||
+                                                           keyOf(element) == key);
+                }
+                else
+                {
+                    alias pred = (const scope element) => (keyOf(element).isNull ||
+                                                           keyOf(element) is key);
+                }
             }
             else
             {

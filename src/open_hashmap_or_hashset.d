@@ -245,7 +245,8 @@ struct OpenHashMapOrSet(K, V = void,
 
     static if (isArray!K)
     {
-        enum keyEqualPred = "a == b"; // we want to compare array elements possibly at different locations
+        // we want to compare array elements possibly at different locations
+        enum keyEqualPred = "a == b";
     }
     else
     {

@@ -551,7 +551,9 @@ enum Mood
 bool isRealis(Mood mood) @nogc nothrow
 {
     with (Mood)
+    {
         return cast(bool)mood.among!(indicative);
+    }
 }
 
 enum realisMoods = [Mood.indicative];
@@ -562,6 +564,7 @@ enum realisMoods = [Mood.indicative];
 bool isIrrealis(Mood mood) @nogc nothrow
 {
     with (Mood)
+    {
         return cast(bool)mood.among!(subjunctive,
                                      conditional,
                                      optative,
@@ -569,6 +572,7 @@ bool isIrrealis(Mood mood) @nogc nothrow
                                      jussive,
                                      potential,
                                      inferential);
+    }
 }
 
 enum irrealisMoods = [Mood.subjunctive,

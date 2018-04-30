@@ -539,10 +539,10 @@ enum Mood
     interrogative,
 
     /// See_Also: https://www.cse.unsw.edu.au/~billw/nlpdict.html#wh-question
-    whQuestion, // TODO make alias? Example: who is eating pizza?
+    whQuestion, // Example: who is eating pizza?
 
     /// See_Also: https://www.cse.unsw.edu.au/~billw/nlpdict.html#yn-question
-    ynQuestion, // TODO make alias? Example: did you eat pizza?
+    ynQuestion, // Example: did you eat pizza?
 }
 
 /** Check if $(D mood) is a Realis Mood.

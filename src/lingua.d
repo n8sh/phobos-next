@@ -26,7 +26,7 @@ import languages: Lang;
 @safe pure:
 
 /** Computer Token Usage. */
-enum Usage : ubyte
+enum Usage
 {
     unknown,
     definition,
@@ -257,7 +257,7 @@ bool isEnglishDoubleConsonant(S)(S s)
 }
 
 /** Computer token. */
-enum TokenId : ubyte
+enum TokenId
 {
     unknown,
 
@@ -283,7 +283,7 @@ enum TokenId : ubyte
     See_Also: http://www.101languages.net/swedish/swedish-verb-conjugator/
     See_Also: http://www.verbix.com/webverbix/Swedish/springa.html
  */
-enum SwedishVerbInflection : ubyte
+enum SwedishVerbInflection
 {
     unknown,
 }
@@ -292,7 +292,7 @@ enum SwedishVerbInflection : ubyte
 
     See_Also: http://verb.woxikon.se/sv/springa
  */
-enum VerbForm : ubyte
+enum VerbForm
 {
     unknown,
 
@@ -339,7 +339,7 @@ struct Verb(S)
 }
 
 /** Subject Count. */
-enum Count : ubyte
+enum Count
 {
     unknown,
     singular,
@@ -358,7 +358,7 @@ struct Noun(S)
 /** Comparation.
     See_Also: https://en.wikipedia.org/wiki/Comparison_(grammar)
 */
-enum Comparation : ubyte
+enum Comparation
 {
     unknown,
     positive,
@@ -383,7 +383,7 @@ struct Adjective(S)
     See_Also: http://www.ego4u.com/en/cram-up/grammar/tenses-graphic
     See_Also: http://www.ego4u.com/en/cram-up/grammar/tenses-examples
 */
-enum Tense : ubyte
+enum Tense
 {
     unknown,
 
@@ -431,7 +431,7 @@ nothrow @nogc
 }
 
 /** Part of a Sentence. */
-enum SentencePart : ubyte
+enum SentencePart
 {
     unknown,
     subject,
@@ -474,7 +474,7 @@ class Predicate : Part
 }
 
 // TODO: Conversion to Sense
-enum Article : ubyte
+enum Article
 {
     unknown,
     indefinite,
@@ -490,10 +490,16 @@ class Subject : Part
 static immutable implies = [`in order to`];
 
 /** Subject Person. */
-enum Person : ubyte { unknown, first, second, third }
+enum Person
+{
+    unknown,
+    first,
+    second,
+    third
+}
 
 /** Subject Gender. */
-enum Gender : ubyte
+enum Gender
 {
     unknown,
     male, maskulinum = male,
@@ -503,15 +509,18 @@ enum Gender : ubyte
 }
 
 /** (Grammatical) Mood.
-    Sometimes also called Mode.
-    Modus in Swedish.
-
-    See_Also: https://en.wikipedia.org/wiki/Grammatical_mood
-    See_Also: https://www.cse.unsw.edu.au/~billw/nlpdict.html#mood
-*/
-enum Mood : ubyte
+ *
+ * Sometimes also called mode.
+ *
+ * Named modus in Swedish.
+ *
+ * See_Also: https://en.wikipedia.org/wiki/Grammatical_mood
+ * See_Also: https://www.cse.unsw.edu.au/~billw/nlpdict.html#mood
+ */
+enum Mood
 {
     unknown,
+
     indicative, // indikativ in Swedish. Example: I eat pizza.
     subjunctive, // TODO: if I were to eat more pizza I would be sick.
     conjunctive = subjunctive, // konjunktiv in Swedish
@@ -660,7 +669,7 @@ string negationIn(Lang lang) nothrow @nogc
     }
 }
 
-enum Manner : ubyte
+enum Manner
 {
     formal,
     informal,
@@ -671,7 +680,7 @@ enum Manner : ubyte
 /** Grammatical Case.
     See_Also: https://en.wikipedia.org/wiki/Grammatical_case
 */
-enum Case : ubyte
+enum Case
 {
     unknown,
     nominative,

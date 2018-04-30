@@ -505,7 +505,9 @@ enum Gender : ubyte
 /** (Grammatical) Mood.
     Sometimes also called Mode.
     Modus in Swedish.
+
     See_Also: https://en.wikipedia.org/wiki/Grammatical_mood
+    See_Also: https://www.cse.unsw.edu.au/~billw/nlpdict.html#mood
 */
 enum Mood : ubyte
 {

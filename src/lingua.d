@@ -522,16 +522,26 @@ enum Mood
     unknown,
 
     indicative, // indikativ in Swedish. Example: I eat pizza.
-    subjunctive, // TODO: if I were to eat more pizza I would be sick.
+
+    /// See_Also: https://www.cse.unsw.edu.au/~billw/nlpdict.html#subjunctive
+    subjunctive,          // Example: if I were to eat more pizza, I would be sick.
     conjunctive = subjunctive, // konjunktiv in Swedish
+
     conditional,
     optative,
+
+    /// See_Also: https://www.cse.unsw.edu.au/~billw/nlpdict.html#imperative
     imperative, // imperativ in Swedish. Example: eat the pizza!
+
     jussive,
     potential,
     inferential,
     interrogative,
+
+    /// See_Also: https://www.cse.unsw.edu.au/~billw/nlpdict.html#wh-question
     whQuestion, // TODO make alias? Example: who is eating pizza?
+
+    /// See_Also: https://www.cse.unsw.edu.au/~billw/nlpdict.html#yn-question
     ynQuestion, // TODO make alias? Example: did you eat pizza?
 }
 

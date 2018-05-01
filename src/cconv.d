@@ -1,4 +1,4 @@
-/// Wrapper for gcvt.
+/// High-level wrappers for C-conversion functions.
 module cconv;
 
 string toString(const double value,

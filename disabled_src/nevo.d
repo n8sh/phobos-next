@@ -21,7 +21,7 @@ module nevo;
     See_Also: http://llvm.org/docs/LangRef.html#typesystem
     See_Also: http://llvm.org/docs/LangRef.html#instref
 */
-enum Lop : ubyte
+enum Lop
 {
     summ,                       /// Sum.
     prod,                       /// Product.
@@ -31,7 +31,7 @@ enum Lop : ubyte
 
 /** Obselete.
 */
-enum LOPobseleted : ubyte
+enum LOPobseleted
 {
     id, /**< Identity. */
 
@@ -202,7 +202,7 @@ bool isPermutation(Lop lop)
 }
 
 /// Cell Operation.
-enum CellOp : ubyte
+enum CellOp
 {
     seqClone,                   /// sequential clone
     parClone,                   /// parallel clone
@@ -217,7 +217,7 @@ alias CellOps = Owned!(BasicArray!CellOp);
  * TODO What does \em nature cell this information bearer: Closest I
  * have found is http://en.wikipedia.org/wiki/Allele.
  */
-enum Gop : ubyte
+enum Gop
 {
     /* \name Structural: Inter-Node */
     /* @{ */

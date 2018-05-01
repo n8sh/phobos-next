@@ -1,7 +1,7 @@
 /// Wrapper for gcvt.
 module gcvt;
 
-string toString(const double value)
+string toString(const double value, uint digitCount)
     @trusted pure nothrow
 {
     immutable length = 40;
@@ -10,7 +10,7 @@ string toString(const double value)
 
     assert(buffer.length == length);
 
-    gcvt(value, 10, buffer.ptr);
+    gcvt(value, digitCount, buffer.ptr);
 
     import std.string : fromStringz;
     return fromStringz(buffer.ptr);
@@ -18,8 +18,9 @@ string toString(const double value)
 
 @safe pure nothrow unittest
 {
-    const x = 3.14.toString;
-    assert(x == `3.14`);
+    // import dbgio;
+    // dln(1234567.123456789123456789.toString(100));
+    assert(1234567.123456789123456789.toString(20) == `1234567.1234567892`);
 }
 
 extern(C) pragma(inline, false)

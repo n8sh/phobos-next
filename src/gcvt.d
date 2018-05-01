@@ -1,7 +1,8 @@
 /// Wrapper for gcvt.
 module gcvt;
 
-string toString(const double value, uint digitCount)
+string toString(const double value,
+                uint digitCount)
     @trusted pure nothrow
 {
     immutable length = 40;

@@ -207,7 +207,7 @@ enum CellOp
     seqClone,                   /// sequential clone
     parClone,                   /// parallel clone
 }
-alias CellOps = Owned!(BasicArray!CellOp);
+alias CellOps = Owned!(BasicArray!CellOp); // TODO bit-pack
 
 /**m Network (Transformation) Operation Type Code.
  *

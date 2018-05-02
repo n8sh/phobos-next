@@ -5,7 +5,7 @@ string toString(const double value,
                 uint digitCount)
     @trusted pure nothrow
 {
-    immutable length = 3 + digitCount; // sign + dot + null
+    immutable length = 3 + digitCount; // digits plus + sign + dot + null
 
     auto buffer = new char[length];
 

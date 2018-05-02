@@ -35,7 +35,7 @@ string toString(const double value,
     assert(1234567.123456789123456789.toString(20) == `1234567.1234567892`);
 }
 
-extern(C) pragma(inline, false)
+private extern(C) pragma(inline, false)
 {
     pure nothrow @nogc:
     char *gcvt(double number, int ndigit, char *buf);

@@ -5569,8 +5569,7 @@ auto checkNumeric(Keys...)() @safe
 if (Keys.length >= 1)
 {
     import std.traits : isIntegral, isFloatingPoint;
-    import std.range : iota;
-    foreach (immutable it; 0.iota(1))
+    foreach (immutable it; 0 .. 1)
     {
         import std.algorithm : equal;
         struct TestValueType { int i = 42; float f = 43; char ch = 'a'; }
@@ -5613,7 +5612,7 @@ if (Keys.length >= 1)
                     immutable length = high - low + 1;
                 }
 
-                foreach (immutable uk; low.iota(high + 1))
+                foreach (immutable uk; low .. high + 1)
                 {
                     immutable Key key = cast(Key)uk;
 

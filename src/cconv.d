@@ -2,7 +2,7 @@
 module cconv;
 
 string toString(const double value,
-                uint digitCount)
+                uint digitCount = 30)
     @trusted pure nothrow
 {
     immutable length = 3 + digitCount; // digits plus + sign + dot + null

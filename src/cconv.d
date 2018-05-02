@@ -20,6 +20,11 @@ string toString(const double value,
 ///
 @safe pure nothrow unittest
 {
+    assert(0.0.toString(1) == `0`);
+    assert(0.1.toString(0) == `0.1`);
+    assert(0.1.toString(1) == `0.1`);
+    assert((-1.0).toString(1) == `-1`);
+    assert((-1.0).toString(2) == `-1`);
     assert(3.14.toString(3) == `3.14`);
     assert(3.141.toString(3) == `3.14`);
     assert(3.141.toString(4) == `3.141`);

@@ -1,7 +1,7 @@
 // #!/usr/bin/env rdmd
 
 import std.array : array;
-import std.range : empty, iota;
+import std.range : empty;
 import std.algorithm;
 import std.conv : to;
 import std.file : read, dirEntries, DirEntry, SpanMode;
@@ -644,7 +644,7 @@ void main(string[] args)
 
     window.eventLoop(eventLatency, {
         auto painter = window.draw();
-        foreach (i; 0.iota(1))
+        foreach (i; 0 .. 1)
         {
             painter.outlineColor = Color.black;
             painter.fillColor = Color.red;

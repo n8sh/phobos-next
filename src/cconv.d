@@ -32,6 +32,8 @@ string toString(const double value,
     assert(3.141.toString(4) == `3.141`);
     assert(3.141.toString(5) == `3.141`);
 
+    assert(1234567.123456789123456789.toString(7) == `1234567`);
+    assert(1234567.123456789123456789.toString(8) == `1234567.1`);
     assert(1234567.123456789123456789.toString(9) == `1234567.12`);
     assert(1234567.123456789123456789.toString(20) == `1234567.1234567892`);
 }

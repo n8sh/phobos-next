@@ -9,8 +9,6 @@ string toString(const double value,
 
     auto buffer = new char[length];
 
-    assert(buffer.length == length);
-
     gcvt(value, digitCount, buffer.ptr);
 
     import std.string : fromStringz;

@@ -38,5 +38,5 @@ string toString(const double value,
 private extern(C) pragma(inline, false)
 {
     pure nothrow @nogc:
-    char *gcvt(double, int, char*);
+    char *gcvt(double number, int ndigit, char *buf);
 }

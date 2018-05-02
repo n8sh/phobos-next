@@ -154,8 +154,7 @@ void bijectFromUnsigned(U, V)(U a, ref V b)
     static assert(is(typeof(dchar.init.bijectToUnsigned) == uint));
 
     const n = 1_000_000;
-    import std.range : iota;
-    foreach (const i; 0.iota(n))
+    foreach (const i; 0 .. n)
     {
         foreach (T; AliasSeq!(bool,
                               ubyte, ushort, uint, ulong,

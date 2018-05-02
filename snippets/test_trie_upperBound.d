@@ -3,7 +3,6 @@
 void main()
 {
     import std.algorithm.comparison : equal;
-    import std.range : iota;
     import std.algorithm : filter;
     import trie : radixTreeSet;
     import dbgio : dln;
@@ -14,13 +13,13 @@ void main()
     set.clear();
 
     enum n = 200;
-    foreach (const e; iota(0, n))
+    foreach (const e; 0 .. n)
     {
         set.insert(e);
     }
 
     set.insert(n*2);
-    foreach (const e; iota(n*3, n*3 + n))
+    foreach (const e; n*3 .. n*3 + n)
     {
         set.insert(e);
     }

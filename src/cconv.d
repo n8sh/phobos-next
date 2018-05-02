@@ -28,6 +28,8 @@ string toString(const double value,
     assert((-1.0).toString(2) == `-1`);
 
     assert(3.14.toString(3) == `3.14`);
+    assert(3.141.toString(1) == `3`);
+    assert(3.141.toString(2) == `3.1`);
     assert(3.141.toString(3) == `3.14`);
     assert(3.141.toString(4) == `3.141`);
     assert(3.141.toString(5) == `3.141`);

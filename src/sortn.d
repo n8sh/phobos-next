@@ -416,11 +416,11 @@ auto hybridSort(alias less = "a < b", Range)(Range r)
     import std.meta : AliasSeq;
     foreach (less; AliasSeq!("a < b", "a > b"))
     {
-        foreach (const n; iota(0, networkSortMaxLength + 1))
+        foreach (const n; 0 .. networkSortMaxLength + 1)
         {
             if (n > maxFullPermutationTestLength) // if number of elements is too large
             {
-                foreach (x; iota(0, maxTriedShufflings))
+                foreach (x; 0 .. maxTriedShufflings)
                 {
                     import std.array : array;
                     auto y = iota(0, n).array;

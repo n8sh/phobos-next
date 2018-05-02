@@ -27,6 +27,5 @@ string toString(const double value,
 extern(C) pragma(inline, false)
 {
     pure nothrow @nogc:
-
     char *gcvt(double number, int ndigit, char *buf);
 }

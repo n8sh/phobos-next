@@ -30,6 +30,8 @@ static class LightAlgebraicException : Exception
 private struct LightAlgebraic(bool memoryPacked = false,
                               TypesParam...)
 {
+    @safe:
+
     alias Ix = ubyte; // type index type
     enum maxTypesCount = 2^^(Ix.sizeof * 8) - 1; // maximum number of allowed type parameters
 
@@ -78,7 +80,7 @@ public:
 
     auto ref to(U)() const // TODO pure @nogc
     {
-        final switch (_tix)
+        final switch (typeIndex)
         {
             import std.conv : to;
             foreach (const i, T; Types)
@@ -92,7 +94,7 @@ public:
     {
         import std.format : formattedWrite;
         if (!hasValue) { return sink("<Uninitialized LightAlgebraic>"); }
-        final switch (_tix)
+        final switch (typeIndex)
         {
             foreach (const i, T; Types)
             {
@@ -119,7 +121,7 @@ public:
     private auto ref typeName()() const @safe nothrow @nogc // template-lazy
     {
         pragma(inline, true);
-        return hasValue ? typeNamesRT[_tix] : null;
+        return hasValue ? typeNamesRT[typeIndex] : null;
     }
 
     /** Copy construct from `that`. */
@@ -134,7 +136,10 @@ public:
     ~this()
     {
         pragma(inline, true);
-        release();
+        if (hasValue)
+        {
+            release();
+        }
     }
 
     /// Construct copy from `that`.
@@ -147,7 +152,7 @@ public:
         moveEmplace(*cast(MT*)&that,
                     *cast(MT*)(&_store)); // TODO ok when `that` has indirections?
 
-        _tix = cast(Ix)indexOf!MT; // set type tag
+        _tix = cast(Ix)(indexOf!MT + 1); // set type tag
     }
 
     LightAlgebraic opAssign(T)(T that) @trusted nothrow @nogc
@@ -155,13 +160,16 @@ public:
     {
         import std.algorithm.mutation : moveEmplace;
 
-        release();
+        if (hasValue)
+        {
+            release();
+        }
 
         alias MT = Unqual!T;
         moveEmplace(*cast(MT*)&that,
                     *cast(MT*)(&_store)); // TODO ok when `that` has indirections?
 
-        _tix = cast(Ix)indexOf!MT; // set type tag
+        _tix = cast(Ix)(indexOf!MT + 1); // set type tag
 
         return this;
     }
@@ -217,17 +225,17 @@ public:
     bool isOfType(T)() const @safe nothrow @nogc // TODO shorter name such `isA`, `ofType`
     {
         pragma(inline, true);
-        return _tix == indexOf!T;
+        return _tix == indexOf!T + 1;
     }
 
     /// Force $(D this) to the null/uninitialized/unset/undefined state.
     void clear() @safe nothrow @nogc
     {
         pragma(inline, true);
-        if (_tix != Ix.max)
+        if (_tix != _tix.init)
         {
             release();
-            _tix = Ix.max; // this is enough to indicate undefined, no need to zero `_store`
+            _tix = _tix.init; // this is enough to indicate undefined, no need to zero `_store`
         }
     }
     /// ditto
@@ -246,7 +254,7 @@ public:
     /// Release internal store.
     private void release() @trusted nothrow @nogc
     {
-        final switch (_tix)
+        final switch (typeIndex)
         {
             foreach (const i, T; Types)
             {
@@ -268,19 +276,19 @@ public:
     bool hasValue() const @safe nothrow @nogc
     {
         pragma(inline, true);
-        return _tix != Ix.max;
+        return _tix != _tix.init;
     }
 
     bool isNull() const @safe nothrow @nogc
     {
         pragma(inline, true);
-        return _tix == Ix.max;
+        return _tix == _tix.init;
     }
 
     size_t currentSize()() const @safe nothrow @nogc // template-lazy
     {
         if (isNull) { return 0; }
-        final switch (_tix)
+        final switch (typeIndex)
         {
             foreach (const i, const typeSize; typeSizes)
             {
@@ -294,7 +302,7 @@ public:
     private U convertTo(U)() const @safe nothrow
     {
         assert(hasValue);
-        final switch (_tix)
+        final switch (typeIndex)
         {
             foreach (const i, T; Types)
             {
@@ -309,7 +317,7 @@ public:
         CommonType commonValue() const @safe pure nothrow @nogc
         {
             assert(hasValue);
-            final switch (_tix)
+            final switch (typeIndex)
             {
                 foreach (const i, T; Types)
                 {
@@ -331,14 +339,12 @@ public:
                     return (this.convertTo!CommonType ==
                             that.convertTo!CommonType);
                 }
-
                 if (!this.hasValue &&
                     !that.hasValue)
                 {
                     return true; // TODO same behaviour as floating point NaN?
                 }
-
-                final switch (_tix)
+                final switch (typeIndex)
                 {
                     foreach (const i, T; Types)
                     {
@@ -363,7 +369,7 @@ public:
                     return true; // TODO same behaviour as floating point NaN?
                 }
 
-                final switch (_tix)
+                final switch (typeIndex)
                 {
                     foreach (const i, T; Types)
                     {
@@ -391,7 +397,7 @@ public:
                            "Cannot equal any possible type of " ~ LightAlgebraic.stringof ~
                            " with " ~ T.stringof);
 
-            if (!isOfType!T) return false; // throw new LightAlgebraicException("Cannot equal LightAlgebraic with current type " ~ "[Types][_tix]" ~ " with different types " ~ "T.stringof");
+            if (!isOfType!T) return false; // throw new LightAlgebraicException("Cannot equal LightAlgebraic with current type " ~ "[Types][typeIndex]" ~ " with different types " ~ "T.stringof");
 
             static if (isIntegral!T) // TODO extend by reusing some generic trait, say isBitwiseComparable
             {
@@ -423,12 +429,12 @@ public:
             {
                 if (_tix != that._tix)
                 {
-                    throw new LightAlgebraicException("Cannot compare LightAlgebraic of type " ~ typeNamesRT[_tix] ~
-                                             " with LightAlgebraic of type " ~ typeNamesRT[that._tix]);
+                    throw new LightAlgebraicException("Cannot compare LightAlgebraic of type " ~ typeNamesRT[typeIndex] ~
+                                             " with LightAlgebraic of type " ~ typeNamesRT[that.typeIndex]);
                 }
             }
 
-            final switch (_tix)
+            final switch (typeIndex)
             {
                 foreach (const i, T; Types)
                 {
@@ -445,7 +451,7 @@ public:
         {
             static if (haveCommonType!(Types, U)) // TODO is CommonType or isComparable the correct way of checking this?
             {
-                final switch (_tix)
+                final switch (typeIndex)
                 {
                     foreach (const i, T; Types)
                     {
@@ -476,7 +482,7 @@ public:
         const size_t hash = _tix.hashOf;
         if (hasValue)
         {
-            final switch (_tix)
+            final switch (typeIndex)
             {
                 foreach (const i, T; Types)
                 {
@@ -497,7 +503,7 @@ public:
         digestAny(digest, _tix);
         if (hasValue)
         {
-            final switch (_tix)
+            final switch (typeIndex)
             {
                 foreach (const i, T; Types)
                 {
@@ -541,7 +547,15 @@ private:
             }
         }
     }
-    Ix _tix = Ix.max; // Type Index if != Ix.max
+
+    size_t typeIndex() const nothrow @nogc
+    {
+        pragma(inline, true);
+        assert(_tix != 0, "Cannot get index from uninitialized (null) variant.");
+        return _tix - 1;
+    }
+
+    Ix _tix = 0;                // type index
 }
 
 alias FastAlgebraic(Types...) = LightAlgebraic!(false, Types);
@@ -588,7 +602,7 @@ nothrow @nogc unittest
     const C c = 2.0f;
     const C d = 1.0f;
 
-    assert(a.commonValue == 1);
+        assert(a.commonValue == 1);
     assert(b.commonValue == 2);
     assert(c.commonValue == 2);
     assert(d.commonValue == 1);
@@ -851,12 +865,16 @@ pure unittest
 {
     alias V = FastAlgebraic!(String15, string);
     V _;
-    assert(_._tix == V.Ix.max);
-    assert(V.init._tix == V.Ix.max);
+    assert(_._tix == V.Ix.init);
+    assert(V.init._tix == V.Ix.init);
+
+    // TODO import bit_traits : isInitAllZeroBits;
+    // TODO static assert(isInitAllZeroBits!(V));
 }
 
 version(unittest)
 {
     import fixed_array : StringN;
     alias String15 = StringN!(15);
+    import dbgio;
 }

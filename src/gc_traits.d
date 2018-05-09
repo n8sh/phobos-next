@@ -96,6 +96,7 @@ if (is(T == struct) ||
         int* _ptr;
     }
     // pragma(msg, typeof(S.tupleof));
+    // pragma(msg, typeof(S.tupleof[0 .. $ - 1]));
     // See https://forum.dlang.org/post/dkohvpbmakbdbhnmnmbg@forum.dlang.org
     // TODO static assert(!mustAddGCRangeOfStructOrUnion!S);
 }

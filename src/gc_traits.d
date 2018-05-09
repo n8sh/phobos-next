@@ -84,7 +84,21 @@ if (is(T == struct) ||
 {
     import std.traits : hasUDA;
     import std.meta : anySatisfy;
-    enum mustAddGCRangeOfStructOrUnion = anySatisfy!(mustAddGCRangeOfMember, T.tupleof);
+    static if (__traits(hasMember, T, "__postblit"))
+    {
+        static if (__traits(isDisabled, T.__postblit))
+        {
+            enum mustAddGCRangeOfStructOrUnion = anySatisfy!(mustAddGCRangeOfMember, T.tupleof[0 .. $ - 1]);
+        }
+        else
+        {
+            enum mustAddGCRangeOfStructOrUnion = anySatisfy!(mustAddGCRangeOfMember, T.tupleof);
+        }
+    }
+    else
+    {
+        enum mustAddGCRangeOfStructOrUnion = anySatisfy!(mustAddGCRangeOfMember, T.tupleof);
+    }
 }
 
 ///
@@ -93,12 +107,14 @@ if (is(T == struct) ||
     struct S
     {
         @disable this(this);
-        int* _ptr;
+        @NoGc int* _ptr;
     }
-    // pragma(msg, typeof(S.tupleof));
-    // pragma(msg, typeof(S.tupleof[0 .. $ - 1]));
+    static if (__traits(hasMember, S, "__postblit"))
+    {
+        static assert(__traits(isDisabled, S.__postblit));
+    }
     // See https://forum.dlang.org/post/dkohvpbmakbdbhnmnmbg@forum.dlang.org
-    // TODO static assert(!mustAddGCRangeOfStructOrUnion!S);
+    static assert(!mustAddGCRangeOfStructOrUnion!S);
 }
 
 ///

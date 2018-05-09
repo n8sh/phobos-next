@@ -92,11 +92,12 @@ if (is(T == struct) ||
 {
     struct S
     {
-        // TODO @disable this(this);
-        @NoGc int* _ptr;
+        @disable this(this);
+        int* _ptr;
     }
-    // TODO pragma(msg, typeof(S.tupleof));
-    // static assert(!mustAddGCRangeOfStructOrUnion!S);
+    pragma(msg, typeof(S.tupleof));
+    // See https://forum.dlang.org/post/dkohvpbmakbdbhnmnmbg@forum.dlang.org
+    // TODO static assert(!mustAddGCRangeOfStructOrUnion!S);
 }
 
 ///

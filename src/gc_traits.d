@@ -92,10 +92,10 @@ if (is(T == struct) ||
 {
     struct S
     {
-        // TODO activate @disable this(this);
+        // TODO @disable this(this);
         @NoGc int* _ptr;
     }
-    static assert(!mustAddGCRange!S);
+    static assert(!mustAddGCRangeOfStructOrUnion!S);
 }
 
 ///

@@ -95,7 +95,7 @@ if (is(T == struct) ||
         // TODO @disable this(this);
         @NoGc int* _ptr;
     }
-    pragma(msg, typeof(S.tupleof));
+    // TODO pragma(msg, typeof(S.tupleof));
     // static assert(!mustAddGCRangeOfStructOrUnion!S);
 }
 

@@ -61,6 +61,16 @@ template mustAddGCRange(T)
     }
 }
 
+///
+@safe pure nothrow @nogc unittest
+{
+    static assert(!mustAddGCRange!int);
+    static assert(mustAddGCRange!(int*));
+    static assert(mustAddGCRange!(int*[1]));
+    static assert(!mustAddGCRange!(int*[0]));
+    static assert(mustAddGCRange!(int[]));
+}
+
 private template mustAddGCRangeOfMember(alias member)
 {
     import std.traits : hasUDA;
@@ -80,11 +90,12 @@ if (is(T == struct) ||
 ///
 @safe pure nothrow @nogc unittest
 {
-    static assert(!mustAddGCRange!int);
-    static assert(mustAddGCRange!(int*));
-    static assert(mustAddGCRange!(int*[1]));
-    static assert(!mustAddGCRange!(int*[0]));
-    static assert(mustAddGCRange!(int[]));
+    struct S
+    {
+        // TODO activate @disable this(this);
+        @NoGc int* _ptr;
+    }
+    static assert(!mustAddGCRange!S);
 }
 
 ///

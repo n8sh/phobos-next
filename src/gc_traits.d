@@ -84,7 +84,10 @@ if (is(T == struct) ||
 {
     import std.traits : hasUDA;
     import std.meta : anySatisfy;
-    // TODO remove and adapt according to answers https://forum.dlang.org/thread/dkohvpbmakbdbhnmnmbg@forum.dlang.org
+
+    /* TODO remove and adapt according to answers here:
+     * https://forum.dlang.org/thread/dkohvpbmakbdbhnmnmbg@forum.dlang.org */
+
     // static if (__traits(hasMember, T, "__postblit"))
     // {
     //     static if (__traits(isDisabled, T.__postblit))

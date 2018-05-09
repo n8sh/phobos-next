@@ -101,7 +101,7 @@ if (is(T == struct) ||
     }
 }
 
-///
+/// structs with disabled postblit
 @safe pure nothrow @nogc unittest
 {
     struct S

@@ -364,15 +364,8 @@ struct BasicArray(T,
         {
             if (zero)
             {
-                static if (__traits(hasMember, Allocator, "allocateZeroed"))
-                {
-                    ptr = cast(typeof(return))Allocator.allocateZeroed(numBytes).ptr; // TODO set length
-                }
-                else
-                {
-                    import std.experimental.allocator : makeArray;
-                    ptr = Allocator.makeArray!T(initialCapacity, 0).ptr; // TODO set length
-                }
+                import std.experimental.allocator : makeArray;
+                ptr = Allocator.makeArray!T(initialCapacity, 0).ptr; // TODO set length
             }
             else
             {

@@ -1326,9 +1326,6 @@ unittest
         @NoGc E* _ptr;
     }
 
-    pragma(msg, "TODO activate this test!");
-    // static assert(!mustAddGCRange!S);
-
     /* D compilers cannot currently move stuff efficiently when using
      * std.algorithm.mutation.move. A final dtor call to the cleared sourced is
      * always done. */

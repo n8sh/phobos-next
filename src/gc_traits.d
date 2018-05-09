@@ -101,7 +101,7 @@ if (is(T == struct) ||
     }
 }
 
-/// struct with a disabled postblit
+/// no-GC-managed struct with a disabled postblit
 @safe pure nothrow @nogc unittest
 {
     struct S

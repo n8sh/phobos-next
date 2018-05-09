@@ -101,14 +101,18 @@ if (is(T == struct) ||
     }
 }
 
-/// no-GC-managed struct with a disabled postblit
-@safe pure nothrow @nogc unittest
+version(unittest)
 {
-    struct S
+    private static struct S
     {
         @disable this(this);
         @NoGc int* _ptr;
     }
+}
+
+/// no-GC-managed struct with a disabled postblit
+@safe pure nothrow @nogc unittest
+{
     static if (__traits(hasMember, S, "__postblit"))
     {
         static assert(__traits(isDisabled, S.__postblit));

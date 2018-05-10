@@ -1456,3 +1456,25 @@ enum isAddress(T) = (is(T == class) || // a class is memory-wise
     static assert(!isAddress!(S));
     static assert( isAddress!(S*));
 }
+
+template hasDisabledPostblit(T)
+{
+    static if (__traits(hasMember, T, "__postblit"))
+    {
+        enum hasDisabledPostblit = __traits(isDisabled, T.__postblit);
+    }
+    else
+    {
+        enum hasDisabledPostblit = false;
+    }
+}
+
+@safe pure unittest
+{
+    static struct S
+    {
+        @disable this(this);
+    }
+    static assert(!hasDisabledPostblit!int);
+    static assert( hasDisabledPostblit!S);
+}

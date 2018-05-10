@@ -1469,6 +1469,7 @@ template hasDisabledPostblit(T)
     }
 }
 
+///
 @safe pure unittest
 {
     static struct S

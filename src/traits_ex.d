@@ -1457,6 +1457,7 @@ enum isAddress(T) = (is(T == class) || // a class is memory-wise
     static assert( isAddress!(S*));
 }
 
+/** Is `true` iff the postblit of `T` is disabled (`@disable this(this)`). */
 template hasDisabledPostblit(T)
 {
     static if (__traits(hasMember, T, "__postblit"))

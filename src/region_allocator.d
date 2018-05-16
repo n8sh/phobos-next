@@ -1,6 +1,6 @@
 module region_allocator;
 
-static if (__VERSION__ >= 2080)
+static if (__VERSION__ >= 2081)
 {
     version(LDC) static assert(0, "TODO: Use std.experimental.allocator.building_blocks.region instead of this module");
 }

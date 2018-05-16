@@ -419,9 +419,22 @@ enum isSourceAssignableTo(R, E) = (isInputRange!R &&
                                    isAssignable!(E, ElementType!R));
 
 /// TODO Move to Phobos?
-enum isSomeCharString(T) = (is(T == string) ||
-                            is(T == const(char)[]) ||
-                            is(T == char[]));
+enum isSomeCharString(T) = (is(T : const(char)[]));
+
+@safe pure unittest
+{
+    static assert(isSomeString!(string));
+    static assert(isSomeString!(const string));
+
+    static assert(isSomeString!(const(char)[]));
+    static assert(isSomeString!(const char[]));
+
+    static assert(isSomeCharString!(const(char[])));
+    static assert(isSomeCharString!(const char[]));
+
+    static assert(!isSomeCharString!(wstring));
+    static assert(!isSomeCharString!(dstring));
+}
 
 @safe pure nothrow @nogc unittest
 {

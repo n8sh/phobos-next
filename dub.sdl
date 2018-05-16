@@ -14,8 +14,9 @@ authors "Per Nordlöw <per.nordlow@gmail.com>"
 dflags "-vcolumns" "-dip25" "-transition=intpromote" # "-dip1000"
 libs "z" "bz2" "zstd"
 
+dflags "-link-internally" platform="posix-ldc" # use GNU gold linker
+
 # TODO lflags "-ltcmalloc"
-# TODO use LDC's -link-internally
 
 importPaths "src"
 

@@ -37,7 +37,7 @@ void randomizeInput(RNG)(uint[] a,
     }
 }
 
-int main(in string[] args)
+int main(const scope string[] args)
 {
     if (args.length != 4)
     {

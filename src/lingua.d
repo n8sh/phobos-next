@@ -685,6 +685,7 @@ string negationIn(Lang lang) nothrow @nogc
 
 enum Manner
 {
+    // TODO add unknown
     formal,
     informal,
     slang,

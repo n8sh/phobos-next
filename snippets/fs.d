@@ -608,7 +608,7 @@ private:
 
 /** Match `kind` with full filename `full`. */
 bool matchFullName(in FKind kind,
-                   in string full, size_t six = 0) @safe pure nothrow
+                   const scope string full, size_t six = 0) @safe pure nothrow
 {
     return (kind.baseNaming &&
             !kind.baseNaming.match(full, six).empty);
@@ -616,14 +616,14 @@ bool matchFullName(in FKind kind,
 
 /** Match `kind` with file extension `ext`. */
 bool matchExtension(in FKind kind,
-                    in string ext) @safe pure nothrow
+                    const scope string ext) @safe pure nothrow
 {
     return !kind.exts.find(ext).empty;
 }
 
 bool matchName(in FKind kind,
-               in string full, size_t six = 0,
-               in string ext = null) @safe pure nothrow
+               const scope string full, size_t six = 0,
+               const scope string ext = null) @safe pure nothrow
 {
     return (kind.matchFullName(full) ||
             kind.matchExtension(ext));
@@ -1037,7 +1037,7 @@ class File
 /** Maps Files to their tags. */
 class FileTags
 {
-    FileTags addTag(File file, in string tag) @safe pure /* nothrow */
+    FileTags addTag(File file, const scope string tag) @safe pure /* nothrow */
     {
         if (file in _tags)
         {

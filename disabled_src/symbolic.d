@@ -73,7 +73,7 @@ class Patt
         const hit = atU(haystack, soff);
         return hit != hit.max ? haystack[0..hit] : [];
     }
-    final auto ref match(in string haystack, size_t soff = 0) const
+    final auto ref match(const scope string haystack, size_t soff = 0) const
     {
         return matchU(haystack.representation, soff);
     }
@@ -96,7 +96,7 @@ class Patt
         return alt(this, rhs);  // TODO check if this and rhs is Alt
     }
 
-    final size_t at(in string haystack, size_t soff = 0) const
+    final size_t at(const scope string haystack, size_t soff = 0) const
     // TODO Activate this
     /* out (hit) { */
     /*     assert((!hit) || hit >= minLength); // TODO Is this needed? */
@@ -112,7 +112,7 @@ class Patt
     }
 
     /** Find $(D this) in String $(D haystack) at Offset $(D soff). */
-    final const(ubyte[]) findAt(in string haystack, size_t soff = 0) const
+    final const(ubyte[]) findAt(const scope string haystack, size_t soff = 0) const
     {
         return findRawAt(haystack.representation, soff, []); // TODO this is ugly
     }
@@ -498,7 +498,7 @@ class Alt : SPatt
     this(Patt[] subs_) { super(subs_); }
     this(Args...)(Args subs_) { super(subs_); }
 
-    size_t atIx(in string haystack, size_t soff, out size_t alt_hix) const
+    size_t atIx(const scope string haystack, size_t soff, out size_t alt_hix) const
     {
         return atU(haystack.representation, soff, alt_hix);
     }

@@ -122,7 +122,7 @@ extern(D):
 
 @safe pure nothrow unittest
 {
-    Db db = new Db();
+    auto db = new Db();
     Node node = new Node(db);
     Edge edge = new Edge(db);
     auto rela2 = new Rela!2(db);

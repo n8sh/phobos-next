@@ -1496,3 +1496,24 @@ template hasDisabledPostblit(T)
     static assert(!hasDisabledPostblit!int);
     static assert( hasDisabledPostblit!S);
 }
+
+template isSubclassOf(Class, BaseClass)
+{
+    import std.traits : BaseClassesTuple;
+    alias BaseClasses = BaseClassesTuple!Class;
+    import std.meta : staticIndexOf;
+    enum isSubclassOf = staticIndexOf!(BaseClass, BaseClasses) != -1;
+}
+
+///
+@safe pure unittest
+{
+    class X {}
+    class Y : X {}
+
+    static assert(!isSubclassOf!(X, Y));
+    static assert( isSubclassOf!(X, Object));
+
+    static assert( isSubclassOf!(Y, X));
+    static assert( isSubclassOf!(Y, Object));
+}

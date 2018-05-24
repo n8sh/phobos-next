@@ -116,7 +116,7 @@ enum areCTBoundable(alias low, alias high) = (isCTBound!low &&
 
 /* TODO Is there a already a Phobos trait or builtin property for this? */
 template PackedNumericType(alias expr)
-    if (isCTBound!expr)
+if (isCTBound!expr)
 {
     alias Type = typeof(expr);
     static if (isIntegral!Type)
@@ -152,7 +152,7 @@ template BoundsType(alias low,
                     alias high,
                     bool packed = true,
                     bool signed = false)
-    if (isCTBound!low &&
+if (isCTBound!low &&
         isCTBound!high)
 {
     static assert(low != high,
@@ -285,7 +285,7 @@ struct Bound(V,
              bool exceptional = true,
              bool packed = true,
              bool signed = false)
-    if (isBoundable!V)
+if (isBoundable!V)
 {
     /* Requirements */
     static assert(low <= high,
@@ -534,7 +534,7 @@ struct Bound(V,
  * Makes it easier to add free-contants to existing Bounded variables.
  */
 template bound(alias value)
-    if (isCTBound!value)
+if (isCTBound!value)
 {
     const bound = Bound!(PackedNumericType!value, value, value)(value);
 }
@@ -561,7 +561,7 @@ template bound(alias low,
                bool exceptional = true,
                bool packed = true,
                bool signed = false)
-    if (isCTBound!low &&
+if (isCTBound!low &&
         isCTBound!high)
 {
     alias V = BoundsType!(low, high, packed, signed); // ValueType

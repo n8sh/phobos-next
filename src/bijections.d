@@ -68,7 +68,7 @@ pragma(inline) @safe pure nothrow @nogc:
  * instance before radix sorting an array of `a`).
  */
 auto bijectToUnsigned(T)(T a) @trusted
-    if (isIntegralBijectableType!T)
+if (isIntegralBijectableType!T)
 {
     alias UT = Unqual!T;
     static      if (is(UT == bool))  { return *(cast(ubyte*)&a); } // reinterpret
@@ -100,7 +100,7 @@ auto bijectToUnsigned(T)(T a) @trusted
  * order.
  */
 auto bijectToUnsigned(T)(T a, bool descending)
-    if (isIntegralBijectableType!T)
+if (isIntegralBijectableType!T)
 {
     immutable ua = a.bijectToUnsigned;
     return descending ? ua.max-ua : ua;
@@ -110,14 +110,14 @@ auto bijectToUnsigned(T)(T a, bool descending)
  * (for instance after radix sorting an array of `a`).
  */
 void bijectFromUnsigned(U)(U a, ref U b)
-    if (isUnsigned!U)
+if (isUnsigned!U)
 {
     b = a;                  /// Identity.
 }
 
 /// ditto
 void bijectFromUnsigned(U, V)(U a, ref V b)
-    if (isUnsigned!U &&
+if (isUnsigned!U &&
         isIntegral!V && isSigned!V &&
         is(U == Unsigned!V))
 {

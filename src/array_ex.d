@@ -95,7 +95,7 @@ private struct Array(E,
                      bool useGCAllocation = false,
                      CapacityType = size_t, // see also https://github.com/izabera/s
                      alias less = "a < b") // TODO move out of this definition and support only for the case when `ordering` is not `Ordering.unsorted`
-    if (is(CapacityType == ulong) ||       // 3 64-bit words
+if (is(CapacityType == ulong) ||       // 3 64-bit words
         is(CapacityType == uint))          // 2 64-bit words
 {
     import std.conv : emplace;
@@ -1820,7 +1820,7 @@ R withCapacityMake(R)(size_t capacity)
 }
 /// ditto
 R withCapacityMake(R)(size_t capacity)
-    if (isDynamicArray!R)
+if (isDynamicArray!R)
 {
     R r;
     // See http://forum.dlang.org/post/nupffaitocqjlamffuqi@forum.dlang.org
@@ -1843,7 +1843,7 @@ R withLengthMake(R)(size_t length)
 }
 /// ditto
 R withLengthMake(R)(size_t length)
-    if (isDynamicArray!R)
+if (isDynamicArray!R)
 {
     R r;
     r.length = length;
@@ -1858,7 +1858,7 @@ R withElementMake(R)(typeof(R.init[0]) e)
 }
 /// ditto
 R withElementMake(R)(typeof(R.init[0]) e)
-    if (isDynamicArray!R)
+if (isDynamicArray!R)
 {
     return [e];
 }

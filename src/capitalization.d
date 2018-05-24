@@ -5,7 +5,7 @@ import std.traits : isSomeString;
 /** Check if `s` starts with a capital letter followed by a lower
     letter. */
 bool isCapitalizedEasy(S)(S s)
-    if (isSomeString!S)
+if (isSomeString!S)
 {
     import std.range.primitives : empty, front, popFront;
     import std.uni : isUpper, isLower;
@@ -33,7 +33,7 @@ bool isCapitalizedEasy(S)(S s)
 
 import std.uni : isLower;
 auto isLowercased(S, alias pred = isLower)(S s)
-    if (isSomeString!S)
+if (isSomeString!S)
 {
     import std.algorithm.searching : all;
     import std.traits : isNarrowString;
@@ -51,7 +51,7 @@ auto isLowercased(S, alias pred = isLower)(S s)
 
 import std.uni : isUpper;
 auto isUppercased(S, alias pred = isUpper)(S s)
-    if (isSomeString!S)
+if (isSomeString!S)
 {
     import std.algorithm.searching : all;
     import std.traits : isNarrowString;
@@ -70,7 +70,7 @@ auto isUppercased(S, alias pred = isUpper)(S s)
 /** Check if `s` starts with a capital letter followed by only lower
     letters. */
 bool isCapitalized(S)(S s)
-    if (isSomeString!S)
+if (isSomeString!S)
 {
     import std.range.primitives : empty, front, popFront;
 
@@ -114,7 +114,7 @@ bool isCapitalized(S)(S s)
  * Centauri`.
  */
 bool isNameCapitalized(S)(S s)
-    if (isSomeString!S)
+if (isSomeString!S)
 {
     import std.algorithm.iteration : splitter;
     import std.algorithm.searching : all;

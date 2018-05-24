@@ -285,7 +285,7 @@ auto findInOrder(alias pred = `a == b`,
  * TODO Move to Phobos
 */
 bool isSymmetric(R)(R range)
-    if (isBidirectionalRange!(R))
+if (isBidirectionalRange!(R))
 {
     size_t i = 0;
     import std.range : empty;
@@ -317,7 +317,7 @@ bool isSymmetric(R)(R range)
  */
 bool isPalindrome(R)(R range,
                      size_t minLength = 0) // TODO good value for minLength?
-    if (isBidirectionalRange!(R))
+if (isBidirectionalRange!(R))
 {
     static if (isRandomAccessRange!R) // arrays excluding `char[]` and `wchar[]`
     {
@@ -365,7 +365,7 @@ import traits_ex : areEquable;
  * correctly handle multi-byte encoded characters in string and wstring.
  */
 auto isAnagramOf(R1, R2)(R1 r1, R2 r2) // TODO nothrow
-    if (isInputRange!R1 &&
+if (isInputRange!R1 &&
         isInputRange!R2 &&
         areEquable!(ElementType!R1,
                     ElementType!R2))
@@ -504,7 +504,7 @@ enum Reduction
  * See_Also: http://rosettacode.org/wiki/Forward_difference#D
 */
 auto ref windowedReduce(Reduction reduction = Reduction.forwardDifference, R)(R range)
-    if (isInputRange!R)
+if (isInputRange!R)
 {
     import std.algorithm.iteration: map;
     import std.range: zip, dropOne;
@@ -575,7 +575,7 @@ unittest
 
 /* TODO Assert that ElementType!R only value semantics.  */
 auto ref packBitParallelRunLengths(R)(in R x)
-    if (isInputRange!R)
+if (isInputRange!R)
 {
     import std.bitmanip: BitArray;
     import core.bitop: bt;
@@ -638,7 +638,7 @@ pure unittest
  * See_Also: http://rosettacode.org/wiki/Forward_difference#D
  */
 auto forwardDifference(R)(R r)
-    if (isInputRange!R)
+if (isInputRange!R)
 {
     import std.range: front, empty, popFront, dropOne;
 
@@ -821,7 +821,7 @@ unittest
  * See_Also: http://forum.dlang.org/thread/gjuvmrypvxeebvztszpr@forum.dlang.org
  */
 auto ref stableSort(T)(auto ref T a) pure
-    if (isRandomAccessRange!T)
+if (isRandomAccessRange!T)
 {
     if (a.length >= 2)
     {
@@ -881,7 +881,7 @@ alias repeat = doTimes;
 
 /** Execute Expression `action` the same way `n` times. */
 void times(alias action, N)(N n)
-    if (isCallable!action &&
+if (isCallable!action &&
         isIntegral!N &&
         arity!action <= 1)
 {
@@ -1081,7 +1081,7 @@ enum isIntLike(T) = is(typeof({T t = 0; t = t+t;})); // More if needed
     See_Also: https://www.reddit.com/r/programming/comments/rif9x/uniform_function_call_syntax_for_the_d/
 */
 auto fibonacci(T = int)(T nth = 0)
-    if (isIntLike!T)
+if (isIntLike!T)
 {
     static struct Result
     {
@@ -1110,7 +1110,7 @@ unittest
     See_Also: http://forum.dlang.org/thread/hwellpcaomwbpnpofzlx@forum.dlang.org?page=1
 */
 template expand(alias array, size_t idx = 0)
-    if (isStaticArray!(typeof(array)))
+if (isStaticArray!(typeof(array)))
 {
     @property ref delay() { return array[idx]; }
     static if (idx + 1 < array.length)
@@ -1172,7 +1172,7 @@ import std.traits: isAggregateType, hasMember;
     See_Also: http://forum.dlang.org/thread/fdjkijrtduraaajlxxne@forum.dlang.org
 */
 auto ref T set(string member, T, U)(auto ref T a, in U value)
-    if (isAggregateType!T &&
+if (isAggregateType!T &&
         hasMember!(T, member))
 {
     __traits(getMember, a, member) = value;
@@ -1202,7 +1202,7 @@ bool isSliceOf(T)(in T[] part,
 
 /* See_Also: http://forum.dlang.org/thread/cjpplpzdzebfxhyqtskw@forum.dlang.org#post-cjpplpzdzebfxhyqtskw:40forum.dlang.org */
 auto dropWhile(alias pred = `a == b`, R, E)(R range, E element)
-    if (isInputRange!R &&
+if (isInputRange!R &&
         is (typeof(binaryFun!pred(range.front, element)) : bool))
 {
     alias predFun = binaryFun!pred;
@@ -1228,7 +1228,7 @@ unittest
 
 /* See_Also: http://forum.dlang.org/thread/cjpplpzdzebfxhyqtskw@forum.dlang.org#post-cjpplpzdzebfxhyqtskw:40forum.dlang.org */
 auto takeWhile(alias pred = `a == b`, R, E)(R range, E element)
-    if (isInputRange!R &&
+if (isInputRange!R &&
         is (typeof(binaryFun!pred(range.front, element)) : bool))
 {
     import std.algorithm: until;
@@ -1246,7 +1246,7 @@ unittest
 
 /** Simpler variant of Phobos' `split`. */
 auto split(alias pred, R)(R haystack)
-    if (isForwardRange!R)
+if (isForwardRange!R)
 {
     import std.range : empty;
     static if (isSomeString!R ||
@@ -1296,7 +1296,7 @@ unittest
 
 /** Simpler variant of Phobos' `splitBefore`. */
 auto splitBefore(alias pred, R)(R haystack)
-    if (isForwardRange!R)
+if (isForwardRange!R)
 {
     static if (isSomeString!R ||
                sRandomAccessRange!R)
@@ -1341,7 +1341,7 @@ unittest
 }
 
 auto splitAfter(alias pred, R)(R haystack)
-    if (isForwardRange!R)
+if (isForwardRange!R)
 {
     static if (isSomeString!R || isRandomAccessRange!R)
     {
@@ -1392,7 +1392,7 @@ unittest
 }
 
 auto moveUntil(alias pred, R)(ref R r)
-    if (isInputRange!R)
+if (isInputRange!R)
 {
     auto split = r.splitBefore!pred;
     r = split[1];
@@ -1409,7 +1409,7 @@ unittest
 }
 
 auto moveWhile(alias pred, R)(ref R r)
-    if (isInputRange!R)
+if (isInputRange!R)
 {
     return r.moveUntil!(a => !pred(a));
 }
@@ -1427,7 +1427,7 @@ unittest
     not including, `needle` from `haystack`.
 */
 auto findPopBefore(alias pred = `a == b`, R1, R2)(ref R1 haystack, R2 needle)
-    if (isForwardRange!R1 &&
+if (isForwardRange!R1 &&
         isForwardRange!R2)
 {
     import std.range : empty;
@@ -1470,7 +1470,7 @@ unittest
     including, `needle` from `haystack`.
 */
 auto findPopAfter(alias pred = `a == b`, R1, R2)(ref R1 haystack, R2 needle)
-    if (isForwardRange!R1 &&
+if (isForwardRange!R1 &&
         isForwardRange!R2)
 {
     import std.range : empty;
@@ -1762,7 +1762,7 @@ unittest
  * See_Also: http://dpaste.dzfl.pl/7b4b37b490a7
  */
 auto distinct(R)(R r)
-    if (isInputRange!(Unqual!R))
+if (isInputRange!(Unqual!R))
 {
     import std.traits: ForeachType;
     bool[ForeachType!R] seen; // TODO Use containers.hashset.HashSet
@@ -1827,7 +1827,7 @@ import traits_ex : haveCommonType;
 
 /** Returns: `true` iff `value` is equal to any of `values`, `false` otherwise. */
 template isAmong(values...)
-    if (isExpressionTuple!values)
+if (isExpressionTuple!values)
 {
     bool isAmong(Value)(Value value)
         if (haveCommonType!(Value, values))
@@ -1860,7 +1860,7 @@ alias elementCombinations = cartesianProduct;
  * See_Also: http://forum.dlang.org/post/fbs8b5$5bu$1@digitalmars.com
 */
 void resetAllMembers(T)(T c)
-    if (is(T == class))
+if (is(T == class))
 {
     foreach (ref m; c.tupleof)
     {
@@ -1906,7 +1906,7 @@ void resetAllMembers(T)(T c)
  * See_Also: http://forum.dlang.org/post/mqjyhvqxepgfljpkxvmd@forum.dlang.org
  */
 bool isLinearRamp(R)(R r, size_t step = 1)
-    if (isInputRange!R &&
+if (isInputRange!R &&
         isIntegral!(ElementType!R))
 {
     import std.algorithm : findAdjacent;
@@ -1915,7 +1915,7 @@ bool isLinearRamp(R)(R r, size_t step = 1)
 }
 
 bool hasHoles(R)(R r)
-    if (isInputRange!R &&
+if (isInputRange!R &&
         isIntegral!(ElementType!R))
 {
     return !r.isLinearRamp;
@@ -1934,7 +1934,7 @@ bool hasHoles(R)(R r)
 /** Check if `r` counts to exactly `exactCount` elements.
  */
 bool countsExactly(R)(R r, size_t exactCount) @("complexity", "O(exactCount)")
-    if (isInputRange!R)
+if (isInputRange!R)
 {
     import std.range.primitives : hasLength;
     static if (hasLength!R)
@@ -1957,7 +1957,7 @@ bool countsExactly(R)(R r, size_t exactCount) @("complexity", "O(exactCount)")
 /** Check if `r` counts to at least `minCount` elements.
  */
 bool countsAtLeast(R)(R r, size_t minCount) @("complexity", "O(minCount)")
-    if (isInputRange!R)
+if (isInputRange!R)
 {
     import std.range.primitives : hasLength;
     static if (hasLength!R)
@@ -1980,7 +1980,7 @@ bool countsAtLeast(R)(R r, size_t minCount) @("complexity", "O(minCount)")
 /** Check if `r` counts to at most `maxCount` elements.
  */
 bool countsAtMost(R)(R r, size_t maxCount) @("complexity", "O(maxCount)")
-    if (isInputRange!R)
+if (isInputRange!R)
 {
     import std.range.primitives : hasLength;
     static if (hasLength!R)
@@ -2316,7 +2316,7 @@ auto splicer3(T)(T[] x) @trusted
    See_Also: http://forum.dlang.org/post/mqfaevkvhwwtzaafrtve@forum.dlang.org
  */
 auto use(alias F, T)(T t)
-    if (is(typeof(F(T.init))))  // is callable
+if (is(typeof(F(T.init))))  // is callable
 {
     return F(t);
 }
@@ -2336,7 +2336,7 @@ import traits_ex : isASCII;
 
 /** TOOD Merge into Phobos' startsWith. */
 template startsWith(needles...)
-    if (isExpressionTuple!needles &&
+if (isExpressionTuple!needles &&
         needles.length >= 1)
 {
     uint startsWith(Haystack)(Haystack haystack) @trusted
@@ -2391,7 +2391,7 @@ template startsWith(needles...)
 
 /** TOOD Merge into Phobos' endsWith. */
 template endsWith(needles...)
-    if (isExpressionTuple!needles &&
+if (isExpressionTuple!needles &&
         needles.length >= 1)
 {
     uint endsWith(Haystack)(Haystack haystack)

@@ -10,7 +10,7 @@ module soa;
 /** Structure of arrays similar to members of `S`.
  */
 struct SOA(S)
-    if (is(S == struct))        // TODO extend to `isAggregate!S`?
+if (is(S == struct))        // TODO extend to `isAggregate!S`?
 {
     import std.experimental.allocator;
     import std.experimental.allocator.mallocator;
@@ -172,7 +172,7 @@ private:
 
 /// Reference to element in `soaPtr` at index `elementIndex`.
 private struct SOAElementRef(S)
-    if (is(S == struct))        // TODO extend to `isAggregate!S`?
+if (is(S == struct))        // TODO extend to `isAggregate!S`?
 {
     SOA!S* soaPtr;
     size_t elementIndex;

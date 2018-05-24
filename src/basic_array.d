@@ -949,7 +949,7 @@ import std.functional : unaryFun;
 size_t remove(alias predicate, C)(ref C c)
     @trusted
     @("complexity", "O(length)")
-    if (isInstanceOf!(BasicArray, C) &&
+if (isInstanceOf!(BasicArray, C) &&
         is(typeof(unaryFun!predicate(C.init[0]))))
 {
     C tmp;

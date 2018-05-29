@@ -507,9 +507,9 @@ enum Gender
 {
     unknown,
 
-    male, maskulinum = male,
+    male, masculine = male,    // maskulinum
 
-    female, femininum = female,
+    female, feminine = female, // femininum
 
     neutral, neuter = neutral, neutrum = neuter, // non-alive. for example: "något"
 

@@ -498,7 +498,7 @@ enum Person
     third
 }
 
-/** Grammatical (Subject) Gender (Genus).
+/** Grammatical Gender (Genus).
  *
  * See_Also: https://en.wikipedia.org/wiki/Grammatical_gender
  */

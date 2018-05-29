@@ -500,6 +500,8 @@ enum Person
 
 /** Grammatical Gender.
  *
+ * Called genus in Swedish.
+ *
  * See_Also: https://en.wikipedia.org/wiki/Grammatical_gender
  * See_Also: https://sv.wikipedia.org/wiki/Genus_(k%C3%B6nsbegrepp)
  */

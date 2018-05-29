@@ -498,9 +498,10 @@ enum Person
     third
 }
 
-/** Grammatical Gender (Genus).
+/** Grammatical Gender.
  *
  * See_Also: https://en.wikipedia.org/wiki/Grammatical_gender
+ * See_Also: https://sv.wikipedia.org/wiki/Genus_(k%C3%B6nsbegrepp)
  */
 enum Gender
 {
@@ -510,7 +511,6 @@ enum Gender
     neutral, neuter = neutral, neutrum = neuter, // non-alive. for example: "något"
     common, utrum = common, reale = utrum, // real/alive. for example: "någon"
 }
-alias Genus = Gender;
 
 /** (Grammatical) Mood.
  *

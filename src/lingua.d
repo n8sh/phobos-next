@@ -506,7 +506,9 @@ enum Person
 enum Gender
 {
     unknown,
+
     male, maskulinum = male,
+
     female, femininum = female,
 
     neutral, neuter = neutral, neutrum = neuter, // non-alive. for example: "något"

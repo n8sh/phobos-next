@@ -498,7 +498,7 @@ enum Person
     third
 }
 
-/** Subject Gender. */
+/** Subject Gender (Genus). */
 enum Gender
 {
     unknown,
@@ -507,6 +507,7 @@ enum Gender
     neutral, neuter = neutral, neutrum = neuter, // non-alive. for example: "något"
     common, utrum = common, reale = utrum, // real/alive. for example: "någon"
 }
+alias Genus = Gender;
 
 /** (Grammatical) Mood.
  *

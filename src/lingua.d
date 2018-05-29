@@ -508,8 +508,10 @@ enum Gender
     unknown,
     male, maskulinum = male,
     female, femininum = female,
+
     neutral, neuter = neutral, neutrum = neuter, // non-alive. for example: "något"
-    common, utrum = common, reale = utrum, // real/alive. for example: "någon"
+
+    common, utrum = common, reale = utrum, // Present in Swedish. real/alive. for example: "någon"
 }
 
 /** (Grammatical) Mood.

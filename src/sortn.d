@@ -61,7 +61,7 @@ version(unittest) import std.algorithm.comparison : equal;
     TODO Move to Phobos std.range.
 */
 template iota(size_t from, size_t to)
-    if (from <= to)
+if (from <= to)
 {
     alias iota = iotaImpl!(to - 1, from);
 }
@@ -87,10 +87,10 @@ private template iotaImpl(size_t to, size_t now)
     instead.
  */
 void conditionalSwap(alias less = "a < b", Range, indexes...)(Range r)
-    if (isRandomAccessRange!Range &&
-        allSatisfy!(isIntegral, typeof(indexes)) &&
-        indexes.length &&
-        (indexes.length & 1) == 0) // even number of indexes
+if (isRandomAccessRange!Range &&
+    allSatisfy!(isIntegral, typeof(indexes)) &&
+    indexes.length &&
+    (indexes.length & 1) == 0) // even number of indexes
 {
     import std.algorithm.mutation : swapAt;
     import std.functional : binaryFun;
@@ -122,7 +122,7 @@ enum networkSortMaxLength = 22;
     See_Also: http://www.cs.brandeis.edu/~hugues/sorting_networks.html
  */
 auto networkSortUpTo(uint n, alias less = "a < b", Range)(Range r)
-    if (isRandomAccessRange!Range)
+if (isRandomAccessRange!Range)
 in
 {
     assert(r.length >= n);
@@ -349,7 +349,7 @@ body
 /** Sort range `x` of length `n` using a networking sort.
  */
 auto networkSortExactly(uint n, alias less = "a < b", Range)(Range r)
-    if (isRandomAccessRange!Range)
+if (isRandomAccessRange!Range)
 in
 {
     assert(r.length == n);
@@ -380,7 +380,7 @@ auto networkSortExactly(alias less = "a < b", T, size_t n)(ref T[n] x)
  * otherwise.
  */
 auto hybridSort(alias less = "a < b", Range)(Range r)
-    if (isRandomAccessRange!Range)
+if (isRandomAccessRange!Range)
 {
     import std.algorithm.sorting : isSorted;
     static foreach (n; 2 .. networkSortMaxLength + 1)

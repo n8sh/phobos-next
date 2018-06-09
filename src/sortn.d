@@ -375,8 +375,9 @@ auto networkSortExactly(alias less = "a < b", T, size_t n)(ref T[n] x)
     assert(x[].equal(y[]));
 }
 
-/** Hybrid sort `r` using `networkSortUpTo` if length of `r` is less-than-or-equal to
-    `networkSortMaxLength` and `std.algorithm.sorting.sort` otherwise.
+/** Hybrid sort `r` using `networkSortUpTo` if length of `r` is
+ * less-than-or-equal to `networkSortMaxLength` and `std.algorithm.sorting.sort`
+ * otherwise.
  */
 auto hybridSort(alias less = "a < b", Range)(Range r)
     if (isRandomAccessRange!Range)

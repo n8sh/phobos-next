@@ -42,16 +42,16 @@ struct Token
 }
 
 /** SUO_KIF Expression. */
-struct Expr
+struct SExpr
 {
     Token token;
-    Expr[] subs;
+    SExpr[] subs;
 }
 
 import fixed_array : FixedArray;
 import file_ex : rawReadNullTerminated;
 
-alias Exprs = FixedArray!(Expr, 128);
+alias Exprs = FixedArray!(SExpr, 128);
 
 /** Returns: true if `s` is null-terminated (ending with `'\0'`).
 
@@ -67,7 +67,7 @@ bool isNullTerminated(const(char)[] s)
     return s.length >= 1 && s[$ - 1] == '\0';
 }
 
-/** SUO-KIF parse from `input` into lazy range over top-level expressions (`Expr`).
+/** SUO-KIF parse from `input` into lazy range over top-level expressions (`SExpr`).
  */
 struct SUOKIFParser
 {
@@ -77,7 +77,7 @@ struct SUOKIFParser
 
     @safe pure:
 
-    /** Parse SUO-KIF from `input` into returned array of expressions (`Expr`).
+    /** Parse SUO-KIF from `input` into returned array of expressions (`SExpr`).
      */
     this(Src input,
          bool includeComments = false,
@@ -111,7 +111,7 @@ struct SUOKIFParser
     }
 
     pragma(inline, true)
-    ref const(Expr) front() const return scope
+    ref const(SExpr) front() const return scope
     {
         assert(!empty);
         return exprs.back;
@@ -265,16 +265,16 @@ private:
                 if (_includeComments)
                 {
                     assert(0, "change skipLineComment");
-                    // exprs.put(Expr(Token(TOK.comment, src[0 .. 1])));
+                    // exprs.put(SExpr(Token(TOK.comment, src[0 .. 1])));
                 }
                 break;
             case '(':
-                exprs.put(Expr(Token(TOK.leftParen, peekNextsN(1))));
+                exprs.put(SExpr(Token(TOK.leftParen, peekNextsN(1))));
                 dropFront();
                 ++_depth;
                 break;
             case ')':
-                // NOTE: this is not needed: exprs.put(Expr(Token(TOK.rightParen, src[0 .. 1])));
+                // NOTE: this is not needed: exprs.put(SExpr(Token(TOK.rightParen, src[0 .. 1])));
                 dropFront();
                 --_depth;
                 // NOTE: this is not needed: exprs.popBack();   // pop right paren
@@ -292,7 +292,7 @@ private:
                     assert(count != 0);
                 }
 
-                Expr newExpr = Expr(exprs[$ - count].token,
+                SExpr newExpr = SExpr(exprs[$ - count].token,
                                     count ? exprs[$ - count + 1 .. $].dup : []);
                 exprs.popBackN(1 + count); // forget tokens including leftParen
                 import std.algorithm : move;
@@ -300,36 +300,36 @@ private:
 
                 if (_depth == 0) // top-level expression done
                 {
-                    assert(exprs.length >= 1); // we should have at least one `Expr`
+                    assert(exprs.length >= 1); // we should have at least one `SExpr`
                     return;
                 }
 
                 break;
             case '"':
                 const stringLiteral = getStringLiteral(); // TODO tokenize
-                exprs.put(Expr(Token(TOK.stringLiteral, stringLiteral)));
+                exprs.put(SExpr(Token(TOK.stringLiteral, stringLiteral)));
                 break;
             case ',':
                 dropFront();
-                exprs.put(Expr(Token(TOK.lispComma)));
+                exprs.put(SExpr(Token(TOK.lispComma)));
                 break;
             case '`':
                 dropFront();
-                exprs.put(Expr(Token(TOK.lispBackQuote)));
+                exprs.put(SExpr(Token(TOK.lispBackQuote)));
                 break;
             case '\'':
                 dropFront();
-                exprs.put(Expr(Token(TOK.lispQuote)));
+                exprs.put(SExpr(Token(TOK.lispQuote)));
                 break;
             case '?':
                 dropFront();
                 const variableSymbol = getSymbol();
-                exprs.put(Expr(Token(TOK.variable, variableSymbol)));
+                exprs.put(SExpr(Token(TOK.variable, variableSymbol)));
                 break;
             case '@':
                 dropFront();
                 const variableListSymbol = getSymbol();
-                exprs.put(Expr(Token(TOK.variableList, variableListSymbol)));
+                exprs.put(SExpr(Token(TOK.variableList, variableListSymbol)));
                 break;
                 // std.ascii.isDigit:
             case '0':
@@ -346,7 +346,7 @@ private:
             case '-':
             case '.':
                 const number = getNumber();
-                exprs.put(Expr(Token(TOK.number, number)));
+                exprs.put(SExpr(Token(TOK.number, number)));
                 break;
                 // from std.ascii.isWhite
             case ' ':
@@ -359,7 +359,7 @@ private:
                 getWhitespace();
                 if (_includeWhitespace)
                 {
-                    exprs.put(Expr(Token(TOK.whitespace, null)));
+                    exprs.put(SExpr(Token(TOK.whitespace, null)));
                 }
                 break;
             case '\0':
@@ -375,11 +375,11 @@ private:
                     import std.algorithm : endsWith;
                     if (symbol.endsWith(`Fn`))
                     {
-                        exprs.put(Expr(Token(TOK.functionName, symbol)));
+                        exprs.put(SExpr(Token(TOK.functionName, symbol)));
                     }
                     else
                     {
-                        exprs.put(Expr(Token(TOK.symbol, symbol)));
+                        exprs.put(SExpr(Token(TOK.symbol, symbol)));
                     }
                 }
                 else

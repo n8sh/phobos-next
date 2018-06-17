@@ -268,7 +268,7 @@ struct YearMonth
         return year.to!string ~ `-` ~ (cast(ubyte)month).to!string; // TODO avoid GC allocation
     }
 
-    size_t toHash() const @trusted
+    size_t toHash() const @trusted nothrow @nogc
     {
         alias ThisUnsigned = short;
         assert(this.sizeof == ThisUnsigned.sizeof);

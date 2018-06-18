@@ -11,7 +11,7 @@ import std.range : isInputRange, ElementType;
  * See_Also: http://forum.dlang.org/post/tsszfamjalzviqjhpdcr@forum.dlang.org
  */
 T toDefaulted(T, S, U)(S value, /*lazy*/ U defaultValue)
-    if (is(typeof(() { T r = defaultValue; }))) // TODO use std.traits.isAssignable!(T, U) ?
+if (is(typeof(() { T r = defaultValue; }))) // TODO use std.traits.isAssignable!(T, U) ?
 {
     try
     {
@@ -37,7 +37,7 @@ auto tolerantTo(U, S)(S value,
                       bool tryToLower = true,
                       bool tryLevenshtein = true,
                       size_t levenshteinMaxDistance = 3)
-    if (isSomeString!S)
+if (isSomeString!S)
 {
     import std.conv: to;
     try
@@ -264,14 +264,14 @@ auto decodeEscapes(Source)(Source s)
 }
 
 string decodeEscapesToUTF8(S)(S s)
-    if (isSourceOfSomeChar!S)
+if (isSourceOfSomeChar!S)
 {
     import std.conv : to;
     return s.decodeEscapes.to!(typeof(return));
 }
 
 wstring decodeEscapesToUTF16(S)(S s)
-    if (isSourceOfSomeChar!S)
+if (isSourceOfSomeChar!S)
 {
     import std.conv : to;
     return s.decodeEscapes.to!(typeof(return));
@@ -310,7 +310,7 @@ wstring decodeEscapesToUTF16(S)(S s)
 }
 
 auto unescaped(S)(S s)
-    if (isSomeString!S)
+if (isSomeString!S)
 {
     import std.algorithm.searching : canFind;
     import std.conv : to;
@@ -320,7 +320,7 @@ auto unescaped(S)(S s)
 }
 
 auto unescape(S)(ref S s)
-    if (isSomeString!S)
+if (isSomeString!S)
 {
     return s = s.unescaped;
 }
@@ -345,7 +345,7 @@ unittest
 //     Add to Phobos std.utf
 // */
 // string toUTF8(S)(S s)
-//     if (isInputRange!S &&
+// if (isInputRange!S &&
 //         is(ElementType!S == dchar))
 // {
 //     import std.range : isRandomAccessRange;
@@ -361,7 +361,7 @@ unittest
 //     Add to Phobos std.utf
 // */
 // wstring toUTF16(S)(S s)
-//     if (isInputRange!S &&
+// if (isInputRange!S &&
 //         is(ElementType!S == dchar))
 // {
 //     import std.range : isRandomAccessRange;

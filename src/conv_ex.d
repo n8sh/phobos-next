@@ -11,7 +11,7 @@ import std.range : isInputRange, ElementType;
  * See_Also: https://forum.dlang.org/post/kdjbkqbnspzshdqtsntg@forum.dlang.org
  * See_Also: http://forum.dlang.org/post/tsszfamjalzviqjhpdcr@forum.dlang.org
  */
-T toDefaulted(T, S, U)(S value, /*lazy*/ U defaultValue) nothrow
+T toDefaulted(T, S, U)(S value, /*lazy*/ U defaultValue)
 if (is(typeof(() { T r = defaultValue; }))) // TODO use std.traits.isAssignable!(T, U) ?
 {
     try
@@ -25,7 +25,7 @@ if (is(typeof(() { T r = defaultValue; }))) // TODO use std.traits.isAssignable!
     }
 }
 
-@safe pure nothrow /*@nogc*/ unittest
+@safe pure nothrow /*TODO @nogc*/ unittest
 {
     assert("42_1".toDefaulted!int(42) == 42);
     assert(42.toDefaulted!string("_42") == "42");

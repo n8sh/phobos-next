@@ -5,10 +5,10 @@ import traits_ex : haveCommonType, isSourceOfSomeChar;
 import std.range : isInputRange, ElementType;
 
 /** Variant of std.conv.to with $(D defaultValue) making it $(D nothrow).
-
-    TODO add overload for std.conv : to with default value to make this @nogc
-
-    See_Also: http://forum.dlang.org/post/tsszfamjalzviqjhpdcr@forum.dlang.org
+ *
+ * TODO add overload for std.conv : to with default value to make this @nogc
+ *
+ * See_Also: http://forum.dlang.org/post/tsszfamjalzviqjhpdcr@forum.dlang.org
  */
 T toDefaulted(T, S, U)(S value, /*lazy*/ U defaultValue)
     if (is(typeof(() { T r = defaultValue; }))) // TODO use std.traits.isAssignable!(T, U) ?

@@ -34,7 +34,8 @@ if (!is(T == enum) &&
     assert(42.toDefaulted!string("_42") == "42");
 }
 
-T toDefaulted(T)(const(char)[] value, T defaultValue) @safe pure nothrow @nogc
+T toDefaulted(T)(scope const(char)[] value,
+                 T defaultValue) @safe pure nothrow @nogc
 if (is(T == enum))
 {
     switch (value)

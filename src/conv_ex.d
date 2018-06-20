@@ -53,8 +53,9 @@ if (is(T == enum))
 
 @safe pure nothrow /*TODO @nogc*/ unittest
 {
-    enum E { unknown, x, y, z }
+    enum E { unknown, x, y, z, z2 = z, }
     assert("x".toDefaulted!(E)(E.init) == E.x);
+    assert("z".toDefaulted!(E)(E.init) == E.z);
     assert("_".toDefaulted!(E)(E.init) == E.unknown);
 }
 

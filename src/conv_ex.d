@@ -34,7 +34,7 @@ if (is(T == enum))
 {
     switch (value)
     {
-        static foreach (index, member; __traits(allMembers, T))
+        static foreach (member; __traits(allMembers, T))
         {
         case member:
             mixin(`return T.` ~ member ~ `;`);

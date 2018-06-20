@@ -9,9 +9,9 @@ import std.range : isInputRange, ElementType;
  * TODO add overload for std.conv : to with default value to prevent any
  * exception throwing at all.
  *
+ * See_Also: http://forum.dlang.org/post/tsszfamjalzviqjhpdcr@forum.dlang.org
  * See_Also: https://forum.dlang.org/post/bnbbheofzaxlabvnvrrc@forum.dlang.org
  * See_Also: https://forum.dlang.org/post/kdjbkqbnspzshdqtsntg@forum.dlang.org
- * See_Also: http://forum.dlang.org/post/tsszfamjalzviqjhpdcr@forum.dlang.org
  */
 T toDefaulted(T, S, U)(S value, /*lazy*/ U defaultValue)
 if (is(typeof(() { T r = defaultValue; }))) // TODO use std.traits.isAssignable!(T, U) ?

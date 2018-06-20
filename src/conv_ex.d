@@ -28,12 +28,7 @@ if (!is(T == enum) &&
     }
 }
 
-@safe pure nothrow /*TODO @nogc*/ unittest
-{
-    assert("42_1".toDefaulted!int(42) == 42);
-    assert(42.toDefaulted!string("_42") == "42");
-}
-
+/// ditto
 T toDefaulted(T)(scope const(char)[] value, T defaultValue) @safe pure nothrow @nogc
 if (is(T == enum))
 {
@@ -47,6 +42,12 @@ if (is(T == enum))
     default:
         return defaultValue;
     }
+}
+
+@safe pure nothrow /*TODO @nogc*/ unittest
+{
+    assert("42_1".toDefaulted!int(42) == 42);
+    assert(42.toDefaulted!string("_42") == "42");
 }
 
 @safe pure nothrow @nogc unittest

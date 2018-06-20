@@ -14,7 +14,8 @@ import std.range : isInputRange, ElementType;
  * See_Also: https://forum.dlang.org/post/kdjbkqbnspzshdqtsntg@forum.dlang.org
  */
 T toDefaulted(T, S, U)(S value, /*lazy*/ U defaultValue)
-if (is(typeof(() { T r = defaultValue; }))) // TODO use std.traits.isAssignable!(T, U) ?
+if (!is(T == enum) &&
+    is(typeof(() { T r = defaultValue; }))) // TODO use std.traits.isAssignable!(T, U) ?
 {
     try
     {
@@ -31,6 +32,28 @@ if (is(typeof(() { T r = defaultValue; }))) // TODO use std.traits.isAssignable!
 {
     assert("42_1".toDefaulted!int(42) == 42);
     assert(42.toDefaulted!string("_42") == "42");
+}
+
+T toDefaulted(T)(const(char)[] value, T defaultValue)
+if (is(T == enum))
+{
+    switch (value)
+    {
+        static foreach (index, member; __traits(allMembers, T))
+        {
+        case member:
+            return cast(T)(index);
+        }
+    default:
+        return defaultValue;
+    }
+}
+
+@safe pure nothrow /*TODO @nogc*/ unittest
+{
+    enum E { unknown, x, y, z }
+    assert("x".toDefaulted!(E)(E.init) == E.x);
+    assert("_".toDefaulted!(E)(E.init) == E.unknown);
 }
 
 /** More tolerant variant of `std.conv.to`.

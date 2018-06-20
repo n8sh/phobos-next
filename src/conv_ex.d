@@ -13,7 +13,7 @@ import std.range : isInputRange, ElementType;
  * See_Also: http://forum.dlang.org/post/tsszfamjalzviqjhpdcr@forum.dlang.org
  * See_Also: https://forum.dlang.org/post/kdjbkqbnspzshdqtsntg@forum.dlang.org
  */
-T toDefaulted(T, S, U)(S value, /*lazy*/ U defaultValue)
+T toDefaulted(T, S, U)(scope const S value, /*lazy*/ U defaultValue)
 if (!is(T == enum) &&
     is(typeof(() { T r = defaultValue; }))) // TODO use std.traits.isAssignable!(T, U) ?
 {

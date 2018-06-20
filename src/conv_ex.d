@@ -44,18 +44,19 @@ if (is(T == enum))
         static foreach (index, member; __traits(allMembers, T))
         {
         case member:
-            return cast(T)(index);
+            mixin(`return T.` ~ member ~ `;`);
         }
     default:
         return defaultValue;
     }
 }
 
-@safe pure nothrow /*TODO @nogc*/ unittest
+@safe pure nothrow @nogc unittest
 {
     enum E { unknown, x, y, z, z2 = z, }
     assert("x".toDefaulted!(E)(E.init) == E.x);
     assert("z".toDefaulted!(E)(E.init) == E.z);
+    assert("z2".toDefaulted!(E)(E.init) == E.z);
     assert("_".toDefaulted!(E)(E.init) == E.unknown);
 }
 

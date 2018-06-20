@@ -32,6 +32,7 @@ if (!is(T == enum) &&
 T toDefaulted(T)(scope const(char)[] value, T defaultValue) @safe pure nothrow @nogc
 if (is(T == enum))
 {
+    // doesn't need `std.conv.to`
     switch (value)
     {
         static foreach (member; __traits(allMembers, T))

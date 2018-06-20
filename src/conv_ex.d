@@ -40,6 +40,7 @@ if (is(T == enum))
 {
     switch (value)
     {
+        // TODO make it work for enums with value holes
         static foreach (index, member; __traits(allMembers, T))
         {
         case member:

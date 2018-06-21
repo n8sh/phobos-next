@@ -850,6 +850,10 @@ unittest
     assert(sortingPredicate!(int[])(1, 2) == true);
 }
 
+/** Faster than std.range.zip on DMD.
+ *
+ * See_Also: https://forum.dlang.org/post/khvwfwvjiblobfybsurd@forum.dlang.org
+ */
 auto zipFast(R1, R2)(R1 r1, R2 r2)
     if (isRandomAccessRange!R1 &&
         isRandomAccessRange!R2)

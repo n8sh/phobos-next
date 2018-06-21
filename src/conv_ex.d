@@ -65,7 +65,6 @@ if (is(T == enum))
 string toString(T)(T value) @safe pure nothrow @nogc
 if (is(T == enum))
 {
-    import std.conv : to;
     final switch (value)
     {
         static foreach (member; __traits(allMembers, T))

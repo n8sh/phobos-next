@@ -379,7 +379,7 @@ auto slidingSplitter(R)(R data, size_t lower, size_t upper)
 
     size_t lower = 2;
 
-    auto name = "Nordlöw";
+    const name = "Nordlöw";
     auto name8  = name.to! string.slidingSplitter(lower);
     auto name16 = name.to!wstring.slidingSplitter(lower);
     auto name32 = name.to!dstring.slidingSplitter(lower);

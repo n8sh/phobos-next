@@ -68,7 +68,7 @@ if (is(T == enum))
     import std.conv : to;
     final switch (value)
     {
-        static foreach (member; __traits(allMembers, T)) // instead of slower `EnumMembers`
+        static foreach (member; __traits(allMembers, T))
         {
         case __traits(getMember, T, member):
             return member;

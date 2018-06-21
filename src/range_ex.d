@@ -862,10 +862,12 @@ auto zipFast(R1, R2)(R1 r1, R2 r2)
         size_t length;
         this (R1 r1, R2 r2)
         {
+            import std.algorithm : min;
             rng1 = r1;
             rng2 = r2;
             index = 0;
-            length = r1.length;
+            length = min(r1.length,
+                         r2.length);
         }
 
         @property bool empty() @safe pure nothrow @nogc
@@ -895,7 +897,7 @@ auto zipFast(R1, R2)(R1 r1, R2 r2)
     import std.algorithm.comparison : equal;
     import std.typecons : tuple;
     const r1 = [1, 2, 3].s;
-    const r2 = [4, 5, 6].s;
+    const r2 = [4, 5, 6, 7].s;
     auto r12 = zipFast(r1[], r2[]);
     assert(r12.equal([tuple(1, 4),
                       tuple(2, 5),

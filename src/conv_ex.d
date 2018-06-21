@@ -43,12 +43,14 @@ if (is(T == enum))
     }
 }
 
+///
 @safe pure nothrow /*TODO @nogc*/ unittest
 {
     assert("42_1".toDefaulted!int(42) == 42);
     assert(42.toDefaulted!string("_42") == "42");
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     enum E { unknown, x, y, z, z2 = z, }
@@ -56,6 +58,10 @@ if (is(T == enum))
     assert("z".toDefaulted!(E)(E.init) == E.z);
     assert("z2".toDefaulted!(E)(E.init) == E.z);
     assert("_".toDefaulted!(E)(E.init) == E.unknown);
+}
+
+@safe pure nothrow @nogc unittest
+{
 }
 
 /** More tolerant variant of `std.conv.to`.

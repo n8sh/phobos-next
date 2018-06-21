@@ -7,7 +7,7 @@
 module range_ex;
 
 import std.traits : isSomeString, isNarrowString;
-import std.range: hasSlicing, hasLength, isInfinite, isInputRange, isBidirectionalRange, ElementType;
+import std.range: hasSlicing, hasLength, isInfinite, isInputRange, isBidirectionalRange, ElementType, isRandomAccessRange;
 import std.traits: hasUnsharedAliasing, hasElaborateDestructor, isScalarType;
 
 public import slicing;
@@ -848,4 +848,56 @@ unittest
     assert(sortingPredicate!(typeof([1].sort!((a, b) => a < b)))(1, 2) == true);
     assert(sortingPredicate!(typeof([1].sort!((a, b) => a > b)))(1, 2) == false);
     assert(sortingPredicate!(int[])(1, 2) == true);
+}
+
+auto zipFast(R1, R2)(R1 r1, R2 r2)
+    if (isRandomAccessRange!R1 &&
+        isRandomAccessRange!R2)
+{
+    static struct Result(R1, R2)
+    {
+        size_t index = 0;
+        R1 rng1;
+        R2 rng2;
+        size_t length;
+        this (R1 r1, R2 r2)
+        {
+            rng1 = r1;
+            rng2 = r2;
+            index = 0;
+            length = r1.length;
+        }
+
+        @property bool empty() @safe pure nothrow @nogc
+        {
+            return index == length;
+        }
+
+        @property auto front()
+        {
+            import std.typecons : tuple;
+            return tuple(rng1[index],
+                         rng2[index]);
+        }
+
+        void popFront() @safe pure nothrow @nogc
+        {
+            assert(!empty);
+            index++;
+        }
+    }
+    return Result!(R1,R2)(r1,r2);
+}
+
+@safe pure nothrow @nogc unittest
+{
+    import array_help : s;
+    import std.algorithm.comparison : equal;
+    import std.typecons : tuple;
+    const r1 = [1, 2, 3].s;
+    const r2 = [4, 5, 6].s;
+    auto r12 = zipFast(r1[], r2[]);
+    assert(r12.equal([tuple(1, 4),
+                      tuple(2, 5),
+                      tuple(3, 6)].s[]));
 }

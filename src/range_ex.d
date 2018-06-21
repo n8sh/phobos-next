@@ -776,9 +776,10 @@ unittest
 }
 
 /** Overload has questionable memory safety.  Would be quite cool if DIP-1000
-    could support this use case
-    See_Also: http://forum.dlang.org/post/qgrbmkqxffgeiqaigdic@forum.dlang.org
-*/
+ * could support this use case
+ *
+ * See_Also: http://forum.dlang.org/post/qgrbmkqxffgeiqaigdic@forum.dlang.org
+ */
 auto staticLengthRange(T, size_t n)(ref T[n] arr)
 {
     return .staticLengthRange!(n, T[])(arr[]); // TODO DIP-1000 scope

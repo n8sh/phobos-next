@@ -442,8 +442,9 @@ auto slidingSplitter(R)(R data, size_t lower, size_t upper)
 }
 
 /** Ring Buffer.
-    See_Also: http://forum.dlang.org/thread/ltpaqk$2dav$1@digitalmars.com
-    TODO inout
+ *
+ * See_Also: http://forum.dlang.org/thread/ltpaqk$2dav$1@digitalmars.com
+ * TODO inout
  */
 struct RingBuffer(T)
 {
@@ -603,9 +604,10 @@ template genTypeList(T, size_t n)
 }
 
 /** Return Static Array $(D arr) as a $(D Tuple).
-    See_Also: http://forum.dlang.org/post/gkdqakdogqevwzntpgtu@forum.dlang.org
-    Check if std.conv.to() support conversion from T[n] to std.typecons.Tuple(T, ...).
-*/
+ *
+ * See_Also: http://forum.dlang.org/post/gkdqakdogqevwzntpgtu@forum.dlang.org
+ * Check if std.conv.to() support conversion from T[n] to std.typecons.Tuple(T, ...).
+ */
 auto asTuple(T, size_t n)(ref T[n] arr)
 {
     import std.typecons : Tuple;
@@ -613,10 +615,11 @@ auto asTuple(T, size_t n)(ref T[n] arr)
 }
 
 /** Return: Adjacent $(D N)-Tuples of $(D r).
-    TODO: Support ref return via $(D zip) for non-const case.
-    TODO Use a ring buffer instead of copy?
-    TODO Add a variant of adjacentTuples that return a static array instead?
-    See_Also: http://forum.dlang.org/post/gkdqakdogqevwzntpgtu@forum.dlang.org
+ *
+ * TODO: Support ref return via $(D zip) for non-const case.
+ * TODO Use a ring buffer instead of copy?
+ * TODO Add a variant of adjacentTuples that return a static array instead?
+ * See_Also: http://forum.dlang.org/post/gkdqakdogqevwzntpgtu@forum.dlang.org
  */
 auto adjacentTuples(size_t N, R)(R r)
     if (N >= 2 &&

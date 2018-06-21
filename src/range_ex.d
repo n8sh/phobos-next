@@ -856,37 +856,40 @@ auto zipFast(R1, R2)(R1 r1, R2 r2)
 {
     static struct Result(R1, R2)
     {
-        size_t index = 0;
-        R1 rng1;
-        R2 rng2;
         size_t length;
+
         this (R1 r1, R2 r2)
         {
             import std.algorithm : min;
-            rng1 = r1;
-            rng2 = r2;
-            index = 0;
+            _rng1 = r1;
+            _rng2 = r2;
+            _index = 0;
             length = min(r1.length,
                          r2.length);
         }
 
         @property bool empty() @safe pure nothrow @nogc
         {
-            return index == length;
+            return _index == length;
         }
 
         @property auto front()
         {
             import std.typecons : tuple;
-            return tuple(rng1[index],
-                         rng2[index]);
+            return tuple(_rng1[_index],
+                         _rng2[_index]);
         }
 
         void popFront() @safe pure nothrow @nogc
         {
             assert(!empty);
-            index++;
+            _index++;
         }
+
+    private:
+        size_t _index = 0;
+        R1 _rng1;
+        R2 _rng2;
     }
     return Result!(R1,R2)(r1,r2);
 }

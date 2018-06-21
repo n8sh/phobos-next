@@ -864,9 +864,9 @@ auto zip(R1, R2)(R1 r1, R2 r2)
 
         this(R1 r1, R2 r2)
         {
-            import std.algorithm.comparison : min;
             _r1 = r1;
             _r2 = r2;
+            import std.algorithm.comparison : min;
             length = min(r1.length,
                          r2.length);
         }

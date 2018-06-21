@@ -60,10 +60,6 @@ if (is(T == enum))
     assert("_".toDefaulted!(E)(E.init) == E.unknown);
 }
 
-@safe pure nothrow @nogc unittest
-{
-}
-
 /** More tolerant variant of `std.conv.to`.
 */
 auto tolerantTo(U, S)(S value,

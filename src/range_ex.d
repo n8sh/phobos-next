@@ -887,7 +887,7 @@ auto zipFast(R1, R2)(R1 r1, R2 r2)
         }
 
     private:
-        size_t _index = 0;
+        size_t _index;
         R1 _rng1;
         R2 _rng2;
     }

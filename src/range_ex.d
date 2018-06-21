@@ -861,8 +861,8 @@ auto zipFast(R1, R2)(R1 r1, R2 r2)
         this(R1 r1, R2 r2)
         {
             import std.algorithm : min;
-            _rng1 = r1;
-            _rng2 = r2;
+            _r1 = r1;
+            _r2 = r2;
             length = min(r1.length,
                          r2.length);
         }
@@ -875,8 +875,8 @@ auto zipFast(R1, R2)(R1 r1, R2 r2)
         @property auto front()
         {
             import std.typecons : tuple;
-            return tuple(_rng1[_index],
-                         _rng2[_index]);
+            return tuple(_r1[_index],
+                         _r2[_index]);
         }
 
         void popFront() @safe pure nothrow @nogc
@@ -887,8 +887,8 @@ auto zipFast(R1, R2)(R1 r1, R2 r2)
 
     private:
         size_t _index = 0;
-        R1 _rng1;
-        R2 _rng2;
+        R1 _r1;
+        R2 _r2;
     }
     return Result!(R1,R2)(r1,r2);
 }

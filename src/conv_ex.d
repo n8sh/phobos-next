@@ -62,7 +62,7 @@ if (is(T == enum))
 
 /** Faster implementation of `std.conv.to`.
  */
-string toString(T)(T value)
+string toString(T)(T value) @safe pure nothrow @nogc
 if (is(T == enum))
 {
     import std.conv : to;
@@ -71,13 +71,13 @@ if (is(T == enum))
         static foreach (member; __traits(allMembers, T)) // instead of slower `EnumMembers`
         {
         case __traits(getMember, T, member):
-        return __traits(getMember, T, member).to!string;
+            return member;
         }
     }
 }
 
 ///
-@safe pure unittest
+@safe pure nothrow @nogc unittest
 {
     enum E { unknown, x, y, z, }
     assert(E.x.toString == "x");

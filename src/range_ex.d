@@ -882,7 +882,7 @@ auto zipFast(R1, R2)(R1 r1, R2 r2)
         void popFront() @safe pure nothrow @nogc
         {
             assert(!empty);
-            _index++;
+            _index += 1;
         }
 
     private:

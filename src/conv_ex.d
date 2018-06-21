@@ -38,7 +38,7 @@ if (is(T == enum))
         static foreach (member; __traits(allMembers, T)) // prevents call to slower `EnumMembers`
         {
         case member:
-            return __traits(getMember, T, member);
+            return __traits(getMember, T, member); // NOTE this is slower: mixin(`return T.` ~ member ~ `;`);
         }
     default:
         return defaultValue;

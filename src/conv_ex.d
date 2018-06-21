@@ -26,7 +26,8 @@ if (!is(T == enum) &&
 }
 
 /// ditto
-T toDefaulted(T)(scope const(char)[] value, T defaultValue) @safe pure nothrow @nogc
+T toDefaulted(T)(scope const(char)[] value, T defaultValue)
+    @safe pure nothrow @nogc
 if (is(T == enum))
 {
     // doesn't need `std.conv.to`

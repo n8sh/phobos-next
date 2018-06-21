@@ -161,17 +161,18 @@ alias takeBack = backPop;
 }
 
 /** Sliding Splitter.
-    See_Also: http://forum.dlang.org/thread/dndicafxfubzmndehzux@forum.dlang.org
-    See_Also: http://forum.dlang.org/thread/uzrbmjonrkixojzflbig@forum.dlang.org#epost-viwkavbmwouiquoqwntm:40forum.dlang.org
-
-    TODO Use size_t for _lower and _upper instead and reserve _upper =
-    size_t.max for emptyness?
-
-    TODO Should lower and upper operate on code units instead of code
-    point if isNarrowString!Range. ?
-
-    TODO generalize with stride
-*/
+ *
+ * See_Also: http://forum.dlang.org/thread/dndicafxfubzmndehzux@forum.dlang.org
+ * See_Also: http://forum.dlang.org/thread/uzrbmjonrkixojzflbig@forum.dlang.org#epost-viwkavbmwouiquoqwntm:40forum.dlang.org
+ *
+ * TODO Use size_t for _lower and _upper instead and reserve _upper = size_t.max
+ * for emptyness?
+ *
+ * TODO Should lower and upper operate on code units instead of code point if
+ * isNarrowString!Range. ?
+ *
+ * TODO generalize with stride
+ */
 struct SlidingSplitter(Range)
     if (isSomeString!Range ||
         (hasSlicing!Range &&

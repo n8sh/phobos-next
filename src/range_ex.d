@@ -870,7 +870,7 @@ auto zip(R1, R2)(R1 r1, R2 r2)
             length = min(r1.length, r2.length);
         }
 
-        @property bool empty() @safe pure nothrow @nogc
+        @property bool empty() const @safe pure nothrow @nogc
         {
             return _index == length;
         }

@@ -79,7 +79,7 @@ if (is(T == enum))
 ///
 @safe pure unittest
 {
-    enum E { unknown, x, y, z, }
+    enum E { unknown, x, y, z, z_, }
     assert(E.x.toString == "x");
     assert(E.y.toString == "y");
 }

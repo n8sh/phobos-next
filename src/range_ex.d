@@ -863,7 +863,6 @@ auto zipFast(R1, R2)(R1 r1, R2 r2)
             import std.algorithm : min;
             _rng1 = r1;
             _rng2 = r2;
-            _index = 0;
             length = min(r1.length,
                          r2.length);
         }
@@ -887,7 +886,7 @@ auto zipFast(R1, R2)(R1 r1, R2 r2)
         }
 
     private:
-        size_t _index;
+        size_t _index = 0;
         R1 _rng1;
         R2 _rng2;
     }

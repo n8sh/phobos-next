@@ -81,6 +81,7 @@ if (is(T == enum))
     enum E { unknown, x, y, z, }
     assert(E.x.toString == "x");
     assert(E.y.toString == "y");
+    assert(E.z.toString == "z");
 }
 
 /** More tolerant variant of `std.conv.to`.

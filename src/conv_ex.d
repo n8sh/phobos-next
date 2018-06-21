@@ -35,7 +35,7 @@ if (is(T == enum))
     // doesn't need `std.conv.to`
     switch (value)
     {
-        static foreach (member; __traits(allMembers, T))
+        static foreach (member; __traits(allMembers, T)) // prevents call to slower `EnumMembers`
         {
         case member:
             mixin(`return T.` ~ member ~ `;`);

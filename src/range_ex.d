@@ -858,7 +858,7 @@ auto zipFast(R1, R2)(R1 r1, R2 r2)
     {
         size_t length;
 
-        this (R1 r1, R2 r2)
+        this(R1 r1, R2 r2)
         {
             import std.algorithm : min;
             _rng1 = r1;

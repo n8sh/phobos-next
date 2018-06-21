@@ -854,7 +854,7 @@ unittest
  *
  * See_Also: https://forum.dlang.org/post/khvwfwvjiblobfybsurd@forum.dlang.org
  */
-auto zipFast(R1, R2)(R1 r1, R2 r2)
+auto zip(R1, R2)(R1 r1, R2 r2)
     if (isRandomAccessRange!R1 &&
         isRandomAccessRange!R2)
 {
@@ -904,7 +904,7 @@ auto zipFast(R1, R2)(R1 r1, R2 r2)
     import std.typecons : tuple;
     const r1 = [1, 2, 3].s;
     const r2 = [4, 5, 6, 7].s;
-    auto r12 = zipFast(r1[], r2[]);
+    auto r12 = zip(r1[], r2[]);
     assert(r12.equal([tuple(1, 4),
                       tuple(2, 5),
                       tuple(3, 6)].s[]));

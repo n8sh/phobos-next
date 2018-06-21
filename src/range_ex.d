@@ -870,9 +870,11 @@ auto zip(R1, R2)(R1 r1, R2 r2)
             _length = min(r1.length, r2.length);
         }
 
-        @property size_t length() const @safe pure nothrow @nogc
+        @property auto front()
         {
-            return _length;
+            import std.typecons : tuple;
+            return tuple(_r1[_index],
+                         _r2[_index]);
         }
 
         @property bool empty() const @safe pure nothrow @nogc
@@ -880,11 +882,9 @@ auto zip(R1, R2)(R1 r1, R2 r2)
             return _index == _length;
         }
 
-        @property auto front()
+        @property size_t length() const @safe pure nothrow @nogc
         {
-            import std.typecons : tuple;
-            return tuple(_r1[_index],
-                         _r2[_index]);
+            return _length;
         }
 
         void popFront() @safe pure nothrow @nogc

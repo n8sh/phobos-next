@@ -62,7 +62,7 @@ if (is(T == enum))
 
 /** Faster implementation of `std.conv.to`.
  */
-string toString(T)(T value)
+string toString(T)(T value) nothrow
 if (is(T == enum))
 {
     import std.conv : to;
@@ -77,7 +77,7 @@ if (is(T == enum))
 }
 
 ///
-@safe pure unittest
+@safe pure nothrow unittest
 {
     enum E { unknown, x, y, z, }
     assert(E.x.toString == "x");

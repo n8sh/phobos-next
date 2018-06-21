@@ -860,19 +860,24 @@ auto zip(R1, R2)(R1 r1, R2 r2)
 {
     static struct Result(R1, R2)
     {
-        size_t length;          // property
+        size_t _length;
 
         this(R1 r1, R2 r2)
         {
             _r1 = r1;
             _r2 = r2;
             import std.algorithm.comparison : min;
-            length = min(r1.length, r2.length);
+            _length = min(r1.length, r2.length);
         }
 
         @property bool empty() const @safe pure nothrow @nogc
         {
-            return _index == length;
+            return _index == _length;
+        }
+
+        @property size_t length() const @safe pure nothrow @nogc
+        {
+            return _length;
         }
 
         @property auto front()

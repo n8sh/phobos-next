@@ -518,8 +518,9 @@ auto iotaOfExceptional(T, B, E, S)(B begin = T.min, E end = T.max, S step = 1)
 // }
 
 /** Return Array of Key-Value Pairs of Associative Array $(D aa).
-    See_Also: https://github.com/D-Programming-Language/druntime/pull/574
-    See_Also: http://forum.dlang.org/thread/dxotcrutrlmszlidufcr@forum.dlang.org?page=2#post-fhkgitmifgnompkqiscd:40forum.dlang.org
+ *
+ * See_Also: https://github.com/D-Programming-Language/druntime/pull/574
+ * See_Also: http://forum.dlang.org/thread/dxotcrutrlmszlidufcr@forum.dlang.org?page=2#post-fhkgitmifgnompkqiscd:40forum.dlang.org
 */
 auto pairs(Key, Value)(Value[Key] aa)
 {

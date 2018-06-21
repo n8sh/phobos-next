@@ -860,7 +860,7 @@ auto zip(R1, R2)(R1 r1, R2 r2)
 {
     static struct Result(R1, R2)
     {
-        size_t length;
+        size_t length;          // property
 
         this(R1 r1, R2 r2)
         {

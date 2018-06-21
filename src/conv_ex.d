@@ -6,9 +6,6 @@ import std.range : isInputRange, ElementType;
 
 /** Variant of std.conv.to with $(D defaultValue) making it $(D nothrow).
  *
- * TODO add overload for std.conv : to with default value to prevent any
- * exception throwing at all.
- *
  * See_Also: https://forum.dlang.org/post/bnbbheofzaxlabvnvrrc@forum.dlang.org
  * See_Also: http://forum.dlang.org/post/tsszfamjalzviqjhpdcr@forum.dlang.org
  * See_Also: https://forum.dlang.org/post/kdjbkqbnspzshdqtsntg@forum.dlang.org

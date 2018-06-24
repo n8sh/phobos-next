@@ -2,7 +2,7 @@ module enum_ex;
 
 @safe:
 
-/** Enumeration wrapper to uses optimized conversion to string (via `toString`
+/** Enumeration wrapper that uses optimized conversion to string (via `toString`
  * member).
  */
 struct Enum(E)

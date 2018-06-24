@@ -27,4 +27,6 @@ if (is(E == enum))
              // _b = b             // enumerator alias
     }
     alias EnumX = Enum!X;
+    assert(EnumX(X.a).toString == "a");
+    assert(EnumX(X.b).toString == "b");
 }

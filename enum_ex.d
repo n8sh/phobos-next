@@ -24,7 +24,7 @@ if (is(E == enum))
             }
         }
     }
-    E _enum;
+    E _enum;                    // the wrapped enum
     alias _enum this;
 }
 

@@ -15,8 +15,7 @@ if (is(E == enum))
             static foreach (index, member; __traits(allMembers, E))
             {
                 static if (index == 0 ||
-                           (index >= 1 &&
-                            __traits(getMember, E, __traits(allMembers, E)[index - 1]) !=
+                           (__traits(getMember, E, __traits(allMembers, E)[index - 1]) !=
                             __traits(getMember, E, member)))
                 {
                 case __traits(getMember, E, member):

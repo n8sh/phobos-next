@@ -39,4 +39,5 @@ if (is(E == enum))
     alias EnumX = Enum!X;
     assert(EnumX(X.a).to!string == "a");
     assert(EnumX(X.b).to!string == "b");
+    assert(EnumX(X._b).to!string == "b");
 }

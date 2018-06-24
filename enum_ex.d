@@ -7,7 +7,14 @@ if (is(E == enum))
 {
     @property string toString() @safe pure nothrow @nogc
     {
-        // fast implementation
+        final switch (_enum)
+        {
+            static foreach (member; __traits(allMembers, E))
+            {
+            case __traits(getMember, E, member):
+                return member;
+            }
+        }
     }
     E _enum;
     alias _enum this;
@@ -17,6 +24,7 @@ if (is(E == enum))
 {
     enum X { a,
              b,
-             _b = b             // enumerator alias
+             // _b = b             // enumerator alias
     }
+    alias EnumX = Enum!X;
 }

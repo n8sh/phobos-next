@@ -12,10 +12,16 @@ if (is(E == enum))
     {
         final switch (_enum)
         {
-            static foreach (member; __traits(allMembers, E))
+            static foreach (index, member; __traits(allMembers, E))
             {
-            case __traits(getMember, E, member):
-                return member;
+                static if (index == 0 ||
+                           (index >= 1 &&
+                            __traits(getMember, E, __traits(allMembers, E)[index - 1]) !=
+                            __traits(getMember, E, member)))
+                {
+                case __traits(getMember, E, member):
+                    return member;
+                }
             }
         }
     }
@@ -28,7 +34,7 @@ if (is(E == enum))
     import std.conv : to;
     enum X { a,
              b,
-             // _b = b             // enumerator alias
+             _b = b             // enumerator alias
     }
     alias EnumX = Enum!X;
     assert(EnumX(X.a).to!string == "a");

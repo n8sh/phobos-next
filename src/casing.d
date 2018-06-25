@@ -5,7 +5,6 @@ import std.traits : isSomeString;
 version(unittest)
 {
     import std.algorithm : equal;
-    import std.conv : to;
 }
 
 /** Convert string $(S s) to lower-case.
@@ -98,8 +97,8 @@ auto toLowerSpacedChars(T, Separator)(const T t,
                                       const Separator separator = " ")
 if (is(T == enum))
 {
-    import std.conv : to;
-    return t.to!(const(char)[]) // don't need immutable here
+    import enum_ex : toStringFaster;
+    return t.toStringFaster
             .camelCasedToLowerSpaced(separator);
 }
 

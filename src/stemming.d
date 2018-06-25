@@ -918,7 +918,8 @@ auto ref stemNorvegian(S)(S s) if (isSomeString!S)
 /** Stem $(D s) in Language $(D lang).
     If lang is unknown try each known language until failure.
  */
-Tuple!(S, Lang) stemIn(S)(S s, Lang lang = Lang.unknown) if (isSomeString!S)
+Tuple!(S, Lang) stemIn(S)(S s, Lang lang = Lang.init)
+if (isSomeString!S)
 {
     typeof(return) t;
     switch (lang) with (Lang)
@@ -939,7 +940,8 @@ Tuple!(S, Lang) stemIn(S)(S s, Lang lang = Lang.unknown) if (isSomeString!S)
 }
 
 /** Destructively Stem $(D s) in Language $(D lang). */
-Tuple!(bool, Lang) stemize(S)(ref S s, Lang lang = Lang.unknown) if (isSomeString!S)
+Tuple!(bool, Lang) stemize(S)(ref S s, Lang lang = Lang.init)
+if (isSomeString!S)
 {
     const n = s.length;
     auto t = s.stemIn(lang);

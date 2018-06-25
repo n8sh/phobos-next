@@ -190,8 +190,7 @@ if (isSomeString!S)
     assert("_".tolerantTo!E == E._);
 }
 
-@safe pure
-private auto parseError(lazy string msg, string fn = __FILE__, size_t ln = __LINE__)
+private auto parseError(lazy string msg, string fn = __FILE__, size_t ln = __LINE__) @safe pure
 {
     import std.conv : ConvException;
     return new ConvException("Can't parse string: " ~ msg, fn, ln);

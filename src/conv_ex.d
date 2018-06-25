@@ -62,7 +62,7 @@ if (is(T == enum))
 
 /** Fast and more generic implementation of `std.conv.to` for enumerations.
  */
-string toString(T)(T value) @safe pure nothrow @nogc
+string toStringFaster(T)(T value) @safe pure nothrow @nogc
 if (is(T == enum))
 {
     import std.meta : AliasSeq;
@@ -82,6 +82,15 @@ if (is(T == enum))
     }
 }
 
+///
+@safe pure nothrow @nogc unittest
+{
+    enum E { unknown, x, y, z, }
+    assert(E.x.toStringFaster == "x");
+    assert(E.y.toStringFaster == "y");
+    assert(E.z.toStringFaster == "z");
+}
+
 /** Faster implementation of `std.conv.to` for enumerations with no aliases.
  */
 string toStringNonAliases(T)(T value) @safe pure nothrow @nogc
@@ -95,15 +104,6 @@ if (is(T == enum))              // TODO check for no aliases
             return member;
         }
     }
-}
-
-///
-@safe pure nothrow @nogc unittest
-{
-    enum E { unknown, x, y, z, }
-    assert(E.x.toString == "x");
-    assert(E.y.toString == "y");
-    assert(E.z.toString == "z");
 }
 
 /** More tolerant variant of `std.conv.to`.

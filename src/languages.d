@@ -11,7 +11,7 @@ alias Lang = Enum!_Lang;
     See_Also: http://www.mathguide.de/info/tools/languagecode.html
     See_Also: http://msdn.microsoft.com/en-us/library/ms533052(v=vs.85).aspx
 */
-private enum _Lang
+enum _Lang
 {
     unknown,
     nullValue = unknown,

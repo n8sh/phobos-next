@@ -2,13 +2,16 @@ module languages;
 
 import std.conv: to;
 import std.traits: isSomeString;
+import enum_ex;
+
+alias Lang = Enum!_Lang;
 
 /** Language Code according to ISO 639-1 plus computer languages.
     See_Also: https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
     See_Also: http://www.mathguide.de/info/tools/languagecode.html
     See_Also: http://msdn.microsoft.com/en-us/library/ms533052(v=vs.85).aspx
 */
-enum Lang
+private enum _Lang
 {
     unknown,
     nullValue = unknown,
@@ -364,8 +367,7 @@ bool isFormal(Lang lang) @safe pure @nogc nothrow
 
 /** TODO Remove when `__traits(documentation)` is merged
  */
-string toSpoken(Lang lang, Lang spokenLang = Lang.init)
-    @safe pure nothrow // TODO @nogc
+string toSpoken(Lang lang, Lang spokenLang = Lang.init) @safe pure nothrow // TODO @nogc
 {
     with (Lang)
         switch (lang)
@@ -517,29 +519,26 @@ string toSpoken(Lang lang, Lang spokenLang = Lang.init)
         }
 }
 
-Lang decodeLang(S)(S lang)
-    @safe pure nothrow // @nogc
-    if (isSomeString!S)
+Lang decodeLang(S)(S lang) @safe pure nothrow // @nogc
+if (isSomeString!S)
 {
     switch  (lang)
     {
-    case `is`: return Lang.is_;
-    case `in`: return Lang.in_;
+    case `is`: return Lang(Lang.is_);
+    case `in`: return Lang(Lang.in_);
     default:
         import conv_ex : toDefaulted;
-        return lang.toDefaulted!Lang(Lang.unknown);
+        return typeof(return)(lang.toDefaulted!_Lang(_Lang.unknown));
     }
 }
 
 @safe pure unittest
 {
     assert(`sv`.decodeLang == Lang.sv);
-    assert(`sv`.to!Lang == Lang.sv);
 }
 
-Lang decodeLangDefaulted(S)(S lang, Lang defaultLang)
-    @safe pure nothrow
-    if (isSomeString!S)
+Lang decodeLangDefaulted(S)(S lang, Lang defaultLang) @safe pure nothrow
+if (isSomeString!S)
 {
     try
     {
@@ -551,12 +550,14 @@ Lang decodeLangDefaulted(S)(S lang, Lang defaultLang)
     }
 }
 
+///
 @safe pure nothrow unittest
 {
     assert(`_`.decodeLangDefaulted(Lang.unknown) == Lang.unknown);
     assert(`sv`.decodeLangDefaulted(Lang.unknown) == Lang.sv);
 }
 
+///
 @safe pure nothrow /*TODO @nogc*/ unittest
 {
     with (Lang)
@@ -569,6 +570,7 @@ Lang decodeLangDefaulted(S)(S lang, Lang defaultLang)
     }
 }
 
+///
 @safe unittest
 {
     import conv_ex : tolerantTo;
@@ -581,14 +583,13 @@ string toHTML(Lang lang) @safe pure nothrow /*TODO @nogc*/
     return lang.toSpoken;
 }
 
-string toMathML(Lang lang)
-    @safe pure nothrow /*TODO @nogc*/
+///
+string toMathML(Lang lang) @safe pure nothrow /*TODO @nogc*/
 {
     return lang.toHTML;
 }
 
-Lang language(string name)
-    @safe pure nothrow @nogc
+Lang language(string name) @safe pure nothrow @nogc
 {
     switch (name)
     {
@@ -611,8 +612,7 @@ enum MarkupLang:ubyte
 
 /** Languages that capitalize all their nouns, not only proper ones.
  */
-bool capitalizesNoun(Lang lang)
-    @safe pure nothrow @nogc
+bool capitalizesNoun(Lang lang) @safe pure nothrow @nogc
 {
     import std.algorithm.comparison : among;
     return cast(bool)lang.among!(Lang.de);

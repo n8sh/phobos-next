@@ -8,6 +8,8 @@ module enum_ex;
  * member).
  *
  * See_Also: https://forum.dlang.org/thread/ppndhxvzayedgpbjculm@forum.dlang.org?page=1
+ *
+ * TODO: Move logic to `std.conv.to`.
  */
 struct Enum(E)
 if (is(E == enum))

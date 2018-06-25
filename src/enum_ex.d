@@ -32,6 +32,9 @@ if (is(E == enum))
             }
         }
     }
+
+    E theEnum() const @safe pure nothrow @nogc { return _enum; }
+
     E _enum;                    // the wrapped enum
     alias _enum this;
 }

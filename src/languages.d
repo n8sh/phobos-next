@@ -531,17 +531,10 @@ if (isSomeString!S)
     assert(`sv`.decodeLang == Lang.sv);
 }
 
-Lang decodeLangDefaulted(S)(S lang, Lang defaultLang) @safe pure nothrow
+Lang decodeLangDefaulted(S)(S lang, _Lang defaultLang) @safe pure nothrow @nogc
 if (isSomeString!S)
 {
-    try
-    {
-        return decodeLang(lang);
-    }
-    catch (Exception e)
-    {
-        return defaultLang;
-    }
+    return typeof(return)(lang.toDefaulted!_Lang(defaultLang));
 }
 
 ///

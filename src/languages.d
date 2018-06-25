@@ -526,6 +526,7 @@ if (isSomeString!S)
     }
 }
 
+///
 @safe pure unittest
 {
     assert(`sv`.decodeLang == Lang.sv);

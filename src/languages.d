@@ -1,8 +1,8 @@
 module languages;
 
-import std.conv: to;
 import std.traits: isSomeString;
-import enum_ex;
+import enum_ex : Enum;
+import conv_ex : toString, toDefaulted;
 
 alias Lang = Enum!_Lang;
 
@@ -508,14 +508,7 @@ string toSpoken(Lang lang, Lang spokenLang = Lang.init) @safe pure nothrow // TO
         case regularExpression: return `regular expression`;
 
         default:
-            try
-            {
-                return lang.to!(typeof(return));
-            }
-            catch (Exception e)
-            {
-                return `__unconvertiable__`;
-            }
+            return lang.toString;
         }
 }
 
@@ -529,7 +522,6 @@ if (isSomeString!S)
     case `in`:
         return Lang(Lang.in_);
     default:
-        import conv_ex : toDefaulted;
         return typeof(return)(lang.toDefaulted!_Lang(_Lang.unknown));
     }
 }
@@ -557,6 +549,7 @@ if (isSomeString!S)
 {
     assert(`_`.decodeLangDefaulted(Lang(_Lang.unknown)) == Lang.unknown);
     assert(`sv`.decodeLangDefaulted(Lang(_Lang.unknown)) == Lang.sv);
+    assert(`en`.decodeLangDefaulted(Lang(_Lang.unknown)) == Lang.en);
 }
 
 ///

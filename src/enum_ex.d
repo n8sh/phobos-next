@@ -14,7 +14,6 @@ if (is(E == enum))
 {
     @property string toString() @safe pure nothrow @nogc
     {
-        import conv_ex : toStringFaster;
         return toStringFaster(_enum);
     }
 
@@ -35,4 +34,35 @@ if (is(E == enum))
     assert(EnumX(X.a).toString == "a");
     assert(EnumX(X.b).toString == "b");
     assert(EnumX(X._b).toString == "b"); // alias encodes to original
+}
+
+/** Fast and more generic implementation of `std.conv.to` for enumerations.
+ */
+string toStringFaster(T)(T value) @safe pure nothrow @nogc
+if (is(T == enum))
+{
+    import std.meta : AliasSeq;
+    alias members = AliasSeq!(__traits(allMembers, T));
+    final switch (value)
+    {
+        static foreach (index, member; members)
+        {
+            static if (index == 0 ||
+                       (__traits(getMember, T, members[index - 1]) !=
+                        __traits(getMember, T, member)))
+            {
+            case __traits(getMember, T, member):
+                return member;
+            }
+        }
+    }
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    enum E { unknown, x, y, z, }
+    assert(E.x.toStringFaster == "x");
+    assert(E.y.toStringFaster == "y");
+    assert(E.z.toStringFaster == "z");
 }

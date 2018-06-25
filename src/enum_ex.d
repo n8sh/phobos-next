@@ -16,9 +16,6 @@ if (is(E == enum))
     {
         return toStringFaster(_enum);
     }
-
-    E theEnum() const @safe pure nothrow @nogc { return _enum; }
-
     E _enum;                    // the wrapped enum
     alias _enum this;
 }

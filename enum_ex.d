@@ -39,5 +39,5 @@ if (is(E == enum))
     alias EnumX = Enum!X;
     assert(EnumX(X.a).toString == "a");
     assert(EnumX(X.b).toString == "b");
-    assert(EnumX(X._b).toString == "b");
+    assert(EnumX(X._b).toString == "b"); // alias encodes to original
 }

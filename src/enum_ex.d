@@ -1,7 +1,5 @@
 module enum_ex;
 
-/** relation Direction.
- */
 @safe:
 
 /** Enumeration wrapper that uses optimized conversion to string (via `toString`

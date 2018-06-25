@@ -524,8 +524,10 @@ if (isSomeString!S)
 {
     switch  (lang)
     {
-    case `is`: return Lang(Lang.is_);
-    case `in`: return Lang(Lang.in_);
+    case `is`:
+        return Lang(Lang.is_);
+    case `in`:
+        return Lang(Lang.in_);
     default:
         import conv_ex : toDefaulted;
         return typeof(return)(lang.toDefaulted!_Lang(_Lang.unknown));

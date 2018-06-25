@@ -8,7 +8,8 @@ version(unittest)
 }
 
 /** Convert string $(S s) to lower-case.
-    String must contain ASCII characters only.
+ *
+ * String must contain ASCII characters only.
  */
 auto toLowerASCII(S)(S s)
 if (isSomeString!S)
@@ -31,7 +32,8 @@ if (isSomeString!S)
 }
 
 /** Convert string $(S s) to lower-case.
-    String may contain Unicode characters.
+ *
+ * String may contain Unicode characters.
  */
 auto toLowerUnicode(S)(S s)
 if (isSomeString!S)

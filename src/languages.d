@@ -519,7 +519,7 @@ string toSpoken(Lang lang, Lang spokenLang = Lang.init) @safe pure nothrow // TO
         }
 }
 
-Lang decodeLang(S)(S lang) @safe pure nothrow // @nogc
+Lang decodeLang(S)(S lang) @safe pure nothrow @nogc
 if (isSomeString!S)
 {
     switch  (lang)

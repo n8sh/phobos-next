@@ -62,7 +62,7 @@ import std.uni: byGrapheme;
     See_Also: http://eayd.in/?p=232
     See_Also: http://forum.dlang.org/thread/ovzcetxbrdblpmyizdjr@forum.dlang.org#post-ovzcetxbrdblpmyizdjr:40forum.dlang.org
  */
-uint countSyllables(S)(S s, Lang lang = Lang(_Lang.en))
+uint countSyllables(S)(S s, Lang lang = Lang.en)
 if (isSomeString!S)
 {
     import std.string: toLower;

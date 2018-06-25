@@ -612,3 +612,10 @@ bool capitalizesNoun(Lang lang) @safe pure nothrow @nogc
     import std.algorithm.comparison : among;
     return cast(bool)lang.among!(Lang.de);
 }
+
+///
+@safe pure nothrow @nogc unittest
+{
+    assert(Lang(_Lang.de).capitalizesNoun);
+    assert(!Lang(_Lang.en).capitalizesNoun);
+}

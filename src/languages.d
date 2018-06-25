@@ -359,9 +359,8 @@ alias isCaseSensitive = hasCase;
 bool isFormal(Lang lang) @safe pure @nogc nothrow
 {
     pragma(inline, true);
-    with (Lang)
-        return (lang >= firstFormal &&
-                lang <= lastFormal);
+    return (lang >= Lang.firstFormal &&
+            lang <= Lang.lastFormal);
 }
 
 /** TODO Remove when `__traits(documentation)` is merged

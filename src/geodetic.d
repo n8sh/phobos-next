@@ -28,7 +28,8 @@ struct WGS84Coordinate(T = double)
         if (auto parts = s.findSplit(separator)) // TODO reuse functional findSplit in DMD 2.070
         {
             import std.conv : to;
-            this(parts[0].to!T, parts[2].to!T);
+            this(parts[0].to!T,
+                 parts[2].to!T);
         }
         else
         {

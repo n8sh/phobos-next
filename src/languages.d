@@ -531,7 +531,7 @@ if (isSomeString!S)
     assert(`sv`.decodeLang == Lang.sv);
 }
 
-Lang decodeLangDefaulted(S)(S lang, Lang defaultLang) @safe pure nothrow @nogc
+Lang decodeLangDefaulted(S)(const scope S lang, Lang defaultLang) @safe pure nothrow @nogc
 if (isSomeString!S)
 {
     return typeof(return)(lang.toDefaulted!_Lang(defaultLang.theEnum));

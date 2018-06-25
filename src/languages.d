@@ -351,8 +351,7 @@ private enum _Lang
 bool hasCase(Lang lang) @safe pure @nogc nothrow
 {
     import std.algorithm.comparison: among;
-    with (Lang)
-        return cast(bool)lang.among!(bg, ada);
+    return cast(bool)lang.among!(Lang.bg, Lang.ada);
 }
 alias isCaseSensitive = hasCase;
 
@@ -542,7 +541,7 @@ if (isSomeString!S)
     case `in`:
         return Lang(Lang.in_);
     default:
-        return typeof(return)(lang.toDefaulted!_Lang(defaultLang.theEnum));
+        return typeof(return)(lang.toDefaulted!_Lang(defaultLang));
     }
 }
 

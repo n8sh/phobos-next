@@ -13,7 +13,7 @@ import lingua : isEnglishVowel, isSwedishVowel, isSwedishConsonant, isEnglishCon
 import skip_ex : skipOverBack;
 
 public class Stemmer(S)
-    if (isSomeString!S)
+if (isSomeString!S)
 {
     /**
      * In stem(p,i,j), p is a char pointer, and the string to be stemmed
@@ -175,7 +175,8 @@ private:
 
     /** Return true if k0,...k endsWith with the string s.
      */
-    bool endsWith(S)(S s) if (isSomeString!S)
+    bool endsWith(S)(S s)
+    if (isSomeString!S)
     {
         const len = s.length;
 
@@ -197,14 +198,16 @@ private:
     }
 
     /** Sets (j+1),...k to the characters in the string s, readjusting k. */
-    void setto(S)(S s) if (isSomeString!S)
+    void setto(S)(S s)
+    if (isSomeString!S)
     {
         _b = _b[0.._j+1] ~ s ~ _b[_j + s.length + 1 .. _b.length];
         _k = _j + s.length;
     }
 
     /** Used further down. */
-    void r(S)(S s) if (isSomeString!S)
+    void r(S)(S s)
+    if (isSomeString!S)
     {
         if (m() > 0)
             setto(s);
@@ -527,7 +530,8 @@ import dbgio;
 
 /** Stem Swedish Word $(D s).
  */
-auto ref stemSwedish(S)(S s) if (isSomeString!S)
+auto ref stemSwedish(S)(S s)
+if (isSomeString!S)
 {
     enum ar = `ar`;
     enum or = `or`;
@@ -909,7 +913,8 @@ unittest
     /* assert("lämnar".stemSwedish == "lämna"); */
 }
 
-auto ref stemNorvegian(S)(S s) if (isSomeString!S)
+auto ref stemNorvegian(S)(S s)
+if (isSomeString!S)
 {
     s.skipOverBack(`ede`);
     return s;
@@ -954,7 +959,8 @@ if (isSomeString!S)
     See_Also: https://en.wikipedia.org/wiki/Martin_Porter
     See_Also: https://www.youtube.com/watch?v=2s7f8mBwnko&list=PL6397E4B26D00A269&index=4.
 */
-S alternativePorterStemEnglish(S)(S s) if (isSomeString!S)
+S alternativePorterStemEnglish(S)(S s)
+if (isSomeString!S)
 {
     /* Step 1a */
     if      (s.endsWith(`sses`)) { s = s[0 .. $-2]; }

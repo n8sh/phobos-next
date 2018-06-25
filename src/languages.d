@@ -553,29 +553,18 @@ if (isSomeString!S)
 ///
 @safe pure nothrow unittest
 {
-    assert(`_`.decodeLangDefaulted(Lang.unknown) == Lang.unknown);
-    assert(`sv`.decodeLangDefaulted(Lang.unknown) == Lang.sv);
+    assert(`_`.decodeLangDefaulted(Lang(_Lang.unknown)) == Lang.unknown);
+    assert(`sv`.decodeLangDefaulted(Lang(_Lang.unknown)) == Lang.sv);
 }
 
 ///
 @safe pure nothrow /*TODO @nogc*/ unittest
 {
-    with (Lang)
-    {
-        assert(unknown.toSpoken == `??`);
-        assert(c.toSpoken == `C`);
-        assert(cxx.toSpoken == `C++`);
-        assert(d.toSpoken == `D`);
-        assert(java.toSpoken == `Java`);
-    }
-}
-
-///
-@safe unittest
-{
-    import conv_ex : tolerantTo;
-    assert("en".tolerantTo!Lang == Lang.en);
-    assert("EnglisH".tolerantTo!Lang == Lang.en);
+    assert(Lang(_Lang.unknown).toSpoken == `??`);
+    assert(Lang(_Lang.c).toSpoken == `C`);
+    assert(Lang(_Lang.cxx).toSpoken == `C++`);
+    assert(Lang(_Lang.d).toSpoken == `D`);
+    assert(Lang(_Lang.java).toSpoken == `Java`);
 }
 
 string toHTML(Lang lang) @safe pure nothrow /*TODO @nogc*/
@@ -593,12 +582,18 @@ Lang language(string name) @safe pure nothrow @nogc
 {
     switch (name)
     {
-        case `C`:    return Lang.c;
-        case `C++`:  return Lang.cxx;
-        case `Objective-C`:  return Lang.objectiveC;
-        case `D`:    return Lang.d;
-        case `Java`: return Lang.java;
-        default:     return Lang.unknown;
+        case `C`:
+            return Lang(_Lang.c);
+        case `C++`:
+            return Lang(_Lang.cxx);
+        case `Objective-C`:
+            return Lang(_Lang.objectiveC);
+        case `D`:
+            return Lang(_Lang.d);
+        case `Java`:
+            return Lang(_Lang.java);
+        default:
+            return Lang(_Lang.unknown);
     }
 }
 

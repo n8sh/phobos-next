@@ -541,6 +541,7 @@ if (isSomeString!S)
 @safe pure nothrow unittest
 {
     assert(`_`.decodeLangDefaulted(Lang(_Lang.unknown)) == Lang.unknown);
+    assert(`_`.decodeLangDefaulted(Lang(_Lang.en)) == Lang.en);
     assert(`sv`.decodeLangDefaulted(Lang(_Lang.unknown)) == Lang.sv);
     assert(`en`.decodeLangDefaulted(Lang(_Lang.unknown)) == Lang.en);
 }

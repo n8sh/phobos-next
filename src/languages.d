@@ -2,7 +2,7 @@ module languages;
 
 import std.traits: isSomeString;
 import enum_ex : Enum;
-import conv_ex : toString, toDefaulted;
+import conv_ex : toDefaulted;
 
 alias Lang = Enum!_Lang;
 

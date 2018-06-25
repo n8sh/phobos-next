@@ -63,24 +63,24 @@ if (is(T == enum))
 /** Fast and more generic implementation of `std.conv.to` for enumerations.
  */
 string toString(T)(T value) @safe pure nothrow @nogc
-    if (is(T == enum))
+if (is(T == enum))
+{
+    import std.meta : AliasSeq;
+    alias members = AliasSeq!(__traits(allMembers, T));
+    final switch (value)
     {
-        import std.meta : AliasSeq;
-        alias members = AliasSeq!(__traits(allMembers, T));
-        final switch (value)
+        static foreach (index, member; members)
         {
-            static foreach (index, member; members)
+            static if (index == 0 ||
+                       (__traits(getMember, T, members[index - 1]) !=
+                        __traits(getMember, T, member)))
             {
-                static if (index == 0 ||
-                           (__traits(getMember, T, members[index - 1]) !=
-                            __traits(getMember, T, member)))
-                {
-                case __traits(getMember, T, member):
-                    return member;
-                }
+            case __traits(getMember, T, member):
+                return member;
             }
         }
     }
+}
 
 /** Faster implementation of `std.conv.to` for enumerations with no aliases.
  */

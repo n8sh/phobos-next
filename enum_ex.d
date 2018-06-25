@@ -29,6 +29,7 @@ if (is(E == enum))
     alias _enum this;
 }
 
+///
 @safe pure unittest
 {
     enum X { a,

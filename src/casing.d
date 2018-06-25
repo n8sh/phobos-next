@@ -12,7 +12,7 @@ version(unittest)
     String must contain ASCII characters only.
  */
 auto toLowerASCII(S)(S s)
-    if (isSomeString!S)
+if (isSomeString!S)
 {
     import std.algorithm.iteration : map;
     import std.ascii : toLower;
@@ -35,7 +35,7 @@ auto toLowerASCII(S)(S s)
     String may contain Unicode characters.
  */
 auto toLowerUnicode(S)(S s)
-    if (isSomeString!S)
+if (isSomeString!S)
 {
     import std.algorithm.iteration : map;
     import std.uni : toLower;
@@ -57,7 +57,7 @@ auto toLowerUnicode(S)(S s)
 /** Convert D-style camel-cased string $(S s) to lower-cased words.
  */
 auto camelCasedToLower(S)(S s)
-    if (isSomeString!S)
+if (isSomeString!S)
 {
     import std.algorithm.iteration : map;
     import std.ascii : isUpper; // D symbol names can only be in ASCII
@@ -79,7 +79,7 @@ auto camelCasedToLower(S)(S s)
 /** Convert D-Style camel-cased string $(S s) to space-separated lower-cased words.
  */
 auto camelCasedToLowerSpaced(S, Separator)(S s, const Separator separator = " ")
-    if (isSomeString!S)
+if (isSomeString!S)
 {
     import std.algorithm.iteration : joiner;
     return camelCasedToLower(s).joiner(separator);
@@ -92,10 +92,11 @@ auto camelCasedToLowerSpaced(S, Separator)(S s, const Separator separator = " ")
                  "do this"));
 }
 
-/** Convert Enumeration Value (Enumerator) $(D t) to a range chars.
+/** Convert enumeration value (enumerator) $(D t) to a range chars.
  */
-auto toLowerSpacedChars(T, Separator)(const T t, const Separator separator = " ")
-    if (is(T == enum))
+auto toLowerSpacedChars(T, Separator)(const T t,
+                                      const Separator separator = " ")
+if (is(T == enum))
 {
     import std.conv : to;
     return t.to!(const(char)[]) // don't need immutable here

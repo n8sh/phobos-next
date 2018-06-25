@@ -356,6 +356,7 @@ alias isCaseSensitive = hasCase;
 /** Return true if $(D lang) is a formal (computer) language. */
 bool isFormal(Lang lang) @safe pure @nogc nothrow
 {
+    pragma(inline, true);
     with (Lang)
         return (lang >= firstFormal &&
                 lang <= lastFormal);

@@ -31,13 +31,12 @@ if (is(E == enum))
 
 @safe pure unittest
 {
-    import std.conv : to;
     enum X { a,
              b,
              _b = b             // enumerator alias
     }
     alias EnumX = Enum!X;
-    assert(EnumX(X.a).to!string == "a");
-    assert(EnumX(X.b).to!string == "b");
-    assert(EnumX(X._b).to!string == "b");
+    assert(EnumX(X.a).toString == "a");
+    assert(EnumX(X.b).toString == "b");
+    assert(EnumX(X._b).toString == "b");
 }

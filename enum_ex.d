@@ -6,6 +6,8 @@ module enum_ex;
 
 /** Enumeration wrapper that uses optimized conversion to string (via `toString`
  * member).
+ *
+ * See_Also: https://forum.dlang.org/thread/ppndhxvzayedgpbjculm@forum.dlang.org?page=1
  */
 struct Enum(E)
 if (is(E == enum))

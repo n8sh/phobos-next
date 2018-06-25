@@ -16,8 +16,8 @@ if (is(E == enum))
 {
     @property string toString() @safe pure nothrow @nogc
     {
-        import conv_ex : toString_ = toString;
-        return toString_(_enum);
+        import conv_ex : toStringFaster;
+        return toStringFaster(_enum);
     }
 
     E theEnum() const @safe pure nothrow @nogc { return _enum; }

@@ -10,12 +10,13 @@ if (is(E == enum))
 {
     @property string toString() @safe pure nothrow @nogc
     {
+        enum members = [__traits(allMembers, E)];
         final switch (_enum)
         {
-            static foreach (index, member; __traits(allMembers, E))
+            static foreach (index, member; members)
             {
                 static if (index == 0 ||
-                           (__traits(getMember, E, __traits(allMembers, E)[index - 1]) !=
+                           (__traits(getMember, E, members[index - 1]) !=
                             __traits(getMember, E, member)))
                 {
                 case __traits(getMember, E, member):

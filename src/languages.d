@@ -361,7 +361,8 @@ bool isFormal(Lang lang) @safe pure @nogc nothrow
                 lang <= lastFormal);
 }
 
-/** TODO Remove when __traits(documentation) is merged */
+/** TODO Remove when `__traits(documentation)` is merged
+ */
 string toSpoken(Lang lang, Lang spokenLang = Lang.init)
     @safe pure nothrow // TODO @nogc
 {

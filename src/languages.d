@@ -515,7 +515,7 @@ string toSpoken(Lang lang, Lang spokenLang = Lang.init) @safe pure nothrow // TO
 Lang decodeLang(S)(const scope S lang) @safe pure nothrow @nogc
 if (isSomeString!S)
 {
-    switch  (lang)
+    switch (lang)
     {
     case `is`:
         return Lang(Lang.is_);
@@ -535,7 +535,15 @@ if (isSomeString!S)
 Lang decodeLangDefaulted(S)(const scope S lang, Lang defaultLang) @safe pure nothrow @nogc
 if (isSomeString!S)
 {
-    return typeof(return)(lang.toDefaulted!_Lang(defaultLang.theEnum));
+    switch (lang)
+    {
+    case `is`:
+        return Lang(Lang.is_);
+    case `in`:
+        return Lang(Lang.in_);
+    default:
+        return typeof(return)(lang.toDefaulted!_Lang(defaultLang.theEnum));
+    }
 }
 
 ///

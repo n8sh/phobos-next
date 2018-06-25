@@ -1,17 +1,14 @@
 module languages;
 
 import std.traits: isSomeString;
-import enum_ex : Enum;
 import conv_ex : toDefaulted;
-
-alias Lang = Enum!_Lang;
 
 /** Language Code according to ISO 639-1 plus computer languages.
     See_Also: https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
     See_Also: http://www.mathguide.de/info/tools/languagecode.html
     See_Also: http://msdn.microsoft.com/en-us/library/ms533052(v=vs.85).aspx
 */
-enum _Lang
+enum Lang
 {
     unknown,
     nullValue = unknown,
@@ -506,7 +503,8 @@ string toSpoken(Lang lang, Lang spokenLang = Lang.init) @safe pure nothrow // TO
         case regularExpression: return `regular expression`;
 
         default:
-            return lang.toString;
+            import enum_ex : toStringFaster;
+            return lang.toStringFaster;
         }
 }
 
@@ -516,11 +514,11 @@ if (isSomeString!S)
     switch (lang)
     {
     case `is`:
-        return Lang(Lang.is_);
+        return Lang.is_;
     case `in`:
-        return Lang(Lang.in_);
+        return Lang.in_;
     default:
-        return typeof(return)(lang.toDefaulted!_Lang(_Lang.unknown));
+        return typeof(return)(lang.toDefaulted!Lang(Lang.unknown));
     }
 }
 
@@ -536,31 +534,31 @@ if (isSomeString!S)
     switch (lang)
     {
     case `is`:
-        return Lang(Lang.is_);
+        return Lang.is_;
     case `in`:
-        return Lang(Lang.in_);
+        return Lang.in_;
     default:
-        return typeof(return)(lang.toDefaulted!_Lang(defaultLang));
+        return typeof(return)(lang.toDefaulted!Lang(defaultLang));
     }
 }
 
 ///
 @safe pure nothrow unittest
 {
-    assert(`_`.decodeLangDefaulted(Lang(_Lang.unknown)) == Lang.unknown);
-    assert(`_`.decodeLangDefaulted(Lang(_Lang.en)) == Lang.en);
-    assert(`sv`.decodeLangDefaulted(Lang(_Lang.unknown)) == Lang.sv);
-    assert(`en`.decodeLangDefaulted(Lang(_Lang.unknown)) == Lang.en);
+    assert(`_`.decodeLangDefaulted(Lang.unknown) == Lang.unknown);
+    assert(`_`.decodeLangDefaulted(Lang.en) == Lang.en);
+    assert(`sv`.decodeLangDefaulted(Lang.unknown) == Lang.sv);
+    assert(`en`.decodeLangDefaulted(Lang.unknown) == Lang.en);
 }
 
 ///
 @safe pure nothrow /*TODO @nogc*/ unittest
 {
-    assert(Lang(_Lang.unknown).toSpoken == `??`);
-    assert(Lang(_Lang.c).toSpoken == `C`);
-    assert(Lang(_Lang.cxx).toSpoken == `C++`);
-    assert(Lang(_Lang.d).toSpoken == `D`);
-    assert(Lang(_Lang.java).toSpoken == `Java`);
+    assert(Lang.unknown.toSpoken == `??`);
+    assert(Lang.c.toSpoken == `C`);
+    assert(Lang.cxx.toSpoken == `C++`);
+    assert(Lang.d.toSpoken == `D`);
+    assert(Lang.java.toSpoken == `Java`);
 }
 
 string toHTML(Lang lang) @safe pure nothrow /*TODO @nogc*/
@@ -579,17 +577,17 @@ Lang language(string name) @safe pure nothrow @nogc
     switch (name)
     {
         case `C`:
-            return Lang(_Lang.c);
+            return Lang.c;
         case `C++`:
-            return Lang(_Lang.cxx);
+            return Lang.cxx;
         case `Objective-C`:
-            return Lang(_Lang.objectiveC);
+            return Lang.objectiveC;
         case `D`:
-            return Lang(_Lang.d);
+            return Lang.d;
         case `Java`:
-            return Lang(_Lang.java);
+            return Lang.java;
         default:
-            return Lang(_Lang.unknown);
+            return Lang.unknown;
     }
 }
 
@@ -612,6 +610,6 @@ bool capitalizesNoun(Lang lang) @safe pure nothrow @nogc
 ///
 @safe pure nothrow @nogc unittest
 {
-    assert(Lang(_Lang.de).capitalizesNoun);
-    assert(!Lang(_Lang.en).capitalizesNoun);
+    assert(Lang.de.capitalizesNoun);
+    assert(!Lang.en.capitalizesNoun);
 }

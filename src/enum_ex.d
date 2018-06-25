@@ -16,21 +16,8 @@ if (is(E == enum))
 {
     @property string toString() @safe pure nothrow @nogc
     {
-        import std.meta : AliasSeq;
-        alias members = AliasSeq!(__traits(allMembers, E));
-        final switch (_enum)
-        {
-            static foreach (index, member; members)
-            {
-                static if (index == 0 ||
-                           (__traits(getMember, E, members[index - 1]) !=
-                            __traits(getMember, E, member)))
-                {
-                case __traits(getMember, E, member):
-                    return member;
-                }
-            }
-        }
+        import conv_ex : toString_ = toString;
+        return toString_(_enum);
     }
 
     E theEnum() const @safe pure nothrow @nogc { return _enum; }

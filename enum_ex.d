@@ -36,8 +36,8 @@ if (is(E == enum))
              b,
              _b = b             // enumerator alias
     }
-    alias EnumX = Enum!X;
-    assert(EnumX(X.a).toString == "a");
-    assert(EnumX(X.b).toString == "b");
-    assert(EnumX(X._b).toString == "b"); // alias encodes to original
+    alias EX = Enum!X;
+    assert(EX(X.a).toString == "a");
+    assert(EX(X.b).toString == "b");
+    assert(EX(X._b).toString == "b"); // alias encodes to original
 }

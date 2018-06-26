@@ -78,3 +78,12 @@ if (is(T == enum))              // TODO check for no aliases
         }
     }
 }
+
+///
+@safe pure nothrow @nogc unittest
+{
+    enum E { unknown, x, y, z, }
+    assert(E.x.toStringNonAliases == "x");
+    assert(E.y.toStringNonAliases == "y");
+    assert(E.z.toStringNonAliases == "z");
+}

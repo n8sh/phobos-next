@@ -63,3 +63,18 @@ if (is(T == enum))
     assert(E.y.toStringFaster == "y");
     assert(E.z.toStringFaster == "z");
 }
+
+/** Faster implementation of `std.conv.to` for enumerations with no aliases.
+ */
+string toStringNonAliases(T)(T value) @safe pure nothrow @nogc
+if (is(T == enum))              // TODO check for no aliases
+{
+    final switch (value)
+    {
+        static foreach (member; __traits(allMembers, T))
+        {
+        case __traits(getMember, T, member):
+            return member;
+        }
+    }
+}

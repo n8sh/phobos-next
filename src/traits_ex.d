@@ -940,6 +940,7 @@ if (is(T == enum))
 {
     enum E { x, y, z, Z = z, Y = y }
     import std.algorithm.comparison : equal;
+    assert(enumMembers!E.equal([E.x, E.y, E.z, E.Z, E.Y])); // run-time
     assert(uniqueEnumMembers!E.equal([E.x, E.y, E.z])); // run-time
     static assert(uniqueEnumMembers!E.equal([E.x, E.y, E.z])); // compile-time
     static assert(E.x == 0);

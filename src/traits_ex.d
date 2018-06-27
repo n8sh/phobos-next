@@ -921,7 +921,7 @@ if (is(T == enum))
     Appender!(T[]) members;     // TODO use static array instead
     foreach (const index, const member; __traits(allMembers, T))
     {
-        members ~= __traits(getMember, T, member);
+        members.put(__traits(getMember, T, member));
     }
     import std.algorithm : sort, uniq;
     return members.data.sort().uniq;

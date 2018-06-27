@@ -922,16 +922,6 @@ if (is(T == enum))
     return [EnumMembers!T].sort().uniq;
 }
 
-// TODO warning this sucks up my dmd memory for a large project
-private auto uniqueEnumMembers_alternative(T)()
-if (is(T == enum))
-{
-    import std.meta : NoDuplicates;
-    import std.traits : EnumMembers;
-    import std.algorithm : sort, uniq;
-    return [NoDuplicates!(EnumMembers!T)];
-}
-
 /** Hash-table version of `uniqueEnumMembers`. */
 auto uniqueEnumMembersHashed(T)()
 if (is(T == enum))

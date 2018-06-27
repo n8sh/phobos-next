@@ -893,15 +893,15 @@ bool isNewline(S)(S s) @safe pure nothrow @nogc
 }
 
 /** Dynamic variant of $(D EnumMembers) returning enum member constants (enumerators) of `T`.
-    See_Also: http://forum.dlang.org/thread/bspwlfypfishykezzocx@forum.dlang.org#post-dguqnroxbfewerepomwq:40forum.dlang.org
-*/
+ *
+ * See_Also: http://forum.dlang.org/thread/bspwlfypfishykezzocx@forum.dlang.org#post-dguqnroxbfewerepomwq:40forum.dlang.org
+ */
 auto enumMembers(T)()
 if (is(T == enum))
 {
     import std.traits : EnumMembers;
     return [EnumMembers!T];
 }
-alias enumeratorsOf = enumMembers;
 
 /** Dynamic Variant of $(D EnumMembers) excluding the enumerator aliases.
 

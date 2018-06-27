@@ -917,10 +917,14 @@ if (is(T == enum))
 auto uniqueEnumMembers(T)()
 if (is(T == enum))
 {
-    import std.traits : EnumMembers;
+    import std.array : Appender;
+    Appender!(T[]) members;     // TODO use static array instead
+    foreach (const index, const member; __traits(allMembers, T))
+    {
+        members ~= __traits(getMember, T, member);
+    }
     import std.algorithm : sort, uniq;
-    // TODO use __traits(allMembers, T)
-    return [EnumMembers!T].sort().uniq; // TODO use static array
+    return members.data.sort().uniq;
 }
 
 /** Hash-table version of `uniqueEnumMembers`. */

@@ -919,9 +919,8 @@ if (is(T == enum))
 {
     import std.traits : EnumMembers;
     import std.algorithm : sort, uniq;
-    // TODO use static array
     // TODO use __traits(allMembers)
-    return [EnumMembers!T].sort().uniq;
+    return [EnumMembers!T].sort().uniq; // TODO use static array
 }
 
 /** Hash-table version of `uniqueEnumMembers`. */

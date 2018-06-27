@@ -919,7 +919,7 @@ if (is(T == enum))
 {
     import std.traits : EnumMembers;
     import std.algorithm : sort, uniq;
-    // TODO use __traits(allMembers)
+    // TODO use __traits(allMembers, T)
     return [EnumMembers!T].sort().uniq; // TODO use static array
 }
 

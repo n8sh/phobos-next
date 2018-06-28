@@ -904,7 +904,7 @@ if (is(T == enum))
     Appender!(T[]) members; // TODO use static array instead
     enum maxLength = T.max - T.min + 1; // possibly overestimate of final length needed
     members.reserve(maxLength);
-    foreach (const index, const member; __traits(allMembers, T))
+    foreach (const member; __traits(allMembers, T))
     {
         members.put(__traits(getMember, T, member));
     }

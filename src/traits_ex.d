@@ -913,10 +913,6 @@ if (is(T == enum))
 
 /** Dynamic Variant of $(D EnumMembers) excluding the enumerator aliases.
  *
- * TODO implement with an array and a static_bitarray indiciating if it has been found
- * yet or not. Should have linear complexity and much less memory usage than
- * `uniqueEnumMembersHashed`.
- *
  * See_Also: http://forum.dlang.org/post/ziappmtvucmuefphblse@forum.dlang.org
  * See_Also: http://forum.dlang.org/post/awihyvzjswwayeqtklly@forum.dlang.org
  * See_Also: http://forum.dlang.org/thread/bspwlfypfishykezzocx@forum.dlang.org#post-dguqnroxbfewerepomwq:40forum.dlang.org

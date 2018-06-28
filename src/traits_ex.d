@@ -933,6 +933,7 @@ if (is(T == enum))
         uniqueMembers.put(__traits(getMember, T, member));
     }
     // return uniqueMembers.data[];
+
     import std.algorithm : sort, uniq;
     return uniqueMembers.data.sort().uniq;
 }

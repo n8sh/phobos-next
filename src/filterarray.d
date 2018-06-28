@@ -14,7 +14,7 @@ import filters : isDenseSetFilterable;
  */
 struct DenseSetFilterGrowableArray(E,
                                    alias Allocator = null)
-    if (isDenseSetFilterable!E)
+if (isDenseSetFilterable!E)
 {
     import filters : DenseSetFilter, Growable, Copyable;
     import basic_array : BasicArray;

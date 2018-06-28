@@ -23,7 +23,7 @@ import traits_ex : isAddress;
  */
 void digestAny(Digest, T)(ref Digest digest,
                           const scope auto ref T value)
-    if (isDigest!Digest)
+if (isDigest!Digest)
 {
     version(LDC) pragma(inline, true);
     static if (isScalarType!T)  // first because faster to evaluate than
@@ -67,7 +67,7 @@ void digestAny(Digest, T)(ref Digest digest,
 /** Digest the `value` as an address (pointer). */
 private void digestAddress(Digest, T)(scope ref Digest digest,
                                       const scope T value) // pointer passed by value
-    if (isDigest!Digest &&
+if (isDigest!Digest &&
         isAddress!T)
 {
     pragma(inline, true);
@@ -77,7 +77,7 @@ private void digestAddress(Digest, T)(scope ref Digest digest,
 /** Digest the struct `value` by digesting each member sequentially. */
 private void digestStruct(Digest, T)(scope ref Digest digest,
                                      const scope auto ref T value) @trusted
-    if (isDigest!Digest &&
+if (isDigest!Digest &&
         is(T == struct))
 {
     static if (!hasIndirections!T)
@@ -98,7 +98,7 @@ private void digestStruct(Digest, T)(scope ref Digest digest,
 /** Digest the array `value`. */
 private void digestArray(Digest, T)(scope ref Digest digest,
                                     const scope auto ref T value) @trusted
-    if (isDigest!Digest &&
+if (isDigest!Digest &&
         isArray!T)
 {
     import std.traits : isDynamicArray;
@@ -130,7 +130,7 @@ private void digestArray(Digest, T)(scope ref Digest digest,
 /** Digest raw bytes of `values`. */
 private void digestRaw(Digest, T)(scope ref Digest digest,
                                   const scope auto ref T value) @trusted
-    if (isDigest!Digest)
+if (isDigest!Digest)
 {
     version(LDC) pragma(inline, true);
     digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);

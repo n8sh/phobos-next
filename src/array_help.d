@@ -112,7 +112,7 @@ pragma(inline, true)
 pragma(inline, true)
 @property ref E[T.sizeof] asN(E, T)(in ref T x)
     @trusted pure nothrow @nogc // TODO endian-dependent
-    if (T.sizeof % E.sizeof == 0)
+if (T.sizeof % E.sizeof == 0)
 {
     return (cast(E*)(&x))[0 .. x.sizeof];
 }
@@ -180,7 +180,7 @@ size_t* makeReallocatedBitArrayZeroPadded(alias Allocator)(size_t* input,
                                                            const size_t currentBitCount,
                                                            const size_t newBitCount)
     @system
-    if (__traits(hasMember, Allocator, "reallocate"))
+if (__traits(hasMember, Allocator, "reallocate"))
 {
     assert(currentBitCount < newBitCount, "no use reallocate to same size");
 

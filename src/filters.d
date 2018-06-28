@@ -21,7 +21,7 @@ struct DenseSetFilter(E,
                       // TODO make these use the Flags template
                       Growable growable = Growable.yes,
                       Copyable copyable = Copyable.no)
-    if (isDenseSetFilterable!E)
+if (isDenseSetFilterable!E)
 {
     import core.memory : malloc = pureMalloc, calloc = pureCalloc, realloc = pureRealloc;
     import core.bitop : bts, btr, btc, bt;
@@ -465,7 +465,7 @@ template isStaticDenseFilterableType(E)
  */
 struct StaticDenseSetFilter(E,
                             bool requestPacked = true)
-    if (isStaticDenseFilterableType!E)
+if (isStaticDenseFilterableType!E)
 {
     import std.range : ElementType;
     import std.traits : isIterable, isAssignable, isUnsigned;

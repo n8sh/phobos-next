@@ -22,7 +22,7 @@ import std.range : hasSlicing, hasLength;
     */
 auto byLine(Newline nl = Newline.any,
             Range)(Range input)
-    if ((hasSlicing!Range &&
+if ((hasSlicing!Range &&
          hasLength!Range) ||
         isNarrowString!Range)
 {

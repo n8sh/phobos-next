@@ -3,7 +3,7 @@ module concatenation;
 /** Sum of the lengths of the static arrays 'A'.
  */
 template sumOfLengths(A...)
-    if (A.length)
+if (A.length)
 {
     static if (A.length == 1)
     {
@@ -98,7 +98,7 @@ import std.traits : Unqual;
 /** Overload with faster compilation.
  */
 Unqual!T[n + 1] concatenate(T, size_t n)(auto ref T[n] a, T b)
-    if (!hasElaborateDestructor!T)
+if (!hasElaborateDestructor!T)
 {
     typeof(return) c = void;
     c[0 .. n] = a;

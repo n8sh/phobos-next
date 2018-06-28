@@ -85,7 +85,7 @@ unittest
  * Arguments must all fulfill `isFiberParameter`.
  */
 class FunFiber(Args...) : Fiber
-    if (allSatisfy!(isFiberParameter, Args))
+if (allSatisfy!(isFiberParameter, Args))
 {
     this(Args args)             // TODO make args const?
     {

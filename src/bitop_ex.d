@@ -68,7 +68,7 @@ if (isIntegral!T &&
 /** Returns: `true` iff all `bix`:th bits of `a` are set. */
 pragma(inline, true)
 bool testBit(T, I...)(in T a, I bixs) @trusted
-    if ((!(isIntegral!T)) &&
+if ((!(isIntegral!T)) &&
         allSatisfy!(isIntegral, I))
 {
     return (*(cast(UnsignedOfSameSizeAs!T*)&a)).testBit(bixs); // reuse integer variant
@@ -77,7 +77,7 @@ bool testBit(T, I...)(in T a, I bixs) @trusted
 /** Returns: `true` iff all `bix`:th bits of `*a` are set. */
 pragma(inline, true)
 bool testBit(T, I...)(in T* a, I bixs) @safe
-    if ((!(isIntegral!T)) &&
+if ((!(isIntegral!T)) &&
         !is(T == size_t) &&     // avoid stealing `core.bitop.bt`
         allSatisfy!(isIntegral, I) &&
         I.length >= 1)
@@ -138,7 +138,7 @@ if (isIntegral!T &&
  */
 pragma(inline, true)
 void setBit(T, I...)(ref T a, I bixs) @trusted
-    if ((!(isIntegral!T)) &&
+if ((!(isIntegral!T)) &&
         allSatisfy!(isIntegral, I) &&
         I.length >= 1)
 {
@@ -229,7 +229,7 @@ if (isIntegral!T &&
 /** Reset bits `I` of `a` (to zero). */
 pragma(inline, true)
 void resetBit(T, I...)(ref T a, I bixs)
-    if ((!(isIntegral!T)) &&
+if ((!(isIntegral!T)) &&
         allSatisfy!(isIntegral, I))
 {
     alias U = UnsignedOfSameSizeAs!T;

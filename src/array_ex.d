@@ -1814,7 +1814,7 @@ import std.traits : hasMember, isDynamicArray;
 
 /** Return an instance of `R` with capacity `capacity`. */
 R withCapacityMake(R)(size_t capacity)
-    if (hasMember!(R, "withCapacity"))
+if (hasMember!(R, "withCapacity"))
 {
     return R.withCapacity(capacity);
 }
@@ -1837,7 +1837,7 @@ if (isDynamicArray!R)
 
 /** Return an instance of `R` of length `length`. */
 R withLengthMake(R)(size_t length)
-    if (hasMember!(R, "withLength"))
+if (hasMember!(R, "withLength"))
 {
     return R.withLength(length);
 }
@@ -1852,7 +1852,7 @@ if (isDynamicArray!R)
 
 /** Return an instance of `R` containing a single element `e`. */
 R withElementMake(R)(typeof(R.init[0]) e)
-    if (hasMember!(R, "withElement"))
+if (hasMember!(R, "withElement"))
 {
     return R.withElement(e);
 }
@@ -2710,7 +2710,7 @@ pure nothrow /+TODO @nogc+/ unittest
  */
 C append(C, Args...)(auto ref C data,
                      auto ref Args args)
-    if (args.length >= 1)    // TODO trait: when `C` is a container supporting `insertBack`
+if (args.length >= 1)    // TODO trait: when `C` is a container supporting `insertBack`
 {
     static if (__traits(isRef, data)) // `data` is an r-value
     {

@@ -32,7 +32,7 @@ alias tail = dropOne;
  * must currently be called `eitherRef` instead of `either`.
  */
 ref Ts[0] eitherRef(Ts...)(ref Ts a)
-    if (a.length >= 1 &&
+if (a.length >= 1 &&
         allSame!Ts)         // TODO better trait for this?
 {
     static if (Ts.length == 1)
@@ -63,7 +63,7 @@ ref Ts[0] eitherRef(Ts...)(ref Ts a)
  * TODO Is inout Conversion!T the correct return value?
 */
 CommonType!T every(T...)(lazy T a)
-    if (T.length >= 1)
+if (T.length >= 1)
 {
     auto a0 = a[0]();           // evaluate only once
     static if (T.length == 1)
@@ -126,7 +126,7 @@ version(none) // WARNING disabled because I don't see any use of this for.
  * as an array, otherwise restore whole and return null.
  */
 CommonType!T[] tryEvery(S, T...)(ref S whole, lazy T parts)
-    if (T.length >= 1)
+if (T.length >= 1)
 {
     auto wholeBackup = whole;
     bool all = true;
@@ -718,7 +718,7 @@ import traits_ex: arityMin0;
  * TODO I believe we need arityMin, arityMax trait here
  */
 auto apply(alias fun, N)(N n)
-    if (// TODO isCallable!fun &&
+if (// TODO isCallable!fun &&
         arityMin0!fun &&
         !is(ReturnType!fun == void) &&
         isIntegral!N)
@@ -823,7 +823,7 @@ unittest
 auto ref stableSort(T)(auto ref T a) pure
 if (isRandomAccessRange!T)
 {
-    if (a.length >= 2)
+if (a.length >= 2)
     {
         import std.algorithm: partition3, sort;
         auto parts = partition3(a, a[$ / 2]); // mid element as pivot
@@ -940,7 +940,7 @@ import std.meta : allSatisfy;
     TODO Remove when Issue 8715 is fixed providing zipWith
 */
 auto zipWith(alias fun, Ranges...)(Ranges ranges)
-    if (Ranges.length >= 2 &&
+if (Ranges.length >= 2 &&
         allSatisfy!(isInputRange, Ranges))
 {
     import std.range: zip;
@@ -966,7 +966,7 @@ unittest
 
 auto zipWith(fun, StoppingPolicy, Ranges...)(StoppingPolicy sp,
                                              Ranges ranges)
-    if (Ranges.length &&
+if (Ranges.length &&
         allSatisfy!(isInputRange, Ranges))
 {
     import std.range: zip;
@@ -1601,7 +1601,7 @@ Tuple!(R, size_t)[] findAllOfAnyInOrder(alias pred = `a == b`, R)(R haystack, R[
  * See_Also: http://forum.dlang.org/thread/wzsdhzycwqyrvqmmttix@forum.dlang.org?page=2#post-vprvhifglfegnlvzqmjj:40forum.dlang.org
  */
 bool areStrictlyOrdered(Ts...)(Ts args)
-    if (args.length >= 2 &&
+if (args.length >= 2 &&
         haveCommonType!Ts)
 {
     foreach (i, arg; args[1..$])
@@ -1627,7 +1627,7 @@ unittest
  * See_Also: http://forum.dlang.org/thread/wzsdhzycwqyrvqmmttix@forum.dlang.org?page=2#post-vprvhifglfegnlvzqmjj:40forum.dlang.org
 */
 bool areUnstrictlyOrdered(Ts...)(Ts args)
-    if (args.length >= 2 &&
+if (args.length >= 2 &&
         haveCommonType!Ts)
 {
     foreach (i, arg; args[1..$])
@@ -1659,7 +1659,7 @@ alias smul = mulu;
  */
 ref R append(R, Args...)(ref R data,
                          auto ref Args args)
-    if (args.length >= 1)
+if (args.length >= 1)
 {
     alias E = ElementType!R;
 
@@ -1809,7 +1809,7 @@ bool isAmong(alias pred = (a, b) => a == b,
              Value,
              Values...)(Value value,
                         Values values)
-    if (Values.length != 0)
+if (Values.length != 0)
 {
     import std.algorithm.comparison : among;
     return cast(bool)value.among!pred(values);
@@ -2047,7 +2047,7 @@ import std.range.primitives : hasLength;
  */
 bool equalLength(R, Ss...)(const R r, const Ss ss)
     @safe pure nothrow @nogc
-    if (Ss.length >= 1 &&
+if (Ss.length >= 1 &&
         allSatisfy!(hasLength, R, Ss))
 {
     foreach (const ref s; ss)

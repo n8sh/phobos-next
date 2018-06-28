@@ -164,7 +164,7 @@ import std.range.primitives : isInputRange;
     See_Also: https://issues.dlang.org/show_bug.cgi?id=7128
 */
 auto pairwise(R)(R r)
-    if (isInputRange!R)
+if (isInputRange!R)
 {
     struct Pairwise(R)
     {

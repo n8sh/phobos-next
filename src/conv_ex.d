@@ -165,7 +165,7 @@ private void parseCheck(alias source)(dchar c, string fn = __FILE__, size_t ln =
    TODO Reuse std.conv.parseEscape when moved there.
 */
 private dchar parseEscape(Source)(ref Source s)
-    if (isSourceOfSomeChar!Source)
+if (isSourceOfSomeChar!Source)
 {
     import std.range : empty, front, popFront;
     if (s.empty)
@@ -240,7 +240,7 @@ private dchar parseEscape(Source)(ref Source s)
     TODO Add to Phobos
  */
 auto decodeEscapes(Source)(Source s)
-    if (isSourceOfSomeChar!Source)
+if (isSourceOfSomeChar!Source)
 {
     alias E = ElementType!Source;
     static struct Result

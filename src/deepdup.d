@@ -18,7 +18,7 @@ import std.range : ElementType;
 alias TypeofDeepdup(T) = typeof(deepdup(T.init));
 
 ref Unqual!T deepdup(T)(T t)
-    if (is(T == struct) &&
+if (is(T == struct) &&
         !is(T.Types))
 {
     staticMap!(TypeofDeepdup, typeof(t.tupleof)) tup;
@@ -30,7 +30,7 @@ ref Unqual!T deepdup(T)(T t)
 }
 
 Tuple!(staticMap!(TypeofDeepdup, T.Types)) deepdup(T)(T t)
-    if (is(T.Types))
+if (is(T.Types))
 {
     staticMap!(TypeofDeepdup, T.Types) tup;
     foreach (const i, Type; tup)
@@ -41,7 +41,7 @@ Tuple!(staticMap!(TypeofDeepdup, T.Types)) deepdup(T)(T t)
 }
 
 Unqual!T deepdup(T)(T t)
-    if (is(T == class))
+if (is(T == class))
 {
     staticMap!(TypeofDeepdup, typeof(t.tupleof)) tup;
     foreach (const i, Type; tup)
@@ -52,7 +52,7 @@ Unqual!T deepdup(T)(T t)
 }
 
 TypeofDeepdup!(ElementType!T)[] deepdup(T)(T t)
-    if (isDynamicArray!T)
+if (isDynamicArray!T)
 {
     auto result = new TypeofDeepdup!(ElementType!T)[](t.length);
     foreach (const i, elem; t)
@@ -63,7 +63,7 @@ TypeofDeepdup!(ElementType!T)[] deepdup(T)(T t)
 }
 
 TypeofDeepdup!(ElementType!T)[T.length] deepdup(T)(T t)
-    if (isStaticArray!T)
+if (isStaticArray!T)
 {
     TypeofDeepdup!(ElementType!T)[T.length] result = t;
     foreach (ref elem; result)

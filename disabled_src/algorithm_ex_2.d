@@ -631,7 +631,7 @@ unittest
  */
 bool compare(string op, L, R, string fname = __FILE__, int line = __LINE__)
     (auto ref L lhs, auto ref R rhs)
-    if ((isIntegral!R &&  isIntegral!L) && op == "<" || op == ">" || op == "<=" ||
+if ((isIntegral!R &&  isIntegral!L) && op == "<" || op == ">" || op == "<=" ||
         op == ">=" || op == "==" || op == "!=")
 {
     alias LT = Unqual!L;
@@ -834,7 +834,7 @@ unittest
  * This function is inspired by http://www.forwardscattering.org/post/27
  */
 template bitCast(T, S)
-    if (T.sizeof == S.sizeof
+if (T.sizeof == S.sizeof
         && !is(S == T)
         && !(is(S== float) & (size_t.sizeof == 4))
         && !is(S == class)     && !is(T == class)
@@ -868,7 +868,7 @@ template bitCast(T, S)
 
 /// ditto
 template bitCast(T, S)
-    if (T.sizeof == S.sizeof && is(S == float)
+if (T.sizeof == S.sizeof && is(S == float)
         && !is(T == class) && !is(T == interface))
 {
     T bitCast(S[1] source...) pure

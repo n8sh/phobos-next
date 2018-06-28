@@ -63,7 +63,7 @@ void dln(string file = __FILE__,
 
  */
 template show(Args...)
-    if (Args.length >= 1)
+if (Args.length >= 1)
 {
     void show(string file = __FILE__,
               uint line = __LINE__,

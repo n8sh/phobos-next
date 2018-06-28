@@ -7,7 +7,7 @@ import std.traits : hasMember;
  */
 bool popFirstMaybe(alias pred = "a == b", C, E)(ref C haystack,
                                                 in E needle)
-    if (hasMember!(C, "length") &&
+if (hasMember!(C, "length") &&
         hasMember!(C, "popAt"))
     // TODO activate this restriction
     // if (hasSlicing!C &&

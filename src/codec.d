@@ -73,7 +73,7 @@ auto encodeForwardDifference_alt(R)(R r) if (isInputRange!R)
 }
 /** Alternative. */
 auto decodeForwardDifference_alt(E, R)(Tuple!(E, R) x)
-    if (isInputRange!R &&
+if (isInputRange!R &&
         is(ElementType!R == typeof(E - E)))
 {
     /* TODO Extract as ForwardSum */

@@ -6,7 +6,7 @@ import std.traits : isFloatingPoint, isSomeString;
     See_Also: https://en.wikipedia.org/wiki/World_Geodetic_System
    */
 struct WGS84Coordinate(T = double)
-    if (isFloatingPoint!T)
+if (isFloatingPoint!T)
 {
     @safe: // TODO nothrow @nogc
 
@@ -50,13 +50,13 @@ struct WGS84Coordinate(T = double)
 
 auto wgs84Coordinate(T)(T latitude,
                         T longitude)
-    if (isFloatingPoint!T)
+if (isFloatingPoint!T)
 {
     return WGS84Coordinate!T(latitude, longitude);
 }
 
 auto wgs84Coordinate(T = double, S, Separator)(S s, Separator separator = ` `)
-    if (isSomeString!S &&
+if (isSomeString!S &&
         isSomeString!Separator)
 {
     return WGS84Coordinate!T(s, separator);

@@ -39,7 +39,7 @@ bool isGCPointer(T)(const T* ptr)
 /** Returns: `true` iff all values `V` are the same.
  *
  * See_Also: https://forum.dlang.org/post/lnsreapgttmdeuscsupp@forum.dlang.org
-*/
+ */
 template allSameIterative(V...)
 {
     static if (V.length <= 1)
@@ -153,7 +153,7 @@ alias allSameType = allSameTypeIterative;
     See_Also: http://forum.dlang.org/post/mheumktihihfsxxxapff@forum.dlang.org
 */
 template allSameRecursive(V...)
-    if (isExpressions!V)
+if (isExpressions!V)
 {
     static if (V.length <= 1)
     {

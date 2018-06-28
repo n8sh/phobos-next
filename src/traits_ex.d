@@ -922,6 +922,7 @@ if (is(T == enum))
 auto uniqueEnumMembers(T)()
 if (is(T == enum))
 {
+    // TODO optimize with bitarray keeping track of which enumerators that have been added or not
     import std.algorithm : sort, uniq;
     return enumMembers!T.sort.uniq;
 }

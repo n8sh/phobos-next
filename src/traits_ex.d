@@ -926,11 +926,9 @@ auto uniqueEnumMembers(T)() @trusted
 if (is(T == enum))
 {
     import std.array : Appender;
-
     Appender!(T[]) uniqueMembers;
     enum maxLength = T.max - T.min + 1; // possibly overestimate of final length
     uniqueMembers.reserve(maxLength);
-
     enum maxBitCount = ((maxLength / (8*size_t.sizeof)) +
                         (maxLength % (8*size_t.sizeof) ? 1 : 0));
     size_t[maxBitCount] uniqueBits;

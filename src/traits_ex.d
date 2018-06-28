@@ -892,11 +892,12 @@ bool isNewline(S)(S s) @safe pure nothrow @nogc
     }
 }
 
-/** Dynamic variant of $(D EnumMembers) returning enum member constants (enumerators) of `T`.
+/** Dynamic variant of $(D EnumMembers) returning enum member constants
+ * (enumerators) of `T`.
  *
  * See_Also: http://forum.dlang.org/thread/bspwlfypfishykezzocx@forum.dlang.org#post-dguqnroxbfewerepomwq:40forum.dlang.org
  */
-T[] enumMembers(T)()
+T[] enumMembersAsEnumerators(T)()
 if (is(T == enum))
 {
     import std.array : Appender;
@@ -924,11 +925,15 @@ if (is(T == enum))
 {
     // TODO optimize with bitarray keeping track of which enumerators that have
     // been added or not
+    import bitarray : BitArray;
     import std.algorithm : sort, uniq;
-    return enumMembers!T.sort.uniq;
+    return enumMembersAsEnumerators!T.sort.uniq;
 }
 
-/** Hash-table version of `uniqueEnumMembers`. */
+/** Hash-table version of `uniqueEnumMembers`.
+ *
+ * Probably to slow and memory costly compared to bit array version.
+ */
 auto uniqueEnumMembersHashed(T)()
 if (is(T == enum))
 {
@@ -946,7 +951,7 @@ if (is(T == enum))
 {
     enum E { x, y, z, Z = z, Y = y }
     import std.algorithm.comparison : equal;
-    assert(enumMembers!E.equal([E.x, E.y, E.z, E.Z, E.Y])); // run-time
+    assert(enumMembersAsEnumerators!E.equal([E.x, E.y, E.z, E.Z, E.Y])); // run-time
     assert(uniqueEnumMembers!E.equal([E.x, E.y, E.z])); // run-time
     static assert(uniqueEnumMembers!E.equal([E.x, E.y, E.z])); // compile-time
     static assert(E.x == 0);

@@ -902,7 +902,7 @@ if (is(T == enum))
 {
     import std.array : Appender;
     Appender!(T[]) members; // TODO use static array instead
-    members.reserve(T.max - T.min + 1); // may be overestimate
+    members.reserve(T.max - T.min + 1); // possibly overestimate of final length needed
     foreach (const index, const member; __traits(allMembers, T))
     {
         members.put(__traits(getMember, T, member));
@@ -927,7 +927,7 @@ if (is(T == enum))
     import bitarray : BitArray;
     import std.array : Appender;
     Appender!(T[]) uniqueMembers;
-    uniqueMembers.reserve(T.max - T.min + 1); // may be overestimate
+    uniqueMembers.reserve(T.max - T.min + 1); // possibly overestimate of final length needed
     foreach (const member; __traits(allMembers, T))
     {
         uniqueMembers.put(__traits(getMember, T, member));

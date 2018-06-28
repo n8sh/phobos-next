@@ -931,7 +931,7 @@ if (is(T == enum))
     uniqueMembers.reserve(maxLength);
     enum maxBitCount = ((maxLength / (8*size_t.sizeof)) +
                         (maxLength % (8*size_t.sizeof) ? 1 : 0));
-    size_t[maxBitCount] uniqueBits;
+    size_t[maxBitCount] uniqueBits; // dense set representation
     foreach (const member; __traits(allMembers, T))
     {
         const memberEnumerator = __traits(getMember, T, member);

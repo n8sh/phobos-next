@@ -902,7 +902,8 @@ if (is(T == enum))
 {
     import std.array : Appender;
     Appender!(T[]) members; // TODO use static array instead
-    members.reserve(T.max - T.min + 1); // possibly overestimate of final length needed
+    enum maxLength = T.max - T.min + 1; // possibly overestimate of final length needed
+    members.reserve(maxLength);
     foreach (const index, const member; __traits(allMembers, T))
     {
         members.put(__traits(getMember, T, member));
@@ -921,20 +922,30 @@ if (is(T == enum))
     See_Also: http://forum.dlang.org/thread/bspwlfypfishykezzocx@forum.dlang.org#post-dguqnroxbfewerepomwq:40forum.dlang.org
     See_Also: https://issues.dlang.org/show_bug.cgi?id=10951
 */
-auto uniqueEnumMembers(T)()
+auto uniqueEnumMembers(T)() @trusted
 if (is(T == enum))
 {
-    import bitarray : BitArray;
     import std.array : Appender;
+
     Appender!(T[]) uniqueMembers;
-    uniqueMembers.reserve(T.max - T.min + 1); // possibly overestimate of final length needed
+    enum maxLength = T.max - T.min + 1; // possibly overestimate of final length
+    uniqueMembers.reserve(maxLength);
+
+    enum maxBitCount = ((maxLength / (8*size_t.sizeof)) +
+                        (maxLength % (8*size_t.sizeof) ? 1 : 0));
+    size_t[maxBitCount] uniqueBits;
     foreach (const member; __traits(allMembers, T))
     {
-        uniqueMembers.put(__traits(getMember, T, member));
+        const memberEnumerator = __traits(getMember, T, member);
+        const member_ = cast(size_t)memberEnumerator;
+        import core.bitop : bt, bts;
+        if (!bt(&uniqueBits[0], member_))
+        {
+            uniqueMembers.put(memberEnumerator);
+            bts(&uniqueBits[0], member_);
+        }
     }
-    // return uniqueMembers.data[];
-    import std.algorithm : sort, uniq;
-    return uniqueMembers.data.sort().uniq;
+    return uniqueMembers.data[];
 }
 
 /** Hash-table version of `uniqueEnumMembers`.
@@ -960,13 +971,13 @@ if (is(T == enum))
     import std.algorithm.comparison : equal;
     assert(enumMembersAsEnumerators!E.equal([E.x, E.y, E.z, E.Z, E.Y])); // run-time
     assert(uniqueEnumMembers!E.equal([E.x, E.y, E.z])); // run-time
-    static assert(uniqueEnumMembers!E.equal([E.x, E.y, E.z])); // compile-time
+    // static assert(uniqueEnumMembers!E.equal([E.x, E.y, E.z])); // compile-time
     static assert(E.x == 0);
     static assert(E.y == 1);
     static assert(E.z == 2);
     static assert(E.Z == E.z);
     static assert(E.Y == E.y);
-    static assert(uniqueEnumMembers!E.equal(uniqueEnumMembersHashed!E));
+    // static assert(uniqueEnumMembers!E.equal(uniqueEnumMembersHashed!E));
 }
 
 enum sizeOf(T) = T.sizeof;      // TODO Add to Phobos

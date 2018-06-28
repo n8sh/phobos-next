@@ -942,22 +942,6 @@ if (is(T == enum))
     return uniqueMembers.data[];
 }
 
-/** Hash-table version of `uniqueEnumMembers`.
- *
- * Probably to slow and memory costly compared to bit array version.
- */
-auto uniqueEnumMembersHashed(T)()
-if (is(T == enum))
-{
-    import std.traits : EnumMembers;
-    bool[T] uniquifier;
-    foreach (const member; EnumMembers!T)
-    {
-        uniquifier[member] = true;
-    }
-    return uniquifier.keys; // `keys` can be evaluate at compile-time but not `byKey`
-}
-
 ///
 @safe pure nothrow /*@nogc*/ unittest
 {
@@ -971,7 +955,6 @@ if (is(T == enum))
     static assert(E.z == 2);
     static assert(E.Z == E.z);
     static assert(E.Y == E.y);
-    // static assert(uniqueEnumMembers!E.equal(uniqueEnumMembersHashed!E));
 }
 
 enum sizeOf(T) = T.sizeof;      // TODO Add to Phobos

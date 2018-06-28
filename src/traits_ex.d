@@ -899,8 +899,13 @@ bool isNewline(S)(S s) @safe pure nothrow @nogc
 auto enumMembers(T)()
 if (is(T == enum))
 {
-    import std.traits : EnumMembers;
-    return [EnumMembers!T];
+    import std.array : Appender;
+    Appender!(T[]) members;     // TODO use static array instead
+    foreach (const index, const member; __traits(allMembers, T))
+    {
+        members.put(__traits(getMember, T, member));
+    }
+    return members.data[];
 }
 
 /** Dynamic Variant of $(D EnumMembers) excluding the enumerator aliases.

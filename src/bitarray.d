@@ -3,7 +3,8 @@ module bitarray;
 @safe:
 
 /** Array of bits.
-    Like `std.bitmanip.BitArray` but @safe pure nothrow @nogc.
+ *
+ * Like `std.bitmanip.BitArray` but @safe pure nothrow @nogc.
  */
 struct BitArray(alias Allocator = null) // TODO use Allocator
 {
@@ -14,9 +15,9 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     @safe pure nothrow @nogc:
 
     /** Construct with `length` number of zero bits. */
-    pragma(inline)              // TODO DMD cannot inline this
     static typeof(this) withLength(size_t length) @trusted
     {
+        version(LDC) pragma(inline, true);
         typeof(return) that;
         that._blockCount = ((length / blockBits) + // number of whole blocks
                             (length % blockBits ? 1 : 0)); // remained block
@@ -26,10 +27,10 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     }
 
     /** Construct with `length` number of zero bits stored in `blocks`. */
-    pragma(inline)              // TODO DMD cannot inline this
     static typeof(this) withLengthAndBlocks(size_t length,
                                             Block[] blocks) @trusted
     {
+        version(LDC) pragma(inline, true);
         typeof(return) that;
         that._blockCount = blocks.length;
         that._blockPtr = cast(Block*)pureMalloc(blockBits * that._blockCount);
@@ -103,9 +104,9 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     }
 
     /** Get number of bits set. */
-    pragma(inline, false)
     size_t countOnes()() const  // template-lazy
     {
+        version(LDC) pragma(inline, true);
         typeof(return) n = 0;
         foreach (const block; _blocks)
         {

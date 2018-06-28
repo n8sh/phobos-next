@@ -896,7 +896,7 @@ bool isNewline(S)(S s) @safe pure nothrow @nogc
  *
  * See_Also: http://forum.dlang.org/thread/bspwlfypfishykezzocx@forum.dlang.org#post-dguqnroxbfewerepomwq:40forum.dlang.org
  */
-auto enumMembers(T)()
+T[] enumMembers(T)()
 if (is(T == enum))
 {
     import std.array : Appender;

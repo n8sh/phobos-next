@@ -901,7 +901,7 @@ if (is(T == enum))
 {
     import std.array : Appender;
     Appender!(T[]) members;     // TODO use static array instead
-    foreach (const index, const member; )
+    foreach (const index, const member; __traits(allMembers, T))
     {
         members.put(__traits(getMember, T, member));
     }

@@ -901,7 +901,8 @@ T[] enumMembersAsEnumerators(T)()
 if (is(T == enum))
 {
     import std.array : Appender;
-    Appender!(typeof(return)) members; // TODO use static array instead
+    Appender!(T[]) members; // TODO use static array instead
+    members.reserve(T.max - T.min + 1);
     foreach (const index, const member; __traits(allMembers, T))
     {
         members.put(__traits(getMember, T, member));
@@ -923,11 +924,17 @@ if (is(T == enum))
 auto uniqueEnumMembers(T)()
 if (is(T == enum))
 {
-    // TODO optimize with bitarray keeping track of which enumerators that have
-    // been added or not
     import bitarray : BitArray;
+    import std.array : Appender;
+    Appender!(T[]) uniqueMembers;
+    uniqueMembers.reserve(T.max - T.min + 1);
+    foreach (const member; __traits(allMembers, T))
+    {
+        uniqueMembers.put(__traits(getMember, T, member));
+    }
+    // return uniqueMembers.data[];
     import std.algorithm : sort, uniq;
-    return enumMembersAsEnumerators!T.sort.uniq;
+    return uniqueMembers.data.sort().uniq;
 }
 
 /** Hash-table version of `uniqueEnumMembers`.

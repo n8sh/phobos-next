@@ -1273,6 +1273,7 @@ private:
      * (ignoring) lazily deleted slots.
      */
     private size_t indexOfKeyOrVacancySkippingHoles(const scope K key) const // `auto ref` here makes things slow
+        @trusted
     {
         version(LDC) pragma(inline, true);
         version(internalUnittest)
@@ -1337,6 +1338,7 @@ private:
 
     private size_t indexOfKeyOrVacancyAndFirstHole(const scope K key, // `auto ref` here makes things slow
                                                    ref size_t holeIndex) const
+        @trusted
     {
         version(LDC) pragma(inline, true);
         version(internalUnittest)
@@ -3054,6 +3056,26 @@ version(unittest)
 
     assert(x.remove(Alt.a));
     assert(!x.contains(Alt.a));
+}
+
+///
+@safe pure nothrow
+unittest
+{
+    static struct Rel
+    {
+        static immutable nullValue = typeof(this).init;
+        string name;                // relation name
+    }
+    alias X = OpenHashSet!(Rel, FNV!(64, true));
+    X x;
+    foreach (const i; 0 .. 100)
+    {
+        const char[1] ch = ['a' + i];
+        assert(!x.contains(Rel(ch.idup)));
+        x.insert(Rel(ch.idup));
+        assert(x.contains(Rel(ch.idup)));
+    }
 }
 
 version(unittest)

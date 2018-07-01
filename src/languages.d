@@ -572,25 +572,6 @@ string toMathML(Lang lang) @safe pure nothrow /*TODO @nogc*/
     return lang.toHTML;
 }
 
-Lang language(string name) @safe pure nothrow @nogc
-{
-    switch (name)
-    {
-        case `C`:
-            return Lang.c;
-        case `C++`:
-            return Lang.cxx;
-        case `Objective-C`:
-            return Lang.objectiveC;
-        case `D`:
-            return Lang.d;
-        case `Java`:
-            return Lang.java;
-        default:
-            return Lang.unknown;
-    }
-}
-
 /** Markup Lang */
 enum MarkupLang:ubyte
 {

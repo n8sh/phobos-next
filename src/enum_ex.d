@@ -40,7 +40,7 @@ if (is(T == enum))
 {
     import std.meta : AliasSeq;
     /* TODO skip wrapping in `AliasSeq` when `allMembers` can be iterated
-     * directly when bug in compiler has been fixed */
+     * directly when a bug in compiler has been fixed */
     alias members = AliasSeq!(__traits(allMembers, T));
     final switch (value)
     {

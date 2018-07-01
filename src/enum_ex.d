@@ -39,7 +39,7 @@ string toStringFaster(T)(T value) @safe pure nothrow @nogc
 if (is(T == enum))
 {
     import std.meta : AliasSeq;
-    alias members = AliasSeq!(__traits(allMembers, T));
+    alias members = AliasSeq!(__traits(allMembers, T)); // TODO skip wrapping in `AliasSeq` when `allMembers` can be iterated directly
     final switch (value)
     {
         static foreach (index, member; members)

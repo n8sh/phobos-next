@@ -104,7 +104,6 @@ class Edge
 
 class SubkindOf : Edge
 {
-    @safe pure:
 }
 
 @safe pure nothrow unittest

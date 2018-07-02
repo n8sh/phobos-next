@@ -111,9 +111,23 @@ class SubkindOf : Edge
 {
     auto subkindOf = new SubkindOf();
 }
-
 ```
 
+errors as
+
+
+```
+/home/per/Work/knet/phobos-next/snippets/abstract_members.d(19,22): Error: cannot create instance of abstract class `SubkindOf`
+/home/per/Work/knet/phobos-next/snippets/abstract_members.d(19,22):        function `Rel rel() const pure nothrow @nogc @safe` is not implemented
+```
+
+should be
+
+```
+/home/per/Work/knet/phobos-next/snippets/abstract_members.d(19,22): Error: cannot create instance of abstract class `SubkindOf`
+/home/per/Work/knet/phobos-next/snippets/abstract_members.d(9,22):         function `Rel rel() const pure nothrow @nogc @safe` defined here
+/home/per/Work/knet/phobos-next/snippets/abstract_members.d(12,22):        is not implemented in class `SubkindOf` defined here
+```
 
 - Overriding
 

@@ -91,7 +91,7 @@ This will speed up container instantations.
 - Better diagnostics when calling abstract members
 
 ```D
-
+/// Test diagnostics for abstract members.
 module abstract_members;
 
 enum Rel { subkindOf, partOf }
@@ -125,7 +125,7 @@ should something like be
 
 ```
 /home/per/Work/knet/phobos-next/snippets/abstract_members.d(19,22): Error: cannot create instance of abstract class `SubkindOf`
-/home/per/Work/knet/phobos-next/snippets/abstract_members.d(9,22):         function `Rel rel() const pure nothrow @nogc @safe` defined here
+/home/per/Work/knet/phobos-next/snippets/abstract_members.d(9,4):         function `Rel rel() const pure nothrow @nogc @safe` defined here
 /home/per/Work/knet/phobos-next/snippets/abstract_members.d(12,22):        is not implemented in class `SubkindOf` defined here
 ```
 

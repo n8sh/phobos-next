@@ -61,6 +61,7 @@ And make their destruction deterministic.
 For instance:
 
 ```D
+
 T sum(T)(in T[] x) // x cannot escape scope of `sum`
 {
     /// calculate and return sum of `x` ...
@@ -86,6 +87,33 @@ This will speed up container instantations.
 ## Add builtin property `x.moveSelf` and `x.moveTo(y)` that avoids zero-init at the end and forbids use after movee like in Rust.
 
 ### Diagnostics
+
+- Better diagnostics when calling abstract members
+
+```D
+
+module abstract_members;
+
+enum Rel { subkindOf, partOf }
+
+class Edge
+{
+    @safe pure:
+    abstract Rel rel() const nothrow @nogc;
+}
+
+class SubkindOf : Edge
+{
+    @safe pure:
+}
+
+@safe pure nothrow unittest
+{
+    auto subkindOf = new SubkindOf();
+}
+
+```
+
 
 - Overriding
 

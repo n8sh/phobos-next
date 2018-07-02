@@ -124,8 +124,8 @@ errors as
 should something like be
 
 ```
-/home/per/Work/knet/phobos-next/snippets/abstract_members.d(19,22): Error: cannot create instance of abstract class `SubkindOf` because
-/home/per/Work/knet/phobos-next/snippets/abstract_members.d(9,4):          abstract function `Rel rel() const pure nothrow @nogc @safe` defined here
+/home/per/Work/knet/phobos-next/snippets/abstract_members.d(19,22): Error: cannot create instance of abstract class `SubkindOf`
+/home/per/Work/knet/phobos-next/snippets/abstract_members.d(9,4):          because abstract function `Rel rel() const pure nothrow @nogc @safe` defined here
 /home/per/Work/knet/phobos-next/snippets/abstract_members.d(12,22):        is not implemented in class `SubkindOf` defined here
 ```
 

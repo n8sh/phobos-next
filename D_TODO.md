@@ -121,7 +121,7 @@ errors as
 /home/per/Work/knet/phobos-next/snippets/abstract_members.d(19,22):        function `Rel rel() const pure nothrow @nogc @safe` is not implemented
 ```
 
-should be
+should something like be
 
 ```
 /home/per/Work/knet/phobos-next/snippets/abstract_members.d(19,22): Error: cannot create instance of abstract class `SubkindOf`

@@ -3,8 +3,6 @@ module abstract_members;
 
 enum Rel { subkindOf, partOf }
 
-@safe pure:
-
 class Edge
 {
     @safe pure:
@@ -14,22 +12,9 @@ class Edge
 class SubkindOf : Edge
 {
     @safe pure:
-    override Rel rel() const nothrow @nogc
-    {
-        return Rel.subkindOf;
-    }
-}
-
-class PartOf : Edge
-{
-    override Rel rel() const nothrow @nogc
-    {
-        return Rel.subkindOf;
-    }
 }
 
 @safe pure nothrow unittest
 {
     auto subkindOf = new SubkindOf();
-    assert(subkindOf.rel == Rel.subkindOf);
 }

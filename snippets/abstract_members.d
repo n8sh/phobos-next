@@ -30,6 +30,6 @@ class PartOf : Edge
 
 @safe pure nothrow unittest
 {
-    auto edge = new SubkindOf();
-    assert(edge.rel == Rel.subkindOf);
+    auto subkindOf = new SubkindOf();
+    assert(subkindOf.rel == Rel.subkindOf);
 }

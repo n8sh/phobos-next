@@ -1006,7 +1006,7 @@ struct OpenHashMapOrSet(K, V = void,
     static if (hasValue)        // HashMap
     {
         scope inout(V)* opBinaryRight(string op)(const scope K key) inout return // `auto ref` here makes things slow
-            if (op == `in`)
+        if (op == `in`)
         {
             version(LDC) pragma(inline, true);
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);

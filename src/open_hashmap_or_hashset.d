@@ -266,7 +266,7 @@ struct OpenHashMapOrSet(K, V = void,
      *
      * For instance `const(char)[]` can be cast to `string`.
      */
-    enum isScopedKey(SomeKey) = is(typeof(cast(SomeKey)key));
+    enum isScopedKey(SomeKey) = is(typeof(cast(K)key));
 
     alias ElementType = T;
 
@@ -1026,10 +1026,10 @@ struct OpenHashMapOrSet(K, V = void,
 
         /// Indexing.
         scope ref inout(V) opIndex(SomeKey)(const scope SomeKey key) inout return @trusted // `auto ref` here makes things slow
-        if (is(typeof(cast(SomeKey)key))) // can be cast to `K`, for instance: const(char)[] => string
+        if (is(typeof(cast(K)key))) // can be cast to `K`, for instance: const(char)[] => string
         {
             version(LDC) pragma(inline, true);
-            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(SomeKey)key);
+            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)key);
             if (hitIndex != _bins.length &&
                 isOccupiedAtIndex(hitIndex))
             {

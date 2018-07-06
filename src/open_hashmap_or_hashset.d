@@ -634,7 +634,7 @@ struct OpenHashMapOrSet(K, V = void,
      *
      * Returns: `true` if element is present, `false` otherwise.
      */
-    bool contains(KeyType)(const scope KeyType key) const @trusted // template-lazy, `auto ref` here makes things slow
+    bool contains(SomeKey)(const scope SomeKey key) const @trusted // template-lazy, `auto ref` here makes things slow
     if (is(typeof(cast(K)key))) // can be cast to key, for instance: const(char)[] => string
     {
         version(LDC) pragma(inline, true);

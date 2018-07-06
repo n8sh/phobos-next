@@ -33,7 +33,7 @@ import pure_mallocator : PureMallocator;
  *
  * TODO support `in` operator with non-immutable array keys such as
  * `const(char)[]` when key-type is `string`. Then search for in with
- * `cast(string)` and `cast immutable` and remove the cast.
+ * `cast.*string` and `cast.*immutable` and remove the cast.
  *
  * TODO modify existing unittest for `struct Rel { const string name; }`
  *

@@ -989,7 +989,7 @@ struct OpenHashMapOrSet(K, V = void,
     static if (!hasValue)       // HashSet
     {
         scope const(K)* opBinaryRight(string op, KeyType)(const scope KeyType key) const return @trusted
-        if (op == "in" &&
+        if (op == `in` &&
             is(typeof(cast(K)key))) // can be cast to key, for instance: const(char)[] => string
         {
             pragma(inline, true);
@@ -1006,7 +1006,7 @@ struct OpenHashMapOrSet(K, V = void,
     static if (hasValue)        // HashMap
     {
         scope inout(V)* opBinaryRight(string op)(const scope K key) inout return // `auto ref` here makes things slow
-            if (op == "in")
+            if (op == `in`)
         {
             version(LDC) pragma(inline, true);
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);

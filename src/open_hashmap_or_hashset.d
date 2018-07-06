@@ -988,7 +988,7 @@ struct OpenHashMapOrSet(K, V = void,
 
     static if (!hasValue)       // HashSet
     {
-        scope const(K)* opBinaryRight(string op, KeyType)(const scope KeyType key) const return @trusted
+        scope const(K)* opBinaryRight(string op, SomeKey)(const scope SomeKey key) const return @trusted
         if (op == `in` &&
             is(typeof(cast(K)key))) // can be cast to key, for instance: const(char)[] => string
         {
@@ -1005,7 +1005,7 @@ struct OpenHashMapOrSet(K, V = void,
 
     static if (hasValue)        // HashMap
     {
-        scope inout(V)* opBinaryRight(string op, KeyType)(const scope KeyType key) inout return @trusted // `auto ref` here makes things slow
+        scope inout(V)* opBinaryRight(string op, SomeKey)(const scope SomeKey key) inout return @trusted // `auto ref` here makes things slow
         if (op == `in` &&
             is(typeof(cast(K)key))) // can be cast to key, for instance: const(char)[] => string
         {
@@ -1023,11 +1023,11 @@ struct OpenHashMapOrSet(K, V = void,
         }
 
         /// Indexing.
-        scope ref inout(V) opIndex(KeyType)(const scope KeyType key) inout return @trusted // `auto ref` here makes things slow
-        if (is(typeof(cast(KeyType)key))) // can be cast to key, for instance: const(char)[] => string
+        scope ref inout(V) opIndex(SomeKey)(const scope SomeKey key) inout return @trusted // `auto ref` here makes things slow
+        if (is(typeof(cast(SomeKey)key))) // can be cast to key, for instance: const(char)[] => string
         {
             version(LDC) pragma(inline, true);
-            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(KeyType)key);
+            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(SomeKey)key);
             if (hitIndex != _bins.length &&
                 isOccupiedAtIndex(hitIndex))
             {

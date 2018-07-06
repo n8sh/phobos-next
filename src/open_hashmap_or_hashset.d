@@ -631,7 +631,7 @@ struct OpenHashMapOrSet(K, V = void,
      * Returns: `true` if element is present, `false` otherwise.
      */
     bool contains(SomeKey)(const scope SomeKey key) const @trusted // template-lazy, `auto ref` here makes things slow
-    if (is(typeof(cast(K)key))) // can be cast to key, for instance: const(char)[] => string
+    if (is(typeof(cast(K)key))) // can be cast to `K`, for instance: const(char)[] => string
     {
         version(LDC) pragma(inline, true);
         assert(!key.isNull);
@@ -986,7 +986,7 @@ struct OpenHashMapOrSet(K, V = void,
     {
         scope const(K)* opBinaryRight(string op, SomeKey)(const scope SomeKey key) const return @trusted
         if (op == `in` &&
-            is(typeof(cast(K)key))) // can be cast to key, for instance: const(char)[] => string
+            is(typeof(cast(K)key))) // can be cast to `K`, for instance: const(char)[] => string
         {
             pragma(inline, true);
             assert(!key.isNull);
@@ -1003,7 +1003,7 @@ struct OpenHashMapOrSet(K, V = void,
     {
         scope inout(V)* opBinaryRight(string op, SomeKey)(const scope SomeKey key) inout return @trusted // `auto ref` here makes things slow
         if (op == `in` &&
-            is(typeof(cast(K)key))) // can be cast to key, for instance: const(char)[] => string
+            is(typeof(cast(K)key))) // can be cast to `K`, for instance: const(char)[] => string
         {
             version(LDC) pragma(inline, true);
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)key);
@@ -1020,7 +1020,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         /// Indexing.
         scope ref inout(V) opIndex(SomeKey)(const scope SomeKey key) inout return @trusted // `auto ref` here makes things slow
-        if (is(typeof(cast(SomeKey)key))) // can be cast to key, for instance: const(char)[] => string
+        if (is(typeof(cast(SomeKey)key))) // can be cast to `K`, for instance: const(char)[] => string
         {
             version(LDC) pragma(inline, true);
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(SomeKey)key);

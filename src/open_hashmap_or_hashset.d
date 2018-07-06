@@ -634,7 +634,7 @@ struct OpenHashMapOrSet(K, V = void,
      *
      * Returns: `true` if element is present, `false` otherwise.
      */
-    bool contains()(const scope K key) const @trusted // template-lazy, `auto ref` here makes things slow
+    bool contains(KeyType)(const scope KeyType key) const @trusted // template-lazy, `auto ref` here makes things slow
     if (is(typeof(cast(K)key))) // can be cast to key, for instance: const(char)[] => string
     {
         version(LDC) pragma(inline, true);
@@ -988,24 +988,18 @@ struct OpenHashMapOrSet(K, V = void,
 
     static if (!hasValue)       // HashSet
     {
-        scope const(K)* opBinaryRight(string op)(const scope K key) const return
-            if (op == "in")
+        scope const(K)* opBinaryRight(string op, KeyType)(const scope KeyType key) const return @trusted
+        if (op == "in" &&
+            is(typeof(cast(K)key))) // can be cast to key, for instance: const(char)[] => string
         {
             pragma(inline, true);
             assert(!key.isNull);
-            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
+            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)key);
             return (hitIndex != _bins.length &&
                     isOccupiedAtIndex(hitIndex)) ? &_bins[hitIndex] :
             null; /* TODO instead of null return a reference to a struct SlotRef
                    * when assigned to sets value in slot and increases
                    * table._count += 1; */
-        }
-        /// ditto
-        scope const(K)* opBinaryRight(string op, KeyType)(const scope KeyType key) const return @trusted
-        if (op == "in" &&
-            is(typeof(cast(string)key))) // can be cast to key, for instance: const(char)[] => string
-        {
-            return opBinaryRight!(`in`)(cast(K)key);
         }
     }
 

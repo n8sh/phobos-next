@@ -266,7 +266,7 @@ struct OpenHashMapOrSet(K, V = void,
      *
      * For instance `const(char)[]` can be cast to `string`.
      */
-    enum isScopedKey(SomeKey) = is(typeof(cast(K)key));
+    enum isScopedKey(alias key) = is(typeof(cast(K)key));
 
     alias ElementType = T;
 

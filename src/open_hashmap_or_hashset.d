@@ -995,6 +995,16 @@ struct OpenHashMapOrSet(K, V = void,
                    * when assigned to sets value in slot and increases
                    * table._count += 1; */
         }
+        /// ditto
+        static if (is(K == string))
+        {
+            scope const(K)* opBinaryRight(string op, KeyType)(const scope KeyType key) const return @trusted
+            if (op == "in" &&
+                is(typeof(cast(string)key))) // can be cast to string
+            {
+                return opBinaryRight!(`in`)(cast(string)key);
+            }
+        }
     }
 
     static if (hasValue)        // HashMap
@@ -1769,6 +1779,9 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     // (.ptr) in memory
     x.insert(aa[0 .. 1]);
     assert(x.contains(aa[1 .. 2]));
+
+    const(char)[] aa_ = "aa";
+    assert(aa_[1 .. 2] in x);
 
     const bb = "bb";
 

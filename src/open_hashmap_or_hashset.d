@@ -628,13 +628,18 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /** Check if `element` is stored.
-        Returns: `true` if element is present, `false` otherwise.
-    */
-    bool contains()(const scope K key) const // template-lazy, `auto ref` here makes things slow
+     *
+     * Parameter `key` may be non-immutable, for instance const(char)[]
+     * eventhough key type `K` is `string`.
+     *
+     * Returns: `true` if element is present, `false` otherwise.
+     */
+    bool contains()(const scope K key) const @trusted // template-lazy, `auto ref` here makes things slow
+    if (is(typeof(cast(K)key))) // can be cast to key, for instance: const(char)[] => string
     {
         version(LDC) pragma(inline, true);
         assert(!key.isNull);
-        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
+        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)key);
         return (hitIndex != _bins.length &&
                 isOccupiedAtIndex(hitIndex));
     }
@@ -996,14 +1001,11 @@ struct OpenHashMapOrSet(K, V = void,
                    * table._count += 1; */
         }
         /// ditto
-        static if (is(K == string))
+        scope const(K)* opBinaryRight(string op, KeyType)(const scope KeyType key) const return @trusted
+        if (op == "in" &&
+            is(typeof(cast(string)key))) // can be cast to key, for instance: const(char)[] => string
         {
-            scope const(K)* opBinaryRight(string op, KeyType)(const scope KeyType key) const return @trusted
-            if (op == "in" &&
-                is(typeof(cast(string)key))) // can be cast to string
-            {
-                return opBinaryRight!(`in`)(cast(string)key);
-            }
+            return opBinaryRight!(`in`)(cast(K)key);
         }
     }
 

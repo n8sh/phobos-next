@@ -31,9 +31,9 @@ import pure_mallocator : PureMallocator;
  * See_Also: https://en.wikipedia.org/wiki/Lazy_deletion
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  *
- * TODO support `in` operator with non-immutable array keys such as
- * `const(char)[]` when key-type is `string`. Then search for in with
- * `cast.*string` and `cast.*immutable` and remove the cast.
+ * TODO support `in` operator with non-immutable array keys in both set and map
+ * case such as `const(char)[]` when key-type is `string`. Then search for in
+ * with `cast.*string` and `cast.*immutable` and remove the cast.
  *
  * TODO modify existing unittest for `struct Rel { const string name; }`
  *

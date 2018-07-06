@@ -1779,6 +1779,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     assert(x.contains(aa[1 .. 2]));
 
     const(char)[] aa_ = "aa";
+    assert(x.contains(aa_[1 .. 2]));
     assert(aa_[1 .. 2] in x);
 
     const bb = "bb";

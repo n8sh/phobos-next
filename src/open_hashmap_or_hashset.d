@@ -31,7 +31,7 @@ import pure_mallocator : PureMallocator;
  * See_Also: https://en.wikipedia.org/wiki/Lazy_deletion
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  *
- * TODO support in operator with non-immutable array keys such as const(char)[] when key-type is string
+ * TODO support in operator with non-immutable array keys such as `const(char)[]` when key-type is `string`
  *
  * TODO modify existing unittest for `struct Rel { const string name; }`
  *

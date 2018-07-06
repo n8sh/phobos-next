@@ -262,6 +262,12 @@ struct OpenHashMapOrSet(K, V = void,
                               const scope ref b) => a is b;
     }
 
+    /** Is `true` if `SomeKey` can be cast to `K`.
+     *
+     * For instance `const(char)[]` can be cast to `string`.
+     */
+    enum isScopedKey(SomeKey) = is(typeof(cast(SomeKey)key));
+
     alias ElementType = T;
 
     /** Make with room for storing at least `minimumCapacity` number of elements.

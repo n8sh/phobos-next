@@ -93,14 +93,8 @@ This will speed up container instantations.
 ```D
 struct S
 {
-   void f()
-   {
-       f();
-   }
-   int g()
-   {
-       return g();
-   }
+   void f() { f(); }
+   int g() { return g(); }
 }
 ```
 

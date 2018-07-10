@@ -109,7 +109,7 @@ Start with the trivial case
 struct S
 {
    void f() { return f; } // TODO should be return _f;
-   int _f;
+   private int _f;
 }
 ```
 

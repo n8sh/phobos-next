@@ -97,6 +97,10 @@ struct S
    {
        f();
    }
+   int g()
+   {
+       return g();
+   }
 }
 ```
 

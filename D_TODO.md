@@ -100,7 +100,8 @@ void f() { f(); }
 int g() { return g(); }
 ```
 
-Pure functions should be easier.
+Pure functions should be easier than non-pure functions that modify global
+state.
 
 - Better diagnostics when calling abstract members
 

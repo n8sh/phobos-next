@@ -100,6 +100,8 @@ void f() { f(); }
 int g() { return g(); }
 ```
 
+Pure functions should be easier.
+
 - Better diagnostics when calling abstract members
 
 ```D

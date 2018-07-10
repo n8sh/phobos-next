@@ -103,6 +103,18 @@ int g() { return g(); }
 Pure functions should be easier than non-pure functions that modify global
 state.
 
+Start with the trivial case
+
+```D
+struct S
+{
+   void f() { return f; } // TODO should be return _f;
+   int _f;
+}
+```
+
+which has bugged me several cases before.
+
 - Better diagnostics when calling abstract members
 
 ```D

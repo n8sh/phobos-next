@@ -88,6 +88,18 @@ This will speed up container instantations.
 
 ### Diagnostics
 
+- Detect infinite functions recursion that overflow the stack for instance
+
+```D
+struct S
+{
+   void f()
+   {
+       f();
+   }
+}
+```
+
 - Better diagnostics when calling abstract members
 
 ```D

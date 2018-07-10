@@ -96,6 +96,8 @@ struct S
    void f() { f(); }
    int g() { return g(); }
 }
+void f() { f(); }
+int g() { return g(); }
 ```
 
 - Better diagnostics when calling abstract members

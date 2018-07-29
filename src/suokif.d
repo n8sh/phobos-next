@@ -60,10 +60,10 @@ alias Exprs = FixedArray!(SExpr, 128);
 
     See_Also: https://en.wikipedia.org/wiki/Sentinel_value
  */
-pragma(inline, true)
 bool isNullTerminated(const(char)[] s)
     @safe pure nothrow @nogc
 {
+    pragma(inline, true);
     return s.length >= 1 && s[$ - 1] == '\0';
 }
 
@@ -104,22 +104,22 @@ struct SUOKIFParser
         nextFront();
     }
 
-    pragma(inline, true)
     @property bool empty() const nothrow scope @nogc
     {
+        pragma(inline, true);
         return _endOfFile;
     }
 
-    pragma(inline, true)
     ref const(SExpr) front() const return scope
     {
+        pragma(inline, true);
         assert(!empty);
         return exprs.back;
     }
 
-    pragma(inline, true)
     void popFront()
     {
+        pragma(inline, true);
         assert(!empty);
         exprs.popBack();
         nextFront();
@@ -143,53 +143,53 @@ struct SUOKIFParser
 private:
 
     /// Get next `char` in input.
-    pragma(inline, true)
     char peekNext() const nothrow @nogc
     {
+        pragma(inline, true);
         return _input[_offset];    // TODO .ptr
     }
 
     /// Get next `char` in input.
-    pragma(inline, true)
     char peekNextNth(size_t n) const nothrow @nogc
     {
+        pragma(inline, true);
         return _input[_offset + n]; // TODO .ptr
     }
 
     /// Get next n `chars` in input.
-    pragma(inline, true)
     Src peekNextsN(size_t n) const nothrow @nogc
     {
+        pragma(inline, true);
         return _input[_offset .. _offset + n]; // TODO .ptr
     }
 
     /// Drop next byte in input.
-    pragma(inline, true)
     void dropFront() nothrow @nogc
     {
+        pragma(inline, true);
         _offset += 1;
     }
 
     /// Drop next `n` bytes in input.
-    pragma(inline, true)
     void dropFrontN(size_t n) nothrow @nogc
     {
+        pragma(inline, true);
         _offset += n;
     }
 
     /// Skip over `n` bytes in `src`.
-    pragma(inline)
     Src skipOverN(size_t n) nothrow @nogc
     {
+        pragma(inline);
         const part = _input[_offset .. _offset + n]; // TODO .ptr
         dropFrontN(n);
         return part;
     }
 
     /// Skip line comment.
-    pragma(inline)
     void skipLineComment() nothrow @nogc
     {
+        pragma(inline);
         while (!peekNext().among('\0', endOfLineChars))
         {
             _offset += 1;
@@ -197,9 +197,9 @@ private:
     }
 
     /// Get symbol.
-    pragma(inline)
     Src getSymbol() nothrow @nogc
     {
+        pragma(inline);
         size_t i = 0;
         while ((!peekNextNth(i).among!('\0', '(', ')',
                                        whiteChars))) // NOTE this is faster than !src[i].isWhite
@@ -210,9 +210,9 @@ private:
     }
 
     /// Get numeric literal (number) in integer or decimal form.
-    pragma(inline)
     Src getNumber() nothrow @nogc
     {
+        pragma(inline);
         size_t i = 0;
         while (peekNextNth(i).among!('+', '-', '.',
                                      digitChars)) // NOTE this is faster than src[i].isDigit
@@ -223,9 +223,9 @@ private:
     }
 
     /// Get whitespace.
-    pragma(inline)
     Src getWhitespace() nothrow @nogc
     {
+        pragma(inline);
         size_t i = 0;
         while (peekNextNth(i).among!(whiteChars)) // NOTE this is faster than `src[i].isWhite`
         {
@@ -235,9 +235,9 @@ private:
     }
 
     /// Get string literal at `src`.
-    pragma(inline)
     Src getStringLiteral() nothrow @nogc
     {
+        pragma(inline);
         dropFront();
         size_t i = 0;
         while (!peekNextNth(i).among('\0', '"')) // TODO handle backslash + double-quote

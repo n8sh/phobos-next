@@ -293,7 +293,7 @@ private:
                 }
 
                 SExpr newExpr = SExpr(exprs[$ - count].token,
-                                    count ? exprs[$ - count + 1 .. $].dup : []);
+                                      count ? exprs[$ - count + 1 .. $].dup : []);
                 exprs.popBackN(1 + count); // forget tokens including leftParen
                 import std.algorithm : move;
                 exprs.put(newExpr.move);

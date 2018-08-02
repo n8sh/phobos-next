@@ -372,12 +372,6 @@ private:
                     )
                 {
                     const symbol = getSymbol(); // TODO tokenize
-                    if (symbol == `exists`)
-                    {
-                        import dbgio;
-                        dln("TODO");
-                        // TODO break;
-                    }
                     import std.algorithm : endsWith;
                     if (symbol.endsWith(`Fn`))
                     {

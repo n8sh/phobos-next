@@ -32,7 +32,7 @@ if (isSomeString!S)
 }
 
 import std.uni : isLower;
-auto isLowercased(S, alias pred = isLower)(S s)
+bool isLowercased(S, alias pred = isLower)(S s)
 if (isSomeString!S)
 {
     import std.algorithm.searching : all;
@@ -50,7 +50,7 @@ if (isSomeString!S)
 }
 
 import std.uni : isUpper;
-auto isUppercased(S, alias pred = isUpper)(S s)
+bool isUppercased(S, alias pred = isUpper)(S s)
 if (isSomeString!S)
 {
     import std.algorithm.searching : all;

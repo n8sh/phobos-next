@@ -49,16 +49,16 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     pragma(inline):
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
-    pragma(inline, true)
     static typeof(this) withLength()(size_t initialLength) // template-lazy
     {
+        pragma(inline, true);
         return withCapacityLengthZero(initialLength, initialLength, true);
     }
 
     /// Returns: an array with initial capacity `initialCapacity`.
-    pragma(inline, true)
     static typeof(this) withCapacity()(size_t initialCapacity) // template-lazy
     {
+        pragma(inline, true);
         return withCapacityLengthZero(initialCapacity, 0, false);
     }
 
@@ -68,10 +68,10 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
          * - initial length `length`,
          * - and value of all elements `elementValue`.
          */
-        pragma(inline, true)
         static typeof(this) withLengthElementValue()(size_t length,
                                                      T elementValue)
         {
+            pragma(inline, true);
             assert(length <= CapacityType.max);
             return typeof(return)(Store(typeof(this).allocateWithValue(length, move(elementValue)),
                                         cast(CapacityType)length,
@@ -184,9 +184,9 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
         }
 
         /// Returns: shallow duplicate of `this`.
-        pragma(inline, true)
         @property BasicArray!(Unqual!T, Allocator, CapacityType) dup()() const @trusted // template-lazy
         {
+            pragma(inline, true);
             return typeof(this).withElements(this[]);
         }
     }
@@ -343,9 +343,9 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /// Reset internal data.
-    pragma(inline, true)
     private void resetInternalData()
     {
+        pragma(inline, true);
         _store.ptr = null;
         _store.capacity = 0;
         _store.length = 0;
@@ -428,22 +428,22 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /** Comparison for equality. */
-    pragma(inline, true)
     bool opEquals()(const scope typeof(this) rhs) const // template-lazy
     {
+        pragma(inline, true);
         return slice() == rhs.slice();
     }
     /// ditto
-    pragma(inline, true)
     bool opEquals()(const scope ref typeof(this) rhs) const // template-lazy
     {
+        pragma(inline, true);
         return slice() == rhs.slice();
     }
     /// ditto
-    pragma(inline, true)
     bool opEquals(U)(const scope U[] rhs) const
         if (is(typeof(T[].init == U[].init)))
     {
+        pragma(inline, true);
         return slice() == rhs;
     }
 
@@ -484,12 +484,18 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /// Check if empty.
-    pragma(inline, true)
-    bool empty()() const { return _store.length == 0; } // template-lazy
+    bool empty()() const        // template-lazy
+    {
+        pragma(inline, true);
+        return _store.length == 0;
+    }
 
     /// Get length.
-    pragma(inline, true)
-    @property size_t length() const { return _store.length; } // can't be template-lazy
+    @property size_t length() const // can't be template-lazy
+    {
+        pragma(inline, true)
+        return _store.length;
+    }
     alias opDollar = length;    /// ditto
 
     /** Set length to `newLength`.
@@ -540,8 +546,11 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /// Get capacity.
-    pragma(inline, true)
-    @property size_t capacity() const { return _store.capacity; } // can't be template-lazy
+    @property size_t capacity() const // can't be template-lazy
+    {
+        pragma(inline, true)
+        return _store.capacity;
+    }
 
     /** Ensures sufficient capacity to accommodate for minimumCapacity number
         of elements. If `minimumCapacity` < `capacity`, this method does
@@ -562,22 +571,22 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /// Index support.
-    pragma(inline, true)
     scope ref inout(T) opIndex()(size_t i) inout return // template-lazy
     {
+        pragma(inline, true);
         return slice()[i];
     }
 
     /// Slice support.
-    pragma(inline, true)
     scope inout(T)[] opSlice()(size_t i, size_t j) inout return // template-lazy
     {
+        pragma(inline, true);
         return slice()[i .. j];
     }
     /// ditto
-    pragma(inline, true)
     scope inout(T)[] opSlice()() inout return // template-lazy
     {
+        pragma(inline, true);
         return slice();
     }
 
@@ -601,31 +610,31 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /// Slice assignment support.
-    pragma(inline, true)
     scope T[] opSliceAssign(U)(U value) return
     {
+        pragma(inline, true);
         return slice()[] = value;
     }
 
     /// ditto
-    pragma(inline, true)
     scope T[] opSliceAssign(U)(U value, size_t i, size_t j) return
     {
+        pragma(inline, true);
         return slice()[i .. j] = value;
     }
 
     /// Get reference to front element.
-    pragma(inline, true)
     scope ref inout(T) front()() inout return @property // template-lazy
     {
+        pragma(inline, true);
         // TODO use?: enforce(!empty); emsi-containers doesn't, std.container.Array does
         return slice()[0];
     }
 
     /// Get reference to back element.
-    pragma(inline, true)
     scope ref inout(T) back()() inout return @property // template-lazy
     {
+        pragma(inline, true);
         // TODO use?: enforce(!empty); emsi-containers doesn't, std.container.Array does
         return slice()[_store.length - 1];
 
@@ -748,9 +757,9 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
 
     /** Remove last value fromm the end of the array.
      */
-    pragma(inline, true)
     void popBack()() @trusted   // template-lazy
     {
+        pragma(inline, true);
         assert(!empty);
         _store.length -= 1;
         static if (hasElaborateDestructor!T)
@@ -760,9 +769,9 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /** Pop back element and return it. */
-    pragma(inline, true)
     T backPop()() @trusted      // template-lazy
     {
+        pragma(inline, true);
         assert(!empty);
         _store.length -= 1;
         static if (needsMove!T)
@@ -802,10 +811,10 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /** Move element at front. */
-    pragma(inline, true)
     T frontPop()()              // template-lazy
         @("complexity", "O(length)")
     {
+        pragma(inline, true);
         return moveAt(0);
     }
 
@@ -829,25 +838,24 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
 
     /** Forwards to $(D insertBack(values)).
      */
-    pragma(inline, true)
     void opOpAssign(string op)(T value)
         if (op == "~")
     {
+        pragma(inline, true);
         insertBackMove(value);
     }
 
     /// ditto
-    pragma(inline, true)
     void opOpAssign(string op, U)(U[] values...) @trusted
         if (op == "~" &&
             isElementAssignable!U &&
             isCopyable!U)       // prevent accidental move of l-value `values`
     {
+        pragma(inline, true);
         insertBack(values);
     }
 
     /// ditto
-    pragma(inline, true)
     void opOpAssign(string op, R)(R values)
         if (op == "~" &&
             isInputRange!R &&
@@ -855,13 +863,14 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
             !isArray!R &&
             isElementAssignable!(ElementType!R))
     {
+        pragma(inline, true);
         insertBack(values);
     }
 
-    pragma(inline, true)
     void opOpAssign(string op)(auto ref typeof(this) values)
         if (op == "~")
     {
+        pragma(inline, true);
         insertBack(values[]);
     }
 
@@ -877,16 +886,16 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     // }
 
     /// Helper slice.
-    pragma(inline, true)
     scope private inout(T)[] slice() inout return @trusted
     {
+        pragma(inline, true);
         return _store.ptr[0 .. _store.length];
     }
 
     /// Unsafe access to pointer.
-    pragma(inline, true)
     scope inout(T)* ptr()() inout return @system // template-lazy
     {
+        pragma(inline, true);
         return _store.ptr;
     }
 
@@ -909,9 +918,9 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /// Mutable pointer.
-    pragma(inline, true)
     scope private MutableE* _mptr() const return @trusted
     {
+        pragma(inline, true);
         return cast(typeof(return))_store.ptr;
     }
 

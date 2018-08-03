@@ -1042,6 +1042,7 @@ if (isInstanceOf!(BasicArray, C) &&
                    10, 11, 12, 0, 3, 42].s);
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
@@ -1083,6 +1084,7 @@ if (isInstanceOf!(BasicArray, C) &&
     assert(e[] == [1, 2, 3, 4].s);
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     alias T = int;

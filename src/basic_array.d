@@ -715,7 +715,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
 
     /** Insert the elements `elements` into the end of the array.
      */
-    void insertBack(R)(R elements)
+    void insertBack(R)(R elements) @trusted
         if (isAssignableFromElementsOfFiniteRefIterable!R)
     {
         import std.range : hasLength;

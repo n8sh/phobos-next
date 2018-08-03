@@ -1270,7 +1270,7 @@ private:
     }
 
     /** Returns: bin index of `key`. */
-    private size_t keyToIndex(const scope K key) const
+    private size_t keyToIndex(const scope K key) const @trusted
     {
         version(LDC) pragma(inline, true);
         return hashOf2!(hasher)(key) & powerOf2Mask;
@@ -3053,6 +3053,32 @@ version(unittest)
     assert(!x.contains(e));
     assert(x.insert(e) == X.InsertionStatus.added);
     assert(x.contains(e));
+}
+
+/// class type with default hashing
+@safe unittest
+{
+    static class Zing
+    {
+        @safe pure nothrow @nogc:
+        this(ulong value) { this._value = value; }
+        private ulong _value;
+    }
+    static assert(isNullable!Zing);
+
+    alias X = OpenHashMapOrSet!(Zing, void);
+    static assert(X.sizeof == 24);
+    X x;
+
+    auto e = new Zing(42);
+    auto f = new Zing(42);
+
+    assert(!x.contains(e));
+    assert(!x.contains(f));
+    assert(x.insert(e) == X.InsertionStatus.added);
+    // TODO assert(x.insert(f) == X.InsertionStatus.unmodified);
+    assert(x.contains(e));
+    assert(x.contains(f));
 }
 
 /// enumeration key

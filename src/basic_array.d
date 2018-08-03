@@ -1009,6 +1009,7 @@ if (isInstanceOf!(BasicArray, C) &&
                    10, 11, 12, 0].s);
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     alias T = int;

@@ -17,7 +17,101 @@ import std.traits : hasMember, isScalarType, hasIndirections, isArray, isPointer
 import std.digest : isDigest;
 import traits_ex : isAddress;
 
+/** Get hash of `value`.
+ *
+ * A faster alternative to `hashOf`.
+ */
+hash_t hashOf2(alias hasher, T)(const scope auto ref T value)
+if (__traits(compiles, { hash_t _ = hasher(value); }))
+{
+    version(LDC) pragma(inline, true);
+    return hasher(value);   // for instance `hashOf`
+}
+
 @safe:
+
+/// ditto
+hash_t hashOf2(alias hasher, T)(const scope auto ref T value)
+if (!__traits(compiles, { hash_t _ = hasher(value); }))
+{
+    version(LDC) pragma(inline, true);
+    static if (__traits(compiles, { enum _ = isDigest!hasher; }) &&
+               isDigest!hasher &&
+               hasMember!(hasher, "get"))
+    {
+        import std.digest : makeDigest;
+
+        auto digest = makeDigest!(hasher);
+        static if (hasMember!(T, "toDigest"))
+        {
+            value.toDigest(digest);
+        }
+        else
+        {
+            digestAny(digest, value);
+        }
+        digest.finish();
+        auto result = digest.get();
+
+        static if (is(typeof(result) == typeof(return)))
+        {
+            return result;
+        }
+        else static if (is(typeof(result) == typeof(return)[2]))
+        {
+            return (result[0] ^
+                    result[1]);
+        }
+        else
+        {
+            static assert(0, "Handle get() with return type " ~ typeof(result).stringof ~
+                          " on " ~ size_t.sizeof.stringof ~ "-bit platform");
+        }
+    }
+    else static if (__traits(compiles, { auto _ = hasher((ubyte[]).init); }))
+    {
+        // cast input `value` to `ubyte[]` and use std.digest API
+        immutable digest = hasher((cast(ubyte*)&value)[0 .. value.sizeof]); // TODO ask forums when this isn't correct
+
+        static assert(digest.sizeof >=
+                      typeof(return).sizeof,
+                      `Size of digest is ` ~ digest.sizeof
+                      ~ ` but needs to be at least ` ~ typeof(return).sizeof.stringof);
+
+        import std.traits : isUnsigned, isStaticArray;
+
+        static if (isUnsigned!(typeof(digest)))
+        {
+            return cast(typeof(return))digest; // fast modulo calculation
+        }
+        else static if (isStaticArray!(typeof(digest)))
+        {
+            typeof(return) hashIndex;
+
+            static if (2*hash_t.sizeof == digest.sizeof)
+            {
+                // for instance, use all 128-bits when hash_t is 64-bit
+                (cast(ubyte*)&hashIndex)[0 .. hashIndex.sizeof] = (digest[0 .. hashIndex.sizeof] ^
+                                                                   digest[hashIndex.sizeof .. 2*hashIndex.sizeof]);
+            }
+            else
+            {
+                (cast(ubyte*)&hashIndex)[0 .. hashIndex.sizeof] = digest[0 .. hashIndex.sizeof];
+            }
+
+            return hashIndex;
+        }
+        else
+        {
+            static assert(0, "Unsupported digest type " ~ typeof(digest).stringof);
+        }
+    }
+    else
+    {
+        static assert(0, "Cannot combine hasher " ~ hasher.stringof ~
+                      " with element type " ~ T.stringof);
+    }
+}
 
 /** Digest `value` into `digest`.
  */
@@ -134,95 +228,6 @@ if (isDigest!Digest)
 {
     version(LDC) pragma(inline, true);
     digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
-}
-
-/** Get hash of `value`.
- *
- * A faster alternative to `hashOf`.
- */
-hash_t hashOf2(alias hasher, T)(const scope auto ref T value)
-{
-    version(LDC) pragma(inline, true);
-    static if (__traits(compiles, { hash_t _ = hasher(value); }))
-    {
-        return hasher(value);   // for instance `hashOf`
-    }
-    else static if (__traits(compiles, { enum _ = isDigest!hasher; }) &&
-                    isDigest!hasher &&
-                    hasMember!(hasher, "get"))
-    {
-        import std.digest : makeDigest;
-
-        auto digest = makeDigest!(hasher);
-        static if (hasMember!(T, "toDigest"))
-        {
-            value.toDigest(digest);
-        }
-        else
-        {
-            digestAny(digest, value);
-        }
-        digest.finish();
-        auto result = digest.get();
-
-        static if (is(typeof(result) == typeof(return)))
-        {
-            return result;
-        }
-        else static if (is(typeof(result) == typeof(return)[2]))
-        {
-            return (result[0] ^
-                    result[1]);
-        }
-        else
-        {
-            static assert(0, "Handle get() with return type " ~ typeof(result).stringof ~
-                          " on " ~ size_t.sizeof.stringof ~ "-bit platform");
-        }
-    }
-    else static if (__traits(compiles, { auto _ = hasher((ubyte[]).init); }))
-    {
-        // cast input `value` to `ubyte[]` and use std.digest API
-        immutable digest = hasher((cast(ubyte*)&value)[0 .. value.sizeof]); // TODO ask forums when this isn't correct
-
-        static assert(digest.sizeof >=
-                      typeof(return).sizeof,
-                      `Size of digest is ` ~ digest.sizeof
-                      ~ ` but needs to be at least ` ~ typeof(return).sizeof.stringof);
-
-        import std.traits : isUnsigned, isStaticArray;
-
-        static if (isUnsigned!(typeof(digest)))
-        {
-            return cast(typeof(return))digest; // fast modulo calculation
-        }
-        else static if (isStaticArray!(typeof(digest)))
-        {
-            typeof(return) hashIndex;
-
-            static if (2*hash_t.sizeof == digest.sizeof)
-            {
-                // for instance, use all 128-bits when hash_t is 64-bit
-                (cast(ubyte*)&hashIndex)[0 .. hashIndex.sizeof] = (digest[0 .. hashIndex.sizeof] ^
-                                                                   digest[hashIndex.sizeof .. 2*hashIndex.sizeof]);
-            }
-            else
-            {
-                (cast(ubyte*)&hashIndex)[0 .. hashIndex.sizeof] = digest[0 .. hashIndex.sizeof];
-            }
-
-            return hashIndex;
-        }
-        else
-        {
-            static assert(0, "Unsupported digest type " ~ typeof(digest).stringof);
-        }
-    }
-    else
-    {
-        static assert(0, "Cannot combine hasher " ~ hasher.stringof ~
-                      " with element type " ~ T.stringof);
-    }
 }
 
 /// arrays and containers and its slices

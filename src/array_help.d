@@ -5,24 +5,24 @@ import std.traits : Unqual;
 @safe:
 
 /** Returns: statically (stack) allocated array with elements of type `T` of
-    length `n`.
-
-    For more convenient usage alias it as `s' together with UFCS for the
-    following convenient notation:
-
-    const x = [1, 2, 3].s;
-
-    TODO Add to Phobos `std.array`.
-
-    TODO Fix problems discussed here: http://forum.dlang.org/post/otrsanpgmokzpzqmfyvx@forum.dlang.org
-    TODO File a bug report: http://forum.dlang.org/post/otrsanpgmokzpzqmfyvx@forum.dlang.org
-
-    TODO fix compiler so that move kicks in here automatically and remove
-    special case on `isCopyable`
-
-    See_Also: http://dpaste.dzfl.pl/d0059e6e6c09
-    See_Also: http://forum.dlang.org/post/oq0cd1$2ji3$1@digitalmars.com
-*/
+ * length `n`.
+ *
+ * For more convenient usage alias it as `s' together with UFCS for the
+ * following convenient notation:
+ *
+ * const x = [1, 2, 3].s;
+ *
+ * TODO Add to Phobos `std.array`.
+ *
+ * TODO Fix problems discussed here: http://forum.dlang.org/post/otrsanpgmokzpzqmfyvx@forum.dlang.org
+ * TODO File a bug report: http://forum.dlang.org/post/otrsanpgmokzpzqmfyvx@forum.dlang.org
+ *
+ * TODO fix compiler so that move kicks in here automatically and remove
+ * special case on `isCopyable`
+ *
+ * See_Also: http://dpaste.dzfl.pl/d0059e6e6c09
+ * See_Also: http://forum.dlang.org/post/oq0cd1$2ji3$1@digitalmars.com
+ */
 Unqual!T[n] asStaticArray(T, size_t n)(T[n] x...) @trusted
 {
     import std.traits : isCopyable, hasElaborateDestructor; // TODO remove `move` when compiler does it for us

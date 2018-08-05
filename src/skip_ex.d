@@ -79,7 +79,7 @@ if (is(typeof(binaryFun!pred(r1.back, r2.back))) &&
     assert(s1 == [1].s);
 }
 
-@safe pure unittest
+@safe pure nothrow @nogc unittest
 {
     import std.algorithm: equal;
     auto s1 = "Hello world";
@@ -342,14 +342,14 @@ if (isBidirectionalRange!R &&
     return false;
 }
 
-@safe pure unittest
+@safe pure nothrow @nogc unittest
 {
     auto expr = `"alpha"`;
     assert(expr.skipOverFrontAndBack('"', '"'));
     assert(expr == `alpha`);
 }
 
-@safe pure unittest
+@safe pure nothrow @nogc unittest
 {
     auto expr_ = `"alpha"`;
     auto expr = expr_;
@@ -357,7 +357,7 @@ if (isBidirectionalRange!R &&
     assert(expr == expr_);
 }
 
-@safe pure unittest
+@safe pure nothrow @nogc unittest
 {
     auto expr_ = `"alpha`;
     auto expr = expr_;
@@ -365,7 +365,7 @@ if (isBidirectionalRange!R &&
     assert(expr == expr_);
 }
 
-@safe pure unittest
+@safe pure nothrow @nogc unittest
 {
     auto expr_ = `alpha"`;
     auto expr = expr_;

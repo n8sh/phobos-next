@@ -210,7 +210,9 @@ private static struct SkipOverLongest
     size_t index;
 }
 
-/** Skip Over Longest Matching prefix in $(D needles) that prefixes $(D haystack). */
+/** Skip Over Longest Matching prefix in $(D needles) that prefixes $(D
+ * haystack).
+ */
 SkipOverLongest skipOverLongestOf(alias pred = "a == b", Range, Ranges...)(ref Range haystack, Ranges needles)
 {
     // TODO figure out which needles that are prefixes of other needles by first
@@ -270,7 +272,9 @@ size_t skipOverBackShortestOf(alias pred = "a == b", Range, Ranges...)(ref Range
 }
 
 /** Drop $(D prefixes) in $(D s).
-    TODO Use multi-argument skipOver when it becomes available http://forum.dlang.org/thread/bug-12335-3@https.d.puremagic.com%2Fissues%2F
+ *
+ * TODO Use multi-argument skipOver when it becomes available
+ * http://forum.dlang.org/thread/bug-12335-3@https.d.puremagic.com%2Fissues%2F
 */
 void skipOverPrefixes(R, A)(ref R s, in A prefixes)
 {
@@ -299,7 +303,8 @@ void skipOverSuffixes(R, A)(ref R s, in A suffixes)
 }
 
 /** Drop either both prefix `frontPrefix` and suffix `backSuffix` or do nothing.
-    Returns: `true` upon drop, `false` otherwise.
+ *
+ * Returns: `true` upon drop, `false` otherwise.
  */
 bool skipOverFrontAndBack(alias pred = "a == b", R, E)(ref R r,
                                                        E frontPrefix,

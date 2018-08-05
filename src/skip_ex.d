@@ -67,10 +67,12 @@ if (is(typeof(binaryFun!pred(r1.back, r2.back))) &&
 }
 
 ///
-@safe pure nothrow unittest
+@safe pure nothrow @nogc unittest
 {
-    auto s1 = [1, 2, 3];
-    const s2 = [2, 3];
+    auto s1_ = [1, 2, 3].s;
+    auto s1 = s1_[];
+    const s2_ = [2, 3].s;
+    const s2 = s2_[];
     s1.skipOverBack(s2);
     assert(s1 == [1].s);
     s1.skipOverBack(s2);        // no effect

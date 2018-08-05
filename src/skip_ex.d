@@ -11,11 +11,10 @@ version(unittest)
     import array_help : s;
 }
 
-/**
-   Skip over the ending portion of the first given range that matches the second
-   range, or do nothing if there is no match.
-
-   See_Also: std.algorithm.searching.skipOver.
+/** Skip over the ending portion of the first given range that matches the
+ * second range, or do nothing if there is no match.
+ *
+ * See_Also: std.algorithm.searching.skipOver.
  */
 bool skipOverBack(R1, R2)(ref R1 r1, R2 r2)
 if (isBidirectionalRange!R1 &&

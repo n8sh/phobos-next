@@ -18,9 +18,9 @@ version(unittest)
    See_Also: std.algorithm.searching.skipOver.
  */
 bool skipOverBack(R1, R2)(ref R1 r1, R2 r2)
-    if (isBidirectionalRange!R1 &&
-        isBidirectionalRange!R2
-        && is(typeof(r1.back == r2.back)))
+if (isBidirectionalRange!R1 &&
+    isBidirectionalRange!R2 &&
+    is(typeof(r1.back == r2.back)))
 {
     static if (is(typeof(r1[0 .. $] == r2) : bool)
         && is(typeof(r2.length > r1.length) : bool)
@@ -41,9 +41,9 @@ bool skipOverBack(R1, R2)(ref R1 r1, R2 r2)
 
 ///
 bool skipOverBack(alias pred, R1, R2)(ref R1 r1, R2 r2)
-    if (is(typeof(binaryFun!pred(r1.back, r2.back))) &&
-        isBidirectionalRange!R1 &&
-        isBidirectionalRange!R2) // TODO R2 doesn't have to bi-directional if R1 is RandomAccess and R2.hasLength
+if (is(typeof(binaryFun!pred(r1.back, r2.back))) &&
+    isBidirectionalRange!R1 &&
+    isBidirectionalRange!R2) // TODO R2 doesn't have to bi-directional if R1 is RandomAccess and R2.hasLength
 {
     import std.range : hasLength;
     static if (hasLength!R1 && hasLength!R2)
@@ -94,8 +94,8 @@ import std.algorithm: startsWith;
  */
 size_t skipOverEither(alias pred = "a == b", Range, Ranges...)(ref Range haystack,
                                                                Ranges needles)
-    if (Ranges.length >= 2 &&
-        is(typeof(startsWith!pred(haystack, needles))))
+if (Ranges.length >= 2 &&
+    is(typeof(startsWith!pred(haystack, needles))))
 {
     import std.algorithm : skipOver;
     foreach (const ix, needle; needles)
@@ -125,8 +125,8 @@ size_t skipOverShortestOf(alias pred = "a == b",
                           Range,
                           Ranges...)(ref Range haystack,
                                      Ranges needles)
-    if (Ranges.length >= 2 &&
-        is(typeof(startsWith!pred(haystack, needles))))
+if (Ranges.length >= 2 &&
+    is(typeof(startsWith!pred(haystack, needles))))
 {
     const hit = startsWith!pred(haystack, needles);
     if (hit)
@@ -303,8 +303,8 @@ void skipOverSuffixes(R, A)(ref R s, in A suffixes)
 bool skipOverFrontAndBack(alias pred = "a == b", R, E)(ref R r,
                                                        E frontPrefix,
                                                        E backSuffix)
-    if (isBidirectionalRange!R &&
-        is(typeof(binaryFun!pred(ElementType!R.init, E.init))))
+if (isBidirectionalRange!R &&
+    is(typeof(binaryFun!pred(ElementType!R.init, E.init))))
 {
     import std.traits : Unqual;
     import std.traits : isArray;

@@ -88,8 +88,9 @@ if (is(typeof(binaryFun!pred(r1.back, r2.back))) &&
 
 import std.algorithm: startsWith;
 
-/** Variadic Version of $(D skipOver).
-    Returns: index + 1 into matching $(D needles), 0 otherwise.
+/** Variadic version of $(D skipOver).
+ *
+ * Returns: index + 1 into matching $(D needles), 0 otherwise.
  */
 size_t skipOverEither(alias pred = "a == b", Range, Ranges...)(ref Range haystack,
                                                                Ranges needles)

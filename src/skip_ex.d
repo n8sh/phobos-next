@@ -117,9 +117,10 @@ if (Ranges.length >= 2 &&
 }
 
 /** Skip Over Shortest Matching prefix in $(D needles) that prefixes $(D haystack).
-    TODO Make return value a specific type that has bool conversion so we can
-    call it as
-    if (auto hit = r.skipOverShortestOf(...)) { ... }
+ *
+ * TODO Make return value a specific type that has bool conversion so we can
+ * call it as
+ * if (auto hit = r.skipOverShortestOf(...)) { ... }
  */
 size_t skipOverShortestOf(alias pred = "a == b",
                           Range,

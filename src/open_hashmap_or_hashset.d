@@ -1084,7 +1084,7 @@ struct OpenHashMapOrSet(K, V = void,
                 version(LDC) pragma(inline, true);
                 insert(T(move(key),
                          move(value)));
-                // TODO return reference to value
+                // TODO return scoped reference to value
             }
         }
     }

@@ -155,44 +155,44 @@ struct Optional(T)
         assert(b.length == 0);
     }
 
-    auto ref opDispatch(string name, Args...)(auto ref Args args)
-    {
-        import std.traits : PointerTarget, isPointer;
-        import dlp.core.traits : hasField, TypeOfMember, getMember;
+    // auto ref opDispatch(string name, Args...)(auto ref Args args)
+    // {
+    //     import std.traits : PointerTarget, isPointer;
+    //     import dlp.core.traits : hasField, TypeOfMember, getMember;
 
-        static if (isPointer!T)
-            alias StoredType = PointerTarget!T;
-        else
-            alias StoredType = T;
+    //     static if (isPointer!T)
+    //         alias StoredType = PointerTarget!T;
+    //     else
+    //         alias StoredType = T;
 
-        static if (is(StoredType == class) || is(StoredType == struct))
-        {
-            static if (hasField!(StoredType, name))
-            {
-                alias FieldType = TypeOfMember!(StoredType, name);
+    //     static if (is(StoredType == class) || is(StoredType == struct))
+    //     {
+    //         static if (hasField!(StoredType, name))
+    //         {
+    //             alias FieldType = TypeOfMember!(StoredType, name);
 
-                if (isPresent)
-                    return optional(value.getMember!name);
-                else
-                    return none!FieldType;
-            }
-            else
-            {
-                alias ReturnType = typeof(__traits(getMember, value, name)(args));
+    //             if (isPresent)
+    //                 return optional(value.getMember!name);
+    //             else
+    //                 return none!FieldType;
+    //         }
+    //         else
+    //         {
+    //             alias ReturnType = typeof(__traits(getMember, value, name)(args));
 
-                if (isPresent)
-                    return optional(__traits(getMember, value, name)(args));
-                else
-                    return none!ReturnType;
-            }
-        }
-        else
-        {
-            return optional(value.getMember!name);
-        }
+    //             if (isPresent)
+    //                 return optional(__traits(getMember, value, name)(args));
+    //             else
+    //                 return none!ReturnType;
+    //         }
+    //     }
+    //     else
+    //     {
+    //         return optional(value.getMember!name);
+    //     }
 
-        assert(0);
-    }
+    //     assert(0);
+    // }
 
     // @safe pure nothrow @nogc unittest
     // {

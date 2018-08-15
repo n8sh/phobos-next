@@ -14,7 +14,9 @@ struct Optional(T)
     private Unqual!T value;
 
     static if (!isNullable!T)
+    {
         private bool present;
+    }
 
     this(T value)
     {
@@ -29,50 +31,34 @@ struct Optional(T)
     void opAssign(T value)
     {
         this.value = value;
-
         static if (!isNullable!T)
+        {
             present = true;
+        }
     }
 
     void opAssign(None)
     {
         static if (isNullable!T)
+        {
             value = null;
+        }
         else
+        {
             present = false;
+        }
     }
 
-    @safe pure nothrow @nogc unittest
-    {
-        enum newVale = 4;
-        Optional!int a = 3;
-        a = newVale;
-        assert(a.get == newVale);
-    }
-
-    @safe pure nothrow @nogc unittest
-    {
-        Optional!int a = 3;
-        a = none;
-        assert(!a.isPresent);
-    }
-
-    bool isPresent()
+    bool isPresent() const
     {
         static if (isNullable!T)
+        {
             return value !is null;
-
+        }
         else
+        {
             return present;
-    }
-
-    @safe pure nothrow @nogc unittest
-    {
-        Optional!int a = 3;
-        assert(a.isPresent);
-
-        Optional!(int*) b = null;
-        assert(!b.isPresent);
+        }
     }
 
     T get()
@@ -81,24 +67,9 @@ struct Optional(T)
         return value;
     }
 
-    @safe pure nothrow @nogc unittest
-    {
-        Optional!int a = 3;
-        assert(a.get == 3);
-    }
-
     T or(lazy T alternativeValue)
     {
         return isPresent ? value : alternativeValue;
-    }
-
-    @safe pure /*nothrow*/ unittest
-    {
-        Optional!int a = 3;
-        assert(a.or(4) == 3);
-
-        Optional!int b = none;
-        assert(b.or(4) == 4);
     }
 
     bool empty()
@@ -106,53 +77,26 @@ struct Optional(T)
         return !isPresent;
     }
 
-    @safe pure nothrow @nogc unittest
-    {
-        Optional!int a = 3;
-        assert(!a.empty);
-
-        Optional!int b = none;
-        assert(b.empty);
-    }
-
     T front()
     {
         return get;
     }
 
-    @safe pure nothrow @nogc unittest
-    {
-        Optional!int a = 3;
-        assert(a.get == 3);
-    }
-
     void popFront()
     {
         static if (isNullable!T)
+        {
             value = null;
+        }
         else
+        {
             present = false;
+        }
     }
 
-    @safe pure nothrow @nogc unittest
-    {
-        Optional!int a = 3;
-        a.popFront();
-        assert(!a.isPresent);
-    }
-
-    size_t length()
+    size_t length() const
     {
         return isPresent ? 1 : 0;
-    }
-
-    @safe pure nothrow @nogc unittest
-    {
-        Optional!int a = 3;
-        assert(a.length == 1);
-
-        Optional!int b = none;
-        assert(b.length == 0);
     }
 
     // auto ref opDispatch(string name, Args...)(auto ref Args args)
@@ -207,17 +151,91 @@ struct Optional(T)
     // }
 }
 
+@safe pure nothrow @nogc unittest
+{
+    enum newVale = 4;
+    Optional!int a = 3;
+    a = newVale;
+    assert(a.get == newVale);
+}
+
+@safe pure nothrow @nogc unittest
+{
+    Optional!int a = 3;
+    a = none;
+    assert(!a.isPresent);
+}
+
+@safe pure nothrow @nogc unittest
+{
+    Optional!int a = 3;
+    assert(a.isPresent);
+
+    Optional!(int*) b = null;
+    assert(!b.isPresent);
+}
+
+@safe pure nothrow @nogc unittest
+{
+    Optional!int a = 3;
+    assert(a.get == 3);
+}
+
+@safe pure /*nothrow*/ unittest
+{
+    Optional!int a = 3;
+    assert(a.or(4) == 3);
+
+    Optional!int b = none;
+    assert(b.or(4) == 4);
+}
+
+@safe pure nothrow @nogc unittest
+{
+    Optional!int a = 3;
+    assert(!a.empty);
+
+    Optional!int b = none;
+    assert(b.empty);
+}
+
+@safe pure nothrow @nogc unittest
+{
+    Optional!int a = 3;
+    assert(a.get == 3);
+}
+
 /** Instantiate an `Optional` `value`. */
 Optional!T optional(T)(T value)
 {
     return Optional!T(value);
 }
 
+///
+@safe pure nothrow @nogc unittest
+{
+    Optional!int a = 3;
+    a.popFront();
+    assert(!a.isPresent);
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    Optional!int a = 3;
+    assert(a.length == 1);
+
+    Optional!int b = none;
+    assert(b.length == 0);
+}
+
+///
 @safe pure nothrow @nogc unittest
 {
     assert(optional(3).isPresent);
 }
 
+///
 @trusted pure nothrow @nogc unittest
 {
     int i;
@@ -225,10 +243,10 @@ Optional!T optional(T)(T value)
     assert(!optional!(int*)(null).isPresent);
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     import std.algorithm : map;
-
     enum value = 3;
     assert(optional(value).map!(e => e).front == value);
 }
@@ -237,7 +255,9 @@ Optional!T some(T)(T value)
 in
 {
     static if (isNullable!T)
+    {
         assert(value !is null);
+    }
 }
 do
 {
@@ -248,6 +268,7 @@ do
     return o;
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     assert(some(3).isPresent);
@@ -263,6 +284,7 @@ Optional!T none(T)()
     return Optional!T.init;
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     assert(!none!int.isPresent);

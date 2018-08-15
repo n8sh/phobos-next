@@ -23,9 +23,8 @@ struct Optional(T)
         opAssign(value);
     }
 
-    this(None)
+    this(None)                  // TODO correct?
     {
-
     }
 
     void opAssign(T value)

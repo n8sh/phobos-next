@@ -7,10 +7,6 @@ private struct None {}
 struct Optional(T)
 {
     import std.traits : Unqual;
-
-    // private alias OriginalType = U;
-    // private alias T = Unqual!U;
-
     private Unqual!T value;
 
     static if (!isNullable!T)

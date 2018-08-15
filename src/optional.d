@@ -71,7 +71,7 @@ struct Optional(T)
         return isPresent ? value : alternativeValue;
     }
 
-    bool empty()
+    bool empty() const
     {
         return !isPresent;
     }

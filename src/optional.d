@@ -19,7 +19,7 @@ struct Optional(T)
         opAssign(value);
     }
 
-    this(None)                  // TODO correct?
+    this(None)
     {
     }
 

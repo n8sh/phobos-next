@@ -207,7 +207,7 @@ struct Optional(T)
     // }
 }
 
-/** Instantiate `Optional` `value`. */
+/** Instantiate an `Optional` `value`. */
 Optional!T optional(T)(T value)
 {
     return Optional!T(value);

@@ -1993,7 +1993,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 {
     version(showEntries) dln();
     alias K = Nullable!(uint, uint.max);
-    alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
+    alias X = OpenHashSet!(K, FNV!(64, true));
 
     auto x = X();
 
@@ -2042,7 +2042,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 {
     version(showEntries) dln();
     alias K = Nullable!(uint, uint.max);
-    alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
+    alias X = OpenHashSet!(K, FNV!(64, true));
 
     auto y = X.withElements([K(10), K(12), K(13), K(15)].s).intersectedWith(X.withElements([K(12), K(13)].s));
     assert(y.length == 2);
@@ -2066,7 +2066,7 @@ auto intersectWith(C1, C2)(ref C1 x,
 {
     version(showEntries) dln();
     alias K = Nullable!(uint, uint.max);
-    alias X = OpenHashMapOrSet!(K, void, FNV!(64, true));
+    alias X = OpenHashSet!(K, FNV!(64, true));
 
     auto x = X.withElements([K(12), K(13)].s);
     auto y = X.withElements([K(10), K(12), K(13), K(15)].s);
@@ -2311,8 +2311,10 @@ auto byKeyValue(Table)(auto ref return Table c) @trusted
 {
     version(showEntries) dln();
     alias K = Nullable!(uint, uint.max);
-    alias X = OpenHashMapOrSet!(K, void,
-                                FNV!(64, true), PureMallocator.instance, true);
+    alias X = OpenHashSet!(K,
+                           FNV!(64, true),
+                           PureMallocator.instance,
+                           true);
 
     auto k11 = K(11);
     auto k22 = K(22);
@@ -3083,7 +3085,7 @@ version(unittest)
     }
     static assert(isNullable!ZingRel);
 
-    alias X = OpenHashMapOrSet!(ZingRel, void, FNV!(64, true));
+    alias X = OpenHashSet!(ZingRel, FNV!(64, true));
     static assert(X.sizeof == 32); // TODO fix hole handling and change to 24
     X x;
 
@@ -3105,7 +3107,7 @@ version(unittest)
     }
     static assert(isNullable!Zing);
 
-    alias X = OpenHashMapOrSet!(Zing, void);
+    alias X = OpenHashSet!(Zing);
     static assert(X.sizeof == 24);
     X x;
 

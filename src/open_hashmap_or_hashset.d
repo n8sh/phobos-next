@@ -682,6 +682,8 @@ struct OpenHashMapOrSet(K, V = void,
      * If `element` is a nullable type and it is null an `AssertError` is thrown.
      *
      * Returns: reference to existing element if present, otherwise new `element`.
+     *
+     * Can be used to implement cache sets, typically string caches.
      */
     ref T insertAndReturnElement()(T element) // template-lazy
     {

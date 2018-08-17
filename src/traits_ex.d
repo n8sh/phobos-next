@@ -213,7 +213,7 @@ template allSameTypeHybrid(V...)
     }
 }
 
-//
+///
 @safe pure nothrow @nogc unittest
 {
     static assert(allSameTypeHybrid!());
@@ -243,6 +243,7 @@ template allSameTypeRecursive2(V...)
     }
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     static assert(allSameTypeRecursive2!());
@@ -273,6 +274,7 @@ template allSameTypeRecursive(V...)
     }
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     static assert(allSameTypeRecursive!());
@@ -316,6 +318,7 @@ template allSameTypesInTuple(T)
         enum allSameTypesInTuple = true;
 }
 
+///
 @safe pure nothrow unittest
 {
     alias HOTUP = Tuple!(int, int, int);
@@ -346,6 +349,7 @@ inout(T.Types[0])[T.length] toStaticArray(T)(inout T tup) @trusted
     return *cast(T.Types[0][T.length]*)&tup; // hackish
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     import std.typecons: tuple;
@@ -370,6 +374,7 @@ auto asDynamicArray(T)(inout T tup)
     return a;
 }
 
+///
 pure nothrow unittest
 {
     import std.typecons: tuple;
@@ -391,6 +396,7 @@ enum isIterableOf(R, E) = isIterable!R && is(ElementType!R == E);
 enum isIterableOfUnqual(R, E) = isIterable!R && is(Unqual!(ElementType!R) == Unqual!E);
 enum isIterableOfSomeString(R) = (isIterable!R && isSomeString!(ElementType!R));
 
+///
 @safe pure nothrow @nogc unittest
 {
     alias E = string;
@@ -418,6 +424,7 @@ enum isArrayOfSomeString(R) = isArray!R && isSomeString!(ElementType!R);
 enum isSourceAssignableTo(R, E) = (isInputRange!R &&
                                    isAssignable!(E, ElementType!R));
 
+///
 @safe pure unittest
 {
     static assert(isSomeString!(string));
@@ -430,6 +437,7 @@ enum isSourceAssignableTo(R, E) = (isInputRange!R &&
 /// TODO Move to Phobos?
 enum isCharsSlice(T) = (is(T : const(char)[]));
 
+///
 @safe pure unittest
 {
     static assert(isCharsSlice!(const(char[])));

@@ -1054,9 +1054,9 @@ struct OpenHashMapOrSet(K, V = void,
     static if (hasValue)
     {
         /** Insert or replace `value` at `key`. */
-        pragma(inline, true)    // LDC must have this
         InsertionStatus insert()(K key, V value) // template-lazy
         {
+            pragma(inline, true); // LDC must have this
             return insert(T(move(key),
                             move(value)));
         }

@@ -783,7 +783,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    private void insertMoveElementAtIndex()(ref T element, size_t index) @trusted // template-lazy
+    private void insertMoveElementAtIndex(SomeElement)(ref SomeElement element, size_t index) @trusted // template-lazy
     {
         version(LDC) pragma(inline, true);
         move(keyOf(element), keyOf(_bins[index]));
@@ -931,8 +931,8 @@ struct OpenHashMapOrSet(K, V = void,
         move(next, this);
     }
 
-    private InsertionStatus insertWithoutGrowth()(T element, // template-lazy
-                                                  out size_t hitIndex)
+    private InsertionStatus insertWithoutGrowth(SomeElement)(SomeElement element, // template-lazy
+                                                             out size_t hitIndex)
     {
         version(LDC) pragma(inline, true);
         version(internalUnittest)
@@ -2327,7 +2327,7 @@ auto byKeyValue(Table)(auto ref return Table c) @trusted
     auto k11 = K(11);
     auto k22 = K(22);
     auto k33 = K(33);
-    immutable ks = [k11, k22, k33].s;
+    auto ks = [k11, k22, k33].s;
     auto k44 = K(44);
 
     // mutable

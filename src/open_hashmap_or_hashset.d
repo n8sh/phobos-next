@@ -1816,6 +1816,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 
     // string slices are equal when elements are equal regardless of position
     // (.ptr) in memory
+    assert(x.insertAndReturnElement(aa[0 .. 1]) !is "a");
     x.insert(aa[0 .. 1]);
     assert(x.insertAndReturnElement(aa[0 .. 1]) is aa[0 .. 1]);
     assert(x.contains(aa[1 .. 2]));
@@ -1826,6 +1827,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 
     const bb = "bb";
 
+    assert(x.insertAndReturnElement(bb[0 .. 1]) is bb[0 .. 1]); // returns newly added ref
     x.insert(bb[0 .. 1]);
     assert(x.contains(bb[1 .. 2]));
 

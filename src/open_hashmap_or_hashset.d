@@ -377,7 +377,8 @@ struct OpenHashMapOrSet(K, V = void,
             typeof(this) that = withCapacity(elements.length);
             foreach (ref element; elements)
             {
-                that.insertWithoutGrowth(element);
+                size_t hitIndex;
+                that.insertWithoutGrowth(element, hitIndex);
             }
         }
         else
@@ -671,7 +672,24 @@ struct OpenHashMapOrSet(K, V = void,
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
         assert(!keyOf(element).isNull);
         reserveExtra(1);
-        return insertWithoutGrowth(move(element));
+        size_t hitIndex;
+        return insertWithoutGrowth(move(element), hitIndex);
+    }
+
+    /** Insert `element`, being either a key-value (map-case) or a just a key
+     * (set-case).
+     *
+     * If `element` is a nullable type and it is null an `AssertError` is thrown.
+     */
+    ref T insertAndReturnElement()(T element) // template-lazy
+    {
+        version(LDC) pragma(inline, true);
+        static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
+        assert(!keyOf(element).isNull);
+        reserveExtra(1);
+        size_t hitIndex;
+        const status = insertWithoutGrowth(move(element), hitIndex);
+        return _bins[hitIndex];
     }
 
     /** Insert `elements`, all being either a key-value (map-case) or a just a key (set-case).
@@ -688,13 +706,14 @@ struct OpenHashMapOrSet(K, V = void,
         }
         foreach (element; elements)
         {
+            size_t hitIndex;
             static if (hasIndirections!T)
             {
-                insertWithoutGrowth(element);
+                insertWithoutGrowth(element, hitIndex);
             }
             else
             {
-                insertWithoutGrowth(*cast(Unqual!T*)&element);
+                insertWithoutGrowth(*cast(Unqual!T*)&element, hitIndex);
             }
         }
     }
@@ -908,7 +927,8 @@ struct OpenHashMapOrSet(K, V = void,
         move(next, this);
     }
 
-    private InsertionStatus insertWithoutGrowth()(T element)  // template-lazy
+    private InsertionStatus insertWithoutGrowth()(T element, // template-lazy
+                                                  out size_t hitIndex)
     {
         version(LDC) pragma(inline, true);
         version(internalUnittest)
@@ -926,7 +946,6 @@ struct OpenHashMapOrSet(K, V = void,
             keyOf(_bins[hitIndexPrel]).isNull) // just key miss but a hole may have been found on the way
         {
             immutable bool hasHole = holeIndex != size_t.max; // hole was found along the way
-            size_t hitIndex;
             if (hasHole)
             {
                 hitIndex = holeIndex; // pick hole instead
@@ -943,6 +962,10 @@ struct OpenHashMapOrSet(K, V = void,
             }
             _count = _count + 1;
             return InsertionStatus.added;
+        }
+        else
+        {
+            hitIndex = hitIndexPrel;
         }
 
         static if (hasValue)
@@ -974,7 +997,8 @@ struct OpenHashMapOrSet(K, V = void,
     private InsertionStatus insertMoveWithoutGrowth()(ref T element) // template-lazy
     {
         version(LDC) pragma(inline, true);
-        return insertWithoutGrowth(move(element));
+        size_t hitIndex;
+        return insertWithoutGrowth(move(element), hitIndex);
     }
 
     static if (hasValue)
@@ -1766,7 +1790,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     import container_traits : mustAddGCRange;
 
     alias E = string;
-    alias X = OpenHashMapOrSet!(E, void, FNV!(64, true));
+    alias X = OpenHashSet!(E, FNV!(64, true));
     static assert(!mustAddGCRange!X);
     static assert(X.sizeof == 24); // dynamic arrays also `hasAddressLikeKey`
 

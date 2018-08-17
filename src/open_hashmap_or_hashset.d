@@ -683,9 +683,9 @@ struct OpenHashMapOrSet(K, V = void,
      *
      * Returns: reference to existing element if present, otherwise new `element`.
      *
-     * Can be used to implement cache sets, typically string caches.
+     * Can be used to, for instance, implement caching, typically string caches.
      */
-    ref T insertAndReturnElement()(T element) return scope // template-lazy
+    ref T insertAndReturnElement(SomeElement)(SomeElement element) return scope // template-lazy
     {
         version(LDC) pragma(inline, true);
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
@@ -949,7 +949,7 @@ struct OpenHashMapOrSet(K, V = void,
         if (hitIndexPrel == _bins.length || // keys miss and holes may have filled all empty slots
             keyOf(_bins[hitIndexPrel]).isNull) // just key miss but a hole may have been found on the way
         {
-            immutable bool hasHole = holeIndex != size_t.max; // hole was found along the way
+            immutable hasHole = holeIndex != size_t.max; // hole was found along the way
             if (hasHole)
             {
                 hitIndex = holeIndex; // pick hole instead

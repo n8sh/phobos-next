@@ -81,7 +81,7 @@ struct OpenHashMapOrSet(K, V = void,
     import std.conv : emplace;
     import std.math : nextPow2;
     import std.traits : hasElaborateDestructor, isCopyable, hasIndirections,
-        isArray, isDynamicArray, isStaticArray, Unqual, hasFunctionAttributes;
+        isArray, isDynamicArray, isStaticArray, Unqual, hasFunctionAttributes, isMutable;
     import std.typecons : Nullable;
 
     import container_traits : defaultNullKeyConstantOf, mustAddGCRange, isNull, nullify;
@@ -175,7 +175,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
 
         /// Get key part of element.
-        static auto ref inout(K) keyOf()(auto ref return scope inout(T) element)
+        static auto ref inout(K) keyOf(SomeElement)(auto ref return scope inout(SomeElement) element)
         {
             pragma(inline, true);
             return element.key;
@@ -236,9 +236,9 @@ struct OpenHashMapOrSet(K, V = void,
         alias T = K;            // short name for element type
 
         /// Get key part of element.
-        static auto ref inout(K) keyOf()(auto ref return inout(T) element)
+        static auto ref inout(SomeElement) keyOf(SomeElement)(auto ref return inout(SomeElement) element)
         {
-            version(LDC) pragma(inline, true);
+            pragma(inline, true);
             return element;
         }
 
@@ -786,10 +786,20 @@ struct OpenHashMapOrSet(K, V = void,
     private void insertMoveElementAtIndex(SomeElement)(ref SomeElement element, size_t index) @trusted // template-lazy
     {
         version(LDC) pragma(inline, true);
-        move(keyOf(element), keyOf(_bins[index]));
-        static if (hasValue)
+        static if (isDynamicArray!SomeElement &&
+                   !is(typeof(SomeElement.init[0]) == immutable))
         {
-            moveEmplace(valueOf(element), valueOf(_bins[index]));
+            // static assert(0, "TEST");
+            // key is an array of non-immutable element
+            keyOf(_bins[index]) = element.idup;
+        }
+        else
+        {
+            move(keyOf(element), keyOf(_bins[index]));
+            static if (hasValue)
+            {
+                moveEmplace(valueOf(element), valueOf(_bins[index]));
+            }
         }
     }
 
@@ -1313,7 +1323,7 @@ private:
     }
 
     /** Returns: bin index of `key`. */
-    private size_t keyToIndex(const scope K key) const @trusted
+    private size_t keyToIndex(SomeKey)(const scope SomeKey key) const @trusted
     {
         version(LDC) pragma(inline, true);
         return hashOf2!(hasher)(key) & powerOf2Mask;
@@ -1395,8 +1405,8 @@ private:
         return _bins[].triangularProbeFromIndex!(pred)(keyToIndex(key));
     }
 
-    private size_t indexOfKeyOrVacancyAndFirstHole(const scope K key, // `auto ref` here makes things slow
-                                                   ref size_t holeIndex) const
+    private size_t indexOfKeyOrVacancyAndFirstHole(SomeKey)(const scope SomeKey key, // `auto ref` here makes things slow
+                                                            ref size_t holeIndex) const
         @trusted
     {
         version(LDC) pragma(inline, true);
@@ -1793,8 +1803,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     import digestx.fnv : FNV;
     import container_traits : mustAddGCRange;
 
-    alias E = string;
-    alias X = OpenHashSet!(E, FNV!(64, true));
+    alias X = OpenHashSet!(string, FNV!(64, true));
     static assert(!mustAddGCRange!X);
     static assert(X.sizeof == 24); // dynamic arrays also `hasAddressLikeKey`
 
@@ -1851,6 +1860,23 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     static assert(!__traits(compiles, { testEscapeShouldFail(); } ));
     // TODO this should fail:
     // TODO static assert(!__traits(compiles, { testEscapeShouldFailFront(); } ));
+}
+
+/// `string` as key
+@safe pure nothrow unittest
+{
+    version(showEntries) dln();
+    import digestx.fnv : FNV;
+    import container_traits : mustAddGCRange;
+
+    alias X = OpenHashSet!(string, FNV!(64, true));
+    auto x = X();
+
+    char[2] cc = "cc";          // mutable chars
+    assert(x.insertAndReturnElement(cc[]) !is cc[]); // will allocate new slice
+
+    const cc_ = "cc";           // immutable chars
+    assert(x.insertAndReturnElement(cc_[]) !is cc[]); // will not allocate
 }
 
 /// array container as value type

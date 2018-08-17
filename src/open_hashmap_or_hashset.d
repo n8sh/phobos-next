@@ -375,10 +375,10 @@ struct OpenHashMapOrSet(K, V = void,
         static if (hasLength!R)
         {
             typeof(this) that = withCapacity(elements.length);
-            foreach (ref element; elements)
+            foreach (element; elements)
             {
                 size_t hitIndex;
-                that.insertWithoutGrowth(element, hitIndex);
+                const instationStatus = that.insertWithoutGrowth(element, hitIndex);
             }
         }
         else
@@ -692,7 +692,7 @@ struct OpenHashMapOrSet(K, V = void,
         assert(!keyOf(element).isNull);
         reserveExtra(1);
         size_t hitIndex;
-        const status = insertWithoutGrowth(move(element), hitIndex);
+        const instationStatus = insertWithoutGrowth(move(element), hitIndex);
         return _bins[hitIndex];
     }
 
@@ -713,11 +713,11 @@ struct OpenHashMapOrSet(K, V = void,
             size_t hitIndex;
             static if (hasIndirections!T)
             {
-                insertWithoutGrowth(element, hitIndex);
+                const instationStatus = insertWithoutGrowth(element, hitIndex);
             }
             else
             {
-                insertWithoutGrowth(*cast(Unqual!T*)&element, hitIndex);
+                const instationStatus = insertWithoutGrowth(*cast(Unqual!T*)&element, hitIndex);
             }
         }
     }
@@ -783,7 +783,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    private void insertMoveElementAtIndex(SomeElement)(ref SomeElement element, size_t index) @trusted // template-lazy
+    private void insertElementAtIndex(SomeElement)(SomeElement element, size_t index) @trusted // template-lazy
     {
         version(LDC) pragma(inline, true);
         static if (isDynamicArray!SomeElement &&
@@ -984,7 +984,7 @@ struct OpenHashMapOrSet(K, V = void,
                 hitIndex = hitIndexPrel; // normal hit
             }
             version(internalUnittest) assert(hitIndex != _bins.length, "no null or hole slot");
-            insertMoveElementAtIndex(element, hitIndex);
+            insertElementAtIndex(move(element), hitIndex);
             static if (!hasAddressLikeKey)
             {
                 if (hasHole) { untagHoleAtIndex(hitIndex); }

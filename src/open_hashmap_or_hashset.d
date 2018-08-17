@@ -1764,7 +1764,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     }
 
     import digestx.fnv : FNV;
-    alias X = OpenHashMapOrSet!(ExprPot, void, FNV!(64, true));
+    alias X = OpenHashSet!(ExprPot, FNV!(64, true));
 
     X x;
 

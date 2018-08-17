@@ -699,7 +699,14 @@ struct OpenHashMapOrSet(K, V = void,
         assert(!keyOf(element).isNull);
         reserveExtra(1);
         size_t hitIndex;
-        const instationStatus = insertWithoutGrowth(move(element), hitIndex);
+        static if (isCopyable!SomeElement)
+        {
+            const instationStatus = insertWithoutGrowth(element, hitIndex);
+        }
+        else
+        {
+            const instationStatus = insertWithoutGrowth(move(element), hitIndex);
+        }
         return _bins[hitIndex];
     }
 

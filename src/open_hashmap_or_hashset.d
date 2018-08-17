@@ -783,7 +783,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    private void insertMoveElementAtIndex(SomeElement)(ref SomeElement element, size_t index) @trusted // template-lazy
+    private void insertElementAtIndex(SomeElement)(SomeElement element, size_t index) @trusted // template-lazy
     {
         version(LDC) pragma(inline, true);
         static if (isDynamicArray!SomeElement &&
@@ -796,19 +796,26 @@ struct OpenHashMapOrSet(K, V = void,
         }
         else
         {
-            static if (isCopyable!K)
+            static if (isCopyable!SomeElement)
             {
-                keyOf(_bins[index]) = keyOf(element);
+                _bins[index] = element;
             }
             else
             {
-                move(keyOf(element), keyOf(_bins[index]));
+                static if (isCopyable!K)
+                {
+                    keyOf(_bins[index]) = keyOf(element);
+                }
+                else
+                {
+                    move(keyOf(element), keyOf(_bins[index]));
+                }
+                static if (hasValue)
+                {
+                    moveEmplace(valueOf(element), valueOf(_bins[index]));
+                }
             }
-            static if (hasValue)
-            {
-                moveEmplace(valueOf(element), valueOf(_bins[index]));
             }
-        }
     }
 
     /** Rehash elements in-place. */
@@ -977,7 +984,7 @@ struct OpenHashMapOrSet(K, V = void,
                 hitIndex = hitIndexPrel; // normal hit
             }
             version(internalUnittest) assert(hitIndex != _bins.length, "no null or hole slot");
-            insertMoveElementAtIndex(element, hitIndex);
+            insertElementAtIndex(move(element), hitIndex);
             static if (!hasAddressLikeKey)
             {
                 if (hasHole) { untagHoleAtIndex(hitIndex); }

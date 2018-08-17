@@ -673,7 +673,14 @@ struct OpenHashMapOrSet(K, V = void,
         assert(!keyOf(element).isNull);
         reserveExtra(1);
         size_t hitIndex;
-        return insertWithoutGrowth(move(element), hitIndex);
+        static if (isCopyable!T)
+        {
+            return insertWithoutGrowth(element, hitIndex);
+        }
+        else
+        {
+            return insertWithoutGrowth(move(element), hitIndex);
+        }
     }
 
     /** Insert `element`, being either a key-value (map-case) or a just a key
@@ -984,7 +991,14 @@ struct OpenHashMapOrSet(K, V = void,
                 hitIndex = hitIndexPrel; // normal hit
             }
             version(internalUnittest) assert(hitIndex != _bins.length, "no null or hole slot");
-            insertElementAtIndex(move(element), hitIndex);
+            static if (isCopyable!SomeElement)
+            {
+                insertElementAtIndex(element, hitIndex);
+            }
+            else
+            {
+                insertElementAtIndex(move(element), hitIndex);
+            }
             static if (!hasAddressLikeKey)
             {
                 if (hasHole) { untagHoleAtIndex(hitIndex); }

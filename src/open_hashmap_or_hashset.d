@@ -685,7 +685,7 @@ struct OpenHashMapOrSet(K, V = void,
      *
      * Can be used to implement cache sets, typically string caches.
      */
-    ref T insertAndReturnElement()(T element) // template-lazy
+    ref T insertAndReturnElement()(T element) return scope // template-lazy
     {
         version(LDC) pragma(inline, true);
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }

@@ -783,7 +783,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    private void insertElementAtIndex(SomeElement)(SomeElement element, size_t index) @trusted // template-lazy
+    private void insertMoveElementAtIndex(SomeElement)(ref SomeElement element, size_t index) @trusted // template-lazy
     {
         version(LDC) pragma(inline, true);
         static if (isDynamicArray!SomeElement &&
@@ -984,7 +984,7 @@ struct OpenHashMapOrSet(K, V = void,
                 hitIndex = hitIndexPrel; // normal hit
             }
             version(internalUnittest) assert(hitIndex != _bins.length, "no null or hole slot");
-            insertElementAtIndex(move(element), hitIndex);
+            insertMoveElementAtIndex(element, hitIndex);
             static if (!hasAddressLikeKey)
             {
                 if (hasHole) { untagHoleAtIndex(hitIndex); }

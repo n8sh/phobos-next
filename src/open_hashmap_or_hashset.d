@@ -1828,6 +1828,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     const bb = "bb";
 
     assert(x.insertAndReturnElement(bb[0 .. 1]) is bb[0 .. 1]); // returns newly added ref
+    assert(x.insertAndReturnElement(bb[0 .. 1]) !is "b");       // return other ref not equal new literal
     x.insert(bb[0 .. 1]);
     assert(x.contains(bb[1 .. 2]));
 

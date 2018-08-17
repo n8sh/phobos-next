@@ -677,8 +677,8 @@ struct OpenHashMapOrSet(K, V = void,
     /** Insert `elements`, all being either a key-value (map-case) or a just a key (set-case).
      */
     void insertN(R)(R elements) @trusted
-        if (isIterable!R &&
-            isCopyable!T)       // TODO support uncopyable T?
+    if (isIterable!R &&
+        isCopyable!T)           // TODO support uncopyable T?
     {
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
         import std.range : hasLength;

@@ -789,8 +789,9 @@ struct OpenHashMapOrSet(K, V = void,
         static if (isDynamicArray!SomeElement &&
                    !is(typeof(SomeElement.init[0]) == immutable))
         {
-            // static assert(0, "TEST");
-            // key is an array of non-immutable element
+            /* key is an array of non-`immutable` elements which cannot safely
+             * be stored because keys must be immutable for hashing to work
+             * properly, therefore duplicate */
             keyOf(_bins[index]) = element.idup;
         }
         else

@@ -795,7 +795,14 @@ struct OpenHashMapOrSet(K, V = void,
         }
         else
         {
-            move(keyOf(element), keyOf(_bins[index]));
+            static if (isCopyable!K)
+            {
+                keyOf(_bins[index]) = keyOf(element);
+            }
+            else
+            {
+                move(keyOf(element), keyOf(_bins[index]));
+            }
             static if (hasValue)
             {
                 moveEmplace(valueOf(element), valueOf(_bins[index]));

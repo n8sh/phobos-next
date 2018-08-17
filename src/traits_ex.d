@@ -418,9 +418,6 @@ enum isArrayOfSomeString(R) = isArray!R && isSomeString!(ElementType!R);
 enum isSourceAssignableTo(R, E) = (isInputRange!R &&
                                    isAssignable!(E, ElementType!R));
 
-/// TODO Move to Phobos?
-enum isCharsSlice(T) = (is(T : const(char)[]));
-
 @safe pure unittest
 {
     static assert(isSomeString!(string));
@@ -428,7 +425,13 @@ enum isCharsSlice(T) = (is(T : const(char)[]));
 
     static assert(isSomeString!(const(char)[]));
     static assert(isSomeString!(const char[]));
+}
 
+/// TODO Move to Phobos?
+enum isCharsSlice(T) = (is(T : const(char)[]));
+
+@safe pure unittest
+{
     static assert(isCharsSlice!(const(char[])));
     static assert(isCharsSlice!(const char[]));
 

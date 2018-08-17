@@ -680,6 +680,8 @@ struct OpenHashMapOrSet(K, V = void,
      * (set-case).
      *
      * If `element` is a nullable type and it is null an `AssertError` is thrown.
+     *
+     * Returns: reference to existing element or new `element`.
      */
     ref T insertAndReturnElement()(T element) // template-lazy
     {

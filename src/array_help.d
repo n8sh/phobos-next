@@ -58,7 +58,7 @@ alias s = asStaticArray;
 
 /** Make a static array. */
 version(none)
-auto staticArray() @property @safe
+auto staticArrayAlternative() @property @safe
 {
     static struct _staticArray
     {

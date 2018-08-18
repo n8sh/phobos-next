@@ -56,6 +56,26 @@ Unqual!T[n] asStaticArray(T, size_t n)(T[n] x...) @trusted
 }
 alias s = asStaticArray;
 
+/** Make a static array. */
+version(none)
+auto staticArray() @property @safe
+{
+    static struct _staticArray
+    {
+        T[n] s(T, size_t n)(auto ref T[n] values) @safe @property { return values; }
+
+        T[0][n] opIndex(size_t n = T.length, T...)(T items)
+        {
+            typeof(return) arr;
+            foreach (index,item; items)
+                arr[index] = item;
+
+            return (values) { return values; }(arr);//s!(T[0], n)(arr);
+        }
+    }
+    return _staticArray();
+}
+
 version(unittest)
 {
     private static struct US

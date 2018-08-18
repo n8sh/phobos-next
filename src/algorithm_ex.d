@@ -1785,25 +1785,6 @@ if (isInputRange!(Unqual!R))
 //                  [1, 0, 2, 3, 5]));
 // }
 
-/** Make a static array. */
-auto staticArray() @property @safe
-{
-    static struct _staticArray
-    {
-        T[n] s(T, size_t n)(auto ref T[n] values) @safe @property { return values; }
-
-        T[0][n] opIndex(size_t n = T.length, T...)(T items)
-        {
-            typeof(return) arr;
-            foreach (index,item; items)
-                arr[index] = item;
-
-            return (values) { return values; }(arr);//s!(T[0], n)(arr);
-        }
-    }
-    return _staticArray();
-}
-
 /** Returns: `true` iff `value` is equal to any of `values`, `false` otherwise. */
 bool isAmong(alias pred = (a, b) => a == b,
              Value,

@@ -23,7 +23,7 @@ import std.traits : Unqual;
  * See_Also: http://dpaste.dzfl.pl/d0059e6e6c09
  * See_Also: http://forum.dlang.org/post/oq0cd1$2ji3$1@digitalmars.com
  */
-Unqual!T[n] asStaticArray(T, size_t n)(T[n] x...) @trusted
+Unqual!T[n] staticArray(T, size_t n)(T[n] x...) @trusted
 {
     import std.traits : isCopyable, hasElaborateDestructor; // TODO remove `move` when compiler does it for us
     static if (isCopyable!T)  // TODO remove `move` when compiler does it for us
@@ -54,7 +54,7 @@ Unqual!T[n] asStaticArray(T, size_t n)(T[n] x...) @trusted
         return y;
     }
 }
-alias s = asStaticArray;
+alias s = staticArray;
 
 /** Make a static array. */
 version(none)
@@ -88,9 +88,9 @@ version(unittest)
 ///
 @safe pure nothrow @nogc unittest
 {
-    auto a = [1, 2, 3].asStaticArray;
+    auto a = [1, 2, 3].staticArray;
     static assert(is(typeof(a) == int[a.length]));
-    static assert(is(typeof([1, 2, 3].asStaticArray) == int[a.length]));
+    static assert(is(typeof([1, 2, 3].staticArray) == int[a.length]));
 
     auto b = "hello".s;
     static assert(is(typeof(b) == char[5]));
@@ -108,10 +108,10 @@ version(unittest)
 ///
 @safe pure nothrow @nogc unittest
 {
-    auto x = [1, 2, 3].asStaticArray;
+    auto x = [1, 2, 3].staticArray;
 
     static assert(is(typeof(x) == int[x.length]));
-    static assert(is(typeof([1, 2, 3].asStaticArray) == int[x.length]));
+    static assert(is(typeof([1, 2, 3].staticArray) == int[x.length]));
 
     static assert(!__traits(compiles,
                             {

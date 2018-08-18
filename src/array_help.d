@@ -12,7 +12,7 @@ import std.traits : Unqual;
  *
  * const x = [1, 2, 3].s;
  *
- * TODO Add to Phobos `std.array`.
+ * TODO Replace with 2.082 `staticArray`
  *
  * TODO Fix problems discussed here: http://forum.dlang.org/post/otrsanpgmokzpzqmfyvx@forum.dlang.org
  * TODO File a bug report: http://forum.dlang.org/post/otrsanpgmokzpzqmfyvx@forum.dlang.org

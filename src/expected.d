@@ -10,15 +10,19 @@ struct Expected(Result, Error)
 {
     @safe:
 
+    // TODO ok for default construction to initialize a default value?
+
     this(Result result) @trusted
     {
-        _result = result;
+        // TODO reuse opAssign?
+        _result = result;       // TODO use moveEmplace here aswell?
         _hasResult = true;
     }
 
     this(Error error) @trusted
     {
-        _error = error;
+        // TODO reuse opAssign?
+        _error = error;         // TODO use moveEmplace here aswell?
         _hasResult = false;
     }
 
@@ -27,6 +31,15 @@ struct Expected(Result, Error)
         clear();
         import std.algorithm.mutation : moveEmplace;
         moveEmplace(result, _result);
+        _hasResult = true;
+    }
+
+    void opAssign(Error error) @trusted
+    {
+        clear();
+        import std.algorithm.mutation : moveEmplace;
+        moveEmplace(error, _error);
+        _hasResult = false;
     }
 
     private void clear() @trusted
@@ -44,6 +57,11 @@ struct Expected(Result, Error)
         {
             destroy(_result);
             _hasResult = false;
+        }
+        else
+        {
+            destroy(_error);
+            // TODO change _hasResult?
         }
     }
 
@@ -74,10 +92,13 @@ struct Expected(Result, Error)
 private:
     union
     {
-        Result _result;
+        Result _result;         // TODO do we need to default-initialize this somehow?
         Error _error;           // TODO wrap in `Unexpected`
     }
-    bool _hasResult = false; // TODO remove when `_result` and ` _error` can store this state
+
+    // TODO special case and remove when `_result` and ` _error` can store this
+    // state
+    bool _hasResult = true;     // @andralex says ok to default Result.init by default
 }
 
 @safe pure nothrow @nogc unittest

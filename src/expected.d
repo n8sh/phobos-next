@@ -87,7 +87,7 @@ struct Expected(Result, Error)
     }
     void popFront()
     {
-        assert(!empty);
+        assert(_hasResult);
         clear();
     }
 

@@ -34,6 +34,9 @@ struct Expected(Result, Error)
         import std.traits : hasElaborateCopyConstructor;
         static if (hasElaborateCopyConstructor!Result)
         {
+        }
+        static if (isAddress!Result)
+        {
             _result = null;
         }
     }
@@ -43,6 +46,7 @@ struct Expected(Result, Error)
         if (hasResult)
         {
             destroy(_result);
+            _hasResult = false;
         }
     }
 
@@ -81,6 +85,18 @@ private:
 
 @safe pure nothrow @nogc unittest
 {
-    auto x = Expected!(string, int)("alpha");
+    alias E = Expected!(string, int);
+
+    auto x = E("alpha");
     assert(x.hasResult);
+    assert(!x.empty);
+
+    x.popFront();
+    assert(!x.hasResult);
+    assert(x.empty);
 }
+
+import std.traits : isPointer;
+
+private enum isAddress(T) = (is(T == class) || // a class is memory-wise
+                             isPointer!T);     // just a pointer, consistent with opCmp

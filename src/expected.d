@@ -53,7 +53,7 @@ private:
     union
     {
         Result _result;
-        Error _error;
+        Error _error;           // TODO wrap in `Unexpected`
     }
     bool _hasResult = false; // TODO remove when `_result` and ` _error` can store this state
 }

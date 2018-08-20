@@ -34,5 +34,6 @@ private:
 
 @safe pure nothrow @nogc unittest
 {
-    auto x = Expected!(string, int)();
+    auto x = Expected!(string, int)("alpha");
+    assert(x.isOk);
 }

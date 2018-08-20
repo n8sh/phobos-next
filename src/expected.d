@@ -57,7 +57,10 @@ struct Expected(Result, Error)
     {
         if (hasResult)
         {
-            destroy(_result);
+            static if (!is(Result == class))
+            {
+                destroy(_result);
+            }
             _hasResult = false;
         }
         else

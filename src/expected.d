@@ -25,16 +25,13 @@ struct Expected(Result, Error)
     void opAssign(Result result) @trusted
     {
         clear();
-        _result = result;
+        import std.algorithm.mutation : moveEmplace;
+        moveEmplace(result, _result);
     }
 
     private void clear() @trusted
     {
         release();
-        import std.traits : hasElaborateCopyConstructor;
-        static if (hasElaborateCopyConstructor!Result)
-        {
-        }
         static if (isAddress!Result)
         {
             _result = null;

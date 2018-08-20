@@ -27,6 +27,29 @@ struct Expected(Result, Error)
     {
     }
 
+    // range interface:
+    @property bool empty() const
+    {
+        return !hasResult;
+    }
+
+    @property Result front() const @trusted
+    {
+        assert(!empty);
+        return _result;
+    }
+
+    @property void popFront() @trusted
+    {
+        assert(!empty);
+        destroy(_result);
+        if (isAddress!Expected)
+        {
+            _result = null;
+        }
+        _hasResult = false;
+    }
+
 private:
     union
     {
@@ -42,3 +65,8 @@ private:
     auto x = Expected!(string, int)("alpha");
     assert(x.hasResult);
 }
+
+import std.traits : isPointer;
+
+private enum isAddress(T) = (is(T == class) || // a class is memory-wise
+                             isPointer!T);     // just a pointer, consistent with opCmp

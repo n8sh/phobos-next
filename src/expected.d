@@ -20,6 +20,7 @@ struct Expected(Result, Error)
         _hasResult = true;
     }
 
+    /** Is `true` iff this has a result of type `Result`. */
     bool hasResult() const { return _hasResult; }
 
     void orElse(alias elseWork)()

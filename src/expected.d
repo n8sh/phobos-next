@@ -78,7 +78,7 @@ struct Expected(Result, Error)
     // range interface:
     @property bool empty() const
     {
-        return !hasResult;
+        return !_hasResult;
     }
     @property inout(Result) front() inout @trusted
     {

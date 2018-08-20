@@ -8,6 +8,8 @@ module expected;
  */
 struct Expected(Result, Error)
 {
+    @safe:
+
     this(Result result) @trusted
     {
         _result = result;
@@ -18,6 +20,30 @@ struct Expected(Result, Error)
     {
         _error = error;
         _hasResult = false;
+    }
+
+    void opAssign(Result result) @trusted
+    {
+        clear();
+        _result = result;
+    }
+
+    private void clear() @trusted
+    {
+        release();
+        import std.traits : hasElaborateCopyConstructor;
+        static if (hasElaborateCopyConstructor!Result)
+        {
+            _result = null;
+        }
+    }
+
+    private void release() @trusted
+    {
+        if (hasResult)
+        {
+            destroy(_result);
+        }
     }
 
     /** Is `true` iff this has a result of type `Result`. */
@@ -38,15 +64,10 @@ struct Expected(Result, Error)
         assert(!empty);
         return _result;
     }
-    void popFront() @trusted
+    void popFront()
     {
         assert(!empty);
-        destroy(_result);
-        if (isAddress!Expected)
-        {
-            _result = null;
-        }
-        _hasResult = false;
+        clear();
     }
 
 private:
@@ -63,8 +84,3 @@ private:
     auto x = Expected!(string, int)("alpha");
     assert(x.hasResult);
 }
-
-import std.traits : isPointer;
-
-private enum isAddress(T) = (is(T == class) || // a class is memory-wise
-                             isPointer!T);     // just a pointer, consistent with opCmp

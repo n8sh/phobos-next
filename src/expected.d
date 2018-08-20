@@ -59,7 +59,11 @@ struct Expected(Result, Error)
         {
             static if (!is(Result == class))
             {
-                destroy(_result);
+                import std.traits : hasElaborateDestructor;
+                static if (hasElaborateDestructor!Result)
+                {
+                    destroy(_result);
+                }
             }
             _hasResult = false;
         }

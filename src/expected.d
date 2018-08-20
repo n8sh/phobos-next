@@ -55,11 +55,11 @@ struct Expected(Result, Error)
 
     private void release() @trusted
     {
+        import std.traits : hasElaborateDestructor;
         if (hasResult)
         {
             static if (!is(Result == class))
             {
-                import std.traits : hasElaborateDestructor;
                 static if (hasElaborateDestructor!Result)
                 {
                     destroy(_result);
@@ -69,6 +69,13 @@ struct Expected(Result, Error)
         }
         else
         {
+            static if (!is(Error == class))
+            {
+                static if (hasElaborateDestructor!Error)
+                {
+                    destroy(_error);
+                }
+            }
             destroy(_error);
             // TODO change _hasResult?
         }

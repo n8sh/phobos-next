@@ -17,7 +17,7 @@ struct Expected(Result, Error)
     this(Error error) @trusted
     {
         _error = error;
-        _hasResult = true;
+        _hasResult = false;
     }
 
     /** Is `true` iff this has a result of type `Result`. */

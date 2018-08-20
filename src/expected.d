@@ -4,7 +4,7 @@ module expected;
 
 /** Expected type.
  *
- * Returns:
+ * See_Also: https://www.youtube.com/watch?v=nVzgkepAg5Y
  */
 struct Expected(Result, Error)
 {

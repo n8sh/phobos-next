@@ -25,6 +25,7 @@ struct Expected(Result, Error)
 
     void orElse(alias elseWork)() const
     {
+        // TODO
     }
 
     // range interface:

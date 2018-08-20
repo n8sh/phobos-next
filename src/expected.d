@@ -55,7 +55,6 @@ private:
         Result _result;
         Error _error;
     }
-
     bool _hasResult = false; // TODO remove when `_result` and ` _error` can store this state
 }
 

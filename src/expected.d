@@ -23,7 +23,7 @@ struct Expected(Result, Error)
     /** Is `true` iff this has a result of type `Result`. */
     bool hasResult() const { return _hasResult; }
 
-    void orElse(alias elseWork)()
+    void orElse(alias elseWork)() const
     {
     }
 

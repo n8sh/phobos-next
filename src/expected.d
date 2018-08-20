@@ -12,7 +12,7 @@ struct Expected(Result, Error)
 
     // TODO ok for default construction to initialize
     // - _result = Result.init (zeros)
-    // - _hasResult = true
+    // - _hasResult = true (better to have _isError so default is zero bits here aswell?)
 
     this(Result result) @trusted
     {

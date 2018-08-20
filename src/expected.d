@@ -2,7 +2,7 @@ module expected;
 
 @safe pure:
 
-/** Expected type.
+/** Expected sum type of either a `Result` or an `Error`.
  *
  * See_Also: https://www.youtube.com/watch?v=nVzgkepAg5Y
  */

@@ -2,6 +2,10 @@ module expected;
 
 @safe pure:
 
+/** Expected type.
+ *
+ * Returns:
+ */
 struct Expected(Result, Error)
 {
     this(Result result) @trusted

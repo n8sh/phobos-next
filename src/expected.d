@@ -97,7 +97,6 @@ private:
         Result _result;         // TODO do we need to default-initialize this somehow?
         Error _error;           // TODO wrap in `Unexpected`
     }
-
     // TODO special case and remove when `_result` and ` _error` can store this
     // state
     bool _hasResult = true;     // @andralex says ok to default Result.init by default

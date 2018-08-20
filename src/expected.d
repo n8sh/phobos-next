@@ -82,7 +82,7 @@ struct Expected(Result, Error)
     }
     @property inout(Result) front() inout @trusted
     {
-        assert(!empty);
+        assert(hasResult);
         return _result;
     }
     void popFront()

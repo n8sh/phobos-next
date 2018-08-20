@@ -11,16 +11,16 @@ struct Expected(Result, Error)
     this(Result result) @trusted
     {
         _result = result;
-        _ok = true;
+        _hasResult = true;
     }
 
     this(Error error) @trusted
     {
         _error = error;
-        _ok = true;
+        _hasResult = true;
     }
 
-    bool isOk() const { return _ok; }
+    bool hasResult() const { return _hasResult; }
 
     void orElse(alias elseWork)()
     {
@@ -33,11 +33,11 @@ private:
         Error _error;
     }
 
-    bool _ok = false;
+    bool _hasResult = false;
 }
 
 @safe pure nothrow @nogc unittest
 {
     auto x = Expected!(string, int)("alpha");
-    assert(x.isOk);
+    assert(x.hasResult);
 }

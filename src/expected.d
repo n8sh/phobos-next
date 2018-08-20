@@ -32,14 +32,12 @@ struct Expected(Result, Error)
     {
         return !hasResult;
     }
-
-    @property Result front() const @trusted
+    @property inout(Result) front() inout @trusted
     {
         assert(!empty);
         return _result;
     }
-
-    @property void popFront() @trusted
+    void popFront() @trusted
     {
         assert(!empty);
         destroy(_result);

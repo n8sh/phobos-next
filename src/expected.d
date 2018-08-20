@@ -11,7 +11,7 @@ struct Expected(Result, Error)
     @safe:
 
     // TODO ok for default construction to initialize
-    // - _result = Result.init
+    // - _result = Result.init (zeros)
     // - _hasResult = true
 
     this(Result result) @trusted

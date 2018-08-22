@@ -12,7 +12,7 @@ module expected;
 
 @safe pure:
 
-/** Expected sum type of either a `T` or an `U`.
+/** Expected sum type of either an expected value `T` or an `Unexpected` value `U`.
  *
  * See_Also: https://www.youtube.com/watch?v=nVzgkepAg5Y
  */

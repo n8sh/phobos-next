@@ -14,6 +14,7 @@ struct Expected(Result, Error)
     // - _result = Result.init (zeros)
     // - _hasResult = true (better to have _isError so default is zero bits here aswell?)
 
+    /// Construct from result `result.`
     this(Result result) @trusted
     {
         // TODO reuse opAssign?
@@ -21,6 +22,7 @@ struct Expected(Result, Error)
         _hasResult = true;
     }
 
+    /// Construct from error `error.`
     this(Error error) @trusted
     {
         // TODO reuse opAssign?
@@ -28,6 +30,7 @@ struct Expected(Result, Error)
         _hasResult = false;
     }
 
+    /// Assign from result `result.`
     void opAssign(Result result) @trusted
     {
         clear();
@@ -36,6 +39,7 @@ struct Expected(Result, Error)
         _hasResult = true;
     }
 
+    /// Assign from error `error.`
     void opAssign(Error error) @trusted
     {
         clear();
@@ -44,6 +48,7 @@ struct Expected(Result, Error)
         _hasResult = false;
     }
 
+    /// Clear (empty) contents.
     private void clear() @trusted
     {
         release();
@@ -53,6 +58,7 @@ struct Expected(Result, Error)
         }
     }
 
+    /// Release any memory used to store contents.
     private void release() @trusted
     {
         import std.traits : hasElaborateDestructor;
@@ -84,7 +90,8 @@ struct Expected(Result, Error)
     /** Is `true` iff this has a result of type `Result`. */
     bool hasResult() const { return _hasResult; }
 
-    void orElse(alias elseWork)() const
+    /// Get current value if any or call function `elseWorkFun` with compatible return value.
+    void orElse(alias elseWorkFun)() const
     {
         // TODO
     }

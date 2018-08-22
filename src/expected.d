@@ -4,7 +4,7 @@
  *
  * TODO https://dlang.org/phobos/std_typecons.html#.apply
  *
- * TODO later on: remove _hasResult when `_result` and ` _error` can store this state
+ * TODO later on: remove _hasResult when `_result` and ` _unexpectedValue` can store this state
  * "collectively" for instance when both are pointers or classes (use trait
  * `isAddress`)
  */
@@ -18,12 +18,12 @@ private struct Unexpected(U)
     alias value this;
 }
 
-auto unexpected(T, U)(auto ref U error)
+auto unexpected(T, U)(auto ref U unexpectedValue)
 {
-    return Expected!(T, U)(Unexpected!U(error));
+    return Expected!(T, U)(Unexpected!U(unexpectedValue));
 }
 
-/** Expected sum type of either an expected value `T` or an `Unexpected` value `U`.
+/** Sum type of either an expected value `T` or an `Unexpected` value `U`.
  *
  * See_Also: https://www.youtube.com/watch?v=nVzgkepAg5Y
  */
@@ -43,11 +43,11 @@ struct Expected(T, U)
         _hasResult = true;
     }
 
-    /// Construct from error `error.`
-    this(Unexpected!U error) @trusted
+    /// Construct from unexpected value `unexpectedValue.`
+    this(Unexpected!U unexpectedValue) @trusted
     {
         // TODO reuse opAssign?
-        _error = error; // TODO use moveEmplace here aswell?
+        _unexpectedValue = unexpectedValue; // TODO use moveEmplace here aswell?
         _hasResult = false;
     }
 
@@ -60,12 +60,12 @@ struct Expected(T, U)
         _hasResult = true;
     }
 
-    /// Assign from error `error.`
-    void opAssign(U error) @trusted
+    /// Assign from unexpected value `unexpectedValue.`
+    void opAssign(U unexpectedValue) @trusted
     {
         clear();
         import std.algorithm.mutation : moveEmplace;
-        moveEmplace(error, _error);
+        moveEmplace(unexpectedValue, _unexpectedValue);
         _hasResult = false;
     }
 
@@ -100,10 +100,10 @@ struct Expected(T, U)
             {
                 static if (hasElaborateDestructor!U)
                 {
-                    destroy(_error);
+                    destroy(_unexpectedValue);
                 }
             }
-            destroy(_error);
+            destroy(_unexpectedValue);
             // TODO change _hasResult?
         }
     }
@@ -156,7 +156,7 @@ private:
     union
     {
         T _result;         // TODO do we need to default-initialize this somehow?
-        Unexpected!U _error;           // TODO wrap in `Unexpected`
+        Unexpected!U _unexpectedValue;
     }
     bool _hasResult = true;     // @andralex: ok to opportunistic and default to `T.init`
 }

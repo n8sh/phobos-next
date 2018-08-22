@@ -8,7 +8,7 @@
  * - `Expected`: instead call it something that tells us that it can be either expected or unexpected?
  * - `Unexpected`: if so why shouldn't we have a similar value wrapper `Expected`?
  *
- * TODO later on: remove _hasResult when `_expectedValue` and ` _unexpectedValue` can store this state
+ * TODO later on: remove _hasExpectedValue when `_expectedValue` and ` _unexpectedValue` can store this state
  * "collectively" for instance when both are pointers or classes (use trait
  * `isAddress`)
  */
@@ -37,14 +37,14 @@ struct Expected(T, U)
 
     // TODO ok for default construction to initialize
     // - _expectedValue = T.init (zeros)
-    // - _hasResult = true (better to have _isError so default is zero bits here aswell?)
+    // - _hasExpectedValue = true (better to have _isError so default is zero bits here aswell?)
 
-    /// Construct from result `result.`
-    this(T result) @trusted
+    /// Construct from expectedValue `expectedValue.`
+    this(T expectedValue) @trusted
     {
         // TODO reuse opAssign?
-        _expectedValue = result;       // TODO use moveEmplace here aswell?
-        _hasResult = true;
+        _expectedValue = expectedValue;       // TODO use moveEmplace here aswell?
+        _hasExpectedValue = true;
     }
 
     /// Construct from unexpected value `unexpectedValue.`
@@ -52,16 +52,16 @@ struct Expected(T, U)
     {
         // TODO reuse opAssign?
         _unexpectedValue = unexpectedValue; // TODO use moveEmplace here aswell?
-        _hasResult = false;
+        _hasExpectedValue = false;
     }
 
-    /// Assign from result `result.`
-    void opAssign(T result) @trusted
+    /// Assign from expectedValue `expectedValue.`
+    void opAssign(T expectedValue) @trusted
     {
         clear();
         import std.algorithm.mutation : moveEmplace;
-        moveEmplace(result, _expectedValue);
-        _hasResult = true;
+        moveEmplace(expectedValue, _expectedValue);
+        _hasExpectedValue = true;
     }
 
     /// Assign from unexpected value `unexpectedValue.`
@@ -70,7 +70,7 @@ struct Expected(T, U)
         clear();
         import std.algorithm.mutation : moveEmplace;
         moveEmplace(unexpectedValue, _unexpectedValue);
-        _hasResult = false;
+        _hasExpectedValue = false;
     }
 
     /// Clear (empty) contents.
@@ -87,7 +87,7 @@ struct Expected(T, U)
     private void release() @trusted
     {
         import std.traits : hasElaborateDestructor;
-        if (hasResult)
+        if (hasExpectedValue)
         {
             static if (!is(T == class))
             {
@@ -96,7 +96,7 @@ struct Expected(T, U)
                     destroy(_expectedValue);
                 }
             }
-            _hasResult = false;
+            _hasExpectedValue = false;
         }
         else
         {
@@ -108,12 +108,12 @@ struct Expected(T, U)
                 }
             }
             destroy(_unexpectedValue);
-            // TODO change _hasResult?
+            // TODO change _hasExpectedValue?
         }
     }
 
-    /** Is `true` iff this has a result of type `T`. */
-    bool hasResult() const { return _hasResult; }
+    /** Is `true` iff this has a expectedValue of type `T`. */
+    bool hasExpectedValue() const { return _hasExpectedValue; }
 
     import std.traits : CommonType;
 
@@ -124,9 +124,9 @@ struct Expected(T, U)
     CommonType!(T, typeof(elseWorkFun())) orElse(alias elseWorkFun)() const
     if (is(CommonType!(T, typeof(elseWorkFun()))))
     {
-        if (hasResult)
+        if (hasExpectedValue)
         {
-            return result;
+            return expectedValue;
         }
         else
         {
@@ -139,20 +139,20 @@ struct Expected(T, U)
     /// Check if empty.
     @property bool empty() const
     {
-        return !_hasResult;
+        return !_hasExpectedValue;
     }
 
     /// Get current value.
     @property inout(T) front() inout @trusted
     {
-        assert(_hasResult);
+        assert(_hasExpectedValue);
         return _expectedValue;
     }
 
     /// Pop (clear) current value.
     void popFront()
     {
-        assert(_hasResult);
+        assert(_hasExpectedValue);
         clear();
     }
 
@@ -162,7 +162,7 @@ private:
         T _expectedValue;         // TODO do we need to default-initialize this somehow?
         Unexpected!U _unexpectedValue;
     }
-    bool _hasResult = true;     // @andralex: ok to opportunistic and default to `T.init`
+    bool _hasExpectedValue = true;     // @andralex: ok to opportunistic and default to `T.init`
 }
 
 auto expected(T, U)(auto ref T value)
@@ -177,17 +177,17 @@ auto expected(T, U)(auto ref T value)
     alias E = Expected!(T, int);
 
     auto x = E("alpha");
-    assert(x.hasResult);
+    assert(x.hasExpectedValue);
     assert(!x.empty);
 
     x.popFront();
-    assert(!x.hasResult);
+    assert(!x.hasExpectedValue);
     assert(x.empty);
 
     import std.typecons : Nullable;
 
     auto e = E(Unexpected!int(int.init));
-    assert(!e.hasResult);
+    assert(!e.hasExpectedValue);
     assert(x.empty);
 
     // TODO test x.orElse({ some_simple_code; })

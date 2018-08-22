@@ -27,10 +27,11 @@ struct Expected(T, U)
     }
 
     /// Construct from error `error.`
-    this(U error) @trusted
+    this(Unexpected!U result) @trusted
     {
         // TODO reuse opAssign?
-        _error = Unexpected!U(error); // TODO use moveEmplace here aswell?
+        _error = result
+        ; // TODO use moveEmplace here aswell?
         _hasResult = false;
     }
 
@@ -145,9 +146,9 @@ private:
     bool _hasResult = true;     // @andralex says ok to default T.init by default
 }
 
-private struct Unexpected(T)
+private struct Unexpected(U)
 {
-    T value;
+    U value;
     alias value this;
 }
 
@@ -164,8 +165,8 @@ auto unexpected(T, U)(auto ref U error)
 @safe pure nothrow @nogc unittest
 {
     alias T = string;           // expected type
-    alias U = int;              // unexpected type
-    alias E = Expected!(T, U);
+    alias U = int;
+    alias E = Expected!(T, int);
 
     auto x = E("alpha");
     assert(x.hasResult);
@@ -175,7 +176,7 @@ auto unexpected(T, U)(auto ref U error)
     assert(!x.hasResult);
     assert(x.empty);
 
-    auto e = E(U.init);
+    auto e = E(Unexpected!int(int.init));
     assert(!e.hasResult);
     assert(x.empty);
 }

@@ -97,15 +97,21 @@ struct Expected(Result, Error)
     }
 
     // range interface:
+
+    /// Check if empty.
     @property bool empty() const
     {
         return !_hasResult;
     }
+
+    /// Get current value.
     @property inout(Result) front() inout @trusted
     {
         assert(_hasResult);
         return _result;
     }
+
+    /// Pop (clear) current value.
     void popFront()
     {
         assert(_hasResult);

@@ -11,7 +11,7 @@
  * TODO we could get around the `Unexpected` wrapper logic by instead expressing
  * construction in static constructor functions, say,:
  * - static typeof(this) fromExpectedValue(T expectedValue)
- * - static typeof(this) fromUnexpectedValue(U unexpectedValue)
+ * - static typeof(this) fromUnexpectedValue(E unexpectedValue)
  *
  * TODO swa
  *
@@ -25,26 +25,26 @@ import std.traits : isInstanceOf;
 
 @safe pure:
 
-/** Wrapper type for an unexpected value of type `U`.
+/** Wrapper type for an unexpected value of type `E`.
  */
-private struct Unexpected(U)
+private struct Unexpected(E)
 {
-    U value;
+    E value;
     alias value this;
 }
 
 /// Instantiator for `Unexpected`.
-auto unexpected(T, U)(auto ref U unexpectedValue)
+auto unexpected(T, E)(auto ref E unexpectedValue)
 {
-    return Expected!(T, U)(Unexpected!U(unexpectedValue));
+    return Expected!(T, E)(Unexpected!E(unexpectedValue));
 }
 
 /** Union (sum) type of either an expected value of type `T` or an unexpected
- * value of type `U` (being an instance of type `Unexpected`).
+ * value of type `E` (being an instance of type `Unexpected`).
  *
  * See_Also: https://www.youtube.com/watch?v=nVzgkepAg5Y
  */
-struct Expected(T, U)
+struct Expected(T, E)
 if (!isInstanceOf!(Unexpected, T)) // an `Unexpected` cannot be `Expected` :)
 {
     @safe:
@@ -62,7 +62,7 @@ if (!isInstanceOf!(Unexpected, T)) // an `Unexpected` cannot be `Expected` :)
     }
 
     /// Construct from unexpected value `unexpectedValue.`
-    this(Unexpected!U unexpectedValue) @trusted
+    this(Unexpected!E unexpectedValue) @trusted
     {
         // TODO reuse opAssign?
         _unexpectedValue = unexpectedValue; // TODO use moveEmplace here aswell?
@@ -79,7 +79,7 @@ if (!isInstanceOf!(Unexpected, T)) // an `Unexpected` cannot be `Expected` :)
     }
 
     /// Assign from unexpected value `unexpectedValue.`
-    void opAssign(U unexpectedValue) @trusted
+    void opAssign(E unexpectedValue) @trusted
     {
         clear();
         import std.algorithm.mutation : moveEmplace;
@@ -114,9 +114,9 @@ if (!isInstanceOf!(Unexpected, T)) // an `Unexpected` cannot be `Expected` :)
         }
         else
         {
-            static if (!is(U == class))
+            static if (!is(E == class))
             {
-                static if (hasElaborateDestructor!U)
+                static if (hasElaborateDestructor!E)
                 {
                     destroy(_unexpectedValue);
                 }
@@ -174,7 +174,7 @@ private:
     union
     {
         T _expectedValue;         // TODO do we need to default-initialize this somehow?
-        Unexpected!U _unexpectedValue;
+        Unexpected!E _unexpectedValue;
     }
 
     /** Is true if `_expectedValue` is defined, otherwise `_unexpectedValue` is
@@ -186,15 +186,15 @@ private:
     bool _ok = true;
 }
 
-auto expected(T, U)(auto ref T value)
+auto expected(T, E)(auto ref T value)
 {
-    return Expected!(T, U)(value);
+    return Expected!(T, E)(value);
 }
 
 @safe pure nothrow @nogc unittest
 {
     alias T = string;           // expected type
-    alias U = int;
+    alias E = int;
     alias Estring = Expected!(T, int);
 
     auto x = Estring("alpha");

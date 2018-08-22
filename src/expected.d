@@ -24,6 +24,7 @@ private struct Unexpected(U)
     alias value this;
 }
 
+/// Instantiator for `Unexpected`.
 auto unexpected(T, U)(auto ref U unexpectedValue)
 {
     return Expected!(T, U)(Unexpected!U(unexpectedValue));

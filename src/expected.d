@@ -41,7 +41,7 @@ auto unexpected(T, E)(auto ref E unexpectedValue)
 
 /** Union (sum) type of either an expected value of type `T` or an unexpected
  * value of type `E` (being an instance of type `Unexpected`). `E` is typically
- * an error code or a subclass of `Exception`.
+ * an error code (for instance C `errno` int) or a subclass of `Exception`.
  *
  * See_Also: https://www.youtube.com/watch?v=nVzgkepAg5Y
  */

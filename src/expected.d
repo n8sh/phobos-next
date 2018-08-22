@@ -13,6 +13,8 @@
  * - static typeof(this) fromExpectedValue(T expectedValue)
  * - static typeof(this) fromUnexpectedValue(U unexpectedValue)
  *
+ * TODO swap
+ *
  * TODO later on: remove _ok when `_expectedValue` and ` _unexpectedValue` can store this state
  * "collectively" for instance when both are pointers or classes (use trait
  * `isAddress`)

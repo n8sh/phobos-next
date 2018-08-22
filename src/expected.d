@@ -1,6 +1,8 @@
 /** Wrapper type for a sum-type (union) of an unexpected and expected value.
  *
  * See_Also: https://github.com/dlang/phobos/pull/6665
+ *
+ * TODO https://dlang.org/phobos/std_typecons.html#.apply
  */
 module expected;
 
@@ -174,6 +176,8 @@ auto unexpected(T, U)(auto ref U error)
     x.popFront();
     assert(!x.hasResult);
     assert(x.empty);
+
+    import std.typecons : Nullable;
 
     auto e = E(Unexpected!int(int.init));
     assert(!e.hasResult);

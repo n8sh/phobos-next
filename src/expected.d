@@ -12,6 +12,17 @@ module expected;
 
 @safe pure:
 
+private struct Unexpected(U)
+{
+    U value;
+    alias value this;
+}
+
+auto unexpected(T, U)(auto ref U error)
+{
+    return Expected!(T, U)(Unexpected!U(error));
+}
+
 /** Expected sum type of either an expected value `T` or an `Unexpected` value `U`.
  *
  * See_Also: https://www.youtube.com/watch?v=nVzgkepAg5Y
@@ -150,20 +161,9 @@ private:
     bool _hasResult = true;     // @andralex: ok to opportunistic and default to `T.init`
 }
 
-private struct Unexpected(U)
-{
-    U value;
-    alias value this;
-}
-
 auto expected(T, U)(auto ref T value)
 {
     return Expected!(T, U)(value);
-}
-
-auto unexpected(T, U)(auto ref U error)
-{
-    return Expected!(T, U)(Unexpected!U(error));
 }
 
 @safe pure nothrow @nogc unittest

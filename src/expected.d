@@ -98,10 +98,8 @@ struct Expected(T, U)
     import std.traits : CommonType;
 
     /// Get current value if any or call function `elseWorkFun` with compatible return value.
-    CommonType!(T, typeof(elseWorkFun()))
-    orElse(alias elseWorkFun)() const
-        if (is(CommonType!(T,
-                           typeof(elseWorkFun()))))
+    CommonType!(T, typeof(elseWorkFun())) orElse(alias elseWorkFun)() const
+    if (is(CommonType!(T, typeof(elseWorkFun()))))
     {
         if (hasResult)
         {

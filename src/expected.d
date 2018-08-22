@@ -5,7 +5,7 @@
  * TODO https://dlang.org/phobos/std_typecons.html#.apply
  *
  * TODO I'm not convinced about the naming
- * - `Expected`: should this be called something that tells us that it can be either expected or unexpected
+ * - `Expected`: instead call it something that tells us that it can be either expected or unexpected?
  * - `Unexpected`: if so why shouldn't we have a similar value wrapper `Expected`?
  *
  * TODO later on: remove _hasResult when `_expectedValue` and ` _unexpectedValue` can store this state

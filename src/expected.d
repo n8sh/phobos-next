@@ -6,20 +6,20 @@ module expected;
 
 @safe pure:
 
-/** Expected sum type of either a `Result` or an `Error`.
+/** Expected sum type of either a `T` or an `U`.
  *
  * See_Also: https://www.youtube.com/watch?v=nVzgkepAg5Y
  */
-struct Expected(Result, Error)
+struct Expected(T, U)
 {
     @safe:
 
     // TODO ok for default construction to initialize
-    // - _result = Result.init (zeros)
+    // - _result = T.init (zeros)
     // - _hasResult = true (better to have _isError so default is zero bits here aswell?)
 
     /// Construct from result `result.`
-    this(Result result) @trusted
+    this(T result) @trusted
     {
         // TODO reuse opAssign?
         _result = result;       // TODO use moveEmplace here aswell?
@@ -27,15 +27,15 @@ struct Expected(Result, Error)
     }
 
     /// Construct from error `error.`
-    this(Error error) @trusted
+    this(U error) @trusted
     {
         // TODO reuse opAssign?
-        _error = error;         // TODO use moveEmplace here aswell?
+        _error = Unexpected!U(error); // TODO use moveEmplace here aswell?
         _hasResult = false;
     }
 
     /// Assign from result `result.`
-    void opAssign(Result result) @trusted
+    void opAssign(T result) @trusted
     {
         clear();
         import std.algorithm.mutation : moveEmplace;
@@ -44,7 +44,7 @@ struct Expected(Result, Error)
     }
 
     /// Assign from error `error.`
-    void opAssign(Error error) @trusted
+    void opAssign(U error) @trusted
     {
         clear();
         import std.algorithm.mutation : moveEmplace;
@@ -56,7 +56,7 @@ struct Expected(Result, Error)
     private void clear() @trusted
     {
         release();
-        static if (isAddress!Result)
+        static if (isAddress!T)
         {
             _result = null;
         }
@@ -68,9 +68,9 @@ struct Expected(Result, Error)
         import std.traits : hasElaborateDestructor;
         if (hasResult)
         {
-            static if (!is(Result == class))
+            static if (!is(T == class))
             {
-                static if (hasElaborateDestructor!Result)
+                static if (hasElaborateDestructor!T)
                 {
                     destroy(_result);
                 }
@@ -79,9 +79,9 @@ struct Expected(Result, Error)
         }
         else
         {
-            static if (!is(Error == class))
+            static if (!is(U == class))
             {
-                static if (hasElaborateDestructor!Error)
+                static if (hasElaborateDestructor!U)
                 {
                     destroy(_error);
                 }
@@ -91,14 +91,14 @@ struct Expected(Result, Error)
         }
     }
 
-    /** Is `true` iff this has a result of type `Result`. */
+    /** Is `true` iff this has a result of type `T`. */
     bool hasResult() const { return _hasResult; }
 
     /// Get current value if any or call function `elseWorkFun` with compatible return value.
-    CommonType!(Result,
+    CommonType!(T,
                 typeof(elseWorkFun()))
     orElse(alias elseWorkFun)() const
-        if (is(CommonType!(Result,
+        if (is(CommonType!(T,
                            typeof(elseWorkFun()))))
     {
         if (hasResult)
@@ -121,7 +121,7 @@ struct Expected(Result, Error)
     }
 
     /// Get current value.
-    @property inout(Result) front() inout @trusted
+    @property inout(T) front() inout @trusted
     {
         assert(_hasResult);
         return _result;
@@ -137,12 +137,12 @@ struct Expected(Result, Error)
 private:
     union
     {
-        Result _result;         // TODO do we need to default-initialize this somehow?
-        Error _error;           // TODO wrap in `Unexpected`
+        T _result;         // TODO do we need to default-initialize this somehow?
+        Unexpected!U _error;           // TODO wrap in `Unexpected`
     }
     // TODO special case and remove when `_result` and ` _error` can store this
     // state
-    bool _hasResult = true;     // @andralex says ok to default Result.init by default
+    bool _hasResult = true;     // @andralex says ok to default T.init by default
 }
 
 private struct Unexpected(T)
@@ -151,21 +151,21 @@ private struct Unexpected(T)
     alias value this;
 }
 
-auto expected(Result, Error)(auto ref Result value)
+auto expected(T, U)(auto ref T value)
 {
-    return Expected!(Result, Error)(value);
+    return Expected!(T, U)(value);
 }
 
-auto unexpected(Result, Error)(auto ref Error error)
+auto unexpected(T, U)(auto ref U error)
 {
-    return Expected!(Result, Error)(Unexpected!Error(error));
+    return Expected!(T, U)(Unexpected!U(error));
 }
 
 @safe pure nothrow @nogc unittest
 {
-    alias Result = string;
-    alias Error = int;
-    alias E = Expected!(Result, Error);
+    alias T = string;           // expected type
+    alias U = int;              // unexpected type
+    alias E = Expected!(T, U);
 
     auto x = E("alpha");
     assert(x.hasResult);
@@ -175,7 +175,7 @@ auto unexpected(Result, Error)(auto ref Error error)
     assert(!x.hasResult);
     assert(x.empty);
 
-    auto e = E(Error.init);
+    auto e = E(U.init);
     assert(!e.hasResult);
     assert(x.empty);
 }

@@ -14,6 +14,8 @@
  */
 module expected;
 
+import std.traits : isInstanceOf;
+
 @safe pure:
 
 private struct Unexpected(U)
@@ -32,7 +34,7 @@ auto unexpected(T, U)(auto ref U unexpectedValue)
  * See_Also: https://www.youtube.com/watch?v=nVzgkepAg5Y
  */
 struct Expected(T, U)
-if (!isInstanceOf!(U, Unexpected))
+if (!isInstanceOf!(Unexpected, T)) // an `Unexpected` cannot be `Expected` :)
 {
     @safe:
 

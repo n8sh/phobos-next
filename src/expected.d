@@ -131,7 +131,9 @@ private:
 
 @safe pure nothrow @nogc unittest
 {
-    alias E = Expected!(string, int);
+    alias Result = string;
+    alias Error = int;
+    alias E = Expected!(Result, Error);
 
     auto x = E("alpha");
     assert(x.hasResult);
@@ -140,6 +142,9 @@ private:
     x.popFront();
     assert(!x.hasResult);
     assert(x.empty);
+
+    auto e = E(Error.init);
+    assert(!e.hasResult);
 }
 
 import std.traits : isPointer;

@@ -3,6 +3,10 @@
  * See_Also: https://github.com/dlang/phobos/pull/6665
  *
  * TODO https://dlang.org/phobos/std_typecons.html#.apply
+ *
+ * TODO remove _hasResult when `_result` and ` _error` can store this state
+ * "collectively" for instance when both are pointers or classes (use trait
+ * `isAddress`)
  */
 module expected;
 
@@ -141,8 +145,6 @@ private:
         T _result;         // TODO do we need to default-initialize this somehow?
         Unexpected!U _error;           // TODO wrap in `Unexpected`
     }
-    // TODO special case and remove when `_result` and ` _error` can store this
-    // state
     bool _hasResult = true;     // @andralex: ok to opportunistic and default to `T.init`
 }
 

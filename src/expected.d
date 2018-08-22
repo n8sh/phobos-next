@@ -1,3 +1,7 @@
+/**
+ *
+ * See_Also: https://github.com/dlang/phobos/pull/6665
+ */
 module expected;
 
 @safe pure:

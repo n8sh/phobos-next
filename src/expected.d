@@ -185,6 +185,8 @@ auto unexpected(T, U)(auto ref U error)
     auto e = E(Unexpected!int(int.init));
     assert(!e.hasResult);
     assert(x.empty);
+
+    // TODO test x.orElse({ some_simple_code; })
 }
 
 import std.traits : isPointer;

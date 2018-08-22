@@ -32,6 +32,7 @@ auto unexpected(T, U)(auto ref U unexpectedValue)
  * See_Also: https://www.youtube.com/watch?v=nVzgkepAg5Y
  */
 struct Expected(T, U)
+if (!isInstanceOf!(U, Unexpected))
 {
     @safe:
 
@@ -121,7 +122,7 @@ struct Expected(T, U)
      *
      * TODO is this anywhere near what we want?
      */
-    CommonType!(T, typeof(elseWorkFun())) orElse(alias elseWorkFun)() const
+    CommonType!(T, typeof(elseWorkFun())) valueOr(alias elseWorkFun)() const
     if (is(CommonType!(T, typeof(elseWorkFun()))))
     {
         if (hasExpectedValue)
@@ -197,7 +198,7 @@ auto expected(T, U)(auto ref T value)
     assert(!e.hasExpectedValue);
     assert(x.empty);
 
-    // TODO test x.orElse({ some_simple_code; })
+    // TODO test x.valueOr({ some_simple_code; })
 }
 
 import std.traits : isPointer;

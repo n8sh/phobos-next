@@ -145,6 +145,7 @@ private:
 
     auto e = E(Error.init);
     assert(!e.hasResult);
+    assert(x.empty);
 }
 
 import std.traits : isPointer;

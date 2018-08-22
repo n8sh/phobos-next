@@ -4,7 +4,7 @@
  *
  * TODO https://dlang.org/phobos/std_typecons.html#.apply
  *
- * TODO remove _hasResult when `_result` and ` _error` can store this state
+ * TODO later on: remove _hasResult when `_result` and ` _error` can store this state
  * "collectively" for instance when both are pointers or classes (use trait
  * `isAddress`)
  */

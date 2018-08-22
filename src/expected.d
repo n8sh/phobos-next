@@ -18,6 +18,8 @@ import std.traits : isInstanceOf;
 
 @safe pure:
 
+/** Wrapper type for an unexpected value of type `U`.
+ */
 private struct Unexpected(U)
 {
     U value;

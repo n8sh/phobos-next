@@ -91,8 +91,20 @@ struct Expected(Result, Error)
     bool hasResult() const { return _hasResult; }
 
     /// Get current value if any or call function `elseWorkFun` with compatible return value.
-    void orElse(alias elseWorkFun)() const
+    CommonType!(Result,
+                typeof(elseWorkFun()))
+    orElse(alias elseWorkFun)() const
+        if (is(CommonType!(Result,
+                           typeof(elseWorkFun()))))
     {
+        if (hasResult)
+        {
+            return result;
+        }
+        else
+        {
+            return elseWorkFun();
+        }
         // TODO
     }
 
@@ -127,6 +139,22 @@ private:
     // TODO special case and remove when `_result` and ` _error` can store this
     // state
     bool _hasResult = true;     // @andralex says ok to default Result.init by default
+}
+
+private struct Unexpected(T)
+{
+    T value;
+    alias value this;
+}
+
+auto expected(Result, Error)(auto ref Result value)
+{
+    return Expected!(Result, Error)(value);
+}
+
+auto unexpected(Result, Error)(auto ref Error error)
+{
+    return Expected!(Result, Error)(Unexpected!Error(error));
 }
 
 @safe pure nothrow @nogc unittest

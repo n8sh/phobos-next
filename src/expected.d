@@ -162,7 +162,7 @@ private:
         T _expectedValue;         // TODO do we need to default-initialize this somehow?
         Unexpected!U _unexpectedValue;
     }
-    bool _hasExpectedValue = true;     // @andralex: ok to opportunistic and default to `T.init`
+    bool _hasExpectedValue = true;     // @andralex: ok to be opportunistic and default to `T.init`, because of the naming of typeof(this)
 }
 
 auto expected(T, U)(auto ref T value)

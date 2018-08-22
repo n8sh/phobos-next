@@ -10,8 +10,8 @@
  *
  * TODO we could get around the Unexpected wrapper logic by define static
  * constructor functions, say,:
- * - .fromExpectedValue(T expectedValue)
- * - .fromUnexpectedValue(U unexpectedValue)
+ * - static typeof(this) fromExpectedValue(T expectedValue)
+ * - static typeof(this) fromUnexpectedValue(U unexpectedValue)
  *
  * TODO later on: remove _ok when `_expectedValue` and ` _unexpectedValue` can store this state
  * "collectively" for instance when both are pointers or classes (use trait

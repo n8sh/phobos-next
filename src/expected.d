@@ -4,7 +4,7 @@
  *
  * TODO https://dlang.org/phobos/std_typecons.html#.apply
  *
- * TODO later on: remove _hasResult when `_result` and ` _unexpectedValue` can store this state
+ * TODO later on: remove _hasResult when `_expectedValue` and ` _unexpectedValue` can store this state
  * "collectively" for instance when both are pointers or classes (use trait
  * `isAddress`)
  */
@@ -32,14 +32,14 @@ struct Expected(T, U)
     @safe:
 
     // TODO ok for default construction to initialize
-    // - _result = T.init (zeros)
+    // - _expectedValue = T.init (zeros)
     // - _hasResult = true (better to have _isError so default is zero bits here aswell?)
 
     /// Construct from result `result.`
     this(T result) @trusted
     {
         // TODO reuse opAssign?
-        _result = result;       // TODO use moveEmplace here aswell?
+        _expectedValue = result;       // TODO use moveEmplace here aswell?
         _hasResult = true;
     }
 
@@ -56,7 +56,7 @@ struct Expected(T, U)
     {
         clear();
         import std.algorithm.mutation : moveEmplace;
-        moveEmplace(result, _result);
+        moveEmplace(result, _expectedValue);
         _hasResult = true;
     }
 
@@ -75,7 +75,7 @@ struct Expected(T, U)
         release();
         static if (isAddress!T)
         {
-            _result = null;
+            _expectedValue = null;
         }
     }
 
@@ -89,7 +89,7 @@ struct Expected(T, U)
             {
                 static if (hasElaborateDestructor!T)
                 {
-                    destroy(_result);
+                    destroy(_expectedValue);
                 }
             }
             _hasResult = false;
@@ -142,7 +142,7 @@ struct Expected(T, U)
     @property inout(T) front() inout @trusted
     {
         assert(_hasResult);
-        return _result;
+        return _expectedValue;
     }
 
     /// Pop (clear) current value.
@@ -155,7 +155,7 @@ struct Expected(T, U)
 private:
     union
     {
-        T _result;         // TODO do we need to default-initialize this somehow?
+        T _expectedValue;         // TODO do we need to default-initialize this somehow?
         Unexpected!U _unexpectedValue;
     }
     bool _hasResult = true;     // @andralex: ok to opportunistic and default to `T.init`

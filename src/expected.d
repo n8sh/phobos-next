@@ -95,9 +95,10 @@ struct Expected(T, U)
     /** Is `true` iff this has a result of type `T`. */
     bool hasResult() const { return _hasResult; }
 
+    import std.traits : CommonType;
+
     /// Get current value if any or call function `elseWorkFun` with compatible return value.
-    CommonType!(T,
-                typeof(elseWorkFun()))
+    CommonType!(T, typeof(elseWorkFun()))
     orElse(alias elseWorkFun)() const
         if (is(CommonType!(T,
                            typeof(elseWorkFun()))))

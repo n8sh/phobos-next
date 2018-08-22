@@ -1,4 +1,4 @@
-/**
+/** Wrapper type for a sum-type (union) of an unexpected and expected value.
  *
  * See_Also: https://github.com/dlang/phobos/pull/6665
  */

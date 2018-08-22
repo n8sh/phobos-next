@@ -13,7 +13,7 @@
  * - static typeof(this) fromExpectedValue(T expectedValue)
  * - static typeof(this) fromUnexpectedValue(U unexpectedValue)
  *
- * TODO swap
+ * TODO swa
  *
  * TODO later on: remove _ok when `_expectedValue` and ` _unexpectedValue` can store this state
  * "collectively" for instance when both are pointers or classes (use trait
@@ -195,9 +195,9 @@ auto expected(T, U)(auto ref T value)
 {
     alias T = string;           // expected type
     alias U = int;
-    alias E = Expected!(T, int);
+    alias Ei = Expected!(T, int);
 
-    auto x = E("alpha");
+    auto x = Ei("alpha");
     assert(x.hasExpectedValue);
     assert(!x.empty);
 
@@ -207,7 +207,7 @@ auto expected(T, U)(auto ref T value)
 
     import std.typecons : Nullable;
 
-    auto e = E(Unexpected!int(int.init));
+    auto e = Ei(Unexpected!int(int.init));
     assert(!e.hasExpectedValue);
     assert(x.empty);
 

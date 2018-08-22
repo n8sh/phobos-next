@@ -8,7 +8,7 @@
  * - `Expected`: instead call it something that tells us that it can be either expected or unexpected?
  * - `Unexpected`: if so why shouldn't we have a similar value wrapper `Expected`?
  *
- * TODO we could get around the Unexpected wrapper logic by define static
+ * TODO we could get around the `Unexpected` wrapper logic by define static
  * constructor functions, say,:
  * - static typeof(this) fromExpectedValue(T expectedValue)
  * - static typeof(this) fromUnexpectedValue(U unexpectedValue)

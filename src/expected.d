@@ -39,7 +39,7 @@ struct Expected(T, U)
     // - _expectedValue = T.init (zeros)
     // - _hasExpectedValue = true (better to have _isError so default is zero bits here aswell?)
 
-    /// Construct from expectedValue `expectedValue.`
+    /// Construct from expected value `expectedValue.`
     this(T expectedValue) @trusted
     {
         // TODO reuse opAssign?
@@ -55,7 +55,7 @@ struct Expected(T, U)
         _hasExpectedValue = false;
     }
 
-    /// Assign from expectedValue `expectedValue.`
+    /// Assign from expected value `expectedValue.`
     void opAssign(T expectedValue) @trusted
     {
         clear();

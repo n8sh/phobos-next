@@ -102,7 +102,10 @@ struct Expected(T, U)
 
     import std.traits : CommonType;
 
-    /// Get current value if any or call function `elseWorkFun` with compatible return value.
+    /** Get current value if any or call function `elseWorkFun` with compatible return value.
+     *
+     * TODO is this anywhere near what we want?
+     */
     CommonType!(T, typeof(elseWorkFun())) orElse(alias elseWorkFun)() const
     if (is(CommonType!(T, typeof(elseWorkFun()))))
     {
@@ -112,9 +115,8 @@ struct Expected(T, U)
         }
         else
         {
-            return elseWorkFun();
+            return elseWorkFun(); // TODO is this correct
         }
-        // TODO
     }
 
     // range interface:

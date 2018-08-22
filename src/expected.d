@@ -13,7 +13,9 @@
  * - static typeof(this) fromExpectedValue(T expectedValue)
  * - static typeof(this) fromUnexpectedValue(E unexpectedValue)
  *
- * TODO swa
+ * TODO swap
+ *
+ * TODO which functions should be `nothrow`?
  *
  * TODO later on: remove _ok when `_expectedValue` and ` _unexpectedValue` can store this state
  * "collectively" for instance when both are pointers or classes (use trait

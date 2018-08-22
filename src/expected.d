@@ -29,11 +29,10 @@ struct Expected(T, U)
     }
 
     /// Construct from error `error.`
-    this(Unexpected!U result) @trusted
+    this(Unexpected!U error) @trusted
     {
         // TODO reuse opAssign?
-        _error = result
-        ; // TODO use moveEmplace here aswell?
+        _error = error; // TODO use moveEmplace here aswell?
         _hasResult = false;
     }
 
@@ -144,7 +143,7 @@ private:
     }
     // TODO special case and remove when `_result` and ` _error` can store this
     // state
-    bool _hasResult = true;     // @andralex says ok to default T.init by default
+    bool _hasResult = true;     // @andralex: ok to opportunistic and default to `T.init`
 }
 
 private struct Unexpected(U)

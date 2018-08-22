@@ -8,7 +8,7 @@
  * - `Expected`: instead call it something that tells us that it can be either expected or unexpected?
  * - `Unexpected`: if so why shouldn't we have a similar value wrapper `Expected`?
  *
- * TODO later on: remove _hasExpectedValue when `_expectedValue` and ` _unexpectedValue` can store this state
+ * TODO later on: remove _ok when `_expectedValue` and ` _unexpectedValue` can store this state
  * "collectively" for instance when both are pointers or classes (use trait
  * `isAddress`)
  */
@@ -37,14 +37,14 @@ struct Expected(T, U)
 
     // TODO ok for default construction to initialize
     // - _expectedValue = T.init (zeros)
-    // - _hasExpectedValue = true (better to have _isError so default is zero bits here aswell?)
+    // - _ok = true (better to have _isError so default is zero bits here aswell?)
 
     /// Construct from expected value `expectedValue.`
     this(T expectedValue) @trusted
     {
         // TODO reuse opAssign?
         _expectedValue = expectedValue;       // TODO use moveEmplace here aswell?
-        _hasExpectedValue = true;
+        _ok = true;
     }
 
     /// Construct from unexpected value `unexpectedValue.`
@@ -52,7 +52,7 @@ struct Expected(T, U)
     {
         // TODO reuse opAssign?
         _unexpectedValue = unexpectedValue; // TODO use moveEmplace here aswell?
-        _hasExpectedValue = false;
+        _ok = false;
     }
 
     /// Assign from expected value `expectedValue.`
@@ -61,7 +61,7 @@ struct Expected(T, U)
         clear();
         import std.algorithm.mutation : moveEmplace;
         moveEmplace(expectedValue, _expectedValue);
-        _hasExpectedValue = true;
+        _ok = true;
     }
 
     /// Assign from unexpected value `unexpectedValue.`
@@ -70,7 +70,7 @@ struct Expected(T, U)
         clear();
         import std.algorithm.mutation : moveEmplace;
         moveEmplace(unexpectedValue, _unexpectedValue);
-        _hasExpectedValue = false;
+        _ok = false;
     }
 
     /// Clear (empty) contents.
@@ -96,7 +96,7 @@ struct Expected(T, U)
                     destroy(_expectedValue);
                 }
             }
-            _hasExpectedValue = false;
+            _ok = false;
         }
         else
         {
@@ -108,12 +108,12 @@ struct Expected(T, U)
                 }
             }
             destroy(_unexpectedValue);
-            // TODO change _hasExpectedValue?
+            // TODO change _ok?
         }
     }
 
     /** Is `true` iff this has a expectedValue of type `T`. */
-    bool hasExpectedValue() const { return _hasExpectedValue; }
+    bool hasExpectedValue() const { return _ok; }
 
     import std.traits : CommonType;
 
@@ -139,20 +139,20 @@ struct Expected(T, U)
     /// Check if empty.
     @property bool empty() const
     {
-        return !_hasExpectedValue;
+        return !_ok;
     }
 
     /// Get current value.
     @property inout(T) front() inout @trusted
     {
-        assert(_hasExpectedValue);
+        assert(_ok);
         return _expectedValue;
     }
 
     /// Pop (clear) current value.
     void popFront()
     {
-        assert(_hasExpectedValue);
+        assert(_ok);
         clear();
     }
 
@@ -162,7 +162,14 @@ private:
         T _expectedValue;         // TODO do we need to default-initialize this somehow?
         Unexpected!U _unexpectedValue;
     }
-    bool _hasExpectedValue = true;     // @andralex: ok to be opportunistic and default to `T.init`, because of the naming of typeof(this)
+
+    /** Is true if `_expectedValue` is defined, otherwise `_unexpectedValue` is
+     * defined.
+     *
+     * According to @andralex its ok to be opportunistic and default to
+     * `T.init`, because of the naming `Expected`.
+     */
+    bool _ok = true;
 }
 
 auto expected(T, U)(auto ref T value)

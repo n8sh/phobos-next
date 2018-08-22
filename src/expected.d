@@ -8,6 +8,11 @@
  * - `Expected`: instead call it something that tells us that it can be either expected or unexpected?
  * - `Unexpected`: if so why shouldn't we have a similar value wrapper `Expected`?
  *
+ * TODO we could get around the Unexpected wrapper logic by define static
+ * constructor functions, say,:
+ * - .fromExpectedValue(T expectedValue)
+ * - .fromUnexpectedValue(U unexpectedValue)
+ *
  * TODO later on: remove _ok when `_expectedValue` and ` _unexpectedValue` can store this state
  * "collectively" for instance when both are pointers or classes (use trait
  * `isAddress`)

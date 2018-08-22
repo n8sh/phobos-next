@@ -32,7 +32,8 @@ auto unexpected(T, U)(auto ref U unexpectedValue)
     return Expected!(T, U)(Unexpected!U(unexpectedValue));
 }
 
-/** Sum type of either an expected value `T` or an `Unexpected` value `U`.
+/** Sum type of either an expected value `T` or an expected value `U` (instance
+ * of type `Unexpected`).
  *
  * See_Also: https://www.youtube.com/watch?v=nVzgkepAg5Y
  */

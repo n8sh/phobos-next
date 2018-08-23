@@ -149,8 +149,8 @@ if (!isInstanceOf!(Unexpected, T)) // an `Unexpected` cannot be `Expected` :)
 
     import std.functional : unaryFun;
 
-    /** If `this` is an expected value apply `fun` on it and return result,
-     * otherwise return current unexpected value.
+    /** If `this` is an expected value (of type `T`) apply `fun` on it and
+     * return result, otherwise return current unexpected value (of type `E`).
      *
      * See_Also: https://dlang.org/phobos/std_typecons.html#.apply
      */

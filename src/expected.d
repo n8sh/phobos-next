@@ -126,7 +126,10 @@ if (!isInstanceOf!(Unexpected, T)) // an `Unexpected` cannot be `Expected` :)
     }
 
     /** Is `true` iff this has a expectedValue of type `T`. */
-    bool hasExpectedValue() const { return _ok; }
+    bool hasExpectedValue() const
+    {
+        return _ok;
+    }
 
     import std.traits : CommonType;
 

@@ -163,7 +163,7 @@ if (!isInstanceOf!(Unexpected, T)) // an `Unexpected` cannot be `Expected` :)
         }
         else
         {
-            return typeof(return)(_unexpectedValue);
+            return typeof(return)(Unexpected!E(_unexpectedValue));
         }
     }
 
@@ -238,9 +238,10 @@ auto unexpected(T, E)(auto ref E unexpectedValue)
 
     import std.typecons : Nullable;
 
-    auto e = unexpected!(char, byte)(byte.init);
-    assert(!e.hasExpectedValue);
+    auto y = unexpected!(char, byte)(byte.init);
+    assert(!y.hasExpectedValue);
     assert(x.empty);
+    assert(y.apply!(toUpper) == Esi(Unexpected!byte(byte.init)));
 
     // TODO test x.valueOr({ some_simple_code; })
 }

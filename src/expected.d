@@ -224,9 +224,12 @@ auto unexpected(T, E)(auto ref E unexpectedValue)
     alias E = byte;
 
     alias Esi = Expected!(T, byte);
+
+    // equality checks
     assert(Esi("abc") == Esi("abc"));
     assert(Esi("abcabc"[0 .. 3]) ==
            Esi("abcabc"[3 .. 6]));
+
     auto x = Esi("abc");
     assert(x.hasExpectedValue);
     assert(!x.empty);

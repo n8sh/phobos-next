@@ -154,7 +154,7 @@ if (!isInstanceOf!(Unexpected, T)) // an `Unexpected` cannot be `Expected` :)
      *
      * See_Also: https://dlang.org/phobos/std_typecons.html#.apply
      */
-    Expected!(typeof(unaryFun!fun(T.init)), E) apply(alias fun)()
+    Expected!(typeof(unaryFun!fun(T.init)), E) apply(alias fun)() @trusted
     {
         alias fn = unaryFun!fun;
         if (hasExpectedValue)
@@ -220,17 +220,16 @@ auto unexpected(T, E)(auto ref E unexpectedValue)
 ///
 @safe pure nothrow @nogc unittest
 {
-    alias T = char;           // expected type
+    alias T = string;           // expected type
     alias E = byte;
-    alias Estring = Expected!(T, byte);
 
-    alias Esi = Expected!(char, byte);
-    auto x = Esi('a');
+    alias Esi = Expected!(T, byte);
+    auto x = Esi("abc");
     assert(x.hasExpectedValue);
     assert(!x.empty);
 
-    import std.ascii : toUpper;
-    assert(x.apply!(toUpper) == Esi('A'));
+    import std.range : retro;
+    assert(x.apply!(drop1) == Esi("abc"));
 
     x.popFront();
     assert(!x.hasExpectedValue);
@@ -238,12 +237,18 @@ auto unexpected(T, E)(auto ref E unexpectedValue)
 
     import std.typecons : Nullable;
 
-    auto y = unexpected!(char, byte)(byte.init);
+    auto y = unexpected!(T, byte)(byte.init);
     assert(!y.hasExpectedValue);
     assert(x.empty);
-    assert(y.apply!(toUpper) == Esi(Unexpected!byte(byte.init)));
+    assert(y.apply!(drop1) == Esi(Unexpected!byte(byte.init)));
 
     // TODO test x.valueOr({ some_simple_code; })
+}
+
+version(unittest)
+inout(string) drop1(inout(string) x) @safe pure nothrow @nogc
+{
+    return x[0 .. $];
 }
 
 import std.traits : isPointer;

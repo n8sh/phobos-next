@@ -147,6 +147,21 @@ if (!isInstanceOf!(Unexpected, T)) // an `Unexpected` cannot be `Expected` :)
         }
     }
 
+    import std.functional : unaryFun;
+
+    Expected!(typeof(unaryFun!fun(T.init)), E) apply(alias fun)()
+    {
+        alias fn = unaryFun!fun;
+        if (hasExpectedValue)
+        {
+            return typeof(return)(fn(_expectedValue));
+        }
+        else
+        {
+            return typeof(return)(fn(_unexpectedValue));
+        }
+    }
+
     // range interface:
 
     /// Check if empty.

@@ -40,8 +40,8 @@ private struct Unexpected(E)
 /** Union (sum) type of either an expected value of type `T` or an unexpected
  * value of type `E` (being an instance of type `Unexpected!E`).
  *
- * `E` is typically an error code (for instance C `errno` int) or a subclass of
- * `Exception`.
+ * `E` is typically an error code (for instance C/C++'s' `errno` int) or a
+ * subclass of `Exception`.
  *
  * See_Also: https://www.youtube.com/watch?v=nVzgkepAg5Y
  */

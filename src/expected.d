@@ -197,6 +197,7 @@ auto unexpected(T, E)(auto ref E unexpectedValue)
     return Expected!(T, E)(Unexpected!E(unexpectedValue));
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     alias T = string;           // expected type

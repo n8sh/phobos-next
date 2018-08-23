@@ -232,7 +232,7 @@ auto unexpected(T, E)(auto ref E unexpectedValue)
     assert(!x.empty);
 
     import std.range : retro;
-    assert(x.apply!(drop1) == Esi("abc"));
+    assert(x.apply!(threeUnderscores) == Esi("___"));
 
     x.popFront();
     assert(!x.hasExpectedValue);
@@ -243,13 +243,13 @@ auto unexpected(T, E)(auto ref E unexpectedValue)
     auto y = unexpected!(T, byte)(byte.init);
     assert(!y.hasExpectedValue);
     assert(x.empty);
-    assert(y.apply!(drop1) == Esi(Unexpected!byte(byte.init)));
+    assert(y.apply!(threeUnderscores) == Esi(Unexpected!byte(byte.init)));
 }
 
 version(unittest)
-inout(string) drop1(inout(string) x) @safe pure nothrow @nogc
+inout(string) threeUnderscores(inout(string) x) @safe pure nothrow @nogc
 {
-    return x[0 .. $];
+    return "___";
 }
 
 import std.traits : isPointer;

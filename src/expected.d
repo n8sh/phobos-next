@@ -239,8 +239,6 @@ auto unexpected(T, E)(auto ref E unexpectedValue)
     assert(!x.hasExpectedValue);
     assert(x.empty);
 
-    import std.typecons : Nullable;
-
     auto y = unexpected!(T, byte)(byte.init);
     assert(!y.hasExpectedValue);
     assert(x.empty);

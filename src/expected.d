@@ -204,7 +204,7 @@ auto unexpected(T, E)(auto ref E unexpectedValue)
     alias E = int;
     alias Estring = Expected!(T, int);
 
-    auto x = Estring("alpha");
+    auto x = expected!(string, int)("alpha");
     assert(x.hasExpectedValue);
     assert(!x.empty);
 
@@ -214,7 +214,7 @@ auto unexpected(T, E)(auto ref E unexpectedValue)
 
     import std.typecons : Nullable;
 
-    auto e = Estring(Unexpected!int(int.init));
+    auto e = unexpected!(string, int)(int.init);
     assert(!e.hasExpectedValue);
     assert(x.empty);
 

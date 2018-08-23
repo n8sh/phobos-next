@@ -158,7 +158,7 @@ if (!isInstanceOf!(Unexpected, T)) // an `Unexpected` cannot be `Expected` :)
         }
         else
         {
-            return typeof(return)(fn(_unexpectedValue));
+            return typeof(return)(_unexpectedValue);
         }
     }
 
@@ -215,13 +215,17 @@ auto unexpected(T, E)(auto ref E unexpectedValue)
 ///
 @safe pure nothrow @nogc unittest
 {
-    alias T = string;           // expected type
+    alias T = char;           // expected type
     alias E = int;
     alias Estring = Expected!(T, int);
 
-    auto x = expected!(string, int)("alpha");
+    alias Esi = Expected!(char, int);
+    auto x = Esi('a');
     assert(x.hasExpectedValue);
     assert(!x.empty);
+
+    import std.ascii : toUpper;
+    assert(x.apply!(toUpper) == Esi('A'));
 
     x.popFront();
     assert(!x.hasExpectedValue);
@@ -229,7 +233,7 @@ auto unexpected(T, E)(auto ref E unexpectedValue)
 
     import std.typecons : Nullable;
 
-    auto e = unexpected!(string, int)(int.init);
+    auto e = unexpected!(char, int)(int.init);
     assert(!e.hasExpectedValue);
     assert(x.empty);
 

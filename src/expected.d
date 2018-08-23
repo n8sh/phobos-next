@@ -216,10 +216,10 @@ auto unexpected(T, E)(auto ref E unexpectedValue)
 @safe pure nothrow @nogc unittest
 {
     alias T = char;           // expected type
-    alias E = int;
-    alias Estring = Expected!(T, int);
+    alias E = byte;
+    alias Estring = Expected!(T, byte);
 
-    alias Esi = Expected!(char, int);
+    alias Esi = Expected!(char, byte);
     auto x = Esi('a');
     assert(x.hasExpectedValue);
     assert(!x.empty);
@@ -233,7 +233,7 @@ auto unexpected(T, E)(auto ref E unexpectedValue)
 
     import std.typecons : Nullable;
 
-    auto e = unexpected!(char, int)(int.init);
+    auto e = unexpected!(char, byte)(byte.init);
     assert(!e.hasExpectedValue);
     assert(x.empty);
 

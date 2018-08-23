@@ -234,7 +234,6 @@ auto unexpected(T, E)(auto ref E unexpectedValue)
     assert(x.hasExpectedValue);
     assert(!x.empty);
 
-    import std.range : retro;
     assert(x.apply!(threeUnderscores) == Esi("___"));
 
     x.popFront();

@@ -233,7 +233,6 @@ auto unexpected(T, E)(auto ref E unexpectedValue)
     auto x = Esi("abc");
     assert(x.hasExpectedValue);
     assert(!x.empty);
-
     assert(x.apply!(threeUnderscores) == Esi("___"));
 
     x.popFront();

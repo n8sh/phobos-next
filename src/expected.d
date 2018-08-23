@@ -224,6 +224,7 @@ auto unexpected(T, E)(auto ref E unexpectedValue)
     alias E = byte;
 
     alias Esi = Expected!(T, byte);
+    assert(Esi("abc") == Esi("abc"));
     auto x = Esi("abc");
     assert(x.hasExpectedValue);
     assert(!x.empty);
@@ -241,8 +242,6 @@ auto unexpected(T, E)(auto ref E unexpectedValue)
     assert(!y.hasExpectedValue);
     assert(x.empty);
     assert(y.apply!(drop1) == Esi(Unexpected!byte(byte.init)));
-
-    // TODO test x.valueOr({ some_simple_code; })
 }
 
 version(unittest)

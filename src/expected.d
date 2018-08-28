@@ -60,7 +60,7 @@ if (!isInstanceOf!(Unexpected, T)) // an `Unexpected` cannot be `Expected` :)
     this(T expectedValue) @trusted
     {
         // TODO reuse opAssign?
-        _expectedValue = expectedValue;       // TODO use moveEmplace here aswell?
+        _expectedValue = expectedValue;       // TODO use `moveEmplace` here aswell?
         _ok = true;
     }
 
@@ -68,7 +68,7 @@ if (!isInstanceOf!(Unexpected, T)) // an `Unexpected` cannot be `Expected` :)
     this(Unexpected!E unexpectedValue) @trusted
     {
         // TODO reuse opAssign?
-        _unexpectedValue = unexpectedValue; // TODO use moveEmplace here aswell?
+        _unexpectedValue = unexpectedValue; // TODO use `moveEmplace` here aswell?
         _ok = false;
     }
 

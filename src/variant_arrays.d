@@ -229,6 +229,7 @@ private struct VariantArrays(Types...)
     Ref insertBackMove(SomeKind)(ref SomeKind value) // TODO add array type overload
         if (Ref.canReferenceType!SomeKind)
     {
+        version(DigitalMars) pragma(inline, false); // DMD cannot inline
         mixin(`alias arrayInstance = ` ~ arrayInstanceString!SomeKind ~ `;`);
         const currentIndex = arrayInstance.length;
         arrayInstance.insertBackMove(value);

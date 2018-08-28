@@ -22,6 +22,8 @@
  * TODO later on: remove _ok when `_expectedValue` and ` _unexpectedValue` can store this state
  * "collectively" for instance when both are pointers or classes (use trait
  * `isAddress`)
+ *
+ * TODO ok to default `E` to `Exception`?
  */
 module expected;
 
@@ -41,11 +43,11 @@ private struct Unexpected(E)
  * value of type `E` (being an instance of type `Unexpected!E`).
  *
  * `E` is typically an error code (for instance C/C++'s' `errno` int) or a
- * subclass of `Exception`.
+ * subclass of `Exception` (which is the default).
  *
  * See_Also: https://www.youtube.com/watch?v=nVzgkepAg5Y
  */
-struct Expected(T, E)
+struct Expected(T, E = Exception)
 if (!isInstanceOf!(Unexpected, T)) // an `Unexpected` cannot be `Expected` :)
 {
     @safe:

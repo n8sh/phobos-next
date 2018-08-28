@@ -75,6 +75,7 @@ if (!isInstanceOf!(Unexpected, T)) // an `Unexpected` cannot be `Expected` :)
     /// Assign from expected value `expectedValue.`
     void opAssign(T expectedValue) @trusted
     {
+        // TODO is this ok?:
         clear();
         import std.algorithm.mutation : moveEmplace;
         moveEmplace(expectedValue, _expectedValue);

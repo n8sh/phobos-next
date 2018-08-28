@@ -179,7 +179,7 @@ private mixin template VariantArrayOf(Type)
 
     Each element is indexed by a corresponding `VariantRef`.
  */
-private struct VariantArrays(Types...)
+struct VariantArrays(Types...)
 {
     @safe:
 

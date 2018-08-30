@@ -51,7 +51,7 @@ struct SSOString
     }
 
     /** Return `this` converted to a `string`, which potentially needs
-     * GC-allocation (iff `source.length > smallCapacity`).
+     * GC-allocation (iff `length > smallCapacity`).
      */
     @property string toString() const
     {

@@ -65,8 +65,8 @@ struct SSOString
         else
         {
             large = source;   // @nogc
-            raw.length *= 2;    // shift up
-            raw.length |= 1;    // tag as large
+            raw.length *= 2;  // sh ift up
+            raw.length |= 1;  // tag as large
         }
     }
 

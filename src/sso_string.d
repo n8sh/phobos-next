@@ -73,6 +73,7 @@ struct SSOString
         }
     }
 
+    /** Get length. */
     @property size_t length() const @trusted
     {
         pragma(inline, true);

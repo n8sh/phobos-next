@@ -51,7 +51,7 @@ struct SSOString
     }
 
     /** Get as `string`. */
-    @property immutable(E)[] toString() const return
+    @property immutable(E)[] toString() const
     {
         if (isLarge)
         {

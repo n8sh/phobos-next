@@ -221,10 +221,12 @@ private:
 
     const s7 = S("0123456");
 
-    const s7_ = S("0123456_"[0 .. $ - 1]); // source from other string literal
+    const s7_ = S("0123456_"[0 .. $ - 1]);
+    assert(s7[].ptr !is s7_[].ptr); // string data shall not overlap
     assert(s7 == s7_);
 
     const _s7 = S("_0123456"[1 .. $]); // source from other string literal
+    assert(s7[].ptr !is _s7[].ptr); // string data shall not overlap
     assert(s7 == _s7);
 
     static assert(is(typeof(s7[]) == string));

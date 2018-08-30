@@ -136,6 +136,13 @@ struct SSOString
         return opSlice() == rhs.opSlice();
     }
 
+    /** Check if equal to `rhs`. */
+    bool opEquals()(const char[] rhs) const
+    {
+        pragma(inline, true);
+        return opSlice() == rhs;
+    }
+
     /** Support trait `isNullable`. */
     static immutable nullValue = typeof(this).init;
 

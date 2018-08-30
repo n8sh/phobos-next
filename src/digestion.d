@@ -145,7 +145,7 @@ if (isDigest!Digest)
     {
         static if (is(typeof(T.init[])) && isArray!(typeof(T.init[]))) // TODO trait: `isArrayLike`
         {
-            digestArray(digest, value[]);
+            digestAnyWithTrustedSystemSlicing(digest, value);
         }
         else
         {
@@ -156,6 +156,14 @@ if (isDigest!Digest)
     {
         static assert(0, "handle type " ~ T.stringof);
     }
+}
+
+// TODO remove when `SSOString` gets scope-checked opSlice
+private
+void digestAnyWithTrustedSystemSlicing(Digest, T)(ref Digest digest,
+                                                  const scope ref T value) @trusted
+{
+    digestArray(digest, value[]);
 }
 
 /** Digest the `value` as an address (pointer). */

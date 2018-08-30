@@ -249,6 +249,10 @@ private:
     const s16 = S("0123456789abcdef");
     static assert(is(typeof(s16[]) == string));
     assert(s16.isLarge);
+
+    const s16_ = S("0123456789abcdef_"[0 .. s16.length]);
+    // TODO assert(s16 == s16_);
+
     assert(s16.length == 16);
     assert(s16[] == "0123456789abcdef");
     assert(s16.toString == "0123456789abcdef");

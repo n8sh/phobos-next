@@ -53,7 +53,6 @@ struct SSOString
     /** Get as `string`. */
     @property scope immutable(E)[] toString() const return
     {
-        pragma(inline, true);
         if (isLarge)
         {
             return cast(typeof(return))opSlice(); // already immutable

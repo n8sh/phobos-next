@@ -3222,7 +3222,7 @@ unittest
     static struct Rel
     {
         static immutable nullValue = typeof(this).init;
-        string name;            // relation name. TODO make const
+        string name;            // relation name
     }
     alias X = OpenHashSet!(Rel, FNV!(64, true));
     X x;

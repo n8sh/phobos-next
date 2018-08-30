@@ -54,11 +54,11 @@ import file_ex : rawReadNullTerminated;
 alias Exprs = FixedArray!(SExpr, 128);
 
 /** Returns: true if `s` is null-terminated (ending with `'\0'`).
-
-    Prior to parsing used to verify input to parsers that make use of
-    sentinel-based search.
-
-    See_Also: https://en.wikipedia.org/wiki/Sentinel_value
+ *
+ * Prior to parsing used to verify input to parsers that make use of
+ * sentinel-based search.
+ *
+ * See_Also: https://en.wikipedia.org/wiki/Sentinel_value
  */
 bool isNullTerminated(const(char)[] s)
     @safe pure nothrow @nogc

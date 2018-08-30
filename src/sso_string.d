@@ -124,6 +124,7 @@ struct SSOString
     /** Get as `string`. */
     @property scope immutable(E)[] toString() const return @trusted
     {
+        pragma(inline, true);
         return opSlice();
     }
 

@@ -13,8 +13,8 @@ struct SSOString
 
     pure nothrow:
 
-    /** Construct from `source`, with potential GC-allocation (iff
-     * `source.length > smallCapacity`).
+    /** Construct from `source` with non-immutable elements, potentially needs
+     * GC-allocation (iff `source.length > smallCapacity`).
      */
     this(const scope E[] source) @trusted
     {
@@ -52,7 +52,8 @@ struct SSOString
 
     @nogc:
 
-    /** Construct from `source` without any kind of heap allocation.
+    /** Construct from `source` with immutable elements, doesn't need any
+     * GC-allocation.
      */
     this(const scope immutable(E)[] source) @trusted
     {

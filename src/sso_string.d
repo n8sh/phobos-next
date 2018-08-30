@@ -130,6 +130,7 @@ struct SSOString
 
     bool opEquals()(in auto ref typeof(this) rhs) const
     {
+        pragma(inline, true);
         return opSlice() == rhs.opSlice();
     }
 

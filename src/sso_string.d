@@ -55,7 +55,8 @@ struct SSOString
     /** Construct from `source` with immutable elements, doesn't need any
      * GC-allocation.
      *
-     * Packs `source` in a small store iff `source.length > smallCapacity`.
+     * Packs `source` in a small store iff `source.length > smallCapacity`. If
+     * this not wanted use a `string` instead.
      */
     this(const scope immutable(E)[] source) @trusted
     {

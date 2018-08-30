@@ -25,7 +25,7 @@ enum TOK
     lispQuote,
 
     variable,
-    variableList,               // one or more variables (parameters) starting with an at-sign, for instance @ROW
+    variableList,               // one or more variables (parameters) starting with an at-sign, for instance `@ROW`
     functionName,
 
     number,

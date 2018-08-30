@@ -128,6 +128,7 @@ struct SSOString
         return opSlice();
     }
 
+    /** Check if equal to `rhs`. */
     bool opEquals()(in auto ref typeof(this) rhs) const
     {
         pragma(inline, true);

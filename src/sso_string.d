@@ -127,6 +127,11 @@ struct SSOString
         return opSlice();
     }
 
+    bool opEquals()(in auto ref typeof(this) rhs) const
+    {
+        return opSlice() == rhs.opSlice();
+    }
+
     /** Support trait `isNullable`. */
     static immutable nullValue = typeof(this).init;
 
@@ -253,7 +258,13 @@ private:
     const s16_ = S("0123456789abcdef_"[0 .. s16.length]);
     assert(s16.length == s16_.length);
     assert(s16[] == s16_[]);
-    // TODO defined opEquals and activate assert(s16 == s16_);
+    assert(s16[].ptr !is s16_[].ptr); // string data shall not overlap
+    assert(s16 == s16_);              // but contents is equal
+
+    const _s16 = S("_0123456789abcdef"[1 .. $]);
+    assert(s16.length == _s16.length);
+    assert(s16[] == _s16[]);    // contents is equal
+    assert(s16 == _s16);        // contents is equal
 
     assert(s16.length == 16);
     assert(s16[] == "0123456789abcdef");

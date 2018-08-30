@@ -91,7 +91,7 @@ struct SSOString
     scope ref immutable(E) opIndex(size_t index) const return @trusted
     {
         pragma(inline, true);
-        return opSlice()[index]; // automatic range checking
+        return opSlice()[index]; // deos range check
     }
 
     scope immutable(E)[] opSlice() const return @trusted // TODO @safe for -dip1000?

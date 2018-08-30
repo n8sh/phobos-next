@@ -50,7 +50,7 @@ struct SSOString
         }
     }
 
-    /** Get as `string`. */
+    /** Return `this` convert to a `string`. */
     @property string toString() const
     {
         if (isLarge)

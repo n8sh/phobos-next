@@ -3235,6 +3235,23 @@ unittest
     }
 }
 
+/// `SSOString` as key type
+@safe pure nothrow
+unittest
+{
+    import sso_string : SSOString;
+    alias K = SSOString;
+    alias X = OpenHashSet!(K, FNV!(64, true));
+    X x;
+    foreach (const i; 0 .. 100)
+    {
+        const char[1] ch = ['a' + i];
+        assert(!x.contains(K(ch)));
+        x.insert(K(ch));
+        assert(x.contains(K(ch)));
+    }
+}
+
 version(unittest)
 {
     debug import std.exception : assertThrown, assertNotThrown;

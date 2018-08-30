@@ -13,8 +13,8 @@ struct SSOString
 
     pure nothrow:
 
-    /** Construct from `source` with non-immutable elements, potentially needs
-     * GC-allocation (iff `source.length > smallCapacity`).
+    /** Construct from `source` with non-immutable elements, which potentially
+     * needs GC-allocation (iff `source.length > smallCapacity`).
      */
     this(const scope E[] source) @trusted
     {

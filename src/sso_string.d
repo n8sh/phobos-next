@@ -220,10 +220,19 @@ private:
     // TODO assert(s0 !is s0_);
 
     const s7 = S("0123456");
+
+    const s7_ = S("0123456_"[0 .. $ - 1]); // source from other string literal
+    assert(s7 == s7_);
+
+    const _s7 = S("_0123456"[1 .. $]); // source from other string literal
+    assert(s7 == _s7);
+
     static assert(is(typeof(s7[]) == string));
     assert(!s7.isLarge);
     assert(s7.length == 7);
     assert(s7[] == "0123456");
+    assert(s7[] == "_0123456"[1 .. $]);
+    assert(s7[] == "0123456_"[0 .. $ - 1]);
     assert(s7[0 .. 4] == "0123");
 
     const s15 = S("0123456789abcde");

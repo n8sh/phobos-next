@@ -137,7 +137,7 @@ struct SSOString
     }
 
     /** Check if equal to `rhs`. */
-    bool opEquals()(const char[] rhs) const
+    bool opEquals()(const scope const(char)[] rhs) const
     {
         pragma(inline, true);
         return opSlice() == rhs;

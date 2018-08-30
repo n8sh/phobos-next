@@ -50,7 +50,7 @@ struct SSOString
         }
     }
 
-    /** Return `this` convert to a `string`, which potentially needs
+    /** Return `this` converted to a `string`, which potentially needs
      * GC-allocation (iff `source.length > smallCapacity`).
      */
     @property string toString() const

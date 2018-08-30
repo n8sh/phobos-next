@@ -165,7 +165,7 @@ private:
              * 0-15, use other 4 bits */
             ubyte length;
         }
-        static assert(0, "TODO Add BigEndian support and test");
+        static assert(0, "TODO add BigEndian support and test");
     }
 
     union

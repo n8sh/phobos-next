@@ -3247,7 +3247,7 @@ unittest
     {
         const char[1] ch = ['a' + i];
         assert(!x.contains(K(ch)));
-        x.insert(K(ch));
+        assert(x.insertAndReturnElement(K(ch)) == K(ch));
         assert(x.contains(K(ch)));
     }
 }

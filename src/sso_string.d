@@ -52,7 +52,7 @@ struct SSOString
 
     @nogc:
 
-    /** Construct from `source` with immutable elements, doesn't need any
+    /** Construct from `source` with immutable elements, which doesn't need any
      * GC-allocation.
      *
      * Packs `source` in a small store iff `source.length > smallCapacity`. If

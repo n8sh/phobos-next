@@ -26,6 +26,7 @@ buildType "release-nobounds" {
           buildOptions "releaseMode" "optimize" "noBoundsCheck" "inline"
 }
 
+# TODO currenltly fails to build:
 buildType "release-nobounds-lto" {
           buildOptions "releaseMode" "optimize" "noBoundsCheck" "inline"
           dflags "-mcpu=native"

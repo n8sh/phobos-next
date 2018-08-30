@@ -1,4 +1,4 @@
-/** SUO-KIF File Format.
+/** SUMO SUO-KIF File Format.
 
     See_Also: https://en.wikipedia.org/wiki/Knowledge_Interchange_Format
     See_Also: http://sigmakee.cvs.sourceforge.net/viewvc/sigmakee/sigma/suo-kif.pdf

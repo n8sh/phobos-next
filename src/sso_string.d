@@ -156,6 +156,11 @@ private:
     }
     else
     {
+        struct Small
+        {
+            immutable(E)[smallCapacity] data;
+            ubyte length; // TODO only first 4 bits are needed to represent a length between 0-15, use other 4 bits
+        }
         static assert(0, "TODO Add BigEndian support and test");
     }
 

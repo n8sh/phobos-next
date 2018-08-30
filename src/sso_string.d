@@ -123,7 +123,7 @@ struct SSOString
     }
 
     /** Get as `string`. */
-    @property scope immutable(E)[] toString() const return @trusted
+    @property scope immutable(E)[] toString() const return
     {
         pragma(inline, true);
         return opSlice();

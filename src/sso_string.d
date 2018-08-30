@@ -130,14 +130,14 @@ struct SSOString
     }
 
     /** Check if equal to `rhs`. */
-    bool opEquals()(in auto ref typeof(this) rhs) const
+    bool opEquals()(in auto ref typeof(this) rhs) const @trusted
     {
         pragma(inline, true);
         return opSlice() == rhs.opSlice();
     }
 
     /** Check if equal to `rhs`. */
-    bool opEquals()(const scope const(char)[] rhs) const
+    bool opEquals()(const scope const(char)[] rhs) const @trusted
     {
         pragma(inline, true);
         return opSlice() == rhs;

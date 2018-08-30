@@ -127,6 +127,9 @@ struct SSOString
         return opSlice();
     }
 
+    /** Support trait `isNullable`. */
+    static immutable nullValue = typeof(this).init;
+
 private:
 
     /** Returns: `true` iff this is a large string, otherwise `false.` */

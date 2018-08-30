@@ -1,9 +1,9 @@
-/** SUMO SUO-KIF File Format.
-
-    See_Also: https://en.wikipedia.org/wiki/Knowledge_Interchange_Format
-    See_Also: http://sigmakee.cvs.sourceforge.net/viewvc/sigmakee/sigma/suo-kif.pdf
-    See_Also: http://forum.dlang.org/post/prsxfcmkngfwomygmthi@forum.dlang.org
-*/
+/** Suggested Upper Merged Ontology (SUMO) SUO-KIF File Format.
+ *
+ * See_Also: https://en.wikipedia.org/wiki/Knowledge_Interchange_Format
+ * See_Also: http://sigmakee.cvs.sourceforge.net/viewvc/sigmakee/sigma/suo-kif.pdf
+ * See_Also: http://forum.dlang.org/post/prsxfcmkngfwomygmthi@forum.dlang.org
+ */
 module suokif;
 
 version = benchmark;

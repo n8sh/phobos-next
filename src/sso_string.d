@@ -94,7 +94,7 @@ struct SSOString
         return opSlice()[index]; // deos range check
     }
 
-    scope immutable(E)[] opSlice() const return @trusted // TODO @safe for -dip1000?
+    scope immutable(E)[] opSlice() const return @system // TODO @safe for -dip1000?
     {
         if (isLarge)
         {
@@ -115,7 +115,7 @@ struct SSOString
     }
 
     /// ditto
-    scope immutable(E)[] opSlice(size_t i, size_t j) const return @trusted // TODO @safe for -dip1000?
+    scope immutable(E)[] opSlice(size_t i, size_t j) const return @system // TODO @safe for -dip1000?
     {
         pragma(inline, true);
         return opSlice()[i .. j];
@@ -208,7 +208,7 @@ private:
 }
 
 ///
-@safe pure nothrow @nogc unittest
+@trusted pure nothrow @nogc unittest // TODO `@trusted` => `@safe` when dip-1000 can do scope analysis of `SSOString.opSlice`
 {
     alias S = SSOString;
 

@@ -10,6 +10,7 @@ module sso_string;
 struct SSOString
 {
     private alias E = char;     // element type
+    enum smallCapacity = Large.sizeof - Small.length.sizeof;
 
     pure nothrow:
 
@@ -144,7 +145,6 @@ private:
 
     alias Large = immutable(E)[];
 
-    enum smallCapacity = Large.sizeof - Small.length.sizeof;
     static assert(smallCapacity > 0, "No room for small source for immutable(E) being " ~ immutable(E).stringof);
     version(LittleEndian) // see: http://forum.dlang.org/posting/zifyahfohbwavwkwbgmw
     {

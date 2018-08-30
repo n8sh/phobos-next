@@ -50,6 +50,20 @@ struct SSOString
         }
     }
 
+    /** Get as `string`. */
+    @property scope immutable(E)[] toString() const return
+    {
+        pragma(inline, true);
+        if (isLarge)
+        {
+            return cast(typeof(return))opSlice(); // already immutable
+        }
+        else
+        {
+            return opSlice().idup; // need duplicate to make `immutable`
+        }
+    }
+
     @nogc:
 
     /** Construct from `source` with immutable elements, which doesn't need any
@@ -120,13 +134,6 @@ struct SSOString
     {
         pragma(inline, true);
         return opSlice()[i .. j];
-    }
-
-    /** Get as `string`. */
-    @property scope immutable(E)[] toString() const return
-    {
-        pragma(inline, true);
-        return opSlice();
     }
 
     /** Check if equal to `rhs`. */
@@ -279,7 +286,6 @@ private:
 
     assert(s16.length == 16);
     assert(s16[] == "0123456789abcdef");
-    assert(s16.toString == "0123456789abcdef");
     assert(s16[0] == '0');
     assert(s16[10] == 'a');
     assert(s16[15] == 'f');

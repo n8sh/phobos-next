@@ -251,6 +251,8 @@ private:
     assert(s16.isLarge);
 
     const s16_ = S("0123456789abcdef_"[0 .. s16.length]);
+    assert(s16.length == s16_.length);
+    assert(s16[] == s16_[]);
     // TODO assert(s16 == s16_);
 
     assert(s16.length == 16);

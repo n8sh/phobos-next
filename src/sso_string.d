@@ -56,7 +56,7 @@ struct SSOString
      * GC-allocation.
      *
      * Packs `source` in a small store iff `source.length > smallCapacity`. If
-     * this is not wanted use a `string` instead.
+     * this is not desired use a `string` instead.
      */
     this(const scope immutable(E)[] source) @trusted
     {

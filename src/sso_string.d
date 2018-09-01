@@ -257,7 +257,7 @@ private:
     assert(!s0.isLarge);
     assert(s0[] == []);
 
-    char[S.smallCapacity] charsSmallCapacity;
+    char[S.smallCapacity] charsSmallCapacity; // fits in small string
     const sSmallCapacity = S(charsSmallCapacity);
 
     const s0_ = S("");

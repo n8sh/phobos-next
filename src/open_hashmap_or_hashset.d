@@ -1808,8 +1808,9 @@ unittest
     const n = 100;
 
     X a;
-    foreach (const i; 0 .. n)
+    foreach (const i_; 0 .. n)
     {
+        const i = i_;           // insert in order
         assert(!a.contains(K(i)));
         assert(a.insertAndReturnElement(K(i)) == K(i));
         assert(a.contains(K(i)));

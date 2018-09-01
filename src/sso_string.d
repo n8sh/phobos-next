@@ -13,12 +13,12 @@ struct SSOString
 
     pure nothrow:
 
-    /** Construct from `source` with non-immutable elements, which potentially
-     * needs GC-allocation (iff `source.length > smallCapacity`).
+    /** Construct from `source`, which potentially needs GC-allocation (iff
+     * `source.length > smallCapacity` and typeof(SomeCharArray.init[0]) is not
+     * immutable).
      */
     this(SomeCharArray)(const scope auto ref SomeCharArray source) @trusted
-    if (isCharsSlice!(typeof(source[])) &&
-        !(is(typeof(source[0]) == immutable(char)))) // not immutable char
+    if (isCharsSlice!(typeof(source[]))) // not immutable char
     {
         import std.traits : isStaticArray;
         static if (isStaticArray!SomeCharArray)
@@ -30,7 +30,14 @@ struct SSOString
             }
             else
             {
-                large = source.idup; // GC-allocate
+                static if (is(typeof(source[0]) == immutable(char)))
+                {
+                    large = source; // already immutable so no duplication needed
+                }
+                else
+                {
+                    large = source.idup; // GC-allocate
+                }
                 raw.length *= 2;  // shift up
                 raw.length |= 1;  // tag as large
             }
@@ -44,7 +51,14 @@ struct SSOString
             }
             else
             {
-                large = source.idup; // GC-allocate
+                static if (is(typeof(source[0]) == immutable(char)))
+                {
+                    large = source; // already immutable so no duplication needed
+                }
+                else
+                {
+                    large = source.idup; // GC-allocate
+                }
                 raw.length *= 2;  // shift up
                 raw.length |= 1;  // tag as large
             }
@@ -67,27 +81,6 @@ struct SSOString
     }
 
     @nogc:
-
-    /** Construct from `source` with immutable elements, which doesn't need any
-     * GC-allocation.
-     *
-     * Packs `source` in a small store iff `source.length > smallCapacity`. If
-     * this is not desired use a `string` instead of `this`.
-     */
-    this(const scope immutable(E)[] source) @trusted
-    {
-        if (source.length <= smallCapacity)
-        {
-            small.data[0 .. source.length] = source;
-            small.length = cast(typeof(small.length))(2*source.length);
-        }
-        else
-        {
-            large = source;   // @nogc
-            raw.length *= 2;  // sh ift up
-            raw.length |= 1;  // tag as large
-        }
-    }
 
     /** Get length. */
     @property size_t length() const @trusted

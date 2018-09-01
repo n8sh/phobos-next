@@ -258,7 +258,9 @@ private:
     assert(s0[] == []);
 
     char[S.smallCapacity] charsSmallCapacity;
-    const s1 = S(charsSmallCapacity);
+    const sSmallCapacity = S(charsSmallCapacity);
+
+    char[S.smallCapacity + 1] minLargeCapacity;
 
     const s0_ = S("");
     assert(s0 == s0_);

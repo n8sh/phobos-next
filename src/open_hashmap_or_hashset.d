@@ -3281,7 +3281,7 @@ unittest
 }
 
 /// `SSOString` as key type
-@safe pure nothrow
+@safe pure nothrow @nogc
 unittest
 {
     import sso_string : SSOString;
@@ -3293,18 +3293,20 @@ unittest
     foreach (const i; 0 .. n)
     {
         const char[1] ch = ['a' + i];
-        assert(!a.contains(K(ch)));
-        assert(a.insertAndReturnElement(K(ch)) == K(ch));
-        assert(a.contains(K(ch)));
+        const k = K(ch);
+        assert(!a.contains(k));
+        assert(a.insertAndReturnElement(K(ch)) == k);
+        assert(a.contains(k));
     }
 
     X b;
     foreach (const i; 0 .. n)
     {
         const char[1] ch = ['a' + (n - 1 - i)];
-        assert(!b.contains(K(ch)));
-        assert(b.insertAndReturnElement(K(ch)) == K(ch));
-        assert(b.contains(K(ch)));
+        const k = K(ch);
+        assert(!b.contains(k));
+        assert(b.insertAndReturnElement(K(ch)) == k);
+        assert(b.contains(k));
     }
 
     assert(a == b);

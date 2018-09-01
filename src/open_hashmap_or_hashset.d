@@ -1798,7 +1798,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     }
 }
 
-/// `SSOString` as key type
+/// exercise opEquals
 @safe pure nothrow @nogc
 unittest
 {

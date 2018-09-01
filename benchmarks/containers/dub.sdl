@@ -7,6 +7,7 @@ dependency "phobos-next" path="../../"
 # TODO lflags "-ltcmalloc"
 
 dflags "-linker=gold" platform="linux-ldc" # use GNU gold linker
+# dflags "-link-internally" platform="linux-ldc" # use LLD linker. TODO currently fails
 
 buildType "release-test" {
           dflags "-mcpu=native"

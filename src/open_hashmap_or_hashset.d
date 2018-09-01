@@ -1799,40 +1799,34 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 }
 
 /// `SSOString` as key type
-// @safe pure nothrow
-// unittest
-// {
-//     import sso_string : SSOString;
-//     alias K = Nullable!(ulong, ulong.max);
-//     alias X = OpenHashSet!(K, FNV!(64, true));
+@safe pure nothrow
+unittest
+{
+    import sso_string : SSOString;
+    alias K = Nullable!(ulong, ulong.max);
+    alias X = OpenHashSet!(K, FNV!(64, true));
 
-//     const n = 1;
+    const n = 100;
 
-//     X a;
-//     foreach (const i; 0 .. n)
-//     {
-//         const char[1] ch = ['a' + i];
-//         assert(!a.contains(K(ch)));
-//         assert(a.insertAndReturnElement(K(ch)) == K(ch));
-//         assert(a.contains(K(ch)));
-//     }
+    X a;
+    foreach (const i; 0 .. n)
+    {
+        assert(!a.contains(K(i)));
+        assert(a.insertAndReturnElement(K(i)) == K(i));
+        assert(a.contains(K(i)));
+    }
 
-//     X b;
-//     foreach (const i_; 0 .. n)
-//     {
-//         const i = n - 1 - i_;
-//         const char[1] ch = ['b' + i];
-//         assert(!b.contains(K(ch)));
-//         assert(b.insertAndReturnElement(K(ch)) == K(ch));
-//         assert(b.contains(K(ch)));
-//     }
+    X b;
+    foreach (const i_; 0 .. n)
+    {
+        const i = n - 1 - i_;
+        assert(!b.contains(K(i)));
+        assert(b.insertAndReturnElement(K(i)) == K(i));
+        assert(b.contains(K(i)));
+    }
 
-//     foreach (const ref aElm; a.byElement)
-//     {
-//         assert(b.contains(aElm));
-//     }
-//     assert(a == b);
-// }
+    assert(a == b);
+}
 
 /// `SSOString` as key type
 @safe pure nothrow

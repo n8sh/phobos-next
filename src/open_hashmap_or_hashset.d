@@ -3293,7 +3293,7 @@ unittest
     foreach (const i; 0 .. n)
     {
         const char[1] ch = ['a' + i];
-        const k = K(ch);
+        const k = K(ch);        // @nogc
         assert(!a.contains(k));
         assert(a.insertAndReturnElement(K(ch)) == k);
         assert(a.contains(k));
@@ -3303,7 +3303,7 @@ unittest
     foreach (const i; 0 .. n)
     {
         const char[1] ch = ['a' + (n - 1 - i)];
-        const k = K(ch);
+        const k = K(ch);        // @nogc
         assert(!b.contains(k));
         assert(b.insertAndReturnElement(K(ch)) == k);
         assert(b.contains(k));

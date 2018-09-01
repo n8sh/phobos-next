@@ -449,8 +449,10 @@ struct OpenHashMapOrSet(K, V = void,
         if (_count != rhs._count) { return false; } // quick discardal
         foreach (immutable index, const ref bin; _bins)
         {
+            // dln("index:", index);
             if (isOccupiedAtIndex(index))
             {
+                // dln("occupied at index:", index);
                 static if (hasValue)
                 {
                     auto valuePtr = bin.key in rhs;
@@ -466,6 +468,7 @@ struct OpenHashMapOrSet(K, V = void,
                 }
                 else
                 {
+                    // dln("here index:", index);
                     if (!rhs.contains(bin))
                     {
                         return false;
@@ -1795,6 +1798,60 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     }
 }
 
+/// `SSOString` as key type
+// @safe pure nothrow
+// unittest
+// {
+//     import sso_string : SSOString;
+//     alias K = Nullable!(ulong, ulong.max);
+//     alias X = OpenHashSet!(K, FNV!(64, true));
+
+//     const n = 1;
+
+//     X a;
+//     foreach (const i; 0 .. n)
+//     {
+//         const char[1] ch = ['a' + i];
+//         assert(!a.contains(K(ch)));
+//         assert(a.insertAndReturnElement(K(ch)) == K(ch));
+//         assert(a.contains(K(ch)));
+//     }
+
+//     X b;
+//     foreach (const i_; 0 .. n)
+//     {
+//         const i = n - 1 - i_;
+//         const char[1] ch = ['b' + i];
+//         assert(!b.contains(K(ch)));
+//         assert(b.insertAndReturnElement(K(ch)) == K(ch));
+//         assert(b.contains(K(ch)));
+//     }
+
+//     foreach (const ref aElm; a.byElement)
+//     {
+//         assert(b.contains(aElm));
+//     }
+//     assert(a == b);
+// }
+
+/// `SSOString` as key type
+@safe pure nothrow
+unittest
+{
+    import sso_string : SSOString;
+    alias K = SSOString;
+    alias X = OpenHashSet!(K, FNV!(64, true));
+    const n = 100;
+    X a;
+    foreach (const i; 0 .. n)
+    {
+        const char[1] ch = ['a' + i];
+        assert(!a.contains(K(ch)));
+        assert(a.insertAndReturnElement(K(ch)) == K(ch));
+        assert(a.contains(K(ch)));
+    }
+}
+
 @safe pure nothrow /*@nogc*/ unittest
 {
     enum Pot { noun, verb }
@@ -2204,7 +2261,8 @@ pragma(inline, true):
 /** Returns: range that iterates through the elements of `c` in undefined order.
  */
 auto byElement(Table)(auto ref return Table c) @trusted
-    if (isInstanceOf!(OpenHashMapOrSet, Table))
+if (isInstanceOf!(OpenHashMapOrSet, Table) &&
+    !Table.hasValue)
 {
     import std.traits : Unqual;
     alias M = Unqual!Table;
@@ -2224,6 +2282,8 @@ auto byElement(Table)(auto ref return Table c) @trusted
 alias range = byElement;        // EMSI-container naming
 
 static private struct ByKey_lvalue(Table)
+if (isInstanceOf!(OpenHashMapOrSet, Table) &&
+    Table.hasValue)
 {
     pragma(inline, true)
     @property scope const auto ref front() return // key access must be const, TODO auto ref => ref K
@@ -2236,6 +2296,8 @@ static private struct ByKey_lvalue(Table)
 }
 
 static private struct ByKey_rvalue(Table)
+if (isInstanceOf!(OpenHashMapOrSet, Table) &&
+    Table.hasValue)
 {
     pragma(inline, true)
     @property scope const auto ref front() return // key access must be const, TODO auto ref => ref K
@@ -2250,7 +2312,8 @@ static private struct ByKey_rvalue(Table)
 /** Returns: range that iterates through the keys of `c` in undefined order.
  */
 auto byKey(Table)(auto ref return Table c) @trusted
-    if (isInstanceOf!(OpenHashMapOrSet, Table))
+if (isInstanceOf!(OpenHashMapOrSet, Table) &&
+    Table.hasValue)
 {
     import std.traits : Unqual;
     alias M = Unqual!Table;
@@ -2269,6 +2332,8 @@ auto byKey(Table)(auto ref return Table c) @trusted
 }
 
 static private struct ByValue_lvalue(Table)
+if (isInstanceOf!(OpenHashMapOrSet, Table) &&
+    Table.hasValue)
 {
     pragma(inline, true)
     @property scope auto ref front() return @trusted // TODO auto ref => ref V
@@ -2291,6 +2356,8 @@ static private struct ByValue_lvalue(Table)
 }
 
 static private struct ByValue_rvalue(Table)
+if (isInstanceOf!(OpenHashMapOrSet, Table) &&
+    Table.hasValue)
 {
     pragma(inline, true)
     @property scope auto ref front() return @trusted // TODO auto ref => ref V
@@ -2315,7 +2382,8 @@ static private struct ByValue_rvalue(Table)
 /** Returns: range that iterates through the values of `c` in undefined order.
  */
 auto byValue(Table)(auto ref return Table c) @trusted
-    if (isInstanceOf!(OpenHashMapOrSet, Table))
+if (isInstanceOf!(OpenHashMapOrSet, Table) &&
+    Table.hasValue)
 {
     import std.traits : Unqual;
     import std.traits : isMutable;
@@ -2335,6 +2403,8 @@ auto byValue(Table)(auto ref return Table c) @trusted
 }
 
 static private struct ByKeyValue_lvalue(Table)
+if (isInstanceOf!(OpenHashMapOrSet, Table) &&
+    Table.hasValue)
 {
     pragma(inline, true)
     @property scope auto ref front() return @trusted // TODO auto ref => ref T
@@ -2359,7 +2429,8 @@ static private struct ByKeyValue_lvalue(Table)
 /** Returns: range that iterates through the key-value-pairs of `c` in undefined order.
  */
 auto byKeyValue(Table)(auto ref return Table c) @trusted
-    if (isInstanceOf!(OpenHashMapOrSet, Table))
+if (isInstanceOf!(OpenHashMapOrSet, Table) &&
+    Table.hasValue)
 {
     import std.traits : Unqual;
     alias M = Unqual!Table;
@@ -3232,23 +3303,6 @@ unittest
         assert(!x.contains(Rel(ch.idup)));
         x.insert(Rel(ch.idup));
         assert(x.contains(Rel(ch.idup)));
-    }
-}
-
-/// `SSOString` as key type
-@safe pure nothrow
-unittest
-{
-    import sso_string : SSOString;
-    alias K = SSOString;
-    alias X = OpenHashSet!(K, FNV!(64, true));
-    X x;
-    foreach (const i; 0 .. 100)
-    {
-        const char[1] ch = ['a' + i];
-        assert(!x.contains(K(ch)));
-        assert(x.insertAndReturnElement(K(ch)) == K(ch));
-        assert(x.contains(K(ch)));
     }
 }
 

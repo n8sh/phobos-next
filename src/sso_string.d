@@ -18,7 +18,7 @@ struct SSOString
      */
     this(SomeCharArray)(const scope auto ref SomeCharArray source) @trusted
     if (isCharsSlice!(typeof(source[])) &&
-        !(is(typeof(source[0]) == immutable(char)))) // not immutable
+        !(is(typeof(source[0]) == immutable(char)))) // not immutable char
     {
         import std.traits : isStaticArray;
         static if (isStaticArray!SomeCharArray)

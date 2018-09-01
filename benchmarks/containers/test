@@ -1,6 +1,7 @@
 #!/bin/bash
 
-LDC2=$(type -p ldc2)
+D_COMPILER="ldc2"
+LDC2=$(type -p $D_COMPILER)
 LDC2_DIR=$(dirname "$LDC2")
 LDC2_DUB="$LDC2_DIR/dub"
-exec "$LDC2_DUB" run --compiler=ldc2 --build=release-nobounds-lto
+exec "$LDC2_DUB" run --compiler=$D_COMPILER --build=release-nobounds-lto

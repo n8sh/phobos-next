@@ -1,6 +1,6 @@
 #!/bin/bash
 
-D_COMPILER="ldmd2"              # dmd, gdc, ldc2 or ldmd2
+D_COMPILER="ldmd2"              # valid alternatives are dmd, gdc, ldc2 or ldmd2
 
 LDC2=$(type -p $D_COMPILER)
 LDC2_DIR=$(dirname "$LDC2")

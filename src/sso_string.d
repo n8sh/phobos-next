@@ -235,6 +235,7 @@ private:
     const sSmallCapacity = S(charsSmallCapacity);
 
     char[S.smallCapacity + 1] charsMinLargeCapacity;
+    // TODO:
     // static assert(!__traits(compiles, {
     //             const _ = S(charsMinLargeCapacity);
     //         }));

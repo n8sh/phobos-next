@@ -16,11 +16,11 @@ struct SSOString
     /** Construct from `source` with non-immutable elements, which potentially
      * needs GC-allocation (iff `source.length > smallCapacity`).
      */
-    this(SomeCharsArray)(const scope SomeCharsArray source) @trusted
+    this(SomeCharArray)(const scope SomeCharArray source) @trusted
     if (isCharsSlice!(typeof(source[])))
     {
         import std.traits : isStaticArray;
-        static if (isStaticArray!SomeCharsArray)
+        static if (isStaticArray!SomeCharArray)
         {
             static if (source.length <= smallCapacity) // inferred @nogc
             {

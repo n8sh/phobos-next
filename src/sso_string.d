@@ -234,6 +234,11 @@ private:
     char[S.smallCapacity] charsSmallCapacity; // fits in small string
     const sSmallCapacity = S(charsSmallCapacity);
 
+    char[S.smallCapacity + 1] charsMinLargeCapacity;
+    // static assert(!__traits(compiles, {
+    //             const _ = S(charsMinLargeCapacity);
+    //         }));
+
     const s0_ = S("");
     assert(s0 == s0_);
 

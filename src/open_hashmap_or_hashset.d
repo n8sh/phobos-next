@@ -1818,7 +1818,7 @@ unittest
     X b;
     foreach (const i_; 0 .. n)
     {
-        const i = n - 1 - i_;
+        const i = n - 1 - i_;   // insert in reverse
         assert(!b.contains(K(i)));
         assert(b.insertAndReturnElement(K(i)) == K(i));
         assert(b.contains(K(i)));

@@ -1270,6 +1270,9 @@ unittest
     assertEqual(demangler(`memcpy`).decodeSymbol(),
                 Demangling(Lang.c, `memcpy`));
 
+    assertEqual(demangler(`memcpy`).decodeSymbol(),
+                Demangling(Lang.c, `memcpy`));
+
     assertEqual(demangler(`_Z1hi`).decodeSymbol(),
                 Demangling(Lang.cxx, `h(int)`));
 
@@ -1323,4 +1326,7 @@ unittest
 
     assertEqual(demangler(`_ZZ8genCmainP5ScopeE9cmaincode`).decodeSymbol(),
                 Demangling(Lang.cxx, `genCmain(Scope*)::cmaincode`));
+
+    assertEqual(demangler("_Z7DtoLValP6DValue").decodeSymbol(),
+                Demangling(Lang.cxx, `DtoLVal(DValue*)`));
 }

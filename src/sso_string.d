@@ -22,7 +22,7 @@ struct SSOString
         import std.traits : isStaticArray;
         static if (isStaticArray!SomeArray)
         {
-            static if (source.length <= smallCapacity) // inferred nogc
+            static if (source.length <= smallCapacity) // inferred @nogc
             {
                 small.data[0 .. source.length] = source;
                 small.length = cast(typeof(small.length))(2*source.length);

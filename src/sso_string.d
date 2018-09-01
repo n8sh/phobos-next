@@ -50,25 +50,6 @@ struct SSOString
         }
     }
 
-    // /** Construct from static array `source` of length `n`.
-    //  */
-    // version(none)
-    // this(size_t n)(const scope E[n] source) @trusted // inferred @nogc
-    // {
-    //     static if (source.length <= smallCapacity)
-    //     {
-    //         // @nogc
-    //         small.data[0 .. source.length] = source;
-    //         small.length = cast(typeof(small.length))(2*source.length);
-    //     }
-    //     else
-    //     {
-    //         large = source.idup; // GC-allocate
-    //         raw.length *= 2;  // shift up
-    //         raw.length |= 1;  // tag as large
-    //     }
-    // }
-
     /** Return `this` converted to a `string`, which potentially needs
      * GC-allocation (iff `length <= smallCapacity`).
      */

@@ -1,5 +1,24 @@
 /** Wrapper type for a sum-type (union) of an unexpected and expected value.
+ */
+module expected;
+
+import std.traits : isInstanceOf;
+
+/** Wrapper type for an unexpected value of type `E`.
+ */
+private struct Unexpected(E)
+{
+    E value;
+    alias value this;
+}
+
+/** Union (sum) type of either an expected (most probable) value of type `T` or
+ * an unexpected value of type `E` (being an instance of type `Unexpected!E`).
  *
+ * `E` is typically an error code (for instance C/C++'s' `errno` int) or a
+ * subclass of `Exception` (which is the default).
+ *
+ * See_Also: https://www.youtube.com/watch?v=nVzgkepAg5Y
  * See_Also: https://github.com/dlang/phobos/pull/6665
  *
  * TODO https://dlang.org/phobos/std_typecons.html#.apply
@@ -23,42 +42,20 @@
  *
  * TODO ok to default `E` to `Exception`?
  */
-module expected;
-
-import std.traits : isInstanceOf;
-
-@safe pure:
-
-/** Wrapper type for an unexpected value of type `E`.
- */
-private struct Unexpected(E)
-{
-    E value;
-    alias value this;
-}
-
-/** Union (sum) type of either an expected (most probable) value of type `T` or
- * an unexpected value of type `E` (being an instance of type `Unexpected!E`).
- *
- * `E` is typically an error code (for instance C/C++'s' `errno` int) or a
- * subclass of `Exception` (which is the default).
- *
- * See_Also: https://www.youtube.com/watch?v=nVzgkepAg5Y
- */
 struct Expected(T, E = Exception)
 if (!isInstanceOf!(Unexpected, T)) // an `Unexpected` cannot be `Expected` :)
 {
-    @safe:
+    import std.algorithm.mutation : moveEmplace;
 
     // TODO ok for default construction to initialize
     // - _expectedValue = T.init (zeros)
     // - _ok = true (better to have _isError so default is zero bits here aswell?)
 
     /// Construct from expected value `expectedValue.`
-    this(T expectedValue) @trusted
+    this()(auto ref T expectedValue) @trusted
     {
         // TODO reuse opAssign?
-        _expectedValue = expectedValue;       // TODO use `moveEmplace` here aswell?
+        moveEmplace(expectedValue, _expectedValue);
         _ok = true;
     }
 
@@ -66,16 +63,15 @@ if (!isInstanceOf!(Unexpected, T)) // an `Unexpected` cannot be `Expected` :)
     this(Unexpected!E unexpectedValue) @trusted
     {
         // TODO reuse opAssign?
-        _unexpectedValue = unexpectedValue; // TODO use `moveEmplace` here aswell?
+        moveEmplace(unexpectedValue, _unexpectedValue);
         _ok = false;
     }
 
     /// Assign from expected value `expectedValue.`
-    void opAssign(T expectedValue) @trusted
+    void opAssign()(auto ref T expectedValue) @trusted
     {
         // TODO is this ok?:
         clear();
-        import std.algorithm.mutation : moveEmplace;
         moveEmplace(expectedValue, _expectedValue);
         _ok = true;
     }
@@ -84,7 +80,6 @@ if (!isInstanceOf!(Unexpected, T)) // an `Unexpected` cannot be `Expected` :)
     void opAssign(E unexpectedValue) @trusted
     {
         clear();
-        import std.algorithm.mutation : moveEmplace;
         moveEmplace(unexpectedValue, _unexpectedValue);
         _ok = false;
     }
@@ -259,5 +254,5 @@ inout(string) threeUnderscores(inout(string) x) @safe pure nothrow @nogc
 
 import std.traits : isPointer;
 
-private enum isAddress(T) = (is(T == class) || // a class is memory-wise
-                             isPointer!T);     // just a pointer, consistent with opCmp
+private enum isAddress(T) = (is(T == class) ||
+                             isPointer!T);

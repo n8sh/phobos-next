@@ -6,7 +6,7 @@ dependency "phobos-next" path="../../"
 
 # TODO lflags "-ltcmalloc"
 
-dflags-posix-ldc "-Xcc=-fuse-ld=gold"
+dflags "-linker=gold" platform="linux-ldc" # use GNU gold linker
 
 buildType "release-test" {
           dflags "-mcpu=native"

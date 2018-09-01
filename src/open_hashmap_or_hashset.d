@@ -1825,6 +1825,7 @@ unittest
         assert(b.contains(K(i)));
     }
 
+    assert(a._bins != b._bins);
     assert(a == b);
 }
 

@@ -449,10 +449,8 @@ struct OpenHashMapOrSet(K, V = void,
         if (_count != rhs._count) { return false; } // quick discardal
         foreach (immutable index, const ref bin; _bins)
         {
-            // dln("index:", index);
             if (isOccupiedAtIndex(index))
             {
-                // dln("occupied at index:", index);
                 static if (hasValue)
                 {
                     auto valuePtr = bin.key in rhs;
@@ -468,7 +466,6 @@ struct OpenHashMapOrSet(K, V = void,
                 }
                 else
                 {
-                    // dln("here index:", index);
                     if (!rhs.contains(bin))
                     {
                         return false;
@@ -1827,24 +1824,6 @@ unittest
 
     assert(a._bins != b._bins);
     assert(a == b);
-}
-
-/// `SSOString` as key type
-@safe pure nothrow
-unittest
-{
-    import sso_string : SSOString;
-    alias K = SSOString;
-    alias X = OpenHashSet!(K, FNV!(64, true));
-    const n = 100;
-    X a;
-    foreach (const i; 0 .. n)
-    {
-        const char[1] ch = ['a' + i];
-        assert(!a.contains(K(ch)));
-        assert(a.insertAndReturnElement(K(ch)) == K(ch));
-        assert(a.contains(K(ch)));
-    }
 }
 
 @safe pure nothrow /*@nogc*/ unittest
@@ -3299,6 +3278,36 @@ unittest
         x.insert(Rel(ch.idup));
         assert(x.contains(Rel(ch.idup)));
     }
+}
+
+/// `SSOString` as key type
+@safe pure nothrow
+unittest
+{
+    import sso_string : SSOString;
+    alias K = SSOString;
+    alias X = OpenHashSet!(K, FNV!(64, true));
+    const n = 100;
+
+    X a;
+    foreach (const i; 0 .. n)
+    {
+        const char[1] ch = ['a' + i];
+        assert(!a.contains(K(ch)));
+        assert(a.insertAndReturnElement(K(ch)) == K(ch));
+        assert(a.contains(K(ch)));
+    }
+
+    X b;
+    foreach (const i; 0 .. n)
+    {
+        const char[1] ch = ['a' + (n - 1 - i)];
+        assert(!b.contains(K(ch)));
+        assert(b.insertAndReturnElement(K(ch)) == K(ch));
+        assert(b.contains(K(ch)));
+    }
+
+    assert(a == b);
 }
 
 version(unittest)

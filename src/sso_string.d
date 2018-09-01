@@ -257,9 +257,8 @@ private:
     assert(!s0.isLarge);
     assert(s0[] == []);
 
-    char[1] ch1 = "a";
-
-    const s1 = S(ch1);
+    char[15] ch15;
+    const s1 = S(ch15);
 
     const s0_ = S("");
     assert(s0 == s0_);

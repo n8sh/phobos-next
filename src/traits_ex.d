@@ -440,8 +440,10 @@ enum isCharsSlice(T) = (is(T : const(char)[]));
 ///
 @safe pure unittest
 {
+    static assert(isCharsSlice!(char[]));
     static assert(isCharsSlice!(const(char[])));
     static assert(isCharsSlice!(const char[]));
+    static assert(isCharsSlice!(const const(char)[]));
 
     static assert(!isCharsSlice!(wstring));
     static assert(!isCharsSlice!(dstring));

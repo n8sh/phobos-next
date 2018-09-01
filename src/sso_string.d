@@ -17,7 +17,8 @@ struct SSOString
      * needs GC-allocation (iff `source.length > smallCapacity`).
      */
     this(SomeCharArray)(const scope auto ref SomeCharArray source) @trusted
-    if (isCharsSlice!(typeof(source[])))
+    if (isCharsSlice!(typeof(source[])) &&
+        !(is(typeof(source[0]) == immutable(char)))) // not immutable
     {
         import std.traits : isStaticArray;
         static if (isStaticArray!SomeCharArray)

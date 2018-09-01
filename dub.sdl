@@ -14,7 +14,11 @@ authors "Per Nordlöw <per.nordlow@gmail.com>"
 dflags "-vcolumns" "-dip25" "-transition=intpromote" # "-dip1000"
 libs "z" "bz2" "zstd"
 
-dflags "-link-internally" platform="linux-ldc" # use GNU gold linker
+# https://github.com/ldc-developers/ldc/issues/2717
+# dflags "-link-internally" platform="linux-ldc" # use LLD linker
+
+dflags "-linker=gold" platform="linux-ldc" # use GNU gold linker
+# dflags-posix-ldc "-Xcc=-fuse-ld=gold"
 
 # TODO lflags "-ltcmalloc"
 

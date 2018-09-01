@@ -257,8 +257,8 @@ private:
     assert(!s0.isLarge);
     assert(s0[] == []);
 
-    char[15] ch15;
-    const s1 = S(ch15);
+    char[S.smallCapacity] charsSmallCapacity;
+    const s1 = S(charsSmallCapacity);
 
     const s0_ = S("");
     assert(s0 == s0_);

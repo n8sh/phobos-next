@@ -1802,7 +1802,6 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 @safe pure nothrow
 unittest
 {
-    import sso_string : SSOString;
     alias K = Nullable!(ulong, ulong.max);
     alias X = OpenHashSet!(K, FNV!(64, true));
 

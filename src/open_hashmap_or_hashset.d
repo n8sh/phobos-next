@@ -1799,7 +1799,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 }
 
 /// `SSOString` as key type
-@safe pure nothrow
+@safe pure nothrow @nogc
 unittest
 {
     alias K = Nullable!(ulong, ulong.max);

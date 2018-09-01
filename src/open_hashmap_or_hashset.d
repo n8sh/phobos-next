@@ -1810,7 +1810,7 @@ unittest
     X a;
     foreach (const i_; 0 .. n)
     {
-        const i = i_;           // insert in order
+        const i = 1113*i_;           // insert in order
         assert(!a.contains(K(i)));
         assert(a.insertAndReturnElement(K(i)) == K(i));
         assert(a.contains(K(i)));
@@ -1819,7 +1819,7 @@ unittest
     X b;
     foreach (const i_; 0 .. n)
     {
-        const i = n - 1 - i_;   // insert in reverse
+        const i = 1113*(n - 1 - i_);   // insert in reverse
         assert(!b.contains(K(i)));
         assert(b.insertAndReturnElement(K(i)) == K(i));
         assert(b.contains(K(i)));

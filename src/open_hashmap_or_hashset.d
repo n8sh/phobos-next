@@ -1868,7 +1868,6 @@ unittest
 {
     version(showEntries) dln();
     import digestx.fnv : FNV;
-    import container_traits : mustAddGCRange;
 
     alias X = OpenHashSet!(string, FNV!(64, true));
     static assert(!mustAddGCRange!X);
@@ -1934,8 +1933,6 @@ unittest
 {
     version(showEntries) dln();
     import digestx.fnv : FNV;
-    import container_traits : mustAddGCRange;
-
     alias X = OpenHashSet!(string, FNV!(64, true));
     auto x = X();
 
@@ -2918,7 +2915,6 @@ version(unittest)
         private ulong _value;
     }
 
-    import container_traits : mustAddGCRange;
     static assert(mustAddGCRange!string);
 
     foreach (K; AliasSeq!(SomeSimpleClass,
@@ -3050,7 +3046,6 @@ version(unittest)
                 }
             }
 
-            import container_traits : mustAddGCRange;
             static if (is(V == string))
             {
                 static assert(mustAddGCRange!V);

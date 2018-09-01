@@ -14,8 +14,7 @@ struct SSOString
     pure nothrow:
 
     /** Construct from `source`, which potentially needs GC-allocation (iff
-     * `source.length > smallCapacity` and typeof(SomeCharArray.init[0]) is not
-     * immutable).
+     * `source.length > smallCapacity` and `source` is not a `string`).
      */
     this(SomeCharArray)(const scope auto ref SomeCharArray source) @trusted
     if (isCharsSlice!(typeof(source[]))) // not immutable char

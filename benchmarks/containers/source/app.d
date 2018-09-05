@@ -2,6 +2,7 @@ void main()
 {
     // standard storage
     import std.traits : hasMember;
+    import std.range : iota;
     import std.array : Appender;
     import std.container.array : StdArray = Array;
     import std.container.rbtree : RedBlackTree;
@@ -31,6 +32,8 @@ void main()
     import std.conv : to;
 
     immutable n = 1024*1024;
+
+    auto elements = iota(0, n);
 
     writefln("\nElement count: %s", n);
 
@@ -68,7 +71,7 @@ void main()
         }
 
         immutable before = MonoTime.currTime();
-        foreach (immutable i; 0 .. n)
+        foreach (immutable i; elements)
         {
             a ~= i.to!uint;     // need to cast away const here for now. TODO remove this requirement
         }
@@ -136,7 +139,7 @@ void main()
 
         {
             immutable before = MonoTime.currTime();
-            foreach (immutable i; 0 .. n)
+            foreach (immutable i; elements)
             {
                 static if (hasMember!(A, `ElementType`) &&
                            is(A.ElementType == ubyte[]))
@@ -163,7 +166,7 @@ void main()
         {
             immutable before = MonoTime.currTime();
             size_t hitCount = 0;
-            foreach (immutable i; 0 .. n)
+            foreach (immutable i; elements)
             {
                 static if (hasMember!(A, `ElementType`) &&
                            is(A.ElementType == ubyte[]))
@@ -201,7 +204,7 @@ void main()
             A b = A.withCapacity(n);
 
             immutable before = MonoTime.currTime();
-            foreach (immutable i; 0 .. n)
+            foreach (immutable i; elements)
             {
                 static if (hasMember!(A, `ElementType`) &&
                            is(A.ElementType == ubyte[]))
@@ -272,7 +275,7 @@ void main()
 
         {
             immutable before = MonoTime.currTime();
-            foreach (immutable i; 0 .. n)
+            foreach (immutable i; elements)
             {
                 a.insert(A.ElementType(keys[i], A.ValueType.init));
             }
@@ -283,7 +286,7 @@ void main()
         {
             immutable before = MonoTime.currTime();
             size_t hitCount = 0;
-            foreach (immutable i; 0 .. n)
+            foreach (immutable i; elements)
             {
                 hitCount += a.contains(keys[i]);
             }
@@ -296,7 +299,7 @@ void main()
         {
             immutable before = MonoTime.currTime();
             size_t hitCount = 0;
-            foreach (immutable i; 0 .. n)
+            foreach (immutable i; elements)
             {
                 hitCount += cast(bool)(keys[i] in a);
             }
@@ -308,7 +311,7 @@ void main()
 
         A b = A.withCapacity(n);
         immutable before = MonoTime.currTime();
-        foreach (immutable i; 0 .. n)
+        foreach (immutable i; elements)
         {
             b.insert(A.ElementType(keys[i], A.ValueType.init));
         }
@@ -352,7 +355,7 @@ void main()
         // insert
         {
             immutable before = MonoTime.currTime();
-            foreach (immutable i; 0 .. n)
+            foreach (immutable i; elements)
             {
                 a[es[i]] = ValueType.init;
             }
@@ -364,7 +367,7 @@ void main()
         {
             immutable before = MonoTime.currTime();
             size_t hitCount = 0;
-            foreach (immutable i; 0 .. n)
+            foreach (immutable i; elements)
             {
                 hitCount += cast(bool)(es[i] in a);
             }
@@ -385,7 +388,7 @@ void main()
         // in
         {
             immutable before = MonoTime.currTime();
-            foreach (immutable i; 0 .. n)
+            foreach (immutable i; elements)
             {
                 const hit = es[i] in a;
             }

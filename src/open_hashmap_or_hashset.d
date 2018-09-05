@@ -345,6 +345,12 @@ struct OpenHashMapOrSet(K, V = void,
             gc_addRange(bins.ptr, byteCount);
         }
 
+        if (bins is null)
+        {
+            import core.exception : onOutOfMemoryError;
+            onOutOfMemoryError();
+        }
+
         return bins;
     }
 

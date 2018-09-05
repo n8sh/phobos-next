@@ -35,8 +35,8 @@ void main()
     immutable n = 1024*1024;
 
     auto testSource = iota(0, n).array;
-    const useRandomIota = false;
-    if (useRandomIota)
+    const useRandomShuffledSource = false;
+    if (useRandomShuffledSource)
     {
         randomShuffle(testSource);
     }

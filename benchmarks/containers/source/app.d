@@ -3,7 +3,8 @@ void main()
     // standard storage
     import std.traits : hasMember;
     import std.range : iota;
-    import std.array : Appender;
+    import std.array : array, Appender;
+    import std.random : randomShuffle;
     import std.container.array : StdArray = Array;
     import std.container.rbtree : RedBlackTree;
 
@@ -33,7 +34,12 @@ void main()
 
     immutable n = 1024*1024;
 
-    auto testSource = iota(0, n);
+    auto testSource = iota(0, n).array;
+    const useRandomIota = false;
+    if (useRandomIota)
+    {
+        randomShuffle(testSource);
+    }
 
     writefln("\nElement count: %s", n);
 

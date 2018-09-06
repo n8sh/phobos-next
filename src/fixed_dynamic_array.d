@@ -7,6 +7,7 @@ module fixed_dynamic_array;
 struct FixedDynamicArray(T)
 {
 @safe:
+    import core.exception : onOutOfMemoryError;
     import qcmeman : pureMalloc = malloc, pureCalloc = calloc, pureFree = free;
     import container_traits : mustAddGCRange;
 
@@ -20,13 +21,23 @@ pragma(inline, true):
     pragma(inline)              // DMD cannot inline
     static typeof(this) makeUninitializedOfLength(size_t length) @system
     {
-        return typeof(return)(Store(length, cast(T*)pureMalloc(length * T.sizeof)));
+        auto ptr = pureMalloc(length * T.sizeof);
+        if (ptr is null && length >= 1)
+        {
+            onOutOfMemoryError();
+        }
+        return typeof(return)(Store(length, cast(T*)ptr));
     }
 
     pragma(inline)              // DMD cannot inline
     static typeof(this) withLength(size_t length) @system
     {
-        return typeof(return)(Store(length, cast(T*)pureCalloc(length, T.sizeof)));
+        auto ptr = pureCalloc(length, T.sizeof);
+        if (ptr is null && length >= 1)
+        {
+            onOutOfMemoryError();
+        }
+        return typeof(return)(Store(length, cast(T*)ptr));
     }
 
     /// Construct from `store`.

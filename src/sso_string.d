@@ -7,12 +7,12 @@ module sso_string;
  *
  * See_Also: https://forum.dlang.org/post/pb87rn$2icb$1@digitalmars.com
  *
- *
  * TODO implement fast `toHash` and `toDigest` that treats small variant as two
  * words ignoring the undefined parts with a bitmask or bitshift
  */
 struct SSOString
 {
+    import std.digest : isDigest;
     private alias E = char;     // element type
 
     pure nothrow:
@@ -84,6 +84,17 @@ struct SSOString
     }
 
     @nogc:
+
+    void toDigest(Digest)(scope ref Digest digest) const @trusted
+    if (isDigest!Digest)
+    {
+        if (!isLarge)
+        {
+            // TODO fast digest of small
+        }
+        import digestion : digestArray;
+        digestArray(digest, opSlice());
+    }
 
     /** Get length. */
     @property size_t length() const @trusted

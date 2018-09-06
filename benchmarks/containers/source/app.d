@@ -14,6 +14,7 @@ void main()
     import variant_arrays : VariantArrays;
     import sso_hashmap_or_hashset : SSOHashSet, SSOHashMap;
     import open_hashmap_or_hashset : OpenHashMap, OpenHashSet;
+    import sso_string : SSOString;
 
     import std.digest.murmurhash : MurmurHash3;
     import xxhash64 : XXHash64;
@@ -274,8 +275,12 @@ void main()
                  OpenHashMap!(Nullable!(ulong, ulong.max), ulong, FNV!(64, true)),
 
                  // string => string
+                 OpenHashMap!(string, string, XXHash64),
                  OpenHashMap!(string, string, MurmurHash3!(128)),
                  OpenHashMap!(string, string, FNV!(64, true)),
+
+                 // SSOString => SSOString
+                 OpenHashMap!(SSOString, SSOString, FNV!(64, true)),
                  ))
     {
         A a;
@@ -431,7 +436,15 @@ T[] iotaArrayOf(T, U)(U n)
         }
         else
         {
-            es[i] = i.to!T;     // otherwise conv which may allocate
+            import sso_string : SSOString;
+            static if (is(T == SSOString))
+            {
+                es[i] = T(i.to!string);     // otherwise conv which may allocate
+            }
+            else
+            {
+                es[i] = i.to!T;     // otherwise conv which may allocate
+            }
         }
     }
     return es;

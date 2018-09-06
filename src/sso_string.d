@@ -111,10 +111,7 @@ struct SSOString
         {
             return large.length/2; // skip first bit
         }
-        else
-        {
-            return small.length/2; // skip fist bit
-        }
+        return small.length/2; // skip fist bit
     }
     /// ditto
     alias opDollar = length;

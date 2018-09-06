@@ -199,14 +199,14 @@ struct VariantArrays(Types...)
      * TODO make this a template mixin
      */
     private static immutable(string) arrayInstanceString(SomeKind)()
-        if (Ref.canReferenceType!SomeKind)
+    if (Ref.canReferenceType!SomeKind)
     {
         return `_store` ~ Ref.nrOfKind!(SomeKind).stringof; // previously `SomeKind.mangleof`
     }
 
     /// Make reference to type `SomeKind` at offset `index`.
     static Ref makeRef(SomeKind)(Ref.Size index)
-        if (Ref.canReferenceType!SomeKind)
+    if (Ref.canReferenceType!SomeKind)
     {
         return Ref(Ref.nrOfKind!SomeKind, index);
     }
@@ -214,47 +214,47 @@ struct VariantArrays(Types...)
     /** Insert `value` at back.
      */
     Ref insertBack(SomeKind)(SomeKind value) // TODO add array type overload
-        if (Ref.canReferenceType!SomeKind)
+    if (Ref.canReferenceType!SomeKind)
     {
         mixin(`alias arrayInstance = ` ~ arrayInstanceString!SomeKind ~ `;`);
         const currentIndex = arrayInstance.length;
         arrayInstance.insertBackMove(value);
         return Ref(Ref.nrOfKind!SomeKind,
-                     currentIndex);
+                   currentIndex);
     }
     alias put = insertBack;     // polymorphic `OutputRange` support
 
     /** Move (emplace) `value` into back.
      */
     Ref insertBackMove(SomeKind)(ref SomeKind value) // TODO add array type overload
-        if (Ref.canReferenceType!SomeKind)
+    if (Ref.canReferenceType!SomeKind)
     {
         version(DigitalMars) pragma(inline, false); // DMD cannot inline
         mixin(`alias arrayInstance = ` ~ arrayInstanceString!SomeKind ~ `;`);
         const currentIndex = arrayInstance.length;
         arrayInstance.insertBackMove(value);
         return Ref(Ref.nrOfKind!SomeKind,
-                     currentIndex);
+                   currentIndex);
     }
 
     /// ditto
     void opOpAssign(string op, SomeKind)(SomeKind value) // TODO add array type overload
-        if (op == "~" &&
-            Ref.canReferenceType!SomeKind)
+    if (op == "~" &&
+        Ref.canReferenceType!SomeKind)
     {
         insertBackMove(value);  // move enables uncopyable types
     }
 
     /// Get reference to element of type `SomeKind` at `index`.
     scope ref inout(SomeKind) at(SomeKind)(in size_t index) inout return
-        if (Ref.canReferenceType!SomeKind)
+    if (Ref.canReferenceType!SomeKind)
     {
         mixin(`return ` ~ arrayInstanceString!SomeKind ~ `[index];`);
     }
 
     /// Get reference to element of type `SomeKind` at `ref_`.
     scope ref inout(SomeKind) at(SomeKind)(in Ref ref_) inout return
-        if (Ref.canReferenceType!SomeKind)
+    if (Ref.canReferenceType!SomeKind)
     {
         assert(Ref.nrOfKind!SomeKind == ref_._kindNr,
                "Ref is not of expected template type " ~ SomeKind.stringof);
@@ -263,7 +263,7 @@ struct VariantArrays(Types...)
 
     /// Peek at element of type `SomeKind` at `ref_`.
     scope inout(SomeKind)* peek(SomeKind)(in Ref ref_) inout return @system
-        if (Ref.canReferenceType!SomeKind)
+    if (Ref.canReferenceType!SomeKind)
     {
         if (Ref.nrOfKind!SomeKind == ref_._kindNr)
         {
@@ -277,14 +277,14 @@ struct VariantArrays(Types...)
 
     /// Constant access to all elements of type `SomeKind`.
     scope inout(SomeKind)[] allOf(SomeKind)() inout return
-        if (Ref.canReferenceType!SomeKind)
+    if (Ref.canReferenceType!SomeKind)
     {
         mixin(`return ` ~ arrayInstanceString!SomeKind ~ `[];`);
     }
 
     /// Reserve space for `newCapacity` elements of type `SomeKind`.
     void reserve(SomeKind)(size_t newCapacity)
-        if (Ref.canReferenceType!SomeKind)
+    if (Ref.canReferenceType!SomeKind)
     {
         mixin(`alias arrayInstance = ` ~ arrayInstanceString!SomeKind ~ `;`);
         arrayInstance.reserve(newCapacity);

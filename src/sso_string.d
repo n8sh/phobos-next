@@ -9,7 +9,7 @@ module sso_string;
  *
  *
  * TODO implement fast `toHash` and `toDigest` that treats small variant as two
- * words possibly ignoring the undefined parts with a bitmask
+ * words ignoring the undefined parts with a bitmask
  */
 struct SSOString
 {

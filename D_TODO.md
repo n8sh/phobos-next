@@ -1,6 +1,6 @@
 # D Programming Language TODO
 
-## Add packed storage support to bitfields
+## Add packed storage support to `std.typecons.bitfields`
 
 ## Tools
 

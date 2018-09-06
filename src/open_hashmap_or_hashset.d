@@ -1376,7 +1376,7 @@ private:
         version(LDC) pragma(inline, true);
         static if (__traits(hasMember, SomeKey, "toHash2"))
         {
-            return key.toHash2; // TODO merge interface with either toHash or toDigest somehow
+            return key.toHash2 & powerOf2Mask; // TODO merge interface with either toHash or toDigest someho
         }
         else
         {

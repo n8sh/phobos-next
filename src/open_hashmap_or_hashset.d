@@ -309,11 +309,21 @@ struct OpenHashMapOrSet(K, V = void,
             // pragma(msg, "zero-allocate:", "K:", K, " V:", V);
             import container_traits : makeInitZeroArray;
             auto bins = makeInitZeroArray!(T, Allocator)(capacity);
+            if (bins is null)
+            {
+                import core.exception : onOutOfMemoryError;
+                onOutOfMemoryError();
+            }
         }
         else                    // when default null key is not represented by zeros
         {
             // pragma(msg, "emplace:", "K:", K, " V:", V);
             auto bins = cast(T[])Allocator.allocate(byteCount);
+            if (bins is null)
+            {
+                import core.exception : onOutOfMemoryError;
+                onOutOfMemoryError();
+            }
             foreach (ref bin; bins)
             {
                 enum hasNullValueKey = __traits(hasMember, K, `nullValue`);
@@ -343,12 +353,6 @@ struct OpenHashMapOrSet(K, V = void,
         static if (mustAddGCRange!T)
         {
             gc_addRange(bins.ptr, byteCount);
-        }
-
-        if (bins is null)
-        {
-            import core.exception : onOutOfMemoryError;
-            onOutOfMemoryError();
         }
 
         return bins;

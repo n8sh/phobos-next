@@ -387,7 +387,8 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
             assert(ptr, "Allocation failed");
         }
 
-        if (ptr is null)
+        if (ptr is null &&
+            initialCapacity >= 1 )
         {
             onOutOfMemoryError();
         }
@@ -415,7 +416,8 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
             {
                 import std.experimental.allocator : makeArray;
                 ptr = Allocator.makeArray!T(initialCapacity, elementValue).ptr; // TODO set length
-                if (ptr is null)
+                if (ptr is null &&
+                    initialCapacity >= 1)
                 {
                     onOutOfMemoryError();
                 }
@@ -423,7 +425,8 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
             else
             {
                 ptr = cast(typeof(return))malloc(numBytes);
-                if (ptr is null)
+                if (ptr is null &&
+                    initialCapacity >= 1)
                 {
                     onOutOfMemoryError();
                 }
@@ -927,8 +930,8 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
         _store.capacity = cast(CapacityType)newCapacity;
         _store.ptr = cast(T*)realloc(_mptr, T.sizeof * _store.capacity);
 
-        if (newCapacity >= 1 &&
-            _store.ptr is null)
+        if (_store.ptr is null &&
+            newCapacity >= 1)
         {
             onOutOfMemoryError();
         }

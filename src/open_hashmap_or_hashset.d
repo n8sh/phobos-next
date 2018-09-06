@@ -1386,9 +1386,9 @@ private:
     }
 
     /** Returns: current index mask from bin count. */
-    pragma(inline, true)
     private size_t powerOf2Mask() const
     {
+        pragma(inline, true);
         immutable typeof(return) mask = _bins.length - 1;
         version(internalUnittest) assert((~mask ^ mask) == typeof(mask).max); // isPowerOf2(_bins.length)
         return mask;
@@ -2276,9 +2276,9 @@ static private struct ByKey_lvalue(Table)
 if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     Table.hasValue)
 {
-    pragma(inline, true)
     @property scope const auto ref front() return // key access must be const, TODO auto ref => ref K
     {
+        pragma(inline, true);
         return _table._bins[_binIndex].key;
     }
     import std.traits : Unqual;
@@ -2290,9 +2290,9 @@ static private struct ByKey_rvalue(Table)
 if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     Table.hasValue)
 {
-    pragma(inline, true)
     @property scope const auto ref front() return // key access must be const, TODO auto ref => ref K
     {
+        pragma(inline, true);
         return _table._bins[_binIndex].key;
     }
     import std.traits : Unqual;
@@ -2326,9 +2326,9 @@ static private struct ByValue_lvalue(Table)
 if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     Table.hasValue)
 {
-    pragma(inline, true)
     @property scope auto ref front() return @trusted // TODO auto ref => ref V
     {
+        pragma(inline, true);
         // TODO functionize
         import std.traits : isMutable;
         static if (isMutable!(Table)) // TODO can this be solved without this `static if`?
@@ -2350,9 +2350,9 @@ static private struct ByValue_rvalue(Table)
 if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     Table.hasValue)
 {
-    pragma(inline, true)
     @property scope auto ref front() return @trusted // TODO auto ref => ref V
     {
+        pragma(inline, true);
         // TODO functionize
         import std.traits : isMutable;
         static if (isMutable!(Table)) // TODO can this be solved without this `static if`?
@@ -2397,9 +2397,9 @@ static private struct ByKeyValue_lvalue(Table)
 if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     Table.hasValue)
 {
-    pragma(inline, true)
     @property scope auto ref front() return @trusted // TODO auto ref => ref T
     {
+        pragma(inline, true);
         // TODO functionize
         import std.traits : isMutable;
         static if (isMutable!(Table))

@@ -198,10 +198,10 @@ if (isDigest!Digest &&
 }
 
 /** Digest the array `value`. */
-private void digestArray(Digest, T)(scope ref Digest digest,
-                                    const scope auto ref T value) @trusted
+void digestArray(Digest, T)(scope ref Digest digest,
+                            const scope auto ref T value) @trusted
 if (isDigest!Digest &&
-        isArray!T)
+    isArray!T)
 {
     import std.traits : isDynamicArray;
     static if (isDynamicArray!T)

@@ -1,5 +1,7 @@
 # D Programming Language TODO
 
+## Add packed storage support to bitfields
+
 ## Tools
 
 Add flycheck target that compiles and runs current module with `ldmd2

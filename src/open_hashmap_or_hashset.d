@@ -87,7 +87,6 @@ struct OpenHashMapOrSet(K, V = void,
 
     import container_traits : defaultNullKeyConstantOf, mustAddGCRange, isNull, nullify;
     import qcmeman : gc_addRange, gc_removeRange;
-    import digestion : hashOf2;
     import probing : triangularProbeFromIndex, triangularProbeFromIndexIncludingHoles, triangularProbeCountFromIndex;
 
     enum isBorrowChecked = borrowChecked;
@@ -1375,7 +1374,15 @@ private:
     private size_t keyToIndex(SomeKey)(const scope SomeKey key) const @trusted
     {
         version(LDC) pragma(inline, true);
-        return hashOf2!(hasher)(key) & powerOf2Mask;
+        static if (__traits(hasMember, SomeKey, "toHash2"))
+        {
+            return key.toHash2; // TODO merge interface with either toHash or toDigest somehow
+        }
+        else
+        {
+            import digestion : hashOf2;
+            return hashOf2!(hasher)(key) & powerOf2Mask;
+        }
     }
 
     /** Returns: current index mask from bin count. */

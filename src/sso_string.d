@@ -111,7 +111,10 @@ struct SSOString
         {
             return large.length/2; // skip first bit
         }
-        return small.length/2; // skip fist bit
+        else
+        {
+            return small.length/2; // skip fist bit
+        }
     }
     /// ditto
     alias opDollar = length;
@@ -129,7 +132,10 @@ struct SSOString
             return raw.ptr[0 .. raw.length/2]; // no allocation
             // alternative:  return large.ptr[0 .. large.length/2];
         }
-        return small.data.ptr[0 .. small.length/2]; // scoped
+        else
+        {
+            return small.data.ptr[0 .. small.length/2]; // scoped
+        }
     }
 
     /// ditto

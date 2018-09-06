@@ -12,7 +12,6 @@ module sso_string;
  */
 struct SSOString
 {
-    import std.digest : isDigest;
     private alias E = char;     // element type
 
     pure nothrow:
@@ -85,15 +84,22 @@ struct SSOString
 
     @nogc:
 
-    void toDigest(Digest)(scope ref Digest digest) const @trusted
-    if (isDigest!Digest)
+    size_t toHash2()() const @trusted
     {
-        if (!isLarge)
+        // if (!isLarge)
+        // {
+        //     import hash_functions : wangMixHash64;
+        //     // TODO fast digest of small string as two words
+        //     return 0;
+        // }
+        // else
         {
-            // TODO fast digest of small string as two words
+            import digestx.fnv : FNV;
+            FNV!(64, true) digest;
+            import digestion : digestArray;
+            digest.put(cast(ubyte[])opSlice());
+            return digest.get();
         }
-        import digestion : digestArray;
-        digestArray(digest, opSlice());
     }
 
     /** Get length. */

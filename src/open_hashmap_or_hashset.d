@@ -77,6 +77,7 @@ struct OpenHashMapOrSet(K, V = void,
         // isHashable!K
         )
 {
+    import core.exception : onOutOfMemoryError;
     import std.algorithm.mutation : move, moveEmplace;
     import std.conv : emplace;
     import std.math : nextPow2;
@@ -309,9 +310,8 @@ struct OpenHashMapOrSet(K, V = void,
             // pragma(msg, "zero-allocate:", "K:", K, " V:", V);
             import container_traits : makeInitZeroArray;
             auto bins = makeInitZeroArray!(T, Allocator)(capacity);
-            if (bins is null)
+            if (capacity >= 1 && bins.ptr is null)
             {
-                import core.exception : onOutOfMemoryError;
                 onOutOfMemoryError();
             }
         }
@@ -319,9 +319,8 @@ struct OpenHashMapOrSet(K, V = void,
         {
             // pragma(msg, "emplace:", "K:", K, " V:", V);
             auto bins = cast(T[])Allocator.allocate(byteCount);
-            if (bins is null)
+            if (byteCount >= 1 && bins.ptr is null)
             {
-                import core.exception : onOutOfMemoryError;
                 onOutOfMemoryError();
             }
             foreach (ref bin; bins)
@@ -369,9 +368,8 @@ struct OpenHashMapOrSet(K, V = void,
         {
             gc_addRange(bins.ptr, byteCount);
         }
-        if (bins is null)
+        if (byteCount >= 1 && bins.ptr is null)
         {
-            import core.exception : onOutOfMemoryError;
             onOutOfMemoryError();
         }
         return bins;

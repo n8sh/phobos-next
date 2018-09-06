@@ -1376,7 +1376,7 @@ private:
         version(LDC) pragma(inline, true);
 
         version(none)           // TODO activate
-        static if (hasher is hashOf)
+        static if (is(hasher == hashOf))
         {
             return hashOf(key) & powerOf2Mask;
         }

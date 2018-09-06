@@ -71,8 +71,8 @@ if (isIntegral!T &&
 }
 
 /** Thomas Wang 64-bit mix integer hash function.
-
-    See_Also: https://gist.github.com/badboy/6267743#64-bit-mix-functions
+ *
+ * See_Also: https://gist.github.com/badboy/6267743#64-bit-mix-functions
  */
 public ulong wangMixHash64(ulong x)
 {

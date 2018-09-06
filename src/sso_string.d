@@ -132,10 +132,7 @@ struct SSOString
             return raw.ptr[0 .. raw.length/2]; // no allocation
             // alternative:  return large.ptr[0 .. large.length/2];
         }
-        else
-        {
-            return small.data.ptr[0 .. small.length/2]; // scoped
-        }
+        return small.data.ptr[0 .. small.length/2]; // scoped
     }
 
     /// ditto

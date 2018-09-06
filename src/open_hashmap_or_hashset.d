@@ -1210,15 +1210,12 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /// Check if empty.
-    pragma(inline, true)
     @property bool empty() const { return _count == 0; }
 
     /// Get length (read-only).
-    pragma(inline, true)
     @property size_t length() const { return _count; }
 
     /// Get bin count.
-    pragma(inline, true)
     @property size_t binCount() const { return _bins.length; }
 
     /** Returns: get total probe count for all elements stored. */

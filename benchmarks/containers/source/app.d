@@ -128,7 +128,8 @@ void main()
                           RadixTreeSetGrowOnly!(ulong),
                           RedBlackTree!(ulong),
 
-                          // TODO OpenHashMap!(string, void, FNV!(64, true)),
+                          // TODO OpenHashSet!(string, FNV!(64, true)),
+                          // TODO OpenHashSet!(string, wangMixHash64),
                  ))
     {
         // scope

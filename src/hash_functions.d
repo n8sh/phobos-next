@@ -39,9 +39,9 @@ unittest
 }
 
 /** Mueller integer hash function (bit mixer) A (32-bit).
-
-    See_Also: https://stackoverflow.com/a/12996028/683710
-    See_Also: http://zimbry.blogspot.se/2011/09/better-bit-mixing-improving-on.html
+ *
+ * See_Also: https://stackoverflow.com/a/12996028/683710
+ * See_Also: http://zimbry.blogspot.se/2011/09/better-bit-mixing-improving-on.html
  */
 uint muellerHash32(uint x)
 {

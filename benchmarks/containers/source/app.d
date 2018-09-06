@@ -274,7 +274,7 @@ void main()
                  OpenHashMap!(Nullable!(ulong, ulong.max), ulong, FNV!(64, true)),
 
                  // string => string
-                 OpenHashMap!(string, string, muellerHash64),
+                 OpenHashMap!(string, string, MurmurHash3!(128)),
                  OpenHashMap!(string, string, FNV!(64, true)),
                  ))
     {

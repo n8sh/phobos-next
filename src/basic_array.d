@@ -929,7 +929,6 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
 
         _store.capacity = cast(CapacityType)newCapacity;
         _store.ptr = cast(T*)realloc(_mptr, T.sizeof * _store.capacity);
-
         if (_store.ptr is null &&
             newCapacity >= 1)
         {

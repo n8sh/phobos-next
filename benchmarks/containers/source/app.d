@@ -17,7 +17,6 @@ void main()
 
     import std.digest.murmurhash : MurmurHash3;
     import xxhash64 : XXHash64;
-    import knuthhash : KnuthHash64;
     import hash_functions;
     import digestx.fnv : FNV;
 
@@ -260,18 +259,23 @@ void main()
 
     writefln("\nMaps:\n");
 
-    foreach (A; AliasSeq!(SSOHashMap!(uint, uint, null, muellerHash64),
-                          SSOHashMap!(uint, uint, null, wangMixHash64),
-                          SSOHashMap!(uint, uint, null, FNV!(64, true)),
-                          OpenHashMap!(Nullable!(uint, uint.max), uint, FNV!(64, true)),
+    foreach (A; AliasSeq!(
 
-                          SSOHashMap!(ulong, ulong, null, muellerHash64),
-                          SSOHashMap!(ulong, ulong, null, wangMixHash64),
-                          SSOHashMap!(ulong, ulong, null, FNV!(64, true)),
-                          OpenHashMap!(Nullable!(ulong, ulong.max), ulong, FNV!(64, true)),
+                 // uint => uint
+                 SSOHashMap!(uint, uint, null, muellerHash64),
+                 SSOHashMap!(uint, uint, null, wangMixHash64),
+                 SSOHashMap!(uint, uint, null, FNV!(64, true)),
+                 OpenHashMap!(Nullable!(uint, uint.max), uint, FNV!(64, true)),
 
-                          OpenHashMap!(string, string, FNV!(64, true)),
-                          OpenHashMap!(string, string, KnuthHash64),
+                 // ulong => ulong
+                 SSOHashMap!(ulong, ulong, null, muellerHash64),
+                 SSOHashMap!(ulong, ulong, null, wangMixHash64),
+                 SSOHashMap!(ulong, ulong, null, FNV!(64, true)),
+                 OpenHashMap!(Nullable!(ulong, ulong.max), ulong, FNV!(64, true)),
+
+                 // string => string
+                 OpenHashMap!(string, string, muellerHash64),
+                 OpenHashMap!(string, string, FNV!(64, true)),
                  ))
     {
         A a;

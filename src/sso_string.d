@@ -64,6 +64,9 @@ struct SSOString
         }
     }
 
+    // TODO implement fast tohash and `toDigest` calc that treats small variant
+    // as two words possibly ignoring the undefined parts with a bitmask
+
     /** Return `this` converted to a `string`, which potentially needs
      * GC-allocation (iff `length <= smallCapacity`).
      */

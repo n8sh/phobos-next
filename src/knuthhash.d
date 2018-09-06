@@ -6,7 +6,7 @@ module knuthhash64;
  *
  * See_Also: https://stackoverflow.com/a/9545731/683710
  */
-struct KnuthHash64()
+struct KnuthHash64()            // templatized
 {
     @safe pure nothrow @nogc:
 

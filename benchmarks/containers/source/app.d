@@ -122,6 +122,7 @@ void main()
                           SSOHashSet!(ulong, null, FNV!(64, true), 3),
                           SSOHashSet!(ulong, null, FNV!(64, true), 4),
 
+                          OpenHashSet!(Nullable!(ulong, ulong.max), wangMixHash64),
                           OpenHashSet!(Nullable!(ulong, ulong.max), FNV!(64, true)),
 
                           RadixTreeSetGrowOnly!(ulong),
@@ -272,6 +273,7 @@ void main()
                  SSOHashMap!(ulong, ulong, null, muellerHash64),
                  SSOHashMap!(ulong, ulong, null, wangMixHash64),
                  SSOHashMap!(ulong, ulong, null, FNV!(64, true)),
+                 OpenHashMap!(Nullable!(ulong, ulong.max), ulong, wangMixHash64),
                  OpenHashMap!(Nullable!(ulong, ulong.max), ulong, FNV!(64, true)),
 
                  // string => string

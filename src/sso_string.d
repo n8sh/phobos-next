@@ -90,7 +90,7 @@ struct SSOString
     {
         if (!isLarge)
         {
-            // TODO fast digest of small
+            // TODO fast digest of small string as two words
         }
         import digestion : digestArray;
         digestArray(digest, opSlice());

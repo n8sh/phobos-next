@@ -56,7 +56,7 @@ private:
 
 /** Compute knuthHash-64 of input `data`, with optional seed `seed`.
  */
-ulong knuthhash64Of(in ubyte[] data, ulong seed = 0)
+ulong knuthhash64Of(scope const(ubyte)[] data, ulong seed = 0)
 {
     auto hash = KnuthHash64(seed);
     hash.start();

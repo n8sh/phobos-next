@@ -116,7 +116,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     /** Emplace `thatPtr` with elements copied from `elements`. */
     static ref typeof(this) emplaceWithCopiedElements()(typeof(this)* thatPtr, // template-lazy
                                                         const(T)[] elements) @system
-        if (isCopyable!T)
+    if (isCopyable!T)
     {
         immutable length = elements.length;
         thatPtr._store.ptr = typeof(this).allocate(length, false);
@@ -137,7 +137,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
 
     /// Construct from uncopyable element `value`.
     this()(T value) @trusted    // template-lazy
-        if (!isCopyable!T)
+    if (!isCopyable!T)
     {
         _store.ptr = typeof(this).allocate(1, false);
         _store.capacity = 1;
@@ -147,8 +147,8 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
 
     /// Construct from copyable element `value`.
     this(U)(U value) @trusted
-        if (isCopyable!U &&
-            isElementAssignable!U)
+    if (isCopyable!U &&
+        isElementAssignable!U)
     {
         _store.ptr = typeof(this).allocate(1, false);
         _store.capacity = 1;
@@ -196,8 +196,8 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
 
     /// Construct from element(s) `values`.
     this(U)(U[] values...) @trusted
-        if (isCopyable!U &&
-            isElementAssignable!U) // prevent accidental move of l-value `values` in array calls
+    if (isCopyable!U &&
+        isElementAssignable!U) // prevent accidental move of l-value `values` in array calls
     {
         if (values.length == 1) // TODO branch should be detected at compile-time
         {
@@ -235,7 +235,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
 
     /// Construct from the elements `values`.
     static typeof(this) withElementsOfRange_untested(R)(R values) @trusted
-        if (isAssignableFromElementsOfFiniteRefIterable!R)
+    if (isAssignableFromElementsOfFiniteRefIterable!R)
     {
         import std.range : hasLength, hasSlicing;
 
@@ -456,7 +456,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
     /// ditto
     bool opEquals(U)(const scope U[] rhs) const
-        if (is(typeof(T[].init == U[].init)))
+    if (is(typeof(T[].init == U[].init)))
     {
         pragma(inline, true);
         return slice() == rhs;
@@ -687,7 +687,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     /** Insert unmoveable `value` into the end of the array.
      */
     void insertBack()(T value) @trusted // template-lazy
-        if (!isCopyable!T)
+    if (!isCopyable!T)
     {
         version(LDC) pragma(inline, true);
         insertBackMove(value);
@@ -696,8 +696,8 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     /** Insert the elements `values` into the end of the array.
      */
     void insertBack(U)(U[] values...) @trusted
-        if (isElementAssignable!U &&
-            isCopyable!U)       // prevent accidental move of l-value `values`
+    if (isElementAssignable!U &&
+        isCopyable!U)       // prevent accidental move of l-value `values`
     {
         if (values.length == 1) // TODO branch should be detected at compile-time
         {
@@ -740,7 +740,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     /** Insert the elements `elements` into the end of the array.
      */
     void insertBack(R)(R elements) @trusted
-        if (isAssignableFromElementsOfFiniteRefIterable!R)
+    if (isAssignableFromElementsOfFiniteRefIterable!R)
     {
         import std.range : hasLength;
         static if (isInputRange!R &&
@@ -854,7 +854,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     /** Forwards to $(D insertBack(values)).
      */
     void opOpAssign(string op)(T value)
-        if (op == "~")
+    if (op == "~")
     {
         pragma(inline, true);
         insertBackMove(value);
@@ -862,9 +862,9 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
 
     /// ditto
     void opOpAssign(string op, U)(U[] values...) @trusted
-        if (op == "~" &&
-            isElementAssignable!U &&
-            isCopyable!U)       // prevent accidental move of l-value `values`
+    if (op == "~" &&
+        isElementAssignable!U &&
+        isCopyable!U)       // prevent accidental move of l-value `values`
     {
         pragma(inline, true);
         insertBack(values);
@@ -872,18 +872,18 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
 
     /// ditto
     void opOpAssign(string op, R)(R values)
-        if (op == "~" &&
-            isInputRange!R &&
-            !isInfinite!R &&
-            !isArray!R &&
-            isElementAssignable!(ElementType!R))
+    if (op == "~" &&
+        isInputRange!R &&
+        !isInfinite!R &&
+        !isArray!R &&
+        isElementAssignable!(ElementType!R))
     {
         pragma(inline, true);
         insertBack(values);
     }
 
     void opOpAssign(string op)(auto ref typeof(this) values)
-        if (op == "~")
+    if (op == "~")
     {
         pragma(inline, true);
         insertBack(values[]);
@@ -979,7 +979,7 @@ size_t remove(alias predicate, C)(ref C c)
     @trusted
     @("complexity", "O(length)")
 if (isInstanceOf!(BasicArray, C) &&
-        is(typeof(unaryFun!predicate(C.init[0]))))
+    is(typeof(unaryFun!predicate(C.init[0]))))
 {
     C tmp;
     size_t count = 0;

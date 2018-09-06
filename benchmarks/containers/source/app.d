@@ -17,6 +17,7 @@ void main()
 
     import std.digest.murmurhash : MurmurHash3;
     import xxhash64 : XXHash64;
+    import knuthhash : KnuthHash64;
     import hash_functions;
     import digestx.fnv : FNV;
 
@@ -109,6 +110,7 @@ void main()
                           // std.digests
                           SSOHashSet!(uint, null, MurmurHash3!(128)),
                           SSOHashSet!(uint, null, XXHash64),
+                          SSOHashSet!(uint, null, KnuthHash64),
 
                           OpenHashSet!(Nullable!(uint, uint.max), FNV!(64, true)),
 
@@ -270,6 +272,7 @@ void main()
                           OpenHashMap!(Nullable!(ulong, ulong.max), ulong, FNV!(64, true)),
 
                           OpenHashMap!(string, string, FNV!(64, true)),
+                          OpenHashMap!(string, string, KnuthHash64),
                  ))
     {
         A a;

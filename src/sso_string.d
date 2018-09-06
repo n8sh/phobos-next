@@ -87,6 +87,7 @@ struct SSOString
     version(none)               // TODO for some reason doesn't make things faster
     size_t toHash2()() const @trusted
     {
+        version(LDC) pragma(inline, true);
         if (!isLarge)
         {
             import hash_functions : wangMixHash64;

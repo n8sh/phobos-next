@@ -51,17 +51,17 @@ uint muellerHash32(uint x)
 }
 
 /** Mueller integer hash function (bit mixer) A (64-bit).
-
-    Based on splitmix64, which seems to be based on the blog article "Better Bit
-    Mixing" (mix 13).
-
-    See_Also: https://stackoverflow.com/a/12996028/683710
-    See_Also: http://zimbry.blogspot.se/2011/09/better-bit-mixing-improving-on.html
-    See_Also: http://xorshift.di.unimi.it/splitmix64.c
+ *
+ * Based on splitmix64, which seems to be based on the blog article "Better Bit
+ * Mixing" (mix 13).
+ *
+ * See_Also: https://stackoverflow.com/a/12996028/683710
+ * See_Also: http://zimbry.blogspot.se/2011/09/better-bit-mixing-improving-on.html
+ * See_Also: http://xorshift.di.unimi.it/splitmix64.c
  */
 ulong muellerHash64(T)(T x)
-    if (isIntegral!T &&
-        T.sizeof <= ulong.sizeof)
+if (isIntegral!T &&
+    T.sizeof <= ulong.sizeof)
 {
     typeof(return) y = x;
     y = (y ^ (y >> 30)) * 0xbf58476d1ce4e5b9UL;

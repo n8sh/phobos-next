@@ -129,19 +129,21 @@ struct SSOString
     {
         if (isLarge)
         {
-            union RawLarge
-            {
-                Raw raw;
-                Large large;
-            }
-            RawLarge copy = void;
-            copy.large = cast(Large)large;
-            copy.raw.length /= 2; // adjust length
-            return copy.large;
+            return large.ptr[0 .. large.length/2]; // slicing will not allocate
+            // // create copy of slice where length has been halved
+            // union RawLarge
+            // {
+            //     Raw raw;
+            //     Large large;
+            // }
+            // RawLarge copy = void;
+            // copy.large = cast(Large)large;
+            // copy.raw.length /= 2; // adjust length
+            // return copy.large;
         }
         else
         {
-            return small.data[0 .. small.length/2]; // scoped. TODO use .ptr when proved stable
+            return small.data.ptr[0 .. small.length/2]; // scoped
         }
     }
 

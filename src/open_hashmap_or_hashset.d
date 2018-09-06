@@ -1374,15 +1374,15 @@ private:
     private size_t keyToIndex(SomeKey)(const scope SomeKey key) const @trusted
     {
         version(LDC) pragma(inline, true);
-        static if (__traits(hasMember, SomeKey, "toHash2"))
+
+        version(none)           // TODO activate
+        static if (hasher is hashOf)
         {
-            return key.toHash2 & powerOf2Mask; // TODO merge interface with either toHash or toDigest someho
+            return hashOf(key) & powerOf2Mask;
         }
-        else
-        {
-            import digestion : hashOf2;
-            return hashOf2!(hasher)(key) & powerOf2Mask;
-        }
+
+        import digestion : hashOf2;
+        return hashOf2!(hasher)(key) & powerOf2Mask;
     }
 
     /** Returns: current index mask from bin count. */

@@ -6,6 +6,7 @@ static struct Large(E, bool useGCallocation)
     E* ptr;
     size_t length;
 
+    import core.exception : onOutOfMemoryError;
     static if (useGCallocation)
     {
         import core.memory : GC;
@@ -23,11 +24,19 @@ static struct Large(E, bool useGCallocation)
         {
             length = n;
             ptr = cast(E*)GC.malloc(E.sizeof * length);
+            if (length >= 1 && ptr is null)
+            {
+                onOutOfMemoryError();
+            }
         }
         void resize(size_t n)
         {
             length = n;
             ptr = cast(E*)GC.realloc(ptr, E.sizeof * length);
+            if (length >= 1 && ptr is null)
+            {
+                onOutOfMemoryError();
+            }
         }
         void clear()
         {
@@ -42,11 +51,19 @@ static struct Large(E, bool useGCallocation)
         {
             length = n;
             ptr = cast(E*)malloc(E.sizeof * length);
+            if (length >= 1 && ptr is null)
+            {
+                onOutOfMemoryError();
+            }
         }
         void resize(size_t n)
         {
             length = n;
             ptr = cast(E*)realloc(ptr, E.sizeof * length);
+            if (length >= 1 && ptr is null)
+            {
+                onOutOfMemoryError();
+            }
         }
         void clear()
         {

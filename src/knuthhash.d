@@ -8,7 +8,7 @@ pragma(msg, "WARNING: this hash really sucks collisionwise and should not be use
  *
  * See_Also: https://stackoverflow.com/a/9545731/683710
  */
-struct KnuthHash64
+struct KnuthHash64()
 {
     @safe pure nothrow @nogc:
 
@@ -60,7 +60,7 @@ private:
  */
 ulong knuthhash64Of(scope const(ubyte)[] data, ulong seed = 0)
 {
-    auto hash = KnuthHash64(seed);
+    auto hash = KnuthHash64!()(seed);
     hash.start();
     hash.put(data);
     return hash.get();
@@ -77,13 +77,13 @@ ulong knuthhash64Of(in char[] data, ulong seed = 0)
 /// test simple `knuthhash64Of`
 unittest
 {
-    assert(knuthhash64Of("") == KnuthHash64._seedValue);
-    assert(knuthhash64Of("a") != KnuthHash64._seedValue);
+    assert(knuthhash64Of("") == KnuthHash64!()._seedValue);
+    assert(knuthhash64Of("a") != KnuthHash64!()._seedValue);
     assert(knuthhash64Of("a") != knuthhash64Of("b"));
 }
 
 version(unittest)
 {
     import std.digest : isDigest;
-    static assert(isDigest!(KnuthHash64));
+    static assert(isDigest!(KnuthHash64!()));
 }

@@ -129,17 +129,20 @@ struct SSOString
     {
         if (isLarge)
         {
-            return large.ptr[0 .. large.length/2]; // slicing will not allocate
-            // // create copy of slice where length has been halved
-            // union RawLarge
-            // {
-            //     Raw raw;
-            //     Large large;
-            // }
-            // RawLarge copy = void;
-            // copy.large = cast(Large)large;
-            // copy.raw.length /= 2; // adjust length
-            // return copy.large;
+            // TODO why are these two alternatives slower?:
+            return raw.ptr[0 .. raw.length/2];
+            /* return large.ptr[0 .. large.length/2]; // slicing will not allocate */
+
+            // create copy of slice where length has been halved
+            /* union RawLarge */
+            /* { */
+            /*     Raw raw; */
+            /*     Large large; */
+            /* } */
+            /* RawLarge copy = void; */
+            /* copy.large = cast(Large)large; */
+            /* copy.raw.length /= 2; // adjust length */
+            /* return copy.large; */
         }
         else
         {

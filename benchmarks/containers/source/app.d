@@ -110,7 +110,6 @@ void main()
                           // std.digests
                           SSOHashSet!(uint, null, MurmurHash3!(128)),
                           SSOHashSet!(uint, null, XXHash64),
-                          SSOHashSet!(uint, null, KnuthHash64),
 
                           OpenHashSet!(Nullable!(uint, uint.max), FNV!(64, true)),
 

@@ -6,6 +6,10 @@ module sso_string;
  * characters, otherwise on the GC heap.
  *
  * See_Also: https://forum.dlang.org/post/pb87rn$2icb$1@digitalmars.com
+ *
+ *
+ * TODO implement fast `toHash` and `toDigest` calc that treats small variant as
+ * two words possibly ignoring the undefined parts with a bitmask
  */
 struct SSOString
 {
@@ -63,9 +67,6 @@ struct SSOString
             }
         }
     }
-
-    // TODO implement fast `toHash` and `toDigest` calc that treats small variant
-    // as two words possibly ignoring the undefined parts with a bitmask
 
     /** Return `this` converted to a `string`, which potentially needs
      * GC-allocation (iff `length <= smallCapacity`).

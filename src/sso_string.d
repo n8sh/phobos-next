@@ -84,23 +84,22 @@ struct SSOString
 
     @nogc:
 
+    version(none)               // TODO for some reason doesn't make things faster
     size_t toHash2()() const @trusted
     {
-        // if (!isLarge)
-        // {
-        //     import hash_functions : wangMixHash64;
-        //     // TODO fast digest of small string as two words
-        //     return 0;
-        // }
-        // else
+        if (!isLarge)
         {
-            import std.digest : makeDigest;
-            import digestx.fnv : FNV;
-            auto digest = makeDigest!(FNV!(64, true));
-            digest.put(cast(ubyte[])opSlice());
-            digest.finish();
-            return digest.get();
+            import hash_functions : wangMixHash64;
+            // fast
+            return (wangMixHash64(words[0]) ^
+                    wangMixHash64(words[1]));
         }
+        import std.digest : makeDigest;
+        import digestx.fnv : FNV;
+        auto digest = makeDigest!(FNV!(64, true));
+        digest.put(cast(ubyte[])opSlice());
+        digest.finish();
+        return digest.get();
     }
 
     /** Get length. */

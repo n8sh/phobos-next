@@ -2,6 +2,8 @@ module knuthhash64;
 
 @safe pure nothrow @nogc:
 
+pragma(msg, "WARNING: this hash really sucks collisionwise and should not be used in production!");
+
 /** Knuth hash.
  *
  * See_Also: https://stackoverflow.com/a/9545731/683710

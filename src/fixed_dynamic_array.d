@@ -50,7 +50,12 @@ pragma(inline, true):
     private this(size_t length) @system
     {
         _store.length = length;
-        _store.ptr = cast(T*)pureMalloc(length * T.sizeof);
+        auto ptr = pureMalloc(length * T.sizeof);
+        if (ptr is null && length >= 1)
+        {
+            onOutOfMemoryError();
+        }
+        _store.ptr = cast(T*)ptr;
     }
 
     /// Destruct.

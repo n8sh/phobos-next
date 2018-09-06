@@ -923,13 +923,16 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
         {
             gc_removeRange(_store.ptr);
         }
+
         _store.capacity = cast(CapacityType)newCapacity;
         _store.ptr = cast(T*)realloc(_mptr, T.sizeof * _store.capacity);
+
         if (newCapacity >= 1 &&
             _store.ptr is null)
         {
             onOutOfMemoryError();
         }
+
         static if (mustAddGCRange!T)
         {
             gc_addRange(_store.ptr, _store.capacity * T.sizeof);

@@ -8,8 +8,8 @@ module sso_string;
  * See_Also: https://forum.dlang.org/post/pb87rn$2icb$1@digitalmars.com
  *
  *
- * TODO implement fast `toHash` and `toDigest` calc that treats small variant as
- * two words possibly ignoring the undefined parts with a bitmask
+ * TODO implement fast `toHash` and `toDigest` that treats small variant as two
+ * words possibly ignoring the undefined parts with a bitmask
  */
 struct SSOString
 {

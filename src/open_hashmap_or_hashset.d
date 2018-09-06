@@ -310,7 +310,8 @@ struct OpenHashMapOrSet(K, V = void,
             // pragma(msg, "zero-allocate:", "K:", K, " V:", V);
             import container_traits : makeInitZeroArray;
             auto bins = makeInitZeroArray!(T, Allocator)(capacity);
-            if (capacity >= 1 && bins.ptr is null)
+            if (bins.ptr is null &&
+                capacity >= 1)
             {
                 onOutOfMemoryError();
             }
@@ -319,7 +320,8 @@ struct OpenHashMapOrSet(K, V = void,
         {
             // pragma(msg, "emplace:", "K:", K, " V:", V);
             auto bins = cast(T[])Allocator.allocate(byteCount);
-            if (byteCount >= 1 && bins.ptr is null)
+            if (bins.ptr is null &&
+                byteCount >= 1)
             {
                 onOutOfMemoryError();
             }
@@ -368,7 +370,8 @@ struct OpenHashMapOrSet(K, V = void,
         {
             gc_addRange(bins.ptr, byteCount);
         }
-        if (byteCount >= 1 && bins.ptr is null)
+        if (bins.ptr is null &&
+            byteCount >= 1)
         {
             onOutOfMemoryError();
         }

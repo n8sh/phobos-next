@@ -94,10 +94,11 @@ struct SSOString
         // }
         // else
         {
+            import std.digest : makeDigest;
             import digestx.fnv : FNV;
-            FNV!(64, true) digest;
-            import digestion : digestArray;
+            auto digest = makeDigest!(FNV!(64, true));
             digest.put(cast(ubyte[])opSlice());
+            digest.finish();
             return digest.get();
         }
     }
@@ -214,8 +215,10 @@ private:
         Raw raw;
         Large large;
         Small small;
+        size_t[2] words;
     }
 }
+static assert(SSOString.sizeof == string.sizeof);
 
 /// construct from non-immutable source is allowed in non-@nogc context
 @safe pure nothrow unittest
@@ -242,7 +245,6 @@ private:
 {
     alias S = SSOString;
 
-    static assert(S.sizeof == 2*size_t.sizeof); // two words
     static assert(S.smallCapacity == 15);
     import gc_traits : mustAddGCRange;
     static assert(mustAddGCRange!S); // `Large large.ptr` must be scanned

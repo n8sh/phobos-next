@@ -14,7 +14,7 @@ struct KnuthHash64
      */
     void start()
     {
-        _seed = _seedValue;
+        _result = _seedValue;
     }
 
     /** Use this to feed the hash with data.
@@ -27,7 +27,7 @@ struct KnuthHash64
         foreach (elt; data)
         {
             _result += elt;
-            _result *= _factor;
+            _result *= _mulFactor;
         }
     }
 
@@ -49,9 +49,8 @@ struct KnuthHash64
 
 private:
     private enum _seedValue = 3074457345618258791UL;
-    private enum _factor = 3074457345618258799UL;
-    ulong _seed = _seedValue;
-    ulong _result;
+    private enum _mulFactor = 3074457345618258799UL;
+    ulong _result = _seedValue;
 }
 
 /** Compute knuthHash-64 of input `data`, with optional seed `seed`.
@@ -59,6 +58,7 @@ private:
 ulong knuthhash64Of(in ubyte[] data, ulong seed = 0)
 {
     auto hash = KnuthHash64(seed);
+    hash.start();
     hash.put(data);
     return hash.get();
 }
@@ -75,6 +75,8 @@ ulong knuthhash64Of(in char[] data, ulong seed = 0)
 unittest
 {
     assert(knuthhash64Of("") == KnuthHash64._seedValue);
+    assert(knuthhash64Of("a") != KnuthHash64._seedValue);
+    assert(knuthhash64Of("a") != knuthhash64Of("b"));
 }
 
 version(unittest)

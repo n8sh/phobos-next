@@ -31,6 +31,8 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
 {
     @safe:
 
+    import core.exception : onOutOfMemoryError;
+
     import std.range : isInputRange, ElementType, isInfinite;
     import std.traits : hasElaborateDestructor, hasIndirections, hasAliasing,
         isMutable, TemplateOf, isArray, isAssignable, isCopyable, isType, hasFunctionAttributes, isIterable;
@@ -385,6 +387,11 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
             assert(ptr, "Allocation failed");
         }
 
+        if (ptr is null)
+        {
+            onOutOfMemoryError();
+        }
+
         static if (mustAddGCRange!T)
         {
             gc_addRange(ptr, numBytes);
@@ -408,10 +415,18 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
             {
                 import std.experimental.allocator : makeArray;
                 ptr = Allocator.makeArray!T(initialCapacity, elementValue).ptr; // TODO set length
+                if (ptr is null)
+                {
+                    onOutOfMemoryError();
+                }
             }
             else
             {
                 ptr = cast(typeof(return))malloc(numBytes);
+                if (ptr is null)
+                {
+                    onOutOfMemoryError();
+                }
                 foreach (immutable i; 0 .. initialCapacity)
                 {
                     emplace(&ptr[i], elementValue);
@@ -910,7 +925,11 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
         }
         _store.capacity = cast(CapacityType)newCapacity;
         _store.ptr = cast(T*)realloc(_mptr, T.sizeof * _store.capacity);
-        assert(_store.ptr, "Reallocation failed");
+        if (newCapacity >= 1 &&
+            _store.ptr is null)
+        {
+            onOutOfMemoryError();
+        }
         static if (mustAddGCRange!T)
         {
             gc_addRange(_store.ptr, _store.capacity * T.sizeof);

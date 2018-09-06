@@ -17,7 +17,7 @@ struct KnuthHash64
         _result = _seedValue;
     }
 
-    /** Use this to feed the hash with data.
+    /** Use this to feed the hash with `data`.
      *
      * Also implements the $(XREF range, OutputRange) interface for $(D ubyte)
      * and $(D const(ubyte)[]).

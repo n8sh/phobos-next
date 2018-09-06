@@ -25,8 +25,8 @@ pure @nogc:
 
 /** Dummy-hash for benchmarking performance of HashSet. */
 ulong identityHash64Of(T)(in T x)
-    if (isIntegral!T &&
-        T.sizeof <= ulong.sizeof)
+if (isIntegral!T &&
+    T.sizeof <= ulong.sizeof)
 {
     return x;               // maps -1 to ulong.max
 }

@@ -75,7 +75,7 @@ struct SSOString
     {
         if (isLarge)
         {
-            return cast(typeof(return))opSlice(); // already immutable
+            return opSlice(); // already immutable
         }
         else
         {

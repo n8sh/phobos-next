@@ -213,6 +213,7 @@ if (isDigest!Digest &&
         }
     }
     const valueAsSize = *cast(size_t*)(&value); // `value` as pointer
+    assert((valueAsSize & (bitshift - 1)) == 0); // shifted out bits should all be zero
     digestRaw(digest, valueAsSize >> bitshift);
 }
 

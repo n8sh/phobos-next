@@ -203,9 +203,13 @@ if (isDigest!Digest &&
         {
             enum bitshift = 1;
         }
-        else
+        else static if (Talignment == 1)
         {
             enum bitshift = 0;
+        }
+        else
+        {
+            static assert(0, "Cannot calculate alignment of T being " ~ T.stringof);
         }
     }
     digestRaw(digest, (*cast(size_t*)(&value)) >> bitshift);

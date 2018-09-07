@@ -186,7 +186,7 @@ if (isDigest!Digest &&
     else static if (isPointer!T)
     {
         enum Tvalue = typeof(*T.init);
-        static if (T.value.alignof == 16)
+        static      if (T.value.alignof == 16)
         {
             enum bitshift = 4;
         }

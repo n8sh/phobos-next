@@ -212,7 +212,7 @@ if (isDigest!Digest &&
             static assert(0, "Cannot calculate alignment of T being " ~ T.stringof);
         }
     }
-    const valueAsPtr = *cast(size_t*)(&value);
+    const valueAsPtr = *cast(size_t*)(&value); // `value` as pointer
     digestRaw(digest, valueAsPtr >> bitshift);
 }
 

@@ -212,8 +212,8 @@ if (isDigest!Digest &&
             static assert(0, "Cannot calculate alignment of T being " ~ T.stringof);
         }
     }
-    const valueAsPtr = *cast(size_t*)(&value); // `value` as pointer
-    digestRaw(digest, valueAsPtr >> bitshift);
+    const valueAsSize = *cast(size_t*)(&value); // `value` as pointer
+    digestRaw(digest, valueAsSize >> bitshift);
 }
 
 /** Digest the struct `value` by digesting each member sequentially. */

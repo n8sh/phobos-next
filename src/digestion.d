@@ -269,13 +269,14 @@ if (isDigest!Digest &&
     }
 }
 
-/** Digest raw bytes of `values`. */
+/** Digest raw bytes of `values`.
+ */
 private void digestRaw(Digest, T)(scope ref Digest digest,
                                   const scope auto ref T value) @trusted
 if (isDigest!Digest)
 {
     version(LDC) pragma(inline, true);
-    digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
+    digest.put((cast(ubyte*)&value)[0 .. value.sizeof]); // TODO optimize when value is size_t, ulong and digest supports it
 }
 
 /// arrays and containers and its slices

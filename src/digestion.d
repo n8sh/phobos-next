@@ -186,19 +186,20 @@ if (isDigest!Digest &&
     else static if (isPointer!T)
     {
         enum Tvalue = typeof(*T.init);
-        static      if (T.value.alignof == 16)
+        enum Talignment = T.value.alignof;
+        static      if (Talignment == 16)
         {
             enum bitshift = 4;
         }
-        else static if (T.value.alignof == 8)
+        else static if (Talignment == 8)
         {
             enum bitshift = 3;
         }
-        else static if (T.value.alignof == 4)
+        else static if (Talignment == 4)
         {
             enum bitshift = 2;
         }
-        else static if (T.value.alignof == 2)
+        else static if (Talignment == 2)
         {
             enum bitshift = 1;
         }

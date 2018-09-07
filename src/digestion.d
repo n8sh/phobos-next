@@ -168,24 +168,46 @@ void digestAnyWithTrustedSystemSlicing(Digest, T)(ref Digest digest,
 
 /** Digest the `value` as an address (pointer). */
 private void digestAddress(Digest, T)(scope ref Digest digest,
-                                      const scope T value) // pointer passed by value
+                                      const scope T value) @trusted // pointer passed by value
 if (isDigest!Digest &&
     isAddress!T)
 {
-    enum keyAlignment = T.alignof;
-    static if (keyAlignment == 8) // 64-bit
+    static if (is(T == class))
     {
-        enum shift = 3;
+        static if (size_t.sizeof == 8)
+        {
+            enum bitshift = 3;  // 64-bit platform
+        }
+        else
+        {
+            enum bitshift = 2;  // 32-bit platform
+        }
     }
-    else static if (keyAlignment == 4) // 32-bit
+    else static if (isPointer!T)
     {
-        enum shift = 2;
+        enum Tvalue = typeof(*T.init);
+        static if (T.value.alignof == 16)
+        {
+            enum bitshift = 4;
+        }
+        else static if (T.value.alignof == 8)
+        {
+            enum bitshift = 3;
+        }
+        else static if (T.value.alignof == 4)
+        {
+            enum bitshift = 2;
+        }
+        else static if (T.value.alignof == 2)
+        {
+            enum bitshift = 1;
+        }
+        else
+        {
+            enum bitshift = 0;
+        }
     }
-    else
-    {
-        static assert(0, "Unsupport address key alignment " ~ keyAlignment);
-    }
-    digestRaw(digest, value);
+    digestRaw(digest, (*cast(size_t*)(&value)) >> bitshift);
 }
 
 /** Digest the struct `value` by digesting each member sequentially. */

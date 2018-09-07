@@ -170,9 +170,21 @@ void digestAnyWithTrustedSystemSlicing(Digest, T)(ref Digest digest,
 private void digestAddress(Digest, T)(scope ref Digest digest,
                                       const scope T value) // pointer passed by value
 if (isDigest!Digest &&
-        isAddress!T)
+    isAddress!T)
 {
-    pragma(inline, true);
+    enum keyAlignment = T.alignof;
+    static if (keyAlignment == 8) // 64-bit
+    {
+        enum shift = 3;
+    }
+    else static if (keyAlignment == 4) // 32-bit
+    {
+        enum shift = 2;
+    }
+    else
+    {
+        static assert(0, "Unsupport address key alignment " ~ keyAlignment);
+    }
     digestRaw(digest, value);
 }
 

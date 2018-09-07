@@ -276,7 +276,8 @@ private void digestRaw(Digest, T)(scope ref Digest digest,
 if (isDigest!Digest)
 {
     version(LDC) pragma(inline, true);
-    digest.put((cast(ubyte*)&value)[0 .. value.sizeof]); // TODO optimize when value is size_t, ulong and digest supports it
+    // TODO optimize when value is size_t, ulong and digest supports it
+    digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
 }
 
 /// arrays and containers and its slices

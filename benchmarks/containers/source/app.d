@@ -203,7 +203,7 @@ void main()
                     }
                 }
             }
-            const ok = hitCount = n; // for side effect in output
+            const ok = hitCount == n; // for side effect in output
             assert(ok);
             immutable after = MonoTime.currTime();
             writef(", contains: %3.1f ns/op (%s)", cast(double)(after - before).total!"nsecs" / n, ok ? "OK" : "ERR");
@@ -311,7 +311,7 @@ void main()
             {
                 hitCount += a.contains(keys[i]);
             }
-            const ok = hitCount = n; // for side effect in output
+            const ok = hitCount == n; // for side effect in output
             assert(ok);
             immutable after = MonoTime.currTime();
             writef(", contains: %3.1f ns/op (%s)", cast(double)(after - before).total!"nsecs" / n, ok ? "OK" : "ERR");
@@ -324,7 +324,7 @@ void main()
             {
                 hitCount += cast(bool)(keys[i] in a);
             }
-            const ok = hitCount = n; // for side effect in output
+            const ok = hitCount == n; // for side effect in output
             assert(ok);
             immutable after = MonoTime.currTime();
             writef(", in: %3.1f ns/op (%s)", cast(double)(after - before).total!"nsecs" / n, ok ? "OK" : "ERR");
@@ -392,7 +392,7 @@ void main()
             {
                 hitCount += cast(bool)(es[i] in a);
             }
-            const ok = hitCount = n; // for side effect in output
+            const ok = hitCount == n; // for side effect in output
             assert(ok);
             immutable after = MonoTime.currTime();
             writef(", contains: %3.1f ns/op (%s)", cast(double)(after - before).total!"nsecs" / n, ok ? "OK" : "ERR");

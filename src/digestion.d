@@ -135,7 +135,41 @@ if (isDigest!Digest)
     }
     else static if (!hasIndirections!T) // no pointers left in `T`. TODO make this the default in-place of `isScalarType`
     {
-        digestRaw(digest, value); // hash everything in one call for better speed
+        version(LDC)            // LDC doesn't zero pad `real`s
+        {
+            // TODO needed to improve this with a trait
+            import std.traits : isStaticArray;
+            static if (isStaticArray!T)
+            {
+                import std.meta : staticIndexOf;
+                enum realIndex = staticIndexOf!(real, typeof(T[0].init.tupleof));
+                static if (realIndex != -1)
+                {
+                    digestStruct(digest, value);
+                }
+                else
+                {
+                    digestRaw(digest, value); // hash everything in one call for better speed
+                }
+            }
+            else
+            {
+                import std.meta : staticIndexOf;
+                enum realIndex = staticIndexOf!(real, typeof(T.init.tupleof));
+                static if (realIndex != -1)
+                {
+                    digestStruct(digest, value);
+                }
+                else
+                {
+                    digestRaw(digest, value); // hash everything in one call for better speed
+                }
+            }
+        }
+        else
+        {
+            digestRaw(digest, value); // hash everything in one call for better speed
+        }
     }
     else static if (isArray!T) // including `T` being `string`, `wstring`, `dstring`
     {
@@ -221,7 +255,7 @@ if (isDigest!Digest &&
 private void digestStruct(Digest, T)(scope ref Digest digest,
                                      const scope auto ref T value) @trusted
 if (isDigest!Digest &&
-        is(T == struct))
+    is(T == struct))
 {
     static if (!hasIndirections!T)
     {

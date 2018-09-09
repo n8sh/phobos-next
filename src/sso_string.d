@@ -95,6 +95,9 @@ struct SSOString
         if (!isLarge)
         {
             import hash_functions : wangMixHash64;
+            // faster than `hashOf`:
+            import dbgio;
+            dln(words);
             return (wangMixHash64(words[0]) ^
                     wangMixHash64(words[1]));
             // return hashOf(words);
@@ -103,24 +106,6 @@ struct SSOString
         {
             return hashOf(opSlice());
         }
-    }
-    version(none)
-    @property size_t toHash()() const @trusted
-    {
-        version(LDC) pragma(inline, true);
-        if (!isLarge)
-        {
-            import hash_functions : wangMixHash64;
-            // fast
-            return (wangMixHash64(words[0]) ^
-                    wangMixHash64(words[1]));
-        }
-        import std.digest : makeDigest;
-        import digestx.fnv : FNV;
-        auto digest = makeDigest!(FNV!(64, true));
-        digest.put(cast(ubyte[])opSlice());
-        digest.finish();
-        return digest.get();
     }
 
     /** Get length. */

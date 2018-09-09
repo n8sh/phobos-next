@@ -94,7 +94,7 @@ struct SSOString
             // faster than `hashOf(words)`:
             /* import dbgio; */
             /* dln(words); */
-            return (wangMixHash64(words[0]) ^
+            return (wangMixHash64(words[0]) ^ // TODO words[0] >> 1
                     wangMixHash64(words[1]));
         }
         else

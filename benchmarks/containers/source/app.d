@@ -111,6 +111,7 @@ void main()
                           SSOHashSet!(uint, null, MurmurHash3!(128)),
                           SSOHashSet!(uint, null, XXHash64),
 
+                          OpenHashSet!(Nullable!(uint, uint.max)),
                           OpenHashSet!(Nullable!(uint, uint.max), FNV!(64, true)),
 
                           RadixTreeSetGrowOnly!(uint),
@@ -122,8 +123,9 @@ void main()
                           SSOHashSet!(ulong, null, FNV!(64, true), 3),
                           SSOHashSet!(ulong, null, FNV!(64, true), 4),
 
-                          OpenHashSet!(Nullable!(ulong, ulong.max), wangMixHash64),
+                          OpenHashSet!(Nullable!(ulong, ulong.max)),
                           OpenHashSet!(Nullable!(ulong, ulong.max), FNV!(64, true)),
+                          OpenHashSet!(Nullable!(ulong, ulong.max), wangMixHash64),
                           // TODO OpenHashSet!(ulong*, FNV!(64, true)),
 
                           RadixTreeSetGrowOnly!(ulong),
@@ -269,16 +271,19 @@ void main()
                  SSOHashMap!(uint, uint, null, muellerHash64),
                  SSOHashMap!(uint, uint, null, wangMixHash64),
                  SSOHashMap!(uint, uint, null, FNV!(64, true)),
+                 OpenHashMap!(Nullable!(uint, uint.max), uint),
                  OpenHashMap!(Nullable!(uint, uint.max), uint, FNV!(64, true)),
 
                  // ulong => ulong
                  SSOHashMap!(ulong, ulong, null, muellerHash64),
                  SSOHashMap!(ulong, ulong, null, wangMixHash64),
                  SSOHashMap!(ulong, ulong, null, FNV!(64, true)),
-                 OpenHashMap!(Nullable!(ulong, ulong.max), ulong, wangMixHash64),
+                 OpenHashMap!(Nullable!(ulong, ulong.max), ulong),
                  OpenHashMap!(Nullable!(ulong, ulong.max), ulong, FNV!(64, true)),
+                 OpenHashMap!(Nullable!(ulong, ulong.max), ulong, wangMixHash64),
 
                  // string => string
+                 OpenHashMap!(string, string),
                  OpenHashMap!(string, string, XXHash64),
                  OpenHashMap!(string, string, MurmurHash3!(128)),
                  OpenHashMap!(string, string, FNV!(64, true)),

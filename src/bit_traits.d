@@ -149,7 +149,7 @@ template isInitAllZeroBits(T)
     // TODO use __traits(isZeroInit, T) added https://github.com/dlang/dmd/pull/8583
     static if (__traits(compiles, { enum _ = __traits(isZeroInit, T); }))
     {
-        pragma(msg, "TODO: enum isInitAllZeroBits = __traits(isZeroInit, T); and remove its tests");
+        pragma(msg, "TODO: enum isInitAllZeroBits = __traits(isZeroInit, T); and remove the test of isInitAllZeroBits");
     }
     import std.traits : isStaticArray;
     static if (isStaticArray!T && __traits(compiles, T.init[0]))

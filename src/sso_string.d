@@ -84,6 +84,18 @@ struct SSOString
 
     @nogc:
 
+    @property size_t toHash() const @trusted
+    {
+        version(LDC) pragma(inline, true);
+        if (!isLarge)
+        {
+            return hashOf(words);
+        }
+        else
+        {
+            return hashOf(opSlice());
+        }
+    }
     version(none)               // TODO for some reason doesn't make things faster
     @property size_t toHash()() const @trusted
     {

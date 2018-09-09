@@ -76,44 +76,51 @@ template packedBitSizeOf(T)
 }
 
 /+ Can the representation be determined at compile time to consist of nothing
-but zero bits? Padding between a struct's fields is not considered.
-+/
+ + but zero bits? Padding between a struct's fields is not considered.
+ +/
 template isAllZeroBits(T, T value)
 {
-    import std.traits : isDynamicArray, isStaticArray;
-    static if (isDynamicArray!(typeof(value)))
-        enum isAllZeroBits = value is null && value.length == 0;
-    else static if (is(typeof(value is null)))
-        enum isAllZeroBits = value is null;
-    else static if (is(typeof(value is 0)))
-        enum isAllZeroBits = value is 0;
-    else static if (isStaticArray!(typeof(value)))
-        enum isAllZeroBits = ()
-        {
-            bool b = true;
-            // Use index so this works when T.length is 0.
-            static foreach (i; 0 .. T.length)
+    // static if (value == T.init)
+    // {
+    //     enum isAllZeroBits = isInitAllZeroBits!T;
+    // }
+    // else
+    // {
+        import std.traits : isDynamicArray, isStaticArray;
+        static if (isDynamicArray!(typeof(value)))
+            enum isAllZeroBits = value is null && value.length == 0;
+        else static if (is(typeof(value is null)))
+            enum isAllZeroBits = value is null;
+        else static if (is(typeof(value is 0)))
+            enum isAllZeroBits = value is 0;
+        else static if (isStaticArray!(typeof(value)))
+            enum isAllZeroBits = ()
             {
-                b &= isAllZeroBits!(typeof(value[i]), value[i]);
-                if (b == false) return b;
-            }
+                bool b = true;
+                // Use index so this works when T.length is 0.
+                static foreach (i; 0 .. T.length)
+                {
+                    b &= isAllZeroBits!(typeof(value[i]), value[i]);
+                    if (b == false) return b;
+                }
 
-            return b;
-        }();
-    else static if (is(typeof(value) == struct) || is(typeof(value) == union))
-        enum isAllZeroBits = ()
-        {
-            bool b = true;
-            static foreach (e; value.tupleof)
+                return b;
+            }();
+        else static if (is(typeof(value) == struct) || is(typeof(value) == union))
+            enum isAllZeroBits = ()
             {
-                b &= isAllZeroBits!(typeof(e), e);
-                if (b == false) return b;
-            }
+                bool b = true;
+                static foreach (e; value.tupleof)
+                {
+                    b &= isAllZeroBits!(typeof(e), e);
+                    if (b == false) return b;
+                }
 
-            return b;
-        }();
-    else
-        enum isAllZeroBits = false;
+                return b;
+            }();
+        else
+            enum isAllZeroBits = false;
+    // }
 }
 
 @nogc nothrow pure @safe unittest
@@ -135,10 +142,15 @@ template isAllZeroBits(T, T value)
 }
 
 /+ Is the representation of `T.init` known at compile time to consist of nothing
-but zero bits? Padding between a struct's fields is not considered.
-+/
+ + but zero bits? Padding between a struct's fields is not considered.
+ +/
 template isInitAllZeroBits(T)
 {
+    // TODO use __traits(isZeroInit, T) added https://github.com/dlang/dmd/pull/8583
+    static if (__traits(compiles, { enum _ = __traits(isZeroInit, T); }))
+    {
+        pragma(msg, "TODO: enum isInitAllZeroBits = __traits(isZeroInit, T); and remove its tests");
+    }
     import std.traits : isStaticArray;
     static if (isStaticArray!T && __traits(compiles, T.init[0]))
         enum isInitAllZeroBits = __traits(compiles, {

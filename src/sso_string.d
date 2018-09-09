@@ -85,10 +85,6 @@ struct SSOString
 
     @nogc:
 
-    /*
-      - insert (w growth): 252.1 ns/op, contains: 135.0 ns/op (OK), in: 85.5 ns/op (OK), insert (no growth): 97.6 ns/op for OpenHashMapOrSet!(SSOString, SSOString, hashOf, instance, false) averageProbeCount:1.43961
-      - insert (w growth): 285.0 ns/op, contains: 167.0 ns/op (OK), in: 126.9 ns/op (OK), insert (no growth): 138.6 ns/op for OpenHashMapOrSet!(SSOString, SSOString, FNV!(64LU, true), instance, false) averageProbeCount:1.49719
-     */
     @property size_t toHash() const @trusted
     {
         version(LDC) pragma(inline, true);

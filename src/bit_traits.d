@@ -141,12 +141,12 @@ template isAllZeroBits(T, T value)
     static assert(isAllZeroBits!(Object, null));
 }
 
+
 /+ Is the representation of `T.init` known at compile time to consist of nothing
  + but zero bits? Padding between a struct's fields is not considered.
  +/
 template isInitAllZeroBits(T)
 {
-    // TODO use __traits(isZeroInit, T) added https://github.com/dlang/dmd/pull/8583
     static if (__traits(compiles, { enum _ = __traits(isZeroInit, T); }))
     {
         pragma(msg, "TODO: enum isInitAllZeroBits = __traits(isZeroInit, T); and remove the test of isInitAllZeroBits");

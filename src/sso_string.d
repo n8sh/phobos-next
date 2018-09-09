@@ -91,12 +91,11 @@ struct SSOString
         if (!isLarge)
         {
             import hash_functions : wangMixHash64;
-            // faster than `hashOf`:
+            // faster than `hashOf(words)`:
             /* import dbgio; */
             /* dln(words); */
             return (wangMixHash64(words[0]) ^
                     wangMixHash64(words[1]));
-            // return hashOf(words);
         }
         else
         {

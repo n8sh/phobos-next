@@ -149,7 +149,7 @@ template isInitAllZeroBits(T)
 {
     static if (__traits(compiles, { enum _ = __traits(isZeroInit, T); }))
     {
-        pragma(msg, "TODO: enum isInitAllZeroBits = __traits(isZeroInit, T); and remove the test of isInitAllZeroBits");
+        pragma(msg, "TODO: use `enum isInitAllZeroBits = __traits(isZeroInit, T);` here and in `isAllZeroBits` and remove the test of isInitAllZeroBits");
     }
     import std.traits : isStaticArray;
     static if (isStaticArray!T && __traits(compiles, T.init[0]))

@@ -33,7 +33,7 @@ void main()
 
     import std.conv : to;
 
-    immutable n = 1024*1024;
+    immutable n = 128;
 
     auto testSource = iota(0, n).array;
     const useRandomShuffledSource = true;
@@ -289,6 +289,7 @@ void main()
                  OpenHashMap!(string, string, FNV!(64, true)),
 
                  // SSOString => SSOString
+                 OpenHashMap!(SSOString, SSOString),
                  OpenHashMap!(SSOString, SSOString, FNV!(64, true)),
                  ))
     {

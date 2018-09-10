@@ -1428,7 +1428,7 @@ unittest
 */
 auto findPopBefore(alias pred = `a == b`, R1, R2)(ref R1 haystack, R2 needle)
 if (isForwardRange!R1 &&
-        isForwardRange!R2)
+    isForwardRange!R2)
 {
     import std.range : empty;
 
@@ -1448,16 +1448,19 @@ if (isForwardRange!R1 &&
 }
 
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
     auto haystack = `xy`;
     auto needle = `z`;
     auto pop = haystack.findPopBefore(needle);
+    import dbgio;
+    dln(haystack);
+    dln(pop);
     assert(pop == `xy`);
 }
 
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
     auto haystack = `xyz`;
     auto needle = `y`;
@@ -1471,7 +1474,7 @@ unittest
 */
 auto findPopAfter(alias pred = `a == b`, R1, R2)(ref R1 haystack, R2 needle)
 if (isForwardRange!R1 &&
-        isForwardRange!R2)
+    isForwardRange!R2)
 {
     import std.range : empty;
 
@@ -1492,7 +1495,7 @@ if (isForwardRange!R1 &&
 }
 
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
     auto source = `xyz`;
     auto haystack = source;
@@ -1503,7 +1506,7 @@ unittest
 }
 
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
     auto source = `xy`;
     auto haystack = source;

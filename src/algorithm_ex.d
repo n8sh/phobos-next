@@ -1451,7 +1451,7 @@ if (isForwardRange!R1 &&
 @safe pure nothrow @nogc unittest
 {
     auto haystack = `xy`;
-    auto needle = `z`;
+    const needle = `z`;
     auto pop = haystack.findPopBefore(needle);
     assert(haystack == `xy`);
     assert(pop == ``);
@@ -1461,7 +1461,7 @@ if (isForwardRange!R1 &&
 @safe pure nothrow @nogc unittest
 {
     auto haystack = `xyz`;
-    auto needle = `y`;
+    const needle = `y`;
     auto pop = haystack.findPopBefore(needle);
     assert(pop == `x`);
     assert(haystack == `yz`);

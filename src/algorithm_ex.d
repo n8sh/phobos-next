@@ -1746,19 +1746,6 @@ if (args.length >= 1)
     static assert(!__traits(compiles, { data.append(); }));
 }
 
-///
-unittest
-{
-    import std.container: Array;
-
-    Array!int data;
-
-    data.append(-1);
-    assert(equal(data[], [-1]));
-
-    static assert(!__traits(compiles, { data.append(); }));
-}
-
 /** Distinct Elements of `r`.
  *
  * See_Also: http://forum.dlang.org/thread/jufggxqwzhlsmhshtnfj@forum.dlang.org?page=2

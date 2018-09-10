@@ -1581,7 +1581,7 @@ Tuple!(R, size_t) findFirstOfAnyInOrder(alias pred = `a == b`, R)(R haystack, co
 }
 
 ///
-unittest
+@safe pure unittest
 {
     assert(`abc`.findFirstOfAnyInOrder([`x`]) == tuple(``, 0UL));
     assert(`abc`.findFirstOfAnyInOrder([`a`]) == tuple(`abc`, 1UL));
@@ -1613,7 +1613,7 @@ if (args.length >= 2 &&
 }
 
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
     static assert(!__traits(compiles, areStrictlyOrdered()));
     static assert(!__traits(compiles, areStrictlyOrdered(1)));

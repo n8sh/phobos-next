@@ -1453,10 +1453,8 @@ if (isForwardRange!R1 &&
     auto haystack = `xy`;
     auto needle = `z`;
     auto pop = haystack.findPopBefore(needle);
-    import dbgio;
-    dln(haystack);
-    dln(pop);
-    assert(pop == `xy`);
+    assert(haystack == `xy`);
+    assert(pop == ``);
 }
 
 ///

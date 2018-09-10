@@ -1639,7 +1639,7 @@ if (args.length >= 2 &&
 }
 
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
     static assert(!__traits(compiles, areUnstrictlyOrdered()));
     static assert(!__traits(compiles, areUnstrictlyOrdered(1)));
@@ -1726,7 +1726,7 @@ if (args.length >= 1)
 }
 
 ///
-unittest
+@safe pure nothrow unittest
 {
     int[] data;
     import std.range: only, iota;

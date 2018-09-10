@@ -1497,7 +1497,7 @@ if (isForwardRange!R1 &&
 {
     auto source = `xyz`;
     auto haystack = source;
-    auto needle = `y`;
+    const needle = `y`;
     auto pop = haystack.findPopAfter(needle);
     assert(pop == `xy`);
     assert(haystack == `z`);
@@ -1508,7 +1508,7 @@ if (isForwardRange!R1 &&
 {
     auto source = `xy`;
     auto haystack = source;
-    auto needle = `z`;
+    const needle = `z`;
     auto pop = haystack.findPopAfter(needle);
     assert(pop is null);
     assert(!pop);

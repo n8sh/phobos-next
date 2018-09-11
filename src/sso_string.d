@@ -82,15 +82,14 @@ struct SSOString
 
     @nogc:
 
+    /** Get hash of `this`, with extra fast computation for the small case.
+     */
     @property size_t toHash() const @trusted
     {
         version(LDC) pragma(inline, true);
         if (!isLarge)
         {
             import hash_functions : wangMixHash64;
-            // faster than `hashOf(words)`:
-            /* import dbgio; */
-            /* dln(words); */
             return (wangMixHash64(words[0] >> 1) ^ // shift away LS-bit always being zero
                     wangMixHash64(words[1]));
         }

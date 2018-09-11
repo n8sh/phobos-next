@@ -43,7 +43,8 @@ private struct Unexpected(E)
  * TODO ok to default `E` to `Exception`?
  */
 struct Expected(T, E = Exception)
-if (!isInstanceOf!(Unexpected, T)) // an `Unexpected` cannot be `Expected` :)
+if (!isInstanceOf!(Unexpected, T) && // an `Unexpected` cannot be `Expected` :)
+    !is(T == void)) // disallow void for now, for ref see https://forum.dlang.org/post/ncjhsxshttikzjqgiwev@forum.dlang.org
 {
     import std.algorithm.mutation : moveEmplace;
 

@@ -33,7 +33,7 @@ void main()
 
     import std.conv : to;
 
-    immutable n = 1024*1023;
+    immutable n = 1024*1024;
 
     auto testSource = iota(0, n).array;
     const useRandomShuffledSource = true;

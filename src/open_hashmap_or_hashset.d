@@ -108,7 +108,7 @@ struct OpenHashMapOrSet(K, V = void,
 
     static if (hasAddressLikeKey)
     {
-        enum holeKeyOffset = 0x1;
+        enum holeKeyOffset = 0x1; // TODO is this a good value?
         enum holeKeyAddress = cast(void*)holeKeyOffset;
 
         /**

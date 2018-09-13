@@ -32,7 +32,7 @@ import pure_mallocator : PureMallocator;
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  *
  * TODO Add nullValue-sentinel one element beyond the end and do linear search
- * when store is small; should depend on caches
+ * when store is small; should depend on cache size
  *
  * TODO modify existing unittest for `struct Rel { const string name; }`
  *

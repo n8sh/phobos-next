@@ -42,7 +42,8 @@ import pure_mallocator : PureMallocator;
  * TODO add support for checking existence `K.nullifier` that infers, for
  * instance, how to tag a ZingRel as null or hole
  *
- * TODO allocate _holesPtr array together with _bins to reduce size of `OpenHashMapOrSet` to 3 words
+ * TODO allocate _holesPtr array together with _bins to reduce size of
+ * `OpenHashMapOrSet` to 3 words when element type doesn't support it
  *
  * TODO support isHole, holeify and holeValue
  *

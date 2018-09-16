@@ -33,9 +33,6 @@ import pure_mallocator : PureMallocator;
  *
  * TODO check that hole value is not used alongside the check assert(!key.isNull)
  *
- * TODO Add nullValue-sentinel one element beyond the end and do linear search
- * when store is small; should depend on cache size
- *
  * TODO modify existing unittest for `struct Rel { const string name; }`
  *
  * TODO use allocator.dispose() instead of allocator.deallocate() as in

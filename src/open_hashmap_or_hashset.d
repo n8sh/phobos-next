@@ -690,7 +690,7 @@ struct OpenHashMapOrSet(K, V = void,
             import std.traits : TemplateArgsOf;
             alias args = TemplateArgsOf!(SomeKey);
             static assert(args.length == 2,
-                          "linear search for Nullable without nullValue is too slow and is not allowed");
+                          "linear search for Nullable without nullValue is slower than default `this.contains()` and is not allowed");
             alias UnderlyingType = args[0];
             return (cast(UnderlyingType[])_bins).canFind!keyEqualPred(key.get());
         }

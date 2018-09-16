@@ -3079,6 +3079,7 @@ version(unittest)
 
                     xc.removeAllMatching!(_ => _ == k13);
                     assert(!xc.contains(k13));
+                    // TODO this segfaults assert(!xc.containsUsingLinearSearch(k13));
                     assert(xc.length == 0);
 
                     // this is ok

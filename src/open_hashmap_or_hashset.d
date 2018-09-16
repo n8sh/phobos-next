@@ -684,6 +684,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             foreach (ref bin; _bins)
             {
+                pragma(msg, SomeKey, " ", isNullable!SomeKey);
                 if (!bin.isNull)
                 {
                     if (bin.get() == key)
@@ -1963,9 +1964,11 @@ unittest
     x.insert(aa[0 .. 1]);
     assert(x.insertAndReturnElement(aa[0 .. 1]) is aa[0 .. 1]);
     assert(x.contains(aa[1 .. 2]));
+    assert(x.containsUsingLinearSearch(aa[1 .. 2]));
 
     const(char)[] aa_ = "aa";
     assert(x.contains(aa_[1 .. 2]));
+    assert(x.containsUsingLinearSearch(aa_[1 .. 2]));
     assert(aa_[1 .. 2] in x);
 
     const bb = "bb";
@@ -1974,18 +1977,24 @@ unittest
     assert(x.insertAndReturnElement(bb[0 .. 1]) !is "b");       // return other ref not equal new literal
     x.insert(bb[0 .. 1]);
     assert(x.contains(bb[1 .. 2]));
+    assert(x.containsUsingLinearSearch(bb[1 .. 2]));
 
     x.remove(aa[0 .. 1]);
     assert(!x.contains(aa[1 .. 2]));
+    assert(!x.containsUsingLinearSearch(aa[1 .. 2]));
     assert(x.contains(bb[1 .. 2]));
+    assert(x.containsUsingLinearSearch(bb[1 .. 2]));
 
     x.remove(bb[0 .. 1]);
     assert(!x.contains(bb[1 .. 2]));
+    assert(!x.containsUsingLinearSearch(bb[1 .. 2]));
 
     x.insert("a");
     x.insert("b");
     assert(x.contains("a"));
+    assert(x.containsUsingLinearSearch("a"));
     assert(x.contains("b"));
+    assert(x.containsUsingLinearSearch("b"));
 
     static assert(!__traits(compiles, { testEscapeShouldFail(); } ));
     // TODO this should fail:
@@ -2052,6 +2061,7 @@ unittest
             x[key] = value.dup;
             assert(x.length == i + 1);
             assert(x.contains(key));
+            // TODO assert(x.containsUsingLinearSearch(key));
             {
                 auto valuePtr = key in x;
                 assert(valuePtr && *valuePtr == value);

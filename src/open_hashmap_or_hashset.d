@@ -671,7 +671,8 @@ struct OpenHashMapOrSet(K, V = void,
 
     /** Check if `element` is stored.
      *
-     * Uses linear search instead of hashing plus probing.
+     * Uses linear search instead of hashing plus probing and may be faster for
+     * for small tables with complicated hash functions.
      *
      * Parameter `key` may be non-immutable, for instance const(char)[]
      * eventhough key type `K` is `string`.

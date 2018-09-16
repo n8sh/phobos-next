@@ -121,19 +121,19 @@ version(unittest)
 }
 
 /** Returns: `x` as a static array of unsigned bytes. */
-pragma(inline, true)
 @property ubyte[T.sizeof] toUbytes(T)(in T x)
     @trusted pure nothrow @nogc // TODO endian-dependent
 {
+    pragma(inline, true);
     return (cast(ubyte*)(&x))[0 .. x.sizeof];
 }
 
 /** Returns: `x` as a static array with elements of type `E`. */
-pragma(inline, true)
 @property ref E[T.sizeof] asN(E, T)(in ref T x)
     @trusted pure nothrow @nogc // TODO endian-dependent
 if (T.sizeof % E.sizeof == 0)
 {
+    pragma(inline, true);
     return (cast(E*)(&x))[0 .. x.sizeof];
 }
 
@@ -153,35 +153,35 @@ private enum wordBits = 8*wordBytes;
 /** Returns: number of words (`size_t`) needed to represent
  * `bitCount` bits.
  */
-pragma(inline, true)
 static size_t wordCountOfBitCount(size_t bitCount)
     @safe pure nothrow @nogc
 {
+    pragma(inline, true);
     return ((bitCount / wordBits) +
             (bitCount % wordBits != 0 ? 1 : 0));
 }
 
-pragma(inline, true)
 static size_t binBlockBytes(size_t bitCount)
     @safe pure nothrow @nogc
 {
+    pragma(inline, true);
     return wordBytes*wordCountOfBitCount(bitCount);
 }
 
 /** Returns: an uninitialized bit-array containing `bitCount` number of bits. */
-pragma(inline, true)
 size_t* makeUninitializedBitArray(alias Allocator)(size_t bitCount)
     @trusted pure nothrow @nogc
 {
+    pragma(inline, true);
     immutable byteCount = binBlockBytes(bitCount);
     return cast(typeof(return))Allocator.instance.allocate(byteCount);
 }
 
 /** Returns: an zero-initialized bit-array containing `bitCount` number of bits. */
-pragma(inline, true)
 size_t* makeZeroedBitArray(alias Allocator)(size_t bitCount)
     @trusted pure nothrow @nogc
 {
+    pragma(inline, true);
     static if (__traits(hasMember, Allocator, "allocateZeroed"))
     {
         immutable byteCount = binBlockBytes(bitCount);

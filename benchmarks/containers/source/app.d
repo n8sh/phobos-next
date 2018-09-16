@@ -210,6 +210,32 @@ void main()
             writef(", contains: %3.1f ns/op (%s)", cast(double)(after - before).total!"nsecs" / n, ok ? "OK" : "ERR");
         }
 
+        /* NOTE I couldn't make this faster so skiping */
+        /* static if (hasMember!(A, "containsUsingLinearSearch")) */
+        /* { */
+        /*     { */
+        /*         immutable before = MonoTime.currTime(); */
+        /*         size_t hitCount = 0; */
+        /*         import std.algorithm.comparison : min; */
+        /*         const testSourceCount = min(100, testSource.length); // reduce to 1000 tests for now because of slow linear search */
+        /*         foreach (immutable i; testSource[0 .. testSourceCount]) */
+        /*         { */
+        /*             static if (hasMember!(A, `ElementType`)) */
+        /*             { */
+        /*                 const element = A.ElementType(i); // wrap in i in Nullable */
+        /*             } */
+        /*             else */
+        /*             { */
+        /*                 const element = i; */
+        /*             } */
+        /*             hitCount += a.containsUsingLinearSearch(element); */
+        /*         } */
+        /*         const ok = hitCount == testSourceCount; // for side effect in output */
+        /*         immutable after = MonoTime.currTime(); */
+        /*         writef(", containsUsingLinearSearch: %3.1f ns/op (%s)", cast(double)(after - before).total!"nsecs" / testSourceCount, ok ? "OK" : "ERR"); */
+        /*     } */
+        /* } */
+
         static if (hasMember!(A, `withCapacity`))
         {
             A b = A.withCapacity(n);

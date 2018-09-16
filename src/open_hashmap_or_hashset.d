@@ -31,6 +31,8 @@ import pure_mallocator : PureMallocator;
  * See_Also: https://en.wikipedia.org/wiki/Lazy_deletion
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  *
+ * TODO check that hole value is not inserted
+ *
  * TODO Add nullValue-sentinel one element beyond the end and do linear search
  * when store is small; should depend on cache size
  *
@@ -655,6 +657,25 @@ struct OpenHashMapOrSet(K, V = void,
      */
     bool contains(SomeKey)(const scope SomeKey key) const @trusted // template-lazy, `auto ref` here makes things slow
     if (isScopedKeyType!(typeof(key)))
+    {
+        version(LDC) pragma(inline, true);
+        assert(!key.isNull);
+        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)key);
+        return (hitIndex != _bins.length &&
+                isOccupiedAtIndex(hitIndex));
+    }
+
+    /** Check if `element` is stored.
+     *
+     * Uses linear search instead of hashing plus probing.
+     *
+     * Parameter `key` may be non-immutable, for instance const(char)[]
+     * eventhough key type `K` is `string`.
+     *
+     * Returns: `true` if element is present, `false` otherwise.
+     */
+    bool containsUsingLinearSearch(SomeKey)(const scope SomeKey key) const @trusted // template-lazy, `auto ref` here makes things slow
+        if (isScopedKeyType!(typeof(key)))
     {
         version(LDC) pragma(inline, true);
         assert(!key.isNull);

@@ -88,7 +88,7 @@ struct OpenHashMapOrSet(K, V = void,
     import std.conv : emplace;
     import std.math : nextPow2;
     import std.traits : hasElaborateDestructor, isCopyable, hasIndirections,
-        isArray, isDynamicArray, isStaticArray, Unqual, hasFunctionAttributes, isMutable;
+        isArray, isDynamicArray, isStaticArray, Unqual, hasFunctionAttributes, isMutable, TemplateArgsOf;
     import std.typecons : Nullable;
 
     import container_traits : defaultNullKeyConstantOf, mustAddGCRange, isNull, nullify;
@@ -682,22 +682,17 @@ struct OpenHashMapOrSet(K, V = void,
         import std.algorithm.searching : canFind;
         static if (isInstanceOf!(Nullable, SomeKey))
         {
-            foreach (ref bin; _bins)
-            {
-                pragma(msg, SomeKey, " ", isNullable!SomeKey);
-                if (!bin.isNull)
-                {
-                    if (bin.get() == key)
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
+            import std.traits : TemplateArgsOf;
+            alias args = TemplateArgsOf!(SomeKey);
+            static assert(args.length == 2);
+            alias wrappedType = args[0];
+            enum nullValue = args[1];
+            pragma(msg, wrappedType, " ", nullValue, );
+            return (cast(wrappedType[])_bins).canFind(key.get());
         }
         else
         {
-            return _bins.canFind(key); // TODO optimize by using sentinel after end of `_bins`
+            return _bins.canFind(key); // TODO optimize using sentinel being `key` after end of `_bins`
         }
     }
 

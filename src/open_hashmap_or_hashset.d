@@ -31,7 +31,7 @@ import pure_mallocator : PureMallocator;
  * See_Also: https://en.wikipedia.org/wiki/Lazy_deletion
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  *
- * TODO check that hole value is not inserted
+ * TODO check that hole value is not used alongside the check assert(!key.isNull)
  *
  * TODO Add nullValue-sentinel one element beyond the end and do linear search
  * when store is small; should depend on cache size
@@ -675,13 +675,29 @@ struct OpenHashMapOrSet(K, V = void,
      * Returns: `true` if element is present, `false` otherwise.
      */
     bool containsUsingLinearSearch(SomeKey)(const scope SomeKey key) const @trusted // template-lazy, `auto ref` here makes things slow
-        if (isScopedKeyType!(typeof(key)))
+    if (isScopedKeyType!(typeof(key)))
     {
         version(LDC) pragma(inline, true);
         assert(!key.isNull);
-        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)key);
-        return (hitIndex != _bins.length &&
-                isOccupiedAtIndex(hitIndex));
+        import std.algorithm.searching : canFind;
+        static if (isInstanceOf!(Nullable, SomeKey))
+        {
+            foreach (ref bin; _bins)
+            {
+                if (!bin.isNull)
+                {
+                    if (bin.get() == key)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        else
+        {
+            return _bins.canFind(key); // TODO optimize by adding sentinel
+        }
     }
 
     /** Check if `element` is stored. Move found element to a hole if possible.
@@ -1851,8 +1867,10 @@ unittest
     {
         const i = 1113*i_;           // insert in order
         assert(!a.contains(K(i)));
+        assert(!a.containsUsingLinearSearch(K(i)));
         assert(a.insertAndReturnElement(K(i)) == K(i));
         assert(a.contains(K(i)));
+        assert(a.containsUsingLinearSearch(K(i)));
     }
 
     X b;
@@ -1860,8 +1878,10 @@ unittest
     {
         const i = 1113*(n - 1 - i_);   // insert in reverse
         assert(!b.contains(K(i)));
+        assert(!b.containsUsingLinearSearch(K(i)));
         assert(b.insertAndReturnElement(K(i)) == K(i));
         assert(b.contains(K(i)));
+        assert(b.containsUsingLinearSearch(K(i)));
     }
 
     assert(a._bins != b._bins);
@@ -1900,7 +1920,9 @@ unittest
 
     x.insert(key1);
     assert(x.contains(key1));
+    assert(x.containsUsingLinearSearch(key1));
     assert(x.contains(key2));
+    assert(x.containsUsingLinearSearch(key2));
     assert(key1 in x);
     assert(key2 in x);
 }

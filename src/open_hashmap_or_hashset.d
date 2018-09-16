@@ -655,7 +655,8 @@ struct OpenHashMapOrSet(K, V = void,
      *
      * Returns: `true` if element is present, `false` otherwise.
      */
-    bool contains(SomeKey)(const scope SomeKey key) const @trusted // template-lazy, `auto ref` here makes things slow
+    bool contains(SomeKey)(const scope SomeKey key)
+        const @trusted // template-lazy, `auto ref` here makes things slow
     if (isScopedKeyType!(typeof(key)))
     {
         version(LDC) pragma(inline, true);
@@ -674,7 +675,8 @@ struct OpenHashMapOrSet(K, V = void,
      *
      * Returns: `true` if element is present, `false` otherwise.
      */
-    bool containsUsingLinearSearch(SomeKey)(const scope SomeKey key) const @trusted // template-lazy, `auto ref` here makes things slow
+    bool containsUsingLinearSearch(SomeKey)(const scope SomeKey key)
+        const @trusted // template-lazy, `auto ref` here makes things slow
     if (isScopedKeyType!(typeof(key)))
     {
         version(LDC) pragma(inline, true);
@@ -684,15 +686,15 @@ struct OpenHashMapOrSet(K, V = void,
         {
             import std.traits : TemplateArgsOf;
             alias args = TemplateArgsOf!(SomeKey);
-            static assert(args.length == 2);
-            alias wrappedType = args[0];
-            enum nullValue = args[1];
-            pragma(msg, wrappedType, " ", nullValue, );
-            return (cast(wrappedType[])_bins).canFind(key.get());
+            static assert(args.length == 2,
+                          "linear search for Nullable without nullValue is too slow and is not allowed");
+            alias UnderlyingType = args[0];
+            return (cast(UnderlyingType[])_bins).canFind(key.get());
         }
         else
         {
-            return _bins.canFind(key); // TODO optimize using sentinel being `key` after end of `_bins`
+            // TODO optimize using sentinel being `key` after end of `_bins`
+            return _bins.canFind(key);
         }
     }
 

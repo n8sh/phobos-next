@@ -696,7 +696,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
         else
         {
-            return _bins.canFind(key); // TODO optimize by adding sentinel
+            return _bins.canFind(key); // TODO optimize by using sentinel after end of `_bins`
         }
     }
 

@@ -3111,6 +3111,7 @@ version(unittest)
                     foreach (e; qv[])
                     {
                         assert(q.contains(e));
+                        assert(q.containsUsingLinearSearch(e));
                     }
                     q.clear();
                     assert(q.empty);
@@ -3273,8 +3274,10 @@ version(unittest)
     auto e = ZingRel(new Zing(42), Alt.init);
 
     assert(!x.contains(e));
+    assert(!x.containsUsingLinearSearch(e));
     assert(x.insert(e) == X.InsertionStatus.added);
     assert(x.contains(e));
+    assert(x.containsUsingLinearSearch(e));
 }
 
 /// class type with default hashing
@@ -3296,10 +3299,13 @@ version(unittest)
     auto f = new Zing(42);
 
     assert(!x.contains(e));
+    assert(!x.containsUsingLinearSearch(e));
     assert(!x.contains(f));
+    assert(!x.containsUsingLinearSearch(f));
     assert(x.insert(e) == X.InsertionStatus.added);
     // TODO assert(x.insert(f) == X.InsertionStatus.unmodified);
     assert(x.contains(e));
+    assert(x.containsUsingLinearSearch(e));
     // assert(x.contains(f));
 }
 

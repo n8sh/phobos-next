@@ -3318,12 +3318,17 @@ version(unittest)
     assert(x.insert(Alt.a) == X.InsertionStatus.added);
 
     assert(x.contains(Alt.a));
+    assert(x.containsUsingLinearSearch(Alt.a));
     assert(!x.contains(Alt.b));
     assert(!x.contains(Alt.c));
     assert(!x.contains(Alt.d));
+    assert(!x.containsUsingLinearSearch(Alt.b));
+    assert(!x.containsUsingLinearSearch(Alt.c));
+    assert(!x.containsUsingLinearSearch(Alt.d));
 
     assert(x.remove(Alt.a));
     assert(!x.contains(Alt.a));
+    assert(!x.containsUsingLinearSearch(Alt.a));
 }
 
 ///
@@ -3341,8 +3346,10 @@ unittest
     {
         const char[1] ch = ['a' + i];
         assert(!x.contains(Rel(ch.idup)));
+        assert(!x.containsUsingLinearSearch(Rel(ch.idup)));
         x.insert(Rel(ch.idup));
         assert(x.contains(Rel(ch.idup)));
+        assert(x.containsUsingLinearSearch(Rel(ch.idup)));
     }
 }
 
@@ -3361,8 +3368,10 @@ unittest
         const char[1] ch = ['a' + i];
         const k = K(ch);        // @nogc
         assert(!a.contains(k));
+        assert(!a.containsUsingLinearSearch(k));
         assert(a.insertAndReturnElement(K(ch)) == k);
         assert(a.contains(k));
+        assert(a.containsUsingLinearSearch(k));
     }
 
     X b;
@@ -3371,8 +3380,10 @@ unittest
         const char[1] ch = ['a' + (n - 1 - i)];
         const k = K(ch);        // @nogc
         assert(!b.contains(k));
+        assert(!b.containsUsingLinearSearch(k));
         assert(b.insertAndReturnElement(K(ch)) == k);
         assert(b.contains(k));
+        assert(b.containsUsingLinearSearch(k));
     }
 
     assert(a == b);

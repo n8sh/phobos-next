@@ -254,18 +254,21 @@ struct OpenHashMapOrSet(K, V = void,
     static if (isArray!K)
     {
         // compare arrays by elements only, regardless of location
-        alias keyEqualPred = (const scope a,
-                              const scope b) => a == b;
+        enum keyEqualPred = "a == b";
+        /* alias keyEqualPred = (const scope a, */
+        /*                       const scope b) => a == b; */
     }
     else static if (isCopyable!K)
     {
-        alias keyEqualPred = (const scope a,
-                              const scope b) => a is b;
+        enum keyEqualPred = "a is b";
+        /* alias keyEqualPred = (const scope a, */
+        /*                       const scope b) => a is b; */
     }
     else
     {
-        alias keyEqualPred = (const scope ref a,
-                              const scope ref b) => a is b;
+        enum keyEqualPred = "a is b";
+        /* alias keyEqualPred = (const scope ref a, */
+        /*                       const scope ref b) => a is b; */
     }
 
     /** Is `true` if an instance of `SomeKey` can be cast to `K`.
@@ -689,12 +692,12 @@ struct OpenHashMapOrSet(K, V = void,
             static assert(args.length == 2,
                           "linear search for Nullable without nullValue is too slow and is not allowed");
             alias UnderlyingType = args[0];
-            return (cast(UnderlyingType[])_bins).canFind(key.get());
+            return (cast(UnderlyingType[])_bins).canFind!keyEqualPred(key.get());
         }
         else
         {
             // TODO optimize using sentinel being `key` after end of `_bins`
-            return _bins.canFind(key);
+            return _bins.canFind!keyEqualPred(key);
         }
     }
 
@@ -1920,7 +1923,7 @@ unittest
     assert(x.contains(key1));
     assert(x.containsUsingLinearSearch(key1));
     assert(x.contains(key2));
-    assert(x.containsUsingLinearSearch(key2));
+    /* assert(x.containsUsingLinearSearch(key2)); */
     assert(key1 in x);
     assert(key2 in x);
 }
@@ -2204,6 +2207,8 @@ unittest
     assert(y.length == 2);
     assert(y.contains(K(10)));
     assert(y.contains(K(12)));
+    assert(y.containsUsingLinearSearch(K(10)));
+    assert(y.containsUsingLinearSearch(K(12)));
 }
 
 /// r-value and r-value intersection
@@ -2217,6 +2222,8 @@ unittest
     assert(y.length == 2);
     assert(y.contains(K(12)));
     assert(y.contains(K(13)));
+    assert(y.containsUsingLinearSearch(K(12)));
+    assert(y.containsUsingLinearSearch(K(13)));
 }
 
 /** Returns: `x` eagerly intersected with `y`.
@@ -2242,7 +2249,9 @@ auto intersectWith(C1, C2)(ref C1 x,
     y.intersectWith(x);
     assert(y.length == 2);
     assert(y.contains(K(12)));
+    assert(y.containsUsingLinearSearch(K(12)));
     assert(y.contains(K(13)));
+    assert(y.containsUsingLinearSearch(K(13)));
 }
 
 /// Range over elements of l-value instance of this.
@@ -2508,6 +2517,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     // mutable
     auto x = X.withElements(ks);
     assert(!x.contains(k44));
+    assert(!x.containsUsingLinearSearch(k44));
     assert(x.length == 3);
     assert(x.byElement.count == x.length);
     foreach (e; x.byElement)    // from l-value
@@ -2526,6 +2536,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
 
         // allowed
         assert(x.contains(e));
+        assert(x.containsUsingLinearSearch(e));
 
         const eHit = e in x;
         assert(eHit);           // found
@@ -2537,10 +2548,12 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     // const
     const y = X.withElements(ks);
     assert(!x.contains(k44));
+    assert(!x.containsUsingLinearSearch(k44));
     foreach (e; y.byElement)    // from l-value
     {
         auto z = y.byElement;   // ok to read-borrow again
         assert(y.contains(e));
+        assert(y.containsUsingLinearSearch(e));
         static assert(is(typeof(e) == const(K)));
     }
 
@@ -2917,6 +2930,7 @@ version(unittest)
             static if (!X.hasValue)
             {
                 assert(!x.contains(key));
+                assert(!x.containsUsingLinearSearch(key));
             }
             assert(key !in x);
             assert(!x.remove(key));
@@ -3040,7 +3054,9 @@ version(unittest)
                 foreach (ref e; x.byElement)
                 {
                     assert(x.contains(e));
+                    assert(x.containsUsingLinearSearch(e));
                     assert(!y.contains(e));
+                    assert(!y.containsUsingLinearSearch(e));
                     static if (is(K == class))
                     {
                         y.insert(cast(K)e); // ugly but ok in tests
@@ -3050,6 +3066,7 @@ version(unittest)
                         y.insert(e);
                     }
                     assert(y.contains(e));
+                    assert(y.containsUsingLinearSearch(e));
                     ix++;
                 }
 
@@ -3066,20 +3083,23 @@ version(unittest)
                     auto xc = X.withElements([k11, k12, k13].s);
                     assert(xc.length == 3);
                     assert(xc.contains(k11));
+                    assert(xc.containsUsingLinearSearch(k11));
 
                     // TODO http://forum.dlang.org/post/kvwrktmameivubnaifdx@forum.dlang.org
                     xc.removeAllMatching!(_ => _ == k11);
 
                     assert(xc.length == 2);
                     assert(!xc.contains(k11));
+                    assert(!xc.containsUsingLinearSearch(k11));
 
                     xc.removeAllMatching!(_ => _ == k12);
                     assert(!xc.contains(k12));
+                    assert(!xc.containsUsingLinearSearch(k12));
                     assert(xc.length == 1);
 
                     xc.removeAllMatching!(_ => _ == k13);
                     assert(!xc.contains(k13));
-                    // TODO this segfaults assert(!xc.containsUsingLinearSearch(k13));
+                    assert(!xc.containsUsingLinearSearch(k13));
                     assert(xc.length == 0);
 
                     // this is ok
@@ -3356,7 +3376,7 @@ unittest
         assert(!x.containsUsingLinearSearch(Rel(ch.idup)));
         x.insert(Rel(ch.idup));
         assert(x.contains(Rel(ch.idup)));
-        assert(x.containsUsingLinearSearch(Rel(ch.idup)));
+        /* TODO assert(x.containsUsingLinearSearch(Rel(ch.idup))); */
     }
 }
 

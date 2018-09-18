@@ -153,7 +153,7 @@ void benchmarkAllocateStrings() @safe
 {
     immutable count = 1_000_000;
 
-    const value = "alpha_beta_gamma_delta";
+    static const value = "alpha_beta_gamma_delta";
     immutable(char)* latestPtr;
 
     void testNewAllocation() @safe pure

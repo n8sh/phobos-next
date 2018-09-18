@@ -11,11 +11,11 @@ int main()
     const auto value = "alpha_beta_gamma_delta";
     const auto count = 1000000;
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
-    const char* iptr = nullptr;
+    const char* latestPtr = nullptr;
     for (auto i = 0; i < count; ++i)
     {
         auto x = new string(value);
-        iptr = x->c_str();
+        latestPtr = x->c_str();
     }
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
 

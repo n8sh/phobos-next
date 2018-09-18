@@ -149,7 +149,7 @@ void benchmarkAllocatorsFreeList()
     writeln("std-allocation: ", results[1]);
 }
 
-void benchmarkAllocateStrings() @safe
+void benchmarkAllocateStrings() @trusted
 {
     immutable count = 1_000_000;
 
@@ -162,7 +162,10 @@ void benchmarkAllocateStrings() @safe
         latestPtr = &x[0];
     }
 
+    // import core.memory : GC;
+    // GC.disable();
     const results = benchmark!(testNewAllocation)(count);
+    // GC.enable();
     pragma(msg, typeof(results[0]));
     writefln("Allocating %s strings took %s", count, results[0]);
 }

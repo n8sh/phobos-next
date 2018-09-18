@@ -146,7 +146,7 @@ void benchmarkAllocatorsFreeList()
 
     const results = benchmark!(testNewAllocation, testAllocator)(nodeCount);
     writeln("new-allocation: ", results[0]);
-    writeln("stdx-allocation: ", results[1]);
+    writeln("std-allocation: ", results[1]);
 }
 
 void main()

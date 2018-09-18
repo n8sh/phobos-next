@@ -132,19 +132,19 @@ void benchmarkAllocatorsFreeList()
      * compilers such as LDC */
     void* latestPtr;
 
-    void testNewAllocation()
+    void testNewAllocation() pure
     {
         auto x = new size_t[wordCount];
         latestPtr = x.ptr;
     }
 
-    void testRegionAllocator()
+    void testAllocator() pure
     {
         auto x = allocator.allocate(size_t.sizeof*wordCount);
         latestPtr = x.ptr;
     }
 
-    const results = benchmark!(testNewAllocation, testRegionAllocator)(nodeCount);
+    const results = benchmark!(testNewAllocation, testAllocator)(nodeCount);
     writeln("new-allocation: ", results[0]);
     writeln("stdx-allocation: ", results[1]);
 }

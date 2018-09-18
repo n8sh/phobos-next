@@ -19,6 +19,6 @@ int main()
     }
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
     double dif = duration_cast<nanoseconds>( t2 - t1 ).count() / count;
-    cout << "Allocating took " << dif << " ns/string";
+    cout << "Allocating " << count << " string took " << dif << " ns/string";
     return 0;
 }

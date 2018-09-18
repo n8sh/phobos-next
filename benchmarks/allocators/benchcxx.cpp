@@ -18,7 +18,9 @@ int main()
         iptr = x->c_str();
     }
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
+
     const double dif = static_cast<double>(duration_cast<nanoseconds>( t2 - t1 ).count()) / count;
     cout << "Allocating " << count << " string took " << dif << " ns/string";
+
     return 0;
 }

@@ -163,7 +163,7 @@ void benchmarkAllocateStrings() @safe
     }
 
     const results = benchmark!(testNewAllocation)(count);
-    writefln("Allocating %s strings took %s", count, results[0]);
+    writefln("Allocating %s strings took %s ns/string", count, results[0]/count);
 }
 
 void main()

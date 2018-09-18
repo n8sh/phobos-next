@@ -9,7 +9,7 @@ using namespace std::chrono;
 int main()
 {
     const auto value = "alpha_beta_gamma_delta";
-    const auto count = 1000000;
+    const auto count = 1000000; // one million
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
     const char* latestPtr = nullptr;
     for (auto i = 0; i < count; ++i)

@@ -149,8 +149,26 @@ void benchmarkAllocatorsFreeList()
     writeln("std-allocation: ", results[1]);
 }
 
+void benchmarkAllocateStrings() @safe
+{
+    immutable count = 1_000_000;
+
+    const value = "alpha_beta_gamma_delta";
+    immutable(char)* latestPtr;
+
+    void testNewAllocation() @safe pure
+    {
+        auto x = value.idup;
+        latestPtr = &x[0];
+    }
+
+    const results = benchmark!(testNewAllocation)(count);
+    writefln("Allocating %s strings took %s", count, results[0]);
+}
+
 void main()
 {
     benchmarkAllocatorsRegion();
     benchmarkAllocatorsFreeList();
+    benchmarkAllocateStrings();
 }

@@ -8,7 +8,7 @@ import variant_arrays;
 struct StringStore
 {
     @safe pure:
-    void insertBack(string value)
+    void insertBack(string value) nothrow @nogc
     {
         switch (value.length)
         {
@@ -37,7 +37,7 @@ private:
                    string) _store;
 }
 
-@safe pure unittest
+@safe pure nothrow @nogc unittest
 {
     StringStore ss;
     ss.insertBack("alpha");

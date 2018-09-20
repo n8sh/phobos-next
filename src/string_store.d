@@ -4,7 +4,8 @@ import variant_arrays;
 
 @safe pure:
 
-/** Store sets of strings with different lengths compactly. */
+/** Store sets of strings with different lengths compactly.
+ */
 struct StringStore
 {
     @safe pure:

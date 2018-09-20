@@ -408,6 +408,14 @@ enum isIterableOfSomeString(R) = (isIterable!R && isSomeString!(ElementType!R));
     static assert(!isIterableOf!(R, I));
 }
 
+// TODO use this instead
+private template isInputRangeOf(R, E)
+{
+    import std.range.primitives: isInputRange, ElementType;
+    import std.traits: Unqual;
+    enum isInputRangeOf = isInputRange!R && is(Unqual!(ElementType!R) == E);
+}
+
 /// Useful aliases for combinations of range predicates.
 enum isRandomAccessRangeOf(R, E) = isRandomAccessRange!R && is(ElementType!R == E);
 enum isForwardRangeOf(R, E) = isForwardRange!R && is(ElementType!R == E);

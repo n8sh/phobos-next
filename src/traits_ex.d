@@ -408,7 +408,7 @@ enum isIterableOfSomeString(R) = (isIterable!R && isSomeString!(ElementType!R));
     static assert(!isIterableOf!(R, I));
 }
 
-// TODO use this instead
+// TODO use this instead?
 version(none) private template isInputRangeOf(R, E)
 {
     import std.range.primitives: isInputRange, ElementType;

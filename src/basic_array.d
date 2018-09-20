@@ -299,8 +299,12 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     //     move(rhs, this);
     // }
 
-    /// Destruct.
-    ~this()
+    /** Destruct.
+     *
+     * TODO what effect does have here?
+     * See_Also: https://github.com/atilaneves/automem/blob/master/source/automem/vector.d#L92
+     */
+    ~this() scope
     {
         release();
     }

@@ -409,7 +409,7 @@ enum isIterableOfSomeString(R) = (isIterable!R && isSomeString!(ElementType!R));
 }
 
 // TODO use this instead
-private template isInputRangeOf(R, E)
+version(none) private template isInputRangeOf(R, E)
 {
     import std.range.primitives: isInputRange, ElementType;
     import std.traits: Unqual;

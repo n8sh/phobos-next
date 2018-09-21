@@ -40,8 +40,8 @@ class Graph
     alias NodeRegionAllocator = Region!(NullAllocator, Node.alignof);
     this()
     {
-        _regionData = PureGCAllocator.instance.allocate(1024*1024);
-        _allocator = NodeRegionAllocator(cast(ubyte[])_regionData);
+        _regionBlock = PureGCAllocator.instance.allocate(1024*1024);
+        _allocator = NodeRegionAllocator(cast(ubyte[])_regionBlock);
 
         auto sampleNode = make!DoubleNode(42);
     }
@@ -53,8 +53,8 @@ class Graph
         return _allocator.make!Type(args);
     }
 
-    NodeRegionAllocator _allocator;   // allocator over `_regionData`
-    void[] _regionData;             // raw data for allocator
+    NodeRegionAllocator _allocator;   // allocator over `_regionBlock`
+    void[] _regionBlock;             // raw data for allocator
 }
 
 /** Benchmark `Region` vs `PureGCAllocator`. */

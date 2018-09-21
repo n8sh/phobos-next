@@ -37,11 +37,11 @@ static assert(__traits(classInstanceSize, DoubleNode) == (1 + 1)*wordSize); // 1
 /** Graph managing objects. */
 class Graph
 {
-    alias NodeAllocator = Region!(NullAllocator, Node.alignof);
+    alias NodeRegionAllocator = Region!(NullAllocator, Node.alignof);
     this()
     {
-        _region = PureGCAllocator.instance.allocate(1024*1024);
-        _allocator = NodeAllocator(cast(ubyte[])_region);
+        _regionData = PureGCAllocator.instance.allocate(1024*1024);
+        _allocator = NodeRegionAllocator(cast(ubyte[])_regionData);
 
         auto sampleNode = make!DoubleNode(42);
     }
@@ -53,8 +53,8 @@ class Graph
         return _allocator.make!Type(args);
     }
 
-    NodeAllocator _allocator;   // allocator over `_region`
-    void[] _region;             // raw data for allocator
+    NodeRegionAllocator _allocator;   // allocator over `_regionData`
+    void[] _regionData;             // raw data for allocator
 }
 
 /** Benchmark `Region` vs `PureGCAllocator`. */

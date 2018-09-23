@@ -185,6 +185,7 @@ void benchmarkBlizzardSafeAllocator()
                                       64, AlignedBlockList!(BitmappedBlock!64, AscendingPageAllocator*, 1 << 21),
                                       AscendingPageAllocator*);
     SafeAllocator allocator;
+    int* i = allocator.make!int(42);
 }
 
 void main()

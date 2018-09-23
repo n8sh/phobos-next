@@ -180,7 +180,9 @@ void benchmarkAllocateStrings() @trusted
  */
 void benchmarkBlizzardSafeAllocator()
 {
-    alias SafeAllocator = Segregator!(16, AlignedBlockList!(BitmappedBlock!16, AscendingPageAllocator*, 1 << 21),
+    alias SafeAllocator = Segregator!(16, AlignedBlockList!(BitmappedBlock!16,
+                                                            AscendingPageAllocator*,
+                                                            1 << 21),
                                       AscendingPageAllocator*);
     SafeAllocator allocator;
     // TODO: this fails: int* i = allocator.make!int(32);

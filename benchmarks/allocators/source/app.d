@@ -5,7 +5,7 @@ import std.experimental.allocator.building_blocks : NullAllocator, FreeList, Seg
 
 import std.experimental.allocator.building_blocks.ascending_page_allocator : AscendingPageAllocator;
 import std.experimental.allocator.building_blocks.aligned_block_list : AlignedBlockList;
-import std.experimental.allocator.building_blocks.bitmapped_block : BitmappedBlock;
+import std.experimental.allocator.building_blocks.bitmapped_block : SafeBitmappedBlock;
 
 import region_allocator : Region; // using my own until @safe fixes has been merged
 import pure_gc_allocator : PureGCAllocator; // using my own until @safe fixes has been merged
@@ -180,9 +180,7 @@ void benchmarkAllocateStrings() @trusted
  */
 void benchmarkBlizzardSafeAllocator()
 {
-    alias SafeAllocator = Segregator!(16, AlignedBlockList!(BitmappedBlock!16, AscendingPageAllocator*, 1 << 21),
-                                      32, AlignedBlockList!(BitmappedBlock!32, AscendingPageAllocator*, 1 << 21),
-                                      64, AlignedBlockList!(BitmappedBlock!64, AscendingPageAllocator*, 1 << 21),
+    alias SafeAllocator = Segregator!(16, AlignedBlockList!(SafeBitmappedBlock!16, AscendingPageAllocator*, 1 << 21),
                                       AscendingPageAllocator*);
     SafeAllocator allocator;
     // TODO: this fails: int* i = allocator.make!int(32);

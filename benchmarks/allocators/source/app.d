@@ -173,7 +173,6 @@ void benchmarkAllocateStrings() @trusted
     const Duration[1] results = benchmark!(testNewAllocation)(benchmarkCount);
     // GC.enable();
 
-    pragma(msg, typeof(results[0]));
     writefln("Allocating string took %s ns",
              cast(double)results[0].total!"nsecs"/benchmarkCount);
 }

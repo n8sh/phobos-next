@@ -6,7 +6,7 @@ void main(string[] args)
     import core.time : Duration;
     import core.memory : GC;
 
-    immutable benchmarkCount = 100_000;
+    immutable benchmarkCount = 1_000;
     const Duration[1] results = benchmark!(GC.collect)(benchmarkCount);
 
     writefln("Calling GC.collect() took %s ns",

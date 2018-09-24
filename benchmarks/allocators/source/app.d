@@ -167,12 +167,15 @@ void benchmarkAllocateStrings() @trusted
     }
 
     import core.time : Duration;
-    // import core.memory : GC;
+    import core.memory : GC;
+
     // GC.disable();
     const Duration[1] results = benchmark!(testNewAllocation)(benchmarkCount);
     // GC.enable();
+
     pragma(msg, typeof(results[0]));
-    writefln("Allocating %s string took %s", benchmarkCount, results[0]);
+    writefln("Allocating string took %s ns",
+             cast(double)results[0].total!"nsecs"/benchmarkCount);
 }
 
 /** Benchmark Project Blizzard safe allocator.

@@ -155,7 +155,7 @@ void benchmarkAllocatorsFreeList()
 
 void benchmarkAllocateStrings() @trusted
 {
-    immutable benchmarkCount = 1_00_000;
+    immutable benchmarkCount = 100_000;
 
     static immutable value = "alpha_beta_gamma_delta";
     immutable(char)* latestPtr;

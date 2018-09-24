@@ -6,7 +6,7 @@ void main(string[] args)
     import core.time : Duration;
     import core.memory : GC;
 
-    immutable benchmarkCount = 100;
+    immutable benchmarkCount = 1;
 
     foreach (const i; 0 .. 10)
     {

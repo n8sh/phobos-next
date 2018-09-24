@@ -155,7 +155,7 @@ void benchmarkAllocatorsFreeList()
 
 void benchmarkAllocateStrings() @trusted
 {
-    immutable count = 1_000_000;
+    immutable benchmarkCount = 1_000_000;
 
     static immutable value = "alpha_beta_gamma_delta";
     immutable(char)* latestPtr;
@@ -168,10 +168,10 @@ void benchmarkAllocateStrings() @trusted
 
     // import core.memory : GC;
     // GC.disable();
-    const results = benchmark!(testNewAllocation)(count);
+    const results = benchmark!(testNewAllocation)(benchmarkCount);
     // GC.enable();
     pragma(msg, typeof(results[0]));
-    writefln("Allocating %s strings took %s", count, results[0]);
+    writefln("Allocating %s strings took %s", benchmarkCount, results[0]);
 }
 
 /** Benchmark Project Blizzard safe allocator.

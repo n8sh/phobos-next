@@ -10,9 +10,10 @@ void main(string[] args)
 
     foreach (const i; 0 .. 10)
     {
-        const array = new char[i*100_000_000]; // one Gig
+        const byteCount = i*100_000_000;
+        const array = new byte[byteCount]; // one Gig
         const Duration[1] results = benchmark!(GC.collect)(benchmarkCount);
-        writefln("Calling GC.collect() took %s nsecs after %s",
-                 cast(double)results[0].total!"nsecs"/benchmarkCount, array.ptr);
+        writefln("%s bytes: Calling GC.collect() took %s nsecs after %s",
+                 byteCount, cast(double)results[0].total!"nsecs"/benchmarkCount, array.ptr);
     }
 }

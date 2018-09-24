@@ -1,4 +1,4 @@
-import std.traits, std.meta, std.range, std.algorithm, std.stdio;
+import std.stdio;
 
 void main(string[] args)
 {

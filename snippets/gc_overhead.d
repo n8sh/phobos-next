@@ -6,9 +6,14 @@ void main(string[] args)
     import core.time : Duration;
     import core.memory : GC;
 
-    immutable benchmarkCount = 1_000;
-    const Duration[1] results = benchmark!(GC.collect)(benchmarkCount);
+    immutable benchmarkCount = 100;
 
+    const Duration[1] results = benchmark!(GC.collect)(benchmarkCount);
     writefln("Calling GC.collect() took %s usecs",
              cast(double)results[0].total!"usecs"/benchmarkCount);
+
+    const array = new char[1_000_000_000]; // one Gig
+    const Duration[1] results1 = benchmark!(GC.collect)(benchmarkCount);
+    writefln("Calling GC.collect() took %s usecs",
+             cast(double)results1[0].total!"usecs"/benchmarkCount);
 }

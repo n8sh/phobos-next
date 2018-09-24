@@ -129,7 +129,7 @@ void benchmarkAllocatorsFreeList()
                                   PureGCAllocator);
     Allocator allocator;
 
-    immutable nodeCount = 1_000_000;
+    immutable nodeCount = 100_000;
     immutable wordCount = 4;
 
     /* store latest pointer here to prevent scoped allocation in clever

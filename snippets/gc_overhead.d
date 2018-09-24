@@ -9,6 +9,6 @@ void main(string[] args)
     immutable benchmarkCount = 1_000;
     const Duration[1] results = benchmark!(GC.collect)(benchmarkCount);
 
-    writefln("Calling GC.collect() took %s ns",
-             cast(double)results[0].total!"nsecs"/benchmarkCount);
+    writefln("Calling GC.collect() took %s usecs",
+             cast(double)results[0].total!"usecs"/benchmarkCount);
 }

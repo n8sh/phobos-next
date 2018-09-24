@@ -176,6 +176,7 @@ void benchmarkAllocateStrings() @trusted
 
 /** Benchmark Project Blizzard safe allocator.
  *
+ * See_Also: https://forum.dlang.org/post/agjiyuiowhvhhzmyaojx@forum.dlang.org
  * See_Also: https://www.youtube.com/watch?v=kaA3HPgowwY&t=1009s
  */
 void benchmarkBlizzardSafeAllocator()
@@ -185,7 +186,7 @@ void benchmarkBlizzardSafeAllocator()
                                                             1 << 21),
                                       AscendingPageAllocator*);
     SafeAllocator allocator;
-    // TODO: this fails: int* i = allocator.make!int(32);
+    // TODO this fails: int* i = allocator.make!int(32);
 }
 
 void main()

@@ -2,8 +2,6 @@
  */
 module to_string;
 
-import std.stdio;
-
 class Int64Node
 {
     @safe pure nothrow:

@@ -4,7 +4,7 @@ module to_string;
 
 import std.stdio;
 
-class Int64Node
+class Long
 {
     @safe:
 
@@ -32,7 +32,7 @@ class Int64Node
 
 @safe pure nothrow unittest
 {
-    auto i = new Int64Node(42);
+    auto i = new Long(42);
     assert(i.toString == `42`); // picks non-delegate version
 }
 
@@ -40,7 +40,7 @@ class Int64Node
 {
     import std.array : Appender;
     Appender!(int[]) app;
-    auto i = new Int64Node(42);
+    auto i = new Long(42);
     i.toString(&(app.put!(const(char)[])));
     assert(app.data == `42`);
 }

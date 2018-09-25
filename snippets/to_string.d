@@ -16,11 +16,19 @@ class Int64Node
         import std.conv : to;
         return _data.to!(typeof(return));
     }
+
     private long _data;
 }
 
-@safe pure unittest
+@safe pure nothrow unittest
 {
     auto i = new Int64Node(42);
     assert(i.toString == `42`);
+}
+
+@safe unittest
+{
+    auto i = new Int64Node(42);
+    import std.stdio;
+    writeln(i);
 }

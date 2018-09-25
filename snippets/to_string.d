@@ -4,7 +4,15 @@ module to_string;
 
 class Int64Node
 {
-    @safe pure nothrow:
+    @safe:
+
+    @property void toString(scope void delegate(const(char)[]) @safe sink) const
+    {
+        import std.conv : to;
+        sink(toString());
+    }
+
+    pure nothrow:
 
     this(long data) @nogc
     {

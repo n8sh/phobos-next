@@ -12,7 +12,6 @@ class Int64Node
     {
         import std.conv : to;
         sink(_data.to!(string));
-        writeln("here");
     }
 
     pure nothrow:
@@ -39,6 +38,9 @@ class Int64Node
 
 @safe unittest
 {
+    import std.array : Appender;
+    Appender!(int[]) app;
     auto i = new Int64Node(42);
-    writeln(i);                 // picks delegate version
+    i.toString(&(app.put!(const(char)[])));
+    assert(app.data == `42`);
 }

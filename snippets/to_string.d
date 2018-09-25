@@ -2,6 +2,8 @@
  */
 module to_string;
 
+import std.stdio;
+
 class Int64Node
 {
     @safe:
@@ -9,7 +11,8 @@ class Int64Node
     @property void toString(scope void delegate(const(char)[]) @safe sink) const
     {
         import std.conv : to;
-        sink(toString());
+        sink(_data.to!(string));
+        writeln("here");
     }
 
     pure nothrow:
@@ -31,12 +34,11 @@ class Int64Node
 @safe pure nothrow unittest
 {
     auto i = new Int64Node(42);
-    assert(i.toString == `42`);
+    assert(i.toString == `42`); // picks non-delegate version
 }
 
 @safe unittest
 {
     auto i = new Int64Node(42);
-    import std.stdio;
-    writeln(i);
+    writeln(i);                 // picks delegate version
 }

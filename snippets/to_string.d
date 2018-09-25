@@ -21,7 +21,7 @@ class Int64Node
     long _data;
 }
 
-void main(string[] args)
+@safe pure unittest
 {
     auto i = new Int64Node(42);
     assert(i.toString == `42`);

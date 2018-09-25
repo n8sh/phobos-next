@@ -16,7 +16,7 @@ class Int64Node
         import std.conv : to;
         return _data.to!(typeof(return));
     }
-    long _data;
+    private long _data;
 }
 
 @safe pure unittest

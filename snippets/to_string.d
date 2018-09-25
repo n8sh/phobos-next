@@ -2,8 +2,6 @@
  */
 module to_string;
 
-import std.stdio;
-
 class Long
 {
     @safe:

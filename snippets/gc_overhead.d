@@ -21,13 +21,13 @@ void main(string[] args)
         {
             enum byteCount = 2UL^^i;
             const Duration[1] resultsC = benchmark!(mallocAndFreeBytes!(i))(benchmarkCount);
-            printf("%d bytes: mallocAndFreeBytes: %d nsecs",
+            printf("%ld bytes: mallocAndFreeBytes: %ld nsecs",
                    byteCount, cast(size_t)(cast(double)resultsC[0].total!"nsecs"/benchmarkCount));
 
             import core.memory : GC;
             auto dArray = new byte[byteCount]; // one Gig
             const Duration[1] resultsD = benchmark!(GC.collect)(benchmarkCount);
-            printf("  GC.collect(): %d nsecs after %p\n",
+            printf("  GC.collect(): %ld nsecs after %p\n",
                    cast(size_t)(cast(double)resultsD[0].total!"nsecs"/benchmarkCount), dArray.ptr);
             dArray = null;
         }

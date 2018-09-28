@@ -2,8 +2,8 @@ import core.stdc.stdio: printf;
 
 void* mallocAndFreeBytes(size_t byteCount)()
 {
-    import core.memory : pureMalloc, pureFree;
-    void* ptr = pureMalloc(byteCount);
+    import core.memory : pureCalloc, pureFree;
+    void* ptr = pureCalloc(byteCount, 1);
     pureFree(ptr);
     return ptr;                 // for side-effects
 }

@@ -16,19 +16,19 @@ void main(string[] args)
     immutable benchmarkCount = 1;
 
     // GC
-    static foreach (const i; 0 .. 31)
+    static foreach (const size_t i; 0 .. 32)
     {
         {
-            enum byteCount = 2^^i;
+            enum byteCount = 2UL^^i;
             const Duration[1] resultsC = benchmark!(mallocAndFreeBytes!(i))(benchmarkCount);
-            printf("%d bytes: mallocAndFreeBytes: %f nsecs",
-                   byteCount, cast(double)resultsC[0].total!"nsecs"/benchmarkCount);
+            printf("%d bytes: mallocAndFreeBytes: %d nsecs",
+                   byteCount, cast(size_t)(cast(double)resultsC[0].total!"nsecs"/benchmarkCount));
 
             import core.memory : GC;
             auto dArray = new byte[byteCount]; // one Gig
             const Duration[1] resultsD = benchmark!(GC.collect)(benchmarkCount);
-            printf("  GC.collect(): %f nsecs after %p\n",
-                     cast(double)resultsD[0].total!"nsecs"/benchmarkCount, dArray.ptr);
+            printf("  GC.collect(): %d nsecs after %p\n",
+                   cast(size_t)(cast(double)resultsD[0].total!"nsecs"/benchmarkCount), dArray.ptr);
             dArray = null;
         }
     }

@@ -21,13 +21,13 @@ void main(string[] args)
         {
             enum byteCount = i*100_000_000;
             const Duration[1] resultsC = benchmark!(mallocAndFreeBytes!(i))(benchmarkCount);
-            writefln("%s bytes: Calling mallocAndFreeBytes took %s nsecs",
-                     byteCount, cast(double)resultsC[0].total!"nsecs"/benchmarkCount);
+            writef("%s bytes: mallocAndFreeBytes: %s nsecs",
+                   byteCount, cast(double)resultsC[0].total!"nsecs"/benchmarkCount);
 
             import core.memory : GC;
             const dArray = new byte[byteCount]; // one Gig
             const Duration[1] resultsD = benchmark!(GC.collect)(benchmarkCount);
-            writefln("%s bytes: Calling GC.collect() took %s nsecs after %s",
+            writefln(" GC.collect(): %s nsecs after %s",
                      byteCount, cast(double)resultsD[0].total!"nsecs"/benchmarkCount, dArray.ptr);
         }
     }

@@ -16,10 +16,10 @@ void main(string[] args)
     immutable benchmarkCount = 1;
 
     // GC
-    static foreach (const i; 0 .. 10)
+    static foreach (const i; 0 .. 30)
     {
         {
-            enum byteCount = i*100_000_000;
+            enum byteCount = 2^^i;
             const Duration[1] resultsC = benchmark!(mallocAndFreeBytes!(i))(benchmarkCount);
             writef("%s bytes: mallocAndFreeBytes: %s nsecs",
                    byteCount, cast(double)resultsC[0].total!"nsecs"/benchmarkCount);
@@ -28,7 +28,7 @@ void main(string[] args)
             const dArray = new byte[byteCount]; // one Gig
             const Duration[1] resultsD = benchmark!(GC.collect)(benchmarkCount);
             writefln(" GC.collect(): %s nsecs after %s",
-                     byteCount, cast(double)resultsD[0].total!"nsecs"/benchmarkCount, dArray.ptr);
+                     cast(double)resultsD[0].total!"nsecs"/benchmarkCount, dArray.ptr);
         }
     }
 }

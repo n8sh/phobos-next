@@ -16,7 +16,7 @@ void main(string[] args)
     immutable benchmarkCount = 1;
 
     // GC
-    static foreach (const i; 0 .. 30)
+    static foreach (const i; 0 .. 31)
     {
         {
             enum byteCount = 2^^i;
@@ -25,10 +25,11 @@ void main(string[] args)
                    byteCount, cast(double)resultsC[0].total!"nsecs"/benchmarkCount);
 
             import core.memory : GC;
-            const dArray = new byte[byteCount]; // one Gig
+            auto dArray = new byte[byteCount]; // one Gig
             const Duration[1] resultsD = benchmark!(GC.collect)(benchmarkCount);
             writefln(" GC.collect(): %s nsecs after %s",
                      cast(double)resultsD[0].total!"nsecs"/benchmarkCount, dArray.ptr);
+            dArray = null;
         }
     }
 }

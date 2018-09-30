@@ -3,7 +3,6 @@ import std.stdio;
 
 void main(string[] args)
 {
-    // writeln("args:", args);
     const n = 10;
     foreach (i; 0 .. n)
     {

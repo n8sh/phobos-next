@@ -8,7 +8,7 @@ void main(string[] args)
     foreach (i; 0 .. n)
     {
         int* x = new int(i);
-        printf("i:%d, p:%p\n", i, x);
+        printf("x: i:%d, p:%p\n", i, x);
         x = null;
         GC.collect();
     }

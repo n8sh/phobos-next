@@ -3,7 +3,11 @@ import std.stdio;
 
 void main(string[] args)
 {
-    writeln("args:", args);
-    int* x = new int(32);
-    printf("p:%p\n", x);
+    // writeln("args:", args);
+    const n = 10;
+    foreach (i; 0 .. n)
+    {
+        int* x = new int(i);
+        printf("i:%d, p:%p\n", i, x);
+    }
 }

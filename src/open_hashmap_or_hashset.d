@@ -1283,28 +1283,20 @@ struct OpenHashMapOrSet(K, V = void,
         typeof(return) totalCount = 0;
         foreach (const ref currentElement; range)
         {
-            static if (isCopyable!T)
+            static if (isDynamicArray!K)
             {
-                /* don't use `auto ref` for copyable `T`'s to prevent
-                 * massive performance drop for small elements when compiled
-                 * with LDC. TODO remove when LDC is fixed. */
-                static if (isDynamicArray!K)
-                {
-                    alias pred = (const scope element) => (keyOf(element) ==
-                                                           keyOf(currentElement));
-                }
-                else
-                {
-                    alias pred = (const scope element) => (keyOf(element) is
-                                                           keyOf(currentElement));
-                }
+                alias pred = (const scope element) => (keyOf(element) ==
+                                                       keyOf(currentElement));
             }
             else
             {
-                static if (isDynamicArray!K)
+                static if (isCopyable!T)
                 {
-                    alias pred = (const scope auto ref element) => (keyOf(element) ==
-                                                                    keyOf(currentElement));
+                    /* don't use `auto ref` for copyable `T`'s to prevent
+                     * massive performance drop for small elements when compiled
+                     * with LDC. TODO remove when LDC is fixed. */
+                    alias pred = (const scope element) => (keyOf(element) is
+                                                           keyOf(currentElement));
                 }
                 else
                 {

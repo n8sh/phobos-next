@@ -3,9 +3,16 @@ module open_hashmap_or_hashset;
 // version = showEntries;
 // version = internalUnittest; // fed by dub (see dub.sdl) in unittest-internal mode
 
-import traits_ex : isAddress;
 import container_traits : isNullable;
 import pure_mallocator : PureMallocator;
+
+/** Is `true` iff `T` is a memory address. */
+private template isAddress(T)
+{
+    import std.traits : isPointer;
+    enum isAddress = (is(T == class) || // a class is memory-wise
+                      isPointer!T);     // just a pointer, consistent with opCmp
+}
 
 @safe:
 
@@ -1233,20 +1240,23 @@ struct OpenHashMapOrSet(K, V = void,
         return false;
     }
 
-    import traits_ex : isRefIterable;
-    import std.range : front;
-
     /** Remove all elements matching `keys` followed by a rehash.
      *
      * Returns: number of elements that were removed.
      */
-    size_t rehashingRemoveN(Keys)(const scope Keys keys) // template-lazy
+    version(none)
+    {
+        import traits_ex : isRefIterable;
+        import std.range : front;
+
+        size_t rehashingRemoveN(Keys)(const scope Keys keys) // template-lazy
         if (isRefIterable!Keys &&
             is(typeof(Keys.front == K.init)))
-    {
-        static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
-        rehash!("!a.isNull && keys.canFind(a)")(); // TODO make this work
-        return 0;
+        {
+            static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
+            rehash!("!a.isNull && keys.canFind(a)")(); // TODO make this work
+            return 0;
+        }
     }
 
     /// Check if empty.

@@ -253,8 +253,6 @@ inout(string) threeUnderscores(inout(string) x) @safe pure nothrow @nogc
     return "___";
 }
 
-import std.traits : isPointer;
-
 /** Is `true` iff `T` is a memory address. */
 private template isAddress(T)
 {

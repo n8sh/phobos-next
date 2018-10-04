@@ -14,7 +14,7 @@ module static_bitarray;
 
     TODO Optimize `allOne`, `allZero` using intrinsic?
  */
-struct StaticBitArray(uint len, Block = size_t)
+struct StaticBitArray(uint bitCount, Block = size_t)
 {
     @safe:
 
@@ -25,9 +25,9 @@ struct StaticBitArray(uint len, Block = size_t)
     import std.traits : isUnsigned;
     static assert(isUnsigned!Block, "Block must be a builtin unsigned integer");
 
-    static if (len >= 1)
+    static if (bitCount >= 1)
     {
-        alias Index = Mod!len;
+        alias Index = Mod!bitCount;
     }
 
     static if (Block.sizeof == 8)
@@ -42,7 +42,7 @@ struct StaticBitArray(uint len, Block = size_t)
     /** Number of bits per `Block`. */
     enum bitsPerBlock = 8*Block.sizeof;
     /** Number of `Block`s. */
-    enum blockCount = (len + (bitsPerBlock-1)) / bitsPerBlock;
+    enum blockCount = (bitCount + (bitsPerBlock-1)) / bitsPerBlock;
 
     /** Data stored as `Block`s. */
     private Block[blockCount] _blocks;
@@ -66,7 +66,7 @@ struct StaticBitArray(uint len, Block = size_t)
     void reset()()
     {
         pragma(inline, true);
-        _blocks[] = 0;
+        _blocks[] = 0;          // TODO is this fastest way?
     }
 
     /** Gets the amount of native words backing this $(D StaticBitArray). */
@@ -77,7 +77,7 @@ struct StaticBitArray(uint len, Block = size_t)
     }
 
     /** Number of bits. */
-    enum length = len;
+    enum length = bitCount;
 
     /** Bidirectional range into `BitArray`.
 
@@ -165,7 +165,7 @@ struct StaticBitArray(uint len, Block = size_t)
     bool opIndex()(size_t i) const @trusted
     in
     {
-        assert(i < len);        // TODO nothrow or not?
+        assert(i < bitCount);        // TODO nothrow or not?
     }
     body
     {
@@ -182,13 +182,13 @@ struct StaticBitArray(uint len, Block = size_t)
     }
 
     /** Gets the $(D i)'th bit. No range checking needed. */
-    static if (len >= 1)
+    static if (bitCount >= 1)
     {
         /** Get the $(D i)'th bit.
 
-            Avoids range-checking because `i` of type is bound to (0 .. len-1).
+            Avoids range-checking because `i` of type is bound to (0 .. bitCount-1).
         */
-        bool opIndex(ModUInt)(Mod!(len, ModUInt) i) const @trusted
+        bool opIndex(ModUInt)(Mod!(bitCount, ModUInt) i) const @trusted
             if (isUnsigned!ModUInt)
         {
             pragma(inline, true);
@@ -206,7 +206,7 @@ struct StaticBitArray(uint len, Block = size_t)
             Statically verifies that i is < StaticBitArray length.
         */
         bool at(size_t i)() const @trusted
-            if (i < len)
+            if (i < bitCount)
         {
             pragma(inline, true);
             return this[i];
@@ -231,10 +231,10 @@ struct StaticBitArray(uint len, Block = size_t)
         // See_Also: http://stackoverflow.com/questions/19906516/static-parameter-function-specialization-in-d
         /* static if (!isMutable!Index2) { */
         /*     import std.conv: to; */
-        /*     static assert(i < len, */
-        /*                   "Index2 " ~ to!string(i) ~ " must be smaller than StaticBitArray length " ~  to!string(len)); */
+        /*     static assert(i < bitCount, */
+        /*                   "Index2 " ~ to!string(i) ~ " must be smaller than StaticBitArray length " ~  to!string(bitCount)); */
         /* } */
-        assert(i < len);
+        assert(i < bitCount);
     }
     body
     {
@@ -250,11 +250,11 @@ struct StaticBitArray(uint len, Block = size_t)
         return b;
     }
 
-    static if (len >= 1)
+    static if (bitCount >= 1)
     {
         /** Sets the $(D i)'th bit. No range checking needed. */
         pragma(inline, true)
-        bool opIndexAssign(ModUInt)(bool b, Mod!(len, ModUInt) i) @trusted
+        bool opIndexAssign(ModUInt)(bool b, Mod!(bitCount, ModUInt) i) @trusted
         if (isUnsigned!ModUInt)
         {
             if (b)
@@ -290,7 +290,7 @@ struct StaticBitArray(uint len, Block = size_t)
     int opApply(scope int delegate(ref bool) dg) @trusted
     {
         int result;
-        for (size_t i = 0; i < len; ++i)
+        for (size_t i = 0; i < bitCount; ++i)
         {
             bool b = opIndex(i);
             result = dg(b);
@@ -304,7 +304,7 @@ struct StaticBitArray(uint len, Block = size_t)
     int opApply(scope int delegate(bool) dg) const @trusted
     {
         int result;
-        for (size_t i = 0; i < len; ++i)
+        for (size_t i = 0; i < bitCount; ++i)
         {
             bool b = opIndex(i);
             result = dg(b);
@@ -317,7 +317,7 @@ struct StaticBitArray(uint len, Block = size_t)
     int opApply(scope int delegate(ref size_t, ref bool) dg) @trusted
     {
         int result;
-        for (size_t i = 0; i < len; ++i)
+        for (size_t i = 0; i < bitCount; ++i)
         {
             bool b = opIndex(i);
             result = dg(i, b);
@@ -331,7 +331,7 @@ struct StaticBitArray(uint len, Block = size_t)
     int opApply(scope int delegate(size_t, bool) dg) const @trusted
     {
         int result;
-        for (size_t i = 0; i < len; ++i)
+        for (size_t i = 0; i < bitCount; ++i)
         {
             bool b = opIndex(i);
             result = dg(i, b);
@@ -436,7 +436,7 @@ struct StaticBitArray(uint len, Block = size_t)
             static if (length >= 2)
             {
                 size_t lo = 0;
-                size_t hi = len - 1;
+                size_t hi = bitCount - 1;
                 for (; lo < hi; ++lo, --hi)
                 {
                     immutable t = this[lo];
@@ -451,48 +451,48 @@ struct StaticBitArray(uint len, Block = size_t)
     ///
     pure unittest
     {
-        enum len = 64;
-        static immutable bool[len] data = [0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0,
+        enum bitCount = 64;
+        static immutable bool[bitCount] data = [0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0,
                                            0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0];
-        auto b = StaticBitArray!len(data);
+        auto b = StaticBitArray!bitCount(data);
         b.reverse();
         for (size_t i = 0; i < data.length; ++i)
         {
-            assert(b[i] == data[len - 1 - i]);
+            assert(b[i] == data[bitCount - 1 - i]);
         }
     }
 
     ///
     pure unittest
     {
-        enum len = 64*2;
-        static immutable bool[len] data = [0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0,
+        enum bitCount = 64*2;
+        static immutable bool[bitCount] data = [0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0,
                                            0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0,
                                            0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0,
                                            0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0];
-        auto b = StaticBitArray!len(data);
+        auto b = StaticBitArray!bitCount(data);
         b.reverse();
         for (size_t i = 0; i < data.length; ++i)
         {
-            assert(b[i] == data[len - 1 - i]);
+            assert(b[i] == data[bitCount - 1 - i]);
         }
     }
 
     ///
     pure unittest
     {
-        enum len = 64*3;
-        static immutable bool[len] data = [0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0,
+        enum bitCount = 64*3;
+        static immutable bool[bitCount] data = [0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0,
                                            0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0,
                                            0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0,
                                            0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0,
                                            0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0,
                                            0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0, 0,1,1,0,1,0,1,0];
-        auto b = StaticBitArray!len(data);
+        auto b = StaticBitArray!bitCount(data);
         b.reverse();
         for (size_t i = 0; i < data.length; ++i)
         {
-            assert(b[i] == data[len - 1 - i]);
+            assert(b[i] == data[bitCount - 1 - i]);
         }
     }
 
@@ -504,11 +504,11 @@ struct StaticBitArray(uint len, Block = size_t)
     }
     body
     {
-        if (len >= 2)
+        if (bitCount >= 2)
         {
             size_t lo, hi;
             lo = 0;
-            hi = len - 1;
+            hi = bitCount - 1;
             while (1)
             {
                 while (1)
@@ -550,7 +550,7 @@ struct StaticBitArray(uint len, Block = size_t)
 
 
     /** Support for operators == and != for $(D StaticBitArray). */
-    bool opEquals(Block2)(in StaticBitArray!(len, Block2) a2) const
+    bool opEquals(Block2)(in StaticBitArray!(bitCount, Block2) a2) const
         @trusted
         if (isUnsigned!Block2)
     {
@@ -583,22 +583,22 @@ struct StaticBitArray(uint len, Block = size_t)
     }
 
     /** Supports comparison operators for $(D StaticBitArray). */
-    int opCmp(Block2)(in StaticBitArray!(len, Block2) a2) const
+    int opCmp(Block2)(in StaticBitArray!(bitCount, Block2) a2) const
         @trusted
         if (isUnsigned!Block2)
     {
         uint i;
 
-        auto len = this.length;
-        if (a2.length < len) { len = a2.length; }
+        auto bitCount = this.length;
+        if (a2.length < bitCount) { bitCount = a2.length; }
         auto p1 = this.ptr;
         auto p2 = a2.ptr;
-        auto n = len / bitsPerBlock;
+        auto n = bitCount / bitsPerBlock;
         for (i = 0; i < n; ++i)
         {
             if (p1[i] != p2[i]) { break; } // not equal
         }
-        for (size_t j = 0; j < len-i * bitsPerBlock; j++)
+        for (size_t j = 0; j < bitCount-i * bitsPerBlock; j++)
         {
             size_t mask = cast(size_t)(1 << j);
             auto c = (cast(long)(p1[i] & mask) - cast(long)(p2[i] & mask));
@@ -627,13 +627,13 @@ struct StaticBitArray(uint len, Block = size_t)
         @trusted pure nothrow
     {
         size_t hash = 3557;
-        auto n  = len / 8;
+        auto n  = bitCount / 8;
         for (size_t i = 0; i < n; ++i)
         {
             hash *= 3559;
             hash += (cast(byte*)this.ptr)[i];
         }
-        for (size_t i = 8*n; i < len; ++i)
+        for (size_t i = 8*n; i < bitCount; ++i)
         {
             hash *= 3571;
             hash += this[i];
@@ -656,7 +656,7 @@ struct StaticBitArray(uint len, Block = size_t)
     }
 
     /** Set this $(D StaticBitArray) to the contents of $(D ba). */
-    this()(const ref bool[len] ba)
+    this()(const ref bool[bitCount] ba)
     {
         foreach (immutable i, const b; ba)
         {
@@ -709,7 +709,7 @@ struct StaticBitArray(uint len, Block = size_t)
     bool allOneBetween()(size_t low, size_t high) const
     in
     {
-        assert(low + 1 <= len && high <= len);
+        assert(low + 1 <= bitCount && high <= bitCount);
     }
     body
     {
@@ -722,7 +722,7 @@ struct StaticBitArray(uint len, Block = size_t)
     alias allSetBetween = allOneBetween;
     alias fullBetween = allOneBetween;
 
-    static if (len >= 1)
+    static if (bitCount >= 1)
     {
         import std.traits: isInstanceOf;
 
@@ -767,7 +767,7 @@ struct StaticBitArray(uint len, Block = size_t)
             }
 
             /// Get front.
-            Mod!len front() const
+            Mod!bitCount front() const
             {
                 pragma(inline, true);
                 assert(!empty); // TODO use enforce when it's @nogc
@@ -775,7 +775,7 @@ struct StaticBitArray(uint len, Block = size_t)
             }
 
             /// Get back.
-            Mod!len back() const
+            Mod!bitCount back() const
             {
                 pragma(inline, true);
                 assert(!empty); // TODO use enforce when it's @nogc
@@ -818,7 +818,7 @@ struct StaticBitArray(uint len, Block = size_t)
         alias bitsSet = oneIndexes;
 
         /** Get number of bits set. */
-        Mod!(len + 1) countOnes()() const    // TODO make free function
+        Mod!(bitCount + 1) countOnes()() const    // TODO make free function
         {
             typeof(return) n = 0;
             foreach (const block; _blocks)
@@ -864,7 +864,7 @@ struct StaticBitArray(uint len, Block = size_t)
         /** Check if this $(D StaticBitArray) has only ones. */
         bool allOne()() const
         {
-            const restCount = len % bitsPerBlock;
+            const restCount = bitCount % bitsPerBlock;
             const hasRest = restCount != 0;
             if (_blocks.length >= 1)
             {
@@ -888,8 +888,8 @@ struct StaticBitArray(uint len, Block = size_t)
             TODO block-optimize for large BitSets
          */
         bool canFindIndexOf(ModUInt)(bool value,
-                                     Mod!(len, ModUInt) currIx,
-                                     out Mod!(len, ModUInt) nextIx) const
+                                     Mod!(bitCount, ModUInt) currIx,
+                                     out Mod!(bitCount, ModUInt) nextIx) const
             if (isUnsigned!ModUInt)
         {
             if (currIx >= length) { return false; }
@@ -970,7 +970,7 @@ struct StaticBitArray(uint len, Block = size_t)
         {
             result.ptr[i] = cast(ubyte)(~this.ptr[i]);
         }
-        immutable rem = len & (bitsPerBlock-1); // number of rest bits in last block
+        immutable rem = bitCount & (bitsPerBlock-1); // number of rest bits in last block
         if (rem < bitsPerBlock) // rest bits in last block
         {
             // make remaining bits zero in last block
@@ -1158,7 +1158,7 @@ struct StaticBitArray(uint len, Block = size_t)
 
         static if (length)
         {
-            const leftover = len % 8;
+            const leftover = bitCount % 8;
             foreach (immutable ix; 0 .. leftover)
             {
                 const bit = this[ix];
@@ -1166,15 +1166,15 @@ struct StaticBitArray(uint len, Block = size_t)
                 sink.put(res[]);
             }
 
-            if (leftover && len > 8) { sink.put("_"); } // separator
+            if (leftover && bitCount > 8) { sink.put("_"); } // separator
 
             size_t cnt;
-            foreach (immutable ix; leftover .. len)
+            foreach (immutable ix; leftover .. bitCount)
             {
                 const bit = this[ix];
                 const char[1] res = cast(char)(bit + '0');
                 sink.put(res[]);
-                if (++cnt == 8 && ix != len - 1)
+                if (++cnt == 8 && ix != bitCount - 1)
                 {
                     sink.put("_");  // separator
                     cnt = 0;
@@ -1186,12 +1186,12 @@ struct StaticBitArray(uint len, Block = size_t)
     private void formatBitSet()(scope void delegate(const(char)[]) sink) const @trusted
     {
         sink("[");
-        foreach (immutable ix; 0 .. len)
+        foreach (immutable ix; 0 .. bitCount)
         {
             const bit = this[ix];
             const char[1] res = cast(char)(bit + '0');
             sink(res[]);
-            if (ix+1 < len) { sink(", "); } // separator
+            if (ix+1 < bitCount) { sink(", "); } // separator
         }
         sink("]");
     }

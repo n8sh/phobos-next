@@ -815,6 +815,21 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         /// ditto
         alias bitsSet = oneIndexes;
 
+        /** Find index of first non-zero bit or `length` if no bit set. */
+        size_t indexOfFirstSetBit()() const nothrow
+        {
+            pragma(inline, true);
+            import core.bitop : bsf;
+            foreach (const blockIndex, const block; _blocks)
+            {
+                if (block != 0)
+                {
+                    return blockIndex*bitsPerBlock + bsf(block);
+                }
+            }
+            return length;
+        }
+
         /** Get number of bits set. */
         Mod!(bitCount + 1) countOnes()() const    // TODO make free function
         {
@@ -1453,6 +1468,40 @@ unittest
     {
         testRange!Block;
     }
+}
+
+///
+unittest
+{
+    alias Block = size_t;
+    enum blockCount = 2;
+    enum length = blockCount * 8*Block.sizeof - 1;
+    StaticBitArray!(length) x;
+    static assert(x.blockCount == blockCount);
+
+    assert((x.indexOfFirstSetBit == x.length));
+    x[length - 1] = true;
+    assert((x.indexOfFirstSetBit == x.length - 1));
+    x[length - 2] = true;
+    assert((x.indexOfFirstSetBit == x.length - 2));
+
+    x[length/2 + 1] = true;
+    assert((x.indexOfFirstSetBit == x.length/2 + 1));
+    x[length/2] = true;
+    assert((x.indexOfFirstSetBit == x.length/2));
+    x[length/2 - 1] = true;
+    assert((x.indexOfFirstSetBit == x.length/2 - 1));
+
+    x[0] = true;
+    assert((x.indexOfFirstSetBit == 0));
+    assert(x[0]);
+    assert(!x[1]);
+
+    x[1] = true;
+    assert(x[1]);
+
+    x[1] = false;
+    assert(!x[1]);
 }
 
 version(unittest)

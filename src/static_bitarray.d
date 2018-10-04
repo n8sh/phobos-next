@@ -18,6 +18,9 @@ struct StaticBitArray(uint bitCount, Block = size_t)
 {
     @safe:
 
+    /** Number of bits. */
+    enum length = bitCount;
+
     import std.format : FormatSpec, format;
     import core.bitop : bitswap;
     import modulo : Mod;
@@ -75,9 +78,6 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         pragma(inline, true);
         return blockCount;
     }
-
-    /** Number of bits. */
-    enum length = bitCount;
 
     /** Bidirectional range into `BitArray`.
 

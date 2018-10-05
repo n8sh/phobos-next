@@ -30,7 +30,7 @@ void benchmarkAllocate(T)() @trusted
     const Duration[1] results = benchmark!(testNewAllocation)(benchmarkCount);
     // GC.enable();
 
-    writefln("Allocating a %s took %s ns ptrSum:%s",
+    writefln("- new a() %s took %s ns ptrSum:%s",
              T.stringof,
              cast(double)results[0].total!"nsecs"/benchmarkCount,
              ptrSum);

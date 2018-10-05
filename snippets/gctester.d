@@ -6,20 +6,24 @@ import std.datetime.stopwatch : benchmark;
 
 void main(string[] args)
 {
-    benchmarkAllocateStrings();
+    struct Vec2d
+    {
+        double x, y;
+    }
+    benchmarkAllocate!Vec2d();
 }
 
-void benchmarkAllocateStrings() @trusted
+void benchmarkAllocate(T)() @trusted
 {
     immutable benchmarkCount = 100_000;
 
     static immutable value = "123456789_123456";
-    immutable(char)* latestPtr;
+    size_t latestPtrSum;
 
     void testNewAllocation() @safe pure
     {
-        auto x = value.idup;
-        latestPtr = &x[0];
+        auto x = new T();
+        latestPtrSum ^= cast(size_t)x;
     }
 
     // GC.disable();

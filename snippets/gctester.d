@@ -44,12 +44,13 @@ void benchmarkCollect() @safe
 
     void test() @trusted
     {
-        GC.collect();
+        GC.enable();
+        GC.disable();
     }
 
     const Duration[1] results = benchmark!(test)(benchmarkCount);
 
-    writefln("- collect() took %s ns",
+    writefln("- enable()-disable() took %s ns",
              cast(double)results[0].total!"nsecs"/(benchmarkCount));
 }
 

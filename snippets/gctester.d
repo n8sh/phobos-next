@@ -8,6 +8,7 @@ void main(string[] args)
 {
     struct Vec2 { long x, y; }
     benchmarkNew!Vec2();
+    benchmarkMalloc!(Vec2.sizeof)();
     benchmarkEnableDisable();
 }
 
@@ -34,6 +35,34 @@ size_t benchmarkNew(T)() @trusted
     GC.enable();
 
     writefln("- new %s(): %s ns", T.stringof,
+             cast(double)results[0].total!"nsecs"/(benchmarkCount*iterationCount));
+
+    return ptrSum;              // side-effect
+}
+
+/** Benchmark a single `malloc`-allocation of `T` using GC.
+ */
+size_t benchmarkMalloc(size_t size)() @trusted
+{
+    immutable benchmarkCount = 1000;
+    immutable iterationCount = 100;
+
+    size_t ptrSum;
+
+    void testNewAllocation() @trusted pure nothrow
+    {
+        foreach (const i; 0 .. iterationCount)
+        {
+            auto x = GC.malloc(size);
+            ptrSum ^= cast(size_t)x; // for side effects
+        }
+    }
+
+    GC.disable();
+    const Duration[1] results = benchmark!(testNewAllocation)(benchmarkCount);
+    GC.enable();
+
+    writefln("- GC.malloc(%s): %s ns", size,
              cast(double)results[0].total!"nsecs"/(benchmarkCount*iterationCount));
 
     return ptrSum;              // side-effect

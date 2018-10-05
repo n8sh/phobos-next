@@ -1,6 +1,7 @@
 import core.stdc.stdio: printf;
 import core.memory : GC;
 import std.stdio;
+import core.time : Duration;
 
 void main(string[] args)
 {
@@ -21,9 +22,6 @@ void benchmarkAllocateStrings() @trusted
         auto x = value.idup;
         latestPtr = &x[0];
     }
-
-    import core.time : Duration;
-    import core.memory : GC;
 
     // GC.disable();
     const Duration[1] results = benchmark!(testNewAllocation)(benchmarkCount);

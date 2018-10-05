@@ -2,13 +2,12 @@ import core.stdc.stdio: printf;
 import core.memory : GC;
 import std.stdio;
 import core.time : Duration;
+import std.datetime.stopwatch : benchmark;
 
 void main(string[] args)
 {
     benchmarkAllocateStrings();
 }
-
-import std.datetime.stopwatch : benchmark;
 
 void benchmarkAllocateStrings() @trusted
 {

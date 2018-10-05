@@ -13,7 +13,7 @@ void main(string[] args)
     benchmarkAllocate!Vec2d();
 }
 
-size_t benchmarkAllocate(T)() @trusted nothrow
+size_t benchmarkAllocate(T)() @trusted
 {
     immutable benchmarkCount = 100_000;
 

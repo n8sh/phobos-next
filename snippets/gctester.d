@@ -13,7 +13,8 @@ void benchmarkAllocateStrings() @trusted
 {
     immutable benchmarkCount = 100_000;
 
-    static immutable value = "alpha_beta_gamma_delta";
+    static immutable value = "123456789_123456";
+    writeln(value.length);
     immutable(char)* latestPtr;
 
     void testNewAllocation() @safe pure

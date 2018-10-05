@@ -13,7 +13,7 @@ void main(string[] args)
     benchmarkAllocate!Vec2d();
 }
 
-void benchmarkAllocate(T)() @trusted
+size_t benchmarkAllocate(T)() @trusted
 {
     immutable benchmarkCount = 100_000;
 
@@ -30,10 +30,11 @@ void benchmarkAllocate(T)() @trusted
     const Duration[1] results = benchmark!(testNewAllocation)(benchmarkCount);
     // GC.enable();
 
-    writefln("- new a() %s took %s ns (ptrSum:%s)",
+    writefln("- new a() %s took %s ns",
              T.stringof,
-             cast(double)results[0].total!"nsecs"/benchmarkCount,
-             ptrSum);
+             cast(double)results[0].total!"nsecs"/benchmarkCount);
+
+    return ptrSum;
 }
 
 void simpleBenchmark()

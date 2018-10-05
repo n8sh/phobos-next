@@ -7,16 +7,15 @@ import std.datetime.stopwatch : benchmark;
 void main(string[] args)
 {
     struct Vec2 { long x, y; }
-    benchmarkAllocate!Vec2();
+    benchmarkNew!Vec2();
     benchmarkCollect();
 }
 
-size_t benchmarkAllocate(T)() @trusted
+size_t benchmarkNew(T)() @trusted
 {
     immutable benchmarkCount = 1000;
     immutable iterationCount = 100;
 
-    static immutable value = "123456789_123456";
     size_t ptrSum;
 
     void testNewAllocation() @safe pure nothrow

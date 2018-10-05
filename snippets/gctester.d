@@ -11,6 +11,8 @@ void main(string[] args)
     benchmarkCollect();
 }
 
+/** Benchmark a single `new`-allocation of `T` using GC.
+ */
 size_t benchmarkNew(T)() @trusted
 {
     immutable benchmarkCount = 1000;

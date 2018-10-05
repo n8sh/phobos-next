@@ -27,9 +27,9 @@ size_t benchmarkNew(T)() @trusted
         }
     }
 
-    // GC.disable();
+    GC.disable();
     const Duration[1] results = benchmark!(testNewAllocation)(benchmarkCount);
-    // GC.enable();
+    GC.enable();
 
     writefln("- new a() %s took %s ns", T.stringof,
              cast(double)results[0].total!"nsecs"/(benchmarkCount*iterationCount));

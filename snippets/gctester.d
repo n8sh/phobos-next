@@ -7,8 +7,8 @@ import std.datetime.stopwatch : benchmark;
 void main(string[] args)
 {
     struct Vec2 { long x, y; }
-    benchmarkNew!Vec2();
-    benchmarkMalloc!(Vec2.sizeof)();
+    benchmarkNew!(Vec2)();
+    benchmarkMalloc!(Vec2)();
     benchmarkEnableDisable();
 }
 
@@ -42,8 +42,10 @@ size_t benchmarkNew(T)() @trusted
 
 /** Benchmark a single `malloc`-allocation of `T` using GC.
  */
-size_t benchmarkMalloc(size_t size)() @trusted
+size_t benchmarkMalloc(T)() @trusted
 {
+    enum size = T.sizeof;
+
     immutable benchmarkCount = 1000;
     immutable iterationCount = 100;
 

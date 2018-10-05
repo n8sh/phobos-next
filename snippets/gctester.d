@@ -33,7 +33,7 @@ size_t benchmarkNew(T)() @trusted
     const Duration[1] results = benchmark!(testNewAllocation)(benchmarkCount);
     GC.enable();
 
-    writefln("- new a() %s took %s ns", T.stringof,
+    writefln("- new %s(): %s ns", T.stringof,
              cast(double)results[0].total!"nsecs"/(benchmarkCount*iterationCount));
 
     return ptrSum;              // side-effect
@@ -53,6 +53,6 @@ void benchmarkEnableDisable() @safe
 
     const Duration[1] results = benchmark!(test)(benchmarkCount);
 
-    writefln("- enable()-disable() took %s ns",
+    writefln("- enable()-disable(): %s ns",
              cast(double)results[0].total!"nsecs"/(benchmarkCount));
 }

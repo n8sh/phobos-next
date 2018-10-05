@@ -13,14 +13,14 @@ void main(string[] args)
     benchmarkAllocate!Vec2d();
 }
 
-size_t benchmarkAllocate(T)() @trusted
+size_t benchmarkAllocate(T)() @trusted nothrow
 {
     immutable benchmarkCount = 100_000;
 
     static immutable value = "123456789_123456";
     size_t ptrSum;
 
-    void testNewAllocation() @safe pure
+    void testNewAllocation() @safe pure nothrow
     {
         auto x = new T();
         ptrSum ^= cast(size_t)x; // for side effects

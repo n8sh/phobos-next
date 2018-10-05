@@ -6,8 +6,8 @@ import std.datetime.stopwatch : benchmark;
 
 void main(string[] args)
 {
-    struct Vec2d { double x, y; }
-    benchmarkAllocate!Vec2d();
+    struct Vec2 { long x, y; }
+    benchmarkAllocate!Vec2();
     benchmarkCollect();
 }
 

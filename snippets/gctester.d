@@ -4,7 +4,7 @@ import std.stdio;
 
 void main(string[] args)
 {
-    const n = 1024;
+    const n = 1024*1024;
     alias T = long;
     size_t xx = 0;
     foreach (i; 0 .. n)

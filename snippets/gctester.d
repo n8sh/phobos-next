@@ -18,20 +18,22 @@ void benchmarkAllocate(T)() @trusted
     immutable benchmarkCount = 100_000;
 
     static immutable value = "123456789_123456";
-    size_t latestPtrSum;
+    size_t              ptrSum;
 
     void testNewAllocation() @safe pure
     {
         auto x = new T();
-        latestPtrSum ^= cast(size_t)x;
+                     ptrSum ^= cast(size_t)x;
     }
 
     // GC.disable();
     const Duration[1] results = benchmark!(testNewAllocation)(benchmarkCount);
     // GC.enable();
 
-    writefln("Allocating string took %s ns",
-             cast(double)results[0].total!"nsecs"/benchmarkCount);
+    writefln("Allocating on element of type %s took %s ns %s",
+             T.stringof,
+             cast(double)results[0].total!"nsecs"/benchmarkCount,
+             ptrSum);
 }
 
 void simpleBenchmark()

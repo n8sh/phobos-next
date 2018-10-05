@@ -34,7 +34,7 @@ size_t benchmarkNew(T)() @trusted
     const Duration[1] results = benchmark!(testNewAllocation)(benchmarkCount);
     GC.enable();
 
-    writefln("- new %s(): %s ns", T.stringof,
+    writefln("- new %s() of size:%s: %s ns", T.stringof, T.sizeof,
              cast(double)results[0].total!"nsecs"/(benchmarkCount*iterationCount));
 
     return ptrSum;              // side-effect

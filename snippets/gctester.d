@@ -53,18 +53,3 @@ void benchmarkCollect() @safe
     writefln("- enable()-disable() took %s ns",
              cast(double)results[0].total!"nsecs"/(benchmarkCount));
 }
-
-void simpleBenchmark()
-{
-    const n = 1024*1024;
-    alias T = long;
-    size_t xx = 0;
-    foreach (i; 0 .. n)
-    {
-        T* x = new T(i);
-        xx ^= cast(size_t)x;
-        // printf("x: i:%d, p:%p\n", i, x);
-        x = null;
-        // GC.collect();
-    }
-}

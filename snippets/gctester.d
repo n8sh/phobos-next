@@ -6,24 +6,26 @@ import std.datetime.stopwatch : benchmark;
 
 void main(string[] args)
 {
-    struct Vec2d
-    {
-        double x, y;
-    }
+    struct Vec2d { double x, y; }
     benchmarkAllocate!Vec2d();
+    benchmarkCollect();
 }
 
 size_t benchmarkAllocate(T)() @trusted
 {
-    immutable benchmarkCount = 100_000;
+    immutable benchmarkCount = 1000;
+    immutable iterationCount = 100;
 
     static immutable value = "123456789_123456";
     size_t ptrSum;
 
     void testNewAllocation() @safe pure nothrow
     {
-        auto x = new T();
-        ptrSum ^= cast(size_t)x; // for side effects
+        foreach (const i; 0 .. iterationCount)
+        {
+            auto x = new T();
+            ptrSum ^= cast(size_t)x; // for side effects
+        }
     }
 
     // GC.disable();
@@ -31,9 +33,24 @@ size_t benchmarkAllocate(T)() @trusted
     // GC.enable();
 
     writefln("- new a() %s took %s ns", T.stringof,
-             cast(double)results[0].total!"nsecs"/benchmarkCount);
+             cast(double)results[0].total!"nsecs"/(benchmarkCount*iterationCount));
 
-    return ptrSum;
+    return ptrSum;              // side-effect
+}
+
+void benchmarkCollect() @safe
+{
+    immutable benchmarkCount = 10_000;
+
+    void test() @trusted
+    {
+        GC.collect();
+    }
+
+    const Duration[1] results = benchmark!(test)(benchmarkCount);
+
+    writefln("- collect() took %s ns",
+             cast(double)results[0].total!"nsecs"/(benchmarkCount));
 }
 
 void simpleBenchmark()

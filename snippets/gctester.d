@@ -23,7 +23,7 @@ void benchmarkAllocate(T)() @trusted
     void testNewAllocation() @safe pure
     {
         auto x = new T();
-        ptrSum ^= cast(size_t)x;
+        ptrSum ^= cast(size_t)x; // for side effects
     }
 
     // GC.disable();

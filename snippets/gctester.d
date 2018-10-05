@@ -11,8 +11,8 @@ void main(string[] args)
     {
         T* x = new T(i);
         xx ^= cast(size_t)x;
-        printf("x: i:%d, p:%p\n", i, x);
+        // printf("x: i:%d, p:%p\n", i, x);
         x = null;
-        GC.collect();
+        // GC.collect();
     }
 }

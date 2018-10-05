@@ -35,7 +35,6 @@ void benchmarkAllocateStrings() @trusted
 
 void simpleBenchmark()
 {
-
     const n = 1024*1024;
     alias T = long;
     size_t xx = 0;

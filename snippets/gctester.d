@@ -4,10 +4,11 @@ import std.stdio;
 
 void main(string[] args)
 {
-    const n = 10;
+    const n = 1;
+    alias T = long;
     foreach (i; 0 .. n)
     {
-        int* x = new int(i);
+        T* x = new T(i);
         printf("x: i:%d, p:%p\n", i, x);
         x = null;
         GC.collect();

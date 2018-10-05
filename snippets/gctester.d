@@ -8,7 +8,7 @@ void main(string[] args)
 {
     struct Vec2 { long x, y; }
     benchmarkNew!Vec2();
-    benchmarkCollect();
+    benchmarkEnableDisable();
 }
 
 /** Benchmark a single `new`-allocation of `T` using GC.
@@ -39,7 +39,9 @@ size_t benchmarkNew(T)() @trusted
     return ptrSum;              // side-effect
 }
 
-void benchmarkCollect() @safe
+/** Benchmark a single call to enable and disable() using `GC`.
+ */
+void benchmarkEnableDisable() @safe
 {
     immutable benchmarkCount = 10_000;
 

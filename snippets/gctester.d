@@ -26,6 +26,7 @@ void main(string[] args)
             benchmarkAllocation!(ulong, wordCount)();
         }
     }
+    writeln("  ns/w: nanoseconds per word");
 }
 
 /** Benchmark a single `new`-allocation of `T` using GC.
@@ -85,7 +86,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
 
     writef("-");
 
-    writef(" T-size:%4s bytes:  new:%4.1f ns/w  GC.malloc:%4.1f ns/w  pureMalloc:%4.1f ns/w  pureCalloc:%4.1f ns/w",
+    writef(" T.sizeof:%4s bytes:  new:%4.1f ns/w  GC.malloc:%4.1f ns/w  pureMalloc:%4.1f ns/w  pureCalloc:%4.1f ns/w",
            T.sizeof,
            cast(double)results[0].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[1].total!"nsecs"/(benchmarkCount*iterationCount*n),

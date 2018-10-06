@@ -72,7 +72,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
     {
         foreach (const i; 0 .. iterationCount)
         {
-            auto x = pureCalloc(T.sizeof, n);
+            auto x = pureCalloc(T.sizeof, 1);
             ptrSum ^= cast(size_t)x; // for side effects
         }
     }

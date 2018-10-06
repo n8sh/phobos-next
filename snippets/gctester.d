@@ -101,7 +101,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
  */
 void benchmarkEnableDisable() @safe
 {
-    immutable benchmarkCount = 10_000;
+    immutable benchmarkCount = 1_000;
 
     void test() @trusted
     {

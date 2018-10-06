@@ -4,11 +4,6 @@ import std.stdio;
 import core.time : Duration;
 import std.datetime.stopwatch : benchmark;
 
-extern (C)
-{
-    void* gc_malloc_16(uint ba = 0) @safe pure nothrow;
-}
-
 /// Small slot sizes classes (in bytes).
 static immutable smallSizeClasses = [8,
                                      16, // TODO 16 + 8,
@@ -20,6 +15,12 @@ static immutable smallSizeClasses = [8,
                                      1024, // TODO 1024 + 512,
                                      2048, // TODO 2048 + 1024,
     ];
+
+extern (C)
+{
+    void* gc_malloc_16(uint ba = 0) @safe pure nothrow;
+    void* gc_malloc_32(uint ba = 0) @safe pure nothrow;
+}
 
 void main(string[] args)
 {
@@ -81,11 +82,16 @@ size_t benchmarkAllocation(E, uint n)() @trusted
 
     void doGCNMalloc() @trusted pure nothrow
     {
-        static if (T.sizeof == 16)
+        foreach (const i; 0 .. iterationCount)
         {
-            foreach (const i; 0 .. iterationCount)
+            static if (T.sizeof == 16)
             {
                 auto x = gc_malloc_16(ba);
+                ptrSum ^= cast(size_t)x; // side-effect
+            }
+            else static if (T.sizeof == 32)
+            {
+                auto x = gc_malloc_32(ba);
                 ptrSum ^= cast(size_t)x; // side-effect
             }
         }

@@ -4,26 +4,42 @@ import std.stdio;
 import core.time : Duration;
 import std.datetime.stopwatch : benchmark;
 
+/// Small slot sizes classes (in bytes).
+static immutable smallSizeClasses = [8,
+                                     16, // TODO 16 + 8,
+                                     32, // TODO 32 + 16,
+                                     64, // TODO 64 + 32,
+                                     128, // TODO 128 +64,
+                                     256, // TODO 256 + 128,
+                                     512, // TODO 512 + 256,
+                                     1024, // TODO 1024 + 512,
+                                     2048, // TODO 2048 + 1024,
+    ];
+
 void main(string[] args)
 {
-    struct Vec2 { long x, y; }
-
-    benchmarkNew!(Vec2)();
-
-    benchmarkMalloc!(Vec2)();
-
     benchmarkEnableDisable();
+    static foreach (byteSize; smallSizeClasses)
+    {
+        {
+            enum wordCount = byteSize/8;
+            benchmarkAllocation!(ulong, wordCount)();
+        }
+    }
 }
 
 /** Benchmark a single `new`-allocation of `T` using GC.
  */
-size_t benchmarkNew(E, uint n)() @trusted
+size_t benchmarkAllocation(E, uint n)() @trusted
 {
-    immutable benchmarkCount = 1000;
-    immutable iterationCount = 100;
+    alias A = E[n];
+    struct T { A a; }
+    enum size = T.sizeof;
 
     size_t ptrSum;
-    alias T = E[n];
+
+    immutable benchmarkCount = 1000;
+    immutable iterationCount = 100;
 
     void exerciseNew() @safe pure nothrow
     {
@@ -33,27 +49,6 @@ size_t benchmarkNew(E, uint n)() @trusted
             ptrSum ^= cast(size_t)x; // for side effects
         }
     }
-
-    GC.disable();
-    const Duration[1] results = benchmark!(exerciseNew)(benchmarkCount);
-    GC.enable();
-
-    writefln("- new %s() of size:%s: %s ns", T.stringof, T.sizeof,
-             cast(double)results[0].total!"nsecs"/(benchmarkCount*iterationCount));
-
-    return ptrSum;              // side-effect
-}
-
-/** Benchmark a single `malloc`-allocation of `T` using GC.
- */
-size_t benchmarkMalloc(T)() @trusted
-{
-    enum size = T.sizeof;
-
-    immutable benchmarkCount = 1000;
-    immutable iterationCount = 100;
-
-    size_t ptrSum;
 
     void exerciseMalloc() @trusted pure nothrow
     {
@@ -65,11 +60,19 @@ size_t benchmarkMalloc(T)() @trusted
     }
 
     GC.disable();
-    const Duration[1] results = benchmark!(exerciseMalloc)(benchmarkCount);
+    const Duration[1] newResults = benchmark!(exerciseNew)(benchmarkCount);
+    const Duration[1] mallocResults = benchmark!(exerciseMalloc)(benchmarkCount);
     GC.enable();
 
-    writefln("- GC.malloc(%s): %s ns", size,
-             cast(double)results[0].total!"nsecs"/(benchmarkCount*iterationCount));
+    writef("-");
+
+    writef(" ### new %s() of size:%s: %s ns/word", T.stringof, T.sizeof,
+           cast(double)newResults[0].total!"nsecs"/(benchmarkCount*iterationCount*n));
+
+    writef(" ### GC.malloc(%s): %s ns", size,
+           cast(double)mallocResults[0].total!"nsecs"/(benchmarkCount*iterationCount*n));
+
+    writeln();
 
     return ptrSum;              // side-effect
 }

@@ -54,7 +54,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
     {
         foreach (const i; 0 .. iterationCount)
         {
-            auto x = GC.malloc(T.sizeof);
+            auto x = GC.malloc(T.sizeof, GC.BlkAttr.NO_SCAN);
             ptrSum ^= cast(size_t)x; // for side effects
         }
     }

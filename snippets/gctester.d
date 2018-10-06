@@ -71,7 +71,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
         }
     }
 
-    void doMalloc() @trusted pure nothrow
+    void doMalloc() @trusted pure nothrow @nogc
     {
         foreach (const i; 0 .. iterationCount)
         {
@@ -80,7 +80,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
         }
     }
 
-    void doCalloc() @trusted pure nothrow
+    void doCalloc() @trusted pure nothrow @nogc
     {
         foreach (const i; 0 .. iterationCount)
         {

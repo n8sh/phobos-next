@@ -45,12 +45,19 @@ size_t benchmarkAllocation(E, uint n)() @trusted
     immutable benchmarkCount = 1000;
     immutable iterationCount = 100;
 
-    void doNew() @safe pure nothrow
+    void doNew() @trusted pure nothrow
     {
         foreach (const i; 0 .. iterationCount)
         {
             auto x = new T();
-            ptrSum ^= cast(size_t)x; // side-effect
+            static if (is(T == class))
+            {
+                ptrSum ^= cast(size_t)(cast(void*)x); // side-effect
+            }
+            else
+            {
+                ptrSum ^= cast(size_t)x; // side-effect
+            }
         }
     }
 

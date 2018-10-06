@@ -1,5 +1,5 @@
 import core.stdc.stdio: printf;
-import core.memory : GC;
+import core.memory : GC, pureMalloc, pureFree;
 import std.stdio;
 import core.time : Duration;
 import std.datetime.stopwatch : benchmark;
@@ -50,7 +50,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
         }
     }
 
-    void exerciseMalloc() @trusted pure nothrow
+    void exerciseGCMalloc() @trusted pure nothrow
     {
         foreach (const i; 0 .. iterationCount)
         {
@@ -59,16 +59,27 @@ size_t benchmarkAllocation(E, uint n)() @trusted
         }
     }
 
+    void exerciseMalloc() @trusted pure nothrow
+    {
+        foreach (const i; 0 .. iterationCount)
+        {
+            auto x = pureMalloc(size);
+            ptrSum ^= cast(size_t)x; // for side effects
+        }
+    }
+
     GC.disable();
-    const Duration[1] newResults = benchmark!(exerciseNew)(benchmarkCount);
-    const Duration[1] mallocResults = benchmark!(exerciseMalloc)(benchmarkCount);
+    const results = benchmark!(exerciseNew,
+                               exerciseGCMalloc,
+                               exerciseMalloc)(benchmarkCount);
     GC.enable();
 
     writef("-");
 
-    writef(" size:%4s:  new:%4.1f ns/w  GC.malloc:%4.1f ns/w", T.sizeof,
-           cast(double)newResults[0].total!"nsecs"/(benchmarkCount*iterationCount*n),
-           cast(double)mallocResults[0].total!"nsecs"/(benchmarkCount*iterationCount*n));
+    writef(" size:%4s:  new:%4.1f ns/w  GC.malloc:%4.1f ns/w  pureMalloc:%4.1f ns/w", T.sizeof,
+           cast(double)results[0].total!"nsecs"/(benchmarkCount*iterationCount*n),
+           cast(double)results[1].total!"nsecs"/(benchmarkCount*iterationCount*n),
+           cast(double)results[2].total!"nsecs"/(benchmarkCount*iterationCount*n));
 
     writeln();
 

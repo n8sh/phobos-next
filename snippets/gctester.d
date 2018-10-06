@@ -19,7 +19,9 @@ static immutable smallSizeClasses = [8,
 void main(string[] args)
 {
     benchmarkEnableDisable();
-    static foreach (byteSize; smallSizeClasses)
+    /* all but last, otherwise new C() fails below because it requires one extra
+     * word for RTTI */
+    static foreach (byteSize; smallSizeClasses[0 .. $ - 1])
     {
         {
             enum wordCount = byteSize/8;

@@ -37,6 +37,8 @@ size_t benchmarkAllocation(E, uint n)() @trusted
     alias A = E[n];
     struct T { A a; }
 
+    enum ba = (!hasIndirections!T) ? GC.BlkAttr.NO_SCAN : 0;
+
     size_t ptrSum;
 
     immutable benchmarkCount = 1000;
@@ -55,8 +57,16 @@ size_t benchmarkAllocation(E, uint n)() @trusted
     {
         foreach (const i; 0 .. iterationCount)
         {
-            auto x = GC.malloc(T.sizeof,
-                               hasIndirections!T ? GC.BlkAttr.NO_SCAN : 0);
+            auto x = GC.malloc(T.sizeof, ba);
+            ptrSum ^= cast(size_t)x; // for side effects
+        }
+    }
+
+    void doGCCalloc() @trusted pure nothrow
+    {
+        foreach (const i; 0 .. iterationCount)
+        {
+            auto x = GC.calloc(T.sizeof, ba);
             ptrSum ^= cast(size_t)x; // for side effects
         }
     }
@@ -82,15 +92,17 @@ size_t benchmarkAllocation(E, uint n)() @trusted
     GC.disable();
     const results = benchmark!(doNew,
                                doGCMalloc,
+                               doGCCalloc,
                                doMalloc,
                                doCalloc)(benchmarkCount);
     GC.enable();
 
     writef("-");
 
-    writef(" T.sizeof:%4s bytes:  new:%4.1f ns/w  GC.malloc:%4.1f ns/w  pureMalloc:%4.1f ns/w  pureCalloc:%4.1f ns/w",
+    writef(" T.sizeof:%4s bytes:  new:%4.1f ns/w  GC.malloc:%4.1f ns/w  GC.calloc:%4.1f ns/w  pureMalloc:%4.1f ns/w  pureCalloc:%4.1f ns/w",
            T.sizeof,
            cast(double)results[0].total!"nsecs"/(benchmarkCount*iterationCount*n),
+           cast(double)results[1].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[1].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[2].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[3].total!"nsecs"/(benchmarkCount*iterationCount*n));

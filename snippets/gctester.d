@@ -19,8 +19,8 @@ static immutable smallSizeClasses = [8,
 void main(string[] args)
 {
     benchmarkEnableDisable();
-    /* all but last, otherwise new C() fails below because it requires one extra
-     * word for RTTI */
+    /* All but last, otherwise new C() fails below because it requires one extra
+     * word for type-info. */
     static foreach (byteSize; smallSizeClasses[0 .. $ - 1])
     {
         {

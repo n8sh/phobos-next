@@ -34,7 +34,6 @@ size_t benchmarkAllocation(E, uint n)() @trusted
 {
     alias A = E[n];
     struct T { A a; }
-    enum size = T.sizeof;
 
     size_t ptrSum;
 
@@ -54,7 +53,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
     {
         foreach (const i; 0 .. iterationCount)
         {
-            auto x = GC.malloc(size);
+            auto x = GC.malloc(T.sizeof);
             ptrSum ^= cast(size_t)x; // for side effects
         }
     }
@@ -63,7 +62,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
     {
         foreach (const i; 0 .. iterationCount)
         {
-            auto x = pureMalloc(size);
+            auto x = pureMalloc(T.sizeof);
             ptrSum ^= cast(size_t)x; // for side effects
         }
     }
@@ -86,7 +85,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
 
     writef("-");
 
-    writef(" size:%4s:  new:%4.1f ns/w  GC.malloc:%4.1f ns/w  pureMalloc:%4.1f ns/w  pureCalloc:%4.1f ns/w",
+    writef(" T.sizeof:%4s:  new:%4.1f ns/w  GC.malloc:%4.1f ns/w  pureMalloc:%4.1f ns/w  pureCalloc:%4.1f ns/w",
            T.sizeof,
            cast(double)results[0].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[1].total!"nsecs"/(benchmarkCount*iterationCount*n),

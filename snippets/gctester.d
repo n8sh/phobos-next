@@ -45,19 +45,21 @@ size_t benchmarkAllocation(E, uint n)() @trusted
     immutable benchmarkCount = 1000;
     immutable iterationCount = 100;
 
-    void doNew() @trusted pure nothrow
+    void doNewClass() @trusted pure nothrow
+    {
+        foreach (const i; 0 .. iterationCount)
+        {
+            auto x = new C();
+            ptrSum ^= cast(size_t)(cast(void*)x); // side-effect
+        }
+    }
+
+    void doNewStruct() @trusted pure nothrow
     {
         foreach (const i; 0 .. iterationCount)
         {
             auto x = new T();
-            static if (is(T == class))
-            {
-                ptrSum ^= cast(size_t)(cast(void*)x); // side-effect
-            }
-            else
-            {
-                ptrSum ^= cast(size_t)x; // side-effect
-            }
+            ptrSum ^= cast(size_t)x; // side-effect
         }
     }
 
@@ -98,7 +100,8 @@ size_t benchmarkAllocation(E, uint n)() @trusted
     }
 
     GC.disable();
-    const results = benchmark!(doNew,
+    const results = benchmark!(doNewClass,
+                               doNewStruct,
                                doGCMalloc,
                                doGCCalloc,
                                doMalloc,
@@ -107,13 +110,14 @@ size_t benchmarkAllocation(E, uint n)() @trusted
 
     writef("-");
 
-    writef(" T.sizeof:%4s bytes:  new:%4.1f ns/w  GC.malloc:%4.1f ns/w  GC.calloc:%4.1f ns/w  pureMalloc:%4.1f ns/w  pureCalloc:%4.1f ns/w",
+    writef(" T.sizeof:%4s bytes:  new-class:%4.1f ns/w  new-struct:%4.1f ns/w  GC.malloc:%4.1f ns/w  GC.calloc:%4.1f ns/w  pureMalloc:%4.1f ns/w  pureCalloc:%4.1f ns/w",
            T.sizeof,
            cast(double)results[0].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[1].total!"nsecs"/(benchmarkCount*iterationCount*n),
-           cast(double)results[1].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[2].total!"nsecs"/(benchmarkCount*iterationCount*n),
-           cast(double)results[3].total!"nsecs"/(benchmarkCount*iterationCount*n));
+           cast(double)results[3].total!"nsecs"/(benchmarkCount*iterationCount*n),
+           cast(double)results[4].total!"nsecs"/(benchmarkCount*iterationCount*n),
+           cast(double)results[5].total!"nsecs"/(benchmarkCount*iterationCount*n));
 
     writeln();
 

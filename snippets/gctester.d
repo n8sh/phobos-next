@@ -33,10 +33,12 @@ void main(string[] args)
  */
 size_t benchmarkAllocation(E, uint n)() @trusted
 {
-    import std.traits : hasIndirections;
+    import std.traits : hasElaborateDestructor, hasIndirections;
     alias A = E[n];
     struct T { A a; }
 
+    class X { A a; }
+    static assert(!hasElaborateDestructor!X); // shouldn't need finalizer
     enum ba = (!hasIndirections!T) ? GC.BlkAttr.NO_SCAN : 0;
 
     size_t ptrSum;

@@ -69,7 +69,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
     writef(" ### new %s() of size:%s: %s ns/word", T.stringof, T.sizeof,
            cast(double)newResults[0].total!"nsecs"/(benchmarkCount*iterationCount*n));
 
-    writef(" ### GC.malloc(%s): %s ns", size,
+    writef(" ### GC.malloc(%s): %s ns/word", size,
            cast(double)mallocResults[0].total!"nsecs"/(benchmarkCount*iterationCount*n));
 
     writeln();

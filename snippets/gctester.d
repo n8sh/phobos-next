@@ -45,11 +45,11 @@ size_t benchmarkAllocation(E, uint n)() @trusted
     immutable benchmarkCount = 1000;
     immutable iterationCount = 100;
 
-    void doNewClass() @trusted pure nothrow
+    void doNewClass() @trusted pure nothrow // TODO this crashes
     {
         foreach (const i; 0 .. iterationCount)
         {
-            auto x = new C();
+            auto x = new C();   // allocates: `__traits(classInstanceSize, C)` bytes
             ptrSum ^= cast(size_t)(cast(void*)x); // side-effect
         }
     }

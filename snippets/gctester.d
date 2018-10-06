@@ -7,21 +7,25 @@ import std.datetime.stopwatch : benchmark;
 void main(string[] args)
 {
     struct Vec2 { long x, y; }
+
     benchmarkNew!(Vec2)();
+
     benchmarkMalloc!(Vec2)();
+
     benchmarkEnableDisable();
 }
 
 /** Benchmark a single `new`-allocation of `T` using GC.
  */
-size_t benchmarkNew(T)() @trusted
+size_t benchmarkNew(E, uint n)() @trusted
 {
     immutable benchmarkCount = 1000;
     immutable iterationCount = 100;
 
     size_t ptrSum;
+    alias T = E[n];
 
-    void testNewAllocation() @safe pure nothrow
+    void exerciseNew() @safe pure nothrow
     {
         foreach (const i; 0 .. iterationCount)
         {
@@ -31,7 +35,7 @@ size_t benchmarkNew(T)() @trusted
     }
 
     GC.disable();
-    const Duration[1] results = benchmark!(testNewAllocation)(benchmarkCount);
+    const Duration[1] results = benchmark!(exerciseNew)(benchmarkCount);
     GC.enable();
 
     writefln("- new %s() of size:%s: %s ns", T.stringof, T.sizeof,
@@ -51,7 +55,7 @@ size_t benchmarkMalloc(T)() @trusted
 
     size_t ptrSum;
 
-    void testNewAllocation() @trusted pure nothrow
+    void exerciseMalloc() @trusted pure nothrow
     {
         foreach (const i; 0 .. iterationCount)
         {
@@ -61,7 +65,7 @@ size_t benchmarkMalloc(T)() @trusted
     }
 
     GC.disable();
-    const Duration[1] results = benchmark!(testNewAllocation)(benchmarkCount);
+    const Duration[1] results = benchmark!(exerciseMalloc)(benchmarkCount);
     GC.enable();
 
     writefln("- GC.malloc(%s): %s ns", size,

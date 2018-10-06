@@ -49,7 +49,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
         foreach (const i; 0 .. iterationCount)
         {
             auto x = new T();
-            ptrSum ^= cast(size_t)x; // for side effects
+            ptrSum ^= cast(size_t)x; // side-effect
         }
     }
 
@@ -58,7 +58,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
         foreach (const i; 0 .. iterationCount)
         {
             auto x = GC.malloc(T.sizeof, ba);
-            ptrSum ^= cast(size_t)x; // for side effects
+            ptrSum ^= cast(size_t)x; // side-effect
         }
     }
 
@@ -67,7 +67,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
         foreach (const i; 0 .. iterationCount)
         {
             auto x = GC.calloc(T.sizeof, ba);
-            ptrSum ^= cast(size_t)x; // for side effects
+            ptrSum ^= cast(size_t)x; // side-effect
         }
     }
 
@@ -76,7 +76,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
         foreach (const i; 0 .. iterationCount)
         {
             auto x = pureMalloc(T.sizeof);
-            ptrSum ^= cast(size_t)x; // for side effects
+            ptrSum ^= cast(size_t)x; // side-effect
         }
     }
 
@@ -85,7 +85,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
         foreach (const i; 0 .. iterationCount)
         {
             auto x = pureCalloc(T.sizeof, 1);
-            ptrSum ^= cast(size_t)x; // for side effects
+            ptrSum ^= cast(size_t)x; // side-effect
         }
     }
 

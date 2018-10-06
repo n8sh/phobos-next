@@ -4,6 +4,11 @@ import std.stdio;
 import core.time : Duration;
 import std.datetime.stopwatch : benchmark;
 
+extern (C)
+{
+    void* gc_malloc_16(uint ba = 0, const TypeInfo ti = null) @safe pure nothrow;
+}
+
 /// Small slot sizes classes (in bytes).
 static immutable smallSizeClasses = [8,
                                      16, // TODO 16 + 8,
@@ -74,6 +79,18 @@ size_t benchmarkAllocation(E, uint n)() @trusted
         }
     }
 
+    void doGCNMalloc() @trusted pure nothrow
+    {
+        static if (T.sizeof == 16)
+        {
+            foreach (const i; 0 .. iterationCount)
+            {
+                auto x = gc_malloc_16(ba);
+                ptrSum ^= cast(size_t)x; // side-effect
+            }
+        }
+    }
+
     void doGCCalloc() @trusted pure nothrow
     {
         foreach (const i; 0 .. iterationCount)
@@ -105,6 +122,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
     const results = benchmark!(doNewClass,
                                doNewStruct,
                                doGCMalloc,
+                               doGCNMalloc,
                                doGCCalloc,
                                doMalloc,
                                doCalloc)(benchmarkCount);
@@ -112,14 +130,16 @@ size_t benchmarkAllocation(E, uint n)() @trusted
 
     writef("-");
 
-    writef(" T.sizeof:%4s bytes:  new-class:%4.1f ns/w  new-struct:%4.1f ns/w  GC.malloc:%4.1f ns/w  GC.calloc:%4.1f ns/w  pureMalloc:%4.1f ns/w  pureCalloc:%4.1f ns/w",
+    writef(" T.sizeof:%4s bytes:  new-class:%4.1f ns/w  new-struct:%4.1f ns/w  GC.malloc:%4.1f ns/w gc_malloc_16:%4.1f ns/w  GC.calloc:%4.1f ns/w  pureMalloc:%4.1f ns/w  pureCalloc:%4.1f ns/w",
            T.sizeof,
            cast(double)results[0].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[1].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[2].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[3].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[4].total!"nsecs"/(benchmarkCount*iterationCount*n),
-           cast(double)results[5].total!"nsecs"/(benchmarkCount*iterationCount*n));
+           cast(double)results[5].total!"nsecs"/(benchmarkCount*iterationCount*n),
+           cast(double)results[6].total!"nsecs"/(benchmarkCount*iterationCount*n)
+        );
 
     writeln();
 

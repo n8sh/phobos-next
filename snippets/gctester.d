@@ -18,6 +18,7 @@ static immutable smallSizeClasses = [8,
 
 extern (C)
 {
+    void* gc_malloc_8(uint ba = 0) @safe pure nothrow;
     void* gc_malloc_16(uint ba = 0) @safe pure nothrow;
     void* gc_malloc_32(uint ba = 0) @safe pure nothrow;
 }
@@ -84,7 +85,12 @@ size_t benchmarkAllocation(E, uint n)() @trusted
     {
         foreach (const i; 0 .. iterationCount)
         {
-            static if (T.sizeof == 16)
+            static if (T.sizeof == 8)
+            {
+                auto x = gc_malloc_8(ba);
+                ptrSum ^= cast(size_t)x; // side-effect
+            }
+            else static if (T.sizeof == 16)
             {
                 auto x = gc_malloc_16(ba);
                 ptrSum ^= cast(size_t)x; // side-effect

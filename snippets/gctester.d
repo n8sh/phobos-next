@@ -1,5 +1,5 @@
 import core.stdc.stdio: printf;
-import core.memory : GC, pureMalloc, pureFree;
+import core.memory : GC, pureMalloc, pureCalloc, pureFree;
 import std.stdio;
 import core.time : Duration;
 import std.datetime.stopwatch : benchmark;
@@ -41,7 +41,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
     immutable benchmarkCount = 1000;
     immutable iterationCount = 100;
 
-    void exerciseNew() @safe pure nothrow
+    void doNew() @safe pure nothrow
     {
         foreach (const i; 0 .. iterationCount)
         {
@@ -50,7 +50,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
         }
     }
 
-    void exerciseGCMalloc() @trusted pure nothrow
+    void doGCMalloc() @trusted pure nothrow
     {
         foreach (const i; 0 .. iterationCount)
         {
@@ -59,7 +59,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
         }
     }
 
-    void exerciseMalloc() @trusted pure nothrow
+    void doMalloc() @trusted pure nothrow
     {
         foreach (const i; 0 .. iterationCount)
         {
@@ -68,10 +68,20 @@ size_t benchmarkAllocation(E, uint n)() @trusted
         }
     }
 
+    void doCalloc() @trusted pure nothrow
+    {
+        foreach (const i; 0 .. iterationCount)
+        {
+            auto x = pureCalloc(T.sizeof, n);
+            ptrSum ^= cast(size_t)x; // for side effects
+        }
+    }
+
     GC.disable();
-    const results = benchmark!(exerciseNew,
-                               exerciseGCMalloc,
-                               exerciseMalloc)(benchmarkCount);
+    const results = benchmark!(doNew,
+                               doGCMalloc,
+                               doMalloc,
+                               doCalloc)(benchmarkCount);
     GC.enable();
 
     writef("-");

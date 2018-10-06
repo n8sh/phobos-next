@@ -33,6 +33,7 @@ void main(string[] args)
  */
 size_t benchmarkAllocation(E, uint n)() @trusted
 {
+    import std.traits : hasIndirections;
     alias A = E[n];
     struct T { A a; }
 
@@ -54,7 +55,8 @@ size_t benchmarkAllocation(E, uint n)() @trusted
     {
         foreach (const i; 0 .. iterationCount)
         {
-            auto x = GC.malloc(T.sizeof, GC.BlkAttr.NO_SCAN);
+            auto x = GC.malloc(T.sizeof,
+                               hasIndirections!T ? GC.BlkAttr.NO_SCAN : 0);
             ptrSum ^= cast(size_t)x; // for side effects
         }
     }

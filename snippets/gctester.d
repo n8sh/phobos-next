@@ -30,6 +30,7 @@ void main(string[] args)
     benchmarkEnableDisable();
     /* All but last, otherwise new C() fails below because it requires one extra
      * word for type-info. */
+    writeln(" T-bytes  new-class new-struct GC.malloc gc_tlmalloc_N  GC.calloc pureMalloc pureCalloc");
     static foreach (byteSize; smallSizeClasses[0 .. $ - 1])
     {
         {
@@ -129,14 +130,11 @@ size_t benchmarkAllocation(E, uint n)() @trusted
                                doCalloc)(benchmarkCount);
     GC.enable();
 
-    writef("-");
-
-    writef(" T.sizeof:%4s bytes:  new-class:%4.1f ns/w  new-struct:%4.1f ns/w  GC.malloc:%4.1f ns/w  gc_tlmalloc_%4u:%4.1f ns/w  GC.calloc:%4.1f ns/w  pureMalloc:%4.1f ns/w  pureCalloc:%4.1f ns/w",
+    writef(" %4s %4.1f %4.1f %4.1f %4.1f %4.1f %4.1f %4.1f",
            T.sizeof,
            cast(double)results[0].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[1].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[2].total!"nsecs"/(benchmarkCount*iterationCount*n),
-           T.sizeof,
            cast(double)results[3].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[4].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[5].total!"nsecs"/(benchmarkCount*iterationCount*n),

@@ -130,7 +130,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
                                doCalloc)(benchmarkCount);
     GC.enable();
 
-    writef(" %4s %4.1f %4.1f %4.1f %4.1f %4.1f %4.1f %4.1f",
+    writef(" %4s  %4.1f  %4.1f %4.1f %4.1f %4.1f %4.1f %4.1f",
            T.sizeof,
            cast(double)results[0].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[1].total!"nsecs"/(benchmarkCount*iterationCount*n),

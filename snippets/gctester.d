@@ -164,16 +164,20 @@ size_t benchmarkAllocation(E, uint n)() @trusted
  */
 void benchmarkEnableDisable() @safe
 {
-    immutable benchmarkCount = 1_000;
+    immutable benchmarkCount = 1000;
+    immutable iterationCount = 100;
 
-    void test() @trusted
+    void doEnableDisable() @trusted
     {
-        GC.enable();
-        GC.disable();
+        foreach (const i; 0 .. iterationCount)
+        {
+            GC.enable();
+            GC.disable();
+        }
     }
 
-    const Duration[1] results = benchmark!(test)(benchmarkCount);
+    const Duration[1] results = benchmark!(doEnableDisable)(benchmarkCount);
 
     writefln("- enable()-disable(): %s ns",
-             cast(double)results[0].total!"nsecs"/(benchmarkCount));
+             cast(double)results[0].total!"nsecs"/(benchmarkCount*iterationCount));
 }

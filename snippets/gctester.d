@@ -39,6 +39,9 @@ void main(string[] args)
     writeln("  ns/w: nanoseconds per word");
 }
 
+static immutable benchmarkCount = 1000;
+static immutable iterationCount = 100;
+
 /** Benchmark a single `new`-allocation of `T` using GC.
  */
 size_t benchmarkAllocation(E, uint n)() @trusted
@@ -51,9 +54,6 @@ size_t benchmarkAllocation(E, uint n)() @trusted
     enum ba = (!hasIndirections!T) ? GC.BlkAttr.NO_SCAN : 0;
 
     size_t ptrSum;
-
-    immutable benchmarkCount = 1000;
-    immutable iterationCount = 100;
 
     void doNewClass() @trusted pure nothrow // TODO this crashes
     {
@@ -164,9 +164,6 @@ size_t benchmarkAllocation(E, uint n)() @trusted
  */
 void benchmarkEnableDisable() @safe
 {
-    immutable benchmarkCount = 1000;
-    immutable iterationCount = 100;
-
     void doEnableDisable() @trusted
     {
         foreach (const i; 0 .. iterationCount)

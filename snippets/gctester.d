@@ -16,11 +16,12 @@ static immutable smallSizeClasses = [8,
                                      2048, // TODO 2048 + 1024,
     ];
 
-extern (C)
+extern (C) @safe pure nothrow
 {
-    void* gc_malloc_8(uint ba = 0) @safe pure nothrow;
-    void* gc_malloc_16(uint ba = 0) @safe pure nothrow;
-    void* gc_malloc_32(uint ba = 0) @safe pure nothrow;
+    static foreach (sizeClass; smallSizeClasses)
+    {
+        mixin("void* gc_malloc_" ~ sizeClass.stringof ~ "(uint ba = 0);");
+    }
 }
 
 void main(string[] args)
@@ -142,11 +143,12 @@ size_t benchmarkAllocation(E, uint n)() @trusted
 
     writef("-");
 
-    writef(" T.sizeof:%4s bytes:  new-class:%4.1f ns/w  new-struct:%4.1f ns/w  GC.malloc:%4.1f ns/w gc_malloc_16:%4.1f ns/w  GC.calloc:%4.1f ns/w  pureMalloc:%4.1f ns/w  pureCalloc:%4.1f ns/w",
+    writef(" T.sizeof:%4s bytes:  new-class:%4.1f ns/w  new-struct:%4.1f ns/w  GC.malloc:%4.1f ns/w gc_malloc_%u:%4.1f ns/w  GC.calloc:%4.1f ns/w  pureMalloc:%4.1f ns/w  pureCalloc:%4.1f ns/w",
            T.sizeof,
            cast(double)results[0].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[1].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[2].total!"nsecs"/(benchmarkCount*iterationCount*n),
+           T.sizeof,
            cast(double)results[3].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[4].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[5].total!"nsecs"/(benchmarkCount*iterationCount*n),

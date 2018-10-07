@@ -20,7 +20,8 @@ extern (C) @safe pure nothrow
 {
     static foreach (sizeClass; smallSizeClasses)
     {
-        mixin("void* gc_malloc_" ~ sizeClass.stringof ~ "(uint ba = 0);");
+        // TODO express in a more elegant way?:
+        mixin("void* gc_tlmalloc_" ~ sizeClass.stringof ~ "(uint ba = 0);");
     }
 }
 
@@ -82,25 +83,12 @@ size_t benchmarkAllocation(E, uint n)() @trusted
         }
     }
 
-    void doGCNMalloc() @trusted pure nothrow
+    void doGCNMalloc(int n)() @trusted pure nothrow
     {
         foreach (const i; 0 .. iterationCount)
         {
-            static if (T.sizeof == 8)
-            {
-                auto x = gc_malloc_8(ba);
-                ptrSum ^= cast(size_t)x; // side-effect
-            }
-            else static if (T.sizeof == 16)
-            {
-                auto x = gc_malloc_16(ba);
-                ptrSum ^= cast(size_t)x; // side-effect
-            }
-            else static if (T.sizeof == 32)
-            {
-                auto x = gc_malloc_32(ba);
-                ptrSum ^= cast(size_t)x; // side-effect
-            }
+            mixin(`auto x = gc_tlmalloc_` ~ n.stringof ~ `(ba);`);
+            ptrSum ^= cast(size_t)x; // side-effect
         }
     }
 
@@ -135,7 +123,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
     const results = benchmark!(doNewClass,
                                doNewStruct,
                                doGCMalloc,
-                               doGCNMalloc,
+                               doGCNMalloc!(T.sizeof),
                                doGCCalloc,
                                doMalloc,
                                doCalloc)(benchmarkCount);
@@ -143,7 +131,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
 
     writef("-");
 
-    writef(" T.sizeof:%4s bytes:  new-class:%4.1f ns/w  new-struct:%4.1f ns/w  GC.malloc:%4.1f ns/w  gc_malloc_%4u:%4.1f ns/w  GC.calloc:%4.1f ns/w  pureMalloc:%4.1f ns/w  pureCalloc:%4.1f ns/w",
+    writef(" T.sizeof:%4s bytes:  new-class:%4.1f ns/w  new-struct:%4.1f ns/w  GC.malloc:%4.1f ns/w  gc_tlmalloc_%4u:%4.1f ns/w  GC.calloc:%4.1f ns/w  pureMalloc:%4.1f ns/w  pureCalloc:%4.1f ns/w",
            T.sizeof,
            cast(double)results[0].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[1].total!"nsecs"/(benchmarkCount*iterationCount*n),

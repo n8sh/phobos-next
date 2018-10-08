@@ -120,11 +120,17 @@ size_t benchmarkAllocation(E, uint n)() @trusted
         }
     }
 
-    void doAllocatorFreeList()
+    import std.experimental.allocator.gc_allocator : GCAllocator;
+    import std.experimental.allocator.building_blocks.free_list : FreeList;
+    FreeList!(GCAllocator, T.sizeof) allocator;
+
+    void doAllocatorFreeList() @trusted pure nothrow
     {
-        import std.experimental.allocator.gc_allocator : GCAllocator;
-        import std.experimental.allocator.building_blocks.free_list : FreeList;
-        FreeList!(GCAllocator, T.sizeof) allocator;
+        foreach (const i; 0 .. iterationCount)
+        {
+            auto x = allocator.allocate(T.sizeof).ptr;
+            ptrSum ^= cast(size_t)x; // side-effect
+        }
     }
 
     GC.disable();
@@ -134,10 +140,11 @@ size_t benchmarkAllocation(E, uint n)() @trusted
                                doGCNMalloc!(T.sizeof),
                                doGCCalloc,
                                doMalloc,
-                               doCalloc)(benchmarkCount);
+                               doCalloc,
+                               doAllocatorFreeList)(benchmarkCount);
     GC.enable();
 
-    writef(" %4s  %4.1f  %4.1f    %4.1f       %4.1f        %4.1f     %4.1f   %4.1f",
+    writef(" %4s  %4.1f  %4.1f    %4.1f       %4.1f        %4.1f     %4.1f   %4.1f   %4.1f",
            T.sizeof,
            cast(double)results[0].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[1].total!"nsecs"/(benchmarkCount*iterationCount*n),
@@ -145,7 +152,8 @@ size_t benchmarkAllocation(E, uint n)() @trusted
            cast(double)results[3].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[4].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[5].total!"nsecs"/(benchmarkCount*iterationCount*n),
-           cast(double)results[6].total!"nsecs"/(benchmarkCount*iterationCount*n)
+           cast(double)results[6].total!"nsecs"/(benchmarkCount*iterationCount*n),
+           cast(double)results[7].total!"nsecs"/(benchmarkCount*iterationCount*n)
         );
 
     writeln();

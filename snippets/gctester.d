@@ -30,7 +30,7 @@ void main(string[] args)
     benchmarkEnableDisable();
     /* All but last, otherwise new C() fails below because it requires one extra
      * word for type-info. */
-    writeln(" size new-C new-S GC.malloc gc_tlmalloc_N GC.calloc malloc calloc FreeList!(GC)");
+    writeln(" size new-C new-S GC.malloc gc_tlmalloc_N GC.calloc malloc calloc FreeList!(GCAllocator)");
     static foreach (byteSize; smallSizeClasses[0 .. $ - 1])
     {
         {

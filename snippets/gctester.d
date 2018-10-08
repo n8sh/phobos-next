@@ -120,6 +120,13 @@ size_t benchmarkAllocation(E, uint n)() @trusted
         }
     }
 
+    void doAllocatorFreeList()
+    {
+        import std.experimental.allocator.gc_allocator : GCAllocator;
+        import std.experimental.allocator.building_blocks.free_list : FreeList;
+        FreeList!(GCAllocator, T.sizeof) allocator;
+    }
+
     GC.disable();
     const results = benchmark!(doNewClass,
                                doNewStruct,

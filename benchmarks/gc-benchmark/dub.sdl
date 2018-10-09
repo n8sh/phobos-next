@@ -1,0 +1,5 @@
+name "gc-benchmark"
+description "Benchmark for D's GC."
+authors "Per Nordlöw"
+copyright "Copyright © 2018, Per Nordlöw"
+license "Boost"

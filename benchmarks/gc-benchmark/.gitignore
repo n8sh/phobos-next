@@ -1,0 +1,14 @@
+.dub
+docs.json
+__dummy.html
+docs/
+gctester.so
+gctester.dylib
+gctester.dll
+gctester.a
+gctester.lib
+gctester-test-*
+*.exe
+*.o
+*.obj
+*.lst

@@ -16,6 +16,7 @@ static immutable smallSizeClasses = [8,
                                      2048, // TODO 2048 + 1024,
     ];
 
+version(none)
 extern (C) @safe pure nothrow
 {
     static foreach (sizeClass; smallSizeClasses)
@@ -30,7 +31,7 @@ void main(string[] args)
     benchmarkEnableDisable();
     /* All but last, otherwise new C() fails below because it requires one extra
      * word for type-info. */
-    writeln(" size new-C new-S GC.malloc gc_tlmalloc_N GC.calloc malloc calloc FreeList!(GCAllocator)");
+    writeln(" size new-C new-S GC.malloc GC.calloc malloc calloc FreeList!(GCAllocator)");
     static foreach (byteSize; smallSizeClasses[0 .. $ - 1])
     {
         {
@@ -84,14 +85,14 @@ size_t benchmarkAllocation(E, uint n)() @trusted
         }
     }
 
-    void doGCNMalloc(int n)() @trusted pure nothrow
-    {
-        foreach (const i; 0 .. iterationCount)
-        {
-            mixin(`auto x = gc_tlmalloc_` ~ n.stringof ~ `(ba);`);
-            ptrSum ^= cast(size_t)x; // side-effect
-        }
-    }
+    // void doGCNMalloc(int n)() @trusted pure nothrow
+    // {
+    //     foreach (const i; 0 .. iterationCount)
+    //     {
+    //         mixin(`auto x = gc_tlmalloc_` ~ n.stringof ~ `(ba);`);
+    //         ptrSum ^= cast(size_t)x; // side-effect
+    //     }
+    // }
 
     void doGCCalloc() @trusted pure nothrow
     {
@@ -137,14 +138,14 @@ size_t benchmarkAllocation(E, uint n)() @trusted
     const results = benchmark!(doNewClass,
                                doNewStruct,
                                doGCMalloc,
-                               doGCNMalloc!(T.sizeof),
+                               // doGCNMalloc!(T.sizeof),
                                doGCCalloc,
                                doMalloc,
                                doCalloc,
                                doAllocatorFreeList)(benchmarkCount);
     GC.enable();
 
-    writef(" %4s  %4.1f  %4.1f    %4.1f       %4.1f        %4.1f     %4.1f   %4.1f   %4.1f",
+    writef(" %4s  %4.1f  %4.1f    %4.1f       %4.1f        %4.1f     %4.1f   %4.1f",
            T.sizeof,
            cast(double)results[0].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[1].total!"nsecs"/(benchmarkCount*iterationCount*n),
@@ -153,7 +154,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
            cast(double)results[4].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[5].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[6].total!"nsecs"/(benchmarkCount*iterationCount*n),
-           cast(double)results[7].total!"nsecs"/(benchmarkCount*iterationCount*n)
+           // cast(double)results[7].total!"nsecs"/(benchmarkCount*iterationCount*n)
         );
 
     writeln();

@@ -20,9 +20,7 @@ extern (C) @safe pure nothrow
 {
     static foreach (sizeClass; smallSizeClasses)
     {
-        /* TODO use template `mixin` containing, in turn, a `mixin`.
-         *
-         * TODO Since https://github.com/dlang/dmd/pull/8813 we can now use:
+        /* TODO Since https://github.com/dlang/dmd/pull/8813 we can now use:
          * `mixin("gc_tlmalloc_", sizeClass);` for symbol generation
          */
         mixin("void* gc_tlmalloc_" ~ sizeClass.stringof ~ "(uint ba = 0);");

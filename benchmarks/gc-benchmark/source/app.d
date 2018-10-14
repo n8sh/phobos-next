@@ -102,6 +102,9 @@ size_t benchmarkAllocation(E, uint n)() @trusted
     {
         foreach (const i; 0 .. iterationCount)
         {
+            /* TODO Since https://github.com/dlang/dmd/pull/8813 we can now use:
+             * `mixin("gc_tlmalloc_", sizeClass);` for symbol generation.
+             */
             mixin(`auto x = gc_tlmalloc_` ~ n.stringof ~ `(ba);`);
             ptrSum ^= cast(size_t)x; // side-effect
         }

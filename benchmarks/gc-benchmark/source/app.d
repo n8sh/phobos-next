@@ -32,7 +32,7 @@ void main(string[] args)
     benchmarkEnableDisable();
     /* All but last, otherwise new C() fails below because it requires one extra
      * word for type-info. */
-    writeln(" size new-C new-S GC.malloc GC.malloc+emplace gc_tlmalloc_N GC.calloc malloc calloc FreeList!(GCAllocator)");
+    writeln(" size new-C new-S GC.malloc+E gc_tlmalloc_N+E GC.calloc malloc calloc FreeList!(GCAllocator)");
     static foreach (byteSize; smallSizeClasses[0 .. $ - 1])
     {
         {
@@ -83,15 +83,6 @@ size_t benchmarkAllocation(E, uint n)() @trusted
     {
         foreach (const i; 0 .. iterationCount)
         {
-            auto x = GC.malloc(T.sizeof, ba);
-            ptrSum ^= cast(size_t)x; // side-effect
-        }
-    }
-
-    void doGCMallocEmplace() @trusted pure nothrow
-    {
-        foreach (const i; 0 .. iterationCount)
-        {
             T* x = cast(T*)GC.malloc(T.sizeof, ba);
             emplace!(T)(x);
             ptrSum ^= cast(size_t)x; // side-effect
@@ -105,7 +96,8 @@ size_t benchmarkAllocation(E, uint n)() @trusted
             /* TODO Since https://github.com/dlang/dmd/pull/8813 we can now use:
              * `mixin("gc_tlmalloc_", sizeClass);` for symbol generation.
              */
-            mixin(`auto x = gc_tlmalloc_` ~ n.stringof ~ `(ba);`);
+            mixin(`T* x = cast(T*)gc_tlmalloc_` ~ n.stringof ~ `(ba);`);
+            emplace!(T)(x);
             ptrSum ^= cast(size_t)x; // side-effect
         }
     }
@@ -154,7 +146,6 @@ size_t benchmarkAllocation(E, uint n)() @trusted
     const results = benchmark!(doNewClass,
                                doNewStruct,
                                doGCMalloc,
-                               doGCMalloc,
                                doGCNMalloc!(T.sizeof),
                                doGCCalloc,
                                doMalloc,
@@ -162,7 +153,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
                                doAllocatorFreeList)(benchmarkCount);
     GC.enable();
 
-    writef(" %4s  %4.1f  %4.1f    %4.1f       %4.1f              %4.1f        %4.1f     %4.1f   %4.1f   %4.1f",
+    writef(" %4s  %4.1f  %4.1f    %4.1f            %4.1f        %4.1f     %4.1f   %4.1f   %4.1f",
            T.sizeof,
            cast(double)results[0].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[1].total!"nsecs"/(benchmarkCount*iterationCount*n),
@@ -172,7 +163,6 @@ size_t benchmarkAllocation(E, uint n)() @trusted
            cast(double)results[5].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[6].total!"nsecs"/(benchmarkCount*iterationCount*n),
            cast(double)results[7].total!"nsecs"/(benchmarkCount*iterationCount*n),
-           cast(double)results[8].total!"nsecs"/(benchmarkCount*iterationCount*n)
         );
 
     writeln();

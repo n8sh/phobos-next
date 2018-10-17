@@ -230,10 +230,12 @@ disabled possibly implicitly because of uncopyable members.
   offset. Will need to be `@trusted` for fast unchecked pointer arithmetic.
 
 - Add ASCII-optimized versions of `find`, `canFind`, `startsWith`, `endsWith`,
-`findSplit*` when haystack is an array of `char` etc. Implemented first as
-function overload taking the char as template parameter and then reused in
-existing algorithms when needle is a `char` or perhaps also when `string` of
-length 1.
+`findSplit*`, `stripLeft` and `stripRight` when haystack is an array of `char`
+etc. Implemented first as function overload taking the char as template
+parameter and then reused in existing algorithms when needle is a `char` or
+perhaps also when `string` of length 1.
+
+Motivate be referring to https://github.com/dlang/phobos/pull/6727.
 
 - Make libraries and compile faster and more robust by using `__traits(compiles,
   { ... } )` instead of `is(typeof( { ... } ))`. See

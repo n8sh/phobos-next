@@ -12,6 +12,7 @@ authors "Per Nordlöw <per.nordlow@gmail.com>"
 # dependency "arsd" version="~master"
 
 dflags "-vcolumns" "-dip25" "-transition=intpromote" # "-dip1000"
+dflags "-transition=dtorfields" compiler="dmd"
 libs "z" "bz2" "zstd"
 
 # https://github.com/ldc-developers/ldc/issues/2717

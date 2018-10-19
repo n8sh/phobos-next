@@ -5,7 +5,7 @@ module open_hashmap_or_hashset;
 
 import container_traits : isNullable;
 import pure_mallocator : Mallocator = PureMallocator;
-// import std.experimental.allocator.building_blocks.mallocator : Mallocator;
+// TODO import std.experimental.allocator.mallocator : Mallocator;
 
 /** Is `true` iff `T` is a memory address. */
 private template isAddress(T)

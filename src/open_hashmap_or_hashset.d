@@ -4,7 +4,8 @@ module open_hashmap_or_hashset;
 // version = internalUnittest; // fed by dub (see dub.sdl) in unittest-internal mode
 
 import container_traits : isNullable;
-import pure_mallocator : PureMallocator;
+import pure_mallocator : Mallocator = PureMallocator;
+// import std.experimental.allocator.building_blocks.mallocator : Mallocator;
 
 /** Is `true` iff `T` is a memory address. */
 private template isAddress(T)
@@ -81,7 +82,7 @@ private template isAddress(T)
  */
 struct OpenHashMapOrSet(K, V = void,
                         alias hasher = hashOf,
-                        alias Allocator = PureMallocator.instance,
+                        alias Allocator = Mallocator.instance,
                         bool borrowChecked = false)
     if (isNullable!K
         // isHashable!K
@@ -1780,14 +1781,14 @@ static private struct RvalueElementRef(Table)
  */
 alias OpenHashSet(K,
                   alias hasher = hashOf,
-                  alias Allocator = PureMallocator.instance,
+                  alias Allocator = Mallocator.instance,
                   bool borrowChecked = false) = OpenHashMapOrSet!(K, void, hasher, Allocator, borrowChecked);
 
 /** Immutable hash map storing keys of type `K` and values of type `V`.
  */
 alias OpenHashMap(K, V,
                   alias hasher = hashOf,
-                  alias Allocator = PureMallocator.instance,
+                  alias Allocator = Mallocator.instance,
                   bool borrowChecked = false) = OpenHashMapOrSet!(K, V, hasher, Allocator, borrowChecked);
 
 import std.traits : isInstanceOf;
@@ -2513,7 +2514,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashSet!(K,
                            FNV!(64, true),
-                           PureMallocator.instance,
+                           Mallocator.instance,
                            true);
 
     auto k11 = K(11);

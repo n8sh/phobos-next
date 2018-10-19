@@ -321,6 +321,7 @@ struct OpenHashMapOrSet(K, V = void,
                     isAllZeroBits!(K, K.nullValue))) // check that it's zero bits only
         {
             // pragma(msg, "zero-allocate:", "K:", K, " V:", V);
+            // TODO use std.experimental.allocator.makeArray instead of this which handles clever checking for isZeroInit
             import container_traits : makeInitZeroArray;
             auto bins = makeInitZeroArray!(T, Allocator)(capacity);
             if (bins.ptr is null && capacity >= 1)

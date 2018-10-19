@@ -199,7 +199,6 @@ template isInitAllZeroBits(T)
  +/
 template isAllZeroBits(T, T value)
 {
-    pragma(msg, T);
     static if ((is(T == class) || is(T == typeof(null))) && // need this special case
                value is null)   // because pointer must be compared with `is` instead of `==` for `SSOString` case below
     {

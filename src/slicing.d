@@ -107,7 +107,7 @@ unittest
     import std.algorithm.iteration : map;
 
     import std.uni : isUpper, isWhite;
-    alias sepPred = _ => (_ == '-' || _.isWhite);
+    alias sepPred = ch => (ch == '-' || ch.isWhite);
     assert(equal("doThis or doThat do-stuff".preSlicer!(_ => (_.isUpper ||
                                                               sepPred(_)))
                                    .map!(word => (word.length >= 1 &&

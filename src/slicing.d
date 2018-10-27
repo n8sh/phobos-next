@@ -107,12 +107,13 @@ unittest
     import std.algorithm.iteration : map;
 
     import std.uni : isUpper, isWhite;
+    alias sepPred = _ => (_ == '-' || _.isWhite);
     assert(equal("doThis or doThat do-stuff".preSlicer!(_ => (_.isUpper ||
-                                                              (_ == '-' || _.isWhite)))
-                                   .map!(_ => (_.length >= 1 &&
-                                               (_[0] == '-' || _[0].isWhite) ?
-                                               _[1 .. $] :
-                                               _)),
+                                                              sepPred(_)))
+                                   .map!(word => (word.length >= 1 &&
+                                                  sepPred(word[0]) ?
+                                                  word[1 .. $] :
+                                                  word)),
                  ["do", "This", "or", "do", "That", "do", "stuff"]));
 
 

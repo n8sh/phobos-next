@@ -107,12 +107,13 @@ unittest
     import std.algorithm.iteration : map;
 
     import std.uni : isUpper, isWhite;
-    assert(equal("doThis or doThat".preSlicer!(_ => (_.isUpper ||
-                                                     _.isWhite))
-                                   .map!(_ => (_.length >= 1 && _[0] == ' ' ?
+    assert(equal("doThis or doThat do-stuff".preSlicer!(_ => (_.isUpper ||
+                                                              (_ == '-' || _.isWhite)))
+                                   .map!(_ => (_.length >= 1 &&
+                                               (_[0] == '-' || _[0].isWhite) ?
                                                _[1 .. $] :
                                                _)),
-                 ["do", "This", "or", "do", "That"]));
+                 ["do", "This", "or", "do", "That", "do", "stuff"]));
 
 
     assert(equal("isAKindOf".preSlicer!isUpper, ["is", "A", "Kind", "Of"]));

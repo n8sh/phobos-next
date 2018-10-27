@@ -103,10 +103,10 @@ alias preSplitter = preSlicer;
 
 unittest
 {
-    import std.uni : isUpper, isWhite;
     import std.algorithm.comparison : equal;
     import std.algorithm.iteration : map;
 
+    import std.uni : isUpper, isWhite;
     assert(equal("doThis or doThat".preSlicer!(_ => (_.isUpper ||
                                                      _.isWhite))
                                    .map!(_ => (_.length >= 1 && _[0] == ' ' ?

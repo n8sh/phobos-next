@@ -4,6 +4,8 @@ import std.traits : isExpressions;
 
 /** Like `findSplit` but with multiple separator `needles` known at compile-time
  * to prevent `NarrowString` decoding.
+ *
+ * TODO Add to Phobos.
  */
 template findSplitAmong(needles...)
 if (isExpressions!needles)

@@ -12,9 +12,9 @@ if (isExpressions!needles)
     import traits_ex : isASCII;
 
     auto findSplitAmong(Haystack)(scope return Haystack haystack)
-        if (is(typeof(Haystack.init[0 .. 0])) && // can be sliced
-            is(typeof(Haystack.init[0]) : char) &&
-            allSatisfy!(isASCII, needles))
+    if (is(typeof(Haystack.init[0 .. 0])) && // can be sliced
+        is(typeof(Haystack.init[0]) : char) &&
+        allSatisfy!(isASCII, needles))
     {
         // similar return result to `std.algorithm.searching.findSplit`
         static struct Result

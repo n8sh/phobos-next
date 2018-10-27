@@ -107,11 +107,12 @@ unittest
     import std.algorithm.comparison : equal;
     import std.algorithm.iteration : map;
 
-    import dbgio;
-    dln("doThis or doThat".preSlicer!(_ => _.isUpper || _.isWhite)
-                          .map!(_ => (_.length >= 1 && _[0] == ' ' ?
-                                      _[1 .. $] :
-                                      _)));
+    assert(equal("doThis or doThat".preSlicer!(_ => _.isUpper || _.isWhite)
+                                   .map!(_ => (_.length >= 1 && _[0] == ' ' ?
+                                               _[1 .. $] :
+                                               _)),
+                 ["do", "This", "or", "do", "That"]));
+
 
     assert(equal("isAKindOf".preSlicer!isUpper, ["is", "A", "Kind", "Of"]));
 

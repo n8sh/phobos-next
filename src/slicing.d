@@ -107,7 +107,8 @@ unittest
     import std.algorithm.comparison : equal;
     import std.algorithm.iteration : map;
 
-    assert(equal("doThis or doThat".preSlicer!(_ => _.isUpper || _.isWhite)
+    assert(equal("doThis or doThat".preSlicer!(_ => (_.isUpper ||
+                                                     _.isWhite))
                                    .map!(_ => (_.length >= 1 && _[0] == ' ' ?
                                                _[1 .. $] :
                                                _)),

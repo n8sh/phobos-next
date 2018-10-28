@@ -149,7 +149,6 @@ if (isDigest!Digest)
                     {
                         digestRaw(digest, e); // hash each element for now because padding might now be zero
                     }
-                    digestStruct(digest, value);
                 }
                 else
                 {

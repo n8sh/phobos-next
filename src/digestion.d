@@ -142,9 +142,13 @@ if (isDigest!Digest)
             static if (isStaticArray!T)
             {
                 import std.meta : staticIndexOf;
-                enum realIndex = staticIndexOf!(real, typeof(T[0].init.tupleof));
-                static if (realIndex != -1)
+                enum isReal = is(typeof(T.init[0]) == real);
+                static if (isReal) // static array of `real`s
                 {
+                    foreach (e; value)
+                    {
+                        digestRaw(digest, e); // hash each element for now because padding might now be zero
+                    }
                     digestStruct(digest, value);
                 }
                 else
@@ -158,7 +162,7 @@ if (isDigest!Digest)
                 enum realIndex = staticIndexOf!(real, typeof(T.init.tupleof));
                 static if (realIndex != -1)
                 {
-                    digestStruct(digest, value);
+                    digestStruct(digest, value); // hash each element for now because padding might now be zero
                 }
                 else
                 {

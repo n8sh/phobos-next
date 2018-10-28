@@ -310,8 +310,19 @@ if (isDigest!Digest &&
 /** Digest raw bytes of `values`.
  */
 private void digestRaw(Digest, T)(scope ref Digest digest,
-                                  const scope auto ref T value) @trusted
-if (isDigest!Digest)
+                                  const scope T value) @trusted // pass scalar types by value
+if (isDigest!Digest &&
+    isScalarType!T)             // scalar type `T`
+{
+    version(LDC) pragma(inline, true);
+    // TODO optimize when value is size_t, ulong and digest supports it
+    digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
+}
+
+private void digestRaw(Digest, T)(scope ref Digest digest,
+                                  const scope auto ref T value) @trusted // pass non-scalar types by ref when possible
+if (isDigest!Digest &&
+    !isScalarType!T)            // non-scalar type `T`
 {
     version(LDC) pragma(inline, true);
     // TODO optimize when value is size_t, ulong and digest supports it

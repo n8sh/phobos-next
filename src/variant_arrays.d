@@ -187,11 +187,10 @@ struct VariantArrays(Types...)
 
     import basic_array : BasicArray;
 
-    pragma(inline, true):
-
     /// Returns: array type (as a string) of `Type`.
     private static immutable(string) arrayTypeStringOfIndex(uint typeIndex)()
     {
+        pragma(inline, true);
         return `BasicArray!(Types[` ~ typeIndex.stringof ~ `])`;
     }
 
@@ -201,6 +200,7 @@ struct VariantArrays(Types...)
     private static immutable(string) arrayInstanceString(SomeKind)()
     if (Ref.canReferenceType!SomeKind)
     {
+        pragma(inline, true);
         return `_store` ~ Ref.nrOfKind!(SomeKind).stringof; // previously `SomeKind.mangleof`
     }
 
@@ -208,6 +208,7 @@ struct VariantArrays(Types...)
     static Ref makeRef(SomeKind)(Ref.Size index)
     if (Ref.canReferenceType!SomeKind)
     {
+        pragma(inline, true);
         return Ref(Ref.nrOfKind!SomeKind, index);
     }
 
@@ -242,6 +243,7 @@ struct VariantArrays(Types...)
     if (op == "~" &&
         Ref.canReferenceType!SomeKind)
     {
+        pragma(inline, true);
         insertBackMove(value);  // move enables uncopyable types
     }
 
@@ -249,6 +251,7 @@ struct VariantArrays(Types...)
     scope ref inout(SomeKind) at(SomeKind)(in size_t index) inout return
     if (Ref.canReferenceType!SomeKind)
     {
+        pragma(inline, true);
         mixin(`return ` ~ arrayInstanceString!SomeKind ~ `[index];`);
     }
 
@@ -256,6 +259,7 @@ struct VariantArrays(Types...)
     scope ref inout(SomeKind) at(SomeKind)(in Ref ref_) inout return
     if (Ref.canReferenceType!SomeKind)
     {
+        pragma(inline, true);
         assert(Ref.nrOfKind!SomeKind == ref_._kindNr,
                "Ref is not of expected template type " ~ SomeKind.stringof);
         mixin(`return ` ~ arrayInstanceString!SomeKind ~ `[ref_.index];`);
@@ -265,6 +269,7 @@ struct VariantArrays(Types...)
     scope inout(SomeKind)* peek(SomeKind)(in Ref ref_) inout return @system
     if (Ref.canReferenceType!SomeKind)
     {
+        pragma(inline, true);
         if (Ref.nrOfKind!SomeKind == ref_._kindNr)
         {
             return &at!SomeKind(ref_._index);
@@ -279,6 +284,7 @@ struct VariantArrays(Types...)
     scope inout(SomeKind)[] allOf(SomeKind)() inout return
     if (Ref.canReferenceType!SomeKind)
     {
+        pragma(inline, true);
         mixin(`return ` ~ arrayInstanceString!SomeKind ~ `[];`);
     }
 
@@ -286,6 +292,7 @@ struct VariantArrays(Types...)
     void reserve(SomeKind)(size_t newCapacity)
     if (Ref.canReferenceType!SomeKind)
     {
+        pragma(inline, true);
         mixin(`alias arrayInstance = ` ~ arrayInstanceString!SomeKind ~ `;`);
         arrayInstance.reserve(newCapacity);
     }
@@ -293,6 +300,7 @@ struct VariantArrays(Types...)
     /** Returns: length of store. */
     @property size_t length() const
     {
+        pragma(inline, true);
         typeof(return) lengthSum = 0;
         foreach (Type; Types)
         {
@@ -302,7 +310,11 @@ struct VariantArrays(Types...)
     }
 
     /** Check if empty. */
-    @property bool empty() const { return length == 0; }
+    @property bool empty() const
+    {
+        pragma(inline, true);
+        return length == 0;
+    }
 
 private:
     static if (false/*__VERSION__ >= 2076*/)

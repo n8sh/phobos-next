@@ -11,6 +11,8 @@ struct Magic
     size_t byteOffset;
 }
 
+// version = show;
+
 // import backtrace.backtrace;
 
 /** Scan Directory $(D dir) for file magic. */
@@ -32,7 +34,7 @@ void scanMagicFiles(string dir)
 
     foreach (file; dir.dirEntries(SpanMode.depth))
     {
-        writeln(`file: `, file.name);
+        version(show) writeln(`file: `, file.name);
         foreach (line; File(file).byLine)
         {
             // auto parts = line.splitter("\t");
@@ -41,7 +43,7 @@ void scanMagicFiles(string dir)
             {
                 if (parts.front.startsWith('#')) // if comment
                 {
-                    /* writeln("comment: ", parts); */
+                    /* version(show) writeln("comment: ", parts); */
                 }
                 else            // otherwise magic
                 {
@@ -53,7 +55,7 @@ void scanMagicFiles(string dir)
                         if (first == `0`) // at beginning of file
                         {
                             offset = 0;
-                            write(offset, `-offset-`);
+                            version(show) write(offset, `-offset-`);
                             parts.popFront();
                             auto kind = parts.front;
                             switch (kind.strip(' '))
@@ -73,28 +75,28 @@ void scanMagicFiles(string dir)
                                         // TODO Replace `\0`, `\1`
                                         // TODO Replace `\OCTAL` with "\OCTAL"
                                         // TODO Replace \0xa
-                                        writeln(kind, `: `, magic);
+                                        version(show) writeln(kind, `: `, magic);
                                     }
                                     break;
                                 case `regex`:
                                     parts.popFront();
                                     auto rest = find!(a => !a.empty)(parts); // skip empty strings
-                                    writeln(kind, `: `, parts);
+                                    version(show) writeln(kind, `: `, parts);
                                     break;
                                 case `belong`: // big-endian 64-bit
                                     parts.popFront();
                                     auto rest = find!(a => !a.empty)(parts); // skip empty strings
-                                    writeln(kind, `: `, parts);
+                                    version(show) writeln(kind, `: `, parts);
                                     break;
                                 case `lelong`: // little-endian 64-bit
                                     parts.popFront();
                                     auto rest = find!(a => !a.empty)(parts); // skip empty strings
-                                    writeln(kind, `: `, parts);
+                                    version(show) writeln(kind, `: `, parts);
                                     break;
                                 default:
                                     parts.popFront();
                                     auto rest = find!(a => !a.empty)(parts); // skip empty strings
-                                    writeln(kind, `: `, parts);
+                                    version(show) writeln(kind, `: `, parts);
                                     break;
                             }
                             baseCount++;
@@ -102,13 +104,13 @@ void scanMagicFiles(string dir)
                         }
                         else
                         {
-                            writeln("todo: ", parts);
+                            version(show) writeln("todo: ", parts);
                         }
 
                     }
                     else if (firstChar == '>')
                     {
-                        writeln(`>: `, parts);
+                        version(show) writeln(`>: `, parts);
                         attrCount++;
                     }
                 }
@@ -116,8 +118,8 @@ void scanMagicFiles(string dir)
         }
     }
 
-    writeln(`Found `, baseCount, ` number of magic bases`);
-    writeln(`Found `, attrCount, ` number of magic attributes`);
+    version(show) writeln(`Found `, baseCount, ` number of magic bases`);
+    version(show) writeln(`Found `, attrCount, ` number of magic attributes`);
 }
 
 unittest

@@ -51,13 +51,13 @@ bool isEnglishIndefiniteArticle(S)(S s)
 }
 
 bool isEnglishDefiniteArticle(S)(S s)
-    if (isSomeString!S)
+if (isSomeString!S)
 {
     return cast(bool)s.among!(aliasSeqOf!englishDefiniteArticles);
 }
 
 bool isEnglishArticle(S)(S s)
-    if (isSomeString!S)
+if (isSomeString!S)
 {
     return cast(bool)s.among!(aliasSeqOf!englishArticles);
 }
@@ -75,21 +75,21 @@ immutable germanArticles = germanIndefiniteArticles ~ germanDefiniteArticles;
 
 /** Check if $(D s) is a Vowel. */
 bool isGermanIndefiniteArticle(S)(S s)
-    if (isSomeString!S)
+if (isSomeString!S)
 {
     return cast(bool)s.among!(aliasSeqOf!germanIndefiniteArticles);
 }
 
 /** Check if $(D s) is a Vowel. */
 bool isGermanDefiniteArticle(S)(S s)
-    if (isSomeString!S)
+if (isSomeString!S)
 {
     return cast(bool)s.among!(aliasSeqOf!germanDefiniteArticles);
 }
 
 /** Check if $(D s) is a Vowel. */
 bool isGermanArticle(S)(S s)
-    if (isSomeString!C)
+if (isSomeString!C)
 {
     return cast(bool)s.among!(aliasSeqOf!germanArticles);
 }
@@ -108,7 +108,7 @@ immutable dchar[] englishVowels = ['a', 'o', 'u', 'e', 'i', 'y',
 
 /** Check if $(D c) is a Vowel. */
 bool isEnglishVowel(C)(C c)
-    if (isSomeChar!C)
+if (isSomeChar!C)
 {
     return cast(bool)c.among!(aliasSeqOf!englishVowels);
 }
@@ -118,7 +118,7 @@ immutable dchar[] englishAccentedVowels = ['é'];
 
 /** Check if $(D c) is an Accented Vowel. */
 bool isEnglishAccentedVowel(C)(C c)
-    if (isSomeChar!C)
+if (isSomeChar!C)
 {
     return cast(bool)c.among!(aliasSeqOf!englishAccentedVowels);
 }
@@ -141,21 +141,21 @@ immutable swedishVowels = swedishHardVowels ~ swedishSoftVowels;
 
 /** Check if $(D c) is a Swedish Vowel. */
 bool isSwedishVowel(C)(C c)
-    if (isSomeChar!C)
+if (isSomeChar!C)
 {
     return cast(bool)c.among!(aliasSeqOf!swedishVowels);
 }
 
 /** Check if $(D c) is a Swedish hard vowel. */
 bool isSwedishHardVowel(C)(C c)
-    if (isSomeChar!C)
+if (isSomeChar!C)
 {
     return cast(bool)c.among!(aliasSeqOf!swedishHardVowels);
 }
 
 /** Check if $(D c) is a Swedish soft vowel. */
 bool isSwedishSoftVowel(C)(C c)
-    if (isSomeChar!C)
+if (isSomeChar!C)
 {
     return cast(bool)c.among!(aliasSeqOf!swedishSoftVowels);
 }
@@ -166,14 +166,14 @@ enum spanishAccentedVowels = ['á', 'é', 'í', 'ó', 'ú',
 
 /** Check if $(D c) is a Spanish Accented Vowel. */
 bool isSpanishAccentedVowel(C)(C c)
-    if (isSomeChar!C)
+if (isSomeChar!C)
 {
     return cast(bool)c.among!(aliasSeqOf!spanishAccentedVowels);
 }
 
 /** Check if $(D c) is a Spanish Vowel. */
 bool isSpanishVowel(C)(C c)
-    if (isSomeChar!C)
+if (isSomeChar!C)
 {
     return (c.isEnglishVowel ||
             c.isSpanishAccentedVowel);
@@ -186,7 +186,7 @@ nothrow @nogc unittest
 
 /** Check if $(D c) is a Vowel in language $(D lang). */
 bool isVowel(C)(C c, Lang lang)
-    if (isSomeChar!C)
+if (isSomeChar!C)
 {
     switch (lang)
     {
@@ -218,7 +218,7 @@ immutable dchar[] englishConsonants = englishLowerConsonants ~ englishUpperConso
 
 /** Check if $(D c) is a Consonant. */
 bool isEnglishConsonant(C)(C c)
-    if (isSomeChar!C)
+if (isSomeChar!C)
 {
     return cast(bool)c.among!(aliasSeqOf!englishConsonants);
 }
@@ -235,7 +235,7 @@ immutable dchar[] englishLetters = englishVowels ~ englishConsonants;
 
 /** Check if $(D c) is a letter. */
 bool isEnglishLetter(C)(C c)
-    if (isSomeChar!C)
+if (isSomeChar!C)
 {
     return cast(bool)c.among!(aliasSeqOf!englishLetters);
 }
@@ -251,7 +251,7 @@ enum englishDoubleConsonants = [`bb`, `dd`, `ff`, `gg`, `mm`, `nn`, `pp`, `rr`, 
 
 /** Check if $(D c) is an English Double consonant. */
 bool isEnglishDoubleConsonant(S)(S s)
-    if (isSomeString!S)
+if (isSomeString!S)
 {
     return cast(bool)c.among!(`bb`, `dd`, `ff`, `gg`, `mm`, `nn`, `pp`, `rr`, `tt`, `ck`, `ft`);
 }
@@ -331,7 +331,7 @@ enum VerbForm
 
 /** Verb Instance. */
 struct Verb(S)
-    if (isSomeString!S)
+if (isSomeString!S)
 {
     S expr;
     VerbForm form;
@@ -348,7 +348,7 @@ enum Count
 }
 
 struct Noun(S)
-    if (isSomeString!S)
+if (isSomeString!S)
 {
     S expr;
     Count count;
@@ -369,7 +369,7 @@ enum Comparation
 }
 
 struct Adjective(S)
-    if (isSomeString!S)
+if (isSomeString!S)
 {
     S expr;
     Comparation comparation;
@@ -672,7 +672,7 @@ string inPlural(string word, int count = 2,
     See_Also: https://en.wikipedia.org/wiki/Lemmatisation
  */
 S lemmatized(S)(S s) nothrow
-    if (isSomeString!S)
+if (isSomeString!S)
 {
     if      (s.among!(`be`, `is`, `am`, `are`)) return `be`;
     else if (s.among!(`do`, `does`))            return `do`;

@@ -163,9 +163,6 @@ struct OpenHashMapOrSet(K, V = void,
         import array_help : makeUninitializedBitArray, makeZeroedBitArray, makeReallocatedBitArrayZeroPadded;
     }
 
-    alias MutableThis = Unqual!(typeof(this));
-    alias ConstThis = const(MutableThis);
-
     /// Element type.
     static if (hasValue)
     {

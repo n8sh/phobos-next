@@ -256,10 +256,11 @@ static assert(SSOString.sizeof == string.sizeof);
 {
     alias S = SSOString;
 
-    S x = "42";
-    S y = "42";
+    const S x = "42";
+    const S y = "42";
 
     assert(x == y);
+    assert(x[] is x[]);
     assert(x[] !is y[]);
     assert(x[].ptr !is y[].ptr);
     // TODO assert(x !is y);

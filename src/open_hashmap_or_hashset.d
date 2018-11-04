@@ -668,7 +668,7 @@ struct OpenHashMapOrSet(K, V = void,
     {
         version(LDC) pragma(inline, true);
         assert(!key.isNull);
-        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)key);
+        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)key); // cast scoped `key` is @trusted
         return (hitIndex != _bins.length &&
                 isOccupiedAtIndex(hitIndex));
     }
@@ -1129,7 +1129,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             pragma(inline, true);
             assert(!key.isNull);
-            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)key);
+            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)key); // cast scoped `key` is @trusted
             return (hitIndex != _bins.length &&
                     isOccupiedAtIndex(hitIndex)) ? &_bins[hitIndex] :
             null; /* TODO instead of null return a reference to a struct SlotRef
@@ -1142,10 +1142,10 @@ struct OpenHashMapOrSet(K, V = void,
     {
         scope inout(V)* opBinaryRight(string op, SomeKey)(const scope SomeKey key) inout return @trusted // `auto ref` here makes things slow
         if (op == `in` &&
-            isScopedKeyType!(typeof(key)))
+            isScopedKeyType!(SomeKey))
         {
             version(LDC) pragma(inline, true);
-            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)key);
+            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)key); // cast scoped `key` is @trusted
             if (hitIndex != _bins.length &&
                 isOccupiedAtIndex(hitIndex))
             {
@@ -1162,7 +1162,7 @@ struct OpenHashMapOrSet(K, V = void,
         if (isScopedKeyType!(typeof(key)))
         {
             version(LDC) pragma(inline, true);
-            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)key);
+            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)key); // cast scoped `key` is @trusted
             if (hitIndex != _bins.length &&
                 isOccupiedAtIndex(hitIndex))
             {
@@ -1193,6 +1193,26 @@ struct OpenHashMapOrSet(K, V = void,
             else
             {
                 return defaultValue;
+            }
+        }
+
+        /** Get reference to `key` part of stored element at `key`, if present,
+         * otherwise return `defaultKey`.
+         */
+        ref const(K) getKeyRef(SomeKey)(const scope SomeKey key, // template-lazy
+                                        ref const(K) defaultKey) const return @trusted
+        if (isScopedKeyType!(SomeKey))
+        {
+            version(LDC) pragma(inline, true);
+            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)key); // cast scoped `key` is @trusted
+            if (hitIndex != _bins.length &&
+                isOccupiedAtIndex(hitIndex))
+            {
+                return _bins[hitIndex].key;
+            }
+            else
+            {
+                return defaultKey;
             }
         }
 
@@ -3388,7 +3408,7 @@ unittest
     }
 }
 
-/// `SSOString` as key type
+/// `SSOString` as set key type
 @safe pure nothrow @nogc
 unittest
 {
@@ -3419,6 +3439,52 @@ unittest
         assert(b.insertAndReturnElement(K(ch)) == k);
         assert(b.contains(k));
         assert(b.containsUsingLinearSearch(k));
+    }
+
+    assert(a == b);
+}
+
+/// `SSOString` as map key type
+@trusted pure nothrow @nogc
+unittest
+{
+    import sso_string : SSOString;
+    alias K = SSOString;
+    struct V
+    {
+        long x, y;
+    }
+    alias X = OpenHashMap!(K, V, FNV!(64, true));
+    const n = 100;
+
+    K default_k;
+
+    X a;
+    foreach (const i; 0 .. n)
+    {
+        const char[1] ch = ['a' + i];
+        const k = K(ch);        // @nogc
+
+        assert(!a.contains(k));
+        assert(a.getKeyRef(k, default_k)[] is default_k[]); // on miss use `default_k`
+
+        a[k] = V.init;
+
+        assert(a.contains(k));
+        assert(a.getKeyRef(k, default_k)[] !is k[]); // on hit doesn't use `default_k`
+    }
+
+    X b;
+    foreach (const i; 0 .. n)
+    {
+        const char[1] ch = ['a' + (n - 1 - i)];
+        const k = K(ch);        // @nogc
+
+        assert(!b.contains(k));
+
+        b[k] = V.init;
+
+        assert(b.contains(k));
     }
 
     assert(a == b);

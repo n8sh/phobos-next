@@ -251,7 +251,7 @@ static assert(SSOString.sizeof == string.sizeof);
     static assert(__traits(compiles, { const s0_ = S(s); }));
 }
 
-/// test behaviour of `is`
+/// test behaviour of `is` operator
 @trusted pure nothrow @nogc unittest
 {
     alias S = SSOString;

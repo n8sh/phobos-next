@@ -261,6 +261,7 @@ static assert(SSOString.sizeof == string.sizeof);
 
     assert(x == y);
     assert(x[] is x[]);
+    assert(y[] is y[]);
     assert(x[] !is y[]);
     assert(x[].ptr !is y[].ptr);
     // TODO assert(x !is y);

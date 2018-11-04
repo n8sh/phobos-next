@@ -152,7 +152,10 @@ struct SSOString
         return opSlice() == rhs.opSlice();
     }
 
-    /** Check if is the same as to `rhs`. */
+    /** Check if is the same as to `rhs`.
+     *
+     * See_Also: https://forum.dlang.org/post/agzznbzkacfhyqvoezht@forum.dlang.org.
+     */
     bool opBinary(string op)(in auto ref typeof(this) rhs) const @trusted
         if (op == `is`)         // TODO has not effect
     {

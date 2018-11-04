@@ -3457,7 +3457,7 @@ unittest
     alias X = OpenHashMap!(K, V, FNV!(64, true));
     const n = 100;
 
-    K default_k;
+    const default_k = K("42");
 
     X a;
     foreach (const i; 0 .. n)

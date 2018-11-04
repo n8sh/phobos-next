@@ -152,7 +152,22 @@ struct SSOString
         return opSlice() == rhs.opSlice();
     }
 
+    /** Check if is the same as to `rhs`. */
+    bool opBinary(string op)(in auto ref typeof(this) rhs) const @trusted
+        if (op == `is`)         // TODO has not effect
+    {
+        pragma(inline, true);
+        return opSlice() == rhs.opSlice();
+    }
+
     /** Check if equal to `rhs`. */
+    bool opEquals()(const scope const(char)[] rhs) const @trusted
+    {
+        pragma(inline, true);
+        return opSlice() == rhs;
+    }
+
+    /** Check if is the same `rhs`. */
     bool opEquals()(const scope const(char)[] rhs) const @trusted
     {
         pragma(inline, true);
@@ -231,6 +246,24 @@ static assert(SSOString.sizeof == string.sizeof);
     alias S = SSOString;
     const char[] s;
     static assert(__traits(compiles, { const s0_ = S(s); }));
+}
+
+/// construct from non-immutable source is not allowed in @nogc context
+@trusted pure nothrow @nogc unittest
+{
+    alias S = SSOString;
+
+    S x = "42";
+    S y = "42";
+
+    assert(x == y);
+    assert(x[] !is y[]);
+    assert(x[].ptr !is y[].ptr);
+    // TODO assert(x !is y);
+
+    S z = "43";
+    assert(x != z);
+    assert(x !is z);
 }
 
 ///

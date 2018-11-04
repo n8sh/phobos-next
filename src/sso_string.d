@@ -156,6 +156,7 @@ struct SSOString
      *
      * See_Also: https://forum.dlang.org/post/agzznbzkacfhyqvoezht@forum.dlang.org.
      */
+    version(none)               // `is` operator cannot be overloaded. See: https://forum.dlang.org/post/prmrli$1146$1@digitalmars.com
     bool opBinary(string op)(in auto ref typeof(this) rhs) const @trusted
         if (op == `is`)         // TODO has not effect
     {

@@ -666,6 +666,7 @@ struct OpenHashMapOrSet(K, V = void,
         const @trusted // template-lazy, `auto ref` here makes things slow
     if (isScopedKeyType!(typeof(key)))
     {
+        // pragma(msg, SomeKey);
         version(LDC) pragma(inline, true);
         assert(!key.isNull);
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)key); // cast scoped `key` is @trusted
@@ -3445,7 +3446,7 @@ unittest
 }
 
 /// `SSOString` as map key type
-@trusted pure nothrow @nogc
+@trusted pure nothrow // TODO @nogc
 unittest
 {
     import sso_string : SSOString;
@@ -3467,7 +3468,7 @@ unittest
         assert(k[] == ch[]);
 
         assert(!a.contains(k));
-        // TODO assert(!a.contains(ch[]));                          // @nogc because ch[] is comparable to K.init[]
+        assert(!a.contains(ch[])); // TODO @nogc
         assert(a.getKeyRef(k, default_k)[] is default_k[]); // on miss use `default_k`
 
         a[k] = V.init;

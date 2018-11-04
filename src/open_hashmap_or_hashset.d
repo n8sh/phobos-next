@@ -3464,8 +3464,10 @@ unittest
     {
         const char[1] ch = ['a' + i];
         const k = K(ch);        // @nogc
+        assert(k[] == ch[]);
 
         assert(!a.contains(k));
+        // TODO assert(!a.contains(ch[]));                          // @nogc because ch[] is comparable to K.init[]
         assert(a.getKeyRef(k, default_k)[] is default_k[]); // on miss use `default_k`
 
         a[k] = V.init;

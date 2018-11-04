@@ -248,7 +248,7 @@ static assert(SSOString.sizeof == string.sizeof);
     static assert(__traits(compiles, { const s0_ = S(s); }));
 }
 
-/// construct from non-immutable source is not allowed in @nogc context
+/// test behaviour of `is`
 @trusted pure nothrow @nogc unittest
 {
     alias S = SSOString;
@@ -260,10 +260,6 @@ static assert(SSOString.sizeof == string.sizeof);
     assert(x[] !is y[]);
     assert(x[].ptr !is y[].ptr);
     // TODO assert(x !is y);
-
-    S z = "43";
-    assert(x != z);
-    assert(x !is z);
 }
 
 ///

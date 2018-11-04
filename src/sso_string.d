@@ -5,8 +5,8 @@ module sso_string;
  * Store on the stack if constructed with <= `smallCapacity` number of
  * characters, otherwise on the GC heap.
  *
- * Because `SSOString` doesn't have a destructor it can safely allocated using a
- * GC-backed region allocator with relying on a GC finalizer.
+ * Because `SSOString` doesn't have a destructor it can safely allocate using a
+ * GC-backed region allocator without relying on a GC finalizer.
  *
  * TODO: Add Phobos' std.typecons or std.array or std.string
  * See_Also: https://forum.dlang.org/post/pb87rn$2icb$1@digitalmars.com

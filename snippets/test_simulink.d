@@ -265,7 +265,7 @@ Sl_BusType parseMatlabBusDefinitions(R)(R lines, string path)
         }
         else if (sline.skipOver("elems(")) // elements found
         {
-            if (auto hit = sline.findSplit(")"))
+            if (auto hit = sline.findSplitAmong!(')'))
             {
                 const length = hit[0].to!BusIndex; // get current index
 
@@ -279,7 +279,7 @@ Sl_BusType parseMatlabBusDefinitions(R)(R lines, string path)
                 auto rest = hit[2];
                 if (rest.strip == "= Simulink.Sl_BusElement;") { continue; /* next line*/ }
                 assert(rest.skipOver("."));
-                if (auto rhit = rest.findSplit("="))
+                if (auto rhit = rest.findSplitAmong!('='))
                 {
                     auto propertyName = rhit[0].strip;
                     auto propertyValue = rhit[2][0 .. $ - 1].strip;
@@ -425,7 +425,7 @@ EnumType parseMatlabEnum(R)(R lines)
     {
         if (sline.skipOver("classdef (Enumeration) "))
         {
-            if (auto hit = sline.findSplit("<"))
+            if (auto hit = sline.findSplit!('<'))
             {
                 name = hit[0].strip.to!(typeof(name));
                 superType = hit[2].strip.to!(typeof(superType));
@@ -462,7 +462,7 @@ EnumType parseMatlabEnum(R)(R lines)
                 else
                 {
                     assert(sline[$ - 1] == ')');
-                    if (auto vat = sline[0 .. $ - 1].findSplit("(")) // value and type
+                    if (auto vat = sline[0 .. $ - 1].findSplitAmong!('(')) // value and type
                     {
                         const ename = vat[0].to!string;
                         const evalue = vat[2].to!int;

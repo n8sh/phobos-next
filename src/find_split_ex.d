@@ -113,8 +113,8 @@ if (needles.length != 0 &&
 ///
 @safe pure nothrow @nogc unittest
 {
-    static immutable separator = '/';
-    immutable r = "a+b*c".findSplitAmong!(separator);
+    static immutable separator_char = '/';
+    immutable r = "a+b*c".findSplitAmong!(separator_char);
     static assert(r.sizeof == 24);
     static assert(is(typeof(r.pre) == string));
     static assert(is(typeof(r.separator) == string));

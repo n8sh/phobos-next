@@ -74,30 +74,41 @@ if (isExpressions!needles)
 ///
 @safe pure nothrow @nogc unittest
 {
-    auto r1 = "a+b*c".findSplitAmong!('+', '-');
-    static assert(is(typeof(r1.pre) == string));
-    static assert(is(typeof(r1.separator) == string));
-    static assert(is(typeof(r1.post) == string));
-    assert(r1);
-    assert(r1.pre == "a");
-    assert(r1.separator == "+");
-    assert(r1.post == "b*c");
+    auto r = "a+b*c".findSplitAmong!('+', '-');
+    static assert(r.sizeof == 24);
+    static assert(is(typeof(r.pre) == string));
+    static assert(is(typeof(r.separator) == string));
+    static assert(is(typeof(r.post) == string));
+    assert(r);
+    assert(r.pre == "a");
+    assert(r.separator == "+");
+    assert(r.post == "b*c");
+}
 
-    const r2 = "a+b*c".findSplitAmong!('-', '*');
-    static assert(is(typeof(r2.pre) == string));
-    static assert(is(typeof(r2.separator) == string));
-    static assert(is(typeof(r2.post) == string));
-    assert(r2);
-    assert(r2.pre == "a+b");
-    assert(r2.separator == "*");
-    assert(r2.post == "c");
+///
+@safe pure nothrow @nogc unittest
+{
+    const r = "a+b*c".findSplitAmong!('-', '*');
+    static assert(r.sizeof == 24);
+    static assert(is(typeof(r.pre) == string));
+    static assert(is(typeof(r.separator) == string));
+    static assert(is(typeof(r.post) == string));
+    assert(r);
+    assert(r.pre == "a+b");
+    assert(r.separator == "*");
+    assert(r.post == "c");
+}
 
-    immutable r3 = "a+b*c".findSplitAmong!('/');
-    static assert(is(typeof(r3.pre) == string));
-    static assert(is(typeof(r3.separator) == string));
-    static assert(is(typeof(r3.post) == string));
-    assert(!r3);
-    assert(r3.pre == "a+b*c");
-    assert(r3.separator == []);
-    assert(r3.post == []);
+///
+@safe pure nothrow @nogc unittest
+{
+    immutable r = "a+b*c".findSplitAmong!('/');
+    static assert(r.sizeof == 24);
+    static assert(is(typeof(r.pre) == string));
+    static assert(is(typeof(r.separator) == string));
+    static assert(is(typeof(r.post) == string));
+    assert(!r);
+    assert(r.pre == "a+b*c");
+    assert(r.separator == []);
+    assert(r.post == []);
 }

@@ -59,14 +59,16 @@ if (isExpressions!needles)
                 return _haystack.length == _offset;
             }
         }
+
         foreach (immutable offset; 0 .. haystack.length)
         {
             import std.algorithm.comparison : among;
-            if (const uint hitIndex = haystack[offset].among!(needles))
+            if (const hitIndex = haystack[offset].among!(needles))
             {
                 return Result(haystack, offset);
             }
         }
+
         return Result(haystack, haystack.length);
     }
 }

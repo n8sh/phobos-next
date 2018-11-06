@@ -8,7 +8,8 @@ import std.traits : isExpressions;
  * TODO Add to Phobos.
  */
 template findSplitAmong(needles...)
-if (isExpressions!needles)
+if (needles.length >= 1 &&
+    isExpressions!needles)
 {
     import std.meta : allSatisfy;
     import traits_ex : isASCII;
@@ -62,8 +63,16 @@ if (isExpressions!needles)
 
         foreach (immutable offset; 0 .. haystack.length)
         {
-            import std.algorithm.comparison : among;
-            if (const hitIndex = haystack[offset].among!(needles))
+            static if (needles.length == 1)
+            {
+                const bool hit = haystack[offset] == needles[0];
+            }
+            else
+            {
+                import std.algorithm.comparison : among;
+                const bool hit = haystack[offset].among!(needles) != 0;
+            }
+            if (hit)
             {
                 return Result(haystack, offset);
             }

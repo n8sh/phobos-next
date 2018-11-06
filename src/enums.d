@@ -133,8 +133,7 @@ struct EnumUnion(E...)
                     match = true;
                 }
             }
-            if (!match)
-                throw new RangeError();
+            version(assert) if (!match) { throw new RangeError(); }
             return cast(E[0])_value;
         }
     }
@@ -151,8 +150,7 @@ struct EnumUnion(E...)
                     match = true;
                 }
             }
-            if (!match)
-                throw new RangeError();
+            version(assert) if (!match) { throw new RangeError(); }
             return cast(E[1])_value;
         }
     }
@@ -194,8 +192,7 @@ struct EnumUnion(E...)
                         match = true;
                     }
                 }
-                if (!match)
-                    throw new RangeError();
+                version(assert) if (!match) { throw new RangeError(); }
                 return cast(E[i])_value;
             }
         }

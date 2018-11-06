@@ -4464,11 +4464,8 @@ if (allSatisfy!(isTrieableKeyType, K))
             V* value = contains(key);
             version(assert)
             {
-                if (value is null)
-                {
-                    import core.exception : RangeError;
-                    throw new RangeError("Range violation");
-                }
+                import core.exception : RangeError;
+                if (value is null) { throw new RangeError("Range violation"); }
             }
             return *value;
         }

@@ -1169,7 +1169,7 @@ struct OpenHashMapOrSet(K, V = void,
             {
                 return _bins[hitIndex].value;
             }
-            else
+            version(assert)
             {
                 import core.exception : RangeError;
                 throw new RangeError("Key not found");

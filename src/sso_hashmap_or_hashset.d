@@ -894,10 +894,10 @@ struct SSOHashMapOrSet(K, V = void,
             {
                 return binElementsAt(binIx)[elementOffset].value;
             }
-            else                // miss
+            version(assert)
             {
                 import core.exception : RangeError;
-                throw new RangeError("Key not in table");
+                throw new RangeError("Key not found");
             }
         }
 

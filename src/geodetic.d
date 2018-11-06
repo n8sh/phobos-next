@@ -25,7 +25,7 @@ if (isFloatingPoint!T)
             isSomeString!Separator)
     {
         import std.algorithm : findSplit;
-        if (auto parts = s.findSplit(separator)) // TODO reuse functional findSplit in DMD 2.070
+        if (auto parts = s.findSplit(separator)) // TODO use const functional findSplit in DMD 2.070
         {
             import std.conv : to;
             this(parts[0].to!T,

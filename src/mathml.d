@@ -36,8 +36,8 @@ string toML(T)(T x,
     if (isFloatingPoint!T)
 {
     import std.conv : to;
-    import std.algorithm : findSplit;
-    const parts = to!string(x).findSplit("e"); // TODO Use std.bitmanip.FloatRep instead
+    import find_split_ex : findSplitAmong;
+    const parts = to!string(x).findSplitAmong!('e'); // TODO Use std.bitmanip.FloatRep instead
     if (parts[2].length >= 1)
     {
         // mantissa

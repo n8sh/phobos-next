@@ -4462,10 +4462,13 @@ if (allSatisfy!(isTrieableKeyType, K))
         {
             pragma(inline, true);
             V* value = contains(key);
-            if (value is null)
+            version(assert)
             {
-                import core.exception : RangeError;
-                throw new RangeError("Range violation");
+                if (value is null)
+                {
+                    import core.exception : RangeError;
+                    throw new RangeError("Range violation");
+                }
             }
             return *value;
         }

@@ -32,8 +32,8 @@ alias tail = dropOne;
  * must currently be called `eitherRef` instead of `either`.
  */
 ref Ts[0] eitherRef(Ts...)(ref Ts a)
-if (a.length >= 1 &&
-        allSame!Ts)         // TODO better trait for this?
+if (a.length != 0 &&
+    allSame!Ts)         // TODO better trait for this?
 {
     static if (Ts.length == 1)
     {
@@ -63,7 +63,7 @@ if (a.length >= 1 &&
  * TODO Is inout Conversion!T the correct return value?
 */
 CommonType!T every(T...)(lazy T a)
-if (T.length >= 1)
+if (T.length != 0)
 {
     auto a0 = a[0]();           // evaluate only once
     static if (T.length == 1)
@@ -95,7 +95,7 @@ version(none) // WARNING disabled because I don't see any use of this for.
     /** This overload enables, when possible, lvalue return.
     */
     auto ref every(T...)(ref T a)
-    if (T.length >= 1 && allSame!T)
+    if (T.length != 0 && allSame!T)
     {
         static if (T.length == 1)
         {
@@ -126,7 +126,7 @@ version(none) // WARNING disabled because I don't see any use of this for.
  * as an array, otherwise restore whole and return null.
  */
 CommonType!T[] tryEvery(S, T...)(ref S whole, lazy T parts)
-if (T.length >= 1)
+if (T.length != 0)
 {
     auto wholeBackup = whole;
     bool all = true;
@@ -366,9 +366,9 @@ import traits_ex : areEquable;
  */
 auto isAnagramOf(R1, R2)(R1 r1, R2 r2) // TODO nothrow
 if (isInputRange!R1 &&
-        isInputRange!R2 &&
-        areEquable!(ElementType!R1,
-                    ElementType!R2))
+    isInputRange!R2 &&
+    areEquable!(ElementType!R1,
+                ElementType!R2))
 {
     immutable sortLimit = 0;
     import std.range : empty;
@@ -823,7 +823,7 @@ unittest
 auto ref stableSort(T)(auto ref T a) pure
 if (isRandomAccessRange!T)
 {
-if (a.length >= 2)
+    if (a.length >= 2)
     {
         import std.algorithm: partition3, sort;
         auto parts = partition3(a, a[$ / 2]); // mid element as pivot
@@ -882,8 +882,8 @@ alias repeat = doTimes;
 /** Execute Expression `action` the same way `n` times. */
 void times(alias action, N)(N n)
 if (isCallable!action &&
-        isIntegral!N &&
-        arity!action <= 1)
+    isIntegral!N &&
+    arity!action <= 1)
 {
     import std.traits: ParameterTypeTuple;
     static if (arity!action == 1 && // if one argument and
@@ -941,7 +941,7 @@ import std.meta : allSatisfy;
 */
 auto zipWith(alias fun, Ranges...)(Ranges ranges)
 if (Ranges.length >= 2 &&
-        allSatisfy!(isInputRange, Ranges))
+    allSatisfy!(isInputRange, Ranges))
 {
     import std.range: zip;
     import std.algorithm.iteration: map;
@@ -966,8 +966,8 @@ unittest
 
 auto zipWith(fun, StoppingPolicy, Ranges...)(StoppingPolicy sp,
                                              Ranges ranges)
-if (Ranges.length &&
-        allSatisfy!(isInputRange, Ranges))
+if (Ranges.length != 0 &&
+    allSatisfy!(isInputRange, Ranges))
 {
     import std.range: zip;
     import std.algorithm.iteration: map;
@@ -1203,7 +1203,7 @@ bool isSliceOf(T)(in T[] part,
 /* See_Also: http://forum.dlang.org/thread/cjpplpzdzebfxhyqtskw@forum.dlang.org#post-cjpplpzdzebfxhyqtskw:40forum.dlang.org */
 auto dropWhile(alias pred = `a == b`, R, E)(R range, E element)
 if (isInputRange!R &&
-        is (typeof(binaryFun!pred(range.front, element)) : bool))
+    is (typeof(binaryFun!pred(range.front, element)) : bool))
 {
     alias predFun = binaryFun!pred;
     return range.find!(a => !predFun(a, element));
@@ -1229,7 +1229,7 @@ unittest
 /* See_Also: http://forum.dlang.org/thread/cjpplpzdzebfxhyqtskw@forum.dlang.org#post-cjpplpzdzebfxhyqtskw:40forum.dlang.org */
 auto takeWhile(alias pred = `a == b`, R, E)(R range, E element)
 if (isInputRange!R &&
-        is (typeof(binaryFun!pred(range.front, element)) : bool))
+    is (typeof(binaryFun!pred(range.front, element)) : bool))
 {
     import std.algorithm: until;
     alias predFun = binaryFun!pred;
@@ -1603,7 +1603,7 @@ Tuple!(R, size_t)[] findAllOfAnyInOrder(alias pred = `a == b`, R)(R haystack, R[
  */
 bool areStrictlyOrdered(Ts...)(Ts args)
 if (args.length >= 2 &&
-        haveCommonType!Ts)
+    haveCommonType!Ts)
 {
     foreach (i, arg; args[1..$])
         if (args[i] >= arg) return false;
@@ -1629,7 +1629,7 @@ if (args.length >= 2 &&
 */
 bool areUnstrictlyOrdered(Ts...)(Ts args)
 if (args.length >= 2 &&
-        haveCommonType!Ts)
+    haveCommonType!Ts)
 {
     foreach (i, arg; args[1..$])
         if (args[i] > arg) return false;
@@ -1660,7 +1660,7 @@ alias smul = mulu;
  */
 ref R append(R, Args...)(ref R data,
                          auto ref Args args)
-if (args.length >= 1)
+if (args.length != 0)
 {
     alias E = ElementType!R;
 
@@ -1796,7 +1796,8 @@ import traits_ex : haveCommonType;
 
 /** Returns: `true` iff `value` is equal to any of `values`, `false` otherwise. */
 template isAmong(values...)
-if (isExpressionTuple!values)
+if (isExpressionTuple!values &&
+    values.length != 0)
 {
     bool isAmong(Value)(Value value)
         if (haveCommonType!(Value, values))
@@ -1876,7 +1877,7 @@ if (is(T == class))
  */
 bool isLinearRamp(R)(R r, size_t step = 1)
 if (isInputRange!R &&
-        isIntegral!(ElementType!R))
+    isIntegral!(ElementType!R))
 {
     import std.algorithm : findAdjacent;
     import std.range : empty;
@@ -1885,7 +1886,7 @@ if (isInputRange!R &&
 
 bool hasHoles(R)(R r)
 if (isInputRange!R &&
-        isIntegral!(ElementType!R))
+    isIntegral!(ElementType!R))
 {
     return !r.isLinearRamp;
 }
@@ -2016,8 +2017,8 @@ import std.range.primitives : hasLength;
  */
 bool equalLength(R, Ss...)(const R r, const Ss ss)
     @safe pure nothrow @nogc
-if (Ss.length >= 1 &&
-        allSatisfy!(hasLength, R, Ss))
+if (Ss.length != 0 &&
+    allSatisfy!(hasLength, R, Ss))
 {
     foreach (const ref s; ss)
     {
@@ -2306,7 +2307,7 @@ import traits_ex : isASCII;
 /** TOOD Merge into Phobos' startsWith. */
 template startsWith(needles...)
 if (isExpressionTuple!needles &&
-        needles.length >= 1)
+    needles.length != 0)
 {
     uint startsWith(Haystack)(Haystack haystack) @trusted
         if (!is(CommonType!(typeof(Haystack.front), needles) == void))
@@ -2361,7 +2362,7 @@ if (isExpressionTuple!needles &&
 /** TOOD Merge into Phobos' endsWith. */
 template endsWith(needles...)
 if (isExpressionTuple!needles &&
-        needles.length >= 1)
+    needles.length != 0)
 {
     uint endsWith(Haystack)(Haystack haystack)
         @trusted

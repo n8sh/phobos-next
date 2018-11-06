@@ -576,7 +576,7 @@ template makeEnumFromSymbolNames(string prefix = `__`,
                                  bool firstUndefined = true,
                                  bool useMangleOf = false,
                                  Es...)
-    if (Es.length >= 1)
+if (Es.length != 0)
 {
     enum members =
     {

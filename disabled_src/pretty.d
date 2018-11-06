@@ -930,7 +930,7 @@ class Viz
         else static if (isInstanceOf!(AsCell, Arg))
         {
             string spanArg;
-            static if (arg.args.length >= 1 &&
+            static if (arg.args.length != 0 &&
                        isInstanceOf!(Span, typeof(arg.args[0])))
             {
                 spanArg ~= ` colspan="` ~ to!string(arg._span) ~ `"`;
@@ -949,7 +949,7 @@ class Viz
             }
             else if (form == VizForm.jiraWikiMarkup)
             {
-                if (args.length >= 1)
+                if (args.length != 0)
                 {
                     ppRaw(`||`);
                 }

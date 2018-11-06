@@ -381,7 +381,7 @@ struct TwoLeaf3
     @safe pure nothrow @nogc:
 
     this(Keys...)(Keys keys)
-    if (Keys.length >= 1 &&
+    if (Keys.length != 0 &&
         Keys.length <= capacity)
     {
         pragma(inline, true);
@@ -426,7 +426,7 @@ struct TriLeaf2
     @safe pure nothrow @nogc:
 
     this(Keys...)(Keys keys)
-    if (Keys.length >= 1 &&
+    if (Keys.length != 0 &&
         Keys.length <= capacity)
     {
         pragma(inline, true);
@@ -476,7 +476,7 @@ struct HeptLeaf1
     @safe pure nothrow @nogc:
 
     this(Keys...)(Keys keys)
-    if (Keys.length >= 1 &&
+    if (Keys.length != 0 &&
         Keys.length <= capacity)
     {
         pragma(inline, true);
@@ -3270,7 +3270,7 @@ template RawRadixTree(Value = void)
                 // NOTE: prefix:"", key:"cd"
                 return insertAtBelowPrefix(curr, elt, elementRef);
             }
-            else  // if (currPrefix.length >= 1) // non-empty current prefix
+            else  // if (currPrefix.length != 0) // non-empty current prefix
             {
                 // NOTE: prefix:"ab", key:"cd"
                 immutable currSubIx = UIx(currPrefix[0]); // subIx = 'a'
@@ -5011,7 +5011,7 @@ auto radixTreeMapGrowOnly(Key, Value)()
 
 version(unittest)
 auto testScalar(uint span, Keys...)()
-if (Keys.length >= 1)
+if (Keys.length != 0)
 {
     import std.traits : isIntegral, isFloatingPoint;
     import std.range : iota;
@@ -5207,7 +5207,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
 
 /// Check string types in `Keys`.
 auto testString(Keys...)(size_t count, uint maxLength) @safe
-if (Keys.length >= 1)
+if (Keys.length != 0)
 {
     void testContainsAndInsert(Set, Key)(ref Set set, Key key)
         if (isSomeString!Key)
@@ -5566,7 +5566,7 @@ bool testEqual(T, U)(ref T x, ref U y)
 
 /// Check correctness when span is `span` and for each `Key` in `Keys`.
 auto checkNumeric(Keys...)() @safe
-if (Keys.length >= 1)
+if (Keys.length != 0)
 {
     import std.traits : isIntegral, isFloatingPoint;
     foreach (immutable it; 0 .. 1)

@@ -28,10 +28,10 @@ import traits_ex : haveCommonType;
     Time-Complexity: O(1) thanks to D's $(D switch) guaranteeing O(1).
 */
 template substitute(substs...)
-    if ((substs.length & 1) == 0 && // need even number of elements (>= 1)
-        substs.length >= 2 && // and at least one replacement pair
-        isExpressionTuple!substs &&
-        haveCommonType!(substs))
+if ((substs.length & 1) == 0 && // need even number of elements (>= 1)
+    substs.length >= 2 && // and at least one replacement pair
+    isExpressionTuple!substs &&
+    haveCommonType!(substs))
 {
     Value substitute(Value)(Value value)
         if (haveCommonType!(Value, substs)) // TODO need static map incorrect

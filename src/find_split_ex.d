@@ -8,7 +8,7 @@ import std.traits : isExpressions;
  * TODO Add to Phobos.
  */
 template findSplitAmong(needles...)
-if (needles.length >= 1 &&
+if (needles.length != 0 &&
     isExpressions!needles)
 {
     import std.meta : allSatisfy;

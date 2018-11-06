@@ -26,7 +26,7 @@ if (isExpressions!needles)
 
             bool opCast(T : bool)() const
             {
-                return !_empty;
+                return !_isMatch;
             }
 
             @property:
@@ -38,7 +38,7 @@ if (isExpressions!needles)
 
             Haystack separator() const
             {
-                if (_empty)
+                if (_isMatch)
                 {
                     return _haystack[$ .. $];
                 }
@@ -47,14 +47,14 @@ if (isExpressions!needles)
 
             Haystack post() const
             {
-                if (_empty)
+                if (_isMatch)
                 {
                     return _haystack[$ .. $];
                 }
                 return _haystack[_offset + 1 .. $];
             }
 
-            private bool _empty() const
+            private bool _isMatch() const
             {
                 return _haystack.length == _offset;
             }

@@ -85,12 +85,12 @@ if (needles.length != 0 &&
         {
             static if (needles.length == 1)
             {
-                const bool hit = haystack[offset] == needles[0];
+                immutable hit = haystack[offset] == needles[0];
             }
             else
             {
                 import std.algorithm.comparison : among;
-                const bool hit = haystack[offset].among!(needles) != 0;
+                immutable hit = haystack[offset].among!(needles) != 0;
             }
             if (hit)
             {

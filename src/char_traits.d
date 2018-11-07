@@ -1,7 +1,6 @@
 module char_traits;
 
-/** Is `true` iff `x` is an ASCII character compile-time constant, `false`
- * otherwise.
+/** Is `true` iff `x` is an ASCII character compile-time constant.
  *
  * See_Also: `std.ascii.isASCII`.
  */

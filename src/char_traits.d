@@ -7,11 +7,11 @@ module char_traits;
  * TODO: Extend to array of chars.
  */
 template isASCII(alias x)
+if (is(typeof(x) : char) ||
+    is(typeof(x) : wchar) ||
+    is(typeof(x) : dchar))
 {
-    enum isASCII = ((is(typeof(x) : char) ||
-                     is(typeof(x) : wchar) ||
-                     is(typeof(x) : dchar)) &&
-                    x < 128);
+    enum isASCII = x < 128;
 }
 
 ///

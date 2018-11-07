@@ -5,7 +5,12 @@ import std.traits : isExpressions;
 /** Like `findSplit` but with multiple separator `needles` known at compile-time
  * to prevent `NarrowString` decoding.
  *
+ * TODO Do sentinel-based search when `haystack` is mutable and larger than a
+ * certain value.
+ *
  * TODO Add to Phobos.
+ *
+ * See_Also: https://forum.dlang.org/post/ycotlbfsqoupogaplkvf@forum.dlang.org
  */
 template findSplitAmong(needles...)
 if (needles.length != 0 &&

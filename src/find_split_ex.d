@@ -81,7 +81,7 @@ if (needles.length != 0 &&
             }
         }
 
-        enum use_memchr = true;
+        enum use_memchr = false;
         static if (use_memchr &&
                    needles.length == 1)
         {

@@ -121,7 +121,7 @@ struct SSOString
 
     @property bool empty() const @safe pure nothrow @nogc { return length == 0; }
 
-    @property bool isNull() const @safe pure nothrow @nogc { return !isLarge && empty; }
+    @property bool isNull() const @safe pure nothrow @nogc { return this == typeof(this).init; }
 
     scope ref immutable(E) opIndex(size_t index) const return @trusted
     {
@@ -282,6 +282,7 @@ static assert(SSOString.sizeof == string.sizeof);
     static assert(mustAddGCRange!S); // `Large large.ptr` must be scanned
 
     auto s0 = S.init;
+    assert(s0.isNull);
     assert(s0.length == 0);
     assert(!s0.isLarge);
     assert(s0[] == []);

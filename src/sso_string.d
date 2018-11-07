@@ -119,6 +119,10 @@ struct SSOString
     /// ditto
     alias opDollar = length;
 
+    @property bool empty() const @safe pure nothrow @nogc { return length == 0; }
+
+    @property bool isNull() const @safe pure nothrow @nogc { return !isLarge && empty; }
+
     scope ref immutable(E) opIndex(size_t index) const return @trusted
     {
         pragma(inline, true);

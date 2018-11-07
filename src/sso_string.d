@@ -262,7 +262,9 @@ static assert(SSOString.sizeof == string.sizeof);
     alias S = SSOString;
 
     const S x = "42";
+    assert(!x.isNull);
     const S y = "42";
+    assert(!y.isNull);
 
     assert(x == y);
     assert(x[] is x[]);
@@ -303,6 +305,7 @@ static assert(SSOString.sizeof == string.sizeof);
     // TODO assert(s0 !is s0_);
 
     const s7 = S("0123456");
+    assert(!s7.isNull);
 
     const s7_ = S("0123456_"[0 .. $ - 1]);
     assert(s7[].ptr !is s7_[].ptr); // string data shall not overlap
@@ -321,6 +324,7 @@ static assert(SSOString.sizeof == string.sizeof);
     assert(s7[0 .. 4] == "0123");
 
     const s15 = S("0123456789abcde");
+    assert(!s15.isNull);
     static assert(is(typeof(s15[]) == string));
     assert(!s15.isLarge);
     assert(s15.length == 15);
@@ -330,6 +334,7 @@ static assert(SSOString.sizeof == string.sizeof);
     assert(s15[10 .. $] == "abcde");
 
     const s16 = S("0123456789abcdef");
+    assert(!s16.isNull);
     static assert(is(typeof(s16[]) == string));
     assert(s16.isLarge);
 

@@ -279,7 +279,7 @@ Sl_BusType parseMatlabBusDefinitions(R)(R lines, string path)
                 auto rest = hit[2];
                 if (rest.strip == "= Simulink.Sl_BusElement;") { continue; /* next line*/ }
                 assert(rest.skipOver("."));
-                if (auto rhit = rest.findSplitAmong!('='))
+                if (const rhit = rest.findSplitAmong!('='))
                 {
                     auto propertyName = rhit[0].strip;
                     auto propertyValue = rhit[2][0 .. $ - 1].strip;

@@ -2347,7 +2347,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 /// disabled copying
 @safe pure nothrow @nogc unittest
 {
-    import std.traits : isRvalueAssignable, isLvalueAssignable, isCopyable;
+    import std.traits : isAssignable, isCopyable;
 
     alias E = string;
 
@@ -2357,8 +2357,11 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     alias CA = CopyingArray!E;
     static assert(isCopyable!(CA));
 
-    static assert(isRvalueAssignable!(A));
-    static assert(isLvalueAssignable!(A));
+    // import std.traits : isRvalueAssignable, isLvalueAssignable;
+    // static assert(isRvalueAssignable!(A));
+    // static assert(isLvalueAssignable!(A));
+
+    static assert(isAssignable!(A));
 
     // import std.range.primitives : hasSlicing;
     // TODO make this evaluate to `true`

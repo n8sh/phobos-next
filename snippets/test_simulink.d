@@ -265,7 +265,7 @@ Sl_BusType parseMatlabBusDefinitions(R)(R lines, string path)
         }
         else if (sline.skipOver("elems(")) // elements found
         {
-            if (auto hit = sline.findSplitAmong!(')'))
+            if (const hit = sline.findSplitAmong!(')'))
             {
                 const length = hit[0].to!BusIndex; // get current index
 

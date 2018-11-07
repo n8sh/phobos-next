@@ -3,6 +3,8 @@ module char_traits;
 /** Is `true` iff `x` is an ASCII character compile-time constant.
  *
  * See_Also: `std.ascii.isASCII`.
+ *
+ * TODO: Extend to array of chars.
  */
 template isASCII(alias x)
 {

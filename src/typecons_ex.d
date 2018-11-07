@@ -529,7 +529,7 @@ auto strictlyIndexed(R)(R range)
 ///
 @safe pure nothrow unittest
 {
-    import array_ex : Array;
+    import basic_array : Array = BasicArray;
 
     enum Lang { en, sv, fr }
 

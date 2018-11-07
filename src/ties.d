@@ -101,7 +101,7 @@ auto tie(Ts...)(ref Ts vars)
 template let(string expr)
 {
     mixin({
-            import std.algorithm.searching: findSplit;
+            import find_split_ex : findSplitAmong;
             import std.string: indexOfAny, indexOfNeither;
             import std.ascii: whitespace;
 
@@ -134,7 +134,7 @@ template let(string expr)
                 enum var0Ix = 0;
             }
 
-            enum split = expr_[var0Ix .. $].findSplit(`=`);
+            enum split = expr_[var0Ix .. $].findSplitAmong!('=');
 
             mixin(`struct S { int ` ~ split[0] ~ `; }`);
             string code = `auto v = ` ~ split[2] ~ `;`; // the right-hand side of the assignment

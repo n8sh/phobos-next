@@ -12,7 +12,7 @@ if (needles.length != 0 &&
     isExpressions!needles)
 {
     import std.meta : allSatisfy;
-    import traits_ex : isASCII;
+    import char_traits : isASCII;
 
     auto findSplitAmong(Haystack)(scope return Haystack haystack)
     if (is(typeof(Haystack.init[0 .. 0])) && // can be sliced

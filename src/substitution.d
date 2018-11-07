@@ -241,7 +241,7 @@ private auto substituteSplitter(alias pred = `a == b`, R, Rs...)(R haystack, Rs 
                 }
                 else
                 {
-                    import std.range : isSomeString;
+                    import std.traits : isSomeString;
                     static if (isSomeString!R)
                     {
                         size_t hitLength = size_t.max;

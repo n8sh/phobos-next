@@ -110,7 +110,7 @@ if (Ranges.length >= 2 &&
     return 0;
 }
 
-@safe pure nothrow @nogc unittest
+@safe pure /* TODO nothrow @nogc */ unittest
 {
     auto x = "beta version";
     assert(x.skipOverEither("beta", "be") == 1);

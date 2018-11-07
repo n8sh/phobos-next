@@ -2302,7 +2302,7 @@ if (is(typeof(F(T.init))))  // is callable
     }
 }
 
-import traits_ex : isASCII;
+import char_traits : isASCII;
 
 /** TOOD Merge into Phobos' startsWith. */
 template startsWith(needles...)

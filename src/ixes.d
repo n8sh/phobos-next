@@ -52,7 +52,7 @@ auto commonSuffixLength(Rs...)(Rs rs)
     if (rs.length == 2 &&
         allSatisfy!(isBidirectionalRange, Rs))
 {
-    import std.range: isNarrowString;
+    import std.traits : isNarrowString;
     import std.range: retro;
     static if (isNarrowString!(typeof(rs[0])) &&
                isNarrowString!(typeof(rs[1])))
@@ -96,7 +96,7 @@ auto commonPrefixCount(alias pred = "a == b", Rs...)(Rs rs)
         allSatisfy!(isInputRange, Rs))
 {
     import std.algorithm.searching : count;
-    import std.range: isNarrowString;
+    import std.traits : isNarrowString;
     static if (isNarrowString!(typeof(rs[0])) &&
                isNarrowString!(typeof(rs[1])))
     {

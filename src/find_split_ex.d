@@ -102,6 +102,10 @@ if (needles.length != 0 &&
     }
 }
 
+// See_Also: https://forum.dlang.org/post/piowvfbimztbqjvieddj@forum.dlang.org
+import core.stdc.string : memchr;
+extern (C) @system nothrow @nogc pure void* rawmemchr(return const void* s, int c);
+
 ///
 @safe pure nothrow @nogc unittest
 {

@@ -19,7 +19,7 @@ if (needles.length != 0 &&
     import std.meta : allSatisfy;
     import char_traits : isASCII;
 
-    auto findSplitAmong(Haystack)(scope return Haystack haystack)
+    auto findSplitAmong(Haystack)(scope return Haystack haystack) @trusted
     if (is(typeof(Haystack.init[0 .. 0])) && // can be sliced
         is(typeof(Haystack.init[0]) : char) &&
         allSatisfy!(isASCII, needles))
@@ -81,30 +81,39 @@ if (needles.length != 0 &&
             }
         }
 
-        foreach (immutable offset; 0 .. haystack.length)
+        enum use_memchr = true;
+        static if (use_memchr &&
+                   needles.length == 1)
         {
-            static if (needles.length == 1)
-            {
-                immutable hit = haystack[offset] == needles[0];
-            }
-            else
-            {
-                import std.algorithm.comparison : among;
-                immutable hit = haystack[offset].among!(needles) != 0;
-            }
-            if (hit)
-            {
-                return Result(haystack, offset);
-            }
-        }
+            // See_Also: https://forum.dlang.org/post/piowvfbimztbqjvieddj@forum.dlang.org
+            import core.stdc.string : memchr;
+            // extern (C) @system nothrow @nogc pure void* rawmemchr(return const void* s, int c);
 
-        return Result(haystack, haystack.length);
+            immutable void* hit = memchr(haystack.ptr, needles[0], haystack.length);
+            return Result(haystack, hit ? hit - cast(void*)haystack.ptr : haystack.length);
+        }
+        else
+        {
+            foreach (immutable offset; 0 .. haystack.length)
+            {
+                static if (needles.length == 1)
+                {
+                    immutable hit = haystack[offset] == needles[0];
+                }
+                else
+                {
+                    import std.algorithm.comparison : among;
+                    immutable hit = haystack[offset].among!(needles) != 0;
+                }
+                if (hit)
+                {
+                    return Result(haystack, offset);
+                }
+            }
+            return Result(haystack, haystack.length);
+        }
     }
 }
-
-// See_Also: https://forum.dlang.org/post/piowvfbimztbqjvieddj@forum.dlang.org
-import core.stdc.string : memchr;
-extern (C) @system nothrow @nogc pure void* rawmemchr(return const void* s, int c);
 
 ///
 @safe pure nothrow @nogc unittest

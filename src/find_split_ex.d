@@ -119,10 +119,12 @@ if (needles.length != 0 &&
 @safe pure nothrow @nogc unittest
 {
     auto r = "a+b*c".findSplitAmong!('+', '-');
+
     static assert(r.sizeof == 24);
     static assert(is(typeof(r.pre) == string));
     static assert(is(typeof(r.separator) == string));
     static assert(is(typeof(r.post) == string));
+
     assert(r);
 
     assert(r[0] == "a");
@@ -145,7 +147,6 @@ if (needles.length != 0 &&
     static assert(is(typeof(r.post) == const string));
     assert(r);
     assert(r.pre == "a+b");
-    assert(r.pre == "a+b");
     assert(r.separator == "*");
     assert(r.post == "c");
 }
@@ -153,14 +154,43 @@ if (needles.length != 0 &&
 ///
 @safe pure nothrow @nogc unittest
 {
+    const r = "a*b".findSplitAmong!('*');
+
+    static assert(r.sizeof == 24);
+    static assert(is(typeof(r.pre) : const string));
+    static assert(is(typeof(r.separator) == const string));
+    static assert(is(typeof(r.post) == const string));
+
+    assert(r);
+
+    assert(r[0] == "a");
+    assert(r.pre == "a");
+
+    assert(r[1] == "*");
+    assert(r.separator == "*");
+
+    assert(r[2] == "b");
+    assert(r.post == "b");
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
     static immutable separator_char = '/';
+
     immutable r = "a+b*c".findSplitAmong!(separator_char);
+
     static assert(r.sizeof == 24);
     static assert(is(typeof(r.pre) == immutable string));
     static assert(is(typeof(r.separator) == immutable string));
     static assert(is(typeof(r.post) == immutable string));
+
     assert(!r);
+
     assert(r.pre == "a+b*c");
+    assert(r[0] == "a+b*c");
     assert(r.separator == []);
+    assert(r[1] == []);
     assert(r.post == []);
+    assert(r[2] == []);
 }

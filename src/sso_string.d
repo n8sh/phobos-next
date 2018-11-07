@@ -297,6 +297,7 @@ static assert(SSOString.sizeof == string.sizeof);
     //         }));
 
     const s0_ = S("");
+    assert(s0_.isNull);         // cannot distinguish
     assert(s0 == s0_);
 
     // TODO assert(s0 !is s0_);

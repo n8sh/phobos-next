@@ -89,8 +89,8 @@ if (needles.length != 0 &&
             import core.stdc.string : memchr;
             // extern (C) @system nothrow @nogc pure void* rawmemchr(return const void* s, int c);
 
-            immutable void* hit = memchr(haystack.ptr, needles[0], haystack.length);
-            return Result(haystack, hit ? hit - cast(void*)haystack.ptr : haystack.length);
+            const void* hit = memchr(haystack.ptr, needles[0], haystack.length);
+            return Result(haystack, hit ? hit - cast(const(void)*)haystack.ptr : haystack.length);
         }
         else
         {

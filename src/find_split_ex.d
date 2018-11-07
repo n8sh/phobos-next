@@ -22,6 +22,10 @@ if (needles.length != 0 &&
         // similar return result to `std.algorithm.searching.findSplit`
         static struct Result
         {
+            /* Only requires 3 words opposite to Phobos' `findSplit`,
+             * `findSplitBefore` and `findSplitAfter`:
+             */
+
             private Haystack _haystack; // original copy of haystack
             private size_t _offset; // hit offset if any, or `_haystack.length` if miss
 
@@ -32,12 +36,12 @@ if (needles.length != 0 &&
 
             @property:
 
-            Haystack pre() const
+            inout(Haystack) pre() inout
             {
                 return _haystack[0 .. _offset];
             }
 
-            Haystack separator() const
+            inout(Haystack) separator() inout
             {
                 if (_isMatch)
                 {
@@ -46,13 +50,24 @@ if (needles.length != 0 &&
                 return _haystack[_offset .. _offset + 1];
             }
 
-            Haystack post() const
+            inout(Haystack) post() inout
             {
                 if (_isMatch)
                 {
                     return _haystack[$ .. $];
                 }
                 return _haystack[_offset + 1 .. $];
+            }
+
+            inout(Haystack) opIndex()(size_t idx) inout
+            {
+                switch (idx)
+                {
+                case 0: return pre;
+                case 1: return separator;
+                case 2: return post;
+                default: assert(0, "Index out of bounds");
+                }
             }
 
             private bool _isMatch() const
@@ -91,8 +106,14 @@ if (needles.length != 0 &&
     static assert(is(typeof(r.separator) == string));
     static assert(is(typeof(r.post) == string));
     assert(r);
+
+    assert(r[0] == "a");
     assert(r.pre == "a");
+
+    assert(r[1] == "+");
     assert(r.separator == "+");
+
+    assert(r[2] == "b*c");
     assert(r.post == "b*c");
 }
 
@@ -101,10 +122,11 @@ if (needles.length != 0 &&
 {
     const r = "a+b*c".findSplitAmong!('-', '*');
     static assert(r.sizeof == 24);
-    static assert(is(typeof(r.pre) == string));
-    static assert(is(typeof(r.separator) == string));
-    static assert(is(typeof(r.post) == string));
+    static assert(is(typeof(r.pre) : const string));
+    static assert(is(typeof(r.separator) == const string));
+    static assert(is(typeof(r.post) == const string));
     assert(r);
+    assert(r.pre == "a+b");
     assert(r.pre == "a+b");
     assert(r.separator == "*");
     assert(r.post == "c");
@@ -116,9 +138,9 @@ if (needles.length != 0 &&
     static immutable separator_char = '/';
     immutable r = "a+b*c".findSplitAmong!(separator_char);
     static assert(r.sizeof == 24);
-    static assert(is(typeof(r.pre) == string));
-    static assert(is(typeof(r.separator) == string));
-    static assert(is(typeof(r.post) == string));
+    static assert(is(typeof(r.pre) == immutable string));
+    static assert(is(typeof(r.separator) == immutable string));
+    static assert(is(typeof(r.post) == immutable string));
     assert(!r);
     assert(r.pre == "a+b*c");
     assert(r.separator == []);

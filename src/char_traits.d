@@ -6,10 +6,9 @@ module char_traits;
  */
 template isASCII(alias x)
 {
-    alias T = typeof(x);
-    enum isASCII = ((is(T : char) ||
-                     is(T : wchar) ||
-                     is(T : dchar)) &&
+    enum isASCII = ((is(typeof(x) : char) ||
+                     is(typeof(x) : wchar) ||
+                     is(typeof(x) : dchar)) &&
                     x < 128);
 }
 

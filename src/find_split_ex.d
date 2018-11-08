@@ -10,6 +10,9 @@ import std.traits : isExpressions;
  *
  * TODO Add to Phobos.
  *
+ * TODO Resort to `memchr` for some case `if (!__ctfe)`.
+ * See_Also: https://forum.dlang.org/post/efpbmtyisamwwqgpxnbq@forum.dlang.org
+ *
  * See_Also: https://forum.dlang.org/post/ycotlbfsqoupogaplkvf@forum.dlang.org
  */
 template findSplitAmong(needles...)

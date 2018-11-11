@@ -118,8 +118,9 @@ if (needles.length != 0 &&
     }
 }
 
-template findSplit(needle)
-// if (isExpressions!needle)
+template findSplit(needles...)
+if (needles.length == 1 &&
+    isExpressions!needles)
 {
     import std.meta : allSatisfy;
     import char_traits : isASCII;
@@ -127,10 +128,26 @@ template findSplit(needle)
     auto findSplit(Haystack)(scope return Haystack haystack) @trusted
     if (is(typeof(Haystack.init[0 .. 0])) && // can be sliced
         is(typeof(Haystack.init[0]) : char) &&
-        isASCII!needle)
+        isASCII!(needles[0]))
     {
-        return findSplitAmong!(needle)(haystack);
+        return findSplitAmong!(needles)(haystack);
     }
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    const r = "a*b".findSplit!('*');
+    assert(r);
+
+    assert(r[0] == "a");
+    assert(r.pre == "a");
+
+    assert(r[1] == "*");
+    assert(r.separator == "*");
+
+    assert(r[2] == "b");
+    assert(r.post == "b");
 }
 
 ///
@@ -163,22 +180,6 @@ template findSplit(needle)
     assert(r.pre == "a+b");
     assert(r.separator == "*");
     assert(r.post == "c");
-}
-
-///
-@safe pure nothrow @nogc unittest
-{
-    const r = "a*b".findSplitAmong!('*');
-    assert(r);
-
-    assert(r[0] == "a");
-    assert(r.pre == "a");
-
-    assert(r[1] == "*");
-    assert(r.separator == "*");
-
-    assert(r[2] == "b");
-    assert(r.post == "b");
 }
 
 ///

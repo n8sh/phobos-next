@@ -118,6 +118,21 @@ if (needles.length != 0 &&
     }
 }
 
+template findSplit(needle)
+// if (isExpressions!needle)
+{
+    import std.meta : allSatisfy;
+    import char_traits : isASCII;
+
+    auto findSplit(Haystack)(scope return Haystack haystack) @trusted
+    if (is(typeof(Haystack.init[0 .. 0])) && // can be sliced
+        is(typeof(Haystack.init[0]) : char) &&
+        isASCII!needle)
+    {
+        return findSplitAmong!(needle)(haystack);
+    }
+}
+
 ///
 @safe pure nothrow @nogc unittest
 {

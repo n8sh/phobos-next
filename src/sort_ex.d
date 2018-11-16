@@ -244,3 +244,32 @@ auto randomlyShuffled(Range)(Range r)
     Random random;
     y.randomlyShuffled(random);
 }
+
+import std.range.primitives : isRandomAccessRange;
+
+/** Sort sub-range of `subrange` defined by index range [i..j].
+ *
+ * See_Also: https://forum.dlang.org/thread/lkggfpgvskvxvgwyjgcs@forum.dlang.org
+ */
+auto sortSubRange(R)(R range, size_t i, size_t j)
+if (isRandomAccessRange!R)
+{
+    import std.algorithm.sorting : topN, partialSort;
+    size_t start = i;
+    if (i != 0)
+    {
+        topN(range, i);         // TODO `assumePure`
+        start++;
+    }
+    partialSort(range[start .. $], j-start);
+    return range[i .. j];
+}
+
+unittest
+{
+    auto x = [1,2,7,4,2,6,8,3,9,3];
+    auto y = sortSubRange(x, 3, 6);
+    import std.stdio;
+    writeln(y); // 3, 3, 4
+    writeln(x); // ex. 2, 2, 1, 3, 3, 4, 6, 7, 9, 8
+}

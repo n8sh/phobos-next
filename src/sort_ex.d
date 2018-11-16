@@ -7,7 +7,7 @@
 module sort_ex;
 
 import std.traits : isAggregateType;
-import std.range : ElementType, isRandomAccessRange;
+import std.range.primitives : ElementType, isRandomAccessRange;
 
 /** Sort random access range $(D R) of aggregates on value of calls to $(D xtor).
     See_Also: http://forum.dlang.org/thread/nqwzojnlidlsmpunpqqy@forum.dlang.org#post-dmfvkbfhzigecnwglrur:40forum.dlang.org

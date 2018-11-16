@@ -214,10 +214,10 @@ unittest
 import std.random : Random;
 
 /** Functional version of `std.random.randomShuffle`.
-
-    Returns: $(D r) randomly shuffled.
-
-    If needed a GC-copy of $(D r) is allocated, sorted and returned.
+ *
+ * Returns: $(D r) randomly shuffled.
+ *
+ * If needed a GC-copy of $(D r) is allocated, sorted and returned.
 */
 auto randomlyShuffled(Range, RandomGen)(Range r, ref RandomGen gen)
 {

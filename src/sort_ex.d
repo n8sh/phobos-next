@@ -17,7 +17,7 @@ auto sortBy(alias xtor, R)(R r)
         isAggregateType!(ElementType!R))
 {
     import std.algorithm : sort;
-    import std.functional: unaryFun;
+    import std.functional : unaryFun;
     return r.sort!((a, b) => (xtorFun!xtor(a) <
                               xtorFun!xtor(b)));
 }
@@ -30,7 +30,7 @@ auto rsortBy(alias xtor, R)(R r)
         isAggregateType!(ElementType!R))
 {
     import std.algorithm : sort;
-    import std.functional: unaryFun;
+    import std.functional : unaryFun;
     return r.sort!((a, b) => (xtorFun!xtor(a) >
                               xtorFun!xtor(b)));
 }
@@ -244,8 +244,6 @@ auto randomlyShuffled(Range)(Range r)
     Random random;
     y.randomlyShuffled(random);
 }
-
-import std.range.primitives : isRandomAccessRange;
 
 /** Sort sub-range of `subrange` defined by index range [i..j].
  *

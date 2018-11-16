@@ -269,7 +269,8 @@ unittest
 {
     auto x = [1,2,7,4,2,6,8,3,9,3];
     auto y = sortSubRange(x, 3, 6);
-    import std.stdio;
-    writeln(y); // 3, 3, 4
-    writeln(x); // ex. 2, 2, 1, 3, 3, 4, 6, 7, 9, 8
+    assert(x == [2, 2, 1,
+                 3, 3, 4,
+                 6, 8, 9, 7]);
+    assert(y == [3, 3, 4]);
 }

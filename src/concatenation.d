@@ -7,10 +7,9 @@ if (A.length)
 {
     static if (A.length == 1)
     {
-        import std.traits : isStaticArray;
         static if (isType!(A[0]))
         {
-            static if (isStaticArray!(A[0]))
+            static if (__traits(isStaticArray, A[0]))
             {
                 enum sumOfLengths = A[0].length;
             }
@@ -21,7 +20,7 @@ if (A.length)
         }
         else
         {
-            static if (isStaticArray!(typeof(A[0])))
+            static if (__traits(isStaticArray, typeof(A[0])))
             {
                 enum sumOfLengths = A[0].length;
             }
@@ -56,7 +55,6 @@ pragma(inline, true):           // must be inlineable
  */
 StaticArrayElementType!(Args[0])[sumOfLengths!Args] concatenate(Args...)(const auto ref Args args)
 {
-    import std.traits : isStaticArray;
     typeof(return) result = void; // @trusted
     foreach (const i, arg; args)
     {
@@ -68,7 +66,7 @@ StaticArrayElementType!(Args[0])[sumOfLengths!Args] concatenate(Args...)(const a
         {
             enum offset = sumOfLengths!(args[0 .. i]);
         }
-        static if (isStaticArray!(typeof(arg)))
+        static if (__traits(isStaticArray, typeof(arg)))
         {
             result[offset .. offset + arg.length] = arg[];
         }

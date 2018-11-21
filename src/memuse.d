@@ -20,7 +20,7 @@ struct Quadratic1D(D, size_t ElementSize) {}
 template UsageOf(T)
 {
     import std.range: ElementType;
-    import std.traits: isIntegral, isFloatingPoint, isNumeric, isIterable, isDynamicArray, isStaticArray, isArray, hasIndirections, isSomeString, isScalarType;
+    import std.traits: isDynamicArray, hasIndirections, isScalarType;
     import std.typecons: Nullable;
 
     static if (!hasIndirections!T)

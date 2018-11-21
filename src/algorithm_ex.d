@@ -12,7 +12,7 @@ module algorithm_ex;
 /* version = print; */
 
 import std.algorithm : min, max;
-import std.traits : isArray, Unqual, isIntegral, CommonType, isIterable, isStaticArray, isFloatingPoint, arity, isSomeString, isSomeChar, isExpressionTuple, isExpressions;
+import std.traits : isArray, Unqual, isIntegral, CommonType, isIterable, isFloatingPoint, arity, isSomeString, isSomeChar, isExpressionTuple, isExpressions;
 import std.range : ElementType, isInputRange, isForwardRange, isBidirectionalRange, isRandomAccessRange, isOutputRange, front, back;
 import traits_ex : allSame;
 import std.functional : unaryFun, binaryFun;
@@ -796,12 +796,12 @@ template sort(alias less = `a < b`, SwapStrategy ss = SwapStrategy.unstable)
 {
     import std.algorithm: stdSort = sort;
     auto sort(Arr)(ref Arr arr)
-        if (isStaticArray!Arr)
+    if (__traits(isStaticArray, Arr))
     {
         return stdSort!(less, ss)(arr[]);
     }
     auto sort(Range)(Range r)
-        if (!isStaticArray!Range)
+    if (!__traits(isStaticArray, Range))
     {
         return stdSort!(less, ss)(r);
     }
@@ -1110,7 +1110,7 @@ unittest
     See_Also: http://forum.dlang.org/thread/hwellpcaomwbpnpofzlx@forum.dlang.org?page=1
 */
 template expand(alias array, size_t idx = 0)
-if (isStaticArray!(typeof(array)))
+if (__traits(isStaticArray, typeof(array)))
 {
     @property ref delay() { return array[idx]; }
     static if (idx + 1 < array.length)

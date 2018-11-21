@@ -23,8 +23,7 @@ struct SSOString
     this(SomeCharArray)(const scope auto ref SomeCharArray source) @trusted
     if (isCharsSlice!(typeof(source[]))) // not immutable char
     {
-        import std.traits : isStaticArray;
-        static if (isStaticArray!SomeCharArray)
+        static if (__traits(isStaticArray, SomeCharArray))
         {
             static if (source.length <= smallCapacity) // inferred @nogc
             {

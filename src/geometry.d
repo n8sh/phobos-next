@@ -45,7 +45,7 @@ else
 // TODO use import core.simd;
 import std.math: sqrt, isNaN, isInfinity, PI, sin, cos, acos;
 import std.conv: to;
-import std.traits: isSomeString, isIntegral, isFloatingPoint, isNumeric, isSigned, isStaticArray, isDynamicArray, isImplicitlyConvertible, isAssignable, isArray, CommonType;
+import std.traits: isSomeString, isIntegral, isFloatingPoint, isNumeric, isSigned, isDynamicArray, isImplicitlyConvertible, isAssignable, isArray, CommonType;
 import std.string: format, rightJustify;
 import std.array: join;
 import std.algorithm : map, all, any, min, max, reduce;
@@ -495,7 +495,7 @@ struct Vector(E, uint D,
             static assert((Tail.length == 0) && (i == 0), "Dynamic array can not be passed together with other arguments");
             _vector[] = head[];
         }
-        else static if (isStaticArray!T)
+        else static if (__traits(isStaticArray, T))
         {
             _vector[i .. i + T.length] = head[];
             construct!(i + T.length)(tail);

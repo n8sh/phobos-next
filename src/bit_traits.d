@@ -286,7 +286,7 @@ https://github.com/dlang/phobos/pull/6024
 +/
 template isAllOneBits(T, T value)
 {
-    import std.traits : isIntegral, isSomeChar, Unsigned, isStaticArray;
+    import std.traits : isIntegral, isSomeChar, Unsigned;
     static if (isIntegral!T || isSomeChar!T)
     {
         import core.bitop : popcnt;
@@ -295,7 +295,7 @@ template isAllOneBits(T, T value)
         else
             enum isAllOneBits = popcnt(value) == T.sizeof * 8;
     }
-    else static if (isStaticArray!(typeof(value)))
+    else static if (__traits(isStaticArray, typeof(value)))
     {
         enum isAllOneBits = ()
         {
@@ -356,8 +356,7 @@ https://github.com/dlang/phobos/pull/6024
 +/
 template isInitAllOneBits(T)
 {
-    import std.traits : isStaticArray;
-    static if (isStaticArray!T && __traits(compiles, T.init[0]))
+    static if (__traits(isStaticArray, T) && __traits(compiles, T.init[0]))
         enum isInitAllOneBits = __traits(compiles, {
             static assert(isAllOneBits!(typeof(T.init[0]), T.init[0]));
         });

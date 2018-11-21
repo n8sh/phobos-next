@@ -31,7 +31,7 @@ auto nullable(T)(T a)
 /** Instantiator for `Nullable`.
 */
 auto nullable(alias nullValue, T)(T value)
-    if (is (typeof(nullValue) == T))
+if (is (typeof(nullValue) == T))
 {
     return Nullable!(T, nullValue)(value);
 }
@@ -63,14 +63,15 @@ auto nullableRef(T)(T* a) @safe pure nothrow
 /** See_Also: http://forum.dlang.org/thread/jwdbjlobbilowlnpdzzo@forum.dlang.org
  */
 template New(T)
-    if (is(T == class))
+if (is(T == class))
 {
-    T New(Args...) (Args args) {
+    T New(Args...) (Args args)
+    {
         return new T(args);
     }
 }
 
-import std.traits : isArray, isStaticArray, isUnsigned, isInstanceOf;
+import std.traits : isArray, isUnsigned, isInstanceOf;
 import std.range.primitives : hasSlicing;
 
 /** Check if `T` is castable to `U`.
@@ -215,7 +216,7 @@ mixin template _genIndexAndSliceOps_unchecked(I)
     TODO Allow `I` to be a string and if so derive `Index` to be that string.
    */
 struct IndexedBy(R, I)
-    if (isIndexableBy!(R, I))
+if (isIndexableBy!(R, I))
 {
     alias Index = I;        /// indexing type
     mixin _genIndexAndSliceOps!I;
@@ -227,7 +228,7 @@ struct IndexedBy(R, I)
     TODO assert that `I` is continuous if it is a `enum`.
 */
 struct IndexedArray(E, I)
-    if (isIndex!I)
+if (isIndex!I)
 {
     static assert(I.min == 0, "Index type I is currently limited to start at 0 and be continuous");
     alias Index = I;            /// indexing type
@@ -255,16 +256,16 @@ struct IndexedArray(E, I)
 /** Instantiator for `IndexedBy`.
  */
 auto indexedBy(I, R)(R range)
-    if (isIndexableBy!(R, I))
+if (isIndexableBy!(R, I))
 {
     return IndexedBy!(R, I)(range);
 }
 
 struct IndexedBy(R, string IndexTypeName)
-    if (hasIndexing!R &&
-        IndexTypeName != "IndexTypeName") // prevent name lookup failure
+if (hasIndexing!R &&
+    IndexTypeName != "IndexTypeName") // prevent name lookup failure
 {
-    static if (isStaticArray!R) // if length is known at compile-time
+    static if (__traits(isStaticArray, R)) // if length is known at compile-time
     {
         import modulo : Mod;
         mixin(`alias ` ~ IndexTypeName ~ ` = Mod!(R.length);`); // TODO relax integer precision argument of `Mod`
@@ -310,7 +311,7 @@ struct IndexedBy(R, string IndexTypeName)
 
 /* Wrapper type for `R' indexable/sliceable only with type `R.Index`. */
 template TypesafelyIndexed(R)
-    if (hasIndexing!R) // prevent name lookup failure
+if (hasIndexing!R) // prevent name lookup failure
 {
     alias TypesafelyIndexed = IndexedBy!(R, "Index");
 }
@@ -318,8 +319,8 @@ template TypesafelyIndexed(R)
 /** Instantiator for `IndexedBy`.
  */
 auto indexedBy(string I, R)(R range)
-    if (isArray!R &&
-        I != "IndexTypeName") // prevent name lookup failure
+if (isArray!R &&
+    I != "IndexTypeName") // prevent name lookup failure
 {
     return IndexedBy!(R, I)(range);
 }
@@ -327,7 +328,7 @@ auto indexedBy(string I, R)(R range)
 /** Instantiator for `TypesafelyIndexed`.
  */
 auto strictlyIndexed(R)(R range)
-    if (hasIndexing!(R))
+if (hasIndexing!(R))
 {
     return TypesafelyIndexed!(R)(range);
 }

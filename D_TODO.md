@@ -13,6 +13,9 @@ Add flycheck target that compiles and runs current module with `ldmd2
 use to improve `gmp-d` and specialize `HashMapOrSet.byElement()` and
 `HashMapOrSet.opSlice()`.
 
+- Add missing __traits that map to `isTypeXXXX()` added in
+  https://github.com/dlang/dmd/pull/9009.
+
 ### Add Rust-style pass by move
 
 for types qualified with `unique` as in

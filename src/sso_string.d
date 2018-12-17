@@ -15,6 +15,11 @@ struct SSOString
 {
     private alias E = char;     // element type
 
+    @property void toString(scope void delegate(const(E)[]) sink) const
+    {
+        sink(opSlice());
+    }
+
     pure nothrow:
 
     /** Construct from `source`, which potentially needs GC-allocation (iff

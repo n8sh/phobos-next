@@ -15,7 +15,7 @@ struct SSOString
 {
     private alias E = char;     // element type
 
-    @property void toString(scope void delegate(const(E)[]) @safe sink) const @trusted // TODO ok to have sink @safe?
+    @property void toString(scope void delegate(const(E)[]) @safe pure sink) const @trusted pure // TODO ok to have sink @safe?
     {
         sink(opSlice());        // opSlice is @trusted
     }
@@ -75,7 +75,7 @@ struct SSOString
     /** Return `this` converted to a `string`, which potentially needs
      * GC-allocation (iff `length <= smallCapacity`).
      */
-    @property string toString() const @trusted nothrow
+    @property string toString() const @trusted pure nothrow // may GC-allocate
     {
         if (isLarge)
         {

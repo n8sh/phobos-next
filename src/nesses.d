@@ -10,7 +10,7 @@ import std.traits : isIterable, isFloatingPoint;
 
     Depth defaults -1 meaning infinite depth.
 */
-Rational!ulong sparseness(T)(in T x,
+Rational!ulong sparseness(T)(const scope T x,
                              int depth = -1)
 {
     alias R = typeof(return); // rational shorthand
@@ -64,7 +64,7 @@ Rational!ulong sparseness(T)(in T x,
 
 /** Returns: Number of Non-Zero Elements in $(D range) at recursion depth $(D
     depth) defaulting infinite depth (-1). */
-auto denseness(T)(in T x, int depth = -1)
+auto denseness(T)(const scope T x, int depth = -1)
 {
     return 1 - x.sparseness(depth);
 }

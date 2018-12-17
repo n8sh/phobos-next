@@ -256,6 +256,7 @@ static assert(SSOString.sizeof == string.sizeof);
     const S x = "42";
     assert(!x.isNull);
     assert(x == "42");
+
     const S y = "42";
     assert(!y.isNull);
     assert(y == "42");
@@ -265,7 +266,14 @@ static assert(SSOString.sizeof == string.sizeof);
     assert(y[] is y[]);
     assert(x[] !is y[]);
     assert(x[].ptr !is y[].ptr);
-    // TODO assert(x !is y);
+
+    const S z = "43";
+    assert(!z.isNull);
+    assert(z == "43");
+    assert(x != z);
+    assert(x[] != z[]);
+    assert(x !is z);
+    assert(x[] !is z[]);
 }
 
 ///

@@ -15,9 +15,9 @@ struct SSOString
 {
     private alias E = char;     // element type
 
-    @property void toString(scope void delegate(const(E)[]) sink) const @trusted
+    @property void toString(scope void delegate(const(E)[]) @safe sink) const @trusted // TODO ok to have sink @safe?
     {
-        sink(opSlice());
+        sink(opSlice());        // opSlice is @trusted
     }
 
     pure nothrow:

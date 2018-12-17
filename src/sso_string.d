@@ -15,7 +15,7 @@ struct SSOString
 {
     private alias E = char;     // element type
 
-    @property void toString(scope void delegate(const(E)[]) sink) const
+    @property void toString(scope void delegate(const(E)[]) sink) const @trusted
     {
         sink(opSlice());
     }

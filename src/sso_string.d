@@ -255,8 +255,10 @@ static assert(SSOString.sizeof == string.sizeof);
 
     const S x = "42";
     assert(!x.isNull);
+    assert(x == "42");
     const S y = "42";
     assert(!y.isNull);
+    assert(y == "42");
 
     assert(x == y);
     assert(x[] is x[]);

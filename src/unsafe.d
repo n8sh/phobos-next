@@ -16,8 +16,6 @@ template unsafe(alias fn)
 
 @system void fun(int n)
 {
-    import std.stdio;
-    writeln("foo!");
 }
 
 //

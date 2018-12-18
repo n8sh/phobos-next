@@ -14,13 +14,11 @@ template unsafe(alias fn)
     }
 }
 
-@system void fun(int n)
-{
-}
+@system void dummy(int n) {}
 
 //
 @safe unittest
 {
-    unsafe!({ fun(2); });
-    unsafe!fun(2);
+    unsafe!({ dummy(2); });
+    unsafe!dummy(2);
 }

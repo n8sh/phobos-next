@@ -14,11 +14,10 @@ template unsafe(alias fn)
     }
 }
 
-@system void dummy(int n) {}
-
 //
 @safe unittest
 {
+    static @system void dummy(int n) {}
     unsafe!({ dummy(2); });
     unsafe!dummy(2);
 }

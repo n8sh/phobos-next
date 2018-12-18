@@ -18,6 +18,6 @@ template unsafe(alias fn)
 @safe unittest
 {
     static @system void dummy(int n) {}
-    unsafe!({ dummy(2); });
-    unsafe!dummy(2);
+    unsafe!({ dummy(42); });
+    unsafe!dummy(42);
 }

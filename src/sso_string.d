@@ -208,7 +208,9 @@ private:
             /* TODO only first 4 bits are needed to represent a length between
              * 0-15, use other 4 bits */
             ubyte length = 0;
-            immutable(E)[smallCapacity] data;
+            immutable(E)[smallCapacity] data = [0,0,0,0,0,
+                                                0,0,0,0,0,
+                                                0,0,0,0,0];
         }
     }
     else
@@ -290,7 +292,7 @@ static assert(SSOString.sizeof == string.sizeof);
     import gc_traits : mustAddGCRange;
     static assert(mustAddGCRange!S); // `Large large.ptr` must be scanned
 
-    // TODO static assert(__traits(isZeroInit, S));
+    static assert(__traits(isZeroInit, S));
     import bit_traits : isInitAllZeroBits;
     // static assert(isInitAllZeroBits!(S));
 

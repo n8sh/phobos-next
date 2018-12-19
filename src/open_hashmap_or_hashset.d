@@ -160,6 +160,7 @@ struct OpenHashMapOrSet(K, V = void,
     }
     else
     {
+        pragma(msg, "Need explicit hole bitset for non-address-like key: ", K);
         import core.bitop : bts, bt, btr;
         import array_help : makeUninitializedBitArray, makeZeroedBitArray, makeReallocatedBitArrayZeroPadded;
     }

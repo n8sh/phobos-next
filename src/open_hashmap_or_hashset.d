@@ -327,6 +327,8 @@ struct OpenHashMapOrSet(K, V = void,
         immutable byteCount = T.sizeof*capacity;
 
         static if (hasAddressLikeKey ||
+                   (__traits(isZeroInit, K)  &&
+                    __traits(hasMember, K, "nullifier")) ||
                    // TODO add check for __traits(isZeroInit, K) and member `K.nullValue` == `K.init`
                    (__traits(hasMember, K, `nullValue`) && // if key has a null value
                     __traits(compiles, { enum _ = isAllZeroBits!(K, K.nullValue); }) && // prevent strange error given when `K` is `knet.data.Data`

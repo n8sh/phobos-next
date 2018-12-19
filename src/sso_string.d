@@ -293,8 +293,6 @@ static assert(SSOString.sizeof == string.sizeof);
     static assert(mustAddGCRange!S); // `Large large.ptr` must be scanned
 
     static assert(__traits(isZeroInit, S));
-    // import bit_traits : isInitAllZeroBits;
-    // static assert(isInitAllZeroBits!(S));
 
     auto s0 = S.init;
     assert(s0.isNull);

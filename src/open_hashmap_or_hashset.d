@@ -1203,7 +1203,7 @@ struct OpenHashMapOrSet(K, V = void,
          * Used to implement caching inside the key part of a map.
          */
         ref const(K) getKeyRef(SomeKey)(const scope SomeKey key, // template-lazy
-                                        ref const(K) defaultKey) const return @trusted
+                                        ref const(K) defaultKey) const return @trusted @nogc
         if (isScopedKeyType!(SomeKey))
         {
             version(LDC) pragma(inline, true);

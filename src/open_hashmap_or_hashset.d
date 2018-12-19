@@ -40,7 +40,7 @@ private template isAddress(T)
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  *
  * TODO add support for checking existence `K.nullifier` that infers, for
- * instance, how to tag a ZingRel and Expr as null or hole.
+ * instance, how to tag a `ZingRel` and `Expr` as `null` or a `hole`.
  *
  * TODO check that hole value is not used alongside the check assert(!key.isNull)
  *

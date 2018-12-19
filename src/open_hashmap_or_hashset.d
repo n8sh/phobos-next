@@ -682,6 +682,8 @@ struct OpenHashMapOrSet(K, V = void,
         const @trusted // template-lazy, `auto ref` here makes things slow
     if (isScopedKeyType!(typeof(key)))
     {
+        // pragma(msg, SomeKey.stringof ~ " " ~ K.stringof, " ", is(K : SomeKey), " ", is(SomeKey : K));
+        // static assert(isScopedKeyType!(typeof(key)), SomeKey.stringof ~ " " ~ K.stringof);
         // pragma(msg, SomeKey);
         version(LDC) pragma(inline, true);
         assert(!key.isNull);
@@ -3381,7 +3383,7 @@ version(unittest)
     assert(x.containsUsingLinearSearch(z));
 
     auto n = new Node(42);
-    // TODO assert(!x.contains(n));
+    // assert(!x.contains(n));
 }
 
 /// enumeration key

@@ -3470,11 +3470,13 @@ unittest
         assert(!a.contains(k));
         assert(!a.contains(ch[])); // TODO @nogc
         assert(a.getKeyRef(k, default_k)[] is default_k[]); // on miss use `default_k`
+        assert(a.getKeyRef(ch, default_k)[] is default_k[]); // on miss use `default_k`
 
         a[k] = V.init;
 
         assert(a.contains(k));
         assert(a.getKeyRef(k, default_k)[] !is k[]); // on hit doesn't use `default_k`
+        assert(a.getKeyRef(ch, default_k)[] !is k[]); // on hit doesn't use `default_k`
     }
 
     X b;

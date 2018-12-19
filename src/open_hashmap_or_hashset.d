@@ -88,7 +88,7 @@ struct OpenHashMapOrSet(K, V = void,
         // isHashable!K
         )
 {
-    pragma(msg, K.stringof, " => ", V.stringof);
+    // pragma(msg, K.stringof, " => ", V.stringof);
     import core.exception : onOutOfMemoryError;
     import std.algorithm.mutation : move, moveEmplace;
     import std.conv : emplace;
@@ -699,7 +699,7 @@ struct OpenHashMapOrSet(K, V = void,
     if (isScopedKeyType!(typeof(key)))
     {
         // pragma(msg, SomeKey.stringof ~ " " ~ K.stringof, " ", is(K : SomeKey), " ", is(SomeKey : K));
-        // static assert(isScopedKeyType!(typeof(key)), SomeKey.stringof ~ " " ~ K.stringof);
+        // debug static assert(isScopedKeyType!(typeof(key)), SomeKey.stringof ~ " " ~ K.stringof);
         // pragma(msg, SomeKey);
         version(LDC) pragma(inline, true);
         assert(!key.isNull);
@@ -729,7 +729,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             import std.traits : TemplateArgsOf;
             alias args = TemplateArgsOf!(SomeKey);
-            static assert(args.length == 2,
+            debug static assert(args.length == 2,
                           "linear search for Nullable without nullValue is slower than default `this.contains()` and is not allowed");
             alias UnderlyingType = args[0];
             return (cast(UnderlyingType[])_bins).canFind!keyEqualPred(key.get());
@@ -1694,7 +1694,7 @@ static private void duplicateEmplace(T)(const scope ref T src,
     }
     else
     {
-        static assert(0, "cannot duplicate a " ~ T.stringof);
+        debug static assert(0, "cannot duplicate a " ~ T.stringof);
     }
 }
 
@@ -2001,8 +2001,8 @@ unittest
     import digestx.fnv : FNV;
 
     alias X = OpenHashSet!(string, FNV!(64, true));
-    static assert(!mustAddGCRange!X);
-    static assert(X.sizeof == 24); // dynamic arrays also `hasAddressLikeKey`
+    debug static assert(!mustAddGCRange!X);
+    debug static assert(X.sizeof == 24); // dynamic arrays also `hasAddressLikeKey`
 
     auto x = X();
 
@@ -2062,9 +2062,9 @@ unittest
     assert(x.contains("b"));
     assert(x.containsUsingLinearSearch("b"));
 
-    static assert(!__traits(compiles, { testEscapeShouldFail(); } ));
+    debug static assert(!__traits(compiles, { testEscapeShouldFail(); } ));
     // TODO this should fail:
-    // TODO static assert(!__traits(compiles, { testEscapeShouldFailFront(); } ));
+    // TODO debug static assert(!__traits(compiles, { testEscapeShouldFailFront(); } ));
 }
 
 /// `string` as key
@@ -2094,7 +2094,7 @@ unittest
     alias VE = Nullable!(uint, uint.max);
     alias V = OpenHashSet!(VE, FNV!(64, true));
 
-    static assert(!mustAddGCRange!V);
+    debug static assert(!mustAddGCRange!V);
 
     foreach (X; AliasSeq!(OpenHashMap!(K, V, FNV!(64, true))))
     {
@@ -2107,12 +2107,12 @@ unittest
             assert(xkeys.length == 0);
             foreach (ref key; xkeys)
             {
-                static assert(is(typeof(key) == const(K)));
+                debug static assert(is(typeof(key) == const(K)));
                 assert(0);
             }
             foreach (ref key; X().byKey)
             {
-                static assert(is(typeof(key) == const(K)));
+                debug static assert(is(typeof(key) == const(K)));
                 assert(0);
             }
         }
@@ -2588,7 +2588,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     assert(x.byElement.count == x.length);
     foreach (e; x.byElement)    // from l-value
     {
-        static assert(is(typeof(e) == const(K))); // always const access
+        debug static assert(is(typeof(e) == const(K))); // always const access
 
         // range invalidation forbidden:
         debug
@@ -2620,13 +2620,13 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
         auto z = y.byElement;   // ok to read-borrow again
         assert(y.contains(e));
         assert(y.containsUsingLinearSearch(e));
-        static assert(is(typeof(e) == const(K)));
+        debug static assert(is(typeof(e) == const(K)));
     }
 
     foreach (e; X.withElements([K(11)].s).byElement) // from r-value
     {
         assert(e == K(11));
-        static assert(is(typeof(e) == const(K))); // always const access
+        debug static assert(is(typeof(e) == const(K))); // always const access
     }
 }
 
@@ -2663,7 +2663,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
 
     s[K(0)] = V.init;
     auto vp = K(0) in s;
-    static assert(is(typeof(vp) == V*));
+    debug static assert(is(typeof(vp) == V*));
     assert((*vp) == V.init);
 
     assert(s.remove(K(0)));
@@ -2723,7 +2723,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
 
     s[K(0)] = V.init;
     auto vp = K(0) in s;
-    static assert(is(typeof(vp) == V*));
+    debug static assert(is(typeof(vp) == V*));
 
     assert(s.remove(K(0)));
     assert(K(0) !in s);
@@ -2748,19 +2748,19 @@ pure nothrow unittest
 
     foreach (ref e; x.byKey)
     {
-        static assert(is(typeof(e) == const(X.KeyType)));
+        debug static assert(is(typeof(e) == const(X.KeyType)));
     }
 
     foreach (ref e; x.byValue)
     {
-        static assert(is(typeof(e) == const(X.ValueType)));
+        debug static assert(is(typeof(e) == const(X.ValueType)));
     }
 
     foreach (e; x.byKeyValue)
     {
-        static assert(is(typeof(e.key) == const(X.KeyType)));
-        static assert(is(typeof(e.value) == const(X.ValueType)));
-        static assert(is(typeof(e) == const(X.ElementType)));
+        debug static assert(is(typeof(e.key) == const(X.KeyType)));
+        debug static assert(is(typeof(e.value) == const(X.ValueType)));
+        debug static assert(is(typeof(e) == const(X.ElementType)));
     }
 }
 
@@ -2789,7 +2789,7 @@ pure nothrow unittest
 
     foreach (e; x.byValue)      // `e` is auto ref
     {
-        static assert(is(typeof(e) == X.ValueType)); // mutable access to value
+        debug static assert(is(typeof(e) == X.ValueType)); // mutable access to value
         assert(e.data == 43);
 
         // value mutation side effects
@@ -2801,14 +2801,14 @@ pure nothrow unittest
 
     foreach (ref e; x.byKeyValue)   // `e` is auto ref
     {
-        static assert(is(typeof(e.key) == const(X.KeyType))); // const access to key
-        static assert(is(typeof(e.value) == X.ValueType)); // mutable access to value
+        debug static assert(is(typeof(e.key) == const(X.KeyType))); // const access to key
+        debug static assert(is(typeof(e.value) == X.ValueType)); // mutable access to value
 
         assert(e.key.value == 42);
         assert(e.value.data == 43);
 
         // key cannot be mutated
-        static assert(!__traits(compiles, { e.key.value += 1; }));
+        debug static assert(!__traits(compiles, { e.key.value += 1; }));
 
         // value mutation side effects
         e.value.data += 1;
@@ -2846,7 +2846,7 @@ pure nothrow unittest
 
     foreach (e; x.byValue)      // `e` is auto ref
     {
-        static assert(is(typeof(e) == X.ValueType)); // mutable access to value
+        debug static assert(is(typeof(e) == X.ValueType)); // mutable access to value
         assert(e.data == 43);
 
         // value mutation side effects
@@ -2858,17 +2858,17 @@ pure nothrow unittest
 
     foreach (ref e; x.byKeyValue)   // `e` is auto ref
     {
-        static assert(is(typeof(e.key) == X.KeyType)); // mutable access to class key
-        static assert(is(typeof(e.value) == X.ValueType)); // mutable access to value
+        debug static assert(is(typeof(e.key) == X.KeyType)); // mutable access to class key
+        debug static assert(is(typeof(e.value) == X.ValueType)); // mutable access to value
 
         assert(e.key.value == 42);
         assert(e.value.data == 43);
 
         // class key itself should not be mutable
-        static assert(!__traits(compiles, { e.key = null; }));
+        debug static assert(!__traits(compiles, { e.key = null; }));
 
         // members of key can be mutated
-        static assert(__traits(compiles, { e.key.value += 1; }));
+        debug static assert(__traits(compiles, { e.key.value += 1; }));
 
         // value mutation side effects
         e.value.data += 1;
@@ -2908,7 +2908,7 @@ pure nothrow unittest
 
     foreach (ref e; x.byValue)  // `e` is auto ref
     {
-        static assert(is(typeof(e) == X.ValueType)); // mutable access to value
+        debug static assert(is(typeof(e) == X.ValueType)); // mutable access to value
         assert(e.data == 43);
 
         // value mutation side effects
@@ -2920,8 +2920,8 @@ pure nothrow unittest
 
     foreach (ref e; x.byKeyValue) // `e` is auto ref
     {
-        static assert(is(typeof(e.key) == X.KeyType)); // mutable access to class key
-        static assert(is(typeof(e.value) == X.ValueType)); // mutable access to value
+        debug static assert(is(typeof(e.key) == X.KeyType)); // mutable access to class key
+        debug static assert(is(typeof(e.value) == X.ValueType)); // mutable access to value
 
         assert(e.key.value == 42);
         assert(e.value.data == 43);
@@ -3035,7 +3035,7 @@ version(unittest)
                          y.byElement));
         }
 
-        static assert(!__traits(compiles, { const _ = x < y; })); // no ordering
+        debug static assert(!__traits(compiles, { const _ = x < y; })); // no ordering
 
         return y;
     }
@@ -3066,7 +3066,7 @@ version(unittest)
         private ulong _value;
     }
 
-    static assert(mustAddGCRange!string);
+    debug static assert(mustAddGCRange!string);
 
     foreach (K; AliasSeq!(SomeSimpleClass,
                           NullableUlong))
@@ -3093,25 +3093,25 @@ version(unittest)
                 alias R = typeof(xr);
                 import std.range : isInputRange;
                 import std.traits : ReturnType;
-                static assert(is(typeof(R.init) == R));
-                static assert(is(ReturnType!((R xr) => xr.empty) == bool));
+                debug static assert(is(typeof(R.init) == R));
+                debug static assert(is(ReturnType!((R xr) => xr.empty) == bool));
 
-                static assert(!__traits(compiles, { xr.front == K.init; })); // always head-const
+                debug static assert(!__traits(compiles, { xr.front == K.init; })); // always head-const
                 auto f = xr.front;
                 static if (is(K == class))
                 {
-                    static assert(is(typeof(f) == K)); // tail-mutable
+                    debug static assert(is(typeof(f) == K)); // tail-mutable
                 }
                 else
                 {
-                    static assert(is(typeof(f) == const(K))); // tail-const
+                    debug static assert(is(typeof(f) == const(K))); // tail-const
                 }
 
-                static assert(is(typeof((R xr) => xr.front)));
-                static assert(!is(ReturnType!((R xr) => xr.front) == void));
-                static assert(is(typeof((R xr) => xr.popFront)));
+                debug static assert(is(typeof((R xr) => xr.front)));
+                debug static assert(!is(ReturnType!((R xr) => xr.front) == void));
+                debug static assert(is(typeof((R xr) => xr.popFront)));
 
-                static assert(isInputRange!(typeof(xr)));
+                debug static assert(isInputRange!(typeof(xr)));
 
                 assert(x.byElement.count == 3);
 
@@ -3174,17 +3174,17 @@ version(unittest)
 
                 {               // ByRvalueElement
                     auto k = X.withElements([k11, k12].s).filtered!(_ => _ != k11).byElement;
-                    static assert(isInputRange!(typeof(k)));
+                    debug static assert(isInputRange!(typeof(k)));
                     assert(k.front == k12);
 
-                    static assert(!__traits(compiles, { k.front = K.init; })); // head-const
+                    debug static assert(!__traits(compiles, { k.front = K.init; })); // head-const
                     static if (is(K == class))
                     {
-                        static assert(is(typeof(k.front) == K)); // tail-mutable
+                        debug static assert(is(typeof(k.front) == K)); // tail-mutable
                     }
                     else
                     {
-                        static assert(is(typeof(k.front) == const(K))); // tail-const
+                        debug static assert(is(typeof(k.front) == const(K))); // tail-const
                     }
 
                     k.popFront();
@@ -3207,9 +3207,9 @@ version(unittest)
 
             static if (is(V == string))
             {
-                static assert(mustAddGCRange!V);
-                static assert(mustAddGCRange!(V[1]));
-                static assert(mustAddGCRange!(X.T));
+                debug static assert(mustAddGCRange!V);
+                debug static assert(mustAddGCRange!(V[1]));
+                debug static assert(mustAddGCRange!(X.T));
             }
 
             auto x1 = X();            // start empty
@@ -3334,7 +3334,7 @@ version(unittest)
         this(ulong value) { this._value = value; }
         private ulong _value;
     }
-    static assert(isNullable!Zing);
+    debug static assert(isNullable!Zing);
 
     enum Alt { a, b, c, d }
 
@@ -3352,10 +3352,10 @@ version(unittest)
                     this.alts == that.alts);
         }
     }
-    static assert(isNullable!ZingRel);
+    debug static assert(isNullable!ZingRel);
 
     alias X = OpenHashSet!(ZingRel, FNV!(64, true));
-    static assert(X.sizeof == 32); // TODO fix hole handling and change to 24
+    debug static assert(X.sizeof == 32); // TODO fix hole handling and change to 24
     X x;
 
     auto e = ZingRel(new Zing(42), Alt.init);
@@ -3376,19 +3376,19 @@ version(unittest)
         this(ulong value) { this._value = value; }
         private ulong _value;
     }
-    static assert(isNullable!Zing);
+    debug static assert(isNullable!Zing);
 
     static class Node : Zing
     {
         @safe pure nothrow @nogc:
         this(ulong value) { super(value);  }
     }
-    static assert(isNullable!Node);
+    debug static assert(isNullable!Node);
 
-    static assert(is(Node : Zing));
+    debug static assert(is(Node : Zing));
 
     alias X = OpenHashSet!(Zing);
-    static assert(X.sizeof == 24);
+    debug static assert(X.sizeof == 24);
     X x;
 
     // top-class

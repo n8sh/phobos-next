@@ -210,7 +210,7 @@ private:
             ubyte length = 0;
             immutable(E)[smallCapacity] data = [0,0,0,0,0,
                                                 0,0,0,0,0,
-                                                0,0,0,0,0]; // explicit init needed for __traits(isZeroInit)
+                                                0,0,0,0,0]; // explicit init needed for `__traits(isZeroInit)` to be true
         }
     }
     else

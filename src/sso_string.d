@@ -193,8 +193,8 @@ private:
 
     struct Raw                  // same memory layout as `immutable(E)[]`
     {
-        size_t length;          // can be bit-fiddled without GC allocation
-        immutable(E)* ptr;
+        size_t length = 0;      // can be bit-fiddled without GC allocation
+        immutable(E)* ptr = null;
     }
 
     alias Large = immutable(E)[];
@@ -207,7 +207,7 @@ private:
         {
             /* TODO only first 4 bits are needed to represent a length between
              * 0-15, use other 4 bits */
-            ubyte length;
+            ubyte length = 0;
             immutable(E)[smallCapacity] data;
         }
     }
@@ -291,8 +291,8 @@ static assert(SSOString.sizeof == string.sizeof);
     static assert(mustAddGCRange!S); // `Large large.ptr` must be scanned
 
     // TODO static assert(__traits(isZeroInit, S));
-    // TODO import bit_traits : isAllZeroBits;
-    // TODO static assert(isAllZeroBits!(S, S.init));
+    import bit_traits : isInitAllZeroBits;
+    // static assert(isInitAllZeroBits!(S));
 
     auto s0 = S.init;
     assert(s0.isNull);

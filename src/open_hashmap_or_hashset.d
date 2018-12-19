@@ -59,7 +59,7 @@ private template isAddress(T)
  * module prime) to maximize memory locality when adding successively allocated
  * pointers
  *
- * TODO fix bug in `growInPlaceWithCapacity` and benchmarka
+ * TODO fix bug in `growInPlaceWithCapacity` and benchmark
  *
  * TODO add extractElement that moves it out similar to
  * http://en.cppreference.com/w/cpp/container/unordered_set/extract

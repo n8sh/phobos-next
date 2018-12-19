@@ -1199,6 +1199,8 @@ struct OpenHashMapOrSet(K, V = void,
 
         /** Get reference to `key`-part of stored element at `key`, if present,
          * otherwise return `defaultKey`.
+         *
+         * Used to implement caching inside the key part of a map.
          */
         ref const(K) getKeyRef(SomeKey)(const scope SomeKey key, // template-lazy
                                         ref const(K) defaultKey) const return @trusted

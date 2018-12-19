@@ -3367,6 +3367,8 @@ version(unittest)
     }
     static assert(isNullable!Node);
 
+    static assert(is(Node : Zing));
+
     alias X = OpenHashSet!(Zing);
     static assert(X.sizeof == 24);
     X x;
@@ -3379,7 +3381,7 @@ version(unittest)
     assert(x.containsUsingLinearSearch(z));
 
     auto n = new Node(42);
-    // TODO assert(!x.contains(n));
+    assert(!x.contains(n));
 }
 
 /// enumeration key

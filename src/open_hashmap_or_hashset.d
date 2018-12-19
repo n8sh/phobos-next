@@ -88,6 +88,7 @@ struct OpenHashMapOrSet(K, V = void,
         // isHashable!K
         )
 {
+    pragma(msg, K.stringof, " => ", V.stringof);
     import core.exception : onOutOfMemoryError;
     import std.algorithm.mutation : move, moveEmplace;
     import std.conv : emplace;

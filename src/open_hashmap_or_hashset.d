@@ -3371,18 +3371,15 @@ version(unittest)
     static assert(X.sizeof == 24);
     X x;
 
-    auto e = new Zing(42);
-    auto f = new Zing(42);
+    auto z = new Zing(42);
+    assert(!x.contains(z));
+    assert(!x.containsUsingLinearSearch(z));
+    assert(x.insert(z) == X.InsertionStatus.added);
+    assert(x.contains(z));
+    assert(x.containsUsingLinearSearch(z));
 
-    assert(!x.contains(e));
-    assert(!x.containsUsingLinearSearch(e));
-    assert(!x.contains(f));
-    assert(!x.containsUsingLinearSearch(f));
-    assert(x.insert(e) == X.InsertionStatus.added);
-    // TODO assert(x.insert(f) == X.InsertionStatus.unmodified);
-    assert(x.contains(e));
-    assert(x.containsUsingLinearSearch(e));
-    // assert(x.contains(f));
+    auto n = new Node(42);
+    // TODO assert(!x.contains(n));
 }
 
 /// enumeration key

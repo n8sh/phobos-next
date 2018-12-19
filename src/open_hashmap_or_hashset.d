@@ -3460,7 +3460,7 @@ unittest
     alias X = OpenHashMap!(K, V, FNV!(64, true));
     const n = 100;
 
-    immutable default_k = K("42");
+    immutable default_k = K("miss");
 
     X a;
     foreach (const i; 0 .. n)
@@ -3479,6 +3479,7 @@ unittest
         assert(a.contains(k));
         assert(a.getKeyRef(k, default_k)[] !is k[]); // on hit doesn't use `default_k`
         assert(a.getKeyRef(ch, default_k)[] !is k[]); // on hit doesn't use `default_k`
+        assert(a.getKeyRef(ch, default_k)[] == ch);
     }
 
     X b;

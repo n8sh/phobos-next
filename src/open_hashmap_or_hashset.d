@@ -41,6 +41,11 @@ private template isAddress(T)
  *
  * TODO check that hole value is not used alongside the check assert(!key.isNull)
  *
+ * TODO allocate _holesPtr array together with _bins to reduce size of
+ * `OpenHashMapOrSet` to 3 words when element type doesn't support it
+ *
+ * TODO support isHole, holeify and holeValue
+ *
  * TODO modify existing unittest for `struct Rel { const string name; }`
  *
  * TODO use allocator.dispose() instead of allocator.deallocate() as in
@@ -48,11 +53,6 @@ private template isAddress(T)
  *
  * TODO add support for checking existence `K.nullifier` that infers, for
  * instance, how to tag a ZingRel and Expr as null or hole.
- *
- * TODO allocate _holesPtr array together with _bins to reduce size of
- * `OpenHashMapOrSet` to 3 words when element type doesn't support it
- *
- * TODO support isHole, holeify and holeValue
  *
  * TODO if hash-function is cast(size_t)(classInstance) always use prime length
  * and shift pointer before hash based on alignof (might not be needed when

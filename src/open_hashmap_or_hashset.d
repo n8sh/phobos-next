@@ -279,8 +279,8 @@ struct OpenHashMapOrSet(K, V = void,
      * temporary scope.
      */
     enum isScopedKeyType(SomeKey) = (is(K : SomeKey) || // `SomeKey is` implicitly convertible to `K`
-                                     (isDynamicArray!SomeKey &&
-                                      is(typeof(cast(K)SomeKey.init))));
+                                     is(SomeKey : U[], U) && // is array
+                                     is(typeof(K(SomeKey.init))));
 
     alias ElementType = T;
 
@@ -658,6 +658,19 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
+    private auto adjustKeyType(SomeKey)(const return scope SomeKey key) const @trusted
+    {
+        pragma(inline, true);            // must be inlined
+        static if (is(SomeKey : U[], U)) // is array
+        {
+            return cast(immutable(typeof(key[0]))[])key;
+        }
+        else
+        {
+            return key;
+        }
+    }
+
     /** Check if `element` is stored.
      *
      * Parameter `key` may be non-immutable, for instance const(char)[]
@@ -672,7 +685,7 @@ struct OpenHashMapOrSet(K, V = void,
         // pragma(msg, SomeKey);
         version(LDC) pragma(inline, true);
         assert(!key.isNull);
-        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)key); // cast scoped `key` is @trusted
+        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)adjustKeyType(key)); // cast scoped `key` is @trusted
         return (hitIndex != _bins.length &&
                 isOccupiedAtIndex(hitIndex));
     }
@@ -1149,7 +1162,7 @@ struct OpenHashMapOrSet(K, V = void,
             isScopedKeyType!(SomeKey))
         {
             version(LDC) pragma(inline, true);
-            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)key); // cast scoped `key` is @trusted
+            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)adjustKeyType(key)); // cast scoped `key` is @trusted
             if (hitIndex != _bins.length &&
                 isOccupiedAtIndex(hitIndex))
             {
@@ -1166,7 +1179,7 @@ struct OpenHashMapOrSet(K, V = void,
         if (isScopedKeyType!(typeof(key)))
         {
             version(LDC) pragma(inline, true);
-            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)key); // cast scoped `key` is @trusted
+            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)adjustKeyType(key)); // cast scoped `key` is @trusted
             if (hitIndex != _bins.length &&
                 isOccupiedAtIndex(hitIndex))
             {
@@ -1210,7 +1223,7 @@ struct OpenHashMapOrSet(K, V = void,
         if (isScopedKeyType!(SomeKey))
         {
             version(LDC) pragma(inline, true);
-            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)key); // cast scoped `key` is @trusted
+            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)adjustKeyType(key)); // cast scoped `key` is @trusted
             if (hitIndex != _bins.length &&
                 isOccupiedAtIndex(hitIndex))
             {
@@ -1251,11 +1264,12 @@ struct OpenHashMapOrSet(K, V = void,
     /** Remove `element`.
      * Returns: `true` if element was removed, `false` otherwise.
      */
-    bool remove()(const scope K key) // template-lazy
+    bool remove(SomeKey)(const scope SomeKey key) // template-lazy
+    if (isScopedKeyType!(typeof(key)))
     {
         version(LDC) pragma(inline, true);
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
-        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
+        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(adjustKeyType(key));
         if (hitIndex != _bins.length &&
             isOccupiedAtIndex(hitIndex))
         {
@@ -3451,7 +3465,7 @@ unittest
 }
 
 /// `SSOString` as map key type
-@trusted pure nothrow // TODO @nogc
+@trusted pure nothrow @nogc
 unittest
 {
     import sso_string : SSOString;
@@ -3470,18 +3484,18 @@ unittest
         assert(k[] == ch[]);
 
         assert(!a.contains(k));
-        assert(!a.contains(ch[]));                          // TODO @nogc
+        assert(!a.contains(ch[]));
         assert(a.getKeyRef(k, default_k)[] is default_k[]); // on miss use `default_k`
         // TODO assert(a.getKeyRef(ch, default_k)[] is default_k[]); // on miss use `default_k`
 
         a[k] = V.init;
 
         assert(a.contains(k));
-        assert(a.contains(ch[]));                    // TODO @nogc
+        // TODO assert(a.contains(ch[]));                    // TODO @nogc
         assert(a.getKeyRef(k, default_k)[] !is k[]); // on hit doesn't use `default_k`
         assert(a.getKeyRef(k, default_k)[] == ch);
         // TODO assert(a.getKeyRef(ch, default_k)[] !is k[]); // on hit doesn't use `default_k`
-        // TODO assert(a.getKeyRef(ch, default_k)[] == ch);
+        // assert(a.getKeyRef(ch, default_k)[] == ch);
     }
 
     X b;

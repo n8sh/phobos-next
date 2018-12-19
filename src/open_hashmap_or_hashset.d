@@ -3478,6 +3478,7 @@ unittest
 
         assert(a.contains(k));
         assert(a.getKeyRef(k, default_k)[] !is k[]); // on hit doesn't use `default_k`
+        assert(a.getKeyRef(k, default_k)[] == ch);
         assert(a.getKeyRef(ch, default_k)[] !is k[]); // on hit doesn't use `default_k`
         assert(a.getKeyRef(ch, default_k)[] == ch);
     }

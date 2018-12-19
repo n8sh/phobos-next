@@ -47,7 +47,7 @@ private template isAddress(T)
  * https://github.com/dlang-community/containers
  *
  * TODO add support for checking existence `K.nullifier` that infers, for
- * instance, how to tag a ZingRel as null or hole
+ * instance, how to tag a ZingRel and Expr as null or hole.
  *
  * TODO allocate _holesPtr array together with _bins to reduce size of
  * `OpenHashMapOrSet` to 3 words when element type doesn't support it

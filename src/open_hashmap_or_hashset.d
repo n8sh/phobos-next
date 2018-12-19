@@ -3455,7 +3455,7 @@ unittest
     alias K = SSOString;
     struct V
     {
-        long x, y;
+        long x;
     }
     alias X = OpenHashMap!(K, V, FNV!(64, true));
     const n = 100;

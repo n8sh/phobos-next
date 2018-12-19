@@ -3453,10 +3453,7 @@ unittest
 {
     import sso_string : SSOString;
     alias K = SSOString;
-    struct V
-    {
-        long x;
-    }
+    alias V = long;
     alias X = OpenHashMap!(K, V, FNV!(64, true));
     const n = 100;
 

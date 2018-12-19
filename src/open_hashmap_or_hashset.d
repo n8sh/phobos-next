@@ -278,9 +278,19 @@ struct OpenHashMapOrSet(K, V = void,
      * For instance `const(char)[]` can be `@trusted`ly cast to `string` in a
      * temporary scope.
      */
-    enum isScopedKeyType(SomeKey) = (is(K : SomeKey) || // `K is` implicitly convertible from `SomeKey`
-                                     is(SomeKey : U[], U) && // is array
-                                     is(typeof(K(SomeKey.init))));
+    template isScopedKeyType(SomeKey)
+    {
+        static if (is(SomeKey == class))
+        {
+            enum isScopedKeyType = (is(const(SomeKey) : const(K)));
+        }
+        else
+        {
+            enum isScopedKeyType = (is(K : SomeKey) || // `K is` implicitly convertible from `SomeKey`
+                                    is(SomeKey : U[], U) && // is array
+                                    is(typeof(K(SomeKey.init))));
+        }
+    }
 
     alias ElementType = T;
 
@@ -3375,6 +3385,7 @@ version(unittest)
     static assert(X.sizeof == 24);
     X x;
 
+    // top-class
     auto z = new Zing(42);
     assert(!x.contains(z));
     assert(!x.containsUsingLinearSearch(z));
@@ -3382,8 +3393,13 @@ version(unittest)
     assert(x.contains(z));
     assert(x.containsUsingLinearSearch(z));
 
+    // sub-class
     auto n = new Node(42);
-    // assert(!x.contains(n));
+    assert(!x.contains(n));
+    assert(!x.containsUsingLinearSearch(n));
+    assert(x.insert(n) == X.InsertionStatus.added);
+    assert(x.contains(n));
+    assert(x.containsUsingLinearSearch(n));
 }
 
 /// enumeration key

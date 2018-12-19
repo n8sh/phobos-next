@@ -1197,7 +1197,7 @@ struct OpenHashMapOrSet(K, V = void,
             }
         }
 
-        /** Get reference to `key` part of stored element at `key`, if present,
+        /** Get reference to `key`-part of stored element at `key`, if present,
          * otherwise return `defaultKey`.
          */
         ref const(K) getKeyRef(SomeKey)(const scope SomeKey key, // template-lazy

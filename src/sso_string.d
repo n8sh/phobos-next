@@ -210,7 +210,7 @@ private:
             ubyte length = 0;
             immutable(E)[smallCapacity] data = [0,0,0,0,0,
                                                 0,0,0,0,0,
-                                                0,0,0,0,0];
+                                                0,0,0,0,0]; // explicit init needed for __traits(isZeroInit)
         }
     }
     else
@@ -293,7 +293,7 @@ static assert(SSOString.sizeof == string.sizeof);
     static assert(mustAddGCRange!S); // `Large large.ptr` must be scanned
 
     static assert(__traits(isZeroInit, S));
-    import bit_traits : isInitAllZeroBits;
+    // import bit_traits : isInitAllZeroBits;
     // static assert(isInitAllZeroBits!(S));
 
     auto s0 = S.init;

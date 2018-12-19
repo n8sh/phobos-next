@@ -3360,6 +3360,13 @@ version(unittest)
     }
     static assert(isNullable!Zing);
 
+    static class Node : Zing
+    {
+        @safe pure nothrow @nogc:
+        this(ulong value) { super(value);  }
+    }
+    static assert(isNullable!Node);
+
     alias X = OpenHashSet!(Zing);
     static assert(X.sizeof == 24);
     X x;

@@ -15,6 +15,14 @@ private template isAddress(T)
                       isPointer!T);     // just a pointer, consistent with opCmp
 }
 
+/** Is `true` iff `T` is a memory address. */
+private template isHoleable(T)
+{
+    enum isHoleable = (__traits(hasMember, T, "isHole") &&
+                       __traits(hasMember, T, "holeify") &&
+                       __traits(hasMember, T, "holeValue"));
+}
+
 @safe:
 
 /** Hash table/map (or set) with open-addressing, storing (key) elements of type
@@ -3465,6 +3473,7 @@ unittest
 {
     import sso_string : SSOString;
     alias K = SSOString;
+    static assert(isHoleable!K);
     alias X = OpenHashSet!(K, FNV!(64, true));
     const n = 100;
 

@@ -189,18 +189,17 @@ struct SSOString
     {
         return words[0] == size_t.max;
     }
-    /** Create a hole, meaning a removed/erase value. */
-    private static typeof(this) asHole() @system
-    {
-        typeof(return) result = void;
-        result.words[0] = size_t.max;
-        result.words[1] = size_t.max;
-        return result;
-    }
     void holeify() @system @nogc
     {
         words[0] = size_t.max;
         words[1] = size_t.max;
+    }
+    /** Create a hole, meaning a removed/erase value. */
+    private static typeof(this) asHole() @system
+    {
+        typeof(return) result = void;
+        result.holeify();
+        return result;
     }
 
 private:

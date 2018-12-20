@@ -16,12 +16,9 @@ private template isAddress(T)
 }
 
 /** Is `true` iff `T` is a memory address. */
-private template isHoleable(T)
-{
-    enum isHoleable = (__traits(hasMember, T, "isHole") &&
-                       __traits(hasMember, T, "holeify") &&
-                       __traits(hasMember, T, "holeValue"));
-}
+enum isHoleable(T) = (__traits(hasMember, T, "isHole") &&
+                      __traits(hasMember, T, "holeify") &&
+                      __traits(hasMember, T, "holeValue"));
 
 @safe:
 

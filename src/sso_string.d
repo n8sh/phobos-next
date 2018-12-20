@@ -420,6 +420,8 @@ static assert(SSOString.sizeof == string.sizeof);
 {
     alias S = SSOString;
     assert(!S.init.isHole);
+    assert(!S("").isHole);
+    assert(!S("a").isHole);
     assert(S.asHole.isHole);
 }
 

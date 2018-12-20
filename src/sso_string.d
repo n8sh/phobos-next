@@ -22,7 +22,7 @@ struct SSOString
 
     pure nothrow:
 
-    static typeof(this) asHole() @system
+    private static typeof(this) asHole() @system
     {
         typeof(return) result = void;
         result.words[0] = size_t.max;

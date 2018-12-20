@@ -16,7 +16,8 @@ private template isAddress(T)
 }
 
 /** Is `true` iff `T` has a specific value dedicate for holes (removed/erase)
- * values. */
+ * values.
+ */
 enum isHoleable(T) = (__traits(hasMember, T, "isHole") &&
                       __traits(hasMember, T, "holeify") &&
                       __traits(hasMember, T, "holeValue"));

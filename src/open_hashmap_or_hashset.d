@@ -47,7 +47,7 @@ private template isAddress(T)
  * TODO allocate _holesPtr array together with _bins to reduce size of
  * `OpenHashMapOrSet` to 3 words when element type doesn't support it
  *
- * TODO support isHole, holeify and holeValue
+ * TODO support isHoleable() isHole, holeify and holeValue
  *
  * TODO modify existing unittest for `struct Rel { const string name; }`
  *

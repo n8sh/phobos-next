@@ -15,7 +15,8 @@ private template isAddress(T)
                       isPointer!T);     // just a pointer, consistent with opCmp
 }
 
-/** Is `true` iff `T` has a specific hole value. */
+/** Is `true` iff `T` has a specific value dedicate for holes (removed/erase)
+ * values. */
 enum isHoleable(T) = (__traits(hasMember, T, "isHole") &&
                       __traits(hasMember, T, "holeify") &&
                       __traits(hasMember, T, "holeValue"));

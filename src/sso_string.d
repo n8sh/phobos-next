@@ -419,8 +419,8 @@ static assert(SSOString.sizeof == string.sizeof);
 @trusted pure nothrow @nogc unittest
 {
     alias S = SSOString;
-    const x = S.asHole();
-    assert(x.isHole);
+    assert(!S.init.isHole);
+    assert(S.asHole.isHole);
 }
 
 private enum isCharsSlice(T) = (is(T : const(char)[]));

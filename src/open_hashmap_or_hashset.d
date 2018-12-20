@@ -55,7 +55,7 @@ private template isHoleable(T)
  * TODO allocate _holesPtr array together with _bins to reduce size of
  * `OpenHashMapOrSet` to 3 words when element type doesn't support it
  *
- * TODO support isHoleable(): `hasMember`s isHole, holeify and holeValue
+ * TODO support isHoleable()
  *
  * TODO modify existing unittest for `struct Rel { const string name; }`
  *

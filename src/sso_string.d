@@ -184,12 +184,12 @@ struct SSOString
 
     /** Support trait `isHoleable`. */
     static immutable holeValue = typeof(this).asHole();
-    /// ditto
-    bool isHole() @safe @nogc const
+    /** Check if this a hole, meaning a removed/erase value. */
+    bool isHole() @safe nothrow @nogc const
     {
         return words[0] == size_t.max;
     }
-    /// ditto
+    /** Create a hole, meaning a removed/erase value. */
     private static typeof(this) asHole() @system
     {
         typeof(return) result = void;

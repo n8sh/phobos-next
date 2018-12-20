@@ -122,7 +122,22 @@ struct OpenHashMapOrSet(K, V = void,
     enum hasAddressLikeKey = (isAddress!K ||
                               isDynamicArray!K);
 
-    static if (hasAddressLikeKey)
+    enum hasHoleableKey = hasAddressLikeKey || isHoleable!K;
+
+    static if (isHoleable!K)    // Expr
+    {
+        static K holeKeyConstant() @safe pure nothrow @nogc
+        {
+            pragma(inline, true);
+            return K.holeValue;
+        }
+        static bool isHoleKeyConstant(const scope K key) @safe pure nothrow @nogc
+        {
+            pragma(inline, true);
+            return key.isHole;
+        }
+    }
+    else static if (hasAddressLikeKey)
     {
         enum holeKeyOffset = 0x1; // TODO is this a good value?
         enum holeKeyAddress = cast(void*)holeKeyOffset;

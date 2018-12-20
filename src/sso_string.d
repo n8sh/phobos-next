@@ -22,14 +22,6 @@ struct SSOString
 
     pure nothrow:
 
-    private static typeof(this) asHole() @system
-    {
-        typeof(return) result = void;
-        result.words[0] = size_t.max;
-        result.words[1] = size_t.max;
-        return result;
-    }
-
     /** Construct from `source`, which potentially needs GC-allocation (iff
      * `source.length > smallCapacity` and `source` is not a `string`).
      */
@@ -192,6 +184,20 @@ struct SSOString
 
     /** Support trait `isHoleable`. */
     static immutable holeValue = typeof(this).asHole();
+    /// ditto
+    bool isHole() @safe @nogc const
+    {
+        return words[0] == size_t.max;
+    }
+    /// ditto
+    private static typeof(this) asHole() @system
+    {
+        typeof(return) result = void;
+        result.words[0] = size_t.max;
+        result.words[1] = size_t.max;
+        //assert(result.large.length == size_t.max);
+        return result;
+    }
 
 private:
 
@@ -408,6 +414,14 @@ static assert(SSOString.sizeof == string.sizeof);
         //     return x[0];             // TODO should fail with -dip1000
         // }
     }
+}
+
+/// hole handling
+@trusted pure nothrow @nogc unittest
+{
+    alias S = SSOString;
+    const x = S.asHole();
+    assert(x.isHole);
 }
 
 private enum isCharsSlice(T) = (is(T : const(char)[]));

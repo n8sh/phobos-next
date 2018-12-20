@@ -197,6 +197,11 @@ struct SSOString
         result.words[1] = size_t.max;
         return result;
     }
+    void holeify() @system @nogc
+    {
+        words[0] = size_t.max;
+        words[1] = size_t.max;
+    }
 
 private:
 

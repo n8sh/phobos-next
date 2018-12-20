@@ -55,8 +55,6 @@ private template isHoleable(T)
  * TODO allocate _holesPtr array together with _bins to reduce size of
  * `OpenHashMapOrSet` to 3 words when element type doesn't support it
  *
- * TODO support isHoleable()
- *
  * TODO modify existing unittest for `struct Rel { const string name; }`
  *
  * TODO use allocator.dispose() instead of allocator.deallocate() as in
@@ -122,7 +120,10 @@ struct OpenHashMapOrSet(K, V = void,
     enum hasAddressLikeKey = (isAddress!K ||
                               isDynamicArray!K);
 
-    enum hasHoleableKey = hasAddressLikeKey || isHoleable!K;
+    /** Is `true` iff `K` has a specific value `holeKeyConstant` that represent
+     * holes.
+     */
+    enum hasHoleableKey = isHoleable!K && hasAddressLikeKey;
 
     static if (isHoleable!K)    // Expr
     {
@@ -493,7 +494,7 @@ struct OpenHashMapOrSet(K, V = void,
                 keyOf(binsCopy[index]).nullify();
             }
         }
-        static if (!hasAddressLikeKey)
+        static if (!hasHoleableKey)
         {
             if (_holesPtr)
             {
@@ -546,7 +547,7 @@ struct OpenHashMapOrSet(K, V = void,
     pragma(inline, true):
     private:
 
-        static if (!hasAddressLikeKey)
+        static if (!hasHoleableKey)
         {
             void deallocateHoles() @trusted
             {
@@ -614,7 +615,7 @@ struct OpenHashMapOrSet(K, V = void,
         void tagHoleAtIndex(size_t index) @trusted
         {
             version(internalUnittest) assert(index < _bins.length);
-            static if (!hasAddressLikeKey)
+            static if (!hasHoleableKey)
             {
                 if (_holesPtr is null) // lazy allocation
                 {
@@ -641,7 +642,7 @@ struct OpenHashMapOrSet(K, V = void,
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
         release();
         _bins = typeof(_bins).init;
-        static if (!hasAddressLikeKey)
+        static if (!hasHoleableKey)
         {
             _holesPtr = null;
         }
@@ -671,7 +672,7 @@ struct OpenHashMapOrSet(K, V = void,
     private void releaseBinsAndHolesSlices()
     {
         releaseBinsSlice(_bins);
-        static if (!hasAddressLikeKey)
+        static if (!hasHoleableKey)
         {
             deallocateHoles();
         }
@@ -900,7 +901,7 @@ struct OpenHashMapOrSet(K, V = void,
     private void tagAsLazilyDeletedElementAtIndex(size_t index)
     {
         pragma(inline, true);
-        static if (hasAddressLikeKey)
+        static if (hasHoleableKey)
         {
             keyOf(_bins[index]) = holeKeyConstant;
         }
@@ -1010,7 +1011,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         Allocator.deallocate(cast(void[])(dones[0 .. wordCountOfBitCount(_bins.length)]));
 
-        static if (!hasAddressLikeKey)
+        static if (!hasHoleableKey)
         {
             clearHoles();
         }
@@ -1042,7 +1043,7 @@ struct OpenHashMapOrSet(K, V = void,
                 gc_addRange(_bins.ptr, newByteCount);
             }
 
-            static if (!hasAddressLikeKey)
+            static if (!hasHoleableKey)
             {
                 if (_holesPtr)
                 {
@@ -1079,7 +1080,7 @@ struct OpenHashMapOrSet(K, V = void,
             if (isOccupiedAtIndex(index))
             {
                 next.insertMoveWithoutGrowth(bin); // value is zeroed but
-                static if (!hasAddressLikeKey)
+                static if (!hasHoleableKey)
                 {
                     keyOf(bin).nullify(); // keyC must zeroed
                 }
@@ -1095,7 +1096,7 @@ struct OpenHashMapOrSet(K, V = void,
         version(internalUnittest)
         {
             assert(!keyOf(element).isNull);
-            static if (hasAddressLikeKey)
+            static if (hasHoleableKey)
             {
                 assert(!isHoleKeyConstant(keyOf(element)));
             }
@@ -1124,7 +1125,7 @@ struct OpenHashMapOrSet(K, V = void,
             {
                 insertElementAtIndex(move(element), hitIndex);
             }
-            static if (!hasAddressLikeKey)
+            static if (!hasHoleableKey)
             {
                 if (hasHole) { untagHoleAtIndex(hitIndex); }
             }
@@ -1415,7 +1416,7 @@ struct OpenHashMapOrSet(K, V = void,
         return _bins;
     }
 
-    static if (hasAddressLikeKey)
+    static if (hasHoleableKey)
     {
         static bool isOccupiedBin(const scope ref T bin)
         {
@@ -1487,7 +1488,7 @@ private:
         size_t _count;        // total number of non-null elements stored in `_bins`
     }
 
-    static if (!hasAddressLikeKey)
+    static if (!hasHoleableKey)
     {
         static if (hasFunctionAttributes!(Allocator.allocate, "@nogc"))
         {
@@ -1533,7 +1534,7 @@ private:
         version(internalUnittest)
         {
             assert(!key.isNull);
-            static if (hasAddressLikeKey)
+            static if (hasHoleableKey)
             {
                 assert(!isHoleKeyConstant(key));
             }
@@ -1543,7 +1544,7 @@ private:
             /* don't use `auto ref` for copyable `T`'s to prevent
              * massive performance drop for small elements when compiled
              * with LDC. TODO remove when LDC is fixed. */
-            static if (hasAddressLikeKey)
+            static if (hasHoleableKey)
             {
                 static if (isDynamicArray!K)
                 {
@@ -1566,7 +1567,7 @@ private:
         }
         else
         {
-            static if (hasAddressLikeKey)
+            static if (hasHoleableKey)
             {
                 static if (isDynamicArray!K)
                 {
@@ -1598,7 +1599,7 @@ private:
         version(internalUnittest)
         {
             assert(!key.isNull);
-            static if (hasAddressLikeKey)
+            static if (hasHoleableKey)
             {
                 assert(!isHoleKeyConstant(key));
             }
@@ -1608,7 +1609,7 @@ private:
             /* don't use `auto ref` for copyable `T`'s to prevent
              * massive performance drop for small elements when compiled
              * with LDC. TODO remove when LDC is fixed. */
-            static if (hasAddressLikeKey)
+            static if (hasHoleableKey)
             {
                 static if (isDynamicArray!K)
                 {
@@ -1634,7 +1635,7 @@ private:
         }
         else
         {
-            static if (hasAddressLikeKey)
+            static if (hasHoleableKey)
             {
                 static if (isDynamicArray!K)
                 {
@@ -1670,7 +1671,7 @@ private:
         pragma(inline, true);
         version(internalUnittest) assert(index < _bins.length);
         if (keyOf(_bins[index]).isNull) { return false; }
-        static if (hasAddressLikeKey)
+        static if (hasHoleableKey)
         {
             return !isHoleKeyConstant(keyOf(_bins[index]));
         }

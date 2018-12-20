@@ -123,7 +123,7 @@ struct OpenHashMapOrSet(K, V = void,
     /** Is `true` iff `K` has a specific value `holeKeyConstant` that represent
      * holes.
      */
-    enum hasHoleableKey = isHoleable!K && hasAddressLikeKey;
+    enum hasHoleableKey = isHoleable!K || hasAddressLikeKey;
 
     static if (isHoleable!K)    // Expr
     {
@@ -3361,7 +3361,14 @@ version(unittest)
     }
     debug static assert(isNullable!Zing);
 
-    enum Alt { a, b, c, d }
+    enum Alt
+    {
+        unknown,
+        a,
+        b,
+        c,
+        d
+    }
 
     struct ZingRel
     {

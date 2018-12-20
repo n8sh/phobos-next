@@ -22,6 +22,14 @@ struct SSOString
 
     pure nothrow:
 
+    static typeof(this) asHole() @system
+    {
+        typeof(return) result = void;
+        result.words[0] = size_t.max;
+        result.words[1] = size_t.max;
+        return result;
+    }
+
     /** Construct from `source`, which potentially needs GC-allocation (iff
      * `source.length > smallCapacity` and `source` is not a `string`).
      */
@@ -181,6 +189,9 @@ struct SSOString
 
     /** Support trait `isNullable`. */
     static immutable nullValue = typeof(this).init;
+
+    /** Support trait `isHoleable`. */
+    static immutable holeValue = typeof(this).asHole();
 
 private:
 

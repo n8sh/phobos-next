@@ -195,7 +195,6 @@ struct SSOString
         typeof(return) result = void;
         result.words[0] = size_t.max;
         result.words[1] = size_t.max;
-        //assert(result.large.length == size_t.max);
         return result;
     }
 

@@ -3539,6 +3539,8 @@ unittest
     immutable default_k = K("miss");
 
     X a;
+
+    // insert all
     foreach (const i; 0 .. n)
     {
         const char[1] ch = ['a' + i];
@@ -3558,6 +3560,31 @@ unittest
         assert(a.getKeyRef(k, default_k)[] == ch);
         // TODO assert(a.getKeyRef(ch, default_k)[] !is k[]); // on hit doesn't use `default_k`
         // assert(a.getKeyRef(ch, default_k)[] == ch);
+    }
+
+    // remove all
+    foreach (const i; 0 .. n)
+    {
+        const char[1] ch = ['a' + i];
+        const k = K(ch);        // @nogc
+        assert(a.contains(k));
+        assert(a.remove(k));
+        assert(!a.contains(k));
+    }
+
+    // insert all again
+    foreach (const i; 0 .. n)
+    {
+        const char[1] ch = ['a' + i];
+        const k = K(ch);        // @nogc
+        assert(k[] == ch[]);
+
+        assert(!a.contains(k));
+        assert(!a.contains(ch[]));                          // @nogc
+        assert(a.getKeyRef(k, default_k)[] is default_k[]); // on miss use `default_k`
+        // TODO assert(a.getKeyRef(ch, default_k)[] is default_k[]); // on miss use `default_k`
+
+        a[k] = V.init;
     }
 
     X b;

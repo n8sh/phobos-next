@@ -3561,6 +3561,7 @@ unittest
         // TODO assert(a.getKeyRef(ch, default_k)[] !is k[]); // on hit doesn't use `default_k`
         // assert(a.getKeyRef(ch, default_k)[] == ch);
     }
+    assert(a.length == n);
 
     // remove all
     foreach (const i; 0 .. n)
@@ -3571,6 +3572,7 @@ unittest
         assert(a.remove(k));
         assert(!a.contains(k));
     }
+    assert(a.length == 0);
 
     // insert all again
     foreach (const i; 0 .. n)
@@ -3586,6 +3588,7 @@ unittest
 
         a[k] = V.init;
     }
+    assert(a.length == n);
 
     X b;
     foreach (const i; 0 .. n)

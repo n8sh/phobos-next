@@ -718,8 +718,7 @@ struct OpenHashMapOrSet(K, V = void,
      *
      * Returns: `true` if element is present, `false` otherwise.
      */
-    bool contains(SomeKey)(const scope SomeKey key)
-        const @trusted // template-lazy, `auto ref` here makes things slow
+    bool contains(SomeKey)(const scope SomeKey key) const @trusted // template-lazy, `auto ref` here makes things slow
     if (isScopedKeyType!(typeof(key)))
     {
         // pragma(msg, SomeKey.stringof ~ " " ~ K.stringof, " ", is(K : SomeKey), " ", is(SomeKey : K));
@@ -742,8 +741,7 @@ struct OpenHashMapOrSet(K, V = void,
      *
      * Returns: `true` if element is present, `false` otherwise.
      */
-    bool containsUsingLinearSearch(SomeKey)(const scope SomeKey key)
-        const @trusted // template-lazy, `auto ref` here makes things slow
+    bool containsUsingLinearSearch(SomeKey)(const scope SomeKey key) const @trusted // template-lazy, `auto ref` here makes things slow
     if (isScopedKeyType!(typeof(key)))
     {
         version(LDC) pragma(inline, true);

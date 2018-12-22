@@ -54,17 +54,17 @@ class Year : Thing
     auto bar1 = new Expr("bar");
     auto ncar = new NounExpr("car");
 
-    void testEqual() @nogc
+    void testEqual() @safe pure nothrow @nogc
     {
         assert(hashOf(car1) == hashOf(car2));
     }
 
-    void testDifferent1() @nogc
+    void testDifferent1() @safe pure nothrow @nogc
     {
         assert(hashOf(car1) != hashOf(bar1));
     }
 
-    void testDifferent2() @nogc
+    void testDifferent2() @safe pure nothrow @nogc
     {
         assert(hashOf(car1) != hashOf(ncar));
     }

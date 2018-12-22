@@ -45,18 +45,36 @@ class Year : Thing
     Data data;
 }
 
-unittest
+@safe pure nothrow unittest
 {
     import dbgio;
-    auto car = new Expr("car");
+
+    auto car1 = new Expr("car");
     auto car2 = new Expr("car");
-    assert(hashOf(car) == hashOf(car2));
-    dln(hashOf(car));
-    dln(hashOf(car2));
-
-    auto bar = new Expr("bar");
-    dln(hashOf(bar));
-
+    auto bar1 = new Expr("bar");
     auto ncar = new NounExpr("car");
-    dln(hashOf(ncar));
+
+    void testEqual() @nogc
+    {
+        assert(hashOf(car1) == hashOf(car2));
+    }
+
+    void testDifferent1() @nogc
+    {
+        assert(hashOf(car1) != hashOf(bar1));
+    }
+
+    void testDifferent2() @nogc
+    {
+        assert(hashOf(car1) != hashOf(ncar));
+    }
+
+    dln("car1: ", hashOf(car1));
+    dln("car2: ", hashOf(car2));
+    dln("bar1: ", hashOf(bar1));
+    dln("ncar: ", hashOf(ncar));
+
+    testEqual();
+    testDifferent1();
+    testDifferent2();
 }

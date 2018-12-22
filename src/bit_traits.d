@@ -211,7 +211,7 @@ template isAllZeroBits(T, T value)
     }
     else
     {
-        // pragma(msg, "T: ", T.stringof);
+        // pragma(msg, "T: ", T.stringof, " value:", value);
         import std.traits : isDynamicArray, isStaticArray;
         static if (isDynamicArray!(T))
         {

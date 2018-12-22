@@ -183,9 +183,9 @@ struct OpenHashMapOrSet(K, V = void,
     }
     else
     {
-        static if (__traits(hasMember, K, "nullValue"))
+        static if (__traits(hasMember, K, "nullifier"))
         {
-            pragma(msg, "Need explicit hole bitset for non-address-like key: ", K, " with nullValue ", K.nullValue);
+            pragma(msg, "Need explicit hole bitset for non-address-like key: ", K, " with nullifier ", K.nullifier.stringof);
         }
         else
         {

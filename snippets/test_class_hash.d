@@ -47,12 +47,12 @@ class Year : Thing
 }
 
 /** Hash that distinguishes `Expr(X)` from `NounExpr(X)`. */
-hash_t hashOfPolymorphic(Class)(Class someThing) @trusted pure nothrow @nogc
+hash_t hashOfPolymorphic(Class)(Class aClassInstance) @trusted pure nothrow @nogc
 if (is(Class == class))
 {
     assert(Class.alignof == 8);
     dln(cast(void*)typeid(Class));
-    return cast(hash_t)(cast(void*)typeid(Class)) ^ hashOf(someThing);
+    return cast(hash_t)(cast(void*)typeid(Class)) ^ hashOf(aClassInstance);
 }
 
 @safe pure nothrow unittest

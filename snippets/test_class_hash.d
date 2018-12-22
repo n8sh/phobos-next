@@ -1,7 +1,6 @@
 module test_class_hash;
 
 import core.internal.hash : hashOf;
-import dbgio : dln;
 
 class Thing
 {
@@ -64,22 +63,26 @@ if (is(Class == class))
     void testEqual() @safe pure nothrow @nogc
     {
         assert(hashOf(car1) == hashOf(car2));
+        assert(hashOfPolymorphic(car1) == hashOfPolymorphic(car2));
     }
 
     void testDifferent1() @safe pure nothrow @nogc
     {
         assert(hashOf(car1) != hashOf(bar1));
+        assert(hashOfPolymorphic(car1) != hashOfPolymorphic(bar1));
     }
 
     void testDifferent2() @safe pure nothrow @nogc
     {
-        assert(hashOf(car1) != hashOf(ncar));
+        assert(hashOf(car1) == hashOf(ncar));
+        assert(hashOfPolymorphic(car1) != hashOfPolymorphic(ncar));
     }
 
-    dln("car1: ", hashOf(car1), " ", hashOfPolymorphic(car1));
-    dln("car2: ", hashOf(car2), " ", hashOfPolymorphic(car2));
-    dln("bar1: ", hashOf(bar1), " ", hashOfPolymorphic(bar1));
-    dln("ncar: ", hashOf(ncar), " ", hashOfPolymorphic(ncar));
+    // import dbgio : dln;
+    // dln("car1: ", hashOf(car1), " ", hashOfPolymorphic(car1));
+    // dln("car2: ", hashOf(car2), " ", hashOfPolymorphic(car2));
+    // dln("bar1: ", hashOf(bar1), " ", hashOfPolymorphic(bar1));
+    // dln("ncar: ", hashOf(ncar), " ", hashOfPolymorphic(ncar));
 
     testEqual();
     testDifferent1();

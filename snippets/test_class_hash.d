@@ -2,7 +2,10 @@ module test_class_hash;
 
 import core.internal.hash : hashOf;
 
-/** Hash that distinguishes `Expr(X)` from `NounExpr(X)`. */
+/** Hash that distinguishes `Expr(X)` from `NounExpr(X)`.
+ *
+ * See_Also: https://forum.dlang.org/posting/lxqoknwuujbymolnlyfw
+ */
 hash_t hashOfPolymorphic(Class)(Class aClassInstance) @trusted pure nothrow @nogc
 if (is(Class == class))
 {

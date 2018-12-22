@@ -103,6 +103,7 @@ struct SSOString
         }
         else
         {
+            import core.internal.hash : hashOf;
             return hashOf(opSlice());
         }
     }

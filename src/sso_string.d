@@ -154,7 +154,7 @@ struct SSOString
     }
 
     /** Check if equal to `rhs`. */
-    bool opEquals()(in auto ref typeof(this) rhs) const @trusted
+    bool opEquals()(const scope auto ref typeof(this) rhs) const @trusted
     {
         pragma(inline, true);
         return opSlice() == rhs.opSlice();
@@ -165,7 +165,7 @@ struct SSOString
      * See_Also: https://forum.dlang.org/post/agzznbzkacfhyqvoezht@forum.dlang.org.
      */
     version(none)               // `is` operator cannot be overloaded. See: https://forum.dlang.org/post/prmrli$1146$1@digitalmars.com
-    bool opBinary(string op)(in auto ref typeof(this) rhs) const @trusted
+    bool opBinary(string op)(const scope auto ref typeof(this) rhs) const @trusted
         if (op == `is`)         // TODO has not effect
     {
         pragma(inline, true);

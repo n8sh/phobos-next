@@ -124,7 +124,7 @@ struct OpenHashMapOrSet(K, V = void,
      */
     enum hasHoleableKey = isHoleable!K || hasAddressLikeKey;
 
-    static if (isHoleable!K)    // Expr
+    static if (isHoleable!K)
     {
         static K holeKeyConstant() @safe pure nothrow @nogc
         {

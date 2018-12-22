@@ -13,47 +13,52 @@ if (is(Class == class))
     return (cast(hash_t)(cast(void*)typeid(Class)) >> 3) ^ hashOf(aClassInstance);
 }
 
-class Thing
+version(unittest)
 {
-}
+    private static:
 
-class Expr : Thing
-{
-    @safe pure nothrow @nogc:
-    alias Data = string;
-    this(Data data)
+    class Thing
     {
-        this.data = data;
     }
-    @property override hash_t toHash() const @safe pure nothrow @nogc
-    {
-        return hashOf(data);
-    }
-    Data data;
-}
 
-class NounExpr : Expr
-{
-    @safe pure nothrow @nogc:
-    this(Data data)
+    class Expr : Thing
     {
-        super(data);
+        @safe pure nothrow @nogc:
+        alias Data = string;
+        this(Data data)
+        {
+            this.data = data;
+        }
+        @property override hash_t toHash() const @safe pure nothrow @nogc
+        {
+            return hashOf(data);
+        }
+        Data data;
     }
-    @property override hash_t toHash() const @safe pure nothrow @nogc
-    {
-        return hashOf(data);
-    }
-}
 
-class Year : Thing
-{
-    @safe pure nothrow @nogc:
-    alias Data = long;
-    @property override hash_t toHash() const @safe pure nothrow @nogc
+    class NounExpr : Expr
     {
-        return hashOf(data);
+        @safe pure nothrow @nogc:
+        this(Data data)
+        {
+            super(data);
+        }
+        @property override hash_t toHash() const @safe pure nothrow @nogc
+        {
+            return hashOf(data);
+        }
     }
-    Data data;
+
+    class Year : Thing
+    {
+        @safe pure nothrow @nogc:
+        alias Data = long;
+        @property override hash_t toHash() const @safe pure nothrow @nogc
+        {
+            return hashOf(data);
+        }
+        Data data;
+    }
 }
 
 @safe pure nothrow unittest

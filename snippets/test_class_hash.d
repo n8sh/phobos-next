@@ -2,6 +2,14 @@ module test_class_hash;
 
 import core.internal.hash : hashOf;
 
+/** Hash that distinguishes `Expr(X)` from `NounExpr(X)`. */
+hash_t hashOfPolymorphic(Class)(Class aClassInstance) @trusted pure nothrow @nogc
+if (is(Class == class))
+{
+    assert(Class.alignof == 8);
+    return (cast(hash_t)(cast(void*)typeid(Class)) >> 3) ^ hashOf(aClassInstance);
+}
+
 class Thing
 {
 }
@@ -45,14 +53,6 @@ class Year : Thing
     Data data;
 }
 
-/** Hash that distinguishes `Expr(X)` from `NounExpr(X)`. */
-hash_t hashOfPolymorphic(Class)(Class aClassInstance) @trusted pure nothrow @nogc
-if (is(Class == class))
-{
-    assert(Class.alignof == 8);
-    return (cast(hash_t)(cast(void*)typeid(Class)) >> 3) ^ hashOf(aClassInstance);
-}
-
 @safe pure nothrow unittest
 {
     auto car1 = new Expr("car");
@@ -77,12 +77,6 @@ if (is(Class == class))
         assert(hashOf(car1) == hashOf(ncar));
         assert(hashOfPolymorphic(car1) != hashOfPolymorphic(ncar));
     }
-
-    // import dbgio : dln;
-    // dln("car1: ", hashOf(car1), " ", hashOfPolymorphic(car1));
-    // dln("car2: ", hashOf(car2), " ", hashOfPolymorphic(car2));
-    // dln("bar1: ", hashOf(bar1), " ", hashOfPolymorphic(bar1));
-    // dln("ncar: ", hashOf(ncar), " ", hashOfPolymorphic(ncar));
 
     testEqual();
     testDifferent1();

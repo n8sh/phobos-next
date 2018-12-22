@@ -22,11 +22,11 @@ unittest
 }
 
 hash_t hashOfPolymorphic(Class)(Class aClassInstance) @trusted pure nothrow @nogc
-    if (is(Class == class))
-    {
-        assert(Class.alignof == 8);
-        return (cast(hash_t)(cast(void*)typeid(Class)) >> 3) ^ hashOf(aClassInstance);
-    }
+if (is(Class == class))
+{
+    assert(Class.alignof == 8);
+    return (cast(hash_t)(cast(void*)typeid(Class)) >> 3) ^ hashOf(aClassInstance);
+}
 
 version(unittest)
 {

@@ -21,6 +21,10 @@ unittest
     auto x = typeidHashOf(cast(int)17);
 }
 
+/** Hash that distinguishes `Expr(X)` from `NounExpr(X)`.
+ *
+ * See_Also: https://forum.dlang.org/post/lxqoknwuujbymolnlyfw@forum.dlang.org
+ */
 hash_t hashOfPolymorphic(Class)(Class aClassInstance) @trusted pure nothrow @nogc
 if (is(Class == class))
 {

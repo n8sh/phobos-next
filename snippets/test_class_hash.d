@@ -45,6 +45,11 @@ class Year : Thing
     Data data;
 }
 
+hash_t anyThingHash(SomeThing)(SomeThing someThing)
+{
+    return typeid(SomeThing) ^ hashOf(someThing);
+}
+
 @safe pure nothrow unittest
 {
     import dbgio;

@@ -204,7 +204,7 @@ template isAllZeroBits(T, T value)
     {
         enum isAllZeroBits = true;
     }
-    else static if (value == T.init && // NOTE `value is T.init` crashes compiler for SSOString
+    else static if (value == T.init && // NOTE `value is T.init` crashes compiler for `SSOString`
                     __traits(compiles, { enum _ = __traits(isZeroInit, T); }))
     {
         enum isAllZeroBits = __traits(isZeroInit, T);

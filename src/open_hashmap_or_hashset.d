@@ -183,7 +183,14 @@ struct OpenHashMapOrSet(K, V = void,
     }
     else
     {
-        pragma(msg, "Need explicit hole bitset for non-address-like key: ", K);
+        static if (__traits(hasMember, K, "nullValue"))
+        {
+            pragma(msg, "Need explicit hole bitset for non-address-like key: ", K, " with nullValue ", K.nullValue);
+        }
+        else
+        {
+            pragma(msg, "Need explicit hole bitset for non-address-like key: ", K);
+        }
         import core.bitop : bts, bt, btr;
         import array_help : makeUninitializedBitArray, makeZeroedBitArray, makeReallocatedBitArrayZeroPadded;
     }

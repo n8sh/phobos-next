@@ -46,7 +46,7 @@ class Year : Thing
 }
 
 /** Hash that distinguishes `Expr(X)` from `NounExpr(X)`. */
-hash_t anyThingHash(SomeThing)(SomeThing someThing)
+hash_t hashOfThing(SomeThing)(SomeThing someThing)
 {
     return typeid(SomeThing) ^ hashOf(someThing);
 }

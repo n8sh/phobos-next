@@ -24,6 +24,10 @@ version(unittest)
             if (typeid(this) !is typeid(that)) { return false; }
             assert(0);
         }
+        @property bool opEquals(const scope typeof(this) that) const @safe pure nothrow @nogc
+        {
+            assert(0);
+        }
     }
 
     class Expr : Thing
@@ -35,6 +39,11 @@ version(unittest)
             this.data = data;
         }
         @property override bool opEquals(const scope Object that) const @safe pure nothrow @nogc
+        {
+            if (typeid(this) !is typeid(that)) { return false; }
+            return data == (cast(typeof(this))(that)).data;
+        }
+        @property bool opEquals(const scope typeof(this) that) const @safe pure nothrow @nogc
         {
             if (typeid(this) !is typeid(that)) { return false; }
             return data == (cast(typeof(this))(that)).data;

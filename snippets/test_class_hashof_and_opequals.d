@@ -83,7 +83,7 @@ version(unittest)
         assert(car1.opEquals(car2));
         assert(!car1.opEquals(bar1));
         assert(!car2.opEquals(bar1));
-        // TODO assert(car1 == car2);
+        // TODO should compile: assert(car1 == car2);
         assert(hashOf(car1) == hashOf(car2));
         assert(hashOfPolymorphic(car1) == hashOfPolymorphic(car2));
     }
@@ -91,7 +91,7 @@ version(unittest)
     void testDifferent1() @safe pure nothrow @nogc
     {
         assert(!car1.opEquals(bar1));
-        // TODO assert(car1 != bar1);
+        // TODO should compile: assert(car1 != bar1);
         assert(hashOf(car1) != hashOf(bar1));
         assert(hashOfPolymorphic(car1) != hashOfPolymorphic(bar1));
     }

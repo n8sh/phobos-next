@@ -81,6 +81,7 @@ version(unittest)
     void testEqual() @safe pure nothrow @nogc
     {
         assert(car1.opEquals(car2));
+        assert(!car1.opEquals(bar1));
         // TODO assert(car1 == car2);
         assert(hashOf(car1) == hashOf(car2));
         assert(hashOfPolymorphic(car1) == hashOfPolymorphic(car2));

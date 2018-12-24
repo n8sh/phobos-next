@@ -19,6 +19,11 @@ version(unittest)
 
     class Thing
     {
+        @property override bool opEquals(const scope Object that) const @safe pure nothrow @nogc
+        {
+            if (typeid(this) !is typeid(that)) { return false; }
+            assert(0);
+        }
     }
 
     class Expr : Thing
@@ -28,6 +33,11 @@ version(unittest)
         this(Data data)
         {
             this.data = data;
+        }
+        @property override bool opEquals(const scope Object that) const @safe pure nothrow @nogc
+        {
+            if (typeid(this) !is typeid(that)) { return false; }
+            return data == (cast(typeof(this))(that)).data;
         }
         @property override hash_t toHash() const @safe pure nothrow @nogc
         {
@@ -70,12 +80,16 @@ version(unittest)
 
     void testEqual() @safe pure nothrow @nogc
     {
+        assert(car1.opEquals(car2));
+        // TODO assert(car1 == car2);
         assert(hashOf(car1) == hashOf(car2));
         assert(hashOfPolymorphic(car1) == hashOfPolymorphic(car2));
     }
 
     void testDifferent1() @safe pure nothrow @nogc
     {
+        assert(!car1.opEquals(bar1));
+        // TODO assert(car1 != bar1);
         assert(hashOf(car1) != hashOf(bar1));
         assert(hashOfPolymorphic(car1) != hashOfPolymorphic(bar1));
     }

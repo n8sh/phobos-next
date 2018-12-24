@@ -82,6 +82,7 @@ version(unittest)
     {
         assert(car1.opEquals(car2));
         assert(!car1.opEquals(bar1));
+        assert(!car2.opEquals(bar1));
         // TODO assert(car1 == car2);
         assert(hashOf(car1) == hashOf(car2));
         assert(hashOfPolymorphic(car1) == hashOfPolymorphic(car2));

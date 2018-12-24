@@ -24,7 +24,7 @@ version(unittest)
             if (typeid(this) !is typeid(that)) { return false; }
             assert(0);
         }
-        @property bool opEquals(const scope typeof(this) that) const @safe pure nothrow @nogc
+        @property final bool opEquals(const scope typeof(this) that) const @safe pure nothrow @nogc
         {
             assert(0);
         }
@@ -43,7 +43,7 @@ version(unittest)
             if (typeid(this) !is typeid(that)) { return false; }
             return data == (cast(typeof(this))(that)).data;
         }
-        @property bool opEquals(const scope typeof(this) that) const @safe pure nothrow @nogc
+        @property final bool opEquals(const scope typeof(this) that) const @safe pure nothrow @nogc
         {
             if (typeid(this) !is typeid(that)) { return false; }
             return data == (cast(typeof(this))(that)).data;
@@ -61,6 +61,10 @@ version(unittest)
         this(Data data)
         {
             super(data);
+        }
+        @property override hash_t toHash() const @safe pure nothrow @nogc
+        {
+            return hashOf(data);
         }
     }
 

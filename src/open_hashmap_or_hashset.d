@@ -60,9 +60,10 @@ if (is(T == class))
         }
         int x;
     }
-    C x = new C(11);
-    C y = new C(12);
-    assert(opEqualsDerived(x, y));
+    assert(opEqualsDerived(new C(42),
+                           new C(42)));
+    assert(!opEqualsDerived(new C(42),
+                            new C(43)));
 }
 
 /** Is `true` iff `T` has a specific value dedicate for holes (removed/erase)

@@ -16,7 +16,7 @@ private template isAddress(T)
 }
 
 /** Returns `true` iff `lhs` and `rhs` are equal. */
-bool opEqualsNext(T)(T lhs, T rhs)
+bool opEqualsDerived(T)(T lhs, T rhs)
 if (is(T == class))
 {
     // If aliased to the same object or both null => equal
@@ -39,11 +39,11 @@ if (is(T == class))
     return lhs.opEquals(rhs) && rhs.opEquals(lhs);
 }
 /// ditto
-bool opEqualsNext(T)(const T lhs, const T rhs)
+bool opEqualsDerived(T)(const T lhs, const T rhs)
 if (is(T == class))
 {
     // A hack for the moment.
-    return opEqualsNext(cast()lhs, cast()rhs);
+    return opEqualsDerived(cast()lhs, cast()rhs);
 }
 
 

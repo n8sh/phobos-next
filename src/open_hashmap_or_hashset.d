@@ -65,10 +65,8 @@ if (is(T == class))
         }
         int x;
     }
-    assert(opEqualsDerived(new C(42),
-                           new C(42)));
-    assert(!opEqualsDerived(new C(42),
-                            new C(43)));
+    assert( opEqualsDerived(new C(42), new C(42)));
+    assert(!opEqualsDerived(new C(42), new C(43)));
 }
 
 /** Is `true` iff `T` has a specific value dedicate for holes (removed/erase)

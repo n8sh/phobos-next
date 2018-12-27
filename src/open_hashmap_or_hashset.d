@@ -15,7 +15,7 @@ private template isAddress(T)
                       isPointer!T);     // just a pointer, consistent with opCmp
 }
 
-/************************
+/**
  * Returns true if lhs and rhs are equal.
  */
 bool opEqualsNext(T)(T lhs, T rhs)

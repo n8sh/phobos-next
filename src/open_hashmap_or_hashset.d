@@ -20,7 +20,7 @@ private template isAddress(T)
  * Opposite to druntime version, implementation is parameterized on object type
  * `T` enabling correct propagation of function qualifiers of `lhs.opEquals(rhs)`.
  */
-bool opEqualsDerived(T)(T lhs, T rhs)
+bool opEqualsDerived(T)(const T lhs, const T rhs)
 if (is(T == class))
 {
     // If aliased to the same object or both null => equal
@@ -42,14 +42,6 @@ if (is(T == class))
     // General case => symmetric calls to method opEquals
     return lhs.opEquals(rhs) && rhs.opEquals(lhs);
 }
-/// ditto
-bool opEqualsDerived(T)(const T lhs, const T rhs)
-if (is(T == class))
-{
-    // A hack for the moment.
-    return opEqualsDerived(cast()lhs, cast()rhs);
-}
-
 
 /** Is `true` iff `T` has a specific value dedicate for holes (removed/erase)
  * values.

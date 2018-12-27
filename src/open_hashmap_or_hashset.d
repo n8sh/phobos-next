@@ -69,8 +69,8 @@ if (is(T == class))
     assert(!opEqualsDerived(new C(42), new C(43)));
 }
 
-/** Is `true` iff `T` has a specific value dedicate for holes (removed/erase)
- * values.
+/** Is `true` iff `T` has a specific value dedicated to representing holes
+ * (removed/erase) values.
  */
 enum isHoleable(T) = (__traits(hasMember, T, "isHole") &&
                       __traits(hasMember, T, "holeify") &&

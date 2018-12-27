@@ -44,7 +44,8 @@ if (is(T == class))
     return lhs.opEquals(rhs) && rhs.opEquals(lhs);
 }
 
-@safe pure unittest
+///
+@safe pure nothrow unittest
 {
     class C
     {

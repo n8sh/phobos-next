@@ -30,8 +30,9 @@ if (is(T == class))
     if (lhs is null || rhs is null) return false;
 
     // If same exact type => one call to method opEquals
-    if (typeid(lhs) is typeid(rhs) ||
-        !__ctfe && typeid(lhs).opEquals(typeid(rhs)))
+    if (typeid(lhs) is typeid(rhs)//  ||
+        // !__ctfe && typeid(lhs).opEquals(typeid(rhs))
+        )
         /* CTFE doesn't like typeid much. 'is' works, but opEquals doesn't
            (issue 7147). But CTFE also guarantees that equal TypeInfos are
            always identical. So, no opEquals needed during CTFE. */
@@ -41,6 +42,26 @@ if (is(T == class))
 
     // General case => symmetric calls to method opEquals
     return lhs.opEquals(rhs) && rhs.opEquals(lhs);
+}
+
+@safe pure unittest
+{
+    class C
+    {
+        @safe pure nothrow @nogc:
+        this(int x)
+        {
+            this.x = x;
+        }
+        @property bool opEquals(const scope typeof(this) rhs) const
+        {
+            return x == rhs.x;
+        }
+        int x;
+    }
+    C x = new C(11);
+    C y = new C(12);
+    assert(opEqualsDerived(x, y));
 }
 
 /** Is `true` iff `T` has a specific value dedicate for holes (removed/erase)

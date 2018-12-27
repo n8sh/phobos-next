@@ -15,6 +15,40 @@ private template isAddress(T)
                       isPointer!T);     // just a pointer, consistent with opCmp
 }
 
+bool opEqualsNext(T)(T lhs, T rhs)
+if (is(T == class))
+{
+    // If aliased to the same object or both null => equal
+    if (lhs is rhs) return true;
+
+    // If either is null => non-equal
+    if (lhs is null || rhs is null) return false;
+
+    // If same exact type => one call to method opEquals
+    if (typeid(lhs) is typeid(rhs) ||
+        !__ctfe && typeid(lhs).opEquals(typeid(rhs)))
+        /* CTFE doesn't like typeid much. 'is' works, but opEquals doesn't
+           (issue 7147). But CTFE also guarantees that equal TypeInfos are
+           always identical. So, no opEquals needed during CTFE. */
+    {
+        return lhs.opEquals(rhs);
+    }
+
+    // General case => symmetric calls to method opEquals
+    return lhs.opEquals(rhs) && rhs.opEquals(lhs);
+}
+
+/************************
+ * Returns true if lhs and rhs are equal.
+ */
+bool opEqualsNext(T)(const T lhs, const T rhs)
+if (is(T == class))
+{
+    // A hack for the moment.
+    return opEqualsNext(cast()lhs, cast()rhs);
+}
+
+
 /** Is `true` iff `T` has a specific value dedicate for holes (removed/erase)
  * values.
  */

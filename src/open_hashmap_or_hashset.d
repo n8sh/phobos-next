@@ -87,6 +87,7 @@ enum isHoleable(T) = (__traits(hasMember, T, "isHole") &&
  */
 struct OpenHashMapOrSet(K, V = void,
                         alias hasher = hashOf,
+                        alias equalPred = "a == b",
                         alias Allocator = Mallocator.instance,
                         bool borrowChecked = false)
     if (isNullable!K
@@ -1867,15 +1868,17 @@ static private struct RvalueElementRef(Table)
  */
 alias OpenHashSet(K,
                   alias hasher = hashOf,
+                  alias equalPred = "a == b",
                   alias Allocator = Mallocator.instance,
-                  bool borrowChecked = false) = OpenHashMapOrSet!(K, void, hasher, Allocator, borrowChecked);
+                  bool borrowChecked = false) = OpenHashMapOrSet!(K, void, hasher, equalPred, Allocator, borrowChecked);
 
 /** Immutable hash map storing keys of type `K` and values of type `V`.
  */
 alias OpenHashMap(K, V,
                   alias hasher = hashOf,
+                  alias equalPred = "a == b",
                   alias Allocator = Mallocator.instance,
-                  bool borrowChecked = false) = OpenHashMapOrSet!(K, V, hasher, Allocator, borrowChecked);
+                  bool borrowChecked = false) = OpenHashMapOrSet!(K, V, hasher, equalPred, Allocator, borrowChecked);
 
 import std.traits : isInstanceOf;
 import std.functional : unaryFun;
@@ -2600,6 +2603,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashSet!(K,
                            FNV!(64, true),
+                           "a == b",
                            Mallocator.instance,
                            true);
 

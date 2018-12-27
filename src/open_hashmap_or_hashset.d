@@ -31,19 +31,22 @@ if (is(T == class))
 
     return lhs.opEquals(rhs);
 
-    // // If same exact type => one call to method opEquals
-    // if (typeid(lhs) is typeid(rhs)//  ||
-    //     // TODO !__ctfe && typeid(lhs).opEquals(typeid(rhs))
-    //     )
-    //     /* CTFE doesn't like typeid much. 'is' works, but opEquals doesn't
-    //        (issue 7147). But CTFE also guarantees that equal TypeInfos are
-    //        always identical. So, no opEquals needed during CTFE. */
-    // {
-    //     return lhs.opEquals(rhs);
-    // }
+    version(none)
+    {
+        // If same exact type => one call to method opEquals
+        if (typeid(lhs) is typeid(rhs)//  ||
+            // TODO !__ctfe && typeid(lhs).opEquals(typeid(rhs))
+            )
+            /* CTFE doesn't like typeid much. 'is' works, but opEquals doesn't
+               (issue 7147). But CTFE also guarantees that equal TypeInfos are
+               always identical. So, no opEquals needed during CTFE. */
+        {
+            return lhs.opEquals(rhs);
+        }
 
-    // // General case => symmetric calls to method opEquals
-    // return lhs.opEquals(rhs) && rhs.opEquals(lhs);
+        // General case => symmetric calls to method opEquals
+        return lhs.opEquals(rhs) && rhs.opEquals(lhs);
+    }
 }
 
 ///

@@ -15,7 +15,11 @@ private template isAddress(T)
                       isPointer!T);     // just a pointer, consistent with opCmp
 }
 
-/** Returns `true` iff `lhs` and `rhs` are equal. */
+/** Returns `true` iff `lhs` and `rhs` are equal.
+ *
+ * Opposite to druntime version, implementation is parameterized on object type
+ * `T` enabling correct propagation of function qualifiers of `lhs.opEquals(rhs)`.
+ */
 bool opEqualsDerived(T)(T lhs, T rhs)
 if (is(T == class))
 {

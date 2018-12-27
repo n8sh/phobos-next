@@ -15,6 +15,9 @@ private template isAddress(T)
                       isPointer!T);     // just a pointer, consistent with opCmp
 }
 
+/************************
+ * Returns true if lhs and rhs are equal.
+ */
 bool opEqualsNext(T)(T lhs, T rhs)
 if (is(T == class))
 {
@@ -37,10 +40,7 @@ if (is(T == class))
     // General case => symmetric calls to method opEquals
     return lhs.opEquals(rhs) && rhs.opEquals(lhs);
 }
-
-/************************
- * Returns true if lhs and rhs are equal.
- */
+/// ditto
 bool opEqualsNext(T)(const T lhs, const T rhs)
 if (is(T == class))
 {
@@ -56,7 +56,7 @@ enum isHoleable(T) = (__traits(hasMember, T, "isHole") &&
                       __traits(hasMember, T, "holeify") &&
                       __traits(hasMember, T, "holeValue"));
 
-template defaultKeyEqualPredOf(T)
+private template defaultKeyEqualPredOf(T)
 {
     import std.traits : isArray, isCopyable;
     static if (isArray!T)

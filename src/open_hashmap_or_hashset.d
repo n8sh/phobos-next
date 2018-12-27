@@ -22,6 +22,30 @@ enum isHoleable(T) = (__traits(hasMember, T, "isHole") &&
                       __traits(hasMember, T, "holeify") &&
                       __traits(hasMember, T, "holeValue"));
 
+template defaultKeyEqualPredOf(T)
+{
+    import std.traits : isArray, isCopyable;
+    static if (isArray!T)
+    {
+        // compare arrays by elements only, regardless of location
+        enum defaultKeyEqualPredOf = "a == b";
+        /* alias defaultKeyEqualPredOf = (const scope a, */
+        /*                       const scope b) => a == b; */
+    }
+    else static if (isCopyable!T)
+    {
+        enum defaultKeyEqualPredOf = "a is b";
+        /* alias defaultKeyEqualPredOf = (const scope a, */
+        /*                       const scope b) => a is b; */
+    }
+    else
+    {
+        enum defaultKeyEqualPredOf = "a is b";
+        /* alias defaultKeyEqualPredOf = (const scope ref a, */
+        /*                       const scope ref b) => a is b; */
+    }
+}
+
 @safe:
 
 /** Hash table/map (or set) with open-addressing, storing (key) elements of type
@@ -87,7 +111,7 @@ enum isHoleable(T) = (__traits(hasMember, T, "isHole") &&
  */
 struct OpenHashMapOrSet(K, V = void,
                         alias hasher = hashOf,
-                        alias equalPred = "a == b",
+                        string keyEqualPred = defaultKeyEqualPredOf!(K),
                         alias Allocator = Mallocator.instance,
                         bool borrowChecked = false)
     if (isNullable!K
@@ -100,7 +124,7 @@ struct OpenHashMapOrSet(K, V = void,
     import std.conv : emplace;
     import std.math : nextPow2;
     import std.traits : hasElaborateDestructor, isCopyable, hasIndirections,
-        isArray, isDynamicArray, isStaticArray, Unqual, hasFunctionAttributes, isMutable, TemplateArgsOf;
+        isDynamicArray, isStaticArray, Unqual, hasFunctionAttributes, isMutable, TemplateArgsOf;
     import std.typecons : Nullable;
 
     import container_traits : defaultNullKeyConstantOf, mustAddGCRange, isNull, nullify;
@@ -284,26 +308,6 @@ struct OpenHashMapOrSet(K, V = void,
         }
 
         enum nullKeyElement = defaultNullKeyConstantOf!K;
-    }
-
-    static if (isArray!K)
-    {
-        // compare arrays by elements only, regardless of location
-        enum keyEqualPred = "a == b";
-        /* alias keyEqualPred = (const scope a, */
-        /*                       const scope b) => a == b; */
-    }
-    else static if (isCopyable!K)
-    {
-        enum keyEqualPred = "a is b";
-        /* alias keyEqualPred = (const scope a, */
-        /*                       const scope b) => a is b; */
-    }
-    else
-    {
-        enum keyEqualPred = "a is b";
-        /* alias keyEqualPred = (const scope ref a, */
-        /*                       const scope ref b) => a is b; */
     }
 
     /** Is `true` if an instance of `SomeKey` that can be implictly cast to `K`.

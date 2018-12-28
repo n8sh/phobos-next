@@ -3531,7 +3531,7 @@ version(unittest)
 
     debug static assert(is(Node : Zing));
 
-    alias X = OpenHashSet!(Zing, hashOf, "a && b && (typeid(a) == typeid(b)) == a.opEquals(b)");
+    alias X = OpenHashSet!(Zing, hashOf, "a && b && (typeid(a) is typeid(b)) == a.opEquals(b)");
     debug static assert(X.sizeof == 24);
     X x;
 

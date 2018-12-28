@@ -3542,9 +3542,10 @@ version(unittest)
 
     // sub-class
     auto n = new Node(42);
-    assert(!x.contains(n));
-    assert(!x.containsUsingLinearSearch(n));
-    assert(x.insert(n) == X.InsertionStatus.added);
+    assert(hashOf(z) != hashOf(n));
+    assert(!x.contains(n));     // mustn't equal to `z`
+    assert(!x.containsUsingLinearSearch(n)); // mustn't equal to `z`
+    assert(x.insert(n) == X.InsertionStatus.added); // added as separate type
     assert(x.contains(n));
     assert(x.containsUsingLinearSearch(n));
 }

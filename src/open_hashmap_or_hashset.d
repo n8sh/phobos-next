@@ -3514,6 +3514,10 @@ version(unittest)
     {
         @safe pure nothrow @nogc:
         this(ulong value) { this._value = value; }
+        @property bool opEquals(const scope typeof(this) rhs) const
+        {
+            return _value == rhs._value;
+        }
         private ulong _value;
     }
     debug static assert(isNullable!Zing);
@@ -3527,7 +3531,7 @@ version(unittest)
 
     debug static assert(is(Node : Zing));
 
-    alias X = OpenHashSet!(Zing);
+    alias X = OpenHashSet!(Zing, hashOf, "a is b");
     debug static assert(X.sizeof == 24);
     X x;
 

@@ -3556,6 +3556,16 @@ version(unittest)
     assert(x.containsUsingLinearSearch(n42));
 
     assert(hashOf(b42) != hashOf(n42));
+
+    // sub-class
+    auto n43 = new Node(43);
+    assert(!x.contains(n43));     // mustn't equal to `b43`
+    assert(!x.containsUsingLinearSearch(n43)); // mustn't equal to `b43`
+    assert(x.insert(n43) == X.InsertionStatus.added); // added as separate type
+    assert(x.contains(n43));
+    assert(x.containsUsingLinearSearch(n43));
+
+    assert(hashOf(b43) != hashOf(n43));
 }
 
 /// enumeration key

@@ -3187,8 +3187,7 @@ version(unittest)
         @property void toString(scope void delegate(const(char)[]) sink) const
         {
             import std.format : formattedWrite;
-            sink.formattedWrite(typeof(this).stringof,
-                                "(%s)", _value);
+            sink.formattedWrite(typeof(this).stringof, "(%s)", _value);
         }
 
         @property bool opEquals(const scope typeof(this) rhs) const

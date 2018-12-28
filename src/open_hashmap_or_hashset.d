@@ -101,19 +101,19 @@ if (is(T == class))
     class C
     {
         @safe pure nothrow @nogc:
-        this(int x) { this.x = x; }
-
+        this(int x)
+        {
+            this.x = x;
+        }
         @property bool opEquals(const scope typeof(this) rhs) const
         {
             return x == rhs.x;
         }
-
         @property override bool opEquals(const scope Object rhs) const @trusted
         {
             C rhs_ = cast(C)rhs;
             return rhs_ && x == rhs_.x;
         }
-
         int x;
     }
     assert( opEqualsDerived(new C(42), new C(42)));

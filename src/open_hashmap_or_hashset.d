@@ -206,6 +206,9 @@ struct OpenHashMapOrSet(K, V = void,
     import qcmeman : gc_addRange, gc_removeRange;
     import probing : triangularProbeFromIndex, triangularProbeFromIndexIncludingHoles, triangularProbeCountFromIndex;
 
+    import std.functional : binaryFun;
+    alias keyEqualPredFn = binaryFun!keyEqualPred;
+
     enum isBorrowChecked = borrowChecked;
 
     /** In the hash map case, `V` is non-void, and a value is stored alongside
@@ -1465,29 +1468,13 @@ struct OpenHashMapOrSet(K, V = void,
                 /* don't use `auto ref` for copyable `T`'s to prevent
                  * massive performance drop for small elements when compiled
                  * with LDC. TODO remove when LDC is fixed. */
-                static if (isDynamicArray!K)
-                {
-                    alias pred = (const scope element) => (keyOf(element) ==
-                                                           keyOf(currentElement));
-                }
-                else
-                {
-                    alias pred = (const scope element) => (keyOf(element) is
-                                                           keyOf(currentElement));
-                }
+                alias pred = (const scope element) => (keyEqualPredFn(keyOf(element),
+                                                                      keyOf(currentElement)));
             }
             else
             {
-                static if (isDynamicArray!K)
-                {
-                    alias pred = (const scope auto ref element) => (keyOf(element) ==
-                                                                    keyOf(currentElement));
-                }
-                else
-                {
-                    alias pred = (const scope auto ref element) => (keyOf(element) is
-                                                                    keyOf(currentElement));
-                }
+                alias pred = (const scope auto ref element) => (keyEqualPredFn(keyOf(element),
+                                                                               keyOf(currentElement)));
             }
             totalCount += triangularProbeCountFromIndex!pred(_bins[], keyToIndex(keyOf(currentElement)));
         }
@@ -1640,46 +1627,30 @@ private:
              * with LDC. TODO remove when LDC is fixed. */
             static if (hasHoleableKey)
             {
-                static if (isDynamicArray!K)
-                {
-                    alias pred = (const scope element) => (keyOf(element).isNull ||
-                                                           keyOf(element) == key);
-                }
-                else
-                {
-                    alias pred = (const scope element) => (keyOf(element).isNull ||
-                                                           keyOf(element) is key);
-                }
+                alias pred = (const scope element) => (keyOf(element).isNull ||
+                                                       keyEqualPredFn(keyOf(element), key));
             }
             else
             {
                 alias pred = (const scope index,
                               const scope element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
                                                        (keyOf(element).isNull ||
-                                                        keyOf(element) == key));
+                                                        keyEqualPredFn(keyOf(element), key)));
             }
         }
         else
         {
             static if (hasHoleableKey)
             {
-                static if (isDynamicArray!K)
-                {
-                    alias pred = (const scope auto ref element) => (keyOf(element).isNull ||
-                                                                    keyOf(element) == key);
-                }
-                else
-                {
-                    alias pred = (const scope auto ref element) => (keyOf(element).isNull ||
-                                                                    keyOf(element) is key);
-                }
+                alias pred = (const scope auto ref element) => (keyOf(element).isNull ||
+                                                                keyEqualPredFn(keyOf(element), key));
             }
             else
             {
                 alias pred = (const scope index,
                               const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
                                                                 (keyOf(element).isNull ||
-                                                                 keyOf(element) == key));
+                                                                 keyEqualPredFn(keyOf(element), key)));
             }
         }
         return _bins[].triangularProbeFromIndex!(pred)(keyToIndex(key));
@@ -1705,16 +1676,8 @@ private:
              * with LDC. TODO remove when LDC is fixed. */
             static if (hasHoleableKey)
             {
-                static if (isDynamicArray!K)
-                {
-                    alias hitPred = (const scope element) => (keyOf(element).isNull ||
-                                                              keyOf(element) == key);
-                }
-                else
-                {
-                    alias hitPred = (const scope element) => (keyOf(element).isNull ||
-                                                              keyOf(element) is key);
-                }
+                alias hitPred = (const scope element) => (keyOf(element).isNull ||
+                                                          keyEqualPredFn(keyOf(element), key));
                 alias holePred = (const scope element) => (isHoleKeyConstant(keyOf(element)));
             }
             else
@@ -1722,7 +1685,7 @@ private:
                 alias hitPred = (const scope index,
                                  const scope element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
                                                           (keyOf(element).isNull ||
-                                                           keyOf(element) == key));
+                                                           keyEqualPredFn(keyOf(element), key)));
                 alias holePred = (const scope index, // TODO use only index
                                   const scope element) => (hasHoleAtPtrIndex(_holesPtr, index));
             }
@@ -1731,16 +1694,8 @@ private:
         {
             static if (hasHoleableKey)
             {
-                static if (isDynamicArray!K)
-                {
-                    alias hitPred = (const scope auto ref element) => (keyOf(element).isNull ||
-                                                                       keyOf(element) == key);
-                }
-                else
-                {
-                    alias hitPred = (const scope auto ref element) => (keyOf(element).isNull ||
-                                                                       keyOf(element) is key);
-                }
+                alias hitPred = (const scope auto ref element) => (keyOf(element).isNull ||
+                                                                   keyEqualPredFn(keyOf(element), key));
                 alias holePred = (const scope auto ref element) => (isHoleKeyConstant(keyOf(element)));
             }
             else
@@ -1748,7 +1703,7 @@ private:
                 alias hitPred = (const scope index,
                                  const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
                                                                    (keyOf(element).isNull ||
-                                                                    keyOf(element) == key));
+                                                                    keyEqualPredFn(keyOf(element), key)));
                 alias holePred = (const scope index, // TODO use only index
                                   const scope auto ref element) => (hasHoleAtPtrIndex(_holesPtr, index));
             }

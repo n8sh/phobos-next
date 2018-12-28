@@ -623,7 +623,7 @@ struct StaticBitArray(uint bitCount, Block = size_t)
     }
 
     /** Support for hashing for $(D StaticBitArray). */
-    extern(D) size_t toHash() const @trusted pure nothrow
+    extern(D) hash_t toHash() const @trusted pure nothrow
     {
         size_t hash = 3557;
         auto n  = bitCount / 8;

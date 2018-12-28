@@ -274,7 +274,7 @@ private:
     }
     // </layout>
 
-    size_t toHash() const @trusted
+    hash_t toHash() const @trusted
     {
         import core.internal.hash : hashOf;
         return this.asSlice.hashOf;

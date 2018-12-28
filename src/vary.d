@@ -476,10 +476,10 @@ public:
         }
     }
 
-    extern (D) size_t toHash() const @trusted pure nothrow
+    extern (D) hash_t toHash() const @trusted pure nothrow
     {
         import core.internal.hash : hashOf;
-        const size_t hash = _tix.hashOf;
+        const typeof(return) hash = _tix.hashOf;
         if (hasValue)
         {
             final switch (typeIndex)

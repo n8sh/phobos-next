@@ -15,6 +15,52 @@ private template isAddress(T)
                       isPointer!T);     // just a pointer, consistent with opCmp
 }
 
+/** Is `true` iff `T` has a specific value dedicated to representing holes
+ * (removed/erase) values.
+ */
+enum isHoleable(T) = (__traits(hasMember, T, "isHole") &&
+                      __traits(hasMember, T, "holeify") &&
+                      __traits(hasMember, T, "holeValue"));
+
+private template defaultKeyEqualPredOf(T)
+{
+    static if (is(T == class))
+    {
+        static assert(__traits(hasMember, T, "opEquals"),
+                      "Type" ~ T.stringof ~ " doesn't have local opEquals() defined");
+        // enum defaultKeyEqualPredOf = "a && b && a.opEquals(b)";
+        enum defaultKeyEqualPredOf = "a is b";
+        // (const T a, const T b) => ((a !is null) && (b !is null) && a.opEquals(b));
+    }
+    else
+    {
+        enum defaultKeyEqualPredOf = "a == b";
+    }
+    version(none)
+    {
+        import std.traits : isArray, isCopyable;
+        static if (isArray!T)
+        {
+            // compare arrays by elements only, regardless of location
+            enum defaultKeyEqualPredOf = "a == b";
+            /* alias defaultKeyEqualPredOf = (const scope a, */
+            /*                       const scope b) => a == b; */
+        }
+        else static if (isCopyable!T)
+        {
+            enum defaultKeyEqualPredOf = "a is b";
+            /* alias defaultKeyEqualPredOf = (const scope a, */
+            /*                       const scope b) => a is b; */
+        }
+        else
+        {
+            enum defaultKeyEqualPredOf = "a is b";
+            /* alias defaultKeyEqualPredOf = (const scope ref a, */
+            /*                       const scope ref b) => a is b; */
+        }
+    }
+}
+
 /** Returns `true` iff `lhs` and `rhs` are equal.
  *
  * Opposite to druntime version, implementation is parameterized on object type
@@ -76,52 +122,6 @@ if (is(T == class))
     assert( opEqualsDerived(new C(42), new C(42)));
     assert(!opEqualsDerived(new C(42), new C(43)));
     static assert(__traits(hasMember, C, "opEquals"));
-}
-
-/** Is `true` iff `T` has a specific value dedicated to representing holes
- * (removed/erase) values.
- */
-enum isHoleable(T) = (__traits(hasMember, T, "isHole") &&
-                      __traits(hasMember, T, "holeify") &&
-                      __traits(hasMember, T, "holeValue"));
-
-private template defaultKeyEqualPredOf(T)
-{
-    static if (is(T == class))
-    {
-        static assert(__traits(hasMember, T, "opEquals"),
-                      "Type" ~ T.stringof ~ " doesn't have local opEquals() defined");
-        // enum defaultKeyEqualPredOf = "a && b && a.opEquals(b)";
-        enum defaultKeyEqualPredOf = "a is b";
-        // (const T a, const T b) => ((a !is null) && (b !is null) && a.opEquals(b));
-    }
-    else
-    {
-        enum defaultKeyEqualPredOf = "a == b";
-    }
-    version(none)
-    {
-        import std.traits : isArray, isCopyable;
-        static if (isArray!T)
-        {
-            // compare arrays by elements only, regardless of location
-            enum defaultKeyEqualPredOf = "a == b";
-            /* alias defaultKeyEqualPredOf = (const scope a, */
-            /*                       const scope b) => a == b; */
-        }
-        else static if (isCopyable!T)
-        {
-            enum defaultKeyEqualPredOf = "a is b";
-            /* alias defaultKeyEqualPredOf = (const scope a, */
-            /*                       const scope b) => a is b; */
-        }
-        else
-        {
-            enum defaultKeyEqualPredOf = "a is b";
-            /* alias defaultKeyEqualPredOf = (const scope ref a, */
-            /*                       const scope ref b) => a is b; */
-        }
-    }
 }
 
 @safe:

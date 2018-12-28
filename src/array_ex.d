@@ -439,7 +439,7 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
     }
 
     /// Calculate D associative array (AA) key hash.
-    size_t toHash() const     // cannot currently be template-lazy
+    hash_t toHash() const     // cannot currently be template-lazy
         nothrow @trusted
     {
         pragma(msg, "WARNING: using toHash() when we should use toDigest instead");

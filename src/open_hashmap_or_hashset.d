@@ -3527,7 +3527,7 @@ version(unittest)
     }
     debug static assert(is(Node : Base));
 
-    alias X = OpenHashSet!(Base, hashOf, "a && b && (typeid(a) is typeid(b)) == a.opEquals(b)");
+    alias X = OpenHashSet!(Base, hashOf, "a && b && (typeid(a) is typeid(b)) && a.opEquals(b)");
     debug static assert(X.sizeof == 24);
     X x;
 
@@ -3550,7 +3550,7 @@ version(unittest)
     // sub-class
     auto n42 = new Node(42);
     assert(!x.contains(n42));     // mustn't equal to `b42`
-    // TODO assert(!x.containsUsingLinearSearch(n42)); // mustn't equal to `b42`
+    assert(!x.containsUsingLinearSearch(n42)); // mustn't equal to `b42`
     assert(x.insert(n42) == X.InsertionStatus.added); // added as separate type
     assert(x.contains(n42));
     assert(x.containsUsingLinearSearch(n42));

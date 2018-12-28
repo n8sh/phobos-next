@@ -3531,7 +3531,7 @@ version(unittest)
 
     debug static assert(is(Node : Zing));
 
-    alias X = OpenHashSet!(Zing, hashOf, "a && b && a.opEquals(b)");
+    alias X = OpenHashSet!(Zing, hashOf, "a && b && (typeid(a) == typeid(b)) == a.opEquals(b)");
     debug static assert(X.sizeof == 24);
     X x;
 
@@ -3546,7 +3546,7 @@ version(unittest)
     // sub-class
     auto n = new Node(42);
     assert(!x.contains(n));
-    // assert(!x.containsUsingLinearSearch(n));
+    assert(!x.containsUsingLinearSearch(n));
     assert(x.insert(n) == X.InsertionStatus.added);
     assert(x.contains(n));
     assert(x.containsUsingLinearSearch(n));

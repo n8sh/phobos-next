@@ -92,7 +92,7 @@ struct SSOString
 
     /** Get hash of `this`, with extra fast computation for the small case.
      */
-    @property size_t toHash() const @trusted
+    @property hash_t toHash() const @trusted
     {
         version(LDC) pragma(inline, true);
         if (!isLarge)

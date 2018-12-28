@@ -850,7 +850,7 @@ struct OpenHashMapOrSet(K, V = void,
             {
                 import std.functional : binaryFun;
                 alias pred = binaryFun!keyEqualPred;
-                if (pred(bin, key))
+                if (pred(key, bin))
                 {
                     return true;
                 }

@@ -59,10 +59,18 @@ if (is(T == class))
         {
             this.x = x;
         }
+
         @property bool opEquals(const scope typeof(this) rhs) const
         {
             return x == rhs.x;
         }
+
+        @property override bool opEquals(const scope Object rhs) const @trusted
+        {
+            C rhs_ = cast(C)rhs;
+            return rhs_ && x == rhs_.x;
+        }
+
         int x;
     }
     assert( opEqualsDerived(new C(42), new C(42)));
@@ -78,25 +86,39 @@ enum isHoleable(T) = (__traits(hasMember, T, "isHole") &&
 
 private template defaultKeyEqualPredOf(T)
 {
-    import std.traits : isArray, isCopyable;
-    static if (isArray!T)
+    static if (is(T == class))
     {
-        // compare arrays by elements only, regardless of location
-        enum defaultKeyEqualPredOf = "a == b";
-        /* alias defaultKeyEqualPredOf = (const scope a, */
-        /*                       const scope b) => a == b; */
-    }
-    else static if (isCopyable!T)
-    {
-        enum defaultKeyEqualPredOf = "a is b";
-        /* alias defaultKeyEqualPredOf = (const scope a, */
-        /*                       const scope b) => a is b; */
+        alias defaultKeyEqualPredOf = (const T a, const T b) => ((a !is null) &&
+                                                                 (b !is null) &&
+                                                                 a.opEquals(b));
     }
     else
     {
-        enum defaultKeyEqualPredOf = "a is b";
-        /* alias defaultKeyEqualPredOf = (const scope ref a, */
-        /*                       const scope ref b) => a is b; */
+        import std.functional : binaryFun;
+        alias defaultKeyEqualPredOf = (a, b) => a == b;
+    }
+    version(none)
+    {
+        import std.traits : isArray, isCopyable;
+        static if (isArray!T)
+        {
+            // compare arrays by elements only, regardless of location
+            enum defaultKeyEqualPredOf = "a == b";
+            /* alias defaultKeyEqualPredOf = (const scope a, */
+            /*                       const scope b) => a == b; */
+        }
+        else static if (isCopyable!T)
+        {
+            enum defaultKeyEqualPredOf = "a is b";
+            /* alias defaultKeyEqualPredOf = (const scope a, */
+            /*                       const scope b) => a is b; */
+        }
+        else
+        {
+            enum defaultKeyEqualPredOf = "a is b";
+            /* alias defaultKeyEqualPredOf = (const scope ref a, */
+            /*                       const scope ref b) => a is b; */
+        }
     }
 }
 
@@ -165,7 +187,7 @@ private template defaultKeyEqualPredOf(T)
  */
 struct OpenHashMapOrSet(K, V = void,
                         alias hasher = hashOf,
-                        string keyEqualPred = defaultKeyEqualPredOf!(K),
+                        alias keyEqualPred = defaultKeyEqualPredOf!(K),
                         alias Allocator = Mallocator.instance,
                         bool borrowChecked = false)
     if (isNullable!K
@@ -825,7 +847,17 @@ struct OpenHashMapOrSet(K, V = void,
         else
         {
             // TODO optimize using sentinel being `key` after end of `_bins`
-            return _bins.canFind!keyEqualPred(key);
+            foreach (const ref bin; _bins)
+            {
+                import std.functional : binaryFun;
+                alias pred = binaryFun!keyEqualPred;
+                if (pred(bin, key))
+                {
+                    return true;
+                }
+            }
+            return false;
+            // return _bins.canFind!keyEqualPred(key);
         }
     }
 

@@ -3533,22 +3533,22 @@ version(unittest)
     X x;
 
     // top-class
-    auto z = new Base(42);
-    assert(!x.contains(z));
-    assert(!x.containsUsingLinearSearch(z));
-    assert(x.insert(z) == X.InsertionStatus.added);
-    assert(x.contains(z));
-    assert(x.containsUsingLinearSearch(z));
+    auto b = new Base(42);
+    assert(!x.contains(b));
+    assert(!x.containsUsingLinearSearch(b));
+    assert(x.insert(b) == X.InsertionStatus.added);
+    assert(x.contains(b));
+    assert(x.containsUsingLinearSearch(b));
 
     // sub-class
     auto n = new Node(42);
-    assert(!x.contains(n));     // mustn't equal to `z`
-    assert(!x.containsUsingLinearSearch(n)); // mustn't equal to `z`
+    assert(!x.contains(n));     // mustn't equal to `b`
+    assert(!x.containsUsingLinearSearch(n)); // mustn't equal to `b`
     assert(x.insert(n) == X.InsertionStatus.added); // added as separate type
     assert(x.contains(n));
     assert(x.containsUsingLinearSearch(n));
 
-    assert(hashOf(z) != hashOf(n));
+    assert(hashOf(b) != hashOf(n));
 }
 
 /// enumeration key

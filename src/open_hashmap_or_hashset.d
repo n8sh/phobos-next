@@ -3510,7 +3510,7 @@ version(unittest)
 /// class type with default hashing
 @safe unittest
 {
-    static class Zing
+    static class Base
     {
         @safe pure nothrow @nogc:
         this(ulong value) { this._value = value; }
@@ -3520,23 +3520,23 @@ version(unittest)
         }
         private ulong _value;
     }
-    debug static assert(isNullable!Zing);
+    debug static assert(isNullable!Base);
 
-    static class Node : Zing
+    static class Node : Base
     {
         @safe pure nothrow @nogc:
         this(ulong value) { super(value);  }
     }
     debug static assert(isNullable!Node);
 
-    debug static assert(is(Node : Zing));
+    debug static assert(is(Node : Base));
 
-    alias X = OpenHashSet!(Zing, hashOf, "a && b && (typeid(a) is typeid(b)) == a.opEquals(b)");
+    alias X = OpenHashSet!(Base, hashOf, "a && b && (typeid(a) is typeid(b)) == a.opEquals(b)");
     debug static assert(X.sizeof == 24);
     X x;
 
     // top-class
-    auto z = new Zing(42);
+    auto z = new Base(42);
     assert(!x.contains(z));
     assert(!x.containsUsingLinearSearch(z));
     assert(x.insert(z) == X.InsertionStatus.added);

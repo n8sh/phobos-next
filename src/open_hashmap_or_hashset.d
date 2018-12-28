@@ -2692,7 +2692,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashSet!(K,
                            FNV!(64, true),
-                           "a == b",
+                           defaultKeyEqualPredOf!K,
                            Mallocator.instance,
                            true);
 

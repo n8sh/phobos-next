@@ -1957,17 +1957,17 @@ static private struct RvalueElementRef(Table)
  */
 alias OpenHashSet(K,
                   alias hasher = hashOf,
-                  alias equalPred = "a == b",
+                  string keyEqualPred = defaultKeyEqualPredOf!K,
                   alias Allocator = Mallocator.instance,
-                  bool borrowChecked = false) = OpenHashMapOrSet!(K, void, hasher, equalPred, Allocator, borrowChecked);
+                  bool borrowChecked = false) = OpenHashMapOrSet!(K, void, hasher, keyEqualPred, Allocator, borrowChecked);
 
 /** Immutable hash map storing keys of type `K` and values of type `V`.
  */
 alias OpenHashMap(K, V,
                   alias hasher = hashOf,
-                  alias equalPred = "a == b",
+                  string keyEqualPred = defaultKeyEqualPredOf!K,
                   alias Allocator = Mallocator.instance,
-                  bool borrowChecked = false) = OpenHashMapOrSet!(K, V, hasher, equalPred, Allocator, borrowChecked);
+                  bool borrowChecked = false) = OpenHashMapOrSet!(K, V, hasher, keyEqualPred, Allocator, borrowChecked);
 
 import std.traits : isInstanceOf;
 import std.functional : unaryFun;

@@ -75,6 +75,7 @@ if (is(T == class))
     }
     assert( opEqualsDerived(new C(42), new C(42)));
     assert(!opEqualsDerived(new C(42), new C(43)));
+    static assert(__traits(hasMember, C, "opEquals"));
 }
 
 /** Is `true` iff `T` has a specific value dedicated to representing holes
@@ -88,13 +89,14 @@ private template defaultKeyEqualPredOf(T)
 {
     static if (is(T == class))
     {
-        alias defaultKeyEqualPredOf = (const T a, const T b) => ((a !is null) &&
-                                                                 (b !is null) &&
-                                                                 a.opEquals(b));
+        static assert(__traits(hasMember, T, "opEquals"));
+        // enum defaultKeyEqualPredOf = "a && b && a.opEquals(b)";
+        enum defaultKeyEqualPredOf = "a is b";
+        // (const T a, const T b) => ((a !is null) && (b !is null) && a.opEquals(b));
     }
     else
     {
-        alias defaultKeyEqualPredOf = (a, b) => a == b;
+        enum defaultKeyEqualPredOf = "a == b";
     }
     version(none)
     {
@@ -186,7 +188,7 @@ private template defaultKeyEqualPredOf(T)
  */
 struct OpenHashMapOrSet(K, V = void,
                         alias hasher = hashOf,
-                        alias keyEqualPred = defaultKeyEqualPredOf!(K),
+                        string keyEqualPred = defaultKeyEqualPredOf!(K),
                         alias Allocator = Mallocator.instance,
                         bool borrowChecked = false)
     if (isNullable!K
@@ -3189,6 +3191,11 @@ version(unittest)
             import std.format : formattedWrite;
             sink.formattedWrite(typeof(this).stringof,
                                 "(%s)", _value);
+        }
+
+        @property bool opEquals(const scope typeof(this) rhs) const
+        {
+            return _value == rhs._value;
         }
 
         private ulong _value;

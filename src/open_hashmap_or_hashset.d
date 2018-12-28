@@ -3520,14 +3520,12 @@ version(unittest)
         }
         private ulong _value;
     }
-    debug static assert(isNullable!Base);
 
     static class Node : Base
     {
         @safe pure nothrow @nogc:
         this(ulong value) { super(value);  }
     }
-    debug static assert(isNullable!Node);
     debug static assert(is(Node : Base));
 
     alias X = OpenHashSet!(Base, hashOf, "a && b && (typeid(a) is typeid(b)) == a.opEquals(b)");

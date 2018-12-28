@@ -119,9 +119,9 @@ if (is(T == class))
 
         int x;
     }
+    static assert(defaultKeyEqualPredOf!(C) == "a is b");
     assert( opEqualsDerived(new C(42), new C(42)));
     assert(!opEqualsDerived(new C(42), new C(43)));
-    static assert(__traits(hasMember, C, "opEquals"));
 }
 
 @safe:

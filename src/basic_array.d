@@ -467,7 +467,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /// Calculate D associative array (AA) key hash.
-    size_t toHash()() const @trusted // template-lazy
+    hash_t toHash()() const @trusted // template-lazy
     {
         import core.internal.hash : hashOf;
         static if (isCopyable!T)

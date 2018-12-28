@@ -101,10 +101,7 @@ if (is(T == class))
     class C
     {
         @safe pure nothrow @nogc:
-        this(int x)
-        {
-            this.x = x;
-        }
+        this(int x) { this.x = x; }
 
         @property bool opEquals(const scope typeof(this) rhs) const
         {
@@ -119,9 +116,9 @@ if (is(T == class))
 
         int x;
     }
-    static assert(defaultKeyEqualPredOf!(C) == "a is b");
     assert( opEqualsDerived(new C(42), new C(42)));
     assert(!opEqualsDerived(new C(42), new C(43)));
+    static assert(defaultKeyEqualPredOf!(C) == "a is b");
 }
 
 @safe:

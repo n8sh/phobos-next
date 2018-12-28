@@ -94,7 +94,6 @@ private template defaultKeyEqualPredOf(T)
     }
     else
     {
-        import std.functional : binaryFun;
         alias defaultKeyEqualPredOf = (a, b) => a == b;
     }
     version(none)
@@ -2951,6 +2950,12 @@ pure nothrow unittest
         {
             this.value = value;
         }
+
+        @property bool opEquals(const scope typeof(this) rhs) const
+        {
+            return value == rhs.value;
+        }
+
         uint value;
     }
 

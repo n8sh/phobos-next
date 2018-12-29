@@ -212,12 +212,6 @@ private:
         return large.length & 1; // first bit discriminates small from large
     }
 
-    struct Raw                  // same memory layout as `immutable(E)[]`
-    {
-        size_t length = 0;      // can be bit-fiddled without GC allocation
-        immutable(E)* ptr = null;
-    }
-
     alias Large = immutable(E)[];
 
     public enum smallCapacity = Large.sizeof - Small.length.sizeof;
@@ -244,6 +238,12 @@ private:
             ubyte length;
         }
         static assert(0, "TODO add BigEndian support and test");
+    }
+
+    struct Raw                  // same memory layout as `immutable(E)[]`
+    {
+        size_t length = 0;      // can be bit-fiddled without GC allocation
+        immutable(E)* ptr = null;
     }
 
     union

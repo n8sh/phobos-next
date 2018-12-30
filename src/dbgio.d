@@ -96,7 +96,7 @@ if (Args.length >= 1)
 }
 
 version(show)
-unittest
+@safe pure unittest
 {
     const x = 11;
     const y = 12;

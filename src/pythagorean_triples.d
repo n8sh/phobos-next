@@ -6,7 +6,6 @@ struct PossiblePythags(T)
     {
         T x, y, z;
     }
-    Triple triple = Triple(2, 1, 1);
     T z = 2;
     T x = 1;
     T y = 1;

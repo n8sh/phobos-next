@@ -8,40 +8,71 @@ struct PossiblePythags(T)
     {
         T x, y, z;
     }
-    Triple triple = Triple(2, 1, 1);
-    T z = 2;
-    T x = 1;
-    T y = 1;
+    Triple triple = Triple(1, 1, 2);
 
-    auto front()
+    Triple front()
     {
-        return Triple(x, y, z);
+        return triple;
     }
 
     void popFront()
     {
-        if (++y == z)
+        if (++triple.y == triple.z)
         {
-            if (++x == z)
+            if (++triple.x == triple.z)
             {
-                ++z;
-                x = 1;
+                ++triple.z;
+                triple.x = 1;
             }
-            y = x;
+            triple.y = triple.x;
         }
     }
 
     enum empty = false;
 }
 
-auto pythagrange(T = size_t)()
+auto pythagoreanTriples(T = size_t)()
 {
     return PossiblePythags!T().filter!(p => p.x * p.x + p.y * p.y == p.z * p.z);
 }
 
-@safe pure unittest
+@safe unittest
 {
-    foreach (e; pythagrange)
+    import std.stdio;
+    foreach (e; pythagoreanTriples)
     {
+        writeln(e.x, ",", e.y, ",", e.z);
     }
 }
+
+/*
+  3,4,5
+  6,8,10
+  5,12,13
+  9,12,15
+  8,15,17
+  12,16,20
+  7,24,25
+  15,20,25
+  10,24,26
+  20,21,29
+  18,24,30
+  16,30,34
+  21,28,35
+  12,35,37
+  15,36,39
+  24,32,40
+  9,40,41
+  27,36,45
+  14,48,50
+  30,40,50
+  24,45,51
+  20,48,52
+  28,45,53
+  33,44,55
+  40,42,58
+  36,48,60
+  11,60,61
+  16,63,65
+  25,60,65
+ */

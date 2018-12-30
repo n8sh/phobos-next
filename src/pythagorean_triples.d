@@ -5,6 +5,7 @@ module pythogorean_triples;
 
 import std.algorithm;
 
+/// Pythogorean triple generator rangeg.
 struct PossiblePythagoreanTriples(T)
 {
     /// Pythogorean triple.
@@ -34,7 +35,7 @@ struct PossiblePythagoreanTriples(T)
         {
             if (++triple.x == triple.z)
             {
-                ++triple.z;     // if `triple.z` becomes 0 we are done
+                ++triple.z;     // if `triple.z` becomes 0 empty should be true
                 triple.x = 1;
             }
             triple.y = triple.x;

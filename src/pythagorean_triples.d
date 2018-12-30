@@ -39,7 +39,7 @@ auto pythagoreanTriples(T = size_t)()
 @safe unittest
 {
     import std.stdio;
-    foreach (e; pythagoreanTriples)
+    foreach (e; pythagoreanTriples!size_t)
     {
         writeln(e.x, ",", e.y, ",", e.z);
     }

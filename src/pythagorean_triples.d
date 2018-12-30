@@ -43,11 +43,10 @@ struct PossiblePythagoreanTriples(T)
 
     void popFront()
     {
-        nextTriple();
-        while (triple.x*triple.x + triple.y*triple.y != triple.z*triple.z)
+        do
         {
             nextTriple();
-        }
+        } while (triple.x*triple.x + triple.y*triple.y != triple.z*triple.z);
     }
 
     enum empty = false;

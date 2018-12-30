@@ -22,7 +22,7 @@ mixin template dump(Names...)
     }();
 }
 
-unittest
+@safe unittest
 {
     int x = 42;
     mixin dump!("x");

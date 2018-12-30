@@ -34,7 +34,7 @@ struct PossiblePythagoreanTriples(T)
         {
             if (++triple.x == triple.z)
             {
-                ++triple.z;
+                ++triple.z;     // if `triple.z` becomes 0 we are done
                 triple.x = 1;
             }
             triple.y = triple.x;
@@ -44,6 +44,7 @@ struct PossiblePythagoreanTriples(T)
     enum empty = false;
 }
 
+/// Get all Pythogorean triples in an infinite generator.
 auto pythagoreanTriples(T = size_t)()
 {
     return PossiblePythagoreanTriples!T().filter!(p => p.x*p.x + p.y*p.y == p.z*p.z);

@@ -14,9 +14,9 @@ mixin template dump(Names ... )
     auto _unused_dump =
     {
         import std.stdio : writeln, write;
-        foreach(i,name; Names)
+        foreach (immutable i, name; Names)
         {
-            write(name, " = ", mixin(name), (i<Names.length-1)?", ": "\n");
+            write(name, " = ", mixin(name), (i < Names.length-1) ? ", " : "\n");
         }
         return false;
     }();

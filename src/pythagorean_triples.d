@@ -25,19 +25,19 @@ struct PossiblePythagoreanTriples(T)
 
     @property Triple front() const
     {
-        return _store;
+        return _front;
     }
 
     void nextTriple()
     {
-        if (++_store.y == _store.z)
+        if (++_front.y == _front.z)
         {
-            if (++_store.x == _store.z)
+            if (++_front.x == _front.z)
             {
-                ++_store.z;     // if `_store.z` becomes 0 empty should be true
-                _store.x = 1;
+                ++_front.z;     // if `_front.z` becomes 0 empty should be true
+                _front.x = 1;
             }
-            _store.y = _store.x;
+            _front.y = _front.x;
         }
     }
 
@@ -46,12 +46,12 @@ struct PossiblePythagoreanTriples(T)
         do
         {
             nextTriple();
-        } while (_store.x*_store.x + _store.y*_store.y != _store.z*_store.z);
+        } while (_front.x*_front.x + _front.y*_front.y != _front.z*_front.z);
     }
 
     enum empty = false;
 
-    private Triple _store = Triple(1, 1, 2);
+    private Triple _front = Triple(1, 1, 2);
 }
 
 /// Get all Pythogorean triples in an infinite generator.

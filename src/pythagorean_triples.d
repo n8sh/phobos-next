@@ -1,3 +1,6 @@
+/**
+ * See_Also: https://forum.dlang.org/post/q08qsm$22j3$1@digitalmars.com
+ */
 module pythogorean_triples;
 
 import std.algorithm;

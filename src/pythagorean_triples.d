@@ -56,24 +56,12 @@ auto pythagoreanTriples(T = size_t)()
 {
     auto t = pythagoreanTriples!size_t;
     alias Triple = typeof(t.front);
-
-    assert(t.front == Triple(3,4,5));
-    t.popFront();
-
-    assert(t.front == Triple(6,8,10));
-    t.popFront();
-
-    assert(t.front == Triple(5,12,13));
-    t.popFront();
-
-    assert(t.front == Triple(9,12,15));
-    t.popFront();
-
-    assert(t.front == Triple(8,15,17));
-    t.popFront();
-
-    assert(t.front == Triple(12,16,20));
-    t.popFront();
+    assert(t.front == Triple(3,4,5)); t.popFront();
+    assert(t.front == Triple(6,8,10)); t.popFront();
+    assert(t.front == Triple(5,12,13)); t.popFront();
+    assert(t.front == Triple(9,12,15)); t.popFront();
+    assert(t.front == Triple(8,15,17)); t.popFront();
+    assert(t.front == Triple(12,16,20)); t.popFront();
 }
 
 /*

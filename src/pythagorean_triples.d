@@ -53,7 +53,7 @@ auto pythagoreanTriples(T = size_t)()
 }
 
 ///
-@safe pure @nogc unittest
+@safe pure nothrow @nogc unittest
 {
     auto t = pythagoreanTriples!size_t;
     alias Triple = typeof(t.front);

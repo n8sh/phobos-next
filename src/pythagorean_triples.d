@@ -7,6 +7,7 @@ import std.algorithm;
 
 struct PossiblePythagoreanTriples(T)
 {
+    /// Pythogorean triple.
     struct Triple
     {
         T x, y, z;

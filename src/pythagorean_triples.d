@@ -33,7 +33,7 @@ struct PossiblePythagoreanTriples(T)
 
 auto pythagoreanTriples(T = size_t)()
 {
-    return PossiblePythagoreanTriples!T().filter!(p => p.x * p.x + p.y * p.y == p.z * p.z);
+    return PossiblePythagoreanTriples!T().filter!(p => p.x*p.x + p.y*p.y == p.z*p.z);
 }
 
 @safe unittest

@@ -1,11 +1,14 @@
 module pythogorean_triples;
 
+import std.algorithm;
+
 struct PossiblePythags(T)
 {
     struct Triple
     {
         T x, y, z;
     }
+    Triple triple = Triple(2, 1, 1);
     T z = 2;
     T x = 1;
     T y = 1;
@@ -33,7 +36,6 @@ struct PossiblePythags(T)
 
 auto pythagrange(T = size_t)()
 {
-    import std.algorithm : filter;
     return PossiblePythags!T().filter!(p => p.x * p.x + p.y * p.y == p.z * p.z);
 }
 

@@ -4,9 +4,12 @@
  */
 module dump;
 
+import std.exception : enforce;
 import std.traits : isCallable, ReturnType;
 import std.range.primitives : isOutputRange, empty, put;
-import std.format : formatValue, FormatSpec;
+import std.format : formatValue, FormatSpec, FormatException;
+
+private alias enforceFmt = enforce!FormatException;
 
 /**
    Pretty-print variables with name and values.
@@ -187,7 +190,7 @@ private bool writeUpToNextSpecWithoutEnd(Char, OutputRange)(
             if (trailing[0] != '%')
             {
                 // Spec found. Fill up the spec, and bailout
-                fillUp();
+                // fillUp();
                 return true;
             }
             // Doubled! Reset and Keep going

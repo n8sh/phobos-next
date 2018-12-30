@@ -25,6 +25,7 @@ mixin template dump(Names ... )
 @safe pure unittest
 {
     int x = 42;
+    // dump!("x")();
 }
 
 @trusted:

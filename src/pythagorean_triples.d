@@ -4,14 +4,16 @@ struct PossiblePythags(T)
 {
     struct Triple
     {
+        T x, y, z;
     }
+    Triple triple = Triple(2, 1, 1);
     T z = 2;
     T x = 1;
     T y = 1;
 
     auto front()
     {
-        return tuple!(T, "x", T, "y", T, "z")(x, y, z);
+        return Triple(x, y, z);
     }
 
     void popFront()
@@ -32,6 +34,13 @@ struct PossiblePythags(T)
 
 auto pythagrange(T = size_t)()
 {
-    return PossiblePythags!T()
-    .filter!(p => p.x * p.x + p.y * p.y == p.z * p.z);
+    import std.algorithm : filter;
+    return PossiblePythags!T().filter!(p => p.x * p.x + p.y * p.y == p.z * p.z);
+}
+
+@safe pure unittest
+{
+    foreach (e; pythagrange)
+    {
+    }
 }

@@ -16,13 +16,13 @@ mixin template dump(Names...)
         import std.stdio : writeln, write;
         foreach (immutable i, name; Names)
         {
-            write(name, " = ", mixin(name), (i < Names.length-1) ? ", " : "\n");
+            debug write(name, " = ", mixin(name), (i < Names.length-1) ? ", " : "\n");
         }
         return false;
     }();
 }
 
-@safe unittest
+@safe pure unittest
 {
     int x = 42;
     mixin dump!("x");

@@ -16,7 +16,7 @@ mixin template dump(Names...)
         import std.stdio : writeln, write;
         foreach (immutable i, name; Names)
         {
-            debug write(name, " = ", mixin(name), (i < Names.length-1) ? ", " : "\n");
+            debug write(name, ": ", mixin(name), (i < Names.length-1) ? ", " : "\n");
         }
         return false;
     }();
@@ -25,7 +25,8 @@ mixin template dump(Names...)
 @safe pure unittest
 {
     int x = 42;
-    mixin dump!("x");
+    int[] y = [42, 43];
+    mixin dump!("x", "y");
 }
 
 @trusted:

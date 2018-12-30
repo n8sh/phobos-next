@@ -190,7 +190,7 @@ private bool writeUpToNextSpecWithoutEnd(Char, OutputRange)(
             if (trailing[0] != '%')
             {
                 // Spec found. Fill up the spec, and bailout
-                // fillUp();
+                // TODO fillUp();
                 return true;
             }
             // Doubled! Reset and Keep going

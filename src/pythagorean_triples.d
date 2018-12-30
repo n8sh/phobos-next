@@ -11,6 +11,7 @@ struct PossiblePythagoreanTriples(T)
     struct Triple
     {
         T x, y, z;
+        version(none)
         @property void toString(scope void delegate(const(char)[]) @safe sink) const @safe
         {
             import std.conv : to;

@@ -52,7 +52,7 @@ auto pythagoreanTriples(T = size_t)()
     return PossiblePythagoreanTriples!T().filter!(p => p.x*p.x + p.y*p.y == p.z*p.z);
 }
 
-@safe unittest
+@safe pure @nogc unittest
 {
     auto t = pythagoreanTriples!size_t;
     alias Triple = typeof(t.front);

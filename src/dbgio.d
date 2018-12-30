@@ -7,6 +7,8 @@
 */
 module dbgio;
 
+// version = show;
+
 import assuming : assumeNogc;
 
 mixin template dump(Names...)
@@ -23,6 +25,7 @@ mixin template dump(Names...)
 }
 
 ///
+version(show)
 @safe pure unittest
 {
     int x = 42;
@@ -92,9 +95,8 @@ if (Args.length >= 1)
     }
 }
 
-// version = show;
-
-version(show) unittest
+version(show)
+unittest
 {
     const x = 11;
     const y = 12;

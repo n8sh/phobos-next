@@ -22,6 +22,11 @@ mixin template dump(Names ... )
     }();
 }
 
+@safe pure unittest
+{
+    int x = 42;
+}
+
 @trusted:
 
 /* http://stackoverflow.com/questions/19413340/escaping-safety-with-debug-statements */

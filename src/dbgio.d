@@ -11,7 +11,7 @@ import assuming : assumeNogc;
 
 mixin template dump(Names ... )
 {
-    auto _unused_dump =
+    auto dump =
     {
         import std.stdio : writeln, write;
         foreach (immutable i, name; Names)

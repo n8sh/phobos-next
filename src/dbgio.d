@@ -9,6 +9,25 @@ module dbgio;
 
 import assuming : assumeNogc;
 
+mixin template dump(Names...)
+{
+    auto dump =
+    {
+        import std.stdio : writeln, write;
+        foreach (immutable i, name; Names)
+        {
+            write(name, " = ", mixin(name), (i < Names.length-1) ? ", " : "\n");
+        }
+        return false;
+    }();
+}
+
+@safe pure unittest
+{
+    int x = 42;
+    // dump!("x");
+}
+
 @trusted:
 
 /* http://stackoverflow.com/questions/19413340/escaping-safety-with-debug-statements */

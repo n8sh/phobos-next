@@ -11,6 +11,15 @@ struct PossiblePythagoreanTriples(T)
     struct Triple
     {
         T x, y, z;
+        @property void toString(scope void delegate(const(char)[]) @safe sink) const @safe
+        {
+            import std.conv : to;
+            sink(x.to!string);
+            sink(",");
+            sink(y.to!string);
+            sink(",");
+            sink(z.to!string);
+        }
     }
     Triple triple = Triple(1, 1, 2);
 
@@ -42,20 +51,29 @@ auto pythagoreanTriples(T = size_t)()
 
 @safe unittest
 {
-    import std.stdio;
-    foreach (e; pythagoreanTriples!size_t)
-    {
-        writeln(e.x, ",", e.y, ",", e.z);
-    }
+    auto t = pythagoreanTriples!size_t;
+    alias Triple = typeof(t.front);
+
+    assert(t.front == Triple(3,4,5));
+    t.popFront();
+
+    assert(t.front == Triple(6,8,10));
+    t.popFront();
+
+    assert(t.front == Triple(5,12,13));
+    t.popFront();
+
+    assert(t.front == Triple(9,12,15));
+    t.popFront();
+
+    assert(t.front == Triple(8,15,17));
+    t.popFront();
+
+    assert(t.front == Triple(12,16,20));
+    t.popFront();
 }
 
 /*
-  3,4,5
-  6,8,10
-  5,12,13
-  9,12,15
-  8,15,17
-  12,16,20
   7,24,25
   15,20,25
   10,24,26

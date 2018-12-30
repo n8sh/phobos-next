@@ -4,8 +4,6 @@
  */
 module pythogorean_triples;
 
-import std.algorithm;
-
 /// Pythogorean triple generator rangeg.
 struct PossiblePythagoreanTriples(T)
 {
@@ -25,12 +23,12 @@ struct PossiblePythagoreanTriples(T)
     }
     Triple triple = Triple(1, 1, 2);
 
-    Triple front()
+    @property Triple front() const
     {
         return triple;
     }
 
-    void popFront()
+    void nextTriple()
     {
         if (++triple.y == triple.z)
         {
@@ -43,13 +41,22 @@ struct PossiblePythagoreanTriples(T)
         }
     }
 
+    void popFront()
+    {
+        nextTriple();
+        while (triple.x*triple.x + triple.y*triple.y != triple.z*triple.z)
+        {
+            nextTriple();
+        }
+    }
+
     enum empty = false;
 }
 
 /// Get all Pythogorean triples in an infinite generator.
 auto pythagoreanTriples(T = size_t)()
 {
-    return PossiblePythagoreanTriples!T().filter!(p => p.x*p.x + p.y*p.y == p.z*p.z);
+    return PossiblePythagoreanTriples!T();
 }
 
 ///
@@ -57,6 +64,7 @@ auto pythagoreanTriples(T = size_t)()
 {
     auto t = pythagoreanTriples!size_t;
     alias Triple = typeof(t.front);
+    assert(t.front == Triple(1,1,2)); t.popFront();
     assert(t.front == Triple(3,4,5)); t.popFront();
     assert(t.front == Triple(6,8,10)); t.popFront();
     assert(t.front == Triple(5,12,13)); t.popFront();

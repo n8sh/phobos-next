@@ -906,7 +906,7 @@ struct OpenHashMapOrSet(K, V = void,
      *
      * Returns: reference to existing element if present, otherwise new `element`.
      *
-     * Can be used to, for instance, implement caching, typically string caches.
+     * Can be used for implementing, for instance, caching of typically strings.
      */
     ref T insertAndReturnElement(SomeElement)(SomeElement element) return scope // template-lazy
     {

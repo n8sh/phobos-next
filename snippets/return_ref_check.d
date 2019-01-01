@@ -5,11 +5,14 @@ struct S(E)
     @property ref E x() return { return _small[0]; }
     @property E* xptr() return { return &_small[0]; }
 
-    inout(E)[] opSlice() inout return @trusted { return _small[0 .. 16]; }
+    inout(E)[] opSlice() inout return @trusted
+    {
+        return _small[0 .. 16];
+    }
 
     static if (is(E == char))
     {
-        inout(E)[] toString() inout return @trusted { return opSlice(); }
+        alias toString = opSlice;
     }
 
 private:

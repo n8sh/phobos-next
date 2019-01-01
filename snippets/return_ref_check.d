@@ -20,9 +20,17 @@ struct S(E)
 
 private:
     enum smallCapacity = 15;
-    struct Small
+    version(LittleEndian) // see: http://forum.dlang.org/posting/zifyahfohbwavwkwbgmw
     {
-        E[smallCapacity] data;
+        struct Small
+        {
+            /* TODO only first 4 bits are needed to represent a length between
+             * 0-15, use other 4 bits */
+            ubyte length = 0;
+            immutable(E)[smallCapacity] data = [0,0,0,0,0,
+                                                0,0,0,0,0,
+                                                0,0,0,0,0]; // explicit init needed for `__traits(isZeroInit)` to be true.
+        }
     }
     union
     {

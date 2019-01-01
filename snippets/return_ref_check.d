@@ -14,9 +14,13 @@ struct S(E)
     inout(E)[] opSlice() inout return @trusted
     {
         if (isLarge)
+        {
             return _large;
+        }
         else
+        {
             return _small.data[0 .. smallCapacity];
+        }
     }
 
     static if (is(E == char))

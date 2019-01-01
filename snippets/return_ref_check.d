@@ -2,15 +2,15 @@ struct S(E)
 {
     @safe pure nothrow @nogc:
 
-    @property ref E x() return { return _small[0]; }
-    @property E* xptr() return { return &_small[0]; }
+    @property ref E x() return { return _small.data[0]; }
+    @property E* xptr() return { return &_small.data[0]; }
 
     inout(E)[] opSlice() inout return @trusted
     {
         if (_largeFlag)
             return _large;
         else
-            return _small[0 .. 16];
+            return _small.data[0 .. smallCapacity];
     }
 
     static if (is(E == char))
@@ -27,7 +27,7 @@ private:
             /* TODO only first 4 bits are needed to represent a length between
              * 0-15, use other 4 bits */
             ubyte length = 0;
-            immutable(E)[smallCapacity] data = [0,0,0,0,0,
+            E[smallCapacity] data = [0,0,0,0,0,
                                                 0,0,0,0,0,
                                                 0,0,0,0,0]; // explicit init needed for `__traits(isZeroInit)` to be true.
         }
@@ -35,7 +35,7 @@ private:
     union
     {
         E[] _large;
-        E[16] _small;
+        Small _small;
     }
     bool _largeFlag;
 }

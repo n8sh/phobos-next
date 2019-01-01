@@ -15,14 +15,7 @@ struct SSOString
     {
         if (isLarge)
         {
-            union RawLarge
-            {
-                Raw raw;
-                Large large;
-            }
-            RawLarge copy = void;
-            copy.large = cast(Large)large;
-            return copy.large.ptr;
+            return &large.ptr[0];
         }
         else
         {

@@ -28,8 +28,8 @@ private:
              * 0-15, use other 4 bits */
             ubyte length = 0;
             E[smallCapacity] data = [0,0,0,0,0,
-                                                0,0,0,0,0,
-                                                0,0,0,0,0]; // explicit init needed for `__traits(isZeroInit)` to be true.
+                                     0,0,0,0,0,
+                                     0,0,0,0,0]; // explicit init needed for `__traits(isZeroInit)` to be true.
         }
     }
     union

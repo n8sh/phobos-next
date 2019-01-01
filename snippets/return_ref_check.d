@@ -23,6 +23,18 @@ struct S(E)
         }
     }
 
+    scope ref inout(E) opIndex(size_t index) inout return @trusted
+    {
+        if (isLarge)
+        {
+            return _large[index];
+        }
+        else
+        {
+            return _small.data[index];
+        }
+    }
+
     static if (is(E == char))
     {
         alias toString = opSlice;
@@ -53,7 +65,7 @@ private:
     struct Raw                  // same memory layout as `immutable(E)[]`
     {
         size_t length = 0;      // can be bit-fiddled without GC allocation
-        immutable(E)* ptr = null;
+        E* ptr = null;
     }
 
     union
@@ -70,6 +82,7 @@ private:
     alias E = char;
     static assert(!__traits(compiles, { ref E escape_x() { S s; return s.front; }}));
     static assert(!__traits(compiles, { E* escape_xptr() { S s; return s.frontPtr; } }));
+    static assert(!__traits(compiles, { ref E escape_opIndex() { S s; return s[0]; }}));
     E[] escape_opSlice()
     {
         S!E s;

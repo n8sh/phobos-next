@@ -154,6 +154,7 @@ struct SSOString
         return opSlice()[i .. j];
     }
 
+    /// Get pointer to elements.
     @property scope immutable(E)* ptr() const return @system // TODO @safe for -dip1000?
     {
         if (isLarge)

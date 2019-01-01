@@ -739,14 +739,14 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /// Release internal allocations.
-    private void release()
+    private void release() scope
     {
         releaseBinElements();
         releaseBinsAndHolesSlices();
     }
 
     /// Release bin elements.
-    private void releaseBinElements()
+    private void releaseBinElements() scope
     {
         foreach (ref bin; _bins)
         {
@@ -758,7 +758,7 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /// Release bin slice.
-    private void releaseBinsAndHolesSlices()
+    private void releaseBinsAndHolesSlices() scope
     {
         releaseBinsSlice(_bins);
         static if (!hasHoleableKey)
@@ -1013,7 +1013,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
     }
 
-    private void insertElementAtIndex(SomeElement)(SomeElement element, size_t index) @trusted // template-lazy
+    private void insertElementAtIndex(SomeElement)(scope SomeElement element, size_t index) @trusted // template-lazy
     {
         version(LDC) pragma(inline, true);
         static if (isDynamicArray!SomeElement &&
@@ -1382,8 +1382,14 @@ struct OpenHashMapOrSet(K, V = void,
             V opIndexAssign()(V value, K key) // template-lazy
             {
                 version(LDC) pragma(inline, true);
-                insert(T(move(key),
-                         move(value)));
+                static if (isCopyable!K)
+                {
+                    insert(T(key, value));
+                }
+                else
+                {
+                    insert(T(move(key), value));
+                }
                 return value;
             }
         }
@@ -1394,8 +1400,28 @@ struct OpenHashMapOrSet(K, V = void,
             void opIndexAssign()(V value, K key) // template-lazy
             {
                 version(LDC) pragma(inline, true);
-                insert(T(move(key),
-                         move(value)));
+                static if (isCopyable!K)
+                {
+                    static if (isCopyable!V)
+                    {
+                        insert(T(key, value));
+                    }
+                    else
+                    {
+                        insert(T(key, move(value)));
+                    }
+                }
+                else
+                {
+                    static if (isCopyable!V)
+                    {
+                        insert(T(move(key), value));
+                    }
+                    else
+                    {
+                        insert(T(move(key), move(value)));
+                    }
+                }
                 // TODO return scoped reference to value
             }
         }

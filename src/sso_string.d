@@ -148,14 +148,14 @@ struct SSOString
     }
 
     /// ditto
-    immutable(E)[] opSlice(size_t i, size_t j) const return @system // TODO @safe for -dip1000?
+    immutable(E)[] opSlice(size_t i, size_t j) const return @safe
     {
         pragma(inline, true);
         return opSlice()[i .. j];
     }
 
     /// Get pointer to elements.
-    @property immutable(E)* ptr() const return @system // TODO @safe for -dip1000?
+    @property immutable(E)* ptr() const return @trusted
     {
         if (isLarge)
         {
@@ -419,6 +419,7 @@ static assert(SSOString.sizeof == string.sizeof);
 @safe pure nothrow unittest
 {
     alias S = SSOString;
+    static assert(!__traits(compiles, { immutable(char)* f1() @safe pure nothrow { S x; return x.ptr; } }));
     static assert(!__traits(compiles, { string f1() @safe pure nothrow { S x; return x[]; } }));
     static assert(!__traits(compiles, { string f2() @safe pure nothrow { S x; return x.toString; } }));
     static assert(!__traits(compiles, { ref immutable(char) g() @safe pure nothrow @nogc { S x; return x[0]; } }));

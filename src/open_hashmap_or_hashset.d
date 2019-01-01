@@ -2338,11 +2338,8 @@ unittest
     alias X = OpenHashSet!(K, FNV!(64, true));
 
     auto x = X();
-
     {                           // scoped range
-        auto xes = x.byElement;
-        assert(xes.length == 0);
-        foreach (ref xe; xes) { assert(0); }
+        foreach (ref xe; x.byElement) { assert(0); }
     }
 
     auto x0 = X.init;

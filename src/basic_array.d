@@ -1151,7 +1151,7 @@ if (isInstanceOf!(BasicArray, C) &&
     T* leakPointer() @safe pure nothrow @nogc
     {
         A a;
-        return a._store.ptr;          // TODO shouldn't compile with -dip1000
+        return a._store.ptr;    // TODO shouldn't compile with -dip1000
     }
 
     auto lp = leakPointer();    // TODO shouldn't compile with -dip1000

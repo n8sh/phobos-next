@@ -250,6 +250,7 @@ private:
              * 0-15, use other 4 bits */
             ubyte length;
         }
+        static assert(0, "TODO add BigEndian support and test");
     }
 
     struct Raw                  // same memory layout as `immutable(E)[]`

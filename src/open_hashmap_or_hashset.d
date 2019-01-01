@@ -3664,7 +3664,8 @@ unittest
         const k = K(ch);        // @nogc
         assert(!a.contains(k));
         assert(!a.containsUsingLinearSearch(k));
-        assert(a.insertAndReturnElement(K(ch)) == k);
+        assert(a.insert(K(ch)) == X.InsertionStatus.added);
+        // TODO assert(a.insertAndReturnElement(K(ch)) == k);
         assert(a.contains(k));
         assert(a.containsUsingLinearSearch(k));
     }
@@ -3676,7 +3677,8 @@ unittest
         const k = K(ch);        // @nogc
         assert(!b.contains(k));
         assert(!b.containsUsingLinearSearch(k));
-        assert(b.insertAndReturnElement(K(ch)) == k);
+        assert(b.insert(K(ch)) == X.InsertionStatus.added);
+        // TODO assert(b.insertAndReturnElement(K(ch)) == k);
         assert(b.contains(k));
         assert(b.containsUsingLinearSearch(k));
     }

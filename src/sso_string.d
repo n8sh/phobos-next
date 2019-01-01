@@ -318,7 +318,7 @@ static assert(SSOString.sizeof == string.sizeof);
 }
 
 ///
-@trusted pure nothrow @nogc unittest // TODO `@trusted` => `@safe` when dip-1000 can do scope analysis of `SSOString.opSlice`
+@safe pure nothrow @nogc unittest
 {
     alias S = SSOString;
 

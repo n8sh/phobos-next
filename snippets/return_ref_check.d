@@ -5,10 +5,9 @@ struct S(E)
     @property ref E x() return { return _x; }
     @property E* xptr() return { return &_x; }
 
-    inout(E)[] opSlice() inout return @trusted { return _small[]; }
+    inout(E)[] opSlice() inout return @trusted { return (&_x)[0 .. 1]; }
 
     private E _x;
-    private E[2] _small;
 }
 
 ///

@@ -17,7 +17,7 @@ struct SSOString
     {
         if (isLarge)
         {
-            return &large.ptr[0]; // GC-heap pointer
+            return large.ptr; // GC-heap pointer
         }
         else
         {
@@ -112,16 +112,23 @@ private:
 
 struct S
 {
-    private int x;
-    ref int get() return { return x; }
+    @safe pure nothrow @nogc:
+    private int _x;
+    @property ref int x() return { return _x; }
+    @property int* xptr() return { return &_x; }
 }
 
 ///
 @safe pure unittest
 {
-    ref int escape()
+    ref int escape_x()
     {
         S s;
-        return s.get();
+        return s.x;
+    }
+    int* escape_xptr()
+    {
+        S s;
+        return s.xptr;
     }
 }

@@ -19,7 +19,7 @@ struct S(E)
         }
         else
         {
-            return _small.data[0 .. smallCapacity];
+            return _small.data[0 .. _small.length/2];
         }
     }
 

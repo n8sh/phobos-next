@@ -7,7 +7,7 @@ struct S(E)
 
     inout(E)[] opSlice() inout return @trusted
     {
-        if (_largeFlag)
+        if (isLarge)
             return _large;
         else
             return _small.data[0 .. smallCapacity];
@@ -18,8 +18,15 @@ struct S(E)
         alias toString = opSlice;
     }
 
+    @property bool isLarge() const @trusted
+    {
+        pragma(inline, true);
+        return _large.length & 1; // first bit discriminates small from large
+    }
+
 private:
     enum smallCapacity = 15;
+    alias Large = E[];
     version(LittleEndian) // see: http://forum.dlang.org/posting/zifyahfohbwavwkwbgmw
     {
         struct Small
@@ -37,7 +44,6 @@ private:
         E[] _large;
         Small _small;
     }
-    bool _largeFlag;
 }
 
 ///

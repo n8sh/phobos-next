@@ -109,3 +109,19 @@ private:
         return x[0 .. 0];       // TODO should fail with -dip25 or -dip1000
     }
 }
+
+struct S
+{
+    private int x;
+    ref int get() return { return x; }
+}
+
+///
+@safe pure unittest
+{
+    ref int escape()
+    {
+        S s;
+        return s.get();
+    }
+}

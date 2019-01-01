@@ -134,7 +134,7 @@ struct SSOString
         return opSlice()[index]; // deos range check
     }
 
-    immutable(E)[] opSlice() const return @system // TODO @safe for -dip1000?
+    immutable(E)[] opSlice() const return @trusted // TODO @safe for -dip1000?
     {
         if (isLarge)
         {
@@ -403,34 +403,6 @@ static assert(SSOString.sizeof == string.sizeof);
     assert(s16[0 .. 4] == "0123");
     assert(s16[10 .. 16] == "abcdef");
     assert(s16[10 .. $] == "abcdef");
-
-    // TODO static assert(!__traits(compiles, { auto _ = S((char[]).init); }));
-
-    version(none)
-    {
-        // TODO this shouldn't compile
-        string f1() @safe pure nothrow @nogc
-        {
-            S x;
-            return x[];             // TODO should fail with -dip1000
-        }
-        const f1_ = f1();           // TODO should fail with -dip1000
-
-        // TODO this shouldn't compile
-        string f2() @safe pure nothrow @nogc
-        {
-            S x;
-            return x.toString;      // TODO should fail with -dip1000
-        }
-        const f2_ = f2();           // TODO should fail with -dip1000
-
-        // TODO activate
-        // ref char g() @safe pure nothrow @nogc
-        // {
-        //     S x;
-        //     return x[0];             // TODO should fail with -dip1000
-        // }
-    }
 }
 
 /// hole handling
@@ -441,6 +413,22 @@ static assert(SSOString.sizeof == string.sizeof);
     assert(!S("").isHole);
     assert(!S("a").isHole);
     assert(S.asHole.isHole);
+}
+
+/// DIP-1000 return ref escape analysis
+@safe pure unittest
+{
+    alias S = SSOString;
+
+    static assert(!__traits(compiles, { string f1() @safe pure nothrow @nogc { S x; return x[]; } }));
+    static assert(!__traits(compiles, { string f2() @safe pure nothrow { S x; return x.toString; } }));
+
+    // TODO activate
+    // ref char g() @safe pure nothrow @nogc
+    // {
+    //     S x;
+    //     return x[0];             // TODO should fail with -dip1000
+    // }
 }
 
 ///

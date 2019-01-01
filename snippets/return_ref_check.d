@@ -23,7 +23,7 @@ struct S(E)
         }
     }
 
-    scope ref inout(E) opIndex(size_t index) inout return @trusted
+    ref inout(E) opIndex(size_t index) inout return @trusted
     {
         if (isLarge)
         {
@@ -31,7 +31,7 @@ struct S(E)
         }
         else
         {
-            return _small.data[index];
+            return _small.data.ptr[index];
         }
     }
 

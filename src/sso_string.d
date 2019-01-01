@@ -15,7 +15,7 @@ struct SSOString
 {
     private alias E = char;     // element type
 
-    @property void toString(scope void delegate(const(E)[]) @safe pure sink) const @trusted pure // TODO ok to have sink @safe?
+    @property void toString(scope void delegate(const(E)[]) @safe sink) const @trusted // TODO ok to have sink @safe?
     {
         sink(opSlice());        // opSlice is @trusted here
     }
@@ -441,6 +441,13 @@ static assert(SSOString.sizeof == string.sizeof);
     assert(!S("").isHole);
     assert(!S("a").isHole);
     assert(S.asHole.isHole);
+}
+
+version(show)
+@safe unittest
+{
+    import std.stdio;
+    writeln(SSOString("alpha"));
 }
 
 private enum isCharsSlice(T) = (is(T : const(char)[]));

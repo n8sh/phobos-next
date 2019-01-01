@@ -1142,13 +1142,13 @@ if (isInstanceOf!(BasicArray, C) &&
     alias T = int;
     alias A = BasicArray!T;
 
-    scope T[] leakSlice() @safe return
+    T[] leakSlice() @safe
     {
         A a;
         return a[];             // TODO shouldn't compile with -dip1000
     }
 
-    scope T* leakPointer() @safe return
+    T* leakPointer() @safe
     {
         A a;
         return a._store.ptr;          // TODO shouldn't compile with -dip1000

@@ -83,14 +83,6 @@ private:
     static assert(!__traits(compiles, { ref E escape_x() { S s; return s.front; }}));
     static assert(!__traits(compiles, { E* escape_xptr() { S s; return s.frontPtr; } }));
     static assert(!__traits(compiles, { ref E escape_opIndex() { S s; return s[0]; }}));
-    E[] escape_opSlice()
-    {
-        S!E s;
-        return s[];
-    }
-    E[] escape_toString()
-    {
-        S!E s;
-        return s.toString;
-    }
+    static assert(!__traits(compiles, { E[] escape_opSlice() { S!E s; return s[]; }  }));
+    static assert(!__traits(compiles, { E[] escape_toString() { S!E s; return s.toString; } }));
 }

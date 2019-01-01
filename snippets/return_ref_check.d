@@ -1,9 +1,13 @@
-struct S
+struct S(E)
 {
     @safe pure nothrow @nogc:
-    private int _x;
-    @property ref int x() return { return _x; }
-    @property int* xptr() return { return &_x; }
+
+    @property ref E x() return { return _x; }
+    @property E* xptr() return { return &_x; }
+
+    scope E[] opSlice() return { xptr[0 .. 1]; }
+
+    private E _x;
 }
 
 ///

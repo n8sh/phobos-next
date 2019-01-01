@@ -138,7 +138,7 @@ if (isDigest!Digest)
         version(LDC)            // LDC doesn't zero pad `real`s
         {
             // TODO needed to improve this with a trait
-            import std.traits : isStaticArray;
+            import std.traits : isStaticArray, isInstanceOf;
             static if (isStaticArray!T)
             {
                 import std.meta : staticIndexOf;
@@ -157,15 +157,23 @@ if (isDigest!Digest)
             }
             else
             {
-                import std.meta : staticIndexOf;
-                enum realIndex = staticIndexOf!(real, typeof(T.init.tupleof));
-                static if (realIndex != -1)
+                import std.typecons : Nullable;
+                static if (isInstanceOf!(Nullable, T))
                 {
-                    digestStruct(digest, value); // hash each element for now because padding might now be zero
+                    digestRaw(digest, value); // hash everything in one call for better speed
                 }
                 else
                 {
-                    digestRaw(digest, value); // hash everything in one call for better speed
+                    import std.meta : staticIndexOf;
+                    enum realIndex = staticIndexOf!(real, typeof(T.init.tupleof));
+                    static if (realIndex != -1)
+                    {
+                        digestStruct(digest, value); // hash each element for now because padding might now be zero
+                    }
+                    else
+                    {
+                        digestRaw(digest, value); // hash everything in one call for better speed
+                    }
                 }
             }
         }

@@ -17,7 +17,7 @@ struct SSOString
 
     @property void toString(scope void delegate(const(E)[]) @safe pure sink) const @trusted pure // TODO ok to have sink @safe?
     {
-        sink(opSlice());        // opSlice is @trusted
+        sink(opSlice());        // opSlice is @trusted here
     }
 
     pure nothrow:

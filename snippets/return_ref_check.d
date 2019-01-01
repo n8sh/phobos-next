@@ -2,8 +2,14 @@ struct S(E)
 {
     @safe pure nothrow @nogc:
 
-    @property ref E front() return { return _small.data[0]; }
-    @property E* frontPtr() return { return &_small.data[0]; }
+    @property ref E front() return
+    {
+        return _small.data[0];
+    }
+    @property E* frontPtr() return
+    {
+        return &_small.data[0];
+    }
 
     inout(E)[] opSlice() inout return @trusted
     {

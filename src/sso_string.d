@@ -353,11 +353,11 @@ static assert(SSOString.sizeof == string.sizeof);
     assert(!s7.isNull);
 
     const s7_ = S("0123456_"[0 .. $ - 1]);
-    assert(s7[].ptr !is s7_[].ptr); // string data shall not overlap
+    assert(s7.ptr !is s7_.ptr); // string data shall not overlap
     assert(s7 == s7_);
 
     const _s7 = S("_0123456"[1 .. $]); // source from other string literal
-    assert(s7[].ptr !is _s7[].ptr); // string data shall not overlap
+    assert(s7.ptr !is _s7.ptr); // string data shall not overlap
     assert(s7 == _s7);
 
     static assert(is(typeof(s7[]) == string));
@@ -386,7 +386,7 @@ static assert(SSOString.sizeof == string.sizeof);
     const s16_ = S("0123456789abcdef_"[0 .. s16.length]);
     assert(s16.length == s16_.length);
     assert(s16[] == s16_[]);
-    assert(s16[].ptr !is s16_[].ptr); // string data shall not overlap
+    assert(s16.ptr !is s16_.ptr); // string data shall not overlap
     assert(s16 == s16_);              // but contents is equal
 
     const _s16 = S("_0123456789abcdef"[1 .. $]);

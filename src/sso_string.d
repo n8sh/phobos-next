@@ -75,7 +75,7 @@ struct SSOString
     /** Return `this` converted to a `string`, which potentially needs
      * GC-allocation (iff `length > smallCapacity`).
      */
-    @property string toString() const @trusted pure nothrow // may GC-allocate
+    @property string toString() const return @trusted pure nothrow // may GC-allocate
     {
         if (isLarge)
         {
@@ -95,16 +95,16 @@ struct SSOString
     @property hash_t toHash() const @trusted
     {
         version(LDC) pragma(inline, true);
-        if (!isLarge)
+        if (isLarge)
+        {
+            import core.internal.hash : hashOf;
+            return hashOf(opSlice());
+        }
+        else
         {
             import hash_functions : wangMixHash64;
             return (wangMixHash64(words[0] >> 1) ^ // shift away LS-bit always being zero
                     wangMixHash64(words[1]));
-        }
-        else
-        {
-            import core.internal.hash : hashOf;
-            return hashOf(opSlice());
         }
     }
 
@@ -128,13 +128,13 @@ struct SSOString
 
     @property bool isNull() const @safe pure nothrow @nogc { return this == typeof(this).init; }
 
-    scope ref immutable(E) opIndex(size_t index) const return @trusted
+    ref immutable(E) opIndex(size_t index) const return @trusted
     {
         pragma(inline, true);
         return opSlice()[index]; // deos range check
     }
 
-    scope immutable(E)[] opSlice() const return @system // TODO @safe for -dip1000?
+    immutable(E)[] opSlice() const return @system // TODO @safe for -dip1000?
     {
         if (isLarge)
         {
@@ -148,14 +148,14 @@ struct SSOString
     }
 
     /// ditto
-    scope immutable(E)[] opSlice(size_t i, size_t j) const return @system // TODO @safe for -dip1000?
+    immutable(E)[] opSlice(size_t i, size_t j) const return @system // TODO @safe for -dip1000?
     {
         pragma(inline, true);
         return opSlice()[i .. j];
     }
 
     /// Get pointer to elements.
-    @property scope immutable(E)* ptr() const return @system // TODO @safe for -dip1000?
+    @property immutable(E)* ptr() const return @system // TODO @safe for -dip1000?
     {
         if (isLarge)
         {

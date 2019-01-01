@@ -5,7 +5,7 @@ struct S(E)
     @property ref E x() return { return _x; }
     @property E* xptr() return { return &_x; }
 
-    scope E[] opSlice() return { xptr[0 .. 1]; }
+    inout(E)[] opSlice() inout return @trusted { return (&_x)[0 .. 1]; }
 
     private E _x;
 }
@@ -13,6 +13,13 @@ struct S(E)
 ///
 @safe pure unittest
 {
-    static assert(!__traits(compiles, { ref int escape_x() { S s; return s.x; }}));
-    // int* escape_xptr() { S s; return s.xptr; }
+    alias E = int;
+    static assert(!__traits(compiles, { ref E escape_x() { S s; return s.x; }}));
+    E[] escape_opSlice()
+    {
+        S!E s;
+        return s[];
+    }
+
+    // E* escape_xptr() { S s; return s.xptr; }
 }

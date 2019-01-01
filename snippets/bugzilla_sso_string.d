@@ -39,7 +39,7 @@ struct SSOString
         }
         else
         {
-            return small.data.ptr[0 .. small.length/2]; // scoped
+            return small.data.ptr[0 .. small.length/2];
         }
     }
 

@@ -17,22 +17,10 @@ import std.traits : hasMember, isScalarType, hasIndirections, isArray, isPointer
 import std.digest : isDigest;
 import traits_ex : isAddress;
 
-/** Get hash of `value`.
- *
- * A faster alternative to `hashOf`.
- */
-hash_t hashOf2(alias hasher, T)(const scope auto ref T value)
-if (__traits(compiles, { hash_t _ = hasher(value); }))
-{
-    version(LDC) pragma(inline, true);
-    return hasher(value);   // for instance `hashOf`
-}
-
 @safe:
 
 /// ditto
 hash_t hashOf2(alias hasher, T)(const scope auto ref T value)
-if (!__traits(compiles, { hash_t _ = hasher(value); }))
 {
     version(LDC) pragma(inline, true);
     static if (__traits(compiles, { enum _ = isDigest!hasher; }) &&

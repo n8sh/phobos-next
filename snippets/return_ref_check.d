@@ -49,8 +49,16 @@ private:
                                      0,0,0,0,0]; // explicit init needed for `__traits(isZeroInit)` to be true.
         }
     }
+
+    struct Raw                  // same memory layout as `immutable(E)[]`
+    {
+        size_t length = 0;      // can be bit-fiddled without GC allocation
+        immutable(E)* ptr = null;
+    }
+
     union
     {
+        Raw raw;
         E[] _large;
         Small _small;
     }

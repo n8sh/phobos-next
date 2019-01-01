@@ -1142,13 +1142,13 @@ if (isInstanceOf!(BasicArray, C) &&
     alias T = int;
     alias A = BasicArray!T;
 
-    T[] leakSlice() @safe
+    T[] leakSlice() @safe pure nothrow @nogc
     {
         A a;
         return a[];             // TODO shouldn't compile with -dip1000
     }
 
-    T* leakPointer() @safe
+    T* leakPointer() @safe pure nothrow @nogc
     {
         A a;
         return a._store.ptr;          // TODO shouldn't compile with -dip1000

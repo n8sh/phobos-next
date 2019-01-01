@@ -1657,13 +1657,16 @@ private:
     private size_t keyToIndex(SomeKey)(const scope SomeKey key) const @trusted
     {
         version(LDC) pragma(inline, true);
-
         version(none)           // TODO activate
-        static if (is(hasher == hashOf)) // TODO how do we compare symbols?
         {
-            return hashOf(key) & powerOf2Mask;
+            static if (is(hasher == hashOf)) // TODO how do we compare symbols?
+            {
+                return hashOf(key) & powerOf2Mask;
+            }
+            else
+            {
+            }
         }
-
         import digestion : hashOf2;
         return hashOf2!(hasher)(key) & powerOf2Mask;
     }

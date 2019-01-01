@@ -199,11 +199,11 @@ struct SSOString
     /** Support trait `isHoleable`. */
     static immutable holeValue = typeof(this).asHole();
     /** Check if this a hole, meaning a removed/erase value. */
-    bool isHole() @safe nothrow @nogc const
+    bool isHole() @safe nothrow @nogc const scope
     {
         return words[0] == size_t.max;
     }
-    void holeify() @system @nogc
+    void holeify() @system @nogc scope
     {
         words[0] = size_t.max;
         words[1] = size_t.max;

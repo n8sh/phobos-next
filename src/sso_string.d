@@ -73,7 +73,7 @@ struct SSOString
     }
 
     /** Return `this` converted to a `string`, which potentially needs
-     * GC-allocation (iff `length <= smallCapacity`).
+     * GC-allocation (iff `length > smallCapacity`).
      */
     @property string toString() const @trusted pure nothrow // may GC-allocate
     {

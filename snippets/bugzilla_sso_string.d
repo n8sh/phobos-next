@@ -11,7 +11,7 @@ struct SSOString
 
     pure nothrow @nogc:
 
-    scope E* ptr() const return @safe
+    scope E* ptr() const return @trusted
     {
         if (isLarge)
         {

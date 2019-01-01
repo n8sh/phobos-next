@@ -128,12 +128,6 @@ struct SSOString
 
     @property bool isNull() const @safe pure nothrow @nogc { return this == typeof(this).init; }
 
-    ref immutable(E) opIndex(size_t index) const return @trusted
-    {
-        pragma(inline, true);
-        return opSlice()[index]; // deos range check
-    }
-
     immutable(E)[] opSlice() const return @trusted // TODO @safe for -dip1000?
     {
         if (isLarge)
@@ -145,6 +139,12 @@ struct SSOString
         {
             return small.data.ptr[0 .. small.length/2]; // scoped
         }
+    }
+
+    ref immutable(E) opIndex(size_t index) const return @trusted
+    {
+        pragma(inline, true);
+        return opSlice()[index]; // does range check
     }
 
     /// ditto
@@ -419,16 +419,9 @@ static assert(SSOString.sizeof == string.sizeof);
 @safe pure nothrow unittest
 {
     alias S = SSOString;
-
-    static assert(!__traits(compiles, { string f1() @safe pure nothrow @nogc { S x; return x[]; } }));
+    static assert(!__traits(compiles, { string f1() @safe pure nothrow { S x; return x[]; } }));
     static assert(!__traits(compiles, { string f2() @safe pure nothrow { S x; return x.toString; } }));
-
-    // TODO activate
-    // ref char g() @safe pure nothrow @nogc
-    // {
-    //     S x;
-    //     return x[0];             // TODO should fail with -dip1000
-    // }
+    static assert(!__traits(compiles, { ref immutable(char) g() @safe pure nothrow @nogc { S x; return x[0]; } }));
 }
 
 ///

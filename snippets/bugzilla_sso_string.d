@@ -22,7 +22,6 @@ struct SSOString
             }
             RawLarge copy = void;
             copy.large = cast(Large)large;
-            copy.raw.length /= 2; // adjust length
             return copy.large.ptr;
         }
         else

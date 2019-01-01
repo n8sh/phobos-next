@@ -310,7 +310,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /// Empty.
-    void clear()()              // template-lazy
+    void clear()              // template-lazy
     {
         release();
         resetInternalData();

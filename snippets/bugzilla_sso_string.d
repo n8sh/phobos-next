@@ -121,14 +121,6 @@ struct S
 ///
 @safe pure unittest
 {
-    ref int escape_x()
-    {
-        S s;
-        return s.x;
-    }
-    int* escape_xptr()
-    {
-        S s;
-        return s.xptr;
-    }
+    static assert(!__traits(compiles, { ref int escape_x() { S s; return s.x; }}));
+    // int* escape_xptr() { S s; return s.xptr; }
 }

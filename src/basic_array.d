@@ -304,7 +304,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
      * TODO what effect does have here?
      * See_Also: https://github.com/atilaneves/automem/blob/master/source/automem/vector.d#L92
      */
-    ~this() scope
+    ~this() /*TODO scope*/
     {
         release();
     }
@@ -590,27 +590,27 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /// Index support.
-    scope ref inout(T) opIndex()(size_t i) inout return // template-lazy
+    ref inout(T) opIndex()(size_t i) inout return // template-lazy
     {
         pragma(inline, true);
         return slice()[i];
     }
 
     /// Slice support.
-    scope inout(T)[] opSlice()(size_t i, size_t j) inout return // template-lazy
+    inout(T)[] opSlice()(size_t i, size_t j) inout return // template-lazy
     {
         pragma(inline, true);
         return slice()[i .. j];
     }
     /// ditto
-    scope inout(T)[] opSlice()() inout return // template-lazy
+    inout(T)[] opSlice()() inout return // template-lazy
     {
         pragma(inline, true);
         return slice();
     }
 
     /// Index assignment support.
-    scope ref T opIndexAssign(U)(U value, size_t i) @trusted return
+    ref T opIndexAssign(U)(U value, size_t i) @trusted return
     {
         static if (hasElaborateDestructor!T)
         {
@@ -629,21 +629,21 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /// Slice assignment support.
-    scope T[] opSliceAssign(U)(U value) return
+    T[] opSliceAssign(U)(U value) return
     {
         pragma(inline, true);
         return slice()[] = value;
     }
 
     /// ditto
-    scope T[] opSliceAssign(U)(U value, size_t i, size_t j) return
+    T[] opSliceAssign(U)(U value, size_t i, size_t j) return
     {
         pragma(inline, true);
         return slice()[i .. j] = value;
     }
 
     /// Get reference to front element.
-    scope ref inout(T) front()() inout return @property // template-lazy
+    ref inout(T) front()() inout return @property // template-lazy
     {
         pragma(inline, true);
         // TODO use?: enforce(!empty); emsi-containers doesn't, std.container.Array does
@@ -651,7 +651,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /// Get reference to back element.
-    scope ref inout(T) back()() inout return @property // template-lazy
+    ref inout(T) back()() inout return @property // template-lazy
     {
         pragma(inline, true);
         // TODO use?: enforce(!empty); emsi-containers doesn't, std.container.Array does
@@ -905,14 +905,14 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     // }
 
     /// Helper slice.
-    scope private inout(T)[] slice() inout return @trusted
+    private inout(T)[] slice() inout return @trusted
     {
         pragma(inline, true);
         return _store.ptr[0 .. _store.length];
     }
 
     /// Unsafe access to pointer.
-    scope inout(T)* ptr()() inout return @system // template-lazy
+    inout(T)* ptr()() inout return @system // template-lazy
     {
         pragma(inline, true);
         return _store.ptr;
@@ -942,7 +942,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /// Mutable pointer.
-    scope private MutableE* _mptr() const return @trusted
+    private MutableE* _mptr() const return @trusted
     {
         pragma(inline, true);
         return cast(typeof(return))_store.ptr;
@@ -1134,6 +1134,7 @@ if (isInstanceOf!(BasicArray, C) &&
 
     auto d = A(1, 2, 3);
 }
+
 
 /// scope checking
 @safe pure nothrow @nogc unittest

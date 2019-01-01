@@ -15,11 +15,10 @@ struct S(E)
 {
     alias E = int;
     static assert(!__traits(compiles, { ref E escape_x() { S s; return s.x; }}));
-    E[] escape_opSlice()
-    {
-        S!E s;
-        return s[];
-    }
-
-    // E* escape_xptr() { S s; return s.xptr; }
+    static assert(!__traits(compiles, { E* escape_xptr() { S s; return s.xptr; } }));
+    // E[] escape_opSlice()
+    // {
+    //     S!E s;
+    //     return s[];
+    // }
 }

@@ -23,7 +23,7 @@ struct SSOString
         }
     }
 
-    scope inout(E)[] opSlice() inout return @trusted // TODO @safe for -dip1000?
+    scope inout(E)[] opSlice() inout return @trusted
     {
         if (isLarge)
         {
@@ -39,7 +39,7 @@ struct SSOString
         }
         else
         {
-            return small.data[0 .. small.length/2]; // scoped. TODO use .ptr when proved stable
+            return small.data.ptr[0 .. small.length/2]; // scoped
         }
     }
 

@@ -2338,6 +2338,7 @@ unittest
     alias X = OpenHashSet!(K, FNV!(64, true));
 
     auto x = X();
+
     {                           // scoped range
         foreach (ref xe; x.byElement) { assert(0); }
     }
@@ -2424,6 +2425,7 @@ auto intersectWith(C1, C2)(ref C1 x,
 /// Range over elements of l-value instance of this.
 static struct ByLvalueElement(Table) // public for now because this is needed in `knet.zing.Zing.EdgesOfRels`
 {
+    @disable this(this);
 pragma(inline, true):
     // TODO functionize
     import std.traits : isMutable;
@@ -2453,6 +2455,7 @@ pragma(inline, true):
 /// Range over elements of r-value instance of this.
 static private struct ByRvalueElement(Table)
 {
+    @disable this(this);
 pragma(inline, true):
     static if (isAddress!(Table.ElementType)) // for reference types
     {

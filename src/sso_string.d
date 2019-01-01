@@ -154,6 +154,18 @@ struct SSOString
         return opSlice()[i .. j];
     }
 
+    @property scope immutable(E)* ptr() const return @system // TODO @safe for -dip1000?
+    {
+        if (isLarge)
+        {
+            return large.ptr;   // GC-heap pointer
+        }
+        else
+        {
+            return &small.data[0]; // stack pointer
+        }
+    }
+
     /** Check if equal to `rhs`. */
     bool opEquals()(const scope auto ref typeof(this) rhs) const @trusted
     {

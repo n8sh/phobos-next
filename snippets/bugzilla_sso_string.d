@@ -15,11 +15,11 @@ struct SSOString
     {
         if (isLarge)
         {
-            return &large.ptr[0];
+            return &large.ptr[0]; // GC-heap pointer
         }
         else
         {
-            return &small.data[0];
+            return &small.data[0]; // stack pointer
         }
     }
 

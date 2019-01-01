@@ -908,7 +908,7 @@ struct OpenHashMapOrSet(K, V = void,
      *
      * Can be used for implementing, for instance, caching of typically strings.
      */
-    ref T insertAndReturnElement(SomeElement)(SomeElement element) return scope // template-lazy
+    ref T insertAndReturnElement(SomeElement)(SomeElement element) return // template-lazy
     {
         version(LDC) pragma(inline, true);
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
@@ -2027,8 +2027,10 @@ unittest
         assert(b.containsUsingLinearSearch(K(i)));
     }
 
-    assert(a._bins != b._bins);
     assert(a == b);
+
+    // bin storage must be deterministic
+    () @trusted { assert(a._bins != b._bins); }();
 }
 
 @safe pure nothrow /*@nogc*/ unittest

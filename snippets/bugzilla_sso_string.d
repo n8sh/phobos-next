@@ -23,7 +23,7 @@ struct SSOString
         }
     }
 
-    scope E[] opSlice() const return @trusted // TODO @safe for -dip1000?
+    scope inout(E)[] opSlice() inout return @trusted // TODO @safe for -dip1000?
     {
         if (isLarge)
         {

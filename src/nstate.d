@@ -16,7 +16,9 @@ struct Fuzzy
 {
     @safe pure nothrow @nogc:
 
-    enum no       = make(0);    // probability: 0
+    enum defaultCode = 0;
+
+    enum no       = make(defaultCode); // probability: 0
     enum yes      = make(1);    // probability: 1
     enum likely   = make(2);    // probability: > 1/2
     enum unlikely = make(3);    // probability: < 1/2
@@ -84,7 +86,7 @@ struct Fuzzy
     // }
 
 private:
-    ubyte _v = no._v;
+    ubyte _v = defaultCode;
     static Fuzzy make(ubyte b)
     {
         Fuzzy r = void;
@@ -123,7 +125,9 @@ struct Tristate
 {
     @safe pure nothrow @nogc:
 
-    enum no      = make(0);
+    enum defaultCode = 0;
+
+    enum no      = make(defaultCode);
     enum yes     = make(2);
     enum unknown = make(6);
 
@@ -158,7 +162,7 @@ struct Tristate
     }
 
 private:
-    ubyte _v = no._v;
+    ubyte _v = defaultCode;
     static Tristate make(ubyte b)
     {
         Tristate r = void;
@@ -246,7 +250,9 @@ struct TristateCond
 {
     @safe pure nothrow @nogc:
 
-    enum no      = make(0);
+    enum defaultCode = 0;
+
+    enum no      = make(defaultCode);
     enum yes     = make(1);
     enum unknown = make(4);
 
@@ -286,7 +292,7 @@ struct TristateCond
     }
 
 private:
-    ubyte _v = no._v;
+    ubyte _v = defaultCode;
     static TristateCond make(ubyte b)
     {
         TristateCond r = void;

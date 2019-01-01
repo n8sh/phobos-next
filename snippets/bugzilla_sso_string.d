@@ -11,6 +11,26 @@ struct SSOString
 
     pure nothrow @nogc:
 
+    scope E* ptr() const return @safe
+    {
+        if (isLarge)
+        {
+            union RawLarge
+            {
+                Raw raw;
+                Large large;
+            }
+            RawLarge copy = void;
+            copy.large = cast(Large)large;
+            copy.raw.length /= 2; // adjust length
+            return copy.large.ptr;
+        }
+        else
+        {
+            return &small.data[0];
+        }
+    }
+
     scope E[] opSlice() const return @trusted // TODO @safe for -dip1000?
     {
         if (isLarge)
@@ -79,12 +99,17 @@ private:
 ///
 @safe pure nothrow @nogc unittest
 {
-    string shouldFail1() @safe pure nothrow @nogc
+    immutable(char)* ptrFail1() @safe pure nothrow @nogc
+    {
+        SSOString x;
+        return x.ptr;           // TODO should fail with -dip25 or -dip1000
+    }
+    string opSliceFail1() @safe pure nothrow @nogc
     {
         SSOString x;
         return x[];             // TODO should fail with -dip25 or -dip1000
     }
-    string shouldFail2() @safe pure nothrow @nogc
+    string opSliceFail2() @safe pure nothrow @nogc
     {
         SSOString x;
         return x[0 .. 0];       // TODO should fail with -dip25 or -dip1000

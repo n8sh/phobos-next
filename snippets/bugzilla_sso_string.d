@@ -46,7 +46,7 @@ struct SSOString
     /// ditto
     scope inout(E)[] opSlice(size_t i, size_t j) inout return @trusted // TODO @safe for -dip1000?
     {
-        return opSlice()[i .. j];
+        return opSlice()[i .. j]; // range-checked
     }
 
 private:

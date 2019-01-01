@@ -305,7 +305,7 @@ static assert(SSOString.sizeof == string.sizeof);
     assert(x[] is x[]);
     assert(y[] is y[]);
     assert(x[] !is y[]);
-    assert(x.ptr !is y[].ptr);
+    assert(x.ptr !is y.ptr);
 
     const S z = "43";
     assert(!z.isNull);

@@ -1499,7 +1499,7 @@ struct OpenHashMapOrSet(K, V = void,
 
     static if (hasHoleableKey)
     {
-        static bool isOccupiedBin(const scope ref T bin)
+        static bool isOccupiedBin(const ref T bin)
         {
             pragma(inline, true);
             if (keyOf(bin).isNull) { return false; }

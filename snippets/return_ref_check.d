@@ -19,6 +19,11 @@ struct S(E)
     }
 
 private:
+    enum smallCapacity = 15;
+    struct Small
+    {
+        E[smallCapacity] data;
+    }
     union
     {
         E[] _large;

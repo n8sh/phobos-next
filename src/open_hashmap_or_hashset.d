@@ -2471,7 +2471,6 @@ auto intersectWith(C1, C2)(ref C1 x,
 /// Range over elements of l-value instance of this.
 static struct ByLvalueElement(Table) // public for now because this is needed in `knet.zing.Zing.EdgesOfRels`
 {
-    @disable this(this);
 pragma(inline, true):
     // TODO functionize
     import std.traits : isMutable;
@@ -2736,7 +2735,8 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     assert(!x.contains(k44));
     assert(!x.containsUsingLinearSearch(k44));
     assert(x.length == 3);
-    // TODO assert(x.byElement.count == x.length);
+
+    assert(x.byElement.count == x.length);
     foreach (e; x.byElement)    // from l-value
     {
         debug static assert(is(typeof(e) == const(K))); // always const access
@@ -3274,7 +3274,7 @@ version(unittest)
 
                 debug static assert(isInputRange!(typeof(xr)));
 
-                // TODO assert(x.byElement.count == 3);
+                assert(x.byElement.count == 3);
 
                 X y;
                 size_t ix = 0;
@@ -3297,14 +3297,14 @@ version(unittest)
                     ix++;
                 }
 
-                // TODO assert(y.byElement.count == 3);
+                assert(y.byElement.count == 3);
                 assert(x == y);
 
                 const z = X();
-                // TODO assert(z.byElement.count == 0);
+                assert(z.byElement.count == 0);
 
                 immutable w = X();
-                // TODO assert(w.byElement.count == 0);
+                assert(w.byElement.count == 0);
 
                 {
                     auto xc = X.withElements([k11, k12, k13].s);

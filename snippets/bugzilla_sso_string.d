@@ -11,6 +11,8 @@ struct SSOString
 
     pure nothrow @nogc:
 
+    E e;
+
     scope inout(E)* ptr() inout return @trusted
     {
         if (isLarge)

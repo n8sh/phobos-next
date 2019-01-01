@@ -89,38 +89,3 @@ private:
         Small small;
     }
 }
-
-///
-@safe pure nothrow @nogc unittest
-{
-    immutable(char)* ptrFail1() @safe pure nothrow @nogc
-    {
-        SSOString x;
-        return x.ptr;           // TODO should fail with -dip25 or -dip1000
-    }
-    string opSliceFail1() @safe pure nothrow @nogc
-    {
-        SSOString x;
-        return x[];             // TODO should fail with -dip25 or -dip1000
-    }
-    string opSliceFail2() @safe pure nothrow @nogc
-    {
-        SSOString x;
-        return x[0 .. 0];       // TODO should fail with -dip25 or -dip1000
-    }
-}
-
-struct S
-{
-    @safe pure nothrow @nogc:
-    private int _x;
-    @property ref int x() return { return _x; }
-    @property int* xptr() return { return &_x; }
-}
-
-///
-@safe pure unittest
-{
-    static assert(!__traits(compiles, { ref int escape_x() { S s; return s.x; }}));
-    // int* escape_xptr() { S s; return s.xptr; }
-}

@@ -416,7 +416,7 @@ static assert(SSOString.sizeof == string.sizeof);
 }
 
 /// DIP-1000 return ref escape analysis
-@safe pure unittest
+@safe pure nothrow unittest
 {
     alias S = SSOString;
 

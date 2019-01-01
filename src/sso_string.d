@@ -128,7 +128,7 @@ struct SSOString
 
     @property bool isNull() const @safe pure nothrow @nogc { return this == typeof(this).init; }
 
-    immutable(E)[] opSlice() const return @trusted // TODO @safe for -dip1000?
+    immutable(E)[] opSlice() const return @trusted
     {
         if (isLarge)
         {

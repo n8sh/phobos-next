@@ -82,11 +82,11 @@ private:
     string shouldFail1() @safe pure nothrow @nogc
     {
         SSOString x;
-        return x[];             // TODO should fail with -dip1000
+        return x[];             // TODO should fail with -dip25 or -dip1000
     }
     string shouldFail2() @safe pure nothrow @nogc
     {
         SSOString x;
-        return x[0 .. 0];       // TODO should fail with -dip1000
+        return x[0 .. 0];       // TODO should fail with -dip25 or -dip1000
     }
 }

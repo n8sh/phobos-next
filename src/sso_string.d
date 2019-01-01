@@ -348,8 +348,6 @@ static assert(SSOString.sizeof == string.sizeof);
     assert(s0_.isNull);         // cannot distinguish
     assert(s0 == s0_);
 
-    // TODO assert(s0 !is s0_);
-
     const s7 = S("0123456");
     assert(!s7.isNull);
 

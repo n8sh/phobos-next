@@ -2,8 +2,8 @@ struct S(E)
 {
     @safe pure nothrow @nogc:
 
-    @property ref E x() return { return _small.data[0]; }
-    @property E* xptr() return { return &_small.data[0]; }
+    @property ref E front() return { return _small.data[0]; }
+    @property E* frontPtr() return { return &_small.data[0]; }
 
     inout(E)[] opSlice() inout return @trusted
     {
@@ -50,8 +50,8 @@ private:
 @safe pure unittest
 {
     alias E = char;
-    static assert(!__traits(compiles, { ref E escape_x() { S s; return s.x; }}));
-    static assert(!__traits(compiles, { E* escape_xptr() { S s; return s.xptr; } }));
+    static assert(!__traits(compiles, { ref E escape_x() { S s; return s.front; }}));
+    static assert(!__traits(compiles, { E* escape_xptr() { S s; return s.frontPtr; } }));
     E[] escape_opSlice()
     {
         S!E s;

@@ -7,7 +7,10 @@ struct S(E)
 
     inout(E)[] opSlice() inout return @trusted
     {
-        return _small[0 .. 16];
+        if (_largeFlag)
+            return _large;
+        else
+            return _small[0 .. 16];
     }
 
     static if (is(E == char))
@@ -18,8 +21,10 @@ struct S(E)
 private:
     union
     {
+        E[] _large;
         E[16] _small;
     }
+    bool _largeFlag;
 }
 
 ///

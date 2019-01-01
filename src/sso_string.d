@@ -443,6 +443,7 @@ static assert(SSOString.sizeof == string.sizeof);
     assert(S.asHole.isHole);
 }
 
+///
 version(show)
 @safe unittest
 {

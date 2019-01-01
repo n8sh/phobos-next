@@ -2506,7 +2506,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
 
 /** Returns: range that iterates through the keys of `c` in undefined order.
  */
-auto byKey(Table)(auto ref return Table c) @trusted
+auto byKey(Table)(auto ref /*TODO return*/ Table c) @trusted
 if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     Table.hasValue)
 {

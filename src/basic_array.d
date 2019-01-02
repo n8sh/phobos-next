@@ -610,7 +610,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /// Index assignment support.
-    ref T opIndexAssign(U)(U value, size_t i) @trusted return
+    ref T opIndexAssign(U)(scope U value, size_t i) @trusted return
     {
         static if (hasElaborateDestructor!T)
         {
@@ -629,14 +629,14 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /// Slice assignment support.
-    T[] opSliceAssign(U)(U value) return
+    T[] opSliceAssign(U)(scope U value) return
     {
         pragma(inline, true);
         return slice()[] = value;
     }
 
     /// ditto
-    T[] opSliceAssign(U)(U value, size_t i, size_t j) return
+    T[] opSliceAssign(U)(scope U value, size_t i, size_t j) return
     {
         pragma(inline, true);
         return slice()[i .. j] = value;

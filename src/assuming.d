@@ -30,16 +30,19 @@ if (isFunctionPointer!T || isDelegate!T)
     return cast(SetFunctionAttributes!(T, functionLinkage!T, attrs)) t;
 }
 
-int f(int x)
+version(unittest)
 {
-    return x + 1;
-}
+    static int f(int x)
+    {
+        return x + 1;
+    }
 
-void g() pure
-{
-    static assert(!__traits(compiles, { auto x = f(42); }));
-    auto pureF = assumePure(&f);
-    assert(pureF(42) == 43);
+    static void g() pure
+    {
+        static assert(!__traits(compiles, { auto x = f(42); }));
+        auto pureF = assumePure(&f);
+        assert(pureF(42) == 43);
+    }
 }
 
 auto assumePureNogc(T)(T t)

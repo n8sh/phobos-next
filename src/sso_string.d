@@ -92,7 +92,7 @@ struct SSOString
 
     /** Get hash of `this`, with extra fast computation for the small case.
      */
-    @property hash_t toHash() const @trusted
+    @property hash_t toHash() const scope @trusted
     {
         version(LDC) pragma(inline, true);
         if (isLarge)
@@ -109,7 +109,7 @@ struct SSOString
     }
 
     /** Get length. */
-    @property size_t length() const @trusted
+    @property size_t length() const scope @trusted
     {
         pragma(inline, true);
         if (isLarge)
@@ -124,9 +124,9 @@ struct SSOString
     /// ditto
     alias opDollar = length;
 
-    @property bool empty() const @safe pure nothrow @nogc { return length == 0; }
+    @property bool empty() const scope @safe pure nothrow @nogc { return length == 0; }
 
-    @property bool isNull() const @safe pure nothrow @nogc { return this == typeof(this).init; }
+    @property bool isNull() const scope @safe pure nothrow @nogc { return this == typeof(this).init; }
 
     immutable(E)[] opSlice() const return @trusted
     {

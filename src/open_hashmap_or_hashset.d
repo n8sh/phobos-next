@@ -3766,26 +3766,16 @@ unittest
     assert(a == b);
 }
 
+version(unittest)
+static struct Rel
+{
+    @safe pure nothrow @nogc:
+    string name;                // TODO crashes when qualifiied with `package`
+    static immutable nullValue = typeof(this).init;
+}
 @safe pure unittest
 {
-    struct Rel
-    {
-        @safe pure nothrow @nogc:
-
-        @property string toString() const { return name; }
-
-        @property hash_t toHash() const
-        {
-            import core.internal.hash : hashOf;
-            return name.hashOf;
-        }
-
-        // TODO make const when open_hashmap_or_hashset can handle aggregates with const members
-        package string name; // relation name. TODO benchmark with `SSOString`
-
-        static immutable nullValue = typeof(this).init;
-    }
-    // TODO alias RelSet = OpenHashSet!(Rel);
+    alias S = OpenHashSet!(Rel);
 }
 
 version(unittest)

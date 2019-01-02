@@ -3632,7 +3632,7 @@ unittest
     static struct Rel
     {
         static immutable nullValue = typeof(this).init;
-        string name;            // relation name
+        string name;            // relation name. WARNING compiler crashes when qualified with `package`
     }
     alias X = OpenHashSet!(Rel, FNV!(64, true));
     X x;
@@ -3764,18 +3764,6 @@ unittest
     }
 
     assert(a == b);
-}
-
-version(unittest)
-static struct Rel
-{
-    @safe pure nothrow @nogc:
-    string name;                // TODO crashes when qualifiied with `package`
-    static immutable nullValue = typeof(this).init;
-}
-@safe pure unittest
-{
-    alias S = OpenHashSet!(Rel);
 }
 
 version(unittest)

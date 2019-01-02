@@ -168,7 +168,7 @@ struct SSOString
     }
 
     /** Check if equal to `rhs`. */
-    bool opEquals()(const scope auto ref typeof(this) rhs) const @trusted
+    bool opEquals()(const scope auto ref typeof(this) rhs) const scope @trusted
     {
         pragma(inline, true);
         return opSlice() == rhs.opSlice();
@@ -179,7 +179,7 @@ struct SSOString
      * See_Also: https://forum.dlang.org/post/agzznbzkacfhyqvoezht@forum.dlang.org.
      */
     version(none)               // `is` operator cannot be overloaded. See: https://forum.dlang.org/post/prmrli$1146$1@digitalmars.com
-    bool opBinary(string op)(const scope auto ref typeof(this) rhs) const @trusted
+    bool opBinary(string op)(const scope auto ref typeof(this) rhs) const scope @trusted
     if (op == `is`)         // TODO has not effect
     {
         pragma(inline, true);
@@ -187,7 +187,7 @@ struct SSOString
     }
 
     /** Check if equal to `rhs`. */
-    bool opEquals()(const scope const(char)[] rhs) const @trusted
+    bool opEquals()(const scope const(char)[] rhs) const scope @trusted
     {
         pragma(inline, true);
         return opSlice() == rhs;
@@ -199,7 +199,7 @@ struct SSOString
     /** Support trait `isHoleable`. */
     static immutable holeValue = typeof(this).asHole();
     /** Check if this a hole, meaning a removed/erase value. */
-    bool isHole() @safe nothrow @nogc const scope
+    bool isHole() const scope @safe nothrow @nogc
     {
         return words[0] == size_t.max;
     }

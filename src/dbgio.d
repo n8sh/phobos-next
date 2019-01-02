@@ -25,7 +25,6 @@ mixin template dump(Names...)
 }
 
 ///
-version(show)
 @safe pure unittest
 {
     int x = 42;

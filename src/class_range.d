@@ -8,7 +8,7 @@ import std.range : isInputRange, ElementType;
  *
  * TODO move to phobos-next
  */
-inout(U)[] upcastElementsTo(U, T)(inout(T)[] x) @trusted
+inout(U)[] upcastElementsTo(U, T)(scope inout(T)[] x) @trusted
 if (is(T == class) &&
     is(U == class)
     // TODO also check that `T` is a subclass of `U`

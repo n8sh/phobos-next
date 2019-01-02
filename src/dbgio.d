@@ -16,6 +16,7 @@ mixin template dump(Names...)
     auto dump =
     {
         import std.stdio : write;
+        debug write(__FILE__, ":", __LINE__, ": info: ");
         foreach (immutable i, name; Names)
         {
             debug write(name, ": ", mixin(name), (i < Names.length-1) ? ", " : "\n");
@@ -25,6 +26,7 @@ mixin template dump(Names...)
 }
 
 ///
+version(show)
 @safe pure unittest
 {
     int x = 42;

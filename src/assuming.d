@@ -9,13 +9,11 @@ import std.traits : isFunctionPointer, isDelegate, functionAttributes,
    */
 void assumeNogc(alias Func, T...)(T xs) @nogc
 {
-    static auto assumeNogcPtr(T)(T f) if (isFunctionPointer!T || isDelegate!T)
+    static auto assumeNogcPtr(T)(T f)
+    if (isFunctionPointer!T || isDelegate!T)
     {
         enum attrs = functionAttributes!T | FunctionAttribute.nogc;
         return cast(SetFunctionAttributes!(T, functionLinkage!T, attrs)) f;
-    }
-
-    {
     }
     assumeNogcPtr(&Func!T)(xs);
 }
@@ -25,7 +23,8 @@ void assumeNogc(alias Func, T...)(T xs) @nogc
  * Copied from: https://dlang.org/phobos/std_traits.html#SetFunctionAttributes.
  * See_Also: https://forum.dlang.org/post/hmucolyghbomttqpsili@forum.dlang.org
  */
-auto assumePure(T)(T t) if (isFunctionPointer!T || isDelegate!T)
+auto assumePure(T)(T t)
+if (isFunctionPointer!T || isDelegate!T)
 {
     enum attrs = functionAttributes!T | FunctionAttribute.pure_;
     return cast(SetFunctionAttributes!(T, functionLinkage!T, attrs)) t;
@@ -43,7 +42,8 @@ void g() pure
     assert(pureF(42) == 43);
 }
 
-auto assumePureNogc(T)(T t) if (isFunctionPointer!T || isDelegate!T)
+auto assumePureNogc(T)(T t)
+if (isFunctionPointer!T || isDelegate!T)
 {
     enum attrs = functionAttributes!T | FunctionAttribute.pure_ | FunctionAttribute.nogc;
     return cast(SetFunctionAttributes!(T, functionLinkage!T, attrs)) t;

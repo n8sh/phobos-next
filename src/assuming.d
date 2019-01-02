@@ -6,7 +6,7 @@ import std.traits : isFunctionPointer, isDelegate, functionAttributes, FunctionA
    * See_Also: http://forum.dlang.org/post/nq4eol$2h34$1@digitalmars.com
    * See_Also: https://dpaste.dzfl.pl/8c5ec90c5b39
    */
-void assumeNogc(alias Func, T...)(T xs) @nogc
+void assumeNogc(alias fun, T...)(T xs) @nogc
 {
     static auto assumeNogcPtr(T)(T f)
     if (isFunctionPointer!T || isDelegate!T)
@@ -14,7 +14,7 @@ void assumeNogc(alias Func, T...)(T xs) @nogc
         enum attrs = functionAttributes!T | FunctionAttribute.nogc;
         return cast(SetFunctionAttributes!(T, functionLinkage!T, attrs)) f;
     }
-    assumeNogcPtr(&Func!T)(xs);
+    assumeNogcPtr(&fun!T)(xs);
 }
 
 /** Return `T` assumed to be `pure`.

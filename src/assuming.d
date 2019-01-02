@@ -1,7 +1,6 @@
 module assuming;
 
-import std.traits : isFunctionPointer, isDelegate, functionAttributes,
-    FunctionAttribute, SetFunctionAttributes, functionLinkage;
+import std.traits : isFunctionPointer, isDelegate, functionAttributes, FunctionAttribute, SetFunctionAttributes, functionLinkage;
 
 /**
    * See_Also: http://forum.dlang.org/post/nq4eol$2h34$1@digitalmars.com

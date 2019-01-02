@@ -37,7 +37,7 @@ mixin template dump(Names...)
 
 /* http://stackoverflow.com/questions/19413340/escaping-safety-with-debug-statements */
 debug auto trustedPureDebugCall(alias fn, Args...) (Args args)
-    pure
+pure
 {
     debug return fn(args);
 }

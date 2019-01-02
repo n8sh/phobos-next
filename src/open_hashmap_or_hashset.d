@@ -3766,7 +3766,7 @@ unittest
     assert(a == b);
 }
 
-version(unittest)
+@safe pure unittest
 {
     struct Rel
     {
@@ -3785,10 +3785,6 @@ version(unittest)
 
         static immutable nullValue = typeof(this).init;
     }
-}
-
-@safe pure unittest
-{
     // TODO alias RelSet = OpenHashSet!(Rel);
 }
 

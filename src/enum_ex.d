@@ -35,7 +35,7 @@ if (is(E == enum))
 
 /** Fast and more generic implementation of `std.conv.to` for enumerations.
  */
-string toStringFaster(T)(T value) @safe pure nothrow @nogc
+string toStringFaster(T)(const scope T value) @safe pure nothrow @nogc
 if (is(T == enum))
 {
     import std.meta : AliasSeq;

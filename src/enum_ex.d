@@ -68,7 +68,7 @@ if (is(T == enum))
 
 /** Faster implementation of `std.conv.to` for enumerations with no aliases.
  */
-string toStringNonAliases(T)(T value) @safe pure nothrow @nogc
+string toStringNonAliases(T)(const scope T value) @safe pure nothrow @nogc
 if (is(T == enum))              // TODO check for no aliases
 {
     final switch (value)

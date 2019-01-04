@@ -1341,10 +1341,10 @@ struct OpenHashMapOrSet(K, V = void,
             import std.conv : emplace;
             scope Class temp = emplace!(Class)(tempNode_, params);
             Class* hit = cast(Class*)(temp in this);
-            // static if (hasElaborateDestructorNew!Class)
-            // {
-            //     // .destroy(tempNode);
-            // }
+            static if (hasElaborateDestructorNew!Class)
+            {
+                .destroy(temp);
+            }
             if (hit)
             {
                 auto typedHit = cast(typeof(return))*hit;
@@ -3592,7 +3592,10 @@ version(unittest)
 {
     static class Base
     {
-        @safe pure nothrow @nogc:
+        static size_t dtorCountBase = 0;
+        @safe nothrow @nogc:
+        ~this() { dtorCountBase += 1; }
+        pure:
         this(ulong value) { this._value = value; }
         @property bool opEquals(const scope typeof(this) rhs) const
         {

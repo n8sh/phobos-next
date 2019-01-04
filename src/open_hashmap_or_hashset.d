@@ -1327,6 +1327,32 @@ struct OpenHashMapOrSet(K, V = void,
                    * when assigned to sets value in slot and increases
                    * table._count += 1; */
         }
+
+        /** Try to retrieve `class`-element of type `Class` constructed with
+         * parameters `params`.
+         *
+         * Typically used to implement (polymorphic) caching of class-types with
+         * the need for GG-allocating a temporary instance of a `class`-element.
+         */
+        scope const(K) tryGetElementFromCtorParams(Class, Params...)(const scope Params params) const return @trusted
+        if(is(K : Class))
+        {
+            void[__traits(classInstanceSize, Class)] tempNode_ = void;
+            import std.conv : emplace;
+            scope Class temp = emplace!(Class)(tempNode_, params);
+            Class* hit = cast(Class*)(temp in this);
+            static if (hasElaborateDestructorNew!Class)
+            {
+                .destroy(tempNode);
+            }
+            if (hit)
+            {
+                auto typedHit = cast(typeof(return))*hit;
+                assert(typedHit, "Expected class " ~ Class.stringof ~ " but got hit was of other type"); // TODO give warning or throw
+                return typedHit;
+            }
+            return null;
+        }
     }
 
     static if (hasValue)        // HashMap
@@ -1800,6 +1826,32 @@ private:
         {
             return !hasHoleAtPtrIndex(_holesPtr, index);
         }
+    }
+}
+
+/** Variant of `hasElaborateDestructor` that also checks for destructor when `S`
+ * is a `class`.
+ *
+ * See_Also: https://github.com/dlang/phobos/pull/4119
+ */
+private template hasElaborateDestructorNew(S)
+{
+    import std.traits : isStaticArray;
+    static if (isStaticArray!S && S.length)
+    {
+        enum bool hasElaborateDestructorNew = hasElaborateDestructorNew!(typeof(S.init[0]));
+    }
+    else static if (is(S == struct) ||
+                    is(S == class)) // check also class
+    {
+        import std.traits : FieldTypeTuple, hasMember;
+        import std.meta : anySatisfy;
+        enum hasElaborateDestructorNew = (hasMember!(S, "__dtor") ||
+                                          anySatisfy!(.hasElaborateDestructorNew, FieldTypeTuple!S));
+    }
+    else
+    {
+        enum bool hasElaborateDestructorNew = false;
     }
 }
 
@@ -3567,6 +3619,8 @@ version(unittest)
     assert(x.insert(b42) == X.InsertionStatus.added);
     assert(x.contains(b42));
     assert(x.containsUsingLinearSearch(b42));
+    assert(x.tryGetElementFromCtorParams!Base(42)._value == 42);
+    assert(x.tryGetElementFromCtorParams!Base(41) is null);
 
     // top-class
     auto b43 = new Base(43);

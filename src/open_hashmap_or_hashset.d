@@ -61,6 +61,32 @@ private template defaultKeyEqualPredOf(T)
     }
 }
 
+/** Variant of `hasElaborateDestructor` that also checks for destructor when `S`
+ * is a `class`.
+ *
+ * See_Also: https://github.com/dlang/phobos/pull/4119
+ */
+private template hasElaborateDestructorNew(S)
+{
+    import std.traits : isStaticArray;
+    static if (isStaticArray!S && S.length)
+    {
+        enum bool hasElaborateDestructorNew = hasElaborateDestructorNew!(typeof(S.init[0]));
+    }
+    else static if (is(S == struct) ||
+                    is(S == class)) // check also class
+    {
+        import std.traits : FieldTypeTuple, hasMember;
+        import std.meta : anySatisfy;
+        enum hasElaborateDestructorNew = (hasMember!(S, "__dtor") ||
+                                          anySatisfy!(.hasElaborateDestructorNew, FieldTypeTuple!S));
+    }
+    else
+    {
+        enum bool hasElaborateDestructorNew = false;
+    }
+}
+
 /** Returns `true` iff `lhs` and `rhs` are equal.
  *
  * Opposite to druntime version, implementation is parameterized on object type
@@ -1826,32 +1852,6 @@ private:
         {
             return !hasHoleAtPtrIndex(_holesPtr, index);
         }
-    }
-}
-
-/** Variant of `hasElaborateDestructor` that also checks for destructor when `S`
- * is a `class`.
- *
- * See_Also: https://github.com/dlang/phobos/pull/4119
- */
-private template hasElaborateDestructorNew(S)
-{
-    import std.traits : isStaticArray;
-    static if (isStaticArray!S && S.length)
-    {
-        enum bool hasElaborateDestructorNew = hasElaborateDestructorNew!(typeof(S.init[0]));
-    }
-    else static if (is(S == struct) ||
-                    is(S == class)) // check also class
-    {
-        import std.traits : FieldTypeTuple, hasMember;
-        import std.meta : anySatisfy;
-        enum hasElaborateDestructorNew = (hasMember!(S, "__dtor") ||
-                                          anySatisfy!(.hasElaborateDestructorNew, FieldTypeTuple!S));
-    }
-    else
-    {
-        enum bool hasElaborateDestructorNew = false;
     }
 }
 
@@ -3649,6 +3649,7 @@ version(unittest)
 
     // sub-class
     assert(x.tryGetElementFromCtorParams!Node(42) is null);
+    assert(Base.dtorCount == 6);
     auto n42 = new Node(42);
     assert(!x.contains(n42));     // mustn't equal to `b42`
     assert(!x.containsUsingLinearSearch(n42)); // mustn't equal to `b42`
@@ -3656,16 +3657,25 @@ version(unittest)
     assert(x.contains(n42));
     assert(x.containsUsingLinearSearch(n42));
     assert(x.tryGetElementFromCtorParams!Node(42) !is null);
+    assert(Base.dtorCount == 7);
+    assert(x.tryGetElementFromCtorParams!Node(42)._value == 42);
+    assert(Base.dtorCount == 8);
 
     assert(hashOf(b42) == hashOf(n42));
 
     // sub-class
+    assert(x.tryGetElementFromCtorParams!Node(43) is null);
+    assert(Base.dtorCount == 9);
     auto n43 = new Node(43);
     assert(!x.contains(n43));     // mustn't equal to `b43`
     assert(!x.containsUsingLinearSearch(n43)); // mustn't equal to `b43`
     assert(x.insert(n43) == X.InsertionStatus.added); // added as separate type
     assert(x.contains(n43));
     assert(x.containsUsingLinearSearch(n43));
+    assert(x.tryGetElementFromCtorParams!Node(43) !is null);
+    assert(Base.dtorCount == 10);
+    assert(x.tryGetElementFromCtorParams!Node(43)._value == 43);
+    assert(Base.dtorCount == 11);
 
     assert(hashOf(b43) == hashOf(n43));
 }

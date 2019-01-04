@@ -76,8 +76,7 @@ private template hasElaborateDestructorNew(S)
     else static if (is(S == struct) ||
                     is(S == class)) // check also class
     {
-        import std.traits : hasMember;
-        static if (hasMember!(S, "__dtor"))
+        static if (__traits(hasMember, S, "__dtor"))
         {
             enum bool hasElaborateDestructorNew = true;
         }

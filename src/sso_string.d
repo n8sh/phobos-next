@@ -100,7 +100,7 @@ struct SSOString
             import core.internal.hash : hashOf;
             return hashOf(opSlice());
         }
-        else                    // fast path
+        else                    // fast path for small string
         {
             import hash_functions : wangMixHash64;
             return (wangMixHash64(words[0] >> 1) ^ // shift away LS-bit always being zero

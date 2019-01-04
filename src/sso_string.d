@@ -100,9 +100,9 @@ struct SSOString
             import core.internal.hash : hashOf;
             return hashOf(opSlice());
         }
-        else
+        else                    // fast path
         {
-            import hash_functions : wangMixHash64; // fast path
+            import hash_functions : wangMixHash64;
             return (wangMixHash64(words[0] >> 1) ^ // shift away LS-bit always being zero
                     wangMixHash64(words[1]));
         }

@@ -3654,6 +3654,7 @@ version(unittest)
     assert(x.insert(n42) == X.InsertionStatus.added); // added as separate type
     assert(x.contains(n42));
     assert(x.containsUsingLinearSearch(n42));
+    // TODO assert(x.tryGetElementFromCtorParams!Node(42) is null);
 
     assert(hashOf(b42) == hashOf(n42));
 

@@ -1334,6 +1334,9 @@ struct OpenHashMapOrSet(K, V = void,
          * Typically used to implement (polymorphic) caching of class-types
          * without the need for GG-allocating a temporary instance of a
          * `class`-element potentially already stored in `this` set.
+         *
+         * Polymorphic caching can be realized by setting `hasher` to
+         * `hash_functions.hashOfPolymorphic`.
          */
         scope inout(Class) tryGetElementFromCtorParams(Class, Params...)(scope Params params) inout return @trusted
         if (is(Class : K))

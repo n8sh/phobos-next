@@ -3592,9 +3592,9 @@ version(unittest)
 {
     static class Base
     {
-        static size_t dtorCountBase = 0;
+        static size_t dtorCount = 0; // number of calls to this destructor
         @safe nothrow @nogc:
-        ~this() { dtorCountBase += 1; }
+        ~this() { dtorCount += 1; }
         pure:
         this(ulong value) { this._value = value; }
         @property bool opEquals(const scope typeof(this) rhs) const
@@ -3629,8 +3629,11 @@ version(unittest)
     assert(x.contains(b42));
     assert(x.containsUsingLinearSearch(b42));
     assert(x.tryGetElementFromCtorParams!Base(42) !is null);
+    assert(Base.dtorCount == 1);
     assert(x.tryGetElementFromCtorParams!Base(42)._value == 42);
+    assert(Base.dtorCount == 2);
     assert(x.tryGetElementFromCtorParams!Base(41) is null);
+    assert(Base.dtorCount == 3);
 
     // top-class
     auto b43 = new Base(43);
@@ -3639,6 +3642,10 @@ version(unittest)
     assert(x.insert(b43) == X.InsertionStatus.added);
     assert(x.contains(b43));
     assert(x.containsUsingLinearSearch(b43));
+    assert(x.tryGetElementFromCtorParams!Base(43) !is null);
+    assert(Base.dtorCount == 4);
+    assert(x.tryGetElementFromCtorParams!Base(43)._value == 43);
+    assert(Base.dtorCount == 5);
 
     // sub-class
     auto n42 = new Node(42);

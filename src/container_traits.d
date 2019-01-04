@@ -446,6 +446,38 @@ T[] makeInitZeroArray(T, alias Allocator)(const size_t length) @trusted
     }
 }
 
+/** Variant of `hasElaborateDestructor` that also checks for destructor when `S`
+ * is a `class`.
+ *
+ * See_Also: https://github.com/dlang/phobos/pull/4119
+ */
+private template hasElaborateDestructorNew(S)
+{
+    import std.traits : isStaticArray;
+    static if (isStaticArray!S && S.length)
+    {
+        enum bool hasElaborateDestructorNew = hasElaborateDestructorNew!(typeof(S.init[0]));
+    }
+    else static if (is(S == struct) ||
+                    is(S == class)) // check also class
+    {
+        static if (__traits(hasMember, S, "__dtor"))
+        {
+            enum bool hasElaborateDestructorNew = true;
+        }
+        else
+        {
+            import std.traits : FieldTypeTuple;
+            import std.meta : anySatisfy;
+            enum hasElaborateDestructorNew = anySatisfy!(.hasElaborateDestructorNew, FieldTypeTuple!S);
+        }
+    }
+    else
+    {
+        enum bool hasElaborateDestructorNew = false;
+    }
+}
+
 version(unittest)
 {
     import std.typecons : Nullable;

@@ -1360,7 +1360,7 @@ struct OpenHashMapOrSet(K, V = void,
          * Typically used to implement (polymorphic) caching of class-types with
          * the need for GG-allocating a temporary instance of a `class`-element.
          */
-        scope const(K) tryGetElementFromCtorParams(Class, Params...)(const scope Params params) const return @trusted
+        scope inout(Class) tryGetElementFromCtorParams(Class, Params...)(scope Params params) inout return @trusted
         if (is(Class : K))
         {
             void[__traits(classInstanceSize, Class)] tempNode_ = void;

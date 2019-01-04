@@ -3625,12 +3625,9 @@ version(unittest)
     assert(x.insert(b42) == X.InsertionStatus.added);
     assert(x.contains(b42));
     assert(x.containsUsingLinearSearch(b42));
-    dln("xx");
-    // assert(x.tryGetElementFromCtorParams!Base(42) !is null);
-    // assert(x.tryGetElementFromCtorParams!Base(42)._value == 42);
-    dln("xx");
-    // assert(x.tryGetElementFromCtorParams!Base(41) is null);
-    dln("xx");
+    assert(x.tryGetElementFromCtorParams!Base(42) !is null);
+    assert(x.tryGetElementFromCtorParams!Base(42)._value == 42);
+    assert(x.tryGetElementFromCtorParams!Base(41) is null);
 
     // top-class
     auto b43 = new Base(43);

@@ -102,7 +102,7 @@ struct SSOString
         }
         else
         {
-            import hash_functions : wangMixHash64;
+            import hash_functions : wangMixHash64; // fast path
             return (wangMixHash64(words[0] >> 1) ^ // shift away LS-bit always being zero
                     wangMixHash64(words[1]));
         }

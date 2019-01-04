@@ -76,10 +76,17 @@ private template hasElaborateDestructorNew(S)
     else static if (is(S == struct) ||
                     is(S == class)) // check also class
     {
-        import std.traits : FieldTypeTuple, hasMember;
-        import std.meta : anySatisfy;
-        enum hasElaborateDestructorNew = (hasMember!(S, "__dtor") ||
-                                          anySatisfy!(.hasElaborateDestructorNew, FieldTypeTuple!S));
+        import std.traits : hasMember;
+        static if (hasMember!(S, "__dtor"))
+        {
+            enum bool hasElaborateDestructorNew = true;
+        }
+        else
+        {
+            import std.traits : FieldTypeTuple;
+            import std.meta : anySatisfy;
+            enum hasElaborateDestructorNew = anySatisfy!(.hasElaborateDestructorNew, FieldTypeTuple!S);
+        }
     }
     else
     {

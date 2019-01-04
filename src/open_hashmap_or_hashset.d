@@ -1335,7 +1335,7 @@ struct OpenHashMapOrSet(K, V = void,
          * the need for GG-allocating a temporary instance of a `class`-element.
          */
         scope const(K) tryGetElementFromCtorParams(Class, Params...)(const scope Params params) const return @trusted
-        if(is(K : Class))
+        if (is(Class : K))
         {
             void[__traits(classInstanceSize, Class)] tempNode_ = void;
             import std.conv : emplace;
@@ -3648,13 +3648,14 @@ version(unittest)
     assert(Base.dtorCount == 5);
 
     // sub-class
+    assert(x.tryGetElementFromCtorParams!Node(42) is null);
     auto n42 = new Node(42);
     assert(!x.contains(n42));     // mustn't equal to `b42`
     assert(!x.containsUsingLinearSearch(n42)); // mustn't equal to `b42`
     assert(x.insert(n42) == X.InsertionStatus.added); // added as separate type
     assert(x.contains(n42));
     assert(x.containsUsingLinearSearch(n42));
-    // TODO assert(x.tryGetElementFromCtorParams!Node(42) is null);
+    assert(x.tryGetElementFromCtorParams!Node(42) !is null);
 
     assert(hashOf(b42) == hashOf(n42));
 

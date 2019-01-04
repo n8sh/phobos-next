@@ -1331,8 +1331,9 @@ struct OpenHashMapOrSet(K, V = void,
         /** Try to retrieve `class`-element of type `Class` constructed with
          * parameters `params`.
          *
-         * Typically used to implement (polymorphic) caching of class-types with
-         * the need for GG-allocating a temporary instance of a `class`-element.
+         * Typically used to implement (polymorphic) caching of class-types
+         * without the need for GG-allocating a temporary instance of a
+         * `class`-element.
          */
         scope inout(Class) tryGetElementFromCtorParams(Class, Params...)(scope Params params) inout return @trusted
         if (is(Class : K))

@@ -451,7 +451,7 @@ T[] makeInitZeroArray(T, alias Allocator)(const size_t length) @trusted
  *
  * See_Also: https://github.com/dlang/phobos/pull/4119
  */
-private template hasElaborateDestructorNew(S)
+template hasElaborateDestructorNew(S)
 {
     import std.traits : isStaticArray;
     static if (isStaticArray!S && S.length)

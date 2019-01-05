@@ -21,9 +21,9 @@ unittest
     auto x = typeidHashOf(cast(int)17);
 }
 
-hash_t hashOfTypeInfoPtr(TypeInfo typeinfo) @trusted pure nothrow @nogc
+hash_t hashOfTypeInfoPtr(TypeInfo_Class typeinfo) @trusted pure nothrow @nogc
 {
-    assert(TypeInfo.alignof == 8);
+    assert(typeof(typeinfo).alignof == 8);
     return (cast(hash_t)(cast(void*)typeinfo) >> 3);
 }
 

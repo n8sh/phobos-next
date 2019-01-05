@@ -19,8 +19,8 @@ import std.functional : unaryFun, binaryFun;
 size_t triangularProbeFromIndex(alias pred,
                                 alias assumeNonFullHaystack = false,
                                 T)(const scope T[] haystack, size_t index)
-    if (is(typeof(unaryFun!pred(T.init))) ||
-        is(typeof(binaryFun!pred(size_t.init, T.init))))
+if (is(typeof(unaryFun!pred(T.init))) ||
+    is(typeof(binaryFun!pred(size_t.init, T.init))))
 {
     immutable mask = haystack.length - 1;
     assert((~mask ^ mask) == typeof(return).max); // std.math.isPowerOf2(haystack.length)

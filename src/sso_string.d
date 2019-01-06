@@ -422,6 +422,11 @@ static assert(SSOString.sizeof == string.sizeof);
     static assert(!__traits(compiles, { ref immutable(char) g() @safe pure nothrow @nogc { S x; return x[0]; } }));
 }
 
+@safe pure unittest
+{
+    // TODO static immutable any = SSOString(`alpha`);
+}
+
 ///
 version(show)
 @safe unittest

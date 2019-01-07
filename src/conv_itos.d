@@ -45,13 +45,11 @@ string itos(const uint val) @trusted pure nothrow
     immutable length = fastLog10(val) + 1;
     char[] result;
     result.length = length;
-
     foreach (i; 0 .. length)
     {
         immutable _val = val / fastPow10tbl_32bit_unsigned[i];
         result[length - i - 1] = cast(char)((_val % 10) + '0');
     }
-
     return cast(string) result;
 }
 

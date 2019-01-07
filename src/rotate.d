@@ -1,4 +1,4 @@
-module rotate;
+module bitwise_rotate;
 
 /** Rotate `x` left by `n` bits.
  *

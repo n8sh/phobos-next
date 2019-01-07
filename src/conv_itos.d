@@ -8,7 +8,7 @@ const(uint) fastLog10(const uint val) pure nothrow @nogc @safe
 }
 
 /*@unique*/
-static immutable fastPow10tbl = [
+private static immutable fastPow10tbl_32bit_unsigned = [
     1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000,
     ];
 
@@ -20,7 +20,7 @@ string itos(const uint val) pure @trusted nothrow
 
     foreach (i; 0 .. length)
     {
-        immutable _val = val / fastPow10tbl[i];
+        immutable _val = val / fastPow10tbl_32bit_unsigned[i];
         result[length - i - 1] = cast(char)((_val % 10) + '0');
     }
 
@@ -28,3 +28,8 @@ string itos(const uint val) pure @trusted nothrow
 }
 
 static assert(mixin(uint.max.itos) == uint.max);
+
+@safe pure unittest
+{
+
+}

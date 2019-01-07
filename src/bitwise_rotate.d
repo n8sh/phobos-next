@@ -3,6 +3,8 @@ module bitwise_rotate;
 /** Rotate `x` left by `n` bits.
  *
  * Should compile to a single CPU instruction (ROL).
+ *
+ * TODO `core.bitop.rol` instead.
  */
 ulong rotateLeft(ulong x, uint n) @safe pure nothrow @nogc
 {
@@ -23,6 +25,8 @@ ulong rotateLeft(ulong x, uint n) @safe pure nothrow @nogc
 /** Rotate `x` right by `n` bits.
  *
  * Should compile to a single CPU instruction (ROR).
+ *
+ * TODO `core.bitop.ror` instead.
  */
 ulong rotateRight(ulong x, uint n) @safe pure nothrow @nogc
 {

@@ -20,6 +20,8 @@ const(uint) fastLog10(const uint val) @safe pure nothrow @nogc
 @safe pure unittest
 {
     assert(fastLog10(1) == 0);
+    assert(fastLog10(11) == 1);
+    assert(fastLog10(uint.max) == 9);
 }
 
 /*@unique*/

@@ -25,10 +25,12 @@ uint fastLog10(const uint val) @safe pure nothrow @nogc
     assert(fastLog10(99) == 1);
     assert(fastLog10(111) == 2);
     assert(fastLog10(999) == 2);
-    assert(fastLog10(1111) == 3);
-    assert(fastLog10(9999) == 3);
-    assert(fastLog10(11111) == 4);
-    assert(fastLog10(99999) == 4);
+    assert(fastLog10(1_111) == 3);
+    assert(fastLog10(9_999) == 3);
+    assert(fastLog10(11_111) == 4);
+    assert(fastLog10(99_999) == 4);
+    assert(fastLog10(999_999_999) == 8);
+    assert(fastLog10(1_000_000_000) == 9);
     assert(fastLog10(uint.max) == 9);
 }
 

@@ -4,7 +4,7 @@ module rotate;
  *
  * Should compile to a single CPU instruction (ROL).
  */
-ulong rotateLeft(ulong x, ubyte n) @safe pure nothrow @nogc
+ulong rotateLeft(ulong x, uint n) @safe pure nothrow @nogc
 {
     pragma(inline, true);
     return (x << n) | (x >> (8*typeof(x).sizeof - n));
@@ -23,7 +23,7 @@ ulong rotateLeft(ulong x, ubyte n) @safe pure nothrow @nogc
  *
  * Should compile to a single CPU instruction (ROR).
  */
-ulong rotateRight(ulong x, ubyte n) @safe pure nothrow @nogc
+ulong rotateRight(ulong x, uint n) @safe pure nothrow @nogc
 {
     pragma(inline, true);
     return (x >> n) | (x << (8*typeof(x).sizeof - n));
@@ -33,7 +33,5 @@ ulong rotateRight(ulong x, ubyte n) @safe pure nothrow @nogc
 @safe pure nothrow @nogc unittest
 {
     assert(rotateRight(ulong.max, 1) == ulong.max);
-    import dbgio;
-    dln(rotateRight(1, 1));
-    assert(rotateRight(1, 1) == 2^^63);
+    assert(rotateRight(1, 1) == 2UL^^63);
 }

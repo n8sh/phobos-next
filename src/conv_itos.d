@@ -1,5 +1,7 @@
 module conv_itos;
 
+@safe:
+
 const(uint) fastLog10(const uint val) @safe pure nothrow @nogc
 {
     return (val < 10) ? 0 : (val < 100) ? 1 : (val < 1000) ? 2 : (val < 10000) ? 3

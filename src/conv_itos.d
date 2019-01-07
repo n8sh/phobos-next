@@ -4,6 +4,7 @@ module conv_itos;
 
 uint fastLog10(const uint val) @safe pure nothrow @nogc
 {
+    // in order of probability
     if (val < 1e1) return 0;
     if (val < 1e2) return 1;
     if (val < 1e3) return 2;

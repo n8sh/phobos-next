@@ -18,6 +18,7 @@ uint fastLog10(const uint val) @safe pure nothrow @nogc
     return 9;
 }
 
+///
 @safe pure unittest
 {
     assert(fastLog10(1) == 0);
@@ -33,6 +34,32 @@ uint fastLog10(const uint val) @safe pure nothrow @nogc
     assert(fastLog10(999_999_999) == 8);
     assert(fastLog10(1_000_000_000) == 9);
     assert(fastLog10(uint.max) == 9);
+}
+
+uint fastLog10(const ulong val) @safe pure nothrow @nogc
+{
+    // in order of probability
+    if (val < 10UL)  return 0;
+    if (val < 100UL)  return 1;
+    return 11111;
+}
+
+///
+@safe pure unittest
+{
+    assert(fastLog10(1UL) == 0);
+    assert(fastLog10(9UL) == 0);
+    assert(fastLog10(11UL) == 1);
+    assert(fastLog10(99UL) == 1);
+    assert(fastLog10(111UL) == 2);
+    assert(fastLog10(999UL) == 2);
+    assert(fastLog10(1_111UL) == 3);
+    assert(fastLog10(9_999UL) == 3);
+    assert(fastLog10(11_111UL) == 4);
+    assert(fastLog10(99_999UL) == 4);
+    assert(fastLog10(999_999_999UL) == 8);
+    assert(fastLog10(1_000_000_000UL) == 9);
+    assert(fastLog10(ulong.max) == 9);
 }
 
 /*@unique*/

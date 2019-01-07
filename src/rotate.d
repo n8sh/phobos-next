@@ -14,9 +14,9 @@ ulong rotateLeft(ulong x, uint n) @safe pure nothrow @nogc
 @safe pure nothrow @nogc unittest
 {
     assert(rotateLeft(ulong.max, 1) == ulong.max);
-    assert(rotateLeft(1, 1) == 2);
-    assert(rotateLeft(2, 2) == 8);
-    assert(rotateLeft(3, 3) == 24);
+    assert(rotateLeft(1UL, 1) == 2);
+    assert(rotateLeft(2UL, 2) == 8);
+    assert(rotateLeft(3UL, 3) == 24);
     assert(rotateLeft(2UL^^63, 1) == 1);
 }
 

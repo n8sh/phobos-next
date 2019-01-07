@@ -6,7 +6,8 @@ module bitwise_rotate;
  *
  * TODO `core.bitop.rol` instead.
  */
-ulong rotateLeft(ulong x, uint n) @safe pure nothrow @nogc
+ulong rotateLeft(const scope ulong x,
+                 const scope uint n) @safe pure nothrow @nogc
 {
     pragma(inline, true);
     return (x << n) | (x >> (8*typeof(x).sizeof - n));
@@ -28,7 +29,8 @@ ulong rotateLeft(ulong x, uint n) @safe pure nothrow @nogc
  *
  * TODO `core.bitop.ror` instead.
  */
-ulong rotateRight(ulong x, uint n) @safe pure nothrow @nogc
+ulong rotateRight(const scope ulong x,
+                  const scope uint n) @safe pure nothrow @nogc
 {
     pragma(inline, true);
     return (x >> n) | (x << (8*typeof(x).sizeof - n));

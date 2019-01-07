@@ -40,6 +40,8 @@ private static immutable fastPow10tbl_32bit_unsigned = [
     1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000,
     ];
 
+/** Convert `val` to a `string` and return it.
+ */
 string uint_to_string(const uint val) @trusted pure nothrow
 {
     immutable length = fastLog10(val) + 1;

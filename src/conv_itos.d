@@ -2,7 +2,7 @@ module conv_itos;
 
 @safe:
 
-uint uintLog10(const uint val) @safe pure nothrow @nogc
+uint fastLog10(const uint val) @safe pure nothrow @nogc
 {
     if (val < 1e1) return 0;
     if (val < 1e2) return 1;
@@ -19,17 +19,17 @@ uint uintLog10(const uint val) @safe pure nothrow @nogc
 
 @safe pure unittest
 {
-    assert(uintLog10(1) == 0);
-    assert(uintLog10(9) == 0);
-    assert(uintLog10(11) == 1);
-    assert(uintLog10(99) == 1);
-    assert(uintLog10(111) == 2);
-    assert(uintLog10(999) == 2);
-    assert(uintLog10(1111) == 3);
-    assert(uintLog10(9999) == 3);
-    assert(uintLog10(11111) == 4);
-    assert(uintLog10(99999) == 4);
-    assert(uintLog10(uint.max) == 9);
+    assert(fastLog10(1) == 0);
+    assert(fastLog10(9) == 0);
+    assert(fastLog10(11) == 1);
+    assert(fastLog10(99) == 1);
+    assert(fastLog10(111) == 2);
+    assert(fastLog10(999) == 2);
+    assert(fastLog10(1111) == 3);
+    assert(fastLog10(9999) == 3);
+    assert(fastLog10(11111) == 4);
+    assert(fastLog10(99999) == 4);
+    assert(fastLog10(uint.max) == 9);
 }
 
 /*@unique*/
@@ -39,7 +39,7 @@ private static immutable fastPow10tbl_32bit_unsigned = [
 
 string itos(const uint val) @trusted pure nothrow
 {
-    immutable length = uintLog10(val) + 1;
+    immutable length = fastLog10(val) + 1;
     char[] result;
     result.length = length;
 

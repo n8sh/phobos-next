@@ -4,9 +4,17 @@ module conv_itos;
 
 const(uint) fastLog10(const uint val) @safe pure nothrow @nogc
 {
-    return (val < 10) ? 0 : (val < 100) ? 1 : (val < 1000) ? 2 : (val < 10000) ? 3
-    : (val < 100000) ? 4 : (val < 1000000) ? 5 : (val < 10000000) ? 6
-    : (val < 100000000) ? 7 : (val < 1000000000) ? 8 : 9;
+    if (val < 1e1) return 0;
+    if (val < 1e2) return 1;
+    if (val < 1e3) return 2;
+    if (val < 1e4) return 3;
+    if (val < 1e5) return 4;
+    if (val < 1e6) return 5;
+    if (val < 1e7) return 6;
+    if (val < 1e8) return 7;
+    if (val < 1e9) return 8;
+    if (val < 1e10) return 9;
+    return 9;
 }
 
 /*@unique*/

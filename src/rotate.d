@@ -7,7 +7,7 @@ module rotate;
 ulong rotateLeft(ulong x, ubyte n) @safe pure nothrow @nogc
 {
     pragma(inline, true);
-    return (x << n) | (x >> (64 - n));
+    return (x << n) | (x >> (8*typeof(x).sizeof - n));
 }
 
 ///
@@ -25,5 +25,13 @@ ulong rotateLeft(ulong x, ubyte n) @safe pure nothrow @nogc
 ulong rotateRight(ulong x, ubyte n) @safe pure nothrow @nogc
 {
     pragma(inline, true);
-    return (x >> n) | (x << (64 - n));
+    return (x >> n) | (x << (8*typeof(x).sizeof - n));
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    import dbgio;
+    dln(rotateRight(1, 1));
+    assert(rotateRight(1, 1) == 2^^63);
 }

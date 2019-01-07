@@ -17,6 +17,7 @@ ulong rotateLeft(ulong x, uint n) @safe pure nothrow @nogc
     assert(rotateLeft(1, 1) == 2);
     assert(rotateLeft(2, 2) == 8);
     assert(rotateLeft(3, 3) == 24);
+    assert(rotateLeft(2UL^^63, 1) == 1);
 }
 
 /** Rotate `x` right by `n` bits.

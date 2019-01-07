@@ -2,7 +2,7 @@ module conv_itos;
 
 @safe:
 
-uint fastLog10(const uint val) @safe pure nothrow @nogc
+uint uintLog10(const uint val) @safe pure nothrow @nogc
 {
     if (val < 1e1) return 0;
     if (val < 1e2) return 1;
@@ -19,9 +19,9 @@ uint fastLog10(const uint val) @safe pure nothrow @nogc
 
 @safe pure unittest
 {
-    assert(fastLog10(1) == 0);
-    assert(fastLog10(11) == 1);
-    assert(fastLog10(uint.max) == 9);
+    assert(uintLog10(1) == 0);
+    assert(uintLog10(11) == 1);
+    assert(uintLog10(uint.max) == 9);
 }
 
 /*@unique*/
@@ -31,7 +31,7 @@ private static immutable fastPow10tbl_32bit_unsigned = [
 
 string itos(const uint val) @trusted pure nothrow
 {
-    immutable length = fastLog10(val) + 1;
+    immutable length = uintLog10(val) + 1;
     char[] result;
     result.length = length;
 

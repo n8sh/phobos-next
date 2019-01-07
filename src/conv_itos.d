@@ -40,7 +40,7 @@ private static immutable fastPow10tbl_32bit_unsigned = [
     1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000,
     ];
 
-string itos(const uint val) @trusted pure nothrow
+string uint_to_string(const uint val) @trusted pure nothrow
 {
     immutable length = fastLog10(val) + 1;
     char[] result;
@@ -53,7 +53,7 @@ string itos(const uint val) @trusted pure nothrow
     return cast(string) result;
 }
 
-static assert(mixin(uint.max.itos) == uint.max);
+static assert(mixin(uint.max.uint_to_string) == uint.max);
 
 @safe pure unittest
 {

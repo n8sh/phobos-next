@@ -10,6 +10,7 @@ ulong rotateLeft(ulong x, ubyte n) @safe pure nothrow @nogc
     return (x << n) | (x >> (64 - n));
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     assert(rotateLeft(1, 1) == 2);

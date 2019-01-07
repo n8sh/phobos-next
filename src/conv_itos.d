@@ -20,7 +20,15 @@ uint uintLog10(const uint val) @safe pure nothrow @nogc
 @safe pure unittest
 {
     assert(uintLog10(1) == 0);
+    assert(uintLog10(9) == 0);
     assert(uintLog10(11) == 1);
+    assert(uintLog10(99) == 1);
+    assert(uintLog10(111) == 2);
+    assert(uintLog10(999) == 2);
+    assert(uintLog10(1111) == 3);
+    assert(uintLog10(9999) == 3);
+    assert(uintLog10(11111) == 4);
+    assert(uintLog10(99999) == 4);
     assert(uintLog10(uint.max) == 9);
 }
 

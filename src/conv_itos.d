@@ -17,6 +17,11 @@ const(uint) fastLog10(const uint val) @safe pure nothrow @nogc
     return 9;
 }
 
+@safe pure unittest
+{
+    assert(fastLog10(1) == 0);
+}
+
 /*@unique*/
 private static immutable fastPow10tbl_32bit_unsigned = [
     1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000,

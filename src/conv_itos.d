@@ -12,7 +12,7 @@ private static immutable fastPow10tbl_32bit_unsigned = [
     1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000,
     ];
 
-string itos(const uint val) pure @trusted nothrow
+string itos(const uint val) pure nothrow @trusted
 {
     immutable length = fastLog10(val) + 1;
     char[] result;

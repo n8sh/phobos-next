@@ -2,7 +2,7 @@ module conv_itos;
 
 @safe:
 
-const(uint) fastLog10(const uint val) @safe pure nothrow @nogc
+uint fastLog10(const uint val) @safe pure nothrow @nogc
 {
     if (val < 1e1) return 0;
     if (val < 1e2) return 1;

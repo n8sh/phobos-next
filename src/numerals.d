@@ -131,7 +131,7 @@ static this()
 {
     import std.exception: assumeUnique;
     ubyte[string] tmp;
-    foreach (const i, e; onesNumerals)
+    foreach (immutable i, e; onesNumerals)
     {
         tmp[e] = cast(ubyte)i;
     }

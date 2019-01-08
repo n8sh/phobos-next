@@ -5,8 +5,6 @@ module bitwise_rotate;
  * Should compile to a single CPU instruction (ROL).
  *
  * TODO `core.bitop.rol` instead.
- *
- * See_Also: https://forum.dlang.org/post/vpjtdcryaoezyrhdunsu@forum.dlang.org
  */
 ulong rotateLeft(const scope ulong x,
                  const scope uint n) @safe pure nothrow @nogc
@@ -30,8 +28,6 @@ ulong rotateLeft(const scope ulong x,
  * Should compile to a single CPU instruction (ROR).
  *
  * TODO `core.bitop.ror` instead.
- *
- * See_Also: https://forum.dlang.org/post/vpjtdcryaoezyrhdunsu@forum.dlang.org
  */
 ulong rotateRight(const scope ulong x,
                   const scope uint n) @safe pure nothrow @nogc

@@ -131,9 +131,9 @@ static this()
 {
     import std.exception: assumeUnique;
     ubyte[string] tmp;
-    foreach (ubyte i, e; onesNumerals)
+    foreach (const i, e; onesNumerals)
     {
-        tmp[e] = i;
+        tmp[e] = cast(ubyte)i;
     }
     _onesPlaceWordsAA = assumeUnique(tmp); /* Don't alter tmp from here on. */
 }

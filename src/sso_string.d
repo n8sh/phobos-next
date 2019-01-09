@@ -22,6 +22,51 @@ struct SSOString
         sink(opSlice());        // opSlice is @trusted here
     }
 
+    pure:
+
+    /** Return `this` lowercased. */
+    typeof(this) toLower()() const @trusted                 // template-lazy
+    {
+        if (isSmallASCIIClean())
+        {
+            typeof(return) result = void;
+            result.small.length = small.length;
+            foreach (const index; 0 .. smallCapacity)
+            {
+                import std.ascii : toLower;
+                (cast(char[])(result.small.data))[index] = toLower(small.data[index]);
+            }
+            return result;
+        }
+        else
+        {
+            import std.uni : asLowerCase;
+            import std.conv : to;
+            return typeof(return)(opSlice().asLowerCase.to!string);
+        }
+    }
+
+    /** Return `this` uppercased. */
+    typeof(this) toUpper()() const @trusted                 // template-lazy
+    {
+        if (isSmallASCIIClean())
+        {
+            typeof(return) result = void;
+            result.small.length = small.length;
+            foreach (const index; 0 .. smallCapacity)
+            {
+                import std.ascii : toUpper;
+                (cast(char[])(result.small.data))[index] = toUpper(small.data[index]);
+            }
+            return result;
+        }
+        else
+        {
+            import std.uni : asUpperCase;
+            assert(0);
+        }
+    }
+
     pure nothrow:
 
     /** Construct from `source`, which potentially needs GC-allocation (iff
@@ -228,48 +273,6 @@ struct SSOString
         // should be fast on 64-bit platforms:
         return ((words[0] & maskASCIICleanWord0) == 0 &&
                 (words[1] & maskASCIICleanWord1) == 0);
-    }
-
-    /** Return `this` lowercased. */
-    typeof(this) toLower()() const @trusted                 // template-lazy
-    {
-        if (isSmallASCIIClean())
-        {
-            typeof(return) result = void;
-            result.small.length = small.length;
-            foreach (const index; 0 .. smallCapacity)
-            {
-                import std.ascii : toLower;
-                (cast(char[])(result.small.data))[index] = toLower(small.data[index]);
-            }
-            return result;
-        }
-        else
-        {
-            import std.uni : asLowerCase;
-            assert(0);
-        }
-    }
-
-    /** Return `this` uppercased. */
-    typeof(this) toUpper()() const @trusted                 // template-lazy
-    {
-        if (isSmallASCIIClean())
-        {
-            typeof(return) result = void;
-            result.small.length = small.length;
-            foreach (const index; 0 .. smallCapacity)
-            {
-                import std.ascii : toUpper;
-                (cast(char[])(result.small.data))[index] = toUpper(small.data[index]);
-            }
-            return result;
-        }
-        else
-        {
-            import std.uni : asUpperCase;
-            assert(0);
-        }
     }
 
 private:
@@ -495,9 +498,15 @@ static assert(SSOString.sizeof == string.sizeof);
     assert(!S("ö").isSmallASCIIClean);
     assert(!S("åäö").isSmallASCIIClean);
     assert(!S("ö-värld").isSmallASCIIClean);
+}
 
+/// ASCII purity and case-conversion
+@safe pure unittest
+{
+    alias S = SSOString;
     assert(S("A").toLower[] == "a");
     assert(S("ABCDEFGHIJKLMNO").toLower[] == "abcdefghijklmno");
+    assert(S("ABCDEFGHIJKLMNOP").toLower[] == "abcdefghijklmnop");
 }
 
 @safe pure unittest

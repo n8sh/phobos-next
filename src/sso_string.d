@@ -439,7 +439,7 @@ static assert(SSOString.sizeof == string.sizeof);
     static assert(!__traits(compiles, { ref immutable(char) g() @safe pure nothrow @nogc { S x; return x[0]; } }));
 }
 
-/// ASCII handling
+/// ASCII purity
 @trusted pure nothrow @nogc unittest
 {
     alias S = SSOString;

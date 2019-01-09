@@ -246,7 +246,7 @@ struct SSOString
         }
         else
         {
-            assert(0);
+            assert(0, "Handle large");
         }
     }
 
@@ -266,7 +266,7 @@ struct SSOString
         }
         else
         {
-            assert(0);
+            assert(0, "Handle large");
         }
     }
 

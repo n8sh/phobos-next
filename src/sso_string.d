@@ -234,6 +234,7 @@ struct SSOString
             return true;
         }
 
+        auto mask = 0x_a0a0a0a0_a0a0a0a0UL;
         foreach (const ch; small.data.ptr[0 .. small.length])
         {
             if (ch >= 128)      // if not ASCII pure

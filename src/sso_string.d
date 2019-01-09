@@ -236,7 +236,10 @@ private:
         struct Small
         {
             /* TODO only first 4 bits are needed to represent a length between
-             * 0-15, use other 4 bits */
+             * 0-15, use other 4 bits
+             *
+             * 5:th bit is set if `data` is UTF-8 encoded, 0 if `data` is ASCII encoded
+             */
             ubyte length = 0;
             immutable(E)[smallCapacity] data = [0,0,0,0,0,
                                                 0,0,0,0,0,

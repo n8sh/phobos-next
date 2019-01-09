@@ -218,33 +218,18 @@ struct SSOString
         return result;
     }
 
+    /** Check if `this` is a small ASCII pure string.
+     */
     bool isSmallASCIIClean() @safe pure nothrow @nogc
     {
-        if (isLarge) { return false; }
-        return small.isASCIIClean;
-    }
+        enum ulong maskASCIICleanWord0 = 0x_a0_a0_a0_a0__a0_a0_a0_01UL;
+        enum ulong maskASCIICleanWord1 = 0x_a0_a0_a0_a0__a0_a0_a0_a0UL;
 
-    /** Determine if `this` is a small ASCII pure string.
-     */
-    bool determineIfSmallASCIIClean() @trusted pure nothrow @nogc
-    {
-        if (isLarge) { return false; }
-        if (small.isASCIIClean)
-        {
-            return true;
-        }
-
-        foreach (const ch; small.data.ptr[0 .. small.length])
-        {
-            if (ch >= 128)      // if not ASCII pure
-            {
-                return false;   // bail out
-            }
-        }
-
-        small.length |= (1 << Small.bitIndexASCII); // tag as ASCII pure
-
-        return true;
+        /** Returns `true` if `data` is guaranteed to be a ASCII pure
+         * string, `false` if content has unknown encoding.
+         */
+        return ((words[0] & maskASCIICleanWord0) == 0 &&
+                (words[1] & maskASCIICleanWord1) == 0);
     }
 
 private:
@@ -274,18 +259,6 @@ private:
             immutable(E)[smallCapacity] data = [0,0,0,0,0,
                                                 0,0,0,0,0,
                                                 0,0,0,0,0]; // explicit init needed for `__traits(isZeroInit)` to be true.
-
-            enum ulong maskASCIICleanWord0 = 0x_a0a0a0a0_a0a0a000UL;
-            enum ulong maskASCIICleanWord1 = 0x_a0a0a0a0_a0a0a0a0UL;
-
-            /** Returns `true` if `data` is guaranteed to be a ASCII pure
-             * string, `false` if content has unknown encoding.
-             */
-            bool isASCIIClean() const @trusted pure nothrow @nogc
-            {
-                return ((*(cast(size_t*)data.ptr + 0) & maskASCIICleanWord0) == 0 &&
-                        (*(cast(size_t*)data.ptr + 1) & maskASCIICleanWord1) == 0);
-            }
         }
         struct Raw                  // same memory layout as `immutable(E)[]`
         {
@@ -475,20 +448,14 @@ static assert(SSOString.sizeof == string.sizeof);
     alias S = SSOString;
     {
         auto x = S("a");
-        assert(!x.isSmallASCIIClean);
-        assert(x.determineIfSmallASCIIClean());
         assert(x.isSmallASCIIClean);
     }
     {
         auto x = S("ö");
         assert(!x.isSmallASCIIClean);
-        x.determineIfSmallASCIIClean();
-        assert(!x.isSmallASCIIClean);
     }
     {
         auto x = S("alpha");
-        assert(!x.isSmallASCIIClean);
-        assert(x.determineIfSmallASCIIClean());
         assert(x.isSmallASCIIClean);
     }
 }

@@ -225,8 +225,29 @@ struct SSOString
         pragma(inline, true);
         enum ulong maskASCIICleanWord0 = 0x_80_80_80_80__80_80_80_01UL; // bit 0 of lsbyte not set => small
         enum ulong maskASCIICleanWord1 = 0x_80_80_80_80__80_80_80_80UL;
+        // should be fast on 64-bit platforms:
         return ((words[0] & maskASCIICleanWord0) == 0 &&
                 (words[1] & maskASCIICleanWord1) == 0);
+    }
+
+    /** Return `this` lowercased. */
+    typeof(this) toLower() const @trusted                 // template-lazy
+    {
+        if (isSmallASCIIClean())
+        {
+            typeof(return) result = void;
+            result.small.length = small.length;
+            foreach (const index; 0 .. smallCapacity)
+            {
+                import std.ascii : toLower;
+                (cast(char[])(result.small.data))[index] = toLower(small.data[index]);
+            }
+            return result;
+        }
+        else
+        {
+            assert(0);
+        }
     }
 
 private:
@@ -439,7 +460,7 @@ static assert(SSOString.sizeof == string.sizeof);
     static assert(!__traits(compiles, { ref immutable(char) g() @safe pure nothrow @nogc { S x; return x[0]; } }));
 }
 
-/// ASCII purity
+/// ASCII purity and case-conversion
 @trusted pure nothrow @nogc unittest
 {
     alias S = SSOString;
@@ -452,6 +473,9 @@ static assert(SSOString.sizeof == string.sizeof);
     assert(!S("ö").isSmallASCIIClean);
     assert(!S("åäö").isSmallASCIIClean);
     assert(!S("ö-värld").isSmallASCIIClean);
+
+    assert(S("A").toLower[] == "a");
+    assert(S("ABCDEFGHIJKLMNO").toLower[] == "abcdefghijklmno");
 }
 
 @safe pure unittest

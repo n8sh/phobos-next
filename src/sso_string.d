@@ -40,14 +40,21 @@ struct SSOString
         }
         else
         {
-            // typeof(return) result = this;
-            // import std.uni : toLowerInPlace;
-            // auto slice = cast(char[])(result.opSlice());
-            // toLowerInPlace(slice);
-            // return result;
-            import std.uni : asLowerCase;
-            import std.conv : to;
-            return typeof(return)(opSlice().asLowerCase.to!string); // TODO make .to!string nothrow
+            enum useToLowerInPlace = false;
+            static if (useToLowerInPlace)
+            {
+                typeof(return) result = this;
+                import std.uni : toLowerInPlace;
+                auto slice = cast(char[])(result.opSlice());
+                toLowerInPlace(slice);
+                return result;
+            }
+            else
+            {
+                import std.uni : asLowerCase;
+                import std.conv : to;
+                return typeof(return)(opSlice().asLowerCase.to!string); // TODO make .to!string nothrow
+            }
         }
     }
 

@@ -218,7 +218,7 @@ struct SSOString
         return result;
     }
 
-    bool checkIfASCIIClean() @safe pure nothrow @nogc
+    bool determineASCIIClean() @safe pure nothrow @nogc
     {
         if (isLarge)
         {

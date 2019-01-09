@@ -231,7 +231,7 @@ struct SSOString
     }
 
     /** Return `this` lowercased. */
-    typeof(this) toLower() const @trusted                 // template-lazy
+    typeof(this) toLower()() const @trusted                 // template-lazy
     {
         if (isSmallASCIIClean())
         {
@@ -241,6 +241,26 @@ struct SSOString
             {
                 import std.ascii : toLower;
                 (cast(char[])(result.small.data))[index] = toLower(small.data[index]);
+            }
+            return result;
+        }
+        else
+        {
+            assert(0);
+        }
+    }
+
+    /** Return `this` uppercased. */
+    typeof(this) toUpper()() const @trusted                 // template-lazy
+    {
+        if (isSmallASCIIClean())
+        {
+            typeof(return) result = void;
+            result.small.length = small.length;
+            foreach (const index; 0 .. smallCapacity)
+            {
+                import std.ascii : toUpper;
+                (cast(char[])(result.small.data))[index] = toUpper(small.data[index]);
             }
             return result;
         }

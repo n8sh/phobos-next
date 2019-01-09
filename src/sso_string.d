@@ -498,7 +498,7 @@ static assert(SSOString.sizeof == string.sizeof);
 }
 
 /// ASCII purity and case-conversion
-@trusted pure nothrow @nogc unittest
+@safe pure nothrow @nogc unittest
 {
     alias S = SSOString;
     assert( S("a").isSmallASCIIClean);

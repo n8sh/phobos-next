@@ -234,7 +234,6 @@ struct SSOString
             return true;
         }
 
-        auto mask = 0x_a0a0a0a0_a0a0a0a0UL;
         foreach (const ch; small.data.ptr[0 .. small.length])
         {
             if (ch >= 128)      // if not ASCII pure
@@ -276,12 +275,16 @@ private:
                                                 0,0,0,0,0,
                                                 0,0,0,0,0]; // explicit init needed for `__traits(isZeroInit)` to be true.
 
+            enum ulong maskASCIICleanWord0 = 0x_00a0a0a0_a0a0a0a0UL;
+            enum ulong maskASCIICleanWord1 = 0x_a0a0a0a0_a0a0a0a0UL;
+
             /** Returns `true` if `data` is guaranteed to be a ASCII pure
              * string, `false` if content has unknown encoding.
              */
-            bool isASCIIClean() const @safe pure nothrow @nogc
+            bool isASCIIClean() const @trusted pure nothrow @nogc
             {
-                return (length & (1 << bitIndexASCII)) != 0;
+                return ((*(cast(size_t*)data.ptr + 0) & maskASCIICleanWord0) == 0 &&
+                        (*(cast(size_t*)data.ptr + 1) & maskASCIICleanWord1) == 0);
             }
         }
         struct Raw                  // same memory layout as `immutable(E)[]`

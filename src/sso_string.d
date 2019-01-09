@@ -518,6 +518,7 @@ static assert(SSOString.sizeof == string.sizeof);
     alias S = SSOString;
     assert(S("A").toLower[] == "a");
     assert(S("ABCDEFGHIJKLMNO").toLower[] == "abcdefghijklmno");
+    assert(S("ÅÄÖ").toLower[] == "åäö");
     assert(S("ABCDEFGHIJKLMNOP").toLower[] == "abcdefghijklmnop");
 }
 

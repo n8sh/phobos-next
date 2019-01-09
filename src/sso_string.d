@@ -246,7 +246,8 @@ struct SSOString
         }
         else
         {
-            assert(0, "Handle large");
+            import std.uni : asLowerCase;
+            assert(0);
         }
     }
 
@@ -266,7 +267,8 @@ struct SSOString
         }
         else
         {
-            assert(0, "Handle large");
+            import std.uni : asUpperCase;
+            assert(0);
         }
     }
 

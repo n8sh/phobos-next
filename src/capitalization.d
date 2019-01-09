@@ -39,8 +39,14 @@ if (isSomeString!S)
     import std.traits : isNarrowString;
     import std.utf : byUTF;
     // TODO functionize
-    static if (isNarrowString!S) return s.byUTF!dchar.all!(ch => pred(ch));
-    else                         return t.map!(ch => pred(ch));
+    static if (isNarrowString!S)
+    {
+        return s.byUTF!dchar.all!(ch => pred(ch));
+    }
+    else
+    {
+        return t.map!(ch => pred(ch));
+    }
 }
 
 @safe pure unittest
@@ -57,8 +63,14 @@ if (isSomeString!S)
     import std.traits : isNarrowString;
     import std.utf : byUTF;
     // TODO functionize
-    static if (isNarrowString!S) return s.byUTF!dchar.all!(ch => pred(ch));
-    else                         return t.map!(ch => pred(ch));
+    static if (isNarrowString!S)
+    {
+        return s.byUTF!dchar.all!(ch => pred(ch));
+    }
+    else
+    {
+        return t.map!(ch => pred(ch));
+    }
 }
 
 @safe pure unittest

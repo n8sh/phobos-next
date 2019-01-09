@@ -218,20 +218,16 @@ struct SSOString
         return result;
     }
 
-    bool determineIfASCIIClean() @safe pure nothrow @nogc
+    /** Determine if `this` is a small ASCII pure string.
+     */
+    bool determineIfSmallASCIIClean() @safe pure nothrow @nogc
     {
-        if (isLarge)
+        if (isLarge) { return false; }
+        if (small.isASCIIClean)
         {
-            return false;
+            return true;
         }
-        else
-        {
-            if (small.isASCIIClean)
-            {
-                return true;
-            }
-            return false;
-        }
+        return false;
     }
 
 private:

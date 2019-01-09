@@ -220,14 +220,25 @@ struct SSOString
 
     /** Determine if `this` is a small ASCII pure string.
      */
-    bool determineIfSmallASCIIClean() @safe pure nothrow @nogc
+    bool determineIfSmallASCIIClean() @trusted pure nothrow @nogc
     {
         if (isLarge) { return false; }
         if (small.isASCIIClean)
         {
             return true;
         }
-        return false;
+
+        foreach (const ch; small.data.ptr[0 .. small.length])
+        {
+            if (ch >= 128)      // if not ASCII pure
+            {
+                return false;   // bail out
+            }
+        }
+
+        small.length |= (1 << 4); // tag as ASCII pure
+
+        return true;
     }
 
 private:

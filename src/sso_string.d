@@ -218,6 +218,22 @@ struct SSOString
         return result;
     }
 
+    bool checkIfASCIIClean() @safe pure nothrow @nogc
+    {
+        if (isLarge)
+        {
+            return false;
+        }
+        else
+        {
+            if (small.isASCIIClean)
+            {
+                return true;
+            }
+            return false;
+        }
+    }
+
 private:
 
     /** Returns: `true` iff this is a large string, otherwise `false.` */

@@ -443,18 +443,13 @@ static assert(SSOString.sizeof == string.sizeof);
 @trusted pure nothrow @nogc unittest
 {
     alias S = SSOString;
-    {
-        auto x = S("a");
-        assert(x.isSmallASCIIClean);
-    }
-    {
-        auto x = S("ö");
-        assert(!x.isSmallASCIIClean);
-    }
-    {
-        auto x = S("alpha");
-        assert(x.isSmallASCIIClean);
-    }
+    assert( S("a").isSmallASCIIClean);
+    assert( S("b").isSmallASCIIClean);
+    assert( S("abcd").isSmallASCIIClean);
+    assert( S("123456789_12345").isSmallASCIIClean);
+    assert(!S("123456789_123456").isSmallASCIIClean);
+    assert(!S("ö").isSmallASCIIClean);
+    assert(!S("åäö").isSmallASCIIClean);
 }
 
 @safe pure unittest

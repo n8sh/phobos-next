@@ -238,12 +238,16 @@ private:
             /* TODO only first 4 bits are needed to represent a length between
              * 0-15, use other 4 bits
              *
-             * 5:th bit is set if `data` is UTF-8 encoded, 0 if `data` is ASCII encoded
+             * 5:th bit is set if `data` is guaranteed to be a ASCII pure string
              */
             ubyte length = 0;
             immutable(E)[smallCapacity] data = [0,0,0,0,0,
                                                 0,0,0,0,0,
                                                 0,0,0,0,0]; // explicit init needed for `__traits(isZeroInit)` to be true.
+            bool isASCII() const @safe pure nothrow @nogc
+            {
+                return (length & (1 << 4)) != 0;
+            }
         }
         struct Raw                  // same memory layout as `immutable(E)[]`
         {

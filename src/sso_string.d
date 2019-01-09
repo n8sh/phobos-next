@@ -224,7 +224,7 @@ struct SSOString
     {
         // import dbgio;
         // dln((cast(ubyte[])words)[0..16]);
-        enum ulong maskASCIICleanWord0 = 0x_80_80_80_80__80_80_80_01UL;
+        enum ulong maskASCIICleanWord0 = 0x_80_80_80_80__80_80_80_01UL; // bit 0 of lsbyte not set => small
         enum ulong maskASCIICleanWord1 = 0x_80_80_80_80__80_80_80_80UL;
 
         /** Returns `true` if `data` is guaranteed to be a ASCII pure

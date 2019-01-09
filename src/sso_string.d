@@ -225,9 +225,6 @@ struct SSOString
         pragma(inline, true);
         enum ulong maskASCIICleanWord0 = 0x_80_80_80_80__80_80_80_01UL; // bit 0 of lsbyte not set => small
         enum ulong maskASCIICleanWord1 = 0x_80_80_80_80__80_80_80_80UL;
-        /** Returns `true` if `data` is guaranteed to be a ASCII pure
-         * string, `false` if content has unknown encoding.
-         */
         return ((words[0] & maskASCIICleanWord0) == 0 &&
                 (words[1] & maskASCIICleanWord1) == 0);
     }

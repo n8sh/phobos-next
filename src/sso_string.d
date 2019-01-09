@@ -218,6 +218,12 @@ struct SSOString
         return result;
     }
 
+    bool isSmallASCIIClean() @safe pure nothrow @nogc
+    {
+        if (isLarge) { return false; }
+        return small.isASCIIClean;
+    }
+
     /** Determine if `this` is a small ASCII pure string.
      */
     bool determineIfSmallASCIIClean() @trusted pure nothrow @nogc
@@ -457,6 +463,30 @@ static assert(SSOString.sizeof == string.sizeof);
     static assert(!__traits(compiles, { string f1() @safe pure nothrow { S x; return x[]; } }));
     static assert(!__traits(compiles, { string f2() @safe pure nothrow { S x; return x.toString; } }));
     static assert(!__traits(compiles, { ref immutable(char) g() @safe pure nothrow @nogc { S x; return x[0]; } }));
+}
+
+/// ASCII handling
+@trusted pure nothrow @nogc unittest
+{
+    alias S = SSOString;
+    {
+        auto x = S("a");
+        assert(!x.isSmallASCIIClean);
+        assert(x.determineIfSmallASCIIClean());
+        assert(x.isSmallASCIIClean);
+    }
+    {
+        auto x = S("alpha");
+        assert(!x.isSmallASCIIClean);
+        assert(x.determineIfSmallASCIIClean());
+        assert(x.isSmallASCIIClean);
+    }
+    {
+        auto x = S("ö");
+        assert(!x.isSmallASCIIClean);
+        x.determineIfSmallASCIIClean();
+        assert(!x.isSmallASCIIClean);
+    }
 }
 
 @safe pure unittest

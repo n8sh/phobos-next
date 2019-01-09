@@ -222,8 +222,10 @@ struct SSOString
      */
     bool isSmallASCIIClean() const scope
     {
-        enum ulong maskASCIICleanWord0 = 0x_a0_a0_a0_a0__a0_a0_a0_01UL;
-        enum ulong maskASCIICleanWord1 = 0x_a0_a0_a0_a0__a0_a0_a0_a0UL;
+        // import dbgio;
+        // dln((cast(ubyte[])words)[0..16]);
+        enum ulong maskASCIICleanWord0 = 0x_80_80_80_80__80_80_80_01UL;
+        enum ulong maskASCIICleanWord1 = 0x_80_80_80_80__80_80_80_80UL;
 
         /** Returns `true` if `data` is guaranteed to be a ASCII pure
          * string, `false` if content has unknown encoding.

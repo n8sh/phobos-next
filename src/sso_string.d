@@ -476,16 +476,16 @@ static assert(SSOString.sizeof == string.sizeof);
         assert(x.isSmallASCIIClean);
     }
     {
-        auto x = S("alpha");
-        assert(!x.isSmallASCIIClean);
-        assert(x.determineIfSmallASCIIClean());
-        assert(x.isSmallASCIIClean);
-    }
-    {
         auto x = S("ö");
         assert(!x.isSmallASCIIClean);
         x.determineIfSmallASCIIClean();
         assert(!x.isSmallASCIIClean);
+    }
+    {
+        auto x = S("alpha");
+        assert(!x.isSmallASCIIClean);
+        assert(x.determineIfSmallASCIIClean());
+        assert(x.isSmallASCIIClean);
     }
 }
 

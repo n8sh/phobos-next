@@ -245,8 +245,9 @@ private:
                                                 0,0,0,0,0,
                                                 0,0,0,0,0]; // explicit init needed for `__traits(isZeroInit)` to be true.
 
-            /// Returns `true` if `data` is guaranteed to be a ASCII pure
-            /// string, `false` if content has unknown encoding.
+            /** Returns `true` if `data` is guaranteed to be a ASCII pure
+             * string, `false` if content has unknown encoding.
+             */
             bool isASCIIClean() const @safe pure nothrow @nogc
             {
                 return (length & (1 << 4)) != 0;

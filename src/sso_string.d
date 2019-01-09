@@ -275,7 +275,7 @@ private:
                                                 0,0,0,0,0,
                                                 0,0,0,0,0]; // explicit init needed for `__traits(isZeroInit)` to be true.
 
-            enum ulong maskASCIICleanWord0 = 0x_00a0a0a0_a0a0a0a0UL;
+            enum ulong maskASCIICleanWord0 = 0x_a0a0a0a0_a0a0a000UL;
             enum ulong maskASCIICleanWord1 = 0x_a0a0a0a0_a0a0a0a0UL;
 
             /** Returns `true` if `data` is guaranteed to be a ASCII pure

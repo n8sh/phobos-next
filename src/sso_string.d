@@ -482,11 +482,14 @@ static assert(SSOString.sizeof == string.sizeof);
     alias S = SSOString;
     assert( S("a").isSmallASCIIClean);
     assert( S("b").isSmallASCIIClean);
+    assert( S("z").isSmallASCIIClean);
+    assert( S("_").isSmallASCIIClean);
     assert( S("abcd").isSmallASCIIClean);
     assert( S("123456789_12345").isSmallASCIIClean);
     assert(!S("123456789_123ö").isSmallASCIIClean);
     assert(!S("123456789_123456").isSmallASCIIClean);
     assert(!S("ö").isSmallASCIIClean);
+    assert(!S("Ö").isSmallASCIIClean);
     assert(!S("åäö").isSmallASCIIClean);
     assert(!S("ö-värld").isSmallASCIIClean);
 }

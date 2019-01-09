@@ -259,11 +259,9 @@ struct SSOString
     bool isSmallASCIIClean() const scope @trusted
     {
         pragma(inline, true);
-        enum ulong maskASCIICleanWord0 = 0x_80_80_80_80__80_80_80_01UL; // bit 0 of lsbyte not set => small
-        enum ulong maskASCIICleanWord1 = 0x_80_80_80_80__80_80_80_80UL;
         // should be fast on 64-bit platforms:
-        return ((words[0] & maskASCIICleanWord0) == 0 &&
-                (words[1] & maskASCIICleanWord1) == 0);
+        return ((words[0] & 0x_80_80_80_80__80_80_80_01UL) == 0 && // bit 0 of lsbyte not set => small
+                (words[1] & 0x_80_80_80_80__80_80_80_80UL) == 0);
     }
 
 private:

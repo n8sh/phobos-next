@@ -220,7 +220,7 @@ struct SSOString
 
     /** Check if `this` is a small ASCII pure string.
      */
-    bool isSmallASCIIClean() const scope @safe pure nothrow @nogc
+    bool isSmallASCIIClean() const scope
     {
         enum ulong maskASCIICleanWord0 = 0x_a0_a0_a0_a0__a0_a0_a0_01UL;
         enum ulong maskASCIICleanWord1 = 0x_a0_a0_a0_a0__a0_a0_a0_a0UL;

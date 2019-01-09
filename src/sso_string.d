@@ -58,27 +58,6 @@ struct SSOString
         }
     }
 
-    /** Return `this` uppercased. */
-    typeof(this) toUpper()() const @trusted                 // template-lazy
-    {
-        if (isSmallASCIIClean())
-        {
-            typeof(return) result = void;
-            result.small.length = small.length;
-            foreach (const index; 0 .. smallCapacity)
-            {
-                import std.ascii : toUpper;
-                (cast(char[])(result.small.data))[index] = toUpper(small.data[index]);
-            }
-            return result;
-        }
-        else
-        {
-            import std.uni : asUpperCase;
-            assert(0);
-        }
-    }
-
     pure nothrow:
 
     /** Construct from `source`, which potentially needs GC-allocation (iff

@@ -122,8 +122,7 @@ if (isSomeString!S)
     assert(!`Jack London`.isCapitalized);
 }
 
-/** Return `true` if `s` has proper name-style capitalization, such as in `Alpha
- * Centauri`.
+/** Return `true` if `s` has proper name-style capitalization, such as in `Alpha Centauri`.
  */
 bool isNameCapitalized(S)(S s)
 if (isSomeString!S)

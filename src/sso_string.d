@@ -25,7 +25,7 @@ struct SSOString
     pure:
 
     /** Return `this` lowercased. */
-    typeof(this) toLower()() const @trusted                 // template-lazy
+    typeof(this) toLower()() const @trusted // template-lazy
     {
         if (isSmallASCIIClean())
         {
@@ -277,7 +277,7 @@ struct SSOString
 
     /** Check if `this` is a small ASCII pure string.
      */
-    bool isSmallASCIIClean() const scope
+    bool isSmallASCIIClean() const scope @trusted
     {
         pragma(inline, true);
         enum ulong maskASCIICleanWord0 = 0x_80_80_80_80__80_80_80_01UL; // bit 0 of lsbyte not set => small

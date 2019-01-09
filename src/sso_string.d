@@ -236,7 +236,7 @@ struct SSOString
             }
         }
 
-        small.length |= (1 << 4); // tag as ASCII pure
+        small.length |= (1 << Small.bitIndexASCII); // tag as ASCII pure
 
         return true;
     }
@@ -258,6 +258,7 @@ private:
     {
         struct Small
         {
+            enum bitIndexASCII = 4;
             /* TODO only first 4 bits are needed to represent a length between
              * 0-15, use other 4 bits
              *
@@ -273,7 +274,7 @@ private:
              */
             bool isASCIIClean() const @safe pure nothrow @nogc
             {
-                return (length & (1 << 4)) != 0;
+                return (length & (1 << bitIndexASCII)) != 0;
             }
         }
         struct Raw                  // same memory layout as `immutable(E)[]`

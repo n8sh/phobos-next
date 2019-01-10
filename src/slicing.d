@@ -22,7 +22,7 @@ auto preSlicer(alias isTerminator, R)(R input)
 private struct PreSlicer(alias isTerminator, R)
 {
     private R _input;
-    private size_t _end = 0;
+    private size_t _end = 0;    // end index
 
     private void findTerminator()
     {
@@ -135,6 +135,7 @@ unittest
     assert(equal("a".preSlicer!isUpper, ["a"]));
     assert(equal("A".preSlicer!isUpper, ["A"]));
     assert(equal("A".preSlicer!isUpper, ["A"]));
+    assert(equal("ö".preSlicer!isUpper, ["ö"]));
 
     assert(equal([1, -1, 1, -1].preSlicer!(a => a > 0), [[1, -1], [1, -1]]));
 

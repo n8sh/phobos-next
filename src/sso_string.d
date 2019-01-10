@@ -43,7 +43,7 @@ struct SSOString
             enum useToLowerInPlace = false;
             static if (useToLowerInPlace)
             {
-                typeof(return) result = this;
+                typeof(return) result = this; // copy
                 import std.uni : toLowerInPlace;
                 auto slice = cast(char[])(result.opSlice());
                 toLowerInPlace(slice);

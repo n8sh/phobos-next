@@ -152,11 +152,11 @@ struct SSOString
         pragma(inline, true);
         if (isLarge)
         {
-            return large.length >> 1; // skip first bit
+            return large.length/2; // skip first bit
         }
         else
         {
-            return small.length >> 1; // skip fist bit
+            return small.length/2; // skip fist bit
         }
     }
     /// ditto

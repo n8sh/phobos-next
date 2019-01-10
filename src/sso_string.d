@@ -50,8 +50,16 @@ struct SSOString
                 import std.uni : toLowerInPlace;
                 auto slice = cast(char[])(result.opSlice());
                 toLowerInPlace(slice);
-                assert(slice is result.opSlice()); // check that no allocation occurred was needed
-                return result;
+                if (slice is result.opSlice())
+                {
+                    return result; // no reallocation
+                }
+                else
+                {
+                    import dbgio;
+                    dln("toLowerInPlace rellocated from ", length, " to ", slice.length);
+                    return typeof(return)(slice); // reallocation occurred
+                }
             }
         }
     }

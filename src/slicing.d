@@ -31,7 +31,7 @@ private struct PreSlicer(alias isTerminator, R)
         }
         else
         {
-            skipTerminators();
+            skipTerminatorsAndSetEnd();
         }
     }
 
@@ -63,7 +63,7 @@ private struct PreSlicer(alias isTerminator, R)
             _end = size_t.max;
             return;
         }
-        skipTerminators();
+        skipTerminatorsAndSetEnd();
     }
 
     @property PreSlicer save()
@@ -74,29 +74,33 @@ private struct PreSlicer(alias isTerminator, R)
         return ret;
     }
 
-    private void skipTerminators()
+    private void skipTerminatorsAndSetEnd()
     {
+        // `_end` is now invalid in relation to `_input`
         import std.range : save;
         import std.algorithm : countUntil;
 
         static if (is(typeof(_input[0]) : char))
         {
-            import std.utf : decodeFront;
+            enum show = false;
             size_t offset = 0;
-            while (offset != _input.length &&
-                   (offset == 0 || // ignore terminator first time
-                    !isTerminator(_input[offset])))
+            static if (show) import dbgio;
+            while (offset != _input.length)
             {
-                import dbgio : dump;
-                mixin dump!("_input", "offset", "_end", "_input[offset]");
+                static if (show) dln(_input, " ", offset, " ", _end);
                 auto slice = _input[offset .. $];
+                import std.utf : decodeFront;
                 size_t numCodeUnits;
-                decodeFront(slice, numCodeUnits);
-                offset += numCodeUnits;
+                const dchar dch = decodeFront(slice, numCodeUnits);
+                if (offset != 0 && // ignore terminator at offset 0
+                    isTerminator(dch))
+                {
+                    break;
+                }
+                offset += numCodeUnits; // skip over
             }
             _end = offset;
-            import dbgio : dump;
-            mixin dump!("_end");
+            static if (show) dln(_end);
         }
         else
         {
@@ -158,7 +162,7 @@ unittest
     assert(equal("A".preSlicer!isUpper, ["A"]));
     assert(equal("ö".preSlicer!isUpper, ["ö"]));
     assert(equal("åa".preSlicer!isUpper, ["åa"]));
-    // TODO assert(equal("aå".preSlicer!isUpper, ["aå"]));
+    assert(equal("aå".preSlicer!isUpper, ["aå"]));
     // TODO assert(equal("åäö".preSlicer!isUpper, ["åäö"]));
     // TODO assert(equal("ö-värld".preSlicer!sepPred, ["ö", "värld"]));
 

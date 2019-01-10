@@ -84,12 +84,9 @@ private struct PreSlicer(alias isTerminator, R)
         static if (is(ElementEncodingType : char) ||
                    is(ElementEncodingType : wchar))
         {
-            enum show = false;
             size_t offset = 0;
-            static if (show) import dbgio;
             while (offset != _input.length)
             {
-                static if (show) dln(_input, " ", offset, " ", _end);
                 auto slice = _input[offset .. $];
                 import std.utf : decodeFront;
                 size_t numCodeUnits;
@@ -102,7 +99,6 @@ private struct PreSlicer(alias isTerminator, R)
                 offset += numCodeUnits; // skip over
             }
             _end = offset;
-            static if (show) dln(_end);
         }
         else
         {
@@ -170,7 +166,6 @@ unittest
     assert(equal("aäB".preSlicer!isUpper, ["aä", "B"]));
     assert(equal("äaB".preSlicer!isUpper, ["äa", "B"]));
     assert(equal("äaÖ".preSlicer!isUpper, ["äa", "Ö"]));
-    // TODO assert(equal("ö-värld".preSlicer!sepPred, ["ö", "värld"]));
 
     assert(equal([1, -1, 1, -1].preSlicer!(a => a > 0), [[1, -1], [1, -1]]));
 

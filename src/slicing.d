@@ -22,7 +22,7 @@ auto preSlicer(alias isTerminator, R)(R input)
 private struct PreSlicer(alias isTerminator, R)
 {
     private R _input;
-    private size_t _end = 0;    // end index
+    private size_t _end = 0;    // end offset
 
     private void findTerminator()
     {

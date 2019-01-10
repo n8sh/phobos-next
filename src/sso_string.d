@@ -10,8 +10,6 @@ module sso_string;
  *
  * TODO: Add Phobos' std.typecons or std.array or std.string
  * See_Also: https://forum.dlang.org/post/pb87rn$2icb$1@digitalmars.com
- *
- * TODO reserve bit in small string to indicate if string is ASCII or not.
  */
 struct SSOString
 {
@@ -497,9 +495,9 @@ static assert(SSOString.sizeof == string.sizeof);
 {
     alias S = SSOString;
     assert(S("A").toLower[] == "a");
-    assert(S("ABCDEFGHIJKLMNO").toLower[] == "abcdefghijklmno");
+    assert(S("ABCDEFGHIJKLMNO").toLower[] == "abcdefghijklmno"); // small
     assert(S("ÅÄÖ").toLower[] == "åäö");
-    assert(S("ABCDEFGHIJKLMNOP").toLower[] == "abcdefghijklmnop");
+    assert(S("ABCDEFGHIJKLMNOP").toLower[] == "abcdefghijklmnop"); // large
 }
 
 @safe pure unittest

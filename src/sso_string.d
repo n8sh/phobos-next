@@ -64,7 +64,10 @@ struct SSOString
                 else
                 {
                     import dbgio;
-                    dln(`toLowerInPlace rellocated from "`, result.opSlice(), `" of length `, result.length, ` to "`, slice, `" of length `, slice.length);
+                    dln(`toLowerInPlace reallocated from "`,
+                        result.opSlice(), `" of length `, result.opSlice().length,
+                        ` to "`
+                        , slice, `" of length `, slice.length);
                     return typeof(return)(slice); // reallocation occurred
                 }
             }

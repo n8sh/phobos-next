@@ -80,7 +80,9 @@ private struct PreSlicer(alias isTerminator, R)
         import std.range : save;
         import std.algorithm : countUntil;
 
-        static if (is(typeof(_input[0]) : char))
+        alias ElementEncodingType = typeof(_input[0]);
+        static if (is(ElementEncodingType : char) ||
+                   is(ElementEncodingType : wchar))
         {
             enum show = false;
             size_t offset = 0;
@@ -141,7 +143,6 @@ unittest
                                                   word)),
                  ["do", "This", "or", "do", "That", "do", "stuff"]));
 
-
     assert(equal("isAKindOf".preSlicer!isUpper, ["is", "A", "Kind", "Of"]));
 
     assert(equal("doThis".preSlicer!isUpper, ["do", "This"]));
@@ -163,7 +164,7 @@ unittest
     assert(equal("ö".preSlicer!isUpper, ["ö"]));
     assert(equal("åa".preSlicer!isUpper, ["åa"]));
     assert(equal("aå".preSlicer!isUpper, ["aå"]));
-    // TODO assert(equal("åäö".preSlicer!isUpper, ["åäö"]));
+    assert(equal("åäö".preSlicer!isUpper, ["åäö"]));
     // TODO assert(equal("ö-värld".preSlicer!sepPred, ["ö", "värld"]));
 
     assert(equal([1, -1, 1, -1].preSlicer!(a => a > 0), [[1, -1], [1, -1]]));

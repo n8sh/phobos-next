@@ -50,7 +50,7 @@ struct SSOString
                 import std.uni : toLowerInPlace;
                 auto slice = cast(char[])(result.opSlice());
                 toLowerInPlace(slice);
-                assert(slice is result.opSlice()); // check no allocation occurred was needed
+                assert(slice is result.opSlice()); // check that no allocation occurred was needed
                 return result;
             }
         }

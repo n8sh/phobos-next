@@ -38,20 +38,19 @@ struct SSOString
         }
         else
         {
-            enum useToLowerInPlace = false;
-            static if (useToLowerInPlace)
+            if (isLarge)
+            {
+                import std.uni : asLowerCase;
+                import std.conv : to;
+                return typeof(return)(opSlice().asLowerCase.to!string); // TODO make .to!string nothrow
+            }
+            else
             {
                 typeof(return) result = this; // copy
                 import std.uni : toLowerInPlace;
                 auto slice = cast(char[])(result.opSlice());
                 toLowerInPlace(slice);
                 return result;
-            }
-            else
-            {
-                import std.uni : asLowerCase;
-                import std.conv : to;
-                return typeof(return)(opSlice().asLowerCase.to!string); // TODO make .to!string nothrow
             }
         }
     }
@@ -498,6 +497,13 @@ static assert(SSOString.sizeof == string.sizeof);
     assert(S("ABCDEFGHIJKLMNO").toLower[] == "abcdefghijklmno"); // small
     assert(S("ÅÄÖ").toLower[] == "åäö");
     assert(S("ABCDEFGHIJKLMNOP").toLower[] == "abcdefghijklmnop"); // large
+
+    char[6] x = "ÅÄÖ";
+    import std.uni : toLowerInPlace;
+    auto xref = x[];
+    toLowerInPlace(xref);
+    assert(x == "åäö");
+    assert(xref == "åäö");
 }
 
 @safe pure unittest

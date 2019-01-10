@@ -275,6 +275,7 @@ private:
 
     public enum smallCapacity = Large.sizeof - Small.length.sizeof;
     static assert(smallCapacity > 0, "No room for small source for immutable(E) being " ~ immutable(E).stringof);
+
     version(LittleEndian) // see: http://forum.dlang.org/posting/zifyahfohbwavwkwbgmw
     {
         struct Small
@@ -288,11 +289,6 @@ private:
                                                 0,0,0,0,0,
                                                 0,0,0,0,0]; // explicit init needed for `__traits(isZeroInit)` to be true.
         }
-        struct Raw                  // same memory layout as `immutable(E)[]`
-        {
-            size_t length = 0;      // can be bit-fiddled without GC allocation
-            immutable(E)* ptr = null;
-        }
     }
     else
     {
@@ -304,6 +300,12 @@ private:
             ubyte length;
         }
         static assert(0, "TODO add BigEndian support and test");
+    }
+
+    struct Raw                  // same memory layout as `immutable(E)[]`
+    {
+        size_t length = 0;      // can be bit-fiddled without GC allocation
+        immutable(E)* ptr = null;
     }
 
     union

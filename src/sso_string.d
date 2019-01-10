@@ -63,7 +63,7 @@ struct SSOString
                 else
                 {
                     import dbgio;
-                    dln(`toLowerInPlace rellocated from "`, result.opSlice(), `" to "`, slice, `"`);
+                    dln(`toLowerInPlace rellocated from "`, result.opSlice(), `" of length `, result.length, ` to "`, slice, `" of length `, slice.length);
                     return typeof(return)(slice); // reallocation occurred
                 }
             }

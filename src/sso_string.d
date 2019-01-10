@@ -283,7 +283,7 @@ private:
             /* TODO only first 4 bits are needed to represent a length between
              * 0-15, use other 4 bits
              *
-             * 5:th bit is set if `data` is guaranteed to be a ASCII pure string
+             * TODO use 5:th bit is set if `data` is guaranteed to be a ASCII pure string
              */
             ubyte length = 0;
             immutable(E)[smallCapacity] data = [0,0,0,0,0,

@@ -282,8 +282,6 @@ private:
             enum bitIndexASCII = 4;
             /* TODO only first 4 bits are needed to represent a length between
              * 0-15, use other 4 bits
-             *
-             * TODO use 5:th bit is set if `data` is guaranteed to be a ASCII pure string
              */
             ubyte length = 0;
             immutable(E)[smallCapacity] data = [0,0,0,0,0,

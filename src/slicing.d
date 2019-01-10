@@ -157,8 +157,10 @@ unittest
     assert(equal("A".preSlicer!isUpper, ["A"]));
     assert(equal("A".preSlicer!isUpper, ["A"]));
     assert(equal("ö".preSlicer!isUpper, ["ö"]));
-    // assert(equal("åäö".preSlicer!isUpper, ["åäö"]));
-    // assert(equal("ö-värld".preSlicer!sepPred, ["ö", "värld"]));
+    assert(equal("åa".preSlicer!isUpper, ["åa"]));
+    // TODO assert(equal("aå".preSlicer!isUpper, ["aå"]));
+    // TODO assert(equal("åäö".preSlicer!isUpper, ["åäö"]));
+    // TODO assert(equal("ö-värld".preSlicer!sepPred, ["ö", "värld"]));
 
     assert(equal([1, -1, 1, -1].preSlicer!(a => a > 0), [[1, -1], [1, -1]]));
 

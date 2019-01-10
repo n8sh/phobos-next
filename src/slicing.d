@@ -99,6 +99,7 @@ private struct PreSlicer(alias isTerminator, R)
     private R _input;
     private size_t _end = 0;    // end offset
 }
+alias preSplitter = preSlicer;
 
 unittest
 {

@@ -32,7 +32,7 @@ struct SSOString
             foreach (const index; 0 .. smallCapacity)
             {
                 import std.ascii : toLower;
-                (cast(char[])(result.small.data))[index] = toLower(small.data[index]);
+                (cast(char[])(result.small.data))[index] = toLower(small.data[index]); // TODO can this be parallelized?
             }
             return result;
         }
@@ -50,6 +50,7 @@ struct SSOString
                 import std.uni : toLowerInPlace;
                 auto slice = cast(char[])(result.opSlice());
                 toLowerInPlace(slice);
+                assert(slice is result.opSlice()); // check no allocation occurred was needed
                 return result;
             }
         }

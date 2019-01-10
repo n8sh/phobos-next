@@ -27,7 +27,7 @@ private struct PreSlicer(alias isTerminator, R)
         import std.range : empty;
         if (_input.empty)
         {
-            _iter = size_t.max;
+            _end = size_t.max;
         }
         else
         {
@@ -45,22 +45,22 @@ private struct PreSlicer(alias isTerminator, R)
     {
         @property bool empty()
         {
-            return _iter == size_t.max;
+            return _end == size_t.max;
         }
     }
 
     @property auto front()
     {
-        return _input[0 .. _iter];
+        return _input[0 .. _end];
     }
 
     void popFront()
     {
-        _input = _input[_iter .. $];
+        _input = _input[_end .. $];
         import std.range : empty;
         if (_input.empty)
         {
-            _iter = size_t.max;
+            _end = size_t.max;
             return;
         }
         skipTerminators();
@@ -79,47 +79,46 @@ private struct PreSlicer(alias isTerminator, R)
         import std.range : save;
         import std.algorithm : countUntil;
 
-        size_t offset = 0;
-        if (isTerminator(_input[0]))
-        {
-            offset += 1;        // skip over it
-        }
-
-        static if (false/*is(typeof(_input[0]) : char)*/)
+        static if (is(typeof(_input[0]) : char))
         {
             import std.utf : decodeFront;
-            while (!isTerminator(_input[offset]))
+            size_t offset = 0;
+            while (offset != _input.length &&
+                   (offset == 0 || // ignore terminator first time
+                    !isTerminator(_input[offset])))
             {
                 import dbgio : dump;
-                mixin dump!("_input", "offset");
+                mixin dump!("_input", "offset", "_end", "_input[offset]");
                 auto slice = _input[offset .. $];
-
                 size_t numCodeUnits;
                 decodeFront(slice, numCodeUnits);
-                mixin dump!("numCodeUnits");
-
                 offset += numCodeUnits;
             }
-            _iter = offset;
+            _end = offset;
             import dbgio : dump;
-            mixin dump!("_iter");
+            mixin dump!("_end");
         }
         else
         {
+            size_t offset = 0;
+            if (isTerminator(_input[0]))
+            {
+                offset += 1;        // skip over it
+            }
             const count = _input[offset .. $].countUntil!isTerminator();
             if (count == -1)        // end reached
             {
-                _iter = _input.length;
+                _end = _input.length;
             }
             else
             {
-                _iter = offset + count;
+                _end = offset + count;
             }
         }
     }
 
     private R _input;
-    private size_t _iter = 0;    // iteration offset
+    private size_t _end = 0;    // _input[0 .. _end] is current front
 }
 alias preSplitter = preSlicer;
 
@@ -157,7 +156,9 @@ unittest
     assert(equal("a".preSlicer!isUpper, ["a"]));
     assert(equal("A".preSlicer!isUpper, ["A"]));
     assert(equal("A".preSlicer!isUpper, ["A"]));
-    // assert(equal("ö".preSlicer!isUpper, ["ö"]));
+    assert(equal("ö".preSlicer!isUpper, ["ö"]));
+    // assert(equal("åäö".preSlicer!isUpper, ["åäö"]));
+    // assert(equal("ö-värld".preSlicer!sepPred, ["ö", "värld"]));
 
     assert(equal([1, -1, 1, -1].preSlicer!(a => a > 0), [[1, -1], [1, -1]]));
 

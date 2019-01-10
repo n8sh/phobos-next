@@ -60,15 +60,3 @@ S[] quotedWords(S)(S s,
     // TODO assert(equal(` verb:is   name:"New York"@en article:a noun:"big  city"@en `.quotedWords,
     //              [`verb:is`, `name:"New York"@en`, `article:a`, `noun:"big  city"@en`]));
 }
-
-/** Check if `s` contains more than one word. */
-auto isMultiWord(const scope const(char)[] s)
-{
-    import std.algorithm.searching : canFind;
-    return s.canFind(`-`, `_`, ` `) >= 1;
-}
-
-@safe pure unittest
-{
-    assert(isMultiWord("hey there"));
-}

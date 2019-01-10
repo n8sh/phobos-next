@@ -47,9 +47,11 @@ struct SSOString
             else
             {
                 typeof(return) result = this; // copy
+
                 import std.uni : toLowerInPlace;
-                auto slice = cast(char[])(result.opSlice());
+                auto slice = cast(char[])(result.opSlice()); // need ref to slice
                 toLowerInPlace(slice);
+
                 if (slice is result.opSlice())
                 {
                     return result; // no reallocation

@@ -56,9 +56,10 @@ struct SSOString
                 import std.uni : toLowerInPlace;
                 auto slice = cast(char[])(result.opSlice()); // need ref to slice
                 toLowerInPlace(slice);
-                if (slice is result.opSlice())
+                if (slice is result.opSlice() || // no reallocation
+                    slice.length == result.length) // or same length (happens for German double-s)
                 {
-                    return result; // no reallocation
+                    return result;
                 }
                 else
                 {

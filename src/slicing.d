@@ -21,31 +21,6 @@ auto preSlicer(alias isTerminator, R)(R input)
 
 private struct PreSlicer(alias isTerminator, R)
 {
-    private R _input;
-    private size_t _end = 0;    // end offset
-
-    private void findTerminator()
-    {
-        import std.range : save;
-        import std.algorithm : countUntil;
-
-        size_t offset = 0;
-        if (isTerminator(_input[0]))
-        {
-            offset += 1;        // skip over it
-        }
-
-        const count = _input[offset .. $].countUntil!isTerminator();
-        if (count == -1)        // end reached
-        {
-            _end = _input.length;
-        }
-        else
-        {
-            _end = offset + count;
-        }
-    }
-
     this(R input)
     {
         _input = input;
@@ -98,6 +73,31 @@ private struct PreSlicer(alias isTerminator, R)
         ret._input = _input.save;
         return ret;
     }
+
+    private void findTerminator()
+    {
+        import std.range : save;
+        import std.algorithm : countUntil;
+
+        size_t offset = 0;
+        if (isTerminator(_input[0]))
+        {
+            offset += 1;        // skip over it
+        }
+
+        const count = _input[offset .. $].countUntil!isTerminator();
+        if (count == -1)        // end reached
+        {
+            _end = _input.length;
+        }
+        else
+        {
+            _end = offset + count;
+        }
+    }
+
+    private R _input;
+    private size_t _end = 0;    // end offset
 }
 alias preSplitter = preSlicer;
 

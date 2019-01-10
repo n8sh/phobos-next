@@ -65,7 +65,7 @@ S[] quotedWords(S)(S s,
 auto isMultiWord(const scope const(char)[] s)
 {
     import std.algorithm.searching : canFind;
-    return s.canFind(`_`, ` `) >= 1;
+    return s.canFind(`-`, `_`, ` `) >= 1;
 }
 
 @safe pure unittest

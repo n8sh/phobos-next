@@ -77,9 +77,6 @@ private struct PreSlicer(alias isTerminator, R)
     private void skipTerminatorsAndSetEnd()
     {
         // `_end` is now invalid in relation to `_input`
-        import std.range : save;
-        import std.algorithm : countUntil;
-
         alias ElementEncodingType = typeof(_input[0]);
         static if (is(ElementEncodingType : char) ||
                    is(ElementEncodingType : wchar))
@@ -107,6 +104,7 @@ private struct PreSlicer(alias isTerminator, R)
             {
                 offset += 1;        // skip over it
             }
+            import std.algorithm : countUntil;
             const count = _input[offset .. $].countUntil!isTerminator();
             if (count == -1)        // end reached
             {

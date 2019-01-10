@@ -31,6 +31,12 @@ buildType "unittest" {
    dflags "-fsanitize=address" platform="posix-ldc"
 }
 
+buildType "release" {
+   dflags "-release"
+   # TODO dflags "-dip1000"            # prevent dependencies to inherit -dip1000
+   dflags "-fsanitize=address" platform="posix-ldc"
+}
+
 buildType "release-unittest" {
    dflags "-release" "-unittest"
    # TODO dflags "-dip1000"            # prevent dependencies to inherit -dip1000

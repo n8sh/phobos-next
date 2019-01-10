@@ -52,7 +52,6 @@ struct SSOString
             else
             {
                 typeof(return) result = this; // copy
-
                 import std.uni : toLowerInPlace;
                 auto slice = cast(char[])(result.opSlice()); // need ref to slice
                 toLowerInPlace(slice);
@@ -63,11 +62,14 @@ struct SSOString
                 }
                 else
                 {
-                    import dbgio;
-                    dln(`toLowerInPlace reallocated from "`,
-                        result.opSlice(), `" of length `, result.opSlice().length,
-                        ` to "`
-                        , slice, `" of length `, slice.length);
+                    version(none)
+                    {
+                        import dbgio;
+                        dln(`toLowerInPlace reallocated from "`,
+                            result.opSlice(), `" of length `, result.opSlice().length,
+                            ` to "`
+                            , slice, `" of length `, slice.length);
+                    }
                     return typeof(return)(slice); // reallocation occurred
                 }
             }

@@ -56,7 +56,6 @@ struct SSOString
                 import std.uni : toLowerInPlace;
                 auto slice = cast(char[])(result.opSlice()); // need ref to slice
                 toLowerInPlace(slice);
-
                 if (slice is result.opSlice())
                 {
                     return result; // no reallocation
@@ -64,7 +63,7 @@ struct SSOString
                 else
                 {
                     import dbgio;
-                    dln("toLowerInPlace rellocated from length:", length, " to length:", slice.length, " for content:", opSlice());
+                    dln(`toLowerInPlace rellocated from "`, result.opSlice(), `" to "`, slice, `"`);
                     return typeof(return)(slice); // reallocation occurred
                 }
             }

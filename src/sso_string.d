@@ -300,7 +300,6 @@ private:
     {
         struct Small
         {
-            enum bitIndexASCII = 4;
             /* TODO only first 4 bits are needed to represent a length between
              * 0-15, use other 4 bits
              */

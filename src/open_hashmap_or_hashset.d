@@ -36,29 +36,6 @@ private template defaultKeyEqualPredOf(T)
     {
         enum defaultKeyEqualPredOf = "a == b";
     }
-    version(none)
-    {
-        import std.traits : isArray, isCopyable;
-        static if (isArray!T)
-        {
-            // compare arrays by elements only, regardless of location
-            enum defaultKeyEqualPredOf = "a == b";
-            /* alias defaultKeyEqualPredOf = (const scope a, */
-            /*                       const scope b) => a == b; */
-        }
-        else static if (isCopyable!T)
-        {
-            enum defaultKeyEqualPredOf = "a is b";
-            /* alias defaultKeyEqualPredOf = (const scope a, */
-            /*                       const scope b) => a is b; */
-        }
-        else
-        {
-            enum defaultKeyEqualPredOf = "a is b";
-            /* alias defaultKeyEqualPredOf = (const scope ref a, */
-            /*                       const scope ref b) => a is b; */
-        }
-    }
 }
 
 /** Returns `true` iff `lhs` and `rhs` are equal.

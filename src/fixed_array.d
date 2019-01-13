@@ -532,6 +532,14 @@ version(none) pure unittest     // TODO activate
             }));
 }
 
+@safe pure unittest
+{
+    static assert(mustAddGCRange!(FixedArray!(string, 1, false)));
+    static assert(mustAddGCRange!(FixedArray!(string, 1, true)));
+    static assert(mustAddGCRange!(FixedArray!(string, 2, false)));
+    static assert(mustAddGCRange!(FixedArray!(string, 2, true)));
+}
+
 ///
 @safe pure unittest
 {

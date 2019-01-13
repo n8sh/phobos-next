@@ -173,8 +173,8 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     alias put = insertBack;       // `OutputRange` support
 
     /** Try to add elements `es` to the back.
-        NOTE doesn't invalidate any borrow
-        Returns: `true` iff all `es` were pushed, `false` otherwise.
+     * NOTE doesn't invalidate any borrow
+     * Returns: `true` iff all `es` were pushed, `false` otherwise.
      */
     bool insertBackMaybe(Es...)(Es es) @trusted
         if (Es.length <= capacity)
@@ -191,7 +191,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     alias putMaybe = insertBackMaybe;
 
     /** Add elements `es` to the back.
-        NOTE doesn't invalidate any borrow
+     * NOTE doesn't invalidate any borrow
      */
     void opOpAssign(string op, Us...)(Us values)
         if (op == "~" &&

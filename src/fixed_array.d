@@ -154,11 +154,11 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     }
 
     /** Add elements `es` to the back.
-        Throws when array becomes full.
-        NOTE doesn't invalidate any borrow
-    */
+     * Throws when array becomes full.
+     * NOTE doesn't invalidate any borrow
+     */
     void insertBack(Es...)(Es es) @trusted
-        if (Es.length <= capacity) // TODO use `isAssignable`
+    if (Es.length <= capacity) // TODO use `isAssignable`
     {
         import std.exception : enforce;
         enforce(_length + Es.length <= capacity, `Arguments don't fit in array`);
@@ -177,7 +177,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
      * Returns: `true` iff all `es` were pushed, `false` otherwise.
      */
     bool insertBackMaybe(Es...)(Es es) @trusted
-        if (Es.length <= capacity)
+    if (Es.length <= capacity)
     {
         if (_length + Es.length > capacity) { return false; }
         foreach (immutable i, ref e; es)
@@ -194,9 +194,9 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
      * NOTE doesn't invalidate any borrow
      */
     void opOpAssign(string op, Us...)(Us values)
-        if (op == "~" &&
-            values.length >= 1 &&
-            allSatisfy!(isElementAssignable, Us))
+    if (op == "~" &&
+        values.length >= 1 &&
+        allSatisfy!(isElementAssignable, Us))
     {
         insertBack(values.move()); // TODO remove `move` when compiler does it for
     }

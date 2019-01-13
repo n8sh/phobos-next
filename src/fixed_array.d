@@ -418,7 +418,7 @@ pragma(inline, true):
     }
     /// ditto
     bool opEquals(U)(const scope U[] rhs) const
-        if (is(typeof(T[].init == U[].init)))
+    if (is(typeof(T[].init == U[].init)))
     {
         return this[] == rhs;
     }

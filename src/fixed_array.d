@@ -289,21 +289,21 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
 pragma(inline, true):
 
     /** Index operator. */
-    scope ref inout(T) opIndex(size_t i) inout @trusted return
+    ref inout(T) opIndex(size_t i) inout @trusted return
     {
         assert(i < _length);
         return _store.ptr[i];
     }
 
     /** First (front) element. */
-    scope ref inout(T) front() inout @trusted return
+    ref inout(T) front() inout @trusted return
     {
         assert(!empty);
         return _store.ptr[0];
     }
 
     /** Last (back) element. */
-    scope ref inout(T) back() inout @trusted return
+    ref inout(T) back() inout @trusted return
     {
         assert(!empty);
         return _store.ptr[_length - 1];
@@ -314,17 +314,17 @@ pragma(inline, true):
         import borrowed : ReadBorrowed, WriteBorrowed;
 
         /// Get read-only slice in range `i` .. `j`.
-        scope auto opSlice(size_t i, size_t j) const return { return sliceRO(i, j); }
+        auto opSlice(size_t i, size_t j) const return { return sliceRO(i, j); }
         /// Get read-write slice in range `i` .. `j`.
-        scope auto opSlice(size_t i, size_t j) return { return sliceRW(i, j); }
+        auto opSlice(size_t i, size_t j) return { return sliceRW(i, j); }
 
         /// Get read-only full slice.
-        scope auto opSlice() const return { return sliceRO(); }
+        auto opSlice() const return { return sliceRO(); }
         /// Get read-write full slice.
-        scope auto opSlice() return { return sliceRW(); }
+        auto opSlice() return { return sliceRW(); }
 
         /// Get full read-only slice.
-        scope ReadBorrowed!(T[], typeof(this)) sliceRO() const @trusted return
+        ReadBorrowed!(T[], typeof(this)) sliceRO() const @trusted return
         {
             import std.traits : Unqual;
             assert(!_writeBorrowed, "Already write-borrowed");
@@ -333,7 +333,7 @@ pragma(inline, true):
         }
 
         /// Get read-only slice in range `i` .. `j`.
-        scope ReadBorrowed!(T[], typeof(this)) sliceRO(size_t i, size_t j) const @trusted return
+        ReadBorrowed!(T[], typeof(this)) sliceRO(size_t i, size_t j) const @trusted return
         {
             import std.traits : Unqual;
             assert(!_writeBorrowed, "Already write-borrowed");
@@ -342,7 +342,7 @@ pragma(inline, true):
         }
 
         /// Get full read-write slice.
-        scope WriteBorrowed!(T[], typeof(this)) sliceRW() @trusted return
+        WriteBorrowed!(T[], typeof(this)) sliceRW() @trusted return
         {
             assert(!_writeBorrowed, "Already write-borrowed");
             assert(_readBorrowCount == 0, "Already read-borrowed");
@@ -350,7 +350,7 @@ pragma(inline, true):
         }
 
         /// Get read-write slice in range `i` .. `j`.
-        scope WriteBorrowed!(T[], typeof(this)) sliceRW(size_t i, size_t j) @trusted return
+        WriteBorrowed!(T[], typeof(this)) sliceRW(size_t i, size_t j) @trusted return
         {
             assert(!_writeBorrowed, "Already write-borrowed");
             assert(_readBorrowCount == 0, "Already read-borrowed");
@@ -372,17 +372,17 @@ pragma(inline, true):
     else
     {
         /// Get slice in range `i` .. `j`.
-        scope inout(T)[] opSlice(size_t i, size_t j) @trusted inout return
+        inout(T)[] opSlice(size_t i, size_t j) @trusted inout return
         {
-            assert(i <= j);
-            assert(j <= _length);
-            return _store.ptr[i .. j];
+            // assert(i <= j);
+            // assert(j <= _length);
+            return _store[i .. j]; // TODO make .ptr work
         }
 
         /// Get full slice.
-        scope inout(T)[] opSlice() @trusted inout return
+        inout(T)[] opSlice() @trusted inout return
         {
-            return _store.ptr[0 .. _length];
+            return _store[0 .. _length]; // TODO make .ptr work
         }
     }
 
@@ -493,7 +493,7 @@ alias MutableDStringN(uint capacity, bool borrowChecked = false) = FixedArray!(c
 
         typeof(String15.init[0])[] xs;
         auto x = String15("alphas");
-        xs = x[];               // TODO should error with -dip1000
+        // TODO static assert(!__traits(compiles, { xs = x[]; })); // TODO should error with -dip1000
 
         assert(x[0] == 'a');
         assert(x[$ - 1] == 's');

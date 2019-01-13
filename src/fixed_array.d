@@ -524,13 +524,14 @@ version(none) pure unittest     // TODO activate
     alias String15 = StringN!(capacity);
     static assert(!mustAddGCRange!String15);
 
-    auto f() @safe pure
-    {
-        auto x = String15("alphas");
-        auto y = x[];           // slice to stack allocated (scoped) string
-        return y;               // TODO should error with -dip1000
-    }
-    f();
+    static assert(!__traits(compiles, {
+                auto f() @safe pure
+                {
+                    auto x = String15("alphas");
+                    auto y = x[];
+                    return y;   // errors with -dip1000
+                }
+            }));
 }
 
 ///

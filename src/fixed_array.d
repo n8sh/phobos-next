@@ -76,7 +76,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
 
     /// Construct from element `values`.
     this(Us...)(Us values) @trusted
-        if (Us.length <= capacity)
+    if (Us.length <= capacity)
     {
         foreach (immutable ix, ref value; values)
         {
@@ -100,9 +100,9 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
 
     /// Construct from element `values`.
     this(U)(U[] values) @trusted
-        if (isCopyable!U//  &&
-            // TODO isElementAssignable!U
-            ) // prevent accidental move of l-value `values` in array calls
+    if (isCopyable!U//  &&
+        // TODO isElementAssignable!U
+        ) // prevent accidental move of l-value `values` in array calls
     {
         import std.exception : enforce;
         enforce(values.length <= capacity, `Arguments don't fit in array`);
@@ -118,9 +118,9 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
 
     /// Construct from element `values`.
     static typeof(this) fromValuesUnsafe(U)(U[] values) @system
-        if (isCopyable!U &&
-            isElementAssignable!U
-            ) // prevent accidental move of l-value `values` in array calls
+    if (isCopyable!U &&
+        isElementAssignable!U
+        ) // prevent accidental move of l-value `values` in array calls
     {
         typeof(return) that;              // TODO use Store constructor:
 

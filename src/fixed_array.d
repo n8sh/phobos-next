@@ -13,7 +13,6 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
 {
     // pragma(msg, "T:", T, " capacity_:", capacity_, " borrowChecked:", borrowChecked);
     import std.bitmanip : bitfields;
-    import std.traits : Unqual;
     import std.traits : isSomeChar, hasElaborateDestructor, isAssignable, isCopyable;
     import std.algorithm.mutation : move, moveEmplace;
 

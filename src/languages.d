@@ -344,7 +344,7 @@ enum Lang
 }
 
 /** Return true if programming language $(D lang) is case-sensitive. */
-bool hasCase(Lang lang) @safe pure @nogc nothrow
+bool isCaseSensitive(Lang lang) @safe pure @nogc nothrow
 {
     return !(lang == Lang.bg ||
              lang == Lang.ada);

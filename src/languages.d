@@ -351,7 +351,6 @@ bool hasCase(Lang lang) @safe pure @nogc nothrow
     // import std.algorithm.comparison: among;
     // return cast(bool)lang.among!(Lang.bg, Lang.ada);
 }
-alias isCaseSensitive = hasCase;
 
 /** Return true if $(D lang) is a formal (computer) language. */
 bool isFormal(Lang lang) @safe pure @nogc nothrow

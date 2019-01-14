@@ -1,6 +1,5 @@
 module languages;
 
-import std.traits: isSomeString;
 import conv_ex : toDefaulted;
 
 /** Language Code according to ISO 639-1 plus computer languages.
@@ -508,8 +507,7 @@ string toSpoken(Lang lang, Lang spokenLang = Lang.init) @safe pure nothrow // TO
         }
 }
 
-Lang decodeLang(S)(const scope S lang) @safe pure nothrow @nogc
-if (isSomeString!S)
+Lang decodeLang(const scope const(char)[] lang) @safe pure nothrow @nogc
 {
     switch (lang)
     {
@@ -528,8 +526,8 @@ if (isSomeString!S)
     assert(`sv`.decodeLang == Lang.sv);
 }
 
-Lang decodeLangDefaulted(S)(const scope S lang, Lang defaultLang) @safe pure nothrow @nogc
-if (isSomeString!S)
+Lang decodeLangDefaulted(const scope const(char)[] lang,
+                         Lang defaultLang) @safe pure nothrow @nogc
 {
     switch (lang)
     {

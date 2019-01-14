@@ -585,8 +585,7 @@ enum MarkupLang:ubyte
  */
 bool capitalizesNoun(Lang lang) @safe pure nothrow @nogc
 {
-    import std.algorithm.comparison : among;
-    return cast(bool)lang.among!(Lang.de);
+    return lang == Lang.de;
 }
 
 ///

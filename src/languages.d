@@ -583,7 +583,7 @@ enum MarkupLang:ubyte
 
 /** Check if `lang` capitalize all its nouns include common nouns.
  */
-bool capitalizesNoun(Lang lang) @safe pure nothrow @nogc
+bool capitalizesCommonNoun(Lang lang) @safe pure nothrow @nogc
 {
     return lang == Lang.de;
 }
@@ -591,6 +591,6 @@ bool capitalizesNoun(Lang lang) @safe pure nothrow @nogc
 ///
 @safe pure nothrow @nogc unittest
 {
-    assert(Lang.de.capitalizesNoun);
-    assert(!Lang.en.capitalizesNoun);
+    assert(Lang.de.capitalizesCommonNoun);
+    assert(!Lang.en.capitalizesCommonNoun);
 }

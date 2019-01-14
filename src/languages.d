@@ -1,5 +1,7 @@
 module languages;
 
+@safe:
+
 import conv_ex : toDefaulted;
 
 /** Language Code according to ISO 639-1 plus computer languages.

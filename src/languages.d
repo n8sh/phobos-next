@@ -581,7 +581,7 @@ enum MarkupLang:ubyte
     MathML
 }
 
-/** Languages that capitalize all their nouns, not only proper ones.
+/** Check if `lang` capitalize all its nouns include common nouns.
  */
 bool capitalizesNoun(Lang lang) @safe pure nothrow @nogc
 {

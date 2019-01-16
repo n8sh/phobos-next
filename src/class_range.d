@@ -115,11 +115,11 @@ template downcastingFilter(Subclass)
     import std.range : isInputRange, ElementType;
     import std.traits : Unqual;
     auto downcastingFilter(Range)(Range range)
-        if (isInputRange!(Unqual!Range) &&
-            is(ElementType!Range == class)) // TODO and subclass of `Subclass`
-        {
-            return DowncastingFilterResult!(Subclass, Range)(range);
-        }
+    if (isInputRange!(Unqual!Range) &&
+        is(ElementType!Range == class)) // TODO and subclass of `Subclass`
+    {
+        return DowncastingFilterResult!(Subclass, Range)(range);
+    }
 }
 
 ///

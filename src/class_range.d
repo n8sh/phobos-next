@@ -31,7 +31,8 @@ if (!isArray!R &&
 }
 
 /** Variant of std.algorithm.iteration : that filters out all elements of
- * `range` that are instances of `Subclass`. */
+ * `range` that are instances of `Subclass`.
+ */
 template downcastingFilter(Subclass)
 {
     import std.range : isInputRange, ElementType;

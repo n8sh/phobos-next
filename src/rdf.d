@@ -129,8 +129,8 @@ struct NTriple(ElementType)
                 if (hit != -1)
                 {
                     const objectdataType = rest[hit + 2 .. $];
-                    assert(objectdataType.startsWith(`<`));
-                    assert(objectdataType.endsWith(`>`));
+                    assert(objectdataType.startsWith('<'));
+                    assert(objectdataType.endsWith('>'));
                     this.objectDataTypeURI = objectdataType[1 .. $ - 1].decodeComponent;
                 }
             }
@@ -162,7 +162,7 @@ if (isCharsSlice!S)
 {
     assert(s.length >= 4);
 
-    // strip suffix: either ` .` or `.`
+    // strip suffix
     if (s.endsWith('.')) s = s[0 .. $ - 1];
     if (s.endsWith(' ')) s = s[0 .. $ - 1];
 

@@ -1,6 +1,7 @@
 module rdf;
 
-import std.traits: isSomeString, isNarrowString;
+import std.traits: isNarrowString;
+import traits_ex : isCharsSlice;
 import std.range : empty, hasSlicing, hasLength;
 import std.string: indexOf, lastIndexOf;
 import std.stdio: File;
@@ -54,7 +55,7 @@ struct NTriple(ElementType)
     this(S)(S subject,
             S predicate,
             S object)
-    if (isSomeString!S)
+    if (isCharsSlice!S)
     in
     {
         assert(!subject.empty);
@@ -157,7 +158,7 @@ struct NTriple(ElementType)
    TODO Better to call it asNTriple or toNTriple or support conversion via std.conv: to?
  */
 NTriple!S nTriple(S)(S s)
-if (isSomeString!S)
+if (isCharsSlice!S)
 {
     assert(s.length >= 4);
 
@@ -260,11 +261,10 @@ unittest
     assert(t.objectType == ObjectType.literal);
 }
 
-/**
-   Iterate Range by RDF N-Triple.
-*/
+/** Iterate Range by RDF N-Triple. */
 auto byNTriple(R)(R r)
-    if ((hasSlicing!R && hasLength!R || isNarrowString!R))
+if ((hasSlicing!R && hasLength!R ||
+     isNarrowString!R))
 {
     import std.algorithm: map, filter;
     import std.string: indexOf;

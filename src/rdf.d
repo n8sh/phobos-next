@@ -163,8 +163,8 @@ if (isCharsSlice!S)
     assert(s.length >= 4);
 
     // strip suffix: either ` .` or `.`
-    if (s.endsWith(`.`)) s = s[0 .. $ - 1];
-    if (s.endsWith(` `)) s = s[0 .. $ - 1];
+    if (s.endsWith('.')) s = s[0 .. $ - 1];
+    if (s.endsWith(' ')) s = s[0 .. $ - 1];
 
     // subject
     const ix0 = s.indexOf(' ');

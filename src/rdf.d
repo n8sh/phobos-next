@@ -53,7 +53,8 @@ struct NTriple(ElementType)
     */
     this(S)(S subject,
             S predicate,
-            S object) if (isSomeString!S)
+            S object)
+    if (isSomeString!S)
     in
     {
         assert(!subject.empty);
@@ -155,7 +156,8 @@ struct NTriple(ElementType)
 
    TODO Better to call it asNTriple or toNTriple or support conversion via std.conv: to?
  */
-NTriple!S nTriple(S)(S s) if (isSomeString!S)
+NTriple!S nTriple(S)(S s)
+if (isSomeString!S)
 {
     assert(s.length >= 4);
 

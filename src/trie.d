@@ -5485,7 +5485,7 @@ void testWords(Value)()
     }
     assert(rtr.empty);
 
-    enum debugPrint = false;
+    enum show = false;
 
     string[] firsts = [];       // used to test various things
     size_t count = 0;
@@ -5499,7 +5499,7 @@ void testWords(Value)()
         {
             assert(!rtr.contains(word));
 
-            static if (debugPrint)
+            static if (show)
             {
                 import std.string : representation;
                 // dln(`word:"`, word, `" of length:`, word.length,

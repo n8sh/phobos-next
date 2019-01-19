@@ -13,7 +13,7 @@ enum ObjectType { URI, undecodedURI, blankNode, literal }
 @safe:
 
 /** Iterate RDF-File $(D rdfFile) by RDF N-Triple. */
-auto byNTriple(File rdfFile)
+auto byNTriple(scope File rdfFile)
 {
     import bylinefast: byLineFast, KeepTerminator;
     import std.algorithm: map, filter;

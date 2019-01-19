@@ -89,14 +89,14 @@ struct NTriple(ElementType)
         }
 
         // predicate
-        assert(predicate.startsWith(`<`));
-        assert(predicate.endsWith(`>`));
+        assert(predicate.startsWith('<'));
+        assert(predicate.endsWith('>'));
         this.predicate = predicate[1 .. $ - 1].to!ElementType;
 
         // object
-        if (object.startsWith(`<`)) // URI
+        if (object.startsWith('<')) // URI
         {
-            assert(object.endsWith(`>`));
+            assert(object.endsWith('>'));
             ObjectType objectType;
             try
             {

@@ -19,7 +19,7 @@ auto byNTriple(File rdfFile)
     import std.algorithm: map, filter;
     import std.string: indexOf;
     // TODO support this somehow:
-    // if (line.startsWith(`#`))
+    // if (line.startsWith('#'))
     // {
     //     if (line.skipOver(`# started `)) { string startTime = line.to!string; }
     //     if (line.skipOver(`# completed `)) { string completionTime = line.to!string; }
@@ -66,9 +66,9 @@ struct NTriple(ElementType)
     {
         import std.uri : URIException;
         // subject
-        if (subject.startsWith(`<`)) // URI
+        if (subject.startsWith('<')) // URI
         {
-            assert(subject.endsWith(`>`));
+            assert(subject.endsWith('>'));
             SubjectType subjectType;
             try
             {

@@ -110,7 +110,7 @@ struct NTriple(ElementType)
             }
             this.objectType = objectType;
         }
-        else if (object.startsWith(`"`)) // literal
+        else if (object.startsWith('"')) // literal
         {
             const endIx = object.lastIndexOf('"');
             assert(endIx != -1); // TODO Use enforce?

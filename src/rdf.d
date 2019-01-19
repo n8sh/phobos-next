@@ -157,7 +157,7 @@ struct NTriple(ElementType)
 
    TODO Better to call it asNTriple or toNTriple or support conversion via std.conv: to?
  */
-NTriple!S nTriple(S)(S s)
+NTriple!S nTriple(S)(S s) @safe pure
 if (isCharsSlice!S)
 {
     assert(s.length >= 4);
@@ -167,12 +167,12 @@ if (isCharsSlice!S)
     if (s.endsWith(` `)) s = s[0 .. $ - 1];
 
     // subject
-    const ix0 = s.indexOf(` `);
+    const ix0 = s.indexOf(' ');
     const subject = s[0 .. ix0];
     s = s[ix0 + 1 .. $];
 
     // predicate URI
-    const ix1 = s.indexOf(` `);
+    const ix1 = s.indexOf(' ');
     const predicate = s[0 .. ix1];
     s = s[ix1 + 1 .. $];
 

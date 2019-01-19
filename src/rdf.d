@@ -182,7 +182,8 @@ if (isCharsSlice!S)
 alias asNTriple = nTriple;
 alias toNTriple = nTriple;
 
-unittest
+///
+@safe pure unittest
 {
     const x = `<http://dbpedia.org/resource/180%C2%B0_(Gerardo_album)> <http://dbpedia.org/ontology/artist> <http://dbpedia.org/resource/Gerardo_Mej%C3%ADa> .`;
     const t = x.nTriple;
@@ -198,7 +199,8 @@ unittest
     assert(t.objectType == ObjectType.URI);
 }
 
-unittest
+///
+@safe pure unittest
 {
     const x = `<http://dbpedia.org/resource/1950_Chatham_Cup> <http://xmlns.com/foaf/0.1/name> "Chatham Cup" .`;
     const t = x.nTriple;
@@ -214,7 +216,8 @@ unittest
     assert(t.objectType == ObjectType.literal);
 }
 
-unittest
+///
+@safe pure unittest
 {
     const x = `<http://dbpedia.org/resource/1950_Chatham_Cup> <http://xmlns.com/foaf/0.1/name> "Chatham Cup"@en .`;
     const t = x.nTriple;
@@ -230,7 +233,8 @@ unittest
     assert(t.objectType == ObjectType.literal);
 }
 
-unittest
+///
+@safe pure unittest
 {
     const x = `<http://dbpedia.org/resource/007:_Quantum_of_Solace> <http://dbpedia.org/ontology/releaseDate> "2008-10-31"^^<http://www.w3.org/2001/XMLSchema#date> .`;
     const t = x.nTriple;
@@ -246,7 +250,8 @@ unittest
     assert(t.objectType == ObjectType.literal);
 }
 
-unittest
+///
+@safe pure unittest
 {
     const x = `<http://dbpedia.org/resource/Ceremony_(song)> <http://dbpedia.org/ontology/bSide> "\"In a Lonely Place\"".`;
     const t = x.nTriple;
@@ -275,7 +280,7 @@ if ((hasSlicing!R && hasLength!R ||
             .map!(line => line.nTriple);
 }
 
-unittest
+@safe pure unittest
 {
     const x = `<http://dbpedia.org/resource/16_@_War> <http://xmlns.com/foaf/0.1/name> "16 @ War"@en .
 <http://dbpedia.org/resource/CT_Rei_Pel%C3%A9> <http://xmlns.com/foaf/0.1/homepage> <http://www.santosfc.com.br/clube/default.asp?c=Sedes&st=CT%20Rei%20Pel%E9> .`;

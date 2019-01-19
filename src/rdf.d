@@ -42,8 +42,8 @@ auto byNTriple(File rdfFile)
 */
 struct NTriple(ElementType)
 {
-    import std.uri: decodeComponent;
-    import std.conv: to;
+    import std.uri : decodeComponent;
+    import std.conv : to;
 
     /** Construct using subject, predicate, object.
 

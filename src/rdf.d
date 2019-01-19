@@ -10,9 +10,9 @@ import std.algorithm.searching: startsWith, endsWith, findSplit;
 enum SubjectType { URI, undecodedURI, blankNode }
 enum ObjectType { URI, undecodedURI, blankNode, literal }
 
-/**
-   Iterate RDF-File $(D rdfFile) by RDF N-Triple.
-*/
+@safe:
+
+/** Iterate RDF-File $(D rdfFile) by RDF N-Triple. */
 auto byNTriple(File rdfFile)
 {
     import bylinefast: byLineFast, KeepTerminator;
@@ -33,12 +33,12 @@ auto byNTriple(File rdfFile)
 
 /** RDF N-Triple.
 
-   Parameterized on element type $(D ElementType). Use NTriple!(char[]) to avoid
-   GC-allocations when parsing files using File.byLine which returns a volatile
-   reference to a temporary char[] buffer. If The NTriples are to be stored
-   permanently in memory use NTriple!string.
+    Parameterized on element type $(D ElementType). Use NTriple!(char[]) to avoid
+    GC-allocations when parsing files using File.byLine which returns a volatile
+    reference to a temporary char[] buffer. If The NTriples are to be stored
+    permanently in memory use NTriple!string.
 
-   See_Also: http://wn.wikpedia.org/wiki/N-Triples.
+    See_Also: http://wn.wikpedia.org/wiki/N-Triples.
 */
 struct NTriple(ElementType)
 {

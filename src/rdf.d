@@ -13,11 +13,11 @@ enum ObjectType { URI, undecodedURI, blankNode, literal }
 @safe:
 
 /** Iterate RDF-File $(D rdfFile) by RDF N-Triple. */
-auto byNTriple(File rdfFile)
+auto byNTriple(File rdfFile,
+               const dchar commentPrefix = '#')
 {
     import bylinefast : byLineFast, KeepTerminator;
     import std.algorithm : map, filter;
-    import std.string : indexOf;
     // TODO support this somehow:
     // if (line.startsWith('#'))
     // {
@@ -26,8 +26,9 @@ auto byNTriple(File rdfFile)
     //     continue;
     // }
     return rdfFile.byLineFast(KeepTerminator.no, "\n")
-                  .filter!(line => (!line.empty && // skip empty lines
-                                    line.indexOf('#') != 0)) // skip comments
+                  .filter!(line =>
+                           (line.length >= 1 &&
+                            line[0] != commentPrefix)) // skip comments
                   .map!(line => line.nTriple);
 }
 

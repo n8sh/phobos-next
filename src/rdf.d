@@ -13,11 +13,11 @@ enum ObjectType { URI, undecodedURI, blankNode, literal }
 @safe:
 
 /** Iterate RDF-File $(D rdfFile) by RDF N-Triple. */
-auto byNTriple(scope File rdfFile)
+auto byNTriple(File rdfFile)
 {
-    import bylinefast: byLineFast, KeepTerminator;
-    import std.algorithm: map, filter;
-    import std.string: indexOf;
+    import bylinefast : byLineFast, KeepTerminator;
+    import std.algorithm : map, filter;
+    import std.string : indexOf;
     // TODO support this somehow:
     // if (line.startsWith('#'))
     // {

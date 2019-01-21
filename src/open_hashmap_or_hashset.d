@@ -89,7 +89,7 @@ private template defaultKeyEqualPredOf(T)
  * TODO check that hole value is not used alongside the check assert(!key.isNull)
  *
  * TODO add support for checking existence `K.nullifier` that infers, for
- * instance, how to tag a `ZingRel` and `Expr` as `null` or a `hole`.
+ * instance, how to tag a `ZingRelation` and `Expr` as `null` or a `hole`.
  *
  * TODO allocate _holesPtr array together with _bins to reduce size of
  * `OpenHashMapOrSet` to 3 words when element type doesn't support it
@@ -3478,7 +3478,7 @@ version(unittest)
         d
     }
 
-    struct ZingRel
+    struct ZingRelation
     {
         Zing zing;
         Alt alts;
@@ -3492,13 +3492,13 @@ version(unittest)
                     this.alts == that.alts);
         }
     }
-    debug static assert(isNullable!ZingRel);
+    debug static assert(isNullable!ZingRelation);
 
-    alias X = OpenHashSet!(ZingRel, FNV!(64, true));
+    alias X = OpenHashSet!(ZingRelation, FNV!(64, true));
     debug static assert(X.sizeof == 32); // TODO fix hole handling and change to 24
     X x;
 
-    auto e = ZingRel(new Zing(42), Alt.init);
+    auto e = ZingRelation(new Zing(42), Alt.init);
 
     assert(!x.contains(e));
     assert(!x.containsUsingLinearSearch(e));

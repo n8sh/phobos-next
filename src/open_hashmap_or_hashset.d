@@ -463,8 +463,8 @@ struct OpenHashMapOrSet(K, V = void,
 
     /** Make with `elements`. */
     static typeof(this) withElements(R)(R elements)
-        if (isIterable!R &&
-            isAssignable!(T, StdElementType!R))
+    if (isIterable!R &&
+        isAssignable!(T, StdElementType!R))
     {
         version(showEntries) dln(__FUNCTION__, " length:", elements.length);
         import std.range : hasLength;

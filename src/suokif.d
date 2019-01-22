@@ -73,13 +73,13 @@ struct SUOKIFParser
 {
     import std.algorithm : among;
 
-    private alias Src = const(char)[];
+    private alias Input = const(char)[];
 
     @safe pure:
 
     /** Parse SUO-KIF from `input` into returned array of expressions (`SExpr`).
      */
-    this(Src input,
+    this(Input input,
          bool includeComments = false,
          bool includeWhitespace = false,
          bool disallowEmptyLists = false)
@@ -157,7 +157,7 @@ private:
     }
 
     /// Get next n `chars` in input.
-    Src peekNextsN(size_t n) const return nothrow @nogc
+    Input peekNextsN(size_t n) const return nothrow @nogc
     {
         pragma(inline, true);
         return _input[_offset .. _offset + n]; // TODO .ptr
@@ -178,7 +178,7 @@ private:
     }
 
     /// Skip over `n` bytes in `src`.
-    Src skipOverN(size_t n) return nothrow @nogc
+    Input skipOverN(size_t n) return nothrow @nogc
     {
         pragma(inline);
         const part = _input[_offset .. _offset + n]; // TODO .ptr
@@ -197,7 +197,7 @@ private:
     }
 
     /// Get symbol.
-    Src getSymbol() return nothrow @nogc
+    Input getSymbol() return nothrow @nogc
     {
         pragma(inline);
         size_t i = 0;
@@ -210,7 +210,7 @@ private:
     }
 
     /// Get numeric literal (number) in integer or decimal form.
-    Src getNumber() return nothrow @nogc
+    Input getNumber() return nothrow @nogc
     {
         pragma(inline);
         size_t i = 0;
@@ -223,7 +223,7 @@ private:
     }
 
     /// Get whitespace.
-    Src getWhitespace() return nothrow @nogc
+    Input getWhitespace() return nothrow @nogc
     {
         pragma(inline);
         size_t i = 0;
@@ -235,7 +235,7 @@ private:
     }
 
     /// Get string literal at `src`.
-    Src getStringLiteral() return nothrow @nogc
+    Input getStringLiteral() return nothrow @nogc
     {
         pragma(inline);
         dropFront();
@@ -396,7 +396,7 @@ private:
 
 private:
     size_t _offset;             // current offset in `_input`
-    const Src _input;           // input
+    const Input _input;           // input
 
     Exprs exprs;                // current
 
@@ -468,7 +468,7 @@ unittest
                 write(`Reading SUO-KIF `, filePath, ` ... `);
                 import std.file : readText;
                 auto sw = StopWatch(AutoStart.yes);
-                foreach (const ref topExpr; SUOKIFParser(cast(SUOKIFParser.Src)filePath.rawReadNullTerminated()))
+                foreach (const ref topExpr; SUOKIFParser(cast(SUOKIFParser.Input)filePath.rawReadNullTerminated()))
                 {
                     // TOOD use topExpr
                 }

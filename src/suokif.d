@@ -234,7 +234,7 @@ private:
         return skipOverN(i);
     }
 
-    /// Get string literal at input.
+    /// Get string literal at current input.
     Input getStringLiteral() return nothrow @nogc
     {
         pragma(inline);

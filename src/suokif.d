@@ -177,7 +177,7 @@ private:
         _offset += n;
     }
 
-    /// Skip over `n` bytes in `src`.
+    /// Skip over `n` bytes in input.
     Input skipOverN(size_t n) return nothrow @nogc
     {
         pragma(inline);
@@ -234,7 +234,7 @@ private:
         return skipOverN(i);
     }
 
-    /// Get string literal at `src`.
+    /// Get string literal at input.
     Input getStringLiteral() return nothrow @nogc
     {
         pragma(inline);

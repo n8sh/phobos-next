@@ -117,7 +117,7 @@ struct SUOKIFParser
         return exprs.back;
     }
 
-    void popFront()
+    void popFront() scope
     {
         pragma(inline, true);
         assert(!empty);

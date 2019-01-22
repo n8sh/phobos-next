@@ -157,7 +157,7 @@ private:
     }
 
     /// Get next n `chars` in input.
-    Src peekNextsN(size_t n) const nothrow @nogc
+    Src peekNextsN(size_t n) const return nothrow @nogc
     {
         pragma(inline, true);
         return _input[_offset .. _offset + n]; // TODO .ptr
@@ -178,7 +178,7 @@ private:
     }
 
     /// Skip over `n` bytes in `src`.
-    Src skipOverN(size_t n) nothrow @nogc
+    Src skipOverN(size_t n) return nothrow @nogc
     {
         pragma(inline);
         const part = _input[_offset .. _offset + n]; // TODO .ptr
@@ -197,7 +197,7 @@ private:
     }
 
     /// Get symbol.
-    Src getSymbol() nothrow @nogc
+    Src getSymbol() return nothrow @nogc
     {
         pragma(inline);
         size_t i = 0;
@@ -210,7 +210,7 @@ private:
     }
 
     /// Get numeric literal (number) in integer or decimal form.
-    Src getNumber() nothrow @nogc
+    Src getNumber() return nothrow @nogc
     {
         pragma(inline);
         size_t i = 0;
@@ -223,7 +223,7 @@ private:
     }
 
     /// Get whitespace.
-    Src getWhitespace() nothrow @nogc
+    Src getWhitespace() return nothrow @nogc
     {
         pragma(inline);
         size_t i = 0;
@@ -235,7 +235,7 @@ private:
     }
 
     /// Get string literal at `src`.
-    Src getStringLiteral() nothrow @nogc
+    Src getStringLiteral() return nothrow @nogc
     {
         pragma(inline);
         dropFront();

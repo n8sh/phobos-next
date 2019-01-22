@@ -117,7 +117,7 @@ struct SUOKIFParser
         return exprs.back;
     }
 
-    void popFront() scope
+    void popFront()
     {
         pragma(inline, true);
         assert(!empty);
@@ -143,7 +143,7 @@ struct SUOKIFParser
 private:
 
     /// Get next `char` in input.
-    char peekNext() const nothrow @nogc
+    char peekNext() const scope nothrow @nogc
     {
         pragma(inline, true);
         return _input[_offset];    // TODO .ptr
@@ -187,7 +187,7 @@ private:
     }
 
     /// Skip line comment.
-    void skipLineComment() nothrow @nogc
+    void skipLineComment() scope nothrow @nogc
     {
         pragma(inline);
         while (!peekNext().among('\0', endOfLineChars))

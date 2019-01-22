@@ -110,7 +110,7 @@ struct SUOKIFParser
         return _endOfFile;
     }
 
-    ref const(SExpr) front() const return scope
+    ref const(SExpr) front() const return
     {
         pragma(inline, true);
         assert(!empty);

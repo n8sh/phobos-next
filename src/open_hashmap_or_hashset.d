@@ -7,7 +7,7 @@ import container_traits : isNullable;
 import pure_mallocator : Mallocator = PureMallocator;
 // TODO import std.experimental.allocator.mallocator : Mallocator;
 
-/** Is `true` iff `T` is a memory address. */
+/** Is `true` iff `T` is a memory address (either a `class` or a pointer). */
 private template isAddress(T)
 {
     enum bool isAddress = (is(T == class) ||

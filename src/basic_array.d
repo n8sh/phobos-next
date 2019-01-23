@@ -13,8 +13,6 @@ import std.traits : Unqual;
 
     TODO optimize by making members templates. 0.579s before, eval-dwim: 0.67s
 
-    TODO add members keys() and values()
-
     TODO Add OutputRange.writer support as
     https://github.com/burner/StringBuffer/blob/master/source/stringbuffer.d#L45
 

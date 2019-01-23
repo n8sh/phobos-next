@@ -18,9 +18,9 @@ enum bool isAddress(T) = (is(T == class) ||
 /** Is `true` iff `T` has a specific value dedicated to representing holes
  * (removed/erase) values.
  */
-enum isHoleable(T) = (__traits(hasMember, T, "isHole") &&
-                      __traits(hasMember, T, "holeify") &&
-                      __traits(hasMember, T, "holeValue"));
+enum isHoleable(T) = __traits(hasMember, T, "isHole") &&
+                     __traits(hasMember, T, "holeify") &&
+                     __traits(hasMember, T, "holeValue");
 
 private template defaultKeyEqualPredOf(T)
 {

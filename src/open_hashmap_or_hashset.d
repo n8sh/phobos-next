@@ -10,9 +10,12 @@ import pure_mallocator : Mallocator = PureMallocator;
 /** Is `true` iff `T` is a memory address. */
 private template isAddress(T)
 {
-    import std.traits : isPointer;
-    enum isAddress = (is(T == class) || // a class is memory-wise
-                      isPointer!T);     // just a pointer, consistent with opCmp
+    enum bool isAddress = (is(T == class) ||
+                           (is(T == U*, U) &&
+                            // exclude alias this:
+                            !(is(T == struct) ||
+                              is(T == union) ||
+                              is(T == interface))));
 }
 
 /** Is `true` iff `T` has a specific value dedicated to representing holes

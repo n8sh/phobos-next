@@ -8,15 +8,12 @@ import pure_mallocator : Mallocator = PureMallocator;
 // TODO import std.experimental.allocator.mallocator : Mallocator;
 
 /** Is `true` iff `T` is a memory address (either a `class` or a pointer). */
-private template isAddress(T)
-{
-    enum bool isAddress = (is(T == class) ||
-                           (is(T == U*, U) &&
-                            // exclude alias this:
-                            !(is(T == struct) ||
-                              is(T == union) ||
-                              is(T == interface))));
-}
+enum bool isAddress(T) = (is(T == class) ||
+                          (is(T == U*, U) &&
+                           // exclude alias this:
+                           !(is(T == struct) ||
+                             is(T == union) ||
+                             is(T == interface))));
 
 /** Is `true` iff `T` has a specific value dedicated to representing holes
  * (removed/erase) values.

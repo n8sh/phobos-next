@@ -440,6 +440,7 @@ enum isSourceAssignableTo(R, E) = (isInputRange!R &&
     static assert(isSomeString!(const char[]));
 }
 
+/// Is `true` iff `T` is a slice of `char`s.
 enum isCharsSlice(T) = (is(T : const(char)[]));
 
 ///

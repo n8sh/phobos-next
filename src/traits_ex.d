@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 /** Various extensions to std.traits.
 
     Copyright: Per Nordlöw 2018-.
@@ -442,7 +440,6 @@ enum isSourceAssignableTo(R, E) = (isInputRange!R &&
     static assert(isSomeString!(const char[]));
 }
 
-/// TODO Move to Phobos?
 enum isCharsSlice(T) = (is(T : const(char)[]));
 
 ///

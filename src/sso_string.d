@@ -184,7 +184,7 @@ struct SSOString
 
     @property bool isNull() const scope @safe pure nothrow @nogc { return this == typeof(this).init; }
 
-    inout(E)[] opSlice() inout return @trusted
+    inout(E)[] opSlice() inout return @trusted @nogc
     {
         if (isLarge)
         {

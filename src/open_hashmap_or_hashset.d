@@ -461,7 +461,7 @@ struct OpenHashMapOrSet(K, V = void,
     import std.range : StdElementType = ElementType;
     import std.traits : isIterable, isAssignable;
 
-    /** Make with `elements`. */
+    /** Make with the elements `elements`. */
     static typeof(this) withElements(R)(R elements)
     if (isIterable!R &&
         isAssignable!(T, StdElementType!R))

@@ -135,7 +135,7 @@ struct SSOString
     {
         if (isLarge)
         {
-            return opSlice(); // already immutable
+            return cast(typeof(return))opSlice(); // already immutable so safe to cast
         }
         else
         {
@@ -184,27 +184,27 @@ struct SSOString
 
     @property bool isNull() const scope @safe pure nothrow @nogc { return this == typeof(this).init; }
 
-    immutable(E)[] opSlice() const return @trusted
+    inout(E)[] opSlice() inout return @trusted
     {
         if (isLarge)
         {
-            return raw.ptr[0 .. raw.length/2]; // no allocation
+            return cast(typeof(return))raw.ptr[0 .. raw.length/2]; // no allocation
             // alternative:  return large.ptr[0 .. large.length/2];
         }
         else
         {
-            return small.data.ptr[0 .. small.length/2]; // scoped
+            return cast(typeof(return))small.data.ptr[0 .. small.length/2]; // scoped
         }
     }
 
-    ref immutable(E) opIndex(size_t index) const return @trusted
+    ref inout(E) opIndex(size_t index) inout return @trusted
     {
         pragma(inline, true);
         return opSlice()[index]; // does range check
     }
 
     /// ditto
-    immutable(E)[] opSlice(size_t i, size_t j) const return @safe
+    inout(E)[] opSlice(size_t i, size_t j) inout return @safe
     {
         pragma(inline, true);
         return opSlice()[i .. j];
@@ -428,7 +428,7 @@ static assert(SSOString.sizeof == string.sizeof);
     assert(s7.ptr !is _s7.ptr); // string data shall not overlap
     assert(s7 == _s7);
 
-    static assert(is(typeof(s7[]) == string));
+    static assert(is(typeof(s7[]) == const(char)[]));
     assert(!s7.isLarge);
     assert(s7.length == 7);
     assert(s7[] == "0123456");
@@ -438,7 +438,7 @@ static assert(SSOString.sizeof == string.sizeof);
 
     const s15 = S("0123456789abcde");
     assert(!s15.isNull);
-    static assert(is(typeof(s15[]) == string));
+    static assert(is(typeof(s15[]) == const(char)[]));
     assert(!s15.isLarge);
     assert(s15.length == 15);
     assert(s15[] == "0123456789abcde");
@@ -448,7 +448,7 @@ static assert(SSOString.sizeof == string.sizeof);
 
     const s16 = S("0123456789abcdef");
     assert(!s16.isNull);
-    static assert(is(typeof(s16[]) == string));
+    static assert(is(typeof(s16[]) == const(char)[]));
     assert(s16.isLarge);
 
     const s16_ = S("0123456789abcdef_"[0 .. s16.length]);

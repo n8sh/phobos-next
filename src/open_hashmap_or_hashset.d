@@ -1977,8 +1977,8 @@ import std.functional : unaryFun;
  * container_algorithm.
  */
 size_t removeAllMatching(alias pred, Table)(auto ref Table x) @trusted
-    if (isInstanceOf!(OpenHashMapOrSet, Table) && // TODO generalize to `isSetOrMap`
-        is(typeof((unaryFun!pred))))
+if (isInstanceOf!(OpenHashMapOrSet, Table) && // TODO generalize to `isSetOrMap`
+    is(typeof((unaryFun!pred))))
 {
     import container_traits : nullify;
     size_t removalCount = 0;
@@ -2003,7 +2003,7 @@ size_t removeAllMatching(alias pred, Table)(auto ref Table x) @trusted
     TODO move to container_algorithm.d with more generic template restrictions
 */
 Table filtered(alias pred, Table)(Table x)
-    if (isInstanceOf!(OpenHashMapOrSet, Table)) // TODO generalize to `isSetOrMap`
+if (isInstanceOf!(OpenHashMapOrSet, Table)) // TODO generalize to `isSetOrMap`
 {
     import std.functional : not;
     x.removeAllMatching!(not!pred); // `x` is a singleton (r-value) so safe to mutate
@@ -2015,8 +2015,8 @@ Table filtered(alias pred, Table)(Table x)
     TODO move to container_algorithm.d.
  */
 auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
-    if (isInstanceOf!(OpenHashMapOrSet, C1) && // TODO generalize to `isSetOrMap`
-        isInstanceOf!(OpenHashMapOrSet, C2))   // TODO generalize to `isSetOrMap`
+if (isInstanceOf!(OpenHashMapOrSet, C1) && // TODO generalize to `isSetOrMap`
+    isInstanceOf!(OpenHashMapOrSet, C2))   // TODO generalize to `isSetOrMap`
 {
     import std.algorithm.mutation : move;
     static if (__traits(isRef, y)) // y is l-value
@@ -2417,8 +2417,8 @@ unittest
  */
 auto intersectWith(C1, C2)(ref C1 x,
                            auto ref const(C2) y)
-    if (isInstanceOf!(OpenHashMapOrSet, C1) &&
-        isInstanceOf!(OpenHashMapOrSet, C2))
+if (isInstanceOf!(OpenHashMapOrSet, C1) &&
+    isInstanceOf!(OpenHashMapOrSet, C2))
 {
     return x.removeAllMatching!(_ => !y.contains(_));
 }

@@ -37,7 +37,7 @@ struct SSOString
             foreach (const index; 0 .. smallCapacity)
             {
                 import std.ascii : toLower;
-                (cast(char[])(result.small.data))[index] = toLower(small.data[index]); // TODO can this be parallelized?
+                (cast(E[])(result.small.data))[index] = toLower(small.data[index]); // TODO can this be parallelized?
             }
             return result;
         }
@@ -53,7 +53,7 @@ struct SSOString
             {
                 typeof(return) result = this; // copy
                 import std.uni : toLowerInPlace;
-                auto slice = cast(char[])(result.opSlice()); // need ref to slice
+                auto slice = cast(E[])(result.opSlice()); // need ref to slice
                 toLowerInPlace(slice);
                 if (slice is result.opSlice() || // no reallocation
                     slice.length == result.length) // or same length (happens for German double-s)
@@ -82,7 +82,7 @@ struct SSOString
      * `source.length > smallCapacity` and `source` is not a `string`).
      */
     this(SomeCharArray)(const scope auto ref SomeCharArray source) @trusted
-    if (isCharsSlice!(typeof(source[]))) // not immutable char
+    if (isCharsSlice!(typeof(source[]))) // not immutable E
     {
         static if (__traits(isStaticArray, SomeCharArray))
         {
@@ -93,7 +93,7 @@ struct SSOString
             }
             else
             {
-                static if (is(typeof(source[0]) == immutable(char)))
+                static if (is(typeof(source[0]) == immutable(E)))
                 {
                     large = source; // already immutable so no duplication needed
                 }
@@ -114,7 +114,7 @@ struct SSOString
             }
             else
             {
-                static if (is(typeof(source[0]) == immutable(char)))
+                static if (is(typeof(source[0]) == immutable(E)))
                 {
                     large = source; // already immutable so no duplication needed
                 }
@@ -243,7 +243,7 @@ struct SSOString
     }
 
     /** Check if equal to `rhs`. */
-    bool opEquals()(const scope const(char)[] rhs) const scope @trusted
+    bool opEquals()(const scope const(E)[] rhs) const scope @trusted
     {
         pragma(inline, true);
         return opSlice() == rhs;

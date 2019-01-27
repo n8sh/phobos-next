@@ -336,7 +336,7 @@ private:
         size_t[2] words;
     }
 }
-static assert(SSOString.sizeof == string.sizeof);
+version(unittest) static assert(SSOString.sizeof == string.sizeof);
 
 /// construct from non-immutable source is allowed in non-@nogc context
 @safe pure nothrow unittest

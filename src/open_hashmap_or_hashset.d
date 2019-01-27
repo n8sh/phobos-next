@@ -2159,6 +2159,11 @@ unittest
     assert(x.containsUsingLinearSearch(aa_[1 .. 2]));
     assert(aa_[1 .. 2] in x);
 
+    char[2] aa__; aa__ = "aa";
+    assert(x.contains(aa__[1 .. 2]));
+    assert(x.containsUsingLinearSearch(aa__[1 .. 2]));
+    assert(aa__[1 .. 2] in x);
+
     const bb = "bb";
 
     assert(x.insertAndReturnElement(bb[0 .. 1]) is bb[0 .. 1]); // returns newly added ref

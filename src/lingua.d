@@ -469,9 +469,9 @@ class Part
 {
 }
 
-class Predicate : Part
-{
-}
+// class Predicate : Part
+// {
+// }
 
 // TODO: Conversion to Sense
 enum Article

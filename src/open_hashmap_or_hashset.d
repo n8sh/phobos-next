@@ -1331,11 +1331,8 @@ struct OpenHashMapOrSet(K, V = void,
             {
                 return _bins[hitIndex].value;
             }
-            version(assert)
-            {
-                import core.exception : RangeError;
-                throw new RangeError("Key not found");
-            }
+            import core.exception : RangeError;
+            throw new RangeError("Key not found");
         }
 
         /** Get value of `key` or `defaultValue` if `key` not present (and

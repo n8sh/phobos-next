@@ -512,7 +512,7 @@ unittest
 version(none)
 unittest
 {
-    const path = `/home/per/Knowledge/ConceptNet5/5.5/data/assertions/conceptnet-assertions-5.5.0.csv.gz`;
+    const path = `/home/per/Knowledge/ConceptNet5/latest/conceptnet-assertions-5.6.0.csv.gz`;
     alias R = ZlibFileInputRange;
 
     import std.stdio: writeln;

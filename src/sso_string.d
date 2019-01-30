@@ -81,10 +81,10 @@ struct SSOString
     /** Construct from `source`, which potentially needs GC-allocation (iff
      * `source.length > smallCapacity` and `source` is not a `string`).
      */
-    this(SomeCharArray)(const scope auto ref SomeCharArray source) @trusted
+    this(Chars)(const scope auto ref Chars source) @trusted
     if (isCharsSlice!(typeof(source[]))) // not immutable E
     {
-        static if (__traits(isStaticArray, SomeCharArray))
+        static if (__traits(isStaticArray, Chars))
         {
             static if (source.length <= smallCapacity) // inferred @nogc
             {

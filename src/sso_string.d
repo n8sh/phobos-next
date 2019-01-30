@@ -406,8 +406,11 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     assert(!s0.isLarge);
     assert(s0[] == []);
 
-    char[S.smallCapacity] charsSmallCapacity; // fits in small string
+    char[S.smallCapacity] charsSmallCapacity = "123456789_12345"; // fits in small string
     const sSmallCapacity = S(charsSmallCapacity);
+    assert(!sSmallCapacity.isLarge);
+    assert(sSmallCapacity.length == S.smallCapacity);
+    assert(sSmallCapacity == charsSmallCapacity);
 
     const s0_ = S("");
     assert(s0_.isNull);         // cannot distinguish

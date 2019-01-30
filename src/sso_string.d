@@ -82,17 +82,19 @@ struct SSOString
      * `source.length > smallCapacity` and `source` is not a `string`).
      */
     this(Chars)(const scope auto ref Chars source) @trusted
-    if (isCharsSlice!(typeof(source[]))) // not immutable E
+    if (isCharsSlice!(typeof(source[]))) // not immutable `E`
     {
         static if (__traits(isStaticArray, Chars))
         {
             static if (source.length <= smallCapacity) // inferred @nogc
             {
+                // pragma(msg, "Small static array source of length ", Chars.length);
                 small.data[0 .. source.length] = source;
                 small.length = cast(typeof(small.length))(2*source.length);
             }
             else
             {
+                // pragma(msg, "Large static array source of length ", Chars.length);
                 static if (is(typeof(source[0]) == immutable(E)))
                 {
                     large = source; // already immutable so no duplication needed
@@ -407,12 +409,6 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     char[S.smallCapacity] charsSmallCapacity; // fits in small string
     const sSmallCapacity = S(charsSmallCapacity);
 
-    char[S.smallCapacity + 1] charsMinLargeCapacity;
-    // TODO:
-    // static assert(!__traits(compiles, {
-    //             const _ = S(charsMinLargeCapacity);
-    //         }));
-
     const s0_ = S("");
     assert(s0_.isNull);         // cannot distinguish
     assert(s0 == s0_);
@@ -470,6 +466,14 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     assert(s16[0 .. 4] == "0123");
     assert(s16[10 .. 16] == "abcdef");
     assert(s16[10 .. $] == "abcdef");
+}
+
+/// construct from static array larger than `smallCapacity`
+@safe pure nothrow unittest
+{
+    alias S = SSOString;
+    char[S.smallCapacity + 1] charsMinLargeCapacity;
+    const _ = S(charsMinLargeCapacity);
 }
 
 /// hole handling

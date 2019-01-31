@@ -25,8 +25,9 @@ import std.traits : isExpressionTuple;
 import traits_ex : haveCommonType;
 
 /** Similar to $(D among) but for set of replacements/substitutions $(D substs).
-    Time-Complexity: O(1) thanks to D's $(D switch) guaranteeing O(1).
-*/
+ *
+ * Time-Complexity: O(1) thanks to D's $(D switch) guaranteeing O(1).
+ */
 template substitute(substs...)
 if ((substs.length & 1) == 0 && // need even number of elements (>= 1)
     substs.length >= 2 && // and at least one replacement pair
@@ -67,8 +68,8 @@ if ((substs.length & 1) == 0 && // need even number of elements (>= 1)
 }
 
 /** Substitute in parallel all elements in $(D r) which equal (according to $(D
-    pred)) $(D ss[2*n]) with $(D ss[2*n + 1]) for $(D n) = 0, 1, 2, ....
-*/
+ * pred)) $(D ss[2*n]) with $(D ss[2*n + 1]) for $(D n) = 0, 1, 2, ....
+ */
 auto substitute(alias pred = (a, b) => a == b, R, Ss...)(R r, Ss ss)
     if (isInputRange!(Unqual!R) &&
         Ss.length >= 2 &&
@@ -131,9 +132,9 @@ auto substitute(alias pred = (a, b) => a == b, R, Ss...)(R r, Ss ss)
     substitution is O(1).
 */
 template substitute(ss...)
-    if (isExpressionTuple!ss &&
-        ss.length >= 2 &&
-        hasEvenLength!ss)
+if (isExpressionTuple!ss &&
+    ss.length >= 2 &&
+    hasEvenLength!ss)
 {
     auto substitute(R)(R r)
         if (isInputRange!(Unqual!R) &&
@@ -179,8 +180,8 @@ template substitute(ss...)
 /** Helper range for subsequence overload of $(D substitute).
  */
 private auto substituteSplitter(alias pred = `a == b`, R, Rs...)(R haystack, Rs needles)
-    if (Rs.length >= 1 &&
-        is(typeof(startsWith!pred(haystack, needles))))
+if (Rs.length >= 1 &&
+    is(typeof(startsWith!pred(haystack, needles))))
 {
     static struct Result
     {

@@ -1506,6 +1506,17 @@ struct OpenHashMapOrSet(K, V = void,
                                                                                keyOf(currentElement)));
             }
             const probeCount = triangularProbeCountFromIndex!pred(_bins[], keyToIndex(keyOf(currentElement)));
+
+            version(none)
+            if (probeCount >= 20)
+            {
+                static if (is(K == class))
+                {
+                    import dbgio;
+                    dln(typeid(currentElement).name, " ", currentElement.asCharsMaybe);
+                }
+            }
+            
             totalCount += probeCount;
         }
         return totalCount;

@@ -71,10 +71,10 @@ if ((substs.length & 1) == 0 && // need even number of elements (>= 1)
  * pred)) $(D ss[2*n]) with $(D ss[2*n + 1]) for $(D n) = 0, 1, 2, ....
  */
 auto substitute(alias pred = (a, b) => a == b, R, Ss...)(R r, Ss ss)
-    if (isInputRange!(Unqual!R) &&
-        Ss.length >= 2 &&
-        hasEvenLength!Ss &&
-        haveCommonType!(ElementType!R, Ss))
+if (isInputRange!(Unqual!R) &&
+    Ss.length >= 2 &&
+    hasEvenLength!Ss &&
+    haveCommonType!(ElementType!R, Ss))
 {
     import std.algorithm.iteration : map;
     import std.functional : binaryFun;
@@ -366,11 +366,11 @@ template Stride(size_t stride, size_t offset, Args...)
     $(D pred)) $(D ss[2*n]) with $(D ss[2*n + 1]) for $(D n) = 0, 1, 2, ....
 */
 auto substitute(alias pred = (a, b) => a == b, R, Ss...)(R r, Ss ss)
-    if (isInputRange!(Unqual!R) &&
-        Ss.length >= 2 &&
-        hasEvenLength!Ss &&
-        haveCommonType!(ElementType!R,
-                        ElementType!(Ss[0])))
+if (isInputRange!(Unqual!R) &&
+    Ss.length >= 2 &&
+    hasEvenLength!Ss &&
+    haveCommonType!(ElementType!R,
+                    ElementType!(Ss[0])))
 {
     import std.algorithm.iteration : map;
     import std.functional : binaryFun;

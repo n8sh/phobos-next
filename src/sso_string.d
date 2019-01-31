@@ -130,6 +130,14 @@ struct SSOString
         }
     }
 
+    import std.traits : isIterable;
+
+    this(Source)(const scope auto ref Source source) @trusted
+    if (!isCharsSlice!(typeof(source[])) && 
+        isIterable!(Source)) // iterable of char
+    {
+    }
+
     /** Return `this` converted to a `string`, which potentially needs
      * GC-allocation (iff `length > smallCapacity`).
      */

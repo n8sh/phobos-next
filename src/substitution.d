@@ -344,7 +344,7 @@ if (Rs.length >= 1 &&
 }
 
 template Stride(size_t stride, size_t offset, Args...)
-    if (stride > 0)
+if (stride > 0)
 {
     import std.meta : AliasSeq;
     static if (offset >= Args.length)

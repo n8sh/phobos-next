@@ -21,6 +21,7 @@ if (isASCII(from) &&
 @safe pure nothrow @nogc unittest
 {
     auto x = "_a_b_c_";
+
     char[7] y = x;
     y.substituteInPlaceASCII!('_', ' ');
     assert(y[] == " a b c ");

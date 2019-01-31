@@ -136,6 +136,7 @@ struct SSOString
     if (!isCharsSlice!(typeof(source[])) && 
         isIterable!(Source)) // iterable of char
     {
+        static assert(0, "Implement");
     }
 
     /** Return `this` converted to a `string`, which potentially needs

@@ -34,8 +34,8 @@ hash_t hashOfTypeInfoPtr(TypeInfo_Class typeinfo) @trusted pure nothrow @nogc
 hash_t hashOfPolymorphic(Class)(Class aClassInstance) @trusted pure nothrow @nogc
 if (is(Class == class))
 {
-    assert(typeid(Class).alignof == 8);
-    return (cast(hash_t)(cast(void*)typeid(Class)) >> 3) ^ hashOf(aClassInstance);
+    // assert(typeid(Class).alignof == 8);
+    return hashOf(cast(void*)typeid(Class)) ^ hashOf(aClassInstance);
 }
 
 version(unittest)

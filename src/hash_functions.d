@@ -31,15 +31,15 @@ hash_t hashOfTypeInfoPtr(TypeInfo_Class typeinfo) @trusted pure nothrow @nogc
  *
  * See_Also: https://forum.dlang.org/post/lxqoknwuujbymolnlyfw@forum.dlang.org
  */
-hash_t hashOfPolymorphic(Class)(Class aClassInstance) @trusted pure nothrow @nogc
+hash_t hashOfPolymorphic(Class)(Class a) @trusted pure nothrow @nogc
 if (is(Class == class))
 {
     // assert(typeid(Class).alignof == 8);
     // const class_typeid_hash = (cast(hash_t)(cast(void*)typeid(Class)) >> 3)
     import core.internal.hash : hashOf;
     /* import dbgio; */
-    /* dln(typeid(aClassInstance).name, " ", hashOf(cast(void*)typeid(aClassInstance)) ^ hashOf(aClassInstance)); */
-    return hashOf(cast(void*)typeid(aClassInstance)) ^ hashOf(aClassInstance);
+    /* dln(typeid(a).name, " ", hashOf(cast(void*)typeid(a)) ^ hashOf(a)); */
+    return hashOf(cast(void*)typeid(a)) ^ hashOf(a);
 }
 
 version(unittest)

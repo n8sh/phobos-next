@@ -9,7 +9,10 @@ if (isASCII(from) &&
 {
     foreach (ref char ch; source)
     {
-        if (ch == from) { ch = to; }
+        if (ch == from)
+        {
+            ch = to;
+        }
     }
 }
 

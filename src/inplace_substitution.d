@@ -2,10 +2,8 @@ module inplace_substitution;
 
 import std.ascii : isASCII;
 
-@safe pure nothrow @nogc:
-
 /** Substitute `from` by `to` in-place in `source`. */
-void substituteInPlaceASCII(dchar from, dchar to)(scope char[] source) 
+void substituteInPlaceASCII(dchar from, dchar to)(scope char[] source) @safe pure nothrow @nogc
 if (isASCII(from) &&
     isASCII(to))
 {
@@ -19,7 +17,7 @@ if (isASCII(from) &&
 }
 
 /** Returns: in-place substitution `from` by `to` in `source`. */
-char[] substitutedInPlaceASCII(dchar from, dchar to)(return scope char[] source) 
+char[] substitutedInPlaceASCII(dchar from, dchar to)(return scope char[] source) @safe pure nothrow @nogc
 if (isASCII(from) &&
     isASCII(to))
 {
@@ -28,7 +26,7 @@ if (isASCII(from) &&
 }
 
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
     const x = "_a_b_c_";
 

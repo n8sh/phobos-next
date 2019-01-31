@@ -37,10 +37,8 @@ if (is(Class == class))
     // assert(typeid(Class).alignof == 8);
     // const class_typeid_hash = (cast(hash_t)(cast(void*)typeid(Class)) >> 3)
     import core.internal.hash : hashOf;
-
-    import dbgio;
-    dln(typeid(aClassInstance).name, " ", hashOf(cast(void*)typeid(aClassInstance)));
-    
+    /* import dbgio; */
+    /* dln(typeid(aClassInstance).name, " ", hashOf(cast(void*)typeid(aClassInstance)) ^ hashOf(aClassInstance)); */
     return hashOf(cast(void*)typeid(aClassInstance)) ^ hashOf(aClassInstance);
 }
 

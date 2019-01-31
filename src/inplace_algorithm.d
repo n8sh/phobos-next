@@ -15,8 +15,8 @@ version(unittest)
     TODO Move to free function in array_ex.d to get @trusted access to private Array._mptr
  */
 C filteredInplace(alias predicate, C)(C r) @trusted // TODO remove @trusted
-    if (is(typeof(unaryFun!predicate)) &&
-        hasIndexing!C)          // TODO extend to `isArrayContainer`!C eller `isRandomAccessContainer!C`
+if (is(typeof(unaryFun!predicate)) &&
+    hasIndexing!C)          // TODO extend to `isArrayContainer`!C eller `isRandomAccessContainer!C`
 {
     import std.traits : Unqual;
     import std.traits : hasElaborateDestructor, isMutable, hasIndirections;
@@ -85,8 +85,8 @@ C filteredInplace(alias predicate, C)(C r) @trusted // TODO remove @trusted
 /** Returns: `r` eagerly in-place filtered on `predicate`.
  */
 C filteredInplace(alias predicate, C)(C r)
-    if (isSet!C &&
-        is(typeof(unaryFun!predicate(C.ElementType.init))))
+if (isSet!C &&
+    is(typeof(unaryFun!predicate(C.ElementType.init))))
 {
     import std.algorithm.mutation : move;
     static if (__traits(hasMember, C, "remove"))
@@ -128,8 +128,8 @@ C filteredInplace(alias predicate, C)(C r)
 
 /** Fyilter `r` eagerly in-place using `predicate`. */
 void filterInplace(alias predicate, C)(ref C r) @trusted // TODO remove @trusted
-    if (hasIndexing!C && // TODO extend to `isArrayContainer`!C eller `isRandomAccessContainer!C`
-        is(typeof(unaryFun!predicate)))
+if (hasIndexing!C && // TODO extend to `isArrayContainer`!C eller `isRandomAccessContainer!C`
+    is(typeof(unaryFun!predicate)))
 {
     import std.algorithm.mutation : move;
     r = move(r).filteredInplace!predicate(); // TODO remove move when compiler does it for us

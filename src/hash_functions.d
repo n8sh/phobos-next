@@ -35,6 +35,7 @@ hash_t hashOfPolymorphic(Class)(Class aClassInstance) @trusted pure nothrow @nog
 if (is(Class == class))
 {
     // assert(typeid(Class).alignof == 8);
+    // const class_typeid_hash = (cast(hash_t)(cast(void*)typeid(Class)) >> 3)
     return hashOf(cast(void*)typeid(Class)) ^ hashOf(aClassInstance);
 }
 

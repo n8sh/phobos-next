@@ -2,6 +2,7 @@ module inplace_substitution;
 
 import std.ascii : isASCII;
 
+/** Substitute `from` by `to` in-place in `source`. */
 void substituteInPlaceASCI(dchar from, dchar to)(scope char[] source)
     @safe pure nothrow @nogc
 if (isASCII(from) &&

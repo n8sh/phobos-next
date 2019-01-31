@@ -27,6 +27,11 @@ hash_t hashOfTypeInfoPtr(TypeInfo_Class typeinfo) @trusted pure nothrow @nogc
     return (cast(hash_t)(cast(void*)typeinfo) >> 3);
 }
 
+size_t fibonacci_hash(hash_t hash) @safe pure nothrow @nogc
+{
+    return (hash * 11400714819323198485LU);
+}
+
 /** Hash that distinguishes `Expr(X)` from `NounExpr(X)`.
  *
  * See_Also: https://forum.dlang.org/post/lxqoknwuujbymolnlyfw@forum.dlang.org
@@ -37,8 +42,7 @@ if (is(Class == class))
     // assert(typeid(Class).alignof == 8);
     // const class_typeid_hash = (cast(hash_t)(cast(void*)typeid(Class)) >> 3)
     import core.internal.hash : hashOf;
-    /* import dbgio; */
-    /* dln(typeid(a).name, " ", hashOf(cast(void*)typeid(a)) ^ hashOf(a)); */
+    pragma(msg, "TODO check if fibonacci_hash(typeid(a)) improves stuff");
     return hashOf(cast(void*)typeid(a)) ^ hashOf(a);
 }
 

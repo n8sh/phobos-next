@@ -1,7 +1,11 @@
 module inplace_substitution;
 
-void substituteInPlace(scope char[] source, char from, char to)
+import std.ascii : isASCII;
+
+void substituteInPlaceASCI(dchar from, dchar to)(scope char[] source)
     @safe pure nothrow @nogc
+if (isASCII(from) &&
+    isASCII(to))
 {
     foreach (ref char ch; source)
     {
@@ -10,4 +14,12 @@ void substituteInPlace(scope char[] source, char from, char to)
             ch = to;
         }
     }
+}
+
+@safe pure unittest
+{
+    auto x = "_a_b_c_";
+    char[7] y = x;
+    y.substituteInPlaceASCI!('_', ' ');
+    assert(y[] == " a b c ");
 }

@@ -35,7 +35,7 @@ if ((substs.length & 1) == 0 && // need even number of elements (>= 1)
     haveCommonType!(substs))
 {
     Value substitute(Value)(Value value)
-        if (haveCommonType!(Value, substs)) // TODO need static map incorrect
+    if (haveCommonType!(Value, substs)) // TODO need static map incorrect
     {
         switch (value)
         {

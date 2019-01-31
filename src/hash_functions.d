@@ -39,11 +39,10 @@ size_t fibonacci_hash(hash_t hash) @safe pure nothrow @nogc
 hash_t hashOfPolymorphic(Class)(Class a) @trusted pure nothrow @nogc
 if (is(Class == class))
 {
-    // assert(typeid(Class).alignof == 8);
+    static assert(typeid(Class).alignof == 8);
     // const class_typeid_hash = (cast(hash_t)(cast(void*)typeid(Class)) >> 3)
     import core.internal.hash : hashOf;
-    pragma(msg, "TODO check if fibonacci_hash(typeid(a)) improves stuff");
-    return hashOf(cast(void*)typeid(a)) ^ hashOf(a);
+    return fibonacci_hash(hashOf(cast(void*)typeid(a))) ^ hashOf(a);
 }
 
 version(unittest)

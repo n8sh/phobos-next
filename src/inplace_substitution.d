@@ -17,6 +17,7 @@ if (isASCII(from) &&
     }
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     auto x = "_a_b_c_";

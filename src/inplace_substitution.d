@@ -17,6 +17,14 @@ if (isASCII(from) &&
     }
 }
 
+/** Returns: in-place substitution `from` by `to` in `source`. */
+char[] substitutedInPlaceASCII(dchar from, dchar to)(return scope char[] source)
+    @safe pure nothrow @nogc
+{
+    substituteInPlaceASCII!(from, to)(source);
+    return source;
+}
+
 ///
 @safe pure nothrow @nogc unittest
 {

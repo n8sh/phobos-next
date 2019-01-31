@@ -1,8 +1,8 @@
 #!/usr/bin/env rdmd-unittest-module
 
 /** Lazy Substitution Algorithms.
-
-    See_Also: http://forum.dlang.org/post/pymxzazxximtgixzbnpq@forum.dlang.org
+ * 
+ * See_Also: http://forum.dlang.org/post/pymxzazxximtgixzbnpq@forum.dlang.org
  */
 module substitution;
 

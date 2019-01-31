@@ -37,7 +37,7 @@ if (is(Class == class))
     // assert(typeid(Class).alignof == 8);
     // const class_typeid_hash = (cast(hash_t)(cast(void*)typeid(Class)) >> 3)
     import core.internal.hash : hashOf;
-    return hashOf(cast(void*)typeid(Class)) ^ hashOf(aClassInstance);
+    return hashOf(cast(void*)typeid(aClassInstance)) ^ hashOf(aClassInstance);
 }
 
 version(unittest)

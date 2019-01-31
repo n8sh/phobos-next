@@ -1513,7 +1513,7 @@ struct OpenHashMapOrSet(K, V = void,
                 static if (is(K == class))
                 {
                     import dbgio;
-                    dln(typeid(currentElement).name, " ", currentElement.asCharsMaybe);
+                    dln(typeid(currentElement).name, " ", currentElement);
                 }
             }
             

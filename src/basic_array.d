@@ -157,8 +157,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     static if (isCopyable!T &&
                !is(T == union)) // forbid copying of unions such as `HybridBin` in hashmap.d
     {
-        static typeof(this) withElements()(const T[] elements) // template-lazy
-            @trusted
+        static typeof(this) withElements()(const T[] elements) @trusted // template-lazy
         {
             immutable length = elements.length;
             auto ptr = typeof(this).allocate(length, false);
@@ -358,8 +357,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     /** Allocate heap region with `initialCapacity` number of elements of type `T`.
         If `zero` is `true` they will be zero-initialized.
     */
-    private static MutableE* allocate(size_t initialCapacity, bool zero)
-        @trusted
+    private static MutableE* allocate(size_t initialCapacity, bool zero) @trusted
     {
         immutable size_t numBytes = initialCapacity * T.sizeof;
 
@@ -407,8 +405,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
         /** Allocate heap region with `initialCapacity` number of elements of type `T` all set to `elementValue`.
          */
         private static MutableE* allocateWithValue(size_t initialCapacity,
-                                                   T elementValue)
-            @trusted
+                                                   T elementValue) @trusted
         {
             immutable size_t numBytes = initialCapacity * T.sizeof;
 
@@ -802,8 +799,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /** Pop element at `index`. */
-    void popAt()(size_t index)  // template-lazy
-        @trusted
+    void popAt()(size_t index) @trusted // template-lazy
         @("complexity", "O(length)")
     {
         assert(index < this.length);
@@ -816,8 +812,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /** Move element at `index` to return. */
-    T moveAt()(size_t index)    // template-lazy
-        @trusted
+    T moveAt()(size_t index) @trusted // template-lazy
         @("complexity", "O(length)")
     {
         assert(index < this.length);
@@ -835,8 +830,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
         return moveAt(0);
     }
 
-    private void shiftToFrontAt()(size_t index) // template-lazy
-        @trusted
+    private void shiftToFrontAt()(size_t index) @trusted // template-lazy
     {
         // TODO use this instead:
         // immutable si = index + 1;   // source index
@@ -978,8 +972,7 @@ import std.functional : unaryFun;
  * TODO implement version that doesn't use a temporary array `tmp`, which is
  * probably faster for small arrays.
  */
-size_t remove(alias predicate, C)(ref C c)
-    @trusted
+size_t remove(alias predicate, C)(ref C c) @trusted
     @("complexity", "O(length)")
 if (isInstanceOf!(BasicArray, C) &&
     is(typeof(unaryFun!predicate(C.init[0]))))

@@ -1505,7 +1505,8 @@ struct OpenHashMapOrSet(K, V = void,
                 alias pred = (const scope auto ref element) => (keyEqualPredFn(keyOf(element),
                                                                                keyOf(currentElement)));
             }
-            totalCount += triangularProbeCountFromIndex!pred(_bins[], keyToIndex(keyOf(currentElement)));
+            const probeCount = triangularProbeCountFromIndex!pred(_bins[], keyToIndex(keyOf(currentElement)));
+            totalCount += probeCount;
         }
         return totalCount;
     }

@@ -61,6 +61,7 @@ void dln(string file = __FILE__,
     catch (Exception) { }
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     static assert(__traits(compiles, { dln(); })); // ok for dln to discard function qualifiers

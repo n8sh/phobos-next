@@ -19,7 +19,7 @@ mixin template dump(Names...)
         debug write(__FILE__, ":", __LINE__, ": Info: ");
         foreach (immutable i, name; Names)
         {
-            debug write(name, ": ", mixin(name), (i < Names.length-1) ? ", " : "\n");
+            debug write(typeof(name).stringof, " ", name, ": ", mixin(name), (i < Names.length-1) ? ", " : "\n");
         }
         return false;
     }();

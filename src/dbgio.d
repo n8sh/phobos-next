@@ -63,7 +63,7 @@ void dln(string file = __FILE__,
 
 @safe pure nothrow @nogc unittest
 {
-    static assert(__traits(compiles, { dln(); })); // discards qualifiers
+    static assert(__traits(compiles, { dln(); })); // ok for dln to discard function qualifiers
 }
 
 /** Show the symbol name and variable of $(D Args).

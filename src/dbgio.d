@@ -93,13 +93,13 @@ if (Args.length >= 1)
         import std.stdio: write, writeln;
         try
         {
-            debug assumeNogc!write(file, ":",line, ":" /* , ": in ",fun */, " debug: ");
+            debug write(file, ":",line, ":" /* , ": in ",fun */, " debug: ");
             foreach (const i, Arg; Args)
             {
-                if (i) debug assumeNogc!write(", "); // separator
-                debug assumeNogc!write(Args[i].stringof, ":", Arg);
+                if (i) debug write(", "); // separator
+                debug write(Args[i].stringof, ":", Arg);
             }
-            debug assumeNogc!writeln();
+            debug writeln();
         }
         catch (Exception) { }
     }

@@ -39,6 +39,7 @@ mixin template dump(Names...)
  * Similar to Rust's `dbg` macro introduced in version 1.32.
  *
  * See_Also: https://blog.rust-lang.org/2019/01/17/Rust-1.32.0.html#the-dbg-macro
+ * See_Also: https://forum.dlang.org/post/svjjawiezudnugdyriig@forum.dlang.org
  */
 void dbg(string file = __FILE__,
          uint line = __LINE__,

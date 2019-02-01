@@ -9,8 +9,6 @@ module dbgio;
 
 // version = show;
 
-import assuming : assumeNogc;
-
 mixin template dump(Names...)
 {
     auto dump =
@@ -44,18 +42,29 @@ pure
 
 nothrow pure:
 
-/** Debug print `args` followed by a newline. */
+/** Debug print `args` followed by a newline.
+ *
+ * Similar to Rust's `dbg` macro introduced in version 1.32.
+ *
+ * See_Also: https://blog.rust-lang.org/2019/01/17/Rust-1.32.0.html#the-dbg-macro
+ */
 void dln(string file = __FILE__,
          uint line = __LINE__,
          string fun = __FUNCTION__,
-         Args...)(Args args)
+         Args...)(Args args) @safe pure nothrow @nogc
 {
     try
     {
-        import std.stdio : writeln;
-        debug assumeNogc!writeln(file, ":", line, ":", " debug: ", args);
+        import std.stdio : stderr, writeln;
+        debug stderr.writeln(file, ":", line, ":", " debug: ", args);
     }
     catch (Exception) { }
+}
+
+version(unittest)
+@safe pure nothrow @nogc unittest
+{
+    static assert(__traits(compiles, { dln(); })); // discards qualifiers
 }
 
 /** Show the symbol name and variable of $(D Args).

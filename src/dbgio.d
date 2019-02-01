@@ -13,7 +13,7 @@ mixin template dump(Names...)
 {
     auto dump =
     {
-        import std.stdio : write;
+        import std.stdio : stderr, write;
         debug write(__FILE__, ":", __LINE__, ": info: ");
         foreach (immutable i, name; Names)
         {

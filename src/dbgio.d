@@ -9,6 +9,8 @@ module dbgio;
 
 // version = show;
 
+@safe pure:
+
 mixin template dump(Names...)
 {
     auto dump =
@@ -30,17 +32,6 @@ mixin template dump(Names...)
     int[2] y = [42, 43];
     mixin dump!("x", "y");
 }
-
-@trusted:
-
-/* http://stackoverflow.com/questions/19413340/escaping-safety-with-debug-statements */
-debug auto trustedPureDebugCall(alias fn, Args...) (Args args)
-pure
-{
-    debug return fn(args);
-}
-
-nothrow pure:
 
 /** Debug print `args` followed by a newline.
  *

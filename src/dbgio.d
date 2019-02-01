@@ -27,7 +27,7 @@ mixin template dump(Names...)
 @safe pure unittest
 {
     int x = 42;
-    int[] y = [42, 43];
+    int[2] y = [42, 43];
     mixin dump!("x", "y");
 }
 
@@ -64,8 +64,8 @@ void dbg(string file = __FILE__,
 ///
 @safe pure nothrow @nogc unittest
 {
-    int x = 42;
-    dbg("x: ", x);
+    // int x = 42;
+    // dbg("x: ", x);
     static assert(__traits(compiles, { dbg(); })); // ok for dln to discard function qualifiers
 }
 

@@ -28,7 +28,7 @@ mixin template dump(Names...)
 ///
 @safe pure unittest
 {
-    int x = 42;
+    const int x = 42;
     int[2] y = [42, 43];
     mixin dump!("x", "y");
 }

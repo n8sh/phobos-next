@@ -56,7 +56,7 @@ void dbg(string file = __FILE__,
     try
     {
         import std.stdio : stderr, writeln;
-        debug stderr.writeln(file, ":", line, ":", " debug: ", args);
+        debug stderr.writeln(file, ":", line, ":", " Info: ", args);
     }
     catch (Exception) { }
 }
@@ -64,6 +64,8 @@ void dbg(string file = __FILE__,
 ///
 @safe pure nothrow @nogc unittest
 {
+    int x = 42;
+    dbg("x: ", x);
     static assert(__traits(compiles, { dbg(); })); // ok for dln to discard function qualifiers
 }
 

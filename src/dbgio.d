@@ -1,10 +1,11 @@
-#!/usr/bin/env rdmd-dev-module
+/** Various debug printing tools for debug printing in `@safe pure nothrow @nogc` code.
 
-   /** Various debug printing tools for debug printing in `@safe pure nothrow @nogc` code.
-    Copyright: Per Nordlöw 2018-.
-    License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
-    Authors: $(WEB Per Nordlöw)
-*/
+ * Copyright: Per Nordlöw 2018-.
+ * License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
+ * Authors: $(WEB Per Nordlöw)
+ *
+ * See_Also: https://forum.dlang.org/post/svjjawiezudnugdyriig@forum.dlang.org
+ */
 module dbgio;
 
 // version = show;

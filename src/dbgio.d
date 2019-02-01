@@ -14,7 +14,7 @@ mixin template dump(Names...)
     auto dump =
     {
         import std.stdio : stderr, write;
-        debug write(__FILE__, ":", __LINE__, ": info: ");
+        debug write(__FILE__, ":", __LINE__, ": Info: ");
         foreach (immutable i, name; Names)
         {
             debug write(name, ": ", mixin(name), (i < Names.length-1) ? ", " : "\n");

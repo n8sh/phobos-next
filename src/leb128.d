@@ -55,7 +55,6 @@ SInt decodeLEB128(SInt)(ubyte *p, uint *n = null)
 
 version(unittest)
 {
-    import dbgio : dln;
     import std.algorithm.comparison : equal;
 
     import std.array : Appender;

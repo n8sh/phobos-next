@@ -90,7 +90,7 @@ Tuple!(R, ptrdiff_t[]) findAcronymAt(alias pred = "a == b",
     auto rest = haystack[haystackOffset..$];
     while (needle.length <= rest.length) // for each new try at finding the needle at remainding part of haystack
     {
-        /* debug dln(needle, ", ", rest); */
+        /* debug dbg(needle, ", ", rest); */
 
         // find first character
         size_t nIx = 0;         // needle index

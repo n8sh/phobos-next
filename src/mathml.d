@@ -118,8 +118,8 @@ unittest
 {
     alias Q = Rational;
     auto x = Q!ulong(11, 22);
-    // import dbgio : dln;
-    /** dln(x.toMathML); */
-    /** dln(x.toMathML(true)); */
-    /** dln(x.toMathML(true, HAlign.left, HAlign.left)); */
+    // import dbgio : dbg;
+    /** dbg(x.toMathML); */
+    /** dbg(x.toMathML(true)); */
+    /** dbg(x.toMathML(true, HAlign.left, HAlign.left)); */
 }

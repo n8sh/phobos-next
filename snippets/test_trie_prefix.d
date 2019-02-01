@@ -2,7 +2,6 @@
 
 import std.algorithm.comparison : equal;
 import trie : radixTreeSet;
-import dbgio : dln;
 
 void main(string[] args)
 {
@@ -47,21 +46,21 @@ void main(string[] args)
 
         foreach (const e; set[])
         {
-            dln(`"`, e, `"`);
+            dbg(`"`, e, `"`);
         }
 
         writeln();
 
         foreach (const e; set.prefix(`a`))
         {
-            dln(`"`, e, `"`);
+            dbg(`"`, e, `"`);
         }
 
         writeln();
 
         foreach (const e; set.prefix(`all`))
         {
-            dln(`"`, e, `"`);
+            dbg(`"`, e, `"`);
         }
     }
 

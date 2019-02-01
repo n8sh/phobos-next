@@ -851,10 +851,10 @@ alias nvec4f = Vector!(float, 4, true);
     assert(!any!"a"(vec2b(false, false)[]));
     version(show)
     {
-        dln(vec2f(2, 3));
-        dln(transpose(vec2f(11, 22)));
-        dln(vec2f(11, 22).toLaTeX);
-        dln(vec2f(11, 22).T.toLaTeX);
+        dbg(vec2f(2, 3));
+        dbg(transpose(vec2f(11, 22)));
+        dbg(vec2f(11, 22).toLaTeX);
+        dbg(vec2f(11, 22).T.toLaTeX);
     }
     assert((vec2(1, 3)*2.5f)[] == [2.5f, 7.5f].s);
 
@@ -1726,7 +1726,7 @@ auto sphere(C, R)(C center, R radius)
 @safe pure nothrow @nogc unittest
 {
     const x = sphere(point(1.0, 2, 3, 4), 10.0);
-    version(show) dln(x, " has volume ", x.volume);
+    version(show) dbg(x, " has volume ", x.volume);
 }
 
 /**
@@ -1755,29 +1755,29 @@ bool intersect(T)(Circle!T circle, Rect!T rect)
 {
     version(show)
     {
-        dln(box2f(vec2f(1, 2),
+        dbg(box2f(vec2f(1, 2),
                   vec2f(3, 3)));
-        dln([12, 3, 3]);
+        dbg([12, 3, 3]);
 
-        dln(sort(vec2f(2, 3)[]));
-        dln(vec2f(2, 3));
+        dbg(sort(vec2f(2, 3)[]));
+        dbg(vec2f(2, 3));
 
-        dln(vec2f(2, 3));
-        dln(vec2f(2, 3));
+        dbg(vec2f(2, 3));
+        dbg(vec2f(2, 3));
 
-        dln(vec3f(2, 3, 4));
+        dbg(vec3f(2, 3, 4));
 
-        dln(box2f(vec2f(1, 2),
+        dbg(box2f(vec2f(1, 2),
                   vec2f(3, 4)));
 
-        dln(vec2i(2, 3));
-        dln(vec3i(2, 3, 4));
-        dln( + vec3i(2, 3, 4));
-        dln("vec2i:\n", vec2i(2, 3).toMathML);
+        dbg(vec2i(2, 3));
+        dbg(vec3i(2, 3, 4));
+        dbg( + vec3i(2, 3, 4));
+        dbg("vec2i:\n", vec2i(2, 3).toMathML);
 
         auto m = mat2(1, 2, 3, 4);
-        dln("LaTeX:\n", m.toLaTeX);
-        dln("MathML:\n", m.toMathML);
+        dbg("LaTeX:\n", m.toLaTeX);
+        dbg("MathML:\n", m.toMathML);
     }
 }
 

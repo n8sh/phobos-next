@@ -18,7 +18,6 @@ import std.range: InputRange, ElementType, isInputRange;
 import std.traits: isSomeChar, isUnsigned, isIntegral, isFloatingPoint, Unqual, isStaticArray, isIterable, isAssociativeArray, CommonType;
 import std.stdint: uint64_t;
 import std.typecons: Tuple, tuple;
-import dbgio: dln;
 import predicates: allZero, allEqualTo;
 import nesses: denseness;
 import rational: Rational;
@@ -874,10 +873,10 @@ unittest
     assert(h[11] == 2 && h[12] == 2 && h[13] == 2);
     assert(12 == h.matchDenser(h));
 
-    version(print) dln(h);
+    version(print) dbg(h);
 
     auto hD = x.histogram!(Kind.saturated, Storage.denseDynamic);
-    version(print) dln(hD);
+    version(print) dbg(hD);
 }
 
 unittest
@@ -974,7 +973,7 @@ unittest
         }
         ++ix;
     }
-    version(print) dln(h);
+    version(print) dbg(h);
 }
 
 /**
@@ -1016,10 +1015,10 @@ unittest
     assert(bS != bSCopy);
 
     const bD = x.bigram!(Kind.saturated, Storage.denseDynamic);
-    version(print) dln(bD);
+    version(print) dbg(bD);
 
     const bb = x.bigram!(Kind.binary, Storage.denseStatic);
-    version(print) dln(typeof(bb._bins).stringof);
+    version(print) dbg(typeof(bb._bins).stringof);
 
     assert(bb.denseness(0).numerator == 4);
     // assert(bb.denseness(-1).numerator == 6);
@@ -1029,11 +1028,11 @@ unittest
     const ubyte[] x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
     const bS = x.bigram!(Kind.saturated, Storage.denseStatic);
-    version(print) dln(bS);
+    version(print) dbg(bS);
     assert(bS.denseness.numerator == x.length - bS.order + 1);
 
     const bB = x.bigram!(Kind.binary, Storage.denseStatic);
-    version(print) dln(bB);
+    version(print) dbg(bB);
 }
 
 unittest
@@ -1067,14 +1066,14 @@ unittest
     const ubyte[] x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
     const bS = x.trigram!(Kind.saturated, Storage.denseStatic);
-    version(print) dln(bS);
+    version(print) dbg(bS);
     assert(bS.denseness.numerator == x.length - bS.order + 1);
 
     const bD = x.trigram!(Kind.saturated, Storage.denseDynamic);
-    version(print) dln(bD);
+    version(print) dbg(bD);
 
     const bB = x.trigram!(Kind.binary, Storage.denseStatic);
-    /* version(print) dln(bB); */
+    /* version(print) dbg(bB); */
 }
 
 /**
@@ -1101,7 +1100,7 @@ unittest
     const ubyte[] x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
     const bD = x.quagram!(Kind.saturated, Storage.denseDynamic);
-    version(print) dln(bD);
+    version(print) dbg(bD);
     assert(bD.denseness.numerator == x.length - bD.order + 1);
 }
 auto sparseUIntQuagramOverRepresentation(in string x) pure nothrow
@@ -1132,6 +1131,6 @@ unittest
     // skipping denseStatic because it doesn't fit stack anyway
 
     const bD = x.pengram!(Kind.saturated, Storage.denseDynamic);
-    version(print) dln(bD);
+    version(print) dbg(bD);
     assert(bD.denseness.numerator == x.length - bD.order + 1);
 }

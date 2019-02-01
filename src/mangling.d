@@ -35,7 +35,7 @@ import std.algorithm.comparison : either;
 import algorithm_ex: tryEvery, split, splitBefore, findPopBefore, findPopAfter;
 import lingua;
 import languages : Lang;
-import dbgio : dln;
+import dbgio : dbg;
 
 /** C++ Demangler. */
 class Demangler(R)
@@ -78,7 +78,7 @@ string skipLiteral(R, E)(Demangler!R x, E lit)
 R decodeCxxUnqualifiedType(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     return either(x.decodeCxxBuiltinType(),
                   x.decodeCxxSubstitution(),
                   x.decodeCxxFunctionType());
@@ -119,7 +119,7 @@ struct CxxType
 R decodeCxxType(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
 
     const packExpansion = x.r.skipOver(`Dp`); // (C++11)
 
@@ -143,12 +143,12 @@ R decodeCxxType(R)(Demangler!R x)
                     // <ref-qualifier>: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.ref-qualifier
                 case 'R': x.r.popFront(); cxxType.isRef = true; break;
                 case 'O': x.r.popFront(); cxxType.isRvalueRef = true; break;
-                case 'C': x.r.popFront(); cxxType.isComplexPair = true; dln("TODO Handle complex pair (C 2000)"); break;
-                case 'G': x.r.popFront(); cxxType.isImaginary = true; dln("TODO Handle imaginary (C 2000)"); break;
+                case 'C': x.r.popFront(); cxxType.isComplexPair = true; dbg("TODO Handle complex pair (C 2000)"); break;
+                case 'G': x.r.popFront(); cxxType.isImaginary = true; dbg("TODO Handle imaginary (C 2000)"); break;
                 case 'U': x.r.popFront();
                     const sourceName = x.decodeCxxSourceName();
                     cxxType.typeName = sourceName ~ x.decodeCxxType();
-                    dln("TODO Handle vendor extended type qualifier <source-name>", x.r);
+                    dbg("TODO Handle vendor extended type qualifier <source-name>", x.r);
                     break;
                 default: miss = true; break;
             }
@@ -180,7 +180,7 @@ R decodeCxxType(R)(Demangler!R x)
 R decodeCxxClassEnumType(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     R type;
     R prefix;
     enum n = 2;
@@ -213,7 +213,7 @@ R decodeCxxClassEnumType(R)(Demangler!R x)
 R decodeCxxExpression(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     R exp;
     assert(0, "TODO");
 }
@@ -222,7 +222,7 @@ R decodeCxxExpression(R)(Demangler!R x)
 R decodeCxxArrayType(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     R type;
     if (x.r.skipOver('A'))
     {
@@ -245,7 +245,7 @@ R decodeCxxArrayType(R)(Demangler!R x)
 R decodeCxxPointerToMemberType(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     R type;
     if (x.r.skipOver('M'))
     {
@@ -260,7 +260,7 @@ R decodeCxxPointerToMemberType(R)(Demangler!R x)
 R decodeCxxTemplateParam(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     R param;
     if (x.r.skipOver('T'))
     {
@@ -280,7 +280,7 @@ R decodeCxxTemplateParam(R)(Demangler!R x)
 R decodeCxxTemplateTemplateParamAndArgs(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     R value;
     if (const param = either(x.decodeCxxTemplateParam(),
                              x.decodeCxxSubstitution()))
@@ -295,7 +295,7 @@ R decodeCxxTemplateTemplateParamAndArgs(R)(Demangler!R x)
 R decodeCxxDecltype(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     R type;
     if (x.r.skipOver(`Dt`) ||
         x.r.skipOver(`DT`))
@@ -309,7 +309,7 @@ R decodeCxxDecltype(R)(Demangler!R x)
 R decodeCxxDigit(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     auto digit = x.r[0..1];
     x.r.popFront();
     return digit;
@@ -321,7 +321,7 @@ R decodeCxxDigit(R)(Demangler!R x)
 R decodeCxxOperatorName(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
 
     if (x.r.skipOver('v'))     // vendor extended operator
     {
@@ -423,7 +423,7 @@ R decodeCxxOperatorName(R)(Demangler!R x)
 R decodeCxxBuiltinType(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     R type;
     enum n = 1;
     if (x.r.length < n) { return type; }
@@ -474,7 +474,7 @@ R decodeCxxBuiltinType(R)(Demangler!R x)
                 case 'a': x.r.popFront(); type = `auto`; break;
                 case 'c': x.r.popFront(); type = `decltype(auto)`; break;
                 case 'n': x.r.popFront(); type = `std::nullptr_t`; break; // (i.e., decltype(nullptr))
-                default: dln(`TODO Handle `, x.r);
+                default: dbg(`TODO Handle `, x.r);
             }
             break;
 
@@ -494,7 +494,7 @@ R decodeCxxBuiltinType(R)(Demangler!R x)
 R decodeCxxSubstitution(R)(Demangler!R x, R stdPrefix = `::std::`)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     R type;
     if (x.r.skipOver('S'))
     {
@@ -540,7 +540,7 @@ R decodeCxxSubstitution(R)(Demangler!R x, R stdPrefix = `::std::`)
                 case 'd': x.r.popFront(); type ~= `iostream`; break;
 
                 default:
-                    dln(`Cannot handle C++ standard prefix character: '`, x.r.front, `'`);
+                    dbg(`Cannot handle C++ standard prefix character: '`, x.r.front, `'`);
                     x.r.popFront();
                     break;
             }
@@ -555,7 +555,7 @@ R decodeCxxSubstitution(R)(Demangler!R x, R stdPrefix = `::std::`)
 R decodeCxxFunctionType(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     auto restLookAhead = x.r; // needed for lookahead parsing of CV-qualifiers
     const cvQ = restLookAhead.decodeCxxCVQualifiers();
     R type;
@@ -599,7 +599,7 @@ struct CxxBareFunctionType(R)
 CxxBareFunctionType!R decodeCxxBareFunctionType(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     typeof(return) bareFunctionType;
     bareFunctionType.explicitVoidParameter = x.explicitVoidParameter;
 
@@ -685,7 +685,7 @@ string toCxxString(CxxRefQualifier refQ)
 CxxRefQualifier decodeCxxRefQualifier(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     if (x.r.skipOver('R'))
     {
         return CxxRefQualifier.normalRef;
@@ -706,7 +706,7 @@ CxxRefQualifier decodeCxxRefQualifier(R)(Demangler!R x)
 R decodeCxxSourceName(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     R id;
     const sign = x.r.skipOver('n'); // if negative number
     assert(!sign);
@@ -734,7 +734,7 @@ R decodeCxxSourceName(R)(Demangler!R x)
 R decodeCxxNestedName(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     if (x.r.skipOver('N')) // nested name: https://mentorembedded.github.io/cxx-abi/abi.html#mangle.nested-name
     {
         const cvQ = x.r.decodeCxxCVQualifiers();
@@ -768,7 +768,7 @@ enum CtorDtorName
 R decodeCxxCtorDtorName(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     R name;
     enum n = 2;
     if (x.r.length < n) { return typeof(return).init; }
@@ -794,7 +794,7 @@ R decodeCxxCtorDtorName(R)(Demangler!R x)
 R decodeCxxUnqualifiedName(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     return either(x.decodeCxxOperatorName(),
                   x.decodeCxxSourceName(),
                   x.decodeCxxCtorDtorName(),
@@ -805,7 +805,7 @@ R decodeCxxUnqualifiedName(R)(Demangler!R x)
 R decodeCxxUnnamedTypeName(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     R type;
     if (x.r.skipOver(`Ut`))
     {
@@ -820,7 +820,7 @@ R decodeCxxUnnamedTypeName(R)(Demangler!R x)
 R decodeCxxTemplatePrefix(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     // NOTE: Removed <prefix> because of recursion
     return either(x.decodeCxxUnqualifiedName(),
                   x.decodeCxxTemplateParam(),
@@ -831,7 +831,7 @@ R decodeCxxTemplatePrefix(R)(Demangler!R x)
 R[] decodeCxxTemplateArgs(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     typeof(return) args;
     if (x.r.skipOver('I'))
     {
@@ -857,7 +857,7 @@ R[] decodeCxxTemplateArgs(R)(Demangler!R x)
 R decodeCxxMangledName(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     R name;
     if (x.r.skipOver(`_Z`))
     {
@@ -870,7 +870,7 @@ R decodeCxxMangledName(R)(Demangler!R x)
 R decodeCxxExprPrimary(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     R expr;
     if (x.r.skipOver('L'))
     {
@@ -892,7 +892,7 @@ R decodeCxxExprPrimary(R)(Demangler!R x)
 R decodeCxxTemplateArg(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     R arg;
     if (x.r.skipOver('X'))
     {
@@ -928,7 +928,7 @@ R decodeCxxTemplateArg(R)(Demangler!R x)
 R decodeCxxTemplatePrefixAndArgs(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     auto restBackup = x.r;
     if (const prefix = x.decodeCxxTemplatePrefix())
     {
@@ -946,7 +946,7 @@ R decodeCxxTemplatePrefixAndArgs(R)(Demangler!R x)
 R decodeCxxPrefix(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     typeof(return) prefix;
     for (size_t i = 0; !x.r.empty; ++i) // NOTE: Turned self-recursion into iteration
     {
@@ -991,7 +991,7 @@ R decodeCxxPrefix(R)(Demangler!R x)
 R decodeCxxUnscopedName(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     auto restBackup = x.r;
     const prefix = x.r.skipOver(`St`) ? "::std::" : null;
     if (const name = x.decodeCxxUnqualifiedName())
@@ -1009,7 +1009,7 @@ R decodeCxxUnscopedName(R)(Demangler!R x)
 R decodeCxxUnscopedTemplateName(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     return either(x.decodeCxxSubstitution(), // faster backtracking with substitution
                   x.decodeCxxUnscopedName());
 }
@@ -1018,7 +1018,7 @@ R decodeCxxUnscopedTemplateName(R)(Demangler!R x)
 R decodeCxxUnscopedTemplateNameAndArgs(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     R nameAndArgs;
     if (const name = x.decodeCxxUnscopedTemplateName())
     {
@@ -1035,7 +1035,7 @@ R decodeCxxUnscopedTemplateNameAndArgs(R)(Demangler!R x)
 R decodeCxxNumber(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     R number;
     const prefix = x.r.skipOver('n'); // optional prefix
     auto split = x.r.splitBefore!(a => !a.isDigit());
@@ -1051,7 +1051,7 @@ R decodeCxxNumber(R)(Demangler!R x)
 R decodeCxxDescriminator(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     R descriminator;
     if (x.r.skipOver('_'))
     {
@@ -1083,7 +1083,7 @@ R decodeCxxDescriminator(R)(Demangler!R x)
 R decodeCxxLocalName(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     if (x.r.skipOver('Z'))
     {
         const functionEncoding = x.decodeCxxEncoding();
@@ -1110,7 +1110,7 @@ R decodeCxxLocalName(R)(Demangler!R x)
 R decodeCxxName(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     return either(x.decodeCxxNestedName(),
                   x.decodeCxxUnscopedName(),
                   x.decodeCxxLocalName(), // TODO order flipped
@@ -1120,14 +1120,14 @@ R decodeCxxName(R)(Demangler!R x)
 R decodeCxxNVOffset(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     return x.decodeCxxNumber();
 }
 
 R decodeCxxVOffset(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     auto offset = x.decodeCxxNumber();
     assert(x.r.skipOver('_'));
     return offset ~ x.decodeCxxNumber();
@@ -1137,7 +1137,7 @@ R decodeCxxVOffset(R)(Demangler!R x)
 R decodeCxxCallOffset(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     typeof(return) offset;
     if (x.r.skipOver('h'))
     {
@@ -1156,7 +1156,7 @@ R decodeCxxCallOffset(R)(Demangler!R x)
 R decodeCxxSpecialName(R)(Demangler!R x)
     if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     auto restBackup = x.r;
     typeof(return) name;
     if (x.r.skipOver('S'))
@@ -1199,7 +1199,7 @@ R decodeCxxSpecialName(R)(Demangler!R x)
  */
 R decodeCxxEncoding(R)(Demangler!R x) /* @safe pure nothrow @nogc */ if (isInputRange!R)
 {
-    if (x.show) dln("rest: ", x.r);
+    if (x.show) dbg("rest: ", x.r);
     const localFlag = x.r.skipOver('L'); // TODO What role does the L have in symbols starting with _ZL have?
     if (const name = x.decodeCxxSpecialName())
     {

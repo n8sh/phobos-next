@@ -5,7 +5,6 @@ void main()
     import std.algorithm.comparison : equal;
     import std.algorithm : filter;
     import trie : radixTreeSet;
-    import dbgio : dln;
 
     alias Key = int;
     auto set = radixTreeSet!Key;
@@ -27,8 +26,8 @@ void main()
     // set.print();
 
     enum limit = n*2;
-    // dln(set.upperBound(limit));
-    // dln(set[].filter!(_ => _ > limit));
+    // dbg(set.upperBound(limit));
+    // dbg(set[].filter!(_ => _ > limit));
 
     assert(set.upperBound(limit)
            .equal(set[].filter!(_ => _ > limit)));

@@ -20,7 +20,7 @@ import std.algorithm.searching : find;
 
 version(print)
 {
-    import dbgio : dln;
+    import dbgio : dbg;
 }
 
 import std.range : dropOne;
@@ -541,9 +541,9 @@ if (isInputRange!R)
 /* /// */
 /* unittest { */
 /*     import std.range: front; */
-/*     dln([1].windowedReduce!(Reduction.forwardDifference)); */
-/*     dln([1, 22].windowedReduce!(Reduction.forwardDifference)); */
-/*     dln([1, 22, 333].windowedReduce!(Reduction.forwardDifference)); */
+/*     dbg([1].windowedReduce!(Reduction.forwardDifference)); */
+/*     dbg([1, 22].windowedReduce!(Reduction.forwardDifference)); */
+/*     dbg([1, 22, 333].windowedReduce!(Reduction.forwardDifference)); */
 /* } */
 
 ///
@@ -555,11 +555,11 @@ unittest
     immutable n = 4;
     foreach (i; 0..n)
         times ~= Clock.currTime;
-    version(print) dln(times);
+    version(print) dbg(times);
     auto spans = times.windowedReduce!(Reduction.forwardDifference);
-    version(print) dln(spans);
-    // dln(*(cast(ulong*)&(spans.front)));
-    version(print) dln(Duration.sizeof);
+    version(print) dbg(spans);
+    // dbg(*(cast(ulong*)&(spans.front)));
+    version(print) dbg(Duration.sizeof);
 }
 
 ///
@@ -570,7 +570,7 @@ unittest
     assert(i.windowedReduce!(Reduction.backwardDifference).equal([-3, -5, -8]));
     assert(i.windowedReduce!(Reduction.sum).equal ([+5, +13, +26]));
     assert([1].windowedReduce.empty);
-    version(print) dln(i.windowedReduce!(Reduction.sum));
+    version(print) dbg(i.windowedReduce!(Reduction.sum));
 }
 
 /* TODO Assert that ElementType!R only value semantics.  */
@@ -623,7 +623,7 @@ pure unittest
     /* backtrace.backtrace.install(stderr); */
     immutable x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     immutable xPacked = x.packBitParallelRunLengths;
-    version(print) dln(xPacked);
+    version(print) dbg(xPacked);
 }
 
 /** Compute Forward Difference of `range`.
@@ -701,11 +701,11 @@ unittest
     auto x = [long.max, 0, 1];
     auto y = x.forwardDifference;
 
-    version(print) dln(y);
+    version(print) dbg(y);
 
     // import msgpack;
-    // version(print) dln(y.pack);
-    // version(print) dln(y.array.pack);
+    // version(print) dbg(y.pack);
+    // version(print) dbg(y.array.pack);
 }
 
 import std.traits: isCallable, ReturnType, arity;
@@ -736,9 +736,9 @@ unittest
     import std.array: array;
     immutable n = 3;
     auto times = n.apply!(Clock.currTime).array;
-    version(print) dln(times);
+    version(print) dbg(times);
     auto spans = times.forwardDifference;
-    version(print) dln(spans);
+    version(print) dbg(spans);
 }
 
 /** In Place Ordering (in Sorted Order) of all Elements `t`.
@@ -1038,7 +1038,7 @@ unittest
     x.expand(10);
     assert(x[0] == -10);
     assert(x[1] == +10);
-    version(print) dln(x);
+    version(print) dbg(x);
 }
 
 /* import rational: Rational; */
@@ -1052,7 +1052,7 @@ unittest
 /* /// */
 /* unittest { */
 /*     import rational: Rational; */
-/*     dln(getTypeString!Rational); */
+/*     dbg(getTypeString!Rational); */
 /* } */
 
 /** Check if `a` and `b` are colinear. */
@@ -1071,7 +1071,7 @@ bool areColinear(T)(T a, T b)
 /* } */
 /* /// */
 /* unittest { */
-/*     version(print) [1, 2, 3, 4].each(a => dln(a)); */
+/*     version(print) [1, 2, 3, 4].each(a => dbg(a)); */
 /* } */
 
 enum isIntLike(T) = is(typeof({T t = 0; t = t+t;})); // More if needed

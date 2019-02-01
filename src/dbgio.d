@@ -48,7 +48,7 @@ nothrow pure:
  *
  * See_Also: https://blog.rust-lang.org/2019/01/17/Rust-1.32.0.html#the-dbg-macro
  */
-void dln(string file = __FILE__,
+void dbg(string file = __FILE__,
          uint line = __LINE__,
          string fun = __FUNCTION__,
          Args...)(Args args) @safe pure nothrow @nogc
@@ -64,7 +64,7 @@ void dln(string file = __FILE__,
 ///
 @safe pure nothrow @nogc unittest
 {
-    static assert(__traits(compiles, { dln(); })); // ok for dln to discard function qualifiers
+    static assert(__traits(compiles, { dbg(); })); // ok for dln to discard function qualifiers
 }
 
 /** Show the symbol name and variable of $(D Args).

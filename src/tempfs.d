@@ -24,7 +24,7 @@ version(linux)                  // TODO wrap in OS-independent interface
 
         auto tmp = mkstemp(buf.ptr);
 
-        // dln(buf[0 .. namePrefix.length + 6]);
+        // dbg(buf[0 .. namePrefix.length + 6]);
         return tmp;
     }
 

@@ -54,7 +54,7 @@ version(unittest)
     import std.conv : to;
     import std.meta : AliasSeq;
     import std.traits : Unqual;
-    import dbgio : dln;
+    import dbgio : dbg;
     import array_help : s;
 }
 
@@ -142,7 +142,7 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
     /// Create a empty array.
     // this(typeof(null)) nothrow
     // {
-    //     version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
+    //     version(showCtors) dbg("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
     //     // nothing needed, rely on default initialization of data members
     // }
 
@@ -150,7 +150,7 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
     static typeof(this) withLength(size_t initialLength)
         @trusted
     {
-        version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
+        version(showCtors) dbg("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
         debug { typeof(return) that; }
         else { typeof(return) that = void; }
@@ -165,7 +165,7 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
             that._small.length = cast(ubyte)initialLength;
         }
 
-        version(showCtors) dln("EXITING: ", __PRETTY_FUNCTION__);
+        version(showCtors) dbg("EXITING: ", __PRETTY_FUNCTION__);
         return that;
     }
 
@@ -173,7 +173,7 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
     static typeof(this) withCapacity(size_t initialCapacity)
         @trusted
     {
-        version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
+        version(showCtors) dbg("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
         debug { typeof(return) that; }
         else { typeof(return) that = void; }
@@ -187,7 +187,7 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
             that._small.length = 0;
         }
 
-        version(showCtors) dln("EXITING: ", __PRETTY_FUNCTION__);
+        version(showCtors) dbg("EXITING: ", __PRETTY_FUNCTION__);
         return that;
     }
 
@@ -195,7 +195,7 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
     static typeof(this) withElement(E element)
         @trusted
     {
-        version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
+        version(showCtors) dbg("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
         debug { typeof(return) that; }
         else { typeof(return) that = void; }
@@ -233,7 +233,7 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
     static typeof(this) withElements(Us...)(Us elements)
         @trusted
     {
-        version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
+        version(showCtors) dbg("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
         debug { typeof(return) that; }
         else { typeof(return) that = void; }
@@ -276,7 +276,7 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
         /// Copy construction.
         this(this) @trusted
         {
-            version(showCtors) dln("Copy ctor: ", typeof(this).stringof);
+            version(showCtors) dbg("Copy ctor: ", typeof(this).stringof);
             if (isLarge)        // only large case needs special treatment
             {
                 auto rhs_storePtr = _large.ptr; // save store pointer
@@ -293,7 +293,7 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
         /// Copy assignment.
         void opAssign(typeof(this) rhs) @trusted
         {
-            version(showCtors) dln("Copy assign: ", typeof(this).stringof);
+            version(showCtors) dbg("Copy assign: ", typeof(this).stringof);
             // self-assignment may happen when assigning derefenced pointer
             if (isLarge)        // large = ...
             {
@@ -354,7 +354,7 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
         /// Copy ctor moves.
         this(typeof(this) rhs) @trusted
         {
-            version(showCtors) dln("Copying: ", typeof(this).stringof);
+            version(showCtors) dbg("Copying: ", typeof(this).stringof);
             assert(!isBorrowed);
             moveEmplace(rhs, this); // TODO remove `move` when compiler does it for us
         }
@@ -469,7 +469,7 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
         @("complexity", "O(n*log(n))")
         if (isIterable!R)
     {
-        version(showCtors) dln("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
+        version(showCtors) dbg("ENTERING: smallCapacity:", smallCapacity, " @",  __PRETTY_FUNCTION__);
 
         // append new data
         import std.range.primitives : hasLength;
@@ -552,7 +552,7 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
             }
         }
 
-        version(showCtors) dln("EXITING: ", __PRETTY_FUNCTION__);
+        version(showCtors) dbg("EXITING: ", __PRETTY_FUNCTION__);
     }
 
     /// Sort all elements in-place regardless of `ordering`.
@@ -1554,7 +1554,7 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
         {
             static if (hasElaborateDestructor!E)
             {
-                dln(length, " => ", newLength, " ", E.stringof);
+                dbg(length, " => ", newLength, " ", E.stringof);
                 foreach (immutable i; newLength .. length)
                 {
                     .destroy(_mptr[i]);

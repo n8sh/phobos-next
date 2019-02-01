@@ -182,7 +182,7 @@ version(useMemoryErrorHandler) unittest
 {
     import etc.linux.memoryerror : registerMemoryErrorHandler;
     registerMemoryErrorHandler();
-    dln("registerMemoryErrorHandler done");
+    dbg("registerMemoryErrorHandler done");
 }
 
 @safe pure nothrow @nogc unittest
@@ -2662,7 +2662,7 @@ template RawRadixTree(Value = void)
 
     Branch setSub(SparseBranch* curr, UIx subIx, Node subNode) @safe pure nothrow @nogc
     {
-        // debug if (willFail) { dln("WILL FAIL: subIx:", subIx); }
+        // debug if (willFail) { dbg("WILL FAIL: subIx:", subIx); }
         size_t insertionIndex;
         ModStatus modStatus;
         curr = curr.reconstructingInsert(IxSub(subIx, subNode), modStatus, insertionIndex);
@@ -2806,8 +2806,8 @@ template RawRadixTree(Value = void)
         inout(Value*) containsAt(inout Leaf1!Value curr, UKey key)
         {
             version(LDC) pragma(inline, true);
-            // debug if (willFail) { dln("curr:", curr); }
-            // debug if (willFail) { dln("key:", key); }
+            // debug if (willFail) { dbg("curr:", curr); }
+            // debug if (willFail) { dbg("key:", key); }
             switch (curr.typeIx) with (Leaf1!Value.Ix)
             {
             case undefined: return null;
@@ -2821,7 +2821,7 @@ template RawRadixTree(Value = void)
         inout(Value*) containsAt(inout Node curr, UKey key)
         {
             assert(key.length);
-            // debug if (willFail) { dln("key:", key); }
+            // debug if (willFail) { dbg("key:", key); }
             import std.algorithm.searching : skipOver;
             switch (curr.typeIx) with (Node.Ix)
             {
@@ -2858,7 +2858,7 @@ template RawRadixTree(Value = void)
         /** Returns: `true` if `key` is stored under `curr`, `false` otherwise. */
         bool containsAt(Leaf1!Value curr, UKey key)
         {
-            // debug if (willFail) { dln("key:", key); }
+            // debug if (willFail) { dbg("key:", key); }
             final switch (curr.typeIx) with (Leaf1!Value.Ix)
             {
             case undefined: return false;
@@ -2871,7 +2871,7 @@ template RawRadixTree(Value = void)
         bool containsAt(Node curr, UKey key)
         {
             assert(key.length);
-            // debug if (willFail) { dln("key:", key); }
+            // debug if (willFail) { dbg("key:", key); }
             import std.algorithm.searching : skipOver;
             final switch (curr.typeIx) with (Node.Ix)
             {
@@ -2981,7 +2981,7 @@ template RawRadixTree(Value = void)
 
     inout(Node) matchCommonPrefixAt(inout Node curr, UKey key, out UKey keyRest) @safe pure nothrow @nogc
     {
-        // dln(curr.typeIx);
+        // dbg(curr.typeIx);
         import std.algorithm : startsWith;
         final switch (curr.typeIx) with (Node.Ix)
         {
@@ -2995,8 +2995,8 @@ template RawRadixTree(Value = void)
             goto processHit;
         case ix_SparseBranchPtr:
             auto curr_ = curr.as!(SparseBranch*);
-            // dln(key);
-            // dln(curr_.prefix[]);
+            // dbg(key);
+            // dbg(curr_.prefix[]);
             if (key.startsWith(curr_.prefix[]))
             {
                 immutable currPrefixLength = curr_.prefix.length;
@@ -3132,7 +3132,7 @@ template RawRadixTree(Value = void)
         Node insertNew(UKey key, out ElementRef elementRef) @safe pure nothrow @nogc
         {
             Node next;
-            // debug if (willFail) { dln("WILL FAIL: key:", key); }
+            // debug if (willFail) { dbg("WILL FAIL: key:", key); }
             switch (key.length)
             {
             case 0: assert(false, "key must not be empty"); // return elementRef = Node(construct!(OneLeafMax7)());
@@ -3160,7 +3160,7 @@ template RawRadixTree(Value = void)
     Branch insertNewBranch(Elt!Value elt, out ElementRef elementRef) @safe pure nothrow @nogc
     {
         import std.algorithm : min;
-        // debug if (willFail) { dln("WILL FAIL: elt:", elt); }
+        // debug if (willFail) { dbg("WILL FAIL: elt:", elt); }
         auto key = eltKey!Value(elt);
         assert(key.length);
         immutable prefixLength = min(key.length - 1, // all but last Ix of key
@@ -3176,7 +3176,7 @@ template RawRadixTree(Value = void)
     Node insertAt(Node curr, Elt!Value elt, out ElementRef elementRef) @safe pure nothrow @nogc
     {
         auto key = eltKey!Value(elt);
-        // debug if (willFail) { dln("WILL FAIL: key:", key, " curr:", curr); }
+        // debug if (willFail) { dbg("WILL FAIL: key:", key, " curr:", curr); }
         assert(key.length);
 
         if (!curr)          // if no existing `Node` to insert at
@@ -3238,7 +3238,7 @@ template RawRadixTree(Value = void)
             case ix_DenseLeaf1Ptr:
                 return insertAtLeaf(Leaf1!Value(curr.as!(DenseLeaf1!Value*)), elt, elementRef); // TODO use toLeaf(curr)
             case ix_SparseBranchPtr:
-                // debug if (willFail) { dln("WILL FAIL: currPrefix:", curr.as!(SparseBranch*).prefix); }
+                // debug if (willFail) { dbg("WILL FAIL: currPrefix:", curr.as!(SparseBranch*).prefix); }
                 return Node(insertAtAbovePrefix(Branch(curr.as!(SparseBranch*)), elt, elementRef));
             case ix_DenseBranchPtr:
                 return Node(insertAtAbovePrefix(Branch(curr.as!(DenseBranch*)), elt, elementRef));
@@ -3257,7 +3257,7 @@ template RawRadixTree(Value = void)
         auto currPrefix = getPrefix(curr);
         auto matchedKeyPrefix = commonPrefix(key, currPrefix);
 
-        // debug if (willFail) { dln("WILL FAIL: key:", key,
+        // debug if (willFail) { dbg("WILL FAIL: key:", key,
         //                     " curr:", curr,
         //                     " currPrefix:", getPrefix(curr),
         //                     " matchedKeyPrefix:", matchedKeyPrefix); }
@@ -3266,7 +3266,7 @@ template RawRadixTree(Value = void)
         {
             if (currPrefix.length == 0) // no current prefix
             {
-                // debug if (willFail) { dln("WILL FAIL"); }
+                // debug if (willFail) { dbg("WILL FAIL"); }
                 // NOTE: prefix:"", key:"cd"
                 return insertAtBelowPrefix(curr, elt, elementRef);
             }
@@ -3276,7 +3276,7 @@ template RawRadixTree(Value = void)
                 immutable currSubIx = UIx(currPrefix[0]); // subIx = 'a'
                 if (currPrefix.length == 1 && getSubCount(curr) == 0) // if `curr`-prefix become empty and only leaf pointer
                 {
-                    // debug if (willFail) { dln("WILL FAIL"); }
+                    // debug if (willFail) { dbg("WILL FAIL"); }
                     popFrontNPrefix(curr, 1);
                     curr = setSub(curr, currSubIx, Node(getLeaf1(curr))); // move it to sub
                     setLeaf1(curr, Leaf1!Value.init);
@@ -3285,7 +3285,7 @@ template RawRadixTree(Value = void)
                 }
                 else
                 {
-                    // debug if (willFail) { dln("WILL FAIL"); }
+                    // debug if (willFail) { dbg("WILL FAIL"); }
                     popFrontNPrefix(curr, 1);
                     auto next = constructVariableLength!(DefaultBranch)(2, null, IxSub(currSubIx, Node(curr)));
                     return insertAtAbovePrefix(Branch(next), elt, elementRef);
@@ -3296,13 +3296,13 @@ template RawRadixTree(Value = void)
         {
             if (matchedKeyPrefix.length == currPrefix.length)
             {
-                // debug if (willFail) { dln("WILL FAIL"); }
+                // debug if (willFail) { dbg("WILL FAIL"); }
                 // NOTE: key is an extension of prefix: prefix:"ab", key:"abcd"
                 return insertAtBelowPrefix(curr, eltKeyDropExactly!Value(elt, currPrefix.length), elementRef);
             }
             else
             {
-                // debug if (willFail) { dln("WILL FAIL"); }
+                // debug if (willFail) { dbg("WILL FAIL"); }
                 // NOTE: prefix and key share beginning: prefix:"ab11", key:"ab22"
                 immutable currSubIx = UIx(currPrefix[matchedKeyPrefix.length]); // need index first before we modify curr.prefix
                 popFrontNPrefix(curr, matchedKeyPrefix.length + 1);
@@ -3312,7 +3312,7 @@ template RawRadixTree(Value = void)
         }
         else // if (matchedKeyPrefix.length == key.length)
         {
-            // debug if (willFail) { dln("WILL FAIL"); }
+            // debug if (willFail) { dbg("WILL FAIL"); }
             assert(matchedKeyPrefix.length == key.length);
             if (matchedKeyPrefix.length < currPrefix.length)
             {
@@ -3361,7 +3361,7 @@ template RawRadixTree(Value = void)
     {
         pragma(inline) Branch insertAtSubNode(Branch curr, UKey key, Value value, out ElementRef elementRef) @safe pure nothrow @nogc
         {
-            // debug if (willFail) { dln("WILL FAIL"); }
+            // debug if (willFail) { dbg("WILL FAIL"); }
             immutable subIx = UIx(key[0]);
             return setSub(curr, subIx,
                           insertAt(getSub(curr, subIx), // recurse
@@ -3373,7 +3373,7 @@ template RawRadixTree(Value = void)
     {
         pragma(inline) Branch insertAtSubNode(Branch curr, UKey key, out ElementRef elementRef) @safe pure nothrow @nogc
         {
-            // debug if (willFail) { dln("WILL FAIL"); }
+            // debug if (willFail) { dbg("WILL FAIL"); }
             immutable subIx = UIx(key[0]);
             return setSub(curr, subIx,
                           insertAt(getSub(curr, subIx), // recurse
@@ -3389,7 +3389,7 @@ template RawRadixTree(Value = void)
     {
         auto key = eltKey!Value(elt);
         assert(key.length);
-        // debug if (willFail) { dln("WILL FAIL: key:", key,
+        // debug if (willFail) { dbg("WILL FAIL: key:", key,
         //                           " curr:", curr,
         //                           " currPrefix:", getPrefix(curr),
         //                           " elementRef:", elementRef); }
@@ -3429,7 +3429,7 @@ template RawRadixTree(Value = void)
     Leaf1!Value insertIxAtLeaftoLeaf(Leaf1!Value curr, IxElt!Value elt, out ElementRef elementRef) @safe pure nothrow @nogc
     {
         auto key = eltIx!Value(elt);
-        // debug if (willFail) { dln("WILL FAIL: elt:", elt,
+        // debug if (willFail) { dbg("WILL FAIL: elt:", elt,
         //                           " curr:", curr,
         //                           " elementRef:", elementRef); }
         switch (curr.typeIx) with (Leaf1!Value.Ix)
@@ -3491,7 +3491,7 @@ template RawRadixTree(Value = void)
     {
         Branch insertAtLeaf1(Branch curr, UIx key, Value value, out ElementRef elementRef) @safe pure nothrow @nogc
         {
-            // debug if (willFail) { dln("WILL FAIL: key:", key,
+            // debug if (willFail) { dbg("WILL FAIL: key:", key,
             //                           " value:", value,
             //                           " curr:", curr,
             //                           " currPrefix:", getPrefix(curr),
@@ -3515,7 +3515,7 @@ template RawRadixTree(Value = void)
     {
         Branch insertAtLeaf1(Branch curr, UIx key, out ElementRef elementRef) @safe pure nothrow @nogc
         {
-            // debug if (willFail) { dln("WILL FAIL: key:", key,
+            // debug if (willFail) { dbg("WILL FAIL: key:", key,
             //                           " curr:", curr,
             //                           " currPrefix:", getPrefix(curr),
             //                           " elementRef:", elementRef); }
@@ -3535,7 +3535,7 @@ template RawRadixTree(Value = void)
 
     Node insertAtLeaf(Leaf1!Value curr, Elt!Value elt, out ElementRef elementRef) @safe pure nothrow @nogc
     {
-        // debug if (willFail) { dln("WILL FAIL: elt:", elt); }
+        // debug if (willFail) { dbg("WILL FAIL: elt:", elt); }
         auto key = eltKey!Value(elt);
         assert(key.length);
         if (key.length == 1)
@@ -3564,7 +3564,7 @@ template RawRadixTree(Value = void)
         Node insertAt(OneLeafMax7 curr, UKey key, out ElementRef elementRef) @safe pure nothrow @nogc
         {
             assert(curr.key.length);
-            // debug if (willFail) { dln("WILL FAIL: key:", key, " curr.key:", curr.key); }
+            // debug if (willFail) { dbg("WILL FAIL: key:", key, " curr.key:", curr.key); }
 
             import std.algorithm.searching : commonPrefix;
             auto matchedKeyPrefix = commonPrefix(key, curr.key);
@@ -4499,7 +4499,7 @@ if (allSatisfy!(isTrieableKeyType, K))
 
             _rawTree.insert(rawKey, value, elementRef);
 
-            // debug if (willFail) { dln("WILL FAIL: elementRef:", elementRef, " key:", key); }
+            // debug if (willFail) { dbg("WILL FAIL: elementRef:", elementRef, " key:", key); }
             if (elementRef.node)  // if `key` was added at `elementRef`
             {
                 // set value
@@ -5453,8 +5453,8 @@ private static auto randomUniqueSortedStrings(size_t count, uint maxLength)
     }
     catch (Exception e)
     {
-        import dbgio : dln;
-        dln("Couldn't randomize");
+        import dbgio : dbg;
+        dbg("Couldn't randomize");
     }
 
     import std.array : array;
@@ -5502,7 +5502,7 @@ void testWords(Value)()
             static if (show)
             {
                 import std.string : representation;
-                // dln(`word:"`, word, `" of length:`, word.length,
+                // dbg(`word:"`, word, `" of length:`, word.length,
                 //     ` of representation:`, word.representation);
                 // debug rtr.willFail = word == `amiable`;
                 // if (rtr.willFail)

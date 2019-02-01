@@ -121,9 +121,7 @@ alias SHA512Digest = Digest!(64, "SHA-512");
 
 @safe pure nothrow @nogc unittest
 {
-    import dbgio : dln;
     SHA1Digest a, b;
-    dln(a);
     assert(a.empty);
     assert(b.empty);
     assert(a == b);

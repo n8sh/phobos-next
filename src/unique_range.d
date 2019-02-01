@@ -2,7 +2,7 @@ module unique_range;
 
 version(unittest)
 {
-    import dbgio : dln;
+    import dbgio : dbg;
     import std.algorithm.comparison : equal;
 }
 

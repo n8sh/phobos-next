@@ -65,7 +65,7 @@ struct SSOString
                     version(none)
                     {
                         import dbgio;
-                        dln(`toLowerInPlace reallocated from "`,
+                        dbg(`toLowerInPlace reallocated from "`,
                             result.opSlice(), `" of length `, result.opSlice().length,
                             ` to "`
                             , slice, `" of length `, slice.length);
@@ -133,7 +133,7 @@ struct SSOString
     import std.traits : isIterable;
 
     this(Source)(const scope auto ref Source source) @trusted
-    if (!isCharsSlice!(typeof(source[])) && 
+    if (!isCharsSlice!(typeof(source[])) &&
         isIterable!(Source)) // iterable of char
     {
         static assert(0, "Implement iterable of char");

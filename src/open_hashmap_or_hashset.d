@@ -358,7 +358,7 @@ struct OpenHashMapOrSet(K, V = void,
     static typeof(this) withCapacity()(size_t minimumCapacity) // template-lazy
     {
         version(LDC) pragma(inline, true);
-        version(showEntries) dln(__FUNCTION__, " minimumCapacity:", minimumCapacity);
+        version(showEntries) dbg(__FUNCTION__, " minimumCapacity:", minimumCapacity);
         return typeof(return)(makeDefaultInitializedBins(minimumCapacity), 0);
     }
 
@@ -370,7 +370,7 @@ struct OpenHashMapOrSet(K, V = void,
     {
         version(LDC) pragma(inline, true);
         immutable capacity = nextPow2(minimumCapacity);
-        version(showEntries) dln(__FUNCTION__, " minimumCapacity:", minimumCapacity,
+        version(showEntries) dbg(__FUNCTION__, " minimumCapacity:", minimumCapacity,
                                  " capacity:", capacity);
 
         // TODO cannot use makeArray here because it cannot handle uncopyable types
@@ -444,7 +444,7 @@ struct OpenHashMapOrSet(K, V = void,
         @trusted pure nothrow @nogc
     {
         version(LDC) pragma(inline, true);
-        version(showEntries) dln(__FUNCTION__, " newCapacity:", capacity);
+        version(showEntries) dbg(__FUNCTION__, " newCapacity:", capacity);
         immutable byteCount = T.sizeof*capacity;
         auto bins = cast(typeof(return))Allocator.allocate(byteCount);
         static if (mustAddGCRange!T)
@@ -466,7 +466,7 @@ struct OpenHashMapOrSet(K, V = void,
     if (isIterable!R &&
         isAssignable!(T, StdElementType!R))
     {
-        version(showEntries) dln(__FUNCTION__, " length:", elements.length);
+        version(showEntries) dbg(__FUNCTION__, " length:", elements.length);
         import std.range : hasLength;
         static if (hasLength!R)
         {
@@ -501,8 +501,8 @@ struct OpenHashMapOrSet(K, V = void,
     /// Returns: a shallow duplicate of `this`.
     typeof(this) dup()() const @trusted // template-lazy
     {
-        // dln(__FUNCTION__, " this:", &this, " with length ", length);
-        version(showEntries) dln(__FUNCTION__, " length:", length);
+        // dbg(__FUNCTION__, " this:", &this, " with length ", length);
+        version(showEntries) dbg(__FUNCTION__, " length:", length);
         T[] binsCopy = allocateUninitializedBins(_bins.length); // unsafe
         foreach (immutable index, ref bin; _bins)
         {
@@ -724,7 +724,7 @@ struct OpenHashMapOrSet(K, V = void,
 
     static private void releaseBinsSlice(T[] bins) @trusted
     {
-        version(showEntries) dln(__FUNCTION__, " bins.ptr:", bins.ptr, " bins.length", bins.length);
+        version(showEntries) dbg(__FUNCTION__, " bins.ptr:", bins.ptr, " bins.length", bins.length);
         if (bins.ptr is null) { return; } // `gc_removeRange` fails for null input
         static if (mustAddGCRange!T)
         {
@@ -931,7 +931,7 @@ struct OpenHashMapOrSet(K, V = void,
     private void growWithNewCapacity()(size_t newCapacity) // template-lazy
     {
         version(LDC) pragma(inline, true);
-        version(showEntries) dln(__FUNCTION__, " newCapacity:", newCapacity);
+        version(showEntries) dbg(__FUNCTION__, " newCapacity:", newCapacity);
         version(internalUnittest) assert(newCapacity > _bins.length);
         static if (__traits(hasMember, Allocator, "reallocate"))
         {
@@ -1006,7 +1006,7 @@ struct OpenHashMapOrSet(K, V = void,
     /** Rehash elements in-place. */
     private void rehashInPlace()() @trusted // template-lazy
     {
-        version(showEntries) dln(__FUNCTION__);
+        version(showEntries) dbg(__FUNCTION__);
 
         import core.bitop : bts, bt;
         import array_help : makeZeroedBitArray, wordCountOfBitCount;
@@ -1124,7 +1124,7 @@ struct OpenHashMapOrSet(K, V = void,
     private void growStandardWithNewCapacity()(size_t newCapacity) // template-lazy
     {
         version(LDC) pragma(inline, true); // LDC needs this or to prevent 10x performance regression in contains()
-        version(showEntries) dln(__FUNCTION__, " newCapacity:", newCapacity);
+        version(showEntries) dbg(__FUNCTION__, " newCapacity:", newCapacity);
         version(internalUnittest) assert(newCapacity > _bins.length);
         auto next = typeof(this).withCapacity(newCapacity);
         foreach (immutable index, ref bin; _bins)
@@ -1513,10 +1513,10 @@ struct OpenHashMapOrSet(K, V = void,
                 static if (is(K == class))
                 {
                     import dbgio;
-                    dln(typeid(currentElement).name, " ", currentElement);
+                    dbg(typeid(currentElement).name, " ", currentElement);
                 }
             }
-            
+
             totalCount += probeCount;
         }
         return totalCount;
@@ -2128,7 +2128,7 @@ unittest
 /// `string` as key
 @safe pure nothrow @nogc unittest
 {
-    version(showEntries) dln();
+    version(showEntries) dbg();
     import digestx.fnv : FNV;
 
     alias X = OpenHashSet!(string, FNV!(64, true));
@@ -2206,7 +2206,7 @@ unittest
 /// `string` as key
 @safe pure nothrow unittest
 {
-    version(showEntries) dln();
+    version(showEntries) dbg();
     import digestx.fnv : FNV;
     alias X = OpenHashSet!(string, FNV!(64, true));
     auto x = X();
@@ -2221,7 +2221,7 @@ unittest
 /// array container as value type
 @safe pure nothrow @nogc unittest
 {
-    version(showEntries) dln();
+    version(showEntries) dbg();
 
     import basic_array : Array = BasicArray;
 
@@ -2365,7 +2365,7 @@ unittest
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {
-    version(showEntries) dln();
+    version(showEntries) dbg();
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashSet!(K, FNV!(64, true));
 
@@ -2414,7 +2414,7 @@ unittest
 /// r-value and r-value intersection
 @safe pure nothrow @nogc unittest
 {
-    version(showEntries) dln();
+    version(showEntries) dbg();
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashSet!(K, FNV!(64, true));
 
@@ -2440,7 +2440,7 @@ if (isInstanceOf!(OpenHashMapOrSet, C1) &&
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {
-    version(showEntries) dln();
+    version(showEntries) dbg();
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashSet!(K, FNV!(64, true));
 
@@ -2702,7 +2702,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
 /// make range from l-value and r-value. element access is always const
 @system pure unittest
 {
-    version(showEntries) dln();
+    version(showEntries) dbg();
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashSet!(K,
                            FNV!(64, true),
@@ -2770,7 +2770,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
 /// range checking
 @trusted pure unittest
 {
-    version(showEntries) dln();
+    version(showEntries) dbg();
     immutable n = 11;
 
     alias K = Nullable!(uint, uint.max);
@@ -2815,7 +2815,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
 /// class as value
 @trusted pure unittest
 {
-    version(showEntries) dln();
+    version(showEntries) dbg();
     immutable n = 11;
 
     alias K = Nullable!(uint, uint.max);
@@ -2872,7 +2872,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
 /// constness inference of ranges
 pure nothrow unittest
 {
-    version(showEntries) dln();
+    version(showEntries) dbg();
     alias K = Nullable!(uint, uint.max);
     class V
     {
@@ -2904,7 +2904,7 @@ pure nothrow unittest
 /// range key constness and value mutability with `class` value
 pure nothrow unittest
 {
-    version(showEntries) dln();
+    version(showEntries) dbg();
     struct S
     {
         uint value;
@@ -2958,7 +2958,7 @@ pure nothrow unittest
 /// range key constness and value mutability with `class` key and `class` value
 pure nothrow unittest
 {
-    version(showEntries) dln();
+    version(showEntries) dbg();
     class K
     {
         this(uint value)
@@ -3024,7 +3024,7 @@ pure nothrow unittest
 /// range key constness and value mutability with `class` key and `class` value
 pure nothrow unittest
 {
-    version(showEntries) dln();
+    version(showEntries) dbg();
     class K
     {
         this(uint value)
@@ -3103,7 +3103,7 @@ version(unittest)
 /// test various things
 @trusted unittest
 {
-    version(showEntries) dln();
+    version(showEntries) dbg();
     const n = 100;
 
     void testEmptyAll(K, V, X)(ref X x, size_t n,
@@ -3463,7 +3463,7 @@ version(unittest)
 ///
 @safe pure nothrow @nogc unittest
 {
-    version(showEntries) dln();
+    version(showEntries) dbg();
     alias X = OpenHashMapOrSet!(Nullable!(size_t, size_t.max), size_t, FNV!(64, true));
     import basic_array : Array = BasicArray;
     X x;

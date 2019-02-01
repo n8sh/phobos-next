@@ -4,7 +4,6 @@ void main(string[] args)
 {
     import std.algorithm.comparison : equal;
     import trie : RadixTreeSetGrowOnly;
-    import dbgio : dln;
     import std.stdio : writeln;
 
     struct S
@@ -36,7 +35,7 @@ void main(string[] args)
         assert(set.contains(s));
     }
 
-    // dln(set[]);
+    // dbg(set[]);
     assert(!set.empty);
 
     set.clear();

@@ -3468,7 +3468,7 @@ class Dir : File
         if (subDent.isFile)
         {
             /* _treeSize += subDent.size.Bytes64; */
-            // dln("Updating ", _treeSize, " of ", path);
+            // dbg("Updating ", _treeSize, " of ", path);
 
             /** TODO Move these overloads to std.datetime */
             auto ref min(in SysTime a, in SysTime b) @trusted pure nothrow { return (a < b ? a : b); }
@@ -3519,7 +3519,7 @@ class Dir : File
             return false;    // signal already scanned
         }
 
-        // dln("Zeroing ", _treeSize, " of ", path);
+        // dbg("Zeroing ", _treeSize, " of ", path);
         _treeSize.reset; // this.size;
         auto oldSubs = _subs;
         _subs.reset;
@@ -3653,11 +3653,11 @@ class Dir : File
 
                 packer.pack(diffsLastModified, diffsLastAccessed);
 
-                /* debug dln(this.name, " sub.length: ", _subs.length); */
-                /* debug dln(name, " modified diffs: ", diffsLastModified.pack.length); */
-                /* debug dln(name, " accessed diffs: ", diffsLastAccessed.pack.length); */
-                /* debug dln(name, " modified: ", timesLastModified.array.pack.length); */
-                /* debug dln(name, " accessed: ", timesLastAccessed.array.pack.length); */
+                /* debug dbg(this.name, " sub.length: ", _subs.length); */
+                /* debug dbg(name, " modified diffs: ", diffsLastModified.pack.length); */
+                /* debug dbg(name, " accessed diffs: ", diffsLastAccessed.pack.length); */
+                /* debug dbg(name, " modified: ", timesLastModified.array.pack.length); */
+                /* debug dbg(name, " accessed: ", timesLastAccessed.array.pack.length); */
             }
 
             foreach (sub; _subs)
@@ -3698,12 +3698,12 @@ class Dir : File
             unpacker.unpack(stdTime); timeLastModified = SysTime(stdTime); // TODO Functionize
             unpacker.unpack(stdTime); timeLastAccessed = SysTime(stdTime); // TODO Functionize
 
-            /* dln("before:", path, " ", size, " ", timeLastModified, " ", timeLastAccessed); */
+            /* dbg("before:", path, " ", size, " ", timeLastModified, " ", timeLastAccessed); */
 
             // FKind
             if (!kind) { kind = null; }
             unpacker.unpack(kind); /* TODO kind = new DirKind(unpacker); */
-            /* dln("after:", path); */
+            /* dbg("after:", path); */
 
             _treeSize.reset; // this.size;
 
@@ -3759,9 +3759,9 @@ class Dir : File
                     {
                         _subs[sub.name] = enforceNotNull(sub);
                     }
-                    /* dln("Unpacked Dir sub ", sub.path, " of type ", subClassName); */
+                    /* dbg("Unpacked Dir sub ", sub.path, " of type ", subClassName); */
                 } catch (FileException) { // this may be a too generic exception
-                    /* dln(sub.path, " is not accessible anymore"); */
+                    /* dbg(sub.path, " is not accessible anymore"); */
                 }
             }
 
@@ -3911,7 +3911,7 @@ Dir[] getDirs(NotNull!Dir rootDir, string[] topDirNames)
 
         if (!topDir)
         {
-            dln("Directory " ~ topName ~ " is missing");
+            dbg("Directory " ~ topName ~ " is missing");
         }
         else
         {
@@ -3941,14 +3941,14 @@ File getFile(NotNull!Dir rootDir, string filePath,
                 return hit;
             else
             {
-                dln("File path " ~ filePath ~ " doesn't exist. TODO Query user to instead find it under "
+                dbg("File path " ~ filePath ~ " doesn't exist. TODO Query user to instead find it under "
                     ~ parentDir.path);
                 parentDir.find(filePath.baseName);
             }
         }
         else
         {
-            dln("Directory " ~ parentDir.path ~ " doesn't exist");
+            dbg("Directory " ~ parentDir.path ~ " doesn't exist");
         }
     }
     return null;
@@ -3982,7 +3982,7 @@ body
             {
                 if (followedSymlinks.find(subSymlink))
                 {
-                    dln("Infinite recursion in ", subSymlink);
+                    dbg("Infinite recursion in ", subSymlink);
                     return null;
                 }
                 followedSymlinks ~= subSymlink;
@@ -3990,7 +3990,7 @@ body
             }
             else
             {
-                dln("Loaded path " ~ dirPath ~ " is not a directory");
+                dbg("Loaded path " ~ dirPath ~ " is not a directory");
                 return null;
             }
         }
@@ -4013,7 +4013,7 @@ Dir getDir(NotNull!Dir rootDir, string dirPath) @trusted
     }
     catch (FileException)
     {
-        dln("Exception getting Dir");
+        dbg("Exception getting Dir");
         return null;
     }
 }
@@ -4536,7 +4536,7 @@ class Scanner(Term)
                     auto restDirs = gstats.topDirs[topIndex + 1..$];
                     if (!restDirs.empty)
                     {
-                        debug dln("Ctrl-C pressed: Skipping search of " ~ to!string(restDirs));
+                        debug dbg("Ctrl-C pressed: Skipping search of " ~ to!string(restDirs));
                         break;
                     }
                 }
@@ -4806,7 +4806,7 @@ class Scanner(Term)
                         continue; // try next key
                     }
 
-                    /* dln("key:", key, " line:", line); */
+                    /* dbg("key:", key, " line:", line); */
                     ptrdiff_t[] acronymOffsets;
                     if (gstats.keyAsAcronym) // acronym search
                     {
@@ -5046,7 +5046,7 @@ class Scanner(Term)
                     const cmd = fOp[1]; // command string
                     import std.process: spawnProcess;
                     import std.algorithm: splitter;
-                    dln("TODO Performing operation ", to!string(cmd),
+                    dbg("TODO Performing operation ", to!string(cmd),
                         " on ", theRegFile.path,
                         " by calling it using ", cmd);
                     auto pid = spawnProcess(cmd.splitter(" ").array ~ [theRegFile.path]);
@@ -5063,9 +5063,9 @@ class Scanner(Term)
     {
         import elfdoc: sectionNameExplanations;
         /* TODO Add mouse hovering help for sectionNameExplanations[section] */
-        dln("before: ", elfFile);
+        dbg("before: ", elfFile);
         ELF decoder = ELF.fromFile(elfFile._mmfile);
-        dln("after: ", elfFile);
+        dbg("after: ", elfFile);
 
         /* foreach (section; decoder.sections) */
         /* { */
@@ -5205,13 +5205,13 @@ class Scanner(Term)
                     noBistMatch = hitsHist.all!`a == false`;
                 }
                 /* int kix = 0; */
-                /* foreach (hit; bistHits) { if (!hit) { debug dln(`Assert key ` ~ keys[kix] ~ ` not in file ` ~ theRegFile.path); } ++kix; } */
+                /* foreach (hit; bistHits) { if (!hit) { debug dbg(`Assert key ` ~ keys[kix] ~ ` not in file ` ~ theRegFile.path); } ++kix; } */
 
                 bool allXGramsMiss = false;
                 if (doNGram)
                 {
                     ulong keysXGramUnionMatch = keysXGramsUnion.matchDenser(theRegFile.xgram);
-                    debug dln(theRegFile.path,
+                    debug dbg(theRegFile.path,
                               ` sized `, theRegFile.size, ` : `,
                               keysXGramsUnion.length, `, `,
                               theRegFile.xgram.length,
@@ -5318,7 +5318,7 @@ class Scanner(Term)
                                 gstats.shallowDensenessSum += shallowDenseness;
                                 gstats.deepDensenessSum += deepDenseness;
                                 ++gstats.densenessCount;
-                                /* dln(theRegFile.path, `:`, theRegFile.size, */
+                                /* dbg(theRegFile.path, `:`, theRegFile.size, */
                                 /*     `, length:`, theRegFile.xgram.length, */
                                 /*     `, deepDenseness:`, deepDenseness); */
                             }
@@ -5384,7 +5384,7 @@ class Scanner(Term)
         //     results.noBytesTotal += dent.size;
         // } catch (Exception)
         //   {
-        //     dln(`Couldn't get size of `,  dir.name);
+        //     dbg(`Couldn't get size of `,  dir.name);
         // }
         if (gstats.followSymlinks == SymlinkFollowContext.none) { return; }
 
@@ -5640,7 +5640,7 @@ class Scanner(Term)
                                 }
                                 else
                                 {
-                                    dln(firstDup.path ~ ` kind Id ` ~ to!string(firstDup._cstat.kindId) ~
+                                    dbg(firstDup.path ~ ` kind Id ` ~ to!string(firstDup._cstat.kindId) ~
                                         ` could not be found in allFKinds.byId`);
                                 }
                             }

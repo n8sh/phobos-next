@@ -12,7 +12,7 @@ struct SomeUncopyable
     {
         _i = cast(typeof(_i))malloc(1 * (*_i).sizeof);
         *_i = i;
-        dln("allocated: ", _i, " being ", *_i);
+        dbg("allocated: ", _i, " being ", *_i);
     }
 
     @disable this(this);
@@ -21,7 +21,7 @@ struct SomeUncopyable
     {
         if (_i)
         {
-            dln("freeing: ", _i, " being ", *_i);
+            dbg("freeing: ", _i, " being ", *_i);
         }
         free(_i);
     }

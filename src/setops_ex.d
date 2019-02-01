@@ -64,7 +64,7 @@ template isAA(Map)
 version(unittest)
 {
     import std.algorithm.comparison : equal;
-    import dbgio : dln;
+    import dbgio : dbg;
 }
 
 /// union of associative array (via keys)

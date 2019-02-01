@@ -50,7 +50,7 @@ enum isIntegralBijectableType(T) = staticIndexOf!(Unqual!T, IntegralBijectableTy
             const T y = uniform(-1e20, +1e20, gen);
 
             // import dbgio;
-            // dln(x, ",", y);
+            // dbg(x, ",", y);
 
             const expected = cmp(x,
                                  y);

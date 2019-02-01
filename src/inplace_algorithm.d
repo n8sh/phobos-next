@@ -8,7 +8,7 @@ import typecons_ex : hasIndexing;
 version(unittest)
 {
     import std.algorithm.comparison : equal;
-    import dbgio : dln;
+    import dbgio : dbg;
 }
 
 /** Returns: `r` eagerly in-place filtered on `predicate`.

@@ -12,6 +12,13 @@ module dbgio;
 
 @safe pure:
 
+/** Debug print `Names` all being compile-time strings that are mixed in.
+ *
+ * Similar to Rust's `dbg` macro introduced in version 1.32.
+ *
+ * See_Also: https://blog.rust-lang.org/2019/01/17/Rust-1.32.0.html#the-dbg-macro
+ * See_Also: https://forum.dlang.org/post/svjjawiezudnugdyriig@forum.dlang.org
+ */
 mixin template dump(Names...)
 {
     auto dump =

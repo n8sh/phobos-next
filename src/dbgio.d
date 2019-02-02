@@ -19,9 +19,9 @@ module dbgio;
  * See_Also: https://blog.rust-lang.org/2019/01/17/Rust-1.32.0.html#the-dbg-macro
  * See_Also: https://forum.dlang.org/post/svjjawiezudnugdyriig@forum.dlang.org
  */
-mixin template dump(Names...)
+mixin template dumpObseleted(Names...)
 {
-    auto dump =
+    auto dumpObseleted =
     {
         import std.stdio : stderr, write;
         debug write(__FILE__, ":", __LINE__, ": Info: ");
@@ -38,7 +38,7 @@ mixin template dump(Names...)
 {
     const int x = 42;
     int[2] y = [42, 43];
-    mixin dump!("x", "y");
+    mixin dumpObseleted!("x", "y");
 }
 
 /** Debug print `args` followed by a newline.
@@ -122,4 +122,84 @@ version(show) unittest
 {
     const x = 11, y = 12, z = 13;
     show!(x, y, z);
+}
+
+import std.stdio;
+
+/** Debug dump arguments `args` to standard error output (`stderr`).
+ *
+ * See_Also: https://forum.dlang.org/post/myxzyfgtcewixwbhvalp@forum.dlang.org
+ */
+template dump(args...)
+{
+    alias dbgImpl!(args).print dump;
+}
+
+template dbgImpl(args...)
+{
+    import std.traits : isBuiltinType, isAggregateType, FieldNameTuple;
+
+    private void print(string file = __FILE__, uint line = __LINE__, string fun = __FUNCTION__)
+    {
+        static foreach (arg; args)
+        {
+            static if (isBuiltinType!(typeof(arg)))
+            {
+                debug stderr.writefln("[%s:%s (%s)] %s = %s",
+                                      file, line, fun,
+                                      __traits(identifier, arg), arg);
+            }
+            else static if (isAggregateType!(typeof(arg)))
+            {
+                debug stderr.writefln("[%s:%s (%s)] %s = %s",
+                                      file, line, fun,
+                                      __traits(identifier, arg),
+                                      toDbgString(arg));
+            }
+        }
+    }
+
+    private string toDbgString(Arg)(Arg o)
+    {
+        string dbgstr = "(";
+        import std.format;
+        static foreach(f; FieldNameTuple!(typeof(o)))
+        {
+            static if (isBuiltinType!(typeof(__traits(getMember, o, f))))
+            {
+                dbgstr ~= format("%s:%s, ", f, __traits(getMember, o, f));
+            }
+            else static if (isAggregateType!(typeof(__traits(getMember, o, f))))
+            {
+                dbgstr ~= format("%s = %s, ", f, toDbgString(__traits(getMember, o, f)));
+            }
+        }
+        return dbgstr[0..$-2] ~ ")";
+    }
+}
+
+///
+@safe pure unittest
+{
+    struct Bar { auto c = 'c';}
+    struct Foo { int s = 2; bool b = false; Bar bar;}
+    class FooBar { int t; Foo f; }
+
+    int i;
+    float f = 3.14;
+    string s = "some string";
+    Foo foo;
+    Bar bar;
+
+    dump!(i, f, s, foo, 1+3, foo, bar);
+
+    // prints:
+    // [dump.d:54 (dump.main)] i = 0
+    // [dump.d:54 (dump.main)] f = 3.14
+    // [dump.d:54 (dump.main)] s = some string
+    // [dump.d:54 (dump.main)] foo = (s:2, b:false, bar = (c:c))
+    // [dump.d:54 (dump.main)] _ = 4
+    // [dump.d:54 (dump.main)] foo = (s:2, b:false, bar = (c:c))
+    // [dump.d:54 (dump.main)] bar = (c:c)
+    // [dump.d:54 (dump.main)] fb = (t:0, f = (s:2, b:false, bar = (c:c)))
 }

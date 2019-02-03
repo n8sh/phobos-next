@@ -114,12 +114,12 @@ if (isRandomAccessRange!Range &&
 enum networkSortMaxLength = 22;
 
 /** Sort at most the first `n` elements of `r` using comparison `less` using
-    a networking sort.
-
-    Note: Sorting networks are not unique, not even optimal solutions.
-
-    See_Also: http://stackoverflow.com/questions/3903086/standard-sorting-networks-for-small-values-of-n
-    See_Also: http://www.cs.brandeis.edu/~hugues/sorting_networks.html
+ * a networking sort.
+ *
+ * Note: Sorting networks are not unique, not even optimal solutions.
+ *
+ * See_Also: http://stackoverflow.com/questions/3903086/standard-sorting-networks-for-small-values-of-n
+ * See_Also: http://www.cs.brandeis.edu/~hugues/sorting_networks.html
  */
 auto networkSortUpTo(uint n, alias less = "a < b", Range)(Range r)
 if (isRandomAccessRange!Range)
@@ -133,9 +133,10 @@ body
 
     static if (n < 2)
     {
-        // no sorting needed
+        return; // no sorting needed
     }
-    else static if (n == 2)
+
+    static if (n == 2)
     {
         s.conditionalSwap!(less, Range, 0, 1);
     }

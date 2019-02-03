@@ -122,7 +122,8 @@ enum networkSortMaxLength = 22;
  * See_Also: http://www.cs.brandeis.edu/~hugues/sorting_networks.html
  */
 auto networkSortUpTo(uint n, alias less = "a < b", Range)(Range r)
-if (isRandomAccessRange!Range)
+if (n >= 2 &&
+    isRandomAccessRange!Range)
 in
 {
     assert(r.length >= n);
@@ -350,7 +351,8 @@ body
 /** Sort range `x` of length `n` using a networking sort.
  */
 auto networkSortExactly(uint n, alias less = "a < b", Range)(Range r)
-if (isRandomAccessRange!Range)
+if (n >= 2 &&
+    isRandomAccessRange!Range)
 in
 {
     assert(r.length == n);
@@ -363,6 +365,7 @@ body
 /** Sort static array `x` of length `n` using a networking sort.
  */
 auto networkSortExactly(alias less = "a < b", T, size_t n)(ref T[n] x)
+if (n >= 2)
 {
     x[].networkSortUpTo!n;
 }

@@ -135,8 +135,9 @@ if (isDenseSetFilterable!E)
     }
 
     /** Insert element `e`.
-        Returns: precense status of element before insertion.
-    */
+     *
+     * Returns: precense status of element before insertion.
+     */
     pragma(inline, true)
     bool insert()(in E e) @trusted // template-lazy
     {
@@ -155,7 +156,8 @@ if (isDenseSetFilterable!E)
     alias put = insert;         // OutputRange compatibility
 
     /** Remove element `e`.
-        Returns: precense status of element before removal.
+     *
+     * Returns: precense status of element before removal.
      */
     pragma(inline, true)
     bool remove()(in E e) @trusted // template-lazy
@@ -174,7 +176,8 @@ if (isDenseSetFilterable!E)
     }
 
     /** Insert element `e` if it's present otherwise remove it.
-        Returns: `true` if elements was zeroed, `false` otherwise.
+     *
+     * Returns: `true` if elements was zeroed, `false` otherwise.
      */
     pragma(inline, true)
     bool complement()(in E e) @trusted // template-laze

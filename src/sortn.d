@@ -359,7 +359,7 @@ in
 }
 body
 {
-    x[].networkSortUpTo!n;
+    x[].networkSortUpTo!(n);
 }
 
 /** Sort static array `x` of length `n` using a networking sort.
@@ -367,7 +367,7 @@ body
 auto networkSortExactly(alias less = "a < b", T, size_t n)(ref T[n] x)
 if (n >= 2)
 {
-    x[].networkSortUpTo!n;
+    x[].networkSortUpTo!(n);
 }
 
 ///

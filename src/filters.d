@@ -36,9 +36,9 @@ if (isDenseSetFilterable!E)
         enum elementMaxCount = cast(size_t)E.max + 1;
 
         /// Construct from inferred capacity and length `elementMaxCount`.
-        pragma(inline, true)
         static typeof(this) withInferredLength()
         {
+            pragma(inline, true);
             return typeof(return)(elementMaxCount);
         }
     }
@@ -60,24 +60,24 @@ if (isDenseSetFilterable!E)
         }
     }
 
-    pragma(inline, true)
     ~this()
     {
+        pragma(inline, true);
         release();
     }
 
     /// Free storage.
-    pragma(inline, true)
     private void release() @trusted
     {
+        pragma(inline, true);
         import qcmeman : free;
         free(_blocksPtr);
     }
 
     /// Clear contents.
-    pragma(inline, true)
     void clear()()
     {
+        pragma(inline, true);
         release();
         _blocksPtr = null;
         static if (growable == Growable.yes)
@@ -138,9 +138,9 @@ if (isDenseSetFilterable!E)
      *
      * Returns: precense status of element before insertion.
      */
-    pragma(inline, true)
     bool insert()(in E e) @trusted // template-lazy
     {
+        pragma(inline, true);
         const ix = cast(size_t)e;
         static if (growable == Growable.yes)
         {
@@ -159,9 +159,9 @@ if (isDenseSetFilterable!E)
      *
      * Returns: precense status of element before removal.
      */
-    pragma(inline, true)
     bool remove()(in E e) @trusted // template-lazy
     {
+        pragma(inline, true);
         const ix = cast(size_t)e;
         static if (growable == Growable.yes)
         {
@@ -179,9 +179,9 @@ if (isDenseSetFilterable!E)
      *
      * Returns: `true` if elements was zeroed, `false` otherwise.
      */
-    pragma(inline, true)
     bool complement()(in E e) @trusted // template-laze
     {
+        pragma(inline, true);
         const ix = cast(size_t)e;
         static if (growable == Growable.yes)
         {
@@ -196,9 +196,9 @@ if (isDenseSetFilterable!E)
     }
 
     /// Check if element `e` is stored/contained.
-    pragma(inline, true)
     bool contains()(in E e) @trusted const // template-lazy
     {
+        pragma(inline, true);
         const ix = cast(size_t)e;
         static if (growable == Growable.yes)
         {
@@ -210,10 +210,10 @@ if (isDenseSetFilterable!E)
         }
     }
     /// ditto
-    pragma(inline, true)
     bool opBinaryRight(string op)(in E e) const
         if (op == "in")
     {
+        pragma(inline, true);
         return contains(e);
     }
 
@@ -229,16 +229,16 @@ if (isDenseSetFilterable!E)
     /** Get current capacity in number of elements (bits).
         If `growable` is `Growable.yes` then capacity is variable, otherwise it's constant.
     */
-    pragma(inline, true)
     @property size_t capacity() const
     {
+        pragma(inline, true);
         return _capacity;
     }
 
 private:
-    pragma(inline, true)
     @property size_t blockCount() const
     {
+        pragma(inline, true);
         return _capacity / Block.sizeof + (_capacity % Block.sizeof ? 1 : 0);
     }
 

@@ -93,7 +93,6 @@ if (isUnsigned!T)
         static assert(fn(8U));
         static assert(!fn(9U));
 
-        assert(!fn(0U));
         assert(fn(1U));
         assert(fn(2U));
         assert(!fn(3U));

@@ -71,7 +71,12 @@ bool isPow2F(T)(T x) if (isIntegral!T)
     }
 }
 
-/// ditto
+/** Check if `x` is an exact (binary) power of 2, except when `x` is zero when
+ * zero is returned..
+ *
+ * See_Also: http://forum.dlang.org/thread/zumhmosfkvwjymjhmtlt@forum.dlang.org#post-fvnmurrctavpfkunssdf:40forum.dlang.org
+ * See_Also: http://forum.dlang.org/post/hloonbgclzloqemycnth@forum.dlang.org
+*/
 bool isPow2fast(T)(T x)
 if (isUnsigned!T)
 {

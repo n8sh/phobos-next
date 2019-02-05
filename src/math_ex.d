@@ -71,8 +71,8 @@ bool isPow2F(T)(T x) if (isIntegral!T)
     }
 }
 
-/** Check if `x` is an exact (binary) power of 2, except when `x` is zero when
- * zero is returned..
+/** Check if `x` is an exact (binary) power of 2, except when `x` is zero then
+ * zero is returned.
  *
  * See_Also: http://forum.dlang.org/thread/zumhmosfkvwjymjhmtlt@forum.dlang.org#post-fvnmurrctavpfkunssdf:40forum.dlang.org
  * See_Also: http://forum.dlang.org/post/hloonbgclzloqemycnth@forum.dlang.org

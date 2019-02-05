@@ -1654,7 +1654,11 @@ private:
     {
         pragma(inline, true);
         immutable typeof(return) mask = _bins.length - 1;
-        version(internalUnittest) assert((~mask ^ mask) == typeof(mask).max); // isPowerOf2(_bins.length)
+        version(internalUnittest)
+        {
+            import std.math : isPowerOf2;
+            _bins.length.isPowerOf2();
+        }
         return mask;
     }
 

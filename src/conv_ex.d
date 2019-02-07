@@ -10,7 +10,8 @@ import std.range : isInputRange, ElementType;
  * See_Also: http://forum.dlang.org/post/tsszfamjalzviqjhpdcr@forum.dlang.org
  * See_Also: https://forum.dlang.org/post/kdjbkqbnspzshdqtsntg@forum.dlang.org
  */
-T toDefaulted(T, S, U)(scope const S value, /*lazy*/ U defaultValue)
+T toDefaulted(T, S, U)(scope const S value,
+                       /*lazy*/ U defaultValue)
 if (!is(T == enum) &&
     is(typeof(() { T r = defaultValue; }))) // TODO use std.traits.isAssignable!(T, U) ?
 {
@@ -26,7 +27,8 @@ if (!is(T == enum) &&
 }
 
 /// ditto
-T toDefaulted(T)(scope const(char)[] value, T defaultValue) @safe pure nothrow @nogc
+T toDefaulted(T)(scope const(char)[] value,
+                 T defaultValue) @safe pure nothrow @nogc
 if (is(T == enum))
 {
     // instead of slower `std.conv.to`
@@ -144,13 +146,17 @@ if (isCharsSlice!S)
     assert("_".tolerantTo!E == E._);
 }
 
-private auto parseError(lazy string msg, string fn = __FILE__, size_t ln = __LINE__) @safe pure
+private auto parseError(lazy string msg,
+                        string fn = __FILE__,
+                        size_t ln = __LINE__) @safe pure
 {
     import std.conv : ConvException;
     return new ConvException("Can't parse string: " ~ msg, fn, ln);
 }
 
-private void parseCheck(alias source)(dchar c, string fn = __FILE__, size_t ln = __LINE__)
+private void parseCheck(alias source)(dchar c,
+                                      string fn = __FILE__,
+                                      size_t ln = __LINE__)
 {
     if (source.empty)
         throw parseError(text("unexpected end of input when expecting", "\"", c, "\""));

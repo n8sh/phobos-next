@@ -403,8 +403,9 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     alias S = SSOString;
 
     static assert(S.smallCapacity == 15);
+
     import gc_traits : mustAddGCRange;
-    static assert(mustAddGCRange!S); // `Large large.ptr` must be scanned
+    static assert(mustAddGCRange!S); // `Large large.ptr` must be scanned in the large case
 
     static assert(__traits(isZeroInit, S));
     // TODO static assert(S.init == S.nullValue);

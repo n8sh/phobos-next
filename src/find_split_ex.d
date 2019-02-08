@@ -22,7 +22,7 @@ if (needles.length != 0 &&
     import std.meta : allSatisfy;
     import char_traits : isASCII;
 
-    auto findSplitAmong(Haystack)(scope return Haystack haystack) @trusted
+    auto findSplitAmong(Haystack)(scope return Haystack haystack) @trusted // TODO remove `scope` qualifier?
     if (is(typeof(Haystack.init[0 .. 0])) && // can be sliced
         is(typeof(Haystack.init[0]) : char) &&
         allSatisfy!(isASCII, needles))
@@ -125,7 +125,7 @@ if (needles.length == 1 &&
     import std.meta : allSatisfy;
     import char_traits : isASCII;
 
-    auto findSplit(Haystack)(scope return Haystack haystack) @trusted
+    auto findSplit(Haystack)(scope return Haystack haystack) @trusted // TODO remove `scope` qualifier?
     if (is(typeof(Haystack.init[0 .. 0])) && // can be sliced
         is(typeof(Haystack.init[0]) : char) &&
         isASCII!(needles[0]))

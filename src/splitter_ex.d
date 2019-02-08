@@ -85,8 +85,13 @@ if (separators.length != 0 &&
     // {
     //     dbg("`", part, "`");
     // }
+    assert(``.splitterAmongASCII!(' ').empty);
+    assert(` `.splitterAmongASCII!(' ').empty);
+    assert(`   `.splitterAmongASCII!(' ').empty);
+    assert(` - `.splitterAmongASCII!(' ').equal([`-`].s[]));
     assert(`a`.splitterAmongASCII!(' ').equal([`a`].s[]));
     assert(` a `.splitterAmongASCII!(' ').equal([`a`].s[]));
+    assert(` a b `.splitterAmongASCII!(' ').equal([`a`, `b`].s[]));
     assert(` - aa   bb--c-_d--`.splitterAmongASCII!(' ', '-', '_')
                        .equal([`aa`, `bb`, `c`, `d`].s[]));
 }

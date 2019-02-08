@@ -24,10 +24,29 @@ if (separators.length != 0 &&
 
             this(Range input)
             {
-                dbg();
+                // dbg("input:", input);
                 _input = input;
 
-                // find leading separators
+                skipSeparators(); // skip leading separators
+
+                findNext();
+            }
+
+            bool empty() const
+            {
+                // dbg("input:", _input, " ", " offset:", _offset);
+                return _input.length == 0;
+            }
+
+            @property Range front()
+            {
+                // dbg("input:", _input, " ", " offset:", _offset);
+                assert(!empty, "Attempting to fetch the front of an empty splitter.");
+                return _input[0 .. _offset];
+            }
+
+            void skipSeparators()
+            {
                 while (_offset < _input.length &&
                        _input[_offset].among!(separators))
                 {
@@ -35,38 +54,21 @@ if (separators.length != 0 &&
                 }
                 _input = _input[_offset .. $]; // skip leading separators
                 _offset = 0;
-
-                findNext();
-            }
-
-            bool empty() const
-            {
-                dbg();
-                return _input.length == 0;
-            }
-
-            @property Range front()
-            {
-                dbg();
-                assert(!empty, "Attempting to fetch the front of an empty splitter.");
-                return _input[0 .. _offset];
             }
 
             void findNext()
             {
-                dbg();
                 while (_offset < _input.length &&
                        !_input[_offset].among!(separators))
                 {
                     _offset += 1;
                 }
+                // dbg("input:", _input, " ", " offset:", _offset);
             }
 
             void popFront()
             {
-                dbg();
-                _input = _input[_offset .. $]; // skip leading separators
-                _offset = 0;
+                skipSeparators();
                 findNext();
             }
         }
@@ -79,12 +81,14 @@ if (separators.length != 0 &&
 @safe pure nothrow @nogc unittest
 {
     import std.algorithm.comparison : equal;
-    foreach (part; `a b c-_d`.splitterAmongASCII!(' ', '_'))
-    {
-        dbg(part);
-    }
-    assert(`a b c-_d`.splitterAmongASCII!(' ', '_')
-                     .equal([`a`, `b`, `c`, `d`].s[]));
+    // foreach (part; ` a b c-_d`.splitterAmongASCII!(' ', '-', '_'))
+    // {
+    //     dbg("`", part, "`");
+    // }
+    assert(`a`.splitterAmongASCII!(' ').equal([`a`].s[]));
+    assert(` a `.splitterAmongASCII!(' ').equal([`a`].s[]));
+    assert(` - aa   bb--c-_d--`.splitterAmongASCII!(' ', '-', '_')
+                       .equal([`aa`, `bb`, `c`, `d`].s[]));
 }
 
 version(unittest)

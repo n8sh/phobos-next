@@ -6,3 +6,8 @@ if (needles.length != 0 &&
     isExpressions!needles)
 {
 }
+
+///
+@safe pure unittest
+{
+}

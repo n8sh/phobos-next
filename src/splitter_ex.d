@@ -38,7 +38,7 @@ if (separators.length != 0 &&
                 findNext();
             }
 
-            bool empty() @safe pure nothrow @nogc
+            bool empty() const
             {
                 return _input.length == 0;
             }
@@ -71,9 +71,19 @@ if (separators.length != 0 &&
 }
 
 ///
-@safe pure unittest
+@safe pure nothrow @nogc unittest
 {
     import std.algorithm.comparison : equal;
+    foreach (part; `a b c-_d`.splitterAmongASCII!(' ', '_'))
+    {
+        dbg(part);
+    }
     assert(`a b c-_d`.splitterAmongASCII!(' ', '_')
-                     .equal([`a`, `b`, `c`, `d`]));
+                     .equal([`a`, `b`, `c`, `d`].s[]));
+}
+
+version(unittest)
+{
+    import array_help : s;
+    import dbgio;
 }

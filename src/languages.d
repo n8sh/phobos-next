@@ -344,6 +344,7 @@ enum Lang
 
     regularExpression, regexp = regularExpression,
 }
+// pragma(msg, cast(uint)Lang.regularExpression);
 
 /** Return true if programming language $(D lang) is case-sensitive. */
 bool isCaseSensitive(Lang lang) @safe pure @nogc nothrow

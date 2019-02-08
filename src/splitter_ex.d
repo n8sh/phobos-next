@@ -92,8 +92,8 @@ if (separators.length != 0 &&
     assert(`a`.splitterAmongASCII!(' ').equal([`a`].s[]));
     assert(` a `.splitterAmongASCII!(' ').equal([`a`].s[]));
     assert(` a b `.splitterAmongASCII!(' ').equal([`a`, `b`].s[]));
-    assert(` - aa   bb--c-_d--`.splitterAmongASCII!(' ', '-', '_')
-                       .equal([`aa`, `bb`, `c`, `d`].s[]));
+    assert(` a_b `.splitterAmongASCII!(' ').equal([`a_b`].s[]));
+    assert(` - aa   bb--c-_d--_e`.splitterAmongASCII!(' ', '-', '_').equal([`aa`, `bb`, `c`, `d`, `e`].s[]));
 }
 
 version(unittest)

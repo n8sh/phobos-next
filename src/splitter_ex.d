@@ -24,6 +24,7 @@ if (separators.length != 0 &&
 
             this(Range input)
             {
+                dbg();
                 _input = input;
 
                 // find leading separators
@@ -40,17 +41,20 @@ if (separators.length != 0 &&
 
             bool empty() const
             {
+                dbg();
                 return _input.length == 0;
             }
 
             @property Range front()
             {
+                dbg();
                 assert(!empty, "Attempting to fetch the front of an empty splitter.");
                 return _input[0 .. _offset];
             }
 
             void findNext()
             {
+                dbg();
                 while (_offset < _input.length &&
                        !_input[_offset].among!(separators))
                 {
@@ -60,6 +64,7 @@ if (separators.length != 0 &&
 
             void popFront()
             {
+                dbg();
                 _input = _input[_offset .. $]; // skip leading separators
                 _offset = 0;
                 findNext();

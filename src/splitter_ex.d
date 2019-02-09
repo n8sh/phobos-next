@@ -26,9 +26,7 @@ if (separators.length != 0 &&
             {
                 // dbg("input:", input);
                 _input = input;
-
                 skipSeparators(); // skip leading separators
-
                 findNext();
             }
 
@@ -45,10 +43,10 @@ if (separators.length != 0 &&
                 return _input[0 .. _offset];
             }
 
-            void skipSeparators()
+            void skipSeparators() @trusted
             {
                 while (_offset < _input.length &&
-                       _input[_offset].among!(separators))
+                       _input.ptr[_offset].among!(separators))
                 {
                     _offset += 1;
                 }
@@ -56,10 +54,10 @@ if (separators.length != 0 &&
                 _offset = 0;
             }
 
-            void findNext()
+            void findNext() @trusted
             {
                 while (_offset < _input.length &&
-                       !_input[_offset].among!(separators))
+                       !_input.ptr[_offset].among!(separators))
                 {
                     _offset += 1;
                 }
@@ -68,6 +66,7 @@ if (separators.length != 0 &&
 
             void popFront()
             {
+                assert(!empty, "Attempting to pop the front of an empty splitter.");
                 skipSeparators();
                 findNext();
             }

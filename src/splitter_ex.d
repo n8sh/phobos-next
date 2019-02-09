@@ -2,25 +2,18 @@ module splitter_ex;
 
 import std.traits : isExpressions;
 
-/** Non-decoding ASCII-needle-only variant of Phobos' `splitter`. */
-template splitterAmongASCII(separators...)
-if (separators.length != 0 &&
-    isExpressions!separators)
+/** Non-decoding ASCII-separator-only variant of Phobos' `splitter`. */
+template splitterASCII(alias separatorPred)
 {
-    import std.meta : allSatisfy;
-    import char_traits : isASCII;
-
-    auto splitterAmongASCII(Range)(return Range r) @trusted
-        if (is(typeof(Range.init[0 .. 0])) && // can be sliced
-            is(typeof(Range.init[0]) : char) &&
-            allSatisfy!(isASCII, separators))
+    auto splitterASCII(Range)(return Range r) @trusted
+    if (is(typeof(Range.init[0 .. 0])) && // can be sliced
+        is(typeof(Range.init[0]) : char) &&
+        is(typeof(separatorPred(char.init)) : bool)) // TODO check that first parameter is bool
     {
         static struct Result
         {
             private Range _input; // original copy of r
             private size_t _offset = 0; // hit offset if any, or `_haystack.length` if miss
-
-            import std.algorithm.comparison : among;
 
             this(Range input)
             {
@@ -46,8 +39,9 @@ if (separators.length != 0 &&
             void skipSeparators() @trusted
             {
                 while (_offset < _input.length &&
-                       _input.ptr[_offset].among!(separators))
+                       separatorPred(_input.ptr[_offset]))
                 {
+                    assert(_input.ptr[_offset] < 128); // predicate should only allow ASCII
                     _offset += 1;
                 }
                 _input = _input[_offset .. $]; // skip leading separators
@@ -57,14 +51,14 @@ if (separators.length != 0 &&
             void findNext() @trusted
             {
                 while (_offset < _input.length &&
-                       !_input.ptr[_offset].among!(separators))
+                       !separatorPred(_input.ptr[_offset]))
                 {
                     _offset += 1;
                 }
                 // dbg("input:", _input, " ", " offset:", _offset);
             }
 
-            void popFront()
+            void popFront() nothrow
             {
                 assert(!empty, "Attempting to pop the front of an empty splitter.");
                 skipSeparators();
@@ -80,19 +74,20 @@ if (separators.length != 0 &&
 @safe pure nothrow @nogc unittest
 {
     import std.algorithm.comparison : equal;
-    // foreach (part; ` a b c-_d`.splitterAmongASCII!(' ', '-', '_'))
+    import std.algorithm.comparison : among;
+    // foreach (part; ` a b c-_d`.splitterASCII!(' ', '-', '_'))
     // {
     //     dbg("`", part, "`");
     // }
-    assert(``.splitterAmongASCII!(' ').empty);
-    assert(` `.splitterAmongASCII!(' ').empty);
-    assert(`   `.splitterAmongASCII!(' ').empty);
-    assert(` - `.splitterAmongASCII!(' ').equal([`-`].s[]));
-    assert(`a`.splitterAmongASCII!(' ').equal([`a`].s[]));
-    assert(` a `.splitterAmongASCII!(' ').equal([`a`].s[]));
-    assert(` a b `.splitterAmongASCII!(' ').equal([`a`, `b`].s[]));
-    assert(` a_b `.splitterAmongASCII!(' ').equal([`a_b`].s[]));
-    assert(` - aa   bb--c-_d--_e`.splitterAmongASCII!(' ', '-', '_').equal([`aa`, `bb`, `c`, `d`, `e`].s[]));
+    assert(``.splitterASCII!(_ => _ == ' ').empty);
+    assert(` `.splitterASCII!(_ => _ == ' ').empty);
+    assert(`   `.splitterASCII!(_ => _ == ' ').empty);
+    assert(` - `.splitterASCII!(_ => _ == ' ').equal([`-`].s[]));
+    assert(`a`.splitterASCII!(_ => _ == ' ').equal([`a`].s[]));
+    assert(` a `.splitterASCII!(_ => _ == ' ').equal([`a`].s[]));
+    assert(` a b `.splitterASCII!(_ => _ == ' ').equal([`a`, `b`].s[]));
+    assert(` a_b `.splitterASCII!(_ => _ == ' ').equal([`a_b`].s[]));
+    assert(` - aa   bb--c-_d--_e`.splitterASCII!(_ => _.among!(' ', '-', '_') != 0).equal([`aa`, `bb`, `c`, `d`, `e`].s[]));
 }
 
 version(unittest)

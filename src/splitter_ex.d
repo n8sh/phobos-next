@@ -41,7 +41,9 @@ template splitterASCII(alias separatorPred)
                 while (_offset < _input.length &&
                        separatorPred(_input.ptr[_offset]))
                 {
-                    assert(_input.ptr[_offset] < 128); // predicate should only allow ASCII
+                    /* predicate `separatorPred` must only filter out ASCII, or
+                     * incorrect UTF-8 decoding will follow */
+                    assert(_input.ptr[_offset].isASCII);
                     _offset += 1;
                 }
                 _input = _input[_offset .. $]; // skip leading separators
@@ -88,6 +90,11 @@ template splitterASCII(alias separatorPred)
     assert(` a b `.splitterASCII!(_ => _ == ' ').equal([`a`, `b`].s[]));
     assert(` a_b `.splitterASCII!(_ => _ == ' ').equal([`a_b`].s[]));
     assert(` - aa   bb--c-_d--_e`.splitterASCII!(_ => _.among!(' ', '-', '_') != 0).equal([`aa`, `bb`, `c`, `d`, `e`].s[]));
+}
+
+private bool isASCII(char x) @safe pure nothrow @nogc
+{
+    return x < 128;
 }
 
 version(unittest)

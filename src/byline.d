@@ -18,8 +18,6 @@ import std.range : hasSlicing, hasLength;
  *
  * See_Also: http://forum.dlang.org/thread/fjqpdfzmitcxxzpwlbgb@forum.dlang.org#post-rwxrytxqqurrazifugje:40forum.dlang.org
  *
- * TODO Restrict using isSomeString!Range?
- *
  * TODO This should fail with better error message:
  * assert(equal((cast(ubyte[])"a\nb").byLine!(Newline.any), ["a", "b"]));
  */

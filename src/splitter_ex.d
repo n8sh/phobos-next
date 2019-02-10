@@ -130,13 +130,13 @@ if (separators.length != 0 &&
         else static if (separators.length == 2)
         {
             alias pred = (char _) => (_ == separators[0] ||
-                                 _ == separators[1]);
+                                      _ == separators[1]);
         }
         else static if (separators.length == 3)
         {
             alias pred = (char _) => (_ == separators[0] ||
-                                 _ == separators[1] ||
-                                 _ == separators[2]);
+                                      _ == separators[1] ||
+                                      _ == separators[2]);
         }
         else
         {

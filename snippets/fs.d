@@ -4381,7 +4381,7 @@ class Scanner(Term)
 
         if (selFKindNames)
         {
-            foreach (lang; selFKindNames.splitter(","))
+            foreach (lang; selFKindNames.splitterASCIIAmong!(","))
             {
                 if      (lang         in gstats.allFKinds.byName) // try exact match
                 {
@@ -4783,7 +4783,7 @@ class Scanner(Term)
         }
 
         size_t nL = 0; // line counter
-        foreach (line; src.splitter(newline))
+        foreach (line; src.splitterASCIIAmong!(newline))
         {
             auto rest = cast(string)line; // rest of line as a string
 
@@ -5049,7 +5049,7 @@ class Scanner(Term)
                     dbg("TODO Performing operation ", to!string(cmd),
                         " on ", theRegFile.path,
                         " by calling it using ", cmd);
-                    auto pid = spawnProcess(cmd.splitter(" ").array ~ [theRegFile.path]);
+                    auto pid = spawnProcess(cmd.splitterASCIIAmong!(" ").array ~ [theRegFile.path]);
                 }
             }
         }

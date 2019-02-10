@@ -26,11 +26,11 @@ if (is(typeof(Range.init[0 .. 0])) && // can be sliced
             return _input.length == 0;
         }
 
-        @property Range front() return
+        @property Range front() return @trusted
         {
             // dbg("input:", _input, " ", " offset:", _offset);
             assert(!empty, "Attempting to fetch the front of an empty splitter.");
-            return _input[0 .. _offset];
+            return _input.ptr[0 .. _offset];
         }
 
         /** Skip any separators. */
@@ -106,13 +106,14 @@ if (is(typeof(Range.init[0 .. 0])) && // can be sliced
     assert(` - aa   bb--c-_d--_e`.splitterASCII!(_ => _.among!(' ', '-', '_') != 0)
                                  .equal([`aa`, `bb`, `c`, `d`, `e`].s[]));
 
-    // TODO shouldn't be allowed with -dip1000:
-    char[] f()
-    {
-        char[] x;
-        char[] y = x.splitterASCII!(_ => _ == ' ').front;
-        return y;
-    }
+    // -dip1000 test
+    static assert(!__traits(compiles, {
+                char[] f()
+                {
+                    char[2] x;
+                    return x[].splitterASCII!(_ => _ == ' ').front;
+                }
+            }));
 }
 
 /** Non-decoding ASCII-separator-only variant of Phobos' `splitter` that .

@@ -17,7 +17,7 @@ if (is(typeof(Range.init[0 .. 0])) && // can be sliced
         {
             // dbg("input:", input);
             _input = input;
-            skipAndFindNext();  // find first hit if any
+            tryFindNextFront();  // find first hit if any
         }
 
         bool empty() const
@@ -47,7 +47,8 @@ if (is(typeof(Range.init[0 .. 0])) && // can be sliced
             _offset = 0;
         }
 
-        void skipAndFindNext() @trusted
+        /** Skip any separators try finding the next front. */
+        void tryFindNextFront() @trusted
         {
             skipSeparators(); // skip leading separators
             while (_offset < _input.length &&
@@ -61,7 +62,7 @@ if (is(typeof(Range.init[0 .. 0])) && // can be sliced
         void popFront() nothrow
         {
             assert(!empty, "Attempting to pop the front of an empty splitter.");
-            skipAndFindNext();
+            tryFindNextFront();
         }
 
         static private bool isASCII(char x) @safe pure nothrow @nogc

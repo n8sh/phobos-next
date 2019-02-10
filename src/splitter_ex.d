@@ -121,7 +121,6 @@ if (separators.length != 0 &&
         is(typeof(Range.init[0]) : char) &&
         allSatisfy!(isASCII, separators))
     {
-        import std.algorithm.comparison : among;
         static if (separators.length == 1)
         {
             alias pred = (_) => (_ == separators[0]);
@@ -133,6 +132,7 @@ if (separators.length != 0 &&
         }
         else
         {
+            import std.algorithm.comparison : among;
             alias pred = (_) => (_.among!(separators) != 0);
         }
         return r.splitterASCII!(pred);

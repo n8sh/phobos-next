@@ -17,8 +17,7 @@ if (is(typeof(Range.init[0 .. 0])) && // can be sliced
         {
             // dbg("input:", input);
             _input = input;
-            skipSeparators(); // skip leading separators
-            findNext();       // find first hit if any
+            skipAndFindNext();  // find first hit if any
         }
 
         bool empty() const
@@ -48,8 +47,9 @@ if (is(typeof(Range.init[0 .. 0])) && // can be sliced
             _offset = 0;
         }
 
-        void findNext() @trusted
+        void skipAndFindNext() @trusted
         {
+            skipSeparators(); // skip leading separators
             while (_offset < _input.length &&
                    !separatorPred(_input.ptr[_offset]))
             {
@@ -61,8 +61,7 @@ if (is(typeof(Range.init[0 .. 0])) && // can be sliced
         void popFront() nothrow
         {
             assert(!empty, "Attempting to pop the front of an empty splitter.");
-            skipSeparators();
-            findNext();
+            skipAndFindNext();
         }
 
         static private bool isASCII(char x) @safe pure nothrow @nogc

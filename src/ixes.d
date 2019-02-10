@@ -142,7 +142,7 @@ auto commonSuffix(Rs...)(Rs rs)
 // @safe pure unittest
 // {
 //     import std.algorithm.comparison : equal;
-//     import std.algorithm.iteration : splitter;
+//     import splitter_ex : splitterASCIIAmong;
 //     import std.range : retro;
 //     import std.range : ElementType;
 //     import std.array : array;

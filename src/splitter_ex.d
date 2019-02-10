@@ -33,6 +33,7 @@ if (is(typeof(Range.init[0 .. 0])) && // can be sliced
             return _input[0 .. _offset];
         }
 
+        /** Skip any separators. */
         void skipSeparators() @trusted
         {
             while (_offset < _input.length &&

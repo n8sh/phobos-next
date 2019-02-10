@@ -275,7 +275,7 @@ if ((hasSlicing!R && hasLength!R ||
     import std.algorithm: map, filter;
     import std.string: indexOf;
     import splitter_ex : splitterASCIIAmong;
-    return r.splitterASCIIAmong!('\n')
+    return r.splitterASCIIAmong!('\n')               // TODO support multiple newlines
             .filter!(line => line.indexOf('#') != 0) // skip comments
             .map!(line => line.nTriple);
 }

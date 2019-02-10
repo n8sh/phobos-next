@@ -1557,5 +1557,5 @@ version(unittest)
 {
     import container_traits : mustAddGCRange, needsMove;
     import array_help : s;
-    import traits_ex : isDIP1000;
+    import dip_traits : isDIP1000;
 }

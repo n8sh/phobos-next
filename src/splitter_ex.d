@@ -125,18 +125,18 @@ if (separators.length != 0 &&
     {
         static if (separators.length == 1)
         {
-            // reuse common instatiation of `splitterASCII` for one `char` separator:
+            // reuse common instatiation of `splitterASCII` for predicate `pred`:
             alias pred = (char _) => (_ == separators[0]);
         }
         else static if (separators.length == 2)
         {
-            // reuse common instatiation of `splitterASCII` for two `char` separator:
+            // reuse common instatiation of `splitterASCII` for predicate `pred`:
             alias pred = (char _) => (_ == separators[0] ||
                                       _ == separators[1]);
         }
         else static if (separators.length == 3)
         {
-            // reuse common instatiation of `splitterASCII` for three `char` separator:
+            // reuse common instatiation of `splitterASCII` for predicate `pred`:
             alias pred = (char _) => (_ == separators[0] ||
                                       _ == separators[1] ||
                                       _ == separators[2]);

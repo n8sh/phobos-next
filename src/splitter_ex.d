@@ -75,21 +75,77 @@ template splitterASCII(alias separatorPred)
 ///
 @safe pure nothrow @nogc unittest
 {
-    import std.algorithm.comparison : equal;
-    import std.algorithm.comparison : among;
-    // foreach (part; ` a b c-_d`.splitterASCII!(' ', '-', '_'))
-    // {
-    //     dbg("`", part, "`");
-    // }
-    assert(``.splitterASCII!(_ => _ == ' ').empty);
-    assert(` `.splitterASCII!(_ => _ == ' ').empty);
-    assert(`   `.splitterASCII!(_ => _ == ' ').empty);
-    assert(` - `.splitterASCII!(_ => _ == ' ').equal([`-`].s[]));
-    assert(`a`.splitterASCII!(_ => _ == ' ').equal([`a`].s[]));
-    assert(` a `.splitterASCII!(_ => _ == ' ').equal([`a`].s[]));
-    assert(` a b `.splitterASCII!(_ => _ == ' ').equal([`a`, `b`].s[]));
-    assert(` a_b `.splitterASCII!(_ => _ == ' ').equal([`a_b`].s[]));
-    assert(` - aa   bb--c-_d--_e`.splitterASCII!(_ => _.among!(' ', '-', '_') != 0).equal([`aa`, `bb`, `c`, `d`, `e`].s[]));
+    assert(``.splitterASCII!(_ => _ == ' ')
+             .empty);
+
+    assert(` `.splitterASCII!(_ => _ == ' ')
+              .empty);
+
+    assert(`   `.splitterASCII!(_ => _ == ' ')
+                .empty);
+
+    assert(` - `.splitterASCII!(_ => _ == ' ')
+                .equal([`-`].s[]));
+
+    assert(`a`.splitterASCII!(_ => _ == ' ')
+              .equal([`a`].s[]));
+
+    assert(` a `.splitterASCII!(_ => _ == ' ')
+                .equal([`a`].s[]));
+
+    assert(` a b `.splitterASCII!(_ => _ == ' ')
+                  .equal([`a`, `b`].s[]));
+
+    assert(` a_b `.splitterASCII!(_ => _ == ' ')
+                  .equal([`a_b`].s[]));
+
+    assert(` - aa   bb--c-_d--_e`.splitterASCII!(_ => _.among!(' ', '-', '_') != 0)
+                                 .equal([`aa`, `bb`, `c`, `d`, `e`].s[]));
+}
+
+/** Non-decoding ASCII-separator-only variant of Phobos' `splitter` that . */
+template splitterASCIIAmong(separators...)
+if (separators.length != 0 &&
+    isExpressions!separators)
+{
+    auto splitterASCIIAmong(Range)(return Range r)
+    if (is(typeof(Range.init[0 .. 0])) && // can be sliced
+        is(typeof(Range.init[0]) : char))
+    {
+        import std.algorithm.comparison : among;
+        return r.splitterASCII!(_ => _.among!(separators) != 0);
+    }
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    assert(``.splitterASCIIAmong!(' ')
+             .empty);
+
+    assert(` `.splitterASCIIAmong!(' ')
+              .empty);
+
+    assert(`   `.splitterASCIIAmong!(' ')
+                .empty);
+
+    assert(` - `.splitterASCIIAmong!(' ')
+                .equal([`-`].s[]));
+
+    assert(`a`.splitterASCIIAmong!(' ')
+              .equal([`a`].s[]));
+
+    assert(` a `.splitterASCIIAmong!(' ')
+                .equal([`a`].s[]));
+
+    assert(` a b `.splitterASCIIAmong!(' ')
+                  .equal([`a`, `b`].s[]));
+
+    assert(` a_b `.splitterASCIIAmong!(' ')
+                  .equal([`a_b`].s[]));
+
+    assert(` - aa   bb--c-_d--_e`.splitterASCIIAmong!(' ', '-', '_')
+                                 .equal([`aa`, `bb`, `c`, `d`, `e`].s[]));
 }
 
 private bool isASCII(char x) @safe pure nothrow @nogc
@@ -99,6 +155,8 @@ private bool isASCII(char x) @safe pure nothrow @nogc
 
 version(unittest)
 {
+    import std.algorithm.comparison : equal;
+    import std.algorithm.comparison : among;
     import array_help : s;
     import dbgio;
 }

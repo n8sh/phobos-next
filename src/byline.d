@@ -11,9 +11,6 @@ enum Newline
     native,                     // Current OS decides: '\n'
 }
 
-import std.traits : isNarrowString;
-import std.range : hasSlicing, hasLength;
-
 /** Split Input by line.
  *
  * See_Also: http://forum.dlang.org/thread/fjqpdfzmitcxxzpwlbgb@forum.dlang.org#post-rwxrytxqqurrazifugje:40forum.dlang.org
@@ -22,9 +19,8 @@ import std.range : hasSlicing, hasLength;
  * assert(equal((cast(ubyte[])"a\nb").byLine!(Newline.any), ["a", "b"]));
  */
 auto byLine(Newline nl = Newline.any, Range)(Range input)
-if ((hasSlicing!Range &&
-     hasLength!Range) ||
-    isNarrowString!Range)
+if (is(typeof(Range.init[0 .. 0])) && // can be sliced
+    is(typeof(Range.init[0]) : char))
 {
     import splitter_ex : splitterASCIIAmong;
     static if (nl == Newline.native)

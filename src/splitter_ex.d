@@ -108,9 +108,12 @@ template splitterASCIIAmong(separators...)
 if (separators.length != 0 &&
     isExpressions!separators)
 {
+    import std.meta : allSatisfy;
+    import char_traits : isASCII;
     auto splitterASCIIAmong(Range)(return Range r)
     if (is(typeof(Range.init[0 .. 0])) && // can be sliced
-        is(typeof(Range.init[0]) : char))
+        is(typeof(Range.init[0]) : char) &&
+        allSatisfy!(isASCII, separators))
     {
         import std.algorithm.comparison : among;
         return r.splitterASCII!(_ => _.among!(separators) != 0);

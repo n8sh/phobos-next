@@ -110,15 +110,17 @@ if (is(typeof(Range.init[0 .. 0])) && // can be sliced
 /// DIP-1000 return ref escape analysis
 @safe pure nothrow unittest
 {
-    // See_Also: https://forum.dlang.org/post/pzddsrwhfvcopfaamvak@forum.dlang.org
-    // -dip1000 test
-    static assert(!__traits(compiles, {
-                char[] f()
-                {
-                    char[2] x;
-                    return x[].splitterASCII!(_ => _ == ' ').front;
-                }
-            }));
+    static if (isDIP1000)
+    {
+        // See_Also: https://forum.dlang.org/post/pzddsrwhfvcopfaamvak@forum.dlang.org
+        static assert(!__traits(compiles, {
+                    char[] f()
+                    {
+                        char[2] x;
+                        return x[].splitterASCII!(_ => _ == ' ').front;
+                    }
+                }));
+    }
 }
 
 /** Non-decoding ASCII-separator-only variant of Phobos' `splitter` that .
@@ -206,5 +208,6 @@ version(unittest)
     import std.algorithm.comparison : equal;
     import std.algorithm.comparison : among;
     import array_help : s;
+    import dip_traits : isDIP1000;
     // import dbgio;
 }

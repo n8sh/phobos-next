@@ -43,7 +43,7 @@ template splitterASCII(alias separatorPred)
                 {
                     /* predicate `separatorPred` must only filter out ASCII, or
                      * incorrect UTF-8 decoding will follow */
-                    assert(_input.ptr[_offset].isASCII);
+                    assert(isASCII(_input.ptr[_offset]));
                     _offset += 1;
                 }
                 _input = _input[_offset .. $]; // skip leading separators
@@ -65,6 +65,12 @@ template splitterASCII(alias separatorPred)
                 assert(!empty, "Attempting to pop the front of an empty splitter.");
                 skipSeparators();
                 findNext();
+            }
+
+            static private bool isASCII(char x) @safe pure nothrow @nogc
+            {
+                pragma(inline, true)
+                return x < 128;
             }
         }
 
@@ -151,15 +157,10 @@ if (separators.length != 0 &&
                                  .equal([`aa`, `bb`, `c`, `d`, `e`].s[]));
 }
 
-private bool isASCII(char x) @safe pure nothrow @nogc
-{
-    return x < 128;
-}
-
 version(unittest)
 {
     import std.algorithm.comparison : equal;
     import std.algorithm.comparison : among;
     import array_help : s;
-    import dbgio;
+    // import dbgio;
 }

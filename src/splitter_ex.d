@@ -179,6 +179,9 @@ if (separators.length != 0 &&
 
     assert(` - aa   bb--c-_d--_e`.splitterASCIIAmong!(' ', '-', '_')
                                  .equal([`aa`, `bb`, `c`, `d`, `e`].s[]));
+
+    assert(` - aa ///  bb--c-_d--_e`.splitterASCIIAmong!(' ', '-', '_', '/')
+                                    .equal([`aa`, `bb`, `c`, `d`, `e`].s[]));
 }
 
 version(unittest)

@@ -105,7 +105,12 @@ if (is(typeof(Range.init[0 .. 0])) && // can be sliced
 
     assert(` - aa   bb--c-_d--_e`.splitterASCII!(_ => _.among!(' ', '-', '_') != 0)
                                  .equal([`aa`, `bb`, `c`, `d`, `e`].s[]));
+}
 
+/// DIP-1000 return ref escape analysis
+@safe pure nothrow unittest
+{
+    // See_Also: https://forum.dlang.org/post/pzddsrwhfvcopfaamvak@forum.dlang.org
     // -dip1000 test
     static assert(!__traits(compiles, {
                 char[] f()

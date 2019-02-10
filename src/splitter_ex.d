@@ -125,23 +125,23 @@ if (separators.length != 0 &&
     {
         static if (separators.length == 1)
         {
-            alias pred = (_) => (_ == separators[0]);
+            alias pred = (char _) => (_ == separators[0]);
         }
         else static if (separators.length == 2)
         {
-            alias pred = (_) => (_ == separators[0] ||
+            alias pred = (char _) => (_ == separators[0] ||
                                  _ == separators[1]);
         }
         else static if (separators.length == 3)
         {
-            alias pred = (_) => (_ == separators[0] ||
+            alias pred = (char _) => (_ == separators[0] ||
                                  _ == separators[1] ||
                                  _ == separators[2]);
         }
         else
         {
             import std.algorithm.comparison : among;
-            alias pred = (_) => (_.among!(separators) != 0);
+            alias pred = (char _) => (_.among!(separators) != 0);
         }
         return r.splitterASCII!(pred);
     }

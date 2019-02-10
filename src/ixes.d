@@ -147,7 +147,7 @@ auto commonSuffix(Rs...)(Rs rs)
 //     import std.range : ElementType;
 //     import std.array : array;
 //     assert(equal(commonSuffix(`_å-ä-ö`,
-//                               `-å-ä-ö`).retro.splitter(`-`).array, // TODO how should this be solved?
+//                               `-å-ä-ö`).retro.splitterASCIIAmong!(`-`).array, // TODO how should this be solved?
 //                  [`ö`, `ä`, `å`]));
 // }
 

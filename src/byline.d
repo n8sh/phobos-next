@@ -56,16 +56,17 @@ if (is(typeof(Range.init[0 .. 0])) && // can be sliced
 }
 
 ///
-@safe pure nothrow unittest
+@safe pure nothrow @nogc unittest
 {
-    assert(equal("a\nb".byLine!(Newline.native), ["a", "b"]));
-    assert(equal("a\r\nb".byLine!(Newline.win), ["a", "b"]));
-    assert(equal("a\rb".byLine!(Newline.mac), ["a", "b"]));
-    assert(equal("a\nb".byLine!(Newline.unix), ["a", "b"]));
-    assert(equal("a\nb".byLine!(Newline.any), ["a", "b"]));
+    assert(equal("a\nb".byLine!(Newline.native), ["a", "b"].s[]));
+    assert(equal("a\r\nb".byLine!(Newline.win), ["a", "b"].s[]));
+    assert(equal("a\rb".byLine!(Newline.mac), ["a", "b"].s[]));
+    assert(equal("a\nb".byLine!(Newline.unix), ["a", "b"].s[]));
+    assert(equal("a\nb".byLine!(Newline.any), ["a", "b"].s[]));
 }
 
 version(unittest)
 {
     import std.algorithm: equal;
+    import array_help : s;
 }

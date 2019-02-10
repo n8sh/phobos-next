@@ -276,7 +276,7 @@ if ((hasSlicing!R && hasLength!R ||
     import std.string: indexOf;
     import splitter_ex : splitterASCIIAmong;
     return r.splitterASCIIAmong!('\n')               // TODO support multiple newlines
-            .filter!(line => line.indexOf('#') != 0) // skip comments
+            .filter!(line => line.indexOf('#') != 0) // skip comments. TODO non-decoding
             .map!(line => line.nTriple);
 }
 

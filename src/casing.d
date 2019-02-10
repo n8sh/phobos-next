@@ -14,6 +14,7 @@ version(unittest)
 auto toLowerASCII(S)(S s)
 if (isSomeString!S)
 {
+    pragma(msg, "TODO fix or remove ", __FUNCTION__);
     import std.algorithm.iteration : map;
     import std.ascii : toLower;
     import std.traits : isNarrowString;

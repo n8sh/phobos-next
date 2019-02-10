@@ -502,11 +502,14 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
 /// DIP-1000 return ref escape analysis
 @safe pure nothrow unittest
 {
-    alias S = SSOString;
-    static assert(!__traits(compiles, { immutable(char)* f1() @safe pure nothrow { S x; return x.ptr; } }));
-    static assert(!__traits(compiles, { string f1() @safe pure nothrow { S x; return x[]; } }));
-    static assert(!__traits(compiles, { string f2() @safe pure nothrow { S x; return x.toString; } }));
-    static assert(!__traits(compiles, { ref immutable(char) g() @safe pure nothrow @nogc { S x; return x[0]; } }));
+    static if (isDIP1000)
+    {
+        alias S = SSOString;
+        static assert(!__traits(compiles, { immutable(char)* f1() @safe pure nothrow { S x; return x.ptr; } }));
+        static assert(!__traits(compiles, { string f1() @safe pure nothrow { S x; return x[]; } }));
+        static assert(!__traits(compiles, { string f2() @safe pure nothrow { S x; return x.toString; } }));
+        static assert(!__traits(compiles, { ref immutable(char) g() @safe pure nothrow @nogc { S x; return x[0]; } }));
+    }
 }
 
 /// ASCII purity and case-conversion
@@ -558,3 +561,8 @@ version(show)
 }
 
 private enum isCharsSlice(T) = (is(T : const(char)[]));
+
+version(unittest)
+{
+    import dip_traits : isDIP1000;
+}

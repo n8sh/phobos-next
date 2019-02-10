@@ -21,7 +21,7 @@ import std.range : hasSlicing, hasLength;
  * TODO This should fail with better error message:
  * assert(equal((cast(ubyte[])"a\nb").byLine!(Newline.any), ["a", "b"]));
  */
-auto byLine(Newline nl, Range)(Range input)
+auto byLine(Newline nl = Newline.any, Range)(Range input)
 if ((hasSlicing!Range &&
      hasLength!Range) ||
     isNarrowString!Range)

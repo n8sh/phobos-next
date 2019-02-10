@@ -125,6 +125,7 @@ if (separators.length != 0 &&
     {
         static if (separators.length == 1)
         {
+            // common instatiation of `splitterASCII` for a single `char` separators
             alias pred = (char _) => (_ == separators[0]);
         }
         else static if (separators.length == 2)
@@ -143,7 +144,7 @@ if (separators.length != 0 &&
             import std.algorithm.comparison : among;
             alias pred = (char _) => (_.among!(separators) != 0);
         }
-        return r.splitterASCII!(pred);
+        return splitterASCII!(pred)(r);
     }
 }
 

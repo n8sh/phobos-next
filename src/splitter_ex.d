@@ -122,7 +122,20 @@ if (separators.length != 0 &&
         allSatisfy!(isASCII, separators))
     {
         import std.algorithm.comparison : among;
-        return r.splitterASCII!(_ => _.among!(separators) != 0);
+        static if (separators.length == 1)
+        {
+            alias pred = (_) => (_ == separators[0]);
+        }
+        else static if (separators.length == 2)
+        {
+            alias pred = (_) => (_ == separators[0] ||
+                                 _ == separators[1]);
+        }
+        else
+        {
+            alias pred = (_) => (_.among!(separators) != 0);
+        }
+        return r.splitterASCII!(pred);
     }
 }
 
@@ -152,6 +165,9 @@ if (separators.length != 0 &&
 
     assert(` a_b `.splitterASCIIAmong!(' ')
                   .equal([`a_b`].s[]));
+
+    assert(` - aa   bb--c-d--e`.splitterASCIIAmong!(' ', '-')
+                                 .equal([`aa`, `bb`, `c`, `d`, `e`].s[]));
 
     assert(` - aa   bb--c-_d--_e`.splitterASCIIAmong!(' ', '-', '_')
                                  .equal([`aa`, `bb`, `c`, `d`, `e`].s[]));

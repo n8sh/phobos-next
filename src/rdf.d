@@ -267,7 +267,8 @@ alias toNTriple = nTriple;
     assert(t.objectType == ObjectType.literal);
 }
 
-/** Iterate Range by RDF N-Triple. */
+/** Iterate Range by RDF N-Triple.
+ */
 auto byNTriple(R)(R r)
 if ((hasSlicing!R && hasLength!R ||
      isNarrowString!R))

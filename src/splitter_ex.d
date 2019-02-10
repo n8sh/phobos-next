@@ -18,7 +18,7 @@ if (is(typeof(Range.init[0 .. 0])) && // can be sliced
             // dbg("input:", input);
             _input = input;
             skipSeparators(); // skip leading separators
-            findNext();
+            findNext();       // find first hit if any
         }
 
         bool empty() const

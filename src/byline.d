@@ -34,8 +34,8 @@ if ((hasSlicing!Range &&
         import std.algorithm: splitter;
         static if (newline.length == 1)
         {
-            import std.range: front;
-            return input.splitter(newline.front);
+            import splitter_ex : splitterASCIIAmong;
+            return input.splitterASCIIAmong!(newline[0]);
         }
         else
         {
@@ -72,6 +72,7 @@ if ((hasSlicing!Range &&
 @safe pure nothrow unittest
 {
     // assert(equal("a\nb".byLine!(Newline.any), ["a", "b"]));
+    assert(equal("a\nb".byLine!(Newline.native), ["a", "b"]));
     assert(equal("a\r\nb".byLine!(Newline.win), ["a", "b"]));
     assert(equal("a\rb".byLine!(Newline.mac), ["a", "b"]));
     assert(equal("a\nb".byLine!(Newline.unix), ["a", "b"]));

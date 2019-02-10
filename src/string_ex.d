@@ -3,13 +3,14 @@ module string_ex;
 import traits_ex : isCharsSlice;
 
 Chars[] quotedWords(Chars)(Chars s,
-                   const scope string quoteBeginChar = `"`,
-                   const scope string quoteEndChar = `"`)
+                           const scope string quoteBeginChar = `"`,
+                           const scope string quoteEndChar = `"`)
 if (isCharsSlice!Chars)
 {
     typeof(return) words;
     import std.array : array;
-    import std.algorithm : filter, splitter;
+    import splitter_ex : splitterASCIIAmong;
+    import std.algorithm : filter;
     import std.string : indexOf, lastIndexOf;
     import std.range : empty;
     while (!s.empty)
@@ -25,7 +26,7 @@ if (isCharsSlice!Chars)
                 currI = prefixBeginI + 1;
             }
 
-            words ~= s[0 .. currI].splitter(' ')
+            words ~= s[0 .. currI].splitterASCIIAmong!(' ')
                                   .filter!(a => !a.empty)
                                   .array;
 
@@ -40,7 +41,7 @@ if (isCharsSlice!Chars)
         }
         else
         {
-            words ~= s.splitter(' ')
+            words ~= s.splitterASCIIAmong!(' ')
                       .filter!(a => !a.empty)
                       .array;
             s = [];

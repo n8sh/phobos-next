@@ -26,23 +26,20 @@ if ((hasSlicing!Range &&
      hasLength!Range) ||
     isNarrowString!Range)
 {
+    import splitter_ex : splitterASCIIAmong;
     static if (nl == Newline.native)
     {
-        import std.ascii: newline;
-        static if (newline.length == 1)
+        version (Windows)
         {
-            import splitter_ex : splitterASCIIAmong;
-            return input.splitterASCIIAmong!(newline[0]);
+            return input.splitterASCIIAmong!('\r', '\n');
         }
-        else
+        else version (Posix)
         {
-            import std.algorithm: splitter;
-            return input.splitter(newline);
+            return input.splitterASCIIAmong!('\n');
         }
     }
     else
     {
-        import splitter_ex : splitterASCIIAmong;
         static if (nl == Newline.unix)
         {
             return input.splitterASCIIAmong!('\n');

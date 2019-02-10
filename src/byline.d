@@ -29,7 +29,6 @@ if ((hasSlicing!Range &&
     static if (nl == Newline.native)
     {
         import std.ascii: newline;
-        import std.algorithm: splitter;
         static if (newline.length == 1)
         {
             import splitter_ex : splitterASCIIAmong;
@@ -37,6 +36,7 @@ if ((hasSlicing!Range &&
         }
         else
         {
+            import std.algorithm: splitter;
             return input.splitter(newline);
         }
     }
@@ -49,6 +49,7 @@ if ((hasSlicing!Range &&
         }
         else static if (nl == Newline.win)
         {
+            import std.algorithm: splitter;
             import std.algorithm: splitter;
             return input.splitter("\r\n");
         }

@@ -283,8 +283,7 @@ struct SSOString
         return result;
     }
 
-    /** Check if `this` is a small ASCII pure string.
-     */
+    /** Check if `this` is a small ASCII string. */
     bool isSmallASCIIClean() const scope @trusted
     {
         pragma(inline, true);

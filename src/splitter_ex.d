@@ -3,8 +3,7 @@ module splitter_ex;
 import std.traits : isExpressions;
 
 /** Non-decoding ASCII-separator-only variant of Phobos' `splitter`. */
-auto splitterASCII(alias separatorPred,
-                   Range)(return Range r) @trusted
+auto splitterASCII(alias separatorPred, Range)(return Range r) @trusted
 if (is(typeof(Range.init[0 .. 0])) && // can be sliced
     is(typeof(Range.init[0]) : char) &&
     is(typeof(separatorPred(char.init)) : bool)) // TODO check that first parameter is bool

@@ -42,26 +42,22 @@ if ((hasSlicing!Range &&
     }
     else
     {
+        import splitter_ex : splitterASCIIAmong;
         static if (nl == Newline.unix)
         {
-            import splitter_ex : splitterASCIIAmong;
             return input.splitterASCIIAmong!('\n');
         }
         else static if (nl == Newline.win)
         {
-            import std.algorithm: splitter;
-            return input.splitter("\r\n");
+            return input.splitterASCIIAmong!('\r', '\n');
         }
         else static if (nl == Newline.mac)
         {
-            import splitter_ex : splitterASCIIAmong;
             return input.splitterASCIIAmong!('\r');
         }
         else static if (nl == Newline.any)
         {
-            // TODO Use ctRegex instead?
-            import std.regex: splitter, regex;
-            return input.splitter(regex("\n|\r\n|\r"));
+            return input.splitterASCIIAmong!('\r', '\n');
         }
     }
 }
@@ -73,7 +69,7 @@ if ((hasSlicing!Range &&
     assert(equal("a\r\nb".byLine!(Newline.win), ["a", "b"]));
     assert(equal("a\rb".byLine!(Newline.mac), ["a", "b"]));
     assert(equal("a\nb".byLine!(Newline.unix), ["a", "b"]));
-    // assert(equal("a\nb".byLine!(Newline.any), ["a", "b"]));
+    assert(equal("a\nb".byLine!(Newline.any), ["a", "b"]));
 }
 
 version(unittest)

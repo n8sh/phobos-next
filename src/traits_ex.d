@@ -1419,12 +1419,6 @@ unittest
     static assert(!areFlatteninglyCombinable!(int[], A));
 }
 
-/** Is `true` iff DIP-1000 checking is enabled via compiler flag -dip1000.
- *
- * See_Also: https://forum.dlang.org/post/qglynupcootocnnnpmhj@forum.dlang.org
- */
-enum isDIP1000 = __traits(compiles, () @safe { int x; int* p; p = &x; });
-
 /** Is `true` iff `T` is a memory address. */
 template isAddress(T)
 {

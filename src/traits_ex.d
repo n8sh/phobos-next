@@ -1423,11 +1423,7 @@ unittest
  *
  * See_Also: https://forum.dlang.org/post/qglynupcootocnnnpmhj@forum.dlang.org
  */
-enum isDIP1000 = __traits(compiles, () @safe {
-         int x;
-         int* p;
-         p = &x;
-    });
+enum isDIP1000 = __traits(compiles, () @safe { int x; int* p; p = &x; });
 
 /** Is `true` iff `T` is a memory address. */
 template isAddress(T)

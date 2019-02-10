@@ -3,79 +3,77 @@ module splitter_ex;
 import std.traits : isExpressions;
 
 /** Non-decoding ASCII-separator-only variant of Phobos' `splitter`. */
-template splitterASCII(alias separatorPred)
+auto splitterASCII(alias separatorPred,
+                   Range)(return Range r) @trusted
+if (is(typeof(Range.init[0 .. 0])) && // can be sliced
+    is(typeof(Range.init[0]) : char) &&
+    is(typeof(separatorPred(char.init)) : bool)) // TODO check that first parameter is bool
 {
-    auto splitterASCII(Range)(return Range r) @trusted
-    if (is(typeof(Range.init[0 .. 0])) && // can be sliced
-        is(typeof(Range.init[0]) : char) &&
-        is(typeof(separatorPred(char.init)) : bool)) // TODO check that first parameter is bool
+    static struct Result
     {
-        static struct Result
+        private Range _input; // original copy of r
+        private size_t _offset = 0; // hit offset if any, or `_haystack.length` if miss
+
+        this(Range input)
         {
-            private Range _input; // original copy of r
-            private size_t _offset = 0; // hit offset if any, or `_haystack.length` if miss
-
-            this(Range input)
-            {
-                // dbg("input:", input);
-                _input = input;
-                skipSeparators(); // skip leading separators
-                findNext();
-            }
-
-            bool empty() const
-            {
-                // dbg("input:", _input, " ", " offset:", _offset);
-                return _input.length == 0;
-            }
-
-            @property Range front()
-            {
-                // dbg("input:", _input, " ", " offset:", _offset);
-                assert(!empty, "Attempting to fetch the front of an empty splitter.");
-                return _input[0 .. _offset];
-            }
-
-            void skipSeparators() @trusted
-            {
-                while (_offset < _input.length &&
-                       separatorPred(_input.ptr[_offset]))
-                {
-                    /* predicate `separatorPred` must only filter out ASCII, or
-                     * incorrect UTF-8 decoding will follow */
-                    assert(isASCII(_input.ptr[_offset]));
-                    _offset += 1;
-                }
-                _input = _input[_offset .. $]; // skip leading separators
-                _offset = 0;
-            }
-
-            void findNext() @trusted
-            {
-                while (_offset < _input.length &&
-                       !separatorPred(_input.ptr[_offset]))
-                {
-                    _offset += 1;
-                }
-                // dbg("input:", _input, " ", " offset:", _offset);
-            }
-
-            void popFront() nothrow
-            {
-                assert(!empty, "Attempting to pop the front of an empty splitter.");
-                skipSeparators();
-                findNext();
-            }
-
-            static private bool isASCII(char x) @safe pure nothrow @nogc
-            {
-                pragma(inline, true)
-                return x < 128;
-            }
+            // dbg("input:", input);
+            _input = input;
+            skipSeparators(); // skip leading separators
+            findNext();
         }
 
-        return Result(r);
+        bool empty() const
+        {
+            // dbg("input:", _input, " ", " offset:", _offset);
+            return _input.length == 0;
+        }
+
+        @property Range front()
+        {
+            // dbg("input:", _input, " ", " offset:", _offset);
+            assert(!empty, "Attempting to fetch the front of an empty splitter.");
+            return _input[0 .. _offset];
+        }
+
+        void skipSeparators() @trusted
+        {
+            while (_offset < _input.length &&
+                   separatorPred(_input.ptr[_offset]))
+            {
+                /* predicate `separatorPred` must only filter out ASCII, or
+                 * incorrect UTF-8 decoding will follow */
+                assert(isASCII(_input.ptr[_offset]));
+                _offset += 1;
+            }
+            _input = _input[_offset .. $]; // skip leading separators
+            _offset = 0;
+        }
+
+        void findNext() @trusted
+        {
+            while (_offset < _input.length &&
+                   !separatorPred(_input.ptr[_offset]))
+            {
+                _offset += 1;
+            }
+            // dbg("input:", _input, " ", " offset:", _offset);
+        }
+
+        void popFront() nothrow
+        {
+            assert(!empty, "Attempting to pop the front of an empty splitter.");
+            skipSeparators();
+            findNext();
+        }
+
+        static private bool isASCII(char x) @safe pure nothrow @nogc
+        {
+            pragma(inline, true)
+            return x < 128;
+        }
     }
+
+    return Result(r);
 }
 
 ///

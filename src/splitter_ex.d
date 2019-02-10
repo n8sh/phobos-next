@@ -106,7 +106,10 @@ if (is(typeof(Range.init[0 .. 0])) && // can be sliced
                                  .equal([`aa`, `bb`, `c`, `d`, `e`].s[]));
 }
 
-/** Non-decoding ASCII-separator-only variant of Phobos' `splitter` that . */
+/** Non-decoding ASCII-separator-only variant of Phobos' `splitter` that .
+ *
+ * TODO generalize to separators being either chars or strings.
+ */
 template splitterASCIIAmong(separators...)
 if (separators.length != 0 &&
     isExpressions!separators)

@@ -516,14 +516,18 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
 @safe pure nothrow @nogc unittest
 {
     alias S = SSOString;
+
+    // these are all small ASCII
     assert( S("a").isSmallASCIIClean);
     assert( S("b").isSmallASCIIClean);
     assert( S("z").isSmallASCIIClean);
     assert( S("_").isSmallASCIIClean);
     assert( S("abcd").isSmallASCIIClean);
     assert( S("123456789_12345").isSmallASCIIClean);
+
+    // these are not
+    assert(!S("123456789_123456").isSmallASCIIClean); // too large
     assert(!S("123456789_123ö").isSmallASCIIClean);
-    assert(!S("123456789_123456").isSmallASCIIClean);
     assert(!S("ö").isSmallASCIIClean);
     assert(!S("Ö").isSmallASCIIClean);
     assert(!S("åäö").isSmallASCIIClean);

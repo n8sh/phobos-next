@@ -50,6 +50,7 @@ if (isCharsSlice!Chars)
     return words;
 }
 
+///
 @safe pure unittest
 {
     import std.stdio;

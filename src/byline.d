@@ -71,11 +71,11 @@ if ((hasSlicing!Range &&
 ///
 @safe pure nothrow unittest
 {
-    // assert(equal("a\nb".byLine!(Newline.any), ["a", "b"]));
     assert(equal("a\nb".byLine!(Newline.native), ["a", "b"]));
     assert(equal("a\r\nb".byLine!(Newline.win), ["a", "b"]));
     assert(equal("a\rb".byLine!(Newline.mac), ["a", "b"]));
     assert(equal("a\nb".byLine!(Newline.unix), ["a", "b"]));
+    // assert(equal("a\nb".byLine!(Newline.any), ["a", "b"]));
 }
 
 version(unittest)

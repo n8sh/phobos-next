@@ -132,6 +132,12 @@ if (separators.length != 0 &&
             alias pred = (_) => (_ == separators[0] ||
                                  _ == separators[1]);
         }
+        else static if (separators.length == 3)
+        {
+            alias pred = (_) => (_ == separators[0] ||
+                                 _ == separators[1] ||
+                                 _ == separators[2]);
+        }
         else
         {
             import std.algorithm.comparison : among;

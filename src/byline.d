@@ -50,7 +50,6 @@ if ((hasSlicing!Range &&
         else static if (nl == Newline.win)
         {
             import std.algorithm: splitter;
-            import std.algorithm: splitter;
             return input.splitter("\r\n");
         }
         else static if (nl == Newline.mac)

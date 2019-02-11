@@ -11,6 +11,7 @@ authors "Per Nordlöw <per.nordlow@gmail.com>"
 
 # dependency "arsd" version="~master"
 
+# TODO replace -transition=... with -preview=...
 dflags "-vcolumns" "-dip25" "-transition=intpromote" # "-dip1000"
 dflags "-transition=dtorfields" platform="dmd"
 

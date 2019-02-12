@@ -14,7 +14,7 @@ struct S
     C c;
     version(DigitalMars)
     {
-        /** DMD has bug in the codegen
+        /** DMD has bug in the codegen.
          *
          * See_also: https://forum.dlang.org/post/modqrqwsqvhxodtlickm@forum.dlang.org
          */

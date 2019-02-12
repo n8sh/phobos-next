@@ -12,6 +12,7 @@ struct S
     }
 
     C c;
+    version(none)
     version(DigitalMars)
     {
         /** DMD has bug in the codegen.

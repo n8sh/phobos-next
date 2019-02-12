@@ -6,9 +6,24 @@ class C
 
 struct S
 {
+    this(C c)
+    {
+        this.c = c;
+    }
+
     C c;
+    version(DigitalMars)
+    {
+        /** DMD has bug in the codegen
+         *
+         * See_also: https://forum.dlang.org/post/modqrqwsqvhxodtlickm@forum.dlang.org
+         */
+        ulong _dummy;
+    }
     bool b;                  // removing this prevents bug
 }
+
+pragma(msg, S.sizeof);
 
 void main()
 {

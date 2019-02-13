@@ -1826,9 +1826,10 @@ import std.algorithm.setops : cartesianProduct;
 alias elementCombinations = cartesianProduct;
 
 /** Reset all members in aggregate instance `c`.
+ *
  * See_Also: http://forum.dlang.org/post/ckitmpguywfitgadfpkv@forum.dlang.org
  * See_Also: http://forum.dlang.org/post/fbs8b5$5bu$1@digitalmars.com
-*/
+ */
 void resetAllMembers(T)(T c)
 if (is(T == class))
 {

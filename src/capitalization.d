@@ -31,6 +31,28 @@ if (isSomeString!S)
     assert(`Jack London`.isCapitalizedEasy);
 }
 
+/** Check if `s` starts with a capital letter followed by a lower
+    letter. */
+bool isCapitalizedASCIIEasy(S)(S s)
+if (isSomeString!S)
+{
+    import std.ascii : isUpper, isLower;
+    return (s.length >= 2 &&
+            s[0].isUpper &&
+            s[1].isLower);
+}
+
+@safe pure unittest
+{
+    assert(!`A`.isCapitalizedASCIIEasy);
+    assert(!`a`.isCapitalizedASCIIEasy);
+    assert(!`alpha`.isCapitalizedASCIIEasy);
+    assert(!`ALPHA`.isCapitalizedASCIIEasy);
+    assert(!`aThing`.isCapitalizedASCIIEasy);
+    assert(`Alpha`.isCapitalizedASCIIEasy);
+    assert(`Jack London`.isCapitalizedASCIIEasy);
+}
+
 import std.uni : isLower;
 bool isLowercased(S, alias pred = isLower)(S s)
 if (isSomeString!S)

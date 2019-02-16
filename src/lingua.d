@@ -716,45 +716,45 @@ enum Case
 }
 
 /** English Subject Pronouns.
-   See_Also: https://en.wikipedia.org/wiki/Subject_pronoun
+    See_Also: https://en.wikipedia.org/wiki/Subject_pronoun
 */
-enum englishSubjectPronouns = [`I`, // 1st-person singular
-                               `you`, // 2nd-person singular
-                               `he`, `she`, `it`, // 3rd-person singular
-                               `we`,              // 1st-person plural
-                               `they`,            // 2nd-person plural
-                               `what`,            // interrogate singular (Object)
-                               `who`];            // interrogate singular
+static immutable englishSubjectPronouns = [`I`, // 1st-person singular
+                                           `you`, // 2nd-person singular
+                                           `he`, `she`, `it`, // 3rd-person singular
+                                           `we`,              // 1st-person plural
+                                           `they`,            // 2nd-person plural
+                                           `what`,            // interrogate singular (Object)
+                                           `who`];            // interrogate singular
 
 /** Swedish Subject Pronouns.
     See_Also: https://en.wikipedia.org/wiki/Subject_pronoun
 */
-enum swedishSubjectPronouns = [`jag`, // 1st-person singular
-                               `du`,  // 2nd-person singular
-                               `han`, `hon`, `den`, `det`, // 3rd-person singular
-                               `vi`,                       // 1st-person plural
-                               `de`,                       // 2nd-person plural
-                               `vad`,                      // interrogate singular (Object)
-                               `vem`,                      // interrogate singular
-                               `vilka`];                   // interrogate plural
+static immutable swedishSubjectPronouns = [`jag`, // 1st-person singular
+                                           `du`,  // 2nd-person singular
+                                           `han`, `hon`, `den`, `det`, // 3rd-person singular
+                                           `vi`,                       // 1st-person plural
+                                           `de`,                       // 2nd-person plural
+                                           `vad`,                      // interrogate singular (Object)
+                                           `vem`,                      // interrogate singular
+                                           `vilka`];                   // interrogate plural
 
 /** English Object Pronouns.
     See_Also: https://en.wikipedia.org/wiki/Object_pronoun
 */
-enum englishObjectPronouns = [`me`, // 1st-person singular
-                              `you`, // 2nd-person singular
-                              `him,`, `her`, // 3rd-person singular
-                              `us`,          // 1st-person plural
-                              `them`,        // 2nd-person plural
-                              `whom`];       // interrogate singular
+static immutable englishObjectPronouns = [`me`, // 1st-person singular
+                                          `you`, // 2nd-person singular
+                                          `him,`, `her`, // 3rd-person singular
+                                          `us`,          // 1st-person plural
+                                          `them`,        // 2nd-person plural
+                                          `whom`];       // interrogate singular
 
 /** Swedish Object Pronouns.
     See_Also: https://en.wikipedia.org/wiki/Object_pronoun
 */
-enum swedishObjectPronouns = [`mig`, `dig`,
-                              `honom,`, `henne`,
-                              `oss`,
-                              `dem`];
+static immutable swedishObjectPronouns = [`mig`, `dig`,
+                                          `honom,`, `henne`,
+                                          `oss`,
+                                          `dem`];
 
 enum Casing
 {

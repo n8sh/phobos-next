@@ -2216,17 +2216,17 @@ class GStats
                                       `__thread`, `__traits`,
                                       `string`, `wstring`, `dstring`, `size_t`, `hash_t`, `ptrdiff_t`, `equals_`]; // aliases
 
-        enum builtinsD = [`toString`, `toHash`, `opCmp`, `opEquals`,
+        static immutable builtinsD = [`toString`, `toHash`, `opCmp`, `opEquals`,
                           `opUnary`, `opBinary`, `opApply`, `opCall`, `opAssign`, `opIndexAssign`, `opSliceAssign`, `opOpAssign`,
                           `opIndex`, `opSlice`, `opDispatch`,
                           `toString`, `toHash`, `opCmp`, `opEquals`, `Monitor`, `factory`, `classinfo`, `vtbl`, `offset`, `getHash`, `equals`, `compare`, `tsize`, `swap`, `next`, `init`, `flags`, `offTi`, `destroy`, `postblit`, `toString`, `toHash`,
                           `factory`, `classinfo`, `Throwable`, `Exception`, `Error`, `capacity`, `reserve`, `assumeSafeAppend`, `clear`,
                           `ModuleInfo`, `ClassInfo`, `MemberInfo`, `TypeInfo`];
 
-        enum propertiesD = [`sizeof`, `stringof`, `mangleof`, `nan`, `init`, `alignof`, `max`, `min`, `infinity`, `epsilon`, `mant_dig`, ``,
+        static immutable propertiesD = [`sizeof`, `stringof`, `mangleof`, `nan`, `init`, `alignof`, `max`, `min`, `infinity`, `epsilon`, `mant_dig`, ``,
                             `max_10_exp`, `max_exp`, `min_10_exp`, `min_exp`, `min_normal`, `re`, `im`];
 
-        enum specialsD = [`__FILE__`, `__LINE__`, `__DATE__`, `__EOF__`, `__TIME__`, `__TIMESTAMP__`, `__VENDOR__`, `__VERSION__`, `#line`];
+        static immutable specialsD = [`__FILE__`, `__LINE__`, `__DATE__`, `__EOF__`, `__TIME__`, `__TIMESTAMP__`, `__VENDOR__`, `__VERSION__`, `#line`];
 
         auto kindDInterface = new FKind("D Interface", [], ["di"],
                                         magicForD, 0,

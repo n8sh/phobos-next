@@ -46,8 +46,16 @@ struct Expected(T, E = Exception)
 if (!isInstanceOf!(Unexpected, T) && // an `Unexpected` cannot be `Expected` :)
     !is(T == void)) // disallow void for now, for ref see https://forum.dlang.org/post/ncjhsxshttikzjqgiwev@forum.dlang.org
 {
-    version(DigitalMars) import core.lifetime : moveEmplace;
-    else                 import std.algorithm.mutation : moveEmplace;
+    version(DigitalMars)
+        import core.lifetime : moveEmplace;
+    else
+    {
+        import std.algorithm.mutation : moveEmplace;
+        static if (__VERSION__ >= 2085)
+        {
+            static assert(0, "Use core.lifetime.moveEmplace");
+        }
+    }
 
     // TODO ok for default construction to initialize
     // - _expectedValue = T.init (zeros)

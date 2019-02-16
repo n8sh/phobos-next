@@ -139,10 +139,10 @@ enum SolarizedLightColorTheme
 /** HTML tags with no side-effect when its arguments is empty.
     See_Also: http://www.w3schools.com/html/html_formatting.asp
 */
-enum nonStateHTMLTags = [`b`, `i`, `strong`, `em`, `sub`, `sup`, `small`, `ins`, `del`, `mark`,
+static immutable nonStateHTMLTags = [`b`, `i`, `strong`, `em`, `sub`, `sup`, `small`, `ins`, `del`, `mark`,
                          `code`, `kbd`, `samp`, `samp`, `var`, `pre`];
 
-enum htmlHeader = `<!DOCTYPE html>
+static immutable htmlHeader = `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8"/>
@@ -851,14 +851,14 @@ class Viz
                     import std.string: capitalize;
                     import std.algorithm: joiner;
 
-                    enum idName = __traits(identifier, Front.tupleof[ix]).preSlicer!isUpper.map!capitalize.joiner(` `);
-                    enum typeName = Unqual!(Member).stringof; // constness of no interest hee
+                    static immutable idName = __traits(identifier, Front.tupleof[ix]).preSlicer!isUpper.map!capitalize.joiner(` `);
+                    static immutable typeName = Unqual!(Member).stringof; // constness of no interest hee
 
-                    static      if (is(Memb == struct))    enum qual = `struct `;
-                    else static if (is(Memb == class))     enum qual = `class `;
-                    else static if (is(Memb == enum))      enum qual = `enum `;
-                    else static if (is(Memb == interface)) enum qual = `interface `;
-                    else                                   enum qual = ``; // TODO Are there more qualifiers
+                    static      if (is(Memb == struct))    static immutable qual = `struct `;
+                    else static if (is(Memb == class))     static immutable qual = `class `;
+                    else static if (is(Memb == enum))      static immutable qual = `enum `;
+                    else static if (is(Memb == interface)) static immutable qual = `interface `;
+                    else                                   static immutable qual = ``; // TODO Are there more qualifiers
 
                     pplnTaggedN(`td`,
                                     idName.asItalic.asBold,

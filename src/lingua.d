@@ -716,8 +716,9 @@ enum Case
 }
 
 /** English Subject Pronouns.
-    See_Also: https://en.wikipedia.org/wiki/Subject_pronoun
-*/
+ *
+ * See_Also: https://en.wikipedia.org/wiki/Subject_pronoun
+ */
 static immutable englishSubjectPronouns = [`I`, // 1st-person singular
                                            `you`, // 2nd-person singular
                                            `he`, `she`, `it`, // 3rd-person singular
@@ -727,8 +728,9 @@ static immutable englishSubjectPronouns = [`I`, // 1st-person singular
                                            `who`];            // interrogate singular
 
 /** Swedish Subject Pronouns.
-    See_Also: https://en.wikipedia.org/wiki/Subject_pronoun
-*/
+ *
+ * See_Also: https://en.wikipedia.org/wiki/Subject_pronoun
+ */
 static immutable swedishSubjectPronouns = [`jag`, // 1st-person singular
                                            `du`,  // 2nd-person singular
                                            `han`, `hon`, `den`, `det`, // 3rd-person singular
@@ -739,8 +741,9 @@ static immutable swedishSubjectPronouns = [`jag`, // 1st-person singular
                                            `vilka`];                   // interrogate plural
 
 /** English Object Pronouns.
-    See_Also: https://en.wikipedia.org/wiki/Object_pronoun
-*/
+ *
+ * See_Also: https://en.wikipedia.org/wiki/Object_pronoun
+ */
 static immutable englishObjectPronouns = [`me`, // 1st-person singular
                                           `you`, // 2nd-person singular
                                           `him,`, `her`, // 3rd-person singular
@@ -749,8 +752,9 @@ static immutable englishObjectPronouns = [`me`, // 1st-person singular
                                           `whom`];       // interrogate singular
 
 /** Swedish Object Pronouns.
-    See_Also: https://en.wikipedia.org/wiki/Object_pronoun
-*/
+ *
+ * See_Also: https://en.wikipedia.org/wiki/Object_pronoun
+ */
 static immutable swedishObjectPronouns = [`mig`, `dig`,
                                           `honom,`, `henne`,
                                           `oss`,

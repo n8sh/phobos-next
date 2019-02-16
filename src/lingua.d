@@ -247,7 +247,7 @@ nothrow @nogc unittest
     assert(!'å'.isEnglishLetter);
 }
 
-enum englishDoubleConsonants = [`bb`, `dd`, `ff`, `gg`, `mm`, `nn`, `pp`, `rr`, `tt`, `ck`, `ft`];
+static immutable englishDoubleConsonants = [`bb`, `dd`, `ff`, `gg`, `mm`, `nn`, `pp`, `rr`, `tt`, `ck`, `ft`];
 
 /** Check if $(D c) is an English Double consonant. */
 bool isEnglishDoubleConsonant(S)(S s)

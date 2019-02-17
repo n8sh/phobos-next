@@ -14,7 +14,9 @@ void moveEmplaceAllNoReset(T)(scope T[] src,
         // TODO benchmark with `memmove` and `memset` instead
         foreach (i; 0 .. n)
         {
-            import std.algorithm.mutation : moveEmplace;
+            version(LDC) { import std.algorithm.mutation : moveEmplace;
+                static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
+            } else import core.lifetime : moveEmplace;
             moveEmplace(src[i], tgt[i]);
         }
     }

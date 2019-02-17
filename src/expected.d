@@ -46,8 +46,7 @@ struct Expected(T, E = Exception)
 if (!isInstanceOf!(Unexpected, T) && // an `Unexpected` cannot be `Expected` :)
     !is(T == void)) // disallow void for now, for ref see https://forum.dlang.org/post/ncjhsxshttikzjqgiwev@forum.dlang.org
 {
-    version(LDC) {
-        import std.algorithm.mutation : moveEmplace;
+    version(LDC) { import std.algorithm.mutation : moveEmplace;
         static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime.moveEmplace"); }
     } else import core.lifetime : moveEmplace;
 

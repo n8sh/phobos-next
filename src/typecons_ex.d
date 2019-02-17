@@ -148,7 +148,7 @@ mixin template _genIndexAndSliceOps(I)
         assert(cast(size_t)i < _r.length, "Range violation with index of type " ~ I.stringof);
 
         version(LDC) { import std.algorithm.mutation : move;
-            static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime.move"); }
+            static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
         } else import core.lifetime : move;
 
         move(value, _r[cast(size_t)i]);
@@ -567,7 +567,7 @@ if (hasIndexing!(R))
     auto s = S(Lang.en, "alpha", Ixs.withLength(42));
 
     version(LDC) { import std.algorithm.mutation : move;
-        static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime.move"); }
+        static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
     } else import core.lifetime : move;
 
     ia ~= move(s);

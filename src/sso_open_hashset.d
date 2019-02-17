@@ -22,7 +22,11 @@ struct SSOOpenHashSet(K,
     if (isNullable!K)
 {
     import qcmeman : gc_addRange, gc_removeRange;
-    import std.algorithm.mutation : move, moveEmplace;
+
+    version(LDC) { import std.algorithm.mutation : move, moveEmplace;
+        static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime.move"); }
+    } else import core.lifetime : move, Emplace;
+
     import std.traits : hasElaborateDestructor, isDynamicArray;
     import std.conv : emplace;
     import container_traits : defaultNullKeyConstantOf, isNull, nullify;

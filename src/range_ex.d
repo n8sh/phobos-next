@@ -128,7 +128,9 @@ ElementType!R backPop(R)(ref R r)
     import std.traits : hasIndirections;
     static if (hasIndirections!(typeof(return))) // TODO better trait?
     {
-        import std.algorithm.mutation : move;
+        version(LDC) { import std.algorithm.mutation : move;
+            static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
+        } else import core.lifetime : move;
         return move(e);
     }
     else

@@ -40,7 +40,9 @@ pragma(inline):
     {
         assert(!_writeBorrowed, "This is still write-borrowed, cannot move!");
         assert(_readBorrowCount == 0, "This is still read-borrowed, cannot move!");
-        import std.algorithm.mutation : move;
+        version(LDC) { import std.algorithm.mutation : move;
+            static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
+        } else import core.lifetime : move;
         return move(this);
     }
 
@@ -53,7 +55,9 @@ pragma(inline):
         assert(!dst._writeBorrowed, "Destination is still write-borrowed, cannot move!");
         assert(dst._readBorrowCount == 0, "Destination is still read-borrowed, cannot move!");
 
-        import std.algorithm.mutation : move;
+        version(LDC) { import std.algorithm.mutation : move;
+            static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
+        } else import core.lifetime : move;
         move(this, dst);
     }
 
@@ -63,7 +67,9 @@ pragma(inline):
         assert(!_writeBorrowed, "Source is still write-borrowed, cannot moveEmplace!");
         assert(_readBorrowCount == 0, "Source is still read-borrowed, cannot moveEmplace!");
 
-        import std.algorithm.mutation : moveEmplace;
+        version(LDC) { import std.algorithm.mutation : moveEmplace;
+            static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
+        } else import core.lifetime : moveEmplace;
         moveEmplace(this, dst);
     }
 

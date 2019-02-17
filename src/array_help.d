@@ -42,7 +42,9 @@ Unqual!T[n] staticArray(T, size_t n)(T[n] x...) @trusted
              */
             foreach (const ix, ref value; x)
             {
-                import std.algorithm.mutation : move;
+                version(LDC) { import std.algorithm.mutation : move;
+                    static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
+                } else import core.lifetime : move;
                 move(value, y[ix]);
             }
         }

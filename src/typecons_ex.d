@@ -146,7 +146,11 @@ mixin template _genIndexAndSliceOps(I)
     auto ref opIndexAssign(V)(V value, I i)
     {
         assert(cast(size_t)i < _r.length, "Range violation with index of type " ~ I.stringof);
-        import std.algorithm.mutation : move;
+
+        version(LDC) { import std.algorithm.mutation : move;
+            static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime.move"); }
+        } else import core.lifetime : move;
+
         move(value, _r[cast(size_t)i]);
         return _r[cast(size_t)i];
     }
@@ -561,7 +565,11 @@ if (hasIndexing!(R))
     ia ~= S.init;
     assert(ia.length == 1);
     auto s = S(Lang.en, "alpha", Ixs.withLength(42));
-    import std.algorithm.mutation : move;
+
+    version(LDC) { import std.algorithm.mutation : move;
+        static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime.move"); }
+    } else import core.lifetime : move;
+
     ia ~= move(s);
     assert(ia.length == 2);
 }

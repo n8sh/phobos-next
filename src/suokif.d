@@ -296,7 +296,9 @@ private:
                 SExpr newExpr = SExpr(exprs[$ - count].token,
                                       count ? exprs[$ - count + 1 .. $].dup : []);
                 exprs.popBackN(1 + count); // forget tokens including leftParen
-                import std.algorithm : move;
+                version(LDC) { import std.algorithm.mutation : move;
+                    static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
+                } else import core.lifetime : move;
                 exprs.put(newExpr.move);
 
                 if (_depth == 0) // top-level expression done

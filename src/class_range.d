@@ -110,12 +110,13 @@ private struct DowncastingFilterResult(Subclass, Range)
 /** Variant of std.algorithm.iteration : that filters out all elements of
  * `range` that are instances of `Subclass`.
  */
-template downcastingFilter(Subclass)
+template castFilter(Subclass)
 {
     import std.range : isInputRange, ElementType;
-    auto downcastingFilter(Range)(Range range)
+    auto castFilter(Range)(Range range)
     if (isInputRange!(Range) &&
-        is(ElementType!Range == class)) // TODO and subclass of `Subclass`
+        is(ElementType!Range == class) &&
+        is(Subclass : ElementType!Range))
     {
         return DowncastingFilterResult!(Subclass, Range)(range);
     }
@@ -141,7 +142,7 @@ template downcastingFilter(Subclass)
         }
     }
 
-    auto y = downcastingFilter!Y([new X(42), new Y(43)]);
+    auto y = castFilter!Y([new X(42), new Y(43)]);
     auto yf = y.front;
     static assert(is(typeof(yf) == Y));
     y.popFront();

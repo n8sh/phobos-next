@@ -570,11 +570,22 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
 @safe pure unittest
 {
     alias S = SSOString;
+
+    // mutable small
     {
         S s = S("123456789_12345");
         assert(s.ptr is s.opSlice.ptr);
         assert(s.ptr !is s.toString.ptr);
     }
+
+    // immutable small
+    {
+        immutable S s = S("123456789_12345");
+        assert(s.ptr is s.opSlice.ptr);
+        assert(s.ptr is s.toString.ptr);
+    }
+
+    // large
     {
         S s = S("123456789_123456");
         assert(s.ptr is s.opSlice.ptr);

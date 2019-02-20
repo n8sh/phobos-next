@@ -154,7 +154,7 @@ struct SSOString
     {
         if (isLarge)
         {
-            return cast(typeof(return))opSlice(); // already immutable so safe to cast
+            return cast(typeof(return))opSlice(); // externally stored string is immutable so safe to cast
         }
         else
         {

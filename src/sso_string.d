@@ -8,6 +8,8 @@ module sso_string;
  * Because `SSOString` doesn't have a destructor it can safely allocate using a
  * GC-backed region allocator without relying on a GC finalizer.
  *
+ * TODO add tests that toString and to!string only allocates for non-immutable `this`
+ *
  * TODO: Add Phobos' std.typecons or std.array or std.string
  * See_Also: https://forum.dlang.org/post/pb87rn$2icb$1@digitalmars.com
  *

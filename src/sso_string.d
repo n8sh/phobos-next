@@ -149,17 +149,20 @@ struct SSOString
 
     /** Return `this` converted to a `string`, which potentially needs
      * GC-allocation (iff `length > smallCapacity`).
+     *
+     * Must kept in sync with `opSlice`.
      */
     @property string toString() const return @trusted pure nothrow // may GC-allocate
     {
         if (isLarge)
         {
-            return cast(typeof(return))opSlice(); // externally stored string is immutable so safe to cast
+            // GC-allocated slice has immutable members so ok to cast
+            return cast(typeof(return))raw.ptr[0 .. raw.length/2]; // no allocation
         }
         else
         {
             // TODO can we return immutable slice if `this` is `immutable`
-            return opSlice().idup; // need duplicate to make `immutable`
+            return small.data.ptr[0 .. small.length/2].idup; // need duplicate to make `immutable`
         }
     }
 
@@ -203,6 +206,10 @@ struct SSOString
 
     @property bool isNull() const scope @safe pure nothrow @nogc { return this == typeof(this).init; }
 
+    /** Return a slice to either the large or small `string`.
+     *
+     * Must kept in sync with `toString`.
+     */
     inout(E)[] opSlice() inout return scope @trusted @nogc
     {
         if (isLarge)

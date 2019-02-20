@@ -583,6 +583,7 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
         immutable S s = S("123456789_12345");
         assert(s.ptr is s.opSlice.ptr);
         assert(s.ptr is s.toString.ptr);
+        // TODO check return via -dip1000
     }
 
     // large

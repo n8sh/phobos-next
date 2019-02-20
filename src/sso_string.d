@@ -152,7 +152,7 @@ struct SSOString
     /** Return `this` converted to a `string`, which potentially needs
      * GC-allocation (iff `length > smallCapacity`).
      *
-     * Must kept in sync with `opSlice`.
+     * Must be kept in sync with `opSlice`.
      */
     @property string toString() const return @trusted pure nothrow // may GC-allocate
     {
@@ -210,7 +210,7 @@ struct SSOString
 
     /** Return a slice to either the large or small `string`.
      *
-     * Must kept in sync with `toString`.
+     * Must be kept in sync with `toString`.
      */
     inout(E)[] opSlice() inout return scope @trusted @nogc
     {

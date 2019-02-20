@@ -566,6 +566,22 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     assert(xref == "åäö");
 }
 
+/// to string conversion
+@safe pure unittest
+{
+    alias S = SSOString;
+    {
+        S s = S("123456789_12345");
+        assert(s.ptr is s.opSlice.ptr);
+        assert(s.ptr !is s.toString.ptr);
+    }
+    {
+        S s = S("123456789_123456");
+        assert(s.ptr is s.opSlice.ptr);
+        assert(s.ptr is s.toString.ptr); // shouldn't this change?
+    }
+}
+
 @safe pure unittest
 {
     // TODO static immutable any = SSOString(`alpha`);

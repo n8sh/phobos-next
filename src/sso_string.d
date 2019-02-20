@@ -571,14 +571,14 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
 {
     alias S = SSOString;
 
-    // mutable small
+    // mutable small will GC-allocate
     {
         S s = S("123456789_12345");
         assert(s.ptr is s.opSlice.ptr);
         assert(s.ptr !is s.toString.ptr);
     }
 
-    // immutable small
+    // immutable small is reused
     {
         immutable S s = S("123456789_12345");
         assert(s.ptr is s.opSlice.ptr);

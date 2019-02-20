@@ -14,7 +14,7 @@ module sso_string;
  * See_Also: https://forum.dlang.org/post/pb87rn$2icb$1@digitalmars.com
  *
  * TODO Use extra bits in Short.length for
- * - lowercase English into 120/5 = 25 chars
+ * - lowercase English into 128/5 = 25 chars
  * - uppercase English into 120/5 = 25 chars
  * - mixedcase English into 120/6 = 20 chars
  */

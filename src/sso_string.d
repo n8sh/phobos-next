@@ -163,7 +163,6 @@ struct SSOString
         }
         else
         {
-            // TODO can we return immutable slice if `this` is `immutable`
             return small.data.ptr[0 .. small.length/2].idup; // need duplicate to make `immutable`
         }
     }

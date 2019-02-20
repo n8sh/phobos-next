@@ -578,7 +578,14 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
         assert(s.ptr !is s.toString.ptr);
     }
 
-    // immutable small is reused
+    // const small will GC-allocate
+    {
+        const S s = S("123456789_12345");
+        assert(s.ptr is s.opSlice.ptr);
+        assert(s.ptr !is s.toString.ptr);
+    }
+
+    // immutable small will not allocate
     {
         immutable S s = S("123456789_12345");
         assert(s.ptr is s.opSlice.ptr);

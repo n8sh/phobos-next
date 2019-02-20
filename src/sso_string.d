@@ -139,6 +139,14 @@ struct SSOString
         static assert(0, "Implement iterable of char");
     }
 
+    /** Return `this` converted to a `string`, without any GC-allocation because
+     * `this` is `immutable`.
+     */
+    @property string toString() immutable @trusted pure nothrow @nogc // never allocates
+    {
+        return opSlice();
+    }
+
     /** Return `this` converted to a `string`, which potentially needs
      * GC-allocation (iff `length > smallCapacity`).
      */
@@ -195,7 +203,7 @@ struct SSOString
 
     @property bool isNull() const scope @safe pure nothrow @nogc { return this == typeof(this).init; }
 
-    inout(E)[] opSlice() inout return @trusted @nogc
+    inout(E)[] opSlice() inout return scope @trusted @nogc
     {
         if (isLarge)
         {

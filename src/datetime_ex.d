@@ -6,8 +6,6 @@ import datetime_ex;
 */
 struct UTCOffset
 {
-    import std.traits : isSomeString;
-
     enum minHour = -12, maxHour = +14;
     enum minMinute = 0, maxMinute = 45;
 
@@ -45,7 +43,7 @@ struct UTCOffset
     @property string toString() const @trusted pure
     {
         import assuming : assumePure;
-        return assumePure(&toStringUnpure)();
+        return assumePure(&toStringUnpure)(); // TODO can we avoid this?
     }
 
     string toStringUnpure() const @safe
@@ -56,8 +54,7 @@ struct UTCOffset
 
     @safe pure:
 
-    this(S)(S code, bool strictFormat = false)
-    if (isSomeString!S)
+    this(scope const(char)[] code, bool strictFormat = false)
     {
         import std.conv : to;
 
@@ -259,7 +256,6 @@ unittest
  */
 struct YearMonth
 {
-    import std.traits : isSomeString;
     import std.datetime : Month;
 
     import std.bitmanip : bitfields;
@@ -277,8 +273,9 @@ struct YearMonth
     /// No explicit destruction needed.
     ~this() @safe pure nothrow @nogc {} // needed for @nogc use
 
-    this(S)(S s)
-    if (isSomeString!S)
+    @safe pure:
+
+    this(scope const(char)[] s)
     {
         import std.algorithm.searching : findSplit;
         auto parts = s.findSplit(` `); // TODO s.findSplitAtElement(' ')
@@ -290,7 +287,7 @@ struct YearMonth
             // decode month
             import std.traits : Unqual;
             import casing : toLowerASCII;
-            Unqual!(typeof(S.init[0])[3]) tmp = parts[0][0 .. 3]; // TODO functionize to parts[0].staticSubArray!(0, 3)
+            Unqual!(typeof(s[0])[3]) tmp = parts[0][0 .. 3]; // TODO functionize to parts[0].staticSubArray!(0, 3)
             import std.ascii : toLower;
             tmp[0] = tmp[0].toLower;
             month = tmp.to!Month;
@@ -304,8 +301,6 @@ struct YearMonth
         import std.conv;
         throw new std.conv.ConvException("Couldn't decode year and month from string");
     }
-
-    @safe pure:
 
     @property string toString() const
     {

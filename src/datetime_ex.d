@@ -11,13 +11,13 @@ struct UTCOffset
     enum minHour = -12, maxHour = +14;
     enum minMinute = 0, maxMinute = 45;
 
-    static immutable quarterValues = [00, 15, 30, 45];
-    static immutable quarterNames = ["00", "15", "30", "45"];
-
     static immutable hourNames = [`-12`, `-11`, `-10`, `-09`, `-08`, `-07`, `-06`, `-05`, `-04`, `-03`, `-02`, `-01`,
                                   `±00`,
                                   `+01`, `+02`, `+03`, `+04`, `+05`, `+06`, `+07`, `+08`, `+09`, `+10`, `+11`, `+12`,
                                   `+13`, `+14`];
+
+    static immutable quarterValues = [00, 15, 30, 45];
+    static immutable quarterNames = ["00", "15", "30", "45"];
 
     @property void toString(scope void delegate(const(char)[]) sink) const @trusted
     {

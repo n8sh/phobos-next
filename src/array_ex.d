@@ -103,7 +103,10 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
     import std.traits : isIterable, isAssignable, Unqual, isArray, isScalarType, hasElaborateDestructor, hasIndirections, TemplateOf, isCopyable;
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
-    import std.algorithm.mutation : move, moveEmplace, moveEmplaceAll;
+    version(LDC) { import std.algorithm.mutation : move, moveEmplace;
+        static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
+    } else import core.lifetime : move, moveEmplace;
+    import std.algorithm.mutation : moveEmplaceAll;
 
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
 

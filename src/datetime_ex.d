@@ -204,10 +204,33 @@ unittest
     assert(UTCOffset(UTCOffset.minHour, 1).toString == "<Uninitialized UTCOffset>");
     assert(UTCOffset(UTCOffset.minHour, 46).toString == "<Uninitialized UTCOffset>");
 
-    assert(UTCOffset(-12, 0).toString == "UTC-12:00");
-    assert(UTCOffset(+00, 0).toString == "UTC±00:00");
-    assert(UTCOffset(+07, 0).toString == "UTC+07:00");
-    assert(UTCOffset(+14, 0).toString == "UTC+14:00");
+    assert(UTCOffset(-12,  0).toString == "UTC-12:00");
+    assert(UTCOffset(-11,  0).toString == "UTC-11:00");
+    assert(UTCOffset(-10,  0).toString == "UTC-10:00");
+    assert(UTCOffset(- 9,  0).toString == "UTC-09:00");
+    assert(UTCOffset(- 8,  0).toString == "UTC-08:00");
+    assert(UTCOffset(- 7,  0).toString == "UTC-07:00");
+    assert(UTCOffset(- 6,  0).toString == "UTC-06:00");
+    assert(UTCOffset(- 5,  0).toString == "UTC-05:00");
+    assert(UTCOffset(- 4,  0).toString == "UTC-04:00");
+    assert(UTCOffset(- 3,  0).toString == "UTC-03:00");
+    assert(UTCOffset(- 2,  0).toString == "UTC-02:00");
+    assert(UTCOffset(- 1,  0).toString == "UTC-01:00");
+    assert(UTCOffset(+ 0,  0).toString == "UTC±00:00");
+    assert(UTCOffset(+ 1,  0).toString == "UTC+01:00");
+    assert(UTCOffset(+ 2,  0).toString == "UTC+02:00");
+    assert(UTCOffset(+ 3,  0).toString == "UTC+03:00");
+    assert(UTCOffset(+ 4,  0).toString == "UTC+04:00");
+    assert(UTCOffset(+ 5,  0).toString == "UTC+05:00");
+    assert(UTCOffset(+ 6,  0).toString == "UTC+06:00");
+    assert(UTCOffset(+ 7,  0).toString == "UTC+07:00");
+    assert(UTCOffset(+ 8, 15).toString == "UTC+08:15");
+    assert(UTCOffset(+ 9, 15).toString == "UTC+09:15");
+    assert(UTCOffset(+10, 15).toString == "UTC+10:15");
+    assert(UTCOffset(+11, 15).toString == "UTC+11:15");
+    assert(UTCOffset(+12, 15).toString == "UTC+12:15");
+    assert(UTCOffset(+13, 15).toString == "UTC+13:15");
+    assert(UTCOffset(+14,  0).toString == "UTC+14:00");
 
     import std.conv : to;
     // assert(UTCOffset(+14, 0).to!string == "UTC+14:00");

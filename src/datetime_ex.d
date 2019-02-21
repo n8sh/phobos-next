@@ -286,7 +286,6 @@ struct YearMonth
 
             // decode month
             import std.traits : Unqual;
-            import casing : toLowerASCII;
             Unqual!(typeof(s[0])[3]) tmp = parts[0][0 .. 3]; // TODO functionize to parts[0].staticSubArray!(0, 3)
             import std.ascii : toLower;
             tmp[0] = tmp[0].toLower;

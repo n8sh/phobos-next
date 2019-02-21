@@ -10,13 +10,52 @@ struct UTCOffset
 
     enum minHour = -12, maxHour = +14;
     enum minMinute = 0, maxMinute = 45;
-    enum quarterValues = [00, 15, 30, 45];
-    enum quarterNames = ["00", "15", "30", "45"];
+    static immutable quarterValues = [00, 15, 30, 45];
+    static immutable hourNames = [`-12`, `-11`, `-10`, `-09`, `-08`, `-07`, `-06`, `-05`, `-04`, `-03`, `-02`, `-01`,
+                                  `±00`,
+                                  `+01`, `+02`, `+03`, `+04`, `+05`, `+06`, `+07`, `+08`, `+09`, `+10`, `+11`, `+12`,
+                                  `+13`, `+14`];
+    static immutable quarterNames = ["00", "15", "30", "45"];
+
+    @property void toString(scope void delegate(const(char)[]) sink) const @trusted
+    {
+        if (isDefined)
+        {
+            // tag prefix
+            sink(`UTC`);
+
+            sink(hourNames[_hour + 12]);
+
+            sink(`:`);
+
+            // minute
+            immutable minute = quarterNames[_quarter];
+            sink(minute);
+        }
+        else
+        {
+            sink("<Uninitialized UTCOffset>");
+        }
+    }
+
+    @safe:
+
+    @property string toString() const @trusted pure
+    {
+        import assuming : assumePure;
+        return assumePure(&toStringUnpure)();
+    }
+
+    string toStringUnpure() const @safe
+    {
+        import std.conv : to;
+        return to!string(this);
+    }
 
     @safe pure:
 
     this(S)(S code, bool strictFormat = false)
-        if (isSomeString!S)
+    if (isSomeString!S)
     {
         import std.conv : to;
 
@@ -37,9 +76,9 @@ struct UTCOffset
             code.skipOverEither("+", "±", `\u00B1`, "\u00B1");
             // try in order of probability
             immutable sign = code.skipOverEither(`-`,
-                                             "\u2212", "\u2011", "\u2013", // quoting
-                                             `\u2212`, `\u2011`, `\u2013`,  // UTF-8
-                                             `&minus;`, `&dash;`, `&ndash;`) ? -1 : +1; // HTML
+                                                 "\u2212", "\u2011", "\u2013", // quoting
+                                                 `\u2212`, `\u2011`, `\u2013`,  // UTF-8
+                                                 `&minus;`, `&dash;`, `&ndash;`) ? -1 : +1; // HTML
             code.skipOver(" ");
 
             import std.algorithm.comparison : among;
@@ -100,43 +139,24 @@ struct UTCOffset
         }
     }
 
-    string toString() const
-    {
-        if (isDefined)
-        {
-            import std.conv : to;
-            immutable sign     = _hour > 0 ? `+` : _hour == 0 ? `±`: ``;
-            immutable hour     = _hour.to!(typeof(return));
-            immutable hourZPad = hour.length == 1 ? `0` : ``;
-            immutable minute   = quarterNames[_quarter];
-            return `UTC` ~ sign ~ hourZPad ~ hour ~ `:` ~ minute;
-        }
-        else
-        {
-            return "<Uninitialized UTCOffset>";
-        }
-    }
-
-    pragma(inline):
-
     /// Cast to `bool`, meaning 'true' if defined, `false` otherwise.
     bool opCast(U : bool)() const
     {
+        pragma(inline, true);
         return isDefined();
     }
 
     int opCmp(in typeof(this) that) const @trusted
     {
+        pragma(inline, true);
         immutable a = *cast(ubyte*)&this;
         immutable b = *cast(ubyte*)&that;
         return a < b ? -1 : a > b ? 1 : 0;
     }
 
-    @property:
-
-    auto hour()      const { return _hour; }
-    auto minute()    const { return _quarter * 15; }
-    bool isDefined() const { return _initializedFlag; }
+    @property auto hour()      const { return _hour; }
+    @property auto minute()    const { return _quarter * 15; }
+    @property bool isDefined() const { return _initializedFlag; }
 
 private:
     import std.bitmanip : bitfields;
@@ -188,7 +208,7 @@ unittest
     assert(UTCOffset(+14, 0).toString == "UTC+14:00");
 
     import std.conv : to;
-    assert(UTCOffset(+14, 0).to!string == "UTC+14:00");
+    // assert(UTCOffset(+14, 0).to!string == "UTC+14:00");
 
     assert(UTCOffset("-1"));
     assert(UTCOffset(-12, 0) == UTCOffset("-12"));
@@ -233,7 +253,7 @@ struct YearMonth
     ~this() @safe pure nothrow @nogc {} // needed for @nogc use
 
     this(S)(S s)
-        if (isSomeString!S)
+    if (isSomeString!S)
     {
         import std.algorithm.searching : findSplit;
         auto parts = s.findSplit(` `); // TODO s.findSplitAtElement(' ')

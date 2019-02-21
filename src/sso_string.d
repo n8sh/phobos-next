@@ -593,8 +593,8 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
         // TODO check return via -dip1000
     }
 
-    /* forbid return of possibly locally scoped `Smll` small stack object
-     * regardless of head-mutability
+    /* Forbid return of possibly locally scoped `Smll` small stack object
+     * regardless of head-mutability.
      */
     static if (isDIP1000)
     {

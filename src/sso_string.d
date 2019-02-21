@@ -593,7 +593,9 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
         // TODO check return via -dip1000
     }
 
-    // forbid return of possibly locally scoped `Smll` small stack object regardless of head-mutability
+    /* forbid return of possibly locally scoped `Smll` small stack object
+     * regardless of head-mutability
+     */
     static if (isDIP1000)
     {
         static assert(!__traits(compiles, { immutable(char)* f1() @safe pure nothrow { S x; return x.ptr; } }));

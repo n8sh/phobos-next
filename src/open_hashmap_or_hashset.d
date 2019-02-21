@@ -136,7 +136,9 @@ struct OpenHashMapOrSet(K, V = void,
 {
     // pragma(msg, K.stringof, " => ", V.stringof);
     import core.exception : onOutOfMemoryError;
-    import std.algorithm.mutation : move, moveEmplace;
+    version(LDC) { import std.algorithm.mutation : move, moveEmplace;
+        static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
+    } else import core.lifetime : move, moveEmplace;
     import std.conv : emplace;
     import std.math : nextPow2;
     import std.traits : hasElaborateDestructor, isCopyable, hasIndirections,

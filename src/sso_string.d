@@ -593,7 +593,15 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
         // TODO check return via -dip1000
     }
 
-    // large
+    // forbid return of possibly locally scoped `Smll` small stack object regardless of head-mutability
+    static if (isDIP1000)
+    {
+        static assert(!__traits(compiles, { immutable(char)* f1() @safe pure nothrow { S x; return x.ptr; } }));
+        static assert(!__traits(compiles, { immutable(char)* f1() @safe pure nothrow { const S x; return x.ptr; } }));
+        static assert(!__traits(compiles, { immutable(char)* f1() @safe pure nothrow { immutable S x; return x.ptr; } }));
+    }
+
+    // large will never allocate regardless of head-mutability
     {
         S s = S("123456789_123456");
         assert(s.ptr is s.opSlice.ptr);

@@ -498,7 +498,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /// Check if empty.
-    bool empty()() const        // template-lazy
+    @property bool empty()() const        // template-lazy
     {
         pragma(inline, true);
         return _store.length == 0;

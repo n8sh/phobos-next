@@ -428,8 +428,15 @@ struct OpenHashMapOrSet(K, V = void,
                 }
                 static if (hasValue)
                 {
-                    // construct in-place
-                    emplace(&valueOf(bin));
+                    static if (is(V == class))
+                    {
+                        valueOf(bin) = null; // just copy class value
+                    }
+                    else
+                    {
+                        // TODO only needed when `hasElaborateDestructor`
+                        emplace(&valueOf(bin)); // construct in-place
+                    }
                 }
             }
         }
@@ -3525,6 +3532,22 @@ version(unittest)
     assert(x.insert(e) == X.InsertionStatus.added);
     assert(x.contains(e));
     assert(x.containsUsingLinearSearch(e));
+}
+
+/// abstract class value type
+@safe unittest
+{
+    static abstract class Zing
+    {
+        @safe pure nothrow @nogc:
+    }
+    static class Node : Zing
+    {
+        @safe pure nothrow @nogc:
+    }
+
+    import sso_string : SSOString;
+    alias X = OpenHashMap!(SSOString, Zing);
 }
 
 /// class type with default hashing

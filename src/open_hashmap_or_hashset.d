@@ -416,6 +416,8 @@ struct OpenHashMapOrSet(K, V = void,
                 {
                     pragma(msg, __FILE__, ":", __LINE__, ":warning: emplace fails for null-Value key type ", K);
                 }
+
+                // initialize key
                 static if (hasNullValueKey &&
                            is(typeof(emplace(&keyOf(bin), K.nullValue)))) // __traits(compiles) fails here when building knet
                 {
@@ -426,6 +428,8 @@ struct OpenHashMapOrSet(K, V = void,
                     emplace(&keyOf(bin));
                     keyOf(bin).nullify(); // moveEmplace doesn't init source of type Nullable
                 }
+
+                // initialize value
                 static if (hasValue)
                 {
                     static if (is(V == class))

@@ -7,6 +7,10 @@ import container_traits : isNullable;
 import pure_mallocator : Mallocator = PureMallocator;
 // TODO import std.experimental.allocator.mallocator : Mallocator;
 
+version(LDC) { import std.algorithm.mutation : move, moveEmplace;
+    static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
+} else import core.lifetime : move, moveEmplace;
+
 /** Is `true` iff `T` is a memory address (either a `class` or a pointer). */
 enum bool isAddress(T) = (is(T == class) ||
                           (is(T == U*, U) &&
@@ -136,9 +140,6 @@ struct OpenHashMapOrSet(K, V = void,
 {
     // pragma(msg, K.stringof, " => ", V.stringof);
     import core.exception : onOutOfMemoryError;
-    version(LDC) { import std.algorithm.mutation : move, moveEmplace;
-        static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
-    } else import core.lifetime : move, moveEmplace;
     import std.conv : emplace;
     import std.math : nextPow2;
     import std.traits : hasElaborateDestructor, isCopyable, hasIndirections,
@@ -2033,7 +2034,6 @@ if (isInstanceOf!(OpenHashMapOrSet, Table)) // TODO generalize to `isSetOrMap`
 {
     import std.functional : not;
     x.removeAllMatching!(not!pred); // `x` is a singleton (r-value) so safe to mutate
-    import std.algorithm.mutation : move;
     return move(x);             // functional
 }
 
@@ -2044,7 +2044,6 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 if (isInstanceOf!(OpenHashMapOrSet, C1) && // TODO generalize to `isSetOrMap`
     isInstanceOf!(OpenHashMapOrSet, C2))   // TODO generalize to `isSetOrMap`
 {
-    import std.algorithm.mutation : move;
     static if (__traits(isRef, y)) // y is l-value
     {
         // @("complexity", "O(x.length)")
@@ -2419,7 +2418,6 @@ unittest
     assert(z.contains(K(13)));
     assert(z.contains(K(15)));
 
-    import std.algorithm.mutation : move;
     auto y = move(z).intersectedWith(x2);
     assert(y.length == 2);
     assert(y.contains(K(10)));
@@ -2542,7 +2540,6 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     }
     else                        // `c` was is an r-value and can be moved
     {
-        import std.algorithm.mutation : move;
         auto result = ByRvalueElement!C((RvalueElementRef!(M)(move(*(cast(M*)&c))))); // reinterpret
     }
     result.findNextNonEmptyBin();
@@ -2593,7 +2590,6 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     }
     else                        // `c` was is an r-value and can be moved
     {
-        import std.algorithm.mutation : move;
         auto result = ByKey_rvalue!C((RvalueElementRef!M(move(*(cast(M*)&c))))); // reinterpret
     }
     result.findNextNonEmptyBin();
@@ -2664,7 +2660,6 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     }
     else                        // `c` was is an r-value and can be moved
     {
-        import std.algorithm.mutation : move;
         auto result = ByValue_rvalue!C((RvalueElementRef!M(move(*(cast(M*)&c))))); // reinterpret
     }
     result.findNextNonEmptyBin();
@@ -2709,7 +2704,6 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     }
     else                        // `c` was is an r-value and can be moved
     {
-        import std.algorithm.mutation : move;
         auto result = ByKeyValue_rvalue!Table((RvalueElementRef!M(move(*(cast(M*)&c))))); // reinterpret
     }
     result.findNextNonEmptyBin();

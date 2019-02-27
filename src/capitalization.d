@@ -2,8 +2,8 @@ module capitalization;
 
 import std.traits : isSomeString;
 
-/** Check if `s` starts with a capital letter followed by a lower
-    letter. */
+/** Check if `s` starts with a capital letter followed by a lower letter.
+ */
 bool isCapitalizedEasy(S)(S s)
 if (isSomeString!S)
 {
@@ -31,8 +31,8 @@ if (isSomeString!S)
     assert(`Jack London`.isCapitalizedEasy);
 }
 
-/** Check if `s` starts with a capital letter followed by a lower
-    letter. */
+/** Check if `s` starts with a capital letter followed by a lower letter.
+ */
 bool isCapitalizedASCIIEasy(S)(S s)
 if (isSomeString!S)
 {

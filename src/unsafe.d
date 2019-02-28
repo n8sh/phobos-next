@@ -8,7 +8,7 @@ module unsafe;
  */
 template unsafe(alias fn)
 {
-    @trusted auto unsafe(T...)(T args)
+    auto unsafe(T...)(T args) @trusted
     {
         return fn(args);
     }

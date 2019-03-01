@@ -30,8 +30,8 @@ private template defaultKeyEqualPredOf(T)
 {
     static if (is(T == class))
     {
-        static assert(__traits(hasMember, T, "opEquals"),
-                      "Type" ~ T.stringof ~ " doesn't have local opEquals() defined");
+        // static assert(__traits(hasMember, T, "opEquals"),
+        //               "Type" ~ T.stringof ~ " doesn't have local opEquals() defined");
         // enum defaultKeyEqualPredOf = "a && b && a.opEquals(b)";
         enum defaultKeyEqualPredOf = "a is b";
         // (const T a, const T b) => ((a !is null) && (b !is null) && a.opEquals(b));

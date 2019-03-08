@@ -495,8 +495,15 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     assert(s0_.isNull);         // cannot distinguish
     assert(s0 == s0_);
 
-    const s7 = S("0123456");
+    auto s7 = S("0123456");
     assert(!s7.isNull);
+    foreach (const i; 0 .. 8)
+    {
+        s7.metadata = i;
+        assert(s7.metadata == i);
+        assert(s7.length == 7);
+        assert(!s7.isNull);
+    }
 
     const s7_ = S("0123456_"[0 .. $ - 1]);
     assert(s7.ptr !is s7_.ptr); // string data shall not overlap
@@ -506,7 +513,6 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     assert(s7.ptr !is _s7.ptr); // string data shall not overlap
     assert(s7 == _s7);
 
-    static assert(is(typeof(s7[]) == const(char)[]));
     assert(!s7.isLarge);
     assert(s7.length == 7);
     assert(s7[] == "0123456");

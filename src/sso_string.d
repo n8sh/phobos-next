@@ -473,8 +473,6 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     assert(s_.isNull);
     foreach (const i; 0 .. 8)
     {
-        import dbgio;
-        dbg(i);
         s_.metadata = i;
         assert(s_.metadata == i);
         assert(s_.length == 0);

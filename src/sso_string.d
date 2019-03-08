@@ -325,9 +325,9 @@ private:
     enum smallLengthBitCount = 4;
     static assert(smallCapacity == 2^^smallLengthBitCount-1);
 
-    enum metaBits = 3;                ///< Number of bits used for metadata.
-    enum metaMask = (2^^metaBits-1);  ///< Mask for metadata shifted to bottom.
-    enum tagsBitCount = 1 + metaBits; ///< Number of bits used for small discriminator plus extra meta data.
+    enum metaBits = 3;               /// Number of bits used for metadata.
+    enum metaMask = (2^^metaBits-1);  /// Mask for metadata shifted to bottom.
+    enum tagsBitCount = 1 + metaBits; /// Number of bits used for small discriminator plus extra meta data.
     static assert(smallLengthBitCount + tagsBitCount == 8);
 
     /// Get metadata byte with first `metaBits` bits set.

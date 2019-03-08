@@ -55,11 +55,11 @@ enum TypeCategory
 /// Simulink Base Type.
 class BaseType
 {
-    string name;                ///< Type name.
-    uint dimensions = 1;        ///< Number of dimensions.
+    string name;                /// Type name.
+    uint dimensions = 1;        /// Number of dimensions.
     TypeCategory typeCategory;
-    string headerFile;          ///< getHeaderFile()
-    string description;         ///< getDescription()
+    string headerFile;          /// getHeaderFile()
+    string description;         /// getDescription()
 }
 
 /// Matlab enumeration members.
@@ -167,8 +167,8 @@ class Sl_DataTypeConversion : Sl_Block
 /// Data complexity.
 enum Complexity
 {
-    real_,                      ///< Real number.
-    complex_                    ///< Complex number.
+    real_,                      /// Real number.
+    complex_                    /// Complex number.
 }
 
 /// Simulink Port.

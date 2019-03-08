@@ -157,11 +157,11 @@ struct SSOString
         if (isLarge)
         {
             // GC-allocated slice has immutable members so ok to cast
-            return cast(typeof(return))raw.ptr[0 .. decodeLength(raw.length)]; // no allocation
+            return cast(typeof(return))raw.ptr[0 .. decodeRawLength(raw.length)]; // no allocation
         }
         else
         {
-            return small.data.ptr[0 .. decodeLength(small.length)].idup; // need duplicate to make `immutable`
+            return small.data.ptr[0 .. decodeRawLength(small.length)].idup; // need duplicate to make `immutable`
         }
     }
 
@@ -191,11 +191,11 @@ struct SSOString
         pragma(inline, true);
         if (isLarge)
         {
-            return decodeLength(large.length); // skip first bit
+            return decodeRawLength(large.length); // skip first bit
         }
         else
         {
-            return decodeLength(small.length); // skip fist bit
+            return decodeRawLength(small.length); // skip fist bit
         }
     }
     /// ditto
@@ -213,12 +213,12 @@ struct SSOString
     {
         if (isLarge)
         {
-            return cast(typeof(return))raw.ptr[0 .. decodeLength(raw.length)]; // no allocation
+            return cast(typeof(return))raw.ptr[0 .. decodeRawLength(raw.length)]; // no allocation
             // alternative:  return large.ptr[0 .. large.length/2];
         }
         else
         {
-            return cast(typeof(return))small.data.ptr[0 .. decodeLength(small.length)]; // scoped
+            return cast(typeof(return))small.data.ptr[0 .. decodeRawLength(small.length)]; // scoped
         }
     }
 
@@ -350,16 +350,19 @@ private:
         }
     }
 
-    static size_t decodeLength(size_t rawLength) @safe pure nothrow @nogc
+    /// Decode raw length `rawLength` by shifting away tag bits.
+    static size_t decodeRawLength(size_t rawLength) @safe pure nothrow @nogc
     {
         return rawLength >> tagsBitCount;
     }
 
+    /// Encode `Large` length from `Length`.
     static size_t encodeLargeLength(size_t length) @safe pure nothrow @nogc
     {
         return (length << tagsBitCount) | 1;
     }
 
+    /// Encode `Small` length from `Length`.
     static size_t encodeSmallLength(size_t length) @safe pure nothrow @nogc
     {
         assert(length <= smallCapacity);

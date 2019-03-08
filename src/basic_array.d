@@ -34,7 +34,10 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     import std.range : isInputRange, ElementType, isInfinite;
     import std.traits : hasElaborateDestructor, hasIndirections, hasAliasing,
         isMutable, TemplateOf, isArray, isAssignable, isCopyable, isType, hasFunctionAttributes, isIterable;
-    import std.algorithm : move, moveEmplace, moveEmplaceAll;
+    version(LDC) { import std.algorithm.mutation : move, moveEmplace;
+        static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
+    } else import core.lifetime : move, moveEmplace;
+    import std.algorithm : moveEmplaceAll;
     import std.conv : emplace;
 
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;

@@ -85,7 +85,9 @@ struct SSOHashMapOrSet(K, V = void,
     import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable, isMutable, hasIndirections;
     import std.traits : Unqual;
     import std.algorithm.comparison : max;
-    import std.algorithm.mutation : move, moveEmplace;
+    version(LDC) { import std.algorithm.mutation : move, moveEmplace;
+        static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
+    } else import core.lifetime : move, moveEmplace;
     import emplace_all : moveEmplaceAllNoReset;
     // TODO activate and use import prime_modulo;
 
@@ -1261,7 +1263,9 @@ void removeAllMatching(alias predicate, SomeHashMapOrSet)(auto ref SomeHashMapOr
     if (isInstanceOf!(SSOHashMapOrSet,
                       SomeHashMapOrSet))
 {
-    import std.algorithm.mutation : moveEmplace;
+    version(LDC) { import std.algorithm.mutation : moveEmplace;
+        static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
+    } else import core.lifetime : moveEmplace;
     foreach (immutable binIx; 0 .. x._bins.length)
     {
         if (x._bstates[binIx].isLarge)

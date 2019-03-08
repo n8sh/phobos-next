@@ -469,16 +469,6 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     static assert(__traits(isZeroInit, S));
     // TODO static assert(S.init == S.nullValue);
 
-    auto s_ = S.init;
-    assert(s_.isNull);
-    foreach (const i; 0 .. 8)
-    {
-        s_.metadata = i;
-        assert(s_.metadata == i);
-        assert(s_.length == 0);
-        // TODO: assert(!s_.isNull);
-    }
-
     auto s0 = S.init;
     assert(s0.isNull);
     assert(s0.length == 0);
@@ -495,15 +485,8 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     assert(s0_.isNull);         // cannot distinguish
     assert(s0 == s0_);
 
-    auto s7 = S("0123456");
+    const s7 = S("0123456");
     assert(!s7.isNull);
-    foreach (const i; 0 .. 8)
-    {
-        s7.metadata = i;
-        assert(s7.metadata == i);
-        assert(s7.length == 7);
-        assert(!s7.isNull);
-    }
 
     const s7_ = S("0123456_"[0 .. $ - 1]);
     assert(s7.ptr !is s7_.ptr); // string data shall not overlap
@@ -554,6 +537,72 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     assert(s16[0 .. 4] == "0123");
     assert(s16[10 .. 16] == "abcdef");
     assert(s16[10 .. $] == "abcdef");
+}
+
+/// metadata for null string
+@safe pure nothrow @nogc unittest
+{
+    alias S = SSOString;
+    auto s = S.init;
+    assert(s.isNull);
+    foreach (const i; 0 .. 8)
+    {
+        s.metadata = i;
+        assert(s.metadata == i);
+        assert(s.length == 0);
+        // TODO: assert(!s.isNull);
+    }
+}
+
+/// metadata for small string
+@safe pure nothrow @nogc unittest
+{
+    alias S = SSOString;
+    auto s = S("0123456");
+    assert(!s.isNull);
+    assert(!s.isLarge);
+    foreach (const i; 0 .. 8)
+    {
+        s.metadata = i;
+        assert(s.metadata == i);
+        assert(s.length == 7);
+        assert(!s.isLarge);
+        assert(!s.isNull);
+    }
+}
+
+/// metadata for large string
+@safe pure nothrow @nogc unittest
+{
+    alias S = SSOString;
+    auto s = S("0123456789abcdef");
+    assert(!s.isNull);
+    assert(s.isLarge);
+    foreach (const i; 0 .. 8)
+    {
+        s.metadata = i;
+        assert(s.metadata == i);
+        assert(s.length == 16);
+        assert(s.isLarge);
+        assert(!s.isNull);
+    }
+}
+
+/// metadata for small string becoming large string
+@safe pure nothrow @nogc unittest
+{
+    alias S = SSOString;
+    auto s = S("0123456789abcde");
+    assert(!s.isNull);
+    assert(!s.isLarge);
+    foreach (const i; 0 .. 8)
+    {
+        s.metadata = i;
+        assert(s.metadata == i);
+        assert(s.length == 15);
+        assert(!s.isLarge);
+        assert(!s.isNull);
+    }
 }
 
 /// construct from static array larger than `smallCapacity`

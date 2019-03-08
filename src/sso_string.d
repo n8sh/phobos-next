@@ -571,28 +571,12 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     }
 }
 
-/// metadata for large string
-@safe pure nothrow @nogc unittest
-{
-    alias S = SSOString;
-    auto s = S("0123456789abcdef");
-    assert(!s.isNull);
-    assert(s.isLarge);
-    foreach (const i; 0 .. 8)
-    {
-        s.metadata = i;
-        assert(s.metadata == i);
-        assert(s.length == 16);
-        assert(s.isLarge);
-        assert(!s.isNull);
-    }
-}
-
-/// metadata for small string becoming large string
+/// metadata for small string with maximum length
 @safe pure nothrow @nogc unittest
 {
     alias S = SSOString;
     auto s = S("0123456789abcde");
+    assert(s.length == S.smallCapacity);
     assert(!s.isNull);
     assert(!s.isLarge);
     foreach (const i; 0 .. 8)
@@ -601,6 +585,24 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
         assert(s.metadata == i);
         assert(s.length == 15);
         assert(!s.isLarge);
+        assert(!s.isNull);
+    }
+}
+
+/// metadata for large string with minimum length
+@safe pure nothrow @nogc unittest
+{
+    alias S = SSOString;
+    auto s = S("0123456789abcdef");
+    assert(s.length == S.smallCapacity + 1);
+    assert(!s.isNull);
+    assert(s.isLarge);
+    foreach (const i; 0 .. 8)
+    {
+        s.metadata = i;
+        assert(s.metadata == i);
+        assert(s.length == 16);
+        assert(s.isLarge);
         assert(!s.isNull);
     }
 }

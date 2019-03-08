@@ -92,7 +92,7 @@ struct SSOString
             {
                 // pragma(msg, "Small static array source of length ", Chars.length);
                 small.data[0 .. source.length] = source;
-                small.length = cast(typeof(small.length))(2*source.length);
+                small.length = cast(typeof(small.length))(encodeSmallLength(source.length));
             }
             else
             {
@@ -105,8 +105,7 @@ struct SSOString
                 {
                     large = source.idup; // GC-allocate
                 }
-                raw.length *= 2;  // shift up
-                raw.length |= 1;  // tag as large
+                raw.length = encodeLargeLength(raw.length);
             }
         }
         else
@@ -114,7 +113,7 @@ struct SSOString
             if (source.length <= smallCapacity)
             {
                 small.data[0 .. source.length] = source;
-                small.length = cast(typeof(small.length))(2*source.length);
+                small.length = cast(typeof(small.length))(encodeSmallLength(source.length));
             }
             else
             {
@@ -126,8 +125,7 @@ struct SSOString
                 {
                     large = source.idup; // GC-allocate
                 }
-                raw.length *= 2;  // shift up
-                raw.length |= 1;  // tag as large
+                raw.length = encodeLargeLength(raw.length);
             }
         }
     }
@@ -159,11 +157,11 @@ struct SSOString
         if (isLarge)
         {
             // GC-allocated slice has immutable members so ok to cast
-            return cast(typeof(return))raw.ptr[0 .. raw.length/2]; // no allocation
+            return cast(typeof(return))raw.ptr[0 .. decodeLength(raw.length)]; // no allocation
         }
         else
         {
-            return small.data.ptr[0 .. small.length/2].idup; // need duplicate to make `immutable`
+            return small.data.ptr[0 .. decodeLength(small.length)].idup; // need duplicate to make `immutable`
         }
     }
 
@@ -193,17 +191,17 @@ struct SSOString
         pragma(inline, true);
         if (isLarge)
         {
-            return large.length/2; // skip first bit
+            return decodeLength(large.length); // skip first bit
         }
         else
         {
-            return small.length/2; // skip fist bit
+            return decodeLength(small.length); // skip fist bit
         }
     }
     /// ditto
     alias opDollar = length;
 
-    @property bool empty() const scope @safe pure nothrow @nogc { return length == 0; }
+    @property bool empty() const scope @safe pure nothrow @nogc { return length() == 0; }
 
     @property bool isNull() const scope @safe pure nothrow @nogc { return this == typeof(this).init; }
 
@@ -215,12 +213,12 @@ struct SSOString
     {
         if (isLarge)
         {
-            return cast(typeof(return))raw.ptr[0 .. raw.length/2]; // no allocation
+            return cast(typeof(return))raw.ptr[0 .. decodeLength(raw.length)]; // no allocation
             // alternative:  return large.ptr[0 .. large.length/2];
         }
         else
         {
-            return cast(typeof(return))small.data.ptr[0 .. small.length/2]; // scoped
+            return cast(typeof(return))small.data.ptr[0 .. decodeLength(small.length)]; // scoped
         }
     }
 
@@ -303,6 +301,7 @@ struct SSOString
     bool isSmallASCIIClean() const scope @trusted
     {
         pragma(inline, true);
+        static assert(largeLengthTagBit == 0);// bit 0 of lsbyte not set => small
         // should be fast on 64-bit platforms:
         return ((words[0] & 0x_80_80_80_80__80_80_80_01UL) == 0 && // bit 0 of lsbyte not set => small
                 (words[1] & 0x_80_80_80_80__80_80_80_80UL) == 0);
@@ -314,13 +313,58 @@ private:
     @property bool isLarge() const @trusted
     {
         pragma(inline, true);
-        return large.length & 1; // first bit discriminates small from large
+        return large.length & (1 << largeLengthTagBit); // first bit discriminates small from large
     }
 
     alias Large = immutable(E)[];
 
     public enum smallCapacity = Large.sizeof - Small.length.sizeof;
     static assert(smallCapacity > 0, "No room for small source for immutable(E) being " ~ immutable(E).stringof);
+
+    enum largeLengthTagBit = 0;       // bit position for large tag in length
+    enum smallLengthBitCount = 4;
+    static assert(smallCapacity == 2^^smallLengthBitCount-1);
+
+    enum metaBits = 3;                ///< Number of bits used for metadata.
+    enum metaMask = (2^^metaBits-1);  ///< Mask for metadata shifted to bottom.
+    enum tagsBitCount = 1 + metaBits; ///< Number of bits used for small discriminator plus extra meta data.
+    static assert(smallLengthBitCount + tagsBitCount == 8);
+
+    /// Get metadata byte with first `metaBits` bits set.
+    @property ubyte metadata() const @safe pure nothrow @nogc
+    {
+        return (small.length >> (1 << largeLengthTagBit)) & metaMask; // git bits [1 .. 1+metaBits]
+    }
+
+    /// Set metadata.
+    @property void metadata(ubyte data) @trusted pure nothrow @nogc
+    {
+        assert(data < (1 << metaBits));
+        if (isLarge)
+        {
+            raw.length = encodeLargeLength(length) | ((data & metaMask) << (largeLengthTagBit + 1));
+        }
+        else
+        {
+            small.length = cast(ubyte)encodeSmallLength(length) | ((data & metaMask) << (largeLengthTagBit + 1));
+        }
+    }
+
+    static size_t decodeLength(size_t rawLength) @safe pure nothrow @nogc
+    {
+        return rawLength >> tagsBitCount;
+    }
+
+    static size_t encodeLargeLength(size_t length) @safe pure nothrow @nogc
+    {
+        return (length << tagsBitCount) | 1;
+    }
+
+    static size_t encodeSmallLength(size_t length) @safe pure nothrow @nogc
+    {
+        assert(length <= smallCapacity);
+        return length << tagsBitCount;
+    }
 
     version(LittleEndian) // see: http://forum.dlang.org/posting/zifyahfohbwavwkwbgmw
     {
@@ -424,6 +468,18 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
 
     static assert(__traits(isZeroInit, S));
     // TODO static assert(S.init == S.nullValue);
+
+    auto s_ = S.init;
+    assert(s_.isNull);
+    foreach (const i; 0 .. 8)
+    {
+        import dbgio;
+        dbg(i);
+        s_.metadata = i;
+        assert(s_.metadata == i);
+        assert(s_.length == 0);
+        // TODO: assert(!s_.isNull);
+    }
 
     auto s0 = S.init;
     assert(s0.isNull);

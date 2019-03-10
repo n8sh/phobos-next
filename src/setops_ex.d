@@ -243,9 +243,7 @@ setIntersectionFast(alias less = "a < b",
     import std.range : assumeSorted;
     static if (Rs.length == 2)
     {
-        version(LDC) { import std.algorithm.mutation : move;
-            static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
-        } else import core.lifetime : move;
+        import core.lifetime : move;
         return assumeMoveableSorted(SetIntersectionFast!(less,
                                                          preferredSearchPolicy,
                                                          Rs)(move(ranges[0]), // TODO remove `move` when compiler does it for us
@@ -362,9 +360,7 @@ struct MoveableSortedRange(Range, alias pred = "a < b")
     }
     body
     {
-        version(LDC) { import std.algorithm.mutation : move;
-            static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
-        } else import core.lifetime : move;
+        import core.lifetime : move;
         this._input = move(input); // TODO
     }
 
@@ -470,9 +466,7 @@ struct MoveableSortedRange(Range, alias pred = "a < b")
 */
     auto release()
     {
-        version(LDC) { import std.algorithm.mutation : move;
-            static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
-        } else import core.lifetime : move;
+        import core.lifetime : move;
         return move(_input);
     }
 

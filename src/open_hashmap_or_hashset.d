@@ -7,9 +7,7 @@ import container_traits : isNullable;
 import pure_mallocator : Mallocator = PureMallocator;
 // TODO import std.experimental.allocator.mallocator : Mallocator;
 
-version(LDC) { import std.algorithm.mutation : move, moveEmplace;
-    static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
-} else import core.lifetime : move, moveEmplace;
+import core.lifetime : move, moveEmplace;
 
 /** Is `true` iff `T` is a memory address (either a `class` or a pointer). */
 enum bool isAddress(T) = (is(T == class) ||

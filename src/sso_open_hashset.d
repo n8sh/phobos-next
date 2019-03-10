@@ -23,7 +23,7 @@ struct SSOOpenHashSet(K,
 {
     import qcmeman : gc_addRange, gc_removeRange;
 
-    import core.lifetime : move, Emplace;
+    import core.lifetime : move, moveEmplace;
     import std.traits : hasElaborateDestructor, isDynamicArray;
     import std.conv : emplace;
     import container_traits : defaultNullKeyConstantOf, isNull, nullify;

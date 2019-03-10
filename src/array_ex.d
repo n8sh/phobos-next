@@ -98,13 +98,13 @@ private struct Array(E,
 if (is(CapacityType == ulong) ||       // 3 64-bit words
         is(CapacityType == uint))          // 2 64-bit words
 {
+    import core.lifetime : move, moveEmplace;
+    import std.algorithm.mutation : moveEmplaceAll;
     import std.conv : emplace;
     import std.range : isInputRange, isInfinite, ElementType;
     import std.traits : isIterable, isAssignable, Unqual, isArray, isScalarType, hasElaborateDestructor, hasIndirections, TemplateOf, isCopyable;
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
-    import core.lifetime : move, moveEmplace;
-    import std.algorithm.mutation : moveEmplaceAll;
 
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
 

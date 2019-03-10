@@ -51,9 +51,7 @@ void shiftToFrontAt(T)(T[] r, size_t index)
     {
         immutable si = index + i + 1; // source index
         immutable ti = index + i;     // target index
-        version(LDC) { import std.algorithm.mutation : moveEmplace;
-            static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
-        } else import core.lifetime : moveEmplace;
+        import core.lifetime : moveEmplace;
         moveEmplace(r.ptr[si], // TODO remove `move` when compiler does it for us
                     r.ptr[ti]);
     }

@@ -146,9 +146,7 @@ public:
     this(T)(T that) @trusted nothrow @nogc
         if (allowsAssignmentFrom!T)
     {
-        version(LDC) { import std.algorithm.mutation : moveEmplace;
-            static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
-        } else import core.lifetime : moveEmplace;
+        import core.lifetime : moveEmplace;
 
         alias MT = Unqual!T;
         moveEmplace(*cast(MT*)&that,
@@ -160,9 +158,7 @@ public:
     LightAlgebraic opAssign(T)(T that) @trusted nothrow @nogc
         if (allowsAssignmentFrom!T)
     {
-        version(LDC) { import std.algorithm.mutation : moveEmplace;
-            static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
-        } else import core.lifetime : moveEmplace;
+        import core.lifetime : moveEmplace;
 
         if (hasValue)
         {

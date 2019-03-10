@@ -1261,9 +1261,7 @@ void removeAllMatching(alias predicate, SomeHashMapOrSet)(auto ref SomeHashMapOr
     if (isInstanceOf!(SSOHashMapOrSet,
                       SomeHashMapOrSet))
 {
-    version(LDC) { import std.algorithm.mutation : moveEmplace;
-        static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
-    } else import core.lifetime : moveEmplace;
+    import core.lifetime : moveEmplace;
     foreach (immutable binIx; 0 .. x._bins.length)
     {
         if (x._bstates[binIx].isLarge)

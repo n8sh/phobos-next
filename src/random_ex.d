@@ -17,9 +17,7 @@
  */
 module random_ex;
 
-version(LDC) { import std.algorithm.mutation : move;
-    static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
-} else import core.lifetime : move;
+import core.lifetime : move;
 import std.traits: isIntegral, isFloatingPoint, isNumeric, isIterable, isStaticArray, isArray, hasIndirections, isSomeString, isScalarType, isBoolean;
 import std.range: isInputRange, ElementType, hasAssignableElements;
 import std.random: uniform;

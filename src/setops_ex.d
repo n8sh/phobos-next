@@ -225,9 +225,7 @@ import std.traits : Unqual;
 auto assumeMoveableSorted(alias pred = "a < b", R)(R r)
     if (isInputRange!(Unqual!R))
 {
-    version(LDC) { import std.algorithm.mutation : move;
-        static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
-    } else import core.lifetime : move;
+    import core.lifetime : move;
     return MoveableSortedRange!(Unqual!R, pred)(move(r)); // TODO remove `move` when compiler does it for us
 }
 

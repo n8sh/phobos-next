@@ -14,9 +14,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     // pragma(msg, "T:", T, " capacity_:", capacity_, " borrowChecked:", borrowChecked);
     import std.bitmanip : bitfields;
     import std.traits : isSomeChar, hasElaborateDestructor, isAssignable, isCopyable;
-    version(LDC) { import std.algorithm.mutation : moveEmplace;
-        static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
-    } else import core.lifetime : move, moveEmplace;
+    import core.lifetime : move, moveEmplace;
 
     alias capacity = capacity_; // for public use
 

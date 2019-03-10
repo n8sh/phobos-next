@@ -85,9 +85,7 @@ struct SSOHashMapOrSet(K, V = void,
     import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable, isMutable, hasIndirections;
     import std.traits : Unqual;
     import std.algorithm.comparison : max;
-    version(LDC) { import std.algorithm.mutation : move, moveEmplace;
-        static if (__VERSION__ >= 2085) { static assert(0, "Use core.lifetime instead"); }
-    } else import core.lifetime : move, moveEmplace;
+    import core.lifetime : move, moveEmplace;
     import emplace_all : moveEmplaceAllNoReset;
     // TODO activate and use import prime_modulo;
 

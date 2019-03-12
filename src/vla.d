@@ -18,7 +18,7 @@ T* constructVariableLength(T, Args...)(size_t requiredCapacity, Args args) @trus
                                                                            T.maxCapacity)));
     assert(paddedRequestedCapacity >= requiredCapacity);
     import core.memory : malloc = pureMalloc;
-    import std.conv : emplace;
+    import core.lifetime : emplace;
     return emplace(cast(typeof(return))malloc(T.allocationSizeOfCapacity(paddedRequestedCapacity)),
                    paddedRequestedCapacity, args);
 }

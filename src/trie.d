@@ -526,7 +526,7 @@ if (!hasVariableLength!NodeType)
     static if (isPointer!NodeType)
     {
         // debug ++_heapAllocBalance;
-        import std.conv : emplace;
+        import core.lifetime : emplace;
         return emplace(cast(NodeType)malloc((*NodeType.init).sizeof), args);
         // TODO ensure alignment of node at least that of NodeType.alignof
     }
@@ -4024,7 +4024,7 @@ template RawRadixTree(Value = void)
         alias DenseBranchType = DenseBranch;
         alias ElementRefType = ElementRef;
 
-        import std.conv : emplace;
+        import core.lifetime : emplace;
 
         /** Is `true` if this tree stores values of type `Value` along with keys. In
             other words: `this` is a $(I map) rather than a $(I set).

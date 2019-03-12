@@ -138,7 +138,7 @@ private:
             {
                 typeof(small) tmp = small; // temporary storage for small
 
-                import std.conv : emplace;
+                import core.lifetime : emplace;
                 emplace(&large, n);
 
                 large.ptr[0 .. length] = tmp[0 .. length]; // temporary to large

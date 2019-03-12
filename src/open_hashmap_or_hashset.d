@@ -7,7 +7,7 @@ import container_traits : isNullable;
 import pure_mallocator : Mallocator = PureMallocator;
 // TODO import std.experimental.allocator.mallocator : Mallocator;
 
-import core.lifetime : move, moveEmplace;
+import core.lifetime : emplace, move, moveEmplace;
 
 /** Is `true` iff `T` is a memory address (either a `class` or a pointer). */
 enum bool isAddress(T) = (is(T == class) ||
@@ -138,7 +138,6 @@ struct OpenHashMapOrSet(K, V = void,
 {
     // pragma(msg, K.stringof, " => ", V.stringof);
     import core.exception : onOutOfMemoryError;
-    import std.conv : emplace;
     import std.math : nextPow2;
     import std.traits : hasElaborateDestructor, isCopyable, hasIndirections,
         isDynamicArray, isStaticArray, Unqual, hasFunctionAttributes, isMutable, TemplateArgsOf;
@@ -1295,7 +1294,6 @@ struct OpenHashMapOrSet(K, V = void,
         if (is(Class : K))
         {
             void[__traits(classInstanceSize, Class)] tempNode_ = void;
-            import std.conv : emplace;
             scope Class temp = emplace!(Class)(tempNode_, params);
             Class* hit = cast(Class*)(temp in this);
             import container_traits : hasElaborateDestructorNew;
@@ -1823,14 +1821,12 @@ static private void duplicateEmplace(T)(const scope ref T src,
         }
         else                    // TODO can this case occur?
         {
-            import std.conv : emplace;
             import std.traits : Unqual;
             emplace(&dst, cast(Unqual!T)src);
         }
     }
     else static if (__traits(hasMember, T, "dup"))
     {
-        import std.conv : emplace;
         // TODO when `emplace` can handle src being an r-value of uncopyable types replace with: `emplace(&dst, src.dup);`
         emplace(&dst);
         dst = src.dup;

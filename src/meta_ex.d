@@ -153,7 +153,7 @@ auto forwardMap(alias fun, Ts...)(Ts xs)
 
     alias fun_ = unaryFun!(fun);
 
-    import std.conv : emplace;
+    import core.lifetime : emplace;
     static foreach (immutable i, x; xs)
     {
         emplace(&ys[i], fun_(x));

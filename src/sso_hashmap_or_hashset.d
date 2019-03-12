@@ -81,9 +81,8 @@ struct SSOHashMapOrSet(K, V = void,
     if (// isHashable!K &&
         smallBinMinCapacity >= 1) // no use having empty small bins
 {
-    import core.lifetime : move, moveEmplace;
+    import core.lifetime : emplace, move, moveEmplace;
     import emplace_all : moveEmplaceAllNoReset;
-    import std.conv : emplace;
     import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable, isMutable, hasIndirections;
     import std.traits : Unqual;
     import std.algorithm.comparison : max;

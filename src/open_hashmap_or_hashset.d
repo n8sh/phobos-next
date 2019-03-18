@@ -20,8 +20,8 @@ enum bool isAddress(T) = (is(T == class) ||
 /** Is `true` iff `T` has a specific value dedicated to representing holes
  * (removed/erase) values.
  */
-enum isHoleable(T) = (__traits(hasMember, T, "isHole") &&
-                      __traits(hasMember, T, "holeify") &&
+enum isHoleable(T) = (// __traits(hasMember, T, "isHole") &&
+                      // __traits(hasMember, T, "holeify") &&
                       __traits(hasMember, T, "holeValue"));
 
 private template defaultKeyEqualPredOf(T)
@@ -178,7 +178,15 @@ struct OpenHashMapOrSet(K, V = void,
         static bool isHoleKeyConstant(const scope K key) @safe pure nothrow @nogc
         {
             pragma(inline, true);
-            return key.isHole;
+            static if (__traits(hasMember, K, "isHole"))
+            {
+                // typically faster by asserting value of member of aggregate `K`
+                return key.isHole;
+            }
+            else
+            {
+                return key is K.holeValue;
+            }
         }
     }
     else static if (hasAddressLikeKey)

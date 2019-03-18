@@ -1,3 +1,4 @@
+
 module open_hashmap_or_hashset;
 
 // version = showEntries;
@@ -191,7 +192,7 @@ struct OpenHashMapOrSet(K, V = void,
     }
     else static if (hasAddressLikeKey)
     {
-        enum holeKeyOffset = 0x1; // TODO is this a good value?
+        enum holeKeyOffset = 0x1; // TODO is this a good value? Or is 0xffff_ffff_ffff_ffff better?
         enum holeKeyAddress = cast(void*)holeKeyOffset;
 
         /**

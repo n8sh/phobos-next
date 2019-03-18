@@ -373,8 +373,7 @@ struct OpenHashMapOrSet(K, V = void,
     /** Make default-initialized bins with room for storing for at least
      * `minimumCapacity` number of elements.
      */
-    static private T[] makeDefaultInitializedBins()(size_t minimumCapacity) // template-lazy
-        @trusted pure nothrow @nogc
+    static private T[] makeDefaultInitializedBins()(size_t minimumCapacity) @trusted pure nothrow @nogc // template-lazy
     {
         version(LDC) pragma(inline, true);
         immutable capacity = nextPow2(minimumCapacity);
@@ -459,8 +458,7 @@ struct OpenHashMapOrSet(K, V = void,
         return bins;
     }
 
-    static private T[] allocateUninitializedBins()(size_t capacity) // template-lazy
-        @trusted pure nothrow @nogc
+    static private T[] allocateUninitializedBins()(size_t capacity) @trusted pure nothrow @nogc // template-lazy
     {
         version(LDC) pragma(inline, true);
         version(showEntries) dbg(__FUNCTION__, " newCapacity:", capacity);
@@ -667,8 +665,7 @@ struct OpenHashMapOrSet(K, V = void,
                 }
             }
 
-            static bool hasHoleAtPtrIndex(const scope size_t* holesPtr,
-                                          size_t index) @trusted
+            static bool hasHoleAtPtrIndex(const scope size_t* holesPtr, size_t index) @trusted
             {
                 return (holesPtr &&
                         bt(holesPtr, index) != 0);
@@ -1731,8 +1728,7 @@ private:
     }
 
     private size_t indexOfKeyOrVacancyAndFirstHole(SomeKey)(const scope SomeKey key, // `auto ref` here makes things slow
-                                                            ref size_t holeIndex) const
-        @trusted
+                                                            ref size_t holeIndex) const @trusted
     {
         version(LDC) pragma(inline, true);
         version(internalUnittest)

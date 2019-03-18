@@ -678,17 +678,17 @@ struct OpenHashMapOrSet(K, V = void,
         void tagHoleAtIndex(size_t index) @trusted
         {
             version(internalUnittest) assert(index < _bins.length);
-            static if (!hasHoleableKey)
+            static if (hasHoleableKey)
+            {
+                keyOf(_bins[index]) = holeKeyConstant;
+            }
+            else
             {
                 if (_holesPtr is null) // lazy allocation
                 {
                     _holesPtr = makeZeroedBitArray!Allocator(_bins.length);
                 }
                 bts(_holesPtr, index);
-            }
-            else
-            {
-                keyOf(_bins[index]) = holeKeyConstant;
             }
         }
 

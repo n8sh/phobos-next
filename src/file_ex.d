@@ -10,8 +10,7 @@ module file_ex;
     See_Also: https://en.wikipedia.org/wiki/Sentinel_value
     See_Also: http://forum.dlang.org/post/pdzxpkusvifelumkrtdb@forum.dlang.org
 */
-immutable(void)[] rawReadNullTerminated(string path)
-    @trusted
+immutable(void)[] rawReadNullTerminated(string path) @trusted
 {
     import std.stdio : File;
 

@@ -93,6 +93,8 @@ private template defaultKeyEqualPredOf(T)
  * TODO allocate _holesPtr array together with _bins to reduce size of
  * `OpenHashMapOrSet` to 3 words when element type doesn't support it
  *
+ * TODO fix bug in `growInPlaceWithCapacity` and benchmark
+ *
  * TODO add support for checking existence `K.nullifier` that infers, for
  * instance, how to tag a `ZingRelation` and `Expr` as `null` or a `hole`.
  *
@@ -105,8 +107,6 @@ private template defaultKeyEqualPredOf(T)
  * and shift pointer before hash based on alignof (might not be needed when
  * module prime) to maximize memory locality when adding successively allocated
  * pointers
- *
- * TODO fix bug in `growInPlaceWithCapacity` and benchmark
  *
  * TODO add extractElement that moves it out similar to
  * http://en.cppreference.com/w/cpp/container/unordered_set/extract

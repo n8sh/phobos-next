@@ -788,7 +788,10 @@ struct OpenHashMapOrSet(K, V = void,
         // debug static assert(isScopedKeyType!(typeof(key)), SomeKey.stringof ~ " " ~ K.stringof);
         // pragma(msg, SomeKey);
         version(LDC) pragma(inline, true);
+
         assert(!key.isNull);
+        static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(cast(K)adjustKeyType(key))); }
+
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)adjustKeyType(key)); // cast scoped `key` is @trusted
         return (hitIndex != _bins.length &&
                 isOccupiedAtIndex(hitIndex));
@@ -808,7 +811,10 @@ struct OpenHashMapOrSet(K, V = void,
     if (isScopedKeyType!(typeof(key)))
     {
         version(LDC) pragma(inline, true);
+
         assert(!key.isNull);
+        static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(cast(K)adjustKeyType(key))); }
+
         import std.algorithm.searching : canFind;
         static if (isInstanceOf!(Nullable, SomeKey))
         {
@@ -842,8 +848,11 @@ struct OpenHashMapOrSet(K, V = void,
     bool containsWithHoleMoving()(const scope K key) // template-lazy, `auto ref` here makes things slow
     {
         version(LDC) pragma(inline, true);
+
         assert(!key.isNull);
+        static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(cast(K)adjustKeyType(key))); }
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
+
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
         // TODO update holes
         return (hitIndex != _bins.length &&

@@ -85,10 +85,10 @@ private template defaultKeyEqualPredOf(T)
  *      Allocator = memory allocator for bin array
  *      borrowChecked = only activate when it's certain that this won't be moved via std.algorithm.mutation.move()
  *
- * See_Also: https://gankro.github.io/blah/hashbrown-insert/
  * See_Also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  * See_Also: https://en.wikipedia.org/wiki/Lazy_deletion
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
+ * See_Also: https://gankro.github.io/blah/hashbrown-insert/
  *
  * TODO check that hole value is not used alongside the check assert(!key.isNull)
  *

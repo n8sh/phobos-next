@@ -90,11 +90,11 @@ private template defaultKeyEqualPredOf(T)
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  * See_Also: https://gankro.github.io/blah/hashbrown-insert/
  *
- * TODO add support for checking existence `K.nullifier` that infers, for
- * instance, how to tag a `ZingRelation` and `Expr` as `null` or a `hole`.
- *
  * TODO allocate _holesPtr array together with _bins to reduce size of
  * `OpenHashMapOrSet` to 3 words when element type doesn't support it
+ *
+ * TODO add support for checking existence `K.nullifier` that infers, for
+ * instance, how to tag a `ZingRelation` and `Expr` as `null` or a `hole`.
  *
  * TODO modify existing unittest for `struct Rel { const string name; }`
  *

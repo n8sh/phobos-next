@@ -90,8 +90,6 @@ private template defaultKeyEqualPredOf(T)
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  * See_Also: https://gankro.github.io/blah/hashbrown-insert/
  *
- * TODO check that hole value is not used alongside the check assert(!key.isNull)
- *
  * TODO add support for checking existence `K.nullifier` that infers, for
  * instance, how to tag a `ZingRelation` and `Expr` as `null` or a `hole`.
  *
@@ -790,7 +788,7 @@ struct OpenHashMapOrSet(K, V = void,
         version(LDC) pragma(inline, true);
 
         assert(!key.isNull);
-        static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(cast(K)adjustKeyType(key))); }
+        static if (hasHoleableKey) { assert(!isHoleKeyConstant(cast(K)adjustKeyType(key))); }
 
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)adjustKeyType(key)); // cast scoped `key` is @trusted
         return (hitIndex != _bins.length &&
@@ -813,7 +811,7 @@ struct OpenHashMapOrSet(K, V = void,
         version(LDC) pragma(inline, true);
 
         assert(!key.isNull);
-        static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(cast(K)adjustKeyType(key))); }
+        static if (hasHoleableKey) { assert(!isHoleKeyConstant(cast(K)adjustKeyType(key))); }
 
         import std.algorithm.searching : canFind;
         static if (isInstanceOf!(Nullable, SomeKey))
@@ -850,7 +848,7 @@ struct OpenHashMapOrSet(K, V = void,
         version(LDC) pragma(inline, true);
 
         assert(!key.isNull);
-        static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(cast(K)adjustKeyType(key))); }
+        static if (hasHoleableKey) { assert(!isHoleKeyConstant(key)); }
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
 
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
@@ -867,8 +865,11 @@ struct OpenHashMapOrSet(K, V = void,
     InsertionStatus insert()(T element) // template-lazy
     {
         version(LDC) pragma(inline, true);
-        static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
+
         assert(!keyOf(element).isNull);
+        static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(keyOf(element))); }
+        static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
+
         reserveExtra(1);
         size_t hitIndex;
         static if (isCopyable!T)
@@ -893,8 +894,11 @@ struct OpenHashMapOrSet(K, V = void,
     ref T insertAndReturnElement(SomeElement)(SomeElement element) return // template-lazy
     {
         version(LDC) pragma(inline, true);
-        static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
+
         assert(!keyOf(element).isNull);
+        static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(cast(K)adjustKeyType(keyOf(element)))); }
+        static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
+
         reserveExtra(1);
         size_t hitIndex;
         static if (isCopyable!SomeElement)
@@ -1175,6 +1179,7 @@ struct OpenHashMapOrSet(K, V = void,
         version(internalUnittest)
         {
             assert(!keyOf(element).isNull);
+            static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(cast(K)adjustKeyType(keyOf(element)))); }
             static if (hasHoleableKey)
             {
                 assert(!isHoleKeyConstant(keyOf(element)));
@@ -1287,7 +1292,10 @@ struct OpenHashMapOrSet(K, V = void,
             isScopedKeyType!(typeof(key)))
         {
             pragma(inline, true);
+
             assert(!key.isNull);
+            static if (hasHoleableKey) { assert(!isHoleKeyConstant(cast(K)adjustKeyType(key))); }
+
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)key); // cast scoped `key` is @trusted
             return (hitIndex != _bins.length &&
                     isOccupiedAtIndex(hitIndex)) ? &_bins[hitIndex] :
@@ -1697,10 +1705,7 @@ private:
         version(internalUnittest)
         {
             assert(!key.isNull);
-            static if (hasHoleableKey)
-            {
-                assert(!isHoleKeyConstant(key));
-            }
+            static if (hasHoleableKey) { assert(!isHoleKeyConstant(key)); }
         }
         static if (isCopyable!T)
         {

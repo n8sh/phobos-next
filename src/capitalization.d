@@ -71,6 +71,7 @@ if (isSomeString!S)
     }
 }
 
+///
 @safe pure unittest
 {
     assert(!`A`.isLowercased);

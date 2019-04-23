@@ -874,7 +874,7 @@ struct OpenHashMapOrSet(K, V = void,
 
             reserveExtra(1);
             size_t hitIndex;
-            return insertWithoutGrowth(cast(T)element, hitIndex);
+            return insertWithoutGrowth(cast(T)element, hitIndex); // ok to cast away constness
         }
     }
     else

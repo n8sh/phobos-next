@@ -5,10 +5,11 @@ module languages;
 import conv_ex : toDefaulted;
 
 /** Language Code according to ISO 639-1 plus computer languages.
-    See_Also: https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
-    See_Also: http://www.mathguide.de/info/tools/languagecode.html
-    See_Also: http://msdn.microsoft.com/en-us/library/ms533052(v=vs.85).aspx
-*/
+ *
+ * See_Also: https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+ * See_Also: http://www.mathguide.de/info/tools/languagecode.html
+ * See_Also: http://msdn.microsoft.com/en-us/library/ms533052(v=vs.85).aspx
+ */
 enum Lang
 {
     unknown,

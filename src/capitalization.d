@@ -147,7 +147,7 @@ if (isSomeString!S)
 /** Return `true` if `s` has proper name-style capitalization, such as in "Alpha
  * Centauri".
  */
-bool isNameCapitalized(S)(S s)
+bool isNameCapitalized(S)(S s) nothrow
 if (isSomeString!S)
 {
     import splitter_ex : splitterASCII;
@@ -156,19 +156,19 @@ if (isSomeString!S)
     import std.ascii : isWhite;
     import std.uni : isUpper;
     size_t index = 0;
-    foreach (const x; s.splitterASCII!(s => (s.isWhite || s == '-')))
+    foreach (const word; s.splitterASCII!(s => (s.isWhite || s == '-')))
     {
         const bool ok = ((index >= 1 &&
-                          (x.all!(x => x.isUpper) || // Henry II
-                           x.among!(`of`, `upon`))) ||
-                         x.isCapitalized);
+                          (word.all!(word => word.isUpper) || // Henry II
+                           word.among!(`of`, `upon`))) ||
+                         word.isCapitalized);
         if (!ok) { return false; }
         index += 1;
     }
     return true;
 }
 
-@safe pure unittest
+@safe pure nothrow unittest
 {
     assert(!`alpha`.isNameCapitalized);
     assert(!`alpha centauri`.isNameCapitalized);

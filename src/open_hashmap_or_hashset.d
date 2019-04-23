@@ -3634,7 +3634,7 @@ version(unittest)
     assert(Base.dtorCount == 3);
 
     // top-class
-    auto b43 = new Base(43);
+    const b43 = new Base(43);
     assert(!x.contains(b43));
     assert(!x.containsUsingLinearSearch(b43));
     assert(x.insert(b43) == X.InsertionStatus.added);
@@ -3648,7 +3648,7 @@ version(unittest)
     // sub-class
     assert(x.tryGetElementFromCtorParams!Node(42) is null);
     assert(Base.dtorCount == 6);
-    auto n42 = new Node(42);
+    immutable n42 = new Node(42);
     assert(!x.contains(n42));     // mustn't equal to `b42`
     assert(!x.containsUsingLinearSearch(n42)); // mustn't equal to `b42`
     assert(x.insert(n42) == X.InsertionStatus.added); // added as separate type

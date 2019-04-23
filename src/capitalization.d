@@ -151,17 +151,23 @@ bool isNameCapitalized(S)(S s)
 if (isSomeString!S)
 {
     import splitter_ex : splitterASCII;
-    import std.algorithm.searching : all;
     import std.algorithm.comparison : among;
+    import std.algorithm.searching : all;
     import std.ascii : isWhite;
-    import std.range : enumerate;
     import std.uni : isUpper;
-    return s.splitterASCII!(s => (s.isWhite || s == '-'))
-            .enumerate
-            .all!(x => ((x.index >= 1 &&
-                         (x.value.all!(x => x.isUpper) || // Henry II
-                          x.value.among!(`of`, `upon`))) ||
-                        x.value.isCapitalized)); // TODO add enumerate and all middle word to be a preposition
+    size_t index = 0;
+    foreach (const x; s.splitterASCII!(s => (s.isWhite || s == '-')))
+    {
+        if (!((index >= 1 &&
+               (x.all!(x => x.isUpper) || // Henry II
+                x.among!(`of`, `upon`))) ||
+              x.isCapitalized))
+        {
+            return false;
+        }
+        index += 1;
+    }
+    return true;
 }
 
 @safe pure unittest

@@ -864,7 +864,7 @@ struct OpenHashMapOrSet(K, V = void,
      */
     static if (is(T == class))
     {
-        InsertionStatus insert()(const T element) @trusted // template-lazy
+        InsertionStatus insert()(const T element) // template-lazy
         {
             version(LDC) pragma(inline, true);
 
@@ -874,7 +874,7 @@ struct OpenHashMapOrSet(K, V = void,
 
             reserveExtra(1);
             size_t hitIndex;
-            return insertWithoutGrowth(cast(T)element, hitIndex); // ok to cast away constness
+            return insertWithoutGrowth(element, hitIndex); // ok to cast away constness
         }
     }
     else
@@ -909,7 +909,7 @@ struct OpenHashMapOrSet(K, V = void,
      *
      * Can be used for implementing, for instance, caching of typically strings.
      */
-    ref T insertAndReturnElement(SomeElement)(SomeElement element) return // template-lazy
+    ref T insertAndReturnElement(SomeElement)(scope SomeElement element) return // template-lazy
     {
         version(LDC) pragma(inline, true);
 
@@ -1190,8 +1190,8 @@ struct OpenHashMapOrSet(K, V = void,
         move(next, this);
     }
 
-    private InsertionStatus insertWithoutGrowth(SomeElement)(SomeElement element, // template-lazy
-                                                             out size_t hitIndex)
+    private InsertionStatus insertWithoutGrowth(SomeElement)(const scope SomeElement element, // template-lazy
+                                                             out size_t hitIndex) @trusted
     {
         version(LDC) pragma(inline, true);
         version(internalUnittest)
@@ -1221,11 +1221,11 @@ struct OpenHashMapOrSet(K, V = void,
             version(internalUnittest) assert(hitIndex != _bins.length, "no null or hole slot");
             static if (isCopyable!SomeElement)
             {
-                insertElementAtIndex(element, hitIndex);
+                insertElementAtIndex(*cast(SomeElement*)&element, hitIndex);
             }
             else
             {
-                insertElementAtIndex(move(element), hitIndex);
+                insertElementAtIndex(move(*cast(SomeElement*)&element), hitIndex);
             }
             static if (!hasHoleableKey)
             {
@@ -1255,7 +1255,7 @@ struct OpenHashMapOrSet(K, V = void,
             }
             if (valueDiffers) // only value changed
             {
-                move(valueOf(element),
+                move(valueOf(*cast(SomeElement*)&element),
                      valueOf(_bins[hitIndexPrel])); // value is defined so overwrite it
                 return InsertionStatus.modified;
             }

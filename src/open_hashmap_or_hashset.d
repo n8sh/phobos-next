@@ -862,23 +862,41 @@ struct OpenHashMapOrSet(K, V = void,
      *
      * If `element` is a nullable type and it is null an `AssertError` is thrown.
      */
-    InsertionStatus insert()(T element) // template-lazy
+    static if (is(T == class))
     {
-        version(LDC) pragma(inline, true);
-
-        assert(!keyOf(element).isNull);
-        static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(keyOf(element))); }
-        static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
-
-        reserveExtra(1);
-        size_t hitIndex;
-        static if (isCopyable!T)
+        InsertionStatus insert()(const T element) @trusted // template-lazy
         {
-            return insertWithoutGrowth(element, hitIndex);
+            version(LDC) pragma(inline, true);
+
+            assert(!keyOf(element).isNull);
+            static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(keyOf(element))); }
+            static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
+
+            reserveExtra(1);
+            size_t hitIndex;
+            return insertWithoutGrowth(cast(T)element, hitIndex);
         }
-        else
+    }
+    else
+    {
+        InsertionStatus insert()(T element) // template-lazy
         {
-            return insertWithoutGrowth(move(element), hitIndex);
+            version(LDC) pragma(inline, true);
+
+            assert(!keyOf(element).isNull);
+            static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(keyOf(element))); }
+            static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
+
+            reserveExtra(1);
+            size_t hitIndex;
+            static if (isCopyable!T)
+            {
+                return insertWithoutGrowth(element, hitIndex);
+            }
+            else
+            {
+                return insertWithoutGrowth(move(element), hitIndex);
+            }
         }
     }
 
@@ -3557,8 +3575,14 @@ version(unittest)
         @safe pure nothrow @nogc:
     }
 
-    import sso_string : SSOString;
-    alias X = OpenHashMap!(SSOString, Zing);
+    alias X = OpenHashSet!(Zing);
+    X x;
+
+    Zing z = new Node();
+    x.insert(z);
+
+    const Zing cz = new Node();
+    x.insert(cz);
 }
 
 /// class type with default hashing

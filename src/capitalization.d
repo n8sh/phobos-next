@@ -168,7 +168,8 @@ if (isSomeString!S)
     return true;
 }
 
-@safe pure nothrow unittest
+///
+@safe pure unittest
 {
     assert(!`alpha`.isNameCapitalized);
     assert(!`alpha centauri`.isNameCapitalized);

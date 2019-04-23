@@ -147,7 +147,7 @@ if (isSomeString!S)
 /** Return `true` if `s` has proper name-style capitalization, such as in "Alpha
  * Centauri".
  */
-bool isNameCapitalized(S)(S s) nothrow
+bool isNameCapitalized(S)(S s)
 if (isSomeString!S)
 {
     import splitter_ex : splitterASCII;

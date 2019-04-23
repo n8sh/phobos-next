@@ -54,6 +54,7 @@ if (isSomeString!S)
 }
 
 import std.uni : isLower;
+
 bool isLowercased(S, alias pred = isLower)(S s)
 if (isSomeString!S)
 {

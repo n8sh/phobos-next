@@ -150,13 +150,13 @@ if (isSomeString!S)
 bool isNameCapitalized(S)(S s)
 if (isSomeString!S)
 {
-    import std.algorithm.iteration : splitter;
+    import splitter_ex : splitterASCII;
     import std.algorithm.searching : all;
     import std.algorithm.comparison : among;
     import std.ascii : isWhite;
     import std.range : enumerate;
     import std.uni : isUpper;
-    return s.splitter!(s => (s.isWhite || s.among!('-') != 0))
+    return s.splitterASCII!(s => (s.isWhite || s == '-'))
             .enumerate
             .all!(x => ((x.index >= 1 &&
                          (x.value.all!(x => x.isUpper) || // Henry II

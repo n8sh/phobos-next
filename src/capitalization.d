@@ -158,13 +158,11 @@ if (isSomeString!S)
     size_t index = 0;
     foreach (const x; s.splitterASCII!(s => (s.isWhite || s == '-')))
     {
-        if (!((index >= 1 &&
-               (x.all!(x => x.isUpper) || // Henry II
-                x.among!(`of`, `upon`))) ||
-              x.isCapitalized))
-        {
-            return false;
-        }
+        const bool ok = ((index >= 1 &&
+                          (x.all!(x => x.isUpper) || // Henry II
+                           x.among!(`of`, `upon`))) ||
+                         x.isCapitalized);
+        if (!ok) { return false; }
         index += 1;
     }
     return true;

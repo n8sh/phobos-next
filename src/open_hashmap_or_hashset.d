@@ -3578,11 +3578,11 @@ version(unittest)
     alias X = OpenHashSet!(Zing);
     X x;
 
-    Zing z = new Node();
-    x.insert(z);
-
     const Zing cz = new Node();
-    x.insert(cz);
+    x.insert(cz);               // ok to insert const
+
+    Zing z = new Node();
+    x.insert(z); // ok to insert mutable because hashing is on address by default
 }
 
 /// class type with default hashing

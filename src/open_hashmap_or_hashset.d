@@ -1340,7 +1340,7 @@ struct OpenHashMapOrSet(K, V = void,
             Class* hit = cast(Class*)(temp in this);
             static if (__traits(hasMember, Class, "__dtor"))
             {
-                temp.__dtor;
+                temp.__dtor();
             }
             if (hit)
             {

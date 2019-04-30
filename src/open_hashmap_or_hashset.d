@@ -1338,10 +1338,9 @@ struct OpenHashMapOrSet(K, V = void,
             void[__traits(classInstanceSize, Class)] tempNode_ = void;
             scope Class temp = emplace!(Class)(tempNode_, params);
             Class* hit = cast(Class*)(temp in this);
-            import container_traits : hasElaborateDestructorNew;
-            static if (hasElaborateDestructorNew!Class)
+            static if (__traits(hasMember, Class, "__dtor"))
             {
-                .destroy(temp);
+                temp.__dtor;
             }
             if (hit)
             {

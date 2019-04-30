@@ -1332,7 +1332,7 @@ struct OpenHashMapOrSet(K, V = void,
          * Polymorphic caching can be realized by setting `hasher` to
          * `hash_functions.hashOfPolymorphic`.
          */
-        scope inout(Class) tryGetElementFromCtorParams(Class, Params...)(scope Params params) inout return @trusted
+        scope const(Class) tryGetElementFromCtorParams(Class, Params...)(scope Params params) const return @trusted
         if (is(Class : K))
         {
             void[__traits(classInstanceSize, Class)] tempNode_ = void;

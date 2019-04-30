@@ -453,13 +453,8 @@ T[] makeInitZeroArray(T, alias Allocator)(const size_t length) @trusted
  */
 template hasElaborateDestructorNew(S)
 {
-    import std.traits : isStaticArray;
-    static if (isStaticArray!S && S.length)
-    {
-        enum bool hasElaborateDestructorNew = hasElaborateDestructorNew!(typeof(S.init[0]));
-    }
-    else static if (is(S == struct) ||
-                    is(S == class)) // check also class
+    static if (is(S == struct) ||
+               is(S == class)) // check also class
     {
         static if (__traits(hasMember, S, "__dtor"))
         {
@@ -474,7 +469,15 @@ template hasElaborateDestructorNew(S)
     }
     else
     {
-        enum bool hasElaborateDestructorNew = false;
+        import std.traits : isStaticArray;
+        static if (isStaticArray!S && S.length)
+        {
+            enum bool hasElaborateDestructorNew = hasElaborateDestructorNew!(typeof(S.init[0]));
+        }
+        else
+        {
+            enum bool hasElaborateDestructorNew = false;
+        }
     }
 }
 

@@ -15,3 +15,9 @@ GC createMyGC()
 class MyGC : GC
 {
 }
+
+/* The new GC is added to the list of available garbage collectors that can be
+ * selected via the usual configuration options, e.g. by embedding rt_options
+ * into the binary:
+ */
+extern (C) __gshared string[] rt_options = ["gcopt=gc:mygc"];

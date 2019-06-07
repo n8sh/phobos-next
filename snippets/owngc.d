@@ -14,6 +14,9 @@ GC createMyGC()
 
 class MyGC : GC
 {
+    void initialize()
+    {
+    }
 }
 
 /* The new GC is added to the list of available garbage collectors that can be

@@ -116,23 +116,24 @@
  */
 module segregated_gc;
 
-void *os_mem_map(size_t nbytes) nothrow @nogc
+private static void *os_mem_map(size_t nbytes) nothrow @nogc
 {   void *p;
 
+    import core.sys.posix.sys.mman;
     p = mmap(null, nbytes, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
     return (p == MAP_FAILED) ? null : p;
 }
 
-
-int os_mem_unmap(void *base, size_t nbytes) nothrow @nogc
+private static int os_mem_unmap(void *base, size_t nbytes) nothrow @nogc
 {
+    import core.sys.posix.sys.mman;
     return munmap(base, nbytes);
 }
 
 // import gc.os : os_mem_map, os_mem_unmap;
 
-import gc.config;
-import gc.gcinterface;
+import core.gc.config;
+import core.gc.gcinterface;
 
 import paged_dynamic_array : Array = PagedDynamicArray;
 import static_bitarray2 : StaticBitArray;

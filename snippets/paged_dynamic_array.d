@@ -11,11 +11,24 @@ import core.stdc.stdio: printf;
 
 // version = PRINTF;
 
+private static void *os_mem_map(size_t nbytes) nothrow @nogc
+{   void *p;
+
+    import core.sys.posix.sys.mman;
+    p = mmap(null, nbytes, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
+    return (p == MAP_FAILED) ? null : p;
+}
+
+private static int os_mem_unmap(void *base, size_t nbytes) nothrow @nogc
+{
+    import core.sys.posix.sys.mman;
+    return munmap(base, nbytes);
+}
+
 struct PagedDynamicArray(T)
 {
     import core.internal.traits : hasElaborateDestructor;
     import core.exception : onOutOfMemoryErrorNoGC;
-    import gc.os : os_mem_map, os_mem_unmap;
 
     @safe nothrow @nogc:
 

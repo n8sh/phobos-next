@@ -594,6 +594,15 @@ class SegregatedGC : GC
         return p;
     }
 
+    /**
+     * Attempt to in-place enlarge the memory block pointed to by p by at least
+     * minsize bytes, up to a maximum of maxsize additional bytes.
+     * This does not attempt to move the memory block (like realloc() does).
+     *
+     * Returns:
+     *  0 if could not extend p,
+     *  total size of entire memory block if successful.
+     */
     size_t extend(void* p, size_t minsize, size_t maxsize, const TypeInfo ti) nothrow
     {
         debug(PRINTF) printf("### %s(p:%p, minsize:%lu, maxsize:%lu)\n", __FUNCTION__.ptr, p, minsize, maxsize);

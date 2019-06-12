@@ -1,5 +1,5 @@
 name "gc-benchmark"
-description "Benchmark for default and segregated GC."
+description "Benchmark comparing default and segregated GC."
 authors "Per Nordlöw"
 copyright "Copyright © 2019, Per Nordlöw"
 license "Boost"

@@ -1,4 +1,7 @@
+// See_Also: https://dlang.org/spec/garbage.html#gc_registry
+
 import core.gc.gcinterface, core.gc.registry;
+import segregated_gc;
 
 extern (C) pragma(crt_constructor) void registerMyGC()
 {
@@ -7,16 +10,9 @@ extern (C) pragma(crt_constructor) void registerMyGC()
 
 GC createMyGC()
 {
-    __gshared instance = new MyGC;
+    __gshared instance = new SegregatedGC;
     instance.initialize();
     return instance;
-}
-
-class MyGC : GC
-{
-    void initialize()
-    {
-    }
 }
 
 /* The new GC is added to the list of available garbage collectors that can be

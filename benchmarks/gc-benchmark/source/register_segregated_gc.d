@@ -19,4 +19,4 @@ GC createSegregatedGC()
  * selected via the usual configuration options, e.g. by embedding rt_options
  * into the binary:
  */
-extern (C) __gshared string[] rt_options = ["gcopt=gc:segregated"];
+// extern (C) __gshared string[] rt_options = ["gcopt=gc:segregated"];

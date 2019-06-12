@@ -1,4 +1,4 @@
-# A Segregated GC along with benchmarker app.d
+# A Segregated GC along with benchmarker `app.d`
 
 ## Spec
 

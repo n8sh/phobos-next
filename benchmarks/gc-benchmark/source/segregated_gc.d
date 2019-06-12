@@ -424,7 +424,7 @@ extern (C)
     }
 }
 
-class FastallocGC : GC
+class SegregatedGC : GC
 {
     import core.internal.spinlock;
     static gcLock = shared(AlignedSpinLock)(SpinLock.Contention.lengthy);
@@ -449,13 +449,13 @@ class FastallocGC : GC
             return;
 
         import core.stdc.string;
-        auto p = cstdlib.malloc(__traits(classInstanceSize, FastallocGC));
+        auto p = cstdlib.malloc(__traits(classInstanceSize, SegregatedGC));
         if (!p)
             onOutOfMemoryError();
 
-        auto init = typeid(FastallocGC).initializer();
-        assert(init.length == __traits(classInstanceSize, FastallocGC));
-        auto instance = cast(FastallocGC)memcpy(p, init.ptr, init.length);
+        auto init = typeid(SegregatedGC).initializer();
+        assert(init.length == __traits(classInstanceSize, SegregatedGC));
+        auto instance = cast(SegregatedGC)memcpy(p, init.ptr, init.length);
         instance.__ctor();
 
         instance.gGcx = Gcx(pageTableCapacityDefault);
@@ -469,7 +469,7 @@ class FastallocGC : GC
         if (config.gc != "fastalloc")
             return;
 
-        auto instance = cast(FastallocGC) gc;
+        auto instance = cast(SegregatedGC) gc;
         instance.Dtor();
         cstdlib.free(cast(void*) instance);
     }

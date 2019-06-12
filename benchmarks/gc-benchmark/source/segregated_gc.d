@@ -654,6 +654,9 @@ class SegregatedGC : GC
         tlGcx.roots.insertBack(Root(p));
     }
 
+    /**
+     * remove p from list of roots
+     */
     void removeRoot(void* p) nothrow @nogc
     {
         debug(PRINTF) printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
@@ -686,12 +689,18 @@ class SegregatedGC : GC
         return 0;
     }
 
+    /**
+     * Add range to scan for roots.
+     */
     void addRange(void* p, size_t sz, const TypeInfo ti = null) nothrow @nogc
     {
         debug(PRINTF) printf("### %s(p:%p, sz:%lu)\n", __FUNCTION__.ptr, p, sz);
         tlGcx.ranges.insertBack(Range(p, p + sz, cast() ti));
     }
 
+    /**
+     * Remove range `p`.
+     */
     void removeRange(void* p) nothrow @nogc
     {
         debug(PRINTF) printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
@@ -724,18 +733,37 @@ class SegregatedGC : GC
         return 0;
     }
 
+    /**
+     * Run finalizers.
+     */
     void runFinalizers(in void[] segment) nothrow
     {
         debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
     }
 
+    // TODO what is this?
     bool inFinalizer() nothrow
     {
         return false;
     }
 
+    /**
+     * Retrieve statistics about garbage collection.
+     * Useful for debugging and tuning.
+     */
+    core.memory.GC.Stats stats() nothrow
+    {
+        // TODO fill in
+        return typeof(return)();
+    }
+
+    /**
+     * Retrieve profile statistics about garbage collection.
+     * Useful for debugging and tuning.
+     */
     core.memory.GC.ProfileStats profileStats() nothrow
     {
+        // TODO fill in
         return typeof(return)();
     }
 

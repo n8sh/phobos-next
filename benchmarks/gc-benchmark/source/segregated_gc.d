@@ -541,12 +541,6 @@ class SegregatedGC : GC
         return BlkInfo.init;
     }
 
-    core.memory.GC.Stats stats() nothrow
-    {
-        debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
-        return typeof(return).init;
-    }
-
     void addRoot(void* p) nothrow @nogc
     {
         debug(PRINTF) printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
@@ -652,6 +646,7 @@ class SegregatedGC : GC
      */
     core.memory.GC.Stats stats() nothrow
     {
+        debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
         // TODO fill in
         return typeof(return)();
     }
@@ -662,6 +657,7 @@ class SegregatedGC : GC
      */
     core.memory.GC.ProfileStats profileStats() nothrow
     {
+        debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
         // TODO fill in
         return typeof(return)();
     }

@@ -3,12 +3,12 @@
 import core.gc.gcinterface, core.gc.registry;
 import segregated_gc;
 
-extern (C) pragma(crt_constructor) void registerMyGC()
+extern (C) pragma(crt_constructor) void registerSegregatedGC()
 {
-    registerGCFactory("mygc", &createMyGC);
+    registerGCFactory("segregated", &createSegregatedGC);
 }
 
-GC createMyGC()
+GC createSegregatedGC()
 {
     __gshared instance = new SegregatedGC;
     instance.initialize();
@@ -19,4 +19,4 @@ GC createMyGC()
  * selected via the usual configuration options, e.g. by embedding rt_options
  * into the binary:
  */
-extern (C) __gshared string[] rt_options = ["gcopt=gc:mygc"];
+extern (C) __gshared string[] rt_options = ["gcopt=gc:segregated"];

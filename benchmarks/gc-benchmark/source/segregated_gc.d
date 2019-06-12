@@ -441,12 +441,9 @@ class SegregatedGC : GC
         gcLock.lock();
     }
 
-    static void initialize(ref GC gc)
+    void initialize()
     {
         debug(PRINTF) printf("### %s()\n", __FUNCTION__.ptr);
-
-        if (config.gc != "fastalloc")
-            return;
 
         import core.stdc.string;
         auto p = cstdlib.malloc(__traits(classInstanceSize, SegregatedGC));
@@ -459,19 +456,12 @@ class SegregatedGC : GC
         instance.__ctor();
 
         instance.gGcx = Gcx(pageTableCapacityDefault);
-
-        gc = instance;
     }
 
-    static void finalize(ref GC gc)
+    void finalize()
     {
         debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
-        if (config.gc != "fastalloc")
-            return;
-
-        auto instance = cast(SegregatedGC) gc;
-        instance.Dtor();
-        cstdlib.free(cast(void*) instance);
+        Dtor();
     }
 
     this()
@@ -743,6 +733,12 @@ class SegregatedGC : GC
     {
         return false;
     }
+
+    core.memory.GC.ProfileStats profileStats() nothrow
+    {
+        return typeof(return)();
+    }
+
 }
 
 private enum PowType

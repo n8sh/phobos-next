@@ -440,7 +440,7 @@ class SegregatedGC : GC
     {
         debug(PRINTF) printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
         lockNR();
-        scope (failure) gcLock.unlock();
+        scope (failure) gcLock.unlock(); // TODO why needed?
         void* p = gGcx.smallPools.qalloc(size, bits).base;
         gcLock.unlock();
         if (size && p is null)
@@ -452,7 +452,7 @@ class SegregatedGC : GC
     {
         debug(PRINTF) printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
         lockNR();
-        scope (failure) gcLock.unlock();
+        scope (failure) gcLock.unlock(); // TODO why needed?
         BlkInfo blkinfo = gGcx.smallPools.qalloc(size, bits);
         gcLock.unlock();
         if (size && blkinfo.base is null)

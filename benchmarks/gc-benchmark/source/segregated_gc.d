@@ -438,7 +438,7 @@ class SegregatedGC : GC
 
     void* malloc(size_t size, uint bits, const TypeInfo ti) nothrow
     {
-        printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
+        debug(PRINTF) printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
         lockNR();
         scope (failure) gcLock.unlock();
         void* p = gGcx.smallPools.qalloc(size, bits).base;

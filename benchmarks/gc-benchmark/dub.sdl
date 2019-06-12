@@ -1,7 +1,7 @@
 name "gc-benchmark"
 description "Benchmark for D's GC."
 authors "Per Nordlöw"
-copyright "Copyright © 2018, Per Nordlöw"
+copyright "Copyright © 2019, Per Nordlöw"
 license "Boost"
 
 buildType "release-nobounds-segregated-gc" {

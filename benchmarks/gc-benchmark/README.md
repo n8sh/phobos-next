@@ -79,8 +79,6 @@ allocator may do better to store this data separately, similar to the basic GC.
 
 ## References
 
-- [Adding your own GC to the GC Registry](https://dlang.org/spec/garbage.html#gc_registry)
-
 0. Proposal: Dense mark bits and sweep-free allocation
     https://github.com/golang/proposal/blob/master/design/12800-sweep-free-alloc.md
  and in turn https://github.com/golang/go/issues/12800
@@ -113,3 +111,5 @@ allocator may do better to store this data separately, similar to the basic GC.
 9. What are the advantages and disadvantages of having mark bits together and
  separate for Garbage Collection
  https://stackoverflow.com/questions/23057531/what-are-the-advantages-and-disadvantages-of-having-mark-bits-together-and-separ
+
+10. [Adding your own GC to the GC Registry](https://dlang.org/spec/garbage.html#gc_registry)

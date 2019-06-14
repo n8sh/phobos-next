@@ -6,11 +6,11 @@ Make it conservative for now and later merge Rainer's precise add-ons.
 
 Pools types are segregated on both
 
-- size class
-- scanningness: (whether they may contain pointers or not)
-- finalizers (for class or struct)
+- size class,
+- scanningness: (whether they may contain pointers or not), and
+- whether they contain finalizers or now (`struct` or `class`)
 
-resulting in `number_of_size_classes * 2 * 2` different pool kinds.
+resulting in `2*2*number_of_size_classes` different pool kinds.
 
 Use `static foreach` plus `mixin` to construct and use instances of these
 different pool types without code duplication.

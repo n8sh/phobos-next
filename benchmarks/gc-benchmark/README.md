@@ -80,8 +80,8 @@ allocator may do better to store this data separately, similar to the basic GC.
 ## References
 
 0. Proposal: Dense mark bits and sweep-free allocation
-    https://github.com/golang/proposal/blob/master/design/12800-sweep-free-alloc.md
- and in turn https://github.com/golang/go/issues/12800
+   https://github.com/golang/proposal/blob/master/design/12800-sweep-free-alloc.md
+   and in turn https://github.com/golang/go/issues/12800
 
 1. Inside D's GC:
     https://olshansky.me/gc/runtime/dlang/2017/06/14/inside-d-gc.html

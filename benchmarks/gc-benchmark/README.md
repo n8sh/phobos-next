@@ -9,7 +9,8 @@ Pools types are segregated on both
 - size class
 - scanningness: (whether they may contain pointers or not)
 - finalizers (for class or struct)
-leading `number_of_size_classes * 2 * 2` different pool kinds.
+
+resulting in `number_of_size_classes * 2 * 2` different pool kinds.
 
 Use `static foreach` plus `mixin` to construct and use instances of these
 different pool types without code duplication.

@@ -85,18 +85,14 @@ allocator may do better to store this data separately, similar to the basic GC.
 
 1. [Inside D's GC](https://olshansky.me/gc/runtime/dlang/2017/06/14/inside-d-gc.html)
 
-2. DIP 46: Region Based Memory Allocation
-    https://wiki.dlang.org/DIP46
+2. [DIP 46: Region Based Memory Allocation](https://wiki.dlang.org/DIP46)
 
-3. Thread-local GC:
-    https://forum.dlang.org/thread/xiaxgllobsiiuttavivb@forum.dlang.org
+3. [Thread-local GC](https://forum.dlang.org/thread/xiaxgllobsiiuttavivb@forum.dlang.org)
 
-4. Thread GC non "stop-the-world"
-    https://forum.dlang.org/post/dnxgbumzenupviqymhrg@forum.dlang.org
+4. [Thread GC non "stop-the-world"](https://forum.dlang.org/post/dnxgbumzenupviqymhrg@forum.dlang.org)
 
-5. Conservative GC: Is It Really That Bad?
-    https://www.excelsiorjet.com/blog/articles/conservative-gc-is-it-really-that-bad/
-    https://forum.dlang.org/thread/qperkcrrngfsbpbumydc@forum.dlang.org
+5. [Conservative GC: Is It Really That Bad?](https://www.excelsiorjet.com/blog/articles/conservative-gc-is-it-really-that-bad/)
+   and [here](https://forum.dlang.org/thread/qperkcrrngfsbpbumydc@forum.dlang.org)
 
 6. GC page and block metadata storage
     https://forum.dlang.org/thread/fvmiudfposhggpjgtluf@forum.dlang.org

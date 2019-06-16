@@ -33,10 +33,11 @@ Calculate size class at compile-time using next power of 2 of `T.sizeof` for
 calls to `new T()` and feed into `N` size-dependent overloads of `mallocN()`,
 `callocN()`, `reallocN()` etc.
 
-Use hash-table from basepointer to page index instead of a binary search to
-speed up page-search ([1]). Use hash-table with open addressing and Fibonacci
-hashing, for instance, phobos-next's
-[`open_hashmap_or_hashset.c`](https://github.com/nordlow/phobos-next/blob/master/src/open_hashmap_or_hashset.d).
+For each pool use a hash-table from base pointer to page index instead of a
+binary search to speed up page-search ([1]). Use hash-table with open addressing
+and Fibonacci hashing, for instance, phobos-next's
+[`open_hashmap_or_hashset.c`](https://github.com/nordlow/phobos-next/blob/master/src/open_hashmap_or_hashset.d). This
+hash-table needs to be cleared up after mark phase or during allocation.
 
 Add run-time information for implicit (by compiler) and explicit (by developer
 in library) casting from mutable to `immutable` and, in turn, `shared` for
@@ -48,16 +49,14 @@ first place on the global GC heap.
 ## Mark-phase
 
 - For each potential pointer `p` in stack
-- Check if `p` lies within address bounds of all pools.
-- If so, find page storing that pointer (using a hashmap from base
-pointers to pages)
-- If that slot lies in a pool and
-and that slot belongs to a pool whols element types may contain
-pointers that slot hasn't yet been marked scan that slot
+  - Check if `p` lies within address bounds of all pools.
+  - If so, find page storing that pointer (using a hashmap from base pointers to pages)
+  - If that slot lies in a pool and and that slot belongs to a pool whols
+    element types may contain pointers that slot hasn't yet been marked scan that
+    slot.
 - Finally mark slot
-
 - Find first free slot (0) in pageSlotOccupancies bitarray of length using
-core.bitop. Use my own bitarray.
+  `core.bitop`. Use my own bitarray implementation.
 
 ## Key-Question
 

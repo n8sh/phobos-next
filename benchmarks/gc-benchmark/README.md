@@ -27,7 +27,7 @@ sweeps to free pages. But such sweeps can be triggered by low memory and
 doesn't have to do a complete sweep if low latency is needed.
 
 Use jemalloc `size classes`: For size classes in between powers of two we can
-allocate pages in 3*n chunks. This is currently done in D's default GC aswell.
+allocate pages in 3*n chunks. This is has been added to D's default GC aswell.
 
 Calculate size class at compile-time using next power of 2 of `T.sizeof` for
 calls to `new T()` and feed into `N` size-dependent overloads of `mallocN()`,

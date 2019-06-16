@@ -94,17 +94,12 @@ allocator may do better to store this data separately, similar to the basic GC.
 5. [Conservative GC: Is It Really That Bad?](https://www.excelsiorjet.com/blog/articles/conservative-gc-is-it-really-that-bad/)
    and [here](https://forum.dlang.org/thread/qperkcrrngfsbpbumydc@forum.dlang.org)
 
-6. GC page and block metadata storage
-    https://forum.dlang.org/thread/fvmiudfposhggpjgtluf@forum.dlang.org
+6. [GC page and block metadata storage](https://forum.dlang.org/thread/fvmiudfposhggpjgtluf@forum.dlang.org)
 
-7. Scalable memory allocation using jemalloc
-    https://www.facebook.com/notes/facebook-engineering/scalable-memory-allocation-using-jemalloc/480222803919/
+7. [Scalable memory allocation using jemalloc](https://www.facebook.com/notes/facebook-engineering/scalable-memory-allocation-using-jemalloc/480222803919/)
 
-8. How does jemalloc work? What are the benefits?
-    https://stackoverflow.com/questions/1624726/how-does-jemalloc-work-what-are-the-benefits
+8. [How does jemalloc work? What are the benefits?](https://stackoverflow.com/questions/1624726/how-does-jemalloc-work-what-are-the-benefits)
 
-9. What are the advantages and disadvantages of having mark bits together and
- separate for Garbage Collection
- https://stackoverflow.com/questions/23057531/what-are-the-advantages-and-disadvantages-of-having-mark-bits-together-and-separ
+9. [What are the advantages and disadvantages of having mark bits together and separate for Garbage Collection](https://stackoverflow.com/questions/23057531/what-are-the-advantages-and-disadvantages-of-having-mark-bits-together-and-separ)
 
 10. [Adding your own GC to the GC Registry](https://dlang.org/spec/garbage.html#gc_registry)

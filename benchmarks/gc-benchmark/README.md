@@ -33,9 +33,9 @@ Calculate size class at compile-time using next power of 2 of `T.sizeof` for
 calls to `new T()` and feed into `N` size-dependent overloads of `mallocN()`,
 `callocN()`, `reallocN()` etc.
 
-Use hash-table from basepointer to page index to speed up page-search ([1]). Use
-hash-table with open addressing and Fibonacci hashing, for instance,
-phobos-next's
+Use hash-table from basepointer to page index instead of a binary search to
+speed up page-search ([1]). Use hash-table with open addressing and Fibonacci
+hashing, for instance, phobos-next's
 [`open_hashmap_or_hashset.c`](https://github.com/nordlow/phobos-next/blob/master/src/open_hashmap_or_hashset.d).
 
 Add run-time information for implicit (by compiler) and explicit (by developer

@@ -34,8 +34,8 @@ calls to `new T()` and feed into `N` size-dependent overloads of `mallocN()`,
 `callocN()`, `reallocN()` etc.
 
 Use hash-table from basepointer to page index to speed up page-search ([1]). Use
-hash-table with open addressing and Fibonacci hashing (for instance phobos-next
-open_hashmap_or_hashset.c)
+hash-table with open addressing and Fibonacci hashing (for instance
+phobos-next's `open_hashmap_or_hashset.c`)
 
 Add run-time information for implicit (by compiler) and explicit (by developer
 in library) casting from mutable to `immutable` and, in turn, `shared` for

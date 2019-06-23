@@ -215,7 +215,7 @@ private:
     assert(a == b);
 }
 
-/// Test clearing.
+/// Test emptying (resetting) via `.clear` and explicit copying with `.dup`.
 @safe pure nothrow @nogc unittest
 {
     const n = 5;
@@ -228,6 +228,9 @@ private:
 
     a = BitArray!().withLength(n);
     assert(a.length == n);
+
+    auto b = a.dup;
+    assert(b.length == n);
 
     a.clear();
     assert(a.length == 0);

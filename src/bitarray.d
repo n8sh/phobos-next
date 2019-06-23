@@ -266,7 +266,7 @@ private:
 /// Test `indexOfFirstOne`.
 @safe pure nothrow @nogc unittest
 {
-    const n = 5;
+    enum n = 3 * BitArray!().bitsPerBlock;
 
     auto a = BitArray!().withLength(n);
     assert(a.length == n);
@@ -274,16 +274,20 @@ private:
 
     a[0] = true;
     assert(a.indexOfFirstOne == 0);
-
     a[0] = false;
+
     a[2] = true;
     assert(a.indexOfFirstOne == 2);
-
     a[2] = false;
+
+    a[n/2] = true;
+    assert(a.indexOfFirstOne == n/2);
+    a[n/2] = false;
+
     a[n-1] = true;
     assert(a.indexOfFirstOne == n-1);
-
     a[n-1] = false;
+
     assert(a.indexOfFirstOne == n);
 }
 

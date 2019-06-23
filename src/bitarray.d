@@ -45,7 +45,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
         release();
     }
 
-    /// Duplicate.
+    /// Explicit copying (duplicate).
     typeof(this) dup()
     {
         return typeof(this).withLengthAndBlocks(_length, _blocks);
@@ -138,6 +138,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
         return _blocks == rhs._blocks;
     }
 
+    /** Only explicit copying via `.dup` for now. */
     @disable this(this);
 
 private:
@@ -166,6 +167,7 @@ private:
     size_t _length;
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     const bitCount = 100;
@@ -193,6 +195,7 @@ private:
     assert(!a[1]);
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     const n = 5;
@@ -210,6 +213,24 @@ private:
     assert(b.countOnes == n);
 
     assert(a == b);
+}
+
+/// Test clearing.
+@safe pure nothrow @nogc unittest
+{
+    const n = 5;
+
+    auto a = BitArray!().withLength(n);
+    assert(a.length == n);
+
+    a.clear();
+    assert(a.length == 0);
+
+    a = BitArray!().withLength(n);
+    assert(a.length == n);
+
+    a.clear();
+    assert(a.length == 0);
 }
 
 version(unittest)

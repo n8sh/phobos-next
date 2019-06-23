@@ -831,7 +831,7 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         }
 
         /** Get number of bits set. */
-        Mod!(bitCount + 1) countOnes()() const    // template-lazy
+        Mod!(bitCount + 1) countOnes()() const    // template-lazy. TODO unite with other definitions
         {
             typeof(return) n = 0;
             foreach (const block; _blocks)

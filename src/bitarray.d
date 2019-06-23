@@ -167,7 +167,7 @@ private:
     size_t _length;
 }
 
-///
+/// Test `bitCount` and setting and indexing.
 @safe pure nothrow @nogc unittest
 {
     const bitCount = 100;
@@ -195,7 +195,7 @@ private:
     assert(!a[1]);
 }
 
-///
+/// Test `countBits`.
 @safe pure nothrow @nogc unittest
 {
     const n = 5;

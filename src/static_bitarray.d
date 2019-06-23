@@ -815,13 +815,16 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         /// ditto
         alias bitsSet = oneIndexes;
 
-        /** Find index of first non-zero bit or `length` if no bit set. */
+        /** Find index of first non-zero bit or `length` if no bit set.
+         *
+         * Optimized for ones-sparsity.
+         */
         size_t indexOfFirstOne()() const nothrow
         {
             pragma(inline, true);
             foreach (const blockIndex, const block; _blocks)
             {
-                if (block != 0)
+                if (block != 0)     // optimize for ones-sparsity
                 {
                     import core.bitop : bsf;
                     return blockIndex*bitsPerBlock + bsf(block);

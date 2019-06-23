@@ -103,7 +103,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
         return value;
     }
 
-    /** Get number of bits set. */
+    /** Get number of (one) bits set. */
     size_t countOnes()() const  // template-lazy
     {
         version(LDC) pragma(inline, true);
@@ -130,6 +130,12 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
             }
         }
         return typeof(return)(n);
+    }
+
+    /** Get number of (zero) bits unset. */
+    size_t countZeros()() const  // template-lazy
+    {
+        return length - countOnes;
     }
 
     /** Equality, operators == and !=. */
@@ -204,13 +210,17 @@ private:
     foreach (const i; 0 .. n)
     {
         assert(a.countOnes == i);
+        assert(a.countZeros == n - i);
         a[i] = true;
         assert(a.countOnes == i + 1);
+        assert(a.countZeros == n - (i + 1));
     }
     assert(a.countOnes == n);
+    assert(a.countZeros == 0);
 
     auto b = a.dup;
     assert(b.countOnes == n);
+    assert(b.countZeros == 0);
 
     assert(a == b);
 }

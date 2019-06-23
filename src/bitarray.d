@@ -104,7 +104,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     }
 
     /** Set all bits to zero. */
-    void zero()
+    private void zero()
     {
         foreach (ref block; _blocks)
         {
@@ -113,7 +113,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     }
 
     /** Set all bits to one. */
-    void one()
+    private void one()
     {
         foreach (ref block; _blocks)
         {

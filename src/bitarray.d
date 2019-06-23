@@ -167,7 +167,7 @@ private:
     size_t _length;
 }
 
-/// Test `bitCount` and setting and indexing.
+/// Test indexing and element assignment.
 @safe pure nothrow @nogc unittest
 {
     const bitCount = 100;

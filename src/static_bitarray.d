@@ -821,7 +821,6 @@ struct StaticBitArray(uint bitCount, Block = size_t)
          */
         size_t indexOfFirstOne()() const nothrow
         {
-            pragma(inline, true);
             foreach (const blockIndex, const block; _blocks)
             {
                 if (block != Block.max) // optimize for zeros-sparsity

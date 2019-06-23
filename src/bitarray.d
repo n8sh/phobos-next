@@ -19,9 +19,9 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     {
         version(LDC) pragma(inline, true);
         typeof(return) that;
-        that._blockCount = ((length / blockBits) + // number of whole blocks
-                            (length % blockBits ? 1 : 0)); // remained block
-        that._blockPtr = cast(Block*)pureCalloc(blockBits, that._blockCount);
+        that._blockCount = ((length / bitsPerBlock) + // number of whole blocks
+                            (length % bitsPerBlock ? 1 : 0)); // remained block
+        that._blockPtr = cast(Block*)pureCalloc(bitsPerBlock, that._blockCount);
         that._length = length;
         return that;
     }
@@ -33,7 +33,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
         version(LDC) pragma(inline, true);
         typeof(return) that;
         that._blockCount = blocks.length;
-        that._blockPtr = cast(Block*)pureMalloc(blockBits * that._blockCount);
+        that._blockPtr = cast(Block*)pureMalloc(bitsPerBlock * that._blockCount);
         that._blocks[] = blocks;
         that._length = length;
         return that;
@@ -80,7 +80,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     alias opDollar = length;    /// ditto
 
     /// Get capacity in number of bits.
-    @property size_t capacity() const { return blockBits*_blockCount; }
+    @property size_t capacity() const { return bitsPerBlock*_blockCount; }
 
     /** Get the `i`'th bit. */
     bool opIndex(size_t i) const @trusted
@@ -104,7 +104,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     }
 
     /** Get number of (one) bits set. */
-    size_t countOnes()() const  // template-lazy
+    size_t countOnes()() const  // template-lazy. TODO unite with other definitions
     {
         version(LDC) pragma(inline, true);
         typeof(return) n = 0;
@@ -138,6 +138,20 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
         return length - countOnes;
     }
 
+    /** Find index of first non-zero bit or `length` if no bit set. */
+    size_t indexOfFirstSetBit()() const
+    {
+        foreach (const blockIndex, const block; _blocks)
+        {
+            if (block != 0)
+            {
+                import core.bitop : bsf;
+                return blockIndex*bitsPerBlock + bsf(block);
+            }
+        }
+        return length;
+    }
+
     /** Equality, operators == and !=. */
     bool opEquals(in ref typeof(this) rhs) const
     {
@@ -156,7 +170,7 @@ private:
     }
 
     alias Block = size_t;
-    enum blockBits = 8*Block.sizeof;
+    enum bitsPerBlock = 8*Block.sizeof;
 
     size_t _blockCount;
 
@@ -181,7 +195,7 @@ private:
     auto a = BitArray!().withLength(bitCount);
 
     assert(a.length == bitCount);
-    assert(a.capacity == 2*a.blockBits);
+    assert(a.capacity == 2*a.bitsPerBlock);
     foreach (const i; 0 .. bitCount)
     {
         assert(!a[i]);
@@ -244,6 +258,22 @@ private:
 
     a.clear();
     assert(a.length == 0);
+}
+
+/// Test `indexOfFirstSetBit`.
+@safe pure nothrow @nogc unittest
+{
+    const n = 5;
+
+    auto a = BitArray!().withLength(n);
+    assert(a.length == n);
+    assert(a.indexOfFirstSetBit == n);
+
+    a[0] = true;
+    assert(a.indexOfFirstSetBit == 0);
+    a[0] = false;
+    a[2] = true;
+    assert(a.indexOfFirstSetBit == 2);
 }
 
 version(unittest)

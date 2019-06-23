@@ -819,11 +819,11 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         size_t indexOfFirstSetBit()() const nothrow
         {
             pragma(inline, true);
-            import core.bitop : bsf;
             foreach (const blockIndex, const block; _blocks)
             {
                 if (block != 0)
                 {
+                    import core.bitop : bsf;
                     return blockIndex*bitsPerBlock + bsf(block);
                 }
             }

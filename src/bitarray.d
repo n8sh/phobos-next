@@ -138,7 +138,10 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
         return length - countOnes;
     }
 
-    /** Find index of first non-zero bit or `length` if no bit set. */
+    /** Find index of first non-zero bit or `length` if no bit set.
+     *
+     * Optimized for ones-sparsity.
+     */
     size_t indexOfFirstOne()() const
     {
         foreach (const blockIndex, const block; _blocks)
@@ -271,9 +274,17 @@ private:
 
     a[0] = true;
     assert(a.indexOfFirstOne == 0);
+
     a[0] = false;
     a[2] = true;
     assert(a.indexOfFirstOne == 2);
+
+    a[2] = false;
+    a[n-1] = true;
+    assert(a.indexOfFirstOne == n-1);
+
+    a[n-1] = false;
+    assert(a.indexOfFirstOne == n);
 }
 
 version(unittest)

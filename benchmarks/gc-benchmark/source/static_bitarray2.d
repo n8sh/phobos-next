@@ -82,7 +82,7 @@ struct StaticBitArray(uint bitCount, Block = size_t)
     }
 
     /** Find index of first non-zero bit or `length` if no bit set. */
-    size_t indexOfFirstSetBit() const nothrow
+    size_t indexOfFirstOne() const nothrow
     {
         pragma(inline, true);
         import core.bitop : bsf;
@@ -110,21 +110,21 @@ unittest
     StaticBitArray!(length) x;
     static assert(x.blockCount == blockCount);
 
-    assert((x.indexOfFirstSetBit == x.length));
+    assert((x.indexOfFirstOne == x.length));
     x[length - 1] = true;
-    assert((x.indexOfFirstSetBit == x.length - 1));
+    assert((x.indexOfFirstOne == x.length - 1));
     x[length - 2] = true;
-    assert((x.indexOfFirstSetBit == x.length - 2));
+    assert((x.indexOfFirstOne == x.length - 2));
 
     x[length/2 + 1] = true;
-    assert((x.indexOfFirstSetBit == x.length/2 + 1));
+    assert((x.indexOfFirstOne == x.length/2 + 1));
     x[length/2] = true;
-    assert((x.indexOfFirstSetBit == x.length/2));
+    assert((x.indexOfFirstOne == x.length/2));
     x[length/2 - 1] = true;
-    assert((x.indexOfFirstSetBit == x.length/2 - 1));
+    assert((x.indexOfFirstOne == x.length/2 - 1));
 
     x[0] = true;
-    assert((x.indexOfFirstSetBit == 0));
+    assert((x.indexOfFirstOne == 0));
     assert(x[0]);
     assert(!x[1]);
 

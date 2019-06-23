@@ -161,7 +161,7 @@ if (sizeClass >= smallSizeClasses[0])
         version(LDC) pragma(inline, true);
 
         // TODO scan `slotUsages` at slotIndex using core.bitop.bsf to find
-        // first free page if any. Use modification of `indexOfFirstSetBit` that
+        // first free page if any. Use modification of `indexOfFirstOne` that
         // takes startIndex being `slotIndex` If no hit set `slotIndex` to
         // `Page.slotCount`
         // TODO instead of this find next set bit at `slotIndex` in

@@ -139,11 +139,11 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     }
 
     /** Find index of first non-zero bit or `length` if no bit set. */
-    size_t indexOfFirstSetBit()() const
+    size_t indexOfFirstOne()() const
     {
         foreach (const blockIndex, const block; _blocks)
         {
-            if (block != 0)
+            if (block != 0)     // optimize for ones-sparsity
             {
                 import core.bitop : bsf;
                 return blockIndex*bitsPerBlock + bsf(block);
@@ -260,20 +260,20 @@ private:
     assert(a.length == 0);
 }
 
-/// Test `indexOfFirstSetBit`.
+/// Test `indexOfFirstOne`.
 @safe pure nothrow @nogc unittest
 {
     const n = 5;
 
     auto a = BitArray!().withLength(n);
     assert(a.length == n);
-    assert(a.indexOfFirstSetBit == n);
+    assert(a.indexOfFirstOne == n);
 
     a[0] = true;
-    assert(a.indexOfFirstSetBit == 0);
+    assert(a.indexOfFirstOne == 0);
     a[0] = false;
     a[2] = true;
-    assert(a.indexOfFirstSetBit == 2);
+    assert(a.indexOfFirstOne == 2);
 }
 
 version(unittest)

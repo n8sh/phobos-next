@@ -195,7 +195,7 @@ private:
     assert(!a[1]);
 }
 
-/// Test `countBits`.
+/// Test `countOnes`.
 @safe pure nothrow @nogc unittest
 {
     const n = 5;

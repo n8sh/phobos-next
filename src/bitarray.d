@@ -52,11 +52,12 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     }
 
     /// Empty.
-    void clear()
+    void reset()
     {
         release();
         resetInternalData();
     }
+    alias clear = reset;
 
     /// Release internal store.
     private void release() @trusted
@@ -299,7 +300,7 @@ private:
     auto a = BitArray!().withLength(n);
     assert(a.length == n);
 
-    a.clear();
+    a.reset();
     assert(a.length == 0);
 
     a = BitArray!().withLength(n);
@@ -308,7 +309,7 @@ private:
     auto b = a.dup;
     assert(b.length == n);
 
-    a.clear();
+    a.reset();
     assert(a.length == 0);
 }
 

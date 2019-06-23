@@ -94,19 +94,31 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     {
         if (value)
         {
-            foreach (ref block; _blocks)
-            {
-                block = Block.max;
-            }
+            one();
         }
         else
         {
-            foreach (ref block; _blocks)
-            {
-                block = Block.min;
-            }
+            zero();
         }
         return this;
+    }
+
+    /** Set all bits to zero. */
+    void zero()
+    {
+        foreach (ref block; _blocks)
+        {
+            block = Block.min;
+        }
+    }
+
+    /** Set all bits to one. */
+    void one()
+    {
+        foreach (ref block; _blocks)
+        {
+            block = Block.max;
+        }
     }
 
     /** Set the `i`'th bit to `value`. */

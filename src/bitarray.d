@@ -89,6 +89,26 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
         return cast(bool)bt(_blockPtr, i);
     }
 
+    /** Set all bits to `value` via slice assignment syntax. */
+    ref typeof(this) opSliceAssign(bool value)
+    {
+        if (value)
+        {
+            foreach (ref block; _blocks)
+            {
+                block = Block.max;
+            }
+        }
+        else
+        {
+            foreach (ref block; _blocks)
+            {
+                block = Block.min;
+            }
+        }
+        return this;
+    }
+
     /** Set the `i`'th bit to `value`. */
     bool opIndexAssign(bool value, size_t i) @trusted
     {
@@ -291,29 +311,67 @@ private:
 
     a[0] = true;
     assert(a.indexOfFirstOne == 0);
-    a[0] = false;
+    a[] = false;
 
     a[2] = true;
     assert(a.indexOfFirstOne == 2);
-    a[2] = false;
+    a[] = false;
 
     a[n/2-1] = true;
     assert(a.indexOfFirstOne == n/2-1);
-    a[n/2-1] = false;
+    a[] = false;
 
     a[n/2] = true;
     assert(a.indexOfFirstOne == n/2);
-    a[n/2] = false;
+    a[] = false;
 
     a[n/2+1] = true;
     assert(a.indexOfFirstOne == n/2+1);
-    a[n/2+1] = false;
+    a[] = false;
 
     a[n-1] = true;
     assert(a.indexOfFirstOne == n-1);
-    a[n-1] = false;
+    a[] = false;
 
     assert(a.indexOfFirstOne == n);
+}
+
+/// Test `indexOfFirstZero`.
+@safe pure nothrow @nogc unittest
+{
+    enum n = 2 * BitArray!().bitsPerBlock;
+
+    auto a = BitArray!().withLength(n);
+    a[] = true;
+
+    assert(a.length == n);
+    assert(a.indexOfFirstZero == n);
+
+    a[0] = false;
+    assert(a.indexOfFirstZero == 0);
+    a[0] = true;
+
+    a[2] = false;
+    assert(a.indexOfFirstZero == 2);
+    a[2] = true;
+
+    a[n/2-1] = false;
+    assert(a.indexOfFirstZero == n/2-1);
+    a[n/2-1] = true;
+
+    a[n/2] = false;
+    assert(a.indexOfFirstZero == n/2);
+    a[n/2] = true;
+
+    a[n/2+1] = false;
+    assert(a.indexOfFirstZero == n/2+1);
+    a[n/2+1] = true;
+
+    a[n-1] = false;
+    assert(a.indexOfFirstZero == n-1);
+    a[n-1] = true;
+
+    assert(a.indexOfFirstZero == n);
 }
 
 version(unittest)

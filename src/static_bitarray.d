@@ -824,7 +824,7 @@ struct StaticBitArray(uint bitCount, Block = size_t)
             pragma(inline, true);
             foreach (const blockIndex, const block; _blocks)
             {
-                if (block != 0)     // optimize for ones-sparsity
+                if (block != Block.max) // optimize for zeros-sparsity
                 {
                     import core.bitop : bsf;
                     return blockIndex*bitsPerBlock + bsf(block);

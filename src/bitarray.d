@@ -146,10 +146,27 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     {
         foreach (const blockIndex, const block; _blocks)
         {
-            if (block != 0)     // optimize for ones-sparsity
+            if (block != Block.min) // optimize for ones-sparsity
             {
                 import core.bitop : bsf;
                 return blockIndex*bitsPerBlock + bsf(block);
+            }
+        }
+        return length;
+    }
+
+    /** Find index of first zero bit or `length` if no bit set.
+     *
+     * Optimized for zeros-sparsity.
+     */
+    size_t indexOfFirstZero()() const
+    {
+        foreach (const blockIndex, const block; _blocks)
+        {
+            if (block != Block.max) // optimize for zeros-sparsity
+            {
+                import core.bitop : bsf;
+                return blockIndex*bitsPerBlock + bsf(~block); // TODO is there a builtin for `bsf(~block)`?
             }
         }
         return length;

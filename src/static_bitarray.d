@@ -71,6 +71,7 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         pragma(inline, true);
         _blocks[] = 0;          // TODO is this fastest way?
     }
+    alias clear = reset;
 
     /** Gets the amount of native words backing this $(D StaticBitArray). */
     @property static uint dim()

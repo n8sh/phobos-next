@@ -201,7 +201,7 @@ private:
     assert(!a[1]);
 }
 
-/// Test `countOnes`.
+/// Test `countOnes` and `countZeros`.
 @safe pure nothrow @nogc unittest
 {
     const n = 5;

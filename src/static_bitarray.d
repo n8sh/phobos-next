@@ -729,9 +729,16 @@ struct StaticBitArray(uint bitCount, Block = size_t)
     /** Check if this $(D StaticBitArray) has only zeros (is empty). */
     bool allZero()() const @safe pure nothrow @nogc
     {
-        foreach (const block; _blocks) // TODO array operation
+        foreach (const block; _fullBlocks)
         {
             if (block != 0)
+            {
+                return false;
+            }
+        }
+        static if (blockCount)
+        {
+            if (_restBlock != 0)
             {
                 return false;
             }

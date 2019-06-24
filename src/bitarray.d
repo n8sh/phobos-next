@@ -19,7 +19,6 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     /** Construct with `length` number of zero bits. */
     static typeof(this) withLength(size_t length) @trusted
     {
-        version(LDC) pragma(inline, true);
         typeof(return) that;
         that._blockCount = ((length / bitsPerBlock) + // number of whole blocks
                             (length % bitsPerBlock ? 1 : 0)); // remained block
@@ -32,7 +31,6 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     static typeof(this) withLengthAndBlocks(size_t length,
                                             Block[] blocks) @trusted
     {
-        version(LDC) pragma(inline, true);
         typeof(return) that;
         that._blockCount = blocks.length;
         that._blockPtr = cast(Block*)pureMalloc(bitsPerBlock * that._blockCount);

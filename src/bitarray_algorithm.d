@@ -7,7 +7,7 @@ module bitarray_algorithm;
 
 @safe pure nothrow @nogc:
 
-size_t countOnes(Blocks)(const scope auto ref Blocks blocks)
+package size_t countOnes(Blocks)(const scope auto ref Blocks blocks)
 if (isBlocks!Blocks)
 {
     typeof(return) result = 0;
@@ -17,25 +17,6 @@ if (isBlocks!Blocks)
         result += cast(typeof(result))popcnt(block);
     }
     return typeof(return)(result);
-}
-
-/// Test `countOnes`.
-@safe pure nothrow @nogc unittest
-{
-    enum n = 3;
-    size_t[n] x;
-    assert(countOnes(x) == 0);
-
-    x[0] = 1;
-    assert(countOnes(x) == 1);
-
-    x[0] = 1+2;
-    assert(countOnes(x) == 2);
-
-    x[0] = 1+2;
-    x[1] = 1+2;
-    x[2] = 1+2;
-    assert(countOnes(x) == 6);
 }
 
 package size_t indexOfFirstOne(Blocks)(const scope auto ref Blocks blocks, size_t length)

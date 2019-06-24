@@ -2,10 +2,10 @@
  */
 module bitarray_algorithm;
 
-import std.traits : isArray;
+import std.traits : isIntegral;
 
 size_t countOnes(Blocks)(const scope auto ref Blocks blocks)
-// TODO if (is(typeof(Blocks.init[0]) == size_t))
+if (isIntegral!(typeof(Blocks.init[0])))
 {
     typeof(return) n = 0;
     foreach (const block; blocks)

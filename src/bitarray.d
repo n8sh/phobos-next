@@ -381,32 +381,40 @@ private:
 
     assert(a.length == n);
     assert(a.indexOfFirstZero == n);
+    assert(a.indexOfLastZero == n);
 
     a[0] = false;
     assert(a.indexOfFirstZero == 0);
+    assert(a.indexOfLastZero == 0);
     a[0] = true;
 
     a[2] = false;
     assert(a.indexOfFirstZero == 2);
+    assert(a.indexOfLastZero == 2);
     a[2] = true;
 
     a[n/2-1] = false;
     assert(a.indexOfFirstZero == n/2-1);
+    assert(a.indexOfLastZero == n/2-1);
     a[n/2-1] = true;
 
     a[n/2] = false;
     assert(a.indexOfFirstZero == n/2);
+    assert(a.indexOfLastZero == n/2);
     a[n/2] = true;
 
     a[n/2+1] = false;
     assert(a.indexOfFirstZero == n/2+1);
+    assert(a.indexOfLastZero == n/2+1);
     a[n/2+1] = true;
 
     a[n-1] = false;
     assert(a.indexOfFirstZero == n-1);
+    assert(a.indexOfLastZero == n-1);
     a[n-1] = true;
 
     assert(a.indexOfFirstZero == n);
+    assert(a.indexOfLastZero == n);
 }
 
 version(unittest)

@@ -736,23 +736,6 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         return true;
     }
 
-    /** Check if this $(D StaticBitArray) has only ones in range [ $(d low), $(d high) [. */
-    bool allOneBetween()(size_t low, size_t high) const
-    in
-    {
-        assert(low + 1 <= bitCount && high <= bitCount);
-    }
-    body
-    {
-        foreach (immutable i; low .. high)
-        {
-            if (!this[i]) { return false; }
-        }
-        return true;
-    }
-    alias allSetBetween = allOneBetween;
-    alias fullBetween = allOneBetween;
-
     static if (bitCount >= 1)
     {
         import std.traits: isInstanceOf;

@@ -879,7 +879,7 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         }
 
         /** Get number of bits set divided by length. */
-        auto denseness()(int depth = -1) const
+        auto denseness()(int depth = -1) const // template-lazy
         {
             import rational : Rational;
             alias Q = Rational!ulong;
@@ -887,7 +887,7 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         }
 
         /** Get number of bits unset divided by length. */
-        auto sparseness()(int depth = -1) const
+        auto sparseness()(int depth = -1) const // template-lazy
         {
             import rational : Rational;
             alias Q = Rational!ulong;

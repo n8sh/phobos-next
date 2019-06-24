@@ -73,7 +73,7 @@ struct StaticBitArray(uint bitCount, Block = size_t)
     }
     alias clear = reset;
 
-    /** Gets the amount of native words backing this $(D StaticBitArray). */
+    /** Gets the amount of native words backing `this`. */
     @property static uint dim()
     {
         pragma(inline, true);
@@ -673,7 +673,7 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         return hash;
     }
 
-    /** Set this $(D StaticBitArray) to the contents of $(D ba). */
+    /** Set `this` to the contents of $(D ba). */
     this()(bool[] ba)
     in
     {
@@ -687,7 +687,7 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         }
     }
 
-    /** Set this $(D StaticBitArray) to the contents of $(D ba). */
+    /** Set `this` to the contents of $(D ba). */
     this()(const ref bool[bitCount] ba)
     {
         foreach (immutable i, const b; ba)
@@ -724,26 +724,6 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         auto a = StaticBitArray!3(ba);
         assert(!a);
         assert(a.allZero);
-    }
-
-    /** Check if this $(D StaticBitArray) has only zeros (is empty). */
-    bool allZero()() const @safe pure nothrow @nogc
-    {
-        foreach (const block; _fullBlocks)
-        {
-            if (block != 0)
-            {
-                return false;
-            }
-        }
-        static if (blockCount)
-        {
-            if (_restBlock != 0)
-            {
-                return false;
-            }
-        }
-        return true;
     }
 
     static if (bitCount >= 1)
@@ -880,7 +860,27 @@ struct StaticBitArray(uint bitCount, Block = size_t)
             return 1 - denseness(depth);
         }
 
-        /** Check if this $(D StaticBitArray) has only ones. */
+        /** Check if `this` has only zeros (is empty). */
+        bool allZero()() const @safe pure nothrow @nogc
+        {
+            foreach (const block; _fullBlocks)
+            {
+                if (block != Block.min)
+                {
+                    return false;
+                }
+            }
+            static if (blockCount)
+            {
+                if (_restBlock != Block.min)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /** Check if `this` has only ones. */
         bool allOne()() const
         {
             const restCount = bitCount % bitsPerBlock;

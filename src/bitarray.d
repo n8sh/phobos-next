@@ -12,6 +12,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
 {
     import core.memory : pureMalloc, pureCalloc, pureFree;
     import core.bitop : bt, bts, btr;
+    import bitarray_algorithm;
 
     pragma(inline, true)
     @safe pure nothrow @nogc:
@@ -141,7 +142,6 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     /** Get number of (one) bits set. */
     size_t countOnes()() const  // template-lazy
     {
-        import bitarray_algorithm;
         return bitarray_algorithm.countOnes(_blocks);
     }
 
@@ -157,7 +157,6 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
      */
     size_t indexOfFirstOne()() const
     {
-        import bitarray_algorithm;
         return bitarray_algorithm.indexOfFirstOne(_blocks);
     }
 
@@ -167,7 +166,6 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
      */
     size_t indexOfLastOne()() const
     {
-        import bitarray_algorithm;
         return bitarray_algorithm.indexOfLastOne(_blocks);
     }
 
@@ -177,7 +175,6 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
      */
     size_t indexOfFirstZero()() const
     {
-        import bitarray_algorithm;
         return bitarray_algorithm.indexOfFirstZero(_blocks);
     }
 
@@ -187,7 +184,6 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
      */
     size_t indexOfLastZero()() const
     {
-        import bitarray_algorithm;
         return bitarray_algorithm.indexOfLastZero(_blocks);
     }
 

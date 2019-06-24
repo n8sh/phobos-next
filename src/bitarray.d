@@ -256,6 +256,7 @@ private:
     {
         auto a = BitArray!().withLength(n);
 
+        // set bits forwards
         foreach (const i; 0 .. n)
         {
             assert(a.countOnes == i);
@@ -276,6 +277,14 @@ private:
 
         b[] = false;
         assert(a != b);
+
+        // set bits backwards
+        foreach (const i; 0 .. n)
+        {
+            assert(b.countOnes == i);
+            b[n-1 - i] = true;
+            assert(b.countOnes == i + 1);
+        }
     }
 }
 

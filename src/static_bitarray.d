@@ -162,6 +162,38 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         return typeof(return)(&this, i, j);
     }
 
+    /** Set all bits to `value` via slice assignment syntax. */
+    ref typeof(this) opSliceAssign(bool value)
+    {
+        if (value)
+        {
+            one();
+        }
+        else
+        {
+            zero();
+        }
+        return this;
+    }
+
+    /** Set all bits to zero. */
+    private void zero()
+    {
+        foreach (ref block; _blocks)
+        {
+            block = Block.min;
+        }
+    }
+
+    /** Set all bits to one. */
+    private void one()
+    {
+        foreach (ref block; _blocks)
+        {
+            block = Block.max;
+        }
+    }
+
     /** Gets the $(D i)'th bit. */
     bool opIndex()(size_t i) const @trusted
     in

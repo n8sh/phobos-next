@@ -1,3 +1,5 @@
+/** Bitarray.
+ */
 module bitarray;
 
 @safe:

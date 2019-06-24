@@ -863,6 +863,12 @@ struct StaticBitArray(uint bitCount, Block = size_t)
             return typeof(return)(n);
         }
 
+        /** Get number of (zero) bits unset. */
+        size_t countZeros()() const  // template-lazy
+        {
+            return length - countOnes;
+        }
+
         /** Get number of bits set divided by length. */
         auto denseness()(int depth = -1) const
         {

@@ -141,7 +141,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     /** Get number of (one) bits set. */
     size_t countOnes()() const  // template-lazy
     {
-        return bitarray_algorithm.countOnes(_blocks);
+        return bitarray_algorithm.countOnes(_blocks, length);
     }
 
     /** Get number of (zero) bits unset. */

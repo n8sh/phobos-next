@@ -1326,7 +1326,7 @@ private:
     import rational : Rational;
     alias Q = Rational!ulong;
 
-    enum m = 256, n = 256;
+    enum m = 256, n = 16;
 
     StaticBitArray!m[n] b1;
     b1[0][0] = 1;
@@ -1505,21 +1505,21 @@ unittest
     StaticBitArray!(n) x;
     static assert(x.blockCount == blockCount);
 
-    assert((x.indexOfFirstOne == Block.max));
+    assert(x.indexOfFirstOne == blockCount);
     x[n - 1] = true;
-    assert((x.indexOfFirstOne == x.length - 1));
+    assert(x.indexOfFirstOne == x.length - 1);
     x[n - 2] = true;
-    assert((x.indexOfFirstOne == x.length - 2));
+    assert(x.indexOfFirstOne == x.length - 2);
 
     x[n/2 + 1] = true;
-    assert((x.indexOfFirstOne == x.length/2 + 1));
+    assert(x.indexOfFirstOne == x.length/2 + 1);
     x[n/2] = true;
-    assert((x.indexOfFirstOne == x.length/2));
+    assert(x.indexOfFirstOne == x.length/2);
     x[n/2 - 1] = true;
-    assert((x.indexOfFirstOne == x.length/2 - 1));
+    assert(x.indexOfFirstOne == x.length/2 - 1);
 
     x[0] = true;
-    assert((x.indexOfFirstOne == 0));
+    assert(x.indexOfFirstOne == 0);
     assert(x[0]);
     assert(!x[1]);
 
@@ -1550,4 +1550,5 @@ unittest
 version(unittest)
 {
     import array_help : s;
+    import dbgio;
 }

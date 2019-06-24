@@ -150,40 +150,40 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
         return length - countOnes;
     }
 
-    /** Find index of first set (one) bit or `typeof(return).max` if no bit set.
+    /** Find index of first set (one) bit or `length` if no bit set.
      *
      * Optimized for ones-sparsity.
      */
     size_t indexOfFirstOne()() const
     {
-        return bitarray_algorithm.indexOfFirstOne(_blocks);
+        return bitarray_algorithm.indexOfFirstOne(_blocks, length);
     }
 
-    /** Find index of last set (one) bit or `typeof(return).max` if no bit set.
+    /** Find index of last set (one) bit or `length` if no bit set.
      *
      * Optimized for ones-sparsity.
      */
     size_t indexOfLastOne()() const
     {
-        return bitarray_algorithm.indexOfLastOne(_blocks);
+        return bitarray_algorithm.indexOfLastOne(_blocks, length);
     }
 
-    /** Find index of first cleared (zero) bit or `typeof(return).max` if no bit cleared.
+    /** Find index of first cleared (zero) bit or `length` if no bit cleared.
      *
      * Optimized for zeros-sparsity.
      */
     size_t indexOfFirstZero()() const
     {
-        return bitarray_algorithm.indexOfFirstZero(_blocks);
+        return bitarray_algorithm.indexOfFirstZero(_blocks, length);
     }
 
-    /** Find index of last cleared (zero) bit or `typeof(return).max` if no bit cleared.
+    /** Find index of last cleared (zero) bit or `length` if no bit cleared.
      *
      * Optimized for zeros-sparsity.
      */
     size_t indexOfLastZero()() const
     {
-        return bitarray_algorithm.indexOfLastZero(_blocks);
+        return bitarray_algorithm.indexOfLastZero(_blocks, length);
     }
 
     /** Equality, operators == and !=. */

@@ -53,24 +53,6 @@ if (isBlocks!Blocks)
     return length;              // miss
 }
 
-/** Find index of last set (one) bit or `length` if no bit set.
- *
- * Optimized for ones-sparsity.
- */
-size_t indexOfLastOne(Blocks)(const scope auto ref Blocks blocks, size_t length)
-if (isBlocks!Blocks)
-{
-    foreach_reverse (const blockIndex, const block; blocks)
-    {
-        if (block != block.min) // optimize for ones-sparsity
-        {
-            import core.bitop : bsr;
-            return blockIndex*8*block.sizeof + bsr(block);
-        }
-    }
-    return length;              // miss
-}
-
 /** Find index of first cleared (zero) bit or `length` if no bit cleared.
  *
  * Optimized for zeros-sparsity.
@@ -78,31 +60,13 @@ if (isBlocks!Blocks)
 size_t indexOfFirstZero(Blocks)(const scope auto ref Blocks blocks, size_t length)
 if (isBlocks!Blocks)
 {
-    foreach (const blockIndex, const block; blocks)
+    foreach (const blockIndex, block; blocks)
     {
         if (block != block.max) // optimize for zeros-sparsity
         {
             import core.bitop : bsf;
             const hitIndex = blockIndex*8*block.sizeof + bsf(~block); // TODO is there a builtin for `bsf(~block)`?
             return hitIndex < length ? hitIndex : length; // if hit beyond end miss
-        }
-    }
-    return length;              // miss
-}
-
-/** Find index of last cleared (zero) bit or `length` if no bit cleared.
- *
- * Optimized for zeros-sparsity.
- */
-size_t indexOfLastZero(Blocks)(const scope auto ref Blocks blocks, size_t length)
-if (isBlocks!Blocks)
-{
-    foreach_reverse (const blockIndex, const block; blocks)
-    {
-        if (block != block.max) // optimize for zeros-sparsity
-        {
-            import core.bitop : bsr;
-            return blockIndex*8*block.sizeof + bsr(~block); // TODO is there a builtin for `bsr(~block)`?
         }
     }
     return length;              // miss

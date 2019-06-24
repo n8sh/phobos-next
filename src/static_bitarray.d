@@ -323,7 +323,7 @@ struct StaticBitArray(uint bitCount, Block = size_t)
     int opApply(scope int delegate(ref bool) dg) @trusted
     {
         int result;
-        for (size_t i = 0; i < bitCount; ++i)
+        foreach (const size_t i; 0 .. bitCount)
         {
             bool b = opIndex(i);
             result = dg(b);
@@ -337,7 +337,7 @@ struct StaticBitArray(uint bitCount, Block = size_t)
     int opApply(scope int delegate(bool) dg) const @trusted
     {
         int result;
-        for (size_t i = 0; i < bitCount; ++i)
+        foreach (const size_t i; 0 .. bitCount)
         {
             bool b = opIndex(i);
             result = dg(b);
@@ -347,10 +347,10 @@ struct StaticBitArray(uint bitCount, Block = size_t)
     }
 
     /** ditto */
-    int opApply(scope int delegate(ref size_t, ref bool) dg) @trusted
+    int opApply(scope int delegate(const ref size_t, ref bool) dg) @trusted
     {
         int result;
-        for (size_t i = 0; i < bitCount; ++i)
+        foreach (const size_t i; 0 .. bitCount)
         {
             bool b = opIndex(i);
             result = dg(i, b);
@@ -364,7 +364,7 @@ struct StaticBitArray(uint bitCount, Block = size_t)
     int opApply(scope int delegate(size_t, bool) dg) const @trusted
     {
         int result;
-        for (size_t i = 0; i < bitCount; ++i)
+        foreach (const size_t i; 0 .. bitCount)
         {
             bool b = opIndex(i);
             result = dg(i, b);
@@ -997,13 +997,13 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         assert(v.length == a.dim * size_t.sizeof);
     }
 
-    /** Support for unary operator ~ for $(D StaticBitArray). */
+    /** Complement operator. */
     typeof(this) opCom() const @trusted
     {
         StaticBitArray result;
         for (size_t i = 0; i < dim; ++i)
         {
-            result.ptr[i] = cast(ubyte)(~this.ptr[i]);
+            result.ptr[i] = cast(Block)~cast(ulong)this.ptr[i];
         }
         immutable rem = bitCount & (bitsPerBlock-1); // number of rest bits in last block
         if (rem < bitsPerBlock) // rest bits in last block

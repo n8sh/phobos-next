@@ -91,6 +91,20 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
         return cast(bool)bt(_blockPtr, i);
     }
 
+    /** Set the `i`'th bit to `value`. */
+    bool opIndexAssign(bool value, size_t i) @trusted
+    {
+        if (value)
+        {
+            bts(_blockPtr, i);
+        }
+        else
+        {
+            btr(_blockPtr, i);
+        }
+        return value;
+    }
+
     /** Set all bits to `value` via slice assignment syntax. */
     ref typeof(this) opSliceAssign(bool value)
     {
@@ -121,20 +135,6 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
         {
             block = Block.max;
         }
-    }
-
-    /** Set the `i`'th bit to `value`. */
-    bool opIndexAssign(bool value, size_t i) @trusted
-    {
-        if (value)
-        {
-            bts(_blockPtr, i);
-        }
-        else
-        {
-            btr(_blockPtr, i);
-        }
-        return value;
     }
 
     /** Get number of (one) bits set. */

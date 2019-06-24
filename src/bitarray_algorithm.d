@@ -40,13 +40,13 @@ if (isBlocks!Blocks)
 {
     foreach (const blockIndex, const block; blocks)
     {
-        if (block != Block.min) // optimize for ones-sparsity
+        if (block != block.min) // optimize for ones-sparsity
         {
             import core.bitop : bsf;
-            return blockIndex*bitsPerBlock + bsf(block);
+            return blockIndex*8*block.sizeof + bsf(block);
         }
     }
-    return length;
+    return typeof(return).max;  // miss
 }
 
 /** Find index of last set (one) bit or `length` if no bit set.
@@ -58,13 +58,13 @@ if (isBlocks!Blocks)
 {
     foreach_reverse (const blockIndex, const block; blocks)
     {
-        if (block != Block.min) // optimize for ones-sparsity
+        if (block != block.min) // optimize for ones-sparsity
         {
             import core.bitop : bsr;
-            return blockIndex*bitsPerBlock + bsr(block);
+            return blockIndex*8*block.sizeof + bsr(block);
         }
     }
-    return length;
+    return typeof(return).max;  // miss
 }
 
 /** Find index of first cleared (zero) bit or `length` if no bit cleared.
@@ -76,13 +76,13 @@ if (isBlocks!Blocks)
 {
     foreach (const blockIndex, const block; blocks)
     {
-        if (block != Block.max) // optimize for zeros-sparsity
+        if (block != block.max) // optimize for zeros-sparsity
         {
             import core.bitop : bsf;
-            return blockIndex*bitsPerBlock + bsf(~block); // TODO is there a builtin for `bsf(~block)`?
+            return blockIndex*8*block.sizeof + bsf(~block); // TODO is there a builtin for `bsf(~block)`?
         }
     }
-    return length;
+    return typeof(return).max;  // miss
 }
 
 /** Find index of last cleared (zero) bit or `length` if no bit cleared.
@@ -94,13 +94,13 @@ if (isBlocks!Blocks)
 {
     foreach_reverse (const blockIndex, const block; blocks)
     {
-        if (block != Block.max) // optimize for zeros-sparsity
+        if (block != block.max) // optimize for zeros-sparsity
         {
             import core.bitop : bsr;
-            return blockIndex*bitsPerBlock + bsr(~block); // TODO is there a builtin for `bsr(~block)`?
+            return blockIndex*8*block.sizeof + bsr(~block); // TODO is there a builtin for `bsr(~block)`?
         }
     }
-    return length;
+    return typeof(return).max;  // miss
 }
 
 private enum isBlocks(Blocks) = (is(typeof(Blocks.init[0]) : uint) ||

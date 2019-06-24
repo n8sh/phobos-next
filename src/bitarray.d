@@ -446,6 +446,21 @@ private:
     assert(a.indexOfLastZero == BitArray!().bitsPerBlock - 1);
 }
 
+/// Test `indexOfFirstOne` and `indexOfLastOne` for multi set ones.
+@safe pure nothrow @nogc unittest
+{
+    enum n = 2 * BitArray!().bitsPerBlock;
+
+    auto a = BitArray!().withLength(n);
+    a[] = false;
+
+    a[0] = true;
+    a[BitArray!().bitsPerBlock/2] = true;
+    a[BitArray!().bitsPerBlock - 1] = true;
+    assert(a.indexOfFirstOne == 0);
+    assert(a.indexOfLastOne == BitArray!().bitsPerBlock - 1);
+}
+
 version(unittest)
 {
     import array_help : s;

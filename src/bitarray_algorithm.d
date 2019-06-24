@@ -38,8 +38,11 @@ if (isBlocks!Blocks)
 /// Test `countOnes` with full blocks.
 @safe pure nothrow @nogc unittest
 {
+    alias Block = size_t;
+    enum bitsPerBlock = 8*Block.sizeof;
+
     enum blockCount = 3;
-    size_t[blockCount] x;
+    Block[blockCount] x;
     const length = 8*x.sizeof;
     assert(countOnes(x, length) == 0);
 
@@ -51,6 +54,10 @@ if (isBlocks!Blocks)
 
     x[0] = 1+2;
     x[1] = 1+2;
+    assert(countOnes(x, length) == 4);
+
+    x[0] = 1+2;
+    x[1] = 1+2;
     x[2] = 1+2;
     assert(countOnes(x, length) == 6);
 }
@@ -58,9 +65,10 @@ if (isBlocks!Blocks)
 /// Test `countOnes` with partial blocks.
 @safe pure nothrow @nogc unittest
 {
+    alias Block = size_t;
     static void test(uint blockCount)()
     {
-        size_t[blockCount] x;
+        Block[blockCount] x;
         foreach (const length; 1 .. 8*x.sizeof)
         {
             // dbg("=== length:", length);

@@ -1505,7 +1505,7 @@ unittest
     StaticBitArray!(n) x;
     static assert(x.blockCount == blockCount);
 
-    assert(x.indexOfFirstOne == blockCount);
+    assert(x.indexOfFirstOne == n);
     x[n - 1] = true;
     assert(x.indexOfFirstOne == x.length - 1);
     x[n - 2] = true;

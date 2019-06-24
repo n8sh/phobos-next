@@ -14,7 +14,6 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     import core.bitop : bt, bts, btr;
     import bitarray_algorithm;
 
-    pragma(inline, true)
     @safe pure nothrow @nogc:
 
     /** Construct with `length` number of zero bits. */

@@ -377,9 +377,6 @@ private:
     enum n = 2 * BitArray!().bitsPerBlock;
 
     auto a = BitArray!().withLength(n);
-    assert(a.length == n);
-    assert(a.indexOfFirstOne == n);
-    assert(a.indexOfLastOne == n);
 
     a[0] = true;
     a[BitArray!().bitsPerBlock/2] = true;
@@ -432,6 +429,21 @@ private:
 
     assert(a.indexOfFirstZero == n);
     assert(a.indexOfLastZero == n);
+}
+
+/// Test `indexOfFirstZero` and `indexOfLastZero` for multi set zeros.
+@safe pure nothrow @nogc unittest
+{
+    enum n = 2 * BitArray!().bitsPerBlock;
+
+    auto a = BitArray!().withLength(n);
+    a[] = true;
+
+    a[0] = false;
+    a[BitArray!().bitsPerBlock/2] = false;
+    a[BitArray!().bitsPerBlock - 1] = false;
+    assert(a.indexOfFirstZero == 0);
+    assert(a.indexOfLastZero == BitArray!().bitsPerBlock - 1);
 }
 
 version(unittest)

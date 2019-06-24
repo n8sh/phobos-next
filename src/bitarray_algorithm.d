@@ -7,7 +7,7 @@ module bitarray_algorithm;
 
 @safe pure nothrow @nogc:
 
-size_t countOnes(Blocks)(const scope auto ref Blocks blocks)
+size_t countOnes(Blocks)(const scope auto ref Blocks blocks, size_t length)
 if (isBlocks!Blocks)
 {
     typeof(return) result = 0;

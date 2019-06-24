@@ -185,7 +185,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
         return length;
     }
 
-    /** Find index of first cleared (zero) bit or `length` if no bit set.
+    /** Find index of first cleared (zero) bit or `length` if no bit cleared.
      *
      * Optimized for zeros-sparsity.
      */
@@ -202,7 +202,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
         return length;
     }
 
-    /** Find index of last cleared (zero) bit or `length` if no bit set.
+    /** Find index of last cleared (zero) bit or `length` if no bit cleared.
      *
      * Optimized for zeros-sparsity.
      */

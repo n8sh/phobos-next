@@ -138,7 +138,7 @@ struct SmallPageTable(uint sizeClass)
     Page* pagePtr;
     enum slotCount = PAGESIZE/sizeClass;
 
-    // bit `i` indicates if slot `i` in `*pagePtr` currently contains a initialized value
+    // bit `i` indicates if slot `i` in `*pagePtr` currently contains an initialized value
     StaticBitArray!(slotCount) slotUsages; // TODO benchmark with a byte-array instead for comparison
 
     // bit `i` indicates if slot `i` in `*pagePtr` has been marked

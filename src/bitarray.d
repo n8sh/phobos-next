@@ -302,7 +302,7 @@ private:
     auto a = BitArray!().withLength(n);
     assert(a.length == n);
     assert(a.indexOfFirstOne == n); // miss
-    assert(a.indexOfLastOne == n); // miss
+    assert(a.indexOfLastOne == n);  // miss
 
     a[0] = true;
     assert(a.indexOfFirstOne == 0);
@@ -361,8 +361,8 @@ private:
     a[] = true;
 
     assert(a.length == n);
-    assert(a.indexOfFirstZero == n);          // miss
-    assert(a.indexOfLastZero == n);           // miss
+    assert(a.indexOfFirstZero == n); // miss
+    assert(a.indexOfLastZero == n);  // miss
 
     a[0] = false;
     assert(a.indexOfFirstZero == 0);

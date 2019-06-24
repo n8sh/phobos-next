@@ -6,6 +6,8 @@
  */
 module static_bitarray;
 
+import bitarray_algorithm;
+
 @safe:
 
 /** A statically sized `std.bitmanip.BitArray`.

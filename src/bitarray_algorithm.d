@@ -35,7 +35,7 @@ if (isBlocks!Blocks)
     assert(countOnes(x) == 6);
 }
 
-size_t indexOfFirstOne(Blocks)(const scope auto ref Blocks blocks, size_t length)
+package size_t indexOfFirstOne(Blocks)(const scope auto ref Blocks blocks, size_t length)
 if (isBlocks!Blocks)
 {
     foreach (const blockIndex, const block; blocks)
@@ -43,7 +43,8 @@ if (isBlocks!Blocks)
         if (block != block.min) // optimize for ones-sparsity
         {
             import core.bitop : bsf;
-            return blockIndex*8*block.sizeof + bsf(block);
+            const hitIndex = blockIndex*8*block.sizeof + bsf(block);
+            return hitIndex < length ? hitIndex : length; // if hit beyond end miss
         }
     }
     return length;              // miss
@@ -53,7 +54,7 @@ if (isBlocks!Blocks)
  *
  * Optimized for ones-sparsity.
  */
-size_t indexOfLastOne(Blocks)(const scope auto ref Blocks blocks, size_t length)
+package size_t indexOfLastOne(Blocks)(const scope auto ref Blocks blocks, size_t length)
 if (isBlocks!Blocks)
 {
     foreach_reverse (const blockIndex, const block; blocks)
@@ -71,7 +72,7 @@ if (isBlocks!Blocks)
  *
  * Optimized for zeros-sparsity.
  */
-size_t indexOfFirstZero(Blocks)(const scope auto ref Blocks blocks, size_t length)
+package size_t indexOfFirstZero(Blocks)(const scope auto ref Blocks blocks, size_t length)
 if (isBlocks!Blocks)
 {
     foreach (const blockIndex, const block; blocks)
@@ -79,7 +80,8 @@ if (isBlocks!Blocks)
         if (block != block.max) // optimize for zeros-sparsity
         {
             import core.bitop : bsf;
-            return blockIndex*8*block.sizeof + bsf(~block); // TODO is there a builtin for `bsf(~block)`?
+            const hitIndex = blockIndex*8*block.sizeof + bsf(~block); // TODO is there a builtin for `bsf(~block)`?
+            return hitIndex < length ? hitIndex : length; // if hit beyond end miss
         }
     }
     return length;              // miss
@@ -89,7 +91,7 @@ if (isBlocks!Blocks)
  *
  * Optimized for zeros-sparsity.
  */
-size_t indexOfLastZero(Blocks)(const scope auto ref Blocks blocks, size_t length)
+package size_t indexOfLastZero(Blocks)(const scope auto ref Blocks blocks, size_t length)
 if (isBlocks!Blocks)
 {
     foreach_reverse (const blockIndex, const block; blocks)

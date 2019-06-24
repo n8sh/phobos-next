@@ -55,21 +55,26 @@ if (isBlocks!Blocks)
     assert(countOnes(x, length) == 6);
 }
 
-/// Test `countOnes` with only parial blocks.
+/// Test `countOnes` with partial blocks.
 @safe pure nothrow @nogc unittest
 {
-    enum blockCount = 1;
-    size_t[blockCount] x;
-    foreach (const length; 1 .. 8*x.sizeof)
+    static void test(uint blockCount)()
     {
-        // dbg("=== length:", length);
-        assert(countOnes(x, length) == 0);
+        size_t[blockCount] x;
+        foreach (const length; 1 .. 8*x.sizeof)
+        {
+            // dbg("=== length:", length);
+            assert(countOnes(x, length) == 0);
 
-        x[0] |= 1UL << (length-1);
-        // dbg(x[0]);
-        assert(countOnes(x, length) == 1);
-        x[0] = 0;
+            x[0] |= 1UL << (length-1);
+            // dbg(x[0]);
+            assert(countOnes(x, length) == 1);
+            x[0] = 0;
+        }
     }
+    test!1();
+    test!2();
+    test!3();
 }
 
 size_t indexOfFirstOne(Blocks)(const scope auto ref Blocks blocks, size_t length)

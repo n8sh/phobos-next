@@ -257,8 +257,18 @@ private:
 
         assert(a == b);
 
+        // clear `a` bits forwards
+        foreach (const i; 0 .. n)
+        {
+            assert(a.countOnes == n - i);
+            assert(a.countZeros == i);
+            a[i] = false;
+            assert(a.countOnes == n - (i + 1));
+            assert(a.countZeros == i + 1);
+        }
+
         b[] = false;
-        assert(a != b);
+        assert(a == b);
 
         // set bits backwards
         foreach (const i; 0 .. n)

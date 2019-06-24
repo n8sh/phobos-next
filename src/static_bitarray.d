@@ -855,14 +855,14 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         size_t indexOfFirstOne()() const
         {
             import bitarray_algorithm;
-            return bitarray_algorithm.indexOfFirstOne(_blocks);
+            return bitarray_algorithm.indexOfFirstOne(_blocks, length);
         }
 
         /** Get number of bits set. */
         Mod!(bitCount + 1) countOnes()() const    // template-lazy. TODO unite with other definitions
         {
             import bitarray_algorithm;
-            return typeof(return)(bitarray_algorithm.countOnes(_blocks));
+            return typeof(return)(bitarray_algorithm.countOnes(_blocks, length));
         }
 
         /** Get number of (zero) bits unset. */

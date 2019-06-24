@@ -11,7 +11,7 @@ if (isIntegral!(typeof(Blocks.init[0])))
     foreach (const block; blocks)
     {
         import core.bitop : popcnt;
-        n += cast(uint)block.popcnt;
+        n += cast(uint)popcnt(block);
     }
     return typeof(return)(n);
 }

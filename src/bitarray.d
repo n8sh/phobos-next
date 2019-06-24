@@ -168,6 +168,23 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
         return length;
     }
 
+    /** Find index of last non-zero bit or `length` if no bit set.
+     *
+     * Optimized for ones-sparsity.
+     */
+    size_t indexOfLastOne()() const
+    {
+        foreach_reverse (const blockIndex, const block; _blocks)
+        {
+            if (block != Block.min) // optimize for ones-sparsity
+            {
+                import core.bitop : bsr;
+                return blockIndex*bitsPerBlock + bsr(block);
+            }
+        }
+        return length;
+    }
+
     /** Find index of first zero bit or `length` if no bit set.
      *
      * Optimized for zeros-sparsity.
@@ -301,32 +318,40 @@ private:
     auto a = BitArray!().withLength(n);
     assert(a.length == n);
     assert(a.indexOfFirstOne == n);
+    assert(a.indexOfLastOne == n);
 
     a[0] = true;
     assert(a.indexOfFirstOne == 0);
+    assert(a.indexOfLastOne == 0);
     a[] = false;
 
     a[2] = true;
     assert(a.indexOfFirstOne == 2);
+    assert(a.indexOfLastOne == 2);
     a[] = false;
 
     a[n/2-1] = true;
     assert(a.indexOfFirstOne == n/2-1);
+    assert(a.indexOfLastOne == n/2-1);
     a[] = false;
 
     a[n/2] = true;
     assert(a.indexOfFirstOne == n/2);
+    assert(a.indexOfLastOne == n/2);
     a[] = false;
 
     a[n/2+1] = true;
     assert(a.indexOfFirstOne == n/2+1);
+    assert(a.indexOfLastOne == n/2+1);
     a[] = false;
 
     a[n-1] = true;
     assert(a.indexOfFirstOne == n-1);
+    assert(a.indexOfLastOne == n-1);
     a[] = false;
 
     assert(a.indexOfFirstOne == n);
+    assert(a.indexOfLastOne == n);
 }
 
 /// Test `indexOfFirstZero`.

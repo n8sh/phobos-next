@@ -11,23 +11,7 @@ if (isIntegral!(typeof(Blocks.init[0])))
     foreach (const block; blocks)
     {
         import core.bitop : popcnt;
-        static if (block.sizeof == 1 ||
-                   block.sizeof == 2 ||
-                   block.sizeof == 4 ||
-                   block.sizeof == 4)
-        {
-            // TODO do we need to force `uint`-overload of `popcnt`?
-            n += cast(uint)block.popcnt;
-        }
-        else static if (block.sizeof == 8)
-        {
-            n += (cast(ulong)((cast(uint)(block)).popcnt) +
-                  cast(ulong)((cast(uint)(block >> 32)).popcnt));
-        }
-        else
-        {
-            assert(0, "Unsupported Block size " ~ Block.sizeof.stringof);
-        }
+        n += cast(uint)block.popcnt;
     }
     return typeof(return)(n);
 }

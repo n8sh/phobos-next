@@ -151,7 +151,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
         return length - countOnes;
     }
 
-    /** Find index of first non-zero bit or `length` if no bit set.
+    /** Find index of first set (one) bit or `length` if no bit set.
      *
      * Optimized for ones-sparsity.
      */
@@ -168,7 +168,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
         return length;
     }
 
-    /** Find index of last non-zero bit or `length` if no bit set.
+    /** Find index of last set (one) bit or `length` if no bit set.
      *
      * Optimized for ones-sparsity.
      */

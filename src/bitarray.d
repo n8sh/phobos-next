@@ -151,72 +151,44 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
         return length - countOnes;
     }
 
-    /** Find index of first set (one) bit or `length` if no bit set.
+    /** Find index of first set (one) bit or `typeof(return).max` if no bit set.
      *
      * Optimized for ones-sparsity.
      */
     size_t indexOfFirstOne()() const
     {
-        foreach (const blockIndex, const block; _blocks)
-        {
-            if (block != Block.min) // optimize for ones-sparsity
-            {
-                import core.bitop : bsf;
-                return blockIndex*bitsPerBlock + bsf(block);
-            }
-        }
-        return length;
+        import bitarray_algorithm;
+        return bitarray_algorithm.indexOfFirstOne(_blocks);
     }
 
-    /** Find index of last set (one) bit or `length` if no bit set.
+    /** Find index of last set (one) bit or `typeof(return).max` if no bit set.
      *
      * Optimized for ones-sparsity.
      */
     size_t indexOfLastOne()() const
     {
-        foreach_reverse (const blockIndex, const block; _blocks)
-        {
-            if (block != Block.min) // optimize for ones-sparsity
-            {
-                import core.bitop : bsr;
-                return blockIndex*bitsPerBlock + bsr(block);
-            }
-        }
-        return length;
+        import bitarray_algorithm;
+        return bitarray_algorithm.indexOfLastOne(_blocks);
     }
 
-    /** Find index of first cleared (zero) bit or `length` if no bit cleared.
+    /** Find index of first cleared (zero) bit or `typeof(return).max` if no bit cleared.
      *
      * Optimized for zeros-sparsity.
      */
     size_t indexOfFirstZero()() const
     {
-        foreach (const blockIndex, const block; _blocks)
-        {
-            if (block != Block.max) // optimize for zeros-sparsity
-            {
-                import core.bitop : bsf;
-                return blockIndex*bitsPerBlock + bsf(~block); // TODO is there a builtin for `bsf(~block)`?
-            }
-        }
-        return length;
+        import bitarray_algorithm;
+        return bitarray_algorithm.indexOfFirstZero(_blocks);
     }
 
-    /** Find index of last cleared (zero) bit or `length` if no bit cleared.
+    /** Find index of last cleared (zero) bit or `typeof(return).max` if no bit cleared.
      *
      * Optimized for zeros-sparsity.
      */
     size_t indexOfLastZero()() const
     {
-        foreach_reverse (const blockIndex, const block; _blocks)
-        {
-            if (block != Block.max) // optimize for zeros-sparsity
-            {
-                import core.bitop : bsr;
-                return blockIndex*bitsPerBlock + bsr(~block); // TODO is there a builtin for `bsr(~block)`?
-            }
-        }
-        return length;
+        import bitarray_algorithm;
+        return bitarray_algorithm.indexOfLastZero(_blocks);
     }
 
     /** Equality, operators == and !=. */
@@ -334,8 +306,8 @@ private:
 
     auto a = BitArray!().withLength(n);
     assert(a.length == n);
-    assert(a.indexOfFirstOne == n);
-    assert(a.indexOfLastOne == n);
+    assert(a.indexOfFirstOne == a.Block.max);
+    assert(a.indexOfLastOne == a.Block.max);
 
     a[0] = true;
     assert(a.indexOfFirstOne == 0);
@@ -367,8 +339,8 @@ private:
     assert(a.indexOfLastOne == n-1);
     a[] = false;
 
-    assert(a.indexOfFirstOne == n);
-    assert(a.indexOfLastOne == n);
+    assert(a.indexOfFirstOne == a.Block.max);
+    assert(a.indexOfLastOne == a.Block.max);
 }
 
 /// Test `indexOfFirstOne` and `indexOfLastOne` for multi set ones.
@@ -394,8 +366,8 @@ private:
     a[] = true;
 
     assert(a.length == n);
-    assert(a.indexOfFirstZero == n);
-    assert(a.indexOfLastZero == n);
+    assert(a.indexOfFirstZero == a.Block.max);
+    assert(a.indexOfLastZero == a.Block.max);
 
     a[0] = false;
     assert(a.indexOfFirstZero == 0);
@@ -427,8 +399,8 @@ private:
     assert(a.indexOfLastZero == n-1);
     a[n-1] = true;
 
-    assert(a.indexOfFirstZero == n);
-    assert(a.indexOfLastZero == n);
+    assert(a.indexOfFirstZero == a.Block.max);
+    assert(a.indexOfLastZero == a.Block.max);
 }
 
 /// Test `indexOfFirstZero` and `indexOfLastZero` for multi set zeros.

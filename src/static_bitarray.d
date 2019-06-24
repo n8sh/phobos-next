@@ -917,8 +917,10 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         }
 
         /** Find index (starting at `currIx`) of first bit that equals `value`.
-            Returns: `true` if index was found (hit index is put into `nextIx`), `false` otherwise.
-            TODO block-optimize for large BitSets
+         *
+         * Returns: `true` if index was found (hit index is put into `nextIx`), `false` otherwise.
+         *
+         * TODO block-optimize for large BitSets
          */
         bool canFindIndexOf(ModUInt)(bool value,
                                      Mod!(bitCount, ModUInt) currIx,

@@ -24,18 +24,19 @@ if (isBlocks!Blocks)
 {
     enum n = 3;
     size_t[n] x;
-    assert(countOnes(x) == 0);
+    const length = 8*x.sizeof;
+    assert(countOnes(x, length) == 0);
 
     x[0] = 1;
-    assert(countOnes(x) == 1);
+    assert(countOnes(x, length) == 1);
 
     x[0] = 1+2;
-    assert(countOnes(x) == 2);
+    assert(countOnes(x, length) == 2);
 
     x[0] = 1+2;
     x[1] = 1+2;
     x[2] = 1+2;
-    assert(countOnes(x) == 6);
+    assert(countOnes(x, length) == 6);
 }
 
 size_t indexOfFirstOne(Blocks)(const scope auto ref Blocks blocks, size_t length)

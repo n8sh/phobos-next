@@ -327,7 +327,7 @@ private:
     assert(a.length == 0);
 }
 
-/// Test `indexOfFirstOne`.
+/// Test `indexOfFirstOne` and `indexOfLastOne`.
 @safe pure nothrow @nogc unittest
 {
     enum n = 2 * BitArray!().bitsPerBlock;
@@ -371,7 +371,7 @@ private:
     assert(a.indexOfLastOne == n);
 }
 
-/// Test `indexOfFirstZero`.
+/// Test `indexOfFirstZero` and `indexOfLastZero`.
 @safe pure nothrow @nogc unittest
 {
     enum n = 2 * BitArray!().bitsPerBlock;

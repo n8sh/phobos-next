@@ -2,8 +2,6 @@
  */
 module bitarray;
 
-import bitarray_algorithm;
-
 @safe:
 
 /** Array of bits.
@@ -143,7 +141,8 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     /** Get number of (one) bits set. */
     size_t countOnes()() const  // template-lazy. TODO unite with other definitions
     {
-        return .countOnes(_blocks);
+        import bitarray_algorithm;
+        return bitarray_algorithm.countOnes(_blocks);
     }
 
     /** Get number of (zero) bits unset. */

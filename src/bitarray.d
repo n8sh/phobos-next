@@ -301,8 +301,8 @@ private:
 
     auto a = BitArray!().withLength(n);
     assert(a.length == n);
-    assert(a.indexOfFirstOne == a.Block.max); // miss
-    assert(a.indexOfLastOne == a.Block.max); // miss
+    assert(a.indexOfFirstOne == n); // miss
+    assert(a.indexOfLastOne == n); // miss
 
     a[0] = true;
     assert(a.indexOfFirstOne == 0);
@@ -334,8 +334,8 @@ private:
     assert(a.indexOfLastOne == n-1);
     a[] = false;
 
-    assert(a.indexOfFirstOne == a.Block.max); // miss
-    assert(a.indexOfLastOne == a.Block.max); // miss
+    assert(a.indexOfFirstOne == n); // miss
+    assert(a.indexOfLastOne == n);  // miss
 }
 
 /// Test `indexOfFirstOne` and `indexOfLastOne` for multi set ones.
@@ -361,8 +361,8 @@ private:
     a[] = true;
 
     assert(a.length == n);
-    assert(a.indexOfFirstZero == a.Block.max); // miss
-    assert(a.indexOfLastZero == a.Block.max); // miss
+    assert(a.indexOfFirstZero == n);          // miss
+    assert(a.indexOfLastZero == n);           // miss
 
     a[0] = false;
     assert(a.indexOfFirstZero == 0);
@@ -394,8 +394,8 @@ private:
     assert(a.indexOfLastZero == n-1);
     a[n-1] = true;
 
-    assert(a.indexOfFirstZero == a.Block.max); // miss
-    assert(a.indexOfLastZero == a.Block.max);  // miss
+    assert(a.indexOfFirstZero == n); // miss
+    assert(a.indexOfLastZero == n);  // miss
 }
 
 /// Test `indexOfFirstZero` and `indexOfLastZero` for multi set zeros.

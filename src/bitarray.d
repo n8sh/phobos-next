@@ -371,6 +371,23 @@ private:
     assert(a.indexOfLastOne == n);
 }
 
+/// Test `indexOfFirstOne` and `indexOfLastOne` for multi set ones.
+@safe pure nothrow @nogc unittest
+{
+    enum n = 2 * BitArray!().bitsPerBlock;
+
+    auto a = BitArray!().withLength(n);
+    assert(a.length == n);
+    assert(a.indexOfFirstOne == n);
+    assert(a.indexOfLastOne == n);
+
+    a[0] = true;
+    a[BitArray!().bitsPerBlock/2] = true;
+    a[BitArray!().bitsPerBlock - 1] = true;
+    assert(a.indexOfFirstOne == 0);
+    assert(a.indexOfLastOne == BitArray!().bitsPerBlock - 1);
+}
+
 /// Test `indexOfFirstZero` and `indexOfLastZero` for single set zeros.
 @safe pure nothrow @nogc unittest
 {

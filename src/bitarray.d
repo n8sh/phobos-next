@@ -273,6 +273,9 @@ private:
         assert(b.countZeros == 0);
 
         assert(a == b);
+
+        b[] = false;
+        assert(a != b);
     }
 }
 

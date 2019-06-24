@@ -36,6 +36,7 @@ if (isBlocks!Blocks)
 }
 
 size_t indexOfFirstOne(Blocks)(const scope auto ref Blocks blocks)
+if (isBlocks!Blocks)
 {
     foreach (const blockIndex, const block; blocks)
     {
@@ -53,6 +54,7 @@ size_t indexOfFirstOne(Blocks)(const scope auto ref Blocks blocks)
  * Optimized for ones-sparsity.
  */
 size_t indexOfLastOne(Blocks)(const scope auto ref Blocks blocks)
+if (isBlocks!Blocks)
 {
     foreach_reverse (const blockIndex, const block; blocks)
     {
@@ -70,6 +72,7 @@ size_t indexOfLastOne(Blocks)(const scope auto ref Blocks blocks)
  * Optimized for zeros-sparsity.
  */
 size_t indexOfFirstZero(Blocks)(const scope auto ref Blocks blocks)
+if (isBlocks!Blocks)
 {
     foreach (const blockIndex, const block; blocks)
     {
@@ -87,6 +90,7 @@ size_t indexOfFirstZero(Blocks)(const scope auto ref Blocks blocks)
  * Optimized for zeros-sparsity.
  */
 size_t indexOfLastZero(Blocks)(const scope auto ref Blocks blocks)
+if (isBlocks!Blocks)
 {
     foreach_reverse (const blockIndex, const block; blocks)
     {

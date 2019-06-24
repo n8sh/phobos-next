@@ -169,9 +169,22 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     }
 
     /** Equality, operators == and !=. */
-    bool opEquals(in ref typeof(this) rhs) const
+    bool opEquals(in ref typeof(this) rhs) const @trusted
     {
-        return _blocks == rhs._blocks;
+        if (length != rhs.length)
+        {
+            return false;
+        }
+        if (_fullBlocks != rhs._fullBlocks)
+        {
+            return false;
+        }
+        const restBitCount = length % bitsPerBlock;
+        if (restBitCount)
+        {
+            return _restBlock == rhs._restBlock;
+        }
+        return true;
     }
 
     /** Only explicit copying via `.dup` for now. */
@@ -183,6 +196,19 @@ private:
     inout(Block)[] _blocks() inout @trusted
     {
         return _blockPtr[0 .. _blockCount];
+    }
+
+    private inout(Block)[] _fullBlocks() inout @trusted
+    {
+        pragma(inline, true);
+        const fullBlockCount = length / bitsPerBlock;
+        return _blocks.ptr[0 .. fullBlockCount];
+    }
+
+    private Block _restBlock() const @trusted
+    {
+        const restBitCount = length % bitsPerBlock;
+        return _blocks[$-1] & ((1UL << restBitCount) - 1);
     }
 
     alias Block = size_t;
@@ -273,10 +299,13 @@ private:
         // set bits backwards
         foreach (const i; 0 .. n)
         {
-            assert(b.countOnes == i);
-            b[n-1 - i] = true;
-            assert(b.countOnes == i + 1);
+            assert(a.countOnes == i);
+            a[n-1 - i] = true;
+            assert(a.countOnes == i + 1);
         }
+
+        b[] = true;
+        assert(a == b);
     }
 }
 

@@ -1495,21 +1495,21 @@ unittest
 {
     alias Block = size_t;
     enum blockCount = 2;
-    enum length = blockCount * 8*Block.sizeof - 1;
-    StaticBitArray!(length) x;
+    enum n = blockCount * 8*Block.sizeof - 1;
+    StaticBitArray!(n) x;
     static assert(x.blockCount == blockCount);
 
     assert((x.indexOfFirstOne == x.length));
-    x[length - 1] = true;
+    x[n - 1] = true;
     assert((x.indexOfFirstOne == x.length - 1));
-    x[length - 2] = true;
+    x[n - 2] = true;
     assert((x.indexOfFirstOne == x.length - 2));
 
-    x[length/2 + 1] = true;
+    x[n/2 + 1] = true;
     assert((x.indexOfFirstOne == x.length/2 + 1));
-    x[length/2] = true;
+    x[n/2] = true;
     assert((x.indexOfFirstOne == x.length/2));
-    x[length/2 - 1] = true;
+    x[n/2 - 1] = true;
     assert((x.indexOfFirstOne == x.length/2 - 1));
 
     x[0] = true;
@@ -1522,6 +1522,23 @@ unittest
 
     x[1] = false;
     assert(!x[1]);
+}
+
+/// Test opSliceAssign.
+unittest
+{
+    alias Block = size_t;
+    enum blockCount = 2;
+    enum n = blockCount * 8*Block.sizeof - 1;
+
+    StaticBitArray!(n) x;
+    assert(x.countOnes == 0);
+
+    x[] = true;
+    assert(x.countOnes == n);
+
+    x[] = false;
+    assert(x.countOnes == 0);
 }
 
 version(unittest)

@@ -86,6 +86,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     /** Get the `i`'th bit. */
     bool opIndex(size_t i) const @trusted
     {
+        pragma(inline, true);
         assert(i < length);        // TODO nothrow or not?
         return cast(bool)bt(_blockPtr, i);
     }

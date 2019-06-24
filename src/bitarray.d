@@ -202,6 +202,23 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
         return length;
     }
 
+    /** Find index of last zero bit or `length` if no bit set.
+     *
+     * Optimized for zeros-sparsity.
+     */
+    size_t indexOfLastZero()() const
+    {
+        foreach_reverse (const blockIndex, const block; _blocks)
+        {
+            if (block != Block.max) // optimize for zeros-sparsity
+            {
+                import core.bitop : bsr;
+                return blockIndex*bitsPerBlock + bsr(~block); // TODO is there a builtin for `bsr(~block)`?
+            }
+        }
+        return length;
+    }
+
     /** Equality, operators == and !=. */
     bool opEquals(in ref typeof(this) rhs) const
     {

@@ -52,50 +52,6 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         return b;
     }
 
-    /** Get number of bits set. */
-    version(none)               // TODO activate when needed
-    size_t countOnes() const
-    {
-        typeof(return) n = 0;
-        foreach (const block; _blocks)
-        {
-            import core.bitop : popcnt;
-            static if (block.sizeof == 1 ||
-                       block.sizeof == 2 ||
-                       block.sizeof == 4 ||
-                       block.sizeof == 4)
-            {
-                // TODO do we need to force `uint`-overload of `popcnt`?
-                n += cast(uint)block.popcnt;
-            }
-            else static if (block.sizeof == 8)
-            {
-                n += (cast(ulong)((cast(uint)(block)).popcnt) +
-                      cast(ulong)((cast(uint)(block >> 32)).popcnt));
-            }
-            else
-            {
-                assert(0, "Unsupported Block size " ~ Block.sizeof.stringof);
-            }
-        }
-        return typeof(return)(n);
-    }
-
-    /** Find index of first non-zero bit or `length` if no bit set. */
-    size_t indexOfFirstOne() const nothrow
-    {
-        pragma(inline, true);
-        import core.bitop : bsf;
-        foreach (const blockIndex, const block; _blocks)
-        {
-            if (block != 0)
-            {
-                return blockIndex*bitsPerBlock + bsf(block);
-            }
-        }
-        return length;
-    }
-
     private Block[blockCount] _blocks;
 }
 
@@ -109,28 +65,4 @@ unittest
     enum length = blockCount * 8*Block.sizeof - 1;
     StaticBitArray!(length) x;
     static assert(x.blockCount == blockCount);
-
-    assert((x.indexOfFirstOne == x.length));
-    x[length - 1] = true;
-    assert((x.indexOfFirstOne == x.length - 1));
-    x[length - 2] = true;
-    assert((x.indexOfFirstOne == x.length - 2));
-
-    x[length/2 + 1] = true;
-    assert((x.indexOfFirstOne == x.length/2 + 1));
-    x[length/2] = true;
-    assert((x.indexOfFirstOne == x.length/2));
-    x[length/2 - 1] = true;
-    assert((x.indexOfFirstOne == x.length/2 - 1));
-
-    x[0] = true;
-    assert((x.indexOfFirstOne == 0));
-    assert(x[0]);
-    assert(!x[1]);
-
-    x[1] = true;
-    assert(x[1]);
-
-    x[1] = false;
-    assert(!x[1]);
 }

@@ -2,6 +2,8 @@
  */
 module bitarray;
 
+import bitarray_algorithm;
+
 @safe:
 
 /** Array of bits.

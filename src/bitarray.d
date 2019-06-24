@@ -143,30 +143,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     /** Get number of (one) bits set. */
     size_t countOnes()() const  // template-lazy. TODO unite with other definitions
     {
-        version(LDC) pragma(inline, true);
-        typeof(return) n = 0;
-        foreach (const block; _blocks)
-        {
-            import core.bitop : popcnt;
-            static if (block.sizeof == 1 ||
-                       block.sizeof == 2 ||
-                       block.sizeof == 4 ||
-                       block.sizeof == 4)
-            {
-                // TODO do we need to force `uint`-overload of `popcnt`?
-                n += cast(uint)block.popcnt;
-            }
-            else static if (block.sizeof == 8)
-            {
-                n += (cast(ulong)((cast(uint)(block)).popcnt) +
-                      cast(ulong)((cast(uint)(block >> 32)).popcnt));
-            }
-            else
-            {
-                assert(0, "Unsupported Block size " ~ Block.sizeof.stringof);
-            }
-        }
-        return typeof(return)(n);
+        return .countOnes(_blocks);
     }
 
     /** Get number of (zero) bits unset. */

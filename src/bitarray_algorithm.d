@@ -3,8 +3,8 @@
 module bitarray_algorithm;
 
 size_t countOnes(Blocks)(const scope auto ref Blocks blocks)
-if (is(typeof(Blocks.init[0]) == uint) ||
-    is(typeof(Blocks.init[0]) == ulong))
+if (is(typeof(Blocks.init[0]) : uint) ||
+    is(typeof(Blocks.init[0]) : ulong))
 {
     typeof(return) n = 0;
     foreach (const block; blocks)

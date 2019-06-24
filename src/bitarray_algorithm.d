@@ -15,7 +15,7 @@ if (is(typeof(Blocks.init[0]) == uint) ||
     return typeof(return)(n);
 }
 
-///
+/// Test `countOnes`.
 @safe pure nothrow @nogc unittest
 {
     enum n = 3;

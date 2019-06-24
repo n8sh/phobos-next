@@ -8,7 +8,7 @@ size_t countOnes(Blocks)(const scope auto ref Blocks blocks)
 if (isBlocks!Blocks)
 {
     typeof(return) n = 0;
-    foreach (const block; blocks)
+    foreach (const blockIndex, const block; blocks)
     {
         import core.bitop : popcnt;
         n += cast(typeof(n))popcnt(block);

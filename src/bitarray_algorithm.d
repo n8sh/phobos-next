@@ -7,13 +7,13 @@ module bitarray_algorithm;
 size_t countOnes(Blocks)(const scope auto ref Blocks blocks)
 if (isBlocks!Blocks)
 {
-    typeof(return) n = 0;
+    typeof(return) result = 0;
     foreach (const blockIndex, const block; blocks)
     {
         import core.bitop : popcnt;
-        n += cast(typeof(n))popcnt(block);
+        result += cast(typeof(result))popcnt(block);
     }
-    return typeof(return)(n);
+    return typeof(return)(result);
 }
 
 /// Test `countOnes`.

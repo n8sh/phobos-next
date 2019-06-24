@@ -10,7 +10,7 @@ if (is(typeof(Blocks.init[0]) : uint) ||
     foreach (const block; blocks)
     {
         import core.bitop : popcnt;
-        n += cast(uint)popcnt(block);
+        n += cast(uint)popcnt(block); // TODO better to remove cast?
     }
     return typeof(return)(n);
 }

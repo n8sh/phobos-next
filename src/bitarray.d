@@ -255,6 +255,7 @@ private:
     foreach (const n; 1 .. 3*BitArray!().bitsPerBlock)
     {
         auto a = BitArray!().withLength(n);
+
         foreach (const i; 0 .. n)
         {
             assert(a.countOnes == i);
@@ -263,6 +264,7 @@ private:
             assert(a.countOnes == i + 1);
             assert(a.countZeros == n - (i + 1));
         }
+
         assert(a.countOnes == n);
         assert(a.countZeros == 0);
 

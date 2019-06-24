@@ -252,25 +252,26 @@ private:
 /// Test `countOnes` and `countZeros`.
 @safe pure nothrow @nogc unittest
 {
-    const n = 5;
-
-    auto a = BitArray!().withLength(n);
-    foreach (const i; 0 .. n)
+    foreach (const n; 1 .. 3*BitArray!().bitsPerBlock)
     {
-        assert(a.countOnes == i);
-        assert(a.countZeros == n - i);
-        a[i] = true;
-        assert(a.countOnes == i + 1);
-        assert(a.countZeros == n - (i + 1));
+        auto a = BitArray!().withLength(n);
+        foreach (const i; 0 .. n)
+        {
+            assert(a.countOnes == i);
+            assert(a.countZeros == n - i);
+            a[i] = true;
+            assert(a.countOnes == i + 1);
+            assert(a.countZeros == n - (i + 1));
+        }
+        assert(a.countOnes == n);
+        assert(a.countZeros == 0);
+
+        auto b = a.dup;
+        assert(b.countOnes == n);
+        assert(b.countZeros == 0);
+
+        assert(a == b);
     }
-    assert(a.countOnes == n);
-    assert(a.countZeros == 0);
-
-    auto b = a.dup;
-    assert(b.countOnes == n);
-    assert(b.countZeros == 0);
-
-    assert(a == b);
 }
 
 /// Test emptying (resetting) via `.clear` and explicit copying with `.dup`.

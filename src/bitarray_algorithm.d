@@ -1,4 +1,7 @@
 /** Algorithms for dynamic and static bitarrays based with integral blocks.
+ *
+ * Most algorithms are qualified as `package` because they should only be used
+ * by bit-array containers.
  */
 module bitarray_algorithm;
 

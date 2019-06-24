@@ -35,7 +35,7 @@ if (isBlocks!Blocks)
     return typeof(return)(result);
 }
 
-/// Test `countOnes` with only full blocks.
+/// Test `countOnes` with full blocks.
 @safe pure nothrow @nogc unittest
 {
     enum blockCount = 3;

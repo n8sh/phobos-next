@@ -89,7 +89,7 @@ if (isBlocks!Blocks)
  *
  * Optimized for zeros-sparsity.
  */
-size_t indexOfLastZero(Blocks)(const scope auto ref Blocks blocks)
+size_t indexOfLastZero(Blocks)(const scope auto ref Blocks blocks, size_t length)
 if (isBlocks!Blocks)
 {
     foreach_reverse (const blockIndex, const block; blocks)

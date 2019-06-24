@@ -159,15 +159,6 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
         return bitarray_algorithm.indexOfFirstOne(_blocks, length);
     }
 
-    /** Find index of last set (one) bit or `length` if no bit set.
-     *
-     * Optimized for ones-sparsity.
-     */
-    version(none) size_t indexOfLastOne()() const
-    {
-        return bitarray_algorithm.indexOfLastOne(_blocks, length);
-    }
-
     /** Find index of first cleared (zero) bit or `length` if no bit cleared.
      *
      * Optimized for zeros-sparsity.
@@ -175,15 +166,6 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     size_t indexOfFirstZero()() const
     {
         return bitarray_algorithm.indexOfFirstZero(_blocks, length);
-    }
-
-    /** Find index of last cleared (zero) bit or `length` if no bit cleared.
-     *
-     * Optimized for zeros-sparsity.
-     */
-    version(none) size_t indexOfLastZero()() const
-    {
-        return bitarray_algorithm.indexOfLastZero(_blocks, length);
     }
 
     /** Equality, operators == and !=. */
@@ -309,7 +291,7 @@ private:
     assert(a.length == 0);
 }
 
-/// Test `indexOfFirstOne` and `indexOfLastOne` for single set ones.
+/// Test `indexOfFirstOne` for single set ones.
 @safe pure nothrow @nogc unittest
 {
     enum n = 2 * BitArray!().bitsPerBlock;
@@ -317,43 +299,35 @@ private:
     auto a = BitArray!().withLength(n);
     assert(a.length == n);
     assert(a.indexOfFirstOne == n); // miss
-    // assert(a.indexOfLastOne == n);  // miss
 
     a[0] = true;
     assert(a.indexOfFirstOne == 0);
-    // assert(a.indexOfLastOne == 0);
     a[] = false;
 
     a[2] = true;
     assert(a.indexOfFirstOne == 2);
-    // assert(a.indexOfLastOne == 2);
     a[] = false;
 
     a[n/2-1] = true;
     assert(a.indexOfFirstOne == n/2-1);
-    // assert(a.indexOfLastOne == n/2-1);
     a[] = false;
 
     a[n/2] = true;
     assert(a.indexOfFirstOne == n/2);
-    // assert(a.indexOfLastOne == n/2);
     a[] = false;
 
     a[n/2+1] = true;
     assert(a.indexOfFirstOne == n/2+1);
-    // assert(a.indexOfLastOne == n/2+1);
     a[] = false;
 
     a[n-1] = true;
     assert(a.indexOfFirstOne == n-1);
-    // assert(a.indexOfLastOne == n-1);
     a[] = false;
 
     assert(a.indexOfFirstOne == n); // miss
-    // assert(a.indexOfLastOne == n);  // miss
 }
 
-/// Test `indexOfFirstOne` and `indexOfLastOne` for multi set ones.
+/// Test `indexOfFirstOne` for multi set ones.
 @safe pure nothrow @nogc unittest
 {
     enum n = 2 * BitArray!().bitsPerBlock;
@@ -364,10 +338,9 @@ private:
     a[BitArray!().bitsPerBlock/2] = true;
     a[BitArray!().bitsPerBlock - 1] = true;
     assert(a.indexOfFirstOne == 0);
-    // assert(a.indexOfLastOne == BitArray!().bitsPerBlock - 1);
 }
 
-/// Test `indexOfFirstZero` and `indexOfLastZero` for single set zeros.
+/// Test `indexOfFirstZero` for single set zeros.
 @safe pure nothrow @nogc unittest
 {
     enum n = 2 * BitArray!().bitsPerBlock;
@@ -377,43 +350,35 @@ private:
 
     assert(a.length == n);
     assert(a.indexOfFirstZero == n); // miss
-    // assert(a.indexOfLastZero == n);  // miss
 
     a[0] = false;
     assert(a.indexOfFirstZero == 0);
-    // assert(a.indexOfLastZero == 0);
     a[0] = true;
 
     a[2] = false;
     assert(a.indexOfFirstZero == 2);
-    // assert(a.indexOfLastZero == 2);
     a[2] = true;
 
     a[n/2-1] = false;
     assert(a.indexOfFirstZero == n/2-1);
-    // assert(a.indexOfLastZero == n/2-1);
     a[n/2-1] = true;
 
     a[n/2] = false;
     assert(a.indexOfFirstZero == n/2);
-    // assert(a.indexOfLastZero == n/2);
     a[n/2] = true;
 
     a[n/2+1] = false;
     assert(a.indexOfFirstZero == n/2+1);
-    // assert(a.indexOfLastZero == n/2+1);
     a[n/2+1] = true;
 
     a[n-1] = false;
     assert(a.indexOfFirstZero == n-1);
-    // assert(a.indexOfLastZero == n-1);
     a[n-1] = true;
 
     assert(a.indexOfFirstZero == n); // miss
-    // assert(a.indexOfLastZero == n);  // miss
 }
 
-/// Test `indexOfFirstZero` and `indexOfLastZero` for multi set zeros.
+/// Test `indexOfFirstZero` for multi set zeros.
 @safe pure nothrow @nogc unittest
 {
     enum n = 2 * BitArray!().bitsPerBlock;
@@ -425,10 +390,9 @@ private:
     a[BitArray!().bitsPerBlock/2] = false;
     a[BitArray!().bitsPerBlock - 1] = false;
     assert(a.indexOfFirstZero == 0);
-    // assert(a.indexOfLastZero == BitArray!().bitsPerBlock - 1);
 }
 
-/// Test `indexOfFirstOne` and `indexOfLastOne` for multi set ones.
+/// Test `indexOfFirstOne` for multi set ones.
 @safe pure nothrow @nogc unittest
 {
     enum n = 2 * BitArray!().bitsPerBlock;
@@ -440,7 +404,6 @@ private:
     a[BitArray!().bitsPerBlock/2] = true;
     a[BitArray!().bitsPerBlock - 1] = true;
     assert(a.indexOfFirstOne == 0);
-    // assert(a.indexOfLastOne == BitArray!().bitsPerBlock - 1);
 }
 
 version(unittest)

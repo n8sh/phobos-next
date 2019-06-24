@@ -7,7 +7,7 @@ module bitarray_algorithm;
 
 @safe pure nothrow @nogc:
 
-package size_t countOnes(Blocks)(const scope auto ref Blocks blocks)
+size_t countOnes(Blocks)(const scope auto ref Blocks blocks)
 if (isBlocks!Blocks)
 {
     typeof(return) result = 0;
@@ -19,7 +19,26 @@ if (isBlocks!Blocks)
     return typeof(return)(result);
 }
 
-package size_t indexOfFirstOne(Blocks)(const scope auto ref Blocks blocks, size_t length)
+/// Test `countOnes`.
+@safe pure nothrow @nogc unittest
+{
+    enum n = 3;
+    size_t[n] x;
+    assert(countOnes(x) == 0);
+
+    x[0] = 1;
+    assert(countOnes(x) == 1);
+
+    x[0] = 1+2;
+    assert(countOnes(x) == 2);
+
+    x[0] = 1+2;
+    x[1] = 1+2;
+    x[2] = 1+2;
+    assert(countOnes(x) == 6);
+}
+
+size_t indexOfFirstOne(Blocks)(const scope auto ref Blocks blocks, size_t length)
 if (isBlocks!Blocks)
 {
     foreach (const blockIndex, const block; blocks)
@@ -38,7 +57,7 @@ if (isBlocks!Blocks)
  *
  * Optimized for ones-sparsity.
  */
-package size_t indexOfLastOne(Blocks)(const scope auto ref Blocks blocks, size_t length)
+size_t indexOfLastOne(Blocks)(const scope auto ref Blocks blocks, size_t length)
 if (isBlocks!Blocks)
 {
     foreach_reverse (const blockIndex, const block; blocks)
@@ -56,7 +75,7 @@ if (isBlocks!Blocks)
  *
  * Optimized for zeros-sparsity.
  */
-package size_t indexOfFirstZero(Blocks)(const scope auto ref Blocks blocks, size_t length)
+size_t indexOfFirstZero(Blocks)(const scope auto ref Blocks blocks, size_t length)
 if (isBlocks!Blocks)
 {
     foreach (const blockIndex, const block; blocks)
@@ -75,7 +94,7 @@ if (isBlocks!Blocks)
  *
  * Optimized for zeros-sparsity.
  */
-package size_t indexOfLastZero(Blocks)(const scope auto ref Blocks blocks, size_t length)
+size_t indexOfLastZero(Blocks)(const scope auto ref Blocks blocks, size_t length)
 if (isBlocks!Blocks)
 {
     foreach_reverse (const blockIndex, const block; blocks)

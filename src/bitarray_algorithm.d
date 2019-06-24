@@ -4,8 +4,8 @@ module bitarray_algorithm;
 
 import std.traits : isArray;
 
-size_t countOnes(Blocks)(const scope auto ref Blocks blocks)
-if (is(typeof(Blocks.init[0]) == size_t))
+size_t countOnes(Blocks)(const scope Blocks blocks)
+// TODO if (is(typeof(Blocks.init[0]) == size_t))
 {
     typeof(return) n = 0;
     foreach (const block; blocks)

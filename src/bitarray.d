@@ -94,6 +94,7 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     /** Set the `i`'th bit to `value`. */
     bool opIndexAssign(bool value, size_t i) @trusted
     {
+        pragma(inline, true);
         if (value)
         {
             bts(_blockPtr, i);

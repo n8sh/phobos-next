@@ -883,8 +883,8 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         /** Check if `this` has only ones. */
         bool allOne()() const
         {
-            const restCount = bitCount % bitsPerBlock;
-            const hasRest = restCount != 0;
+            const restBitCount = bitCount % bitsPerBlock;
+            const hasRest = restBitCount != 0;
             if (_blocks.length >= 1)
             {
                 foreach (const block; _blocks[0 .. $ - hasRest])
@@ -892,9 +892,9 @@ struct StaticBitArray(uint bitCount, Block = size_t)
                     if (block != Block.max) { return false; }
                 }
             }
-            if (hasRest)
+            if (restBitCount)
             {
-                return _blocks[$ - 1] == 2^^restCount - 1;
+                return _blocks[$ - 1] == 2^^restBitCount - 1;
             }
             else
             {
@@ -1381,9 +1381,9 @@ private:
 /// test all zero and all one predicates
 @safe pure nothrow @nogc unittest
 {
-    static void test(size_t restCount)()
+    static void test(size_t restBitCount)()
     {
-        enum n = 8*size_t.sizeof + restCount;
+        enum n = 8*size_t.sizeof + restBitCount;
 
         auto bs = StaticBitArray!(n, size_t)();
 

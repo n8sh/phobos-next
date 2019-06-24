@@ -35,7 +35,7 @@ if (isBlocks!Blocks)
     assert(countOnes(x) == 6);
 }
 
-size_t indexOfFirstOne(Blocks)(const scope auto ref Blocks blocks)
+size_t indexOfFirstOne(Blocks)(const scope auto ref Blocks blocks, size_t length)
 if (isBlocks!Blocks)
 {
     foreach (const blockIndex, const block; blocks)
@@ -46,14 +46,14 @@ if (isBlocks!Blocks)
             return blockIndex*8*block.sizeof + bsf(block);
         }
     }
-    return typeof(return).max;  // miss
+    return length;              // miss
 }
 
 /** Find index of last set (one) bit or `length` if no bit set.
  *
  * Optimized for ones-sparsity.
  */
-size_t indexOfLastOne(Blocks)(const scope auto ref Blocks blocks)
+size_t indexOfLastOne(Blocks)(const scope auto ref Blocks blocks, size_t length)
 if (isBlocks!Blocks)
 {
     foreach_reverse (const blockIndex, const block; blocks)
@@ -64,14 +64,14 @@ if (isBlocks!Blocks)
             return blockIndex*8*block.sizeof + bsr(block);
         }
     }
-    return typeof(return).max;  // miss
+    return length;              // miss
 }
 
 /** Find index of first cleared (zero) bit or `length` if no bit cleared.
  *
  * Optimized for zeros-sparsity.
  */
-size_t indexOfFirstZero(Blocks)(const scope auto ref Blocks blocks)
+size_t indexOfFirstZero(Blocks)(const scope auto ref Blocks blocks, size_t length)
 if (isBlocks!Blocks)
 {
     foreach (const blockIndex, const block; blocks)
@@ -82,7 +82,7 @@ if (isBlocks!Blocks)
             return blockIndex*8*block.sizeof + bsf(~block); // TODO is there a builtin for `bsf(~block)`?
         }
     }
-    return typeof(return).max;  // miss
+    return length;              // miss
 }
 
 /** Find index of last cleared (zero) bit or `length` if no bit cleared.
@@ -100,7 +100,7 @@ if (isBlocks!Blocks)
             return blockIndex*8*block.sizeof + bsr(~block); // TODO is there a builtin for `bsr(~block)`?
         }
     }
-    return typeof(return).max;  // miss
+    return length;              // miss
 }
 
 private enum isBlocks(Blocks) = (is(typeof(Blocks.init[0]) : uint) ||

@@ -731,7 +731,10 @@ struct StaticBitArray(uint bitCount, Block = size_t)
     {
         foreach (const block; _blocks) // TODO array operation
         {
-            if (block != 0) { return false; }
+            if (block != 0)
+            {
+                return false;
+            }
         }
         return true;
     }
@@ -1205,6 +1208,24 @@ struct StaticBitArray(uint bitCount, Block = size_t)
             if (ix+1 < bitCount) { sink(", "); } // separator
         }
         sink("]");
+    }
+
+private:
+
+    inout(Block)[] _fullBlocks() inout @trusted
+    {
+        pragma(inline, true);
+        const fullBlockCount = length / bitsPerBlock;
+        return _blocks.ptr[0 .. fullBlockCount];
+    }
+
+    static if (blockCount)
+    {
+        Block _restBlock() const @trusted
+        {
+            const restBitCount = length % bitsPerBlock;
+            return _blocks[blockCount-1] & ((1UL << restBitCount) - 1);
+        }
     }
 }
 

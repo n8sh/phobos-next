@@ -420,7 +420,7 @@ if (isNullable!(T))
  */
 T[] makeInitZeroArray(T, alias Allocator)(const size_t length) @trusted
 {
-    static if (__VERSION__ >= 2087)
+    version(none)               // TODO activate
     {
         // See: https://github.com/dlang/phobos/pull/6411
         import std.experimental.allocator.gc_allocator : GCAllocator;

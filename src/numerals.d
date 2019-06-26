@@ -127,7 +127,7 @@ static immutable ubyte[string] _onesPlaceWordsAA;
    This fails: foreach (ubyte i, e; onesNumerals) { _onesPlaceWordsAA[e] = i; }
    See_Also: http://forum.dlang.org/thread/vtenbjmktplcxxmbyurt@forum.dlang.org#post-iejbrphbqsszlxcxjpef:40forum.dlang.org
    */
-static this()
+shared static this()
 {
     import std.exception: assumeUnique;
     ubyte[string] tmp;

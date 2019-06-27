@@ -11,9 +11,12 @@ void main(string[] args)
     enum totalByteCount = 16*1024*1024*1024UL; // total amount of RAM [bytes]
     enum allocByteCount = 16;                  // allocation size [bytes]
     enum statusBitCount =  totalByteCount/allocByteCount; // number of status bits
+    pragma(msg, "Status bit count: ", statusBitCount);
     enum wordBitCount = 64;                               // bit per word (`size_t`)
     enum statusWordCount = statusBitCount/wordBitCount;
-    pragma(msg, statusWordCount);
+    pragma(msg, "Status word count: ", statusWordCount);
+    pragma(msg, "Status bits size: ", statusWordCount*8);
+
     size_t indexOfFirstBit(const scope size_t[] x) @safe pure nothrow @nogc
     {
         typeof(return) sum = 0;

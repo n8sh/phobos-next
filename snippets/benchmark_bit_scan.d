@@ -4,15 +4,16 @@ import std.datetime.stopwatch : benchmark;
 @safe:
 
 /**
- * Benchmark time it takes to scan n bits of data.
+ * Benchmark time it takes to scan status bits for typical GC allocations of typical size.
  */
 void main(string[] args)
 {
-    enum totalByteCount = 16*1024*1024*1024; // total amount of RAM [bytes]
+    enum totalByteCount = 16*1024*1024*1024UL; // total amount of RAM [bytes]
     enum allocByteCount = 16;                // allocation size [bytes]
-    enum staticBitCount =  totalByteCount/allocByteCount;
-
-    const n = 2*1024*1024;
+    enum statusBitCount =  totalByteCount/allocByteCount; // number of status bits
+    enum wordBitCount = 64;                               // bit per word (`size_t`)
+    enum statusWordCount = statusBitCount/wordBitCount;
+    pragma(msg, statusWordCount);
     size_t indexOfFirstBit(const scope size_t[] x) @safe pure nothrow @nogc
     {
         typeof(return) sum = 0;
@@ -26,7 +27,7 @@ void main(string[] args)
         return x.length;
     }
 
-    size_t[] x = new size_t[n]; // 2M * 8 bytes = 16 Megabytes
+    size_t[] x = new size_t[statusWordCount];
     size_t hit;
     void f() { hit = indexOfFirstBit(x); }
 

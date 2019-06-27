@@ -31,11 +31,15 @@ void main(string[] args)
     }
 
     size_t[] x = new size_t[statusWordCount];
-    x[0] = 3;
     size_t hit;
     void f() { hit = indexOfFirstBit(x); }
 
+    x[0] = 1;
     writeln("duration: ", benchmark!(f)(1)[0]);
+
+    x[1] = 1;
     writeln("duration: ", benchmark!(f)(1)[0]);
+
+    x[2] = 1;
     writeln("duration: ", benchmark!(f)(1)[0]);
 }

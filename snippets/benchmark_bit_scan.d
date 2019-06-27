@@ -31,6 +31,7 @@ void main(string[] args)
     }
 
     size_t[] x = new size_t[statusWordCount];
+    x[0] = 3;
     size_t hit;
     void f() { hit = indexOfFirstBit(x); }
 

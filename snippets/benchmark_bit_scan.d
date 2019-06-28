@@ -19,15 +19,16 @@ void main(string[] args)
 
     size_t indexOfFirstBit(const scope size_t[] x) @safe pure nothrow @nogc
     {
-        typeof(return) sum = 0;
-        foreach (const ix, const ref e; x)
-        {
-            if (e != 0)
-            {
-                return ix;
-            }
-        }
-        return x.length;
+        return x.find(1).length;
+        // typeof(return) sum = 0;
+        // foreach (const ix, const ref e; x)
+        // {
+        //     if (e != 0)
+        //     {
+        //         return ix;
+        //     }
+        // }
+        // return x.length;
     }
 
     size_t[] x = new size_t[statusWordCount];

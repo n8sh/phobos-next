@@ -33,7 +33,6 @@ void main(string[] args)
 
     size_t[] x = new size_t[statusWordCount];
     size_t index = 0;
-    size_t hit;
 
     size_t f()
     {

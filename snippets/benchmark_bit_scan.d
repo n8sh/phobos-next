@@ -9,7 +9,7 @@ import std.datetime.stopwatch : StopWatch, AutoStart, benchmark;
 void main(string[] args)
 {
     enum totalByteCount = 16*1024*1024*1024UL; // total amount of RAM [bytes]
-    enum allocByteCount = 16;                  // allocation size [bytes]
+    enum allocByteCount = 64;                  // allocation size [bytes]
     enum statusBitCount =  totalByteCount/allocByteCount; // number of status bits
     writeln("Status bit count: ", statusBitCount);
     enum wordBitCount = 64;     // bit per word (`size_t`)

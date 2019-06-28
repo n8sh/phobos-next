@@ -48,7 +48,7 @@ void main(string[] args)
     {
         sw.reset();
         const hit = f();
-        writeln(sw.peek());
-        writeln("Hit a: ", hit);
+        writeln("Took: ", sw.peek(),
+                " hit: ", hit);
     }
 }

@@ -12,7 +12,7 @@ void main(string[] args)
     enum allocByteCount = 16;                  // allocation size [bytes]
     enum statusBitCount =  totalByteCount/allocByteCount; // number of status bits
     writeln("Status bit count: ", statusBitCount);
-    enum wordBitCount = 64;                               // bit per word (`size_t`)
+    enum wordBitCount = 64;     // bit per word (`size_t`)
     enum statusWordCount = statusBitCount/wordBitCount;
     writeln("Status word count: ", statusWordCount);
     writeln("Status bits size: ", statusWordCount*8);

@@ -44,7 +44,7 @@ void main(string[] args)
 
     auto sw = StopWatch(AutoStart.yes);
 
-    foreach (const i; 0 .. 3)
+    foreach (const i; 0 .. 10)
     {
         sw.reset();
         const hit = f();

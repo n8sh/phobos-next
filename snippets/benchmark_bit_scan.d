@@ -34,7 +34,7 @@ void main(string[] args)
     size_t[] x = new size_t[statusWordCount];
     size_t index = 0;
 
-    size_t f()
+    size_t f() @safe pure nothrow @nogc
     {
         x[statusWordCount/2+index++] = 1; // set half-way for average case search performance
         return indexOfFirstBit(x);

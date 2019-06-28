@@ -1,5 +1,5 @@
 import std.traits, std.meta, std.range, std.algorithm, std.stdio;
-import std.datetime.stopwatch : benchmark;
+import std.datetime.stopwatch : StopWatch, AutoStart, benchmark;
 
 @safe:
 
@@ -11,11 +11,11 @@ void main(string[] args)
     enum totalByteCount = 16*1024*1024*1024UL; // total amount of RAM [bytes]
     enum allocByteCount = 16;                  // allocation size [bytes]
     enum statusBitCount =  totalByteCount/allocByteCount; // number of status bits
-    pragma(msg, "Status bit count: ", statusBitCount);
+    writeln("Status bit count: ", statusBitCount);
     enum wordBitCount = 64;                               // bit per word (`size_t`)
     enum statusWordCount = statusBitCount/wordBitCount;
-    pragma(msg, "Status word count: ", statusWordCount);
-    pragma(msg, "Status bits size: ", statusWordCount*8);
+    writeln("Status word count: ", statusWordCount);
+    writeln("Status bits size: ", statusWordCount*8);
 
     size_t indexOfFirstBit(const scope size_t[] x) @safe pure nothrow @nogc
     {
@@ -34,15 +34,25 @@ void main(string[] args)
     size_t index = 0;
     size_t hit;
 
-    void f()
+    size_t f()
     {
-        x[index++] = 1;
-        hit = indexOfFirstBit(x);
+        x[statusWordCount/2+index++] = 1; // set half-way for average case search performance
+        return indexOfFirstBit(x);
     }
 
     const uint benchmarkCount = 1;
 
-    writeln("duration: ", benchmark!(f)(benchmarkCount));
-    writeln("duration: ", benchmark!(f)(benchmarkCount));
-    writeln("duration: ", benchmark!(f)(benchmarkCount));
+    auto sw = StopWatch(AutoStart.yes);
+
+    sw.reset();
+    writeln("Hit a: ", f());
+    writeln(sw.peek());
+
+    sw.reset();
+    writeln("Hit a: ", f());
+    writeln(sw.peek());
+
+    sw.reset();
+    writeln("Hit a: ", f());
+    writeln(sw.peek());
 }

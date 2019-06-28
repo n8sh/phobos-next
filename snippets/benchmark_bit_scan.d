@@ -44,15 +44,11 @@ void main(string[] args)
 
     auto sw = StopWatch(AutoStart.yes);
 
-    sw.reset();
-    writeln("Hit a: ", f());
-    writeln(sw.peek());
-
-    sw.reset();
-    writeln("Hit a: ", f());
-    writeln(sw.peek());
-
-    sw.reset();
-    writeln("Hit a: ", f());
-    writeln(sw.peek());
+    foreach (const i; 0 .. 3)
+    {
+        sw.reset();
+        const hit = f();
+        writeln(sw.peek());
+        writeln("Hit a: ", hit);
+    }
 }

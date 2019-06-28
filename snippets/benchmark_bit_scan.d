@@ -36,7 +36,7 @@ void main(string[] args)
 
     size_t f() @safe pure nothrow @nogc
     {
-        x[statusWordCount/2+index++] = 1; // set half-way for average case search performance
+        x[statusWordCount/2 - (index++)] = 1; // set half-way for average case search performance
         return indexOfFirstBit(x);
     }
 

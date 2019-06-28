@@ -34,12 +34,13 @@ void main(string[] args)
     size_t hit;
     void f() { hit = indexOfFirstBit(x); }
 
+    const uint benchmarkCount = 1;
     x[0] = 1;
-    writeln("duration: ", benchmark!(f)(1)[0]);
+    writeln("duration: ", benchmark!(f)(benchmarkCount)[0]);
 
     x[1] = 1;
-    writeln("duration: ", benchmark!(f)(1)[0]);
+    writeln("duration: ", benchmark!(f)(benchmarkCount)[0]);
 
     x[2] = 1;
-    writeln("duration: ", benchmark!(f)(1)[0]);
+    writeln("duration: ", benchmark!(f)(benchmarkCount)[0]);
 }

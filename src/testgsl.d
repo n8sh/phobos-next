@@ -103,19 +103,18 @@ IntegrationResult monteMiserIntegrate(scope const ref gsl_monte_function fn,
 {
     assert(fn.dim == lowerLimit.length);
     assert(lowerLimit.length == upperLimit.length);
-    const size_t dim = lowerLimit.length;
-    foreach (const i; 0 .. dim)
+    foreach (const i; 0 .. fn.dim)
     {
         assert(lowerLimit[i] < upperLimit[i]);
     }
 
-    gsl_monte_miser_state* state = gsl_monte_miser_alloc(dim);
+    gsl_monte_miser_state* state = gsl_monte_miser_alloc(fn.dim);
     typeof(return) ir;
 
     int i = gsl_monte_miser_integrate(cast(gsl_monte_function*)&fn,
                                       lowerLimit.ptr,
                                       upperLimit.ptr,
-                                      dim,
+                                      fn.dim,
                                       calls,
                                       rng,
                                       state,

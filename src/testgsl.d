@@ -17,7 +17,9 @@ import gsl.monte;
 
 struct my_f_params { double a; double b; double c; }
 
-extern(C) double my_f(double* x, size_t dim, void* params)
+extern(C) double my_f(scope double* x,
+                      size_t dim,
+                      scope void* params)
 {
     auto fp = cast(my_f_params*)params;
     assert(dim == 2);
@@ -26,9 +28,10 @@ extern(C) double my_f(double* x, size_t dim, void* params)
             fp.c * x[1] * x[1]);
 }
 
-double gsl_monte_fn_eval(gsl_monte_function* F, double* x)
+double gsl_monte_fn_eval(scope gsl_monte_function* F,
+                         const scope double* x) @trusted
 {
-    return (*(F.f))(x, F.dim, F.params);
+    return (*(F.f))(cast(double*)x, F.dim, F.params);
 }
 
 void test_gsl_integration()
@@ -40,7 +43,7 @@ void test_gsl_integration()
     F.dim = 2;
     F.params = &params;
 
-    double[2] x = [2, 2];
+    const double[2] x = [2, 2];
     assert(gsl_monte_fn_eval(&F, x.ptr) == 24);
 }
 

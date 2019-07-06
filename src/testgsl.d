@@ -62,7 +62,7 @@ static ~this()
 /** High-level wrapper of `gsl_monte_plain_integrate`.
  *
  */
-IntegrationResult integrate(scope const gsl_monte_function* fn,
+IntegrationResult integrate(scope const ref gsl_monte_function fn,
                             scope const double[] lowerLimit, // lower limit of hypercubic region
                             scope const double[] upperLimit, // upper limit of hypercubic region
                             const size_t calls = 500_000) @trusted
@@ -78,7 +78,7 @@ IntegrationResult integrate(scope const gsl_monte_function* fn,
     gsl_monte_plain_state* state = gsl_monte_plain_alloc(dim);
     typeof(return) ir;
 
-    int i = gsl_monte_plain_integrate(cast(gsl_monte_function*)fn,
+    int i = gsl_monte_plain_integrate(cast(gsl_monte_function*)&fn,
                                       lowerLimit.ptr,
                                       upperLimit.ptr,
                                       dim,
@@ -106,7 +106,7 @@ void test_gsl_monte_plain_integration()
     assert(eval(&fn, x) == 24);
 
     auto sw = StopWatch(AutoStart.yes);
-    const ir = integrate(&fn, [0.0, 0.0], [1.0, 1.0]);
+    const ir = integrate(fn, [0.0, 0.0], [1.0, 1.0]);
     sw.stop();
     writeln(ir, " took ", sw.peek);
 }

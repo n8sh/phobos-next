@@ -69,24 +69,23 @@ IntegrationResult montePlainIntegrate(scope const ref gsl_monte_function fn,
 {
     assert(fn.dim == lowerLimit.length);
     assert(lowerLimit.length == upperLimit.length);
-    const size_t dim = lowerLimit.length;
-    foreach (const i; 0 .. dim)
+    foreach (const i; 0 .. fn.dim)
     {
         assert(lowerLimit[i] < upperLimit[i]);
     }
 
-    gsl_monte_plain_state* state = gsl_monte_plain_alloc(dim);
+    gsl_monte_plain_state* state = gsl_monte_plain_alloc(fn.dim);
     typeof(return) ir;
 
-    int i = gsl_monte_plain_integrate(cast(gsl_monte_function*)&fn,
-                                      lowerLimit.ptr,
-                                      upperLimit.ptr,
-                                      dim,
-                                      calls,
-                                      rng,
-                                      state,
-                                      &ir.value,
-                                      &ir.absoluteError);
+    const int i = gsl_monte_plain_integrate(cast(gsl_monte_function*)&fn,
+                                            lowerLimit.ptr,
+                                            upperLimit.ptr,
+                                            fn.dim,
+                                            calls,
+                                            rng,
+                                            state,
+                                            &ir.value,
+                                            &ir.absoluteError);
 
     gsl_monte_plain_free(state);
 

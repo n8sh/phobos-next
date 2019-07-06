@@ -175,10 +175,13 @@ void test_gsl_monte_integration()
 
     const size_t calls = 10_000;
 
+    const double[2] lowerLimit = [0.0, 0.0];
+    const double[2] upperLimit = [1.0, 1.0];
+
     // plain
     {
         sw.reset();
-        const ir = montePlainIntegrate(fn, [0.0, 0.0], [1.0, 1.0], 12*calls);
+        const ir = montePlainIntegrate(fn, lowerLimit[], upperLimit, 12*calls);
         sw.stop();
         writeln("Plain: ", ir, " took ", sw.peek);
     }
@@ -186,7 +189,7 @@ void test_gsl_monte_integration()
     // MISER
     {
         sw.reset();
-        const ir = monteMISERIntegrate(fn, [0.0, 0.0], [1.0, 1.0], calls);
+        const ir = monteMISERIntegrate(fn, lowerLimit[], upperLimit, calls);
         sw.stop();
         writeln("MISER: ", ir, " took ", sw.peek);
     }
@@ -195,7 +198,7 @@ void test_gsl_monte_integration()
     version(none)               // TODO activate
     {
         sw.reset();
-        const ir = monteVEGASIntegrate(fn, [0.0, 0.0], [1.0, 1.0], calls);
+        const ir = monteVEGASIntegrate(fn, lowerLimit[], upperLimit, calls);
         sw.stop();
         writeln("VEGAS: ", ir, " took ", sw.peek);
     }

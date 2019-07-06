@@ -93,6 +93,40 @@ IntegrationResult montePlainIntegrate(scope const ref gsl_monte_function fn,
     return ir;
 }
 
+/** High-level wrapper of `gsl_monte_miser_integrate`.
+ *
+ */
+IntegrationResult monteMiserIntegrate(scope const ref gsl_monte_function fn,
+                                      scope const double[] lowerLimit, // lower limit of hypercubic region
+                                      scope const double[] upperLimit, // upper limit of hypercubic region
+                                      const size_t calls = 500_000) @trusted
+{
+    assert(fn.dim == lowerLimit.length);
+    assert(lowerLimit.length == upperLimit.length);
+    const size_t dim = lowerLimit.length;
+    foreach (const i; 0 .. dim)
+    {
+        assert(lowerLimit[i] < upperLimit[i]);
+    }
+
+    gsl_monte_miser_state* state = gsl_monte_miser_alloc(dim);
+    typeof(return) ir;
+
+    int i = gsl_monte_miser_integrate(cast(gsl_monte_function*)&fn,
+                                      lowerLimit.ptr,
+                                      upperLimit.ptr,
+                                      dim,
+                                      calls,
+                                      rng,
+                                      state,
+                                      &ir.value,
+                                      &ir.absoluteError);
+
+    gsl_monte_miser_free(state);
+
+    return ir;
+}
+
 void test_gsl_monte_plain_integration()
 {
     gsl_monte_function fn;

@@ -18,7 +18,7 @@ import gsl.rng;
 
 struct my_f_params { double a; double b; double c; }
 
-/** Normal distribution.
+/** Normal distribution with mean `params[0]` and variance `params[1]`.
  *
  * See_Also: https://en.wikipedia.org/wiki/Normal_distribution
  */
@@ -28,7 +28,7 @@ extern(C) double normalDistribution1D(const scope double* x,
 {
     const typed_params = cast(double*)params;
     assert(dim == 1);
-    return exp(-((x[0] - typed_params[0])^^2)/(2*typed_params[1]^^2)) / sqrt(2 * PI * typed_params[1]);
+    return exp(-((x[0] - typed_params[0])^^2)/(2*typed_params[1])) / sqrt(2 * PI * typed_params[1]);
 }
 
 /** Normal distribution with mean 0 and variance 1.

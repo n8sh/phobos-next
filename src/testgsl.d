@@ -13,6 +13,7 @@
 
 import std.range : iota, array;
 import std.stdio : writeln;
+
 import gsl.monte;
 import gsl.rng;
 

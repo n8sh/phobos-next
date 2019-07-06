@@ -39,6 +39,7 @@ extern(C) double normalDistribution1D_1_1(const scope double* x,
                                           size_t dim,
                                           const scope void* params) @trusted pure nothrow @nogc
 {
+    assert(dim == 1);
     return exp(-(x[0]^^2)/(2)) / sqrt(2 * PI);
 }
 
@@ -184,24 +185,51 @@ IntegrationResult monteVEGASIntegrate(scope const ref gsl_monte_function fn,
     return ir;
 }
 
-void test_gsl_monte_integration()
+void test_1D()
 {
+    enum dim = 1;
+    gsl_monte_function fn;
+    my_f_params params = { 0.0, 1.0 };
+
+    fn.f = &normalDistribution1D;
+    fn.dim = dim;
+    fn.params = &params;
+
+    auto sw = StopWatch(AutoStart.yes);
+
+    const size_t calls = 4_000;
+
+    const double[dim] lowerLimit = [-1e10];
+    const double[dim] upperLimit = [+1e10];
+
+    // plain
+    {
+        sw.reset();
+        const ir = montePlainIntegrate(fn, lowerLimit[], upperLimit, 16*calls);
+        sw.stop();
+        writeln("Plain: ", ir, " took ", sw.peek);
+    }
+}
+
+void test_2D()
+{
+    enum dim = 2;
     gsl_monte_function fn;
     my_f_params params = { 3.0, 2.0, 1.0 };
 
     fn.f = &my_f;
-    fn.dim = 2;
+    fn.dim = dim;
     fn.params = &params;
 
-    const double[2] x = [2, 2];
+    const double[dim] x = [2, 2];
     assert(eval(&fn, x) == 24);
 
     auto sw = StopWatch(AutoStart.yes);
 
     const size_t calls = 4_000;
 
-    const double[2] lowerLimit = [0.0, 0.0];
-    const double[2] upperLimit = [1.0, 1.0];
+    const double[dim] lowerLimit = [0.0, 0.0];
+    const double[dim] upperLimit = [1.0, 1.0];
 
     // plain
     {
@@ -231,5 +259,6 @@ void test_gsl_monte_integration()
 
 void main()
 {
-    test_gsl_monte_integration();
+    test_1D();
+    test_2D();
 }

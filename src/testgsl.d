@@ -45,6 +45,7 @@ IntegrationResult integrate(scope const gsl_monte_function* fn,
                             scope const double[] xu,
                             const size_t calls = 500_000) @trusted
 {
+    assert(fn.dim == xl.length);
     assert(xl.length == xu.length);
     const size_t dim = xl.length;
     foreach (const i; 0 .. dim)

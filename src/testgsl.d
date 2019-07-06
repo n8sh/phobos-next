@@ -47,6 +47,11 @@ IntegrationResult integrate(scope const gsl_monte_function* fn,
 {
     assert(xl.length == xu.length);
     const size_t dim = xl.length;
+    foreach (const i; 0 .. dim)
+    {
+        assert(xl[i] < xu[i]);
+    }
+
     gsl_monte_plain_state* state = gsl_monte_plain_alloc(dim);
 
     gsl_rng_env_setup();
@@ -79,6 +84,8 @@ void test_gsl_monte_plain_integration()
 
     const double[2] x = [2, 2];
     assert(eval(&fn, x) == 24);
+
+    writeln(integrate(&fn, [0.0, 0.0], [1.0, 1.0]));
 }
 
 void main()

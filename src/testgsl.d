@@ -151,12 +151,12 @@ void test_gsl_monte_integration()
         writeln("Plain: ", ir, " took ", sw.peek);
     }
 
-    // miser
+    // MISER
     {
         sw.reset();
         const ir = monteMiserIntegrate(fn, [0.0, 0.0], [1.0, 1.0], calls);
         sw.stop();
-        writeln("Miser: ", ir, " took ", sw.peek);
+        writeln("MISER: ", ir, " took ", sw.peek);
     }
 }
 

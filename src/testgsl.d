@@ -42,18 +42,19 @@ struct IntegrationResult
 }
 
 /** High-level wrapper of `gsl_monte_plain_integrate`.
+ *
  */
 IntegrationResult integrate(scope const gsl_monte_function* fn,
-                            scope const double[] lowerBound,
-                            scope const double[] upperBound,
+                            scope const double[] lowerLimit, // lower limit of hypercubic region
+                            scope const double[] upperLimit, // upper limit of hypercubic region
                             const size_t calls = 500_000) @trusted
 {
-    assert(fn.dim == lowerBound.length);
-    assert(lowerBound.length == upperBound.length);
-    const size_t dim = lowerBound.length;
+    assert(fn.dim == lowerLimit.length);
+    assert(lowerLimit.length == upperLimit.length);
+    const size_t dim = lowerLimit.length;
     foreach (const i; 0 .. dim)
     {
-        assert(lowerBound[i] < upperBound[i]);
+        assert(lowerLimit[i] < upperLimit[i]);
     }
 
     gsl_rng_env_setup();
@@ -64,8 +65,8 @@ IntegrationResult integrate(scope const gsl_monte_function* fn,
     typeof(return) ir;
 
     int i = gsl_monte_plain_integrate(cast(gsl_monte_function*)fn,
-                                      lowerBound.ptr,
-                                      upperBound.ptr,
+                                      lowerLimit.ptr,
+                                      upperLimit.ptr,
                                       dim,
                                       calls,
                                       rng,

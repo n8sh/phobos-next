@@ -28,7 +28,18 @@ extern(C) double normalDistribution1D(const scope double* x,
 {
     const typed_params = cast(double*)params;
     assert(dim == 1);
-    return exp(-(x[0]^^2)/(2*typed_params[1]^^2)) / sqrt(2 * PI * typed_params[0]);
+    return exp(-((x[0] - typed_params[0])^^2)/(2*typed_params[1]^^2)) / sqrt(2 * PI * typed_params[1]);
+}
+
+/** Normal distribution.
+ *
+ * See_Also: https://en.wikipedia.org/wiki/Normal_distribution
+ */
+extern(C) double normalDistribution1D_1_1(const scope double* x,
+                                          size_t dim,
+                                          const scope void* params) @trusted pure nothrow @nogc
+{
+    return exp(-(x[0]^^2)/(2)) / sqrt(2 * PI);
 }
 
 extern(C) double my_f(const scope double* x,

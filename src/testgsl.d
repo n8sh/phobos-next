@@ -34,7 +34,7 @@ double eval(scope gsl_monte_function* F,
     return (*(F.f))(cast(double*)x, F.dim, F.params);
 }
 
-void test_gsl_integration()
+void test_gsl_monte_plain_integration()
 {
     gsl_monte_function F;
     my_f_params params = { 3.0, 2.0, 1.0 };
@@ -49,5 +49,5 @@ void test_gsl_integration()
 
 void main()
 {
-    test_gsl_integration();
+    test_gsl_monte_plain_integration();
 }

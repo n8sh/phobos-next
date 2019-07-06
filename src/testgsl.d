@@ -99,7 +99,7 @@ IntegrationResult montePlainIntegrate(scope const ref gsl_monte_function fn,
 IntegrationResult monteMiserIntegrate(scope const ref gsl_monte_function fn,
                                       scope const double[] lowerLimit, // lower limit of hypercubic region
                                       scope const double[] upperLimit, // upper limit of hypercubic region
-                                      const size_t calls = 500_000) @trusted
+                                      const size_t calls) @trusted
 {
     assert(fn.dim == lowerLimit.length);
     assert(lowerLimit.length == upperLimit.length);
@@ -127,7 +127,7 @@ IntegrationResult monteMiserIntegrate(scope const ref gsl_monte_function fn,
     return ir;
 }
 
-void test_gsl_monte_plain_integration()
+void test_gsl_monte_integration()
 {
     gsl_monte_function fn;
     my_f_params params = { 3.0, 2.0, 1.0 };
@@ -140,12 +140,27 @@ void test_gsl_monte_plain_integration()
     assert(eval(&fn, x) == 24);
 
     auto sw = StopWatch(AutoStart.yes);
-    const ir = montePlainIntegrate(fn, [0.0, 0.0], [1.0, 1.0]);
-    sw.stop();
-    writeln(ir, " took ", sw.peek);
+
+    const size_t calls = 10_000;
+
+    // plain
+    {
+        sw.reset();
+        const ir = montePlainIntegrate(fn, [0.0, 0.0], [1.0, 1.0], 12*calls);
+        sw.stop();
+        writeln("Plain: ", ir, " took ", sw.peek);
+    }
+
+    // miser
+    {
+        sw.reset();
+        const ir = monteMiserIntegrate(fn, [0.0, 0.0], [1.0, 1.0], calls);
+        sw.stop();
+        writeln("Miser: ", ir, " took ", sw.peek);
+    }
 }
 
 void main()
 {
-    test_gsl_monte_plain_integration();
+    test_gsl_monte_integration();
 }

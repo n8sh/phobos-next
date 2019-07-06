@@ -173,7 +173,7 @@ void test_gsl_monte_integration()
 
     auto sw = StopWatch(AutoStart.yes);
 
-    const size_t calls = 1000;
+    const size_t calls = 4_000;
 
     const double[2] lowerLimit = [0.0, 0.0];
     const double[2] upperLimit = [1.0, 1.0];

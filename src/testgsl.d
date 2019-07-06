@@ -19,7 +19,7 @@ struct my_f_params { double a; double b; double c; }
 
 extern(C) double my_f(scope double* x,
                       size_t dim,
-                      scope void* params)
+                      scope void* params) @trusted pure nothrow @nogc
 {
     auto fp = cast(my_f_params*)params;
     assert(dim == 2);
@@ -28,8 +28,8 @@ extern(C) double my_f(scope double* x,
             fp.c * x[1] * x[1]);
 }
 
-double gsl_monte_fn_eval(scope gsl_monte_function* F,
-                         const scope double[] x) @trusted
+double eval(scope gsl_monte_function* F,
+            const scope double[] x) @trusted
 {
     return (*(F.f))(cast(double*)x, F.dim, F.params);
 }
@@ -44,7 +44,7 @@ void test_gsl_integration()
     F.params = &params;
 
     const double[2] x = [2, 2];
-    assert(gsl_monte_fn_eval(&F, x) == 24);
+    assert(eval(&F, x) == 24);
 }
 
 void main()

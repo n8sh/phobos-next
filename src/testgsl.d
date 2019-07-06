@@ -17,9 +17,9 @@ import gsl.monte;
 
 struct my_f_params { double a; double b; double c; }
 
-extern(C) double my_f(scope double* x,
+extern(C) double my_f(const scope double* x,
                       size_t dim,
-                      scope void* params) @trusted pure nothrow @nogc
+                      const scope void* params) @trusted pure nothrow @nogc
 {
     auto fp = cast(my_f_params*)params;
     assert(dim == 2);

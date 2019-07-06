@@ -111,15 +111,15 @@ IntegrationResult monteMiserIntegrate(scope const ref gsl_monte_function fn,
     gsl_monte_miser_state* state = gsl_monte_miser_alloc(fn.dim);
     typeof(return) ir;
 
-    int i = gsl_monte_miser_integrate(cast(gsl_monte_function*)&fn,
-                                      lowerLimit.ptr,
-                                      upperLimit.ptr,
-                                      fn.dim,
-                                      calls,
-                                      rng,
-                                      state,
-                                      &ir.value,
-                                      &ir.absoluteError);
+    const int i = gsl_monte_miser_integrate(cast(gsl_monte_function*)&fn,
+                                            lowerLimit.ptr,
+                                            upperLimit.ptr,
+                                            fn.dim,
+                                            calls,
+                                            rng,
+                                            state,
+                                            &ir.value,
+                                            &ir.absoluteError);
 
     gsl_monte_miser_free(state);
 

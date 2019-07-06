@@ -10,12 +10,26 @@
  */
 
 import std.stdio : writeln;
+import std.math : exp, sqrt, PI;
 import std.datetime.stopwatch;
 
 import gsl.monte;
 import gsl.rng;
 
 struct my_f_params { double a; double b; double c; }
+
+/** Normal distribution.
+ *
+ * See_Also: https://en.wikipedia.org/wiki/Normal_distribution
+ */
+extern(C) double normalDistribution1D(const scope double* x,
+                                      size_t dim,
+                                      const scope void* params) @trusted pure nothrow @nogc
+{
+    const typed_params = cast(double*)params;
+    assert(dim == 1);
+    return exp(-(x[0]^^2)/(2*typed_params[1]^^2)) / sqrt(2 * PI * typed_params[0]);
+}
 
 extern(C) double my_f(const scope double* x,
                       size_t dim,

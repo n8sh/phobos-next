@@ -128,7 +128,7 @@ IntegrationResult monteMISERIntegrate(scope const ref gsl_monte_function fn,
 /** High-level wrapper of `gsl_monte_vegas_integrate`.
  *
  */
-version(none)                   // wrappers are missing
+version(none)                   // TODO add wrappers missing in gsl bindings
 IntegrationResult monteVEGASIntegrate(scope const ref gsl_monte_function fn,
                                       scope const double[] lowerLimit, // lower limit of hypercubic region
                                       scope const double[] upperLimit, // upper limit of hypercubic region

@@ -95,7 +95,7 @@ IntegrationResult montePlainIntegrate(scope const ref gsl_monte_function fn,
 /** High-level wrapper of `gsl_monte_miser_integrate`.
  *
  */
-IntegrationResult monteMiserIntegrate(scope const ref gsl_monte_function fn,
+IntegrationResult monteMISERIntegrate(scope const ref gsl_monte_function fn,
                                       scope const double[] lowerLimit, // lower limit of hypercubic region
                                       scope const double[] upperLimit, // upper limit of hypercubic region
                                       const size_t calls) @trusted
@@ -121,6 +121,40 @@ IntegrationResult monteMiserIntegrate(scope const ref gsl_monte_function fn,
                                             &ir.absoluteError);
 
     gsl_monte_miser_free(state);
+
+    return ir;
+}
+
+/** High-level wrapper of `gsl_monte_vegas_integrate`.
+ *
+ */
+version(none)                   // wrappers are missing
+IntegrationResult monteVEGASIntegrate(scope const ref gsl_monte_function fn,
+                                      scope const double[] lowerLimit, // lower limit of hypercubic region
+                                      scope const double[] upperLimit, // upper limit of hypercubic region
+                                      const size_t calls) @trusted
+{
+    assert(fn.dim == lowerLimit.length);
+    assert(lowerLimit.length == upperLimit.length);
+    foreach (const i; 0 .. fn.dim)
+    {
+        assert(lowerLimit[i] < upperLimit[i]);
+    }
+
+    gsl_monte_vegas_state* state = gsl_monte_vegas_alloc(fn.dim);
+    typeof(return) ir;
+
+    const int i = gsl_monte_vegas_integrate(cast(gsl_monte_function*)&fn,
+                                            lowerLimit.ptr,
+                                            upperLimit.ptr,
+                                            fn.dim,
+                                            calls,
+                                            rng,
+                                            state,
+                                            &ir.value,
+                                            &ir.absoluteError);
+
+    gsl_monte_vegas_free(state);
 
     return ir;
 }
@@ -152,7 +186,7 @@ void test_gsl_monte_integration()
     // MISER
     {
         sw.reset();
-        const ir = monteMiserIntegrate(fn, [0.0, 0.0], [1.0, 1.0], calls);
+        const ir = monteMISERIntegrate(fn, [0.0, 0.0], [1.0, 1.0], calls);
         sw.stop();
         writeln("MISER: ", ir, " took ", sw.peek);
     }

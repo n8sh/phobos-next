@@ -62,6 +62,7 @@ IntegrationResult integrate(scope const gsl_monte_function* fn,
 
     gsl_monte_plain_state* state = gsl_monte_plain_alloc(dim);
     typeof(return) ir;
+
     int i = gsl_monte_plain_integrate(cast(gsl_monte_function*)fn,
                                       lower.ptr,
                                       upper.ptr,
@@ -71,8 +72,10 @@ IntegrationResult integrate(scope const gsl_monte_function* fn,
                                       state,
                                       &ir.value,
                                       &ir.absoluteError);
+
     gsl_monte_plain_free(state);
     gsl_rng_free(rng);
+
     return ir;
 }
 

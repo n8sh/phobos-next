@@ -181,7 +181,7 @@ void test_gsl_monte_integration()
     // plain
     {
         sw.reset();
-        const ir = montePlainIntegrate(fn, lowerLimit[], upperLimit, 12*calls);
+        const ir = montePlainIntegrate(fn, lowerLimit[], upperLimit, 16*calls);
         sw.stop();
         writeln("Plain: ", ir, " took ", sw.peek);
     }

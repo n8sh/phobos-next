@@ -9,7 +9,6 @@
 /* Run as: dub run --single testgsl.d --compiler=dmd --build=release-nobounds
  */
 
-import std.range : iota, array;
 import std.stdio : writeln;
 import std.datetime.stopwatch;
 

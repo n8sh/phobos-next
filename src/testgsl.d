@@ -6,10 +6,7 @@
  }
  +/
 
-/*
- *  Compile example:
- *  dub run --single testgsl.d
- */
+/* Run as:  dub run --single testgsl.d */
 
 import std.range : iota, array;
 import std.stdio : writeln;

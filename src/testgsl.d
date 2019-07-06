@@ -199,8 +199,8 @@ void test_1D()
 
     const size_t calls = 4_000;
 
-    const double[dim] lowerLimit = [-1e10];
-    const double[dim] upperLimit = [+1e10];
+    const double[dim] lowerLimit = [-100];
+    const double[dim] upperLimit = [+100];
 
     // plain
     {
@@ -208,6 +208,14 @@ void test_1D()
         const ir = montePlainIntegrate(fn, lowerLimit[], upperLimit, 16*calls);
         sw.stop();
         writeln("Plain: ", ir, " took ", sw.peek);
+    }
+
+    // MISER
+    {
+        sw.reset();
+        const ir = monteMISERIntegrate(fn, lowerLimit[], upperLimit, calls);
+        sw.stop();
+        writeln("MISER: ", ir, " took ", sw.peek);
     }
 }
 

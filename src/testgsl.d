@@ -10,7 +10,7 @@
 
 import std.range : iota, array;
 import std.stdio : writeln;
-import std.datetime : benchmark;
+import std.datetime.stopwatch;
 
 import gsl.monte;
 import gsl.rng;
@@ -41,6 +41,24 @@ struct IntegrationResult
     double absoluteError;
 }
 
+gsl_rng* rng;
+
+shared static this()
+{
+    gsl_rng_env_setup();
+}
+
+static this()
+{
+    const gsl_rng_type* T = gsl_rng_default;
+    rng = gsl_rng_alloc(T);
+}
+
+static ~this()
+{
+    gsl_rng_free(rng);
+}
+
 /** High-level wrapper of `gsl_monte_plain_integrate`.
  *
  */
@@ -57,10 +75,6 @@ IntegrationResult integrate(scope const gsl_monte_function* fn,
         assert(lowerLimit[i] < upperLimit[i]);
     }
 
-    gsl_rng_env_setup();
-    const gsl_rng_type* T = gsl_rng_default;
-    gsl_rng* rng = gsl_rng_alloc(T);
-
     gsl_monte_plain_state* state = gsl_monte_plain_alloc(dim);
     typeof(return) ir;
 
@@ -75,7 +89,6 @@ IntegrationResult integrate(scope const gsl_monte_function* fn,
                                       &ir.absoluteError);
 
     gsl_monte_plain_free(state);
-    gsl_rng_free(rng);
 
     return ir;
 }
@@ -92,7 +105,10 @@ void test_gsl_monte_plain_integration()
     const double[2] x = [2, 2];
     assert(eval(&fn, x) == 24);
 
-    writeln(integrate(&fn, [0.0, 0.0], [1.0, 1.0]));
+    auto sw = StopWatch(AutoStart.yes);
+    const ir = integrate(&fn, [0.0, 0.0], [1.0, 1.0]);
+    sw.stop();
+    writeln(ir, " took ", sw.peek);
 }
 
 void main()

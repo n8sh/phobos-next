@@ -14,6 +14,7 @@
 import std.range : iota, array;
 import std.stdio : writeln;
 import gsl.monte;
+import gsl.rng;
 
 struct my_f_params { double a; double b; double c; }
 
@@ -34,26 +35,39 @@ double eval(scope gsl_monte_function* fn,
     return (*(fn.f))(cast(double*)x, fn.dim, fn.params);
 }
 
-double integrate(scope gsl_monte_function* fn,
-                 scope const double[] xl,
-                 scope const double[] xu)
+/// Integration result and absolute error.
+struct IntegrationResult
 {
-    const size_t dim = 2;
+    double value;
+    double absoluteError;
+}
+
+IntegrationResult integrate(scope const gsl_monte_function* fn,
+                            scope const double[] xl,
+                            scope const double[] xu,
+                            const size_t calls = 500_000) @trusted
+{
+    assert(xl.length == xu.length);
+    const size_t dim = xl.length;
     gsl_monte_plain_state* state = gsl_monte_plain_alloc(dim);
 
-    int gsl_monte_plain_integrate(gsl_monte_function* f,
-                                  xl.ptr,
-                                  xu.ptr,
-                                  dim,
-                                  size_t calls,
-                                  gsl_rng* r,
-                                  state,
-                                  double* result,
-                                  double* abserr)
+    gsl_rng_env_setup();
+    const gsl_rng_type* T = gsl_rng_default;
+    gsl_rng* rng = gsl_rng_alloc(T);
 
-    const typeof(return) result = 0;
+    typeof(return) ir;
+    int i = gsl_monte_plain_integrate(cast(gsl_monte_function*)fn,
+                                      xl.ptr,
+                                      xu.ptr,
+                                      dim,
+                                      calls,
+                                      rng,
+                                      state,
+                                      &ir.value,
+                                      &ir.absoluteError);
     gsl_monte_plain_free(state);
-    return result;
+    gsl_rng_free(rng);
+    return ir;
 }
 
 void test_gsl_monte_plain_integration()

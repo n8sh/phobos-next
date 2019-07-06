@@ -44,16 +44,16 @@ struct IntegrationResult
 /** High-level wrapper of `gsl_monte_plain_integrate`.
  */
 IntegrationResult integrate(scope const gsl_monte_function* fn,
-                            scope const double[] lower,
-                            scope const double[] upper,
+                            scope const double[] lowerBound,
+                            scope const double[] upperBound,
                             const size_t calls = 500_000) @trusted
 {
-    assert(fn.dim == lower.length);
-    assert(lower.length == upper.length);
-    const size_t dim = lower.length;
+    assert(fn.dim == lowerBound.length);
+    assert(lowerBound.length == upperBound.length);
+    const size_t dim = lowerBound.length;
     foreach (const i; 0 .. dim)
     {
-        assert(lower[i] < upper[i]);
+        assert(lowerBound[i] < upperBound[i]);
     }
 
     gsl_rng_env_setup();
@@ -64,8 +64,8 @@ IntegrationResult integrate(scope const gsl_monte_function* fn,
     typeof(return) ir;
 
     int i = gsl_monte_plain_integrate(cast(gsl_monte_function*)fn,
-                                      lower.ptr,
-                                      upper.ptr,
+                                      lowerBound.ptr,
+                                      upperBound.ptr,
                                       dim,
                                       calls,
                                       rng,

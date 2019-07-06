@@ -190,6 +190,15 @@ void test_gsl_monte_integration()
         sw.stop();
         writeln("MISER: ", ir, " took ", sw.peek);
     }
+
+    // VEGAS
+    version(none)               // TODO activate
+    {
+        sw.reset();
+        const ir = monteVEGASIntegrate(fn, [0.0, 0.0], [1.0, 1.0], calls);
+        sw.stop();
+        writeln("VEGAS: ", ir, " took ", sw.peek);
+    }
 }
 
 void main()

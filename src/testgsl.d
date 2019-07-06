@@ -10,6 +10,7 @@
 
 import std.range : iota, array;
 import std.stdio : writeln;
+import std.datetime : benchmark;
 
 import gsl.monte;
 import gsl.rng;

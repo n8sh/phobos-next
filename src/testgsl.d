@@ -40,7 +40,7 @@ struct IntegrationResult
     double absoluteError;
 }
 
-/** High-level wrapper on top of `gsl_monte_plain_integrate`.
+/** High-level wrapper of `gsl_monte_plain_integrate`.
  */
 IntegrationResult integrate(scope const gsl_monte_function* fn,
                             scope const double[] xl,

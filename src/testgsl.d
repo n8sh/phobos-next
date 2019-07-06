@@ -34,10 +34,23 @@ double eval(scope gsl_monte_function* fn,
     return (*(fn.f))(cast(double*)x, fn.dim, fn.params);
 }
 
-double integrate(scope gsl_monte_function* fn)
+double integrate(scope gsl_monte_function* fn,
+                 scope const double[] xl,
+                 scope const double[] xu)
 {
     const size_t dim = 2;
     gsl_monte_plain_state* state = gsl_monte_plain_alloc(dim);
+
+    int gsl_monte_plain_integrate(gsl_monte_function* f,
+                                  xl.ptr,
+                                  xu.ptr,
+                                  dim,
+                                  size_t calls,
+                                  gsl_rng* r,
+                                  state,
+                                  double* result,
+                                  double* abserr)
+
     const typeof(return) result = 0;
     gsl_monte_plain_free(state);
     return result;

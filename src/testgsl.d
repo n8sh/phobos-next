@@ -53,12 +53,11 @@ IntegrationResult integrate(scope const gsl_monte_function* fn,
         assert(xl[i] < xu[i]);
     }
 
-    gsl_monte_plain_state* state = gsl_monte_plain_alloc(dim);
-
     gsl_rng_env_setup();
     const gsl_rng_type* T = gsl_rng_default;
     gsl_rng* rng = gsl_rng_alloc(T);
 
+    gsl_monte_plain_state* state = gsl_monte_plain_alloc(dim);
     typeof(return) ir;
     int i = gsl_monte_plain_integrate(cast(gsl_monte_function*)fn,
                                       xl.ptr,

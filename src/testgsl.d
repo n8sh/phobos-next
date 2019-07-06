@@ -41,7 +41,7 @@ struct IntegrationResult
     double absoluteError;
 }
 
-gsl_rng* rng;
+gsl_rng* rng;                   // thread-local rng
 
 shared static this()
 {

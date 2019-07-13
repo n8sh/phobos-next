@@ -10,8 +10,6 @@ module bitarray_algorithm;
 size_t countOnes(Blocks)(const scope auto ref Blocks blocks, size_t length) @trusted
 if (isBlocks!Blocks)
 {
-    typeof(return) result = 0;
-
     alias Block = typeof(Blocks.init[0]);
     enum bitsPerBlock = 8*Block.sizeof;
     const fullBlockCount = length / bitsPerBlock;
@@ -22,11 +20,14 @@ if (isBlocks!Blocks)
     //     " fullBlockCount:", fullBlockCount,
     //     " restBitCount:", restBitCount);
 
+    typeof(return) result = 0;
+
     import core.bitop : popcnt;
     foreach (const block; blocks.ptr[0 .. fullBlockCount])
     {
         result += cast(typeof(result))popcnt(block);
     }
+
     if (restBitCount)
     {
         result += cast(typeof(result))popcnt(blocks.ptr[fullBlockCount] & ((1UL << restBitCount)-1));

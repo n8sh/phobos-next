@@ -54,7 +54,10 @@ struct BitArray(bool blockAlignedLength = false,
         _blockCount = blocks.length;
         _blockPtr = cast(Block*)pureMalloc(bitsPerBlock * _blockCount); // TODO use `Allocator`
         _blocks[] = blocks; // copy block array
-        _length = length;
+        static if (!blockAlignedLength)
+        {
+            _length = length;
+        }
     }
 
     /// Destroy.
@@ -88,7 +91,10 @@ struct BitArray(bool blockAlignedLength = false,
     {
         _blockPtr = null;
         _blockCount = 0;
-        _length = 0;
+        static if (!blockAlignedLength)
+        {
+            _length = 0;
+        }
     }
 
     /// Check if empty.
@@ -488,6 +494,14 @@ private:
     a[BitArray!().bitsPerBlock/2] = true;
     a[BitArray!().bitsPerBlock - 1] = true;
     assert(a.indexOfFirstOne == 0);
+}
+
+/// Test `indexOfFirstOne` for multi set ones.
+@trusted pure unittest
+{
+    import std.exception: assertThrown;
+    import core.exception : AssertError;
+    assertThrown!AssertError(BitArray!(true).withLength(1));
 }
 
 version(unittest)

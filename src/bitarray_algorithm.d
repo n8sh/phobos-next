@@ -88,6 +88,41 @@ if (isBlocks!Blocks)
     test!3();
 }
 
+/** Find index of first cleared (zero) bit or `length` if no bit cleared.
+ *
+ * Optimized for zeros-sparsity.
+ */
+size_t indexOfFirstZero(Blocks, bool blockAlignedLength = false)(const scope auto ref Blocks blocks, size_t length)
+    if (isBlocks!Blocks)
+    {
+        static if (blockAlignedLength)
+        {
+            foreach (const blockIndex, block; blocks)
+            {
+                if (block != block.max) // optimize for zeros-sparsity
+                {
+                    import core.bitop : bsf;
+                    const hitIndex = blockIndex*8*block.sizeof + bsf(~block); // TODO is there a builtin for `bsf(~block)`?
+                    return hitIndex < length ? hitIndex : length; // if hit beyond end miss
+                }
+            }
+        }
+        else
+        {
+            // TODO handle blocks with garbage in the rest block
+            foreach (const blockIndex, block; blocks)
+            {
+                if (block != block.max) // optimize for zeros-sparsity
+                {
+                    import core.bitop : bsf;
+                    const hitIndex = blockIndex*8*block.sizeof + bsf(~block); // TODO is there a builtin for `bsf(~block)`?
+                    return hitIndex < length ? hitIndex : length; // if hit beyond end miss
+                }
+            }
+        }
+        return length;              // miss
+    }
+
 size_t indexOfFirstOne(Blocks, bool blockAlignedLength = false)(const scope auto ref Blocks blocks, size_t length)
 if (isBlocks!Blocks)
 {
@@ -112,41 +147,6 @@ if (isBlocks!Blocks)
             {
                 import core.bitop : bsf;
                 const hitIndex = blockIndex*8*block.sizeof + bsf(block);
-                return hitIndex < length ? hitIndex : length; // if hit beyond end miss
-            }
-        }
-    }
-    return length;              // miss
-}
-
-/** Find index of first cleared (zero) bit or `length` if no bit cleared.
- *
- * Optimized for zeros-sparsity.
- */
-size_t indexOfFirstZero(Blocks, bool blockAlignedLength = false)(const scope auto ref Blocks blocks, size_t length)
-if (isBlocks!Blocks)
-{
-    static if (blockAlignedLength)
-    {
-        foreach (const blockIndex, block; blocks)
-        {
-            if (block != block.max) // optimize for zeros-sparsity
-            {
-                import core.bitop : bsf;
-                const hitIndex = blockIndex*8*block.sizeof + bsf(~block); // TODO is there a builtin for `bsf(~block)`?
-                return hitIndex < length ? hitIndex : length; // if hit beyond end miss
-            }
-        }
-    }
-    else
-    {
-        // TODO handle blocks with garbage in the rest block
-        foreach (const blockIndex, block; blocks)
-        {
-            if (block != block.max) // optimize for zeros-sparsity
-            {
-                import core.bitop : bsf;
-                const hitIndex = blockIndex*8*block.sizeof + bsf(~block); // TODO is there a builtin for `bsf(~block)`?
                 return hitIndex < length ? hitIndex : length; // if hit beyond end miss
             }
         }

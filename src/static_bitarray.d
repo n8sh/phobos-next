@@ -835,7 +835,9 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         Mod!(bitCount + 1) countOnes()() const    // template-lazy. TODO unite with other definitions
         {
             import bitarray_algorithm;
-            return typeof(return)(bitarray_algorithm.countOnes!(const(Block)[blockCount])(_blocks, length));
+            enum bool blockAlignedLength = bitCount % (8*Block.sizeof) == 0;
+            return typeof(return)(bitarray_algorithm.countOnes!(const(Block)[blockCount],
+                                                                blockAlignedLength)(_blocks, length));
         }
 
         /** Get number of (zero) bits unset. */

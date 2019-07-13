@@ -479,7 +479,14 @@ private:
         alias BA = BitArray!(blockAlignedLength);
 
         enum n = 2 * BA.bitsPerBlock;
-        auto a = BA.withLength(n);
+        static if (blockAlignedLength)
+        {
+            auto a = BA.withLength(n);
+        }
+        else
+        {
+            auto a = BA.withLength(n + 1);
+        }
 
         a[] = true;
 
@@ -500,7 +507,14 @@ private:
         alias BA = BitArray!(blockAlignedLength);
 
         enum n = 2 * BA.bitsPerBlock;
-        auto a = BA.withLength(n);
+        static if (blockAlignedLength)
+        {
+            auto a = BA.withLength(n);
+        }
+        else
+        {
+            auto a = BA.withLength(n + 1);
+        }
 
         a[] = false;
 

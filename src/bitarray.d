@@ -238,10 +238,13 @@ private:
         }
     }
 
-    Block _restBlock() const @trusted
+    static if (!blockAlignedLength)
     {
-        const restBitCount = length % bitsPerBlock;
-        return _blocks[$-1] & ((1UL << restBitCount) - 1);
+        Block _restBlock() const @trusted
+        {
+            const restBitCount = length % bitsPerBlock;
+            return _blocks[$-1] & ((1UL << restBitCount) - 1);
+        }
     }
 
     alias Block = size_t;

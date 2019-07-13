@@ -40,18 +40,17 @@ struct BitArray(bool wordAlignedLength = false,
     private static typeof(this) withLengthAndBlocks(size_t length,
                                                     const scope Block[] blocks) @trusted
     {
-        typeof(return) that;    // TODO = void
-        that._blockCount = blocks.length;
-        that._blockPtr = cast(Block*)pureMalloc(that._blocksStoreSize); // TODO use `Allocator`
-        that._blocks[] = blocks; // copy block array
-        that._length = length;
-        return that;
+        return typeof(return)(length, blocks);
     }
 
-    /** Get size of all blocks in bytes. */
-    private size_t _blocksStoreSize() const
+    /** Helper constructor. */
+    private this(size_t length,
+                 const scope Block[] blocks) @trusted
     {
-        return bitsPerBlock * _blockCount;
+        _blockCount = blocks.length;
+        _blockPtr = cast(Block*)pureMalloc(bitsPerBlock * _blockCount); // TODO use `Allocator`
+        _blocks[] = blocks; // copy block array
+        _length = length;
     }
 
     /// Destroy.

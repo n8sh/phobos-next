@@ -473,7 +473,7 @@ private:
 
 @safe pure nothrow @nogc unittest
 {
-    static assert(BitArray!(false).sizeof == 3*size_t.sizeof);
+    static assert(BitArray!(false).sizeof == 3*size_t.sizeof); // one extra word for `length`
     static assert(BitArray!(true).sizeof == 2*size_t.sizeof);
 }
 

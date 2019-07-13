@@ -466,8 +466,8 @@ private:
         auto a = BA.withLength(n);
 
         a[0] = true;
-        a[BitArray!().bitsPerBlock/2] = true;
-        a[BitArray!().bitsPerBlock - 1] = true;
+        a[BA.bitsPerBlock/2] = true;
+        a[BA.bitsPerBlock - 1] = true;
         assert(a.indexOfFirstOne == 0);
     }
     test!(false)();

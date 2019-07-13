@@ -42,10 +42,16 @@ struct BitArray(bool wordAlignedLength = false,
     {
         typeof(return) that;
         that._blockCount = blocks.length;
-        that._blockPtr = cast(Block*)pureMalloc(bitsPerBlock * that._blockCount);
+        that._blockPtr = cast(Block*)pureMalloc(that._blocksStoreSize);
         that._blocks[] = blocks; // copy block array
         that._length = length;
         return that;
+    }
+
+    /** Get size of all blocks in bytes. */
+    private size_t _blocksStoreSize() const
+    {
+        return bitsPerBlock * _blockCount;
     }
 
     /// Destroy.

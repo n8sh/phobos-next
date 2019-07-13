@@ -823,7 +823,7 @@ struct StaticBitArray(uint bitCount, Block = size_t)
 
         /** Find index of first cleared (zero) bit or `typeof(return).max` if no bit set.
          *
-         * Optimized for ones-sparsity.
+         * Optimized for zeros-sparsity.
          */
         size_t indexOfFirstZero()() const
         {

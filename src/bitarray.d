@@ -438,9 +438,18 @@ private:
 {
     static void test(bool blockAlignedLength)()
     {
-        enum n = 2 * BitArray!().bitsPerBlock;
+        alias BA = BitArray!(blockAlignedLength);
 
-        auto a = BitArray!().withLength(n);
+        static if (blockAlignedLength)
+        {
+            const n = 2 * BA.bitsPerBlock;
+        }
+        else
+        {
+            const n = 2 * BA.bitsPerBlock + 1;
+        }
+        auto a = BA.withLength(n);
+
         a[] = true;
 
         assert(a.length == n);

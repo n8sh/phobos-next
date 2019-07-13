@@ -821,6 +821,18 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         /// ditto
         alias bitsSet = oneIndexes;
 
+        /** Find index of first cleared (zero) bit or `typeof(return).max` if no bit set.
+         *
+         * Optimized for ones-sparsity.
+         */
+        size_t indexOfFirstZero()() const
+        {
+            import bitarray_algorithm;
+            enum bool blockAlignedLength = bitCount % (8*Block.sizeof) == 0;
+            return bitarray_algorithm.indexOfFirstZero!(const(Block)[blockCount],
+                                                        blockAlignedLength)(_blocks, length);
+        }
+
         /** Find index of first set (one) bit or `typeof(return).max` if no bit set.
          *
          * Optimized for ones-sparsity.
@@ -828,7 +840,9 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         size_t indexOfFirstOne()() const
         {
             import bitarray_algorithm;
-            return bitarray_algorithm.indexOfFirstOne(_blocks, length);
+            enum bool blockAlignedLength = bitCount % (8*Block.sizeof) == 0;
+            return bitarray_algorithm.indexOfFirstOne!(const(Block)[blockCount],
+                                                       blockAlignedLength)(_blocks, length);
         }
 
         /** Get number of bits set. */

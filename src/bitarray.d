@@ -241,6 +241,7 @@ private:
     alias Block = size_t;
     enum bitsPerBlock = 8*Block.sizeof; /// Number of bits per `Block`.
 
+    /** Number of Block's allocated at `_blockPtr`. */
     size_t _blockCount;
 
     static if (is(Allocator == std.experimental.allocator.gc_allocator.GCAllocator))

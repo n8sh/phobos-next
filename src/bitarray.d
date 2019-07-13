@@ -318,7 +318,7 @@ private:
     {
         alias BA = BitArray!(blockAlignedLength);
 
-        foreach (const n; 1 .. 3*BA.bitsPerBlock)
+        foreach (const n; 1 .. 5*BA.bitsPerBlock)
         {
             static if (blockAlignedLength)
             {

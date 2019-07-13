@@ -91,6 +91,7 @@ if (isBlocks!Blocks)
 size_t indexOfFirstOne(Blocks)(const scope auto ref Blocks blocks, size_t length)
 if (isBlocks!Blocks)
 {
+    // TODO handle blocks with garbage in the rest block
     foreach (const blockIndex, const block; blocks)
     {
         if (block != block.min) // optimize for ones-sparsity
@@ -110,6 +111,7 @@ if (isBlocks!Blocks)
 size_t indexOfFirstZero(Blocks)(const scope auto ref Blocks blocks, size_t length)
 if (isBlocks!Blocks)
 {
+    // TODO handle blocks with garbage in the rest block
     foreach (const blockIndex, block; blocks)
     {
         if (block != block.max) // optimize for zeros-sparsity

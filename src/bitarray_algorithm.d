@@ -88,17 +88,32 @@ if (isBlocks!Blocks)
     test!3();
 }
 
-size_t indexOfFirstOne(Blocks)(const scope auto ref Blocks blocks, size_t length)
+size_t indexOfFirstOne(Blocks, bool blockAlignedLength = false)(const scope auto ref Blocks blocks, size_t length)
 if (isBlocks!Blocks)
 {
-    // TODO handle blocks with garbage in the rest block
-    foreach (const blockIndex, const block; blocks)
+    static if (blockAlignedLength)
     {
-        if (block != block.min) // optimize for ones-sparsity
+        foreach (const blockIndex, const block; blocks)
         {
-            import core.bitop : bsf;
-            const hitIndex = blockIndex*8*block.sizeof + bsf(block);
-            return hitIndex < length ? hitIndex : length; // if hit beyond end miss
+            if (block != block.min) // optimize for ones-sparsity
+            {
+                import core.bitop : bsf;
+                const hitIndex = blockIndex*8*block.sizeof + bsf(block);
+                return hitIndex < length ? hitIndex : length; // if hit beyond end miss
+            }
+        }
+    }
+    else
+    {
+        // TODO handle blocks with garbage in the rest block
+        foreach (const blockIndex, const block; blocks)
+        {
+            if (block != block.min) // optimize for ones-sparsity
+            {
+                import core.bitop : bsf;
+                const hitIndex = blockIndex*8*block.sizeof + bsf(block);
+                return hitIndex < length ? hitIndex : length; // if hit beyond end miss
+            }
         }
     }
     return length;              // miss
@@ -108,17 +123,32 @@ if (isBlocks!Blocks)
  *
  * Optimized for zeros-sparsity.
  */
-size_t indexOfFirstZero(Blocks)(const scope auto ref Blocks blocks, size_t length)
+size_t indexOfFirstZero(Blocks, bool blockAlignedLength = false)(const scope auto ref Blocks blocks, size_t length)
 if (isBlocks!Blocks)
 {
-    // TODO handle blocks with garbage in the rest block
-    foreach (const blockIndex, block; blocks)
+    static if (blockAlignedLength)
     {
-        if (block != block.max) // optimize for zeros-sparsity
+        foreach (const blockIndex, block; blocks)
         {
-            import core.bitop : bsf;
-            const hitIndex = blockIndex*8*block.sizeof + bsf(~block); // TODO is there a builtin for `bsf(~block)`?
-            return hitIndex < length ? hitIndex : length; // if hit beyond end miss
+            if (block != block.max) // optimize for zeros-sparsity
+            {
+                import core.bitop : bsf;
+                const hitIndex = blockIndex*8*block.sizeof + bsf(~block); // TODO is there a builtin for `bsf(~block)`?
+                return hitIndex < length ? hitIndex : length; // if hit beyond end miss
+            }
+        }
+    }
+    else
+    {
+        // TODO handle blocks with garbage in the rest block
+        foreach (const blockIndex, block; blocks)
+        {
+            if (block != block.max) // optimize for zeros-sparsity
+            {
+                import core.bitop : bsf;
+                const hitIndex = blockIndex*8*block.sizeof + bsf(~block); // TODO is there a builtin for `bsf(~block)`?
+                return hitIndex < length ? hitIndex : length; // if hit beyond end miss
+            }
         }
     }
     return length;              // miss

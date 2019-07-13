@@ -7,30 +7,34 @@ module bitarray_algorithm;
 
 @safe pure nothrow @nogc:
 
-size_t countOnes(Blocks)(const scope auto ref Blocks blocks, size_t length) @trusted
+size_t countOnes(Blocks, bool blockAlignedLength = false)(const scope auto ref Blocks blocks, size_t length) @trusted
 if (isBlocks!Blocks)
 {
     alias Block = typeof(Blocks.init[0]);
     enum bitsPerBlock = 8*Block.sizeof;
-    const fullBlockCount = length / bitsPerBlock;
-    const restBitCount = length % bitsPerBlock;
-
-    // dbg("bitsPerBlock:", bitsPerBlock,
-    //     " length:", length,
-    //     " fullBlockCount:", fullBlockCount,
-    //     " restBitCount:", restBitCount);
 
     typeof(return) result = 0;
 
     import core.bitop : popcnt;
+    const fullBlockCount = length / bitsPerBlock;
     foreach (const block; blocks.ptr[0 .. fullBlockCount])
     {
         result += cast(typeof(result))popcnt(block);
     }
 
-    if (restBitCount)
+    // dbg("bitsPerBlock:", bitsPerBlock,
+    //     " length:", length,
+    //     " fullBlockCount:", fullBlockCount);,
+
+    static if (!blockAlignedLength)
     {
-        result += cast(typeof(result))popcnt(blocks.ptr[fullBlockCount] & ((1UL << restBitCount)-1));
+        const restBitCount = length % bitsPerBlock;
+        if (restBitCount)
+        {
+            result += cast(typeof(result))popcnt(blocks.ptr[fullBlockCount] & ((1UL << restBitCount)-1));
+        }
+
+        // dbg(" restBitCount:", restBitCount);
     }
 
     return typeof(return)(result);

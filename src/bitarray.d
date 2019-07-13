@@ -20,7 +20,7 @@ struct BitArray(bool wordAlignedLength = false,
     /** Construct with `length` number of zero bits. */
     static typeof(this) withLength(size_t length) @trusted
     {
-        typeof(return) that;
+        typeof(return) that;    // TODO = void
         static if (wordAlignedLength)
         {
             assert(length % bitsPerBlock == 0);
@@ -40,7 +40,7 @@ struct BitArray(bool wordAlignedLength = false,
     private static typeof(this) withLengthAndBlocks(size_t length,
                                                     const scope Block[] blocks) @trusted
     {
-        typeof(return) that;
+        typeof(return) that;    // TODO = void
         that._blockCount = blocks.length;
         that._blockPtr = cast(Block*)pureMalloc(that._blocksStoreSize); // TODO use `Allocator`
         that._blocks[] = blocks; // copy block array

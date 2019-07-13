@@ -182,7 +182,7 @@ struct BitArray(bool blockAlignedLength = false,
      *
      * Optimized for ones-sparsity.
      */
-    size_t indexOfFirstOne()() const
+    size_t indexOfFirstOne()() const // template-lazy
     {
         return bitarray_algorithm.indexOfFirstOne!(const(Block)[], blockAlignedLength)(_blocks, length);
     }
@@ -191,7 +191,7 @@ struct BitArray(bool blockAlignedLength = false,
      *
      * Optimized for zeros-sparsity.
      */
-    size_t indexOfFirstZero()() const
+    size_t indexOfFirstZero()() const // template-lazy
     {
         return bitarray_algorithm.indexOfFirstZero!(const(Block)[], blockAlignedLength)(_blocks, length);
     }

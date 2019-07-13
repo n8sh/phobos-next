@@ -188,18 +188,24 @@ struct BitArray(bool blockAlignedLength = false,
     /** Equality, operators == and !=. */
     bool opEquals(in ref typeof(this) rhs) const @trusted
     {
-        if (length != rhs.length)
+        static if (!blockAlignedLength)
         {
-            return false;
+            if (length != rhs.length)
+            {
+                return false;
+            }
         }
         if (_fullBlocks != rhs._fullBlocks)
         {
             return false;
         }
-        const restBitCount = length % bitsPerBlock;
-        if (restBitCount)
+        static if (!blockAlignedLength)
         {
-            return _restBlock == rhs._restBlock;
+            const restBitCount = length % bitsPerBlock;
+            if (restBitCount)
+            {
+                return _restBlock == rhs._restBlock;
+            }
         }
         return true;
     }

@@ -517,15 +517,15 @@ private:
     {
         alias BA = BitArray!(blockAlignedLength);
 
-        enum n = 2 * BA.bitsPerBlock;
         static if (blockAlignedLength)
         {
-            auto a = BA.withLength(n);
+            const n = 2 * BA.bitsPerBlock;
         }
         else
         {
-            auto a = BA.withLength(n + 1);
+            const n = 2 * BA.bitsPerBlock + 1;
         }
+        auto a = BA.withLength(n);
 
         a[] = false;
 

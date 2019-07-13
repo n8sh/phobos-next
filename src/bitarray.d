@@ -217,14 +217,14 @@ private:
 
     static if (blockAlignedLength)
     {
-        private inout(Block)[] _fullBlocks() inout @trusted
+        inout(Block)[] _fullBlocks() inout @trusted
         {
             return _blocks;
         }
     }
     else
     {
-        private inout(Block)[] _fullBlocks() inout @trusted
+        inout(Block)[] _fullBlocks() inout @trusted
         {
             pragma(inline, true);
             const fullBlockCount = length / bitsPerBlock;
@@ -232,7 +232,7 @@ private:
         }
     }
 
-    private Block _restBlock() const @trusted
+    Block _restBlock() const @trusted
     {
         const restBitCount = length % bitsPerBlock;
         return _blocks[$-1] & ((1UL << restBitCount) - 1);

@@ -387,37 +387,51 @@ private:
 /// Test `indexOfFirstOne` for single set ones.
 @safe pure nothrow @nogc unittest
 {
-    enum n = 2 * BitArray!().bitsPerBlock;
+    static void test(bool blockAlignedLength)()
+    {
+        alias BA = BitArray!(blockAlignedLength);
 
-    auto a = BitArray!().withLength(n);
-    assert(a.length == n);
-    assert(a.indexOfFirstOne == n); // miss
+        static if (blockAlignedLength)
+        {
+            const n = 2 * BA.bitsPerBlock;
+        }
+        else
+        {
+            const n = 2 * BA.bitsPerBlock + 1;
+        }
+        auto a = BA.withLength(n);
 
-    a[0] = true;
-    assert(a.indexOfFirstOne == 0);
-    a[] = false;
+        assert(a.length == n);
+        assert(a.indexOfFirstOne == n); // miss
 
-    a[2] = true;
-    assert(a.indexOfFirstOne == 2);
-    a[] = false;
+        a[0] = true;
+        assert(a.indexOfFirstOne == 0);
+        a[] = false;
 
-    a[n/2-1] = true;
-    assert(a.indexOfFirstOne == n/2-1);
-    a[] = false;
+        a[2] = true;
+        assert(a.indexOfFirstOne == 2);
+        a[] = false;
 
-    a[n/2] = true;
-    assert(a.indexOfFirstOne == n/2);
-    a[] = false;
+        a[n/2-1] = true;
+        assert(a.indexOfFirstOne == n/2-1);
+        a[] = false;
 
-    a[n/2+1] = true;
-    assert(a.indexOfFirstOne == n/2+1);
-    a[] = false;
+        a[n/2] = true;
+        assert(a.indexOfFirstOne == n/2);
+        a[] = false;
 
-    a[n-1] = true;
-    assert(a.indexOfFirstOne == n-1);
-    a[] = false;
+        a[n/2+1] = true;
+        assert(a.indexOfFirstOne == n/2+1);
+        a[] = false;
 
-    assert(a.indexOfFirstOne == n); // miss
+        a[n-1] = true;
+        assert(a.indexOfFirstOne == n-1);
+        a[] = false;
+
+        assert(a.indexOfFirstOne == n); // miss
+    }
+    test!(false)();
+    test!(true)();
 }
 
 /// Test `indexOfFirstOne` for multi set ones.

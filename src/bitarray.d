@@ -8,7 +8,8 @@ module bitarray;
  *
  * Like `std.bitmanip.BitArray` but @safe pure nothrow @nogc.
  */
-struct BitArray(alias Allocator = null) // TODO use Allocator
+struct BitArray(bool wordAlignedLength = false,
+                alias Allocator = null) // TODO use Allocator
 {
     import core.memory : pureMalloc, pureCalloc, pureFree;
     import core.bitop : bt, bts, btr;
@@ -20,8 +21,16 @@ struct BitArray(alias Allocator = null) // TODO use Allocator
     static typeof(this) withLength(size_t length) @trusted
     {
         typeof(return) that;
-        that._blockCount = ((length / bitsPerBlock) + // number of whole blocks
-                            (length % bitsPerBlock ? 1 : 0)); // remained block
+        static if (wordAlignedLength)
+        {
+            assert(length % bitsPerBlock == 0);
+            that._blockCount = length / bitsPerBlock; // number of whole blocks
+        }
+        else
+        {
+            that._blockCount = ((length / bitsPerBlock) + // number of whole blocks
+                                (length % bitsPerBlock ? 1 : 0)); // remained block
+        }
         that._blockPtr = cast(Block*)pureCalloc(bitsPerBlock, that._blockCount);
         that._length = length;
         return that;

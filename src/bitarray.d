@@ -26,7 +26,8 @@ struct BitArray(bool blockAlignedLength = false,
         typeof(return) that;    // TODO = void
         static if (blockAlignedLength)
         {
-            assert(length % bitsPerBlock == 0);
+            assert(length % bitsPerBlock == 0,
+                   "Parameter length is not a multiple of " ~ bitsPerBlock.stringof);
             that._blockCount = length / bitsPerBlock; // number of whole blocks
         }
         else

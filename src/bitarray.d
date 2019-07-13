@@ -496,7 +496,7 @@ private:
     assert(a.indexOfFirstOne == 0);
 }
 
-/// Test `indexOfFirstOne` for multi set ones.
+///
 @trusted pure unittest
 {
     assertThrown!AssertError(BitArray!(true).withLength(1));

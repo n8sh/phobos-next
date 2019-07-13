@@ -474,35 +474,51 @@ private:
 /// Test `indexOfFirstZero` for multi set zeros.
 @safe pure nothrow @nogc unittest
 {
-    enum n = 2 * BitArray!().bitsPerBlock;
+    static void test(bool blockAlignedLength)()
+    {
+        alias BA = BitArray!(blockAlignedLength);
+        enum n = 2 * BA.bitsPerBlock;
+        auto a = BA.withLength(n);
+        a[] = true;
 
-    auto a = BitArray!().withLength(n);
-    a[] = true;
-
-    a[0] = false;
-    a[BitArray!().bitsPerBlock/2] = false;
-    a[BitArray!().bitsPerBlock - 1] = false;
-    assert(a.indexOfFirstZero == 0);
+        a[0] = false;
+        a[BA.bitsPerBlock/2] = false;
+        a[BA.bitsPerBlock - 1] = false;
+        assert(a.indexOfFirstZero == 0);
+    }
+    test!(false);
+    test!(true);
 }
 
 /// Test `indexOfFirstOne` for multi set ones.
 @safe pure nothrow @nogc unittest
 {
-    enum n = 2 * BitArray!().bitsPerBlock;
+    static void test(bool blockAlignedLength)()
+    {
+        alias BA = BitArray!(blockAlignedLength);
+        enum n = 2 * BA.bitsPerBlock;
 
-    auto a = BitArray!().withLength(n);
-    a[] = false;
+        auto a = BA.withLength(n);
+        a[] = false;
 
-    a[0] = true;
-    a[BitArray!().bitsPerBlock/2] = true;
-    a[BitArray!().bitsPerBlock - 1] = true;
-    assert(a.indexOfFirstOne == 0);
+        a[0] = true;
+        a[BA.bitsPerBlock/2] = true;
+        a[BA.bitsPerBlock - 1] = true;
+        assert(a.indexOfFirstOne == 0);
+    }
+    test!(false);
+    test!(true);
 }
 
 ///
 @trusted pure unittest
 {
     assertThrown!AssertError(BitArray!(true).withLength(1));
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
 }
 
 version(unittest)

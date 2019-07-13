@@ -72,11 +72,9 @@ if (isBlocks!Blocks)
         Block[blockCount] x;
         foreach (const length; 1 .. 8*x.sizeof)
         {
-            // dbg("=== length:", length);
             assert(countOnes(x, length) == 0);
 
             x[0] |= 1UL << (length-1);
-            // dbg(x[0]);
             assert(countOnes(x, length) == 1);
             x[0] = 0;
         }

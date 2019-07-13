@@ -499,12 +499,11 @@ private:
 /// Test `indexOfFirstOne` for multi set ones.
 @trusted pure unittest
 {
-    import std.exception: assertThrown;
-    import core.exception : AssertError;
     assertThrown!AssertError(BitArray!(true).withLength(1));
 }
 
 version(unittest)
 {
-    import array_help : s;
+    import std.exception: assertThrown;
+    import core.exception : AssertError;
 }

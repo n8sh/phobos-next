@@ -11,7 +11,7 @@ module bitarray;
  * Set `blockAlignedLength` to true if `this.length` is always a multiple of
  * `Block.size`.
  */
-struct BitArray(bool blockAlignedLength = false,
+struct BitArray(bool blockAlignedLength = false, // TODO use Flag instead
                 alias Allocator = null) // TODO use Allocator
 {
     import core.memory : pureMalloc, pureCalloc, pureFree;

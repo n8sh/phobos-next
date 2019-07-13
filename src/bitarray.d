@@ -7,6 +7,9 @@ module bitarray;
 /** Array of bits.
  *
  * Like `std.bitmanip.BitArray` but @safe pure nothrow @nogc.
+ *
+ * Set `blockAlignedLength` to true if `this.length` is always a multiple of
+ * `Block.size`.
  */
 struct BitArray(bool blockAlignedLength = false,
                 alias Allocator = null) // TODO use Allocator

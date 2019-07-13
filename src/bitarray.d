@@ -31,7 +31,7 @@ struct BitArray(bool wordAlignedLength = false,
             that._blockCount = ((length / bitsPerBlock) + // number of whole blocks
                                 (length % bitsPerBlock ? 1 : 0)); // remained block
         }
-        that._blockPtr = cast(Block*)pureCalloc(bitsPerBlock, that._blockCount);
+        that._blockPtr = cast(Block*)pureCalloc(bitsPerBlock, that._blockCount); // TODO use `Allocator`
         that._length = length;
         return that;
     }
@@ -42,7 +42,7 @@ struct BitArray(bool wordAlignedLength = false,
     {
         typeof(return) that;
         that._blockCount = blocks.length;
-        that._blockPtr = cast(Block*)pureMalloc(that._blocksStoreSize);
+        that._blockPtr = cast(Block*)pureMalloc(that._blocksStoreSize); // TODO use `Allocator`
         that._blocks[] = blocks; // copy block array
         that._length = length;
         return that;

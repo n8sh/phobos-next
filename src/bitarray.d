@@ -236,10 +236,7 @@ private:
             const fullBlockCount = length / bitsPerBlock;
             return _blocks.ptr[0 .. fullBlockCount];
         }
-    }
 
-    static if (!blockAlignedLength)
-    {
         Block _restBlock() const @trusted
         {
             const restBitCount = length % bitsPerBlock;

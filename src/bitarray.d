@@ -286,29 +286,33 @@ private:
 /// Test indexing and element assignment.
 @safe pure nothrow @nogc unittest
 {
-    const bitCount = 100;
-
-    auto a = BitArray!().withLength(bitCount);
-
-    assert(a.length == bitCount);
-    assert(a.capacity == 2*a.bitsPerBlock);
-    foreach (const i; 0 .. bitCount)
+    static void test(bool blockAlignedLength)(size_t length)
     {
-        assert(!a[i]);
-    }
+        alias BA = BitArray!(blockAlignedLength);
 
-    a[0] = true;
-    assert(a[0]);
-    foreach (const i; 1 .. bitCount)
-    {
-        assert(!a[i]);
-    }
+        auto a = BA.withLength(length);
 
-    assert(!a[1]);
-    a[1] = true;
-    assert(a[1]);
-    a[1] = false;
-    assert(!a[1]);
+        assert(a.length == length);
+        foreach (const i; 0 .. length)
+        {
+            assert(!a[i]);
+        }
+
+        a[0] = true;
+        assert(a[0]);
+        foreach (const i; 1 .. length)
+        {
+            assert(!a[i]);
+        }
+
+        assert(!a[1]);
+        a[1] = true;
+        assert(a[1]);
+        a[1] = false;
+        assert(!a[1]);
+    }
+    test!(false)(100);
+    test!(true)(64);
 }
 
 /// Test `countOnes` and `countZeros`.

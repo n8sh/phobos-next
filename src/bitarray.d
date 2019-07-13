@@ -37,8 +37,8 @@ struct BitArray(bool wordAlignedLength = false,
     }
 
     /** Construct with `length` number of zero bits stored in `blocks`. */
-    static typeof(this) withLengthAndBlocks(size_t length,
-                                            Block[] blocks) @trusted
+    private static typeof(this) withLengthAndBlocks(size_t length,
+                                                    Block[] blocks) @trusted
     {
         typeof(return) that;
         that._blockCount = blocks.length;

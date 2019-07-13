@@ -15,7 +15,7 @@ struct BitArray(bool wordAlignedLength = false,
     import core.bitop : bt, bts, btr;
     import bitarray_algorithm;
 
-    @safe pure nothrow @nogc:
+@safe pure nothrow @nogc:
 
     /** Construct with `length` number of zero bits. */
     static typeof(this) withLength(size_t length) @trusted
@@ -240,7 +240,17 @@ private:
         @NoGc Block* _blockPtr; // non-GC-allocated store pointer
     }
 
-    size_t _length;
+    static if (wordAlignedLength)
+    {
+        @property size_t _length() const
+        {
+            return bitsPerBlock * _blockCount;
+        }
+    }
+    else
+    {
+        size_t _length;
+    }
 }
 
 /// Test indexing and element assignment.

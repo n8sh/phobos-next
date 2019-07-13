@@ -320,6 +320,14 @@ private:
 
         foreach (const n; 1 .. 3*BA.bitsPerBlock)
         {
+            static if (blockAlignedLength)
+            {
+                if (n % BA.bitsPerBlock != 0) // if block aligned length
+                {
+                    continue;
+                }
+            }
+
             auto a = BA.withLength(n);
 
             // set bits forwards
@@ -367,6 +375,7 @@ private:
         }
     }
     test!(false)();
+    test!(true)();
 }
 
 /// Test emptying (resetting) via `.clear` and explicit copying with `.dup`.

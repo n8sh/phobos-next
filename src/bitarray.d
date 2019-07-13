@@ -366,22 +366,36 @@ private:
 /// Test emptying (resetting) via `.clear` and explicit copying with `.dup`.
 @safe pure nothrow @nogc unittest
 {
-    const n = 5;
+    static void test(bool blockAlignedLength)()
+    {
+        alias BA = BitArray!(blockAlignedLength);
 
-    auto a = BitArray!().withLength(n);
-    assert(a.length == n);
+        static if (blockAlignedLength)
+        {
+            const n = 5 * BA.bitsPerBlock;
+        }
+        else
+        {
+            const n = 5 * BA.bitsPerBlock + 1;
+        }
+        auto a = BA.withLength(n);
 
-    a.reset();
-    assert(a.length == 0);
+        assert(a.length == n);
 
-    a = BitArray!().withLength(n);
-    assert(a.length == n);
+        a.reset();
+        assert(a.length == 0);
 
-    auto b = a.dup;
-    assert(b.length == n);
+        a = BA.withLength(n);
+        assert(a.length == n);
 
-    a.reset();
-    assert(a.length == 0);
+        auto b = a.dup;
+        assert(b.length == n);
+
+        a.reset();
+        assert(a.length == 0);
+    }
+    test!(false)();
+    test!(true)();
 }
 
 /// Test `indexOfFirstOne` for single set ones.

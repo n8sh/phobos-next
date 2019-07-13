@@ -8,7 +8,7 @@ module bitarray;
  *
  * Like `std.bitmanip.BitArray` but @safe pure nothrow @nogc.
  */
-struct BitArray(bool wordAlignedLength = false,
+struct BitArray(bool blockAlignedLength = false,
                 alias Allocator = null) // TODO use Allocator
 {
     import core.memory : pureMalloc, pureCalloc, pureFree;
@@ -21,7 +21,7 @@ struct BitArray(bool wordAlignedLength = false,
     static typeof(this) withLength(size_t length) @trusted
     {
         typeof(return) that;    // TODO = void
-        static if (wordAlignedLength)
+        static if (blockAlignedLength)
         {
             assert(length % bitsPerBlock == 0);
             that._blockCount = length / bitsPerBlock; // number of whole blocks
@@ -212,11 +212,21 @@ private:
         return _blockPtr[0 .. _blockCount];
     }
 
-    private inout(Block)[] _fullBlocks() inout @trusted
+    static if (blockAlignedLength)
     {
-        pragma(inline, true);
-        const fullBlockCount = length / bitsPerBlock;
-        return _blocks.ptr[0 .. fullBlockCount];
+        private inout(Block)[] _fullBlocks() inout @trusted
+        {
+            return _blocks;
+        }
+    }
+    else
+    {
+        private inout(Block)[] _fullBlocks() inout @trusted
+        {
+            pragma(inline, true);
+            const fullBlockCount = length / bitsPerBlock;
+            return _blocks.ptr[0 .. fullBlockCount];
+        }
     }
 
     private Block _restBlock() const @trusted
@@ -240,7 +250,7 @@ private:
         @NoGc Block* _blockPtr; // non-GC-allocated store pointer
     }
 
-    static if (wordAlignedLength)
+    static if (blockAlignedLength)
     {
         @property size_t _length() const
         {

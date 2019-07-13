@@ -314,53 +314,59 @@ private:
 /// Test `countOnes` and `countZeros`.
 @safe pure nothrow @nogc unittest
 {
-    foreach (const n; 1 .. 3*BitArray!().bitsPerBlock)
+    static void test(bool blockAlignedLength)()
     {
-        auto a = BitArray!().withLength(n);
+        alias BA = BitArray!(blockAlignedLength);
 
-        // set bits forwards
-        foreach (const i; 0 .. n)
+        foreach (const n; 1 .. 3*BA.bitsPerBlock)
         {
-            assert(a.countOnes == i);
-            assert(a.countZeros == n - i);
-            a[i] = true;
-            assert(a.countOnes == i + 1);
-            assert(a.countZeros == n - (i + 1));
+            auto a = BA.withLength(n);
+
+            // set bits forwards
+            foreach (const i; 0 .. n)
+            {
+                assert(a.countOnes == i);
+                assert(a.countZeros == n - i);
+                a[i] = true;
+                assert(a.countOnes == i + 1);
+                assert(a.countZeros == n - (i + 1));
+            }
+
+            assert(a.countOnes == n);
+            assert(a.countZeros == 0);
+
+            auto b = a.dup;
+            assert(b.countOnes == n);
+            assert(b.countZeros == 0);
+
+            assert(a == b);
+
+            // clear `a` bits forwards
+            foreach (const i; 0 .. n)
+            {
+                assert(a.countOnes == n - i);
+                assert(a.countZeros == i);
+                a[i] = false;
+                assert(a.countOnes == n - (i + 1));
+                assert(a.countZeros == i + 1);
+            }
+
+            b[] = false;
+            assert(a == b);
+
+            // set bits backwards
+            foreach (const i; 0 .. n)
+            {
+                assert(a.countOnes == i);
+                a[n-1 - i] = true;
+                assert(a.countOnes == i + 1);
+            }
+
+            b[] = true;
+            assert(a == b);
         }
-
-        assert(a.countOnes == n);
-        assert(a.countZeros == 0);
-
-        auto b = a.dup;
-        assert(b.countOnes == n);
-        assert(b.countZeros == 0);
-
-        assert(a == b);
-
-        // clear `a` bits forwards
-        foreach (const i; 0 .. n)
-        {
-            assert(a.countOnes == n - i);
-            assert(a.countZeros == i);
-            a[i] = false;
-            assert(a.countOnes == n - (i + 1));
-            assert(a.countZeros == i + 1);
-        }
-
-        b[] = false;
-        assert(a == b);
-
-        // set bits backwards
-        foreach (const i; 0 .. n)
-        {
-            assert(a.countOnes == i);
-            a[n-1 - i] = true;
-            assert(a.countOnes == i + 1);
-        }
-
-        b[] = true;
-        assert(a == b);
     }
+    test!(false)();
 }
 
 /// Test emptying (resetting) via `.clear` and explicit copying with `.dup`.

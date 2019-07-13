@@ -239,7 +239,7 @@ private:
     }
 
     alias Block = size_t;
-    enum bitsPerBlock = 8*Block.sizeof;
+    enum bitsPerBlock = 8*Block.sizeof; /// Number of bits per `Block`.
 
     size_t _blockCount;
 

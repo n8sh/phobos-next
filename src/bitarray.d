@@ -436,39 +436,44 @@ private:
 /// Test `indexOfFirstZero` for single set zeros.
 @safe pure nothrow @nogc unittest
 {
-    enum n = 2 * BitArray!().bitsPerBlock;
+    static void test(bool blockAlignedLength)()
+    {
+        enum n = 2 * BitArray!().bitsPerBlock;
 
-    auto a = BitArray!().withLength(n);
-    a[] = true;
+        auto a = BitArray!().withLength(n);
+        a[] = true;
 
-    assert(a.length == n);
-    assert(a.indexOfFirstZero == n); // miss
+        assert(a.length == n);
+        assert(a.indexOfFirstZero == n); // miss
 
-    a[0] = false;
-    assert(a.indexOfFirstZero == 0);
-    a[0] = true;
+        a[0] = false;
+        assert(a.indexOfFirstZero == 0);
+        a[0] = true;
 
-    a[2] = false;
-    assert(a.indexOfFirstZero == 2);
-    a[2] = true;
+        a[2] = false;
+        assert(a.indexOfFirstZero == 2);
+        a[2] = true;
 
-    a[n/2-1] = false;
-    assert(a.indexOfFirstZero == n/2-1);
-    a[n/2-1] = true;
+        a[n/2-1] = false;
+        assert(a.indexOfFirstZero == n/2-1);
+        a[n/2-1] = true;
 
-    a[n/2] = false;
-    assert(a.indexOfFirstZero == n/2);
-    a[n/2] = true;
+        a[n/2] = false;
+        assert(a.indexOfFirstZero == n/2);
+        a[n/2] = true;
 
-    a[n/2+1] = false;
-    assert(a.indexOfFirstZero == n/2+1);
-    a[n/2+1] = true;
+        a[n/2+1] = false;
+        assert(a.indexOfFirstZero == n/2+1);
+        a[n/2+1] = true;
 
-    a[n-1] = false;
-    assert(a.indexOfFirstZero == n-1);
-    a[n-1] = true;
+        a[n-1] = false;
+        assert(a.indexOfFirstZero == n-1);
+        a[n-1] = true;
 
-    assert(a.indexOfFirstZero == n); // miss
+        assert(a.indexOfFirstZero == n); // miss
+    }
+    test!(false)();
+    test!(true)();
 }
 
 @safe pure nothrow @nogc unittest
@@ -501,8 +506,8 @@ private:
         a[BA.bitsPerBlock - 1] = false;
         assert(a.indexOfFirstZero == 0);
     }
-    test!(false);
-    test!(true);
+    test!(false)();
+    test!(true)();
 }
 
 /// Test `indexOfFirstOne` for multi set ones.
@@ -529,8 +534,8 @@ private:
         a[BA.bitsPerBlock - 1] = true;
         assert(a.indexOfFirstOne == 0);
     }
-    test!(false);
-    test!(true);
+    test!(false)();
+    test!(true)();
 }
 
 ///

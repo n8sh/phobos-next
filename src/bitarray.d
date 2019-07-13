@@ -423,14 +423,27 @@ private:
 /// Test `indexOfFirstOne` for multi set ones.
 @safe pure nothrow @nogc unittest
 {
-    enum n = 2 * BitArray!().bitsPerBlock;
+    static void test(bool blockAlignedLength)()
+    {
+        alias BA = BitArray!(blockAlignedLength);
 
-    auto a = BitArray!().withLength(n);
+        static if (blockAlignedLength)
+        {
+            const n = 2 * BA.bitsPerBlock;
+        }
+        else
+        {
+            const n = 2 * BA.bitsPerBlock + 1;
+        }
+        auto a = BA.withLength(n);
 
-    a[0] = true;
-    a[BitArray!().bitsPerBlock/2] = true;
-    a[BitArray!().bitsPerBlock - 1] = true;
-    assert(a.indexOfFirstOne == 0);
+        a[0] = true;
+        a[BitArray!().bitsPerBlock/2] = true;
+        a[BitArray!().bitsPerBlock - 1] = true;
+        assert(a.indexOfFirstOne == 0);
+    }
+    test!(false)();
+    test!(true)();
 }
 
 /// Test `indexOfFirstZero` for single set zeros.

@@ -30,9 +30,9 @@ struct BitArray(bool wordAlignedLength = false,
         {
             that._blockCount = ((length / bitsPerBlock) + // number of whole blocks
                                 (length % bitsPerBlock ? 1 : 0)); // remained block
+            that._length = length;
         }
         that._blockPtr = cast(Block*)pureCalloc(bitsPerBlock, that._blockCount); // TODO use `Allocator`
-        that._length = length;
         return that;
     }
 

@@ -38,7 +38,7 @@ struct BitArray(bool wordAlignedLength = false,
 
     /** Construct with `length` number of zero bits stored in `blocks`. */
     private static typeof(this) withLengthAndBlocks(size_t length,
-                                                    const scope Block[] blocks) @trusted
+                                                    const scope Block[] blocks)
     {
         return typeof(return)(length, blocks);
     }

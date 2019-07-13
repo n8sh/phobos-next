@@ -166,6 +166,7 @@ struct BitArray(bool blockAlignedLength = false,
     }
 
     /** Get number of (one) bits set. */
+
     size_t countOnes()() const  // template-lazy
     {
         return bitarray_algorithm.countOnes!(const(Block)[], blockAlignedLength)(_blocks, length);
@@ -183,7 +184,7 @@ struct BitArray(bool blockAlignedLength = false,
      */
     size_t indexOfFirstOne()() const
     {
-        return bitarray_algorithm.indexOfFirstOne(_blocks, length);
+        return bitarray_algorithm.indexOfFirstOne!(const(Block)[], blockAlignedLength)(_blocks, length);
     }
 
     /** Find index of first cleared (zero) bit or `length` if no bit cleared.
@@ -192,7 +193,7 @@ struct BitArray(bool blockAlignedLength = false,
      */
     size_t indexOfFirstZero()() const
     {
-        return bitarray_algorithm.indexOfFirstZero(_blocks, length);
+        return bitarray_algorithm.indexOfFirstZero!(const(Block)[], blockAlignedLength)(_blocks, length);
     }
 
     /** Equality, operators == and !=. */

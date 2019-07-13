@@ -471,6 +471,12 @@ private:
     assert(a.indexOfFirstZero == n); // miss
 }
 
+@safe pure nothrow @nogc unittest
+{
+    static assert(BitArray!(true).sizeof == 2*size_t.sizeof);
+    static assert(BitArray!(false).sizeof == 3*size_t.sizeof);
+}
+
 /// Test `indexOfFirstZero` for multi set zeros.
 @safe pure nothrow @nogc unittest
 {

@@ -170,6 +170,31 @@ struct BitArray(bool blockAlignedLength = false,
         }
     }
 
+    bool opCast(T : bool)() const
+    {
+        return !this.allZero;
+    }
+
+    /** Check if `this` has only zeros (is empty). */
+    bool allZero()() const @safe pure nothrow @nogc
+    {
+        foreach (const block; _fullBlocks)
+        {
+            if (block != Block.min)
+            {
+                return false;
+            }
+        }
+        static if (!blockAlignedLength)
+        {
+            if (_restBlock != Block.min)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /** Get number of bits set (to one). */
     size_t countOnes()() const  // template-lazy
     {

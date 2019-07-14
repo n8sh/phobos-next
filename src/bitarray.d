@@ -51,9 +51,10 @@ struct BitArray(bool blockAlignedLength = false,
         return typeof(return)(length, blocks);
     }
 
-    /** Helper constructor. */
+    /** Helper constructor for `length` number of bits. */
     private this(size_t length) @trusted
     {
+
     }
 
     /** Helper constructor. */

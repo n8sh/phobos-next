@@ -35,8 +35,7 @@ struct BitArray(bool blockAlignedLength = false,
         }
         else
         {
-            that._blockCount = ((length / bitsPerBlock) + // number of whole blocks
-                                (length % bitsPerBlock ? 1 : 0)); // remained block
+            that._blockCount = (length + bitsPerBlock-1) / bitsPerBlock;
             that._length = length;
         }
         that._blockPtr = cast(Block*)pureCalloc(bitsPerBlock, that._blockCount); // TODO use `Allocator`

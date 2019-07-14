@@ -688,6 +688,33 @@ private:
     test!(true)();
 }
 
+/// Test casting to `bool`.
+@safe pure nothrow @nogc unittest
+{
+    static void test(bool blockAlignedLength)()
+    {
+        alias BA = BitArray!(blockAlignedLength);
+
+        static if (blockAlignedLength)
+        {
+            const n = 2 * BA.bitsPerBlock;
+        }
+        else
+        {
+            const n = 2 * BA.bitsPerBlock + 1;
+        }
+        auto a = BA.withLength(n);
+
+        assert(!a);
+
+        a[0] = true;
+        assert(a);
+        a[0] = false;
+        assert(!a);
+    }
+    test!(false)();
+}
+
 ///
 @trusted pure unittest
 {

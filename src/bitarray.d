@@ -288,6 +288,7 @@ private:
     static void test(bool blockAlignedLength)()
     {
         alias BA = BitArray!(blockAlignedLength);
+
         assert(BA.withLength(0)._blockCount == 0);
         assert(BA.withLength(1)._blockCount == 1);
 

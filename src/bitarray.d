@@ -564,8 +564,9 @@ private:
 
 @safe pure nothrow @nogc unittest
 {
-    static assert(BitArray!(false).sizeof == 3*size_t.sizeof); // one extra word for `length`
-    static assert(BitArray!(true).sizeof == 2*size_t.sizeof);
+    alias BA = BitArray!(false);
+    static assert(BitArray!(false).sizeof == 3*BA.Block.sizeof); // one extra word for `length`
+    static assert(BitArray!(true).sizeof == 2*BA.Block.sizeof);
 }
 
 /// Test `indexOfFirstZero` for multi set zeros.

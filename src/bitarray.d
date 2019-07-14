@@ -606,6 +606,24 @@ private:
     test!(true)();
 }
 
+/// Test `_blockCount`.
+@safe pure nothrow @nogc unittest
+{
+    static void test(bool blockAlignedLength)()
+    {
+        alias BA = BitArray!(blockAlignedLength);
+        assert(BA.withLength(0)._blockCount == 0);
+        assert(BA.withLength(1)._blockCount == 1);
+        assert(BA.withLength(1*8*size_t.sizeof - 1)._blockCount == 1);
+        assert(BA.withLength(1*8*size_t.sizeof + 0)._blockCount == 1);
+        assert(BA.withLength(1*8*size_t.sizeof + 1)._blockCount == 2);
+        assert(BA.withLength(2*8*size_t.sizeof - 1)._blockCount == 2);
+        assert(BA.withLength(2*8*size_t.sizeof + 0)._blockCount == 2);
+        assert(BA.withLength(2*8*size_t.sizeof + 1)._blockCount == 3);
+    }
+    test!(false)();
+}
+
 ///
 @trusted pure unittest
 {

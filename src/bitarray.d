@@ -265,7 +265,7 @@ private:
     {
         inout(Block)[] _fullBlocks() inout @trusted
         {
-            return _blocks;     // all blocks are full
+            return _blocks;     // all bits of all blocks are used
         }
     }
     else

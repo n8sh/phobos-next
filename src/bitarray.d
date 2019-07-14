@@ -282,7 +282,7 @@ private:
     }
 }
 
-/// Test `_blockCount`.
+/// Test `_blockCount` and `_fullBlocks.length`.
 @safe pure nothrow @nogc unittest
 {
     static void test(bool blockAlignedLength)()
@@ -290,12 +290,24 @@ private:
         alias BA = BitArray!(blockAlignedLength);
         assert(BA.withLength(0)._blockCount == 0);
         assert(BA.withLength(1)._blockCount == 1);
+
         assert(BA.withLength(1*BA.bitsPerBlock - 1)._blockCount == 1);
+        assert(BA.withLength(1*BA.bitsPerBlock - 1)._fullBlocks.length == 0);
+
         assert(BA.withLength(1*BA.bitsPerBlock + 0)._blockCount == 1);
+        assert(BA.withLength(1*BA.bitsPerBlock + 0)._fullBlocks.length == 1);
+
         assert(BA.withLength(1*BA.bitsPerBlock + 1)._blockCount == 2);
+        assert(BA.withLength(1*BA.bitsPerBlock + 1)._fullBlocks.length == 1);
+
         assert(BA.withLength(2*BA.bitsPerBlock - 1)._blockCount == 2);
+        assert(BA.withLength(2*BA.bitsPerBlock - 1)._fullBlocks.length == 1);
+
         assert(BA.withLength(2*BA.bitsPerBlock + 0)._blockCount == 2);
+        assert(BA.withLength(2*BA.bitsPerBlock + 0)._fullBlocks.length == 2);
+
         assert(BA.withLength(2*BA.bitsPerBlock + 1)._blockCount == 3);
+        assert(BA.withLength(2*BA.bitsPerBlock + 1)._fullBlocks.length == 2);
     }
     test!(false)();
 }

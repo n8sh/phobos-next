@@ -14,7 +14,7 @@ module bitarray;
  * TODO use `Flag` instead, or wrap in `BlockAlignedBitArray` where this class
  * is made private _BitArray and alias BitArray = _BitArray!(true).
  *
- * TODO support append via `pushBack(bool)`.
+ * TODO support append bit via `pushBack(bool)`.
  */
 struct BitArray(bool blockAlignedLength = false,
                 alias Allocator = null) // TODO use Allocator

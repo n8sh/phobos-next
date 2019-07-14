@@ -19,7 +19,7 @@ module bitarray;
 struct BitArray(bool blockAlignedLength = false,
                 alias Allocator = null) // TODO use Allocator
 {
-    import core.memory : pureMalloc, pureCalloc, pureFree;
+    import core.memory : pureMalloc, pureCalloc;
     import core.bitop : bt, bts, btr;
     import bitarray_algorithm;
 
@@ -49,6 +49,11 @@ struct BitArray(bool blockAlignedLength = false,
                                                     const scope Block[] blocks)
     {
         return typeof(return)(length, blocks);
+    }
+
+    /** Helper constructor. */
+    private this(size_t length) @trusted
+    {
     }
 
     /** Helper constructor. */
@@ -87,7 +92,7 @@ struct BitArray(bool blockAlignedLength = false,
     /// Release internal store.
     private void release() @trusted
     {
-        pureFree(_blockPtr);
+        fakePureFree(_blockPtr);
     }
 
     /// Reset internal data.
@@ -673,4 +678,13 @@ version(unittest)
 {
     import std.exception: assertThrown;
     import core.exception : AssertError;
+}
+
+// TODO use
+extern (C) private pure @system @nogc nothrow
+{
+    pragma(mangle, "malloc") void* fakePureMalloc(size_t);
+    pragma(mangle, "calloc") void* fakePureCalloc(size_t nmemb, size_t size);
+    pragma(mangle, "realloc") void* fakePureRealloc(void* ptr, size_t size);
+    pragma(mangle, "free") void fakePureFree(void* ptr);
 }

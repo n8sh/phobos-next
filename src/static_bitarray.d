@@ -45,7 +45,7 @@ struct StaticBitArray(uint bitCount, Block = size_t)
     /** Number of bits per `Block`. */
     enum bitsPerBlock = 8*Block.sizeof;
     /** Number of `Block`s. */
-    enum blockCount = (bitCount + (bitsPerBlock-1)) / bitsPerBlock;
+    enum blockCount = (bitCount + bitsPerBlock-1) / bitsPerBlock;
 
     /** Data stored as `Block`s. */
     private Block[blockCount] _blocks;

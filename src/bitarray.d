@@ -26,22 +26,9 @@ struct BitArray(bool blockAlignedLength = false,
 @safe pure nothrow @nogc:
 
     /** Construct with `length` number of zero bits. */
-    static typeof(this) withLength(size_t length) @trusted
+    static typeof(this) withLength(size_t length)
     {
-        typeof(return) that;    // TODO = void
-        static if (blockAlignedLength)
-        {
-            assert(length % bitsPerBlock == 0,
-                   "Parameter `length` is not a multiple `Block` bit size " ~ bitsPerBlock.stringof);
-            that._blockCount = length / bitsPerBlock; // number of whole blocks
-        }
-        else
-        {
-            that._blockCount = (length + bitsPerBlock-1) / bitsPerBlock;
-            that._length = length;
-        }
-        that._blockPtr = cast(Block*)pureCalloc(bitsPerBlock, that._blockCount); // TODO use `Allocator`
-        return that;
+        return typeof(this)(length);
     }
 
     /** Construct with `length` number of zero bits stored in `blocks`. */
@@ -54,7 +41,18 @@ struct BitArray(bool blockAlignedLength = false,
     /** Helper constructor for `length` number of bits. */
     private this(size_t length) @trusted
     {
-
+        static if (blockAlignedLength)
+        {
+            assert(length % bitsPerBlock == 0,
+                   "Parameter `length` is not a multiple `Block` bit size " ~ bitsPerBlock.stringof);
+            _blockCount = length / bitsPerBlock; // number of whole blocks
+        }
+        else
+        {
+            _blockCount = (length + bitsPerBlock-1) / bitsPerBlock;
+            _length = length;
+        }
+        _blockPtr = cast(Block*)pureCalloc(bitsPerBlock, _blockCount); // TODO use `Allocator`
     }
 
     /** Helper constructor. */

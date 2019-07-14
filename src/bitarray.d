@@ -147,7 +147,7 @@ struct BitArray(bool blockAlignedLength = false,
         return this;
     }
 
-    /** Set all bits to zero. */
+    /** Clear all bits (to zero). */
     private void zero()
     {
         foreach (ref block; _blocks)
@@ -156,7 +156,7 @@ struct BitArray(bool blockAlignedLength = false,
         }
     }
 
-    /** Set all bits to one. */
+    /** Set all bits (to one). */
     private void one()
     {
         foreach (ref block; _blocks)

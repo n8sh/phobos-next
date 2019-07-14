@@ -166,7 +166,6 @@ struct BitArray(bool blockAlignedLength = false,
     }
 
     /** Get number of (one) bits set. */
-
     size_t countOnes()() const  // template-lazy
     {
         return bitarray_algorithm.countOnes!(const(Block)[], blockAlignedLength)(_blocks, length);

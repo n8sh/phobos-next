@@ -708,9 +708,9 @@ private:
         assert(!a);
 
         a[0] = true;
-        assert(a);
+        assert(!a.allZero);
         a[0] = false;
-        assert(!a);
+        assert(a.allZero);
     }
     test!(false)();
 }

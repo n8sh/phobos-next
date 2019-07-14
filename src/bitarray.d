@@ -277,6 +277,7 @@ private:
             return _blocks.ptr[0 .. fullBlockCount];
         }
 
+        /** Return rest `Block` with all padding bits set to zero. */
         Block _restBlock() const @trusted
         {
             const restBitCount = length % bitsPerBlock;

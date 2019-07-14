@@ -170,6 +170,7 @@ struct BitArray(bool blockAlignedLength = false,
         }
     }
 
+    version(none)               // TODO activate?
     bool opCast(T : bool)() const
     {
         return !this.allZero;

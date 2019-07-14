@@ -176,7 +176,7 @@ struct BitArray(bool blockAlignedLength = false,
         return !this.allZero;
     }
 
-    /** Check if `this` has only zeros (is empty). */
+    /** Check if `this` has only zeros. */
     bool allZero()() const @safe pure nothrow @nogc
     {
         foreach (const block; _fullBlocks)
@@ -189,6 +189,26 @@ struct BitArray(bool blockAlignedLength = false,
         static if (!blockAlignedLength)
         {
             if (_restBlockZeroPadded != Block.min)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** Check if `this` has only ones. */
+    bool allOne()() const @safe pure nothrow @nogc
+    {
+        foreach (const block; _fullBlocks)
+        {
+            if (block != Block.max)
+            {
+                return false;
+            }
+        }
+        static if (!blockAlignedLength)
+        {
+            if (_restBlockOnePadded != Block.max)
             {
                 return false;
             }

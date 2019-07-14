@@ -265,7 +265,7 @@ private:
     {
         inout(Block)[] _fullBlocks() inout @trusted
         {
-            return _blocks;
+            return _blocks;     // all blocks are full
         }
     }
     else

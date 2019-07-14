@@ -187,7 +187,7 @@ struct BitArray(bool blockAlignedLength = false,
         }
         static if (!blockAlignedLength)
         {
-            if (_restBlock != Block.min)
+            if (_restBlockZeroPadded != Block.min)
             {
                 return false;
             }
@@ -244,7 +244,7 @@ struct BitArray(bool blockAlignedLength = false,
             const restBitCount = length % bitsPerBlock;
             if (restBitCount)
             {
-                return _restBlock == rhs._restBlock;
+                return _restBlockZeroPadded == rhs._restBlockZeroPadded;
             }
         }
         return true;
@@ -278,7 +278,7 @@ private:
         }
 
         /** Return rest `Block` with all padding bits set to zero. */
-        Block _restBlock() const @trusted
+        Block _restBlockZeroPadded() const @trusted
         {
             const restBitCount = length % bitsPerBlock;
             return _blocks[$-1] & ((1UL << restBitCount) - 1);

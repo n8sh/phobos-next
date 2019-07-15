@@ -109,6 +109,57 @@ struct StaticBitArray(uint length_)
     assert(!x[length - 1]);
 }
 
+/// Test `indexOfFirstZero` for multi set zeros.
+@safe pure nothrow @nogc unittest
+{
+    static void test(bool blockAlignedLength)()
+    {
+        static if (blockAlignedLength)
+        {
+            const n = 2 * 8*Block.sizeof;
+        }
+        else
+        {
+            const n = 2 * 8*Block.sizeof + 1;
+        }
+        alias BA = StaticBitArray!(n);
+        
+        auto a = BA();
+
+        a[0] = false;
+        a[BA.bitsPerBlock/2] = false;
+        a[BA.bitsPerBlock - 1] = false;
+        assert(a.indexOfFirstZero == 0);
+    }
+    test!(false)();
+    test!(true)();
+}
+
+/// Test `indexOfFirstOne` for multi set ones.
+@safe pure nothrow @nogc unittest
+{
+    static void test(bool blockAlignedLength)()
+    {
+        static if (blockAlignedLength)
+        {
+            const n = 2 * 8*Block.sizeof;
+        }
+        else
+        {
+            const n = 2 * 8*Block.sizeof + 1;
+        }
+        alias BA = StaticBitArray!(n);
+        
+        auto a = BA();
+
+        a[0] = true;
+        a[BA.bitsPerBlock/2] = true;
+        a[BA.bitsPerBlock - 1] = true;
+        assert(a.indexOfFirstOne == 0);
+    }
+    test!(false)();
+}
+
 version(unittest)
 {
     import std.exception: assertThrown;

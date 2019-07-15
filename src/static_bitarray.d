@@ -218,9 +218,9 @@ struct StaticBitArray(uint bitCount, Block = size_t)
     static if (bitCount >= 1)
     {
         /** Get the $(D i)'th bit.
-
-            Avoids range-checking because `i` of type is bound to (0 .. bitCount-1).
-        */
+         * 
+         * Avoids range-checking because `i` of type is bound to (0 .. bitCount-1).
+         */
         bool opIndex(ModUInt)(Mod!(bitCount, ModUInt) i) const @trusted
             if (isUnsigned!ModUInt)
         {
@@ -236,8 +236,9 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         }
 
         /** Get the $(D i)'th bit.
-            Statically verifies that i is < StaticBitArray length.
-        */
+         *
+         * Statically verifies that i is < StaticBitArray length.
+         */
         bool at(size_t i)() const @trusted
             if (i < bitCount)
         {

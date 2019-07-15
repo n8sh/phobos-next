@@ -176,7 +176,7 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         return this;
     }
 
-    /** Set all bits to zero. */
+    /** Set all bits (to zero). */
     private void zero()
     {
         foreach (ref block; _blocks)
@@ -185,7 +185,7 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         }
     }
 
-    /** Set all bits to one. */
+    /** Set all bits (to one). */
     private void one()
     {
         foreach (ref block; _blocks)

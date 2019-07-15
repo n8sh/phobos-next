@@ -861,6 +861,7 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         }
 
         /** Get number of bits set divided by length. */
+        version(none)
         auto denseness()(int depth = -1) const // template-lazy
         {
             import rational : Rational;
@@ -869,6 +870,7 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         }
 
         /** Get number of bits unset divided by length. */
+        version(none)
         auto sparseness()(int depth = -1) const // template-lazy
         {
             import rational : Rational;
@@ -1252,25 +1254,10 @@ private:
     }
 }
 
-/// compile-time
-@safe pure nothrow unittest
-{
-    import nesses: denseness, sparseness;
-    import rational : Rational;
-    alias Q = Rational!ulong;
-
-    enum m = 256, n = 256;
-
-    static assert(StaticBitArray!m.init ==
-                  StaticBitArray!m.init);
-    static assert(StaticBitArray!m.init.denseness == Q(0, m));
-}
-
 /// run-time
 @safe pure nothrow @nogc unittest
 {
     import std.algorithm : equal;
-    import nesses: denseness;
     import rational : Rational;
 
     alias Q = Rational!ulong;
@@ -1298,14 +1285,12 @@ private:
                                 m - 3,
                                 m - 2].s[]));
     assert(b0.countOnes == 9);
-    assert(b0.denseness == Q(9, m));
 }
 
 /// run-time
 @safe pure nothrow @nogc unittest
 {
     import std.algorithm : equal;
-    import nesses: denseness;
     import rational : Rational;
 
     alias Q = Rational!ulong;
@@ -1331,28 +1316,6 @@ private:
                                 m - 2,
                                 m - 1].s[]));
     assert(b0.countOnes == 9);
-    assert(b0.denseness == Q(9, m));
-}
-
-/// run-time
-@safe pure nothrow @nogc unittest
-{
-    import std.algorithm : equal;
-    import nesses: denseness;
-    import rational : Rational;
-    alias Q = Rational!ulong;
-
-    enum m = 256, n = 16;
-
-    StaticBitArray!m[n] b1;
-    b1[0][0] = 1;
-    assert(b1.denseness == Q(1, m*n));
-
-    StaticBitArray!m[n][n] b2;
-    b2[0][0][0] = 1;
-    b2[0][0][1] = 1;
-    b2[0][0][4] = 1;
-    assert(b2.denseness == Q(3, m*n*n));
 }
 
 /// ditto

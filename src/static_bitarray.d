@@ -81,13 +81,13 @@ struct StaticBitArray(uint length_, Block = size_t)
     }
 
     /** Bidirectional range into `BitArray`.
-
-        TODO Provide opSliceAssign for interopability with range algorithms
-        via private static struct member `Range`
-
-        TODO Look at how std.container.array implements this.
-
-        See_Also: https://dlang.org/phobos/std_bitmanip.html#bitsSet
+     * 
+     * TODO Provide opSliceAssign for interopability with range algorithms via
+     * private static struct member `Range`.
+     * 
+     * TODO Look at how std.container.array implements this.
+     * 
+     * See_Also: https://dlang.org/phobos/std_bitmanip.html#bitsSet
     */
     struct Range()              // template-lazy
     {

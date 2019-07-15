@@ -96,6 +96,12 @@ struct StaticBitArray(uint length_)
     
     assertThrown!AssertError(x[length] = false);
 
+    x[length/2 - 1] = true;
+    assert(x[length/2 - 1]);
+    
+    x[length/2 - 1] = false;
+    assert(!x[length/2 - 1]);
+
     x[length - 1] = true;
     assert(x[length - 1]);
     

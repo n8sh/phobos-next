@@ -92,6 +92,13 @@ struct StaticBitArray(uint length_)
     enum length = blockCount * 8*Block.sizeof - 1; // 2 blocks minus one
     StaticBitArray!(length) x;
     assertThrown!AssertError(x[length] = false);
+
+    x[length - 1] = true;
+    assert(x[length - 1]);
+    
+    x[length - 1] = false;
+    assert(!x[length - 1]);
+    
     static assert(x.blockCount == blockCount);
 }
 

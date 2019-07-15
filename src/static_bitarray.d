@@ -195,7 +195,7 @@ struct StaticBitArray(uint length_, Block = size_t)
     }
 
     /** Gets the $(D i)'th bit. */
-    bool opIndex()(size_t i) const @trusted
+    bool opIndex(size_t i) const @trusted
     in
     {
         assert(i < length_);        // TODO nothrow or not?
@@ -531,7 +531,7 @@ struct StaticBitArray(uint length_, Block = size_t)
     }
 
     /** Sorts the $(D StaticBitArray)'s elements. */
-    @property typeof(this) sort()
+    @property typeof(this) sort()()
     out (result)
     {
         assert(result == this);
@@ -1530,5 +1530,4 @@ private:
 version(unittest)
 {
     import array_help : s;
-    import dbgio;
 }

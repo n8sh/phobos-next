@@ -52,7 +52,8 @@ struct StaticBitArray(uint length_, Block = size_t)
         return b;
     }
 
-    private Block[blockCount] _blocks;
+private:
+    Block[blockCount] _blocks;
 }
 
 @safe pure nothrow @nogc:

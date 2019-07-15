@@ -26,7 +26,7 @@ import core.gc.config;
 import core.gc.gcinterface;
 
 import paged_dynamic_array : Array = PagedDynamicArray;
-import static_bitarray2 : StaticBitArray;
+import simple_static_bitarray : StaticBitArray;
 
 import core.stdc.stdio: printf;
 import cstdlib = core.stdc.stdlib : calloc, free, malloc, realloc;
@@ -68,6 +68,7 @@ static immutable smallSizeClasses = [8,
     ];
 
 /// Medium slot sizes classes (in bytes).
+version(none)
 static immutable mediumSizeClasses = [1 << 12, // 4096
                                       1 << 13, // 8192
                                       1 << 14, // 16384

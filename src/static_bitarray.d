@@ -1389,7 +1389,7 @@ private:
 }
 
 /// ditto
-unittest
+@safe unittest
 {
     import std.format : format;
 
@@ -1477,7 +1477,7 @@ unittest
 }
 
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
     alias Block = size_t;
     enum blockCount = 2;
@@ -1511,7 +1511,7 @@ unittest
 }
 
 /// Test opSliceAssign.
-unittest
+@safe pure nothrow @nogc unittest
 {
     alias Block = size_t;
     enum blockCount = 2;

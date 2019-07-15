@@ -90,7 +90,10 @@ struct StaticBitArray(uint length_)
 {
     enum blockCount = 2;
     enum length = blockCount * 8*Block.sizeof - 1; // 2 blocks minus one
+
     StaticBitArray!(length) x;
+    static assert(x.blockCount == blockCount);
+    
     assertThrown!AssertError(x[length] = false);
 
     x[length - 1] = true;
@@ -98,13 +101,6 @@ struct StaticBitArray(uint length_)
     
     x[length - 1] = false;
     assert(!x[length - 1]);
-    
-    static assert(x.blockCount == blockCount);
-}
-
-@safe pure nothrow @nogc unittest
-{
-    
 }
 
 version(unittest)

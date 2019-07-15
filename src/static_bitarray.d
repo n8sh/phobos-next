@@ -9,10 +9,10 @@ module static_bitarray;
 @safe:
 
 /** A statically sized `std.bitmanip.BitArray`.
-
-    TODO Infer `Block` from `len` as is done for `Bound` and `Mod`.
-
-    TODO Optimize `allOne`, `allZero` using intrinsic?
+ * 
+ * TODO Infer `Block` from `len` as is done for `Bound` and `Mod`.
+ * 
+ * TODO Optimize `allOne`, `allZero` using intrinsic?
  */
 struct StaticBitArray(uint length_, Block = size_t)
 {

@@ -726,7 +726,7 @@ private:
         }
         auto a = BA.withLength(n);
 
-        assert(!a);
+        assert(a.allZero);
 
         a[0] = true;
         assert(!a.allZero);

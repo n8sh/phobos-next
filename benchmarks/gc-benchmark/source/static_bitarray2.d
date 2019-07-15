@@ -1,7 +1,7 @@
 /**
  * Static bit array container for internal usage.
  */
-module static_bitarray2;
+module simple_static_bitarray;
 
 struct StaticBitArray(uint bitCount, Block = size_t)
 {

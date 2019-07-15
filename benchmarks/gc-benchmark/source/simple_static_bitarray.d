@@ -3,7 +3,9 @@
  */
 module simple_static_bitarray;
 
-struct StaticBitArray(uint length_, Block = size_t)
+static private alias Block = size_t;
+
+struct StaticBitArray(uint length_)
 {
     import core.bitop : bt, bts, btr;
 
@@ -39,6 +41,11 @@ struct StaticBitArray(uint length_, Block = size_t)
 
     /** Sets the $(D idx)'th bit. */
     bool opIndexAssign(bool b, size_t idx) @trusted nothrow
+    in
+    {
+        assert(idx < length);     // TODO nothrow or not?
+    }
+    body
     {
         pragma(inline, true);
         if (b)
@@ -52,17 +59,49 @@ struct StaticBitArray(uint length_, Block = size_t)
         return b;
     }
 
+    /** Find index of first cleared (zero) bit or `typeof(return).max` if no bit set.
+     *
+     * Optimized for zeros-sparsity.
+     */
+    size_t indexOfFirstZero()() const
+    {
+        import bitarray_algorithm;
+        enum bool blockAlignedLength = length_ % (8*Block.sizeof) == 0;
+        return bitarray_algorithm.indexOfFirstZero!(const(Block)[blockCount],
+                                                    blockAlignedLength)(_blocks, length);
+    }
+
+    /** Find index of first set (one) bit or `typeof(return).max` if no bit set.
+     *
+     * Optimized for ones-sparsity.
+     */
+    size_t indexOfFirstOne()() const
+    {
+        import bitarray_algorithm;
+        enum bool blockAlignedLength = length_ % (8*Block.sizeof) == 0;
+        return bitarray_algorithm.indexOfFirstOne!(const(Block)[blockCount],
+                                                   blockAlignedLength)(_blocks, length);
+    }
+
     private Block[blockCount] _blocks;
 }
 
-@safe pure nothrow @nogc:
-
-///
-unittest
+@trusted pure unittest
 {
-    alias Block = size_t;
     enum blockCount = 2;
-    enum length = blockCount * 8*Block.sizeof - 1;
+    enum length = blockCount * 8*Block.sizeof - 1; // 2 blocks minus one
     StaticBitArray!(length) x;
+    assertThrown!AssertError(x[length] = false);
     static assert(x.blockCount == blockCount);
+}
+
+@safe pure nothrow @nogc unittest
+{
+    
+}
+
+version(unittest)
+{
+    import std.exception: assertThrown;
+    import core.exception : AssertError;
 }

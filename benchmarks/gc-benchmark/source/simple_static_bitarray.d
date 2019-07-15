@@ -7,7 +7,7 @@ struct StaticBitArray(uint length_, Block = size_t)
 {
     import core.bitop : bt, bts, btr;
 
-    @safe pure @nogc:
+@safe pure nothrow @nogc:
 
     /** Number of bits. */
     enum length = length_;

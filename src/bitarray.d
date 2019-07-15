@@ -19,7 +19,6 @@ module bitarray;
 struct BitArray(bool blockAlignedLength = false,
                 alias Allocator = null) // TODO use Allocator
 {
-    import core.memory : pureMalloc, pureCalloc;
     import core.bitop : bt, bts, btr;
     import bitarray_algorithm;
 
@@ -52,7 +51,7 @@ struct BitArray(bool blockAlignedLength = false,
             _blockCount = (length + bitsPerBlock-1) / bitsPerBlock;
             _length = length;
         }
-        _blockPtr = cast(Block*)pureCalloc(bitsPerBlock, _blockCount); // TODO use `Allocator`
+        _blockPtr = cast(Block*)fakePureCalloc(bitsPerBlock, _blockCount); // TODO use `Allocator`
     }
 
     /** Helper constructor. */
@@ -60,7 +59,7 @@ struct BitArray(bool blockAlignedLength = false,
                  const scope Block[] blocks) @trusted
     {
         _blockCount = blocks.length;
-        _blockPtr = cast(Block*)pureMalloc(bitsPerBlock * _blockCount); // TODO use `Allocator`
+        _blockPtr = cast(Block*)fakePureMalloc(bitsPerBlock * _blockCount); // TODO use `Allocator`
         _blocks[] = blocks; // copy block array
         static if (!blockAlignedLength)
         {

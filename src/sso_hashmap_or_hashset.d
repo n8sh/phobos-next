@@ -798,7 +798,7 @@ struct SSOHashMapOrSet(K, V = void,
         {
             pragma(inline, true):
             /// Get reference to key of front element.
-            @property scope const auto ref front()() return // key access must be const
+            @property const scope auto ref front()() return // key access must be const
             {
                 return table.binElementsAt(binIx)[elementOffset].key;
             }

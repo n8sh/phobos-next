@@ -2581,7 +2581,7 @@ static private struct ByKey_lvalue(Table)
 if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     Table.hasValue)
 {
-    @property scope const auto ref front() return // key access must be const, TODO auto ref => ref K
+    @property const scope auto ref front() return // key access must be const, TODO auto ref => ref K
     {
         pragma(inline, true);
         return _table._bins[_binIndex].key;
@@ -2595,7 +2595,7 @@ static private struct ByKey_rvalue(Table)
 if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     Table.hasValue)
 {
-    @property scope const auto ref front() return // key access must be const, TODO auto ref => ref K
+    @property const scope auto ref front() return // key access must be const, TODO auto ref => ref K
     {
         pragma(inline, true);
         return _table._bins[_binIndex].key;

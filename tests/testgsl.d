@@ -88,9 +88,9 @@ static ~this()
 /** High-level wrapper of `gsl_monte_plain_integrate`.
  *
  */
-IntegrationResult montePlainIntegrate(scope const ref gsl_monte_function fn,
-                                      scope const double[] lowerLimit, // lower limit of hypercubic region
-                                      scope const double[] upperLimit, // upper limit of hypercubic region
+IntegrationResult montePlainIntegrate(const scope ref gsl_monte_function fn,
+                                      const scope double[] lowerLimit, // lower limit of hypercubic region
+                                      const scope double[] upperLimit, // upper limit of hypercubic region
                                       const size_t calls = 500_000) @trusted
 {
     assert(fn.dim == lowerLimit.length);
@@ -121,9 +121,9 @@ IntegrationResult montePlainIntegrate(scope const ref gsl_monte_function fn,
 /** High-level wrapper of `gsl_monte_miser_integrate`.
  *
  */
-IntegrationResult monteMISERIntegrate(scope const ref gsl_monte_function fn,
-                                      scope const double[] lowerLimit, // lower limit of hypercubic region
-                                      scope const double[] upperLimit, // upper limit of hypercubic region
+IntegrationResult monteMISERIntegrate(const scope ref gsl_monte_function fn,
+                                      const scope double[] lowerLimit, // lower limit of hypercubic region
+                                      const scope double[] upperLimit, // upper limit of hypercubic region
                                       const size_t calls) @trusted
 {
     assert(fn.dim == lowerLimit.length);
@@ -155,9 +155,9 @@ IntegrationResult monteMISERIntegrate(scope const ref gsl_monte_function fn,
  *
  */
 version(none)                   // TODO add wrappers missing in gsl bindings
-IntegrationResult monteVEGASIntegrate(scope const ref gsl_monte_function fn,
-                                      scope const double[] lowerLimit, // lower limit of hypercubic region
-                                      scope const double[] upperLimit, // upper limit of hypercubic region
+IntegrationResult monteVEGASIntegrate(const scope ref gsl_monte_function fn,
+                                      const scope double[] lowerLimit, // lower limit of hypercubic region
+                                      const scope double[] upperLimit, // upper limit of hypercubic region
                                       const size_t calls) @trusted
 {
     assert(fn.dim == lowerLimit.length);

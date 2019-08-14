@@ -90,7 +90,7 @@ private alias StaticArrayElementType(A : E[n], E, size_t n) = E;
     assert(z == [11, 22, 33, 44, 55]);
 }
 
-import std.traits : hasElaborateDestructor;
+import core.internal.traits : hasElaborateDestructor;
 import std.traits : Unqual;
 
 /** Overload with faster compilation.

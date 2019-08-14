@@ -98,7 +98,7 @@ if (!isInstanceOf!(Unexpected, T) && // an `Unexpected` cannot be `Expected` :)
     /// Release any memory used to store contents.
     private void release() @trusted
     {
-        import std.traits : hasElaborateDestructor;
+        import core.internal.traits : hasElaborateDestructor;
         if (hasExpectedValue)
         {
             static if (!is(T == class))

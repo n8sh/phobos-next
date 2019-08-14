@@ -6,9 +6,10 @@
 
 module range_ex;
 
+import core.internal.traits: hasElaborateDestructor;
 import std.traits : isSomeString, isNarrowString;
 import std.range: hasSlicing, hasLength, isInfinite, isInputRange, isBidirectionalRange, ElementType, isRandomAccessRange;
-import std.traits: hasUnsharedAliasing, hasElaborateDestructor, isScalarType;
+import std.traits: hasUnsharedAliasing, isScalarType;
 
 public import slicing;
 

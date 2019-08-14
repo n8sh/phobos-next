@@ -1,9 +1,10 @@
 module cyclic;
 
+import core.internal.traits : hasElaborateDestructor;
 import std.algorithm : max;
 import std.container.array : Array;
 import std.range;
-import std.traits : isMutable, hasElaborateDestructor;
+import std.traits : isMutable;
 
 private mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast() this) copy;")
 {

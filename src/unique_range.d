@@ -86,7 +86,8 @@ struct UniqueRange(Source)
     {
         assert(!empty);
 
-        import std.traits : isCopyable, hasElaborateDestructor;
+        import core.internal.traits : hasElaborateDestructor;
+        import std.traits : isCopyable;
         static if (isCopyable!E &&
                    !hasElaborateDestructor!E)
         {
@@ -135,7 +136,8 @@ struct UniqueRange(Source)
         {
             assert(!empty);
 
-            import std.traits : isCopyable, hasElaborateDestructor;
+            import core.internal.traits : hasElaborateDestructor;
+            import std.traits : isCopyable;
             static if (isCopyable!E &&
                        !hasElaborateDestructor!E)
             {

@@ -30,9 +30,10 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     @safe:
 
     import core.exception : onOutOfMemoryError;
+    import core.internal.traits : hasElaborateDestructor;
 
     import std.range : isInputRange, ElementType, isInfinite;
-    import std.traits : hasElaborateDestructor, hasIndirections, hasAliasing,
+    import std.traits : hasIndirections, hasAliasing,
         isMutable, TemplateOf, isArray, isAssignable, isCopyable, isType, hasFunctionAttributes, isIterable;
     import core.lifetime : emplace, move, moveEmplace;
     import std.algorithm : moveEmplaceAll;
@@ -984,7 +985,7 @@ if (isInstanceOf!(BasicArray, C) &&
         if (unaryFun!predicate(c[i]))
         {
             count += 1;
-            import std.traits : hasElaborateDestructor;
+            import core.internal.traits : hasElaborateDestructor;
             static if (hasElaborateDestructor!(typeof(c[i])))
             {
                 .destroy(c[i]);

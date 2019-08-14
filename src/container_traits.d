@@ -16,7 +16,8 @@ public import gc_traits;
  */
 template needsMove(T)
 {
-    import std.traits : hasElaborateDestructor, isCopyable;
+    import core.internal.traits : hasElaborateDestructor;
+    import std.traits : isCopyable;
     enum needsMove = hasElaborateDestructor!T || !isCopyable!T;
 }
 

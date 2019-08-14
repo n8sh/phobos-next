@@ -50,7 +50,8 @@ static immutable iterationCount = 100;
  */
 size_t benchmarkAllocation(E, uint n)() @trusted
 {
-    import std.traits : hasElaborateDestructor, hasIndirections;
+    import core.internal.traits : hasElaborateDestructor;
+    import std.traits : hasIndirections;
     import core.lifetime : emplace;
 
     alias A = E[n];

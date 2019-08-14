@@ -18,8 +18,8 @@ C filteredInplace(alias predicate, C)(C r) @trusted // TODO remove @trusted
 if (is(typeof(unaryFun!predicate)) &&
     hasIndexing!C)          // TODO extend to `isArrayContainer`!C eller `isRandomAccessContainer!C`
 {
-    import std.traits : Unqual;
-    import std.traits : hasElaborateDestructor, isMutable, hasIndirections;
+    import core.internal.traits : hasElaborateDestructor, Unqual;
+    import std.traits : isMutable, hasIndirections;
     import std.range.primitives : ElementType;
     import std.algorithm.mutation : move;
     import traits_ex : ownsItsElements;

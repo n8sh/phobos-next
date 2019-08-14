@@ -82,9 +82,9 @@ struct SSOHashMapOrSet(K, V = void,
         smallBinMinCapacity >= 1) // no use having empty small bins
 {
     import core.lifetime : emplace, move, moveEmplace;
+    import core.internal.traits : hasElaborateCopyConstructor, hasElaborateDestructor, Unqual;
     import emplace_all : moveEmplaceAllNoReset;
-    import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor, isCopyable, isMutable, hasIndirections;
-    import std.traits : Unqual;
+    import std.traits : isCopyable, isMutable, hasIndirections;
     import std.algorithm.comparison : max;
     // TODO activate and use import prime_modulo;
 
@@ -1278,7 +1278,7 @@ void removeAllMatching(alias predicate, SomeHashMapOrSet)(auto ref SomeHashMapOr
             {
                 if (unaryFun!predicate(element))
                 {
-                    import std.traits : hasElaborateDestructor;
+                    import core.internal.traits : hasElaborateDestructor;
                     static if (hasElaborateDestructor!(SomeHashMapOrSet.T))
                     {
                         destroy(element);

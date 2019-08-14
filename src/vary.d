@@ -1,6 +1,6 @@
 module vary;
 
-import std.traits : hasElaborateCopyConstructor, hasElaborateDestructor;;
+import core.internal.traits : hasElaborateCopyConstructor, hasElaborateDestructor;
 import traits_ex : haveCommonType;
 
 static class LightAlgebraicException : Exception

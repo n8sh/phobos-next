@@ -137,8 +137,9 @@ struct OpenHashMapOrSet(K, V = void,
 {
     // pragma(msg, K.stringof, " => ", V.stringof);
     import core.exception : onOutOfMemoryError;
+    import core.internal.traits : hasElaborateDestructor;
     import std.math : nextPow2;
-    import std.traits : hasElaborateDestructor, isCopyable, hasIndirections,
+    import std.traits : isCopyable, hasIndirections,
         isDynamicArray, isStaticArray, Unqual, hasFunctionAttributes, isMutable, TemplateArgsOf;
     import std.typecons : Nullable;
 
@@ -1840,7 +1841,8 @@ static private void duplicateEmplace(T)(const scope ref T src,
                                         scope ref T dst) @system
 {
     pragma(inline, true);
-    import std.traits : hasElaborateCopyConstructor, isCopyable, isBasicType, isInstanceOf;
+    import core.internal.traits : hasElaborateCopyConstructor;
+    import std.traits : isCopyable, isBasicType, isInstanceOf;
     static if (!hasElaborateCopyConstructor!T)
     {
         import std.typecons : Nullable;

@@ -25,7 +25,8 @@ import std.traits : Unqual;
  */
 Unqual!T[n] staticArray(T, size_t n)(T[n] x...) @trusted
 {
-    import std.traits : isCopyable, hasElaborateDestructor; // TODO remove `move` when compiler does it for us
+    import core.internal.traits : hasElaborateDestructor;
+    import std.traits : isCopyable; // TODO remove `move` when compiler does it for us
     static if (isCopyable!T)  // TODO remove `move` when compiler does it for us
     {
         return x[];

@@ -35,7 +35,7 @@ extern(C)
  *     $(LINK2 https://dlang.org/spec/function.html#pure-functions, D's rules for purity),
  *     which allow for memory allocation under specific circumstances.
  */
-void* pureMalloc(size_t size) @trusted pure @nogc nothrow
+private void* pureMalloc(size_t size) @trusted pure @nogc nothrow
 {
     const errno = fakePureGetErrno();
     void* ret = fakePureMalloc(size);
@@ -46,7 +46,7 @@ void* pureMalloc(size_t size) @trusted pure @nogc nothrow
     return ret;
 }
 /// ditto
-void* pureCalloc(size_t nmemb, size_t size) @trusted pure @nogc nothrow
+private void* pureCalloc(size_t nmemb, size_t size) @trusted pure @nogc nothrow
 {
     const errno = fakePureGetErrno();
     void* ret = fakePureCalloc(nmemb, size);
@@ -57,7 +57,7 @@ void* pureCalloc(size_t nmemb, size_t size) @trusted pure @nogc nothrow
     return ret;
 }
 /// ditto
-void* pureRealloc(void* ptr, size_t size) @system pure @nogc nothrow
+private void* pureRealloc(void* ptr, size_t size) @system pure @nogc nothrow
 {
     const errno = fakePureGetErrno();
     void* ret = fakePureRealloc(ptr, size);

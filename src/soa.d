@@ -17,7 +17,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     private alias toType(string s) = typeof(__traits(getMember, S, s));
     private alias Types = typeof(S.tupleof);
 
-    this(size_t initialCapacity) 
+    this(size_t initialCapacity)
     {
         _capacity = initialCapacity;
         allocate(initialCapacity);
@@ -147,7 +147,7 @@ private:
         _capacity = newCapacity;
     }
 
-    void reserveOneExtra() 
+    void reserveOneExtra()
     {
         if (_length == _capacity) { grow(); }
     }

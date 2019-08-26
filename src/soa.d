@@ -27,9 +27,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     // }
     private alias Types = staticMap!(toType, MemberNames);
 
-    @safe pure:
-
-    this(size_t initialCapacity)
+    this(size_t initialCapacity) 
     {
         _capacity = initialCapacity;
         allocate(initialCapacity);
@@ -75,13 +73,13 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     }
 
     /// Length of this array.
-    size_t length() const @property
+    @property size_t length() const @safe pure nothrow @nogc
     {
         return _length;
     }
 
     /// Capacity of this array.
-    size_t capacity() const @property
+    @property size_t capacity() const @safe pure nothrow @nogc
     {
         return _capacity;
     }

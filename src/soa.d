@@ -13,10 +13,8 @@ struct SOA(S)
 if (is(S == struct))        // TODO extend to `isAggregate!S`?
 {
     import pure_mallocator : PureMallocator;
-    import std.traits : FieldNameTuple;
 
     private alias toType(string s) = typeof(__traits(getMember, S, s));
-    private alias MemberNames = FieldNameTuple!S;
     private alias Types = typeof(S.tupleof);
 
     this(size_t initialCapacity) 
@@ -27,10 +25,15 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
 
     auto opDispatch(string name)()
     {
-        import std.meta : staticIndexOf;
-        alias index = staticIndexOf!(name, MemberNames);
-        static assert(index >= 0);
-        return getArray!index;
+        static foreach (index, memberSymbol; S.tupleof)
+        {
+            static if (name == memberSymbol.stringof)
+            {
+                enum genericIndexOf = index;
+                return getArray!index;
+            }
+        }
+        // static assert(0, S.stringof ~ " has no field named " ~ name);
     }
 
     /// Push element (struct) `value` to back of array.

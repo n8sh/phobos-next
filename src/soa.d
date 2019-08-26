@@ -1,7 +1,7 @@
-/** Structure of arrays.
-
-    See_Also: https://maikklein.github.io/post/soa-d/
-    See_Also: http://forum.dlang.org/post/wvulryummkqtskiwrusb@forum.dlang.org
+/** Structure of arrays similar to builtin feature in the Jai programming language.
+ * 
+ * See_Also: https://maikklein.github.io/post/soa-d/
+ * See_Also: http://forum.dlang.org/post/wvulryummkqtskiwrusb@forum.dlang.org
  */
 module soa;
 
@@ -41,7 +41,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
         static foreach (const index, memberSymbol; S.tupleof)
         {
             moveEmplace(__traits(getMember, value, memberSymbol.stringof),
-                        getArray!index[_length]);
+                        getArray!index[_length]); // TODO assert that 
         }
         ++_length;
     }
@@ -91,6 +91,12 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     {
         assert(elementIndex < _length);
         return typeof(return)(&this, elementIndex);
+    }
+
+    /** Slice operator. */
+    inout(SOASlice!S) opSlice()() inout return // template-lazy
+    {
+        return typeof(return)(&this);
     }
 
 private:
@@ -161,10 +167,30 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     @disable this(this);
 
     /// Access member name `memberName`.
-    auto ref opDispatch(string nameName)()
+    auto ref opDispatch(string memberName)()
         @trusted return scope
     {
-        mixin(`return ` ~ `(*soaPtr).` ~ nameName ~ `[elementIndex];`);
+        mixin(`return ` ~ `(*soaPtr).` ~ memberName ~ `[elementIndex];`);
+    }
+}
+
+/// Reference to slice in `soaPtr`.
+private struct SOASlice(S)
+    if (is(S == struct))        // TODO extend to `isAggregate!S`?
+{
+    SOA!S* soaPtr;
+
+    @disable this(this);
+
+    /// Access aggregate at `index`.
+    inout(S) opIndex(size_t index) inout @trusted return scope
+    {
+        S s = void;
+        static foreach (memberIndex, memberSymbol; S.tupleof)
+        {
+            mixin(`s.` ~ memberSymbol.stringof ~ `= (*soaPtr).` ~ memberSymbol.stringof ~ `[index];`);
+        }
+        return s;
     }
 }
 

@@ -188,7 +188,7 @@ private struct SOASlice(S)
         S s = void;
         static foreach (memberIndex, memberSymbol; S.tupleof)
         {
-            mixin(`s.` ~ memberSymbol.stringof ~ `= (*soaPtr).` ~ memberSymbol.stringof ~ `[index];`);
+            mixin(`s.` ~ memberSymbol.stringof ~ `[` ~ memberIndex.stringof ~ `]` ~ `= (*soaPtr).` ~ memberSymbol.stringof ~ `[index];`);
         }
         return s;
     }

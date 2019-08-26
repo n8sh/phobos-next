@@ -41,7 +41,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
         {
             import core.lifetime : move;
             move(__traits(getMember, value, memberSymbol.stringof),
-                 getArray!index[_length]); // same as `getArray!index[_length] = __traits(getMember, value, MemberNames[index]);`
+                 getArray!index[_length]);
         }
         ++_length;
     }

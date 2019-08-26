@@ -16,13 +16,16 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     import std.meta : staticMap;
     import std.traits : FieldNameTuple;
 
-    alias toType(string s) = typeof(__traits(getMember, S, s));
-    alias toPtrType(string s) = typeof(__traits(getMember, S, s));
-    alias ElementType = S;
+    private alias toType(string s) = typeof(__traits(getMember, S, s));
 
-    alias MemberNames = FieldNameTuple!S;
-    alias Types = staticMap!(toType, MemberNames);
-    alias PtrTypes = staticMap!(toPtrType, MemberNames);
+    private alias MemberNames = FieldNameTuple!S;
+    // pragma(msg, MemberNames);
+    // pragma(msg, "x:", S.tupleof.stringof);
+    // static foreach (_; S.tupleof)
+    // {
+    //     pragma(msg, _.stringof);
+    // }
+    private alias Types = staticMap!(toType, MemberNames);
 
     @safe /*pure*/:
 
@@ -100,12 +103,6 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     }
 
 private:
-
-    // TODO use when importing std.typecons doesn't cost to performance
-    // import std.typecons : Tuple;
-    // alias toArray(S) = S[];
-    // alias ArrayTypes = staticMap!(toArray, Types);
-    // Tuple!ArrayTypes containers;
 
     static string generateArrayDefinitionsString()
     {
@@ -239,3 +236,4 @@ unittest
 //                                  });
 //     pragma(msg, usesDIP1000);
 // }
+

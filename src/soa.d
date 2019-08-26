@@ -37,10 +37,10 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     void insertBack()(S value)  // template-lazy
     {
         reserveOneExtra();
-        static foreach (const index, _; MemberNames)
+        static foreach (const index, memberSymbol; S.tupleof)
         {
             import core.lifetime : move;
-            move(__traits(getMember, value, MemberNames[index]),
+            move(__traits(getMember, value, memberSymbol.stringof),
                  getArray!index[_length]); // same as `getArray!index[_length] = __traits(getMember, value, MemberNames[index]);`
         }
         ++_length;

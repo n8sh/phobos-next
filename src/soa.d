@@ -137,7 +137,7 @@ private:
         }
         else
         {
-            foreach (const index, _; MemberNames)
+            static foreach (const index, _; S.tupleof)
             {
                 import std.experimental.allocator : expandArray;
                 PureMallocator.instance.expandArray(getArray!index, expandSize);

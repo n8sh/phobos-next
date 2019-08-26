@@ -170,7 +170,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     }
 }
 
-unittest
+@safe pure nothrow @nogc unittest
 {
     struct S { int i; float f; }
 

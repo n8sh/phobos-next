@@ -10,6 +10,7 @@ module soa;
 struct SOA(S)
 if (is(S == struct))        // TODO extend to `isAggregate!S`?
 {
+    import core.lifetime : move, moveEmplace;
     import pure_mallocator : PureMallocator;
 
     private alias toType(string s) = typeof(__traits(getMember, S, s));
@@ -37,7 +38,6 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     void insertBack()(S value) @trusted // template-lazy
     {
         reserveOneExtra();
-        import core.lifetime : moveEmplace;
         static foreach (const index, memberSymbol; S.tupleof)
         {
             moveEmplace(__traits(getMember, value, memberSymbol.stringof),
@@ -50,7 +50,6 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     void insertBackMembers()(Types members) @trusted // template-lazy
     {
         reserveOneExtra();
-        import core.lifetime : moveEmplace;
         // move each member to its position respective array
         static foreach (const index, _; members)
         {
@@ -63,7 +62,6 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
         if (op == "~")
     {
         pragma(inline, true);
-        import core.lifetime : move;
         insertBack(move(value));      // TODO remove when compiler does this for us
     }
 

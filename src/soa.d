@@ -188,7 +188,7 @@ private struct SOASlice(S)
         S s = void;
         static foreach (memberIndex, memberSymbol; S.tupleof)
         {
-            mixin(`s.` ~ memberSymbol.stringof ~ `[` ~ memberIndex.stringof ~ `]` ~ `= (*soaPtr).` ~ memberSymbol.stringof ~ `[index];`);
+            mixin(`s.` ~ memberSymbol.stringof ~ `= (*soaPtr).getArray!` ~ memberIndex.stringof ~ `[index];`);
         }
         return s;
     }
@@ -227,9 +227,9 @@ private struct SOASlice(S)
     assert(x3.capacity == 3);
 
     // TODO make foreach work
-    // foreach (_; x[])
-    // {
-    // }
+    foreach (_; x[])
+    {
+    }
 
     static if (isDIP1000)
     {

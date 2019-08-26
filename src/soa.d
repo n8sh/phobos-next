@@ -102,16 +102,11 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
 
 private:
 
-    static string generateArrayDefinitionsString()
+    // generateArrayDefinitionsString()
+    static foreach (index, Type; Types)
     {
-        string defs;
-        static foreach (index, Type; Types)
-        {
-            defs ~= Type.stringof ~ `[] _container` ~ index.stringof ~ ";";
-        }
-        return defs;
+        mixin(Type.stringof ~ `[] _container` ~ index.stringof ~ ";");
     }
-    mixin(generateArrayDefinitionsString());
 
     ref inout(Types[index][]) getArray(size_t index)() inout return
     {
@@ -208,15 +203,18 @@ unittest
 
     // disable for now because -dip1000 cannot be set in dub.sdl because it
     // transitively affects depending packages
-    static assert(!__traits(compiles,
-                            {
-                                ref int testScope() @safe
+    static if (isDIP1000)
+    {
+        static assert(!__traits(compiles,
                                 {
-                                    auto y = SOA!S(1);
-                                    y ~= S(42, 43f);
-                                    return y[0].i;
-                                }
-                            }));
+                                    ref int testScope() @safe
+                                    {
+                                        auto y = SOA!S(1);
+                                        y ~= S(42, 43f);
+                                        return y[0].i;
+                                    }
+                                }));
+    }
 }
 
 // version(unittest)
@@ -235,3 +233,8 @@ unittest
 //     pragma(msg, usesDIP1000);
 // }
 
+
+version(unittest)
+{
+    import dip_traits : isDIP1000;
+}

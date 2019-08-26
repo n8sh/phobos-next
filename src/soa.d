@@ -40,7 +40,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
         reserveOneExtra();
         static foreach (const index, _; MemberNames)
         {
-            import std.algorithm.mutation : move;
+            import core.lifetime : move;
             move(__traits(getMember, value, MemberNames[index]),
                  getArray!index[_length]); // same as `getArray!index[_length] = __traits(getMember, value, MemberNames[index]);`
         }
@@ -53,7 +53,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
         reserveOneExtra();
         static foreach (const index, _; members)
         {
-            import std.algorithm.mutation : move;
+            import core.lifetime : move;
             move(members[index], getArray!index[_length]); // same as `getArray!index[_length] = members[index];`
         }
         ++_length;
@@ -62,7 +62,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     void opOpAssign(string op, S)(S value)
         if (op == "~")
     {
-        import std.algorithm.mutation : move;
+        import core.lifetime : move;
         insertBack(move(value));      // TODO remove when compiler does this for us
     }
 

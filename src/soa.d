@@ -33,7 +33,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
                 return getArray!index;
             }
         }
-        // static assert(0, S.stringof ~ " has no field named " ~ name);
+        // TODO static assert(0, S.stringof ~ " has no field named " ~ name);
     }
 
     /// Push element (struct) `value` to back of array.

@@ -97,7 +97,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
 
 private:
 
-    // generate array definitions string
+    // generate array definitions 
     static foreach (index, Type; Types)
     {
         mixin(Type.stringof ~ `[] _container` ~ index.stringof ~ ";");

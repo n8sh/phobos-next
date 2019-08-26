@@ -122,7 +122,7 @@ private:
 
     size_t _length = 0;
     size_t _capacity = 0;
-    short growFactor = 2;
+    short growthFactor = 2;
 
     void allocate(size_t newCapacity) @trusted
     {
@@ -140,7 +140,7 @@ private:
     void grow() @trusted
     {
         import std.algorithm: max;
-        size_t newCapacity = max(1, _capacity * growFactor);
+        size_t newCapacity = max(1, _capacity * growthFactor);
         size_t expandSize = newCapacity - _capacity;
 
         if (_capacity is 0)

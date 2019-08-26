@@ -27,7 +27,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     // }
     private alias Types = staticMap!(toType, MemberNames);
 
-    @safe /*pure*/:
+    @safe pure:
 
     this(size_t initialCapacity)
     {

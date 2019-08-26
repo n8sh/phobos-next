@@ -108,8 +108,6 @@ private:
         mixin(`return _container` ~ index.stringof ~ ";");
     }
 
-    // RCIAllocator _alloc;
-
     size_t _length = 0;
     size_t _capacity = 0;
     short _growthFactor = 2;

@@ -79,7 +79,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
 
     ~this() @trusted
     {
-        foreach (const index, _; MemberNames)
+        static foreach (const index, _; S.tupleof)
         {
             import std.experimental.allocator : dispose;
             PureMallocator.instance.dispose(getArray!index);
@@ -118,7 +118,7 @@ private:
         // {
         //     _alloc = allocatorObject(Mallocator.instance);
         // }
-        static foreach (const index, _; MemberNames)
+        static foreach (const index, _; S.tupleof)
         {
             import std.experimental.allocator : makeArray;
             getArray!index = PureMallocator.instance.makeArray!(Types[index])(newCapacity);

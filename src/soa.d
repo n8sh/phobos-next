@@ -227,9 +227,9 @@ private struct SOASlice(S)
     assert(x3.capacity == 3);
 
     // TODO make foreach work
-    foreach (_; x[])
-    {
-    }
+    // foreach (_; x[])
+    // {
+    // }
 
     static if (isDIP1000)
     {

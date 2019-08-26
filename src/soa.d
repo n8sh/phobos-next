@@ -29,7 +29,6 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
         {
             static if (name == memberSymbol.stringof)
             {
-                enum genericIndexOf = index;
                 return getArray!index;
             }
         }

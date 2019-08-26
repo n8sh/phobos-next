@@ -201,8 +201,6 @@ unittest
     assert(x3.length == 0);
     assert(x3.capacity == 3);
 
-    // disable for now because -dip1000 cannot be set in dub.sdl because it
-    // transitively affects depending packages
     static if (isDIP1000)
     {
         static assert(!__traits(compiles,

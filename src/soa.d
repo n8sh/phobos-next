@@ -37,7 +37,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     void insertBackMembers()(Types types) // template-lazy
     {
         if (_length == _capacity) { grow(); }
-        static foreach (const index, _; MemberNames)
+        static foreach (const index, _; types)
         {
             import std.algorithm.mutation : move;
             move(types[index], getArray!index[_length]); // same as `getArray!index[_length] = types[index];`

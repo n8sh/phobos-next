@@ -103,7 +103,7 @@ private:
         mixin(Type.stringof ~ `[] _container` ~ index.stringof ~ ";");
     }
 
-    /// Get array storing all fields at aggregat field index `index`.
+    /// Get array of all fields at aggregate field index `index`.
     ref inout(Types[index][]) getArray(size_t index)() inout return
     {
         mixin(`return _container` ~ index.stringof ~ ";");

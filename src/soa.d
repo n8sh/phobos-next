@@ -130,8 +130,8 @@ private:
     void grow() @trusted
     {
         import std.algorithm.comparison : max;
-        size_t newCapacity = max(1, _capacity * _growthFactor);
-        size_t expandSize = newCapacity - _capacity;
+        const newCapacity = max(1, _capacity * _growthFactor);
+        const expandSize = newCapacity - _capacity;
 
         if (_capacity is 0)
         {

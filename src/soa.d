@@ -37,9 +37,9 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     void insertBack()(S value)  // template-lazy
     {
         reserveOneExtra();
+        import core.lifetime : move;
         static foreach (const index, memberSymbol; S.tupleof)
         {
-            import core.lifetime : move;
             move(__traits(getMember, value, memberSymbol.stringof),
                  getArray!index[_length]);
         }
@@ -50,9 +50,9 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     void insertBackMembers()(Types members) // template-lazy
     {
         reserveOneExtra();
+        import core.lifetime : move;
         static foreach (const index, _; members)
         {
-            import core.lifetime : move;
             move(members[index], getArray!index[_length]); // same as `getArray!index[_length] = members[index];`
         }
         ++_length;
@@ -79,9 +79,9 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
 
     ~this() @trusted
     {
+        import std.experimental.allocator : dispose;
         static foreach (const index, _; S.tupleof)
         {
-            import std.experimental.allocator : dispose;
             PureMallocator.instance.dispose(getArray!index);
         }
     }
@@ -118,9 +118,9 @@ private:
         // {
         //     _alloc = allocatorObject(Mallocator.instance);
         // }
+        import std.experimental.allocator : makeArray;
         static foreach (const index, _; S.tupleof)
         {
-            import std.experimental.allocator : makeArray;
             getArray!index = PureMallocator.instance.makeArray!(Types[index])(newCapacity);
         }
     }
@@ -137,9 +137,9 @@ private:
         }
         else
         {
+            import std.experimental.allocator : expandArray;
             static foreach (const index, _; S.tupleof)
             {
-                import std.experimental.allocator : expandArray;
                 PureMallocator.instance.expandArray(getArray!index, expandSize);
             }
         }

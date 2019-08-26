@@ -13,7 +13,6 @@ struct SOA(S)
 if (is(S == struct))        // TODO extend to `isAggregate!S`?
 {
     import pure_mallocator : PureMallocator;
-    import std.meta : staticMap;
     import std.traits : FieldNameTuple;
 
     private alias toType(string s) = typeof(__traits(getMember, S, s));

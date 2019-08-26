@@ -215,23 +215,6 @@ unittest
     }
 }
 
-// version(unittest)
-// {
-//     enum usesDIP1000 = !__traits(compiles,
-//                                  {
-//                                      ref int _() @safe
-//                                      {
-//                                          struct S
-//                                          {
-//                                              int* x;
-//                                          }
-//                                          return *(S.init.x);
-//                                      }
-//                                  });
-//     pragma(msg, usesDIP1000);
-// }
-
-
 version(unittest)
 {
     import dip_traits : isDIP1000;

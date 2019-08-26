@@ -62,6 +62,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     void opOpAssign(string op, S)(S value)
         if (op == "~")
     {
+        pragma(inline, true);
         import core.lifetime : move;
         insertBack(move(value));      // TODO remove when compiler does this for us
     }

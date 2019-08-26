@@ -34,27 +34,27 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     }
 
     /// Push element (struct) `value` to back of array.
-    void insertBack()(S value)  // template-lazy
+    void insertBack()(S value) @trusted // template-lazy
     {
         reserveOneExtra();
-        import core.lifetime : move;
+        import core.lifetime : moveEmplace;
         static foreach (const index, memberSymbol; S.tupleof)
         {
-            move(__traits(getMember, value, memberSymbol.stringof),
-                 getArray!index[_length]);
+            moveEmplace(__traits(getMember, value, memberSymbol.stringof),
+                        getArray!index[_length]);
         }
         ++_length;
     }
 
     /// Push element (struct) `value` to back of array using its data members `members`.
-    void insertBackMembers()(Types members) // template-lazy
+    void insertBackMembers()(Types members) @trusted // template-lazy
     {
         reserveOneExtra();
-        import core.lifetime : move;
+        import core.lifetime : moveEmplace;
         // move each member to its position respective array
         static foreach (const index, _; members)
         {
-            move(members[index], getArray!index[_length]); // same as `getArray!index[_length] = members[index];`
+            moveEmplace(members[index], getArray!index[_length]); // same as `getArray!index[_length] = members[index];`
         }
         ++_length;
     }

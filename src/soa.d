@@ -17,15 +17,8 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     import std.traits : FieldNameTuple;
 
     private alias toType(string s) = typeof(__traits(getMember, S, s));
-
     private alias MemberNames = FieldNameTuple!S;
-    // pragma(msg, MemberNames);
-    // pragma(msg, "x:", S.tupleof.stringof);
-    // static foreach (_; S.tupleof)
-    // {
-    //     pragma(msg, _.stringof);
-    // }
-    private alias Types = staticMap!(toType, MemberNames);
+    private alias Types = typeof(S.tupleof);
 
     this(size_t initialCapacity) 
     {

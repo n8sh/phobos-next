@@ -200,6 +200,11 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     assert(x3.length == 0);
     assert(x3.capacity == 3);
 
+    // TODO make foreach work
+    // foreach (_; x[])
+    // {
+    // }
+
     static if (isDIP1000)
     {
         static assert(!__traits(compiles,

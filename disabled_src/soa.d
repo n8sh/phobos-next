@@ -12,13 +12,10 @@ module soa;
 struct SOA(S)
 if (is(S == struct))        // TODO extend to `isAggregate!S`?
 {
-    import std.experimental.allocator;
-    import std.experimental.allocator.mallocator;
-
+    import pure_mallocator : PureMallocator;
     import std.meta : staticMap;
     import std.traits : FieldNameTuple;
 
-    alias toArray(S) = S[];
     alias toType(string s) = typeof(__traits(getMember, S, s));
     alias toPtrType(string s) = typeof(__traits(getMember, S, s));
     alias ElementType = S;
@@ -29,10 +26,8 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
 
     @safe /*pure*/:
 
-    this(size_t initialCapacity,
-         IAllocator _alloc = allocatorObject(Mallocator.instance))
+    this(size_t initialCapacity)
     {
-        _alloc = _alloc;
         _capacity = initialCapacity;
         allocate(initialCapacity);
     }
@@ -48,8 +43,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     void insertBackMembers()(Types types) // template-lazy
     {
         if (_length == _capacity) { grow(); }
-        version(LDC) static if (__VERSION__ >= 2076) { static assert(0, "TODO use static foreach"); }
-        foreach (const index, _; MemberNames)
+        static foreach (const index, _; MemberNames)
         {
             import std.algorithm.mutation : move;
             move(types[index], getArray!index[_length]); // same as `getArray!index[_length] = types[index];`
@@ -61,8 +55,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     void insertBack()(S value)  // template-lazy
     {
         if (_length == _capacity) { grow(); }
-        version(LDC) static if (__VERSION__ >= 2076) { static assert(0, "TODO use static foreach"); }
-        foreach (const index, _; MemberNames)
+        static foreach (const index, _; MemberNames)
         {
             import std.algorithm.mutation : move;
             move(__traits(getMember, value, MemberNames[index]),
@@ -92,10 +85,10 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
 
     ~this() @trusted
     {
-        if (_alloc is null) { return; }
         foreach (const index, _; MemberNames)
         {
-            _alloc.dispose(getArray!index);
+            import std.experimental.allocator : dispose;
+            PureMallocator.instance.dispose(getArray!index);
         }
     }
 
@@ -110,12 +103,12 @@ private:
 
     // TODO use when importing std.typecons doesn't cost to performance
     // import std.typecons : Tuple;
+    // alias toArray(S) = S[];
     // alias ArrayTypes = staticMap!(toArray, Types);
     // Tuple!ArrayTypes containers;
 
     static string generateArrayDefinitionsString()
     {
-        version(LDC) static if (__VERSION__ >= 2076) { static assert(0, "TODO use static foreach"); }
         string defs;
         static foreach (index, Type; Types)
         {
@@ -130,7 +123,7 @@ private:
         mixin(`return _container` ~ index.stringof ~ ";");
     }
 
-    IAllocator _alloc;
+    // RCIAllocator _alloc;
 
     size_t _length = 0;
     size_t _capacity = 0;
@@ -138,14 +131,14 @@ private:
 
     void allocate(size_t newCapacity) @trusted
     {
-        if (_alloc is null)
+        // if (_alloc is null)
+        // {
+        //     _alloc = allocatorObject(Mallocator.instance);
+        // }
+        static foreach (const index, _; MemberNames)
         {
-            _alloc = allocatorObject(Mallocator.instance);
-        }
-        version(LDC) static if (__VERSION__ >= 2076) { static assert(0, "TODO use static foreach"); }
-        foreach (const index, _; MemberNames)
-        {
-            getArray!index = _alloc.makeArray!(Types[index])(newCapacity);
+            import std.experimental.allocator : makeArray;
+            getArray!index = PureMallocator.instance.makeArray!(Types[index])(newCapacity);
         }
     }
 
@@ -163,7 +156,8 @@ private:
         {
             foreach (const index, _; MemberNames)
             {
-                _alloc.expandArray(getArray!index, expandSize);
+                import std.experimental.allocator : expandArray;
+                PureMallocator.instance.expandArray(getArray!index, expandSize);
             }
         }
         _capacity = newCapacity;

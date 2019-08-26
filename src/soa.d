@@ -37,7 +37,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     /// Push element (struct) `value` to back of array.
     void insertBack()(S value)  // template-lazy
     {
-        if (_length == _capacity) { grow(); }
+        reserveOneExtra();
         static foreach (const index, _; MemberNames)
         {
             import std.algorithm.mutation : move;
@@ -50,7 +50,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     /// Push element (struct) `value` to back of array using its data members `members`.
     void insertBackMembers()(Types members) // template-lazy
     {
-        if (_length == _capacity) { grow(); }
+        reserveOneExtra();
         static foreach (const index, _; members)
         {
             import std.algorithm.mutation : move;
@@ -145,6 +145,11 @@ private:
             }
         }
         _capacity = newCapacity;
+    }
+
+    void reserveOneExtra() 
+    {
+        if (_length == _capacity) { grow(); }
     }
 }
 

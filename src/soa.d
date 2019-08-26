@@ -51,6 +51,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     {
         reserveOneExtra();
         import core.lifetime : move;
+        // move each member to its position respective array
         static foreach (const index, _; members)
         {
             move(members[index], getArray!index[_length]); // same as `getArray!index[_length] = members[index];`

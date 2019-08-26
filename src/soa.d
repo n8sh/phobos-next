@@ -5,8 +5,6 @@
  */
 module soa;
 
-@safe /*TODO pure*/:
-
 /** Structure of arrays similar to members of `S`.
  */
 struct SOA(S)
@@ -169,6 +167,8 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
         mixin(`return ` ~ `(*soaPtr).` ~ nameName ~ `[elementIndex];`);
     }
 }
+
+@safe:
 
 @safe pure nothrow @nogc unittest
 {

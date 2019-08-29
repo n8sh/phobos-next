@@ -1152,7 +1152,8 @@ struct StaticBitArray(uint length_, Block = size_t)
      *
      * $(D a -= b) for $(D StaticBitArray) means the same thing as $(D a &amp;= ~b).
      */
-    typeof(this) opSubAssign(in typeof(this) e2)
+    typeof(this) opOpAssign(string op)(in typeof(this) e2) 
+        if (op == "-")
     {
         _blocks[] &= ~e2._blocks[];
         return this;

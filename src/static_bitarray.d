@@ -1192,7 +1192,7 @@ struct StaticBitArray(uint length_, Block = size_t)
     unittest
     {
         const b = StaticBitArray!16(([0, 0, 0, 0, 1, 1, 1, 1,
-                             0, 0, 0, 0, 1, 1, 1, 1]));
+                                      0, 0, 0, 0, 1, 1, 1, 1]));
         const s1 = format("%s", b);
         assert(s1 == "[0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1]");
 

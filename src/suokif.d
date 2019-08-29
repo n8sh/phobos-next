@@ -211,13 +211,20 @@ private:
     }
 
     /// Get numeric literal (number) in integer or decimal form.
-    Input getNumber() return nothrow @nogc
+    Input getNumberOrSymbol(out bool gotSymbol) return nothrow @nogc
     {
         pragma(inline);
         size_t i = 0;
-        while (peekNextNth(i).among!('+', '-', '.',
-                                     digitChars)) // NOTE this is faster than src[i].isDigit
+        while ((!peekNextNth(i).among!('\0', '(', ')',
+                                       whiteChars))) // NOTE this is faster than !src[i].isWhite
+        // while (peekNextNth(i).among!('+', '-', '.',
+        //                              digitChars)) // NOTE this is faster than src[i].isDigit
         {
+            import std.ascii : isDigit;
+            if (!peekNextNth(i).isDigit)
+            {
+                gotSymbol = true;
+            }
             ++i;
         }
         return skipOverN(i);
@@ -346,8 +353,16 @@ private:
             case '+':
             case '-':
             case '.':
-                const number = getNumber();
-                exprs.put(SExpr(Token(TOK.number, number)));
+                bool gotSymbol;
+                const numberOrSymbol = getNumberOrSymbol(gotSymbol);
+                if (gotSymbol)
+                {
+                    exprs.put(SExpr(Token(TOK.symbol, numberOrSymbol)));
+                }
+                else
+                {
+                    exprs.put(SExpr(Token(TOK.number, numberOrSymbol)));
+                }
                 break;
                 // from std.ascii.isWhite
             case ' ':

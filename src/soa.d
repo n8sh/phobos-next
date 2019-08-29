@@ -156,6 +156,7 @@ private:
         if (_length == _capacity) { grow(); }
     }
 }
+alias StructArrays = SOA;
 
 /// Reference to element in `soaPtr` at index `elementIndex`.
 private struct SOAElementRef(S)

@@ -33,7 +33,7 @@ struct ReadBorrowed(Range, Owner)
 {
     this(const Range range, Owner* owner)
     {
-        import std.traits : Unqual;
+        import core.internal.traits : Unqual;
         _range = *(cast(Unqual!Range*)&range);
         _owner = owner;
         if (_owner)

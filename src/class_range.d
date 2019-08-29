@@ -32,7 +32,7 @@ if (!isArray!R &&
 
 private struct DowncastingFilterResult(Subclass, Range)
 {
-    import std.traits : Unqual;
+    import core.internal.traits : Unqual;
 
     alias R = Unqual!Range;
     R _input;

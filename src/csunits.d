@@ -48,7 +48,7 @@ struct Bytes(T: ulong)
      */
     string toString(bool inBits = false) const @property @trusted /* pure nothrow */
     {
-        // import std.traits : Unqual;
+        // import core.internal.traits : Unqual;
 
         string name = void;
         T val = void;

@@ -91,7 +91,7 @@ private alias StaticArrayElementType(A : E[n], E, size_t n) = E;
 }
 
 import core.internal.traits : hasElaborateDestructor;
-import std.traits : Unqual;
+import core.internal.traits : Unqual;
 
 /** Overload with faster compilation.
  */

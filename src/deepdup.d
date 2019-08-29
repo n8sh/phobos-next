@@ -9,7 +9,7 @@
  */
 module deepdup;
 
-import std.traits : Unqual;
+import core.internal.traits : Unqual;
 import std.typecons : tuple, Tuple;
 import std.meta : staticMap;
 import std.traits : isDynamicArray, isStaticArray, isArray, isPointer;

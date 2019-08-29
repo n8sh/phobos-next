@@ -35,7 +35,7 @@ private struct LightAlgebraic(bool memoryPacked = false,
     alias Ix = ubyte; // type index type
     enum maxTypesCount = 2^^(Ix.sizeof * 8) - 1; // maximum number of allowed type parameters
 
-    import std.traits : Unqual;
+    import core.internal.traits : Unqual;
     import std.meta : anySatisfy, allSatisfy, staticIndexOf, staticMap, NoDuplicates;
     import core.stdc.string : memcpy, memset, memcmp;
     import std.traits : StdCommonType = CommonType, isIntegral, hasIndirections, isCopyable, hasAliasing;

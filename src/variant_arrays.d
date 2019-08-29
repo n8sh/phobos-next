@@ -92,7 +92,7 @@ private struct VariantRef(DefinedTypes...)
         return rawWord;
     }
 
-    import std.traits : Unqual;
+    import core.internal.traits : Unqual;
 
     /// Allow cast to unqualified.
     U opCast(U : Unqual!(typeof(this)))() const

@@ -128,7 +128,7 @@ template isIntegerLike(T)
     }
     else
     {
-        import std.traits : Unqual;
+        import core.internal.traits : Unqual;
         alias isIntegerLike = isIntegerLike!(Unqual!T);
     }
 }
@@ -167,7 +167,7 @@ template CommonInteger(I1, I2)
     if (isIntegerLike!I1 &&
         isIntegerLike!I2)
 {
-    import std.traits : Unqual;
+    import core.internal.traits : Unqual;
     alias CommonInteger = typeof(Unqual!(I1).init *
                                  Unqual!(I2).init);
 }
@@ -1070,7 +1070,7 @@ CommonInteger!(I1, I2) gcf(I1, I2)(I1 m, I2 n)
                is(I2 == const) || is(I2 == immutable))
     {
         // Doesn't work with immutable(BigInt).
-        import std.traits : Unqual;
+        import core.internal.traits : Unqual;
         return gcf!(Unqual!I1,
                     Unqual!I2)(m, n);
     }

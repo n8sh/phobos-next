@@ -1858,7 +1858,7 @@ static private void duplicateEmplace(T)(const scope ref T src,
         }
         else                    // TODO can this case occur?
         {
-            import std.traits : Unqual;
+            import core.internal.traits : Unqual;
             emplace(&dst, cast(Unqual!T)src);
         }
     }
@@ -2523,7 +2523,7 @@ pragma(inline, true):
             return *(cast(const(Table.ElementType)*)&_table._bins[_binIndex]); // propagate constnes
         }
     }
-    import std.traits : Unqual;
+    import core.internal.traits : Unqual;
     // unqual to reduce number of instantations of `LvalueElementRef`
     public LvalueElementRef!(Unqual!Table) _elementRef;
     alias _elementRef this;
@@ -2551,7 +2551,7 @@ pragma(inline, true):
             return *(cast(const(Table.ElementType)*)&_table._bins[_binIndex]); // propagate constnes
         }
     }
-    import std.traits : Unqual;
+    import core.internal.traits : Unqual;
     public RvalueElementRef!(Unqual!Table) _elementRef;
     alias _elementRef this;
 }
@@ -2562,7 +2562,7 @@ auto byElement(Table)(auto ref return Table c) @trusted
 if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     !Table.hasValue)
 {
-    import std.traits : Unqual;
+    import core.internal.traits : Unqual;
     alias M = Unqual!Table;
     alias C = const(Table);        // be const for now
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
@@ -2587,7 +2587,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
         pragma(inline, true);
         return _table._bins[_binIndex].key;
     }
-    import std.traits : Unqual;
+    import core.internal.traits : Unqual;
     public LvalueElementRef!(Unqual!Table) _elementRef;
     alias _elementRef this;
 }
@@ -2601,7 +2601,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
         pragma(inline, true);
         return _table._bins[_binIndex].key;
     }
-    import std.traits : Unqual;
+    import core.internal.traits : Unqual;
     public RvalueElementRef!(Unqual!Table) _elementRef;
     alias _elementRef this;
 }
@@ -2612,7 +2612,7 @@ auto byKey(Table)(auto ref /*TODO return*/ Table c) @trusted
 if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     Table.hasValue)
 {
-    import std.traits : Unqual;
+    import core.internal.traits : Unqual;
     alias M = Unqual!Table;
     alias C = const(Table);        // be const
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
@@ -2646,7 +2646,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
         }
         return *(cast(E*)&_table._bins[_binIndex].value);
     }
-    import std.traits : Unqual;
+    import core.internal.traits : Unqual;
     public LvalueElementRef!(Unqual!Table) _elementRef;
     alias _elementRef this;
 }
@@ -2670,7 +2670,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
         }
         return *(cast(E*)&_table._bins[_binIndex].value);
     }
-    import std.traits : Unqual;
+    import core.internal.traits : Unqual;
     public RvalueElementRef!(Unqual!Table) _elementRef;
     alias _elementRef this;
 }
@@ -2681,7 +2681,7 @@ auto byValue(Table)(auto ref return Table c) @trusted
 if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     Table.hasValue)
 {
-    import std.traits : Unqual;
+    import core.internal.traits : Unqual;
     import std.traits : isMutable;
     alias M = Unqual!Table;
     alias C = const(Table);
@@ -2716,7 +2716,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
         }
         return *(cast(E*)&_table._bins[_binIndex]);
     }
-    import std.traits : Unqual;
+    import core.internal.traits : Unqual;
     public LvalueElementRef!(Unqual!Table) _elementRef;
     alias _elementRef this;
 }
@@ -2727,7 +2727,7 @@ auto byKeyValue(Table)(auto ref return Table c) @trusted
 if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     Table.hasValue)
 {
-    import std.traits : Unqual;
+    import core.internal.traits : Unqual;
     alias M = Unqual!Table;
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {

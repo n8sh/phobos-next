@@ -1,6 +1,6 @@
 module array_help;
 
-import std.traits : Unqual;
+import core.internal.traits : Unqual;
 
 @safe:
 

@@ -220,7 +220,7 @@ public:
     }
 }
 
-import std.traits : Unqual;
+import core.internal.traits : Unqual;
 
 auto assumeMoveableSorted(alias pred = "a < b", R)(R r)
     if (isInputRange!(Unqual!R))

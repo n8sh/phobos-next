@@ -53,7 +53,7 @@ T[] lcsDP(T)(in T[] a,
         }
     }
 
-    import std.traits : Unqual;
+    import core.internal.traits : Unqual;
     Unqual!T[] result;
 
     for (auto i = a.length, j = b.length; i > 0 && j > 0; )

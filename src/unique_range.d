@@ -99,7 +99,7 @@ struct UniqueRange(Source)
         {
             static assert(0, "TODO if front is an l-value move it out and return it");
             // import std.algorithm.mutation : move;
-            // import std.traits : Unqual;
+            // import core.internal.traits : Unqual;
             // TODO reinterpret as typeof(*(cast(Unqual!E*)(&_source[_frontIx]))) iff `E` doesn't contain any immutable indirections
             // typeof(return) value = move(_sourceRange.front);
             // popFront();
@@ -149,7 +149,7 @@ struct UniqueRange(Source)
             {
                 static assert(0, "TODO if back is an l-value move it out and return it");
                 // import std.algorithm.mutation : move;
-                // import std.traits : Unqual;
+                // import core.internal.traits : Unqual;
                 // TODO reinterpret as typeof(*(cast(Unqual!E*)(&_source[_backIx]))) iff `E` doesn't contain any immutable indirections
                 // typeof(return) value = move(_sourceRange.back);
                 // popBack();
@@ -248,7 +248,7 @@ template mapUnique(fun...) if (fun.length >= 1)
 {
     import std.algorithm.mutation : move;
     import std.range.primitives : isInputRange, ElementType;
-    import std.traits : Unqual;
+    import core.internal.traits : Unqual;
 
     auto mapUnique(Range)(Range r) if (isInputRange!(Unqual!Range))
     {
@@ -286,7 +286,8 @@ template mapUnique(fun...) if (fun.length >= 1)
 
 private struct MapUniqueResult(alias fun, Range)
 {
-    import std.traits : Unqual, isCopyable;
+    import core.internal.traits : Unqual;
+    import std.traits : isCopyable;
     import std.range.primitives : isInputRange, isForwardRange, isBidirectionalRange, isRandomAccessRange, isInfinite, hasSlicing;
     import std.algorithm.mutation : move;
 
@@ -408,7 +409,7 @@ template filterUnique(alias predicate) if (is(typeof(unaryFun!predicate)))
 {
     import std.algorithm.mutation : move;
     import std.range.primitives : isInputRange;
-    import std.traits : Unqual;
+    import core.internal.traits : Unqual;
 
     auto filterUnique(Range)(Range range)
         if (isInputRange!(Unqual!Range))
@@ -422,7 +423,8 @@ private struct FilterUniqueResult(alias pred, Range)
 {
     import std.algorithm.mutation : move;
     import std.range.primitives : isForwardRange, isInfinite;
-    import std.traits : Unqual, isCopyable;
+    import core.internal.traits : Unqual;
+    import std.traits : isCopyable;
     alias R = Unqual!Range;
     R _input;
 
@@ -474,7 +476,7 @@ private struct FilterUniqueResult(alias pred, Range)
 }
 
 // TODO move these hidden behind template defs of takeUnique
-import std.traits : Unqual;
+import core.internal.traits : Unqual;
 import std.range.primitives : isInputRange, isInfinite, hasSlicing;
 
 /// Unique take.

@@ -168,7 +168,8 @@ if (isInputRange!R)
 {
     struct Pairwise(R)
     {
-        import std.traits : Unqual, ForeachType;
+        import core.internal.traits : Unqual;
+        import std.traits : ForeachType;
         import std.typecons: Tuple;
 
         alias UR = Unqual!R;

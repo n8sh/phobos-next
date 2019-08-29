@@ -6,7 +6,7 @@ private struct None {}
 
 struct Optional(T)
 {
-    import std.traits : Unqual;
+    import core.internal.traits : Unqual;
     private Unqual!T value;
 
     static if (!isNullable!T)

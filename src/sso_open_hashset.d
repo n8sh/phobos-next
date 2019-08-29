@@ -392,7 +392,7 @@ pragma(inline, true):
             return *(cast(const(Table.ElementType)*)&_table._bins[_binIndex]); // propagate constnes
         }
     }
-    import std.traits : Unqual;
+    import core.internal.traits : Unqual;
     // unqual to reduce number of instantations of `LvalueElementRef`
     public LvalueElementRef!(Unqual!Table) _elementRef;
     alias _elementRef this;
@@ -403,7 +403,7 @@ pragma(inline, true):
 auto byElement(Table)(auto ref return Table c) @trusted
     if (isInstanceOf!(SSOOpenHashSet, Table))
 {
-    import std.traits : Unqual;
+    import core.internal.traits : Unqual;
     alias M = Unqual!Table;
     alias C = const(Table);        // be const for now
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed

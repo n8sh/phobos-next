@@ -53,7 +53,7 @@ version(unittest)
     import std.algorithm.comparison : equal;
     import std.conv : to;
     import std.meta : AliasSeq;
-    import std.traits : Unqual;
+    import core.internal.traits : Unqual;
     import dbgio : dbg;
     import array_help : s;
 }
@@ -1922,7 +1922,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     import std.algorithm.sorting : isSorted, sort;
     import std.exception : assertThrown, assertNotThrown;
     import std.traits : isInstanceOf;
-    import std.traits : Unqual;
+    import core.internal.traits : Unqual;
 
     enum assignment = Assignment.copy;
     alias comp = binaryFun!less; //< comparison

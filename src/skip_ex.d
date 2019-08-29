@@ -140,7 +140,7 @@ if (Ranges.length >= 2 &&
         {
             import std.traits: isSomeString, isSomeChar;
             import std.range: ElementType;
-            import std.traits : Unqual;
+            import core.internal.traits : Unqual;
 
             alias Needle = Unqual!(typeof(needle));
 
@@ -231,7 +231,7 @@ size_t skipOverBackShortestOf(alias pred = "a == b", Range, Ranges...)(ref Range
 {
     import std.range: retro, ElementType;
     import std.traits: hasIndirections;
-    import std.traits : Unqual;
+    import core.internal.traits : Unqual;
     import std.meta: staticMap, AliasSeq;
     // import traits_ex: allSame;
 
@@ -314,7 +314,7 @@ bool skipOverFrontAndBack(alias pred = "a == b", R, E)(ref R r,
 if (isBidirectionalRange!R &&
     is(typeof(binaryFun!pred(ElementType!R.init, E.init))))
 {
-    import std.traits : Unqual;
+    import core.internal.traits : Unqual;
     import std.traits : isArray;
     static if (isArray!R &&
                is(Unqual!(typeof(R.init[0])) == E)) // for instance if `R` is `string` and `E` is `char`

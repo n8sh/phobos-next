@@ -1114,7 +1114,8 @@ struct StaticBitArray(uint length_, Block = size_t)
 
     /** Support for operator |= for $(D StaticBitArray).
      */
-    typeof(this) opOrAssign(in typeof(this) e2)
+    typeof(this) opOpAssign(string op)(in typeof(this) e2) 
+        if (op == "|")
     {
         _blocks[] |= e2._blocks[];
         return this;
@@ -1131,7 +1132,8 @@ struct StaticBitArray(uint length_, Block = size_t)
 
     /** Support for operator ^= for $(D StaticBitArray).
      */
-    typeof(this) opXorAssign(in typeof(this) e2)
+    typeof(this) opOpAssign(string op)(in typeof(this) e2) 
+        if (op == "^")
     {
         _blocks[] ^= e2._blocks[];
         return this;

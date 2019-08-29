@@ -1020,7 +1020,8 @@ struct StaticBitArray(uint length_, Block = size_t)
     }
 
     /** Support for binary operator & for $(D StaticBitArray). */
-    typeof(this) opAnd(in typeof(this) e2) const
+    typeof(this) opBinary(string op)(in typeof(this) e2) const
+        if (op == "&")
     {
         StaticBitArray result;
         result._blocks[] = this._blocks[] & e2._blocks[];
@@ -1037,7 +1038,8 @@ struct StaticBitArray(uint length_, Block = size_t)
     }
 
     /** Support for binary operator | for $(D StaticBitArray). */
-    typeof(this) opOr(in typeof(this) e2) const
+    typeof(this) opBinary(string op)(in typeof(this) e2) const
+        if (op == "|")
     {
         StaticBitArray result;
         result._blocks[] = this._blocks[] | e2._blocks[];
@@ -1054,7 +1056,8 @@ struct StaticBitArray(uint length_, Block = size_t)
     }
 
     /** Support for binary operator ^ for $(D StaticBitArray). */
-    typeof(this) opXor(in typeof(this) e2) const
+    typeof(this) opBinary(string op)(in typeof(this) e2) const
+        if (op == "^")
     {
         StaticBitArray result;
         result._blocks[] = this._blocks[] ^ e2._blocks[];
@@ -1074,7 +1077,8 @@ struct StaticBitArray(uint length_, Block = size_t)
      *
      * $(D a - b) for $(D StaticBitArray) means the same thing as $(D a &amp; ~b).
      */
-    typeof(this) opSub(in typeof(this) e2) const
+    typeof(this) opBinary(string op)(in typeof(this) e2) const
+        if (op == "-")
     {
         StaticBitArray result;
         result._blocks[] = this._blocks[] & ~e2._blocks[];
@@ -1092,7 +1096,8 @@ struct StaticBitArray(uint length_, Block = size_t)
 
     /** Support for operator &= for $(D StaticBitArray).
      */
-    typeof(this) opAndAssign(in typeof(this) e2)
+    typeof(this) opOpAssign(string op)(in typeof(this) e2) 
+        if (op == "&")
     {
         _blocks[] &= e2._blocks[];
         return this;

@@ -202,8 +202,7 @@ private:
     {
         pragma(inline);
         size_t i = 0;
-        while ((!peekNextNth(i).among!('\0', '(', ')',
-                                       whiteChars))) // NOTE this is faster than !src[i].isWhite
+        while ((!peekNextNth(i).among!('\0', '(', ')', whiteChars))) // NOTE this is faster than !src[i].isWhite
         {
             ++i;
         }
@@ -215,18 +214,20 @@ private:
     {
         pragma(inline);
         size_t i = 0;
-        while ((!peekNextNth(i).among!('\0', '(', ')',
-                                       whiteChars))) // NOTE this is faster than !src[i].isWhite
-        // while (peekNextNth(i).among!('+', '-', '.',
-        //                              digitChars)) // NOTE this is faster than src[i].isDigit
+        while ((peekNextNth(i).among!('+', '-', '.', digitChars))) // NOTE this is faster than !src[i].isWhite
         {
-            import std.ascii : isDigit;
-            if (!peekNextNth(i).isDigit)
-            {
-                gotSymbol = true;
-            }
             ++i;
         }
+        import std.ascii : isAlpha;
+        if (peekNextNth(i).isAlpha) // if followed by letter
+        {
+            gotSymbol = true;   // it is instead symbol
+            while ((!peekNextNth(i).among!('\0', '(', ')', whiteChars))) // NOTE this is faster than !src[i].isWhite
+            {
+                ++i;
+            }
+        }
+        
         return skipOverN(i);
     }
 
@@ -357,6 +358,8 @@ private:
                 const numberOrSymbol = getNumberOrSymbol(gotSymbol);
                 if (gotSymbol)
                 {
+                    import std.stdio : writeln;
+                    debug writeln(numberOrSymbol);
                     exprs.put(SExpr(Token(TOK.symbol, numberOrSymbol)));
                 }
                 else

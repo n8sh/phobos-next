@@ -192,7 +192,7 @@ struct OpenHashMapOrSet(K, V = void,
     else static if (hasAddressLikeKey)
     {
         enum holeKeyOffset = 0x1; // TODO is this a good value? Or is 0xffff_ffff_ffff_ffff better?
-        enum holeKeyAddress = cast(void*)holeKeyOffset;
+        @trusted enum holeKeyAddress = cast(void*)holeKeyOffset;
 
         /**
          * See_Also: https://forum.dlang.org/post/p7726n$2apd$1@digitalmars.com

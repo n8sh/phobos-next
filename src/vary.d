@@ -37,6 +37,7 @@ private struct LightAlgebraic(bool memoryPacked = false,
 
     import core.internal.traits : Unqual;
     import std.meta : anySatisfy, allSatisfy, staticIndexOf, staticMap, NoDuplicates;
+    import core.stdc.string : memcmp;
     import std.traits : StdCommonType = CommonType, isIntegral, hasIndirections, isCopyable, hasAliasing;
     import traits_ex : isComparable, isEquable, sizesOf, stringsOf, allSame;
 
@@ -375,7 +376,6 @@ public:
                     case i:
                         static if (isIntegral!T) // TODO extend by reusing some generic trait, say isBitwiseComparable
                         {
-                            import core.stdc.string : memcmp;
                             return memcmp(cast(void*)&this._store,
                                           cast(void*)&that._store, currentSize) == 0; // this is faster than final switch
                         }

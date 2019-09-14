@@ -32,7 +32,7 @@ private struct LightAlgebraic(bool memoryPacked = false,
 {
     @safe:
 
-    alias Ix = ubyte; // type index type
+    alias Ix = ubyte; // type index type. TODO use uint or size_t when there is room (depending on `memoryPacked`)
     enum maxTypesCount = 2^^(Ix.sizeof * 8) - 1; // maximum number of allowed type parameters
 
     import core.internal.traits : Unqual;

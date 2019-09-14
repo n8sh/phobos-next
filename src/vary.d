@@ -876,5 +876,4 @@ version(unittest)
 {
     import fixed_array : StringN;
     alias String15 = StringN!(15);
-    import dbgio;
 }

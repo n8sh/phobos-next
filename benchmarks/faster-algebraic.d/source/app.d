@@ -11,9 +11,9 @@ void main(string[] args)
     alias F = FastAlgebraic!Types;
     alias A = Algebraic!Types;
 
-    writeln(P.sizeof);
-    writeln(F.sizeof);
-    writeln(A.sizeof);
+    writeln("P.sizeof:", P.sizeof);
+    writeln("F.sizeof:", F.sizeof);
+    writeln("A.sizeof:", A.sizeof);
 
     void test(T)()
     {

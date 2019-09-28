@@ -64,7 +64,7 @@ template autocurry(alias what)
     {
         auto autocurry(P[0] arg)
         {
-            alias Remainder = P[1 .. $];
+            alias Remainder = P[1 .. $]; // remainder
             auto dg = delegate(Remainder args)
             {
                 return what(arg, args);

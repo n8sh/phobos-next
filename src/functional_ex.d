@@ -80,3 +80,14 @@ template autocurry(alias what)
         alias autocurry = what;
     }
 }
+
+///
+@safe pure unittest
+{
+    static float foo(int a, string b, float c) @safe pure nothrow @nogc
+    {
+        return a + b.length + c;
+    }
+    alias foo_ = autocurry!foo; // overloads the auto-curried foo with the original foo
+    assert(foo_(52)("alpha")(1) == 58);
+}

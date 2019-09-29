@@ -53,13 +53,14 @@ unittest
     writeln(s);
 }
 
-/** 
+/** Turn the function what into a curried function.
+ * 
  * See_Also: https://stackoverflow.com/questions/58147381/template-for-currying-functions-in-d
  */
-template autocurry(alias what)
+template autocurry(alias Fun)
+if (isCallable!Fun)
 {
-    import std.traits;
-    alias P = Parameters!what;
+    alias P = Parameters!Fun;
     static if (P.length)
     {
         auto autocurry(P[0] arg)
@@ -67,7 +68,7 @@ template autocurry(alias what)
             alias Remainder = P[1 .. $]; // remainder
             auto dg = delegate(Remainder args)
             {
-                return what(arg, args);
+                return Fun(arg, args);
             };
             static if (Remainder.length > 1)
                 return &autocurry!dg;
@@ -77,7 +78,7 @@ template autocurry(alias what)
     }
     else
     {
-        alias autocurry = what;
+        alias autocurry = Fun;
     }
 }
 

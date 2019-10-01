@@ -221,13 +221,13 @@ private:
         import std.ascii : isAlpha;
         if (peekNextNth(i).isAlpha) // if followed by letter
         {
-            size_t letterCount = 0;
+            size_t alphaCount = 0;
             while ((!peekNextNth(i).among!('\0', '(', ')', whiteChars))) // NOTE this is faster than !src[i].isWhite
             {
-                letterCount += peekNextNth(i).isAlpha;
+                alphaCount += peekNextNth(i).isAlpha;
                 ++i;
             }
-            gotSymbol = letterCount >= 2; // least two letters, excluding floating point such as 1.0e+10
+            gotSymbol = alphaCount >= 2; // at least two letters, excluding floating point such as 1.0e+10
         }
         
         return skipOverN(i);

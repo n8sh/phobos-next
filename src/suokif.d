@@ -360,8 +360,8 @@ private:
                 const numberOrSymbol = getNumberOrSymbol(gotSymbol);
                 if (gotSymbol)
                 {
-                    /* import std.stdio : writeln; */
-                    /* debug writeln("TODO handle floating point: ", numberOrSymbol); */
+                    // import std.stdio : writeln;
+                    // debug writeln("TODO handle floating point: ", numberOrSymbol);
                     exprs.put(SExpr(Token(TOK.symbol, numberOrSymbol)));
                 }
                 else

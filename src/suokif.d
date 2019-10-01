@@ -221,7 +221,7 @@ private:
         import std.ascii : isAlpha;
         if (peekNextNth(i).isAlpha) // if followed by letter
         {
-            gotSymbol = true;   // it is instead a symbol
+            gotSymbol = true;   // it is instead symbol
             while ((!peekNextNth(i).among!('\0', '(', ')', whiteChars))) // NOTE this is faster than !src[i].isWhite
             {
                 ++i;
@@ -359,7 +359,7 @@ private:
                 if (gotSymbol)
                 {
                     import std.stdio : writeln;
-                    debug writeln("Symbol: ", numberOrSymbol);
+                    debug writeln("TODO handle floating point: ", numberOrSymbol);
                     exprs.put(SExpr(Token(TOK.symbol, numberOrSymbol)));
                 }
                 else

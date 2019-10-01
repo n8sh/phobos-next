@@ -21,9 +21,9 @@ enum TOK
 
     stringLiteral,
 
-    lispComma,
-    lispBackQuote,
-    lispQuote,
+    lispComma,                  // Lisp comma expression
+    lispBackQuote,              // Lisp backquote expression
+    lispQuote,                  // Lisp quote expressionc
 
     variable,
     variableList,               // one or more variables (parameters) starting with an at-sign, for instance `@ROW`

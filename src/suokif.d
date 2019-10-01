@@ -29,7 +29,8 @@ enum TOK
     variableList,               // one or more variables (parameters) starting with an at-sign, for instance `@ROW`
     functionName,
 
-    number,
+    integerNumber,
+    floatNumber,
 
     comment,
     whitespace,
@@ -366,7 +367,8 @@ private:
                 }
                 else
                 {
-                    exprs.put(SExpr(Token(TOK.number, numberOrSymbol)));
+                    // TODO distinguish integers from floating poinit
+                    exprs.put(SExpr(Token(TOK.integerNumber, numberOrSymbol)));
                 }
                 break;
                 // from std.ascii.isWhite

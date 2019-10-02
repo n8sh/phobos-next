@@ -34,7 +34,7 @@ enum TOK
     number,                     // number as integer or floating point literal
 
     comment,
-    ,
+    whitespace,
 }
 
 /** Lisp-like token. */
@@ -456,7 +456,7 @@ private:
     assert(exprs.empty);
 }
 
-version(none)
+/* version(none) */
 /* TODO @safe */ unittest
 {
     import std.path : expandTilde;

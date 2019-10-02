@@ -80,7 +80,7 @@ bool isNullTerminated(const(char)[] s)
 
 /** SUO-KIF parse from `input` into lazy range over top-level expressions (`SExpr`).
  */
-struct SUOKIFParser
+struct LispParser
 {
     import std.algorithm : among;
 
@@ -440,7 +440,7 @@ private:
 @safe pure unittest
 {
     const text = ";;a comment\n(instance AttrFn BinaryFunction);;another comment\0";
-    auto exprs = SUOKIFParser(text);
+    auto exprs = LispParser(text);
     assert(!exprs.empty);
 
     assert(exprs.front.token.tok == TOK.symbol);
@@ -468,7 +468,7 @@ version(none)
     const includeComments = false;
     const includeWhitespace = false;
     const disallowEmptyLists = false;
-    foreach (const ref expr; SUOKIFParser(ctext,
+    foreach (const ref expr; LispParser(ctext,
                                           includeComments,
                                           includeWhitespace,
                                           disallowEmptyLists))
@@ -505,7 +505,7 @@ unittest
                 write(`Reading SUO-KIF `, filePath, ` ... `);
                 import std.file : readText;
                 auto sw = StopWatch(AutoStart.yes);
-                foreach (const ref topExpr; SUOKIFParser(cast(SUOKIFParser.Input)filePath.rawReadNullTerminated()))
+                foreach (const ref topExpr; LispParser(cast(LispParser.Input)filePath.rawReadNullTerminated()))
                 {
                     // TOOD use topExpr
                 }

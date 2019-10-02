@@ -1,9 +1,11 @@
-/** Suggested Upper Merged Ontology (SUMO) SUO-KIF File Format.
+/** Lexer and parser of lisp-languages, including SUO-KIF and Emacs-Lisp.
  *
  * See_Also: https://www.csee.umbc.edu/csee/research/kif/
  * See_Also: https://en.wikipedia.org/wiki/Knowledge_Interchange_Format
  * See_Also: http://sigmakee.cvs.sourceforge.net/viewvc/sigmakee/sigma/suo-kif.pdf
  * See_Also: http://forum.dlang.org/post/prsxfcmkngfwomygmthi@forum.dlang.org
+ *
+ * TODO: Try infinite loops with break or goto instead of for loops.
  */
 module suokif;
 
@@ -38,6 +40,14 @@ enum TOK
 /** SUO-KIF Token. */
 struct Token
 {
+    @safe pure @nogc:
+    this(TOK tok, const(char)[] src = null)
+    {
+        this.tok = tok;
+        this.src = src;
+        /* import std.stdio : writeln; */
+        /* debug writeln("token: ", tok, ` source: "`, src, `"`); */
+    }
     TOK tok;
     const(char)[] src;          // optional source slice
 }
@@ -360,7 +370,6 @@ private:
                 const numberOrSymbol = getNumberOrSymbol(gotSymbol);
                 if (gotSymbol)
                 {
-                    // import std.stdio : writeln;
                     // debug writeln("TODO handle floating point: ", numberOrSymbol);
                     exprs.put(SExpr(Token(TOK.symbol, numberOrSymbol)));
                 }
@@ -448,14 +457,21 @@ private:
 }
 
 version(none)
-unittest
+/* TODO @safe */ unittest
 {
     import std.path : expandTilde;
     import std.file : readText;
     const text = `~/elisp/mine/relangs.el`.expandTilde.readText;
     const ctext = text ~ '\0'; // null at the end to enable sentinel-based search in parser
     assert(ctext[$ - 1] == '\0');
-    foreach (const ref expr; SUOKIFParser(ctext, false, false, true))
+
+    const includeComments = false;
+    const includeWhitespace = false;
+    const disallowEmptyLists = false;
+    foreach (const ref expr; SUOKIFParser(ctext,
+                                          includeComments,
+                                          includeWhitespace,
+                                          disallowEmptyLists))
     {
     }
 }

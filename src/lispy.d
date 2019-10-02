@@ -65,6 +65,7 @@ import fixed_array : FixedArray;
 import file_ex : rawReadNullTerminated;
 
 alias Exprs = FixedArray!(SExpr, 1024);
+/* pragma(msg, Exprs.sizeof); */
 
 /** Returns: true if `s` is null-terminated (ending with `'\0'`).
  *

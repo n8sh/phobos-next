@@ -1,4 +1,4 @@
-/** Lexer and parser of lisp-languages, including SUO-KIF and Emacs-Lisp.
+/** Lexer and parser of Lisp-like languages, including SUO-KIF and Emacs-Lisp.
  *
  * See_Also: https://www.csee.umbc.edu/csee/research/kif/
  * See_Also: https://en.wikipedia.org/wiki/Knowledge_Interchange_Format
@@ -7,11 +7,11 @@
  *
  * TODO: Try infinite loops with break or goto instead of for loops.
  */
-module suokif;
+module lisp;
 
 version = benchmark;
 
-/** SUO-KIF (Lisp) Token Type. */
+/** Lisp-like token type. */
 enum TOK
 {
     unknown,
@@ -34,10 +34,10 @@ enum TOK
     number,                     // number as integer or floating point literal
 
     comment,
-    whitespace,
+    ,
 }
 
-/** SUO-KIF Token. */
+/** Lisp-like token. */
 struct Token
 {
     @safe pure @nogc:
@@ -52,7 +52,7 @@ struct Token
     const(char)[] src;          // optional source slice
 }
 
-/** SUO_KIF Expression. */
+/** Lisp-like S-Expression. */
 struct SExpr
 {
     Token token;
@@ -78,7 +78,7 @@ bool isNullTerminated(const(char)[] s)
     return s.length >= 1 && s[$ - 1] == '\0';
 }
 
-/** SUO-KIF parse from `input` into lazy range over top-level expressions (`SExpr`).
+/** Parse from `input` into lazy range over top-level expressions (`SExpr`).
  */
 struct LispParser
 {
@@ -88,7 +88,7 @@ struct LispParser
 
     @safe pure:
 
-    /** Parse SUO-KIF from `input` into returned array of expressions (`SExpr`).
+    /** Parse `input` into returned array of expressions (`SExpr`).
      */
     this(Input input,
          bool includeComments = false,

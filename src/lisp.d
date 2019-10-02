@@ -7,7 +7,7 @@
  *
  * TODO: Try infinite loops with break or goto instead of for loops.
  */
-module lisp;
+module lispy;
 
 version = benchmark;
 

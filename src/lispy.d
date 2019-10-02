@@ -505,7 +505,7 @@ unittest
                 write(`Reading SUO-KIF `, filePath, ` ... `);
                 import std.file : readText;
                 auto sw = StopWatch(AutoStart.yes);
-                foreach (const ref topExpr; LispParser(cast(LispParser.Input)filePath.rawReadNullTerminated()))
+                foreach (const ref topExpr; LispParser(cast(LispParser.Input)filePath.rawReadNullTerminated())) // TODO avoid cast
                 {
                     // TOOD use topExpr
                 }

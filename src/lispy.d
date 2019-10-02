@@ -35,6 +35,8 @@ enum TOK
 
     comment,
     whitespace,
+
+    emptyList,
 }
 
 /** Lisp-like token. */
@@ -62,7 +64,7 @@ struct SExpr
 import fixed_array : FixedArray;
 import file_ex : rawReadNullTerminated;
 
-alias Exprs = FixedArray!(SExpr, 128);
+alias Exprs = FixedArray!(SExpr, 1024);
 
 /** Returns: true if `s` is null-terminated (ending with `'\0'`).
  *
@@ -313,11 +315,19 @@ private:
                     assert(count != 0);
                 }
 
-                SExpr newExpr = SExpr(exprs[$ - count].token,
-                                      count ? exprs[$ - count + 1 .. $].dup : []);
-                exprs.popBackN(1 + count); // forget tokens including leftParen
                 import core.lifetime : move;
-                exprs.put(newExpr.move);
+                if (count == 0)
+                {
+                    SExpr newExpr = SExpr(Token(TOK.emptyList), []);
+                    exprs.put(newExpr.move);
+                }
+                else
+                {
+                    SExpr newExpr = SExpr(exprs[$ - count].token,
+                                          count ? exprs[$ - count + 1 .. $].dup : []);
+                    exprs.popBackN(1 + count); // forget tokens including leftParen
+                    exprs.put(newExpr.move);
+                }
 
                 if (_depth == 0) // top-level expression done
                 {
@@ -459,21 +469,32 @@ private:
 /* version(none) */
 /* TODO @safe */ unittest
 {
+    import std.stdio;
     import std.path : expandTilde;
     import std.file : readText;
-    const text = `~/Work/knet/knowledge/relangs.el`.expandTilde.readText;
+    import std.conv : to;
+    import std.datetime.stopwatch : StopWatch, AutoStart, Duration;
+
+    const filePath = `~/Work/knet/knowledge/relangs.el`;
+    const text = filePath.expandTilde.readText;
     const ctext = text ~ '\0'; // null at the end to enable sentinel-based search in parser
     assert(ctext[$ - 1] == '\0');
 
     const includeComments = false;
     const includeWhitespace = false;
+
     const disallowEmptyLists = false;
+
+    write(`Reading Emacs-Lisp `, filePath, ` ... `);
+    auto sw = StopWatch(AutoStart.yes);
     foreach (const ref expr; LispParser(ctext,
                                         includeComments,
                                         includeWhitespace,
                                         disallowEmptyLists))
     {
     }
+    writeln(`took `, sw.peek.to!Duration);
+
 }
 
 /** Read all SUO-KIF files (.kif) located under `rootDirPath`.

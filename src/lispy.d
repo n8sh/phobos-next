@@ -461,7 +461,7 @@ private:
 {
     import std.path : expandTilde;
     import std.file : readText;
-    const text = `~/elisp/mine/relangs.el`.expandTilde.readText;
+    const text = `~/Work/knet/knowledge/relangs.el`.expandTilde.readText;
     const ctext = text ~ '\0'; // null at the end to enable sentinel-based search in parser
     assert(ctext[$ - 1] == '\0');
 

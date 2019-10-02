@@ -469,9 +469,9 @@ private:
     const includeWhitespace = false;
     const disallowEmptyLists = false;
     foreach (const ref expr; LispParser(ctext,
-                                          includeComments,
-                                          includeWhitespace,
-                                          disallowEmptyLists))
+                                        includeComments,
+                                        includeWhitespace,
+                                        disallowEmptyLists))
     {
     }
 }

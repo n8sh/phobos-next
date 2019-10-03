@@ -57,16 +57,14 @@ struct Token
 /** Lisp-like S-expression. */
 struct SExpr
 {
-    Token token; // 24 bytes
-    SExpr[] subs; // 16 bytes
+    Token token;
+    SExpr[] subs;
 }
-pragma(msg, SExpr.sizeof);
 
 import fixed_array : FixedArray;
 import file_ex : rawReadNullTerminated;
 
 alias Exprs = FixedArray!(SExpr, 1024); // TODO why is such a big buffer needed in relangs.el?
-/* pragma(msg, Exprs.sizeof); */
 
 /** Returns: true if `s` is null-terminated (ending with `'\0'`).
  *

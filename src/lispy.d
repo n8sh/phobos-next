@@ -54,12 +54,13 @@ struct Token
     const(char)[] src;          // optional source slice
 }
 
-/** Lisp-like S-Expression. */
+/** Lisp-like S-expression. */
 struct SExpr
 {
-    Token token;
-    SExpr[] subs;
+    Token token; // 24 bytes
+    SExpr[] subs; // 16 bytes
 }
+pragma(msg, SExpr.sizeof);
 
 import fixed_array : FixedArray;
 import file_ex : rawReadNullTerminated;

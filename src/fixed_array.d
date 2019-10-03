@@ -8,7 +8,9 @@ module fixed_array;
  * TODO Merge member functions with basic_*_array.d and array_ex.d
  *
  * TODO Add @safe nothrow @nogc ctor from static array (of known length)
-*/
+ *
+ * TODO use opPostMove
+ */
 struct FixedArray(T, uint capacity_, bool borrowChecked = false)
 {
     // pragma(msg, "T:", T, " capacity_:", capacity_, " borrowChecked:", borrowChecked);

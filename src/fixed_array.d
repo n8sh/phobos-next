@@ -9,7 +9,7 @@ module fixed_array;
  *
  * TODO Add @safe nothrow @nogc ctor from static array (of known length)
  *
- * TODO use opPostMove
+ * TODO use opPostMove (https://github.com/dlang/DIPs/blob/master/DIPs/accepted/DIP1014.md)
  */
 struct FixedArray(T, uint capacity_, bool borrowChecked = false)
 {

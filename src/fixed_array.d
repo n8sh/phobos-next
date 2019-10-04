@@ -165,7 +165,6 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     {
         import std.exception : enforce;
         enforce(_length + Es.length <= capacity, `Arguments don't fit in array`); // TODO use assert insteead?
-
         foreach (immutable i, ref e; es)
         {
             moveEmplace(e, _store[_length + i]); // TODO remove `move` when compiler does it for us

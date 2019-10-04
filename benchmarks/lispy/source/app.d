@@ -46,7 +46,7 @@ void benchmarkSUMOFile(const scope string filePath) @safe
         auto sw = StopWatch(AutoStart.yes);
         foreach (const ref expr; LispParser(cast(LispParser.Input)filePath.expandTilde.rawReadNullTerminated())) // TODO avoid cast
         {
-            writeln(expr);
+            // writeln(expr);
         }
         sw.stop();
         writeln(`took `, sw.peek.to!Duration);

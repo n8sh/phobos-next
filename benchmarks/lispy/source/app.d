@@ -44,9 +44,9 @@ void benchmarkSUMOFile(const scope string filePath) @safe
         write(`Reading SUO-KIF `, filePath, ` ... `);
         import std.file : readText;
         auto sw = StopWatch(AutoStart.yes);
-        foreach (const ref topExpr; LispParser(cast(LispParser.Input)filePath.expandTilde.rawReadNullTerminated())) // TODO avoid cast
+        foreach (const ref expr; LispParser(cast(LispParser.Input)filePath.expandTilde.rawReadNullTerminated())) // TODO avoid cast
         {
-            // writeln(expr);
+            writeln(expr);
         }
         sw.stop();
         writeln(`took `, sw.peek.to!Duration);

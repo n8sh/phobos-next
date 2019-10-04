@@ -5,7 +5,6 @@
  * See_Also: http://sigmakee.cvs.sourceforge.net/viewvc/sigmakee/sigma/suo-kif.pdf
  * See_Also: http://forum.dlang.org/post/prsxfcmkngfwomygmthi@forum.dlang.org
  *
- * TODO: Store variant of either SExpr[1],[2],[3] or SExpr[]
  * TODO: Try infinite loops with break or goto instead of for loops.
  */
 module lispy;

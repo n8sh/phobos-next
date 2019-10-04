@@ -172,12 +172,6 @@ struct LispParser
         nextFront();
     }
 
-    @disable this(this);
-
-    ~this()
-    {
-    }
-
     @property bool empty() const nothrow scope @nogc
     {
         pragma(inline, true);
@@ -529,6 +523,7 @@ private:
 
 struct LispParserFile
 {
+    @safe:
     this(const string filePath)
     {
         import std.path : expandTilde;

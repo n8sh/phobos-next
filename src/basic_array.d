@@ -568,8 +568,8 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /** Ensures sufficient capacity to accommodate for minimumCapacity number
-        of elements. If `minimumCapacity` < `capacity`, this method does
-        nothing.
+     * of elements. If `minimumCapacity` < `capacity`, this method does
+     * nothing.
      */
     void reserve(size_t minimumCapacity) @trusted pure nothrow @nogc
     {

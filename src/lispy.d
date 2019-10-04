@@ -75,7 +75,7 @@ struct Token
             break;
         default:
             import std.conv : to;
-            /* sink(tok.to!string); */
+            sink(tok.to!string);
             if (src)
             {
                 sink(`:`);
@@ -370,18 +370,12 @@ private:
                 }
 
                 import core.lifetime : move;
-                if (count == 0)
-                {
-                    SExpr newExpr = SExpr(Token(TOK.emptyList), []);
-                    exprs.put(newExpr.move);
-                }
-                else
-                {
-                    SExpr newExpr = SExpr(exprs[$ - count].token,
-                                          count ? exprs[$ - count + 1 .. $].dup : []);
-                    exprs.popBackN(1 + count); // forget tokens including leftParen
-                    exprs.put(newExpr.move);
-                }
+                SExpr newExpr = ((count == 0) ?
+                                 SExpr(Token(TOK.emptyList), []) :
+                                 SExpr(exprs[$ - count].token,
+                                       count ? exprs[$ - count + 1 .. $].dup : []));
+                exprs.popBackN(1 + count); // forget tokens including leftParen
+                exprs.put(newExpr.move);
 
                 if (_depth == 0) // top-level expression done
                 {

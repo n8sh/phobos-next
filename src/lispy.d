@@ -193,6 +193,11 @@ struct LispParser
         nextFront();
     }
 
+    @property size_t subExprsCount() @safe pure nothrow @nogc
+    {
+        return _subExprsCount;
+    }
+
     import std.meta : AliasSeq;
 
     // from std.ascii.isWhite
@@ -384,6 +389,10 @@ private:
                                  SExpr(Token(TOK.emptyList)) :
                                  SExpr(_topExprs[$ - count].token,
                                        _topExprs[$ - count + 1 .. $].dup)); // TODO use region allocator stored locally in `LispParser`
+                if (count != 0)
+                {
+                    _subExprsCount += count - 1;
+                }
                 _topExprs.popBackN(1 + count); // forget tokens including leftParen
                 _topExprs.insertBack(newExpr.move);
 
@@ -497,6 +506,7 @@ private:
     const Input _input;         // input
 
     SExprs _topExprs;           // top s-expressions (stack)
+    size_t _subExprsCount;
 
     // SExpr[] _subExprsStore;     // sub s-expressions (region)
     // size_t _subExprsOffset = 0; // offset into `_subExprsStore`

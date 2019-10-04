@@ -43,7 +43,7 @@ void benchmarkSUMOFile(const scope string filePath) @safe
     {
         write(`Reading SUO-KIF `, filePath, ` ... `);
         auto sw = StopWatch(AutoStart.yes);
-        foreach (const ref expr; LispParser(cast(LispParser.Input)filePath.expandTilde.rawReadNullTerminated())) // TODO avoid cast
+        foreach (const ref expr; LispParserFile(filePath))
         {
             // writeln(expr);
         }
@@ -57,7 +57,7 @@ void benchmarkEmacsLisp(const scope string filePath) @safe
 {
     write(`Reading Emacs-Lisp `, filePath, ` ... `);
     auto sw = StopWatch(AutoStart.yes);
-    foreach (const ref expr; LispParser(cast(LispParser.Input)filePath.expandTilde.rawReadNullTerminated())) // TODO avoid cast
+    foreach (const ref expr; LispParserFile(filePath)) // TODO avoid cast
     {
         // writeln(expr);
     }

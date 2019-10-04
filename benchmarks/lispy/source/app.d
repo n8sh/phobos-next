@@ -9,8 +9,6 @@ import std.utf;
 import std.algorithm.searching : endsWith, canFind;
 import std.path : pathSplitter;
 
-import file_ex : rawReadNullTerminated;
-
 /** Read all SUO-KIF files (.kif) located under `rootDirPath`.
  */
 void benchmarkSUMOTreeRead(const scope string rootDirPath)

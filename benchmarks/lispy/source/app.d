@@ -13,7 +13,7 @@ import file_ex : rawReadNullTerminated;
 
 /** Read all SUO-KIF files (.kif) located under `rootDirPath`.
  */
-void benchmarkSUMO(const scope string rootDirPath)
+void benchmarkSUMOTreeRead(const scope string rootDirPath)
 {
     auto totalSw = StopWatch(AutoStart.yes);
     auto entries = dirEntries(rootDirPath.expandTilde, SpanMode.breadth, false); // false: skip symlinks
@@ -25,7 +25,7 @@ void benchmarkSUMO(const scope string rootDirPath)
         {
             try
             {
-                benchmarkSUMOFile(filePath);
+                benchmarkSUMOFileRead(filePath);
             }
             catch (std.utf.UTFException e)
             {
@@ -40,7 +40,7 @@ void benchmarkSUMO(const scope string rootDirPath)
 }
 
 /** Benchark reading of SUMO. */
-void benchmarkSUMOFile(const scope string filePath) @safe
+void benchmarkSUMOFileRead(const scope string filePath) @safe
 {
     write(`Reading SUO-KIF `, filePath, ` ... `);
     auto sw = StopWatch(AutoStart.yes);
@@ -67,5 +67,5 @@ void benchmarkEmacsLisp(const scope string filePath) @safe
 void main(string[] args)
 {
     benchmarkEmacsLisp(`~/Work/knet/knowledge/relangs.el`);
-    benchmarkSUMO(`~/Work/sumo`);
+    benchmarkSUMOTreeRead(`~/Work/sumo`);
 }

@@ -118,7 +118,7 @@ struct SExpr
 import fixed_array : FixedArray;
 import file_ex : rawReadNullTerminated;
 
-alias Exprs = FixedArray!(SExpr, 1024); // TODO why is such a big buffer needed in relangs.el?
+alias Exprs = FixedArray!(SExpr, 512);
 
 /** Returns: true if `s` is null-terminated (ending with `'\0'`).
  *

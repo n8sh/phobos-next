@@ -71,7 +71,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
             static if (T.sizeof <= 2)
                 alias Length = uint; // pack length
             else
-                alias Length = size_t;
+                alias Length = uint;
         }
         else
         {

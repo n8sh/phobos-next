@@ -254,7 +254,7 @@ private:
     void skipLineComment() scope nothrow @nogc
     {
         pragma(inline);
-        while (!peekNext().among('\0', endOfLineChars))
+        while (!peekNext().among!('\0', endOfLineChars))
         {
             _offset += 1;
         }
@@ -314,7 +314,7 @@ private:
         pragma(inline);
         dropFront();
         size_t i = 0;
-        while (!peekNextNth(i).among('\0', '"'))
+        while (!peekNextNth(i).among!('\0', '"'))
         {
             if (peekNextNth(i) == '\\' &&
                 peekNextNth(i + 1) == '"')

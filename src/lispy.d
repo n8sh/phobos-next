@@ -516,35 +516,3 @@ private:
     exprs.popFront();
     assert(exprs.empty);
 }
-
-/* version(none) */
-/* TODO @safe */ unittest
-{
-    import std.stdio;
-    import std.path : expandTilde;
-    import std.file : readText;
-    import std.conv : to;
-    import std.datetime.stopwatch : StopWatch, AutoStart, Duration;
-
-    const filePath = `~/Work/knet/knowledge/relangs.el`;
-    const text = filePath.expandTilde.readText;
-    const ctext = text ~ '\0'; // null at the end to enable sentinel-based search in parser
-    assert(ctext[$ - 1] == '\0');
-
-    const includeComments = false;
-    const includeWhitespace = false;
-
-    const disallowEmptyLists = false;
-
-    write(`Reading Emacs-Lisp `, filePath, ` ... `);
-    auto sw = StopWatch(AutoStart.yes);
-    foreach (const ref expr; LispParser(ctext,
-                                        includeComments,
-                                        includeWhitespace,
-                                        disallowEmptyLists))
-    {
-        // writeln(expr);
-    }
-    writeln(`took `, sw.peek.to!Duration);
-
-}

@@ -164,7 +164,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     if (Es.length <= capacity) // TODO use `isAssignable`
     {
         import std.exception : enforce;
-        enforce(_length + Es.length <= capacity, `Arguments don't fit in array`);
+        enforce(_length + Es.length <= capacity, `Arguments don't fit in array`); // TODO use assert insteead?
 
         foreach (immutable i, ref e; es)
         {

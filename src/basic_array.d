@@ -642,7 +642,6 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     ref inout(T) front()() inout return @property // template-lazy
     {
         pragma(inline, true);
-        // TODO use?: enforce(!empty); emsi-containers doesn't, std.container.Array does
         return slice()[0];
     }
 
@@ -650,7 +649,6 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     ref inout(T) back()() inout return @property // template-lazy
     {
         pragma(inline, true);
-        // TODO use?: enforce(!empty); emsi-containers doesn't, std.container.Array does
         return slice()[_store.length - 1];
 
     }

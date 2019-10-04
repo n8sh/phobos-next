@@ -496,9 +496,9 @@ private:
     size_t _offset;             // current offset in `_input`
     const Input _input;           // input
 
-    SExprs topExprs;                // current
+    SExprs topExprs;            // top s-expressions (stack)
 
-    SExpr[] subExprs;
+    SExpr[] subExprs;           // sub-expressions
 
     size_t _depth;              // parenthesis depth
     bool _endOfFile;            // signals null terminator found

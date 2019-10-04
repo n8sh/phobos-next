@@ -396,7 +396,7 @@ private:
                                        _topExprs[$ - count + 1 .. $].dup)); // TODO use region allocator stored locally in `LispParser`
                 if (count != 0)
                 {
-                    _subExprsCount += count - 1;
+                    _subExprsCount += count - 1; // log it for future optimizations
                 }
                 _topExprs.popBackN(1 + count); // forget tokens including leftParen
                 _topExprs.insertBack(newExpr.move);

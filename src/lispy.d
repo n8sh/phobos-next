@@ -144,11 +144,15 @@ struct LispParser
     this(Input input,
          bool includeComments = false,
          bool includeWhitespace = false,
-         bool disallowEmptyLists = false) @trusted
+         bool disallowEmptyLists = false,
+         size_t subExprCountsGuess = 0) @trusted
     {
         _input = input;
 
-        // _subExprsStore = new SExpr[1024*1024]; // region store
+        if (subExprCountsGuess) // if guess use region
+        {
+            _subExprsStore = new SExpr[subExprCountsGuess]; // region store
+        }
 
         import std.algorithm : startsWith;
         import std.conv : hexString;
@@ -170,11 +174,8 @@ struct LispParser
 
     @disable this(this);
 
-    version(none)
     ~this()
     {
-        import dbgio;
-        dbg("subExprsCount: ", subExprsCount);
     }
 
     @property bool empty() const nothrow scope @nogc
@@ -516,14 +517,33 @@ private:
     SExprs _topExprs;           // top s-expressions (stack)
     size_t _subExprsCount;
 
-    // SExpr[] _subExprsStore;     // sub s-expressions (region)
-    // size_t _subExprsOffset = 0; // offset into `_subExprsStore`
+    SExpr[] _subExprsStore;     // sub s-expressions (region)
+    size_t _subExprsOffset = 0; // offset into `_subExprsStore`
 
     size_t _depth;              // parenthesis depth
     bool _endOfFile;            // signals null terminator found
     bool _includeComments = false;
     bool _includeWhitespace = false;
     bool _disallowEmptyLists = false;
+}
+
+struct LispParserFile
+{
+    this(const string filePath)
+    {
+        import std.path : expandTilde;
+        import file_ex : rawReadNullTerminated;
+        size_t subExprsCount = 0;
+        // TODO lookup `_subExprsCount` using `filePath` extended attr or hash and pass to constructor
+        parser = LispParser(cast(LispParser.Input)filePath.expandTilde.rawReadNullTerminated(),
+                            false, false, false, subExprsCount);
+    }
+    ~this()
+    {
+        // TODO write parser.subExprsCount
+    }
+    LispParser parser;
+    alias parser this;
 }
 
 @safe pure unittest

@@ -546,7 +546,7 @@ private:
                                         includeWhitespace,
                                         disallowEmptyLists))
     {
-        writeln(expr);
+        // writeln(expr);
     }
     writeln(`took `, sw.peek.to!Duration);
 

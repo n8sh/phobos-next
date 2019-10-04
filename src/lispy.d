@@ -113,7 +113,7 @@ struct SExpr
 
 import fixed_array : FixedArray;
 
-alias Exprs = FixedArray!(SExpr, 512);
+alias SExprs = FixedArray!(SExpr, 512);
 
 /** Returns: true if `s` is null-terminated (ending with `'\0'`).
  *
@@ -146,7 +146,7 @@ struct LispParser
          bool includeWhitespace = false,
          bool disallowEmptyLists = false) @trusted
     {
-        // this.subExprs = SubExprsStore(1024 * 64);
+        subExprs = new SExpr[1024*1024];
 
         _input = input;
 
@@ -167,6 +167,10 @@ struct LispParser
 
         nextFront();
     }
+
+    // ~this() @trusted
+    // {
+    // }
 
     @property bool empty() const nothrow scope @nogc
     {
@@ -492,12 +496,9 @@ private:
     size_t _offset;             // current offset in `_input`
     const Input _input;           // input
 
-    Exprs topExprs;                // current
+    SExprs topExprs;                // current
 
-    // import std.experimental.allocator.mallocator : Mallocator;
-    // import std.experimental.allocator.building_blocks : Region;
-    // alias SubExprsStore = Region!(Mallocator);
-    // SubExprsStore subExprs;
+    SExpr[] subExprs;
 
     size_t _depth;              // parenthesis depth
     bool _endOfFile;            // signals null terminator found
@@ -506,8 +507,7 @@ private:
     bool _disallowEmptyLists = false;
 }
 
-// @safe
-pure unittest
+@safe pure unittest
 {
     const text = ";;a comment\n(instance AttrFn BinaryFunction);;another comment\0";
     auto topExprs = LispParser(text);

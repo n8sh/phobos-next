@@ -146,9 +146,9 @@ struct LispParser
          bool includeWhitespace = false,
          bool disallowEmptyLists = false) @trusted
     {
-        _subExprsStore = new SExpr[1024*1024]; // region store
-
         _input = input;
+
+        // _subExprsStore = new SExpr[1024*1024]; // region store
 
         import std.algorithm : startsWith;
         import std.conv : hexString;
@@ -498,8 +498,8 @@ private:
 
     SExprs _topExprs;           // top s-expressions (stack)
 
-    SExpr[] _subExprsStore;     // sub s-expressions (region)
-    size_t _subExprsOffset = 0; // offset into `_subExprsStore`
+    // SExpr[] _subExprsStore;     // sub s-expressions (region)
+    // size_t _subExprsOffset = 0; // offset into `_subExprsStore`
 
     size_t _depth;              // parenthesis depth
     bool _endOfFile;            // signals null terminator found

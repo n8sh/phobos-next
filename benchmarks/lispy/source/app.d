@@ -13,7 +13,7 @@ import file_ex : rawReadNullTerminated;
 
 /** Read all SUO-KIF files (.kif) located under `rootDirPath`.
  */
-void benchmarkSUMO(const string rootDirPath = `~/Work/sumo`)
+void benchmarkSUMO(const scope string rootDirPath)
 {
     auto totalSw = StopWatch(AutoStart.yes);
     auto entries = dirEntries(rootDirPath.expandTilde, SpanMode.breadth, false); // false: skip symlinks
@@ -52,14 +52,12 @@ void benchmarkSUMOFile(const scope string filePath) @safe
     }
 }
 
-void benchmarkRelangs() @safe
+void benchmarkRelangs(const scope string filePath) @safe
 {
     import std.stdio;
     import std.file : readText;
     import std.conv : to;
     import std.datetime.stopwatch : StopWatch, AutoStart, Duration;
-
-    const filePath = `~/Work/knet/knowledge/relangs.el`;
 
     const includeComments = false;
     const includeWhitespace = false;
@@ -81,6 +79,6 @@ void benchmarkRelangs() @safe
 
 void main(string[] args)
 {
-    benchmarkSUMO();
-    benchmarkRelangs();
+    benchmarkSUMO(`~/Work/sumo`);
+    benchmarkRelangs(`~/Work/knet/knowledge/relangs.el`);
 }

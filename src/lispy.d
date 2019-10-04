@@ -95,10 +95,7 @@ struct SExpr
     SExpr[] subs;
     @property final void toString(scope void delegate(const(char)[]) sink) const @trusted
     {
-        if (subs)
-        {
-            sink(`(`);
-        }
+        if (subs) { sink(`(`); }
 
         token.toString(sink);
         
@@ -114,10 +111,7 @@ struct SExpr
             lastTok = sub.token.tok;
         }
 
-        if (subs)
-        {
-            sink(`)`);
-        }
+        if (subs) { sink(`)`); }
     }
 }
 

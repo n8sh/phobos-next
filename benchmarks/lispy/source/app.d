@@ -20,14 +20,18 @@ void benchmarkSUMO(const scope string rootDirPath)
     foreach (dent; entries)
     {
         const filePath = dent.name;
-        try
+        if (filePath.endsWith(`.kif`) &&
+            !filePath.pathSplitter.canFind(`.git`)) // invalid UTF-8 encodings
         {
-            benchmarkSUMOFile(filePath);
-        }
-        catch (std.utf.UTFException e)
-        {
-            import std.file : read;
-            writeln("Failed because of invalid UTF-8 encoding starting with ", filePath.read(16));
+            try
+            {
+                benchmarkSUMOFile(filePath);
+            }
+            catch (std.utf.UTFException e)
+            {
+                import std.file : read;
+                writeln("Failed because of invalid UTF-8 encoding starting with ", filePath.read(16));
+            }
         }
     }
 
@@ -38,18 +42,14 @@ void benchmarkSUMO(const scope string rootDirPath)
 /** Benchark reading of SUMO. */
 void benchmarkSUMOFile(const scope string filePath) @safe
 {
-    if (filePath.endsWith(`.kif`) &&
-        !filePath.pathSplitter.canFind(`.git`)) // invalid UTF-8 encodings
+    write(`Reading SUO-KIF `, filePath, ` ... `);
+    auto sw = StopWatch(AutoStart.yes);
+    foreach (const ref expr; LispParserFile(filePath))
     {
-        write(`Reading SUO-KIF `, filePath, ` ... `);
-        auto sw = StopWatch(AutoStart.yes);
-        foreach (const ref expr; LispParserFile(filePath))
-        {
-            // writeln(expr);
-        }
-        sw.stop();
-        writeln(`took `, sw.peek.to!Duration);
+        // writeln(expr);
     }
+    sw.stop();
+    writeln(`took `, sw.peek.to!Duration);
 }
 
 /** Benchark reading of Emacs-Lisp. */

@@ -42,7 +42,6 @@ void benchmarkSUMOFile(const scope string filePath) @safe
         !filePath.pathSplitter.canFind(`.git`)) // invalid UTF-8 encodings
     {
         write(`Reading SUO-KIF `, filePath, ` ... `);
-        import std.file : readText;
         auto sw = StopWatch(AutoStart.yes);
         foreach (const ref expr; LispParser(cast(LispParser.Input)filePath.expandTilde.rawReadNullTerminated())) // TODO avoid cast
         {
@@ -57,21 +56,12 @@ void benchmarkSUMOFile(const scope string filePath) @safe
 void benchmarkEmacsLisp(const scope string filePath) @safe
 {
     import std.stdio;
-    import std.file : readText;
     import std.conv : to;
     import std.datetime.stopwatch : StopWatch, AutoStart, Duration;
 
-    const includeComments = false;
-    const includeWhitespace = false;
-
-    const disallowEmptyLists = false;
-
     write(`Reading Emacs-Lisp `, filePath, ` ... `);
     auto sw = StopWatch(AutoStart.yes);
-    foreach (const ref expr; LispParser(cast(LispParser.Input)filePath.expandTilde.rawReadNullTerminated(), // TODO avoid cast
-                                        includeComments,
-                                        includeWhitespace,
-                                        disallowEmptyLists))
+    foreach (const ref expr; LispParser(cast(LispParser.Input)filePath.expandTilde.rawReadNullTerminated())) // TODO avoid cast
     {
         // writeln(expr);
     }

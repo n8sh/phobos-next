@@ -163,7 +163,7 @@ struct LispParser
         }
 
         import std.exception : enforce;
-        enforce(_input.isNullTerminated); // input cannot be trusted
+        enforce(_input.isNullTerminated, "Input isn't null-terminated"); // input cannot be trusted
 
         _includeComments = includeComments;
         _includeWhitespace = includeWhitespace;

@@ -101,7 +101,7 @@ struct SExpr
         }
         token.toString(sink);
         TOK lastTok = TOK.unknown;
-        foreach (const sub; subs)
+        foreach (const ref sub; subs)
         {
             import std.algorithm.comparison : among;
             if (!lastTok.among!(TOK.comma, TOK.backquote, TOK.singlequote))

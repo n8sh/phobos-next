@@ -1297,7 +1297,7 @@ unittest
     assert(a == [2].s);
 
     a.popAt(0);
-    assert(a == [].s);
+    assert(a == []);
 
     a.insertBack(11);
     assert(a == [11].s);

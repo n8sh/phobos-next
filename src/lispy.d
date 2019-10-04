@@ -341,11 +341,14 @@ private:
             switch (_input[_offset]) // TODO .ptr
             {
             case ';':
-                skipLineComment();  // TODO store comment in Token
                 if (_includeComments)
                 {
                     assert(0, "TODO don't use skipLineComment");
                     // exprs.insertBack(SExpr(Token(TOK.comment, src[0 .. 1])));
+                }
+                else
+                {
+                    skipLineComment();
                 }
                 break;
             case '(':

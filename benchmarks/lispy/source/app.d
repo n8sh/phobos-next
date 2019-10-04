@@ -46,6 +46,7 @@ void benchmarkSUMOFile(const scope string filePath) @safe
         auto sw = StopWatch(AutoStart.yes);
         foreach (const ref topExpr; LispParser(cast(LispParser.Input)filePath.expandTilde.rawReadNullTerminated())) // TODO avoid cast
         {
+            // writeln(expr);
         }
         sw.stop();
         writeln(`took `, sw.peek.to!Duration);
@@ -72,6 +73,7 @@ void benchmarkEmacsLisp(const scope string filePath) @safe
                                         includeWhitespace,
                                         disallowEmptyLists))
     {
+        // writeln(expr);
     }
     writeln(`took `, sw.peek.to!Duration);
 }

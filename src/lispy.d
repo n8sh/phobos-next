@@ -377,6 +377,8 @@ private:
                 }
 
                 import core.lifetime : move;
+                import std.stdio;
+                debug writeln(count);
                 SExpr newExpr = ((count == 0) ?
                                  SExpr(Token(TOK.emptyList)) :
                                  SExpr(exprs[$ - count].token,

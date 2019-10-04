@@ -348,16 +348,16 @@ private:
                 if (_includeComments)
                 {
                     assert(0, "change skipLineComment");
-                    // exprs.put(SExpr(Token(TOK.comment, src[0 .. 1])));
+                    // exprs.insertBack(SExpr(Token(TOK.comment, src[0 .. 1])));
                 }
                 break;
             case '(':
-                exprs.put(SExpr(Token(TOK.leftParen, peekNextsN(1))));
+                exprs.insertBack(SExpr(Token(TOK.leftParen, peekNextsN(1))));
                 dropFront();
                 ++_depth;
                 break;
             case ')':
-                // NOTE: this is not needed: exprs.put(SExpr(Token(TOK.rightParen, src[0 .. 1])));
+                // NOTE: this is not needed: exprs.insertBack(SExpr(Token(TOK.rightParen, src[0 .. 1])));
                 dropFront();
                 --_depth;
                 // NOTE: this is not needed: exprs.popBack();   // pop right paren
@@ -381,7 +381,7 @@ private:
                                  SExpr(exprs[$ - count].token,
                                        count ? exprs[$ - count + 1 .. $].dup : []));
                 exprs.popBackN(1 + count); // forget tokens including leftParen
-                exprs.put(newExpr.move);
+                exprs.insertBack(newExpr.move);
 
                 if (_depth == 0) // top-level expression done
                 {
@@ -392,29 +392,29 @@ private:
                 break;
             case '"':
                 const stringLiteral = getStringLiteral(); // TODO tokenize
-                exprs.put(SExpr(Token(TOK.stringLiteral, stringLiteral)));
+                exprs.insertBack(SExpr(Token(TOK.stringLiteral, stringLiteral)));
                 break;
             case ',':
                 dropFront();
-                exprs.put(SExpr(Token(TOK.comma)));
+                exprs.insertBack(SExpr(Token(TOK.comma)));
                 break;
             case '`':
                 dropFront();
-                exprs.put(SExpr(Token(TOK.backquote)));
+                exprs.insertBack(SExpr(Token(TOK.backquote)));
                 break;
             case '\'':
                 dropFront();
-                exprs.put(SExpr(Token(TOK.singlequote)));
+                exprs.insertBack(SExpr(Token(TOK.singlequote)));
                 break;
             case '?':
                 dropFront();
                 const variableSymbol = getSymbol();
-                exprs.put(SExpr(Token(TOK.variable, variableSymbol)));
+                exprs.insertBack(SExpr(Token(TOK.variable, variableSymbol)));
                 break;
             case '@':
                 dropFront();
                 const variableListSymbol = getSymbol();
-                exprs.put(SExpr(Token(TOK.variableList, variableListSymbol)));
+                exprs.insertBack(SExpr(Token(TOK.variableList, variableListSymbol)));
                 break;
                 // std.ascii.isDigit:
             case '0':
@@ -435,11 +435,11 @@ private:
                 if (gotSymbol)
                 {
                     // debug writeln("TODO handle floating point: ", numberOrSymbol);
-                    exprs.put(SExpr(Token(TOK.symbol, numberOrSymbol)));
+                    exprs.insertBack(SExpr(Token(TOK.symbol, numberOrSymbol)));
                 }
                 else
                 {
-                    exprs.put(SExpr(Token(TOK.number, numberOrSymbol)));
+                    exprs.insertBack(SExpr(Token(TOK.number, numberOrSymbol)));
                 }
                 break;
                 // from std.ascii.isWhite
@@ -453,7 +453,7 @@ private:
                 getWhitespace();
                 if (_includeWhitespace)
                 {
-                    exprs.put(SExpr(Token(TOK.whitespace, null)));
+                    exprs.insertBack(SExpr(Token(TOK.whitespace, null)));
                 }
                 break;
             case '\0':
@@ -469,11 +469,11 @@ private:
                     import std.algorithm : endsWith;
                     if (symbol.endsWith(`Fn`))
                     {
-                        exprs.put(SExpr(Token(TOK.functionName, symbol)));
+                        exprs.insertBack(SExpr(Token(TOK.functionName, symbol)));
                     }
                     else
                     {
-                        exprs.put(SExpr(Token(TOK.symbol, symbol)));
+                        exprs.insertBack(SExpr(Token(TOK.symbol, symbol)));
                     }
                 }
                 else

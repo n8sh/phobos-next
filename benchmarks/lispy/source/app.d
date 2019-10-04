@@ -13,10 +13,8 @@ import file_ex : rawReadNullTerminated;
 
 /** Read all SUO-KIF files (.kif) located under `rootDirPath`.
  */
-void benchmarkSUMO()
+void benchmarkSUMO(const string rootDirPath = `~/Work/sumo`)
 {
-    string rootDirPath = `~/Work/sumo`;
-
     auto totalSw = StopWatch(AutoStart.yes);
     auto entries = dirEntries(rootDirPath.expandTilde, SpanMode.breadth, false); // false: skip symlinks
     foreach (dent; entries)

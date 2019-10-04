@@ -44,8 +44,6 @@ struct Token
     {
         this.tok = tok;
         this.src = src;
-        /* import std.stdio : writeln; */
-        /* debug writeln("token: ", tok, ` source: "`, src, `"`); */
     }
     @property final void toString(scope void delegate(const(char)[]) sink) const @trusted
     {
@@ -376,8 +374,6 @@ private:
                 }
 
                 import core.lifetime : move;
-                import std.stdio;
-                debug writeln(count);
                 SExpr newExpr = ((count == 0) ?
                                  SExpr(Token(TOK.emptyList)) :
                                  SExpr(exprs[$ - count].token,

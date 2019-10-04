@@ -34,7 +34,6 @@ void benchmarkSUMOTreeRead(const scope string rootDirPath)
             }
         }
     }
-
     totalSw.stop();
     writeln(`Reading all files took `, totalSw.peek.to!Duration);
 }

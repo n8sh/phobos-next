@@ -317,8 +317,14 @@ private:
         pragma(inline);
         dropFront();
         size_t i = 0;
-        while (!peekNextNth(i).among('\0', '"')) // TODO handle backslash + double-singlequote
+        while (!peekNextNth(i).among('\0', '"'))
         {
+            if (peekNextNth(i) == '\\' &&
+                peekNextNth(i + 1) == '"')
+            {
+                i += 2;         // skip \n
+                continue;
+            }
             ++i;
         }
         const literal = peekNextsN(i);

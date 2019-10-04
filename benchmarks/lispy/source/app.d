@@ -55,10 +55,6 @@ void benchmarkSUMOFile(const scope string filePath) @safe
 /** Benchark reading of Emacs-Lisp. */
 void benchmarkEmacsLisp(const scope string filePath) @safe
 {
-    import std.stdio;
-    import std.conv : to;
-    import std.datetime.stopwatch : StopWatch, AutoStart, Duration;
-
     write(`Reading Emacs-Lisp `, filePath, ` ... `);
     auto sw = StopWatch(AutoStart.yes);
     foreach (const ref expr; LispParser(cast(LispParser.Input)filePath.expandTilde.rawReadNullTerminated())) // TODO avoid cast

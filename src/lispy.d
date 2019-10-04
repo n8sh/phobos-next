@@ -498,7 +498,7 @@ private:
 
     SExprs _topExprs;           // top s-expressions (stack)
 
-    SExpr[] _subExprsStore;     // sub-expressions (region)
+    SExpr[] _subExprsStore;     // sub s-expressions (region)
     size_t _subExprsOffset = 0; // offset into `_subExprsStore`
 
     size_t _depth;              // parenthesis depth

@@ -344,7 +344,7 @@ private:
                 skipLineComment();  // TODO store comment in Token
                 if (_includeComments)
                 {
-                    assert(0, "change skipLineComment");
+                    assert(0, "TODO don't use skipLineComment");
                     // exprs.insertBack(SExpr(Token(TOK.comment, src[0 .. 1])));
                 }
                 break;

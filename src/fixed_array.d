@@ -62,14 +62,14 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
         static if (capacity <= ubyte.max)
         {
             static if (T.sizeof == 1)
-                alias Length = ubyte;
+                alias Length = ubyte; // pack length
             else
                 alias Length = size_t;
         }
         else static if (capacity <= ushort.max)
         {
-            static if (T.sizeof == 2)
-                alias Length = ushort;
+            static if (T.sizeof <= 2)
+                alias Length = ushort; // pack length
             else
                 alias Length = size_t;
         }

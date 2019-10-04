@@ -74,11 +74,10 @@ void benchmarkRelangs(const scope string filePath) @safe
         // writeln(expr);
     }
     writeln(`took `, sw.peek.to!Duration);
-
 }
 
 void main(string[] args)
 {
-    benchmarkSUMO(`~/Work/sumo`);
     benchmarkRelangs(`~/Work/knet/knowledge/relangs.el`);
+    benchmarkSUMO(`~/Work/sumo`);
 }

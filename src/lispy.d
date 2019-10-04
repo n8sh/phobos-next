@@ -154,14 +154,6 @@ struct LispParser
             _subExprsStore = new SExpr[subExprCountsGuess]; // region store
         }
 
-        import std.algorithm : startsWith;
-        import std.conv : hexString;
-        immutable magic = hexString!"EFBBBF";
-        if (_input[_offset .. $].startsWith(magic))
-        {
-            _offset += magic.length;
-        }
-
         import std.exception : enforce;
         enforce(_input.isNullTerminated, "Input isn't null-terminated"); // input cannot be trusted
 

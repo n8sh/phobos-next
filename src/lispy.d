@@ -144,8 +144,10 @@ struct LispParser
     this(Input input,
          bool includeComments = false,
          bool includeWhitespace = false,
-         bool disallowEmptyLists = false)
+         bool disallowEmptyLists = false) @trusted
     {
+        // this.subExprs = SubExprsStore(1024 * 64);
+
         _input = input;
 
         import std.algorithm : startsWith;
@@ -176,14 +178,14 @@ struct LispParser
     {
         pragma(inline, true);
         assert(!empty);
-        return exprs.back;
+        return topExprs.back;
     }
 
     void popFront()
     {
         pragma(inline, true);
         assert(!empty);
-        exprs.popBack();
+        topExprs.popBack();
         nextFront();
     }
 
@@ -342,7 +344,7 @@ private:
                 if (_includeComments)
                 {
                     assert(0, "TODO don't use skipLineComment");
-                    // exprs.insertBack(SExpr(Token(TOK.comment, src[0 .. 1])));
+                    // topExprs.insertBack(SExpr(Token(TOK.comment, src[0 .. 1])));
                 }
                 else
                 {
@@ -350,21 +352,21 @@ private:
                 }
                 break;
             case '(':
-                exprs.insertBack(SExpr(Token(TOK.leftParen, peekNextsN(1))));
+                topExprs.insertBack(SExpr(Token(TOK.leftParen, peekNextsN(1))));
                 dropFront();
                 ++_depth;
                 break;
             case ')':
-                // NOTE: this is not needed: exprs.insertBack(SExpr(Token(TOK.rightParen, src[0 .. 1])));
+                // NOTE: this is not needed: topExprs.insertBack(SExpr(Token(TOK.rightParen, src[0 .. 1])));
                 dropFront();
                 --_depth;
-                // NOTE: this is not needed: exprs.popBack();   // pop right paren
+                // NOTE: this is not needed: topExprs.popBack();   // pop right paren
 
-                assert(!exprs.empty);
+                assert(!topExprs.empty);
 
                 // TODO retroIndexOf
                 size_t count; // number of elements between parens
-                while (exprs[$ - 1 - count].token.tok != TOK.leftParen)
+                while (topExprs[$ - 1 - count].token.tok != TOK.leftParen)
                 {
                     ++count;
                 }
@@ -376,43 +378,43 @@ private:
                 import core.lifetime : move;
                 SExpr newExpr = ((count == 0) ?
                                  SExpr(Token(TOK.emptyList)) :
-                                 SExpr(exprs[$ - count].token,
-                                       exprs[$ - count + 1 .. $].dup)); // TODO use region allocator
-                exprs.popBackN(1 + count); // forget tokens including leftParen
-                exprs.insertBack(newExpr.move);
+                                 SExpr(topExprs[$ - count].token,
+                                       topExprs[$ - count + 1 .. $].dup)); // TODO use region allocator stored locally in `LispParser`
+                topExprs.popBackN(1 + count); // forget tokens including leftParen
+                topExprs.insertBack(newExpr.move);
 
                 if (_depth == 0) // top-level expression done
                 {
-                    assert(exprs.length >= 1); // we should have at least one `SExpr`
+                    assert(topExprs.length >= 1); // we should have at least one `SExpr`
                     return;
                 }
 
                 break;
             case '"':
                 const stringLiteral = getStringLiteral(); // TODO tokenize
-                exprs.insertBack(SExpr(Token(TOK.stringLiteral, stringLiteral)));
+                topExprs.insertBack(SExpr(Token(TOK.stringLiteral, stringLiteral)));
                 break;
             case ',':
                 dropFront();
-                exprs.insertBack(SExpr(Token(TOK.comma)));
+                topExprs.insertBack(SExpr(Token(TOK.comma)));
                 break;
             case '`':
                 dropFront();
-                exprs.insertBack(SExpr(Token(TOK.backquote)));
+                topExprs.insertBack(SExpr(Token(TOK.backquote)));
                 break;
             case '\'':
                 dropFront();
-                exprs.insertBack(SExpr(Token(TOK.singlequote)));
+                topExprs.insertBack(SExpr(Token(TOK.singlequote)));
                 break;
             case '?':
                 dropFront();
                 const variableSymbol = getSymbol();
-                exprs.insertBack(SExpr(Token(TOK.variable, variableSymbol)));
+                topExprs.insertBack(SExpr(Token(TOK.variable, variableSymbol)));
                 break;
             case '@':
                 dropFront();
                 const variableListSymbol = getSymbol();
-                exprs.insertBack(SExpr(Token(TOK.variableList, variableListSymbol)));
+                topExprs.insertBack(SExpr(Token(TOK.variableList, variableListSymbol)));
                 break;
                 // std.ascii.isDigit:
             case '0':
@@ -433,11 +435,11 @@ private:
                 if (gotSymbol)
                 {
                     // debug writeln("TODO handle floating point: ", numberOrSymbol);
-                    exprs.insertBack(SExpr(Token(TOK.symbol, numberOrSymbol)));
+                    topExprs.insertBack(SExpr(Token(TOK.symbol, numberOrSymbol)));
                 }
                 else
                 {
-                    exprs.insertBack(SExpr(Token(TOK.number, numberOrSymbol)));
+                    topExprs.insertBack(SExpr(Token(TOK.number, numberOrSymbol)));
                 }
                 break;
                 // from std.ascii.isWhite
@@ -451,7 +453,7 @@ private:
                 getWhitespace();
                 if (_includeWhitespace)
                 {
-                    exprs.insertBack(SExpr(Token(TOK.whitespace, null)));
+                    topExprs.insertBack(SExpr(Token(TOK.whitespace, null)));
                 }
                 break;
             case '\0':
@@ -467,11 +469,11 @@ private:
                     import std.algorithm : endsWith;
                     if (symbol.endsWith(`Fn`))
                     {
-                        exprs.insertBack(SExpr(Token(TOK.functionName, symbol)));
+                        topExprs.insertBack(SExpr(Token(TOK.functionName, symbol)));
                     }
                     else
                     {
-                        exprs.insertBack(SExpr(Token(TOK.symbol, symbol)));
+                        topExprs.insertBack(SExpr(Token(TOK.symbol, symbol)));
                     }
                 }
                 else
@@ -490,7 +492,12 @@ private:
     size_t _offset;             // current offset in `_input`
     const Input _input;           // input
 
-    Exprs exprs;                // current
+    Exprs topExprs;                // current
+
+    // import std.experimental.allocator.mallocator : Mallocator;
+    // import std.experimental.allocator.building_blocks : Region;
+    // alias SubExprsStore = Region!(Mallocator);
+    // SubExprsStore subExprs;
 
     size_t _depth;              // parenthesis depth
     bool _endOfFile;            // signals null terminator found
@@ -499,21 +506,22 @@ private:
     bool _disallowEmptyLists = false;
 }
 
-@safe pure unittest
+// @safe
+pure unittest
 {
     const text = ";;a comment\n(instance AttrFn BinaryFunction);;another comment\0";
-    auto exprs = LispParser(text);
-    assert(!exprs.empty);
+    auto topExprs = LispParser(text);
+    assert(!topExprs.empty);
 
-    assert(exprs.front.token.tok == TOK.symbol);
-    assert(exprs.front.token.src == `instance`);
+    assert(topExprs.front.token.tok == TOK.symbol);
+    assert(topExprs.front.token.src == `instance`);
 
-    assert(exprs.front.subs[0].token.tok == TOK.functionName);
-    assert(exprs.front.subs[0].token.src == "AttrFn");
+    assert(topExprs.front.subs[0].token.tok == TOK.functionName);
+    assert(topExprs.front.subs[0].token.src == "AttrFn");
 
-    assert(exprs.front.subs[1].token.tok == TOK.symbol);
-    assert(exprs.front.subs[1].token.src == "BinaryFunction");
+    assert(topExprs.front.subs[1].token.tok == TOK.symbol);
+    assert(topExprs.front.subs[1].token.src == "BinaryFunction");
 
-    exprs.popFront();
-    assert(exprs.empty);
+    topExprs.popFront();
+    assert(topExprs.empty);
 }

@@ -35,6 +35,7 @@ void benchmarkSUMO(const scope string rootDirPath)
     writeln(`Reading all files took `, totalSw.peek.to!Duration);
 }
 
+/** Benchark reading of SUMO. */
 void benchmarkSUMOFile(const scope string filePath) @safe
 {
     if (filePath.endsWith(`.kif`) &&
@@ -52,7 +53,8 @@ void benchmarkSUMOFile(const scope string filePath) @safe
     }
 }
 
-void benchmarkRelangs(const scope string filePath) @safe
+/** Benchark reading of Emacs-Lisp. */
+void benchmarkEmacsLisp(const scope string filePath) @safe
 {
     import std.stdio;
     import std.file : readText;
@@ -78,6 +80,6 @@ void benchmarkRelangs(const scope string filePath) @safe
 
 void main(string[] args)
 {
-    benchmarkRelangs(`~/Work/knet/knowledge/relangs.el`);
+    benchmarkEmacsLisp(`~/Work/knet/knowledge/relangs.el`);
     benchmarkSUMO(`~/Work/sumo`);
 }

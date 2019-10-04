@@ -23,9 +23,9 @@ enum TOK
 
     stringLiteral,
 
-    lispComma,                  // Lisp comma expression
-    lispBackQuote,              // Lisp backquote expression
-    lispQuote,                  // Lisp quote expression
+    comma,                  // Lisp comma expression
+    backquote,              // Lisp backquote expression
+    singlequote,            // Lisp singlequote expression
 
     variable,
     variableList,               // one or more variables (parameters) starting with an at-sign, for instance `@ROW`
@@ -51,14 +51,37 @@ struct Token
     }
     @property final void toString(scope void delegate(const(char)[]) sink) const @trusted
     {
-        import std.conv : to;
-        sink(tok.to!string);
-        if (src)
+        switch (tok)
         {
-            sink(`:`);
-            if (tok == TOK.stringLiteral) { sink(`"`); }
+        case TOK.symbol:
             sink(src);
-            if (tok == TOK.stringLiteral) { sink(`"`); }
+            break;
+        case TOK.comma:
+            sink(`,`);
+            break;
+        case TOK.backquote:
+            sink("`");
+            break;
+        case TOK.singlequote:
+            sink("'");
+            break;
+        case TOK.stringLiteral:
+            sink(`"`);
+            sink(src);
+            sink(`"`);
+            break;
+        case TOK.emptyList:
+            sink(`()`);
+            break;
+        default:
+            import std.conv : to;
+            /* sink(tok.to!string); */
+            if (src)
+            {
+                sink(`:`);
+                sink(src);
+            }
+            break;
         }
     }
     TOK tok;
@@ -72,14 +95,24 @@ struct SExpr
     SExpr[] subs;
     @property final void toString(scope void delegate(const(char)[]) sink) const @trusted
     {
-        token.toString(sink);
         if (subs)
         {
-            sink(`:(`);
-            foreach (const sub; subs)
+            sink(`(`);
+        }
+        token.toString(sink);
+        TOK lastTok = TOK.unknown;
+        foreach (const sub; subs)
+        {
+            import std.algorithm.comparison : among;
+            if (!lastTok.among!(TOK.comma, TOK.backquote, TOK.singlequote))
             {
-                sub.toString(sink);
+                sink(` `);
             }
+            sub.toString(sink);
+            lastTok = sub.token.tok;
+        }
+        if (subs)
+        {
             sink(`)`);
         }
     }
@@ -108,7 +141,7 @@ bool isNullTerminated(const(char)[] s)
  */
 struct LispParser
 {
-    import std.algorithm : among;
+    import std.algorithm.comparison : among;
 
     private alias Input = const(char)[];
 
@@ -287,13 +320,13 @@ private:
         pragma(inline);
         dropFront();
         size_t i = 0;
-        while (!peekNextNth(i).among('\0', '"')) // TODO handle backslash + double-quote
+        while (!peekNextNth(i).among('\0', '"')) // TODO handle backslash + double-singlequote
         {
             ++i;
         }
         const literal = peekNextsN(i);
         dropFrontN(i);
-        if (peekNext() == '"') { dropFront(); } // pop ending double quote
+        if (peekNext() == '"') { dropFront(); } // pop ending double singlequote
         return literal;
     }
 
@@ -366,15 +399,15 @@ private:
                 break;
             case ',':
                 dropFront();
-                exprs.put(SExpr(Token(TOK.lispComma)));
+                exprs.put(SExpr(Token(TOK.comma)));
                 break;
             case '`':
                 dropFront();
-                exprs.put(SExpr(Token(TOK.lispBackQuote)));
+                exprs.put(SExpr(Token(TOK.backquote)));
                 break;
             case '\'':
                 dropFront();
-                exprs.put(SExpr(Token(TOK.lispQuote)));
+                exprs.put(SExpr(Token(TOK.singlequote)));
                 break;
             case '?':
                 dropFront();

@@ -663,25 +663,6 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
         _store.length += 1;
     }
 
-    /** Insert `value` into the end of the array.
-
-        TODO rename to `insertBack` and make this steal scalar calls over
-        insertBack(U)(U[] values...) overload below
-     */
-    void insertBack1()(T value) @trusted // template-lazy
-    {
-        reserve(_store.length + 1);
-        static if (needsMove!T)
-        {
-            insertBackMove(*cast(MutableE*)(&value));
-        }
-        else
-        {
-            _mptr[_store.length] = value;
-        }
-        _store.length += 1;
-    }
-
     /** Insert unmoveable `value` into the end of the array.
      */
     void insertBack()(T value) @trusted // template-lazy
@@ -733,6 +714,25 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
             }
         }
         _store.length += values.length;
+    }
+
+    /** Insert `value` into the end of the array.
+     * 
+     * TODO rename to `insertBack` and make this steal scalar calls over
+     * insertBack(U)(U[] values...) overload below
+     */
+    void insertBack1()(T value) @trusted // template-lazy
+    {
+        reserve(_store.length + 1);
+        static if (needsMove!T)
+        {
+            insertBackMove(*cast(MutableE*)(&value));
+        }
+        else
+        {
+            _mptr[_store.length] = value;
+        }
+        _store.length += 1;
     }
 
     /** Insert the elements `elements` into the end of the array.

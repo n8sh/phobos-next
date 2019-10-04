@@ -344,6 +344,13 @@ private:
         return literal;
     }
 
+    SExpr[] dupTopExprs(SExpr[] exprs) @safe pure nothrow
+    {
+        pragma(inline, true);
+        _subExprsCount += exprs.length; // log it for future optimizations
+        return exprs.dup; // TODO use region allocator stored locally in `LispParser`
+    }
+    
     void nextFront()
     {
         import std.range : empty, front, popFront, popFrontN;
@@ -393,11 +400,7 @@ private:
                 SExpr newExpr = ((count == 0) ?
                                  SExpr(Token(TOK.emptyList)) :
                                  SExpr(_topExprs[$ - count].token,
-                                       _topExprs[$ - count + 1 .. $].dup)); // TODO use region allocator stored locally in `LispParser`
-                if (count != 0)
-                {
-                    _subExprsCount += count - 1; // log it for future optimizations
-                }
+                                       dupTopExprs(_topExprs[$ - count + 1 .. $])));
                 _topExprs.popBackN(1 + count); // forget tokens including leftParen
                 _topExprs.insertBack(newExpr.move);
 

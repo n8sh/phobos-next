@@ -9,8 +9,6 @@
  */
 module lispy;
 
-version = benchmark;
-
 /** Lisp-like token type. */
 enum TOK
 {
@@ -140,7 +138,7 @@ struct LispParser
 {
     import std.algorithm.comparison : among;
 
-    private alias Input = const(char)[];
+    alias Input = const(char)[];
 
     @safe pure:
 
@@ -550,52 +548,4 @@ private:
     }
     writeln(`took `, sw.peek.to!Duration);
 
-}
-
-/** Read all SUO-KIF files (.kif) located under `rootDirPath`.
- */
-version(benchmark)
-unittest
-{
-    import std.stdio : write, writeln;
-    import std.path : expandTilde, pathSplitter;
-    import std.file: dirEntries, SpanMode;
-    import std.conv : to;
-    import std.datetime.stopwatch : StopWatch, AutoStart, Duration;
-    import std.algorithm : endsWith, canFind;
-    import std.utf;
-
-    string rootDirPath = `~/Work/sumo`;
-
-    auto totalSw = StopWatch(AutoStart.yes);
-
-    auto entries = dirEntries(rootDirPath.expandTilde, SpanMode.breadth, false); // false: skip symlinks
-    foreach (dent; entries)
-    {
-        const filePath = dent.name;
-        try
-        {
-            if (filePath.endsWith(`.kif`) &&
-                !filePath.pathSplitter.canFind(`.git`)) // invalid UTF-8 encodings
-            {
-                write(`Reading SUO-KIF `, filePath, ` ... `);
-                import std.file : readText;
-                auto sw = StopWatch(AutoStart.yes);
-                foreach (const ref topExpr; LispParser(cast(LispParser.Input)filePath.rawReadNullTerminated())) // TODO avoid cast
-                {
-                    // TOOD use topExpr
-                }
-                sw.stop();
-                writeln(`took `, sw.peek.to!Duration);
-            }
-        }
-        catch (std.utf.UTFException e)
-        {
-            import std.file : read;
-            writeln("Failed because of invalid UTF-8 encoding starting with ", filePath.read(16));
-        }
-    }
-
-    totalSw.stop();
-    writeln(`Reading all files took `, totalSw.peek.to!Duration);
 }

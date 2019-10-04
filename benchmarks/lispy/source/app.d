@@ -57,7 +57,7 @@ void benchmarkEmacsLisp(const scope string filePath) @safe
 {
     write(`Reading Emacs-Lisp `, filePath, ` ... `);
     auto sw = StopWatch(AutoStart.yes);
-    foreach (const ref expr; LispParserFile(filePath)) // TODO avoid cast
+    foreach (const ref expr; LispParserFile(filePath))
     {
         // writeln(expr);
     }

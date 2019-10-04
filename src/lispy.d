@@ -42,13 +42,24 @@ enum TOK
 /** Lisp-like token. */
 struct Token
 {
-    @safe pure @nogc:
-    this(TOK tok, const(char)[] src = null)
+    this(TOK tok, const(char)[] src = null) @safe pure @nogc
     {
         this.tok = tok;
         this.src = src;
         /* import std.stdio : writeln; */
         /* debug writeln("token: ", tok, ` source: "`, src, `"`); */
+    }
+    @property final void toString(scope void delegate(const(char)[]) sink) const @trusted
+    {
+        import std.conv : to;
+        sink(tok.to!string);
+        if (src)
+        {
+            sink(`:`);
+            if (tok == TOK.stringLiteral) { sink(`"`); }
+            sink(src);
+            if (tok == TOK.stringLiteral) { sink(`"`); }
+        }
     }
     TOK tok;
     const(char)[] src;          // optional source slice
@@ -59,6 +70,19 @@ struct SExpr
 {
     Token token;
     SExpr[] subs;
+    @property final void toString(scope void delegate(const(char)[]) sink) const @trusted
+    {
+        token.toString(sink);
+        if (subs)
+        {
+            sink(`:(`);
+            foreach (const sub; subs)
+            {
+                sub.toString(sink);
+            }
+            sink(`)`);
+        }
+    }
 }
 
 import fixed_array : FixedArray;
@@ -492,7 +516,7 @@ private:
                                         includeWhitespace,
                                         disallowEmptyLists))
     {
-        // TODO expr.pprint();
+        writeln(expr);
     }
     writeln(`took `, sw.peek.to!Duration);
 

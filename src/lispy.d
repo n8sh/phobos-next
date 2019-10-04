@@ -170,6 +170,12 @@ struct LispParser
 
     @disable this(this);
 
+    ~this()
+    {
+        // import dbgio;
+        // dbg("subExprsCount: ", subExprsCount);
+    }
+
     @property bool empty() const nothrow scope @nogc
     {
         pragma(inline, true);

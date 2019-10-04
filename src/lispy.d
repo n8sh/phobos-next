@@ -168,9 +168,7 @@ struct LispParser
         nextFront();
     }
 
-    // ~this() @trusted
-    // {
-    // }
+    @disable this(this);
 
     @property bool empty() const nothrow scope @nogc
     {

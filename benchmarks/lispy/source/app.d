@@ -13,7 +13,7 @@ import file_ex : rawReadNullTerminated;
 
 /** Read all SUO-KIF files (.kif) located under `rootDirPath`.
  */
-void benchmarkSUMO() 
+void benchmarkSUMO()
 {
     string rootDirPath = `~/Work/sumo`;
 

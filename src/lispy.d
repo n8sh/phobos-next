@@ -114,7 +114,6 @@ struct SExpr
 }
 
 import fixed_array : FixedArray;
-import file_ex : rawReadNullTerminated;
 
 alias Exprs = FixedArray!(SExpr, 512);
 

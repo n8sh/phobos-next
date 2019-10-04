@@ -99,7 +99,9 @@ struct SExpr
         {
             sink(`(`);
         }
+
         token.toString(sink);
+        
         TOK lastTok = TOK.unknown;
         foreach (const ref sub; subs)
         {
@@ -111,6 +113,7 @@ struct SExpr
             sub.toString(sink);
             lastTok = sub.token.tok;
         }
+
         if (subs)
         {
             sink(`)`);

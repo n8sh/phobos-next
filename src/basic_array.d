@@ -571,7 +571,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
         of elements. If `minimumCapacity` < `capacity`, this method does
         nothing.
      */
-    void reserve()(size_t minimumCapacity) @trusted // template-lazy
+    void reserve(size_t minimumCapacity) @trusted pure nothrow @nogc
     {
         static if (!is(CapacityType == size_t))
         {

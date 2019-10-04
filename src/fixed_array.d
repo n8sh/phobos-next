@@ -652,6 +652,17 @@ version(none) pure unittest     // TODO activate
     static assert(mustAddGCRange!S);
 }
 
+/// `insertBackMaybe` is nothrow @nogc.
+@safe pure nothrow @nogc unittest
+{
+    alias S = FixedArray!(int, 2);
+    S s;
+    assert(s.insertBackMaybe(42));
+    assert(s.insertBackMaybe(43));
+    assert(!s.insertBackMaybe(0));
+    assert(s.length == 2);
+}
+
 /// equality
 @system pure nothrow @nogc unittest
 {

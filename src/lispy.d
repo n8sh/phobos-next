@@ -380,7 +380,7 @@ private:
                 SExpr newExpr = ((count == 0) ?
                                  SExpr(Token(TOK.emptyList)) :
                                  SExpr(exprs[$ - count].token,
-                                       count ? exprs[$ - count + 1 .. $].dup : [])); // TODO avoid dup
+                                       exprs[$ - count + 1 .. $].dup)); // TODO avoid dup
                 exprs.popBackN(1 + count); // forget tokens including leftParen
                 exprs.insertBack(newExpr.move);
 

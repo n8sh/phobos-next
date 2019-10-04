@@ -14,6 +14,7 @@ module fixed_array;
 struct FixedArray(T, uint capacity_, bool borrowChecked = false)
 {
     // pragma(msg, "T:", T, " capacity_:", capacity_, " borrowChecked:", borrowChecked);
+    import core.exception : onRangeError;
     import core.lifetime : move, moveEmplace;
     import std.bitmanip : bitfields;
     import std.traits : isSomeChar, isAssignable, isCopyable;
@@ -113,9 +114,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
         // TODO isElementAssignable!U
         ) // prevent accidental move of l-value `values` in array calls
     {
-        import std.exception : enforce;
-        enforce(values.length <= capacity, `Arguments don't fit in array`);
-
+        version(assert) if (values.length > capacity) onRangeError(); // `Arguments don't fit in array`
         _store[0 .. values.length] = values;
         _length = cast(Length)values.length;
         static if (borrowChecked)
@@ -169,8 +168,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     void insertBack(Es...)(Es es) @trusted
     if (Es.length <= capacity) // TODO use `isAssignable`
     {
-        import std.exception : enforce;
-        enforce(_length + Es.length <= capacity, `Arguments don't fit in array`); // TODO use assert insteead?
+        version(assert) if (_length + Es.length > capacity) onRangeError(); // `Arguments don't fit in array`
         foreach (immutable i, ref e; es)
         {
             moveEmplace(e, _store[_length + i]); // TODO remove `move` when compiler does it for us

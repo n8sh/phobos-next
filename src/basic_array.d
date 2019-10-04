@@ -573,7 +573,10 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
      */
     void reserve()(size_t minimumCapacity) @trusted // template-lazy
     {
-        assert(minimumCapacity <= CapacityType.max);
+        static if (!is(CapacityType == size_t))
+        {
+            assert(minimumCapacity <= CapacityType.max);
+        }
 
         if (minimumCapacity <= capacity) { return; }
 

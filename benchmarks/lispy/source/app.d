@@ -72,7 +72,6 @@ void benchmarkEmacsLisp(const scope string filePath) @safe
                                         includeWhitespace,
                                         disallowEmptyLists))
     {
-        // writeln(expr);
     }
     writeln(`took `, sw.peek.to!Duration);
 }

@@ -521,7 +521,7 @@ struct LispParserFile
         import std.path : expandTilde;
         import file_ex : rawReadNullTerminated;
         size_t subExprsCount = 0;
-        // TODO lookup `_subExprsCount` using `filePath` extended attr or hash and pass to constructor
+        // TODO lookup `subExprsCount` using `filePath` extended attr or hash and pass to constructor
         parser = LispParser(cast(LispParser.Input)filePath.expandTilde.rawReadNullTerminated(),
                             false, false, false, subExprsCount);
     }

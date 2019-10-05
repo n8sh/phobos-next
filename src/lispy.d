@@ -513,7 +513,7 @@ private:
     bool _disallowEmptyLists = false;
 }
 
-struct LispParserFile
+struct LispFileParser
 {
 @safe:
     this(const string filePath)

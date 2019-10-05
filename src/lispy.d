@@ -515,7 +515,7 @@ private:
 
 struct LispParserFile
 {
-    @safe:
+@safe:
     this(const string filePath)
     {
         import std.path : expandTilde;

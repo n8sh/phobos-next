@@ -12,7 +12,7 @@ import core.internal.traits : Unqual;
  *
  * const x = [1, 2, 3].s;
  *
- * TODO Replace with 2.082 `staticArray`
+ * TODO Replace with Phobos `staticArray` when dmd automatically does move for uncopyable `T`.
  *
  * TODO Fix problems discussed here: http://forum.dlang.org/post/otrsanpgmokzpzqmfyvx@forum.dlang.org
  * TODO File a bug report: http://forum.dlang.org/post/otrsanpgmokzpzqmfyvx@forum.dlang.org

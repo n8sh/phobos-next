@@ -13,8 +13,7 @@ authors "Per Nordlöw <per.nordlow@gmail.com>"
 
 # TODO replace -transition=... with -preview=...
 dflags "-vcolumns" "-dip25" "-dip1008" # "-dip1000"
-dflags "-preview=intpromote" "-preview=dtorfields" "-preview=markdown" platform="dmd"
-dflags "-transition=intpromote" "-transition=dtorfields" platform="ldc"
+dflags "-preview=intpromote" "-preview=dtorfields" "-preview=markdown"
 
 libs "z" "bz2" "zstd"
 

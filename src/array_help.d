@@ -25,7 +25,6 @@ import core.internal.traits : Unqual;
  */
 Unqual!T[n] staticArray(T, size_t n)(T[n] x...) @trusted
 {
-    import core.internal.traits : hasElaborateDestructor;
     import std.traits : isCopyable; // TODO remove `move` when compiler does it for us
     static if (isCopyable!T)  // TODO remove `move` when compiler does it for us
     {
@@ -35,6 +34,7 @@ Unqual!T[n] staticArray(T, size_t n)(T[n] x...) @trusted
     {
         // TODO remove `move` when compiler does it for us:
         T[n] y = void;        // initialized below
+        import core.internal.traits : hasElaborateDestructor;
         static if (hasElaborateDestructor!T)
         {
             /* NOTE: moveEmplaceAll doesn't support uncopyable elements
@@ -56,6 +56,19 @@ Unqual!T[n] staticArray(T, size_t n)(T[n] x...) @trusted
     }
 }
 alias s = staticArray;
+
+@safe pure unittest
+{
+    // assert([].staticArray.ptr == null);
+    assert([].s.length == 0);
+}
+
+@safe pure unittest
+{
+    import std.array : staticArray;
+    // assert([].staticArray.ptr == null);
+    assert([].staticArray.length == 0);
+}
 
 /** Make a static array. */
 version(none)

@@ -149,7 +149,7 @@ template hasStandardNullValue(T)
     static if (is(T == typeof(null)) ||
                is(T == class))
     {
-        enum hasStandardNullValue = true;
+        enum hasStandardNullValue = true; // fast path first
     }
     else
     {

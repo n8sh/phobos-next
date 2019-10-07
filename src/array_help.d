@@ -63,10 +63,11 @@ alias s = staticArray;
     assert([].s.length == 0);
 }
 
+version(none)
 @safe pure unittest
 {
     import std.array : staticArray;
-    // assert([].staticArray.ptr == null);
+    assert([].staticArray.ptr !is null);
     assert([].staticArray.length == 0);
 }
 

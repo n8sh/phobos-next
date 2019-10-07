@@ -146,11 +146,17 @@ template isSetOf(T, E)
  */
 template hasStandardNullValue(T)
 {
-    import std.traits : isPointer, isDynamicArray;
-    import traits_ex : isAddress;
-    enum hasStandardNullValue = (isAddress!T ||
-                                 isDynamicArray!T ||
-                                 is(T == typeof(null)));
+    static if (is(T == typeof(null)) ||
+               is(T == class))
+    {
+        enum hasStandardNullValue = true;
+    }
+    else
+    {
+        import std.traits : isPointer, isDynamicArray;
+        enum hasStandardNullValue = (isPointer!T ||
+                                     isDynamicArray!T);
+    }
 }
 
 ///

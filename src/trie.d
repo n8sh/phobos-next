@@ -1172,7 +1172,6 @@ static assert((DenseLeaf1!void).sizeof == 32);
 template RawRadixTree(Value = void)
 {
     import std.bitmanip : bitfields;
-    import std.conv : to;
     import std.algorithm : filter;
     import std.meta : AliasSeq, staticMap;
 
@@ -3899,6 +3898,7 @@ template RawRadixTree(Value = void)
             assert(false, "Trying to print Node.undefined");
         case ix_OneLeafMax7:
             auto curr_ = curr.as!(OneLeafMax7);
+            import std.conv : to;
             writeln(typeof(curr_).stringof, " #", curr_.key.length, ": ", curr_.to!string);
             break;
         case ix_TwoLeaf3:
@@ -5226,7 +5226,6 @@ if (Keys.length != 0)
 
     import std.algorithm : equal;
     import std.datetime.stopwatch : StopWatch, AutoStart;
-    import std.datetime : Duration;
 
     foreach (Key; Keys)
     {
@@ -5246,7 +5245,7 @@ if (Keys.length != 0)
         {
             import std.conv : to;
             import std.stdio : writeln;
-            writeln("Test for contains and insert took ", sw1.peek().to!Duration);
+            writeln("Test for contains and insert took ", sw1.peek());
         }
 
         auto sw2 = StopWatch(AutoStart.yes);
@@ -5271,7 +5270,7 @@ if (Keys.length != 0)
         {
             import std.conv : to;
             import std.stdio : writeln;
-            writeln("Compare took ", sw2.peek().to!Duration);
+            writeln("Compare took ", sw2.peek());
         }
     }
 }
@@ -5539,8 +5538,7 @@ void testWords(Value)()
     {
         import std.conv : to;
         import std.stdio : writeln;
-        import std.datetime : Duration;
-        writeln("Added ", count, " words from ", path, " in ", sw.peek().to!Duration);
+        writeln("Added ", count, " words from ", path, " in ", sw.peek());
         rtr.showStatistics();
     }
 }
@@ -5680,9 +5678,7 @@ void benchmark()()
 
         static assert(!set.hasValue);
 
-        import std.conv : to;
         import std.datetime.stopwatch : StopWatch, AutoStart;
-        import std.datetime : Duration;
 
         enum n = 1_000_000;
 
@@ -5711,7 +5707,7 @@ void benchmark()()
                 static if (false) { assert(!set.insert(k)); }
             }
 
-            writeln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration);
+            writeln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek());
             set.showStatistics();
         }
 
@@ -5721,7 +5717,7 @@ void benchmark()()
 
             foreach (Key k; randomSamples) { aa[k] = true; }
 
-            writeln("D-AA: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek().to!Duration);
+            writeln("D-AA: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek());
         }
 
         auto map = radixTreeMap!(Key, Value);

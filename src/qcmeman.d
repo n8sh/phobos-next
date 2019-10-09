@@ -37,9 +37,9 @@ extern(C)
  */
 private void* pureMalloc(size_t size) @trusted pure @nogc nothrow
 {
-    const errno = fakePureGetErrno();
+    debug const errno = fakePureGetErrno();
     void* ret = fakePureMalloc(size);
-    if (!ret || errno != 0)
+    debug if (!ret || errno != 0)
     {
         cast(void)fakePureSetErrno(errno);
     }
@@ -48,9 +48,9 @@ private void* pureMalloc(size_t size) @trusted pure @nogc nothrow
 /// ditto
 private void* pureCalloc(size_t nmemb, size_t size) @trusted pure @nogc nothrow
 {
-    const errno = fakePureGetErrno();
+    debug const errno = fakePureGetErrno();
     void* ret = fakePureCalloc(nmemb, size);
-    if (!ret || errno != 0)
+    debug if (!ret || errno != 0)
     {
         cast(void)fakePureSetErrno(errno);
     }
@@ -59,9 +59,9 @@ private void* pureCalloc(size_t nmemb, size_t size) @trusted pure @nogc nothrow
 /// ditto
 private void* pureRealloc(void* ptr, size_t size) @system pure @nogc nothrow
 {
-    const errno = fakePureGetErrno();
+    debug const errno = fakePureGetErrno();
     void* ret = fakePureRealloc(ptr, size);
-    if (!ret || errno != 0)
+    debug if (!ret || errno != 0)
     {
         cast(void)fakePureSetErrno(errno);
     }
@@ -70,9 +70,9 @@ private void* pureRealloc(void* ptr, size_t size) @system pure @nogc nothrow
 /// ditto
 void pureFree(void* ptr) @system pure @nogc nothrow
 {
-    const errno = fakePureGetErrno();
+    debug const errno = fakePureGetErrno();
     fakePureFree(ptr);
-    cast(void)fakePureSetErrno(errno);
+    debug cast(void)fakePureSetErrno(errno);
 }
 
 // locally purified for internal use here only

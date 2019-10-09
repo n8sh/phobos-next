@@ -4,7 +4,7 @@ import std.path : expandTilde;
 import std.stdio : write, writeln;
 import std.file: dirEntries, SpanMode;
 import std.conv : to;
-import std.datetime.stopwatch : StopWatch, AutoStart, Duration;
+import std.datetime.stopwatch : StopWatch, AutoStart;
 import std.utf;
 import std.algorithm.searching : endsWith, canFind;
 import std.path : pathSplitter;
@@ -33,7 +33,7 @@ void benchmarkSUMOTreeRead(const scope string rootDirPath)
         }
     }
     totalSw.stop();
-    writeln(`Reading all files took `, totalSw.peek.to!Duration);
+    writeln(`Reading all files took `, totalSw.peek);
 }
 
 /** Benchark reading of SUMO. */
@@ -46,7 +46,7 @@ void benchmarkSUMOFileRead(const scope string filePath) @safe
         // writeln(expr);
     }
     sw.stop();
-    writeln(`took `, sw.peek.to!Duration);
+    writeln(`took `, sw.peek);
 }
 
 /** Benchark reading of Emacs-Lisp. */
@@ -58,7 +58,7 @@ void benchmarkEmacsLisp(const scope string filePath) @safe
     {
         // writeln(expr);
     }
-    writeln(`took `, sw.peek.to!Duration);
+    writeln(`took `, sw.peek);
 }
 
 void main(string[] args)

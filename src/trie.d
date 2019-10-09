@@ -2817,7 +2817,7 @@ template RawRadixTree(Value = void)
         }
 
         /// ditto
-        inout(Value*) containsAt(inout Node curr, UKey key) /*TODO remove*/ @trusted
+        inout(Value*) containsAt(inout Node curr, UKey key) /* TODO make @safe */ @trusted
         {
             assert(key.length);
             // debug if (willFail) { dbg("key:", key); }
@@ -2867,7 +2867,7 @@ template RawRadixTree(Value = void)
             }
         }
         /// ditto
-        bool containsAt(Node curr, UKey key) /*TODO remove*/ @trusted
+        bool containsAt(Node curr, UKey key) /* TODO make @safe */ @trusted
         {
             assert(key.length);
             // debug if (willFail) { dbg("key:", key); }
@@ -2899,7 +2899,7 @@ template RawRadixTree(Value = void)
         }
     }
 
-    inout(Node) prefixAt(inout Node curr, UKey keyPrefix, out UKey keyPrefixRest) /*TODO remove*/ @trusted pure nothrow @nogc
+    inout(Node) prefixAt(inout Node curr, UKey keyPrefix, out UKey keyPrefixRest) /* TODO make @safe */ @trusted pure nothrow @nogc
     {
         import std.algorithm : startsWith;
         final switch (curr.typeIx) with (Node.Ix)
@@ -2978,7 +2978,7 @@ template RawRadixTree(Value = void)
         return curr;
     }
 
-    inout(Node) matchCommonPrefixAt(inout Node curr, UKey key, out UKey keyRest) /*TODO remove*/ @trusted pure nothrow @nogc
+    inout(Node) matchCommonPrefixAt(inout Node curr, UKey key, out UKey keyRest) /* TODO make @safe */ @trusted pure nothrow @nogc
     {
         // dbg(curr.typeIx);
         import std.algorithm : startsWith;

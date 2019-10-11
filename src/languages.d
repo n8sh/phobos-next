@@ -14,6 +14,7 @@ enum Lang
 {
     unknown,
     nullValue = unknown,
+    holeValue,                  // `OpenHashMapOrSet` hole suppor
 
     en, english = en,            /// English
     en_US, american_english = en_US,    /// American. English

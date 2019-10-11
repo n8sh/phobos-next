@@ -234,17 +234,22 @@ struct OpenHashMapOrSet(K, V = void,
         // static immutable K holeKey_2 = cast(K)((cast(size_t*)null));
     }
     else
+    /* else static if (__traits(hasMember, K, "nullifier")) */
     {
-        static if (__traits(hasMember, K, "nullifier"))
-        {
-            pragma(msg, "Need explicit hole bitset for non-address-like key: ", K, " with nullifier ", K.nullifier.stringof);
-        }
-        else
-        {
+        /* alias Nullifier = typeof(K.init.nullifier); */
+        /* static if (isHoleable!Nullifier) */
+        /* { */
+        /*     static K holeKeyConstant() @trusted pure nothrow @nogc */
+        /*     { */
+        /*         return K.nullValue; */
+        /*     } */
+        /* } */
+        /* else */
+        /* { */
             pragma(msg, "Need explicit hole bitset for non-address-like key: ", K);
-        }
-        import core.bitop : bts, bt, btr;
-        import array_help : makeUninitializedBitArray, makeZeroedBitArray, makeReallocatedBitArrayZeroPadded;
+            import core.bitop : bts, bt, btr;
+            import array_help : makeUninitializedBitArray, makeZeroedBitArray, makeReallocatedBitArrayZeroPadded;
+        /* } */
     }
 
     /// Element type.

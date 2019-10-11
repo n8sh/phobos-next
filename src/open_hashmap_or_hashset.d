@@ -2151,6 +2151,8 @@ unittest
     X x;
 
     const aa = "aa";
+
+    // two keys with same contents but different place in memory
     const key1 = ExprPot(aa[0 .. 1], Pot.noun);
     const key2 = ExprPot(aa[1 .. 2], Pot.noun);
 

@@ -94,9 +94,6 @@ private template defaultKeyEqualPredOf(T)
  *
  * TODO fix bug in `growInPlaceWithCapacity` and benchmark
  *
- * TODO add support for checking existence `K.nullifier` that infers, for
- * instance, how to tag a `ZingRelation` and `Expr` as `null` or a `hole`.
- *
  * TODO modify existing unittest for `struct Rel { const string name; }`
  *
  * TODO use allocator.dispose() instead of allocator.deallocate() as in

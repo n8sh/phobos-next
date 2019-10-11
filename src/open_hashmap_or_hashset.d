@@ -2133,7 +2133,7 @@ unittest
     () @trusted { assert(a._bins != b._bins); }();
 }
 
-@safe pure nothrow /*@nogc*/ unittest
+@safe pure nothrow @nogc unittest
 {
     enum Pot { noun, verb }
     struct ExprPot

@@ -163,13 +163,9 @@ struct OpenHashMapOrSet(K, V = void,
     enum hasAddressLikeKey = (isAddress!K ||
                               isDynamicArray!K);
 
-    /** Is `true` iff `K` has a specific value `holeKeyConstant` that represent
-     * holes.
-     */
-    enum hasHoleableKey = isHoleable!K || hasAddressLikeKey;
-
     static if (isHoleable!K)
     {
+        enum hasHoleableKey = true;
         static K holeKeyConstant() @safe pure nothrow @nogc
         {
             pragma(inline, true);
@@ -191,6 +187,7 @@ struct OpenHashMapOrSet(K, V = void,
     }
     else static if (hasAddressLikeKey)
     {
+        enum hasHoleableKey = true;
         enum holeKeyOffset = 0x1; // TODO is this a good value? Or is 0xffff_ffff_ffff_ffff better?
         @trusted enum holeKeyAddress = cast(void*)holeKeyOffset;
 
@@ -233,23 +230,39 @@ struct OpenHashMapOrSet(K, V = void,
         // enum K holeKey_1 = cast(K)((cast(size_t*)null));
         // static immutable K holeKey_2 = cast(K)((cast(size_t*)null));
     }
-    else
-    /* else static if (__traits(hasMember, K, "nullifier")) */
+    else static if (__traits(hasMember, K, "nullifier"))
     {
-        /* alias Nullifier = typeof(K.init.nullifier); */
-        /* static if (isHoleable!Nullifier) */
-        /* { */
-        /*     static K holeKeyConstant() @trusted pure nothrow @nogc */
-        /*     { */
-        /*         return K.nullValue; */
-        /*     } */
-        /* } */
-        /* else */
-        /* { */
+        alias Nullifier = typeof(K.init.nullifier);
+        // TODO pragma(msg, K, " has nullifier ", Nullifier);
+        static if (isHoleable!Nullifier)
+        {
+            // TODO pragma(msg, K, " has holeable nullifier ", Nullifier);
+            enum hasHoleableKey = true;
+            static K holeKeyConstant() @trusted pure nothrow @nogc
+            {
+                K k;
+                k.nullifier = Nullifier.holeValue;
+                return k;
+            }
+            static bool isHoleKeyConstant(const scope K key) @trusted pure nothrow @nogc
+            {
+                return key.nullfier == Nullifier.holeValue;
+            }
+        }
+        else
+        {
+            enum hasHoleableKey = false;
             pragma(msg, "Need explicit hole bitset for non-address-like key: ", K);
             import core.bitop : bts, bt, btr;
             import array_help : makeUninitializedBitArray, makeZeroedBitArray, makeReallocatedBitArrayZeroPadded;
-        /* } */
+        }
+    }
+    else
+    {
+        enum hasHoleableKey = false;
+        pragma(msg, "Need explicit hole bitset for non-address-like key: ", K);
+        import core.bitop : bts, bt, btr;
+        import array_help : makeUninitializedBitArray, makeZeroedBitArray, makeReallocatedBitArrayZeroPadded;
     }
 
     /// Element type.

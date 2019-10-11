@@ -11,61 +11,6 @@ import pure_mallocator : Mallocator = PureMallocator;
 
 @safe:
 
-/** Is `true` iff `T` is a memory address (either a `class` or a pointer). */
-enum bool isAddress(T) = (is(T == class) ||
-                          (is(T == U*, U) &&
-                           // exclude alias this:
-                           !(is(T == struct) ||
-                             is(T == union) ||
-                             is(T == interface))));
-
-/** Is `true` iff `T` has a specific value dedicated to representing holes
- * (removed/erase) values.
- */
-enum isHoleable(T) = (// __traits(hasMember, T, "isHole") &&
-                      // __traits(hasMember, T, "holeify") &&
-                      __traits(hasMember, T, "holeValue"));
-
-private template defaultKeyEqualPredOf(T)
-{
-    static if (is(T == class))
-    {
-        // static assert(__traits(hasMember, T, "opEquals"),
-        //               "Type" ~ T.stringof ~ " doesn't have local opEquals() defined");
-        // enum defaultKeyEqualPredOf = "a && b && a.opEquals(b)";
-        enum defaultKeyEqualPredOf = "a is b";
-        // (const T a, const T b) => ((a !is null) && (b !is null) && a.opEquals(b));
-    }
-    else
-    {
-        enum defaultKeyEqualPredOf = "a == b";
-    }
-}
-
-///
-@safe pure nothrow unittest
-{
-    class C
-    {
-        @safe pure nothrow @nogc:
-        this(int x)
-        {
-            this.x = x;
-        }
-        @property bool opEquals(const scope typeof(this) rhs) const
-        {
-            return x == rhs.x;
-        }
-        @property override bool opEquals(const scope Object rhs) const @trusted
-        {
-            C rhs_ = cast(C)rhs;
-            return rhs_ && x == rhs_.x;
-        }
-        int x;
-    }
-    static assert(defaultKeyEqualPredOf!(C) == "a is b");
-}
-
 /** Hash table/map (or set) with open-addressing, storing (key) elements of type
  * `K` and values of type `V`.
  *
@@ -3858,6 +3803,61 @@ unittest
     }
 
     assert(a == b);
+}
+
+/** Is `true` iff `T` is a memory address (either a `class` or a pointer). */
+enum bool isAddress(T) = (is(T == class) ||
+                          (is(T == U*, U) &&
+                           // exclude alias this:
+                           !(is(T == struct) ||
+                             is(T == union) ||
+                             is(T == interface))));
+
+/** Is `true` iff `T` has a specific value dedicated to representing holes
+ * (removed/erase) values.
+ */
+enum isHoleable(T) = (// __traits(hasMember, T, "isHole") &&
+                      // __traits(hasMember, T, "holeify") &&
+    __traits(hasMember, T, "holeValue"));
+
+private template defaultKeyEqualPredOf(T)
+{
+    static if (is(T == class))
+    {
+        // static assert(__traits(hasMember, T, "opEquals"),
+        //               "Type" ~ T.stringof ~ " doesn't have local opEquals() defined");
+        // enum defaultKeyEqualPredOf = "a && b && a.opEquals(b)";
+        enum defaultKeyEqualPredOf = "a is b";
+        // (const T a, const T b) => ((a !is null) && (b !is null) && a.opEquals(b));
+    }
+    else
+    {
+        enum defaultKeyEqualPredOf = "a == b";
+    }
+}
+
+///
+@safe pure nothrow unittest
+{
+    class C
+    {
+        @safe pure nothrow @nogc:
+        this(int x)
+        {
+            this.x = x;
+        }
+        @property bool opEquals(const scope typeof(this) rhs) const
+        {
+            return x == rhs.x;
+        }
+        @property override bool opEquals(const scope Object rhs) const @trusted
+        {
+            C rhs_ = cast(C)rhs;
+            return rhs_ && x == rhs_.x;
+        }
+        int x;
+    }
+    static assert(defaultKeyEqualPredOf!(C) == "a is b");
 }
 
 version(unittest)

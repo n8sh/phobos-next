@@ -2159,6 +2159,8 @@ unittest
     assert(key1 == key2);
     assert(key1 !is key2);
 
+    assert(!x.contains(key1));
+    assert(!x.contains(key2));
     x.insert(key1);
     assert(x.contains(key1));
     assert(x.containsUsingLinearSearch(key1));

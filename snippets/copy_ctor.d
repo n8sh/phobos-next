@@ -12,7 +12,7 @@ struct A
     }
     this(ref return scope inout A rhs) inout // copy ctor
     {
-        writeln("copying ", rhs.x);
+        writeln("copying ", rhs.x, " from ");
         this.x = rhs.x;
     }
     int x;

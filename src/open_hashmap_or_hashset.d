@@ -3,11 +3,13 @@ module open_hashmap_or_hashset;
 // version = showEntries;
 // version = internalUnittest; // fed by dub (see dub.sdl) in unittest-internal mode
 
+import core.lifetime : emplace, move, moveEmplace;
+
 import container_traits : isNullable;
 import pure_mallocator : Mallocator = PureMallocator;
 // TODO import std.experimental.allocator.mallocator : Mallocator;
 
-import core.lifetime : emplace, move, moveEmplace;
+@safe:
 
 /** Is `true` iff `T` is a memory address (either a `class` or a pointer). */
 enum bool isAddress(T) = (is(T == class) ||
@@ -63,8 +65,6 @@ private template defaultKeyEqualPredOf(T)
     }
     static assert(defaultKeyEqualPredOf!(C) == "a is b");
 }
-
-@safe:
 
 /** Hash table/map (or set) with open-addressing, storing (key) elements of type
  * `K` and values of type `V`.

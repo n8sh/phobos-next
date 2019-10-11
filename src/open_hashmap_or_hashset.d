@@ -2143,12 +2143,6 @@ unittest
 
         alias nullifier = expr;
         static immutable nullValue = typeof(this).init;
-
-        bool opEquals(const scope typeof(this) that) const @safe pure nothrow @nogc
-        {
-            return (this.expr == that.expr &&
-                    this.pot == that.pot);
-        }
     }
 
     import digestx.fnv : FNV;

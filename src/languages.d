@@ -13,8 +13,8 @@ import conv_ex : toDefaulted;
 enum Lang
 {
     unknown,
-    nullValue = unknown,
-    holeValue,                  // `OpenHashMapOrSet` hole suppor
+    nullValue = unknown,        // `OpenHashMapOrSet` null support
+    holeValue,                  // `OpenHashMapOrSet` hole support
 
     en, english = en,            /// English
     en_US, american_english = en_US,    /// American. English

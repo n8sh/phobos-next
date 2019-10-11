@@ -10,7 +10,7 @@ struct A
     {
         this.x = x;
     }
-    this(ref return scope A rhs) // copy ctor
+    this(ref return scope inout A rhs) inout // copy ctor
     {
         writeln("copying ", rhs.x);
         this.x = rhs.x;
@@ -23,5 +23,5 @@ void main()
     auto a = A(42);
     A b = a;            // calls copy constructor implicitly - prints "x"
     A c = A(b);         // calls constructor explicitly
-    // immutable A d = a;  // calls copy constructor implicittly - prints 7
+    immutable A d = a;  // calls copy constructor implicittly - prints 7
 }

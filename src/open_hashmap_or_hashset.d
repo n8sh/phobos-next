@@ -2742,7 +2742,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
 }
 
 /// make range from l-value and r-value. element access is always const
-@system pure unittest
+@safe pure unittest
 {
     version(showEntries) dbg();
     alias K = Nullable!(uint, uint.max);
@@ -2810,7 +2810,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
 }
 
 /// range checking
-@trusted pure unittest
+@safe pure unittest
 {
     version(showEntries) dbg();
     immutable n = 11;
@@ -2855,7 +2855,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
 }
 
 /// class as value
-@trusted pure unittest
+@safe pure unittest
 {
     version(showEntries) dbg();
     immutable n = 11;
@@ -3768,7 +3768,7 @@ unittest
 }
 
 /// `SSOString` as map key type
-@trusted pure nothrow @nogc
+@safe pure nothrow @nogc
 unittest
 {
     import sso_string : SSOString;

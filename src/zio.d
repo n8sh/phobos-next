@@ -186,8 +186,8 @@ private:
     Appender!(E[]) _lbuf;       // line buffer
 
     // NOTE this is slower for ldc:
-    // import array_ex : UniqueArray;
-    // UniqueArray!E _lbuf;
+    // import basic_array : Array;
+    // Array!E _lbuf;
 
     E _separator;
 }

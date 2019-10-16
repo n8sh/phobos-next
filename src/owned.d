@@ -1,10 +1,5 @@
 module owned;
 
-version(unittest)
-{
-    import dbgio;
-}
-
 /** Return wrapper around container `Container` that can be safely sliced, by
     tracking number of read borrowed ranges and whether it's currently write
     borrowed.
@@ -182,11 +177,6 @@ template needsOwnership(Container)
     enum needsOwnership = is(Container == struct);
 }
 
-version(unittest)
-{
-    import array_ex : UniqueArray, CopyingArray;
-}
-
 pure unittest
 {
     alias A = UniqueArray!int;
@@ -204,15 +194,6 @@ pure unittest
     A a = A.init;
     a = A.init;
     // TODO a ~= A.init;
-}
-
-@safe pure unittest
-{
-    alias A = CopyingArray!int;
-    A a = A.init;
-    A b = A.init;
-    a = b;
-    a ~= b;
 }
 
 pure unittest
@@ -422,4 +403,10 @@ nothrow unittest
     // static assert(isRandomAccessRange!OS);
     // import std.algorithm.sorting : sort;
     // sort(o[]);
+}
+
+version(unittest)
+{
+    import basic_array : UniqueArray = BasicArray;
+    import dbgio;
 }

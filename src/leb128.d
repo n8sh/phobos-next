@@ -59,8 +59,8 @@ version(unittest)
 
     import std.array : Appender;
     alias Raw = Appender!(ubyte[]);
-    // import array_ex : UniqueArray;
-    // alias Raw = UniqueArray!ubyte;
+    // import basic_array : BasicArray;
+    // alias Raw = BasicArray!ubyte;
 }
 
 @safe pure nothrow unittest

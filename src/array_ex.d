@@ -1055,7 +1055,7 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
         }
     }
 
-    import searching_ex : containsStoreIndex; // TODO this is redundant but elides rdmd dependency error from array_ex.d
+    import searching_ex : containsStoreIndex; // TODO this is redundant but elides rdmd dependency error for array_ex.d
 
     static if (isOrdered!ordering)
     {
@@ -2648,6 +2648,7 @@ pure nothrow /+TODO @nogc+/ unittest
 }
 
 ///
+version(none)
 @safe pure nothrow @nogc unittest
 {
     alias A = UniqueArray!int;
@@ -2783,6 +2784,7 @@ version(unittest)
 // }
 
 /// See_Also: http://forum.dlang.org/post/omfm56$28nu$1@digitalmars.com
+version(none)
 @safe pure nothrow unittest
 {
     import std.range : ElementType;

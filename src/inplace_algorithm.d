@@ -141,7 +141,6 @@ if (hasIndexing!C && // TODO extend to `isArrayContainer`!C eller `isRandomAcces
     import std.meta : AliasSeq;
     import unique_range : intoUniqueRange;
     import basic_array : BasicArray;
-    import array_ex : SortedSetUniqueArray;
 
     alias E = int;
     foreach (C; AliasSeq!(BasicArray// ,

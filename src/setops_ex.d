@@ -263,14 +263,14 @@ setIntersectionFast(alias less = "a < b",
     import std.algorithm.sorting : sort;
     import std.algorithm.setops : setIntersection;
     import random_ex : randInPlaceWithElementRange;
-    import array_ex : UniqueArray;
+    import basic_array : BasicArray;
     import algorithm_ex : collect;
 
     alias E = ulong;
-    alias A = UniqueArray!E;
+    alias A = BasicArray!E;
 
     auto a0 = A();
-    auto a1 = A.withElements(1);
+    auto a1 = A(1);
 
     enum less = "a < b";
 

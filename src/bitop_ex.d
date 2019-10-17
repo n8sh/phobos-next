@@ -11,7 +11,7 @@ module bitop_ex;
 import std.meta : allSatisfy;
 import std.traits : isIntegral;
 
-pure @nogc nothrow:
+@safe pure nothrow @nogc:
 
 /** Get an unsigned type of size as `T` if possible. */
 template UnsignedOfSameSizeAs(T)

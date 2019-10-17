@@ -32,8 +32,8 @@ template UnsignedOfSameSizeAs(T)
 /** Returns: `T` with only `bix`:th bit set. */
 T makeBit(T, I...)(I bixs) @safe
 if (isIntegral!T &&
-        allSatisfy!(isIntegral, I) &&
-        I.length >= 1)
+    allSatisfy!(isIntegral, I) &&
+    I.length >= 1)
 in
 {
     foreach (n, const bix; bixs)
@@ -57,8 +57,8 @@ alias btm = makeBit;
 pragma(inline, true)
 bool testBit(T, I...)(in T a, I bixs) @safe
 if (isIntegral!T &&
-        allSatisfy!(isIntegral, I) &&
-        I.length >= 1)
+    allSatisfy!(isIntegral, I) &&
+    I.length >= 1)
 {
     return a & makeBit!T(bixs) ? true : false;
 }
@@ -67,7 +67,7 @@ if (isIntegral!T &&
 pragma(inline, true)
 bool testBit(T, I...)(in T a, I bixs) @trusted
 if ((!(isIntegral!T)) &&
-        allSatisfy!(isIntegral, I))
+    allSatisfy!(isIntegral, I))
 {
     return (*(cast(UnsignedOfSameSizeAs!T*)&a)).testBit(bixs); // reuse integer variant
 }
@@ -76,9 +76,9 @@ if ((!(isIntegral!T)) &&
 pragma(inline, true)
 bool testBit(T, I...)(in T* a, I bixs) @safe
 if ((!(isIntegral!T)) &&
-        !is(T == size_t) &&     // avoid stealing `core.bitop.bt`
-        allSatisfy!(isIntegral, I) &&
-        I.length >= 1)
+    !is(T == size_t) &&     // avoid stealing `core.bitop.bt`
+    allSatisfy!(isIntegral, I) &&
+    I.length >= 1)
 {
     return testBit(*a, bixs);
 }
@@ -114,8 +114,8 @@ alias bt = testBit;
 pragma(inline, true)
 void setBit(T, I...)(ref T a, I bixs) @safe
 if (isIntegral!T &&
-        allSatisfy!(isIntegral, I) &&
-        I.length >= 1)
+    allSatisfy!(isIntegral, I) &&
+    I.length >= 1)
 {
     a |= makeBit!T(bixs);
 }
@@ -125,9 +125,9 @@ if (isIntegral!T &&
 pragma(inline, true)
 void setBit(T, I...)(T* a, I bixs) @safe
 if (isIntegral!T &&
-        !is(T == size_t) && // avoid stealing core.bitop.bt
-        allSatisfy!(isIntegral, I) &&
-        I.length >= 1)
+    !is(T == size_t) && // avoid stealing core.bitop.bt
+    allSatisfy!(isIntegral, I) &&
+    I.length >= 1)
 {
     *a |= makeBit!T(bixs);
 }
@@ -137,8 +137,8 @@ if (isIntegral!T &&
 pragma(inline, true)
 void setBit(T, I...)(ref T a, I bixs) @trusted
 if ((!(isIntegral!T)) &&
-        allSatisfy!(isIntegral, I) &&
-        I.length >= 1)
+    allSatisfy!(isIntegral, I) &&
+    I.length >= 1)
 {
     alias U = UnsignedOfSameSizeAs!T;
     (*(cast(U*)&a)) |= makeBit!U(bixs); // reuse integer variant
@@ -209,7 +209,7 @@ alias getMsbit = getHighestBit;
 pragma(inline, true)
 void resetBit(T, I...)(ref T a, I bixs) @safe
 if (isIntegral!T &&
-        allSatisfy!(isIntegral, I))
+    allSatisfy!(isIntegral, I))
 {
     a &= ~makeBit!T(bixs);
 }
@@ -218,8 +218,8 @@ if (isIntegral!T &&
 pragma(inline, true)
 void resetBit(T, I...)(T* a, I bixs) @safe
 if (isIntegral!T &&
-        !is(T == size_t) && // avoid stealing core.bitop.bt
-        allSatisfy!(isIntegral, I))
+    !is(T == size_t) && // avoid stealing core.bitop.bt
+    allSatisfy!(isIntegral, I))
 {
     *a &= ~makeBit!T(bixs);
 }
@@ -228,7 +228,7 @@ if (isIntegral!T &&
 pragma(inline, true)
 void resetBit(T, I...)(ref T a, I bixs)
 if ((!(isIntegral!T)) &&
-        allSatisfy!(isIntegral, I))
+    allSatisfy!(isIntegral, I))
 {
     alias U = UnsignedOfSameSizeAs!T;
     (*(cast(U*)&a)) &= ~makeBit!U(bixs); // reuse integer variant

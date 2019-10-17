@@ -12,9 +12,10 @@ enum ObjectType { URI, undecodedURI, blankNode, literal }
 
 @safe:
 
-/** Iterate RDF-File $(D rdfFile) by RDF N-Triple. */
+/** Iterate RDF-File $(D rdfFile) by RDF N-Triple.
+ */
 auto byNTriple(File rdfFile,
-               const dchar commentPrefix = '#')
+               const dchar commentPrefix = '#') // TODO can we support inout?
 {
     import bylinefast : byLineFast, KeepTerminator;
     import std.algorithm : map, filter;
@@ -154,9 +155,9 @@ struct NTriple(ElementType)
 }
 
 /**
-   Decode $(D S) into a an N-Triple.
-
-   TODO Better to call it asNTriple or toNTriple or support conversion via std.conv: to?
+ * Decode $(D S) into a an N-Triple.
+ *
+ * TODO Better to call it asNTriple or toNTriple or support conversion via std.conv: to?
  */
 NTriple!S nTriple(S)(S s) @safe pure
 if (isCharsSlice!S)

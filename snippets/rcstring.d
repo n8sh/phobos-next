@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 /** Reference Counted Array.
     See_Also: http://dpaste.dzfl.pl/817283c163f5
  */

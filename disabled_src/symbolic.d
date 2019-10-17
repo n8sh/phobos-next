@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 /**
    Symbolic (Regular) Expressions and Predicate Logic.
 

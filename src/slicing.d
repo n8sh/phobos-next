@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 module slicing;
 
 /** Slice at all positions where $(D isTerminator) is $(D false) before current

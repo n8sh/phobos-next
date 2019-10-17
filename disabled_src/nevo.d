@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 /** Neuroevolution.
 
    See_Also: https://en.wikipedia.org/wiki/Neuroevolution

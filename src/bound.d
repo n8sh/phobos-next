@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 /** Bounded Arithmetic Wrapper Type, similar to Ada Range/Interval Types.
 
     Copyright: Per Nordlöw 2018-.

@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 module combinations;
 
 /** Given non-negative integers $(D m) and $(D n), generate all size $(D m)

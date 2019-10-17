@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 /** Pretty Printing to AsciiDoc, HTML, LaTeX, JIRA Wikitext, etc.
 
     Copyright: Per Nordlöw 2018-.

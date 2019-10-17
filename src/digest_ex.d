@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 module digest_ex;
 
 /** Message Digest.

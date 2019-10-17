@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 /** Boyer–Moore–Horspool Algorithm
     See_Also: https://en.wikipedia.org/wiki/Boyer%E2%80%93Moore%E2%80%93Horspool_algorithm
     Copyright: Per Nordlöw 2014-.

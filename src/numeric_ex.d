@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 module numeric_ex;
 
 import std.range: isInputRange, ElementType;

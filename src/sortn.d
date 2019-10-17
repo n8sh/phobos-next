@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 /** Fixed Length Sorting via Sorting Networks.
 
     See_Also: http://forum.dlang.org/post/ne5m62$1gu5$1@digitalmars.com

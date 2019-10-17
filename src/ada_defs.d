@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 module ada_defs;
 
 /// Logical Operators

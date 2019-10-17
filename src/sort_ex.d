@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 /** Extensions to std.algorithm.sort.
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
 */

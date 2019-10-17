@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 /** Operations for Creating Temporary Files and Directories.
     Copyright: Per Nordlöw 2018-.
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).

@@ -1,4 +1,4 @@
-#!/usr/bin/env rdmd-dev-module
+module show;
 
 import algorithm_ex: overlap;
 

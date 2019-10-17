@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 /** Extensions to Enumerations.
 
     Copyright: Per Nordlöw 2018-.

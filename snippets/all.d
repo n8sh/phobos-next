@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 /** Helper to import useful Phobos packages.
     */
 module all;

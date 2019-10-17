@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 module typedoc;
 
 /** Returns: Documentation String for Enumeration Type $(D EnumType). */

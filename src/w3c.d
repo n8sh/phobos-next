@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 /** W3C (XML/HTML) Formatting.
 
     Copyright: Per Nordlöw 2018-.

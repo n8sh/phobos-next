@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 module permutations;
 
 import std.range.primitives: isInputRange;

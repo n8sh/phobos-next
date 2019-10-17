@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 /** Ada Lexer.  */
 module ada_lexer;
 

@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 module module1;
 
 void f1(string[] args) {

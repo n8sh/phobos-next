@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 module skip_ex;
 
 import std.functional : binaryFun;

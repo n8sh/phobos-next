@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 /** Randomize existing instances and generate randomized instances of a given type.
 
     Copyright: Per Nordlöw 2018-.

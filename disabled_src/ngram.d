@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-dev-module
-
 /** First and Higher Order Statistics: $(LUCKY Histograms) and $(LUCKY N-grams).
 
     Copyright: Per Nordlöw 2018-.

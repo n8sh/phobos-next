@@ -94,7 +94,7 @@ struct SExpr
         if (subs) { sink(`(`); }
 
         token.toString(sink);
-        
+
         TOK lastTok = TOK.unknown;
         foreach (const ref sub; subs)
         {
@@ -113,7 +113,7 @@ struct SExpr
 
 import fixed_array : FixedArray;
 
-alias SExprs = FixedArray!(SExpr, 512);
+alias SExprs = FixedArray!(SExpr, 1024);
 
 /** Returns: true if `s` is null-terminated (ending with `'\0'`).
  *
@@ -293,7 +293,7 @@ private:
             }
             gotSymbol = alphaCount >= 2; // at least two letters, excluding floating point such as 1.0e+10
         }
-        
+
         return skipOverN(i);
     }
 
@@ -337,7 +337,7 @@ private:
         _subExprsCount += exprs.length; // log it for future optimizations
         return exprs.dup; // TODO use region allocator stored locally in `LispParser`
     }
-    
+
     void nextFront()
     {
         import std.range : empty, front, popFront, popFrontN;

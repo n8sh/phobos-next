@@ -154,8 +154,7 @@ struct NTriple(ElementType)
     const ElementType objectDataTypeURI;
 }
 
-/**
- * Decode $(D S) into a an N-Triple.
+/** Decode $(D S) into a an N-Triple.
  *
  * TODO Better to call it asNTriple or toNTriple or support conversion via std.conv: to?
  */

@@ -180,8 +180,6 @@ if (isCharsSlice!S)
 
     return typeof(return)(subject, predicate, s);
 }
-alias asNTriple = nTriple;
-alias toNTriple = nTriple;
 
 ///
 @safe pure unittest

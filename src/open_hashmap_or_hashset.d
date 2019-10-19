@@ -34,7 +34,7 @@ import pure_mallocator : Mallocator = PureMallocator;
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  * See_Also: https://gankro.github.io/blah/hashbrown-insert/
  *
- * TODO use `StoreKey` in store and cast between it and `Key`
+ * TODO use `StoreKeyType` in store and cast between it and `Key`
  *
  * TODO allocate _holesPtr array together with _bins to reduce size of
  * `OpenHashMapOrSet` to 3 words when element type doesn't support it
@@ -95,23 +95,24 @@ struct OpenHashMapOrSet(K, V = void,
     alias keyEqualPredFn = binaryFun!keyEqualPred;
 
     static if ((is(K == class)) &&
-               keyEqualPred == `a is b`)
+               keyEqualPred == `a is b`) // TODO use better predicate compare?
     {
-        alias StoreKey = void*;
+        alias StoreKeyType = void*;
     }
     else
     {
         import std.traits : isPointer;
         static if (isPointer!K &&
+                   // TODO use better predicate compare?
                    (keyEqualPred == `a == b` ||
                     keyEqualPred == `a is b`))
         {
-            alias StoreKey = void*;
+            alias StoreKeyType = void*;
         }
-    }
-    else
-    {
-        alias StoreKey = Key;
+        else
+        {
+            alias StoreKeyType = K;
+        }
     }
 
     enum isBorrowChecked = borrowChecked;

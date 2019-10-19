@@ -34,7 +34,7 @@ import pure_mallocator : Mallocator = PureMallocator;
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  * See_Also: https://gankro.github.io/blah/hashbrown-insert/
  *
- * TODO use `StoreKeyType` in store and cast between it and `Key`
+ * TODO use `StoreKeyType` in store and cast between it and `KeyType`
  *
  * TODO allocate _holesPtr array together with _bins to reduce size of
  * `OpenHashMapOrSet` to 3 words when element type doesn't support it

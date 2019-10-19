@@ -264,10 +264,10 @@ struct OpenHashMapOrSet(K, V = void,
         }
 
         /** Type of key stored. */
-        alias KeyType = K;      // for non-local use
+        public alias KeyType = K;
 
         /** Type of value stored. */
-        alias ValueType = V;    // for non-local use
+        public alias ValueType = V;
 
         enum nullKeyElement = T(defaultNullKeyConstantOf!K, V.init);
 

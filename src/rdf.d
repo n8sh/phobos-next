@@ -2,7 +2,7 @@ module rdf;
 
 import std.traits: isNarrowString;
 import traits_ex : isCharsSlice;
-import std.range : empty, hasSlicing, hasLength;
+import std.range.primitives : empty, hasSlicing, hasLength;
 import std.string: indexOf, lastIndexOf;
 import std.stdio: File;
 import std.algorithm.searching: startsWith, endsWith, findSplit;

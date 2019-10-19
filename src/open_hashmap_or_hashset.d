@@ -34,7 +34,7 @@ import pure_mallocator : Mallocator = PureMallocator;
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  * See_Also: https://gankro.github.io/blah/hashbrown-insert/
  *
- * TODO use `StoreKeyType` in store and cast between it and `KeyType`
+ * TODO use `StoreK` in store and cast between it and `KeyType`
  *
  * TODO allocate _holesPtr array together with _bins to reduce size of
  * `OpenHashMapOrSet` to 3 words when element type doesn't support it
@@ -97,7 +97,7 @@ struct OpenHashMapOrSet(K, V = void,
     static if ((is(K == class)) &&
                keyEqualPred == `a is b`) // TODO use better predicate compare?
     {
-        alias StoreKeyType = void*;
+        alias StoreK = void*;
     }
     else
     {
@@ -107,11 +107,11 @@ struct OpenHashMapOrSet(K, V = void,
                    (keyEqualPred == `a == b` ||
                     keyEqualPred == `a is b`))
         {
-            alias StoreKeyType = void*;
+            alias StoreK = void*;
         }
         else
         {
-            alias StoreKeyType = K;
+            alias StoreK = K;
         }
     }
 

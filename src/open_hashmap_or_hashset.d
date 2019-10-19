@@ -1181,10 +1181,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             assert(!keyOf(element).isNull);
             static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(cast(K)adjustKeyType(keyOf(element)))); }
-            static if (hasHoleableKey)
-            {
-                assert(!isHoleKeyConstant(keyOf(element)));
-            }
+            static if (hasHoleableKey) { assert(!isHoleKeyConstant(keyOf(element))); }
         }
 
         size_t holeIndex = size_t.max; // first hole index to written to if hole found

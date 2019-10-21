@@ -111,10 +111,6 @@ struct SExpr
     }
 }
 
-import fixed_array : FixedArray;
-
-alias SExprs = FixedArray!(SExpr, 1024);
-
 /** Returns: true if `s` is null-terminated (ending with `'\0'`).
  *
  * Prior to parsing used to verify input to parsers that make use of
@@ -500,7 +496,9 @@ private:
     size_t _offset;             // current offset in `_input`
     const Input _input;         // input
 
-    SExprs _topExprs;           // top s-expressions (stack)
+    import fixed_array : FixedArray;
+    alias TopExprs = FixedArray!(SExpr, 1024);
+    TopExprs _topExprs;           // top s-expressions (stack)
     size_t _subExprsCount;
 
     SExpr[] _subExprsStore;     // sub s-expressions (region)

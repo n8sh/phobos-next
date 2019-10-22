@@ -108,9 +108,8 @@ if (Ranges.length >= 2 &&
         static if (isCharsSlice!(Range) &&
                    allSatisfy!(isCharsSlice, Ranges))
         {
-            // `nothrow` fast path
-            import std.algorithm.searching : startsWith;
-            if (haystack.startsWith(needle))
+            // `nothrow` char[] fast path
+            if (haystack[0 .. needle.length] == needle)
             {
                 haystack = haystack[needle.length .. haystack.length];
                 return ix + 1;

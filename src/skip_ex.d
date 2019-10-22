@@ -18,9 +18,9 @@ if (isBidirectionalRange!R1 &&
     isBidirectionalRange!R2 &&
     is(typeof(r1.back == r2.back)))
 {
-    static if (is(typeof(r1[0 .. $] == r2) : bool)
-        && is(typeof(r2.length > r1.length) : bool)
-        && is(typeof(r1 = r1[0 .. $ - r2.length])))
+    static if (is(typeof(r1[0 .. $] == r2) : bool) &&
+               is(typeof(r2.length > r1.length) : bool) &&
+               is(typeof(r1 = r1[0 .. $ - r2.length])))
     {
         if (r2.length > r1.length || r1[$ - r2.length .. $] != r2)
         {

@@ -2,7 +2,6 @@ module skip_ex;
 
 import std.functional : binaryFun;
 import std.range: front, back, save, empty, popBack, hasSlicing, isBidirectionalRange, ElementType;
-import std.algorithm : skipOver;
 
 version(unittest)
 {
@@ -97,7 +96,7 @@ size_t skipOverEither(alias pred = "a == b", Range, Ranges...)(ref Range haystac
 if (Ranges.length >= 2 &&
     is(typeof(startsWith!pred(haystack, needles))))
 {
-    import std.algorithm : skipOver;
+    import std.algorithm.searching : skipOver;
     // TODO optimize by first skipping common parts using `commonPrefix`
     foreach (const ix, needle; needles)
     {
@@ -124,6 +123,13 @@ if (Ranges.length >= 2 &&
 
 @safe pure /* TODO nothrow @nogc */ unittest
 {
+    auto x = "beta version";
+    assert(x.skipOverEither("x", "y") == 0);
+}
+
+@safe pure /* TODO nothrow @nogc */ unittest
+{
+
     auto x = "beta version";
     assert(x.skipOverEither("x", "y") == 0);
 }
@@ -290,6 +296,7 @@ size_t skipOverBackShortestOf(alias pred = "a == b", Range, Ranges...)(ref Range
 */
 void skipOverPrefixes(R, A)(ref R s, in A prefixes)
 {
+    import std.algorithm.searching : skipOver;
     foreach (prefix; prefixes)
     {
         if (s.length > prefix.length &&

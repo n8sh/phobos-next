@@ -113,6 +113,13 @@ if (Ranges.length >= 2 &&
     return 0;
 }
 
+@safe pure nothrow /* TODO nothrow @nogc */ unittest
+{
+    import std.algorithm.searching : startsWith;
+    auto x = "beta version";
+    assert(x.startsWith("beta"));
+}
+
 @safe pure /* TODO nothrow @nogc */ unittest
 {
     import std.algorithm.searching : skipOver;

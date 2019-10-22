@@ -1,3 +1,7 @@
+/** Extensions to skipOver.
+ *
+ * See_Also: https://forum.dlang.org/post/tswdobtabsjarszfkmbt@forum.dlang.org
+ */
 module skip_ex;
 
 import std.functional : binaryFun;
@@ -107,6 +111,14 @@ if (Ranges.length >= 2 &&
         }
     }
     return 0;
+}
+
+@safe pure /* TODO nothrow @nogc */ unittest
+{
+    import std.algorithm.searching : skipOver;
+    auto x = "beta version";
+    assert(x.skipOver("beta"));
+    assert(x == " version");
 }
 
 @safe pure /* TODO nothrow @nogc */ unittest

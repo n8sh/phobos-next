@@ -101,12 +101,28 @@ size_t skipOverEither(alias pred = "a == b", Range, Ranges...)(ref Range haystac
 if (Ranges.length >= 2 &&
     is(typeof(startsWith!pred(haystack, needles))))
 {
-    import std.algorithm.searching : skipOver;
+    import std.meta : allSatisfy;
+    import traits_ex : isCharsSlice;
     foreach (const ix, needle; needles)
     {
-        if (haystack.startsWith(needle)) // TODO nothrow
+        static if (isCharsSlice!(Range) &&
+                   allSatisfy!(isCharsSlice, Ranges))
         {
-            return ix + 1;
+            // `nothrow` fast path
+            import std.algorithm.searching : startsWith;
+            if (haystack.startsWith(needle))
+            {
+                haystack = haystack[needle.length .. haystack.length];
+                return ix + 1;
+            }
+        }
+        else
+        {
+            import std.algorithm.searching : skipOver;
+            if (haystack.skipOver(needle)) // TODO nothrow
+            {
+                return ix + 1;
+            }
         }
     }
     return 0;
@@ -127,26 +143,26 @@ if (Ranges.length >= 2 &&
     assert(x == " version");
 }
 
-@safe pure /* TODO nothrow @nogc */ unittest
+@safe pure nothrow @nogc unittest
 {
     auto x = "beta version";
     assert(x.skipOverEither("beta", "be") == 1);
     assert(x == " version");
 }
 
-@safe pure /* TODO nothrow @nogc */ unittest
+@safe pure nothrow @nogc unittest
 {
     auto x = "beta version";
     assert(x.skipOverEither("be", "_") == 1);
 }
 
-@safe pure /* TODO nothrow @nogc */ unittest
+@safe pure nothrow @nogc unittest
 {
     auto x = "beta version";
     assert(x.skipOverEither("x", "y") == 0);
 }
 
-@safe pure /* TODO nothrow @nogc */ unittest
+@safe pure nothrow @nogc unittest
 {
 
     auto x = "beta version";

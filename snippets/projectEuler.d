@@ -6,7 +6,8 @@ module projectEuler;
 auto problem2()
 {
     import std.range : recurrence;
-    import std.algorithm : until, filter, reduce;
+    import std.algorithm.iteration : filter, reduce;
+    import std.algorithm.searching : until;
     return recurrence!"a[n-1] + a[n-2]"(1, 1).until!"a > 4_000_000"()
                                              .filter!"a % 2 == 0"()
                                              .reduce!"a + b"();

@@ -18,7 +18,7 @@ unittest
     static assert(isFiberParameter!string);
 }
 
-import std.traits : allSatisfy;
+import core.internal.traits : allSatisfy;
 import core.thread : Fiber;
 import std.stdio;
 

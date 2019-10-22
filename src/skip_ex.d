@@ -189,8 +189,8 @@ if (Ranges.length >= 2 &&
         size_t[needles.length] lengths;
         foreach (ix, needle; needles)
         {
-            import std.traits: isSomeString, isSomeChar;
-            import std.range: ElementType;
+            import std.traits : isSomeString, isSomeChar;
+            import std.range.primitives : ElementType;
             import core.internal.traits : Unqual;
 
             alias Needle = Unqual!(typeof(needle));

@@ -101,7 +101,7 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
     import core.internal.traits : hasElaborateDestructor;
     import core.lifetime : emplace, move, moveEmplace;
     import std.algorithm.mutation : moveEmplaceAll;
-    import std.range : isInputRange, isInfinite, ElementType;
+    import std.range.primitives : isInputRange, isInfinite, ElementType;
     import std.traits : isIterable, isAssignable, Unqual, isArray, isScalarType, hasIndirections, TemplateOf, isCopyable;
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
@@ -1094,7 +1094,7 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
                 assert(!isBorrowed);
 
                 // assert no duplicates in `values`
-                import std.range : empty;
+                import std.range.primitives : empty;
                 import std.algorithm.searching : findAdjacent;
                 import std.algorithm.sorting : sort;
 
@@ -2444,7 +2444,7 @@ pure nothrow /+TODO @nogc+/ unittest
 @safe pure nothrow @nogc unittest
 {
     import std.algorithm.mutation : move;
-    import std.range : ElementType;
+    import std.range.primitives : ElementType;
 
     alias A = Array!int;
     alias AA = Array!A;
@@ -2634,7 +2634,7 @@ pure nothrow /+TODO @nogc+/ unittest
 /// map array of uncopyable
 @safe pure nothrow unittest
 {
-    import std.range : isInputRange;
+    import std.range.primitives : isInputRange;
     import std.array : array;
 
     alias A = UniqueArray!int;
@@ -2787,7 +2787,7 @@ version(unittest)
 version(none)
 @safe pure nothrow unittest
 {
-    import std.range : ElementType;
+    import std.range.primitives : ElementType;
     import std.array : Appender;
 
     struct S

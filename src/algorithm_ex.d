@@ -9,7 +9,7 @@ module algorithm_ex;
 
 /* version = print; */
 
-import std.algorithm : min, max;
+import std.algorithm.comparison : min, max;
 import std.traits : isArray, Unqual, isIntegral, CommonType, isIterable, isFloatingPoint, arity, isSomeString, isSomeChar, isExpressionTuple, isExpressions;
 import std.range : ElementType, isInputRange, isForwardRange, isBidirectionalRange, isRandomAccessRange, isOutputRange, front, back;
 import traits_ex : allSame;
@@ -993,7 +993,7 @@ auto quadruple(T, U, V, W)(T t, U u, V v, W w) { return Quadruple!(T, U, V, W)(t
 */
 struct Limits(T)
 {
-    import std.algorithm: min, max;
+    import std.algorithm.comparison : min, max;
 
     @property:
 
@@ -1332,7 +1332,7 @@ if (isForwardRange!R)
 ///
 unittest
 {
-    import std.algorithm: equal;
+    import std.algorithm.comparison : equal;
     import std.ascii: isDigit;
     assert(`11ab`.splitBefore!(a => !a.isDigit) == tuple(`11`, `ab`));
     assert(`ab`.splitBefore!(a => !a.isDigit) == tuple(``, `ab`));
@@ -1521,7 +1521,7 @@ if (isForwardRange!R1 &&
  */
 Tuple!(R, size_t) findFirstOfAnyInOrder(alias pred = `a == b`, R)(R haystack, const R[] needles)
 {
-    import std.algorithm: find;
+    import std.algorithm.searching : find;
     switch (needles.length)
     {
         case 1:
@@ -1878,7 +1878,7 @@ bool isLinearRamp(R)(R r, size_t step = 1)
 if (isInputRange!R &&
     isIntegral!(ElementType!R))
 {
-    import std.algorithm : findAdjacent;
+    import std.algorithm.searching : findAdjacent;
     import std.range : empty;
     return r.findAdjacent!((a, b) => a + step != b).empty;
 }
@@ -1975,7 +1975,7 @@ if (isInputRange!R)
     static void test(R)(R x)
         if (isInputRange!R)
     {
-        import std.algorithm : count;
+        import std.algorithm.searching : count;
         immutable n = x.count;
 
         // below
@@ -2000,7 +2000,7 @@ if (isInputRange!R)
         }
     }
 
-    import std.algorithm : filter;
+    import std.algorithm.iteration : filter;
     import std.range : iota;
 
     test(3.iota.filter!(x => true));
@@ -2059,7 +2059,7 @@ Container collect(Container, Range) (Range r)
             Container output;
             output.length = r.length;
         }
-        import std.algorithm : copy;
+        import std.algorithm.mutation : copy;
         r.copy(output[]);       // slicing is @trusted
         return output;
     }
@@ -2440,7 +2440,8 @@ nothrow pure @nogc unittest
 auto splitterN(R, S)(scope return R range,
                      const scope S separators)
 {
-    import std.algorithm : splitter, canFind;
+    import std.algorithm.iteration : splitter;
+    import std.algorithm.searching : canFind;
     return range.splitter!(element => separators.canFind(element));
 }
 

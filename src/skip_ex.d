@@ -102,10 +102,9 @@ if (Ranges.length >= 2 &&
     is(typeof(startsWith!pred(haystack, needles))))
 {
     import std.algorithm.searching : skipOver;
-    // TODO optimize by first skipping common parts using `commonPrefix`
     foreach (const ix, needle; needles)
     {
-        if (haystack.skipOver(needle)) // TODO nothrow
+        if (haystack.startsWith(needle)) // TODO nothrow
         {
             return ix + 1;
         }

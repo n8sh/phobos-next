@@ -660,7 +660,7 @@ auto adjacentTuples(size_t N, R)(R r)
 
         auto ref front() @property
         {
-            import std.range : front;
+            import std.range.primitives : front;
             T t;
             t[0 .. M] = _prevs.asTuple;
             t[M] = _source.front;
@@ -679,7 +679,7 @@ auto adjacentTuples(size_t N, R)(R r)
                 copy(_prevs[1 .. M], _prevs[0 .. M - 1]);
             }
 
-            import std.range : front, popFront;
+            import std.range.primitives : front, popFront;
             _prevs[M - 1] = _source.front;
             _source.popFront();
         }

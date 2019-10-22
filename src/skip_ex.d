@@ -1,7 +1,12 @@
 module skip_ex;
 
 import std.functional : binaryFun;
-import std.range: front, back, save, empty, popBack, hasSlicing, isBidirectionalRange, ElementType;
+import std.range.primitives : front, back, save, empty, popBack, hasSlicing, isBidirectionalRange, ElementType;
+
+version(unittest)
+{
+    import array_help : s;
+}
 
 /** Skip over the ending portion of the first given range that matches the
  * second range, or do nothing if there is no match.
@@ -383,9 +388,4 @@ if (isBidirectionalRange!R &&
     auto expr = expr_;
     assert(!expr.skipOverFrontAndBack('"', '"'));
     assert(expr == expr_);
-}
-
-version(unittest)
-{
-    import array_help : s;
 }

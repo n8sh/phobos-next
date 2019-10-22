@@ -157,7 +157,7 @@ if (T.length != 0)
 unittest
 {
     auto whole = `xyz`;
-    import std.algorithm: skipOver;
+    import std.algorithm.searching : skipOver;
 
     assert(whole.tryEvery(whole.skipOver('x'),
                           whole.skipOver('z')) == []); // failing match

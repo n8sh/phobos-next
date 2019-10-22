@@ -112,10 +112,20 @@ if (Ranges.length >= 2 &&
 @safe pure /* TODO nothrow @nogc */ unittest
 {
     auto x = "beta version";
-    assert(x.skipOverEither("be", "beta") == 0);
     assert(x.skipOverEither("beta", "be") == 1);
-    assert(x.skipOverEither("x", "y") == 0);
     assert(x == " version");
+}
+
+@safe pure /* TODO nothrow @nogc */ unittest
+{
+    auto x = "beta version";
+    assert(x.skipOverEither("be", "_") == 1);
+}
+
+@safe pure /* TODO nothrow @nogc */ unittest
+{
+    auto x = "beta version";
+    assert(x.skipOverEither("x", "y") == 0);
 }
 
 /** Skip Over Shortest Matching prefix in $(D needles) that prefixes $(D haystack).

@@ -101,7 +101,7 @@ size_t skipOverEither(alias pred = "a == b", Range, Ranges...)(ref Range haystac
 if (Ranges.length >= 2 &&
     is(typeof(startsWith!pred(haystack, needles))))
 {
-    import std.meta : allSatisfy;
+    import core.internal.traits : allSatisfy;
     import traits_ex : isCharsSlice;
     foreach (const ix, needle; needles)
     {

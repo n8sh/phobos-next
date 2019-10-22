@@ -345,7 +345,7 @@ nothrow unittest
 @safe nothrow unittest
 {
     import std.algorithm.sorting : sort;
-    import std.range : isInputRange, isForwardRange, isRandomAccessRange, hasSlicing;
+    import std.range.primitives : isInputRange, isForwardRange, isRandomAccessRange, hasSlicing;
 
     alias E = int;
     alias A = UniqueArray!E;
@@ -380,7 +380,7 @@ nothrow unittest
 @safe nothrow unittest
 {
     import std.algorithm.sorting : sort;
-    import std.range : isInputRange, isForwardRange, isRandomAccessRange, hasSlicing;
+    import std.range.primitives : isInputRange, isForwardRange, isRandomAccessRange, hasSlicing;
 
     alias E = int;
     alias A = UniqueArray!E;

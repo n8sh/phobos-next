@@ -119,7 +119,7 @@ if (is(T == enum))
     enum Things { isURI, isLink }
     auto r = Things.isURI.toLowerSpacedChars;
     alias R = typeof(r);
-    import std.range : ElementType;
+    import std.range.primitives : ElementType;
     alias E = ElementType!R;
     static assert(is(E == dchar));
 }

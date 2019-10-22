@@ -11,7 +11,7 @@ module algorithm_ex;
 
 import std.algorithm.comparison : min, max;
 import std.traits : isArray, Unqual, isIntegral, CommonType, isIterable, isFloatingPoint, arity, isSomeString, isSomeChar, isExpressionTuple, isExpressions;
-import std.range : ElementType, isInputRange, isForwardRange, isBidirectionalRange, isRandomAccessRange, isOutputRange, front, back;
+import std.range.primitives : ElementType, isInputRange, isForwardRange, isBidirectionalRange, isRandomAccessRange, isOutputRange, front, back;
 import traits_ex : allSame;
 import std.functional : unaryFun, binaryFun;
 import std.algorithm.searching : find;
@@ -253,7 +253,7 @@ auto findInOrder(alias pred = `a == b`,
                  E...)(R haystack,
                        E needles) /* @trusted pure nothrow */
 {
-    import std.range : empty;
+    import std.range.primitives : empty;
     auto hit = haystack; // reference
     foreach (needle; needles) // for every needle in order
     {
@@ -269,7 +269,7 @@ auto findInOrder(alias pred = `a == b`,
 ///
 @safe pure nothrow @nogc unittest
 {
-    import std.range : empty;
+    import std.range.primitives : empty;
     assert(`a b c`.findInOrder(`a`, `b`, `c`));
     assert(`b a`.findInOrder(`a`, `b`).empty);
 }
@@ -286,7 +286,7 @@ bool isSymmetric(R)(R range)
 if (isBidirectionalRange!(R))
 {
     size_t i = 0;
-    import std.range : empty;
+    import std.range.primitives : empty;
     while (!range.empty)
     {
         import std.range.primitives : front, back, popFront, popBack;
@@ -323,7 +323,7 @@ if (isBidirectionalRange!(R))
     }
     size_t i = 0;
     // TODO reuse `isSymmetric`
-    import std.range : empty;
+    import std.range.primitives : empty;
     while (!range.empty)
     {
         import std.range.primitives : front, back, popFront, popBack;
@@ -369,7 +369,7 @@ if (isInputRange!R1 &&
                 ElementType!R2))
 {
     immutable sortLimit = 0;
-    import std.range : empty;
+    import std.range.primitives : empty;
     if (r1.empty || r2.empty) { return false; }
     if (r1.length + r2.length < sortLimit)
     {
@@ -1246,7 +1246,7 @@ unittest
 auto split(alias pred, R)(R haystack)
 if (isForwardRange!R)
 {
-    import std.range : empty;
+    import std.range.primitives : empty;
     static if (isSomeString!R ||
                isRandomAccessRange!R)
     {
@@ -1309,7 +1309,7 @@ if (isForwardRange!R)
         auto original = haystack.save;
         auto h = haystack.save;
         size_t pos;
-        import std.range : empty;
+        import std.range.primitives : empty;
         while (!h.empty)
         {
             if (unaryFun!pred(h.front))
@@ -1343,7 +1343,7 @@ if (isForwardRange!R)
 {
     static if (isSomeString!R || isRandomAccessRange!R)
     {
-        import std.range : empty;
+        import std.range.primitives : empty;
         auto balance = find!pred(haystack);
         immutable pos = balance.empty ? 0 : haystack.length - balance.length + 1;
         // TODO use Voldemort struct instead of tuple
@@ -1352,7 +1352,7 @@ if (isForwardRange!R)
     else
     {
         static assert(0, `How to implement this?`);
-        // import std.range : empty;
+        // import std.range.primitives : empty;
         /* auto original = haystack.save; */
         /* auto h = haystack.save; */
         /* size_t pos1, pos2; */
@@ -1428,7 +1428,7 @@ auto findPopBefore(alias pred = `a == b`, R1, R2)(ref R1 haystack, R2 needle)
 if (isForwardRange!R1 &&
     isForwardRange!R2)
 {
-    import std.range : empty;
+    import std.range.primitives : empty;
 
     if (needle.empty) { return haystack[0 .. 0]; } // contextual empty hit
     if (haystack.empty) { return R1.init; }
@@ -1472,7 +1472,7 @@ auto findPopAfter(alias pred = `a == b`, R1, R2)(ref R1 haystack, R2 needle)
 if (isForwardRange!R1 &&
     isForwardRange!R2)
 {
-    import std.range : empty;
+    import std.range.primitives : empty;
 
     if (needle.empty) { return haystack[0 .. 0]; } // contextual empty hit
     if (haystack.empty) { return R1.init; }
@@ -1525,7 +1525,7 @@ Tuple!(R, size_t) findFirstOfAnyInOrder(alias pred = `a == b`, R)(R haystack, co
     switch (needles.length)
     {
         case 1:
-            import std.range : empty;
+            import std.range.primitives : empty;
             auto hit = haystack.find(needles[0]);
             return tuple(hit, hit.empty ? 0UL : 1UL);
         case 2:
@@ -1879,7 +1879,7 @@ if (isInputRange!R &&
     isIntegral!(ElementType!R))
 {
     import std.algorithm.searching : findAdjacent;
-    import std.range : empty;
+    import std.range.primitives : empty;
     return r.findAdjacent!((a, b) => a + step != b).empty;
 }
 
@@ -1913,7 +1913,7 @@ if (isInputRange!R)
     else
     {
         size_t n = 0;
-        import std.range : empty;
+        import std.range.primitives : empty;
         while (!r.empty)
         {
             r.popFront();
@@ -1936,7 +1936,7 @@ if (isInputRange!R)
     else
     {
         size_t n;
-        import std.range : empty;
+        import std.range.primitives : empty;
         while (!r.empty)
         {
             r.popFront();
@@ -1959,7 +1959,7 @@ if (isInputRange!R)
     else
     {
         size_t n;
-        import std.range : empty;
+        import std.range.primitives : empty;
         while (!r.empty)
         {
             r.popFront();
@@ -2329,7 +2329,7 @@ if (isExpressionTuple!needles &&
         }
         else
         {
-            import std.range : front; // need decoding
+            import std.range.primitives : front; // need decoding
             import std.algorithm.comparison : among;
             return haystack.front.among!(needles);
         }
@@ -2385,7 +2385,7 @@ if (isExpressionTuple!needles &&
         }
         else
         {
-            import std.range : back; // need decoding
+            import std.range.primitives : back; // need decoding
             import std.algorithm.comparison : among;
             return haystack.back.among!(needles);
         }

@@ -41,7 +41,7 @@ if (is(typeof(binaryFun!pred(r1.back, r2.back))) &&
     isBidirectionalRange!R1 &&
     isBidirectionalRange!R2) // TODO R2 doesn't have to bi-directional if R1 is RandomAccess and R2.hasLength
 {
-    import std.range : hasLength;
+    import std.range.primitives : hasLength;
     static if (hasLength!R1 && hasLength!R2)
     {
         // Shortcut opportunity!
@@ -350,7 +350,7 @@ if (isBidirectionalRange!R &&
             binaryFun!pred(r.front, frontPrefix) &&
             binaryFun!pred(r.back, backSuffix))
         {
-            import std.range : popBack, popFront;
+            import std.range.primitives : popBack, popFront;
             r.popFront();
             r.popBack();
             return true;

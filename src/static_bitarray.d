@@ -9,9 +9,9 @@ module static_bitarray;
 @safe:
 
 /** A statically sized `std.bitmanip.BitArray`.
- * 
+ *
  * TODO Infer `Block` from `len` as is done for `Bound` and `Mod`.
- * 
+ *
  * TODO Optimize `allOne`, `allZero` using intrinsic?
  */
 struct StaticBitArray(uint length_, Block = size_t)
@@ -81,12 +81,12 @@ struct StaticBitArray(uint length_, Block = size_t)
     }
 
     /** Bidirectional range into `BitArray`.
-     * 
+     *
      * TODO Provide opSliceAssign for interopability with range algorithms via
      * private static struct member `Range`.
-     * 
+     *
      * TODO Look at how std.container.array implements this.
-     * 
+     *
      * See_Also: https://dlang.org/phobos/std_bitmanip.html#bitsSet
     */
     struct Range()              // template-lazy
@@ -218,7 +218,7 @@ struct StaticBitArray(uint length_, Block = size_t)
     static if (length_ >= 1)
     {
         /** Get the $(D i)'th bit.
-         * 
+         *
          * Avoids range-checking because `i` of type is bound to (0 .. length_-1).
          */
         bool opIndex(ModUInt)(Mod!(length_, ModUInt) i) const @trusted
@@ -1096,7 +1096,7 @@ struct StaticBitArray(uint length_, Block = size_t)
 
     /** Support for operator &= for $(D StaticBitArray).
      */
-    typeof(this) opOpAssign(string op)(in typeof(this) e2) 
+    typeof(this) opOpAssign(string op)(in typeof(this) e2)
         if (op == "&")
     {
         _blocks[] &= e2._blocks[];
@@ -1114,7 +1114,7 @@ struct StaticBitArray(uint length_, Block = size_t)
 
     /** Support for operator |= for $(D StaticBitArray).
      */
-    typeof(this) opOpAssign(string op)(in typeof(this) e2) 
+    typeof(this) opOpAssign(string op)(in typeof(this) e2)
         if (op == "|")
     {
         _blocks[] |= e2._blocks[];
@@ -1132,7 +1132,7 @@ struct StaticBitArray(uint length_, Block = size_t)
 
     /** Support for operator ^= for $(D StaticBitArray).
      */
-    typeof(this) opOpAssign(string op)(in typeof(this) e2) 
+    typeof(this) opOpAssign(string op)(in typeof(this) e2)
         if (op == "^")
     {
         _blocks[] ^= e2._blocks[];
@@ -1152,7 +1152,7 @@ struct StaticBitArray(uint length_, Block = size_t)
      *
      * $(D a -= b) for $(D StaticBitArray) means the same thing as $(D a &amp;= ~b).
      */
-    typeof(this) opOpAssign(string op)(in typeof(this) e2) 
+    typeof(this) opOpAssign(string op)(in typeof(this) e2)
         if (op == "-")
     {
         _blocks[] &= ~e2._blocks[];
@@ -1202,7 +1202,7 @@ struct StaticBitArray(uint length_, Block = size_t)
 
     private void formatBitString()(scope void delegate(const(char)[]) sink) const @trusted
     {
-        import std.range : put;
+        import std.range.primitives : put;
 
         static if (length)
         {

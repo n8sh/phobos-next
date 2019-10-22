@@ -7,7 +7,7 @@
  */
 module integer_sorting;
 
-import std.range : isRandomAccessRange, ElementType;
+import std.range.primitives : isRandomAccessRange, ElementType;
 import std.traits : isNumeric;
 import std.meta : AliasSeq;
 
@@ -52,7 +52,7 @@ auto radixSort(R,
     import std.range : assumeSorted;
     import std.algorithm.sorting : isSorted; // TODO move this to radixSort when know how map less to descending
     import std.algorithm : min, max;
-    import std.range : front;
+    import std.range.primitives : front;
 
     immutable n = input.length; // number of elements
     alias E = ElementType!R;

@@ -127,7 +127,7 @@ template isHashable(T)
 /** Is `true` iff `T` is a set like container. */
 template isSet(T)
 {
-    import std.range : hasLength;
+    import std.range.primitives : hasLength;
     enum isSet = (__traits(hasMember, T, "insert") && // TODO assert O(1)
                   __traits(hasMember, T, "remove") && // TODO assert O(1)
                   __traits(compiles, { auto _ = T.init.byElement; }));
@@ -136,7 +136,7 @@ template isSet(T)
 /** Is `true` iff `T` is a set like container with elements of type `E`. */
 template isSetOf(T, E)
 {
-    import std.range : hasLength;
+    import std.range.primitives : hasLength;
     enum isSetOf = (is(typeof(T.init.insert(E.init))) && // TODO assert O(1)
                     is(typeof(T.init.remove(E.init))) && // TODO assert O(1)
                     __traits(compiles, { auto _ = T.init.byElement; }));

@@ -1,12 +1,12 @@
 #!/usr/bin/env rdmd-unittest-module
 
 /** Lazy Substitution Algorithms.
- * 
+ *
  * See_Also: http://forum.dlang.org/post/pymxzazxximtgixzbnpq@forum.dlang.org
  */
 module substitution;
 
-import std.range : isInputRange, ElementType;
+import std.range.primitives : isInputRange, ElementType;
 import core.internal.traits : Unqual;
 import std.typecons : Tuple;
 import std.traits : isExpressionTuple;
@@ -196,23 +196,23 @@ if (Rs.length >= 1 &&
 
         @property auto ref front()
         {
-            import std.range : empty;
+            import std.range.primitives : empty;
             return !_skip.empty ? E(_skip, 0) : E(_hit, _hitNr);
         }
 
-        import std.range : isInfinite;
+        import std.range.primitives : isInfinite;
         static if (isInfinite!R)
             enum empty = false; // propagate infiniteness
         else
             @property bool empty() const
             {
-                import std.range : empty;
+                import std.range.primitives : empty;
                 return _skip.empty && _hit.empty && _rest.empty;
             }
 
         void popFront() @trusted
         {
-            import std.range : empty;
+            import std.range.primitives : empty;
             if (!_skip.empty)
             {
                 _skip = R.init; // jump over _skip

@@ -2,7 +2,7 @@ module meta_ex;
 
 @safe:
 
-import std.range : isInputRange;
+import std.range.primitives : isInputRange;
 import std.meta : NoDuplicates, AliasSeq;
 
 import std.meta : aliasSeqOf;
@@ -181,12 +181,12 @@ template FlattenedRanges(Values...)
     import std.meta : AliasSeq;
     static if (Values.length)
     {
-        import std.range : isInputRange;
+        import std.range.primitives : isInputRange;
         alias Head = Values[0];
         alias Tail = Values[1 .. $];
         static if (isInputRange!Head)
         {
-            import std.range : ElementType;
+            import std.range.primitives : ElementType;
             alias FlattenedRanges = FlattenedRanges!(ElementType!Head, FlattenedRanges!Tail);
         }
         else

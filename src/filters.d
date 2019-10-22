@@ -260,7 +260,7 @@ private:
 {
     alias E = uint;
 
-    import std.range : isOutputRange;
+    import std.range.primitives : isOutputRange;
     alias Set = DenseSetFilter!(E, Growable.no);
     static assert(isOutputRange!(Set, E));
 
@@ -470,7 +470,7 @@ struct StaticDenseSetFilter(E,
                             bool requestPacked = true)
 if (isStaticDenseFilterableType!E)
 {
-    import std.range : ElementType;
+    import std.range.primitives : ElementType;
     import std.traits : isIterable, isAssignable, isUnsigned;
     import core.bitop : bts, btr, btc, bt;
 
@@ -544,7 +544,7 @@ if (isStaticDenseFilterableType!E)
         if (isIterable!R &&
             isAssignable!(E, ElementType!R))
     {
-        import std.range : empty;
+        import std.range.primitives : empty;
         if (r.empty)
         {
             return asFull();

@@ -2,7 +2,7 @@ module ixes;
 
 import std.algorithm : commonPrefix;
 import std.meta : allSatisfy;
-import std.range : isInputRange, isBidirectionalRange;
+import std.range.primitives : isInputRange, isBidirectionalRange;
 
 /** Get length of Common Prefix of $(D a) and $(D b).
     See_Also: http://forum.dlang.org/thread/bmbhovkgqomaidnyakvy@forum.dlang.org#post-bmbhovkgqomaidnyakvy:40forum.dlang.org
@@ -144,7 +144,7 @@ auto commonSuffix(Rs...)(Rs rs)
 //     import std.algorithm.comparison : equal;
 //     import splitter_ex : splitterASCIIAmong;
 //     import std.range : retro;
-//     import std.range : ElementType;
+//     import std.range.primitives : ElementType;
 //     import std.array : array;
 //     assert(equal(commonSuffix(`_å-ä-ö`,
 //                               `-å-ä-ö`).retro.splitterASCIIAmong!('-').array, // TODO how should this be solved?

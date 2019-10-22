@@ -16,7 +16,7 @@ import std.range.primitives : hasLength;
 struct UniqueRange(Source)
     if (hasLength!Source)       // TODO use traits `isArrayContainer` checking fo
 {
-    import std.range : ElementType, isBidirectionalRange;
+    import std.range.primitives : ElementType, isBidirectionalRange;
     import std.traits : isArray;
     alias SourceRange = typeof(Source.init[]);
     alias E = ElementType!SourceRange;
@@ -46,7 +46,7 @@ struct UniqueRange(Source)
     {
         static if (!__traits(hasMember, SourceRange, "empty"))
         {
-            import std.range : empty;
+            import std.range.primitives : empty;
         }
         return (cast(Unqual!SourceRange)_sourceRange).empty; // TODO remove cast and @trusted when SortedRange.empty is const
     }
@@ -66,7 +66,7 @@ struct UniqueRange(Source)
         assert(!empty);
         static if (!__traits(hasMember, SourceRange, "front"))
         {
-            import std.range : front;
+            import std.range.primitives : front;
         }
         return cast(inout(E))(cast(SourceRange)_sourceRange).front;
     }
@@ -76,7 +76,7 @@ struct UniqueRange(Source)
     {
         static if (!__traits(hasMember, SourceRange, "popFront"))
         {
-            import std.range : popFront;
+            import std.range.primitives : popFront;
         }
         _sourceRange.popFront(); // should include check for emptyness
     }
@@ -116,7 +116,7 @@ struct UniqueRange(Source)
             assert(!empty);
             static if (!__traits(hasMember, SourceRange, "back"))
             {
-                import std.range : back;
+                import std.range.primitives : back;
             }
             return cast(inout(E))(cast(SourceRange)_sourceRange).back;
         }
@@ -126,7 +126,7 @@ struct UniqueRange(Source)
         {
             static if (!__traits(hasMember, SourceRange, "popBack"))
             {
-                import std.range : popBack;
+                import std.range.primitives : popBack;
             }
             _sourceRange.popBack(); // should include check for emptyness
         }

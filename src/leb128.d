@@ -7,7 +7,7 @@
 */
 module leb128;
 
-import std.range : isOutputRange;
+import std.range.primitives : isOutputRange;
 import std.traits : isUnsigned, isSigned;
 import core.internal.traits : Unqual;
 

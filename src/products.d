@@ -1,6 +1,6 @@
 module products;
 
-import std.range : isInputRange, ElementType;
+import std.range.primitives : isInputRange, ElementType;
 
 auto cartesianProductDynamic(R)(R x)
     if (isInputRange!R &&

@@ -75,14 +75,14 @@ struct ReadBorrowed(Range, Owner)
 
     @property bool empty() const @safe pure nothrow @nogc
     {
-        import std.range : empty; // pick this if `_range` doesn't have it
+        import std.range.primitives : empty; // pick this if `_range` doesn't have it
         return _range.empty;
     }
 
     @property auto ref front() inout @safe pure
     {
         assert(!empty);
-        import std.range : front; // pick this if `_range` doesn't have it
+        import std.range.primitives : front; // pick this if `_range` doesn't have it
         return _range.front;
     }
 
@@ -93,7 +93,7 @@ struct ReadBorrowed(Range, Owner)
 
     void popFront() @safe
     {
-        import std.range : popFront; // pick this if `_range` doesn't have it
+        import std.range.primitives : popFront; // pick this if `_range` doesn't have it
         _range.popFront();
     }
 

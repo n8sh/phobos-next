@@ -22,7 +22,7 @@ private struct PreSlicer(alias isTerminator, R)
     this(R input)
     {
         _input = input;
-        import std.range : empty;
+        import std.range.primitives : empty;
         if (_input.empty)
         {
             _end = size_t.max;
@@ -33,7 +33,7 @@ private struct PreSlicer(alias isTerminator, R)
         }
     }
 
-    import std.range : isInfinite;
+    import std.range.primitives : isInfinite;
 
     static if (isInfinite!R)
     {
@@ -55,7 +55,7 @@ private struct PreSlicer(alias isTerminator, R)
     void popFront()
     {
         _input = _input[_end .. $];
-        import std.range : empty;
+        import std.range.primitives : empty;
         if (_input.empty)
         {
             _end = size_t.max;
@@ -67,7 +67,7 @@ private struct PreSlicer(alias isTerminator, R)
     @property PreSlicer save()
     {
         auto ret = this;
-        import std.range : save;
+        import std.range.primitives : save;
         ret._input = _input.save;
         return ret;
     }

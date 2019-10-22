@@ -115,7 +115,7 @@ private:
 
                 // TODO Use upperBound only when next.length / r.length > 12
 
-                import std.range : isRandomAccessRange;
+                import std.range.primitives : isRandomAccessRange;
                 static if (allSatisfy!(isRandomAccessRange, typeof(next)))
                 {
                     import std.range : assumeSorted;

@@ -458,7 +458,7 @@ struct OpenHashMapOrSet(K, V = void,
         return bins;
     }
 
-    import std.range : StdElementType = ElementType;
+    import std.range.primitives : StdElementType = ElementType;
     import std.traits : isIterable, isAssignable;
 
     /** Make with the elements `elements`. */
@@ -467,7 +467,7 @@ struct OpenHashMapOrSet(K, V = void,
         isAssignable!(T, StdElementType!R))
     {
         version(showEntries) dbg(__FUNCTION__, " length:", elements.length);
-        import std.range : hasLength;
+        import std.range.primitives : hasLength;
         static if (hasLength!R)
         {
             typeof(this) that = withCapacity(elements.length);
@@ -920,7 +920,7 @@ struct OpenHashMapOrSet(K, V = void,
         isCopyable!T)           // TODO support uncopyable T?
     {
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
-        import std.range : hasLength;
+        import std.range.primitives : hasLength;
         static if (hasLength!R)
         {
             reserveExtra(elements.length);
@@ -1487,7 +1487,7 @@ struct OpenHashMapOrSet(K, V = void,
     version(none)
     {
         import traits_ex : isRefIterable;
-        import std.range : front;
+        import std.range.primitives : front;
 
         size_t rehashingRemoveN(Keys)(const scope Keys keys) // template-lazy
         if (isRefIterable!Keys &&
@@ -3258,7 +3258,7 @@ version(unittest)
                 auto xr = x.byElement;
 
                 alias R = typeof(xr);
-                import std.range : isInputRange;
+                import std.range.primitives : isInputRange;
                 import std.traits : ReturnType;
                 debug static assert(is(typeof(R.init) == R));
                 debug static assert(is(ReturnType!((R xr) => xr.empty) == bool));

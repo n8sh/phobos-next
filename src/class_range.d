@@ -1,7 +1,7 @@
 module class_range;
 
 import std.traits : isArray;
-import std.range : isInputRange, ElementType;
+import std.range.primitives : isInputRange, ElementType;
 
 /** Upcast all elements in `x` of type `T` to the type `U`, where `U` is a
  * superclass of `T`.
@@ -42,7 +42,7 @@ private struct DowncastingFilterResult(Subclass, Range)
 
     private void prime()
     {
-        import std.range : empty, front, popFront;
+        import std.range.primitives : empty, front, popFront;
         if (_primed) return;
         while (!_input.empty && !pred(_input.front))
         {
@@ -64,7 +64,7 @@ private struct DowncastingFilterResult(Subclass, Range)
 
     auto opSlice() { return this; }
 
-    import std.range : isInfinite;
+    import std.range.primitives : isInfinite;
     static if (isInfinite!Range)
     {
         enum bool empty = false;
@@ -73,14 +73,14 @@ private struct DowncastingFilterResult(Subclass, Range)
     {
         @property bool empty()
         {
-            import std.range : empty;
+            import std.range.primitives : empty;
             prime(); return _input.empty;
         }
     }
 
     void popFront()
     {
-        import std.range : front, popFront, empty;
+        import std.range.primitives : front, popFront, empty;
         do
         {
             _input.popFront();
@@ -90,18 +90,18 @@ private struct DowncastingFilterResult(Subclass, Range)
 
     @property Subclass front()
     {
-        import std.range : front;
+        import std.range.primitives : front;
         prime();
         assert(!empty, "Attempting to fetch the front of an empty filter.");
         return cast(typeof(return))_input.front;
     }
 
-    import std.range : isForwardRange;
+    import std.range.primitives : isForwardRange;
     static if (isForwardRange!R)
     {
         @property auto save()
         {
-            import std.range : save;
+            import std.range.primitives : save;
             return typeof(this)(_input.save, _primed);
         }
     }
@@ -112,7 +112,7 @@ private struct DowncastingFilterResult(Subclass, Range)
  */
 template castFilter(Subclass)
 {
-    import std.range : isInputRange, ElementType;
+    import std.range.primitives : isInputRange, ElementType;
     auto castFilter(Range)(Range range)
     if (isInputRange!(Range) &&
         is(ElementType!Range == class) &&

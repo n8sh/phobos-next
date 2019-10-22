@@ -138,7 +138,7 @@ import std.algorithm.mutation : move;
 import std.algorithm.comparison : min, max;
 import std.meta : allSatisfy;
 import std.traits : isSomeString, isArray, isPointer, Unqual;
-import std.range : isInputRange, isBidirectionalRange, ElementType;
+import std.range.primitives : isInputRange, isBidirectionalRange, ElementType;
 import std.range.primitives : hasLength;
 
 import bijections : isIntegralBijectableType, bijectToUnsigned, bijectFromUnsigned;
@@ -5492,7 +5492,7 @@ void testWords(Value)()
     foreach (const word; chain(firsts, File(path).byLine))
     {
         import std.algorithm.searching : endsWith;
-        import std.range : empty;
+        import std.range.primitives : empty;
         if (!word.empty &&
             !word.endsWith(`'s`)) // skip genitive forms
         {

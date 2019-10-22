@@ -15,12 +15,12 @@ shared static this()
     }
 }
 
-import std.range : isRandomAccessRange;
+import std.range.primitives : isRandomAccessRange;
 
 auto hybridSort(alias less = "a < b", Range)(Range r)
     if (isRandomAccessRange!Range)
 {
-    import std.range : ElementType;
+    import std.range.primitives : ElementType;
     import std.traits : isNumeric;
     static if (isNumeric!(ElementType!Range))
     {

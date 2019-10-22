@@ -2,7 +2,7 @@ module chunking;
 
 version(none)
 {
-import std.range : ElementType, empty, front, back, popFront, isForwardRange, isInputRange;
+import std.range.primitives : ElementType, empty, front, back, popFront, isForwardRange, isInputRange;
 import std.functional : unaryFun;
 
 // Used by implementation of chunkBy for non-forward input ranges.

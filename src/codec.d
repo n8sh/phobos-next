@@ -8,7 +8,7 @@
 module codec;
 
 import std.typecons : Tuple;
-import std.range : front, isInputRange, ElementType;
+import std.range.primitives : front, isInputRange, ElementType;
 import std.array : array;
 import algorithm_ex : forwardDifference;
 

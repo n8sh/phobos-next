@@ -6,7 +6,7 @@
  */
 module horspool;
 
-import std.range : isRandomAccessRange;
+import std.range.primitives : isRandomAccessRange;
 
 /** Returns a pointer to the first occurrence of "needle"
  * within "haystack", or [] if not found. Works like

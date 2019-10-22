@@ -336,7 +336,7 @@ private:
 
     void nextFront()
     {
-        import std.range : empty, front, popFront, popFrontN;
+        import std.range.primitives : empty, front, popFront, popFrontN;
         import std.uni : isWhite, isAlpha;
         import std.ascii : isDigit;
 

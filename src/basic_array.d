@@ -32,7 +32,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     import core.exception : onOutOfMemoryError;
     import core.internal.traits : hasElaborateDestructor;
 
-    import std.range : isInputRange, ElementType, isInfinite;
+    import std.range.primitives : isInputRange, ElementType, isInfinite;
     import std.traits : hasIndirections, hasAliasing,
         isMutable, TemplateOf, isArray, isAssignable, isCopyable, isType, hasFunctionAttributes, isIterable;
     import core.lifetime : emplace, move, moveEmplace;
@@ -235,7 +235,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     static typeof(this) withElementsOfRange_untested(R)(R values) @trusted
     if (isAssignableFromElementsOfFiniteRefIterable!R)
     {
-        import std.range : hasLength, hasSlicing;
+        import std.range.primitives : hasLength, hasSlicing;
 
         typeof(this) result;
 
@@ -720,7 +720,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /** Insert `value` into the end of the array.
-     * 
+     *
      * TODO rename to `insertBack` and make this steal scalar calls over
      * insertBack(U)(U[] values...) overload below
      */
@@ -743,7 +743,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     void insertBack(R)(scope R elements) @trusted
     if (isAssignableFromElementsOfFiniteRefIterable!R)
     {
-        import std.range : hasLength;
+        import std.range.primitives : hasLength;
         static if (isInputRange!R &&
                    hasLength!R)
         {

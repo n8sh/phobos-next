@@ -1,7 +1,7 @@
 // #!/usr/bin/env rdmd
 
 import std.array : array;
-import std.range : empty;
+import std.range.primitives : empty;
 import std.algorithm;
 import std.conv : to;
 import std.file : read, dirEntries, DirEntry, SpanMode;

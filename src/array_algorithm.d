@@ -1,6 +1,6 @@
 module array_algorithm;
 
-import std.range : ElementType;
+import std.range.primitives : ElementType;
 
 /** Overload of `std.array.array` that creates a static array of length `n`.
     TODO Better name: {make,array}{N,Exactly}

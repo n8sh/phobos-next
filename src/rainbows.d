@@ -3,7 +3,7 @@ module rainbows;
 import std.conv : to;
 import std.string : capitalize;
 import std.range : iota, join;
-import std.range : popBack;
+import std.range.primitives : popBack;
 
 @safe pure:
 

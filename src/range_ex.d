@@ -579,7 +579,7 @@ alias isSortedRange(R) = isInstanceOf!(SortedRange, R); // TODO Or use: __traits
  */
 template isSortedRange_alt(R)
 {
-    import std.range : SortedRange;
+    import std.range.primitives : SortedRange;
     enum isSortedRange = is(R : SortedRange!U, U...);
 }
 
@@ -653,7 +653,7 @@ auto adjacentTuples(size_t N, R)(R r)
         {
             bool empty() @property // TODO can't empty be const when R is a MapResult?
             {
-                import std.range : empty;
+                import std.range.primitives : empty;
                 return _source.empty;
             }
         }

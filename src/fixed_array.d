@@ -558,7 +558,7 @@ version(none) pure unittest     // TODO activate
     static assert(!mustAddGCRange!A);
     static assert(A.sizeof == T.sizeof*capacity + 1);
 
-    import std.range : isOutputRange;
+    import std.range.primitives : isOutputRange;
     static assert(isOutputRange!(A, T));
 
     auto ab = A("ab");

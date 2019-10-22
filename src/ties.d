@@ -44,7 +44,7 @@ auto tie(Ts...)(ref Ts vars)
         static if (sameTypes!Ts)
         {
             import std.conv : text;
-            import std.range : front, popFront, ElementType, hasLength, empty, isInputRange;
+            import std.range.primitives : front, popFront, ElementType, hasLength, empty, isInputRange;
 
             void opAssign(Ts[0][] xs) // redundant but more effective
             {

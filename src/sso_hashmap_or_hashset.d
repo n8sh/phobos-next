@@ -185,7 +185,7 @@ struct SSOHashMapOrSet(K, V = void,
     static typeof(this) withElements(R)(R elements)
         if (isIterable!R)
     {
-        import std.range : hasLength;
+        import std.range.primitives : hasLength;
         static if (hasLength!R)
         {
             typeof(this) that = withCapacity(elements.length);
@@ -444,7 +444,7 @@ struct SSOHashMapOrSet(K, V = void,
         if (isIterable!R &&
             isCopyable!T)
     {
-        import std.range : hasLength;
+        import std.range.primitives : hasLength;
         static if (hasLength!R)
         {
             // reserveExtra(elements.length); // TODO this fails when starting knet
@@ -1464,7 +1464,7 @@ pure nothrow @nogc unittest
             auto xr = x.byElement;
 
             alias R = typeof(xr);
-            import std.range : isInputRange;
+            import std.range.primitives : isInputRange;
             import std.traits : ReturnType;
             static assert(is(typeof(R.init) == R));
             static assert(is(ReturnType!((R xr) => xr.empty) == bool));

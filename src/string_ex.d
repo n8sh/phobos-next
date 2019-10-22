@@ -12,7 +12,7 @@ if (isCharsSlice!Chars)
     import splitter_ex : splitterASCIIAmong;
     import std.algorithm : filter;
     import std.string : indexOf, lastIndexOf;
-    import std.range : empty;
+    import std.range.primitives : empty;
     while (!s.empty)
     {
         auto quoteBeginI = s.indexOf(quoteBeginChar);

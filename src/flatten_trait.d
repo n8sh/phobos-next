@@ -24,7 +24,7 @@ unittest
 
     // Works with string because:
     import std.traits : CommonType;
-    import std.range : ElementType;
+    import std.range.primitives : ElementType;
 
     static assert(is(CommonType!(ElementType!string, int) == uint));
 

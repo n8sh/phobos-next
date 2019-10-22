@@ -18,7 +18,7 @@ module lcs;
 T[] lcsR(T)(in T[] a,
             in T[] b) pure nothrow
 {
-    import std.range : empty;
+    import std.range.primitives : empty;
     if (a.empty || b.empty)
     {
         return null;            // undefined

@@ -2,7 +2,7 @@ module conv_ex;
 
 import std.traits: isSomeChar, isSomeString, CommonType;
 import traits_ex : haveCommonType, isSourceOfSomeChar, isCharsSlice;
-import std.range : isInputRange, ElementType;
+import std.range.primitives : isInputRange, ElementType;
 
 /** Variant of std.conv.to with $(D defaultValue) making it $(D nothrow).
  *
@@ -162,7 +162,7 @@ private void parseCheck(alias source)(dchar c,
         throw parseError(text("unexpected end of input when expecting", "\"", c, "\""));
     if (source.front != c)
         throw parseError(text("\"", c, "\" is missing"), fn, ln);
-    import std.range : popFront;
+    import std.range.primitives : popFront;
     source.popFront();
 }
 
@@ -173,7 +173,7 @@ private void parseCheck(alias source)(dchar c,
 private dchar parseEscape(Source)(ref Source s)
 if (isSourceOfSomeChar!Source)
 {
-    import std.range : empty, front, popFront;
+    import std.range.primitives : empty, front, popFront;
     if (s.empty)
         throw parseError("Unterminated escape sequence");
 
@@ -182,7 +182,7 @@ if (isSourceOfSomeChar!Source)
         import std.ascii : isAlpha, isHexDigit;
         if (s_.empty)
             throw parseError("Unterminated escape sequence");
-        import std.range : popFront;
+        import std.range.primitives : popFront;
         s_.popFront();
         if (s_.empty)
             throw parseError("Unterminated escape sequence");
@@ -235,7 +235,7 @@ if (isSourceOfSomeChar!Source)
     if (s.empty)
         throw parseError("Unterminated escape sequence");
 
-    import std.range : popFront;
+    import std.range.primitives : popFront;
     s.popFront();
 
     return result;
@@ -251,7 +251,7 @@ if (isSourceOfSomeChar!Source)
     alias E = ElementType!Source;
     static struct Result
     {
-        import std.range : isInfinite;
+        import std.range.primitives : isInfinite;
 
         this(Source s_)
         {
@@ -269,7 +269,7 @@ if (isSourceOfSomeChar!Source)
 
         void popFront()
         {
-            import std.range : empty, front, popFront;
+            import std.range.primitives : empty, front, popFront;
             if (!_remainingSource.empty)
             {
                 if (_remainingSource.front == '\\') // TODO nothrow
@@ -382,7 +382,7 @@ unittest
 // if (isInputRange!S &&
 //         is(ElementType!S == dchar))
 // {
-//     import std.range : isRandomAccessRange;
+//     import std.range.primitives : isRandomAccessRange;
 //     import std.utf : toUTF8;
 //     import std.conv : to;
 //     static if (isRandomAccessRange!S)
@@ -398,7 +398,7 @@ unittest
 // if (isInputRange!S &&
 //         is(ElementType!S == dchar))
 // {
-//     import std.range : isRandomAccessRange;
+//     import std.range.primitives : isRandomAccessRange;
 //     import std.utf : toUTF16;
 //     import std.conv : to;
 //     static if (isRandomAccessRange!S)

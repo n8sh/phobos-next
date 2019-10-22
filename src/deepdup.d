@@ -13,7 +13,7 @@ import core.internal.traits : Unqual;
 import std.typecons : tuple, Tuple;
 import std.meta : staticMap;
 import std.traits : isDynamicArray, isStaticArray, isArray, isPointer;
-import std.range : ElementType;
+import std.range.primitives : ElementType;
 
 alias TypeofDeepdup(T) = typeof(deepdup(T.init));
 

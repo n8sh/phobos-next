@@ -78,7 +78,7 @@ private:
  */
 private template isBlockInputRange(R)
 {
-    import std.range : isInputRange;
+    import std.range.primitives : isInputRange;
     enum isBlockInputRange = (isInputRange!R &&
                               __traits(hasMember, R, `bufferFrontChunk`) && // TODO ask dlang for better naming
                               __traits(hasMember, R, `loadNextChunk`));     // TODO ask dlang for better naming

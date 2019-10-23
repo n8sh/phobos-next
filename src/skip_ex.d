@@ -126,6 +126,7 @@ if (Ts.length >= 2)
     static assert(allMatchingSlices!(int[], int[]));
     static assert(allMatchingSlices!(const(int)[], int[]));
     static assert(allMatchingSlices!(int[], const(int)[]));
+
     static assert(allMatchingSlices!(int[], int[], int[]));
 
     static assert(!allMatchingSlices!(int, char));

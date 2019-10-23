@@ -91,6 +91,31 @@ if (isBidirectionalRange!R1 &&
     assert(skipOverBack(s1, "world") && s1 == "Hello ");
 }
 
+enum isSlice(T) = is(T : const(E)[], E);
+
+/** Is `true` iff all `Slices` are slices with same unqualified matching element types.
+ */
+template allMatchingSlices(Slices...)
+if (Slices.length >= 2)
+{
+    alias S0 = Slices[0];
+    static if (isSlice!S0)
+    {
+        enum E = typeof(S0.init[0]);
+        static if (is(Unqual!(typeof(E)) ==
+                      Unqual!(typeof(E))))
+        enum bool allMatchingSlices = true;
+    }
+    else
+    {
+        enum bool allMatchingSlices = false;
+    }
+}
+
+version(unittest)
+{
+}
+
 /** Variadic version of $(D skipOver).
  *
  * Returns: index + 1 into matching $(D needles), 0 otherwise.

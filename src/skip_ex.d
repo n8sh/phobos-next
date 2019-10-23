@@ -12,6 +12,8 @@ version(unittest)
     import array_help : s;
 }
 
+/** Array-overload for `startsWith` with normal predicate.
+ */
 bool startsWith(T)(scope const(T)[] haystack,
                    scope const(T)[] needle)
 {

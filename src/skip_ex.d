@@ -98,8 +98,6 @@ if (Ts.length >= 2)
 {
     private enum isSlice(T) = is(T : const(E)[], E);
     private enum isSliceOf(T, e) = is(T : const(E)[]);
-
-    import core.internal.traits : allSatisfy;
     static if (isSlice!(Ts[0]))
     {
         alias E = typeof(Ts[0].init[0]);

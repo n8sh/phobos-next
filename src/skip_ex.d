@@ -267,9 +267,8 @@ SkipOverLongest skipOverLongestOf(alias pred = "a == b", Range, Ranges...)(ref R
 }
 
 /** Skip Over Back Shortest Match of `needles` in `haystack`. */
-size_t skipOverBackShortestOf(alias pred = "a == b", Range, Ranges...)(ref Range haystack, Ranges needles)
+size_t skipOverBackShortestOf(alias pred = "a == b", Range, Ranges...)(ref Range haystack, Ranges needles) @trusted
 // TODO We cannot prove that cast(ubyte[]) of a type that have no directions is safe
-    @trusted
     if (Ranges.length >= 2 &&
         is(typeof(startsWith!pred(haystack, needles))))
 {

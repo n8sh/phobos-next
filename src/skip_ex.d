@@ -98,8 +98,7 @@ import std.algorithm: startsWith;
  */
 size_t skipOverEither(alias pred = "a == b", Range, Ranges...)(ref Range haystack,
                                                                Ranges needles)
-if (Ranges.length >= 2 &&
-    is(typeof(startsWith!pred(haystack, needles))))
+if (Ranges.length >= 2)
 {
     import core.internal.traits : allSatisfy;
     import traits_ex : isCharsSlice;
@@ -110,9 +109,10 @@ if (Ranges.length >= 2 &&
                    allSatisfy!(isCharsSlice, Ranges))
         {
             // `nothrow` char[] fast path
-            if (haystack[0 .. needle.length] == needle)
+            if (haystack.length >= needle.length &&
+                haystack.ptr[0 .. needle.length] == needle)
             {
-                haystack = haystack[needle.length .. haystack.length];
+                haystack = haystack.ptr[needle.length .. haystack.length];
                 return ix + 1;
             }
         }

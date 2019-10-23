@@ -124,7 +124,7 @@ if (Ts.length >= 2)
 }
 
 ///
-version(unittest)
+@safe pure unittest
 {
     static assert(allMatchingSlices!(int[], int[]));
     static assert(allMatchingSlices!(int[], int[], int[]));

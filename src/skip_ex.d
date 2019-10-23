@@ -84,14 +84,12 @@ if (is(typeof(binaryFun!pred(r1.back, r2.back))) &&
 
 @safe pure nothrow @nogc unittest
 {
-    import std.algorithm: equal;
+    import std.algorithm : equal;
     auto s1 = "Hello world";
     assert(!skipOverBack(s1, "Ha"));
     assert(s1 == "Hello world");
     assert(skipOverBack(s1, "world") && s1 == "Hello ");
 }
-
-import std.algorithm: startsWith;
 
 /** Variadic version of $(D skipOver).
  *
@@ -180,9 +178,9 @@ size_t skipOverShortestOf(alias pred = "a == b",
                           Range,
                           Ranges...)(scope ref Range haystack,
                                      scope Ranges needles)
-if (Ranges.length >= 2 &&
-    is(typeof(startsWith!pred(haystack, needles))))
+if (Ranges.length >= 2)
 {
+    import std.algorithm : startsWith;
     const hit = startsWith!pred(haystack, needles);
     if (hit)
     {
@@ -272,8 +270,7 @@ SkipOverLongest skipOverLongestOf(alias pred = "a == b", Range, Ranges...)(scope
 size_t skipOverBackShortestOf(alias pred = "a == b", Range, Ranges...)(scope ref Range haystack,
                                                                        scope Ranges needles) @trusted
 // TODO We cannot prove that cast(ubyte[]) of a type that have no directions is safe
-    if (Ranges.length >= 2 &&
-        is(typeof(startsWith!pred(haystack, needles))))
+if (Ranges.length >= 2)
 {
     import std.range: retro, ElementType;
     import std.traits: hasIndirections;

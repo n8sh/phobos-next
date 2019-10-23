@@ -27,13 +27,13 @@ if (isBidirectionalRange!R1 &&
                is(typeof(r2.length > r1.length) : bool) &&
                is(typeof(r1 = r1[0 .. $ - r2.length])))
     {
-        if (r2.length > r1.length ||
-            r1[$ - r2.length .. $] != r2)
+        if (r1.length >= r2.length &&
+            r1[$ - r2.length .. $] == r2)
         {
-            return false;
+            r1 = r1[0 .. r1.length - r2.length];
+            return true;
         }
-        r1 = r1[0 .. r1.length - r2.length];
-        return true;
+        return false;
     }
     else
     {

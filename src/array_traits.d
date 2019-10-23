@@ -3,30 +3,30 @@ module array_traits;
 /** Is `true` iff all `Ts` are slices with same unqualified matching element types.
  */
 template isEqualableSlices(Ts...)
-    if (Ts.length >= 2)
+if (Ts.length >= 2)
+{
+    private enum isSlice(T) = is(T : const(E)[], E);
+    private enum isSliceOf(T, E) = is(T : const(E)[]);
+    static if (isSlice!(Ts[0]))
     {
-        private enum isSlice(T) = is(T : const(E)[], E);
-        private enum isSliceOf(T, E) = is(T : const(E)[]);
-        static if (isSlice!(Ts[0]))
+        alias E = typeof(Ts[0].init[0]);
+        static foreach (T; Ts[1 .. $])
         {
-            alias E = typeof(Ts[0].init[0]);
-            static foreach (T; Ts[1 .. $])
+            static if (is(typeof(isEqualableSlices) == void) && // not yet defined
+                       !(isSliceOf!(T, E)))
             {
-                static if (is(typeof(isEqualableSlices) == void) && // not yet defined
-                           !(isSliceOf!(T, E)))
-                {
-                    enum isEqualableSlices = false;
-                }
-            }
-            static if (is(typeof(isEqualableSlices) == void)) // if not yet defined
-            {
-                enum isEqualableSlices = true;
+                enum isEqualableSlices = false;
             }
         }
-        else
+        static if (is(typeof(isEqualableSlices) == void)) // if not yet defined
         {
-            enum isEqualableSlices = false;
+            enum isEqualableSlices = true;
         }
+    }
+    else
+    {
+        enum isEqualableSlices = false;
+    }
 }
 
 ///

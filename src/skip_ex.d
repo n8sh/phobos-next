@@ -17,7 +17,8 @@ version(unittest)
  *
  * See_Also: std.algorithm.searching.skipOver.
  */
-bool skipOverBack(R1, R2)(ref R1 r1, R2 r2)
+bool skipOverBack(R1, R2)(scope ref R1 r1,
+                          scope R2 r2)
 if (isBidirectionalRange!R1 &&
     isBidirectionalRange!R2 &&
     is(typeof(r1.back == r2.back)))
@@ -41,7 +42,8 @@ if (isBidirectionalRange!R1 &&
 }
 
 ///
-bool skipOverBack(alias pred, R1, R2)(ref R1 r1, R2 r2)
+bool skipOverBack(alias pred, R1, R2)(scope ref R1 r1,
+                                      scope R2 r2)
 if (is(typeof(binaryFun!pred(r1.back, r2.back))) &&
     isBidirectionalRange!R1 &&
     isBidirectionalRange!R2) // TODO R2 doesn't have to bi-directional if R1 is RandomAccess and R2.hasLength

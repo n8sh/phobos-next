@@ -257,12 +257,6 @@ if (Ranges.length >= 2 &&
     assert(x == "eta version");
 }
 
-private static struct SkipOverLongest
-{
-    bool hit;
-    size_t index;
-}
-
 /** Skip Over Longest Matching prefix in $(D needles) that prefixes $(D
  * haystack).
  */

@@ -16,6 +16,9 @@ enum isCharsSlice(T) = (is(T : const(char)[]));
 }
 
 /** Is `true` iff all `Ts` are slices with same unqualified matching element types.
+ *
+ * Used to define template-restrictions on template parameters of only arrays
+ * (slices) of the same unqualified element types.
  */
 template isEqualableSlices(Ts...)
 if (Ts.length >= 2)

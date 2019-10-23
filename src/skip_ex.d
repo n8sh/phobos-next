@@ -354,11 +354,12 @@ void skipOverSuffixes(R, A)(scope ref R s,
  *
  * Returns: `true` upon drop, `false` otherwise.
  */
-bool skipOverFrontAndBack(alias pred = "a == b", R, E)(scope ref R r,
-                                                       scope E frontPrefix,
-                                                       scope E backSuffix)
+bool skipOverFrontAndBack(alias pred = "a == b", R, E, F)(scope ref R r,
+                                                          scope E frontPrefix,
+                                                          scope F backSuffix)
 if (isBidirectionalRange!R &&
-    is(typeof(binaryFun!pred(ElementType!R.init, E.init))))
+    is(typeof(binaryFun!pred(ElementType!R.init, E.init))) &&
+    is(typeof(binaryFun!pred(ElementType!R.init, F.init))))
 {
     import core.internal.traits : Unqual;
     import std.traits : isArray;

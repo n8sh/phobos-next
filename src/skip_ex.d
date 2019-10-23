@@ -31,7 +31,7 @@ if (isBidirectionalRange!R1 &&
         {
             return false;
         }
-        r1 = r1[0 .. $ - r2.length];
+        r1 = r1[0 .. r1.length - r2.length];
         return true;
     }
     else
@@ -105,7 +105,8 @@ if (Ranges.length >= 2 &&
     import traits_ex : isCharsSlice;
     foreach (const ix, needle; needles)
     {
-        static if (isCharsSlice!(Range) &&
+        static if (pred == "a == b" &&
+                   isCharsSlice!(Range) &&
                    allSatisfy!(isCharsSlice, Ranges))
         {
             // `nothrow` char[] fast path
@@ -269,7 +270,7 @@ SkipOverLongest skipOverLongestOf(alias pred = "a == b", Range, Ranges...)(ref R
 {
     // TODO figure out which needles that are prefixes of other needles by first
     // sorting them and then use some adjacent filtering algorithm
-    return haystack.skipOverShortestOf(needles);
+    static assert(0, "TODO implement");
 }
 
 /** Skip Over Back Shortest Match of `needles` in `haystack`. */

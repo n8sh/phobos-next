@@ -100,11 +100,11 @@ size_t skipOverEither(alias pred = "a == b", Range, Ranges...)(scope ref Range h
 if (Ranges.length >= 2)
 {
     import core.internal.traits : allSatisfy;
-    import array_traits : isSameArrays;
+    import array_traits : isSameSlices;
     foreach (const ix, needle; needles)
     {
         static if (pred == "a == b" &&
-                   isSameArrays!(Range, Ranges)) // fast
+                   isSameSlices!(Range, Ranges)) // fast
         {
             // `nothrow` char[] fast path
             if (haystack.length >= needle.length &&

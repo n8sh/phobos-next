@@ -20,8 +20,8 @@ enum isCharsSlice(T) = (is(T : const(char)[]));
 template isEqualableSlices(Ts...)
 if (Ts.length >= 2)
 {
-    private enum isSlice(T) = is(T : const(E)[], E);
-    private enum isSliceOf(T, E) = is(T : const(E)[]);
+    enum isSlice(T) = is(T : const(E)[], E);
+    enum isSliceOf(T, E) = is(T : const(E)[]);
     static if (isSlice!(Ts[0]))
     {
         alias E = typeof(Ts[0].init[0]);

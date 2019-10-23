@@ -110,9 +110,9 @@ if (Ranges.length >= 2)
         {
             // `nothrow` char[] fast path
             if (haystack.length >= needle.length &&
-                haystack.ptr[0 .. needle.length] == needle)
+                haystack[0 .. needle.length] == needle) // TODO `haystack.ptr`
             {
-                haystack = haystack.ptr[needle.length .. haystack.length];
+                haystack = haystack[needle.length .. haystack.length]; // TODO `haystack.ptr`
                 return ix + 1;
             }
         }

@@ -5,7 +5,8 @@ import std.range.primitives : empty, hasSlicing, hasLength;
 import std.string: indexOf, lastIndexOf;
 import std.stdio: File;
 import std.algorithm.searching: startsWith, endsWith, findSplit;
-import traits_ex : isCharsSlice;
+
+import array_traits : isCharsSlice;
 
 enum SubjectType { URI, undecodedURI, blankNode }
 enum ObjectType { URI, undecodedURI, blankNode, literal }

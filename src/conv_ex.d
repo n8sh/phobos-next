@@ -1,7 +1,8 @@
 module conv_ex;
 
 import std.traits: isSomeChar, isSomeString, CommonType;
-import traits_ex : haveCommonType, isSourceOfSomeChar, isCharsSlice;
+import array_traits : isCharsSlice;
+import traits_ex : haveCommonType, isSourceOfSomeChar;
 import std.range.primitives : isInputRange, ElementType;
 
 /** Variant of std.conv.to with $(D defaultValue) making it $(D nothrow).

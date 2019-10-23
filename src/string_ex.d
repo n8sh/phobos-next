@@ -1,6 +1,6 @@
 module string_ex;
 
-import traits_ex : isCharsSlice;
+import array_traits : isCharsSlice;
 
 Chars[] quotedWords(Chars)(Chars s,
                            const scope string quoteBeginChar = `"`,

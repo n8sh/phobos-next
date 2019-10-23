@@ -1,5 +1,20 @@
 module array_traits;
 
+/// Is `true` iff `T` is a slice of `char`s.
+enum isCharsSlice(T) = (is(T : const(char)[]));
+
+///
+@safe pure unittest
+{
+    static assert(isCharsSlice!(char[]));
+    static assert(isCharsSlice!(const(char[])));
+    static assert(isCharsSlice!(const char[]));
+    static assert(isCharsSlice!(const const(char)[]));
+
+    static assert(!isCharsSlice!(wstring));
+    static assert(!isCharsSlice!(dstring));
+}
+
 /** Is `true` iff all `Ts` are slices with same unqualified matching element types.
  */
 template isEqualableSlices(Ts...)

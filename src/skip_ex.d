@@ -97,7 +97,7 @@ template isEqualableSlices(Ts...)
 if (Ts.length >= 2)
 {
     private enum isSlice(T) = is(T : const(E)[], E);
-    private enum isSliceOf(T, e) = is(T : const(E)[]);
+    private enum isSliceOf(T, E) = is(T : const(E)[]);
     static if (isSlice!(Ts[0]))
     {
         alias E = typeof(Ts[0].init[0]);
@@ -126,6 +126,7 @@ if (Ts.length >= 2)
     static assert(isEqualableSlices!(int[], int[]));
     static assert(isEqualableSlices!(const(int)[], int[]));
     static assert(isEqualableSlices!(int[], const(int)[]));
+    static assert(isEqualableSlices!(int[], immutable(int)[]));
 
     static assert(isEqualableSlices!(int[], int[], int[]));
     static assert(isEqualableSlices!(int[], const(int)[], int[]));

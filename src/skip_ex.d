@@ -13,6 +13,8 @@ version(unittest)
 }
 
 /** Array-overload for `startsWith` with normal predicate.
+ *
+ * See_Also:
  */
 bool startsWith(T)(scope const(T)[] haystack,
                    scope const(T)[] needle)
@@ -27,7 +29,6 @@ bool startsWith(T)(scope const(T)[] haystack,
 ///
 @safe pure unittest
 {
-    import std.algorithm.searching : startsWith;
     auto x = "beta version";
     assert(x.startsWith("beta"));
     assert(!x.startsWith("_"));

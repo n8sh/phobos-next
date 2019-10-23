@@ -257,8 +257,7 @@ if (Ranges.length >= 2 &&
     assert(x == "eta version");
 }
 
-/** Skip Over Longest Matching prefix in $(D needles) that prefixes $(D
- * haystack).
+/** Skip Over Longest Matching prefix in $(D needles) that prefixes $(D haystack).
  */
 SkipOverLongest skipOverLongestOf(alias pred = "a == b", Range, Ranges...)(ref Range haystack, Ranges needles)
 {

@@ -64,4 +64,8 @@ if (Ts.length >= 2)
     static assert(!isEqualableSlices!(int[], char[]));
     static assert(!isEqualableSlices!(int[], char[], char[]));
     static assert(!isEqualableSlices!(char[], int[]));
+
+    static assert(!isEqualableSlices!(char[], dchar[]));
+    static assert(!isEqualableSlices!(wchar[], dchar[]));
+    static assert(!isEqualableSlices!(char[], wchar[]));
 }

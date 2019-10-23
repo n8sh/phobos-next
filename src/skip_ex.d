@@ -91,20 +91,31 @@ if (isBidirectionalRange!R1 &&
     assert(skipOverBack(s1, "world") && s1 == "Hello ");
 }
 
-enum isSlice(T) = is(T : const(E)[], E);
-
-/** Is `true` iff all `Slices` are slices with same unqualified matching element types.
+/** Is `true` iff all `Ts` are slices with same unqualified matching element types.
  */
-template allMatchingSlices(Slices...)
-if (Slices.length >= 2)
+template allMatchingSlices(Ts...)
+if (Ts.length >= 2)
 {
-    alias S0 = Slices[0];
-    static if (isSlice!S0)
+    private enum isSlice(T) = is(T : const(E)[], E);
+
+    import core.internal.traits : allSatisfy;
+    static if (isSlice!(Ts[0]))
     {
-        enum E = typeof(S0.init[0]);
-        static if (is(Unqual!(typeof(E)) ==
-                      Unqual!(typeof(E))))
-        enum bool allMatchingSlices = true;
+        static foreach (T; Ts[1 .. $])
+        {
+            static if (is(typeof(allMatchingSlices) == void) && // not yet defined
+                       !(isSlice!T &&
+                         is(Ts[0] == T) &&
+                         is(typeof(Ts[0].init[0]) ==
+                            typeof(T.init[0]))))
+            {
+                enum allMatchingSlices = false;
+            }
+        }
+        static if (is(typeof(allMatchingSlices) == void)) // if not yet defined
+        {
+            enum allMatchingSlices = true;
+        }
     }
     else
     {
@@ -112,8 +123,18 @@ if (Slices.length >= 2)
     }
 }
 
+///
 version(unittest)
 {
+    static assert(allMatchingSlices!(int[], int[]));
+    static assert(allMatchingSlices!(int[], int[], int[]));
+
+    static assert(!allMatchingSlices!(int, char));
+    static assert(!allMatchingSlices!(int, int));
+
+    static assert(!allMatchingSlices!(int[], char[]));
+    static assert(!allMatchingSlices!(int[], char[], char[]));
+    static assert(!allMatchingSlices!(char[], int[]));
 }
 
 /** Variadic version of $(D skipOver).

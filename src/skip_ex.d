@@ -14,7 +14,7 @@ version(unittest)
 
 /** Array-overload for `startsWith` with normal predicate.
  *
- * See_Also:
+ * See_Also: https://forum.dlang.org/post/ybamybeakxwxwleebnwb@forum.dlang.org
  */
 bool startsWith(T)(scope const(T)[] haystack,
                    scope const(T)[] needle)

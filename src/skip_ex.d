@@ -104,7 +104,7 @@ if (Ranges.length >= 2)
     foreach (const ix, needle; needles)
     {
         static if (pred == "a == b" &&
-                   isSameArrays!(Range, Ranges))
+                   isSameArrays!(Range, Ranges)) // fast
         {
             // `nothrow` char[] fast path
             if (haystack.length >= needle.length &&

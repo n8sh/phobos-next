@@ -12,6 +12,25 @@ version(unittest)
     import array_help : s;
 }
 
+bool startsWith(T)(scope const(T)[] haystack,
+                   scope const(T)[] needle)
+{
+    if (haystack.length >= needle.length)
+    {
+        return haystack[0 .. needle.length] == needle;
+    }
+    return false;
+}
+
+///
+@safe pure unittest
+{
+    import std.algorithm.searching : startsWith;
+    auto x = "beta version";
+    assert(x.startsWith("beta"));
+    assert(!x.startsWith("_"));
+}
+
 /** Skip over the ending portion of `r1` that matches `r2`, or nothing upon no match.
  *
  * See_Also: std.algorithm.searching.skipOver.

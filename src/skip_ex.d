@@ -12,8 +12,7 @@ version(unittest)
     import array_help : s;
 }
 
-/** Skip over the ending portion of the first given range that matches the
- * second range, or do nothing if there is no match.
+/** Skip over the ending portion of `r1` that matches `r2`, or nothing upon no match.
  *
  * See_Also: std.algorithm.searching.skipOver.
  */

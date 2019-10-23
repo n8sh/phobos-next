@@ -93,7 +93,7 @@ if (isBidirectionalRange!R1 &&
 
 /** Is `true` iff all `Ts` are slices with same unqualified matching element types.
  */
-template allMatchingSlices(Ts...)
+template areComparableSlices(Ts...)
 if (Ts.length >= 2)
 {
     private enum isSlice(T) = is(T : const(E)[], E);
@@ -103,40 +103,40 @@ if (Ts.length >= 2)
         alias E = typeof(Ts[0].init[0]);
         static foreach (T; Ts[1 .. $])
         {
-            static if (is(typeof(allMatchingSlices) == void) && // not yet defined
+            static if (is(typeof(areComparableSlices) == void) && // not yet defined
                        !(isSliceOf!(T, E)))
             {
-                enum allMatchingSlices = false;
+                enum areComparableSlices = false;
             }
         }
-        static if (is(typeof(allMatchingSlices) == void)) // if not yet defined
+        static if (is(typeof(areComparableSlices) == void)) // if not yet defined
         {
-            enum allMatchingSlices = true;
+            enum areComparableSlices = true;
         }
     }
     else
     {
-        enum allMatchingSlices = false;
+        enum areComparableSlices = false;
     }
 }
 
 ///
 @safe pure unittest
 {
-    static assert(allMatchingSlices!(int[], int[]));
-    static assert(allMatchingSlices!(const(int)[], int[]));
-    static assert(allMatchingSlices!(int[], const(int)[]));
+    static assert(areComparableSlices!(int[], int[]));
+    static assert(areComparableSlices!(const(int)[], int[]));
+    static assert(areComparableSlices!(int[], const(int)[]));
 
-    static assert(allMatchingSlices!(int[], int[], int[]));
-    static assert(allMatchingSlices!(int[], const(int)[], int[]));
-    static assert(allMatchingSlices!(const(int)[], const(int)[], const(int)[]));
+    static assert(areComparableSlices!(int[], int[], int[]));
+    static assert(areComparableSlices!(int[], const(int)[], int[]));
+    static assert(areComparableSlices!(const(int)[], const(int)[], const(int)[]));
 
-    static assert(!allMatchingSlices!(int, char));
-    static assert(!allMatchingSlices!(int, int));
+    static assert(!areComparableSlices!(int, char));
+    static assert(!areComparableSlices!(int, int));
 
-    static assert(!allMatchingSlices!(int[], char[]));
-    static assert(!allMatchingSlices!(int[], char[], char[]));
-    static assert(!allMatchingSlices!(char[], int[]));
+    static assert(!areComparableSlices!(int[], char[]));
+    static assert(!areComparableSlices!(int[], char[], char[]));
+    static assert(!areComparableSlices!(char[], int[]));
 }
 
 /** Variadic version of $(D skipOver).

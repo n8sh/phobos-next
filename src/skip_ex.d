@@ -130,9 +130,11 @@ if (Ts.length >= 2)
 
     static assert(isEqualableSlices!(int[], int[], int[]));
     static assert(isEqualableSlices!(int[], const(int)[], int[]));
+    static assert(isEqualableSlices!(int[], const(int)[], immutable(int)[]));
     static assert(isEqualableSlices!(const(int)[], const(int)[], const(int)[]));
 
     static assert(!isEqualableSlices!(int, char));
+    static assert(!isEqualableSlices!(int, const(char)));
     static assert(!isEqualableSlices!(int, int));
 
     static assert(!isEqualableSlices!(int[], char[]));

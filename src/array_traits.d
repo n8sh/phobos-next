@@ -20,7 +20,7 @@ enum isCharsSlice(T) = (is(T : const(char)[]));
  * Used to define template-restrictions on template parameters of only arrays
  * (slices) of the same unqualified element types.
  */
-template isEqualableSlices(Ts...)
+template isSameArrays(Ts...)
 if (Ts.length >= 2)
 {
     enum isSlice(T) = is(T : const(E)[], E);
@@ -30,45 +30,45 @@ if (Ts.length >= 2)
         alias E = typeof(Ts[0].init[0]);
         static foreach (T; Ts[1 .. $])
         {
-            static if (is(typeof(isEqualableSlices) == void) && // not yet defined
+            static if (is(typeof(isSameArrays) == void) && // not yet defined
                        !(isSliceOf!(T, E)))
             {
-                enum isEqualableSlices = false;
+                enum isSameArrays = false;
             }
         }
-        static if (is(typeof(isEqualableSlices) == void)) // if not yet defined
+        static if (is(typeof(isSameArrays) == void)) // if not yet defined
         {
-            enum isEqualableSlices = true;
+            enum isSameArrays = true;
         }
     }
     else
     {
-        enum isEqualableSlices = false;
+        enum isSameArrays = false;
     }
 }
 
 ///
 @safe pure unittest
 {
-    static assert(isEqualableSlices!(int[], int[]));
-    static assert(isEqualableSlices!(const(int)[], int[]));
-    static assert(isEqualableSlices!(int[], const(int)[]));
-    static assert(isEqualableSlices!(int[], immutable(int)[]));
+    static assert(isSameArrays!(int[], int[]));
+    static assert(isSameArrays!(const(int)[], int[]));
+    static assert(isSameArrays!(int[], const(int)[]));
+    static assert(isSameArrays!(int[], immutable(int)[]));
 
-    static assert(isEqualableSlices!(int[], int[], int[]));
-    static assert(isEqualableSlices!(int[], const(int)[], int[]));
-    static assert(isEqualableSlices!(int[], const(int)[], immutable(int)[]));
-    static assert(isEqualableSlices!(const(int)[], const(int)[], const(int)[]));
+    static assert(isSameArrays!(int[], int[], int[]));
+    static assert(isSameArrays!(int[], const(int)[], int[]));
+    static assert(isSameArrays!(int[], const(int)[], immutable(int)[]));
+    static assert(isSameArrays!(const(int)[], const(int)[], const(int)[]));
 
-    static assert(!isEqualableSlices!(int, char));
-    static assert(!isEqualableSlices!(int, const(char)));
-    static assert(!isEqualableSlices!(int, int));
+    static assert(!isSameArrays!(int, char));
+    static assert(!isSameArrays!(int, const(char)));
+    static assert(!isSameArrays!(int, int));
 
-    static assert(!isEqualableSlices!(int[], char[]));
-    static assert(!isEqualableSlices!(int[], char[], char[]));
-    static assert(!isEqualableSlices!(char[], int[]));
+    static assert(!isSameArrays!(int[], char[]));
+    static assert(!isSameArrays!(int[], char[], char[]));
+    static assert(!isSameArrays!(char[], int[]));
 
-    static assert(!isEqualableSlices!(char[], dchar[]));
-    static assert(!isEqualableSlices!(wchar[], dchar[]));
-    static assert(!isEqualableSlices!(char[], wchar[]));
+    static assert(!isSameArrays!(char[], dchar[]));
+    static assert(!isSameArrays!(wchar[], dchar[]));
+    static assert(!isSameArrays!(char[], wchar[]));
 }

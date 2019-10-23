@@ -177,8 +177,8 @@ if (Ranges.length >= 2)
  */
 size_t skipOverShortestOf(alias pred = "a == b",
                           Range,
-                          Ranges...)(ref Range haystack,
-                                     Ranges needles)
+                          Ranges...)(scope ref Range haystack,
+                                     scope Ranges needles)
 if (Ranges.length >= 2 &&
     is(typeof(startsWith!pred(haystack, needles))))
 {
@@ -259,7 +259,8 @@ if (Ranges.length >= 2 &&
 
 /** Skip Over Longest Matching prefix in $(D needles) that prefixes $(D haystack).
  */
-SkipOverLongest skipOverLongestOf(alias pred = "a == b", Range, Ranges...)(ref Range haystack, Ranges needles)
+SkipOverLongest skipOverLongestOf(alias pred = "a == b", Range, Ranges...)(scope ref Range haystack,
+                                                                           scope Ranges needles)
 {
     // TODO figure out which needles that are prefixes of other needles by first
     // sorting them and then use some adjacent filtering algorithm
@@ -267,7 +268,8 @@ SkipOverLongest skipOverLongestOf(alias pred = "a == b", Range, Ranges...)(ref R
 }
 
 /** Skip Over Back Shortest Match of `needles` in `haystack`. */
-size_t skipOverBackShortestOf(alias pred = "a == b", Range, Ranges...)(ref Range haystack, Ranges needles) @trusted
+size_t skipOverBackShortestOf(alias pred = "a == b", Range, Ranges...)(scope ref Range haystack,
+                                                                       scope Ranges needles) @trusted
 // TODO We cannot prove that cast(ubyte[]) of a type that have no directions is safe
     if (Ranges.length >= 2 &&
         is(typeof(startsWith!pred(haystack, needles))))
@@ -321,7 +323,8 @@ size_t skipOverBackShortestOf(alias pred = "a == b", Range, Ranges...)(ref Range
  * TODO Use multi-argument skipOver when it becomes available
  * http://forum.dlang.org/thread/bug-12335-3@https.d.puremagic.com%2Fissues%2F
 */
-void skipOverPrefixes(R, A)(ref R s, in A prefixes)
+void skipOverPrefixes(R, A)(scope ref R s,
+                            const scope A prefixes)
 {
     import std.algorithm.searching : skipOver;
     foreach (prefix; prefixes)
@@ -335,7 +338,8 @@ void skipOverPrefixes(R, A)(ref R s, in A prefixes)
 }
 
 /** Drop $(D suffixes) in $(D s). */
-void skipOverSuffixes(R, A)(ref R s, in A suffixes)
+void skipOverSuffixes(R, A)(scope ref R s,
+                            const scope A suffixes)
 {
     foreach (suffix; suffixes)
     {
@@ -352,9 +356,9 @@ void skipOverSuffixes(R, A)(ref R s, in A suffixes)
  *
  * Returns: `true` upon drop, `false` otherwise.
  */
-bool skipOverFrontAndBack(alias pred = "a == b", R, E)(ref R r,
-                                                       E frontPrefix,
-                                                       E backSuffix)
+bool skipOverFrontAndBack(alias pred = "a == b", R, E)(scope ref R r,
+                                                       scope E frontPrefix,
+                                                       scope E backSuffix)
 if (isBidirectionalRange!R &&
     is(typeof(binaryFun!pred(ElementType!R.init, E.init))))
 {

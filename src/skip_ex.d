@@ -43,9 +43,9 @@ if (isBidirectionalRange!R1 &&
 ///
 bool skipOverBack(alias pred, R1, R2)(scope ref R1 r1,
                                       scope R2 r2)
-if (is(typeof(binaryFun!pred(r1.back, r2.back))) &&
-    isBidirectionalRange!R1 &&
-    isBidirectionalRange!R2) // TODO R2 doesn't have to bi-directional if R1 is RandomAccess and R2.hasLength
+if (isBidirectionalRange!R1 &&
+    isBidirectionalRange!R2 &&
+    is(typeof(binaryFun!pred(r1.back, r2.back)))) // TODO R2 doesn't have to bi-directional if R1 is RandomAccess and R2.hasLength
 {
     import std.range.primitives : hasLength;
     static if (hasLength!R1 && hasLength!R2)

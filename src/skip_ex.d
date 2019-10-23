@@ -116,7 +116,7 @@ if (Ts.length >= 2)
     }
     else
     {
-        enum bool allMatchingSlices = false;
+        enum allMatchingSlices = false;
     }
 }
 

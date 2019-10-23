@@ -27,7 +27,7 @@ bool startsWith(T)(scope const(T)[] haystack,
 }
 
 ///
-@safe pure unittest
+@safe pure nothrow @nogc unittest
 {
     auto x = "beta version";
     assert(x.startsWith("beta"));

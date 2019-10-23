@@ -96,8 +96,8 @@ import std.algorithm: startsWith;
  *
  * Returns: index + 1 into matching $(D needles), 0 otherwise.
  */
-size_t skipOverEither(alias pred = "a == b", Range, Ranges...)(ref Range haystack,
-                                                               Ranges needles)
+size_t skipOverEither(alias pred = "a == b", Range, Ranges...)(scope ref Range haystack,
+                                                               scope Ranges needles)
 if (Ranges.length >= 2)
 {
     import core.internal.traits : allSatisfy;

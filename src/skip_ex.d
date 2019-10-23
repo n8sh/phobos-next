@@ -97,17 +97,16 @@ template allMatchingSlices(Ts...)
 if (Ts.length >= 2)
 {
     private enum isSlice(T) = is(T : const(E)[], E);
+    private enum isSliceOf(T, e) = is(T : const(E)[]);
 
     import core.internal.traits : allSatisfy;
     static if (isSlice!(Ts[0]))
     {
+        alias E = typeof(Ts[0].init[0]);
         static foreach (T; Ts[1 .. $])
         {
             static if (is(typeof(allMatchingSlices) == void) && // not yet defined
-                       !(isSlice!T &&
-                         is(Ts[0] == T) &&
-                         is(typeof(Ts[0].init[0]) ==
-                            typeof(T.init[0]))))
+                       !(isSliceOf!(T, E)))
             {
                 enum allMatchingSlices = false;
             }

@@ -335,7 +335,8 @@ void skipOverPrefixes(R, A)(scope ref R s,
     }
 }
 
-/** Drop $(D suffixes) in $(D s). */
+/** Drop $(D suffixes) in $(D s).
+ */
 void skipOverSuffixes(R, A)(scope ref R s,
                             const scope A suffixes)
 {
@@ -344,7 +345,7 @@ void skipOverSuffixes(R, A)(scope ref R s,
         if (s.length > suffix.length &&
             s.endsWith(suffix))
         {
-            s = s[0 .. $ - suffix.length];
+            s = s[0 .. $ - suffix.length]; // TODO .ptr
             break;
         }
     }

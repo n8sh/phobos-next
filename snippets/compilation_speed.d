@@ -22,8 +22,15 @@ bool startsWith(T)(scope const(T)[] haystack,
                           long, ulong,
                           float, double, real))
     {
-        T[] x;
-        T[] y;
-        assert(x.startsWith(y));
+        {
+            T[] x;
+            T[] y;
+            assert(x.startsWith(y));
+        }
+        {
+            const(T)[] x;
+            const(T) [] y;
+            assert(x.startsWith(y));
+        }
     }
 }

@@ -32,5 +32,10 @@ bool startsWith(T)(scope const(T)[] haystack,
             const(T) [] y;
             assert(x.startsWith(y));
         }
+        {
+            immutable(T)[] x;
+            immutable(T) [] y;
+            assert(x.startsWith(y));
+        }
     }
 }

@@ -1,3 +1,5 @@
+import std.algorithm.searching;
+
 bool startsWith(T)(scope const(T)[] haystack,
                    scope const(T)[] needle)
 {
@@ -13,6 +15,7 @@ bool startsWith(T)(scope const(T)[] haystack,
 {
     import std.meta : AliasSeq;
     foreach (T; AliasSeq!(char, wchar, dchar,
+                          byte, ubyte,
                           short, ushort,
                           int, uint,
                           long, ulong,

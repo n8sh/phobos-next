@@ -1,6 +1,7 @@
 /** Extensions to skipOver.
  *
  * See_Also: https://forum.dlang.org/post/tswdobtabsjarszfkmbt@forum.dlang.org
+ * See_Also: https://forum.dlang.org/post/ybamybeakxwxwleebnwb@forum.dlang.org
  */
 module skip_ex;
 
@@ -12,10 +13,7 @@ version(unittest)
     import array_help : s;
 }
 
-/** Array-overload for `startsWith` with no explicit predicate predicate.
- *
- * See_Also: https://forum.dlang.org/post/ybamybeakxwxwleebnwb@forum.dlang.org
- */
+/** Array-overload for `startsWith` with no explicit predicate predicate. */
 bool startsWith(T)(scope const(T)[] haystack,
                    scope const(T)[] needle)
 {
@@ -34,10 +32,7 @@ bool startsWith(T)(scope const(T)[] haystack,
     assert(!x.startsWith("_"));
 }
 
-/** Array-overload for `endsWith` with no explicit predicate predicate.
- *
- * See_Also: https://forum.dlang.org/post/ybamybeakxwxwleebnwb@forum.dlang.org
- */
+/** Array-overload for `endsWith` with no explicit predicate predicate. */
 bool endsWith(T)(scope const(T)[] haystack,
                  scope const(T)[] needle)
 {

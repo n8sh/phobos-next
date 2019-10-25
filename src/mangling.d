@@ -22,7 +22,6 @@ module mangling;
 
 import std.range.primitives: empty, front, popFront, moveFront, popFrontExactly, isInputRange;
 import std.algorithm: joiner, min;
-import std.typecons: tuple, Tuple;
 import std.conv: to;
 import std.ascii: isDigit;
 import std.array: array;

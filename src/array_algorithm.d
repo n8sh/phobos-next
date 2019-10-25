@@ -1,3 +1,5 @@
+/** Array-only overloads of Phobos algorithms.
+ */
 module array_algorithm;
 
 import std.range.primitives : ElementType;
@@ -40,7 +42,10 @@ bool endsWith(T)(scope const(T)[] haystack,
     assert(!x.startsWith("_"));
 }
 
-/** Array-overload for `skipOver` with no explicit predicate predicate. */
+/** Array-overload for `skipOver` with no explicit predicate predicate.
+ *
+ * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
+ */
 bool skipOver(T)(scope ref inout(T)[] haystack,
                  scope const(T)[] needle)
 {

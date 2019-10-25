@@ -4,8 +4,8 @@ import std.traits: isNarrowString;
 import std.range.primitives : empty, hasSlicing, hasLength;
 import std.string: indexOf, lastIndexOf;
 import std.stdio: File;
-import std.algorithm.searching: startsWith, endsWith, findSplit;
 
+import array_algorithm : startsWith, endsWith;
 import array_traits : isCharsSlice;
 
 enum SubjectType { URI, undecodedURI, blankNode }

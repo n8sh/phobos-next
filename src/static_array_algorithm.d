@@ -40,3 +40,25 @@ typeof(fun(E.init))[n] map(alias fun, E, size_t n)(const E[n] src)
         static assert(is(typeof(result) == const(E)[n]));
     }
 }
+
+import traits_ex : allSameTypeRecursive;
+
+/** Returns: tuple `tup` to a static array.
+ *
+ * See_Also: http://dpaste.dzfl.pl/d0059e6e6c09
+ */
+inout(T.Types[0])[T.length] toStaticArray1(T)(inout T tup) @trusted
+if (allSameTypeRecursive!(T.Types))
+{
+    return *cast(T.Types[0][T.length]*)&tup; // hackish
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    import std.typecons: tuple;
+    const auto tup = tuple("a", "b", "c", "d");
+    const string[4] arr = ["a", "b", "c", "d"];
+    static assert(is(typeof(tup.toStaticArray1()) == typeof(arr)));
+    assert(tup.toStaticArray1() == arr);
+}

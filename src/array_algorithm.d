@@ -1,4 +1,6 @@
 /** Array-only overloads of Phobos algorithms.
+ *
+ * Provides factors of faster compilation speed for UTF-8 strings.
  */
 module array_algorithm;
 

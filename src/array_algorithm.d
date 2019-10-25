@@ -167,6 +167,31 @@ inout(T)[] stripLeft(T)(scope return inout(T)[] haystack,
     assert("   beta".stripLeft(' ') == "beta");
 }
 
+/** Array-overload for `stripRight` with ASCII-char needle and default predicate.
+ *
+ * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
+ */
+inout(T)[] stripRight(T)(scope return inout(T)[] haystack,
+                        scope const T needle)
+{
+    assert(needle < 128);       // TODO
+    size_t offset = haystack.length;
+    while (offset != 0 &&
+           haystack[offset - 1] == needle)
+    {
+        offset -= 1;
+    }
+    return haystack[0 .. offset];
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    assert("beta ".stripRight(' ') == "beta");
+    assert("beta  ".stripRight(' ') == "beta");
+    assert("beta    ".stripRight(' ') == "beta");
+}
+
 /** Overload of `std.array.array` that creates a static array of length `n`.
  *
  * TODO Better name: {make,array}{N,Exactly}

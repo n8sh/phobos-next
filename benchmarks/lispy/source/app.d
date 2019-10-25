@@ -6,8 +6,10 @@ import std.file: dirEntries, SpanMode;
 import std.conv : to;
 import std.datetime.stopwatch : StopWatch, AutoStart;
 import std.utf;
-import std.algorithm.searching : endsWith, canFind;
+import std.algorithm.searching : canFind;
 import std.path : pathSplitter;
+
+import array_algorithm : endsWith;
 
 /** Read all SUO-KIF files (.kif) located under `rootDirPath`.
  */

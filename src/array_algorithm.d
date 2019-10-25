@@ -142,7 +142,7 @@ bool skipOverBack(T)(scope ref inout(T)[] haystack,
     assert(x == "bet");
 }
 
-/** Array-overload for `stripLeft` with ASCII-char needle and default predicate.
+/** Array-overload for `stripLeft` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
@@ -173,7 +173,7 @@ inout(char)[] stripLeft()(scope return inout(char)[] haystack) @safe pure nothro
     assert("   beta".stripLeft() == "beta");
 }
 
-/** Array-overload for `stripRight` with ASCII-char needle and default predicate.
+/** Array-overload for `stripRight` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
@@ -204,7 +204,7 @@ inout(char)[] stripRight()(scope return inout(char)[] haystack) @safe pure nothr
     assert("beta    ".stripRight() == "beta");
 }
 
-/** Array-overload for `strip` with ASCII-char needle and default predicate.
+/** Array-overload for `strip` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */

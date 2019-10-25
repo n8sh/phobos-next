@@ -59,7 +59,7 @@ struct UTCOffset
         import std.conv : to;
 
         import skip_ex : skipOverEither;
-        import std.algorithm.searching : startsWith, skipOver;
+        import array_algorithm : startsWith, skipOver;
 
         // TODO support and use CT-arguments in skipOverEither()
         if (strictFormat && !code.startsWith("UTC"))

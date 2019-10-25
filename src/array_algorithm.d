@@ -41,7 +41,7 @@ bool endsWith(T)(scope const(T)[] haystack,
 }
 
 /** Array-overload for `skipOver` with no explicit predicate predicate. */
-bool skipOver(T)(scope ref const(T)[] haystack,
+bool skipOver(T)(scope ref inout(T)[] haystack,
                  scope const(T)[] needle)
 {
     if (startsWith(haystack, needle))
@@ -53,7 +53,6 @@ bool skipOver(T)(scope ref const(T)[] haystack,
 }
 
 ///
-version(none)
 @safe pure nothrow @nogc unittest
 {
     string x = "beta version";

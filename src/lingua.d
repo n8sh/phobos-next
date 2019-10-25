@@ -11,7 +11,7 @@
 */
 module lingua;
 
-import std.traits: isSomeChar, isSomeString;
+import std.traits : isSomeChar, isSomeString;
 import std.algorithm.comparison : among;
 import std.algorithm.iteration : uniq;
 import std.array : array;

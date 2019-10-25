@@ -14,6 +14,16 @@ bool startsWith(T)(scope const(T)[] haystack,
     }
     return false;
 }
+/// ditto
+bool startsWith(T)(scope const(T)[] haystack,
+                   scope T needle)
+{
+    if (haystack.length >= 1)
+    {
+        return haystack[0 .. 1] == needle; // range check is elided by LDC in release builds
+    }
+    return false;
+}
 
 ///
 @safe pure nothrow @nogc unittest

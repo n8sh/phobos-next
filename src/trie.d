@@ -2821,7 +2821,7 @@ template RawRadixTree(Value = void)
         {
             assert(key.length);
             // debug if (willFail) { dbg("key:", key); }
-            import std.algorithm.searching : skipOver;
+            import array_algorithm : skipOver;
             switch (curr.typeIx) with (Node.Ix)
             {
             case undefined: return null;
@@ -2871,7 +2871,7 @@ template RawRadixTree(Value = void)
         {
             assert(key.length);
             // debug if (willFail) { dbg("key:", key); }
-            import std.algorithm.searching : skipOver;
+            import array_algorithm : skipOver;
             final switch (curr.typeIx) with (Node.Ix)
             {
             case undefined: return false;

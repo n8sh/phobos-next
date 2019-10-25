@@ -70,7 +70,7 @@ T fromOrdinalTo(T)(scope const(char)[] ordinal)
     case `nineteenth`: return 19;
     case `twentieth`: return 20;
     default:
-        // import std.algorithm : skipOver;
+        // import array_algorithm : skipOver;
         // assert(ordinal.skipOver(`th`));
         assert(0, `Handle this case`);
     }

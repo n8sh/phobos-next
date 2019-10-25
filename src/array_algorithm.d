@@ -114,6 +114,17 @@ bool skipOverBack(T)(scope ref inout(T)[] haystack,
     }
     return false;
 }
+/// ditto
+bool skipOverBack(T)(scope ref inout(T)[] haystack,
+                     scope const T needle)
+{
+    if (endsWith(haystack, needle))
+    {
+        haystack = haystack[0 .. $ - 1];
+        return true;
+    }
+    return false;
+}
 
 ///
 @safe pure nothrow @nogc unittest
@@ -121,6 +132,8 @@ bool skipOverBack(T)(scope ref inout(T)[] haystack,
     string x = "beta version";
     assert(x.skipOverBack(" version"));
     assert(x == "beta");
+    assert(x.skipOverBack('a'));
+    assert(x == "bet");
 }
 
 /** Overload of `std.array.array` that creates a static array of length `n`.

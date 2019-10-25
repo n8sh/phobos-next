@@ -339,8 +339,9 @@ template allSameTypesInTuple(T)
 }
 
 /** Returns: tuple `tup` to a static array.
-    See_Also: http://dpaste.dzfl.pl/d0059e6e6c09
-*/
+ *
+ * See_Also: http://dpaste.dzfl.pl/d0059e6e6c09
+ */
 inout(T.Types[0])[T.length] toStaticArray(T)(inout T tup) @trusted
     if (allSameTypeRecursive!(T.Types))
 {
@@ -358,7 +359,7 @@ inout(T.Types[0])[T.length] toStaticArray(T)(inout T tup) @trusted
 }
 
 /** Returns: tuple `tup` as a dynamic array.
-*/
+ */
 auto asDynamicArray(T)(inout T tup)
     if (allSameTypeRecursive!(T.Types))
 {

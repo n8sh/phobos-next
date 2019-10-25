@@ -146,7 +146,8 @@ import std.traits: isIntegral;
     See_Also: https://en.wikipedia.org/wiki/Numeral_(linguistics)
     See_Also: https://en.wikipedia.org/wiki/Cardinal_number_(linguistics)
 */
-string toNumeral(T)(T number, string minusName = `minus`) if (isIntegral!T)
+string toNumeral(T)(T number, string minusName = `minus`)
+if (isIntegral!T)
 {
     string word;
 

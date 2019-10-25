@@ -1,5 +1,6 @@
 import std.algorithm.searching;
 
+version(none)
 bool startsWith(T)(scope const(T)[] haystack,
                    scope const(T)[] needle)
 {
@@ -32,7 +33,17 @@ bool startsWith(T)(scope const(T)[] haystack,
             assert(x.startsWith(y));
         }
         {
-            immutable(T)[] x;
+            const(T)[] x;
+            immutable(T) [] y;
+            assert(x.startsWith(y));
+        }
+        {
+            const(T)[] x;
+            T [] y;
+            assert(x.startsWith(y));
+        }
+        {
+            T[] x;
             immutable(T) [] y;
             assert(x.startsWith(y));
         }

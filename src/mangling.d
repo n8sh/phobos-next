@@ -22,7 +22,7 @@ module mangling;
 
 import std.range.primitives: empty, front, popFront, popFrontExactly, isInputRange;
 import std.range: take, drop, takeOne, moveFront, repeat, replicate;
-import std.algorithm: startsWith, findSplitAfter, skipOver, joiner, min;
+import std.algorithm: findSplitAfter, joiner, min;
 import std.typecons: tuple, Tuple;
 import std.conv: to;
 import std.ascii: isDigit;
@@ -31,6 +31,7 @@ import std.stdio;
 import std.functional : unaryFun, binaryFun;
 
 import std.algorithm.comparison : either;
+import array_algorithm : startsWith, skipOver;
 import algorithm_ex: tryEvery, split, splitBefore, findPopBefore, findPopAfter;
 import lingua;
 import languages : Lang;

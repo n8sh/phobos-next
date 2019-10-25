@@ -6,7 +6,7 @@ module array_algorithm;
 
 import std.range.primitives : ElementType;
 
-/** Array-overload for `startsWith` with no explicit predicate predicate. */
+/** Array-overload for `startsWith` with default predicate. */
 bool startsWith(T)(scope const(T)[] haystack,
                    scope const(T)[] needle)
 {
@@ -37,7 +37,7 @@ bool startsWith(T)(scope const(T)[] haystack,
     assert(!x.startsWith("_"));
 }
 
-/** Array-overload for `endsWith` with no explicit predicate predicate. */
+/** Array-overload for `endsWith` with default predicate. */
 bool endsWith(T)(scope const(T)[] haystack,
                  scope const(T)[] needle)
 {
@@ -68,7 +68,7 @@ bool endsWith(T)(scope const(T)[] haystack,
     assert(!x.startsWith("_"));
 }
 
-/** Array-overload for `skipOver` with no explicit predicate predicate.
+/** Array-overload for `skipOver` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
@@ -105,7 +105,7 @@ bool skipOver(T)(scope ref inout(T)[] haystack,
     assert(x == "version");
 }
 
-/** Array-overload for `skipOverBack` with no explicit predicate predicate.
+/** Array-overload for `skipOverBack` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
@@ -142,7 +142,7 @@ bool skipOverBack(T)(scope ref inout(T)[] haystack,
     assert(x == "bet");
 }
 
-/** Array-overload for `stripLeft` with no explicit predicate predicate.
+/** Array-overload for `stripLeft` with ASCII-char needle and default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */

@@ -14,7 +14,7 @@ module lingua;
 import std.traits: isSomeChar, isSomeString;
 import std.algorithm.comparison : among;
 import std.algorithm.iteration : uniq;
-import std.array: array;
+import std.array : array;
 import std.conv;
 
 // TODO add overload to std.algorithm.among that takes an immutable array as

@@ -9,7 +9,7 @@ void readNordicNames()
     import std.path: expandTilde, buildNormalizedPath;
     import std.file: dirEntries, SpanMode, readText;
     import std.stdio: writeln, File;
-    import std.algorithm: joiner, findSplitBefore, findSplitAfter, endsWith, startsWith, until, split, findSkip;
+    import std.algorithm : joiner, findSplitBefore, findSplitAfter, endsWith, startsWith, until, splitter, findSkip;
     import std.conv: to;
     import std.net.curl;
     import std.array: array;
@@ -73,7 +73,7 @@ void readNordicNames()
             switch (pIx)
             {
                 case 0:
-                    langs = text.split;
+                    langs = text.splitter;
                     fields ~= langs.joiner(alternativesSeparator.to!string).to!string;
                     writeln("Languages: ", langs);
                     break;

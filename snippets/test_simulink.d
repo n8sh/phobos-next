@@ -2,7 +2,7 @@
 
 import std.array : array;
 import std.range.primitives : empty;
-import std.algorithm;
+import std.algorithm : startsWith, endsWith;
 import std.conv : to;
 import std.file : read, dirEntries, DirEntry, SpanMode;
 import std.path : expandTilde;

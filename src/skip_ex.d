@@ -13,44 +13,6 @@ version(unittest)
     import array_help : s;
 }
 
-/** Array-overload for `startsWith` with no explicit predicate predicate. */
-bool startsWith(T)(scope const(T)[] haystack,
-                   scope const(T)[] needle)
-{
-    if (haystack.length >= needle.length)
-    {
-        return haystack[0 .. needle.length] == needle; // range check is elided by LDC in release builds
-    }
-    return false;
-}
-
-///
-@safe pure nothrow @nogc unittest
-{
-    auto x = "beta version";
-    assert(x.startsWith("beta"));
-    assert(!x.startsWith("_"));
-}
-
-/** Array-overload for `endsWith` with no explicit predicate predicate. */
-bool endsWith(T)(scope const(T)[] haystack,
-                 scope const(T)[] needle)
-{
-    if (haystack.length >= needle.length)
-    {
-        return haystack[$ - needle.length .. $] == needle; // range check is elided by LDC in release builds
-    }
-    return false;
-}
-
-///
-@safe pure nothrow @nogc unittest
-{
-    auto x = "beta version";
-    assert(x.endsWith("version"));
-    assert(!x.startsWith("_"));
-}
-
 /** Skip over the ending portion of `r1` that matches `r2`, or nothing upon no match.
  *
  * See_Also: std.algorithm.searching.skipOver.

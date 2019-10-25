@@ -158,7 +158,7 @@ inout(T)[] stripLeft(T)(scope return inout(T)[] haystack,
     }
     return haystack[offset .. $];
 }
-inout(char)[] stripLeft(scope return inout(char)[] haystack) @safe pure nothrow @nogc
+inout(char)[] stripLeft()(scope return inout(char)[] haystack) @safe pure nothrow @nogc // template-lazy
 {
     return haystack.stripLeft(' ');
 }
@@ -189,7 +189,7 @@ inout(T)[] stripRight(T)(scope return inout(T)[] haystack,
     }
     return haystack[0 .. offset];
 }
-inout(char)[] stripRight(scope return inout(char)[] haystack) @safe pure nothrow @nogc
+inout(char)[] stripRight()(scope return inout(char)[] haystack) @safe pure nothrow @nogc // template-lazy
 {
     return haystack.stripRight(' ');
 }

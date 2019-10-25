@@ -242,7 +242,7 @@ inout(char)[] strip()(scope return inout(char)[] haystack) @safe pure nothrow @n
     assert("  beta  ".strip(' ') == "beta");
     assert("   beta   ".strip(' ') == "beta");
     assert(" _ beta _ ".strip(' ') == "_ beta _");
-    assert(" _  beta _ ".strip(' ') == "_ beta _");
+    assert(" _  beta _ ".strip(' ') == "_  beta _");
 }
 
 /** Overload of `std.array.array` that creates a static array of length `n`.

@@ -171,6 +171,8 @@ inout(char)[] stripLeft()(scope return inout(char)[] haystack) @safe pure nothro
     assert("  beta".stripLeft(' ') == "beta");
     assert("   beta".stripLeft(' ') == "beta");
     assert("   beta".stripLeft() == "beta");
+    assert(" _ beta _ ".stripLeft(' ') == "_ beta _ ");
+    assert(" _  beta _ ".stripLeft(' ') == "_  beta _ ");
 }
 
 /** Array-overload for `stripRight` with default predicate.
@@ -202,6 +204,8 @@ inout(char)[] stripRight()(scope return inout(char)[] haystack) @safe pure nothr
     assert("beta  ".stripRight(' ') == "beta");
     assert("beta    ".stripRight(' ') == "beta");
     assert("beta    ".stripRight() == "beta");
+    assert(" _ beta _ ".stripRight(' ') == " _ beta _");
+    assert(" _  beta _ ".stripRight(' ') == " _  beta _");
 }
 
 /** Array-overload for `strip` with default predicate.

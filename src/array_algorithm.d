@@ -23,7 +23,7 @@ bool startsWith(T)(scope const(T)[] haystack,
     static if (is(T == char)) assert(needle < 128); // TODO convert needle to string and call itself
     if (haystack.length >= 1)
     {
-        return haystack[0] == needle; // range check is elided by LDC in release builds
+        return haystack[0] == needle;
     }
     return false;
 }
@@ -43,7 +43,7 @@ bool endsWith(T)(scope const(T)[] haystack,
 {
     if (haystack.length >= needle.length)
     {
-        return haystack[$ - needle.length .. $] == needle; // range check is elided by LDC in release builds
+        return haystack[$ - needle.length .. $] == needle;
     }
     return false;
 }
@@ -54,7 +54,7 @@ bool endsWith(T)(scope const(T)[] haystack,
     static if (is(T == char)) assert(needle < 128); // TODO convert needle to string and call itself
     if (haystack.length >= 1)
     {
-        return haystack[$ - 1] == needle; // range check is elided by LDC in release builds
+        return haystack[$ - 1] == needle;
     }
     return false;
 }

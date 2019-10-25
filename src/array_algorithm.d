@@ -162,6 +162,7 @@ inout(T)[] stripLeft(T)(scope return inout(T)[] haystack,
 ///
 @safe pure nothrow @nogc unittest
 {
+    assert("beta".stripLeft(' ') == "beta");
     assert(" beta".stripLeft(' ') == "beta");
     assert("  beta".stripLeft(' ') == "beta");
     assert("   beta".stripLeft(' ') == "beta");
@@ -187,6 +188,7 @@ inout(T)[] stripRight(T)(scope return inout(T)[] haystack,
 ///
 @safe pure nothrow @nogc unittest
 {
+    assert("beta".stripRight(' ') == "beta");
     assert("beta ".stripRight(' ') == "beta");
     assert("beta  ".stripRight(' ') == "beta");
     assert("beta    ".stripRight(' ') == "beta");

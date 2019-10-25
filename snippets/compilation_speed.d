@@ -1,6 +1,5 @@
 import std.algorithm.searching;
 
-version(none)
 bool startsWith(T)(scope const(T)[] haystack,
                    scope const(T)[] needle)
 {

@@ -24,8 +24,6 @@ import std.range.primitives: empty, front, popFront, moveFront, popFrontExactly,
 import std.algorithm: joiner, min;
 import std.conv: to;
 import std.ascii: isDigit;
-import std.stdio;
-import std.functional : unaryFun, binaryFun;
 
 import std.algorithm.comparison : either;
 import array_algorithm : startsWith, skipOver;

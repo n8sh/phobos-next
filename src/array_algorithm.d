@@ -20,7 +20,7 @@ bool startsWith(T)(scope const(T)[] haystack,
 {
     if (haystack.length >= 1)
     {
-        return haystack[0 .. 1] == needle; // range check is elided by LDC in release builds
+        return haystack[0] == needle; // range check is elided by LDC in release builds
     }
     return false;
 }
@@ -30,6 +30,7 @@ bool startsWith(T)(scope const(T)[] haystack,
 {
     auto x = "beta version";
     assert(x.startsWith("beta"));
+    assert(x.startsWith('b'));
     assert(!x.startsWith("_"));
 }
 
@@ -43,12 +44,23 @@ bool endsWith(T)(scope const(T)[] haystack,
     }
     return false;
 }
+/// ditto
+bool endsWith(T)(scope const(T)[] haystack,
+                 scope T needle)
+{
+    if (haystack.length >= 1)
+    {
+        return haystack[$ - 1] == needle; // range check is elided by LDC in release builds
+    }
+    return false;
+}
 
 ///
 @safe pure nothrow @nogc unittest
 {
     auto x = "beta version";
     assert(x.endsWith("version"));
+    assert(x.endsWith('n'));
     assert(!x.startsWith("_"));
 }
 

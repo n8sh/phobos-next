@@ -78,12 +78,26 @@ bool skipOver(T)(scope ref inout(T)[] haystack,
     }
     return false;
 }
+/// ditto
+bool skipOver(T)(scope ref inout(T)[] haystack,
+                 scope const T needle)
+{
+    if (startsWith(haystack, needle))
+    {
+        haystack = haystack[1 .. $];
+        return true;
+    }
+    return false;
+}
 
 ///
 @safe pure nothrow @nogc unittest
 {
     string x = "beta version";
     assert(x.skipOver("beta"));
+    assert(x == " version");
+    assert(x.skipOver(' '));
+    assert(x == "version");
 }
 
 /** Array-overload for `skipOverBack` with no explicit predicate predicate.

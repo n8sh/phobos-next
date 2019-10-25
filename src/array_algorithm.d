@@ -142,11 +142,11 @@ bool skipOverBack(T)(scope ref inout(T)[] haystack,
     assert(x == "bet");
 }
 
-/** Array-overload for `strip` with no explicit predicate predicate.
+/** Array-overload for `stripLeft` with no explicit predicate predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
-inout(T)[] strip(T)(scope return inout(T)[] haystack,
+inout(T)[] stripLeft(T)(scope return inout(T)[] haystack,
                     scope const T needle)
 {
     assert(needle < 128);       // TODO
@@ -162,8 +162,9 @@ inout(T)[] strip(T)(scope return inout(T)[] haystack,
 ///
 @safe pure nothrow @nogc unittest
 {
-    string x = " beta";
-    assert(x.strip(' ') == "beta");
+    assert(" beta".stripLeft(' ') == "beta");
+    assert("  beta".stripLeft(' ') == "beta");
+    assert("   beta".stripLeft(' ') == "beta");
 }
 
 /** Overload of `std.array.array` that creates a static array of length `n`.

@@ -255,8 +255,8 @@ version = show;
     TODO Add variant to toTextualBigIntegerMaybe.
     TODO Could this be merged with to!(T)(string) if (isInteger!T) ?
 */
-Nullable!long fromNumeral(T = long, S)(S x)
-@safe pure if (isSomeString!S)
+Nullable!long fromNumeral(T = long, S)(S x) @safe pure
+if (isSomeString!S)
 {
     import std.algorithm: splitter, countUntil, skipOver, findSplit;
     import array_algorithm : endsWith;

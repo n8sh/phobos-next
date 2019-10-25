@@ -10,7 +10,7 @@ import std.range.primitives : isInputRange, ElementType;
 import core.internal.traits : Unqual;
 import std.typecons : Tuple;
 import std.traits : isExpressionTuple;
-import std.algorithm : startsWith;
+import std.algorithm.searching : startsWith;
 
 import traits_ex : hasEvenLength, haveCommonType;
 

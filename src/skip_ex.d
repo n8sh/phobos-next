@@ -180,7 +180,7 @@ size_t skipOverShortestOf(alias pred = "a == b",
                                      scope Ranges needles)
 if (Ranges.length >= 2)
 {
-    import std.algorithm : startsWith;
+    import std.algorithm.searching : startsWith;
     const hit = startsWith!pred(haystack, needles);
     if (hit)
     {

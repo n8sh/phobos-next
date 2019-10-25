@@ -3,7 +3,7 @@
 module stemming;
 
 import std.algorithm.comparison: among;
-import std.algorithm: endsWith, canFind;
+import std.algorithm.searching : endsWith, canFind;
 import std.range: empty;
 import std.traits: isSomeString;
 import std.typecons : Tuple, tuple;

@@ -1,5 +1,3 @@
-#!/usr/bin/env rdmd-unittest-module
-
 /** Scan file/magic/Magdir */
 module magics;
 

@@ -6,13 +6,9 @@ module char_traits;
  *
  * TODO: Extend to array of chars.
  */
-template isASCII(alias x)
-if (is(typeof(x) : char) ||
-    is(typeof(x) : wchar) ||
-    is(typeof(x) : dchar))
-{
-    enum isASCII = x < 128;
-}
+enum isASCII(char x) = x < 128;
+enum isASCII(wchar x) = x < 128;
+enum isASCII(dchar x) = x < 128;
 
 ///
 @safe pure nothrow @nogc unittest

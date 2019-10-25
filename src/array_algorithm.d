@@ -40,6 +40,26 @@ bool endsWith(T)(scope const(T)[] haystack,
     assert(!x.startsWith("_"));
 }
 
+/** Array-overload for `skipOver` with no explicit predicate predicate. */
+bool skipOver(T)(scope ref const(T)[] haystack,
+                 scope const(T)[] needle)
+{
+    if (startsWith(haystack, needle))
+    {
+        haystack = haystack[needle.length .. $];
+        return true;
+    }
+    return false;
+}
+
+///
+version(none)
+@safe pure nothrow @nogc unittest
+{
+    string x = "beta version";
+    assert(x.skipOver("beta"));
+}
+
 /** Overload of `std.array.array` that creates a static array of length `n`.
  *
  * TODO Better name: {make,array}{N,Exactly}

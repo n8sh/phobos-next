@@ -544,7 +544,8 @@ unittest
     const rootPath = `/home/per/Knowledge/DBpedia/latest`;
     alias R = Bz2libFileInputRange;
 
-    import std.algorithm : filter, startsWith, endsWith;
+    import array_algorithm : startsWith, endsWith;
+    import std.algorithm : filter;
     import std.file : dirEntries, SpanMode;
     import std.path : baseName;
     import std.stdio : write, writeln, stdout;

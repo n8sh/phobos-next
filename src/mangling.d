@@ -28,7 +28,6 @@ import std.ascii: isDigit;
 import std.algorithm.comparison : either;
 import array_algorithm : startsWith, skipOver;
 import algorithm_ex: tryEvery, split, splitBefore;
-import lingua;
 import languages : Lang;
 import dbgio : dbg;
 

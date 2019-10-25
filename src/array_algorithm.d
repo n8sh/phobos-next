@@ -64,6 +64,29 @@ bool skipOver(T)(scope ref inout(T)[] haystack,
     assert(x.skipOver("beta"));
 }
 
+/** Array-overload for `skipOverBack` with no explicit predicate predicate.
+ *
+ * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
+ */
+bool skipOverBack(T)(scope ref inout(T)[] haystack,
+                     scope const(T)[] needle)
+{
+    if (endsWith(haystack, needle))
+    {
+        haystack = haystack[0 .. $ - needle.length];
+        return true;
+    }
+    return false;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    string x = "beta version";
+    assert(x.skipOverBack(" version"));
+    assert(x == "beta");
+}
+
 /** Overload of `std.array.array` that creates a static array of length `n`.
  *
  * TODO Better name: {make,array}{N,Exactly}

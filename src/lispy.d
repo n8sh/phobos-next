@@ -470,7 +470,7 @@ private:
                     )
                 {
                     const symbol = getSymbol(); // TODO tokenize
-                    import std.algorithm : endsWith;
+                    import array_algorithm : endsWith;
                     if (symbol.endsWith(`Fn`))
                     {
                         _topExprs.insertBack(SExpr(Token(TOK.functionName, symbol)));

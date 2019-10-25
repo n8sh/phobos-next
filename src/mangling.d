@@ -20,8 +20,7 @@
  */
 module mangling;
 
-import std.range.primitives: empty, front, popFront, popFrontExactly, isInputRange;
-import std.range: take, drop, takeOne, moveFront, repeat, replicate;
+import std.range.primitives: empty, front, popFront, moveFront, popFrontExactly, isInputRange;
 import std.algorithm: joiner, min;
 import std.typecons: tuple, Tuple;
 import std.conv: to;

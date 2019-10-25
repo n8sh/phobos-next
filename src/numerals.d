@@ -258,7 +258,8 @@ version = show;
 Nullable!long fromNumeral(T = long, S)(S x)
 @safe pure if (isSomeString!S)
 {
-    import std.algorithm: splitter, countUntil, skipOver, endsWith, findSplit;
+    import std.algorithm: splitter, countUntil, skipOver, findSplit;
+    import array_algorithm : endsWith;
     import std.range: empty;
 
     typeof(return) total;

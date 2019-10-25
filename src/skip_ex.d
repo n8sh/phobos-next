@@ -12,7 +12,7 @@ version(unittest)
     import array_help : s;
 }
 
-/** Array-overload for `startsWith` with normal predicate.
+/** Array-overload for `startsWith` with no explicit predicate predicate.
  *
  * See_Also: https://forum.dlang.org/post/ybamybeakxwxwleebnwb@forum.dlang.org
  */
@@ -21,7 +21,7 @@ bool startsWith(T)(scope const(T)[] haystack,
 {
     if (haystack.length >= needle.length)
     {
-        return haystack[0 .. needle.length] == needle;
+        return haystack[0 .. needle.length] == needle; // range check is elided by LDC in release builds
     }
     return false;
 }
@@ -31,6 +31,28 @@ bool startsWith(T)(scope const(T)[] haystack,
 {
     auto x = "beta version";
     assert(x.startsWith("beta"));
+    assert(!x.startsWith("_"));
+}
+
+/** Array-overload for `endsWith` with no explicit predicate predicate.
+ *
+ * See_Also: https://forum.dlang.org/post/ybamybeakxwxwleebnwb@forum.dlang.org
+ */
+bool endsWith(T)(scope const(T)[] haystack,
+                 scope const(T)[] needle)
+{
+    if (haystack.length >= needle.length)
+    {
+        return haystack[$ - needle.length .. $] == needle; // range check is elided by LDC in release builds
+    }
+    return false;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    auto x = "beta version";
+    assert(x.endsWith("version"));
     assert(!x.startsWith("_"));
 }
 

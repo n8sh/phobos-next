@@ -194,12 +194,6 @@ inout(char)[] stripRight(scope return inout(char)[] haystack) @safe pure nothrow
     return haystack.stripRight(' ');
 }
 
-inout(char)[] stripRight(T)(scope return inout(char)[] haystack,
-                            scope const char needle = ' ')
-{
-    return haystack.stripRight(needle);
-}
-
 ///
 @safe pure nothrow @nogc unittest
 {

@@ -20,6 +20,7 @@ bool startsWith(T)(scope const(T)[] haystack,
 bool startsWith(T)(scope const(T)[] haystack,
                    scope const T needle)
 {
+    assert(needle < 128);       // TODO
     if (haystack.length >= 1)
     {
         return haystack[0] == needle; // range check is elided by LDC in release builds
@@ -50,6 +51,7 @@ bool endsWith(T)(scope const(T)[] haystack,
 bool endsWith(T)(scope const(T)[] haystack,
                  scope const T needle)
 {
+    assert(needle < 128);       // TODO
     if (haystack.length >= 1)
     {
         return haystack[$ - 1] == needle; // range check is elided by LDC in release builds
@@ -84,6 +86,7 @@ bool skipOver(T)(scope ref inout(T)[] haystack,
 bool skipOver(T)(scope ref inout(T)[] haystack,
                  scope const T needle)
 {
+    assert(needle < 128);       // TODO
     if (startsWith(haystack, needle))
     {
         haystack = haystack[1 .. $];
@@ -120,6 +123,7 @@ bool skipOverBack(T)(scope ref inout(T)[] haystack,
 bool skipOverBack(T)(scope ref inout(T)[] haystack,
                      scope const T needle)
 {
+    assert(needle < 128);       // TODO
     if (endsWith(haystack, needle))
     {
         haystack = haystack[0 .. $ - 1];

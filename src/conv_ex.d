@@ -91,7 +91,7 @@ if (isCharsSlice!S)
         }
         catch (Exception e)
         {
-            import std.algorithm.searching: endsWith;
+            import array_algorithm : endsWith;
             if (tryStrippingPluralS &&
                 value.endsWith(`s`))
             {

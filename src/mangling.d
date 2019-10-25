@@ -20,7 +20,8 @@
  */
 module mangling;
 
-import std.range: empty, popFront, popFrontExactly, take, drop, front, takeOne, moveFront, repeat, replicate, isInputRange;
+import std.range.primitives: empty, front, popFront, popFrontExactly, isInputRange;
+import std.range: take, drop, takeOne, moveFront, repeat, replicate;
 import std.algorithm: startsWith, findSplitAfter, skipOver, joiner, min;
 import std.typecons: tuple, Tuple;
 import std.conv: to;

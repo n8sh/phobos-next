@@ -2477,7 +2477,7 @@ template RawRadixTree(Value = void)
     */
     private static struct Range
     {
-        import std.algorithm : startsWith;
+        import array_algorithm : startsWith;
 
         pure nothrow @nogc:
 
@@ -2901,7 +2901,7 @@ template RawRadixTree(Value = void)
 
     inout(Node) prefixAt(inout Node curr, UKey keyPrefix, out UKey keyPrefixRest) /* TODO make @safe */ @trusted pure nothrow @nogc
     {
-        import std.algorithm : startsWith;
+        import array_algorithm : startsWith;
         final switch (curr.typeIx) with (Node.Ix)
         {
         case undefined: return typeof(return).init; // terminate recursion
@@ -2981,7 +2981,7 @@ template RawRadixTree(Value = void)
     inout(Node) matchCommonPrefixAt(inout Node curr, UKey key, out UKey keyRest) /* TODO make @safe */ @trusted pure nothrow @nogc
     {
         // dbg(curr.typeIx);
-        import std.algorithm : startsWith;
+        import array_algorithm : startsWith;
         final switch (curr.typeIx) with (Node.Ix)
         {
         case undefined: return typeof(return).init; // terminate recursion
@@ -5491,7 +5491,7 @@ void testWords(Value)()
     auto sw = StopWatch(AutoStart.yes);
     foreach (const word; chain(firsts, File(path).byLine))
     {
-        import std.algorithm.searching : endsWith;
+        import array_algorithm : endsWith;
         import std.range.primitives : empty;
         if (!word.empty &&
             !word.endsWith(`'s`)) // skip genitive forms

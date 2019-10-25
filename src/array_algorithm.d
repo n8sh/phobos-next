@@ -212,13 +212,22 @@ inout(T)[] strip(T)(scope return inout(T)[] haystack,
                     scope const T needle)
 {
     static if (is(T : char)) { assert(needle < 128); } // TODO convert needle to string and call itself
-    size_t offset = 0;
-    while (offset != haystack.length &&
-           haystack[offset] == needle)
+
+    size_t leftOffset = 0;
+    while (leftOffset != haystack.length &&
+           haystack[leftOffset] == needle)
     {
-        offset += 1;
+        leftOffset += 1;
     }
-    return haystack[offset .. $];
+
+    size_t rightOffset = haystack.length;
+    while (rightOffset != leftOffset &&
+           haystack[rightOffset - 1] == needle)
+    {
+        rightOffset -= 1;
+    }
+
+    return haystack[leftOffset .. rightOffset];
 }
 inout(char)[] strip()(scope return inout(char)[] haystack) @safe pure nothrow @nogc // template-lazy
 {
@@ -229,10 +238,9 @@ inout(char)[] strip()(scope return inout(char)[] haystack) @safe pure nothrow @n
 @safe pure nothrow @nogc unittest
 {
     assert("beta".strip(' ') == "beta");
-    assert(" beta".strip(' ') == "beta");
-    assert("  beta".strip(' ') == "beta");
-    assert("   beta".strip(' ') == "beta");
-    assert("   beta".strip() == "beta");
+    assert(" beta ".strip(' ') == "beta");
+    assert("  beta  ".strip(' ') == "beta");
+    assert("   beta   ".strip(' ') == "beta");
 }
 
 /** Overload of `std.array.array` that creates a static array of length `n`.

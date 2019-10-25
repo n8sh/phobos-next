@@ -8,7 +8,7 @@ import std.traits: isIntegral, isUnsigned, isSomeString;
     See_Also: https://en.wikipedia.org/wiki/Ordinal_number_(linguistics)
  */
 string toOrdinal(T)(T n)
-    if (isUnsinged!T)
+if (isUnsinged!T)
 {
     string ordinal;
     switch (n)
@@ -44,7 +44,7 @@ string toOrdinal(T)(T n)
     See_Also: https://en.wikipedia.org/wiki/Ordinal_number_(linguistics)
  */
 T fromOrdinalTo(T)(scope const(char)[] ordinal)
-    if (isUnsigned!T)
+if (isUnsigned!T)
 {
     switch (ordinal)
     {
@@ -110,7 +110,7 @@ enum englishNumeralsMap = [ `zero`:0, `one`:1, `two`:2, `three`:3, `four`:4,
 
 /** Check if $(D c) is an English atomic numeral. */
 bool isEnglishAtomicNumeral(S)(S s)
-    if (isSomeString!S)
+if (isSomeString!S)
 {
     return s.among!(`zero`, `one`, `two`, `three`, `four`,
                     `five`, `six`, `seven`, `eight`, `nine`,

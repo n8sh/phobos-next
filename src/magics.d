@@ -21,7 +21,7 @@ void scanMagicFiles(string dir)
     import std.array: array;
     import std.range: front, empty;
     import array_algorithm : startsWith;
-    import std.algorithm: find, strip;
+    import std.algorithm : find, strip;
     import std.ascii: isDigit;
     import std.uni: isAlpha, isWhite;
     import std.algorithm.iteration : splitter;

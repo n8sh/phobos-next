@@ -71,7 +71,7 @@ bool skipOver(T)(scope ref inout(T)[] haystack,
 bool skipOverBack(T)(scope ref inout(T)[] haystack,
                      scope const(T)[] needle)
 {
-    if (haystack.endsWith(needle))
+    if (endsWith(haystack, needle))
     {
         haystack = haystack[0 .. $ - needle.length];
         return true;

@@ -147,7 +147,7 @@ bool skipOverBack(T)(scope ref inout(T)[] haystack,
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
 inout(T)[] stripLeft(T)(scope return inout(T)[] haystack,
-                    scope const T needle)
+                        scope const T needle)
 {
     assert(needle < 128);       // TODO
     size_t offset = 0;
@@ -158,6 +158,10 @@ inout(T)[] stripLeft(T)(scope return inout(T)[] haystack,
     }
     return haystack[offset .. $];
 }
+inout(char)[] stripLeft(scope return inout(char)[] haystack) @safe pure nothrow @nogc
+{
+    return haystack.stripLeft(' ');
+}
 
 ///
 @safe pure nothrow @nogc unittest
@@ -166,6 +170,7 @@ inout(T)[] stripLeft(T)(scope return inout(T)[] haystack,
     assert(" beta".stripLeft(' ') == "beta");
     assert("  beta".stripLeft(' ') == "beta");
     assert("   beta".stripLeft(' ') == "beta");
+    assert("   beta".stripLeft() == "beta");
 }
 
 /** Array-overload for `stripRight` with ASCII-char needle and default predicate.
@@ -173,7 +178,7 @@ inout(T)[] stripLeft(T)(scope return inout(T)[] haystack,
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
 inout(T)[] stripRight(T)(scope return inout(T)[] haystack,
-                        scope const T needle)
+                         scope const T needle)
 {
     assert(needle < 128);       // TODO
     size_t offset = haystack.length;
@@ -184,6 +189,16 @@ inout(T)[] stripRight(T)(scope return inout(T)[] haystack,
     }
     return haystack[0 .. offset];
 }
+inout(char)[] stripRight(scope return inout(char)[] haystack) @safe pure nothrow @nogc
+{
+    return haystack.stripRight(' ');
+}
+
+inout(char)[] stripRight(T)(scope return inout(char)[] haystack,
+                            scope const char needle = ' ')
+{
+    return haystack.stripRight(needle);
+}
 
 ///
 @safe pure nothrow @nogc unittest
@@ -192,6 +207,7 @@ inout(T)[] stripRight(T)(scope return inout(T)[] haystack,
     assert("beta ".stripRight(' ') == "beta");
     assert("beta  ".stripRight(' ') == "beta");
     assert("beta    ".stripRight(' ') == "beta");
+    assert("beta    ".stripRight() == "beta");
 }
 
 /** Overload of `std.array.array` that creates a static array of length `n`.

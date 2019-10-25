@@ -12,8 +12,8 @@
 module lingua;
 
 import std.traits: isSomeChar, isSomeString;
-import std.algorithm.comparison: among;
-import std.algorithm: uniq, map, find, canFind, startsWith, endsWith, among;
+import std.algorithm.comparison : among;
+import std.algorithm.iteration : uniq;
 import std.array: array;
 import std.conv;
 

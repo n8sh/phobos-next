@@ -152,7 +152,7 @@ inout(T)[] stripLeft(T)(scope return inout(T)[] haystack,
     static if (is(T : char)) { assert(needle < 128); } // TODO convert needle to string and call itself
     size_t offset = 0;
     while (offset != haystack.length &&
-           haystack[offset] == needle)
+           haystack[offset] == needle) // TODO elide range-check
     {
         offset += 1;
     }
@@ -183,7 +183,7 @@ inout(T)[] stripRight(T)(scope return inout(T)[] haystack,
     static if (is(T : char)) { assert(needle < 128); } // TODO convert needle to string and call itself
     size_t offset = haystack.length;
     while (offset != 0 &&
-           haystack[offset - 1] == needle)
+           haystack[offset - 1] == needle) // TODO elide range-check
     {
         offset -= 1;
     }
@@ -215,14 +215,14 @@ inout(T)[] strip(T)(scope return inout(T)[] haystack,
 
     size_t leftOffset = 0;
     while (leftOffset != haystack.length &&
-           haystack[leftOffset] == needle)
+           haystack[leftOffset] == needle) // TODO elide range-check
     {
         leftOffset += 1;
     }
 
     size_t rightOffset = haystack.length;
     while (rightOffset != leftOffset &&
-           haystack[rightOffset - 1] == needle)
+           haystack[rightOffset - 1] == needle) // TODO elide range-check
     {
         rightOffset -= 1;
     }

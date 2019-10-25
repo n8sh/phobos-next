@@ -12,7 +12,7 @@ bool startsWith(T)(scope const(T)[] haystack,
 {
     if (haystack.length >= needle.length)
     {
-        return haystack[0 .. needle.length] == needle; // range check is elided by LDC in release builds
+        return haystack[0 .. needle.length] == needle;
     }
     return false;
 }

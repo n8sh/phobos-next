@@ -16,7 +16,7 @@ bool startsWith(T)(scope const(T)[] haystack,
 }
 /// ditto
 bool startsWith(T)(scope const(T)[] haystack,
-                   scope T needle)
+                   scope const T needle)
 {
     if (haystack.length >= 1)
     {
@@ -46,7 +46,7 @@ bool endsWith(T)(scope const(T)[] haystack,
 }
 /// ditto
 bool endsWith(T)(scope const(T)[] haystack,
-                 scope T needle)
+                 scope const T needle)
 {
     if (haystack.length >= 1)
     {

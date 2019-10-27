@@ -455,6 +455,7 @@ auto findSplitBefore(T)(scope const T[] haystack, // TODO support inout?
 /** Array-overload for `findSplitAfter` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/jtpchtddgenhjuwhqdsq@forum.dlang.org
+ * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
 auto findSplitAfter(T)(scope inout(T)[] haystack, // TODO support inout?
                        scope const T needle) @trusted
@@ -491,17 +492,18 @@ auto findSplitAfter(T)(scope inout(T)[] haystack, // TODO support inout?
     {
         if (e == needle)
         {
-            return inout(Result)(haystack, offset);
+            return Result(cast(char[])haystack, offset);
         }
     }
 
-    return inout(Result)(haystack, haystack.length);
+    return Result(cast(char[])haystack, haystack.length);
 }
 
 ///
 @safe pure nothrow @nogc unittest
 {
     const r = "a*b".findSplitAfter('*');
+    static assert(is(typeof(r.pre()) == const(char)[])); // TODO should be string
     assert(r);
     assert(r.pre == "a*");
     assert(r.post == "b");
@@ -520,7 +522,6 @@ auto findSplitAfter(T)(scope inout(T)[] haystack, // TODO support inout?
 ///
 @safe pure nothrow @nogc unittest
 {
-    char[] haystack;
-    const r = haystack.findSplitAfter('_');
+    const r = "a*b".findSplitAfter('_');
     static assert(is(typeof(r.pre()) == const(char)[]));
 }

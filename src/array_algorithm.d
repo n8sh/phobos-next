@@ -402,6 +402,8 @@ auto findSplitBefore(T)(scope inout(T)[] haystack,
         private T[] _haystack;
         private size_t _offset;
 
+    pragma(inline, true):
+
         inout(T)[] pre() @trusted inout
         {
             return _haystack.ptr[0 .. _offset];

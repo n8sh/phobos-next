@@ -392,6 +392,18 @@ auto findSplit(T)(scope return inout(T)[] haystack,
     assert(r.post == "b");
 }
 
+/// DIP-1000 scope analysis
+@safe pure nothrow @nogc unittest
+{
+    char[] f() @safe pure nothrow
+    {
+        char[3] haystack = "a*b";
+        auto r = haystack[].findSplit('*');
+        static assert(is(typeof(r.pre()) == char[]));
+        return r.pre();         // TODO this should fail
+    }
+}
+
 /** Array-overload for `findSplitBefore` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org

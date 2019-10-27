@@ -445,6 +445,30 @@ auto findSplitBefore(T)(scope inout(T)[] haystack,
 ///
 @safe pure nothrow @nogc unittest
 {
+    char[] haystack;
+    auto r = haystack.findSplitBefore('_');
+    static assert(is(typeof(r.pre()) == char[]));
+    static assert(is(typeof(r.post()) == char[]));
+    assert(!r);
+    assert(!r.pre);
+    assert(!r.post);
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    const(char)[] haystack;
+    auto r = haystack.findSplitBefore('_');
+    static assert(is(typeof(r.pre()) == const(char)[]));
+    static assert(is(typeof(r.post()) == const(char)[]));
+    assert(!r);
+    assert(!r.pre);
+    assert(!r.post);
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
     const r = "a*b".findSplitBefore('*');
     assert(r);
     assert(r.pre == "a");

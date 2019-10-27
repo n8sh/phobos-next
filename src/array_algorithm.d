@@ -280,7 +280,7 @@ size_t count(T)(scope const T[] haystack,
 ///
 @safe pure nothrow @nogc unittest
 {
-    import std.algorithm.searching : count;
+    // import std.algorithm.searching : count;
     assert("".count("_") == 0);
     // assert("".count("") == 0);
     assert("".count(" ") == 0);

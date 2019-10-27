@@ -463,32 +463,27 @@ auto findSplitAfter(T)(scope inout(T)[] haystack,
     {
         private T[] _haystack;
         private size_t _offset;
-
     pragma(inline, true):
-
         inout(T)[] pre() @trusted inout
         {
             if (_isMiss) { return _haystack[$ .. $]; }
             return _haystack.ptr[0 .. _offset + 1];
         }
-
         inout(T)[] post() @trusted inout
         {
             if (_isMiss) { return _haystack[0 .. $]; }
             return _haystack.ptr[_offset + 1 .. _haystack.length];
         }
-
         bool opCast(T : bool)() const
         {
             return !_isMiss;
         }
-
         private bool _isMiss() const
         {
             return _haystack.length == _offset;
         }
     }
-
+    static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
     foreach (const offset, const ref e; haystack)
     {
         if (e == needle)
@@ -496,7 +491,6 @@ auto findSplitAfter(T)(scope inout(T)[] haystack,
             return inout(Result)(haystack, offset);
         }
     }
-
     return inout(Result)(haystack, haystack.length);
 }
 

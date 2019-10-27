@@ -367,6 +367,8 @@ auto findSplit(T)(scope const T[] haystack, // TODO support inout? See_Also: htt
         }
     }
 
+    static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
+
     foreach (const offset, const ref e; haystack)
     {
         if (e == needle)
@@ -422,6 +424,8 @@ auto findSplitBefore(T)(scope const T[] haystack, // TODO support inout? See_Als
             return _haystack.length == _offset;
         }
     }
+
+    static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
 
     foreach (const offset, const ref e; haystack)
     {

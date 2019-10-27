@@ -333,7 +333,7 @@ size_t count(T)(scope const T[] haystack)
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  * See_Also: https://forum.dlang.org/post/zhgajqdhybtbufeiiofp@forum.dlang.org
  */
-auto findSplit(T)(scope inout(T)[] haystack,
+auto findSplit(T)(scope return inout(T)[] haystack,
                   scope const T needle)
 {
     static struct Result
@@ -397,7 +397,7 @@ auto findSplit(T)(scope inout(T)[] haystack,
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  * See_Also: https://forum.dlang.org/post/zhgajqdhybtbufeiiofp@forum.dlang.org
  */
-auto findSplitBefore(T)(scope inout(T)[] haystack,
+auto findSplitBefore(T)(scope return inout(T)[] haystack,
                         scope const T needle)
 {
     static struct Result
@@ -489,7 +489,7 @@ auto findSplitBefore(T)(scope inout(T)[] haystack,
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  * See_Also: https://forum.dlang.org/post/zhgajqdhybtbufeiiofp@forum.dlang.org
  */
-auto findSplitAfter(T)(scope inout(T)[] haystack,
+auto findSplitAfter(T)(scope return inout(T)[] haystack,
                        scope const T needle) @trusted
 {
     static struct Result

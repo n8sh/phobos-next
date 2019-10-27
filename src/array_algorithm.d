@@ -330,27 +330,26 @@ size_t count(T)(scope const T[] haystack)
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
-auto findSplit(T)(scope const T[] haystack, // TODO support inout? See_Also: https://forum.dlang.org/post/jtpchtddgenhjuwhqdsq@forum.dlang.org
+auto findSplit(T)(scope inout(T)[] haystack,
                   scope const T needle)
 {
     static struct Result
     {
-        private alias Haystack = typeof(haystack);
-        private Haystack _haystack;
+        private T[] _haystack;
         private size_t _offset;
 
-        inout(Haystack) pre() inout @trusted
+        inout(T)[] pre() @trusted inout
         {
             return _haystack.ptr[0 .. _offset];
         }
 
-        inout(Haystack) separator() inout @trusted
+        inout(T)[] separator() @trusted inout
         {
             if (_isMiss) { return _haystack[$ .. $]; }
             return _haystack.ptr[_offset .. _offset + 1];
         }
 
-        inout(Haystack) post() inout @trusted
+        inout(T)[] post() @trusted inout
         {
             if (_isMiss) { return _haystack[$ .. $]; }
             return _haystack.ptr[_offset + 1 .. _haystack.length];
@@ -373,11 +372,11 @@ auto findSplit(T)(scope const T[] haystack, // TODO support inout? See_Also: htt
     {
         if (e == needle)
         {
-            return Result(haystack, offset);
+            return inout(Result)(haystack, offset);
         }
     }
 
-    return Result(haystack, haystack.length);
+    return inout(Result)(haystack, haystack.length);
 }
 
 ///

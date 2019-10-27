@@ -387,8 +387,3 @@ auto findSplit(T)(scope const T[] haystack, // TODO support inout?
     assert(r.separator == "*");
     assert(r.post == "b");
 }
-
-version(unittest)
-{
-    import array_help : s;
-}

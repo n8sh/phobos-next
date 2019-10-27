@@ -252,6 +252,13 @@ inout(char)[] strip()(scope return inout(char)[] haystack) @safe pure nothrow @n
     assert(" _  beta _ ".strip(' ') == "_  beta _");
 }
 
+///
+@safe pure nothrow @nogc unittest
+{
+    const ubyte[3] x = [0, 42, 0];
+    assert(x.strip(0) == x[1 .. 2]);
+}
+
 /** Array-overload for `count` with default predicate.
  */
 size_t count(T)(scope const T[] haystack,
@@ -285,4 +292,9 @@ size_t count(T)(scope const T[] haystack)
 @safe pure nothrow @nogc unittest
 {
     assert("abc_abc".count == 7);
+}
+
+version(unittest)
+{
+    import array_help : s;
 }

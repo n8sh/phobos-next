@@ -39,7 +39,7 @@ if (needles.length != 0 &&
 
             bool opCast(T : bool)() const
             {
-                return !_isMiss;
+                return !empty;
             }
 
             @property:
@@ -51,13 +51,13 @@ if (needles.length != 0 &&
 
             inout(Haystack) separator() inout
             {
-                if (_isMiss) { return _haystack[$ .. $]; }
+                if (empty) { return _haystack[$ .. $]; }
                 return _haystack[_offset .. _offset + 1];
             }
 
             inout(Haystack) post() inout
             {
-                if (_isMiss) { return _haystack[$ .. $]; }
+                if (empty) { return _haystack[$ .. $]; }
                 return _haystack[_offset + 1 .. $];
             }
 
@@ -72,7 +72,7 @@ if (needles.length != 0 &&
                 }
             }
 
-            private bool _isMiss() const
+            @property private bool empty() const
             {
                 return _haystack.length == _offset;
             }

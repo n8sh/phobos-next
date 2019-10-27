@@ -538,24 +538,26 @@ auto findSplitAfter_inout(T)(scope inout(T)[] haystack,
         private T[] _haystack;
         private size_t _offset;
 
-        inout(T)[] pre() inout @trusted
+    const @trusted:
+
+        auto pre()
         {
             if (_isMiss) { return _haystack[$ .. $]; }
             return _haystack.ptr[0 .. _offset + 1];
         }
 
-        inout(T)[] post() inout @trusted
+        auto post()
         {
             if (_isMiss) { return _haystack[0 .. $]; }
             return _haystack.ptr[_offset + 1 .. _haystack.length];
         }
 
-        bool opCast(T : bool)() const @trusted
+        bool opCast(T : bool)()
         {
             return !_isMiss;
         }
 
-        private bool _isMiss() const @trusted
+        private bool _isMiss()
         {
             return _haystack.length == _offset;
         }
@@ -575,8 +577,9 @@ auto findSplitAfter_inout(T)(scope inout(T)[] haystack,
 ///
 @safe pure nothrow @nogc unittest
 {
-    const r = "a*b".findSplitAfter_inout('*');
+    auto r = "a*b".findSplitAfter_inout('*');
+    pragma(msg, typeof(r.pre()));
     assert(r);
-    // assert(r.pre == "a*");
-    // assert(r.post == "b");
+    assert(r.pre == "a*");
+    assert(r.post == "b");
 }

@@ -329,6 +329,7 @@ size_t count(T)(scope const T[] haystack)
 /** Array-overload for `findSplit` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
+ * See_Also: https://forum.dlang.org/post/zhgajqdhybtbufeiiofp@forum.dlang.org
  */
 auto findSplit(T)(scope inout(T)[] haystack,
                   scope const T needle)
@@ -392,6 +393,7 @@ auto findSplit(T)(scope inout(T)[] haystack,
 /** Array-overload for `findSplitBefore` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
+ * See_Also: https://forum.dlang.org/post/zhgajqdhybtbufeiiofp@forum.dlang.org
  */
 auto findSplitBefore(T)(scope inout(T)[] haystack,
                         scope const T needle)
@@ -459,6 +461,7 @@ auto findSplitBefore(T)(scope inout(T)[] haystack,
 /** Array-overload for `findSplitAfter` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
+ * See_Also: https://forum.dlang.org/post/zhgajqdhybtbufeiiofp@forum.dlang.org
  */
 auto findSplitAfter(T)(scope inout(T)[] haystack,
                        scope const T needle) @trusted

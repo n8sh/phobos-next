@@ -262,6 +262,35 @@ inout(char)[] strip()(scope return inout(char)[] haystack) @safe pure nothrow @n
 /** Array-overload for `count` with default predicate.
  */
 size_t count(T)(scope const T[] haystack,
+                scope const T[] needle)
+{
+    import dbgio;
+    dbg(haystack, ", ", needle);
+    size_t result = 0;
+    if (haystack.length < needle.length)
+    {
+        return false;
+    }
+    foreach (const size_t offset; 0 .. haystack.length - needle.length + 1)
+    {
+        result += haystack[offset .. offset + needle.length] == needle ? 1 : 0;
+        dbg("offset:", offset, " result:", result);
+    }
+    return result;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    assert("".count("_") == 0);
+    assert("abc_abc".count("a") == 2);
+    assert("_a_a_".count("_") == 3);
+    assert("_a_a_".count("") == 5);
+}
+
+/** Array-overload for `count` with default predicate.
+ */
+size_t count(T)(scope const T[] haystack,
                 scope const T needle)
 {
     static if (is(T == char)) { assert(needle < 128); } // TODO convert needle to `char[]` and call itself

@@ -214,6 +214,13 @@ inout(char)[] stripRight()(scope return inout(char)[] haystack) @safe pure nothr
     assert(" _  beta _ ".stripRight(' ') == " _  beta _");
 }
 
+/// DIP-1000 scope analysis
+@safe pure nothrow @nogc unittest
+{
+    char[] f()() @safe pure nothrow { char[1] x = "_"; return x[].stripRight(' '); }
+    static assert(!__traits(compiles, { auto _ = f(); }));
+}
+
 /** Array-overload for `strip` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org

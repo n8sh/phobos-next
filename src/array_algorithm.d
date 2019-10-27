@@ -457,7 +457,7 @@ auto findSplitBefore(T)(scope const T[] haystack, // TODO support inout?
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
 auto findSplitAfter(T)(scope const T[] haystack, // TODO support inout?
-                        scope const T needle)
+                       scope const T needle)
 {
     struct Result
     {

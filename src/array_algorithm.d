@@ -10,8 +10,8 @@ module array_algorithm;
  *
  * See_Also: https://d.godbolt.org/z/ejEmrK
  */
-bool startsWith(T)(scope const(T)[] haystack,
-                   scope const(T)[] needle)
+bool startsWith(T)(scope const T[] haystack,
+                   scope const T[] needle)
 {
     if (haystack.length >= needle.length)
     {
@@ -20,7 +20,7 @@ bool startsWith(T)(scope const(T)[] haystack,
     return false;
 }
 /// ditto
-bool startsWith(T)(scope const(T)[] haystack,
+bool startsWith(T)(scope const T[] haystack,
                    scope const T needle) // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
 {
     static if (is(T : char)) { assert(needle < 128); } // TODO convert needle to `char[]` and call itself
@@ -41,8 +41,8 @@ bool startsWith(T)(scope const(T)[] haystack,
 }
 
 /** Array-overload for `endsWith` with default predicate. */
-bool endsWith(T)(scope const(T)[] haystack,
-                 scope const(T)[] needle)
+bool endsWith(T)(scope const T[] haystack,
+                 scope const T[] needle)
 {
     if (haystack.length >= needle.length)
     {
@@ -51,7 +51,7 @@ bool endsWith(T)(scope const(T)[] haystack,
     return false;
 }
 /// ditto
-bool endsWith(T)(scope const(T)[] haystack,
+bool endsWith(T)(scope const T[] haystack,
                  scope const T needle)
 {
     static if (is(T : char)) { assert(needle < 128); } // TODO convert needle to `char[]` and call itself
@@ -76,7 +76,7 @@ bool endsWith(T)(scope const(T)[] haystack,
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
 bool skipOver(T)(scope ref inout(T)[] haystack,
-                 scope const(T)[] needle)
+                 scope const T[] needle)
 {
     if (startsWith(haystack, needle))
     {
@@ -113,7 +113,7 @@ bool skipOver(T)(scope ref inout(T)[] haystack,
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
 bool skipOverBack(T)(scope ref inout(T)[] haystack,
-                     scope const(T)[] needle)
+                     scope const T[] needle)
 {
     if (endsWith(haystack, needle))
     {

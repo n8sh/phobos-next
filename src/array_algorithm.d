@@ -525,7 +525,8 @@ auto findSplitAfter(T)(scope inout(T)[] haystack, // TODO support inout? See_Als
     static assert(is(typeof(r.pre()) == const(char)[]));
 }
 
-/** Array-overload for `findSplitAfter` with default predicate and failing inout support.
+/** Array-overload for `findSplitAfter` with default predicate and failing use
+ * of `inout` for `pre` and `post`.
  *
  * See_Also: https://forum.dlang.org/post/jtpchtddgenhjuwhqdsq@forum.dlang.org
  */

@@ -333,7 +333,7 @@ size_t count(T)(scope const T[] haystack)
 auto findSplit(T)(scope const T[] haystack, // TODO support inout? See_Also: https://forum.dlang.org/post/jtpchtddgenhjuwhqdsq@forum.dlang.org
                   scope const T needle)
 {
-    struct Result
+    static struct Result
     {
         private alias Haystack = typeof(haystack);
         private Haystack _haystack;
@@ -395,7 +395,7 @@ auto findSplit(T)(scope const T[] haystack, // TODO support inout? See_Also: htt
 auto findSplitBefore(T)(scope const T[] haystack, // TODO support inout? See_Also: https://forum.dlang.org/post/jtpchtddgenhjuwhqdsq@forum.dlang.org
                         scope const T needle)
 {
-    struct Result
+    static struct Result
     {
         private alias Haystack = typeof(haystack);
         private Haystack _haystack;
@@ -459,7 +459,7 @@ auto findSplitBefore(T)(scope const T[] haystack, // TODO support inout? See_Als
 auto findSplitAfter(T)(scope inout(T)[] haystack, // TODO support inout? See_Also: https://forum.dlang.org/post/jtpchtddgenhjuwhqdsq@forum.dlang.org
                        scope const T needle) @trusted
 {
-    struct Result
+    static struct Result
     {
         private T[] _haystack;
         private size_t _offset;
@@ -533,12 +533,22 @@ auto findSplitAfter(T)(scope inout(T)[] haystack, // TODO support inout? See_Als
 auto findSplitAfter_inout(T)(scope inout(T)[] haystack,
                              scope const T needle) @trusted
 {
-    struct Result
+    static struct Result
     {
         private T[] _haystack;
         private size_t _offset;
 
+        auto pre() @trusted
+        {
+            if (_isMiss) { return _haystack[$ .. $]; }
+            return _haystack.ptr[0 .. _offset + 1];
+        }
         auto pre() const @trusted
+        {
+            if (_isMiss) { return _haystack[$ .. $]; }
+            return _haystack.ptr[0 .. _offset + 1];
+        }
+        auto pre() immutable @trusted
         {
             if (_isMiss) { return _haystack[$ .. $]; }
             return _haystack.ptr[0 .. _offset + 1];
@@ -576,7 +586,7 @@ auto findSplitAfter_inout(T)(scope inout(T)[] haystack,
 @safe pure nothrow @nogc unittest
 {
     auto r = "a*b".findSplitAfter_inout('*');
-    static assert(is(typeof(r.pre()) == const(char)[]));
+    static assert(is(typeof(r.pre()) == string));
     assert(r);
     assert(r.pre == "a*");
     assert(r.post == "b");

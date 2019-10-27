@@ -372,7 +372,7 @@ auto findSplit(T)(scope return inout(T)[] haystack,
             return !empty;
         }
 
-        @property private bool empty() const
+        private @property bool empty() const
         {
             return _haystack.length == _offset;
         }
@@ -447,7 +447,7 @@ auto findSplitBefore(T)(scope return inout(T)[] haystack,
             return !empty;
         }
 
-        @property private bool empty() const
+        private @property bool empty() const
         {
             return _haystack.length == _offset;
         }
@@ -543,7 +543,7 @@ auto findSplitAfter(T)(scope return inout(T)[] haystack,
             return !empty;
         }
 
-        @property private bool empty() const
+        private @property bool empty() const
         {
             return _haystack.length == _offset;
         }

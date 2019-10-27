@@ -265,8 +265,6 @@ size_t count(T)(scope const T[] haystack,
                 scope const T[] needle)
 {
     assert(needle != 0, "Cannot count occurrences of an empty range");
-    import dbgio;
-    dbg(haystack, ", ", needle);
     size_t result = 0;
     if (haystack.length < needle.length)
     {
@@ -275,7 +273,6 @@ size_t count(T)(scope const T[] haystack,
     foreach (const size_t offset; 0 .. haystack.length - needle.length + 1)
     {
         result += haystack[offset .. offset + needle.length] == needle ? 1 : 0;
-        dbg("offset:", offset, " result:", result);
     }
     return result;
 }

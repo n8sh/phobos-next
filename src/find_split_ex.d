@@ -72,7 +72,7 @@ if (needles.length != 0 &&
                 }
             }
 
-            @property private bool empty() const
+            private @property bool empty() const
             {
                 return _haystack.length == _offset;
             }

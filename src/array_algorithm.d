@@ -576,7 +576,7 @@ auto findSplitAfter_inout(T)(scope inout(T)[] haystack,
 @safe pure nothrow @nogc unittest
 {
     auto r = "a*b".findSplitAfter_inout('*');
-    pragma(msg, typeof(r.pre()));
+    static assert(is(typeof(r.pre()) == const(char)[]));
     assert(r);
     assert(r.pre == "a*");
     assert(r.post == "b");

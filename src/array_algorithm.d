@@ -515,7 +515,7 @@ auto findSplitAfter(T)(scope inout(T)[] haystack,
 @safe pure nothrow @nogc unittest
 {
     char[] haystack;
-    auto r = haystack.findSplitAfter('*');
+    auto r = haystack.findSplitAfter('_');
     static assert(is(typeof(r.pre()) == char[]));
     static assert(is(typeof(r.post()) == char[]));
     assert(!r);
@@ -527,7 +527,7 @@ auto findSplitAfter(T)(scope inout(T)[] haystack,
 @safe pure nothrow @nogc unittest
 {
     const(char)[] haystack;
-    auto r = haystack.findSplitAfter('*');
+    auto r = haystack.findSplitAfter('_');
     static assert(is(typeof(r.pre()) == const(char)[]));
     static assert(is(typeof(r.post()) == const(char)[]));
     assert(!r);

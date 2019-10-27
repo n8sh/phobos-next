@@ -1,6 +1,8 @@
 /** Array-only overloads of Phobos algorithms.
  *
  * Provides more than twice as fast compilation for `char`-arrays (`string`s).
+ *
+ * See_Also: https://forum.dlang.org/thread/ybamybeakxwxwleebnwb@forum.dlang.org?page=1
  */
 module array_algorithm;
 

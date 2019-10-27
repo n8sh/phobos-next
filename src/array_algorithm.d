@@ -443,6 +443,15 @@ auto findSplitBefore(T)(scope const T[] haystack, // TODO support inout?
     assert(r.post == "*b");
 }
 
+///
+@safe pure nothrow @nogc unittest
+{
+    const r = "a*b".findSplitBefore('_');
+    assert(!r);
+    assert(r.pre == "a*b");
+    assert(r.post == "");
+}
+
 /** Array-overload for `findSplitAfter` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
@@ -458,13 +467,13 @@ auto findSplitAfter(T)(scope const T[] haystack, // TODO support inout?
 
         inout(Haystack) pre() inout @trusted
         {
-            if (_isMiss) { return _haystack[0 .. $]; }
+            if (_isMiss) { return _haystack[$ .. $]; }
             return _haystack.ptr[0 .. _offset + 1];
         }
 
         inout(Haystack) post() inout @trusted
         {
-            if (_isMiss) { return _haystack[$ .. $]; }
+            if (_isMiss) { return _haystack[0 .. $]; }
             return _haystack.ptr[_offset + 1 .. _haystack.length];
         }
 
@@ -504,6 +513,6 @@ auto findSplitAfter(T)(scope const T[] haystack, // TODO support inout?
 {
     const r = "a*b".findSplitAfter('_');
     assert(!r);
-    assert(r.pre == "a*b");
-    assert(r.post == "");
+    assert(r.pre == "");
+    assert(r.post == "a*b");
 }

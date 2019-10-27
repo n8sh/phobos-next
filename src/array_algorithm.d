@@ -540,15 +540,13 @@ auto findSplitAfter_inout(T)(scope inout(T)[] haystack,
 
     pragma(inline, true):
 
-        inout(T)[] pre() @trusted inout { return cast(inout(T)[])_pre(); }
-        private auto _pre() const @trusted
+        inout(T)[] pre() @trusted inout
         {
             if (_isMiss) { return _haystack[$ .. $]; }
             return _haystack.ptr[0 .. _offset + 1];
         }
 
-        inout(T)[] post() @trusted inout { return cast(inout(T)[])_post(); }
-        auto _post() const @trusted
+        inout(T)[] post() @trusted inout
         {
             if (_isMiss) { return _haystack[0 .. $]; }
             return _haystack.ptr[_offset + 1 .. _haystack.length];
@@ -582,6 +580,7 @@ auto findSplitAfter_inout(T)(scope inout(T)[] haystack,
     char[] haystack;
     auto r = haystack.findSplitAfter_inout('*');
     static assert(is(typeof(r.pre()) == char[]));
+    static assert(is(typeof(r.post()) == char[]));
 }
 
 ///
@@ -590,6 +589,7 @@ auto findSplitAfter_inout(T)(scope inout(T)[] haystack,
     const(char)[] haystack;
     auto r = haystack.findSplitAfter_inout('*');
     static assert(is(typeof(r.pre()) == const(char)[]));
+    static assert(is(typeof(r.post()) == const(char)[]));
 }
 
 ///
@@ -597,6 +597,7 @@ auto findSplitAfter_inout(T)(scope inout(T)[] haystack,
 {
     auto r = "a*b".findSplitAfter_inout('*');
     static assert(is(typeof(r.pre()) == string));
+    static assert(is(typeof(r.post()) == string));
     assert(r);
     assert(r.pre == "a*");
     assert(r.post == "b");

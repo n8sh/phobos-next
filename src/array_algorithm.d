@@ -254,8 +254,8 @@ inout(char)[] strip()(scope return inout(char)[] haystack) @safe pure nothrow @n
 
 /** Array-overload for `count` with default predicate.
  */
-size_t count(T)(scope const(T)[] haystack,
-                scope T needle)
+size_t count(T)(scope const T[] haystack,
+                scope const T needle)
 {
     size_t result;
     foreach (const ref e; haystack)

@@ -55,8 +55,8 @@ enum hasStealableElements(R) = (hasPureCopy!(ElementType!R)); // TODO recurse
    See_Also: http://forum.dlang.org/thread/onibkzepudfisxtrigsi@forum.dlang.org#post-dafmzroxvaeejyxrkbon:40forum.dlang.org
 */
 ElementType!R frontPop(R)(ref R r)
-    if (isInputRange!R &&
-        hasStealableElements!R)
+if (isInputRange!R &&
+    hasStealableElements!R)
 {
     import std.range: moveFront, popFront;
     /* scope(success) r.popFront(); */
@@ -112,8 +112,8 @@ version(unittest)
     See_Also: http://forum.dlang.org/thread/onibkzepudfisxtrigsi@forum.dlang.org#post-dafmzroxvaeejyxrkbon:40forum.dlang.org
 */
 ElementType!R backPop(R)(ref R r)
-    if (isInputRange!R &&
-        hasStealableElements!R)
+if (isInputRange!R &&
+    hasStealableElements!R)
 {
     import std.range: moveBack, popBack;
     /* scope(success) r.popBack(); */
@@ -173,9 +173,9 @@ alias takeBack = backPop;
  * TODO generalize with stride
  */
 struct SlidingSplitter(Range)
-    if (isSomeString!Range ||
-        (hasSlicing!Range &&
-         !isInfinite!Range))
+if (isSomeString!Range ||
+    (hasSlicing!Range &&
+     !isInfinite!Range))
 {
     import std.range: isForwardRange;
     import core.internal.traits : Unqual;
@@ -692,13 +692,13 @@ auto adjacentTuples(size_t N, R)(R r)
 }
 
 auto adjacentPairs(R)(R r)
-    if (isInputRange!R)
+if (isInputRange!R)
 {
     return adjacentTuples!(2, R)(r);
 }
 
 auto adjacentTriples(R)(R r)
-    if (isInputRange!R)
+if (isInputRange!R)
 {
     return adjacentTuples!(3, R)(r);
 }
@@ -789,7 +789,7 @@ auto staticLengthRange(T, size_t n)(ref T[n] arr)
 import std.range.primitives : hasLength, isInputRange;
 
 auto staticLengthRange(size_t n, R)(R range)
-    if (isInputRange!R && hasLength!R)
+if (isInputRange!R && hasLength!R)
 {
     static struct Result
     {
@@ -824,7 +824,7 @@ auto staticLengthRange(size_t n, R)(R range)
  *   fallbackPred = the sorting predicate to fallback to if `Range` is not a `SortedRange`
 */
 template sortingPredicate(Range, alias fallbackPred = "a < b")
-    if (isInputRange!Range)
+if (isInputRange!Range)
 {
     import std.range : SortedRange;
     import std.functional : binaryFun;
@@ -854,8 +854,8 @@ unittest
  * See_Also: https://forum.dlang.org/post/khvwfwvjiblobfybsurd@forum.dlang.org
  */
 auto zip(R1, R2)(R1 r1, R2 r2)
-    if (isRandomAccessRange!R1 &&
-        isRandomAccessRange!R2)
+if (isRandomAccessRange!R1 &&
+    isRandomAccessRange!R2)
 {
     static struct Result(R1, R2)
     {

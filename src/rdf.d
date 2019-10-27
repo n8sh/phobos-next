@@ -43,7 +43,7 @@ auto byNTriple(File rdfFile,
  *
  * See_Also: http://wn.wikpedia.org/wiki/N-Triples.
 */
-struct NTriple(ElementType)
+private struct NTriple(ElementType)
 {
     import std.uri : decodeComponent;
     import std.conv : to;

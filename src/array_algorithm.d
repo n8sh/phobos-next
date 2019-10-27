@@ -456,33 +456,32 @@ auto findSplitBefore(T)(scope const T[] haystack, // TODO support inout?
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
-auto findSplitAfter(T)(scope const T[] haystack, // TODO support inout?
-                       scope const T needle)
+auto findSplitAfter(T)(scope inout(T)[] haystack, // TODO support inout?
+                       scope const T needle) @trusted
 {
     struct Result
     {
-        private alias Haystack = typeof(haystack);
-        private Haystack _haystack;
+        private T[] _haystack;
         private size_t _offset;
 
-        inout(Haystack) pre() inout @trusted
+        inout(T)[] pre() inout @trusted
         {
             if (_isMiss) { return _haystack[$ .. $]; }
             return _haystack.ptr[0 .. _offset + 1];
         }
 
-        inout(Haystack) post() inout @trusted
+        inout(T)[] post() inout @trusted
         {
             if (_isMiss) { return _haystack[0 .. $]; }
             return _haystack.ptr[_offset + 1 .. _haystack.length];
         }
 
-        bool opCast(T : bool)() const
+        bool opCast(T : bool)() const @trusted
         {
             return !_isMiss;
         }
 
-        private bool _isMiss() const
+        private bool _isMiss() const @trusted
         {
             return _haystack.length == _offset;
         }
@@ -492,11 +491,11 @@ auto findSplitAfter(T)(scope const T[] haystack, // TODO support inout?
     {
         if (e == needle)
         {
-            return Result(haystack, offset);
+            return Result(cast(char[])haystack, offset);
         }
     }
 
-    return Result(haystack, haystack.length);
+    return Result(cast(char[])haystack, haystack.length);
 }
 
 ///

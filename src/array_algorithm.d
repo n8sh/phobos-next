@@ -464,80 +464,6 @@ auto findSplitAfter(T)(scope inout(T)[] haystack, // TODO support inout? See_Als
         private T[] _haystack;
         private size_t _offset;
 
-        inout(T)[] pre() inout @trusted
-        {
-            if (_isMiss) { return _haystack[$ .. $]; }
-            return _haystack.ptr[0 .. _offset + 1];
-        }
-
-        inout(T)[] post() inout @trusted
-        {
-            if (_isMiss) { return _haystack[0 .. $]; }
-            return _haystack.ptr[_offset + 1 .. _haystack.length];
-        }
-
-        bool opCast(T : bool)() const @trusted
-        {
-            return !_isMiss;
-        }
-
-        private bool _isMiss() const @trusted
-        {
-            return _haystack.length == _offset;
-        }
-    }
-
-    foreach (const offset, const ref e; haystack)
-    {
-        if (e == needle)
-        {
-            return Result(cast(char[])haystack, offset);
-        }
-    }
-
-    return Result(cast(char[])haystack, haystack.length);
-}
-
-///
-@safe pure nothrow @nogc unittest
-{
-    const r = "a*b".findSplitAfter('*');
-    static assert(is(typeof(r.pre()) == const(char)[])); // TODO should be string
-    assert(r);
-    assert(r.pre == "a*");
-    assert(r.post == "b");
-}
-
-///
-@safe pure nothrow @nogc unittest
-{
-    const r = "a*b".findSplitAfter('_');
-    static assert(is(typeof(r.pre()) == const(char)[]));
-    assert(!r);
-    assert(r.pre == "");
-    assert(r.post == "a*b");
-}
-
-///
-@safe pure nothrow @nogc unittest
-{
-    const r = "a*b".findSplitAfter('_');
-    static assert(is(typeof(r.pre()) == const(char)[]));
-}
-
-/** Array-overload for `findSplitAfter` with default predicate and failing use
- * of `inout` for `pre` and `post`.
- *
- * See_Also: https://forum.dlang.org/post/jtpchtddgenhjuwhqdsq@forum.dlang.org
- */
-auto findSplitAfter_inout(T)(scope inout(T)[] haystack,
-                             scope const T needle) @trusted
-{
-    static struct Result
-    {
-        private T[] _haystack;
-        private size_t _offset;
-
     pragma(inline, true):
 
         inout(T)[] pre() @trusted inout
@@ -578,7 +504,7 @@ auto findSplitAfter_inout(T)(scope inout(T)[] haystack,
 @safe pure nothrow @nogc unittest
 {
     char[] haystack;
-    auto r = haystack.findSplitAfter_inout('*');
+    auto r = haystack.findSplitAfter('*');
     static assert(is(typeof(r.pre()) == char[]));
     static assert(is(typeof(r.post()) == char[]));
 }
@@ -587,7 +513,7 @@ auto findSplitAfter_inout(T)(scope inout(T)[] haystack,
 @safe pure nothrow @nogc unittest
 {
     const(char)[] haystack;
-    auto r = haystack.findSplitAfter_inout('*');
+    auto r = haystack.findSplitAfter('*');
     static assert(is(typeof(r.pre()) == const(char)[]));
     static assert(is(typeof(r.post()) == const(char)[]));
 }
@@ -595,7 +521,7 @@ auto findSplitAfter_inout(T)(scope inout(T)[] haystack,
 ///
 @safe pure nothrow @nogc unittest
 {
-    auto r = "a*b".findSplitAfter_inout('*');
+    auto r = "a*b".findSplitAfter('*');
     static assert(is(typeof(r.pre()) == string));
     static assert(is(typeof(r.post()) == string));
     assert(r);

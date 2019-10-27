@@ -330,7 +330,7 @@ size_t count(T)(scope const T[] haystack)
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
-auto findSplit(T)(scope const T[] haystack, // TODO support inout?
+auto findSplit(T)(scope const T[] haystack, // TODO support inout? See_Also: https://forum.dlang.org/post/jtpchtddgenhjuwhqdsq@forum.dlang.org
                   scope const T needle)
 {
     struct Result
@@ -392,7 +392,7 @@ auto findSplit(T)(scope const T[] haystack, // TODO support inout?
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
-auto findSplitBefore(T)(scope const T[] haystack, // TODO support inout?
+auto findSplitBefore(T)(scope const T[] haystack, // TODO support inout? See_Also: https://forum.dlang.org/post/jtpchtddgenhjuwhqdsq@forum.dlang.org
                         scope const T needle)
 {
     struct Result
@@ -454,10 +454,9 @@ auto findSplitBefore(T)(scope const T[] haystack, // TODO support inout?
 
 /** Array-overload for `findSplitAfter` with default predicate.
  *
- * See_Also: https://forum.dlang.org/post/jtpchtddgenhjuwhqdsq@forum.dlang.org
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
-auto findSplitAfter(T)(scope inout(T)[] haystack, // TODO support inout?
+auto findSplitAfter(T)(scope inout(T)[] haystack, // TODO support inout? See_Also: https://forum.dlang.org/post/jtpchtddgenhjuwhqdsq@forum.dlang.org
                        scope const T needle) @trusted
 {
     struct Result

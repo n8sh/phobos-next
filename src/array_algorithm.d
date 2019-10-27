@@ -6,8 +6,7 @@
  */
 module array_algorithm;
 
-/**
- * Array-overload for `startsWith` with default predicate.
+/** Array-overload for `startsWith` with default predicate.
  *
  * See_Also: https://d.godbolt.org/z/ejEmrK
  */

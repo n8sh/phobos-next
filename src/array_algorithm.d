@@ -257,6 +257,7 @@ inout(char)[] strip()(scope return inout(char)[] haystack) @safe pure nothrow @n
 size_t count(T)(scope const T[] haystack,
                 scope const T needle)
 {
+    static if (is(T : char)) { assert(needle < 128); } // TODO convert needle to `char[]` and call itself
     size_t result;
     foreach (const ref e; haystack)
     {

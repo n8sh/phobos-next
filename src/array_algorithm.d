@@ -271,6 +271,10 @@ size_t count(T)(scope const T[] haystack,
     {
         return false;
     }
+    else if (needle.length == 0)
+    {
+        return haystack.length;
+    }
     foreach (const size_t offset; 0 .. haystack.length - needle.length + 1)
     {
         result += haystack[offset .. offset + needle.length] == needle ? 1 : 0;

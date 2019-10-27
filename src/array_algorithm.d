@@ -538,26 +538,21 @@ auto findSplitAfter_inout(T)(scope inout(T)[] haystack,
         private T[] _haystack;
         private size_t _offset;
 
-        auto pre() @trusted
+    pragma(inline, true):
+
+        auto pre() @trusted { return cast(T[])_pre(); }
+        auto pre() const @trusted { return cast(const(T)[])_pre(); }
+        auto pre() immutable @trusted { return cast(immutable(T)[])_pre(); }
+        private auto _pre() const @trusted
         {
-            pragma(inline, true);
-            if (_isMiss) { return _haystack[$ .. $]; }
-            return _haystack.ptr[0 .. _offset + 1];
-        }
-        auto pre() const @trusted
-        {
-            pragma(inline, true);
-            if (_isMiss) { return _haystack[$ .. $]; }
-            return _haystack.ptr[0 .. _offset + 1];
-        }
-        auto pre() immutable @trusted
-        {
-            pragma(inline, true);
             if (_isMiss) { return _haystack[$ .. $]; }
             return _haystack.ptr[0 .. _offset + 1];
         }
 
-        auto post() const @trusted
+        auto post() @trusted { return cast(T[])_post(); }
+        auto post() const @trusted { return cast(const(T)[])_post(); }
+        auto post() immutable @trusted { return cast(immutable(T)[])_post(); }
+        auto _post() const @trusted
         {
             if (_isMiss) { return _haystack[0 .. $]; }
             return _haystack.ptr[_offset + 1 .. _haystack.length];

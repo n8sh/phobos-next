@@ -336,7 +336,7 @@ size_t count(T)(scope const T[] haystack)
 auto findSplit(T)(scope return inout(T)[] haystack,
                   scope const T needle)
 {
-    static struct Result
+    static struct Result // NOTE `static` qualifier is needed for `inout` to work propagate
     {
         private T[] _haystack;
         private size_t _offset;
@@ -412,7 +412,7 @@ auto findSplit(T)(scope return inout(T)[] haystack,
 auto findSplitBefore(T)(scope return inout(T)[] haystack,
                         scope const T needle)
 {
-    static struct Result
+    static struct Result // NOTE `static` qualifier is needed for `inout` to work propagate
     {
         private T[] _haystack;
         private size_t _offset;
@@ -504,7 +504,7 @@ auto findSplitBefore(T)(scope return inout(T)[] haystack,
 auto findSplitAfter(T)(scope return inout(T)[] haystack,
                        scope const T needle) @trusted
 {
-    static struct Result
+    static struct Result // NOTE `static` qualifier is needed for `inout` to work propagate
     {
         private T[] _haystack;
         private size_t _offset;

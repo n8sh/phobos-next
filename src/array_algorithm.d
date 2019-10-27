@@ -540,16 +540,19 @@ auto findSplitAfter_inout(T)(scope inout(T)[] haystack,
 
         auto pre() @trusted
         {
+            pragma(inline, true);
             if (_isMiss) { return _haystack[$ .. $]; }
             return _haystack.ptr[0 .. _offset + 1];
         }
         auto pre() const @trusted
         {
+            pragma(inline, true);
             if (_isMiss) { return _haystack[$ .. $]; }
             return _haystack.ptr[0 .. _offset + 1];
         }
         auto pre() immutable @trusted
         {
+            pragma(inline, true);
             if (_isMiss) { return _haystack[$ .. $]; }
             return _haystack.ptr[0 .. _offset + 1];
         }

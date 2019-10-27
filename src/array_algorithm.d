@@ -399,6 +399,9 @@ auto findSplit(T)(scope return inout(T)[] haystack,
     assert(r.pre == "a");
     assert(r.separator == "*");
     assert(r.post == "b");
+
+    auto f()() @safe pure nothrow { char[1] x = "_"; return x[].findSplit(' '); }
+    static if (isDIP1000) static assert(!__traits(compiles, { auto _ = f(); }));
 }
 
 /// DIP-1000 scope analysis
@@ -473,6 +476,9 @@ auto findSplitBefore(T)(scope return inout(T)[] haystack,
     assert(!r);
     assert(!r.pre);
     assert(!r.post);
+
+    auto f()() @safe pure nothrow { char[1] x = "_"; return x[].findSplitBefore(' '); }
+    static if (isDIP1000) static assert(!__traits(compiles, { auto _ = f(); }));
 }
 
 ///
@@ -566,6 +572,9 @@ auto findSplitAfter(T)(scope return inout(T)[] haystack,
     assert(!r);
     assert(!r.pre);
     assert(!r.post);
+
+    auto f()() @safe pure nothrow { char[1] x = "_"; return x[].findSplitAfter(' '); }
+    static if (isDIP1000) static assert(!__traits(compiles, { auto _ = f(); }));
 }
 
 ///

@@ -791,7 +791,7 @@ import std.range.primitives : hasLength, isInputRange;
 auto staticLengthRange(size_t n, R)(R range)
     if (isInputRange!R && hasLength!R)
 {
-    struct Result
+    static struct Result
     {
         enum size_t length = n;
         R _range;

@@ -9,6 +9,7 @@ module array_algorithm;
 /** Array-overload for `startsWith` with default predicate.
  *
  * See_Also: https://d.godbolt.org/z/ejEmrK
+ * See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
  */
 bool startsWith(T)(scope const(T)[] haystack,
                    scope const(T)[] needle)

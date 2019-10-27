@@ -271,3 +271,16 @@ size_t count(T)(scope const T[] haystack,
 {
     assert("abc_abc".count('a') == 2);
 }
+
+/** Array-overload for `count` with default predicate and no needle.
+ */
+size_t count(T)(scope const T[] haystack)
+{
+    return haystack.length;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    assert("abc_abc".count == 7);
+}

@@ -524,3 +524,54 @@ auto findSplitAfter(T)(scope inout(T)[] haystack, // TODO support inout? See_Als
     const r = "a*b".findSplitAfter('_');
     static assert(is(typeof(r.pre()) == const(char)[]));
 }
+
+auto findSplitAfter_inout(T)(scope inout(T)[] haystack, // TODO support inout?
+                             scope const T needle) @trusted
+{
+    struct Result
+    {
+        private T[] _haystack;
+        private size_t _offset;
+
+        inout(T)[] pre() inout @trusted
+        {
+            if (_isMiss) { return _haystack[$ .. $]; }
+            return _haystack.ptr[0 .. _offset + 1];
+        }
+
+        inout(T)[] post() inout @trusted
+        {
+            if (_isMiss) { return _haystack[0 .. $]; }
+            return _haystack.ptr[_offset + 1 .. _haystack.length];
+        }
+
+        bool opCast(T : bool)() const @trusted
+        {
+            return !_isMiss;
+        }
+
+        private bool _isMiss() const @trusted
+        {
+            return _haystack.length == _offset;
+        }
+    }
+
+    foreach (const offset, const ref e; haystack)
+    {
+        if (e == needle)
+        {
+            return inout(Result)(haystack, offset);
+        }
+    }
+
+    return inout(Result)(haystack, haystack.length);
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    const r = "a*b".findSplitAfter_inout('*');
+    assert(r);
+    // assert(r.pre == "a*");
+    // assert(r.post == "b");
+}

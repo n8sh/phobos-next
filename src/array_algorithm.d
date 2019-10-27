@@ -335,8 +335,8 @@ auto findSplit(T)(scope const T[] haystack, // TODO support inout?
 {
     struct Result
     {
-        private const(T)[] _haystack;
         private alias Haystack = typeof(haystack);
+        private Haystack _haystack;
         private size_t _offset;
 
         inout(Haystack) pre() inout @trusted

@@ -356,6 +356,11 @@ auto findSplit(T)(scope const T[] haystack,
             return _haystack.ptr[_offset + 1 .. _haystack.length];
         }
 
+        bool opCast(T : bool)() const
+        {
+            return !_isMiss;
+        }
+
         private bool _isMiss() const
         {
             return _haystack.length == _offset;
@@ -376,7 +381,11 @@ auto findSplit(T)(scope const T[] haystack,
 ///
 @safe pure nothrow @nogc unittest
 {
-    auto split = "abc_abc".findSplit('_');
+    const r = "a*b".findSplit('*');
+    assert(r);
+    assert(r.pre == "a");
+    assert(r.separator == "*");
+    assert(r.post == "b");
 }
 
 version(unittest)

@@ -179,6 +179,7 @@ inout(char)[] stripLeft()(scope return inout(char)[] haystack) @safe pure nothro
     assert("   beta".stripLeft() == "beta");
     assert(" _ beta _ ".stripLeft(' ') == "_ beta _ ");
     assert(" _  beta _ ".stripLeft(' ') == "_  beta _ ");
+
     char[] f()() @safe pure nothrow { char[1] x = "_"; return x[].stripLeft(' '); }
     static if (isDIP1000) static assert(!__traits(compiles, { auto _ = f(); }));
 }
@@ -214,6 +215,7 @@ inout(char)[] stripRight()(scope return inout(char)[] haystack) @safe pure nothr
     assert("beta    ".stripRight() == "beta");
     assert(" _ beta _ ".stripRight(' ') == " _ beta _");
     assert(" _  beta _ ".stripRight(' ') == " _  beta _");
+
     char[] f()() @safe pure nothrow { char[1] x = "_"; return x[].stripRight(' '); }
     static if (isDIP1000) static assert(!__traits(compiles, { auto _ = f(); }));
 }

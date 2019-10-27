@@ -4,6 +4,8 @@
  *
  * See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
  * See_Also: https://forum.dlang.org/thread/ybamybeakxwxwleebnwb@forum.dlang.org?page=1
+ *
+ * TODO Merge into array-specializations of Phobos algorithms.
  */
 module array_algorithm;
 

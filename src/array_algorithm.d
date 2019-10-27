@@ -583,6 +583,22 @@ auto findSplitAfter_inout(T)(scope inout(T)[] haystack,
 ///
 @safe pure nothrow @nogc unittest
 {
+    char[] haystack;
+    auto r = haystack.findSplitAfter_inout('*');
+    static assert(is(typeof(r.pre()) == char[]));
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    const(char)[] haystack;
+    auto r = haystack.findSplitAfter_inout('*');
+    static assert(is(typeof(r.pre()) == const(char)[]));
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
     auto r = "a*b".findSplitAfter_inout('*');
     static assert(is(typeof(r.pre()) == string));
     assert(r);

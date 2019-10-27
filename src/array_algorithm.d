@@ -24,7 +24,7 @@ bool startsWith(T)(scope const T[] haystack,
 bool startsWith(T)(scope const T[] haystack,
                    scope const T needle) // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
 {
-    static if (is(T == char)) { assert(needle < 128); } // TODO convert needle to `char[]` and call itself
+    static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
     if (haystack.length >= 1)
     {
         return haystack[0] == needle;
@@ -55,7 +55,7 @@ bool endsWith(T)(scope const T[] haystack,
 bool endsWith(T)(scope const T[] haystack,
                  scope const T needle)
 {
-    static if (is(T == char)) { assert(needle < 128); } // TODO convert needle to `char[]` and call itself
+    static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
     if (haystack.length >= 1)
     {
         return haystack[$ - 1] == needle;
@@ -90,7 +90,7 @@ bool skipOver(T)(scope ref inout(T)[] haystack,
 bool skipOver(T)(scope ref inout(T)[] haystack,
                  scope const T needle)
 {
-    static if (is(T == char)) { assert(needle < 128); } // TODO convert needle to `char[]` and call itself
+    static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
     if (startsWith(haystack, needle))
     {
         haystack = haystack[1 .. $];
@@ -127,7 +127,7 @@ bool skipOverBack(T)(scope ref inout(T)[] haystack,
 bool skipOverBack(T)(scope ref inout(T)[] haystack,
                      scope const T needle)
 {
-    static if (is(T == char)) { assert(needle < 128); } // TODO convert needle to `char[]` and call itself
+    static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
     if (endsWith(haystack, needle))
     {
         haystack = haystack[0 .. $ - 1];
@@ -153,7 +153,7 @@ bool skipOverBack(T)(scope ref inout(T)[] haystack,
 inout(T)[] stripLeft(T)(scope return inout(T)[] haystack,
                         scope const T needle)
 {
-    static if (is(T == char)) { assert(needle < 128); } // TODO convert needle to `char[]` and call itself
+    static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
     size_t offset = 0;
     while (offset != haystack.length &&
            haystack[offset] == needle) // TODO elide range-check
@@ -186,7 +186,7 @@ inout(char)[] stripLeft()(scope return inout(char)[] haystack) @safe pure nothro
 inout(T)[] stripRight(T)(scope return inout(T)[] haystack,
                          scope const T needle)
 {
-    static if (is(T == char)) { assert(needle < 128); } // TODO convert needle to `char[]` and call itself
+    static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
     size_t offset = haystack.length;
     while (offset != 0 &&
            haystack[offset - 1] == needle) // TODO elide range-check
@@ -219,7 +219,7 @@ inout(char)[] stripRight()(scope return inout(char)[] haystack) @safe pure nothr
 inout(T)[] strip(T)(scope return inout(T)[] haystack,
                     scope const T needle)
 {
-    static if (is(T == char)) { assert(needle < 128); } // TODO convert needle to `char[]` and call itself
+    static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
 
     size_t leftOffset = 0;
     while (leftOffset != haystack.length &&
@@ -296,7 +296,7 @@ size_t count(T)(scope const T[] haystack,
 size_t count(T)(scope const T[] haystack,
                 scope const T needle)
 {
-    static if (is(T == char)) { assert(needle < 128); } // TODO convert needle to `char[]` and call itself
+    static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
     size_t result;
     foreach (const ref e; haystack)
     {

@@ -259,6 +259,9 @@ inout(char)[] strip()(scope return inout(char)[] haystack) @safe pure nothrow @n
     assert("   beta   ".strip(' ') == "beta");
     assert(" _ beta _ ".strip(' ') == "_ beta _");
     assert(" _  beta _ ".strip(' ') == "_  beta _");
+
+    char[] f()() @safe pure nothrow { char[1] x = "_"; return x[].strip(' '); }
+    static if (isDIP1000) static assert(!__traits(compiles, { auto _ = f(); }));
 }
 
 ///

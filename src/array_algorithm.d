@@ -264,7 +264,7 @@ inout(char)[] strip()(scope return inout(char)[] haystack) @safe pure nothrow @n
 size_t count(T)(scope const T[] haystack,
                 scope const T[] needle)
 {
-    assert(needle != 0, "Cannot count occurrences of an empty range");
+    assert(needle.length != 0, "Cannot count occurrences of an empty range");
     size_t result = 0;
     if (haystack.length < needle.length)
     {

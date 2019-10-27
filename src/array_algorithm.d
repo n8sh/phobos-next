@@ -369,6 +369,7 @@ auto findSplit(T)(scope const T[] haystack,
             return Result(haystack, offset);
         }
     }
+
     return Result(haystack, haystack.length);
 }
 

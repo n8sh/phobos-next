@@ -326,6 +326,63 @@ size_t count(T)(scope const T[] haystack)
     assert("abc_abc".count == 7);
 }
 
+/** Array-overload for `findSplit` with default predicate.
+ *
+ * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
+ */
+auto findSplit(T)(scope const T[] haystack,
+                  scope const T needle)
+{
+    struct Result
+    {
+        private const(T)[] _haystack;
+        private alias Haystack = typeof(haystack);
+        private size_t _offset;
+
+        private bool _isMiss() const
+        {
+            return _haystack.length == _offset;
+        }
+
+        inout(Haystack) pre() inout @trusted
+        {
+            return _haystack.ptr[0 .. _offset];
+        }
+
+        inout(Haystack) separator() inout
+        {
+            if (_isMiss)
+            {
+                return _haystack[$ .. $];
+            }
+            return _haystack.ptr[_offset .. _offset + 1];
+        }
+
+        inout(Haystack) post() inout
+        {
+            if (_isMiss)
+            {
+                return _haystack[$ .. $];
+            }
+            return _haystack[_offset + 1 .. $];
+        }
+    }
+    foreach (const offset, const ref e; haystack)
+    {
+        if (e == needle)
+        {
+            return Result(haystack, offset);
+        }
+    }
+    return Result(haystack, haystack.length);
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    auto split = "abc_abc".findSplit('_');
+}
+
 version(unittest)
 {
     import array_help : s;

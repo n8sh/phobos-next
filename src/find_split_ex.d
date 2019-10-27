@@ -51,19 +51,13 @@ if (needles.length != 0 &&
 
             inout(Haystack) separator() inout
             {
-                if (_isMiss)
-                {
-                    return _haystack[$ .. $];
-                }
+                if (_isMiss) { return _haystack[$ .. $]; }
                 return _haystack[_offset .. _offset + 1];
             }
 
             inout(Haystack) post() inout
             {
-                if (_isMiss)
-                {
-                    return _haystack[$ .. $];
-                }
+                if (_isMiss) { return _haystack[$ .. $]; }
                 return _haystack[_offset + 1 .. $];
             }
 

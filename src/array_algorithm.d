@@ -251,3 +251,22 @@ inout(char)[] strip()(scope return inout(char)[] haystack) @safe pure nothrow @n
     assert(" _ beta _ ".strip(' ') == "_ beta _");
     assert(" _  beta _ ".strip(' ') == "_  beta _");
 }
+
+/** Array-overload for `count` with default predicate.
+ */
+size_t count(T)(scope const(T)[] haystack,
+                scope T needle)
+{
+    size_t result;
+    foreach (const ref e; haystack)
+    {
+        result += e == needle ? 1 : 0;
+    }
+    return result;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    assert("abc_abc".count('a') == 2);
+}

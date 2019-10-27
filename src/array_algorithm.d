@@ -357,22 +357,22 @@ auto findSplit(T)(scope return inout(T)[] haystack,
 
         inout(T)[] separator() @trusted inout
         {
-            if (_isMiss) { return _haystack[$ .. $]; }
+            if (empty) { return _haystack[$ .. $]; }
             return _haystack.ptr[_offset .. _offset + 1];
         }
 
         inout(T)[] post() @trusted inout
         {
-            if (_isMiss) { return _haystack[$ .. $]; }
+            if (empty) { return _haystack[$ .. $]; }
             return _haystack.ptr[_offset + 1 .. _haystack.length];
         }
 
         bool opCast(T : bool)() const
         {
-            return !_isMiss;
+            return !empty;
         }
 
-        private bool _isMiss() const
+        @property private bool empty() const
         {
             return _haystack.length == _offset;
         }
@@ -438,16 +438,16 @@ auto findSplitBefore(T)(scope return inout(T)[] haystack,
 
         inout(T)[] post() @trusted inout
         {
-            if (_isMiss) { return _haystack[$ .. $]; }
+            if (empty) { return _haystack[$ .. $]; }
             return _haystack.ptr[_offset .. _haystack.length];
         }
 
         bool opCast(T : bool)() const
         {
-            return !_isMiss;
+            return !empty;
         }
 
-        private bool _isMiss() const
+        @property private bool empty() const
         {
             return _haystack.length == _offset;
         }
@@ -528,22 +528,22 @@ auto findSplitAfter(T)(scope return inout(T)[] haystack,
 
         inout(T)[] pre() @trusted inout
         {
-            if (_isMiss) { return _haystack[$ .. $]; }
+            if (empty) { return _haystack[$ .. $]; }
             return _haystack.ptr[0 .. _offset + 1];
         }
 
         inout(T)[] post() @trusted inout
         {
-            if (_isMiss) { return _haystack[0 .. $]; }
+            if (empty) { return _haystack[0 .. $]; }
             return _haystack.ptr[_offset + 1 .. _haystack.length];
         }
 
         bool opCast(T : bool)() const
         {
-            return !_isMiss;
+            return !empty;
         }
 
-        private bool _isMiss() const
+        @property private bool empty() const
         {
             return _haystack.length == _offset;
         }

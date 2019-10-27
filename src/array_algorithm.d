@@ -525,7 +525,11 @@ auto findSplitAfter(T)(scope inout(T)[] haystack, // TODO support inout? See_Als
     static assert(is(typeof(r.pre()) == const(char)[]));
 }
 
-auto findSplitAfter_inout(T)(scope inout(T)[] haystack, // TODO support inout?
+/** Array-overload for `findSplitAfter` with default predicate and failing inout support.
+ *
+ * See_Also: https://forum.dlang.org/post/jtpchtddgenhjuwhqdsq@forum.dlang.org
+ */
+auto findSplitAfter_inout(T)(scope inout(T)[] haystack,
                              scope const T needle) @trusted
 {
     struct Result

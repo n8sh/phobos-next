@@ -458,6 +458,7 @@ auto findSplitAfter(T)(scope const T[] haystack, // TODO support inout?
 
         inout(Haystack) pre() inout @trusted
         {
+            if (_isMiss) { return _haystack[0 .. $]; }
             return _haystack.ptr[0 .. _offset + 1];
         }
 
@@ -496,4 +497,13 @@ auto findSplitAfter(T)(scope const T[] haystack, // TODO support inout?
     assert(r);
     assert(r.pre == "a*");
     assert(r.post == "b");
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    const r = "a*b".findSplitAfter('_');
+    assert(!r);
+    assert(r.pre == "a*b");
+    assert(r.post == "");
 }

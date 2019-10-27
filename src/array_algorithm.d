@@ -179,6 +179,8 @@ inout(char)[] stripLeft()(scope return inout(char)[] haystack) @safe pure nothro
     assert("   beta".stripLeft() == "beta");
     assert(" _ beta _ ".stripLeft(' ') == "_ beta _ ");
     assert(" _  beta _ ".stripLeft(' ') == "_  beta _ ");
+    char[] f()() @safe pure nothrow { char[1] x = "_"; return x[].stripLeft(' '); }
+    static if (isDIP1000) static assert(!__traits(compiles, { auto _ = f(); }));
 }
 
 /** Array-overload for `stripRight` with default predicate.
@@ -212,13 +214,8 @@ inout(char)[] stripRight()(scope return inout(char)[] haystack) @safe pure nothr
     assert("beta    ".stripRight() == "beta");
     assert(" _ beta _ ".stripRight(' ') == " _ beta _");
     assert(" _  beta _ ".stripRight(' ') == " _  beta _");
-}
-
-/// DIP-1000 scope analysis
-@safe pure nothrow @nogc unittest
-{
     char[] f()() @safe pure nothrow { char[1] x = "_"; return x[].stripRight(' '); }
-    static assert(!__traits(compiles, { auto _ = f(); }));
+    static if (isDIP1000) static assert(!__traits(compiles, { auto _ = f(); }));
 }
 
 /** Array-overload for `strip` with default predicate.
@@ -587,4 +584,9 @@ auto findSplitAfter(T)(scope return inout(T)[] haystack,
     assert(r);
     assert(r.pre == "a*");
     assert(r.post == "b");
+}
+
+version(unittest)
+{
+    import dip_traits : isDIP1000;
 }

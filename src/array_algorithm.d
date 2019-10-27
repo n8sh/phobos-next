@@ -8,7 +8,6 @@ module array_algorithm;
 
 /** Array-overload for `startsWith` with default predicate.
  *
- * See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
  * See_Also: https://d.godbolt.org/z/ejEmrK
  */
 bool startsWith(T)(scope const(T)[] haystack,
@@ -22,7 +21,7 @@ bool startsWith(T)(scope const(T)[] haystack,
 }
 /// ditto
 bool startsWith(T)(scope const(T)[] haystack,
-                   scope const T needle)
+                   scope const T needle) // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
 {
     static if (is(T : char)) { assert(needle < 128); } // TODO convert needle to `char[]` and call itself
     if (haystack.length >= 1)

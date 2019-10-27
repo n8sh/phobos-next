@@ -518,6 +518,9 @@ auto findSplitAfter(T)(scope inout(T)[] haystack,
     auto r = haystack.findSplitAfter('*');
     static assert(is(typeof(r.pre()) == char[]));
     static assert(is(typeof(r.post()) == char[]));
+    assert(!r);
+    assert(!r.pre);
+    assert(!r.post);
 }
 
 ///
@@ -527,6 +530,9 @@ auto findSplitAfter(T)(scope inout(T)[] haystack,
     auto r = haystack.findSplitAfter('*');
     static assert(is(typeof(r.pre()) == const(char)[]));
     static assert(is(typeof(r.post()) == const(char)[]));
+    assert(!r);
+    assert(!r.pre);
+    assert(!r.post);
 }
 
 ///

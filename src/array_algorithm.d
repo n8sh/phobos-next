@@ -330,7 +330,7 @@ size_t count(T)(scope const T[] haystack)
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
-auto findSplit(T)(scope const T[] haystack,
+auto findSplit(T)(scope const T[] haystack, // TODO support inout?
                   scope const T needle)
 {
     struct Result

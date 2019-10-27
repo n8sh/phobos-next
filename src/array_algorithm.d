@@ -502,6 +502,7 @@ auto findSplitAfter(T)(scope inout(T)[] haystack, // TODO support inout?
 @safe pure nothrow @nogc unittest
 {
     const r = "a*b".findSplitAfter('*');
+    static assert(is(typeof(r.pre()) == const(char)[]));
     assert(r);
     assert(r.pre == "a*");
     assert(r.post == "b");
@@ -511,6 +512,7 @@ auto findSplitAfter(T)(scope inout(T)[] haystack, // TODO support inout?
 @safe pure nothrow @nogc unittest
 {
     const r = "a*b".findSplitAfter('_');
+    static assert(is(typeof(r.pre()) == const(char)[]));
     assert(!r);
     assert(r.pre == "");
     assert(r.post == "a*b");

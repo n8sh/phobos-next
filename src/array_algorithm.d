@@ -339,34 +339,29 @@ auto findSplit(T)(scope const T[] haystack,
         private alias Haystack = typeof(haystack);
         private size_t _offset;
 
-        private bool _isMiss() const
-        {
-            return _haystack.length == _offset;
-        }
-
         inout(Haystack) pre() inout @trusted
         {
             return _haystack.ptr[0 .. _offset];
         }
 
-        inout(Haystack) separator() inout
+        inout(Haystack) separator() inout @trusted
         {
-            if (_isMiss)
-            {
-                return _haystack[$ .. $];
-            }
+            if (_isMiss) { return _haystack[$ .. $]; }
             return _haystack.ptr[_offset .. _offset + 1];
         }
 
-        inout(Haystack) post() inout
+        inout(Haystack) post() inout @trusted
         {
-            if (_isMiss)
-            {
-                return _haystack[$ .. $];
-            }
-            return _haystack[_offset + 1 .. $];
+            if (_isMiss) { return _haystack[$ .. $]; }
+            return _haystack.ptr[_offset + 1 .. _haystack.length];
+        }
+
+        private bool _isMiss() const
+        {
+            return _haystack.length == _offset;
         }
     }
+
     foreach (const offset, const ref e; haystack)
     {
         if (e == needle)

@@ -49,6 +49,33 @@ auto byNTriple(File rdfFile,
                   .map!(line => line.nTriple);
 }
 
+/** Decode $(D S) into a an N-Triple.
+ *
+ * TODO Better to call it asNTriple or toNTriple or support conversion via std.conv: to?
+ */
+NTriple nTriple(scope return const(char)[] s) @safe pure
+{
+    import array_algorithm : endsWith;
+
+    assert(s.length >= 4);
+
+    // strip suffix
+    if (s.endsWith('.')) s = s[0 .. $ - 1];
+    if (s.endsWith(' ')) s = s[0 .. $ - 1];
+
+    // subject
+    const ix0 = s.indexOf(' ');
+    const subject = s[0 .. ix0];
+    s = s[ix0 + 1 .. $];
+
+    // predicate URI
+    const ix1 = s.indexOf(' ');
+    const predicate = s[0 .. ix1];
+    s = s[ix1 + 1 .. $];
+
+    return typeof(return)(subject, predicate, s);
+}
+
 /** RDF N-Triple.
  *
  * Parameterized on element type $(D ElementType). Use NTriple!(char[]) to avoid
@@ -58,11 +85,13 @@ auto byNTriple(File rdfFile,
  *
  * See_Also: https://en.wikipedia.org/wiki/N-Triples
 */
-private struct NTriple(ElementType)
+private struct NTriple
 {
     import std.uri : decodeComponent;
     import std.conv : to;
     import array_algorithm : startsWith, endsWith;
+
+    alias ElementType = const(char)[];
 
     /** Construct using subject, predicate, object.
      *
@@ -71,19 +100,12 @@ private struct NTriple(ElementType)
      * - predicate: <http://xmlns.com/foaf/0.1/homepage>
      * - object: <http://www.santosfc.com.br/clube/default.asp?c=Sedes&st=CT%20Rei%20Pel%E9>
      */
-    this(S)(S subject,
-            S predicate,
-            S object)
-    if (isCharsSlice!S)
-    in
-    {
-        assert(!subject.empty);
-        assert(!predicate.empty);
-        assert(!object.empty);
-    }
-    body
+    this(scope ElementType subject,
+         scope ElementType predicate,
+         scope ElementType object) @safe pure
     {
         import std.uri : URIException;
+
         // subject
         if (subject.startsWith('<')) // URI
         {
@@ -162,41 +184,13 @@ private struct NTriple(ElementType)
     }
 
     ElementType subject;
-    ElementType predicate;
+    const ElementType predicate;
     ElementType object;
-    ElementType objectLanguageCode;
+    const ElementType objectLanguageCode;
 
+    const ElementType objectDataTypeURI;
     const SubjectType subjectType;
     const ObjectType objectType;
-    const ElementType objectDataTypeURI;
-}
-
-/** Decode $(D S) into a an N-Triple.
- *
- * TODO Better to call it asNTriple or toNTriple or support conversion via std.conv: to?
- */
-NTriple!S nTriple(S)(S s) @safe pure
-if (isCharsSlice!S)
-{
-    import array_algorithm : endsWith;
-
-    assert(s.length >= 4);
-
-    // strip suffix
-    if (s.endsWith('.')) s = s[0 .. $ - 1];
-    if (s.endsWith(' ')) s = s[0 .. $ - 1];
-
-    // subject
-    const ix0 = s.indexOf(' ');
-    const subject = s[0 .. ix0];
-    s = s[ix0 + 1 .. $];
-
-    // predicate URI
-    const ix1 = s.indexOf(' ');
-    const predicate = s[0 .. ix1];
-    s = s[ix1 + 1 .. $];
-
-    return typeof(return)(subject, predicate, s);
 }
 
 ///

@@ -31,7 +31,7 @@ enum ObjectType { URI, undecodedURI, blankNode, literal }
 /** Iterate RDF-File $(D rdfFile) by RDF N-Triple.
  */
 auto byNTriple(File rdfFile,
-               const char commentPrefix = '#') // TODO can we support inout?
+               const char commentPrefix = '#')
 {
     import bylinefast : byLineFast, KeepTerminator;
     import std.algorithm.iteration : map, filter;

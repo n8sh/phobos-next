@@ -55,13 +55,13 @@ auto byNTriple(File rdfFile,
  */
 NTriple parseNTriple(scope return const(char)[] s) @safe pure
 {
-    import array_algorithm : endsWith;
+    import array_algorithm : skipOverBack;
 
     assert(s.length >= 4);
 
     // strip suffix
-    if (s.endsWith('.')) s = s[0 .. $ - 1];
-    if (s.endsWith(' ')) s = s[0 .. $ - 1];
+    s.skipOverBack('.');
+    s.skipOverBack(' ');
 
     // subject
     const ix0 = s.indexOf(' ');

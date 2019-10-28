@@ -9,7 +9,7 @@
  */
 module array_algorithm;
 
-version = runAsBetterC;
+version = runAsBetterC; // Run_As: /usr/bin/dmd -betterC -unittest -run array_algorithm.d
 
 /** Array-overload for `startsWith` with default predicate.
  *

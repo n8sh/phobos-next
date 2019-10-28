@@ -607,6 +607,7 @@ version(unittest)
     import dip_traits : isDIP1000;
 }
 
+// See_Also: https://dlang.org/spec/betterc.html#unittests
 version(runAsBetterC)
 extern(C) void main()
 {

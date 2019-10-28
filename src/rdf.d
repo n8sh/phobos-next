@@ -16,10 +16,10 @@
  */
 module rdf;
 
-import std.traits: isNarrowString;
+import std.traits : isNarrowString;
 import std.range.primitives : empty, hasSlicing, hasLength;
-import std.string: indexOf, lastIndexOf;
-import std.stdio: File;
+import std.string : indexOf, lastIndexOf;
+import std.stdio : File;
 
 import array_algorithm : startsWith, endsWith;
 import array_traits : isCharsSlice;
@@ -65,12 +65,12 @@ private struct NTriple(ElementType)
     import std.conv : to;
 
     /** Construct using subject, predicate, object.
-
-        Fails for:
-       - subject: <http://dbpedia.org/resource/CT_Rei_Pel%C3%A9>
-       - predicate: <http://xmlns.com/foaf/0.1/homepage>
-       - object: <http://www.santosfc.com.br/clube/default.asp?c=Sedes&st=CT%20Rei%20Pel%E9>
-    */
+     *
+     * Fails for:
+     * - subject: <http://dbpedia.org/resource/CT_Rei_Pel%C3%A9>
+     * - predicate: <http://xmlns.com/foaf/0.1/homepage>
+     * - object: <http://www.santosfc.com.br/clube/default.asp?c=Sedes&st=CT%20Rei%20Pel%E9>
+     */
     this(S)(S subject,
             S predicate,
             S object)

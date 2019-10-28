@@ -9,7 +9,7 @@
  */
 module array_algorithm;
 
-version = runAsBetterC; // Run_As: dmd -betterC -unittest -run $FILE.d
+version = runAsBetterC; // Run_As: dmd -betterC -unittest -run ${__FILE__}.d
 
 /** Array-overload for `startsWith` with default predicate.
  *

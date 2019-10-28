@@ -52,8 +52,125 @@ auto byNTriple(File rdfFile,
  * TODO Better to call it `asNTriple` or `toNTriple` or support conversion via
  * std.conv: to?
  */
-NTriple parseNTriple(scope return const(char)[] s) @safe pure
+auto parseNTriple(scope return const(char)[] s) @safe pure
 {
+    /** RDF N-Triple.
+     *
+     * Parameterized on element type $(D Chars). Use NTriple!(char[]) to avoid
+     * GC-allocations when parsing files using File.byLine which returns a volatile
+     * reference to a temporary char[] buffer. If The NTriples are to be stored
+     * permanently in memory use NTriple!string.
+     *
+     * See_Also: https://en.wikipedia.org/wiki/N-Triples
+     */
+    static struct NTriple
+    {
+        import std.uri : decodeComponent;
+        import std.conv : to;
+        import array_algorithm : startsWith, endsWith;
+
+        alias Chars = const(char)[];
+
+        /** Construct using subject, predicate, object.
+         *
+         * Fails for:
+         * - subject: <http://dbpedia.org/resource/CT_Rei_Pel%C3%A9>
+         * - predicate: <http://xmlns.com/foaf/0.1/homepage>
+         * - object: <http://www.santosfc.com.br/clube/default.asp?c=Sedes&st=CT%20Rei%20Pel%E9>
+         */
+        this(scope Chars subject,
+             scope Chars predicate,
+             scope Chars object) @safe pure
+        {
+            import std.uri : URIException;
+
+            // subject
+            if (subject.startsWith('<')) // URI
+            {
+                assert(subject.endsWith('>'));
+                SubjectFormat subjectType;
+                try
+                {
+                    this.subject = subject[1 .. $ - 1].decodeComponent.to!Chars; // GC-allocates
+                    subjectType = SubjectFormat.URI;
+                }
+                catch (URIException e)
+                {
+                    this.subject = subject[1 .. $ - 1].to!Chars;
+                    subjectType = SubjectFormat.undecodedURI; // indicate failed decoding
+                }
+                this.subjectType = subjectType;
+            }
+            else // blank node
+            {
+                this.subject = subject.to!Chars;
+                this.subjectType = SubjectFormat.blankNode;
+            }
+
+            // predicate
+            assert(predicate.startsWith('<'));
+            assert(predicate.endsWith('>'));
+            this.predicate = predicate[1 .. $ - 1].to!Chars;
+
+            // object
+            if (object.startsWith('<')) // URI
+            {
+                assert(object.endsWith('>'));
+                ObjectFormat objectType;
+                try
+                {
+                    this.object = object[1 .. $ - 1].decodeComponent.to!Chars;
+                    objectType = ObjectFormat.URI;
+                }
+                catch (URIException e)
+                {
+                    this.object = object[1 .. $ - 1].to!Chars; // skip decoding
+                    objectType = ObjectFormat.undecodedURI; // indicate failed decoding
+                }
+                this.objectType = objectType;
+            }
+            else if (object.startsWith('"')) // literal
+            {
+                const endIx = object.lastIndexOf('"');
+                assert(endIx != -1); // TODO Use enforce?
+
+                import std.array: replace;
+                this.object = object[1 .. endIx].replace(`\"`, `"`).to!Chars;
+                this.objectType = ObjectFormat.literal;
+                auto rest = object[endIx + 1.. $];
+                if (!rest.empty && rest[0] == '@')
+                {
+                    this.objectLanguageCode = rest[1 .. $].to!Chars;
+                }
+                else
+                {
+                    const hit = rest.indexOf(`^^`);
+                    if (hit != -1)
+                    {
+                        const objectdataType = rest[hit + 2 .. $];
+                        assert(objectdataType.startsWith('<'));
+                        assert(objectdataType.endsWith('>'));
+                        this.objectDataTypeURI = objectdataType[1 .. $ - 1].decodeComponent;
+                    }
+                }
+            }
+            else                    // blank node
+            {
+                this.object = object.to!Chars;
+                this.objectType = ObjectFormat.blankNode;
+            }
+        }
+
+        Chars subject;
+        const Chars predicate;
+        Chars object;
+        const Chars objectLanguageCode;
+
+        const Chars objectDataTypeURI;
+        const SubjectFormat subjectType;
+        const ObjectFormat objectType;
+    }
+
     import array_algorithm : skipOverBack;
 
     assert(s.length >= 4);
@@ -72,124 +189,7 @@ NTriple parseNTriple(scope return const(char)[] s) @safe pure
     const predicate = s[0 .. ix1];
     s = s[ix1 + 1 .. $];
 
-    return typeof(return)(subject, predicate, s);
-}
-
-/** RDF N-Triple.
- *
- * Parameterized on element type $(D Chars). Use NTriple!(char[]) to avoid
- * GC-allocations when parsing files using File.byLine which returns a volatile
- * reference to a temporary char[] buffer. If The NTriples are to be stored
- * permanently in memory use NTriple!string.
- *
- * See_Also: https://en.wikipedia.org/wiki/N-Triples
-*/
-private struct NTriple
-{
-    import std.uri : decodeComponent;
-    import std.conv : to;
-    import array_algorithm : startsWith, endsWith;
-
-    alias Chars = const(char)[];
-
-    /** Construct using subject, predicate, object.
-     *
-     * Fails for:
-     * - subject: <http://dbpedia.org/resource/CT_Rei_Pel%C3%A9>
-     * - predicate: <http://xmlns.com/foaf/0.1/homepage>
-     * - object: <http://www.santosfc.com.br/clube/default.asp?c=Sedes&st=CT%20Rei%20Pel%E9>
-     */
-    this(scope Chars subject,
-         scope Chars predicate,
-         scope Chars object) @safe pure
-    {
-        import std.uri : URIException;
-
-        // subject
-        if (subject.startsWith('<')) // URI
-        {
-            assert(subject.endsWith('>'));
-            SubjectFormat subjectType;
-            try
-            {
-                this.subject = subject[1 .. $ - 1].decodeComponent.to!Chars; // GC-allocates
-                subjectType = SubjectFormat.URI;
-            }
-            catch (URIException e)
-            {
-                this.subject = subject[1 .. $ - 1].to!Chars;
-                subjectType = SubjectFormat.undecodedURI; // indicate failed decoding
-            }
-            this.subjectType = subjectType;
-        }
-        else // blank node
-        {
-            this.subject = subject.to!Chars;
-            this.subjectType = SubjectFormat.blankNode;
-        }
-
-        // predicate
-        assert(predicate.startsWith('<'));
-        assert(predicate.endsWith('>'));
-        this.predicate = predicate[1 .. $ - 1].to!Chars;
-
-        // object
-        if (object.startsWith('<')) // URI
-        {
-            assert(object.endsWith('>'));
-            ObjectFormat objectType;
-            try
-            {
-                this.object = object[1 .. $ - 1].decodeComponent.to!Chars;
-                objectType = ObjectFormat.URI;
-            }
-            catch (URIException e)
-            {
-                this.object = object[1 .. $ - 1].to!Chars; // skip decoding
-                objectType = ObjectFormat.undecodedURI; // indicate failed decoding
-            }
-            this.objectType = objectType;
-        }
-        else if (object.startsWith('"')) // literal
-        {
-            const endIx = object.lastIndexOf('"');
-            assert(endIx != -1); // TODO Use enforce?
-
-            import std.array: replace;
-            this.object = object[1 .. endIx].replace(`\"`, `"`).to!Chars;
-            this.objectType = ObjectFormat.literal;
-            auto rest = object[endIx + 1.. $];
-            if (!rest.empty && rest[0] == '@')
-            {
-                this.objectLanguageCode = rest[1 .. $].to!Chars;
-            }
-            else
-            {
-                const hit = rest.indexOf(`^^`);
-                if (hit != -1)
-                {
-                    const objectdataType = rest[hit + 2 .. $];
-                    assert(objectdataType.startsWith('<'));
-                    assert(objectdataType.endsWith('>'));
-                    this.objectDataTypeURI = objectdataType[1 .. $ - 1].decodeComponent;
-                }
-            }
-        }
-        else                    // blank node
-        {
-            this.object = object.to!Chars;
-            this.objectType = ObjectFormat.blankNode;
-        }
-    }
-
-    Chars subject;
-    const Chars predicate;
-    Chars object;
-    const Chars objectLanguageCode;
-
-    const Chars objectDataTypeURI;
-    const SubjectFormat subjectType;
-    const ObjectFormat objectType;
+    return NTriple(subject, predicate, s);
 }
 
 ///

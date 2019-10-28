@@ -9,6 +9,8 @@
  */
 module array_algorithm;
 
+version = runAsBetterC;
+
 /** Array-overload for `startsWith` with default predicate.
  *
  * See_Also: https://d.godbolt.org/z/ejEmrK
@@ -603,4 +605,13 @@ auto findSplitAfter(T)(scope return inout(T)[] haystack,
 version(unittest)
 {
     import dip_traits : isDIP1000;
+}
+
+version(runAsBetterC)
+extern(C) void main()
+{
+    static foreach (u; __traits(getUnitTests, __traits(parent, main)))
+    {
+        u();
+    }
 }

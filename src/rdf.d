@@ -78,7 +78,7 @@ NTriple parseNTriple(scope return const(char)[] s) @safe pure
 
 /** RDF N-Triple.
  *
- * Parameterized on element type $(D ElementType). Use NTriple!(char[]) to avoid
+ * Parameterized on element type $(D Chars). Use NTriple!(char[]) to avoid
  * GC-allocations when parsing files using File.byLine which returns a volatile
  * reference to a temporary char[] buffer. If The NTriples are to be stored
  * permanently in memory use NTriple!string.
@@ -91,7 +91,7 @@ private struct NTriple
     import std.conv : to;
     import array_algorithm : startsWith, endsWith;
 
-    alias ElementType = const(char)[];
+    alias Chars = const(char)[];
 
     /** Construct using subject, predicate, object.
      *
@@ -100,9 +100,9 @@ private struct NTriple
      * - predicate: <http://xmlns.com/foaf/0.1/homepage>
      * - object: <http://www.santosfc.com.br/clube/default.asp?c=Sedes&st=CT%20Rei%20Pel%E9>
      */
-    this(scope ElementType subject,
-         scope ElementType predicate,
-         scope ElementType object) @safe pure
+    this(scope Chars subject,
+         scope Chars predicate,
+         scope Chars object) @safe pure
     {
         import std.uri : URIException;
 
@@ -113,26 +113,26 @@ private struct NTriple
             SubjectType subjectType;
             try
             {
-                this.subject = subject[1 .. $ - 1].decodeComponent.to!ElementType; // GC-allocates
+                this.subject = subject[1 .. $ - 1].decodeComponent.to!Chars; // GC-allocates
                 subjectType = SubjectType.URI;
             }
             catch (URIException e)
             {
-                this.subject = subject[1 .. $ - 1].to!ElementType;
+                this.subject = subject[1 .. $ - 1].to!Chars;
                 subjectType = SubjectType.undecodedURI; // indicate failed decoding
             }
             this.subjectType = subjectType;
         }
         else // blank node
         {
-            this.subject = subject.to!ElementType;
+            this.subject = subject.to!Chars;
             this.subjectType = SubjectType.blankNode;
         }
 
         // predicate
         assert(predicate.startsWith('<'));
         assert(predicate.endsWith('>'));
-        this.predicate = predicate[1 .. $ - 1].to!ElementType;
+        this.predicate = predicate[1 .. $ - 1].to!Chars;
 
         // object
         if (object.startsWith('<')) // URI
@@ -141,12 +141,12 @@ private struct NTriple
             ObjectType objectType;
             try
             {
-                this.object = object[1 .. $ - 1].decodeComponent.to!ElementType;
+                this.object = object[1 .. $ - 1].decodeComponent.to!Chars;
                 objectType = ObjectType.URI;
             }
             catch (URIException e)
             {
-                this.object = object[1 .. $ - 1].to!ElementType; // skip decoding
+                this.object = object[1 .. $ - 1].to!Chars; // skip decoding
                 objectType = ObjectType.undecodedURI; // indicate failed decoding
             }
             this.objectType = objectType;
@@ -157,12 +157,12 @@ private struct NTriple
             assert(endIx != -1); // TODO Use enforce?
 
             import std.array: replace;
-            this.object = object[1 .. endIx].replace(`\"`, `"`).to!ElementType;
+            this.object = object[1 .. endIx].replace(`\"`, `"`).to!Chars;
             this.objectType = ObjectType.literal;
             auto rest = object[endIx + 1.. $];
             if (!rest.empty && rest[0] == '@')
             {
-                this.objectLanguageCode = rest[1 .. $].to!ElementType;
+                this.objectLanguageCode = rest[1 .. $].to!Chars;
             }
             else
             {
@@ -178,17 +178,17 @@ private struct NTriple
         }
         else                    // blank node
         {
-            this.object = object.to!ElementType;
+            this.object = object.to!Chars;
             this.objectType = ObjectType.blankNode;
         }
     }
 
-    ElementType subject;
-    const ElementType predicate;
-    ElementType object;
-    const ElementType objectLanguageCode;
+    Chars subject;
+    const Chars predicate;
+    Chars object;
+    const Chars objectLanguageCode;
 
-    const ElementType objectDataTypeURI;
+    const Chars objectDataTypeURI;
     const SubjectType subjectType;
     const ObjectType objectType;
 }

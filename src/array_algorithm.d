@@ -9,7 +9,7 @@
  */
 module array_algorithm;
 
-version = runAsBetterC; // Run_As: dmd -betterC -unittest -run $(__FILE__).d
+version = unittestAsBetterC; // Run_As: dmd -betterC -unittest -run $(__FILE__).d
 
 /** Array-overload for `startsWith` with default predicate.
  *
@@ -608,7 +608,7 @@ version(unittest)
 }
 
 // See_Also: https://dlang.org/spec/betterc.html#unittests
-version(runAsBetterC)
+version(unittestAsBetterC)
 extern(C) void main()
 {
     static foreach (u; __traits(getUnitTests, __traits(parent, main)))

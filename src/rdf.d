@@ -19,7 +19,7 @@ auto byNTriple(File rdfFile,
                const dchar commentPrefix = '#') // TODO can we support inout?
 {
     import bylinefast : byLineFast, KeepTerminator;
-    import std.algorithm : map, filter;
+    import std.algorithm.iteration : map, filter;
     // TODO support this somehow:
     // if (line.startsWith('#'))
     // {

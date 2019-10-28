@@ -49,7 +49,8 @@ auto byNTriple(File rdfFile,
 
 /** Decode $(D S) into a an N-Triple.
  *
- * TODO Better to call it `asNTriple` or `toNTriple` or support conversion via std.conv: to?
+ * TODO Better to call it `asNTriple` or `toNTriple` or support conversion via
+ * std.conv: to?
  */
 NTriple parseNTriple(scope return const(char)[] s) @safe pure
 {

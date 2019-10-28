@@ -309,9 +309,9 @@ size_t count(T)(scope const T[] haystack,
 {
     static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
     size_t result;
-    foreach (const ref e; haystack)
+    foreach (const ref element; haystack)
     {
-        result += e == needle ? 1 : 0;
+        result += element == needle ? 1 : 0;
     }
     return result;
 }
@@ -380,9 +380,9 @@ auto findSplit(T)(scope return inout(T)[] haystack,
 
     static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
 
-    foreach (const offset, const ref e; haystack)
+    foreach (const offset, const ref element; haystack)
     {
-        if (e == needle)
+        if (element == needle)
         {
             return inout(Result)(haystack, offset);
         }
@@ -455,9 +455,9 @@ auto findSplitBefore(T)(scope return inout(T)[] haystack,
 
     static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
 
-    foreach (const offset, const ref e; haystack)
+    foreach (const offset, const ref element; haystack)
     {
-        if (e == needle)
+        if (element == needle)
         {
             return inout(Result)(haystack, offset);
         }
@@ -551,9 +551,9 @@ auto findSplitAfter(T)(scope return inout(T)[] haystack,
 
     static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
 
-    foreach (const offset, const ref e; haystack)
+    foreach (const offset, const ref element; haystack)
     {
-        if (e == needle)
+        if (element == needle)
         {
             return inout(Result)(haystack, offset);
         }

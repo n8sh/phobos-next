@@ -21,8 +21,6 @@ import std.range.primitives : empty, hasSlicing, hasLength;
 import std.string : indexOf, lastIndexOf;
 import std.stdio : File;
 
-import array_traits : isCharsSlice;
-
 enum SubjectFormat { URI, undecodedURI, blankNode }
 enum ObjectFormat { URI, undecodedURI, blankNode, literal }
 

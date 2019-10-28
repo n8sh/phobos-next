@@ -201,9 +201,7 @@ private struct NTriple
 
     assert(t.subject == `http://dbpedia.org/resource/180°_(Gerardo_album)`);
     assert(t.subjectType == SubjectType.URI);
-
     assert(t.predicate == `http://dbpedia.org/ontology/artist`);
-
     assert(t.object == `http://dbpedia.org/resource/Gerardo_Mejía`);
     assert(t.objectLanguageCode is null);
     assert(t.objectDataTypeURI is null);
@@ -218,9 +216,7 @@ private struct NTriple
 
     assert(t.subject == `http://dbpedia.org/resource/1950_Chatham_Cup`);
     assert(t.subjectType == SubjectType.URI);
-
     assert(t.predicate == `http://xmlns.com/foaf/0.1/name`);
-
     assert(t.object == `Chatham Cup`);
     assert(t.objectLanguageCode is null);
     assert(t.objectDataTypeURI is null);
@@ -235,9 +231,7 @@ private struct NTriple
 
     assert(t.subject == `http://dbpedia.org/resource/1950_Chatham_Cup`);
     assert(t.subjectType == SubjectType.URI);
-
     assert(t.predicate == `http://xmlns.com/foaf/0.1/name`);
-
     assert(t.object == `Chatham Cup`);
     assert(t.objectLanguageCode == `en`);
     assert(t.objectDataTypeURI is null);
@@ -269,9 +263,7 @@ private struct NTriple
 
     assert(t.subject == `http://dbpedia.org/resource/Ceremony_(song)`);
     assert(t.subjectType == SubjectType.URI);
-
     assert(t.predicate == `http://dbpedia.org/ontology/bSide`);
-
     assert(t.object == `"In a Lonely Place"`);
     assert(t.objectLanguageCode is null);
     assert(t.objectDataTypeURI is null);

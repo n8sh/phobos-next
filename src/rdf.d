@@ -272,8 +272,8 @@ auto byNTriple(R)(R r)
 if ((hasSlicing!R && hasLength!R ||
      isNarrowString!R))
 {
-    import std.algorithm: map, filter;
-    import std.string: indexOf;
+    import std.algorithm.iteration : map, filter;
+    import std.string : indexOf;
     import splitter_ex : splitterASCIIAmong;
     return r.splitterASCIIAmong!('\n')               // TODO support multiple newlines
             .filter!(line => line.indexOf('#') != 0) // skip comments. TODO non-decoding

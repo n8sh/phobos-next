@@ -46,14 +46,14 @@ auto byNTriple(File rdfFile,
                   .filter!(line =>
                            (line.length >= 1 &&
                             line[0] != commentPrefix)) // skip comments
-                  .map!(line => line.nTriple);
+                  .map!(line => line.parseNTriple);
 }
 
 /** Decode $(D S) into a an N-Triple.
  *
  * TODO Better to call it asNTriple or toNTriple or support conversion via std.conv: to?
  */
-NTriple nTriple(scope return const(char)[] s) @safe pure
+NTriple parseNTriple(scope return const(char)[] s) @safe pure
 {
     import array_algorithm : endsWith;
 
@@ -197,7 +197,7 @@ private struct NTriple
 @safe pure unittest
 {
     const x = `<http://dbpedia.org/resource/180%C2%B0_(Gerardo_album)> <http://dbpedia.org/ontology/artist> <http://dbpedia.org/resource/Gerardo_Mej%C3%ADa> .`;
-    const t = x.nTriple;
+    const t = x.parseNTriple;
 
     assert(t.subject == `http://dbpedia.org/resource/180°_(Gerardo_album)`);
     assert(t.subjectType == SubjectType.URI);
@@ -214,7 +214,7 @@ private struct NTriple
 @safe pure unittest
 {
     const x = `<http://dbpedia.org/resource/1950_Chatham_Cup> <http://xmlns.com/foaf/0.1/name> "Chatham Cup" .`;
-    const t = x.nTriple;
+    const t = x.parseNTriple;
 
     assert(t.subject == `http://dbpedia.org/resource/1950_Chatham_Cup`);
     assert(t.subjectType == SubjectType.URI);
@@ -231,7 +231,7 @@ private struct NTriple
 @safe pure unittest
 {
     const x = `<http://dbpedia.org/resource/1950_Chatham_Cup> <http://xmlns.com/foaf/0.1/name> "Chatham Cup"@en .`;
-    const t = x.nTriple;
+    const t = x.parseNTriple;
 
     assert(t.subject == `http://dbpedia.org/resource/1950_Chatham_Cup`);
     assert(t.subjectType == SubjectType.URI);
@@ -248,7 +248,7 @@ private struct NTriple
 @safe pure unittest
 {
     const x = `<http://dbpedia.org/resource/007:_Quantum_of_Solace> <http://dbpedia.org/ontology/releaseDate> "2008-10-31"^^<http://www.w3.org/2001/XMLSchema#date> .`;
-    const t = x.nTriple;
+    const t = x.parseNTriple;
 
     assert(t.subject == `http://dbpedia.org/resource/007:_Quantum_of_Solace`);
     assert(t.subjectType == SubjectType.URI);
@@ -265,7 +265,7 @@ private struct NTriple
 @safe pure unittest
 {
     const x = `<http://dbpedia.org/resource/Ceremony_(song)> <http://dbpedia.org/ontology/bSide> "\"In a Lonely Place\"".`;
-    const t = x.nTriple;
+    const t = x.parseNTriple;
 
     assert(t.subject == `http://dbpedia.org/resource/Ceremony_(song)`);
     assert(t.subjectType == SubjectType.URI);
@@ -289,7 +289,7 @@ if ((hasSlicing!R && hasLength!R ||
     import splitter_ex : splitterASCIIAmong;
     return r.splitterASCIIAmong!('\n')               // TODO support multiple newlines
             .filter!(line => line.indexOf('#') != 0) // skip comments. TODO non-decoding
-            .map!(line => line.nTriple);
+            .map!(line => line.parseNTriple);
 }
 
 @safe pure unittest

@@ -21,7 +21,6 @@ import std.range.primitives : empty, hasSlicing, hasLength;
 import std.string : indexOf, lastIndexOf;
 import std.stdio : File;
 
-import array_algorithm : startsWith, endsWith;
 import array_traits : isCharsSlice;
 
 enum SubjectType { URI, undecodedURI, blankNode }
@@ -63,6 +62,7 @@ private struct NTriple(ElementType)
 {
     import std.uri : decodeComponent;
     import std.conv : to;
+    import array_algorithm : startsWith, endsWith;
 
     /** Construct using subject, predicate, object.
      *
@@ -178,6 +178,8 @@ private struct NTriple(ElementType)
 NTriple!S nTriple(S)(S s) @safe pure
 if (isCharsSlice!S)
 {
+    import array_algorithm : endsWith;
+
     assert(s.length >= 4);
 
     // strip suffix

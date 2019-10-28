@@ -23,8 +23,8 @@ import std.stdio : File;
 
 import array_traits : isCharsSlice;
 
-enum SubjectType { URI, undecodedURI, blankNode }
-enum ObjectType { URI, undecodedURI, blankNode, literal }
+enum SubjectFormat { URI, undecodedURI, blankNode }
+enum ObjectFormat { URI, undecodedURI, blankNode, literal }
 
 @safe:
 
@@ -110,23 +110,23 @@ private struct NTriple
         if (subject.startsWith('<')) // URI
         {
             assert(subject.endsWith('>'));
-            SubjectType subjectType;
+            SubjectFormat subjectType;
             try
             {
                 this.subject = subject[1 .. $ - 1].decodeComponent.to!Chars; // GC-allocates
-                subjectType = SubjectType.URI;
+                subjectType = SubjectFormat.URI;
             }
             catch (URIException e)
             {
                 this.subject = subject[1 .. $ - 1].to!Chars;
-                subjectType = SubjectType.undecodedURI; // indicate failed decoding
+                subjectType = SubjectFormat.undecodedURI; // indicate failed decoding
             }
             this.subjectType = subjectType;
         }
         else // blank node
         {
             this.subject = subject.to!Chars;
-            this.subjectType = SubjectType.blankNode;
+            this.subjectType = SubjectFormat.blankNode;
         }
 
         // predicate
@@ -138,16 +138,16 @@ private struct NTriple
         if (object.startsWith('<')) // URI
         {
             assert(object.endsWith('>'));
-            ObjectType objectType;
+            ObjectFormat objectType;
             try
             {
                 this.object = object[1 .. $ - 1].decodeComponent.to!Chars;
-                objectType = ObjectType.URI;
+                objectType = ObjectFormat.URI;
             }
             catch (URIException e)
             {
                 this.object = object[1 .. $ - 1].to!Chars; // skip decoding
-                objectType = ObjectType.undecodedURI; // indicate failed decoding
+                objectType = ObjectFormat.undecodedURI; // indicate failed decoding
             }
             this.objectType = objectType;
         }
@@ -158,7 +158,7 @@ private struct NTriple
 
             import std.array: replace;
             this.object = object[1 .. endIx].replace(`\"`, `"`).to!Chars;
-            this.objectType = ObjectType.literal;
+            this.objectType = ObjectFormat.literal;
             auto rest = object[endIx + 1.. $];
             if (!rest.empty && rest[0] == '@')
             {
@@ -179,7 +179,7 @@ private struct NTriple
         else                    // blank node
         {
             this.object = object.to!Chars;
-            this.objectType = ObjectType.blankNode;
+            this.objectType = ObjectFormat.blankNode;
         }
     }
 
@@ -189,8 +189,8 @@ private struct NTriple
     const Chars objectLanguageCode;
 
     const Chars objectDataTypeURI;
-    const SubjectType subjectType;
-    const ObjectType objectType;
+    const SubjectFormat subjectType;
+    const ObjectFormat objectType;
 }
 
 ///
@@ -200,12 +200,12 @@ private struct NTriple
     const t = x.parseNTriple;
 
     assert(t.subject == `http://dbpedia.org/resource/180°_(Gerardo_album)`);
-    assert(t.subjectType == SubjectType.URI);
+    assert(t.subjectType == SubjectFormat.URI);
     assert(t.predicate == `http://dbpedia.org/ontology/artist`);
     assert(t.object == `http://dbpedia.org/resource/Gerardo_Mejía`);
     assert(t.objectLanguageCode is null);
     assert(t.objectDataTypeURI is null);
-    assert(t.objectType == ObjectType.URI);
+    assert(t.objectType == ObjectFormat.URI);
 }
 
 ///
@@ -215,12 +215,12 @@ private struct NTriple
     const t = x.parseNTriple;
 
     assert(t.subject == `http://dbpedia.org/resource/1950_Chatham_Cup`);
-    assert(t.subjectType == SubjectType.URI);
+    assert(t.subjectType == SubjectFormat.URI);
     assert(t.predicate == `http://xmlns.com/foaf/0.1/name`);
     assert(t.object == `Chatham Cup`);
     assert(t.objectLanguageCode is null);
     assert(t.objectDataTypeURI is null);
-    assert(t.objectType == ObjectType.literal);
+    assert(t.objectType == ObjectFormat.literal);
 }
 
 ///
@@ -230,12 +230,12 @@ private struct NTriple
     const t = x.parseNTriple;
 
     assert(t.subject == `http://dbpedia.org/resource/1950_Chatham_Cup`);
-    assert(t.subjectType == SubjectType.URI);
+    assert(t.subjectType == SubjectFormat.URI);
     assert(t.predicate == `http://xmlns.com/foaf/0.1/name`);
     assert(t.object == `Chatham Cup`);
     assert(t.objectLanguageCode == `en`);
     assert(t.objectDataTypeURI is null);
-    assert(t.objectType == ObjectType.literal);
+    assert(t.objectType == ObjectFormat.literal);
 }
 
 ///
@@ -245,14 +245,14 @@ private struct NTriple
     const t = x.parseNTriple;
 
     assert(t.subject == `http://dbpedia.org/resource/007:_Quantum_of_Solace`);
-    assert(t.subjectType == SubjectType.URI);
+    assert(t.subjectType == SubjectFormat.URI);
 
     assert(t.predicate == `http://dbpedia.org/ontology/releaseDate`);
 
     assert(t.object == `2008-10-31`);
     assert(t.objectLanguageCode is null);
     assert(t.objectDataTypeURI == `http://www.w3.org/2001/XMLSchema#date`);
-    assert(t.objectType == ObjectType.literal);
+    assert(t.objectType == ObjectFormat.literal);
 }
 
 ///
@@ -262,12 +262,12 @@ private struct NTriple
     const t = x.parseNTriple;
 
     assert(t.subject == `http://dbpedia.org/resource/Ceremony_(song)`);
-    assert(t.subjectType == SubjectType.URI);
+    assert(t.subjectType == SubjectFormat.URI);
     assert(t.predicate == `http://dbpedia.org/ontology/bSide`);
     assert(t.object == `"In a Lonely Place"`);
     assert(t.objectLanguageCode is null);
     assert(t.objectDataTypeURI is null);
-    assert(t.objectType == ObjectType.literal);
+    assert(t.objectType == ObjectFormat.literal);
 }
 
 /** Iterate Range by RDF N-Triple.
@@ -291,17 +291,17 @@ if ((hasSlicing!R && hasLength!R ||
     auto t = x.byNTriple;
 
     assert(t.front.subject == `http://dbpedia.org/resource/16_@_War`);
-    assert(t.front.subjectType == SubjectType.URI);
+    assert(t.front.subjectType == SubjectFormat.URI);
     assert(t.front.predicate == `http://xmlns.com/foaf/0.1/name`);
     assert(t.front.object == `16 @ War`);
     assert(t.front.objectLanguageCode == `en`);
     assert(t.front.objectDataTypeURI is null);
-    assert(t.front.objectType == ObjectType.literal);
+    assert(t.front.objectType == ObjectFormat.literal);
 
     t.popFront();
 
-    assert(t.front.subjectType == SubjectType.URI);
+    assert(t.front.subjectType == SubjectFormat.URI);
     assert(t.front.predicate == `http://xmlns.com/foaf/0.1/homepage`);
     assert(t.front.object == `http://www.santosfc.com.br/clube/default.asp?c=Sedes&st=CT%20Rei%20Pel%E9`);
-    assert(t.front.objectType == ObjectType.undecodedURI);
+    assert(t.front.objectType == ObjectFormat.undecodedURI);
 }

@@ -1,8 +1,10 @@
 /** Parsing of RDF N-Triples.
  *
+ * TODO parse Turtle .ttl-files (https://en.wikipedia.org/wiki/Turtle_(syntax))
  * TODO parse N-Quads for use in Wikidata
  * TODO parse RDF/XML
  *
+ * See_Also: https://en.wikipedia.org/wiki/Turtle_(syntax)
  * See_Also: https://en.wikipedia.org/wiki/N-Triples#N-Quads
  * See_Also: https://www.ida.liu.se/~robke04/include/publications.shtml
  */

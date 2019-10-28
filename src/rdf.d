@@ -1,4 +1,8 @@
-/** Parsing of RDF N-Triples (.nt) and RDF Turtle (.ttl).
+/** Parsing of RDF-files.
+ *
+ * Currently supports N-Triples (.nt).
+ *
+ * Planned support for RDF Turtle (.ttl).
  *
  * TODO parse Turtle .ttl-files (https://en.wikipedia.org/wiki/Turtle_(syntax))
  * TODO parse N-Quads for use in Wikidata

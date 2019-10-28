@@ -1,5 +1,8 @@
 /** Parsing of RDF n-triples.
  *
+ * TODO parse N-Quads
+ *
+ * See_Also: https://en.wikipedia.org/wiki/N-Triples#N-Quads
  * See_Also: https://www.ida.liu.se/~robke04/include/publications.shtml
  */
 module rdf;

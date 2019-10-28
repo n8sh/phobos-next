@@ -45,7 +45,7 @@ auto byNTriple(File rdfFile,
  * reference to a temporary char[] buffer. If The NTriples are to be stored
  * permanently in memory use NTriple!string.
  *
- * See_Also: http://wn.wikpedia.org/wiki/N-Triples.
+ * See_Also: https://en.wikipedia.org/wiki/N-Triples
 */
 private struct NTriple(ElementType)
 {

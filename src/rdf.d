@@ -1,4 +1,4 @@
-/** Parsing of RDF.
+/** Parsing of RDF n-triples.
  *
  * See_Also: https://www.ida.liu.se/~robke04/include/publications.shtml
  */

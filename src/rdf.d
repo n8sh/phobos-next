@@ -113,7 +113,7 @@ private struct NTriple
             SubjectType subjectType;
             try
             {
-                this.subject = subject[1 .. $ - 1].decodeComponent.to!ElementType;
+                this.subject = subject[1 .. $ - 1].decodeComponent.to!ElementType; // GC-allocates
                 subjectType = SubjectType.URI;
             }
             catch (URIException e)

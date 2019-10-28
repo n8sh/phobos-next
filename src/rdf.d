@@ -1,3 +1,7 @@
+/** Parsing of RDF triples.
+ *
+ * See_Also: https://www.ida.liu.se/~robke04/include/publications.shtml
+ */
 module rdf;
 
 import std.traits: isNarrowString;

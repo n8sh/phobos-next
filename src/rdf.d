@@ -93,7 +93,7 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
             {
                 const ok = object.skipOverBack('>');
                 assert(ok);
-                ObjectFormat objectType = ObjectFormat.URI;
+                objectType = ObjectFormat.URI;
                 if (object.canFind('%')) // only if escape-sequences are found
                 {
                     try

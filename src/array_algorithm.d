@@ -275,7 +275,6 @@ inout(char)[] strip()(scope return inout(char)[] haystack) @safe pure nothrow @n
 
 /** Array-overload for `count` with default predicate.
  */
-
 size_t canFind(T)(scope const T[] haystack,
                   scope const T[] needle)
 {

@@ -47,23 +47,17 @@ bool startsWith(T)(scope const T[] haystack,
 
 /** Array-specialization of `endsWith` with default predicate. */
 bool endsWith(T)(scope const T[] haystack,
-                 scope const T[] needle)
+                 scope const T[] needle) @trusted
 {
-    if (haystack.length < needle.length)
-    {
-        return false;
-    }
-    return haystack[$ - needle.length .. $] == needle;
+    if (haystack.length < needle.length) { return false; }
+    return haystack.ptr[haystack.length - needle.length .. haystack.length] == needle;
 }
 /// ditto
 bool endsWith(T)(scope const T[] haystack,
                  scope const T needle)
 {
     static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
-    if (haystack.length == 0)
-    {
-        return false;
-    }
+    if (haystack.length == 0) { return false; }
     return haystack[$ - 1] == needle;
 }
 
@@ -81,26 +75,20 @@ bool endsWith(T)(scope const T[] haystack,
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
 bool skipOver(T)(scope ref inout(T)[] haystack,
-                 scope const T[] needle)
+                 scope const T[] needle) @trusted
 {
-    if (startsWith(haystack, needle))
-    {
-        haystack = haystack[needle.length .. $];
-        return true;
-    }
-    return false;
+    if (!startsWith(haystack, needle)) { return false; }
+    haystack = haystack.ptr[needle.length .. haystack.length];
+    return true;
 }
 /// ditto
 bool skipOver(T)(scope ref inout(T)[] haystack,
-                 scope const T needle)
+                 scope const T needle) @trusted
 {
     static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
-    if (startsWith(haystack, needle))
-    {
-        haystack = haystack[1 .. $];
-        return true;
-    }
-    return false;
+    if (!startsWith(haystack, needle)) { return false; }
+    haystack = haystack.ptr[1 .. haystack.length];
+    return true;
 }
 
 ///

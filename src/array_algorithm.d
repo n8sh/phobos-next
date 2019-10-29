@@ -16,24 +16,18 @@ module array_algorithm;
  * See_Also: https://d.godbolt.org/z/ejEmrK
  */
 bool startsWith(T)(scope const T[] haystack,
-                   scope const T[] needle)
+                   scope const T[] needle) @trusted
 {
-    if (haystack.length >= needle.length)
-    {
-        return haystack[0 .. needle.length] == needle;
-    }
-    return false;
+    if (haystack.length < needle.length) { return false; }
+    return haystack.ptr[0 .. needle.length] == needle;
 }
 /// ditto
 bool startsWith(T)(scope const T[] haystack,
-                   scope const T needle) // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
+                   scope const T needle) @trusted // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
 {
     static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
-    if (haystack.length >= 1)
-    {
-        return haystack[0] == needle;
-    }
-    return false;
+    if (haystack.length == 0) { return false; }
+    return haystack.ptr[0] == needle;
 }
 
 ///
@@ -54,11 +48,11 @@ bool endsWith(T)(scope const T[] haystack,
 }
 /// ditto
 bool endsWith(T)(scope const T[] haystack,
-                 scope const T needle)
+                 scope const T needle) @trusted
 {
     static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
     if (haystack.length == 0) { return false; }
-    return haystack[$ - 1] == needle;
+    return haystack.ptr[haystack.length - 1] == needle;
 }
 
 ///

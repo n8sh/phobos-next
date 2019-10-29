@@ -9,7 +9,7 @@
  */
 module array_algorithm;
 
-version = unittestAsBetterC; // Run_As: dmd -betterC -unittest -run $(__FILE__).d
+// version = unittestAsBetterC; // Run_As: dmd -betterC -unittest -run $(__FILE__).d
 
 /** Array-overload for `startsWith` with default predicate.
  *
@@ -271,6 +271,41 @@ inout(char)[] strip()(scope return inout(char)[] haystack) @safe pure nothrow @n
 {
     const ubyte[3] x = [0, 42, 0];
     assert(x.strip(0) == x[1 .. 2]);
+}
+
+/** Array-overload for `count` with default predicate.
+ */
+
+size_t canFind(T)(scope const T[] haystack,
+                  scope const T[] needle)
+{
+    assert(needle.length != 0, "Cannot count occurrences of an empty range");
+    if (haystack.length < needle.length)
+    {
+        return false;
+    }
+    foreach (const size_t offset; 0 .. haystack.length - needle.length + 1)
+    {
+        if (haystack[offset .. offset + needle.length] == needle)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    assert(!"".canFind("_"));
+    assert(!"a".canFind("_"));
+    assert("a".canFind("a"));
+    assert(!"a".canFind("ab"));
+    assert("ab".canFind("a"));
+    assert("ab".canFind("b"));
+    assert("ab".canFind("ab"));
+    assert(!"a".canFind("ab"));
+    assert(!"b".canFind("ab"));
 }
 
 /** Array-overload for `count` with default predicate.

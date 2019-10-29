@@ -281,8 +281,8 @@ inout(char)[] strip()(scope return inout(char)[] haystack) @safe pure nothrow @n
 bool canFind(T)(scope const T[] haystack,
                 scope const T[] needle)
 {
-    enum largeNeedleLength = 4;
-    assert(needle.length != 0, "Cannot count occurrences of an empty range");
+    // enum largeNeedleLength = 4;
+    assert(needle.length, "Cannot count occurrences of an empty range");
     if (haystack.length < needle.length)
     {
         return false;
@@ -347,7 +347,7 @@ bool canFind(T)(scope const T[] haystack,
 size_t count(T)(scope const T[] haystack,
                 scope const T[] needle)
 {
-    assert(needle.length != 0, "Cannot count occurrences of an empty range");
+    assert(needle.length, "Cannot count occurrences of an empty range");
     size_t result = 0;
     if (haystack.length < needle.length)
     {
@@ -408,6 +408,79 @@ size_t count(T)(scope const T[] haystack)
 @safe pure nothrow @nogc unittest
 {
     assert("abc_abc".count == 7);
+}
+
+/** Array-overload for `findSplit` with default predicate.
+ *
+ * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
+ * See_Also: https://forum.dlang.org/post/zhgajqdhybtbufeiiofp@forum.dlang.org
+ */
+auto findSplit(T)(scope return inout(T)[] haystack,
+                  scope const(T)[] needle)
+{
+    static struct Result // NOTE `static` qualifier is needed for `inout` to propagate correctly
+    {
+        private T[] _haystack;
+        private size_t _offset;
+        private size_t _length;
+
+        inout(T)[] pre() @trusted inout
+        {
+            return _haystack.ptr[0 .. _offset];
+        }
+
+        inout(T)[] separator() @trusted inout
+        {
+            if (empty) { return _haystack[$ .. $]; }
+            return _haystack.ptr[_offset .. _offset + _length];
+        }
+
+        inout(T)[] post() @trusted inout
+        {
+            if (empty) { return _haystack[$ .. $]; }
+            return _haystack.ptr[_offset + _length .. _haystack.length];
+        }
+
+        bool opCast(T : bool)() const
+        {
+            return !empty;
+        }
+
+        private @property bool empty() const
+        {
+            return _haystack.length == _offset;
+        }
+    }
+
+    // TODO reuse `indexOf`
+    // enum largeNeedleLength = 4;
+    assert(needle.length, "Cannot find occurrence of an empty range");
+    if (haystack.length < needle.length)
+    {
+        return inout(Result)(haystack, haystack.length, needle.length);
+    }
+    foreach (const size_t offset; 0 .. haystack.length - needle.length + 1)
+    {
+        if (haystack[offset .. offset + needle.length] == needle)
+        {
+            return inout(Result)(haystack, offset, needle.length);
+        }
+    }
+
+    return inout(Result)(haystack, haystack.length, needle.length);
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    const r = "a**b".findSplit("**");
+    assert(r);
+    assert(r.pre == "a");
+    assert(r.separator == "**");
+    assert(r.post == "b");
+
+    auto f()() @safe pure nothrow { char[1] x = "_"; return x[].findSplit(" "); }
+    static if (isDIP1000) static assert(!__traits(compiles, { auto _ = f(); }));
 }
 
 /** Array-overload for `findSplit` with default predicate.

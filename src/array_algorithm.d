@@ -434,8 +434,32 @@ ptrdiff_t indexOf(T)(scope inout(T)[] haystack,
 {
     assert("_abc_abc_".indexOf("abc") == 1);
     assert("__abc_".indexOf("abc") == 2);
+    assert("a".indexOf("a") == 0);
     assert("_".indexOf("a") == -1);
     assert("__".indexOf("a") == -1);
+}
+
+/** Array-specialization of `indexOf` with default predicate.
+ */
+ptrdiff_t indexOf(T)(scope inout(T)[] haystack,
+                     scope const T needle)
+{
+    foreach (const offset, const ref element; haystack)
+    {
+        if (element == needle)
+        {
+            return offset;
+        }
+    }
+    return -1;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    assert("_".indexOf('a') == -1);
+    assert("a".indexOf('a') == 0);
+    assert("_a".indexOf('a') == 1);
 }
 
 /** Array-specialization of `findSplit` with default predicate.

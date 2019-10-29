@@ -106,20 +106,21 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
                     }
                 }
             }
-            else if (object.startsWith('"')) // literal
+            else if (object.skipOver('"')) // literal
             {
                 const endIx = object.lastIndexOf('"');
                 assert(endIx != -1);
 
                 import std.array : replace;
-                auto content = object[1 .. endIx].replace(`\"`, `"`).to!Chars;
-                objectType = ObjectFormat.literal;
 
+                auto content = object[0 .. endIx].replace(`\"`, `"`).to!Chars;
+                objectType = ObjectFormat.literal;
                 auto rest = object[endIx + 1 .. $];
 
                 if (rest.length && rest[0] == '@')
                 {
                     objectLanguageCode = object[endIx + 2 .. $]; // TODO why can't we use rest[1.. $] here?
+                    // dbg(object, " ", objectLanguageCode);
                 }
                 else
                 {

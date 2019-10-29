@@ -119,7 +119,7 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
 
                 if (rest.length && rest[0] == '@')
                 {
-                    objectLanguageCode = object[endIx + 2 .. $]; // TODO why can't we use rest[1.. $] here?
+                    objectLanguageCode = object[endIx + 2 .. $];
                     // dbg(object, " ", objectLanguageCode);
                 }
                 else

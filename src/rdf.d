@@ -108,6 +108,12 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
             }
             else if (object.skipOver('"')) // literal
             {
+                if (object.length >= 3 && object[$ - 3] == '@')
+                {
+                    objectLanguageCode = object[$ - 2 .. $];
+                    object = object[0 .. $ - 3];
+                }
+
                 const endIx = object.lastIndexOf('"');
                 assert(endIx != -1);
 
@@ -117,21 +123,13 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
                 objectType = ObjectFormat.literal;
                 auto rest = object[endIx + 1 .. $];
 
-                if (rest.length && rest[0] == '@')
+                const hit = rest.indexOf(`^^`);
+                if (hit != -1)
                 {
-                    objectLanguageCode = object[endIx + 2 .. $];
-                    // dbg(object, " ", objectLanguageCode);
-                }
-                else
-                {
-                    const hit = rest.indexOf(`^^`);
-                    if (hit != -1)
-                    {
-                        const objectdataType = rest[hit + 2 .. $];
-                        assert(objectdataType.startsWith('<'));
-                        assert(objectdataType.endsWith('>'));
-                        objectDataTypeURI = objectdataType[1 .. $ - 1].decodeComponent;
-                    }
+                    const objectdataType = rest[hit + 2 .. $];
+                    assert(objectdataType.startsWith('<'));
+                    assert(objectdataType.endsWith('>'));
+                    objectDataTypeURI = objectdataType[1 .. $ - 1].decodeComponent;
                 }
                 object = content;
             }
@@ -161,12 +159,14 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
     s.skipOverBack(' ');
 
     // subject
-    const ix0 = s.indexOf(' ');
+    const ix0 = s.indexOf(' '); // TODO use array_algorithm.findSplit(' ')
+    assert(ix0 != -1);
     const subject = s[0 .. ix0];
     s = s[ix0 + 1 .. $];
 
     // predicate URI
-    const ix1 = s.indexOf(' ');
+    const ix1 = s.indexOf(' '); // TODO use array_algorithm.findSplit(' ')
+    assert(ix1 != -1);
     const predicate = s[0 .. ix1];
     s = s[ix1 + 1 .. $];
 

@@ -568,6 +568,7 @@ auto findSplit(T)(scope return inout(T)[] haystack,
 @safe pure nothrow @nogc unittest
 {
     const r = "a*b".findSplit('*');
+    static assert(r.sizeof == 3 * size_t.sizeof);
     assert(r);
     assert(r.pre == "a");
     assert(r.separator == "*");

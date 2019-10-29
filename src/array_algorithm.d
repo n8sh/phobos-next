@@ -426,7 +426,9 @@ ptrdiff_t indexOf(T)(scope inout(T)[] haystack,
     assert("_abc_abc_".indexOf("abc") == 1);
     assert("__abc_".indexOf("abc") == 2);
     assert("a".indexOf("a") == 0);
+    assert("abc".indexOf("abc") == 0);
     assert("_".indexOf("a") == -1);
+    assert("_".indexOf("__") == -1);
     assert("__".indexOf("a") == -1);
 }
 

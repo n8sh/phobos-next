@@ -275,8 +275,8 @@ inout(char)[] strip()(scope return inout(char)[] haystack) @safe pure nothrow @n
 
 /** Array-overload for `count` with default predicate.
  */
-size_t canFind(T)(scope const T[] haystack,
-                  scope const T[] needle)
+bool canFind(T)(scope const T[] haystack,
+                scope const T[] needle)
 {
     assert(needle.length != 0, "Cannot count occurrences of an empty range");
     if (haystack.length < needle.length)
@@ -309,9 +309,10 @@ size_t canFind(T)(scope const T[] haystack,
 
 /** Array-overload for `count` with default predicate.
  */
-size_t canFind(T)(scope const T[] haystack,
-                  scope const T needle)
+bool canFind(T)(scope const T[] haystack,
+                scope const T needle)
 {
+    static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
     if (haystack.length == 0)
     {
         return false;

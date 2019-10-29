@@ -421,8 +421,8 @@ auto findSplit(T)(scope return inout(T)[] haystack,
     static struct Result // NOTE `static` qualifier is needed for `inout` to propagate correctly
     {
         private T[] _haystack;
-        private size_t _offset;
-        private size_t _length;
+        private size_t _offset; // hit offset
+        private size_t _length; // hit length
 
         inout(T)[] pre() @trusted inout
         {
@@ -431,13 +431,11 @@ auto findSplit(T)(scope return inout(T)[] haystack,
 
         inout(T)[] separator() @trusted inout
         {
-            if (empty) { return _haystack[$ .. $]; }
             return _haystack.ptr[_offset .. _offset + _length];
         }
 
         inout(T)[] post() @trusted inout
         {
-            if (empty) { return _haystack[$ .. $]; }
             return _haystack.ptr[_offset + _length .. _haystack.length];
         }
 
@@ -467,7 +465,7 @@ auto findSplit(T)(scope return inout(T)[] haystack,
         }
     }
 
-    return inout(Result)(haystack, haystack.length, needle.length); // miss
+    return inout(Result)(haystack, haystack.length, 0); // miss
 }
 
 ///

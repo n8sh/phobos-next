@@ -113,25 +113,25 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
                     objectLanguageCode = object[$ - 2 .. $];
                     object = object[0 .. $ - 3];
                 }
+                else
+                {
+                    const hit = object.indexOf(`^^`);
+                    if (hit != -1)
+                    {
+                        const objectdataType = object[hit + 2 .. $];
+                        assert(objectdataType.startsWith('<'));
+                        assert(objectdataType.endsWith('>'));
+                        objectDataTypeURI = objectdataType[1 .. $ - 1].decodeComponent;
+                        object = object[0 .. hit];
+                    }
+                }
 
-                const endIx = object.lastIndexOf('"');
-                assert(endIx != -1);
+                const ok = object.skipOverBack('"');
+                assert(ok);
 
                 import std.array : replace;
-
-                auto content = object[0 .. endIx].replace(`\"`, `"`).to!Chars;
+                object = object.replace(`\"`, `"`).to!Chars;
                 objectType = ObjectFormat.literal;
-                auto rest = object[endIx + 1 .. $];
-
-                const hit = rest.indexOf(`^^`);
-                if (hit != -1)
-                {
-                    const objectdataType = rest[hit + 2 .. $];
-                    assert(objectdataType.startsWith('<'));
-                    assert(objectdataType.endsWith('>'));
-                    objectDataTypeURI = objectdataType[1 .. $ - 1].decodeComponent;
-                }
-                object = content;
             }
             else
             {

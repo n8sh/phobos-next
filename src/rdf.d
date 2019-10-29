@@ -129,8 +129,11 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
                 const ok = object.skipOverBack('"');
                 assert(ok);
 
-                import std.array : replace;
-                object = object.replace(`\"`, `"`).to!Chars;
+                if (object.canFind(`\"`))
+                {
+                    import std.array : replace;
+                    object = object.replace(`\"`, `"`).to!Chars;
+                }
                 objectType = ObjectFormat.literal;
             }
             else

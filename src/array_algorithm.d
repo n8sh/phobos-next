@@ -487,11 +487,12 @@ auto findSplit(T)(scope return inout(T)[] haystack,
 ///
 @safe pure nothrow @nogc unittest
 {
-    const r = "a**b".findSplit("_");
+    const h = "a**b";
+    const r = h.findSplit("_");
     assert(!r);
-    assert(r.pre == "a**b");
-    assert(r.separator);
-    assert(r.post == "");
+    assert(r.pre is h);
+    assert(r.separator is h[$ .. $]);
+    assert(r.post is h[$ .. $]);
 }
 
 ///

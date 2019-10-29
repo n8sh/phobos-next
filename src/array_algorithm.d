@@ -407,12 +407,12 @@ size_t count(T)(scope const T[] haystack)
 /** Array-specialization of `indexOf` with default predicate.
  */
 ptrdiff_t indexOf(T)(scope inout(T)[] haystack,
-                     scope const(T)[] needle)
+                     scope const(T)[] needle) @trusted
 {
     if (haystack.length < needle.length) { return -1; }
     foreach (const size_t offset; 0 .. haystack.length - needle.length + 1)
     {
-        if (haystack[offset .. offset + needle.length] == needle)
+        if (haystack.ptr[offset .. offset + needle.length] == needle)
         {
             return offset;
         }

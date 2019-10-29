@@ -467,17 +467,18 @@ auto findSplit(T)(scope return inout(T)[] haystack,
         }
     }
 
-    return inout(Result)(haystack, haystack.length, needle.length);
+    return inout(Result)(haystack, haystack.length, needle.length); // miss
 }
 
 ///
 @safe pure nothrow @nogc unittest
 {
-    const r = "a**b".findSplit("**");
+    const h = "a**b";
+    const r = h.findSplit("**");
     assert(r);
-    assert(r.pre == "a");
-    assert(r.separator == "**");
-    assert(r.post == "b");
+    assert(r.pre is h[0 .. 1]);
+    assert(r.separator is h[1 .. 3]);
+    assert(r.post is h[3 .. 4]);
 
     auto f()() @safe pure nothrow { char[1] x = "_"; return x[].findSplit(" "); }
     static if (isDIP1000) static assert(!__traits(compiles, { auto _ = f(); }));
@@ -491,6 +492,18 @@ auto findSplit(T)(scope return inout(T)[] haystack,
     assert(r.pre == "a**b");
     assert(r.separator);
     assert(r.post == "");
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    import std.algorithm.searching : findSplit;
+    const h = "a**b";
+    const r = h.findSplit("_");
+    assert(!r);
+    assert(r[0] is h);
+    assert(r[1] is h[$ .. $]);
+    assert(r[2] is h[$ .. $]);
 }
 
 /** Array-specialization of `findSplit` with default predicate.

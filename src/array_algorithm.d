@@ -450,6 +450,32 @@ ptrdiff_t indexOf(T)(scope inout(T)[] haystack,
     assert("__a".indexOf('a') == 2);
 }
 
+/** Array-specialization of `lastIndexOf` with default predicate.
+ */
+ptrdiff_t lastIndexOf(T)(scope inout(T)[] haystack,
+                     scope const T needle)
+{
+    static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
+    foreach_reverse (const offset, const ref element; haystack)
+    {
+        if (element == needle)
+        {
+            return offset;
+        }
+    }
+    return -1;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    assert("_".lastIndexOf('a') == -1);
+    assert("a".lastIndexOf('a') == 0);
+    assert("_a".lastIndexOf('a') == 1);
+    assert("__a".lastIndexOf('a') == 2);
+    assert("a__a".lastIndexOf('a') == 3);
+}
+
 /** Array-specialization of `findSplit` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org

@@ -452,6 +452,7 @@ ptrdiff_t indexOf(T)(scope inout(T)[] haystack,
     assert("_".indexOf('a') == -1);
     assert("a".indexOf('a') == 0);
     assert("_a".indexOf('a') == 1);
+    assert("__a".indexOf('a') == 2);
 }
 
 /** Array-specialization of `findSplit` with default predicate.

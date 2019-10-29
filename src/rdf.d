@@ -16,8 +16,6 @@
  */
 module rdf;
 
-import std.stdio : File;
-
 import dbgio;
 
 enum SubjectFormat { URI, undecodedURI, blankNode }
@@ -254,9 +252,12 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
     assert(t.objectType == ObjectFormat.literal);
 }
 
+version(none):
+
+import std.stdio : File;
+
 /** Iterate RDF-File $(D rdfFile) by RDF N-Triple.
  */
-version(none)
 auto byNTriple(File rdfFile,
                const char commentPrefix = '#')
 {
@@ -276,15 +277,12 @@ auto byNTriple(File rdfFile,
                   .map!(line => line.parseNTriple);
 }
 
-version(none)
 import std.traits : isNarrowString;
 
-version(none)
 import std.range.primitives : hasSlicing, hasLength;
 
 /** Iterate Range by RDF N-Triple.
  */
-version(none)
 auto byNTriple(R)(R r)
 if ((hasSlicing!R && hasLength!R ||
      isNarrowString!R))
@@ -297,7 +295,6 @@ if ((hasSlicing!R && hasLength!R ||
             .map!(line => line.parseNTriple);
 }
 
-version(none)
 @safe pure unittest
 {
     const x = `<http://dbpedia.org/resource/16_@_War> <http://xmlns.com/foaf/0.1/name> "16 @ War"@en .

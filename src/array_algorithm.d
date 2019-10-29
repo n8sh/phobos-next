@@ -49,22 +49,22 @@ bool startsWith(T)(scope const T[] haystack,
 bool endsWith(T)(scope const T[] haystack,
                  scope const T[] needle)
 {
-    if (haystack.length >= needle.length)
+    if (haystack.length < needle.length)
     {
-        return haystack[$ - needle.length .. $] == needle;
+        return false;
     }
-    return false;
+    return haystack[$ - needle.length .. $] == needle;
 }
 /// ditto
 bool endsWith(T)(scope const T[] haystack,
                  scope const T needle)
 {
     static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
-    if (haystack.length >= 1)
+    if (haystack.length == 0)
     {
-        return haystack[$ - 1] == needle;
+        return false;
     }
-    return false;
+    return haystack[$ - 1] == needle;
 }
 
 ///

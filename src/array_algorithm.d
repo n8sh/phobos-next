@@ -483,6 +483,16 @@ auto findSplit(T)(scope return inout(T)[] haystack,
     static if (isDIP1000) static assert(!__traits(compiles, { auto _ = f(); }));
 }
 
+///
+@safe pure nothrow @nogc unittest
+{
+    const r = "a**b".findSplit("_");
+    assert(!r);
+    assert(r.pre == "a**b");
+    assert(r.separator);
+    assert(r.post == "");
+}
+
 /** Array-specialization of `findSplit` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org

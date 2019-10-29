@@ -95,12 +95,24 @@ bool skipOver(T)(scope ref inout(T)[] haystack,
     assert(x == "version");
 }
 
-///
+/// constness of haystack and needle
 @safe pure nothrow @nogc unittest
 {
-    const(char)[] haystack;
-    string needle;
-    assert(haystack.skipOver(needle));
+    {
+        const(char)[] haystack;
+        string needle;
+        assert(haystack.skipOver(needle));
+    }
+    {
+        const(char)[] haystack;
+        const(char)[] needle;
+        assert(haystack.skipOver(needle));
+    }
+    {
+        const(char)[] haystack;
+        char[] needle;
+        assert(haystack.skipOver(needle));
+    }
 }
 
 /** Array-specialization of `skipOverBack` with default predicate.

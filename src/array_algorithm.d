@@ -106,26 +106,20 @@ bool skipOver(T)(scope ref inout(T)[] haystack,
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
 bool skipOverBack(T)(scope ref inout(T)[] haystack,
-                     scope const T[] needle)
+                     scope const T[] needle) @trusted
 {
-    if (endsWith(haystack, needle))
-    {
-        haystack = haystack[0 .. $ - needle.length];
-        return true;
-    }
-    return false;
+    if (!endsWith(haystack, needle)) { return false; }
+    haystack = haystack.ptr[0 .. haystack.length - needle.length];
+    return true;
 }
 /// ditto
 bool skipOverBack(T)(scope ref inout(T)[] haystack,
-                     scope const T needle)
+                     scope const T needle) @trusted
 {
     static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
-    if (endsWith(haystack, needle))
-    {
-        haystack = haystack[0 .. $ - 1];
-        return true;
-    }
-    return false;
+    if (!endsWith(haystack, needle)) { return false; }
+    haystack = haystack.ptr[0 .. haystack.length - 1];
+    return true;
 }
 
 ///

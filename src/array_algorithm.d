@@ -410,6 +410,34 @@ size_t count(T)(scope const T[] haystack)
     assert("abc_abc".count == 7);
 }
 
+/** Array-specialization of `indexOf` with default predicate.
+ */
+ptrdiff_t indexOf(T)(scope inout(T)[] haystack,
+                     scope const(T)[] needle)
+{
+    if (haystack.length < needle.length)
+    {
+        return -1;
+    }
+    foreach (const size_t offset; 0 .. haystack.length - needle.length + 1)
+    {
+        if (haystack[offset .. offset + needle.length] == needle)
+        {
+            return offset;
+        }
+    }
+    return -1;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    assert("_abc_abc_".indexOf("abc") == 1);
+    assert("__abc_".indexOf("abc") == 2);
+    assert("_".indexOf("a") == -1);
+    assert("__".indexOf("a") == -1);
+}
+
 /** Array-specialization of `findSplit` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org

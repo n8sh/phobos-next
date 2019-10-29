@@ -95,6 +95,14 @@ bool skipOver(T)(scope ref inout(T)[] haystack,
     assert(x == "version");
 }
 
+///
+@safe pure nothrow @nogc unittest
+{
+    const(char)[] haystack;
+    string needle;
+    assert(haystack.skipOver(needle));
+}
+
 /** Array-specialization of `skipOverBack` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org

@@ -18,7 +18,6 @@ module rdf;
 
 import std.traits : isNarrowString;
 import std.range.primitives : hasSlicing, hasLength;
-import std.string : indexOf, lastIndexOf;
 import std.stdio : File;
 
 import dbgio;
@@ -35,6 +34,8 @@ enum ObjectFormat { URI, undecodedURI, blankNode, literal }
  */
 auto parseNTriple(scope return inout(char)[] s) @safe pure
 {
+    import std.string : indexOf, lastIndexOf;
+
     /** RDF N-Triple.
      *
      * Parameterized on element type $(D Chars). Use NTriple!(char[]) to avoid

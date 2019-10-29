@@ -16,8 +16,6 @@
  */
 module rdf;
 
-import std.traits : isNarrowString;
-import std.range.primitives : hasSlicing, hasLength;
 import std.stdio : File;
 
 import dbgio;
@@ -277,6 +275,12 @@ auto byNTriple(File rdfFile,
                             line[0] != commentPrefix)) // skip comments
                   .map!(line => line.parseNTriple);
 }
+
+version(none)
+import std.traits : isNarrowString;
+
+version(none)
+import std.range.primitives : hasSlicing, hasLength;
 
 /** Iterate Range by RDF N-Triple.
  */

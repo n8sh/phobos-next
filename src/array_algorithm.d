@@ -275,12 +275,13 @@ inout(char)[] strip()(scope return inout(char)[] haystack) @safe pure nothrow @n
 
 /** Array-overload for `count` with default predicate.
  *
- * TODO Add optimized implementation for larger needles with no repeat of
- * elements.
+ * TODO Add optimized implementation for needles with length >=
+ * `largeNeedleLength` with no repeat of elements.
  */
 bool canFind(T)(scope const T[] haystack,
                 scope const T[] needle)
 {
+    enum largeNeedleLength = 4;
     assert(needle.length != 0, "Cannot count occurrences of an empty range");
     if (haystack.length < needle.length)
     {

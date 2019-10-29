@@ -486,7 +486,7 @@ auto findSplit(T)(scope return inout(T)[] haystack,
             return _haystack.ptr[_offset + _length .. _haystack.length];
         }
 
-        bool opCast(T : bool)() const
+        bool opCast(T : bool)() @safe const
         {
             return _haystack.length != _offset;
         }

@@ -453,6 +453,34 @@ ptrdiff_t indexOf(T)(scope inout(T)[] haystack,
 /** Array-specialization of `lastIndexOf` with default predicate.
  */
 ptrdiff_t lastIndexOf(T)(scope inout(T)[] haystack,
+                         scope const(T)[] needle) @trusted
+{
+    if (haystack.length < needle.length) { return -1; }
+    foreach_reverse (const size_t offset; 0 .. haystack.length - needle.length + 1)
+    {
+        if (haystack.ptr[offset .. offset + needle.length] == needle)
+        {
+            return offset;
+        }
+    }
+    return -1;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    assert("_abc_abc_".lastIndexOf("abc") == 5);
+    assert("__abc_".lastIndexOf("abc") == 2);
+    assert("a".lastIndexOf("a") == 0);
+    assert("abc".lastIndexOf("abc") == 0);
+    assert("_".lastIndexOf("a") == -1);
+    assert("_".lastIndexOf("__") == -1);
+    assert("__".lastIndexOf("a") == -1);
+}
+
+/** Array-specialization of `lastIndexOf` with default predicate.
+ */
+ptrdiff_t lastIndexOf(T)(scope inout(T)[] haystack,
                      scope const T needle)
 {
     static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org

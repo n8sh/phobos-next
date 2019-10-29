@@ -1,5 +1,9 @@
 /** Array-only overloads of Phobos algorithms.
  *
+ * Functions are when possible `@safe pure nothrow @nogc`.
+ * Haystack parameter is when possible and relevant `scope return inout(T)[]` and DIP-1000 aware.
+ * Needle parameter is `scope const(T)[]`.
+ *
  * Provides more than twice as fast compilation for `char`-arrays (`string`s).
  *
  * See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org

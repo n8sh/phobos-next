@@ -368,7 +368,9 @@ size_t count(T)(scope const T[] haystack,
     assert("".count(" ") == 0);
     assert(" ".count(" ") == 1);
     assert("abc_abc".count("a") == 2);
+    assert("abc_abc".count("abc") == 2);
     assert("_a_a_".count("_") == 3);
+    assert("_aaa_".count("a") == 3);
     // assert("_a_a_".count("") == 5);
 }
 

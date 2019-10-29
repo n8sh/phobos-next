@@ -472,6 +472,7 @@ ptrdiff_t lastIndexOf(T)(scope inout(T)[] haystack,
     assert("_abc_abc_".lastIndexOf("abc") == 5);
     assert("__abc_".lastIndexOf("abc") == 2);
     assert("a".lastIndexOf("a") == 0);
+    assert("aa".lastIndexOf("a") == 1);
     assert("abc".lastIndexOf("abc") == 0);
     assert("_".lastIndexOf("a") == -1);
     assert("_".lastIndexOf("__") == -1);

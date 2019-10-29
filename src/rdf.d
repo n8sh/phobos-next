@@ -30,8 +30,6 @@ enum ObjectFormat { URI, undecodedURI, blankNode, literal }
  */
 auto parseNTriple(scope return inout(char)[] s) @safe pure
 {
-    import std.string : indexOf, lastIndexOf;
-
     /** RDF N-Triple.
      *
      * Parameterized on element type $(D Chars). Use NTriple!(char[]) to avoid
@@ -115,14 +113,14 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
                 }
                 else
                 {
-                    const hit = object.indexOf(`^^`);
-                    if (hit != -1)
+                    import array_algorithm : findSplit;
+                    if (auto hit = object.findSplit(`^^`))
                     {
-                        const objectdataType = object[hit + 2 .. $];
+                        const objectdataType = hit.post;
                         assert(objectdataType.startsWith('<'));
                         assert(objectdataType.endsWith('>'));
                         objectDataTypeURI = objectdataType[1 .. $ - 1].decodeComponent;
-                        object = object[0 .. hit];
+                        object = hit.pre;
                     }
                 }
 
@@ -132,7 +130,7 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
                 if (object.canFind(`\"`))
                 {
                     import std.array : replace;
-                    object = object.replace(`\"`, `"`).to!Chars;
+                    object = object.replace(`\"`, `"`).to!Chars; // TODO avoid?
                 }
                 objectType = ObjectFormat.literal;
             }
@@ -160,6 +158,8 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
     // strip suffix
     s.skipOverBack('.');
     s.skipOverBack(' ');
+
+    import array_algorithm : indexOf;
 
     // subject
     const ix0 = s.indexOf(' '); // TODO use array_algorithm.findSplit(' ')

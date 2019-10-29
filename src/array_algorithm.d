@@ -283,10 +283,7 @@ bool canFind(T)(scope const T[] haystack,
 {
     // enum largeNeedleLength = 4;
     assert(needle.length, "Cannot count occurrences of an empty range");
-    if (haystack.length < needle.length)
-    {
-        return false;
-    }
+    if (haystack.length < needle.length) { return false; }
     foreach (const size_t offset; 0 .. haystack.length - needle.length + 1)
     {
         if (haystack[offset .. offset + needle.length] == needle)
@@ -349,10 +346,7 @@ size_t count(T)(scope const T[] haystack,
 {
     assert(needle.length, "Cannot count occurrences of an empty range");
     size_t result = 0;
-    if (haystack.length < needle.length)
-    {
-        return false;
-    }
+    if (haystack.length < needle.length) { return false; }
     foreach (const size_t offset; 0 .. haystack.length - needle.length + 1)
     {
         result += haystack[offset .. offset + needle.length] == needle ? 1 : 0;
@@ -415,10 +409,7 @@ size_t count(T)(scope const T[] haystack)
 ptrdiff_t indexOf(T)(scope inout(T)[] haystack,
                      scope const(T)[] needle)
 {
-    if (haystack.length < needle.length)
-    {
-        return -1;
-    }
+    if (haystack.length < needle.length) { return -1; }
     foreach (const size_t offset; 0 .. haystack.length - needle.length + 1)
     {
         if (haystack[offset .. offset + needle.length] == needle)
@@ -444,6 +435,7 @@ ptrdiff_t indexOf(T)(scope inout(T)[] haystack,
 ptrdiff_t indexOf(T)(scope inout(T)[] haystack,
                      scope const T needle)
 {
+    static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
     foreach (const offset, const ref element; haystack)
     {
         if (element == needle)
@@ -503,20 +495,11 @@ auto findSplit(T)(scope return inout(T)[] haystack,
     }
 
     assert(needle.length, "Cannot find occurrence of an empty range");
-
-    // TODO reuse `indexOf`
-    if (haystack.length < needle.length)
+    const index = haystack.indexOf(needle);
+    if (index >= 0)
     {
-        return inout(Result)(haystack, haystack.length, needle.length);
+        return inout(Result)(haystack, index, needle.length);
     }
-    foreach (const size_t offset; 0 .. haystack.length - needle.length + 1)
-    {
-        if (haystack[offset .. offset + needle.length] == needle)
-        {
-            return inout(Result)(haystack, offset, needle.length);
-        }
-    }
-
     return inout(Result)(haystack, haystack.length, 0); // miss
 }
 
@@ -603,15 +586,11 @@ auto findSplit(T)(scope return inout(T)[] haystack,
 
     static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
 
-    // TODO reuse indexOf
-    foreach (const offset, const ref element; haystack)
+    const index = haystack.indexOf(needle);
+    if (index >= 0)
     {
-        if (element == needle)
-        {
-            return inout(Result)(haystack, offset);
-        }
+        return inout(Result)(haystack, index);
     }
-
     return inout(Result)(haystack, haystack.length);
 }
 

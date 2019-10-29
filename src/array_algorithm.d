@@ -452,9 +452,9 @@ auto findSplit(T)(scope return inout(T)[] haystack,
         }
     }
 
-    // TODO reuse `indexOf`
-    // enum largeNeedleLength = 4;
     assert(needle.length, "Cannot find occurrence of an empty range");
+
+    // TODO reuse `indexOf`
     if (haystack.length < needle.length)
     {
         return inout(Result)(haystack, haystack.length, needle.length);
@@ -526,6 +526,7 @@ auto findSplit(T)(scope return inout(T)[] haystack,
 
     static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
 
+    // TODO reuse indexOf
     foreach (const offset, const ref element; haystack)
     {
         if (element == needle)

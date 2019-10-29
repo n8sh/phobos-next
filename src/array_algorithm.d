@@ -11,7 +11,7 @@ module array_algorithm;
 
 // version = unittestAsBetterC; // Run_As: dmd -betterC -unittest -run $(__FILE__).d
 
-/** Array-overload for `startsWith` with default predicate.
+/** Array-specialization of `startsWith` with default predicate.
  *
  * See_Also: https://d.godbolt.org/z/ejEmrK
  */
@@ -45,7 +45,7 @@ bool startsWith(T)(scope const T[] haystack,
     assert(!x.startsWith("_"));
 }
 
-/** Array-overload for `endsWith` with default predicate. */
+/** Array-specialization of `endsWith` with default predicate. */
 bool endsWith(T)(scope const T[] haystack,
                  scope const T[] needle)
 {
@@ -76,7 +76,7 @@ bool endsWith(T)(scope const T[] haystack,
     assert(!x.startsWith("_"));
 }
 
-/** Array-overload for `skipOver` with default predicate.
+/** Array-specialization of `skipOver` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
@@ -113,7 +113,7 @@ bool skipOver(T)(scope ref inout(T)[] haystack,
     assert(x == "version");
 }
 
-/** Array-overload for `skipOverBack` with default predicate.
+/** Array-specialization of `skipOverBack` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
@@ -150,7 +150,7 @@ bool skipOverBack(T)(scope ref inout(T)[] haystack,
     assert(x == "bet");
 }
 
-/** Array-overload for `stripLeft` with default predicate.
+/** Array-specialization of `stripLeft` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
@@ -186,7 +186,7 @@ inout(char)[] stripLeft()(scope return inout(char)[] haystack) @safe pure nothro
     static if (isDIP1000) static assert(!__traits(compiles, { auto _ = f(); }));
 }
 
-/** Array-overload for `stripRight` with default predicate.
+/** Array-specialization of `stripRight` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
@@ -222,7 +222,7 @@ inout(char)[] stripRight()(scope return inout(char)[] haystack) @safe pure nothr
     static if (isDIP1000) static assert(!__traits(compiles, { auto _ = f(); }));
 }
 
-/** Array-overload for `strip` with default predicate.
+/** Array-specialization of `strip` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
@@ -273,7 +273,7 @@ inout(char)[] strip()(scope return inout(char)[] haystack) @safe pure nothrow @n
     assert(x.strip(0) == x[1 .. 2]);
 }
 
-/** Array-overload for `count` with default predicate.
+/** Array-specialization of `count` with default predicate.
  *
  * TODO Add optimized implementation for needles with length >=
  * `largeNeedleLength` with no repeat of elements.
@@ -311,7 +311,7 @@ bool canFind(T)(scope const T[] haystack,
     assert(!"b".canFind("ab"));
 }
 
-/** Array-overload for `count` with default predicate.
+/** Array-specialization of `count` with default predicate.
  */
 bool canFind(T)(scope const T[] haystack,
                 scope const T needle)
@@ -342,7 +342,7 @@ bool canFind(T)(scope const T[] haystack,
     assert("ab".canFind('b'));
 }
 
-/** Array-overload for `count` with default predicate.
+/** Array-specialization of `count` with default predicate.
  */
 size_t count(T)(scope const T[] haystack,
                 scope const T[] needle)
@@ -375,7 +375,7 @@ size_t count(T)(scope const T[] haystack,
     // assert("_a_a_".count("") == 5);
 }
 
-/** Array-overload for `count` with default predicate.
+/** Array-specialization of `count` with default predicate.
  */
 size_t count(T)(scope const T[] haystack,
                 scope const T needle)
@@ -397,7 +397,7 @@ size_t count(T)(scope const T[] haystack,
     assert("_abc_abc_".count('_') == 3);
 }
 
-/** Array-overload for `count` with default predicate and no needle.
+/** Array-specialization of `count` with default predicate and no needle.
  */
 size_t count(T)(scope const T[] haystack)
 {
@@ -410,7 +410,7 @@ size_t count(T)(scope const T[] haystack)
     assert("abc_abc".count == 7);
 }
 
-/** Array-overload for `findSplit` with default predicate.
+/** Array-specialization of `findSplit` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  * See_Also: https://forum.dlang.org/post/zhgajqdhybtbufeiiofp@forum.dlang.org
@@ -483,7 +483,7 @@ auto findSplit(T)(scope return inout(T)[] haystack,
     static if (isDIP1000) static assert(!__traits(compiles, { auto _ = f(); }));
 }
 
-/** Array-overload for `findSplit` with default predicate.
+/** Array-specialization of `findSplit` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  * See_Also: https://forum.dlang.org/post/zhgajqdhybtbufeiiofp@forum.dlang.org
@@ -563,7 +563,7 @@ auto findSplit(T)(scope return inout(T)[] haystack,
     }
 }
 
-/** Array-overload for `findSplitBefore` with default predicate.
+/** Array-specialization of `findSplitBefore` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  * See_Also: https://forum.dlang.org/post/zhgajqdhybtbufeiiofp@forum.dlang.org
@@ -658,7 +658,7 @@ auto findSplitBefore(T)(scope return inout(T)[] haystack,
     assert(r.post == "");
 }
 
-/** Array-overload for `findSplitAfter` with default predicate.
+/** Array-specialization of `findSplitAfter` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  * See_Also: https://forum.dlang.org/post/zhgajqdhybtbufeiiofp@forum.dlang.org

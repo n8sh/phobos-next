@@ -495,6 +495,7 @@ auto findSplit(T)(scope return inout(T)[] haystack,
 }
 
 ///
+version(none)
 @safe pure nothrow @nogc unittest
 {
     import std.algorithm.searching : findSplit;

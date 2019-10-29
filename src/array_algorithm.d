@@ -489,6 +489,7 @@ auto findSplit(T)(scope return inout(T)[] haystack,
 {
     const h = "a**b";
     const r = h.findSplit("_");
+    static assert(r.sizeof == 2 * 2 * size_t.sizeof);
     assert(!r);
     assert(r.pre is h);
     assert(r.separator is h[$ .. $]);
@@ -501,6 +502,7 @@ auto findSplit(T)(scope return inout(T)[] haystack,
     import std.algorithm.searching : findSplit;
     const h = "a**b";
     const r = h.findSplit("_");
+    static assert(r.sizeof == 3 * 2 * size_t.sizeof);
     assert(!r);
     assert(r[0] is h);
     assert(r[1] is h[$ .. $]);

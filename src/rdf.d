@@ -24,9 +24,6 @@ enum ObjectFormat { URI, undecodedURI, blankNode, literal }
 @safe:
 
 /** Decode $(D S) into a an N-Triple.
- *
- * TODO Better to call it `asNTriple` or `toNTriple` or support conversion via
- * std.conv: to?
  */
 auto parseNTriple(scope return inout(char)[] s) @safe pure
 {

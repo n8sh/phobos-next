@@ -518,7 +518,7 @@ auto findSplit(T)(scope return inout(T)[] haystack,
     static struct Result // NOTE `static` qualifier is needed for `inout` to propagate correctly
     {
         private T[] _haystack;
-        private size_t _offset;
+        private size_t _offset; // hit offset
 
         inout(T)[] pre() @trusted inout
         {

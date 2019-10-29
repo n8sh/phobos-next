@@ -131,16 +131,16 @@ bool skipOverBack(T)(scope ref inout(T)[] haystack,
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
 inout(T)[] stripLeft(T)(scope return inout(T)[] haystack,
-                        scope const T needle)
+                        scope const T needle) @trusted
 {
     static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
     size_t offset = 0;
     while (offset != haystack.length &&
-           haystack[offset] == needle) // TODO elide range-check
+           haystack.ptr[offset] == needle) // TODO elide range-check
     {
         offset += 1;
     }
-    return haystack[offset .. $];
+    return haystack.ptr[offset .. haystack.length];
 }
 inout(char)[] stripLeft()(scope return inout(char)[] haystack) @safe pure nothrow @nogc // template-lazy
 {
@@ -167,16 +167,16 @@ inout(char)[] stripLeft()(scope return inout(char)[] haystack) @safe pure nothro
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
 inout(T)[] stripRight(T)(scope return inout(T)[] haystack,
-                         scope const T needle)
+                         scope const T needle) @trusted
 {
     static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
     size_t offset = haystack.length;
     while (offset != 0 &&
-           haystack[offset - 1] == needle) // TODO elide range-check
+           haystack.ptr[offset - 1] == needle) // TODO elide range-check
     {
         offset -= 1;
     }
-    return haystack[0 .. offset];
+    return haystack.ptr[0 .. offset];
 }
 inout(char)[] stripRight()(scope return inout(char)[] haystack) @safe pure nothrow @nogc // template-lazy
 {
@@ -203,25 +203,25 @@ inout(char)[] stripRight()(scope return inout(char)[] haystack) @safe pure nothr
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  */
 inout(T)[] strip(T)(scope return inout(T)[] haystack,
-                    scope const T needle)
+                    scope const T needle) @trusted
 {
     static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
 
     size_t leftOffset = 0;
     while (leftOffset != haystack.length &&
-           haystack[leftOffset] == needle) // TODO elide range-check
+           haystack.ptr[leftOffset] == needle) // TODO elide range-check
     {
         leftOffset += 1;
     }
 
     size_t rightOffset = haystack.length;
     while (rightOffset != leftOffset &&
-           haystack[rightOffset - 1] == needle) // TODO elide range-check
+           haystack.ptr[rightOffset - 1] == needle) // TODO elide range-check
     {
         rightOffset -= 1;
     }
 
-    return haystack[leftOffset .. rightOffset];
+    return haystack.ptr[leftOffset .. rightOffset];
 }
 inout(char)[] strip()(scope return inout(char)[] haystack) @safe pure nothrow @nogc // template-lazy
 {

@@ -255,14 +255,14 @@ inout(char)[] strip()(scope return inout(char)[] haystack) @safe pure nothrow @n
  * `largeNeedleLength` with no repeat of elements.
  */
 bool canFind(T)(scope const T[] haystack,
-                scope const T[] needle)
+                scope const T[] needle) @trusted
 {
     // enum largeNeedleLength = 4;
     assert(needle.length, "Cannot count occurrences of an empty range");
     if (haystack.length < needle.length) { return false; }
     foreach (const size_t offset; 0 .. haystack.length - needle.length + 1)
     {
-        if (haystack[offset .. offset + needle.length] == needle)
+        if (haystack.ptr[offset .. offset + needle.length] == needle)
         {
             return true;
         }
@@ -287,16 +287,13 @@ bool canFind(T)(scope const T[] haystack,
 /** Array-specialization of `count` with default predicate.
  */
 bool canFind(T)(scope const T[] haystack,
-                scope const T needle)
+                scope const T needle) @trusted
 {
     static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
-    if (haystack.length == 0)
-    {
-        return false;
-    }
+    if (haystack.length == 0) { return false; }
     foreach (const size_t offset; 0 .. haystack.length)
     {
-        if (haystack[offset] == needle)
+        if (haystack.ptr[offset] == needle)
         {
             return true;
         }
@@ -318,14 +315,14 @@ bool canFind(T)(scope const T[] haystack,
 /** Array-specialization of `count` with default predicate.
  */
 size_t count(T)(scope const T[] haystack,
-                scope const T[] needle)
+                scope const T[] needle) @trusted
 {
     assert(needle.length, "Cannot count occurrences of an empty range");
     size_t result = 0;
     if (haystack.length < needle.length) { return false; }
     foreach (const size_t offset; 0 .. haystack.length - needle.length + 1)
     {
-        result += haystack[offset .. offset + needle.length] == needle ? 1 : 0;
+        result += haystack.ptr[offset .. offset + needle.length] == needle ? 1 : 0;
     }
     return result;
 }

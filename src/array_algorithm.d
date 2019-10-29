@@ -309,6 +309,36 @@ size_t canFind(T)(scope const T[] haystack,
 
 /** Array-overload for `count` with default predicate.
  */
+size_t canFind(T)(scope const T[] haystack,
+                  scope const T needle)
+{
+    if (haystack.length == 0)
+    {
+        return false;
+    }
+    foreach (const size_t offset; 0 .. haystack.length)
+    {
+        if (haystack[offset] == needle)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    assert(!"".canFind('_'));
+    assert(!"a".canFind('_'));
+    assert("a".canFind('a'));
+    assert("a".canFind('a'));
+    assert("ab".canFind('a'));
+    assert("ab".canFind('b'));
+}
+
+/** Array-overload for `count` with default predicate.
+ */
 size_t count(T)(scope const T[] haystack,
                 scope const T[] needle)
 {

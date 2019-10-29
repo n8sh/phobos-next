@@ -17,42 +17,23 @@
 module rdf;
 
 import std.traits : isNarrowString;
-import std.range.primitives : empty, hasSlicing, hasLength;
+import std.range.primitives : hasSlicing, hasLength;
 import std.string : indexOf, lastIndexOf;
 import std.stdio : File;
+
+import dbgio;
 
 enum SubjectFormat { URI, undecodedURI, blankNode }
 enum ObjectFormat { URI, undecodedURI, blankNode, literal }
 
 @safe:
 
-/** Iterate RDF-File $(D rdfFile) by RDF N-Triple.
- */
-auto byNTriple(File rdfFile,
-               const char commentPrefix = '#')
-{
-    import bylinefast : byLineFast, KeepTerminator;
-    import std.algorithm.iteration : map, filter;
-    // TODO support this somehow:
-    // if (line.startsWith('#'))
-    // {
-    //     if (line.skipOver(`# started `)) { string startTime = line.to!string; }
-    //     if (line.skipOver(`# completed `)) { string completionTime = line.to!string; }
-    //     continue;
-    // }
-    return rdfFile.byLineFast(KeepTerminator.no, "\n")
-                  .filter!(line =>
-                           (line.length >= 1 &&
-                            line[0] != commentPrefix)) // skip comments
-                  .map!(line => line.parseNTriple);
-}
-
 /** Decode $(D S) into a an N-Triple.
  *
  * TODO Better to call it `asNTriple` or `toNTriple` or support conversion via
  * std.conv: to?
  */
-auto parseNTriple(scope return const(char)[] s) @safe pure
+auto parseNTriple(scope return inout(char)[] s) @safe pure
 {
     /** RDF N-Triple.
      *
@@ -67,7 +48,7 @@ auto parseNTriple(scope return const(char)[] s) @safe pure
     {
         import std.uri : decodeComponent;
         import std.conv : to;
-        import array_algorithm : startsWith, endsWith;
+        import array_algorithm : skipOver, skipOverBack, startsWith, endsWith, canFind;
 
         alias Chars = const(char)[];
 
@@ -78,69 +59,70 @@ auto parseNTriple(scope return const(char)[] s) @safe pure
          * - predicate: <http://xmlns.com/foaf/0.1/homepage>
          * - object: <http://www.santosfc.com.br/clube/default.asp?c=Sedes&st=CT%20Rei%20Pel%E9>
          */
-        this(scope Chars subject,
-             scope Chars predicate,
-             scope Chars object) @safe pure
+        void parse() @safe pure scope // TODO nothrow
         {
             import std.uri : URIException;
 
             // subject
-            if (subject.startsWith('<')) // URI
+            if (subject.skipOver('<')) // URI
             {
-                assert(subject.endsWith('>'));
-                SubjectFormat subjectType;
-                try
+                const ok = subject.skipOverBack('>');
+                assert(ok);
+                SubjectFormat subjectType = SubjectFormat.URI;
+                if (subject.canFind('%')) // only if escape-sequences are found
                 {
-                    this.subject = subject[1 .. $ - 1].decodeComponent.to!Chars; // GC-allocates
-                    subjectType = SubjectFormat.URI;
+                    try
+                    {
+                        subject = subject.decodeComponent.to!Chars;
+                    }
+                    catch (Exception e)
+                    {
+                        subjectType = SubjectFormat.undecodedURI; // indicate failed decoding
+                    }
                 }
-                catch (URIException e)
-                {
-                    this.subject = subject[1 .. $ - 1].to!Chars;
-                    subjectType = SubjectFormat.undecodedURI; // indicate failed decoding
-                }
-                this.subjectType = subjectType;
             }
-            else // blank node
+            else
             {
-                this.subject = subject.to!Chars;
-                this.subjectType = SubjectFormat.blankNode;
+                subjectType = SubjectFormat.blankNode;
             }
 
             // predicate
             assert(predicate.startsWith('<'));
             assert(predicate.endsWith('>'));
-            this.predicate = predicate[1 .. $ - 1].to!Chars;
+            predicate = predicate[1 .. $ - 1];
 
             // object
-            if (object.startsWith('<')) // URI
+            if (object.skipOver('<')) // URI
             {
-                assert(object.endsWith('>'));
-                ObjectFormat objectType;
-                try
+                const ok = object.skipOverBack('>');
+                assert(ok);
+                ObjectFormat objectType = ObjectFormat.URI;
+                if (object.canFind('%')) // only if escape-sequences are found
                 {
-                    this.object = object[1 .. $ - 1].decodeComponent.to!Chars;
-                    objectType = ObjectFormat.URI;
+                    try
+                    {
+                        object = object.decodeComponent.to!Chars; // TODO do GC-allocation only when a real decoding happens
+                    }
+                    catch (Exception e)
+                    {
+                        objectType = ObjectFormat.undecodedURI; // indicate failed decoding
+                    }
                 }
-                catch (URIException e)
-                {
-                    this.object = object[1 .. $ - 1].to!Chars; // skip decoding
-                    objectType = ObjectFormat.undecodedURI; // indicate failed decoding
-                }
-                this.objectType = objectType;
             }
             else if (object.startsWith('"')) // literal
             {
                 const endIx = object.lastIndexOf('"');
-                assert(endIx != -1); // TODO Use enforce?
+                assert(endIx != -1);
 
-                import std.array: replace;
-                this.object = object[1 .. endIx].replace(`\"`, `"`).to!Chars;
-                this.objectType = ObjectFormat.literal;
-                auto rest = object[endIx + 1.. $];
-                if (!rest.empty && rest[0] == '@')
+                import std.array : replace;
+                auto content = object[1 .. endIx].replace(`\"`, `"`).to!Chars;
+                objectType = ObjectFormat.literal;
+
+                auto rest = object[endIx + 1 .. $];
+
+                if (rest.length && rest[0] == '@')
                 {
-                    this.objectLanguageCode = rest[1 .. $].to!Chars;
+                    objectLanguageCode = object[endIx + 2 .. $]; // TODO why can't we use rest[1.. $] here?
                 }
                 else
                 {
@@ -150,25 +132,26 @@ auto parseNTriple(scope return const(char)[] s) @safe pure
                         const objectdataType = rest[hit + 2 .. $];
                         assert(objectdataType.startsWith('<'));
                         assert(objectdataType.endsWith('>'));
-                        this.objectDataTypeURI = objectdataType[1 .. $ - 1].decodeComponent;
+                        objectDataTypeURI = objectdataType[1 .. $ - 1].decodeComponent;
                     }
                 }
+                object = content;
             }
-            else                    // blank node
+            else
             {
-                this.object = object.to!Chars;
-                this.objectType = ObjectFormat.blankNode;
+                objectType = ObjectFormat.blankNode;
             }
         }
 
         Chars subject;
-        const Chars predicate;
+        Chars predicate;
         Chars object;
-        const Chars objectLanguageCode;
 
-        const Chars objectDataTypeURI;
-        const SubjectFormat subjectType;
-        const ObjectFormat objectType;
+        Chars objectLanguageCode;
+
+        Chars objectDataTypeURI;
+        SubjectFormat subjectType;
+        ObjectFormat objectType;
     }
 
     import array_algorithm : skipOverBack;
@@ -189,7 +172,10 @@ auto parseNTriple(scope return const(char)[] s) @safe pure
     const predicate = s[0 .. ix1];
     s = s[ix1 + 1 .. $];
 
-    return NTriple(subject, predicate, s);
+    auto nt = inout(NTriple)(subject, predicate, s);
+
+    (cast(NTriple)nt).parse();  // hack to make `inout` work
+    return nt;
 }
 
 ///
@@ -210,21 +196,6 @@ auto parseNTriple(scope return const(char)[] s) @safe pure
 ///
 @safe pure unittest
 {
-    const x = `<http://dbpedia.org/resource/1950_Chatham_Cup> <http://xmlns.com/foaf/0.1/name> "Chatham Cup" .`;
-    const t = x.parseNTriple;
-
-    assert(t.subject == `http://dbpedia.org/resource/1950_Chatham_Cup`);
-    assert(t.subjectType == SubjectFormat.URI);
-    assert(t.predicate == `http://xmlns.com/foaf/0.1/name`);
-    assert(t.object == `Chatham Cup`);
-    assert(t.objectLanguageCode is null);
-    assert(t.objectDataTypeURI is null);
-    assert(t.objectType == ObjectFormat.literal);
-}
-
-///
-@safe pure unittest
-{
     const x = `<http://dbpedia.org/resource/1950_Chatham_Cup> <http://xmlns.com/foaf/0.1/name> "Chatham Cup"@en .`;
     const t = x.parseNTriple;
 
@@ -233,6 +204,21 @@ auto parseNTriple(scope return const(char)[] s) @safe pure
     assert(t.predicate == `http://xmlns.com/foaf/0.1/name`);
     assert(t.object == `Chatham Cup`);
     assert(t.objectLanguageCode == `en`);
+    assert(t.objectDataTypeURI is null);
+    assert(t.objectType == ObjectFormat.literal);
+}
+
+///
+@safe pure unittest
+{
+    const x = `<http://dbpedia.org/resource/1950_Chatham_Cup> <http://xmlns.com/foaf/0.1/name> "Chatham Cup" .`;
+    const t = x.parseNTriple;
+
+    assert(t.subject == `http://dbpedia.org/resource/1950_Chatham_Cup`);
+    assert(t.subjectType == SubjectFormat.URI);
+    assert(t.predicate == `http://xmlns.com/foaf/0.1/name`);
+    assert(t.object == `Chatham Cup`);
+    assert(t.objectLanguageCode is null);
     assert(t.objectDataTypeURI is null);
     assert(t.objectType == ObjectFormat.literal);
 }
@@ -269,8 +255,31 @@ auto parseNTriple(scope return const(char)[] s) @safe pure
     assert(t.objectType == ObjectFormat.literal);
 }
 
+/** Iterate RDF-File $(D rdfFile) by RDF N-Triple.
+ */
+version(none)
+auto byNTriple(File rdfFile,
+               const char commentPrefix = '#')
+{
+    import bylinefast : byLineFast, KeepTerminator;
+    import std.algorithm.iteration : map, filter;
+    // TODO support this somehow:
+    // if (line.startsWith('#'))
+    // {
+    //     if (line.skipOver(`# started `)) { string startTime = line.to!string; }
+    //     if (line.skipOver(`# completed `)) { string completionTime = line.to!string; }
+    //     continue;
+    // }
+    return rdfFile.byLineFast(KeepTerminator.no, "\n")
+                  .filter!(line =>
+                           (line.length >= 1 &&
+                            line[0] != commentPrefix)) // skip comments
+                  .map!(line => line.parseNTriple);
+}
+
 /** Iterate Range by RDF N-Triple.
  */
+version(none)
 auto byNTriple(R)(R r)
 if ((hasSlicing!R && hasLength!R ||
      isNarrowString!R))
@@ -283,6 +292,7 @@ if ((hasSlicing!R && hasLength!R ||
             .map!(line => line.parseNTriple);
 }
 
+version(none)
 @safe pure unittest
 {
     const x = `<http://dbpedia.org/resource/16_@_War> <http://xmlns.com/foaf/0.1/name> "16 @ War"@en .

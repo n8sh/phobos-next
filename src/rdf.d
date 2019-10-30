@@ -16,8 +16,8 @@
  */
 module rdf;
 
-enum SubjectFormat { URI, undecodedURI, blankNode }
-enum ObjectFormat { URI, undecodedURI, blankNode, literal }
+enum SubjectFormat { URI, blankNode }
+enum ObjectFormat { URI, blankNode, literal }
 
 @safe:
 
@@ -55,18 +55,7 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
             {
                 const ok = subject.skipOverBack('>');
                 assert(ok);
-                SubjectFormat subjectType = SubjectFormat.URI;
-                if (subject.canFind('%')) // only if escape-sequences are found
-                {
-                    try
-                    {
-                        subject = subject.decodeComponent.to!Chars;
-                    }
-                    catch (Exception e)
-                    {
-                        subjectType = SubjectFormat.undecodedURI; // indicate failed decoding
-                    }
-                }
+                subjectType = SubjectFormat.URI;
             }
             else
             {
@@ -84,17 +73,6 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
                 const ok = object.skipOverBack('>');
                 assert(ok);
                 objectType = ObjectFormat.URI;
-                if (object.canFind('%')) // only if escape-sequences are found
-                {
-                    try
-                    {
-                        object = object.decodeComponent.to!Chars; // TODO do GC-allocation only when a real decoding happens
-                    }
-                    catch (Exception e)
-                    {
-                        objectType = ObjectFormat.undecodedURI; // indicate failed decoding
-                    }
-                }
             }
             else if (object.skipOver('"')) // literal
             {
@@ -177,10 +155,10 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
     const x = `<http://dbpedia.org/resource/180%C2%B0_(Gerardo_album)> <http://dbpedia.org/ontology/artist> <http://dbpedia.org/resource/Gerardo_Mej%C3%ADa> .`;
     const nt = x.parseNTriple;
 
-    assert(nt.subject == `http://dbpedia.org/resource/180°_(Gerardo_album)`);
+    assert(nt.subject == `http://dbpedia.org/resource/180%C2%B0_(Gerardo_album)`);
     assert(nt.subjectType == SubjectFormat.URI);
     assert(nt.predicate == `http://dbpedia.org/ontology/artist`);
-    assert(nt.object == `http://dbpedia.org/resource/Gerardo_Mejía`);
+    assert(nt.object == `http://dbpedia.org/resource/Gerardo_Mej%C3%ADa`);
     assert(nt.objectLanguageCode is null);
     assert(nt.objectDataTypeURI is null);
     assert(nt.objectType == ObjectFormat.URI);
@@ -270,7 +248,8 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
     auto nt = x.parseNTriple;
 
     assert(nt.subjectType == SubjectFormat.URI);
+    assert(nt.subject == `http://dbpedia.org/resource/CT_Rei_Pel%C3%A9`);
     assert(nt.predicate == `http://xmlns.com/foaf/0.1/homepage`);
     assert(nt.object == `http://www.santosfc.com.br/clube/default.asp?c=Sedes&st=CT%20Rei%20Pel%E9`);
-    assert(nt.objectType == ObjectFormat.undecodedURI);
+    assert(nt.objectType == ObjectFormat.URI);
 }

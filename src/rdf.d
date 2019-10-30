@@ -38,7 +38,6 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
      */
     static struct NTriple
     {
-        import std.conv : to;
         import array_algorithm : skipOver, skipOverBack, startsWith, endsWith, canFind;
 
         alias Chars = const(char)[];
@@ -102,6 +101,7 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
                 if (object.canFind(`\"`))
                 {
                     import std.array : replace;
+                    import std.conv : to;
                     object = object.replace(`\"`, `"`).to!Chars; // TODO avoid?
                 }
                 objectType = ObjectFormat.literal;

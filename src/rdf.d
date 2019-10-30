@@ -53,7 +53,7 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
         void parse() @safe pure scope nothrow
         {
             // subject: Ref: https://www.w3.org/TR/n-triples/#grammar-production-subject
-            if (subject.skipOver('<')) // IRIREF: https://www.w3.org/TR/n-triples/#grammar-production-IRIREF
+            if (subject.skipOver('<')) // IRIREF (https://www.w3.org/TR/n-triples/#grammar-production-IRIREF)
             {
                 const ok = subject.skipOverBack('>');
                 assert(ok);
@@ -67,16 +67,16 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
             // predicate: Ref: https://www.w3.org/TR/n-triples/#grammar-production-predicate
             assert(predicate.startsWith('<'));
             assert(predicate.endsWith('>'));
-            predicate = predicate[1 .. $ - 1]; // IRIREF: https://www.w3.org/TR/n-triples/#grammar-production-IRIREF
+            predicate = predicate[1 .. $ - 1]; // IRIREF (https://www.w3.org/TR/n-triples/#grammar-production-IRIREF)
 
             // object: Ref: https://www.w3.org/TR/n-triples/#grammar-production-object
-            if (object.skipOver('<')) // IRIREF: https://www.w3.org/TR/n-triples/#grammar-production-IRIREF
+            if (object.skipOver('<')) // IRIREF (https://www.w3.org/TR/n-triples/#grammar-production-IRIREF)
             {
                 const ok = object.skipOverBack('>');
                 assert(ok);
                 objectType = ObjectFormat.IRI;
             }
-            else if (object.skipOver('"')) // literal: https://www.w3.org/TR/n-triples/#grammar-production-literal
+            else if (object.skipOver('"')) // literal (https://www.w3.org/TR/n-triples/#grammar-production-literal)
             {
                 if (object.length >= 3 && object[$ - 3] == '@')
                 {
@@ -106,7 +106,7 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
                 }
                 objectType = ObjectFormat.literal;
             }
-            else                // BLANK_NODE_LABEL: https://www.w3.org/TR/n-triples/#grammar-production-BLANK_NODE_LABEL
+            else                // BLANK_NODE_LABEL (https://www.w3.org/TR/n-triples/#grammar-production-BLANK_NODE_LABEL)
             {
                 objectType = ObjectFormat.blankNode;
             }

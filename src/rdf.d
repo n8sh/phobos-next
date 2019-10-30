@@ -35,7 +35,6 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
      */
     static struct NTriple
     {
-        import std.uri : decodeComponent;
         import std.conv : to;
         import array_algorithm : skipOver, skipOverBack, startsWith, endsWith, canFind;
 
@@ -48,7 +47,7 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
          * - predicate: <http://xmlns.com/foaf/0.1/homepage>
          * - object: <http://www.santosfc.com.br/clube/default.asp?c=Sedes&st=CT%20Rei%20Pel%E9>
          */
-        void parse() @safe pure scope // TODO nothrow
+        void parse() @safe pure scope nothrow
         {
             // subject
             if (subject.skipOver('<')) // URI
@@ -89,7 +88,7 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
                         const objectdataType = hit.post;
                         assert(objectdataType.startsWith('<'));
                         assert(objectdataType.endsWith('>'));
-                        objectDataTypeURI = objectdataType[1 .. $ - 1].decodeComponent;
+                        objectDataTypeURI = objectdataType[1 .. $ - 1];
                         object = hit.pre;
                     }
                 }

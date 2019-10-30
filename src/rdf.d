@@ -21,7 +21,10 @@ enum ObjectFormat { URI, blankNode, literal }
 
 @safe:
 
-/** Decode $(D S) into an RDF N-Triple. */
+/** Decode $(D S) into an RDF N-Triple.
+ *
+ * See_Also: https://www.w3.org/TR/n-triples/
+ */
 auto parseNTriple(scope return inout(char)[] s) @safe pure
 {
     /** RDF N-Triple.

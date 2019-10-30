@@ -50,8 +50,6 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
          */
         void parse() @safe pure scope // TODO nothrow
         {
-            import std.uri : URIException;
-
             // subject
             if (subject.skipOver('<')) // URI
             {

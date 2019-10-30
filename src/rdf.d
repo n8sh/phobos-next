@@ -177,77 +177,77 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
 @safe pure unittest
 {
     const x = `<http://dbpedia.org/resource/180%C2%B0_(Gerardo_album)> <http://dbpedia.org/ontology/artist> <http://dbpedia.org/resource/Gerardo_Mej%C3%ADa> .`;
-    const t = x.parseNTriple;
+    const nt = x.parseNTriple;
 
-    assert(t.subject == `http://dbpedia.org/resource/180°_(Gerardo_album)`);
-    assert(t.subjectType == SubjectFormat.URI);
-    assert(t.predicate == `http://dbpedia.org/ontology/artist`);
-    assert(t.object == `http://dbpedia.org/resource/Gerardo_Mejía`);
-    assert(t.objectLanguageCode is null);
-    assert(t.objectDataTypeURI is null);
-    assert(t.objectType == ObjectFormat.URI);
+    assert(nt.subject == `http://dbpedia.org/resource/180°_(Gerardo_album)`);
+    assert(nt.subjectType == SubjectFormat.URI);
+    assert(nt.predicate == `http://dbpedia.org/ontology/artist`);
+    assert(nt.object == `http://dbpedia.org/resource/Gerardo_Mejía`);
+    assert(nt.objectLanguageCode is null);
+    assert(nt.objectDataTypeURI is null);
+    assert(nt.objectType == ObjectFormat.URI);
 }
 
 ///
 @safe pure unittest
 {
     const x = `<http://dbpedia.org/resource/1950_Chatham_Cup> <http://xmlns.com/foaf/0.1/name> "Chatham Cup"@en .`;
-    const t = x.parseNTriple;
+    const nt = x.parseNTriple;
 
-    assert(t.subject == `http://dbpedia.org/resource/1950_Chatham_Cup`);
-    assert(t.subjectType == SubjectFormat.URI);
-    assert(t.predicate == `http://xmlns.com/foaf/0.1/name`);
-    assert(t.object == `Chatham Cup`);
-    assert(t.objectLanguageCode == `en`);
-    assert(t.objectDataTypeURI is null);
-    assert(t.objectType == ObjectFormat.literal);
+    assert(nt.subject == `http://dbpedia.org/resource/1950_Chatham_Cup`);
+    assert(nt.subjectType == SubjectFormat.URI);
+    assert(nt.predicate == `http://xmlns.com/foaf/0.1/name`);
+    assert(nt.object == `Chatham Cup`);
+    assert(nt.objectLanguageCode == `en`);
+    assert(nt.objectDataTypeURI is null);
+    assert(nt.objectType == ObjectFormat.literal);
 }
 
 ///
 @safe pure unittest
 {
     const x = `<http://dbpedia.org/resource/1950_Chatham_Cup> <http://xmlns.com/foaf/0.1/name> "Chatham Cup" .`;
-    const t = x.parseNTriple;
+    const nt = x.parseNTriple;
 
-    assert(t.subject == `http://dbpedia.org/resource/1950_Chatham_Cup`);
-    assert(t.subjectType == SubjectFormat.URI);
-    assert(t.predicate == `http://xmlns.com/foaf/0.1/name`);
-    assert(t.object == `Chatham Cup`);
-    assert(t.objectLanguageCode is null);
-    assert(t.objectDataTypeURI is null);
-    assert(t.objectType == ObjectFormat.literal);
+    assert(nt.subject == `http://dbpedia.org/resource/1950_Chatham_Cup`);
+    assert(nt.subjectType == SubjectFormat.URI);
+    assert(nt.predicate == `http://xmlns.com/foaf/0.1/name`);
+    assert(nt.object == `Chatham Cup`);
+    assert(nt.objectLanguageCode is null);
+    assert(nt.objectDataTypeURI is null);
+    assert(nt.objectType == ObjectFormat.literal);
 }
 
 ///
 @safe pure unittest
 {
     const x = `<http://dbpedia.org/resource/007:_Quantum_of_Solace> <http://dbpedia.org/ontology/releaseDate> "2008-10-31"^^<http://www.w3.org/2001/XMLSchema#date> .`;
-    const t = x.parseNTriple;
+    const nt = x.parseNTriple;
 
-    assert(t.subject == `http://dbpedia.org/resource/007:_Quantum_of_Solace`);
-    assert(t.subjectType == SubjectFormat.URI);
+    assert(nt.subject == `http://dbpedia.org/resource/007:_Quantum_of_Solace`);
+    assert(nt.subjectType == SubjectFormat.URI);
 
-    assert(t.predicate == `http://dbpedia.org/ontology/releaseDate`);
+    assert(nt.predicate == `http://dbpedia.org/ontology/releaseDate`);
 
-    assert(t.object == `2008-10-31`);
-    assert(t.objectLanguageCode is null);
-    assert(t.objectDataTypeURI == `http://www.w3.org/2001/XMLSchema#date`);
-    assert(t.objectType == ObjectFormat.literal);
+    assert(nt.object == `2008-10-31`);
+    assert(nt.objectLanguageCode is null);
+    assert(nt.objectDataTypeURI == `http://www.w3.org/2001/XMLSchema#date`);
+    assert(nt.objectType == ObjectFormat.literal);
 }
 
 ///
 @safe pure unittest
 {
     const x = `<http://dbpedia.org/resource/Ceremony_(song)> <http://dbpedia.org/ontology/bSide> "\"In a Lonely Place\"".`;
-    const t = x.parseNTriple;
+    const nt = x.parseNTriple;
 
-    assert(t.subject == `http://dbpedia.org/resource/Ceremony_(song)`);
-    assert(t.subjectType == SubjectFormat.URI);
-    assert(t.predicate == `http://dbpedia.org/ontology/bSide`);
-    assert(t.object == `"In a Lonely Place"`);
-    assert(t.objectLanguageCode is null);
-    assert(t.objectDataTypeURI is null);
-    assert(t.objectType == ObjectFormat.literal);
+    assert(nt.subject == `http://dbpedia.org/resource/Ceremony_(song)`);
+    assert(nt.subjectType == SubjectFormat.URI);
+    assert(nt.predicate == `http://dbpedia.org/ontology/bSide`);
+    assert(nt.object == `"In a Lonely Place"`);
+    assert(nt.objectLanguageCode is null);
+    assert(nt.objectDataTypeURI is null);
+    assert(nt.objectType == ObjectFormat.literal);
 }
 
 ///
@@ -256,20 +256,20 @@ version(none)
 {
     const x = `<http://dbpedia.org/resource/16_@_War> <http://xmlns.com/foaf/0.1/name> "16 @ War"@en .
 <http://dbpedia.org/resource/CT_Rei_Pel%C3%A9> <http://xmlns.com/foaf/0.1/homepage> <http://www.santosfc.com.br/clube/default.asp?c=Sedes&st=CT%20Rei%20Pel%E9> .`;
-    auto t = x.byNTriple;
+    auto nt = x.byNTriple;
 
-    assert(t.front.subject == `http://dbpedia.org/resource/16_@_War`);
-    assert(t.front.subjectType == SubjectFormat.URI);
-    assert(t.front.predicate == `http://xmlns.com/foaf/0.1/name`);
-    assert(t.front.object == `16 @ War`);
-    assert(t.front.objectLanguageCode == `en`);
-    assert(t.front.objectDataTypeURI is null);
-    assert(t.front.objectType == ObjectFormat.literal);
+    assert(nt.front.subject == `http://dbpedia.org/resource/16_@_War`);
+    assert(nt.front.subjectType == SubjectFormat.URI);
+    assert(nt.front.predicate == `http://xmlns.com/foaf/0.1/name`);
+    assert(nt.front.object == `16 @ War`);
+    assert(nt.front.objectLanguageCode == `en`);
+    assert(nt.front.objectDataTypeURI is null);
+    assert(nt.front.objectType == ObjectFormat.literal);
 
-    t.popFront();
+    nt.popFront();
 
-    assert(t.front.subjectType == SubjectFormat.URI);
-    assert(t.front.predicate == `http://xmlns.com/foaf/0.1/homepage`);
-    assert(t.front.object == `http://www.santosfc.com.br/clube/default.asp?c=Sedes&st=CT%20Rei%20Pel%E9`);
-    assert(t.front.objectType == ObjectFormat.undecodedURI);
+    assert(nt.front.subjectType == SubjectFormat.URI);
+    assert(nt.front.predicate == `http://xmlns.com/foaf/0.1/homepage`);
+    assert(nt.front.object == `http://www.santosfc.com.br/clube/default.asp?c=Sedes&st=CT%20Rei%20Pel%E9`);
+    assert(nt.front.objectType == ObjectFormat.undecodedURI);
 }

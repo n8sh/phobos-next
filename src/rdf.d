@@ -251,25 +251,28 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
 }
 
 ///
-version(none)
 @safe pure unittest
 {
-    const x = `<http://dbpedia.org/resource/16_@_War> <http://xmlns.com/foaf/0.1/name> "16 @ War"@en .
-<http://dbpedia.org/resource/CT_Rei_Pel%C3%A9> <http://xmlns.com/foaf/0.1/homepage> <http://www.santosfc.com.br/clube/default.asp?c=Sedes&st=CT%20Rei%20Pel%E9> .`;
-    auto nt = x.byNTriple;
+    const x = `<http://dbpedia.org/resource/16_@_War> <http://xmlns.com/foaf/0.1/name> "16 @ War"@en .`;
+    auto nt = x.parseNTriple;
 
-    assert(nt.front.subject == `http://dbpedia.org/resource/16_@_War`);
-    assert(nt.front.subjectType == SubjectFormat.URI);
-    assert(nt.front.predicate == `http://xmlns.com/foaf/0.1/name`);
-    assert(nt.front.object == `16 @ War`);
-    assert(nt.front.objectLanguageCode == `en`);
-    assert(nt.front.objectDataTypeURI is null);
-    assert(nt.front.objectType == ObjectFormat.literal);
+    assert(nt.subject == `http://dbpedia.org/resource/16_@_War`);
+    assert(nt.subjectType == SubjectFormat.URI);
+    assert(nt.predicate == `http://xmlns.com/foaf/0.1/name`);
+    assert(nt.object == `16 @ War`);
+    assert(nt.objectLanguageCode == `en`);
+    assert(nt.objectDataTypeURI is null);
+    assert(nt.objectType == ObjectFormat.literal);
+}
 
-    nt.popFront();
+///
+@safe pure unittest
+{
+    const x = `<http://dbpedia.org/resource/CT_Rei_Pel%C3%A9> <http://xmlns.com/foaf/0.1/homepage> <http://www.santosfc.com.br/clube/default.asp?c=Sedes&st=CT%20Rei%20Pel%E9> .`;
+    auto nt = x.parseNTriple;
 
-    assert(nt.front.subjectType == SubjectFormat.URI);
-    assert(nt.front.predicate == `http://xmlns.com/foaf/0.1/homepage`);
-    assert(nt.front.object == `http://www.santosfc.com.br/clube/default.asp?c=Sedes&st=CT%20Rei%20Pel%E9`);
-    assert(nt.front.objectType == ObjectFormat.undecodedURI);
+    assert(nt.subjectType == SubjectFormat.URI);
+    assert(nt.predicate == `http://xmlns.com/foaf/0.1/homepage`);
+    assert(nt.object == `http://www.santosfc.com.br/clube/default.asp?c=Sedes&st=CT%20Rei%20Pel%E9`);
+    assert(nt.objectType == ObjectFormat.undecodedURI);
 }

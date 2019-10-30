@@ -52,7 +52,7 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
          */
         void parse() @safe pure scope nothrow
         {
-            // subject
+            // subject: Ref: https://www.w3.org/TR/n-triples/#grammar-production-subject
             if (subject.skipOver('<')) // IRI
             {
                 const ok = subject.skipOverBack('>');
@@ -64,7 +64,7 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
                 subjectType = SubjectFormat.blankNode;
             }
 
-            // predicate
+            // predicate: Ref: https://www.w3.org/TR/n-triples/#grammar-production-predicate
             if (predicate.skipOver('<')) // IRI
             {
                 const ok = predicate.skipOverBack('>');
@@ -76,7 +76,7 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
                 // predicateType = PredicateFormat.blankNode;
             }
 
-            // object
+            // object: Ref: https://www.w3.org/TR/n-triples/#grammar-production-object
             if (object.skipOver('<')) // IRI
             {
                 const ok = object.skipOverBack('>');
@@ -140,7 +140,7 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
 
     import array_algorithm : indexOf;
 
-    // subject
+    // subject IRI
     const ix0 = s.indexOf(' '); // TODO use array_algorithm.findSplit(' ')
     assert(ix0 != -1);
     const subject = s[0 .. ix0];

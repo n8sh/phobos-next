@@ -252,49 +252,8 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
     assert(t.objectType == ObjectFormat.literal);
 }
 
-version(none):
-
-import std.stdio : File;
-
-/** Iterate RDF-File $(D rdfFile) by RDF N-Triple.
- */
-auto byNTriple(File rdfFile,
-               const char commentPrefix = '#')
-{
-    import bylinefast : byLineFast, KeepTerminator;
-    import std.algorithm.iteration : map, filter;
-    // TODO support this somehow:
-    // if (line.startsWith('#'))
-    // {
-    //     if (line.skipOver(`# started `)) { string startTime = line.to!string; }
-    //     if (line.skipOver(`# completed `)) { string completionTime = line.to!string; }
-    //     continue;
-    // }
-    return rdfFile.byLineFast(KeepTerminator.no, "\n")
-                  .filter!(line =>
-                           (line.length >= 1 &&
-                            line[0] != commentPrefix)) // skip comments
-                  .map!(line => line.parseNTriple);
-}
-
-import std.traits : isNarrowString;
-
-import std.range.primitives : hasSlicing, hasLength;
-
-/** Iterate Range by RDF N-Triple.
- */
-auto byNTriple(R)(R r)
-if ((hasSlicing!R && hasLength!R ||
-     isNarrowString!R))
-{
-    import std.algorithm.iteration : map, filter;
-    import std.string : indexOf;
-    import splitter_ex : splitterASCIIAmong;
-    return r.splitterASCIIAmong!('\n')               // TODO support multiple newlines
-            .filter!(line => line.indexOf('#') != 0) // skip comments. TODO non-decoding
-            .map!(line => line.parseNTriple);
-}
-
+///
+version(none)
 @safe pure unittest
 {
     const x = `<http://dbpedia.org/resource/16_@_War> <http://xmlns.com/foaf/0.1/name> "16 @ War"@en .

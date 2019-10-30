@@ -153,7 +153,6 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
     s = s[ix1 + 1 .. $];
 
     auto nt = inout(NTriple)(subject, predicate, s);
-
     (cast(NTriple)nt).parse();  // hack to make `inout` work
     return nt;
 }

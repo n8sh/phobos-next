@@ -415,21 +415,7 @@ ptrdiff_t indexOf(T)(scope inout(T)[] haystack,
     }
     return -1;
 }
-
-///
-@safe pure nothrow @nogc unittest
-{
-    assert("_abc_abc_".indexOf("abc") == 1);
-    assert("__abc_".indexOf("abc") == 2);
-    assert("a".indexOf("a") == 0);
-    assert("abc".indexOf("abc") == 0);
-    assert("_".indexOf("a") == -1);
-    assert("_".indexOf("__") == -1);
-    assert("__".indexOf("a") == -1);
-}
-
-/** Array-specialization of `indexOf` with default predicate.
- */
+/// ditto
 ptrdiff_t indexOf(T)(scope inout(T)[] haystack,
                      scope const T needle)
 {
@@ -442,6 +428,18 @@ ptrdiff_t indexOf(T)(scope inout(T)[] haystack,
         }
     }
     return -1;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    assert("_abc_abc_".indexOf("abc") == 1);
+    assert("__abc_".indexOf("abc") == 2);
+    assert("a".indexOf("a") == 0);
+    assert("abc".indexOf("abc") == 0);
+    assert("_".indexOf("a") == -1);
+    assert("_".indexOf("__") == -1);
+    assert("__".indexOf("a") == -1);
 }
 
 ///

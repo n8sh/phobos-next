@@ -16,8 +16,6 @@
  */
 module rdf;
 
-import dbgio;
-
 enum SubjectFormat { URI, undecodedURI, blankNode }
 enum ObjectFormat { URI, undecodedURI, blankNode, literal }
 

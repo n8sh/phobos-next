@@ -296,23 +296,7 @@ bool canFind(T)(scope const T[] haystack,
     }
     return false;
 }
-
-///
-@safe pure nothrow @nogc unittest
-{
-    assert(!"".canFind("_"));
-    assert(!"a".canFind("_"));
-    assert("a".canFind("a"));
-    assert(!"a".canFind("ab"));
-    assert("ab".canFind("a"));
-    assert("ab".canFind("b"));
-    assert("ab".canFind("ab"));
-    assert(!"a".canFind("ab"));
-    assert(!"b".canFind("ab"));
-}
-
-/** Array-specialization of `count` with default predicate.
- */
+/// ditto
 bool canFind(T)(scope const T[] haystack,
                 scope const T needle) @trusted
 {
@@ -326,6 +310,20 @@ bool canFind(T)(scope const T[] haystack,
         }
     }
     return false;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    assert(!"".canFind("_"));
+    assert(!"a".canFind("_"));
+    assert("a".canFind("a"));
+    assert(!"a".canFind("ab"));
+    assert("ab".canFind("a"));
+    assert("ab".canFind("b"));
+    assert("ab".canFind("ab"));
+    assert(!"a".canFind("ab"));
+    assert(!"b".canFind("ab"));
 }
 
 ///

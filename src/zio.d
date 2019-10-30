@@ -1,5 +1,7 @@
 /** File I/O of Compressed Files.
-*/
+ *
+ * See_Also: https://forum.dlang.org/post/jykarqycnrecajveqpos@forum.dlang.org
+ */
 module zio;
 
 struct GzipFileInputRange

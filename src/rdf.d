@@ -53,28 +53,21 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
         void parse() @safe pure scope nothrow
         {
             // subject: Ref: https://www.w3.org/TR/n-triples/#grammar-production-subject
-            if (subject.skipOver('<')) // IRI
+            if (subject.skipOver('<')) // IRIREF
             {
                 const ok = subject.skipOverBack('>');
                 assert(ok);
                 subjectType = SubjectFormat.IRI;
             }
-            else
+            else                // BLANK_NODE_LABEL
             {
                 subjectType = SubjectFormat.blankNode;
             }
 
             // predicate: Ref: https://www.w3.org/TR/n-triples/#grammar-production-predicate
-            if (predicate.skipOver('<')) // IRI
-            {
-                const ok = predicate.skipOverBack('>');
-                assert(ok);
-                // predicateType = PredicateFormat.IRI;
-            }
-            else
-            {
-                // predicateType = PredicateFormat.blankNode;
-            }
+            assert(predicate.startsWith('<'));
+            assert(predicate.endsWith('>'));
+            predicate = predicate[1 .. $ - 1]; // IRIREF
 
             // object: Ref: https://www.w3.org/TR/n-triples/#grammar-production-object
             if (object.skipOver('<')) // IRI

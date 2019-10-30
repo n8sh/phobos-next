@@ -62,9 +62,16 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
             }
 
             // predicate
-            assert(predicate.startsWith('<'));
-            assert(predicate.endsWith('>'));
-            predicate = predicate[1 .. $ - 1];
+            if (predicate.skipOver('<')) // URI
+            {
+                const ok = predicate.skipOverBack('>');
+                assert(ok);
+                // predicateType = PredicateFormat.URI;
+            }
+            else
+            {
+                // predicateType = PredicateFormat.blankNode;
+            }
 
             // object
             if (object.skipOver('<')) // URI

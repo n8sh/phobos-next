@@ -16,8 +16,8 @@
  */
 module rdf;
 
-enum SubjectFormat { URI, blankNode }
-enum ObjectFormat { URI, blankNode, literal }
+enum SubjectFormat { IRI, blankNode }
+enum ObjectFormat { IRI, blankNode, literal }
 
 @safe:
 
@@ -53,11 +53,11 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
         void parse() @safe pure scope nothrow
         {
             // subject
-            if (subject.skipOver('<')) // URI
+            if (subject.skipOver('<')) // IRI
             {
                 const ok = subject.skipOverBack('>');
                 assert(ok);
-                subjectType = SubjectFormat.URI;
+                subjectType = SubjectFormat.IRI;
             }
             else
             {
@@ -65,11 +65,11 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
             }
 
             // predicate
-            if (predicate.skipOver('<')) // URI
+            if (predicate.skipOver('<')) // IRI
             {
                 const ok = predicate.skipOverBack('>');
                 assert(ok);
-                // predicateType = PredicateFormat.URI;
+                // predicateType = PredicateFormat.IRI;
             }
             else
             {
@@ -77,11 +77,11 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
             }
 
             // object
-            if (object.skipOver('<')) // URI
+            if (object.skipOver('<')) // IRI
             {
                 const ok = object.skipOverBack('>');
                 assert(ok);
-                objectType = ObjectFormat.URI;
+                objectType = ObjectFormat.IRI;
             }
             else if (object.skipOver('"')) // literal
             {
@@ -98,7 +98,7 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
                         const objectdataType = hit.post;
                         assert(objectdataType.startsWith('<'));
                         assert(objectdataType.endsWith('>'));
-                        objectDataTypeURI = objectdataType[1 .. $ - 1];
+                        objectDataTypeIRI = objectdataType[1 .. $ - 1];
                         object = hit.pre;
                     }
                 }
@@ -125,7 +125,7 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
 
         Chars objectLanguageCode;
 
-        Chars objectDataTypeURI;
+        Chars objectDataTypeIRI;
         SubjectFormat subjectType;
         ObjectFormat objectType;
     }
@@ -146,7 +146,7 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
     const subject = s[0 .. ix0];
     s = s[ix0 + 1 .. $];
 
-    // predicate URI
+    // predicate IRI
     const ix1 = s.indexOf(' '); // TODO use array_algorithm.findSplit(' ')
     assert(ix1 != -1);
     const predicate = s[0 .. ix1];
@@ -165,12 +165,12 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
     const nt = x.parseNTriple;
 
     assert(nt.subject == `http://dbpedia.org/resource/180%C2%B0_(Gerardo_album)`);
-    assert(nt.subjectType == SubjectFormat.URI);
+    assert(nt.subjectType == SubjectFormat.IRI);
     assert(nt.predicate == `http://dbpedia.org/ontology/artist`);
     assert(nt.object == `http://dbpedia.org/resource/Gerardo_Mej%C3%ADa`);
     assert(nt.objectLanguageCode is null);
-    assert(nt.objectDataTypeURI is null);
-    assert(nt.objectType == ObjectFormat.URI);
+    assert(nt.objectDataTypeIRI is null);
+    assert(nt.objectType == ObjectFormat.IRI);
 }
 
 ///
@@ -180,11 +180,11 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
     const nt = x.parseNTriple;
 
     assert(nt.subject == `http://dbpedia.org/resource/1950_Chatham_Cup`);
-    assert(nt.subjectType == SubjectFormat.URI);
+    assert(nt.subjectType == SubjectFormat.IRI);
     assert(nt.predicate == `http://xmlns.com/foaf/0.1/name`);
     assert(nt.object == `Chatham Cup`);
     assert(nt.objectLanguageCode == `en`);
-    assert(nt.objectDataTypeURI is null);
+    assert(nt.objectDataTypeIRI is null);
     assert(nt.objectType == ObjectFormat.literal);
 }
 
@@ -195,11 +195,11 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
     const nt = x.parseNTriple;
 
     assert(nt.subject == `http://dbpedia.org/resource/1950_Chatham_Cup`);
-    assert(nt.subjectType == SubjectFormat.URI);
+    assert(nt.subjectType == SubjectFormat.IRI);
     assert(nt.predicate == `http://xmlns.com/foaf/0.1/name`);
     assert(nt.object == `Chatham Cup`);
     assert(nt.objectLanguageCode is null);
-    assert(nt.objectDataTypeURI is null);
+    assert(nt.objectDataTypeIRI is null);
     assert(nt.objectType == ObjectFormat.literal);
 }
 
@@ -210,13 +210,13 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
     const nt = x.parseNTriple;
 
     assert(nt.subject == `http://dbpedia.org/resource/007:_Quantum_of_Solace`);
-    assert(nt.subjectType == SubjectFormat.URI);
+    assert(nt.subjectType == SubjectFormat.IRI);
 
     assert(nt.predicate == `http://dbpedia.org/ontology/releaseDate`);
 
     assert(nt.object == `2008-10-31`);
     assert(nt.objectLanguageCode is null);
-    assert(nt.objectDataTypeURI == `http://www.w3.org/2001/XMLSchema#date`);
+    assert(nt.objectDataTypeIRI == `http://www.w3.org/2001/XMLSchema#date`);
     assert(nt.objectType == ObjectFormat.literal);
 }
 
@@ -227,11 +227,11 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
     const nt = x.parseNTriple;
 
     assert(nt.subject == `http://dbpedia.org/resource/Ceremony_(song)`);
-    assert(nt.subjectType == SubjectFormat.URI);
+    assert(nt.subjectType == SubjectFormat.IRI);
     assert(nt.predicate == `http://dbpedia.org/ontology/bSide`);
     assert(nt.object == `"In a Lonely Place"`);
     assert(nt.objectLanguageCode is null);
-    assert(nt.objectDataTypeURI is null);
+    assert(nt.objectDataTypeIRI is null);
     assert(nt.objectType == ObjectFormat.literal);
 }
 
@@ -242,11 +242,11 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
     auto nt = x.parseNTriple;
 
     assert(nt.subject == `http://dbpedia.org/resource/16_@_War`);
-    assert(nt.subjectType == SubjectFormat.URI);
+    assert(nt.subjectType == SubjectFormat.IRI);
     assert(nt.predicate == `http://xmlns.com/foaf/0.1/name`);
     assert(nt.object == `16 @ War`);
     assert(nt.objectLanguageCode == `en`);
-    assert(nt.objectDataTypeURI is null);
+    assert(nt.objectDataTypeIRI is null);
     assert(nt.objectType == ObjectFormat.literal);
 }
 
@@ -256,9 +256,9 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
     const x = `<http://dbpedia.org/resource/CT_Rei_Pel%C3%A9> <http://xmlns.com/foaf/0.1/homepage> <http://www.santosfc.com.br/clube/default.asp?c=Sedes&st=CT%20Rei%20Pel%E9> .`;
     auto nt = x.parseNTriple;
 
-    assert(nt.subjectType == SubjectFormat.URI);
+    assert(nt.subjectType == SubjectFormat.IRI);
     assert(nt.subject == `http://dbpedia.org/resource/CT_Rei_Pel%C3%A9`);
     assert(nt.predicate == `http://xmlns.com/foaf/0.1/homepage`);
     assert(nt.object == `http://www.santosfc.com.br/clube/default.asp?c=Sedes&st=CT%20Rei%20Pel%E9`);
-    assert(nt.objectType == ObjectFormat.URI);
+    assert(nt.objectType == ObjectFormat.IRI);
 }

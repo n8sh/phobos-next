@@ -351,6 +351,18 @@ size_t count(T)(scope const T[] haystack,
     }
     return result;
 }
+/// ditto
+size_t count(T)(scope const T[] haystack,
+                scope const T needle)
+{
+    static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
+    size_t result;
+    foreach (const ref element; haystack)
+    {
+        result += element == needle ? 1 : 0;
+    }
+    return result;
+}
 
 ///
 @safe pure nothrow @nogc unittest
@@ -365,20 +377,6 @@ size_t count(T)(scope const T[] haystack,
     assert("_aaa_".count("a") == 3);
     // assert("".count("") == 0);
     // assert("_a_a_".count("") == 5);
-}
-
-/** Array-specialization of `count` with default predicate.
- */
-size_t count(T)(scope const T[] haystack,
-                scope const T needle)
-{
-    static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
-    size_t result;
-    foreach (const ref element; haystack)
-    {
-        result += element == needle ? 1 : 0;
-    }
-    return result;
 }
 
 ///

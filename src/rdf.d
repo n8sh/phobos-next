@@ -41,7 +41,7 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
 
         alias Chars = const(char)[];
 
-        /** Construct using subject, predicate, object.
+        /** Parse `subject`, `predicate` and `object`.
          *
          * Fails for:
          * - subject: <http://dbpedia.org/resource/CT_Rei_Pel%C3%A9>

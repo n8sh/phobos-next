@@ -49,7 +49,7 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
          * - predicate: <http://xmlns.com/foaf/0.1/homepage>
          * - object: <http://www.santosfc.com.br/clube/default.asp?c=Sedes&st=CT%20Rei%20Pel%E9>
          */
-        void parse() @safe pure scope nothrow
+        void parse() @safe pure scope nothrow @nogc
         {
             // subject: Ref: https://www.w3.org/TR/n-triples/#grammar-production-subject
             if (subject.skipOver('<')) // IRIREF (https://www.w3.org/TR/n-triples/#grammar-production-IRIREF)

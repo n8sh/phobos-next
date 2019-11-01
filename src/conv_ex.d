@@ -1,9 +1,8 @@
 module conv_ex;
 
-import std.traits: isSomeChar, isSomeString, CommonType;
+import std.traits: isSomeString;
 import array_traits : isCharsSlice;
-import traits_ex : haveCommonType, isSourceOfSomeChar;
-import std.range.primitives : isInputRange, ElementType;
+import traits_ex : isSourceOfSomeChar;
 
 /** Variant of std.conv.to with $(D defaultValue) making it $(D nothrow).
  *
@@ -252,6 +251,7 @@ if (isSourceOfSomeChar!Source)
 auto decodeEscapes(Source)(Source s)
 if (isSourceOfSomeChar!Source)
 {
+    import std.range.primitives : ElementType;
     alias E = ElementType!Source;
     static struct Result
     {
@@ -361,6 +361,7 @@ version(unittest)
     import std.algorithm : equal;
 }
 
+// import std.range.primitives : isInputRange, ElementType;
 // /** Range Implementation of std.utf.toUTF8.
 //     Add to Phobos std.utf
 // */

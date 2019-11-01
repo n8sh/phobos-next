@@ -262,9 +262,13 @@ if (isSourceOfSomeChar!Source)
 
         // empty
         static if (isInfinite!Source)
+        {
             enum bool empty = false;
+        }
         else
+        {
             @property bool empty() const { return _empty; }
+        }
 
         @property E front() const { return _decodedFront; }
 

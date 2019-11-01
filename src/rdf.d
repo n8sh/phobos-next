@@ -38,7 +38,7 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
      */
     static struct NTriple
     {
-        import array_algorithm : skipOver, skipOverBack, startsWith, endsWith, canFind;
+        import array_algorithm : skipOver, skipOverBack, startsWith, endsWith;
 
         alias Chars = const(char)[];
 
@@ -98,12 +98,6 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
                 const ok = object.skipOverBack('"');
                 assert(ok);
 
-                if (object.canFind(`\"`))
-                {
-                    import std.array : replace;
-                    import std.conv : to;
-                    object = object.replace(`\"`, `"`).to!Chars; // TODO avoid?
-                }
                 objectType = ObjectFormat.literal;
             }
             else                // BLANK_NODE_LABEL (https://www.w3.org/TR/n-triples/#grammar-production-BLANK_NODE_LABEL)
@@ -221,7 +215,7 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
     assert(nt.subject == `http://dbpedia.org/resource/Ceremony_(song)`);
     assert(nt.subjectType == SubjectFormat.IRI);
     assert(nt.predicate == `http://dbpedia.org/ontology/bSide`);
-    assert(nt.object == `"In a Lonely Place"`);
+    assert(nt.object == `\"In a Lonely Place\"`);
     assert(nt.objectLanguageCode is null);
     assert(nt.objectDataTypeIRI is null);
     assert(nt.objectType == ObjectFormat.literal);

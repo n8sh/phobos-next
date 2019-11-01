@@ -375,7 +375,7 @@ nothrow @nogc unittest          // TODO pure when https://github.com/dlang/phobo
 ///
 @safe pure nothrow @nogc unittest
 {
-    enum E:ubyte { a, b, c, d, dAlias = d }
+    enum E : ubyte { a, b, c, d, dAlias = d }
 
     auto set = DenseSetFilter!(E, Growable.yes)();
 
@@ -397,7 +397,7 @@ nothrow @nogc unittest          // TODO pure when https://github.com/dlang/phobo
 ///
 @safe pure nothrow @nogc unittest
 {
-    enum E:ubyte { a, b, c, d, dAlias = d }
+    enum E : ubyte { a, b, c, d, dAlias = d }
 
     auto set = DenseSetFilter!(E, Growable.no).withInferredLength(); // TODO use instantiator function here
     assert(set.capacity == typeof(set).elementMaxCount);
@@ -694,7 +694,7 @@ version(unittest)
 ///
 @safe pure nothrow @nogc unittest
 {
-    enum E:ubyte { a, b, c, d, dAlias = d }
+    enum E : ubyte { a, b, c, d, dAlias = d }
 
     auto set = StaticDenseSetFilter!(E)();
     static assert(set.sizeof == 1);
@@ -730,7 +730,7 @@ version(unittest)
 /// assignment from range
 @safe pure nothrow @nogc unittest
 {
-    enum E:ubyte { a, b, c, d, dAlias = d }
+    enum E : ubyte { a, b, c, d, dAlias = d }
 
     const E[2] es = [E.a, E.c];
     auto set = StaticDenseSetFilter!(E)(es[]);
@@ -745,7 +745,7 @@ version(unittest)
 /// assignment from range
 @safe pure nothrow @nogc unittest
 {
-    enum E:ubyte { a, b, c, d }
+    enum E : ubyte { a, b, c, d }
 
     const E[] es = [];
     auto set = StaticDenseSetFilter!(E).withValuesOrFull(es[]);
@@ -764,7 +764,7 @@ version(unittest)
 /// assignment from range
 @safe pure nothrow @nogc unittest
 {
-    enum E:ubyte { a, b, c, d }
+    enum E : ubyte { a, b, c, d }
 
     const E[2] es = [E.a, E.c];
     auto set = StaticDenseSetFilter!(E).withValuesOrFull(es[]);
@@ -781,7 +781,7 @@ version(unittest)
 /// assignment from range
 @safe pure nothrow @nogc unittest
 {
-    enum E:ubyte { a, b, c, d }
+    enum E : ubyte { a, b, c, d }
 
     auto set = StaticDenseSetFilter!(E).asFull;
     static assert(set.sizeof == 1);
@@ -797,7 +797,7 @@ version(unittest)
 /// assignment from range
 @safe pure nothrow @nogc unittest
 {
-    enum E:ubyte
+    enum E : ubyte
     {
         a, b, c, d, e, f, g, h,
     }
@@ -817,7 +817,7 @@ version(unittest)
 /// assignment from range
 @safe pure nothrow @nogc unittest
 {
-    enum E:ubyte
+    enum E : ubyte
     {
         a, b, c, d, e, f, g, h,
         i,
@@ -838,7 +838,7 @@ version(unittest)
 /// assignment from range
 @safe pure nothrow @nogc unittest
 {
-    enum E:ubyte
+    enum E : ubyte
     {
         a, b, c, d, e, f, g, h,
         i, j, k, l, m, n, o, p,
@@ -859,7 +859,7 @@ version(unittest)
 /// assignment from range
 @safe pure nothrow @nogc unittest
 {
-    enum E:ubyte
+    enum E : ubyte
     {
         a, b, c, d, e, f, g, h,
         i, j, k, l, m, n, o, p,
@@ -881,7 +881,7 @@ version(unittest)
 /// assignment from range
 @safe pure nothrow @nogc unittest
 {
-    enum E:ubyte
+    enum E : ubyte
     {
         a, b, c, d, e, f, g, h,
         i, j, k, l, m, n, o, p,
@@ -1018,7 +1018,7 @@ version(unittest)
 {
     import array_help : s;
 
-    enum E:ubyte { a, b, c, d, dAlias = d }
+    enum E : ubyte { a, b, c, d, dAlias = d }
 
     auto a = StaticDenseSetFilter!(E)([E.a].s[]);
     auto b = StaticDenseSetFilter!(E)([E.b].s[]);

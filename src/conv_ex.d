@@ -328,6 +328,7 @@ auto unescaped(S)(S s)
 if (isSomeString!S)
 {
     import std.algorithm.searching : canFind;
+    import array_algorithm : canFind;
     import std.conv : to;
     return (s.canFind('\\') ?
             s.decodeEscapes.to!S :

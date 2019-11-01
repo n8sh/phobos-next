@@ -10,6 +10,8 @@
  * See_Also: https://forum.dlang.org/thread/ybamybeakxwxwleebnwb@forum.dlang.org?page=1
  *
  * TODO Merge into array-specializations of Phobos algorithms.
+ *
+ * TODO Replace `foreach (const ref element, ...)` with `foreach (const auto ref element, ...)` when it gets accepted.
  */
 module array_algorithm;
 
@@ -302,9 +304,9 @@ bool canFind(T)(scope const T[] haystack,
 {
     static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
     if (haystack.length == 0) { return false; }
-    foreach (const size_t offset; 0 .. haystack.length)
+    foreach (const ref element; haystack)
     {
-        if (haystack.ptr[offset] == needle)
+        if (element == needle)
         {
             return true;
         }

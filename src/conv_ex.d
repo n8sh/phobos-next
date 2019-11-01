@@ -167,9 +167,11 @@ private void parseCheck(alias source)(dchar c,
     source.popFront();
 }
 
-/**
-   Copied this from std.conv.
-   TODO Reuse std.conv.parseEscape when moved there.
+/** Parse escape characters in `s`.
+ *
+ * Copied this from std.conv.
+ *
+ * TODO Reuse std.conv.parseEscape when moved there.
 */
 private dchar parseEscape(Source)(ref Source s)
 if (isSourceOfSomeChar!Source)

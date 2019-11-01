@@ -10,7 +10,7 @@ import traits_ex : isSourceOfSomeChar;
  * See_Also: https://forum.dlang.org/post/kdjbkqbnspzshdqtsntg@forum.dlang.org
  */
 T toDefaulted(T, S, U)(const scope S value,
-                       /*lazy*/ U defaultValue)
+                       /*lazy*/ U defaultValue) nothrow
 if (!is(T == enum) &&
     is(typeof(() { T r = defaultValue; }))) // TODO use std.traits.isAssignable!(T, U) ?
 {

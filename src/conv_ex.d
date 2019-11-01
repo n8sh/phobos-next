@@ -177,8 +177,8 @@ private dchar parseEscape(Source)(ref Source s)
 if (isSourceOfSomeChar!Source)
 {
     import std.range.primitives : empty, front, popFront;
-    if (s.empty)
-        throw parseError("Unterminated escape sequence");
+
+    if (s.empty) { throw parseError("Unterminated escape sequence"); }
 
     dchar getHexDigit()(ref Source s_ = s)  // workaround
     {

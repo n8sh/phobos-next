@@ -1,6 +1,6 @@
 module conv_ex;
 
-import std.traits: isSomeString;
+import std.traits: isSomeChar, isSomeString;
 import array_traits : isCharsSlice;
 import traits_ex : isSourceOfSomeChar;
 
@@ -315,7 +315,7 @@ if (isSourceOfSomeChar!Source)
     import std.array : array;
     auto y = `_\u00F6\u00F6_`.decodeEscapes.array;
     static assert(is(typeof(y) == dchar[]));
-    assert(y == "_öö_");
+    assert(equal(y, "_öö_"));
 }
 
 ///
@@ -336,6 +336,7 @@ if (isSomeString!S)
 }
 /// ditto
 inout(T)[] unescaped(T)(scope return inout(T)[] s)
+if (isSomeChar!T)
 {
     import array_algorithm : canFind;
     import std.conv : to;

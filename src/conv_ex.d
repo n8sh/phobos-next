@@ -319,7 +319,7 @@ if (isSourceOfSomeChar!Source)
 }
 
 ///
-@safe pure nothrow unittest
+@safe pure unittest
 {
     assert(equal(`_\u00F6\u00F6_`.decodeEscapes, "_öö_"));
 }

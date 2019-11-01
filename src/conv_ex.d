@@ -316,48 +316,11 @@ if (isSourceOfSomeChar!Source)
     assert(`http://dbpedia.org/resource/Malm\u00F6`.decodeEscapes.equal(`http://dbpedia.org/resource/Malmö`));
 }
 
-/// Return `s` with escape sequences removed.
-auto unescaped(S)(S s)
-if (isSomeString!S)
-{
-    import std.algorithm.searching : canFind;
-    import std.conv : to;
-    return (s.canFind('\\') ?
-            s.decodeEscapes.to!S :
-            s);
-}
-/// ditto
-inout(T)[] unescaped(T)(scope return inout(T)[] s)
-if (isSomeChar!T)
-{
-    import array_algorithm : canFind;
-    import std.conv : to;
-    return (s.canFind('\\') ?
-            s.decodeEscapes.to!S :
-            s);
-}
-
 /// Remove escape sequences in `s`.
 void unescape(S)(ref S s)
 if (isSomeString!S)
 {
     s = s.unescaped;
-}
-
-///
-@safe unittest
-{
-    import std.meta : AliasSeq;
-    foreach (S; AliasSeq!(string, wstring))
-    {
-        S x = `_\u00F6\u00F6_`;
-        auto y = x.unescaped;
-        static assert(is(typeof(y) == S));
-        assert(y == "_öö_");
-
-        x.unescape;
-        assert(x == "_öö_");
-    }
 }
 
 version(unittest)

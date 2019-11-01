@@ -305,13 +305,6 @@ if (isSourceOfSomeChar!Source)
     return Result(s);
 }
 
-string decodeEscapesToUTF8(S)(S s)
-if (isSourceOfSomeChar!S)
-{
-    import std.conv : to;
-    return s.decodeEscapes.to!(typeof(return));
-}
-
 wstring decodeEscapesToUTF16(S)(S s)
 if (isSourceOfSomeChar!S)
 {
@@ -336,8 +329,9 @@ if (isSourceOfSomeChar!S)
 ///
 @safe pure /*TODO nothrow*/ unittest
 {
+    import std.conv : to;
     import std.algorithm : equal;
-    auto y = `_\u00F6\u00F6_`.decodeEscapesToUTF8;
+    auto y = `_\u00F6\u00F6_`.decodeEscapes!to.string;
     static assert(is(typeof(y) == string));
     assert(y == "_öö_");
 }

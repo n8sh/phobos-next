@@ -334,10 +334,10 @@ if (isSomeString!S)
             s);
 }
 
-auto unescape(S)(ref S s)
+void unescape(S)(ref S s)
 if (isSomeString!S)
 {
-    return s = s.unescaped;
+    s = s.unescaped;
 }
 
 ///

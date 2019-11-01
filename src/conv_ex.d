@@ -316,13 +316,6 @@ if (isSourceOfSomeChar!Source)
     assert(`http://dbpedia.org/resource/Malm\u00F6`.decodeEscapes.equal(`http://dbpedia.org/resource/Malmö`));
 }
 
-/// Remove escape sequences in `s`.
-void unescape(S)(ref S s)
-if (isSomeString!S)
-{
-    s = s.unescaped;
-}
-
 version(unittest)
 {
     import std.algorithm : equal;

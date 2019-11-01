@@ -324,10 +324,19 @@ if (isSourceOfSomeChar!Source)
     assert(equal(`_\u00F6\u00F6_`.decodeEscapes, "_öö_"));
 }
 
+/// Return `s` with escape sequences removed.
 auto unescaped(S)(S s)
 if (isSomeString!S)
 {
     import std.algorithm.searching : canFind;
+    import std.conv : to;
+    return (s.canFind('\\') ?
+            s.decodeEscapes.to!S :
+            s);
+}
+/// ditto
+inout(T)[] unescaped(T)(scope return inout(T)[] s)
+{
     import array_algorithm : canFind;
     import std.conv : to;
     return (s.canFind('\\') ?

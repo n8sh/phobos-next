@@ -215,7 +215,7 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
     assert(nt.subject == `http://dbpedia.org/resource/Ceremony_(song)`);
     assert(nt.subjectType == SubjectFormat.IRI);
     assert(nt.predicate == `http://dbpedia.org/ontology/bSide`);
-    assert(nt.object == `\"In a Lonely Place\"`);
+    assert(nt.object == `\"In a Lonely Place\"`); // to be unescaped
     assert(nt.objectLanguageCode is null);
     assert(nt.objectDataTypeIRI is null);
     assert(nt.objectType == ObjectFormat.literal);

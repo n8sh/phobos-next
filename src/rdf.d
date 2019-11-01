@@ -14,7 +14,7 @@
  *
  * See_Also: https://www.ida.liu.se/~robke04/include/publications.shtml
  *
- * TODO decode `subject` and `object` (in Db.getExprURI) only when their types are IRIs.
+ * TODO decode `subject` and `object` (in `Db.getExprURI`) only when their types are IRIs?
  */
 module rdf;
 

@@ -316,12 +316,6 @@ if (isSourceOfSomeChar!Source)
     assert(`http://dbpedia.org/resource/Malm\u00F6`.decodeEscapes.equal(`http://dbpedia.org/resource/Malmö`));
 }
 
-///
-@safe pure unittest
-{
-    assert(equal(`_\u00F6\u00F6_`.decodeEscapes, "_öö_"));
-}
-
 /// Return `s` with escape sequences removed.
 auto unescaped(S)(S s)
 if (isSomeString!S)

@@ -282,6 +282,8 @@ inout(char)[] strip()(scope return inout(char)[] haystack) @safe pure nothrow @n
  *
  * TODO Add optimized implementation for needles with length >=
  * `largeNeedleLength` with no repeat of elements.
+ *
+ * TODO reuse `return haystack.indexOf(needle) != -1` in both overloads
  */
 bool canFind(T)(scope const T[] haystack,
                 scope const T[] needle) @trusted

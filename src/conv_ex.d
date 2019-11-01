@@ -322,11 +322,8 @@ if (isSourceOfSomeChar!Source)
 ///
 @safe pure /*TODO nothrow*/ unittest
 {
-    import std.conv : to;
     import std.algorithm : equal;
-    auto y = `_\u00F6\u00F6_`.decodeEscapes.to!string;
-    static assert(is(typeof(y) == string));
-    assert(y == "_öö_");
+    assert(equal(`_\u00F6\u00F6_`.decodeEscapes, "_öö_"));
 }
 
 auto unescaped(S)(S s)
@@ -345,7 +342,8 @@ if (isSomeString!S)
     return s = s.unescaped;
 }
 
-unittest
+///
+@safe unittest
 {
     import std.algorithm : equal;
     import std.meta : AliasSeq;

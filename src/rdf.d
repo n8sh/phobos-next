@@ -80,7 +80,7 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
                 if (object.length >= 3 && object[$ - 3] == '@') // `@`XX found at the end, where
                 {
                     objectLanguageCode = object[$ - 2 .. $]; // XX is a language code
-                    object = object[0 .. $ - 3];
+                    object = object[0 .. $ - 3];             // drop last 3 chars
                 }
                 else
                 {

@@ -344,6 +344,7 @@ inout(T)[] unescaped(T)(scope return inout(T)[] s)
             s);
 }
 
+/// Remove escape sequences in `s`.
 void unescape(S)(ref S s)
 if (isSomeString!S)
 {

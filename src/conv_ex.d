@@ -45,8 +45,8 @@ if (is(T == enum))
 ///
 @safe pure nothrow /*TODO @nogc*/ unittest
 {
-    assert("42_1".toDefaulted!int(42) == 42);
-    assert(42.toDefaulted!string("_42") == "42");
+    assert("42_1".toDefaulted!int(43) == 43);
+    assert(42.toDefaulted!string("_43") == "42");
 }
 
 ///

@@ -401,10 +401,14 @@ size_t count(T)(scope const T[] haystack)
 }
 
 /** Array-specialization of `indexOf` with default predicate.
+ *
+ * TODO Add optimized implementation for needles with length >=
+ * `largeNeedleLength` with no repeat of elements.
  */
 ptrdiff_t indexOf(T)(scope inout(T)[] haystack,
                      scope const(T)[] needle) @trusted
 {
+    // enum largeNeedleLength = 4;
     if (haystack.length < needle.length) { return -1; }
     foreach (const size_t offset; 0 .. haystack.length - needle.length + 1)
     {

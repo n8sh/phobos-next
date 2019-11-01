@@ -1,6 +1,5 @@
 module conv_ex;
 
-import std.traits: isSomeChar, isSomeString;
 import array_traits : isCharsSlice;
 import traits_ex : isSourceOfSomeChar;
 

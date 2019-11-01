@@ -308,7 +308,6 @@ if (isSourceOfSomeChar!Source)
 ///
 @safe pure /*TODO nothrow*/ unittest
 {
-    import std.algorithm : equal;
     assert(`s\u00F6der`.decodeEscapes.equal("söder"));
     assert(`\u00F6`.decodeEscapes.equal("ö"));
     assert(`_\u00F6\u00F6_`.decodeEscapes.equal("_öö_"));
@@ -320,9 +319,8 @@ if (isSourceOfSomeChar!Source)
 }
 
 ///
-@safe pure /*TODO nothrow*/ unittest
+@safe pure nothrow unittest
 {
-    import std.algorithm : equal;
     assert(equal(`_\u00F6\u00F6_`.decodeEscapes, "_öö_"));
 }
 
@@ -345,7 +343,6 @@ if (isSomeString!S)
 ///
 @safe unittest
 {
-    import std.algorithm : equal;
     import std.meta : AliasSeq;
     foreach (S; AliasSeq!(string, wstring))
     {
@@ -357,6 +354,11 @@ if (isSomeString!S)
         x.unescape;
         assert(x == "_öö_");
     }
+}
+
+version(unittest)
+{
+    import std.algorithm : equal;
 }
 
 // /** Range Implementation of std.utf.toUTF8.

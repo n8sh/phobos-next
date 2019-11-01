@@ -24,7 +24,6 @@ if (!is(T == enum) &&
         return defaultValue;
     }
 }
-
 /// ditto
 T toDefaulted(T)(scope const(char)[] value,
                  T defaultValue) @safe pure nothrow @nogc

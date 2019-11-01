@@ -314,10 +314,6 @@ if (isSourceOfSomeChar!Source)
     assert(`s\u00F6der`.decodeEscapes.equal("söder"));
     assert(`_\u00F6\u00F6_`.decodeEscapes.equal("_öö_"));
     assert(`http://dbpedia.org/resource/Malm\u00F6`.decodeEscapes.equal(`http://dbpedia.org/resource/Malmö`));
-    import std.array : array;
-    auto y = `_\u00F6\u00F6_`.decodeEscapes.array;
-    static assert(is(typeof(y) == dchar[]));
-    assert(equal(y, "_öö_"));
 }
 
 ///

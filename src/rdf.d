@@ -77,9 +77,9 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
             }
             else if (object.skipOver('"')) // literal (https://www.w3.org/TR/n-triples/#grammar-production-literal)
             {
-                if (object.length >= 3 && object[$ - 3] == '@')
+                if (object.length >= 3 && object[$ - 3] == '@') // `@XX` found at the end, where
                 {
-                    objectLanguageCode = object[$ - 2 .. $];
+                    objectLanguageCode = object[$ - 2 .. $]; // `XX` is a language code
                     object = object[0 .. $ - 3];
                 }
                 else

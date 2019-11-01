@@ -299,7 +299,9 @@ if (isSourceOfSomeChar!Source)
         Source _remainingSource;
         E _decodedFront;
         static if (!isInfinite!Source)
+        {
             bool _empty;
+        }
     }
 
     return Result(s);

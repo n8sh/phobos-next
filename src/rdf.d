@@ -27,7 +27,7 @@ enum ObjectFormat { IRI, blankNode, literal }
  *
  * See_Also: https://www.w3.org/TR/n-triples/
  */
-auto parseNTriple(scope return inout(char)[] s) @safe pure
+auto parseNTriple(scope return inout(char)[] line) @safe pure
 {
     /** RDF N-Triple.
      *
@@ -121,27 +121,27 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
 
     import array_algorithm : skipOverBack;
 
-    assert(s.length >= 4);
+    assert(line.length >= 4);
 
     // strip suffix
-    s.skipOverBack('.');
-    s.skipOverBack(' ');
+    line.skipOverBack('.');
+    line.skipOverBack(' ');
 
     import array_algorithm : indexOf;
 
     // subject IRI
-    const ix0 = s.indexOf(' '); // TODO use array_algorithm.findSplit(' ')
+    const ix0 = line.indexOf(' '); // TODO use array_algorithm.findSplit(' ')
     assert(ix0 != -1);
-    const subject = s[0 .. ix0];
-    s = s[ix0 + 1 .. $];
+    const subject = line[0 .. ix0];
+    line = line[ix0 + 1 .. $];
 
     // predicate IRI
-    const ix1 = s.indexOf(' '); // TODO use array_algorithm.findSplit(' ')
+    const ix1 = line.indexOf(' '); // TODO use array_algorithm.findSplit(' ')
     assert(ix1 != -1);
-    const predicate = s[0 .. ix1];
-    s = s[ix1 + 1 .. $];
+    const predicate = line[0 .. ix1];
+    line = line[ix1 + 1 .. $];
 
-    auto nt = inout(NTriple)(subject, predicate, s);
+    auto nt = inout(NTriple)(subject, predicate, line);
     (cast(NTriple)nt).parse();  // hack to make `inout` work
     return nt;
 }

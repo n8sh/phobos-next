@@ -4,6 +4,7 @@
  *
  * Planned support for RDF Turtle (.ttl).
  *
+ * TODO can we make inout operator only on the members of the returned `NTriple` in `parseNTriple`?
  * TODO parse Turtle .ttl-files (https://en.wikipedia.org/wiki/Turtle_(syntax))
  * TODO parse N-Quads for use in Wikidata
  * TODO parse RDF/XML

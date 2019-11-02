@@ -72,19 +72,54 @@ bool endsWith(T)(scope const T[] haystack,
 
 /** Array-specialization of `findSkip` with default predicate.
  */
-auto findSkip(T)(scope ref T[] haystack,
-                 scope const T needle) @trusted
+auto findSkip(T)(scope ref inout(T)[] haystack,
+                 scope const T[] needle) @trusted
 {
-    static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
-    foreach (const offset, const ref element; haystack)
+    const index = haystack.indexOf(needle);
+    if (index != -1)
     {
-        if (element == needle)
-        {
-            haystack = haystack.ptr[offset + 1 .. haystack.length];
-            return true;
-        }
+        haystack = haystack.ptr[index + needle.length .. haystack.length];
+        return true;
     }
     return false;
+}
+/// ditto
+auto findSkip(T)(scope ref inout(T)[] haystack,
+                 scope const T needle) @trusted
+{
+    const index = haystack.indexOf(needle);
+    if (index != -1)
+    {
+        haystack = haystack.ptr[index + 1 .. haystack.length];
+        return true;
+    }
+    return false;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    const auto x = "abc";
+    {
+        string y = x;
+        const bool ok = y.findSkip("_");
+        assert(!ok);
+        assert(y is x);
+    }
+    {
+        string y = x;
+        const bool ok = y.findSkip("a");
+        assert(ok);
+        assert(y == x[1 .. $]);
+    }
+    {
+        string y = x;
+        const bool ok = y.findSkip("c");
+        assert(ok);
+        assert(y is x[$ .. $]);
+    }
+    auto f()() @safe pure nothrow { char[1] x = "_"; return x[].findSkip(" "); }
+    static if (isDIP1000) static assert(!__traits(compiles, { auto _ = f(); }));
 }
 
 ///

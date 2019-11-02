@@ -90,21 +90,20 @@ auto findSkip(T)(scope ref T[] haystack,
 ///
 @safe pure nothrow @nogc unittest
 {
+    const auto x = "abc";
     {
-        auto haystack = "abc";
-        const bool ok = haystack.findSkip('_');
+        string y = x;
+        const bool ok = y.findSkip('_');
         assert(!ok);
-        assert(haystack == "abc");
+        assert(y is x);
     }
     {
-        const auto x = "abc";
         string y = x;
         const bool ok = y.findSkip('a');
         assert(ok);
         assert(y == x[1 .. $]);
     }
     {
-        const auto x = "abc";
         string y = x;
         const bool ok = y.findSkip('c');
         assert(ok);

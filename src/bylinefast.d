@@ -1,7 +1,7 @@
 module bylinefast;
 
-import std.stdio: File;
-import std.typecons: Flag;
+import std.stdio : File;
+import std.typecons : Flag;
 
 alias KeepTerminator = Flag!"keepTerminator";
 

@@ -35,9 +35,9 @@ alias KeepTerminator = Flag!"keepTerminator";
 */
 struct ByLineFast(Char, Terminator)
 {
-    import std.string: indexOf;
-    import core.stdc.string: memmove;
-    import std.stdio: fgetc, ungetc;
+    import std.string : indexOf; // TODO array_algorithm indexOf
+    import core.stdc.string : memmove;
+    import std.stdio : fgetc, ungetc;
 
     File file;
     char[] line;

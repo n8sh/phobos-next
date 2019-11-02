@@ -97,10 +97,18 @@ auto findSkip(T)(scope ref T[] haystack,
         assert(haystack == "abc");
     }
     {
-        auto haystack = "abc";
-        const bool ok = haystack.findSkip('a');
+        const auto x = "abc";
+        string y = x;
+        const bool ok = y.findSkip('a');
         assert(ok);
-        assert(haystack == "bc");
+        assert(y == x[1 .. $]);
+    }
+    {
+        const auto x = "abc";
+        string y = x;
+        const bool ok = y.findSkip('c');
+        assert(ok);
+        assert(y is x[$ .. $]);
     }
     auto f()() @safe pure nothrow { char[1] x = "_"; return x[].findSkip(' '); }
     static if (isDIP1000) static assert(!__traits(compiles, { auto _ = f(); }));

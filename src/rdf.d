@@ -151,9 +151,9 @@ auto parseNTriple(scope return inout(char)[] s) @safe pure
 {
     const x = `<http://dbpedia.org/resource/180%C2%B0_(Gerardo_album)> <http://dbpedia.org/ontology/artist> <http://dbpedia.org/resource/Gerardo_Mej%C3%ADa> .`;
     auto nt = x.parseNTriple;
-    static assert(is(typeof(nt.subject) == immutable(string)));
-    static assert(is(typeof(nt.predicate) == immutable(string)));
-    static assert(is(typeof(nt.object) == immutable(string)));
+    static assert(is(typeof(nt.subject) == immutable(string))); // TODO should be const(char)[]
+    static assert(is(typeof(nt.predicate) == immutable(string))); // TODO should be const(char)[]
+    static assert(is(typeof(nt.object) == immutable(string)));    // TODO should be const(char)[]
 
     assert(nt.subject == `http://dbpedia.org/resource/180%C2%B0_(Gerardo_album)`);
     assert(nt.subjectType == SubjectFormat.IRI);

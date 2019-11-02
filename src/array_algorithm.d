@@ -163,7 +163,6 @@ bool skipOver(T)(scope ref inout(T)[] haystack,
 bool skipOver(T)(scope ref inout(T)[] haystack,
                  scope const T needle) @trusted
 {
-    static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
     if (!startsWith(haystack, needle)) { return false; }
     haystack = haystack.ptr[1 .. haystack.length];
     return true;
@@ -214,7 +213,6 @@ bool skipOverBack(T)(scope ref inout(T)[] haystack,
 bool skipOverBack(T)(scope ref inout(T)[] haystack,
                      scope const T needle) @trusted
 {
-    static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
     if (!endsWith(haystack, needle)) { return false; }
     haystack = haystack.ptr[0 .. haystack.length - 1];
     return true;
@@ -672,7 +670,6 @@ auto findSplit(T)(scope return inout(T)[] haystack,
     }
 
     static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
-
     const index = haystack.indexOf(needle);
     if (index >= 0)
     {
@@ -785,7 +782,6 @@ auto findSplitBefore(T)(scope return inout(T)[] haystack,
     }
 
     static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
-
     foreach (const offset, const ref element; haystack)
     {
         if (element == needle)
@@ -793,7 +789,6 @@ auto findSplitBefore(T)(scope return inout(T)[] haystack,
             return inout(Result)(haystack, offset);
         }
     }
-
     return inout(Result)(haystack, haystack.length);
 }
 
@@ -881,7 +876,6 @@ auto findSplitAfter(T)(scope return inout(T)[] haystack,
     }
 
     static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
-
     foreach (const offset, const ref element; haystack)
     {
         if (element == needle)
@@ -889,7 +883,6 @@ auto findSplitAfter(T)(scope return inout(T)[] haystack,
             return inout(Result)(haystack, offset);
         }
     }
-
     return inout(Result)(haystack, haystack.length);
 }
 

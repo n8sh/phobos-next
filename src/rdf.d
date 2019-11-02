@@ -154,7 +154,7 @@ auto parseNTriple(scope return inout(char)[] line) @safe pure
 
     static assert(is(typeof(nt.subject) == immutable(string))); // TODO should be `string` or `const(char)[]`
     static assert(is(typeof(nt.predicate) == immutable(string))); // TODO should be `string` or `const(char)[]`
-    static assert(is(typeof(nt.object) == immutable(string)));    // TODO should be `string` or `const(char)[]`
+    static assert(is(typeof(nt.object) == immutable(string))); // TODO should be `string` or `const(char)[]`
 
     assert(nt.subject == `http://dbpedia.org/resource/180%C2%B0_(Gerardo_album)`);
     assert(nt.subjectType == SubjectFormat.IRI);

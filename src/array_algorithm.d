@@ -70,6 +70,42 @@ bool endsWith(T)(scope const T[] haystack,
     assert(!x.startsWith("_"));
 }
 
+/** Array-specialization of `findSkip` with default predicate.
+ */
+auto findSkip(T)(scope ref T[] haystack,
+                 scope const T needle) @trusted
+{
+    static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
+    foreach (const offset, const ref element; haystack)
+    {
+        if (element == needle)
+        {
+            haystack = haystack.ptr[offset + 1 .. haystack.length];
+            return true;
+        }
+    }
+    return false;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    {
+        auto haystack = "abc";
+        const bool ok = haystack.findSkip('_');
+        assert(!ok);
+        assert(haystack == "abc");
+    }
+    {
+        auto haystack = "abc";
+        const bool ok = haystack.findSkip('a');
+        assert(ok);
+        assert(haystack == "bc");
+    }
+    auto f()() @safe pure nothrow { char[1] x = "_"; return x[].findSkip(' '); }
+    static if (isDIP1000) static assert(!__traits(compiles, { auto _ = f(); }));
+}
+
 /** Array-specialization of `skipOver` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org

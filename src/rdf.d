@@ -111,11 +111,11 @@ auto parseNTriple(scope return inout(char)[] line) @safe pure
 
         Chars subject;
         Chars predicate;
+
         Chars object;
-
         Chars objectLanguageCode;
-
         Chars objectDataTypeIRI;
+
         SubjectFormat subjectType;
         ObjectFormat objectType;
     }

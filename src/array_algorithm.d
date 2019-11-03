@@ -148,6 +148,84 @@ auto findSkip(T)(scope ref inout(T)[] haystack,
     static if (isDIP1000) static assert(!__traits(compiles, { auto _ = f(); }));
 }
 
+/** Array-specialization of `findSkip` with default predicate that finds the last skip.
+ */
+auto findLastSkip(T)(scope ref inout(T)[] haystack,
+                     scope const T[] needle) @trusted
+{
+    const index = haystack.lastIndexOf(needle);
+    if (index != -1)
+    {
+        haystack = haystack.ptr[index + needle.length .. haystack.length];
+        return true;
+    }
+    return false;
+}
+///
+auto findLastSkip(T)(scope ref inout(T)[] haystack,
+                     scope const T needle) @trusted
+{
+    const index = haystack.lastIndexOf(needle);
+    if (index != -1)
+    {
+        haystack = haystack.ptr[index + 1 .. haystack.length];
+        return true;
+    }
+    return false;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    const auto x = "abacc";
+    {
+        string y = x;
+        const bool ok = y.findLastSkip("_");
+        assert(!ok);
+        assert(y is x);
+    }
+    {
+        string y = x;
+        const bool ok = y.findLastSkip("a");
+        assert(ok);
+        assert(y == x[3 .. $]);
+    }
+    {
+        string y = x;
+        const bool ok = y.findLastSkip("c");
+        assert(ok);
+        assert(y is x[$ .. $]);
+    }
+    auto f()() @safe pure nothrow { char[1] x = "_"; return x[].findLastSkip(" "); }
+    static if (isDIP1000) static assert(!__traits(compiles, { auto _ = f(); }));
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    const auto x = "abacc";
+    {
+        string y = x;
+        const bool ok = y.findLastSkip('_');
+        assert(!ok);
+        assert(y is x);
+    }
+    {
+        string y = x;
+        const bool ok = y.findLastSkip('a');
+        assert(ok);
+        assert(y == x[3 .. $]);
+    }
+    {
+        string y = x;
+        const bool ok = y.findLastSkip('c');
+        assert(ok);
+        assert(y is x[$ .. $]);
+    }
+    auto f()() @safe pure nothrow { char[1] x = "_"; return x[].findLastSkip(' '); }
+    static if (isDIP1000) static assert(!__traits(compiles, { auto _ = f(); }));
+}
+
 /** Array-specialization of `skipOver` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org

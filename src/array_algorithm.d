@@ -11,7 +11,7 @@
  *
  * TODO Merge into array-specializations of Phobos algorithms.
  *
- * TODO Replace `foreach (const ref element, ...)` with `foreach (const auto ref element, ...)` when it gets accepted.
+ * TODO Replace `foreach (const ref element, ...)` with `foreach (const auto ref element, ...)` when it gets accepted for possibly better performance for value types.
  */
 module array_algorithm;
 

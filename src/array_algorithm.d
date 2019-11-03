@@ -2,7 +2,7 @@
  *
  * Functions are when possible `@safe pure nothrow @nogc`.
  * Haystack parameter is when possible and relevant `scope return inout(T)[]` and DIP-1000-compliant.
- * Needle parameter is `scope const(T)[]`.
+ * Needle parameter is either `scope const(T)[]` or `scope const T[]`.
  *
  * Provides more than twice as fast compilation for `char`-arrays (`string`s).
  *

@@ -589,7 +589,7 @@ ptrdiff_t lastIndexOf(T)(scope inout(T)[] haystack,
     assert("a__a".lastIndexOf('a') == 3);
 }
 
-/** Array-specialization of `findSplit` with default predicate.
+oo4oo44  4           4om o/** Array-specialization of `findSplit` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
  * See_Also: https://forum.dlang.org/post/zhgajqdhybtbufeiiofp@forum.dlang.org

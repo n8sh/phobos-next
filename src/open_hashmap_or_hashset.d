@@ -1800,7 +1800,7 @@ private:
      */
     private bool isOccupiedAtIndex(size_t index) const
     {
-        pragma(inline, true);
+        version(LDC) pragma(inline, true);
         version(internalUnittest) assert(index < _bins.length);
         if (keyOf(_bins[index]).isNull) { return false; }
         static if (hasHoleableKey)

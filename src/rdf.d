@@ -249,7 +249,7 @@ auto parseNTriple(scope return inout(char)[] line) @safe pure
 struct TurtleFile
 {
     import std.stdio : File;
-    this(scope const char[] path)
+    this(scope const char[] path) // path file naem usually has extension ".ttl"
     {
         _file = File(path, "r");
     }

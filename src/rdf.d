@@ -258,8 +258,10 @@ struct TurtleFile
         static struct Result
         {
             File fileCopy;
+        @safe:
 
-            bool empty() @safe pure nothrow @nogc { return true; }
+            bool empty() pure nothrow @nogc { return true; }
+
             const(char)[] front() { return null; }
 
             void popFront() {}

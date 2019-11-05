@@ -274,7 +274,7 @@ struct TurtleFile
 @safe unittest
 {
     auto ttf = TurtleFile("");
-    foreach (tuple; ttf.byNTriple)
+    foreach (const line; ttf.byNTriple)
     {
     }
 }

@@ -246,7 +246,7 @@ auto parseNTriple(scope return inout(char)[] line) @safe pure
     assert(nt.objectType == ObjectFormat.IRI);
 }
 
-struct TurtleFile
+struct TurtleFile          // TODO generalize to take template parameter `Range` where `isCharsSlice!(typeof(Range.init.front))`
 {
     import std.stdio : File;
     this(scope const char[] path) // path file naem usually has extension ".ttl"
@@ -260,11 +260,20 @@ struct TurtleFile
             File fileCopy;
         @safe:
 
-            bool empty() pure nothrow @nogc { return true; }
+            bool empty() pure nothrow @nogc
+            {
+                return true;
+            }
 
-            const(char)[] front() { return null; }
+            const(char)[] front() return scope
+            {
+                return null;
+            }
 
-            void popFront() {}
+            void popFront()
+            {
+
+            }
         }
         return Result(_file);
     }

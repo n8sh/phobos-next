@@ -45,6 +45,29 @@ bool startsWith(T)(scope const T[] haystack,
     assert(!x.startsWith("_"));
 }
 
+/** Array-specialization of `all` with element needle. */
+bool all(T)(scope const T[] haystack,
+            scope const T needle) @trusted // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
+{
+    static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
+    foreach (const offset; 0 .. haystack.length)
+    {
+        if (haystack.ptr[offset] != needle)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    assert("".all('a'));
+    assert("aaa".all('a'));
+    assert(!"aa_".all('a'));
+}
+
 /** Array-specialization of `endsWith` with default predicate. */
 bool endsWith(T)(scope const T[] haystack,
                  scope const T[] needle) @trusted
@@ -445,7 +468,7 @@ bool canFind(T)(scope const T[] haystack,
     // enum largeNeedleLength = 4;
     assert(needle.length, "Cannot count occurrences of an empty range");
     if (haystack.length < needle.length) { return false; }
-    foreach (const size_t offset; 0 .. haystack.length - needle.length + 1)
+    foreach (const offset; 0 .. haystack.length - needle.length + 1)
     {
         if (haystack.ptr[offset .. offset + needle.length] == needle)
         {
@@ -503,7 +526,7 @@ size_t count(T)(scope const T[] haystack,
     assert(needle.length, "Cannot count occurrences of an empty range");
     size_t result = 0;
     if (haystack.length < needle.length) { return false; }
-    foreach (const size_t offset; 0 .. haystack.length - needle.length + 1)
+    foreach (const offset; 0 .. haystack.length - needle.length + 1)
     {
         result += haystack.ptr[offset .. offset + needle.length] == needle ? 1 : 0;
     }
@@ -569,7 +592,7 @@ ptrdiff_t indexOf(T)(scope inout(T)[] haystack,
 {
     // enum largeNeedleLength = 4;
     if (haystack.length < needle.length) { return -1; }
-    foreach (const size_t offset; 0 .. haystack.length - needle.length + 1)
+    foreach (const offset; 0 .. haystack.length - needle.length + 1)
     {
         if (haystack.ptr[offset .. offset + needle.length] == needle)
         {
@@ -620,7 +643,7 @@ ptrdiff_t lastIndexOf(T)(scope inout(T)[] haystack,
                          scope const(T)[] needle) @trusted
 {
     if (haystack.length < needle.length) { return -1; }
-    foreach_reverse (const size_t offset; 0 .. haystack.length - needle.length + 1)
+    foreach_reverse (const offset; 0 .. haystack.length - needle.length + 1)
     {
         if (haystack.ptr[offset .. offset + needle.length] == needle)
         {

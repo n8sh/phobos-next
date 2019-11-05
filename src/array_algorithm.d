@@ -63,9 +63,33 @@ bool all(T)(scope const T[] haystack,
 ///
 @safe pure nothrow @nogc unittest
 {
-    assert("".all('a'));
+    assert("".all('a'));    // matches behaviour of `std.algorithm.searching.any`
     assert("aaa".all('a'));
     assert(!"aa_".all('a'));
+}
+
+/** Array-specialization of `any` with element needle. */
+bool any(T)(scope const T[] haystack,
+            scope const T needle) @trusted
+{
+    static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
+    foreach (const offset; 0 .. haystack.length)
+    {
+        if (haystack.ptr[offset] == needle)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    assert(!"".any('a'));  // matches behaviour of `std.algorithm.searching.any`
+    assert("aaa".any('a'));
+    assert("aa_".any('a'));
+    assert(!"_".any('a'));
 }
 
 /** Array-specialization of `endsWith` with default predicate. */

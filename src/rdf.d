@@ -245,3 +245,34 @@ auto parseNTriple(scope return inout(char)[] line) @safe pure
     assert(nt.object == `http://www.santosfc.com.br/clube/default.asp?c=Sedes&st=CT%20Rei%20Pel%E9`);
     assert(nt.objectType == ObjectFormat.IRI);
 }
+
+struct TurtleFile
+{
+    import std.stdio : File;
+    this(scope const char[] path)
+    {
+        _file = File(path, "r");
+    }
+    auto byNTriple()
+    {
+        static struct Result
+        {
+            File fileCopy;
+
+            bool empty() @safe pure nothrow @nogc { return true; }
+            const(char)[] front() { return null; }
+
+            void popFront() {}
+        }
+        return Result(_file);
+    }
+    private File _file;
+}
+
+@safe unittest
+{
+    auto ttf = TurtleFile("");
+    foreach (tuple; ttf.byNTriple)
+    {
+    }
+}

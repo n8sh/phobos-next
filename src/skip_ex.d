@@ -100,7 +100,6 @@ size_t skipOverEither(alias pred = "a == b", Range, Ranges...)(scope ref Range h
                                                                scope Ranges needles)
 if (Ranges.length >= 2)
 {
-    import core.internal.traits : allSatisfy;
     import array_traits : isSameSlices;
     foreach (const ix, needle; needles)
     {

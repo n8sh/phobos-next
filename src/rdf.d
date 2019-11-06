@@ -79,10 +79,23 @@ auto parseNTriple(scope return inout(char)[] line) @safe pure
             }
             else if (object.skipOver('"')) // literal (https://www.w3.org/TR/n-triples/#grammar-production-literal)
             {
-                if (object.length >= 3 && object[$ - 3] == '@') // `@`XX found at the end, where
+                import std.ascii : isLower;
+                if (object.length >= 3 &&
+                    object[$ - 3] == '@' &&
+                    isLower(object[$ - 2]) &&
+                    isLower(object[$ - 1])) // `@`XX found at the end, where
                 {
                     objectLanguageCode = object[$ - 2 .. $]; // XX is a language code
                     object = object[0 .. $ - 3];             // drop last 3 chars
+                }
+                else if (object.length >= 4 &&
+                         object[$ - 4] == '@' &&
+                         isLower(object[$ - 3]) &&
+                         isLower(object[$ - 2]) &&
+                         isLower(object[$ - 1])) // `@`XXX found at the end, where
+                {
+                    objectLanguageCode = object[$ - 3 .. $]; // XX is a language code
+                    object = object[0 .. $ - 4];             // drop last 4 chars
                 }
                 else
                 {
@@ -98,6 +111,11 @@ auto parseNTriple(scope return inout(char)[] line) @safe pure
                 }
 
                 const ok = object.skipOverBack('"');
+                if (!ok)
+                {
+                    import dbgio;
+                    dbg("No matching double-quote in object ", object);
+                }
                 assert(ok);
 
                 objectType = ObjectFormat.literal;

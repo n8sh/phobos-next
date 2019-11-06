@@ -80,7 +80,7 @@ auto parseNTriple(scope return inout(char)[] line) @safe pure
             else if (object.skipOver('"')) // literal (https://www.w3.org/TR/n-triples/#grammar-production-literal)
             {
                 import std.ascii : isLower;
-                if (object.length >= 3 &&
+                if (object.length >= 3 && // two-letter language code
                     object[$ - 3] == '@' &&
                     isLower(object[$ - 2]) &&
                     isLower(object[$ - 1])) // `@`XX found at the end, where
@@ -88,7 +88,7 @@ auto parseNTriple(scope return inout(char)[] line) @safe pure
                     objectLanguageCode = object[$ - 2 .. $]; // XX is a language code
                     object = object[0 .. $ - 3];             // drop last 3 chars
                 }
-                else if (object.length >= 4 &&
+                else if (object.length >= 4 && // three-letter language code
                          object[$ - 4] == '@' &&
                          isLower(object[$ - 3]) &&
                          isLower(object[$ - 2]) &&

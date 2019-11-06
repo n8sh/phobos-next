@@ -869,6 +869,144 @@ version(none)
     }
 }
 
+/** Array-specialization of `findLastSplit` with default predicate.
+ */
+auto findLastSplit(T)(scope return inout(T)[] haystack,
+                      scope const(T)[] needle)
+{
+    static struct Result // NOTE `static` qualifier is needed for `inout` to propagate correctly
+    {
+        private T[] _haystack;
+        private size_t _offset; // hit offset
+        private size_t _length; // hit length
+
+        inout(T)[] pre() @trusted inout
+        {
+            return _haystack.ptr[0 .. _offset];
+        }
+
+        inout(T)[] separator() @trusted inout
+        {
+            return _haystack.ptr[_offset .. _offset + _length];
+        }
+
+        inout(T)[] post() @trusted inout
+        {
+            return _haystack.ptr[_offset + _length .. _haystack.length];
+        }
+
+        bool opCast(T : bool)() @safe const
+        {
+            return _haystack.length != _offset;
+        }
+    }
+
+    assert(needle.length, "Cannot find occurrence of an empty range");
+    const index = haystack.lastIndexOf(needle);
+    if (index >= 0)
+    {
+        return inout(Result)(haystack, index, needle.length);
+    }
+    return inout(Result)(haystack, haystack.length, 0); // miss
+}
+/// ditto
+auto findLastSplit(T)(scope return inout(T)[] haystack,
+                  scope const T needle)
+{
+    static struct Result // NOTE `static` qualifier is needed for `inout` to propagate correctly
+    {
+        private T[] _haystack;
+        private size_t _offset; // hit offset
+
+        inout(T)[] pre() @trusted inout
+        {
+            return _haystack.ptr[0 .. _offset];
+        }
+
+        inout(T)[] separator() @trusted inout
+        {
+            if (empty) { return _haystack[$ .. $]; }
+            return _haystack.ptr[_offset .. _offset + 1];
+        }
+
+        inout(T)[] post() @trusted inout
+        {
+            if (empty) { return _haystack[$ .. $]; }
+            return _haystack.ptr[_offset + 1 .. _haystack.length];
+        }
+
+        bool opCast(T : bool)() const
+        {
+            return !empty;
+        }
+
+        private @property bool empty() const
+        {
+            return _haystack.length == _offset;
+        }
+    }
+
+    static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
+    const index = haystack.lastIndexOf(needle);
+    if (index >= 0)
+    {
+        return inout(Result)(haystack, index);
+    }
+    return inout(Result)(haystack, haystack.length);
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    const h = "a**b**c";
+    const r = h.findLastSplit("**");
+    assert(r);
+    assert(r.pre is h[0 .. 4]);
+    assert(r.separator is h[4 .. 6]);
+    assert(r.post is h[6 .. 7]);
+
+    auto f()() @safe pure nothrow { char[1] x = "_"; return x[].findLastSplit(" "); }
+    static if (isDIP1000) static assert(!__traits(compiles, { auto _ = f(); }));
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    const h = "a**b**c";
+    const r = h.findLastSplit("_");
+    static assert(r.sizeof == 2 * 2 * size_t.sizeof);
+    assert(!r);
+    assert(r.pre is h);
+    assert(r.separator is h[$ .. $]);
+    assert(r.post is h[$ .. $]);
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    const r = "a*b*c".findLastSplit('*');
+    static assert(r.sizeof == 3 * size_t.sizeof);
+    assert(r);
+    assert(r.pre == "a*b");
+    assert(r.separator == "*");
+    assert(r.post == "c");
+
+    auto f()() @safe pure nothrow { char[1] x = "_"; return x[].findLastSplit(' '); }
+    static if (isDIP1000) static assert(!__traits(compiles, { auto _ = f(); }));
+}
+
+/// DIP-1000 scope analysis
+@safe pure nothrow @nogc unittest
+{
+    char[] f() @safe pure nothrow
+    {
+        char[3] haystack = "a*b";
+        auto r = haystack[].findLastSplit('*');
+        static assert(is(typeof(r.pre()) == char[]));
+        return r.pre();         // TODO this should fail
+    }
+}
+
 /** Array-specialization of `findSplitBefore` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org

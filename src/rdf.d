@@ -29,6 +29,7 @@ enum ObjectFormat { IRI, blankNode, literal }
  */
 auto parseNTriple(scope return inout(char)[] line) @safe pure
 {
+    import dbgio;
     /** RDF N-Triple.
      *
      * Parameterized on element type $(D Chars). Use NTriple!(char[]) to avoid
@@ -79,45 +80,32 @@ auto parseNTriple(scope return inout(char)[] line) @safe pure
             }
             else if (object.skipOver('"')) // literal (https://www.w3.org/TR/n-triples/#grammar-production-literal)
             {
-                import std.ascii : isLower;
-                if (object.length >= 3 && // two-letter language code
-                    object[$ - 3] == '@' &&
-                    isLower(object[$ - 2]) &&
-                    isLower(object[$ - 1])) // `@`XX found at the end, where
+                import array_algorithm : findSplit;
+                // import std.ascii : isLower;
+                if (const split = object.findSplit(`"@`))
                 {
-                    objectLanguageCode = object[$ - 2 .. $]; // XX is a language code
-                    object = object[0 .. $ - 3];             // drop last 3 chars
+                    objectLanguageCode = split.post;
+                    object = split.pre;
                 }
-                else if (object.length >= 4 && // three-letter language code
-                         object[$ - 4] == '@' &&
-                         isLower(object[$ - 3]) &&
-                         isLower(object[$ - 2]) &&
-                         isLower(object[$ - 1])) // `@`XXX found at the end, where
+                else if (auto hit = object.findSplit(`"^^`))
                 {
-                    objectLanguageCode = object[$ - 3 .. $]; // XX is a language code
-                    object = object[0 .. $ - 4];             // drop last 4 chars
+                    const objectdataType = hit.post;
+                    assert(objectdataType.startsWith('<'));
+                    assert(objectdataType.endsWith('>'));
+                    objectDataTypeIRI = objectdataType[1 .. $ - 1];
+                    object = hit.pre;
                 }
                 else
                 {
-                    import array_algorithm : findSplit;
-                    if (auto hit = object.findSplit(`^^`))
+                    const ok = object.skipOverBack('"');
+                    if (!ok)
                     {
-                        const objectdataType = hit.post;
-                        assert(objectdataType.startsWith('<'));
-                        assert(objectdataType.endsWith('>'));
-                        objectDataTypeIRI = objectdataType[1 .. $ - 1];
-                        object = hit.pre;
+                        dbg("No matching double-quote in object ", object);
                     }
+                    assert(ok);
                 }
 
-                const ok = object.skipOverBack('"');
-                if (!ok)
-                {
-                    import dbgio;
-                    dbg("No matching double-quote in object ", object);
-                }
-                assert(ok);
-
+                dbg(object, "_", objectLanguageCode, "_", objectDataTypeIRI);
                 objectType = ObjectFormat.literal;
             }
             else                // BLANK_NODE_LABEL (https://www.w3.org/TR/n-triples/#grammar-production-BLANK_NODE_LABEL)

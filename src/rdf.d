@@ -1,4 +1,4 @@
-/** Parsing of RDF-files.
+/** Parsing of an RDF-line as a `char` array.
  *
  * Currently supports N-Triples (.nt).
  *

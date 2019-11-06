@@ -2,7 +2,7 @@
  *
  * Currently supports N-Triples (.nt).
  *
- * Planned support for RDF Turtle (.ttl) statements (single or multi-line).
+ * Planned support for RDF Turtle (.ttl) statements (either single-line or multi-line).
  *
  * TODO can we make inout operator only on the members of the returned `NTriple` in `parseNTriple`?
  * TODO parse Turtle .ttl-files (https://en.wikipedia.org/wiki/Turtle_(syntax))

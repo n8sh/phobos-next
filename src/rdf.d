@@ -29,7 +29,6 @@ enum ObjectFormat { IRI, blankNode, literal }
  */
 auto parseNTriple(scope return inout(char)[] line) @safe pure
 {
-    import dbgio;
     /** RDF N-Triple.
      *
      * Parameterized on element type $(D Chars). Use NTriple!(char[]) to avoid
@@ -100,12 +99,12 @@ auto parseNTriple(scope return inout(char)[] line) @safe pure
                     const ok = object.skipOverBack('"');
                     if (!ok)
                     {
-                        dbg("No matching double-quote in object ", object);
+                        assert("No matching double-quote in object ");
                     }
                     assert(ok);
                 }
 
-                dbg(object, "_", objectLanguageCode, "_", objectDataTypeIRI);
+                // dbg(`object:"`, object, `" lang:"`, objectLanguageCode, `" typeIRI:"`, objectDataTypeIRI, `"`);
                 objectType = ObjectFormat.literal;
             }
             else                // BLANK_NODE_LABEL (https://www.w3.org/TR/n-triples/#grammar-production-BLANK_NODE_LABEL)

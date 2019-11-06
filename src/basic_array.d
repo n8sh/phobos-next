@@ -288,6 +288,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
         }
         return result;
     }
+
     /// No default copying.
     @disable this(this);
 

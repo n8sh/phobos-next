@@ -2365,7 +2365,7 @@ if (isExpressionTuple!needles &&
 {
     uint endsWith(Haystack)(Haystack haystack)
         @trusted
-        if (!is(CommonType!(typeof(Haystack.back), needles) == void))
+    if (!is(CommonType!(typeof(Haystack.back), needles) == void))
     {
         if (haystack.length == 0) { return 0; }
         static if (isArray!Haystack &&

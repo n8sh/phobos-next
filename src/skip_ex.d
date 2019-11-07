@@ -185,7 +185,7 @@ if (Ranges.length >= 2)
     {
         // get needle lengths
         size_t[needles.length] lengths;
-        foreach (ix, needle; needles)
+        foreach (const index, const ref needle; needles)
         {
             import std.traits : isSomeString, isSomeChar;
             import std.range.primitives : ElementType;
@@ -196,27 +196,27 @@ if (Ranges.length >= 2)
             static if (is(Unqual!Range ==
                           Needle))
             {
-                lengths[ix] = needle.length;
+                lengths[index] = needle.length;
             }
             else static if (is(Unqual!(ElementType!Range) ==
                                Unqual!(ElementType!Needle)))
             {
-                lengths[ix] = needle.length;
+                lengths[index] = needle.length;
             }
             else static if (isSomeString!Range &&
                             isSomeString!Needle)
             {
-                lengths[ix] = needle.length;
+                lengths[index] = needle.length;
             }
             else static if (isSomeChar!(ElementType!Range) &&
                             isSomeChar!Needle)
             {
-                lengths[ix] = 1;
+                lengths[index] = 1;
             }
             else static if (is(Unqual!(ElementType!Range) ==
                                Needle))
             {
-                lengths[ix] = 1;
+                lengths[index] = 1;
             }
             else
             {
@@ -284,9 +284,9 @@ if (Ranges.length >= 2)
 
         alias Retro(Range) = typeof((ubyte[]).init.retro);
         AliasSeq!(staticMap!(Retro, Ranges)) retroNeedles;
-        foreach (ix, needle; needles)
+        foreach (const index, const ref needle; needles)
         {
-            retroNeedles[ix] = (cast(ubyte[])needle).retro;
+            retroNeedles[index] = (cast(ubyte[])needle).retro;
         }
 
         const retroHit = retroHaystack.skipOverShortestOf(retroNeedles);

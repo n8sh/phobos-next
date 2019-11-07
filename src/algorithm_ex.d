@@ -219,7 +219,6 @@ auto ref reset(T)(ref T a) @trusted // pure nothrow
 ///
 @safe @nogc pure nothrow unittest
 {
-
     uint a = 159;
     a.reset();
     assert(a == a.init);

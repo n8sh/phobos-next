@@ -936,7 +936,7 @@ import std.meta : allSatisfy;
 /** Zip `ranges` together with operation `fun`.
  *
  * TODO Remove when Issue 8715 is fixed providing zipWith
-*/
+ */
 auto zipWith(alias fun, Ranges...)(Ranges ranges)
 if (Ranges.length >= 2 &&
     allSatisfy!(isInputRange, Ranges))

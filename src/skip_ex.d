@@ -17,10 +17,10 @@ version(unittest)
  *
  * See_Also: std.algorithm.searching.skipOver.
  */
-bool skipOverBack(R1, R2)(scope ref R1 haystack,
-                          scope R2 needle)
-if (isBidirectionalRange!R1 &&
-    isBidirectionalRange!R2 &&
+bool skipOverBack(Haystack, Needle)(scope ref Haystack haystack,
+                                    scope Needle needle)
+if (isBidirectionalRange!Haystack &&
+    isBidirectionalRange!Needle &&
     is(typeof(haystack.back == needle.back)))
 {
     static if (is(typeof(haystack[] == needle) : bool) &&
@@ -42,14 +42,14 @@ if (isBidirectionalRange!R1 &&
 }
 
 ///
-bool skipOverBack(alias pred, R1, R2)(scope ref R1 haystack,
-                                      scope R2 needle)
-if (isBidirectionalRange!R1 &&
-    isBidirectionalRange!R2 &&
-    is(typeof(binaryFun!pred(haystack.back, needle.back)))) // TODO R2 doesn't have to bi-directional if R1 is RandomAccess and R2.hasLength
+bool skipOverBack(alias pred, Haystack, Needle)(scope ref Haystack haystack,
+                                                scope Needle needle)
+if (isBidirectionalRange!Haystack &&
+    isBidirectionalRange!Needle &&
+    is(typeof(binaryFun!pred(haystack.back, needle.back)))) // TODO Needle doesn't have to bi-directional if Haystack is RandomAccess and Needle.hasLength
 {
     import std.range.primitives : hasLength;
-    static if (hasLength!R1 && hasLength!R2)
+    static if (hasLength!Haystack && hasLength!Needle)
     {
         // Shortcut opportunity!
         if (needle.length > haystack.length)

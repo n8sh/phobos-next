@@ -51,7 +51,7 @@ if (isBidirectionalRange!Haystack &&
     import std.range.primitives : hasLength;
     static if (hasLength!Haystack && hasLength!Needle)
     {
-        if (needle.length > haystack.length) { return false; } // fast discardal
+        if (haystack.length < needle.length) { return false; } // fast discardal
     }
     auto r = haystack.save;
     while (!needle.empty &&

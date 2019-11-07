@@ -101,7 +101,7 @@ size_t skipOverEither(alias pred = "a == b", Range, Ranges...)(scope ref Range h
 if (Ranges.length >= 2)
 {
     import array_traits : isSameSlices;
-    foreach (const index, needle; needles)
+    foreach (const index, const ref needle; needles)
     {
         static if (pred == "a == b" &&
                    isSameSlices!(Range, Ranges)) // fast

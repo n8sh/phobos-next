@@ -13,61 +13,61 @@ version(unittest)
     import array_help : s;
 }
 
-/** Skip over the ending portion of `r1` that matches `r2`, or nothing upon no match.
+/** Skip over the ending portion of `haystack` that matches `needle`, or nothing upon no match.
  *
  * See_Also: std.algorithm.searching.skipOver.
  */
-bool skipOverBack(R1, R2)(scope ref R1 r1,
-                          scope R2 r2)
+bool skipOverBack(R1, R2)(scope ref R1 haystack,
+                          scope R2 needle)
 if (isBidirectionalRange!R1 &&
     isBidirectionalRange!R2 &&
-    is(typeof(r1.back == r2.back)))
+    is(typeof(haystack.back == needle.back)))
 {
-    static if (is(typeof(r1[] == r2) : bool) &&
-               is(typeof(r2.length > r1.length) : bool) &&
-               is(typeof(r1 = r1[])))
+    static if (is(typeof(haystack[] == needle) : bool) &&
+               is(typeof(needle.length > haystack.length) : bool) &&
+               is(typeof(haystack = haystack[])))
     {
-        if (r1.length >= r2.length &&
-            r1[$ - r2.length .. $] == r2)
+        if (haystack.length >= needle.length &&
+            haystack[$ - needle.length .. $] == needle)
         {
-            r1 = r1[0 .. r1.length - r2.length];
+            haystack = haystack[0 .. haystack.length - needle.length];
             return true;
         }
         return false;
     }
     else
     {
-        return skipOverBack!((a, b) => a == b)(r1, r2);
+        return skipOverBack!((a, b) => a == b)(haystack, needle);
     }
 }
 
 ///
-bool skipOverBack(alias pred, R1, R2)(scope ref R1 r1,
-                                      scope R2 r2)
+bool skipOverBack(alias pred, R1, R2)(scope ref R1 haystack,
+                                      scope R2 needle)
 if (isBidirectionalRange!R1 &&
     isBidirectionalRange!R2 &&
-    is(typeof(binaryFun!pred(r1.back, r2.back)))) // TODO R2 doesn't have to bi-directional if R1 is RandomAccess and R2.hasLength
+    is(typeof(binaryFun!pred(haystack.back, needle.back)))) // TODO R2 doesn't have to bi-directional if R1 is RandomAccess and R2.hasLength
 {
     import std.range.primitives : hasLength;
     static if (hasLength!R1 && hasLength!R2)
     {
         // Shortcut opportunity!
-        if (r2.length > r1.length)
+        if (needle.length > haystack.length)
             return false;
     }
-    auto r = r1.save;
-    while (!r2.empty &&
+    auto r = haystack.save;
+    while (!needle.empty &&
            !r.empty &&
-           binaryFun!pred(r.back, r2.back))
+           binaryFun!pred(r.back, needle.back))
     {
         r.popBack();
-        r2.popBack();
+        needle.popBack();
     }
-    if (r2.empty)
+    if (needle.empty)
     {
-        r1 = r;
+        haystack = r;
     }
-    return r2.empty;
+    return needle.empty;
 }
 
 ///

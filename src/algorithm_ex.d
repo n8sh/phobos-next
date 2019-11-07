@@ -989,6 +989,7 @@ auto quadruple(T, U, V, W)(T t, U u, V v, W w) { return Quadruple!(T, U, V, W)(t
 
 /** Limit/Span (Min,Max) Pair.
  *
+ * TODO: Simultaneous min and max (minmax) can be optimized.
  * Todo: Decide on either Span, MinMax or Limits
  * See_Also: https://stackoverflow.com/questions/21241878/generic-span-type-in-phobos
  */

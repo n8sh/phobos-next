@@ -51,9 +51,7 @@ if (isBidirectionalRange!Haystack &&
     import std.range.primitives : hasLength;
     static if (hasLength!Haystack && hasLength!Needle)
     {
-        // Shortcut opportunity!
-        if (needle.length > haystack.length)
-            return false;
+        if (needle.length > haystack.length) { return false; } // fast discardal
     }
     auto r = haystack.save;
     while (!needle.empty &&

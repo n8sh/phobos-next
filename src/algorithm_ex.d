@@ -988,8 +988,9 @@ alias Quadruple(T, U, V, W) = Tuple!(T, U, V, W);
 auto quadruple(T, U, V, W)(T t, U u, V v, W w) { return Quadruple!(T, U, V, W)(t, u, v, w); }
 
 /** Limit/Span (Min,Max) Pair.
-    Todo: Decide on either Span, MinMax or Limits
-    See_Also: https://stackoverflow.com/questions/21241878/generic-span-type-in-phobos
+ *
+ * Todo: Decide on either Span, MinMax or Limits
+ * See_Also: https://stackoverflow.com/questions/21241878/generic-span-type-in-phobos
 */
 struct Limits(T)
 {

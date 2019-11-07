@@ -101,7 +101,7 @@ size_t skipOverEither(alias pred = "a == b", Range, Ranges...)(scope ref Range h
 if (Ranges.length >= 2)
 {
     import array_traits : isSameSlices;
-    foreach (const ix, needle; needles)
+    foreach (const index, needle; needles)
     {
         static if (pred == "a == b" &&
                    isSameSlices!(Range, Ranges)) // fast
@@ -111,7 +111,7 @@ if (Ranges.length >= 2)
                 haystack[0 .. needle.length] == needle) // TODO `haystack.ptr`
             {
                 haystack = haystack[needle.length .. haystack.length]; // TODO `haystack.ptr`
-                return ix + 1;
+                return index + 1;
             }
         }
         else
@@ -119,7 +119,7 @@ if (Ranges.length >= 2)
             import std.algorithm.searching : skipOver;
             if (haystack.skipOver(needle)) // TODO nothrow
             {
-                return ix + 1;
+                return index + 1;
             }
         }
     }

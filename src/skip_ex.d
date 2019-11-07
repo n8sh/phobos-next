@@ -94,7 +94,7 @@ if (isBidirectionalRange!Haystack &&
  *
  * Returns: index + 1 into matching $(D needles), 0 otherwise.
  *
- * TODO Reuse `startsWith with many needles` or write own array-version of `startsWith` that's faster.
+ * TODO Reuse `skipOver with many needles` or write own array-version of `skipOver` that's faster.
  */
 size_t skipOverEither(alias pred = "a == b", Range, Ranges...)(scope ref Range haystack,
                                                                scope Ranges needles)

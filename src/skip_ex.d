@@ -18,7 +18,7 @@ version(unittest)
  * See_Also: std.algorithm.searching.skipOver.
  */
 bool skipOverBack(Haystack, Needle)(scope ref Haystack haystack,
-                                    scope Needle needle)
+                                    scope Needle needle) // non`const` because may be range with mutable range primitives
 if (isBidirectionalRange!Haystack &&
     isBidirectionalRange!Needle &&
     is(typeof(haystack.back == needle.back)))
@@ -43,7 +43,7 @@ if (isBidirectionalRange!Haystack &&
 
 ///
 bool skipOverBack(alias pred, Haystack, Needle)(scope ref Haystack haystack,
-                                                scope Needle needle)
+                                                scope Needle needle) // non`const` because may be range with mutable range primitives
 if (isBidirectionalRange!Haystack &&
     isBidirectionalRange!Needle &&
     is(typeof(binaryFun!pred(haystack.back, needle.back)))) // TODO Needle doesn't have to bi-directional if Haystack is RandomAccess and Needle.hasLength

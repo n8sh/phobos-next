@@ -1,4 +1,4 @@
-/** DICOM attributes.
+/** DICOM attribute instances.
  */
 module dicom;
 

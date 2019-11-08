@@ -104,7 +104,7 @@ enum DICOMAttributeFormat
     /** Person Name. */
     PN,
 
-    /** */
+    /** Short String. */
     SH,
 
     /** Signed long integer (32-bit). */

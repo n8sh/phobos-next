@@ -6,7 +6,7 @@
  */
 module dicom;
 
-/** Attribute tag (code of 8 hexadeicmal digits). */
+/** Attribute tag code as 8 hexadeicmal digits. */
 alias Tag = char[8];            // could be represented by an `uint` if we remove the pattern matchers using 'x'
 
 /// DICOM attribute.

@@ -12,6 +12,15 @@ module dicom;
  */
 alias Tag = char[8];
 
+/** DICOM attribute type format.
+ *
+ * See_Also: https://northstar-www.dartmouth.edu/doc/idl/html_6.2/Value_Representations.html#wp1023448
+ */
+enum DICOMAttributeTypeFormat : char[2]
+{
+    UL = "UL"
+}
+
 /// DICOM attribute.
 struct DICOMAttribute
 {

@@ -89,10 +89,10 @@ enum DICOMAttributeFormat
     /** Other Byte String. */
     OB,
 
-    /** */
+    /** ? */
     OD,
 
-    /** */
+    /** Some List? */
     OL,
 
     /** Other Float String. */

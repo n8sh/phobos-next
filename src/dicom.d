@@ -140,7 +140,7 @@ enum DICOMAttributeFormat
     /** Unsigned short integer (16-bit). */
     US,
 
-    /** */
+    /** Unlimited Text. */
     UT
 }
 

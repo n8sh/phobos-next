@@ -6,7 +6,7 @@
  */
 module dicom;
 
-alias Tag = char[8];            // could be represented by an uint8
+alias Tag = char[8];            // could be represented by an `uint`
 
 struct DICOMAttribute
 {
@@ -3175,13 +3175,13 @@ static immutable DICOMAttribute[] tagsTable =
     { "04000563", ["LO"], "Modifying System" },
     { "04000564", ["LO"], "Source of Previous Values" },
     { "04000565", ["CS"], "Reason for the Attribute Modification" },
-    { "1000___0", ["US"], "Escape Triplet", true },
-    { "1000___1", ["US"], "Run Length Triplet", true },
-    { "1000___2", ["US"], "Huffman Table Size", true },
-    { "1000___3", ["US"], "Huffman Table Triplet", true },
-    { "1000___4", ["US"], "Shift Table Size", true },
-    { "1000___5", ["US"], "Shift Table Triplet", true },
-    { "1010____", ["US"], "Zonal Map", true },
+    { "1000xxx0", ["US"], "Escape Triplet", true },
+    { "1000xxx1", ["US"], "Run Length Triplet", true },
+    { "1000xxx2", ["US"], "Huffman Table Size", true },
+    { "1000xxx3", ["US"], "Huffman Table Triplet", true },
+    { "1000xxx4", ["US"], "Shift Table Size", true },
+    { "1000xxx5", ["US"], "Shift Table Triplet", true },
+    { "1010xxxx", ["US"], "Zonal Map", true },
     { "20000010", ["IS"], "Number of Copies" },
     { "2000001E", ["SQ"], "Printer Configuration Sequence" },
     { "20000020", ["CS"], "Print Priority" },

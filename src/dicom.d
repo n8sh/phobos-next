@@ -116,7 +116,7 @@ enum DICOMAttributeFormat
     /** Signed short integer (16-bit). */
     SS,
 
-    /** */
+    /** Short Text. */
     ST,
 
     /** Time. */

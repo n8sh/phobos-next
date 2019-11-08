@@ -107,13 +107,13 @@ enum DICOMAttributeFormat
     /** */
     SH,
 
-    /** */
+    /** Signed long integer (32-bit). */
     SL,
 
     /** */
     SQ,
 
-    /** */
+    /** Signed short integer (16-bit). */
     SS,
 
     /** */

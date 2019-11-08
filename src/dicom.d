@@ -1,3 +1,7 @@
+/** DICOM attributes.
+ */
+module dicom;
+
 // Source: https://www.dicomlibrary.com/dicom/dicom-tags/
 // Source: https://northstar-www.dartmouth.edu/doc/idl/html_6.2/DICOM_Attributes.html
 // Source: http://gdcm.sourceforge.net/wiki/index.php/Writing_DICOM

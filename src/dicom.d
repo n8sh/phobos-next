@@ -58,7 +58,14 @@ enum DICOMAttributeFormat
     /** */
     DL,
 
-    /** */
+    /** Decimal String.
+     *
+     * A string of characters representing either a fixed point number or a floating point number.
+     * A fixed point number shall contain only the characters 0-9 with an optional leading "+" or "-" and an optional "." to mark the decimal point.
+     * A floating point number shall be conveyed as defined in ANSI X3.9, with an "E" or "e" to indicate the start of the exponent.
+     * Decimal Strings may be padded with leading or trailing spaces.
+     * Embedded spaces are not allowed.
+     */
     DS,
 
     /** */

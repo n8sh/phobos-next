@@ -26,7 +26,14 @@ enum DICOMAttributeFormat
      */
     AE,
 
-    /** */
+    /** Age String.
+     *
+     *  A string of characters with one of the following formats -- nnnD, nnnW,
+     *  nnnM, nnnY; where nnn shall contain the number of days for D, weeks for
+     *  W, months for M, or years for Y.
+     *
+     * Example: "018M" would represent an age of 18 months.
+     */
     AS,
 
     /** */
@@ -35,7 +42,7 @@ enum DICOMAttributeFormat
     /** */
     CS,
 
-    /** */
+    /** Date. */
     DA,
 
     /** */

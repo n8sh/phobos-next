@@ -18,37 +18,105 @@ alias Tag = char[8];
  */
 enum DICOMAttributeFormat
 {
+    /** Application Entity.
+     *
+     * A string of characters with leading and trailing spaces (20H) being
+     * non-significant. The value made of 16 spaces, meaning "no application
+     * name specified", shall not be used.
+     */
     AE,
+
+    /** */
     AS,
+
+    /** */
     AT,
+
+    /** */
     CS,
+
+    /** */
     DA,
+
+    /** */
     DL,
+
+    /** */
     DS,
+
+    /** */
     DT,
+
+    /** */
     FL,
+
+    /** */
     FD,
+
+    /** */
     IS,
+
+    /** */
     LO,
+
+    /** */
     LT,
+
+    /** */
     OB,
+
+    /** */
     OD,
+
+    /** */
     OL,
+
+    /** */
     OF,
+
+    /** */
     OW,
+
+    /** */
     PN,
+
+    /** */
     SH,
+
+    /** */
     SL,
+
+    /** */
     SQ,
+
+    /** */
     SS,
+
+    /** */
     ST,
+
+    /** */
     TM,
+
+    /** */
     UI,
+
+    /** */
     UC,
+
+    /** */
     UR,
+
+    /** */
     UL,
+
+    /** */
     UN,
+
+    /** */
     US,
+
+    /** */
     UT
 }
 

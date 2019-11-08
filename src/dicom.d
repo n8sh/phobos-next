@@ -122,7 +122,7 @@ enum DICOMAttributeFormat
     /** */
     TM,
 
-    /** */
+    /** Unique Identifier. */
     UI,
 
     /** */
@@ -131,13 +131,13 @@ enum DICOMAttributeFormat
     /** */
     UR,
 
-    /** */
+    /** Unsigned long integer (32-bit). */
     UL,
 
-    /** */
+    /** Unknown. */
     UN,
 
-    /** */
+    /** Unsigned short integer (16-bit). */
     US,
 
     /** */

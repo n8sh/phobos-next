@@ -89,10 +89,10 @@ enum DICOMAttributeFormat
     /** Other Byte String. */
     OB,
 
-    /** TODO? */
+    /** TODO: ? */
     OD,
 
-    /** Some List? */
+    /** TODO: Some List? */
     OL,
 
     /** Other Float String. */
@@ -125,10 +125,10 @@ enum DICOMAttributeFormat
     /** Unique Identifier. */
     UI,
 
-    /** TODO? */
+    /** TODO: ? */
     UC,
 
-    /** TODO? */
+    /** TODO: ? */
     UR,
 
     /** Unsigned long integer (32-bit). */

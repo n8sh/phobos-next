@@ -6,12 +6,13 @@
  */
 module dicom;
 
+/** Attribute tag (code of 8 hexadeicmal digits). */
 alias Tag = char[8];            // could be represented by an `uint` if we remove the pattern matchers using 'x'
 
 /// DICOM attribute.
 struct DICOMAttribute
 {
-    Tag tag;                    ///< Attribute tag (code of 8 hexadeicmal digits).
+    Tag tag;                    ///< Attribute tag.
     char[2][] valueRanges;      ///< Value ranges.
     string description;         ///< Description of attribute.
     bool retiredFlag;           ///< is `true` iff tag is retired.

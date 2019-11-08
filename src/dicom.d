@@ -119,7 +119,7 @@ enum DICOMAttributeFormat
     /** */
     ST,
 
-    /** */
+    /** Time. */
     TM,
 
     /** Unique Identifier. */

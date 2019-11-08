@@ -16,16 +16,43 @@ alias Tag = char[8];
  *
  * See_Also: https://northstar-www.dartmouth.edu/doc/idl/html_6.2/Value_Representations.html#wp1023448
  */
-enum DICOMAttributeTypeFormat : char[2]
+enum DICOMAttributeTypeFormat
 {
-    UL = "UL"
+    AE,
+    AS,
+    AT,
+    CS,
+    DA,
+    DL,
+    DS,
+    DT,
+    FL,
+    FD,
+    IS,
+    LO,
+    LT,
+    OB,
+    OF,
+    OW,
+    PN,
+    SH,
+    SL,
+    SQ,
+    SS,
+    ST,
+    TM,
+    UI,
+    UL,
+    UN,
+    US,
+    UT
 }
 
 /// DICOM attribute.
 struct DICOMAttribute
 {
     Tag tag;                    ///< Attribute tag.
-    char[2][] valueRanges;      ///< Value ranges.
+    DICOMAttributeTypeFormat[] formats; ///< Possible formats.
     string name;                ///< Name.
     bool retiredFlag;           ///< is `true` iff tag is retired.
 }

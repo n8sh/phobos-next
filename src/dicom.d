@@ -101,7 +101,7 @@ enum DICOMAttributeFormat
     /** */
     OW,
 
-    /** */
+    /** Person Name. */
     PN,
 
     /** */
@@ -110,7 +110,7 @@ enum DICOMAttributeFormat
     /** Signed long integer (32-bit). */
     SL,
 
-    /** */
+    /** Sequence of items. */
     SQ,
 
     /** Signed short integer (16-bit). */

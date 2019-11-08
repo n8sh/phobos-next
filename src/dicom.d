@@ -12,7 +12,7 @@ alias Tag = char[8];            // could be represented by an `uint` if we remov
 struct DICOMAttribute
 {
     Tag tag;
-    char[2][] types;
+    char[2][] valueRanges;
     string documentation;
     bool retiredFlag;
 }

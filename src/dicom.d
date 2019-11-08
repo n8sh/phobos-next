@@ -14,7 +14,7 @@ struct DICOMAttribute
     Tag tag;
     char[2][] valueRanges;      ///< Value ranges.
     string documentation;
-    bool retiredFlag;
+    bool retiredFlag;           ///< is `true` iff tag is retired.
 }
 
 static immutable DICOMAttribute[] tagsTable =

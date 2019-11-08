@@ -49,13 +49,13 @@ enum DICOMAttributeFormat
      */
     AT,
 
-    /** */
+    /** Code String. */
     CS,
 
     /** Date. */
     DA,
 
-    /** */
+    /** Delimitation. */
     DL,
 
     /** Decimal String.
@@ -68,25 +68,25 @@ enum DICOMAttributeFormat
      */
     DS,
 
-    /** */
+    /** Date Time. */
     DT,
 
-    /** */
+    /** Floating Point Single (32-bit). */
     FL,
 
-    /** */
+    /** Floating Point Double (64-bit). */
     FD,
 
-    /** */
+    /** Integer String. */
     IS,
 
-    /** */
+    /** Long String. */
     LO,
 
-    /** */
+    /** Long Text. */
     LT,
 
-    /** */
+    /** Other Byte String. */
     OB,
 
     /** */
@@ -95,10 +95,10 @@ enum DICOMAttributeFormat
     /** */
     OL,
 
-    /** */
+    /** Other Float String. */
     OF,
 
-    /** */
+    /** Other Word String. */
     OW,
 
     /** Person Name. */

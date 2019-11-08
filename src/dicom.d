@@ -6,8 +6,11 @@
  */
 module dicom;
 
-/** Attribute tag code as 8 hexadecimal digits. */
-alias Tag = char[8];            // could be represented by an `uint` if we remove the pattern matchers using 'x'
+/** Attribute tag code as 8 hexadecimal digits.
+ *
+ * Could be represented by an `uint` if we remove the pattern matchers using 'x'.
+ */
+alias Tag = char[8];
 
 /// DICOM attribute.
 struct DICOMAttribute

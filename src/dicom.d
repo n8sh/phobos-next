@@ -10,7 +10,7 @@ struct DICOMAttribute
 {
     char[8] tag;
     char[2][] valueRanges;
-    string doc;
+    string documentation;
     bool retiredFlag;
 }
 

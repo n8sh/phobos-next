@@ -6,9 +6,11 @@
  */
 module dicom;
 
+alias Tag = char[8];            // could be represented by an uint8
+
 struct DICOMAttribute
 {
-    char[8] tag;
+    Tag tag;
     char[2][] valueRanges;
     string documentation;
     bool retiredFlag;

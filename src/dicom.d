@@ -8,6 +8,7 @@ module dicom;
 
 alias Tag = char[8];            // could be represented by an `uint` if we remove the pattern matchers using 'x'
 
+/// DICOM attribute definition.
 struct DICOMAttribute
 {
     Tag tag;

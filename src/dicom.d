@@ -17,7 +17,7 @@ struct DICOMAttribute
 {
     Tag tag;                    ///< Attribute tag.
     char[2][] valueRanges;      ///< Value ranges.
-    string description;         ///< Description of attribute.
+    string name;                ///< Name of attribute.
     bool retiredFlag;           ///< is `true` iff tag is retired.
 }
 

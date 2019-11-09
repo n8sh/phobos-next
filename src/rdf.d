@@ -21,7 +21,7 @@ module rdf;
 enum SubjectFormat { IRI, blankNode }
 enum ObjectFormat { IRI, blankNode, literal }
 
-@safe pure:
+@safe pure nothrow:
 
 /** RDF N-Triple.
  *

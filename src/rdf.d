@@ -23,39 +23,6 @@ enum ObjectFormat { IRI, blankNode, literal }
 
 @safe:
 
-/** Decode $(D S) into an RDF N-Triple.
- *
- * See_Also: https://www.w3.org/TR/n-triples/
- */
-auto parseNTriple(scope return inout(char)[] line) @safe pure
-{
-    import array_algorithm : skipOverBack;
-
-    assert(line.length >= 4);
-
-    // strip suffix
-    line.skipOverBack('.');
-    line.skipOverBack(' ');
-
-    import array_algorithm : indexOf;
-
-    // subject IRI
-    const ix0 = line.indexOf(' '); // TODO use array_algorithm.findSplit(' ')
-    assert(ix0 != -1);
-    const subject = line[0 .. ix0];
-    line = line[ix0 + 1 .. $];
-
-    // predicate IRI
-    const ix1 = line.indexOf(' '); // TODO use array_algorithm.findSplit(' ')
-    assert(ix1 != -1);
-    const predicate = line[0 .. ix1];
-    line = line[ix1 + 1 .. $];
-
-    auto nt = inout(NTriple)(subject, predicate, line);
-    (cast(NTriple)nt).parse();  // hack to make `inout` work
-    return nt;
-}
-
 /** RDF N-Triple.
  *
  * Parameterized on element type $(D Chars). Use NTriple!(char[]) to avoid
@@ -149,6 +116,39 @@ struct NTriple
 
     SubjectFormat subjectType;
     ObjectFormat objectType;
+}
+
+/** Decode $(D S) into an RDF N-Triple.
+ *
+ * See_Also: https://www.w3.org/TR/n-triples/
+ */
+auto parseNTriple(scope return inout(char)[] line) @safe pure
+{
+    import array_algorithm : skipOverBack;
+
+    assert(line.length >= 4);
+
+    // strip suffix
+    line.skipOverBack('.');
+    line.skipOverBack(' ');
+
+    import array_algorithm : indexOf;
+
+    // subject IRI
+    const ix0 = line.indexOf(' '); // TODO use array_algorithm.findSplit(' ')
+    assert(ix0 != -1);
+    const subject = line[0 .. ix0];
+    line = line[ix0 + 1 .. $];
+
+    // predicate IRI
+    const ix1 = line.indexOf(' '); // TODO use array_algorithm.findSplit(' ')
+    assert(ix1 != -1);
+    const predicate = line[0 .. ix1];
+    line = line[ix1 + 1 .. $];
+
+    auto nt = inout(NTriple)(subject, predicate, line);
+    (cast(NTriple)nt).parse();  // hack to make `inout` work
+    return nt;
 }
 
 ///

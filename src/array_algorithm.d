@@ -1187,6 +1187,91 @@ auto findSplitAfter(T)(scope return inout(T)[] haystack,
     assert(r.post == "b");
 }
 
+/** Array-specialization of `findLastSplitAfter` with default predicate.
+ *
+ * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
+ * See_Also: https://forum.dlang.org/post/zhgajqdhybtbufeiiofp@forum.dlang.org
+ */
+auto findLastSplitAfter(T)(scope return inout(T)[] haystack,
+                           scope const T needle) @trusted
+{
+    static struct Result // NOTE `static` qualifier is needed for `inout` to propagate correctly
+    {
+        private T[] _haystack;
+        private size_t _offset;
+
+        pragma(inline, true):
+
+        inout(T)[] pre() @trusted inout
+        {
+            if (empty) { return _haystack[$ .. $]; }
+            return _haystack.ptr[0 .. _offset + 1];
+        }
+
+        inout(T)[] post() @trusted inout
+        {
+            if (empty) { return _haystack[0 .. $]; }
+            return _haystack.ptr[_offset + 1 .. _haystack.length];
+        }
+
+        bool opCast(T : bool)() const
+        {
+            return !empty;
+        }
+
+        private @property bool empty() const
+        {
+            return _haystack.length == _offset;
+        }
+    }
+
+    static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
+    const index = haystack.lastIndexOf(needle);
+    if (index >= 0)
+    {
+        return inout(Result)(haystack, index);
+    }
+    return inout(Result)(haystack, haystack.length); // miss
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    char[] haystack;
+    auto r = haystack.findLastSplitAfter('_');
+    static assert(is(typeof(r.pre()) == char[]));
+    static assert(is(typeof(r.post()) == char[]));
+    assert(!r);
+    assert(!r.pre);
+    assert(!r.post);
+
+    auto f()() @safe pure nothrow { char[1] x = "_"; return x[].findLastSplitAfter(' '); }
+    static if (isDIP1000) static assert(!__traits(compiles, { auto _ = f(); }));
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    const(char)[] haystack;
+    auto r = haystack.findLastSplitAfter('_');
+    static assert(is(typeof(r.pre()) == const(char)[]));
+    static assert(is(typeof(r.post()) == const(char)[]));
+    assert(!r);
+    assert(!r.pre);
+    assert(!r.post);
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    auto r = "a*b*c".findLastSplitAfter('*');
+    static assert(is(typeof(r.pre()) == string));
+    static assert(is(typeof(r.post()) == string));
+    assert(r);
+    assert(r.pre == "a*b*");
+    assert(r.post == "c");
+}
+
 version(unittest)
 {
     import dip_traits : isDIP1000;

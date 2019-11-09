@@ -152,7 +152,7 @@ auto parseNTriple(scope return inout(char)[] line)
 }
 
 ///
-@safe pure unittest
+@safe pure nothrow @nogc unittest
 {
     const x = `<http://dbpedia.org/resource/180%C2%B0_(Gerardo_album)> <http://dbpedia.org/ontology/artist> <http://dbpedia.org/resource/Gerardo_Mej%C3%ADa> .`;
     auto nt = x.parseNTriple;
@@ -169,7 +169,7 @@ auto parseNTriple(scope return inout(char)[] line)
 }
 
 ///
-@safe pure unittest
+@safe pure nothrow @nogc unittest
 {
     const x = `<http://dbpedia.org/resource/1950_Chatham_Cup> <http://xmlns.com/foaf/0.1/name> "Chatham Cup"@en .`;
     const nt = x.parseNTriple;
@@ -183,7 +183,7 @@ auto parseNTriple(scope return inout(char)[] line)
 }
 
 ///
-@safe pure unittest
+@safe pure nothrow @nogc unittest
 {
     const x = `<http://dbpedia.org/resource/1950_Chatham_Cup> <http://xmlns.com/foaf/0.1/name> "Chatham Cup" .`;
     const nt = x.parseNTriple;
@@ -197,7 +197,7 @@ auto parseNTriple(scope return inout(char)[] line)
 }
 
 ///
-@safe pure unittest
+@safe pure nothrow @nogc unittest
 {
     const x = `<http://dbpedia.org/resource/007:_Quantum_of_Solace> <http://dbpedia.org/ontology/releaseDate> "2008-10-31"^^<http://www.w3.org/2001/XMLSchema#date> .`;
     const nt = x.parseNTriple;
@@ -211,7 +211,7 @@ auto parseNTriple(scope return inout(char)[] line)
 }
 
 ///
-@safe pure unittest
+@safe pure nothrow @nogc unittest
 {
     const x = `<http://dbpedia.org/resource/Ceremony_(song)> <http://dbpedia.org/ontology/bSide> "\"In a Lonely Place\"".`;
     const nt = x.parseNTriple;
@@ -225,7 +225,7 @@ auto parseNTriple(scope return inout(char)[] line)
 }
 
 ///
-@safe pure unittest
+@safe pure nothrow @nogc unittest
 {
     const x = `<http://dbpedia.org/resource/16_@_War> <http://xmlns.com/foaf/0.1/name> "16 @ War"@en .`;
     auto nt = x.parseNTriple;
@@ -239,7 +239,7 @@ auto parseNTriple(scope return inout(char)[] line)
 }
 
 ///
-@safe pure unittest
+@safe pure nothrow @nogc unittest
 {
     const x = `<http://dbpedia.org/resource/CT_Rei_Pel%C3%A9> <http://xmlns.com/foaf/0.1/homepage> <http://www.santosfc.com.br/clube/default.asp?c=Sedes&st=CT%20Rei%20Pel%E9> .`;
     auto nt = x.parseNTriple;

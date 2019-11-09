@@ -21,7 +21,7 @@ module rdf;
 enum SubjectFormat { IRI, blankNode }
 enum ObjectFormat { IRI, blankNode, literal }
 
-@safe:
+@safe pure:
 
 /** RDF N-Triple.
  *
@@ -122,7 +122,7 @@ struct NTriple
  *
  * See_Also: https://www.w3.org/TR/n-triples/
  */
-auto parseNTriple(scope return inout(char)[] line) @safe pure
+auto parseNTriple(scope return inout(char)[] line)
 {
     import array_algorithm : skipOverBack;
 

@@ -5,13 +5,13 @@ void main()
     import std.algorithm : max;
     import digestx.fnv : FNV;
 
-    import open_hashmap_or_hashset : OpenHashSet;
-    import open_hashmap_or_hashset : OpenHashMap;
-    import basic_array : BasicArray;
+    import open_hashmap_or_hashset : HashSet = OpenHashSet;
+    import open_hashmap_or_hashset : HashMap = OpenHashMap;
+    import basic_array : Array = BasicArray;
 
     alias Ix = size_t;
-    alias Str = BasicArray!(char); // TODO use uint as length
-    alias Strs = OpenHashSet!(Str, null, FNV!(64, true));
+    alias Str = Array!(char); // TODO use uint as length
+    alias Strs = HashSet!(Str, null, FNV!(64, true));
     // alias IxStr = HashMap!(Ix, Str, null, FNV!(64, true));
 
     auto strs = Strs.withCapacity(72800);

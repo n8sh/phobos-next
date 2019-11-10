@@ -106,6 +106,5 @@ extern (C) private pure @system @nogc nothrow
     pragma(mangle, "malloc") void* fakePureMalloc(size_t);
     pragma(mangle, "calloc") void* fakePureCalloc(size_t nmemb, size_t size);
     pragma(mangle, "realloc") void* fakePureRealloc(void* ptr, size_t size);
-
     pragma(mangle, "free") void fakePureFree(void* ptr);
 }

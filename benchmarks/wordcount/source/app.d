@@ -11,13 +11,11 @@ void main()
     }
     immutable after = MonoTime.currTime();
 
-    const duration = (after - before);
-    immutable secs  = duration.total!"msecs";
-    immutable nsecs = duration.total!"nsecs";
+    const dur = (after - before);
 
-    writef("Count lines: count:%d duration:%1.2smsecs, %3.1fnsecs/op\n",
+    writef("Count lines: count:%d dur:%1.2smsecs, %3.1fnsecs/op\n",
            count,
-           secs,
-           cast(double)nsecs / count);
+           dur.total!"msecs",
+           cast(double)dur.total!"nsecs" / count);
 
 }

@@ -33,6 +33,10 @@ if (is(typeof(Range.init[0 .. 0])) && // can be sliced
         {
             return input.splitterASCIIAmong!('\n');
         }
+        else
+        {
+            static assert(0, "Neither on Windows nor Posix!");
+        }
     }
     else
     {

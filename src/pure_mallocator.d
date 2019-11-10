@@ -29,8 +29,7 @@ struct PureMallocator
      * paradoxically, $(D malloc) is $(D @safe) but that's only useful to safe
      * programs that can afford to leak memory allocated.
      */
-    void[] allocate(size_t bytes)
-        @trusted
+    void[] allocate(size_t bytes) @trusted
     {
         version(LDC) pragma(inline, true);
         if (!bytes) { return null; }
@@ -38,8 +37,7 @@ struct PureMallocator
         return p ? p[0 .. bytes] : null;
     }
 
-    void[] allocateZeroed(size_t bytes)
-        @trusted
+    void[] allocateZeroed(size_t bytes) @trusted
     {
         version(LDC) pragma(inline, true);
         if (!bytes) { return null; }
@@ -48,8 +46,7 @@ struct PureMallocator
     }
 
     /// ditto
-    bool deallocate(void[] b)
-        @system
+    bool deallocate(void[] b) @system
     {
         pragma(inline, true);
         pureFree(b.ptr);        // `free` doesn't need `b.length`
@@ -59,8 +56,7 @@ struct PureMallocator
     }
 
     /// ditto
-    bool reallocate(ref void[] b, size_t s)
-        @system
+    bool reallocate(ref void[] b, size_t s) @system
     {
         if (!s)
         {
@@ -77,8 +73,7 @@ struct PureMallocator
     }
 
     /// Deallocate using a pointer only like what `free` does.
-    bool deallocatePtr(void* b)
-        @system
+    bool deallocatePtr(void* b) @system
     {
         pragma(inline, true);
         pureFree(b);            // `free` doesn't need `b.length`
@@ -104,4 +99,13 @@ struct PureMallocator
 
     import std.experimental.allocator : makeArray;
     PureMallocator.instance.makeArray!int(64, 42);
+}
+
+extern (C) private pure @system @nogc nothrow
+{
+    pragma(mangle, "malloc") void* fakePureMalloc(size_t);
+    pragma(mangle, "calloc") void* fakePureCalloc(size_t nmemb, size_t size);
+    pragma(mangle, "realloc") void* fakePureRealloc(void* ptr, size_t size);
+
+    pragma(mangle, "free") void fakePureFree(void* ptr);
 }

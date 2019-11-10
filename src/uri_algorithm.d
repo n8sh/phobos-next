@@ -20,7 +20,7 @@ bool skipOverURLProtocolPrefix(scope ref inout(char)[] url) @safe pure nothrow @
 @safe pure nothrow @nogc unittest
 {
     auto url = "http://www.sunet.se";
-    assert(url.skipOverURIProtocolPrefix());
+    assert(url.skipOverURLProtocolPrefix());
     assert(url  == "www.sunet.se");
 }
 
@@ -28,6 +28,6 @@ bool skipOverURLProtocolPrefix(scope ref inout(char)[] url) @safe pure nothrow @
 @safe pure nothrow @nogc unittest
 {
     auto url = "https://www.sunet.se";
-    assert(url.skipOverURIProtocolPrefix());
+    assert(url.skipOverURLProtocolPrefix());
     assert(url  == "www.sunet.se");
 }

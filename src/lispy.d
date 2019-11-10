@@ -160,6 +160,8 @@ struct LispParser
         nextFront();
     }
 
+    @disable this(this);
+
     @property bool empty() const nothrow scope @nogc
     {
         pragma(inline, true);
@@ -492,6 +494,11 @@ private:
         }
     }
 
+    ptrdiff_t offsetTo(scope const char[] expr) const @trusted pure nothrow @nogc
+    {
+        return expr.ptr - _input.ptr;
+    }
+
 private:
     size_t _offset;             // current offset in `_input`
     const Input _input;         // input
@@ -528,6 +535,10 @@ struct LispFileParser
         // TODO write parser.subExprsCount
     }
     LispParser parser;
+    ptrdiff_t offsetTo(scope const char[] expr) const @safe pure nothrow @nogc
+    {
+        return parser.offsetTo(expr);
+    }
     alias parser this;
 }
 

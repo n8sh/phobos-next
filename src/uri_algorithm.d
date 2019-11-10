@@ -4,6 +4,10 @@
  */
 module uri_algorithm;
 
+/** Skip over leading protocol prefix part of an URL `url`.
+ *
+ * See_Also: https://en.wikipedia.org/wiki/URL
+ */
 bool skipOverURLProtocolPrefix(scope ref inout(char)[] url) @safe pure nothrow @nogc
 {
     import array_algorithm : skipOver;

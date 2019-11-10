@@ -12,7 +12,6 @@ void main()
     immutable after = MonoTime.currTime();
 
     const dur = (after - before);
-
     writef("Count lines: count:%d dur:%1.2smsecs, %3.1fnsecs/op\n",
            count,
            dur.total!"msecs",

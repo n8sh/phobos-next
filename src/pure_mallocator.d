@@ -12,8 +12,6 @@ import std.experimental.allocator.common;
  */
 struct PureMallocator
 {
-    import core.memory : pureMalloc, pureCalloc, pureRealloc, pureFree;
-
     pure nothrow @nogc const shared:
 
     /**
@@ -33,7 +31,7 @@ struct PureMallocator
     {
         version(LDC) pragma(inline, true);
         if (!bytes) { return null; }
-        void* p = pureMalloc(bytes);
+        void* p = fakePureMalloc(bytes);
         return p ? p[0 .. bytes] : null;
     }
 
@@ -41,7 +39,7 @@ struct PureMallocator
     {
         version(LDC) pragma(inline, true);
         if (!bytes) { return null; }
-        void* p = pureCalloc(bytes, 1);
+        void* p = fakePureCalloc(bytes, 1);
         return p ? p[0 .. bytes] : null;
     }
 
@@ -49,7 +47,7 @@ struct PureMallocator
     bool deallocate(void[] b) @system
     {
         pragma(inline, true);
-        pureFree(b.ptr);        // `free` doesn't need `b.length`
+        fakePureFree(b.ptr);        // `free` doesn't need `b.length`
         // `true` indicates support,
         // See_Also: https://dlang.org/phobos/std_experimental_allocator.html#.IAllocator.deallocate
         return true;
@@ -66,7 +64,7 @@ struct PureMallocator
             b = null;
             return true;
         }
-        ubyte* p = cast(ubyte*)pureRealloc(b.ptr, s);
+        ubyte* p = cast(ubyte*)fakePureRealloc(b.ptr, s);
         if (!p) { return false; }
         b = p[0 .. s];
         return true;
@@ -76,7 +74,7 @@ struct PureMallocator
     bool deallocatePtr(void* b) @system
     {
         pragma(inline, true);
-        pureFree(b);            // `free` doesn't need `b.length`
+        fakePureFree(b);            // `free` doesn't need `b.length`
         return true; // `true` indicates support, https://dlang.org/phobos/std_experimental_allocator.html#.IAllocator.deallocate
     }
 

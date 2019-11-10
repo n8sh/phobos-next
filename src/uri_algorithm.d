@@ -4,6 +4,8 @@
  */
 module uri_algorithm;
 
+@safe pure nothrow @nogc:
+
 /** Try skip over leading protocol prefix part of an URL `url`.
  *
  * Currently only skips either of the prefixes `http://` and `https://`.
@@ -12,7 +14,7 @@ module uri_algorithm;
  *
  * See_Also: https://en.wikipedia.org/wiki/URL
  */
-bool skipOverURLProtocolPrefix(scope ref inout(char)[] url) @safe pure nothrow @nogc
+bool skipOverURLProtocolPrefix(scope ref inout(char)[] url)
 {
     import array_algorithm : skipOver;
     const(char)[] tmp = url;

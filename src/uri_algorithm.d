@@ -4,7 +4,9 @@
  */
 module uri_algorithm;
 
-/** Skip over leading protocol prefix part of an URL `url`.
+/** Try skip over leading protocol prefix part of an URL `url`.
+ *
+ * Returns: `true` iff skip was performed, `false` otherwise.
  *
  * See_Also: https://en.wikipedia.org/wiki/URL
  */

@@ -32,7 +32,7 @@ void main()
 
     immutable n = strs.length;
 
-    writef("Insertion: n:%s maxLength:%s %1.2smsecs, %3.1fnsecs/op",
+    writef("Insertion: n:%s maxLength:%s %1.2smsecs, %3.1fnsecs/op\n",
            n,
            maxLength,
            secs,

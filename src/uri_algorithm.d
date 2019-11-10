@@ -6,7 +6,7 @@ module uri_algorithm;
 
 /** Try skip over leading protocol prefix part of an URL `url`.
  *
- * Currently only skips `http://` and `https://`.
+ * Currently only skips the prefixes `http://` and `https://`.
  *
  * Returns: `true` iff skip was performed, `false` otherwise.
  *

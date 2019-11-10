@@ -11,7 +11,7 @@ void main()
     }
     immutable after = MonoTime.currTime();
 
-    immutable secs = (after - before).total!"msecs";
+    immutable secs  = (after - before).total!"msecs";
     immutable nsecs = (after - before).total!"nsecs";
 
     writef("Count lines: count:%d duration:%1.2smsecs, %3.1fnsecs/op\n",

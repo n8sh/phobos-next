@@ -14,7 +14,7 @@ void main()
     immutable secs = (after - before).total!"msecs";
     immutable nsecs = (after - before).total!"nsecs";
 
-    writef("Line: count:%s duration:%1.2smsecs, %3.1fnsecs/op\n",
+    writef("Count lines: count:%s duration:%1.2smsecs, %3.1fnsecs/op\n",
            count,
            secs,
            cast(double)nsecs / count);

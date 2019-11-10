@@ -4,6 +4,7 @@ void main()
     import std.datetime : MonoTime;
 
     size_t count = 0;
+
     immutable before = MonoTime.currTime();
     foreach (line; File("/usr/share/dict/words").byLine) // TODO make const and fix HashSet.insert
     {

@@ -101,7 +101,7 @@ struct PureMallocator
     PureMallocator.instance.makeArray!int(64, 42);
 }
 
-extern(C) private pure @system @nogc nothrow
+extern (C) private pure @system @nogc nothrow
 {
     pragma(mangle, "malloc") void* fakePureMalloc(size_t);
     pragma(mangle, "calloc") void* fakePureCalloc(size_t nmemb, size_t size);

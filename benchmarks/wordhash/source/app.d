@@ -5,14 +5,13 @@ void main()
     import std.algorithm : max;
     import digestx.fnv : FNV;
 
+    import sso_string : String = SSOString;
     import open_hashmap_or_hashset : HashSet = OpenHashSet;
     import open_hashmap_or_hashset : HashMap = OpenHashMap;
     import basic_array : Array = BasicArray;
 
     alias Ix = size_t;
-    alias Str = Array!(char); // TODO use uint as length
-    alias Strs = HashSet!(Str, null, FNV!(64, true));
-    // alias IxStr = HashMap!(Ix, Str, null, FNV!(64, true));
+    alias Strs = HashSet!(String);
 
     auto strs = Strs.withCapacity(72800);
 
@@ -20,10 +19,10 @@ void main()
     immutable before = MonoTime.currTime();
     foreach (line; File("/usr/share/dict/words").byLine) // TODO make const and fix HashSet.insert
     {
-        if (line.length >= 3 &&
-            line[$ - 2 .. $] != `'s`)
+        import array_algorithm : endsWith;
+        if (!line.endsWith(`'s`))
         {
-            strs.insert(Str(line));
+            strs.insert(String(line));
             maxLength = max(maxLength, line.length);
         }
     }
@@ -33,14 +32,11 @@ void main()
     immutable nsecs = (after - before).total!"nsecs";
 
     immutable n = strs.length;
-    immutable binCounts = strs.binCounts;
 
-    writef("Insertion: n:%s maxLength:%s %1.2smsecs, %3.1fnsecs/op binCounts:S:%s,L:%s",
+    writef("Insertion: n:%s maxLength:%s %1.2smsecs, %3.1fnsecs/op",
            n,
            maxLength,
            secs,
-           cast(double)nsecs / n,
-           binCounts.smallCount,
-           binCounts.largeCount);
+           cast(double)nsecs / n);
 
 }

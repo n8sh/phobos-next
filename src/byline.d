@@ -56,6 +56,10 @@ if (is(typeof(Range.init[0 .. 0])) && // can be sliced
         {
             return input.splitterASCIIAmong!('\r', '\n');
         }
+        else
+        {
+            static assert(0, "Handle Newline." ~ nl.stringof);
+        }
     }
 }
 

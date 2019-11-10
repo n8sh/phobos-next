@@ -10,7 +10,6 @@ void main()
     import open_hashmap_or_hashset : HashMap = OpenHashMap;
     import basic_array : Array = BasicArray;
 
-    alias Ix = size_t;
     alias Strs = HashSet!(String);
 
     auto strs = Strs.withCapacity(72800);

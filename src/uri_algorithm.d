@@ -1,3 +1,7 @@
+/** Algorithms operating on URLs.
+ *
+ * See_Also: https://en.wikipedia.org/wiki/URL
+ */
 module uri_algorithm;
 
 bool skipOverURLProtocolPrefix(scope ref inout(char)[] url) @safe pure nothrow @nogc

@@ -294,6 +294,6 @@ private:
     Block* rootBlock;
 }
 
-private extern(C) void* calloc(size_t, size_t) nothrow pure;
-private extern(C) void* malloc(size_t) nothrow pure;
-private extern(C) void free(void*) nothrow pure;
+private extern (C) void* calloc(size_t, size_t) nothrow pure;
+private extern (C) void* malloc(size_t) nothrow pure;
+private extern (C) void free(void*) nothrow pure;

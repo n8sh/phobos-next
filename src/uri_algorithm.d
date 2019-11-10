@@ -1,4 +1,4 @@
-module url_algorithm;
+module uri_algorithm;
 
 bool skipOverURLProtocolPrefix(scope ref inout(char)[] url) @safe pure nothrow @nogc
 {

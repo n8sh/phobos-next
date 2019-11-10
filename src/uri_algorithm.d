@@ -1,4 +1,4 @@
-/** Algorithms operating on URLs.
+/** Algorithms operating on URIs including URLs.
  *
  * See_Also: https://en.wikipedia.org/wiki/URL
  */

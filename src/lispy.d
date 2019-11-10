@@ -7,7 +7,7 @@
  *
  * TODO: Try infinite loops with break or goto instead of for loops.
  *
- * TODO Should we add LispFile.bySExpr to allow use of `offsetTo` inside `LispFileParser lfp; foreach (lfp.bySExpr)`
+ * TODO Should we add `LispFile.bySExpr` to allow use of `offsetTo` inside `LispFileParser lfp; foreach (lfp.bySExpr)`
  */
 module lispy;
 

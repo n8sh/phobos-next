@@ -529,7 +529,6 @@ pure unittest
     }
 }
 
-///
 @safe pure unittest
 {
     static assert(mustAddGCRange!(FixedArray!(string, 1, false)));

@@ -2,6 +2,8 @@
  */
 module fixed_array;
 
+@safe pure:
+
 /** Statically allocated `T`-array of fixed pre-allocated length.  Similar to
  * Rust's `fixedvec`: https://docs.rs/fixedvec/0.2.3/fixedvec/
  *
@@ -318,17 +320,17 @@ pragma(inline, true):
         import borrowed : ReadBorrowed, WriteBorrowed;
 
         /// Get read-only slice in range `i` .. `j`.
-        auto opSlice(size_t i, size_t j) const return { return sliceRO(i, j); }
+        auto opSlice(size_t i, size_t j) const return scope { return sliceRO(i, j); }
         /// Get read-write slice in range `i` .. `j`.
-        auto opSlice(size_t i, size_t j) return { return sliceRW(i, j); }
+        auto opSlice(size_t i, size_t j) return scope { return sliceRW(i, j); }
 
         /// Get read-only full slice.
-        auto opSlice() const return { return sliceRO(); }
+        auto opSlice() const return scope { return sliceRO(); }
         /// Get read-write full slice.
-        auto opSlice() return { return sliceRW(); }
+        auto opSlice() return scope { return sliceRW(); }
 
         /// Get full read-only slice.
-        ReadBorrowed!(T[], typeof(this)) sliceRO() const @trusted return
+        ReadBorrowed!(T[], typeof(this)) sliceRO() const @trusted return scope
         {
             import core.internal.traits : Unqual;
             assert(!_writeBorrowed, "Already write-borrowed");
@@ -337,7 +339,7 @@ pragma(inline, true):
         }
 
         /// Get read-only slice in range `i` .. `j`.
-        ReadBorrowed!(T[], typeof(this)) sliceRO(size_t i, size_t j) const @trusted return
+        ReadBorrowed!(T[], typeof(this)) sliceRO(size_t i, size_t j) const @trusted return scope
         {
             import core.internal.traits : Unqual;
             assert(!_writeBorrowed, "Already write-borrowed");
@@ -346,7 +348,7 @@ pragma(inline, true):
         }
 
         /// Get full read-write slice.
-        WriteBorrowed!(T[], typeof(this)) sliceRW() @trusted return
+        WriteBorrowed!(T[], typeof(this)) sliceRW() @trusted return scope
         {
             assert(!_writeBorrowed, "Already write-borrowed");
             assert(_readBorrowCount == 0, "Already read-borrowed");
@@ -354,7 +356,7 @@ pragma(inline, true):
         }
 
         /// Get read-write slice in range `i` .. `j`.
-        WriteBorrowed!(T[], typeof(this)) sliceRW(size_t i, size_t j) @trusted return
+        WriteBorrowed!(T[], typeof(this)) sliceRW(size_t i, size_t j) @trusted return scope
         {
             assert(!_writeBorrowed, "Already write-borrowed");
             assert(_readBorrowCount == 0, "Already read-borrowed");
@@ -376,7 +378,7 @@ pragma(inline, true):
     else
     {
         /// Get slice in range `i` .. `j`.
-        inout(T)[] opSlice(size_t i, size_t j) @trusted inout return
+        inout(T)[] opSlice(size_t i, size_t j) @trusted inout return scope
         {
             // assert(i <= j);
             // assert(j <= _length);
@@ -384,7 +386,7 @@ pragma(inline, true):
         }
 
         /// Get full slice.
-        inout(T)[] opSlice() @trusted inout return
+        inout(T)[] opSlice() @trusted inout return scope
         {
             return _store[0 .. _length]; // TODO make .ptr work
         }
@@ -413,12 +415,12 @@ pragma(inline, true):
     }
 
     /** Comparison for equality. */
-    bool opEquals(const scope typeof(this) rhs) const
+    bool opEquals(const scope typeof(this) rhs) const @trusted // TODO remove @trusted when this compiles as @safe with LDC
     {
         return this[] == rhs[];
     }
     /// ditto
-    bool opEquals(const scope ref typeof(this) rhs) const
+    bool opEquals(const scope ref typeof(this) rhs) const @trusted // TODO remove @trusted when this compiles as @safe with LDC
     {
         return this[] == rhs[];
     }

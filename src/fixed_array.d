@@ -525,14 +525,17 @@ version(none) pure unittest     // TODO activate
     alias String15 = StringN!(capacity);
     static assert(!mustAddGCRange!String15);
 
-    static assert(!__traits(compiles, {
-                auto f() @safe pure
-                {
-                    auto x = String15("alphas");
-                    auto y = x[];
-                    return y;   // errors with -dip1000
-                }
-            }));
+    static if (isDIP1000)
+    {
+        static assert(!__traits(compiles, {
+                    auto f() @safe pure
+                    {
+                        auto x = String15("alphas");
+                        auto y = x[];
+                        return y;   // errors with -dip1000
+                    }
+                }));
+    }
 }
 
 @safe pure unittest
@@ -750,4 +753,5 @@ version(unittest)
 
     import array_help : s;
     import container_traits : mustAddGCRange;
+    import dip_traits : isDIP1000;
 }

@@ -415,7 +415,7 @@ pragma(inline, true):
     }
 
     /** Comparison for equality. */
-    bool opEquals()(auto ref const scope typeof(this) rhs) const @trusted // TODO remove @trusted when this compiles as @safe with LDC
+    bool opEquals()(auto ref const scope typeof(this) rhs) const
     {
         return this[] == rhs[];
     }

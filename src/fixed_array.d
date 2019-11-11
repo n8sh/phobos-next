@@ -415,7 +415,7 @@ pragma(inline, true):
     }
 
     /** Comparison for equality. */
-    bool opEquals()(auto ref const scope typeof(this) rhs) const
+    bool opEquals()(const scope auto ref typeof(this) rhs) const
     {
         return this[] == rhs[];
     }

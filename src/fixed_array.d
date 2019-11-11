@@ -494,7 +494,6 @@ alias MutableDStringN(uint capacity, bool borrowChecked = false) = FixedArray!(c
 
         typeof(String15.init[0])[] xs;
         auto x = String15("alphas");
-        // TODO static assert(!__traits(compiles, { xs = x[]; })); // TODO should error with -dip1000
 
         assert(x[0] == 'a');
         assert(x[$ - 1] == 's');

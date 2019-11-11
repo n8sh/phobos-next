@@ -44,7 +44,7 @@ enum TOK
 /** Lisp-like token. */
 struct Token
 {
-    this(TOK tok, const(char)[] src = null) @safe pure @nogc
+    this(TOK tok, const(char)[] src = null) @safe pure nothrow @nogc
     {
         this.tok = tok;
         this.src = src;

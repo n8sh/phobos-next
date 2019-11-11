@@ -507,34 +507,25 @@ alias MutableDStringN(uint capacity, bool borrowChecked = false) = FixedArray!(c
 }
 
 /// scope checked string
-version(none) pure unittest     // TODO activate
+pure unittest
 {
     enum capacity = 15;
-    foreach (StrN; AliasSeq!(StringN, WStringN, DStringN))
+    foreach (Str; AliasSeq!(StringN!capacity,
+                            WStringN!capacity,
+                            DStringN!capacity))
     {
-        static assert(!mustAddGCRange!StrN);
-        alias String15 = StrN!(capacity);
-        assertThrown!AssertError(String15("åäö_åäöå_"));
-    }
-}
-
-/// scope checked string
-@safe pure unittest
-{
-    enum capacity = 15;
-    alias String15 = StringN!(capacity);
-    static assert(!mustAddGCRange!String15);
-
-    static if (isDIP1000)
-    {
-        static assert(!__traits(compiles, {
-                    auto f() @safe pure
-                    {
-                        auto x = String15("alphas");
-                        auto y = x[];
-                        return y;   // errors with -dip1000
-                    }
-                }));
+        static assert(!mustAddGCRange!Str);
+        static if (isDIP1000)
+        {
+            static assert(!__traits(compiles, {
+                        auto f() @safe pure
+                        {
+                            auto x = Str("alphas");
+                            auto y = x[];
+                            return y;   // errors with -dip1000
+                        }
+                    }));
+        }
     }
 }
 

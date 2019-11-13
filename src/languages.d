@@ -1,6 +1,6 @@
 module languages;
 
-@safe:
+@safe pure:
 
 import conv_ex : toDefaulted;
 

@@ -1,7 +1,5 @@
 /** RDF-data model and algorithsm.
  *
- * Parsing of an RDF-line as a `char` array.
- *
  * Currently supports N-Triples (.nt).
  *
  * Planned support for RDF Turtle (.ttl) statements (either single-line or multi-line).
@@ -120,7 +118,7 @@ struct NTriple
     ObjectFormat objectFormat;
 }
 
-/** Decode $(D S) into an RDF N-Triple.
+/** Decode `line` into an RDF N-Triple.
  *
  * See_Also: https://www.w3.org/TR/n-triples/
  */

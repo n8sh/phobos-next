@@ -1,4 +1,6 @@
-/** Parsing of an RDF-line as a `char` array.
+/** RDF-data model and algorithsm.
+ *
+ * Parsing of an RDF-line as a `char` array.
  *
  * Currently supports N-Triples (.nt).
  *
@@ -23,7 +25,7 @@ enum ObjectFormat { IRI, blankNode, literal }
 
 @safe pure nothrow @nogc:
 
-/** RDF N-Triple.
+/** RDF N-Triple (data model).
  *
  * Parameterized on element type $(D Chars). Use NTriple!(char[]) to avoid
  * GC-allocations when parsing files using File.byLine which returns a volatile

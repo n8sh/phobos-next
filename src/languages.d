@@ -370,6 +370,7 @@ bool isFormal(Lang lang) @safe pure @nogc nothrow
 string toSpoken(Lang lang, Lang spokenLang = Lang.init) @safe pure nothrow // TODO @nogc
 {
     with (Lang)
+    {
         switch (lang)
         {
         case unknown: return `??`;
@@ -511,6 +512,7 @@ string toSpoken(Lang lang, Lang spokenLang = Lang.init) @safe pure nothrow // TO
             import enum_ex : toStringFaster;
             return lang.toStringFaster;
         }
+    }
 }
 
 Lang decodeLang(const scope const(char)[] lang) @safe pure nothrow @nogc

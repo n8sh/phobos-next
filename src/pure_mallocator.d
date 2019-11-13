@@ -12,7 +12,7 @@ import std.experimental.allocator.common;
  */
 struct PureMallocator
 {
-    pure nothrow @nogc const shared:
+    const shared pure nothrow @nogc:
 
     /**
      * The alignment is a static constant equal to $(D platformAlignment), which

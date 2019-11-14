@@ -18,8 +18,17 @@
  */
 module rdf;
 
-enum SubjectFormat { IRI, blankNode }
-enum ObjectFormat { IRI, blankNode, literal }
+enum SubjectFormat
+{
+    IRI, // See_Also: https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier
+    blankNode
+}
+enum ObjectFormat
+{
+    IRI, // See_Also: https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier
+    blankNode,
+    literal
+}
 
 @safe pure nothrow @nogc:
 

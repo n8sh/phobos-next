@@ -1352,7 +1352,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
 
         /// Indexing.
-        scope ref inout(V) opIndex(SomeKey)(const scope SomeKey key) inout return @trusted // `auto ref` here makes things slow
+        scope ref inout(V) opIndex(SomeKey)(const scope SomeKey key) inout return @trusted // `auto ref` here makes things slow. TODO @nogc
         if (isScopedKeyType!(typeof(key)))
         {
             version(LDC) pragma(inline, true);
@@ -1363,7 +1363,7 @@ struct OpenHashMapOrSet(K, V = void,
                 return _bins[hitIndex].value;
             }
             import core.exception : RangeError;
-            throw new RangeError("Key not found");
+            throw new RangeError("Key not found"); // TODO use assert instead?
         }
 
         /** Get value of `key` or `defaultValue` if `key` not present (and

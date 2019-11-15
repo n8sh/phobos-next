@@ -17,8 +17,11 @@ bool isASCII(scope const(char)[] input)
 
 @safe pure unittest
 {
+    assert(``.isASCII);
     assert(`a`.isASCII);
     assert(`ab`.isASCII);
     assert(`abc`.isASCII);
-    assert(!`aåö`.isASCII);
+    assert(!`å`.isASCII);
+    assert(!`åä`.isASCII);
+    assert(!`åäö`.isASCII);
 }

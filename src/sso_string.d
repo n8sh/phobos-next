@@ -390,7 +390,9 @@ private:
     {
         struct Small
         {
-            immutable(E)[smallCapacity] data;
+            immutable(E)[smallCapacity] data = [0,0,0,0,0,
+                                                0,0,0,0,0,
+                                                0,0,0,0,0]; // explicit init needed for `__traits(isZeroInit)` to be true.
             /* TODO only first 4 bits are needed to represent a length between
              * 0-15, use other 4 bits.
              */

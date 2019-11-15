@@ -38,7 +38,7 @@ import pure_mallocator : Mallocator = PureMallocator;
  * https://dlang.org/spec/operatoroverloading.html#index_op_assignment and
  * update uses of h[key] op= ... in knet where value supports arithmetic. If key
  * and value doesn't exist first default to Value.init before applying operation
- * via a mixin.
+ * via a mixin. Compare with implementation of builtin associative arrays in D.
  *
  * TODO use `StoreK` in store and cast between it and `KeyType`
  *

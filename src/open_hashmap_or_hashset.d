@@ -1339,6 +1339,7 @@ struct OpenHashMapOrSet(K, V = void,
             isScopedKeyType!(SomeKey))
         {
             version(LDC) pragma(inline, true);
+            // pragma(msg, SomeKey, " => ", K);
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)adjustKeyType(key)); // cast scoped `key` is @trusted
             if (hitIndex != _bins.length &&
                 isOccupiedAtIndex(hitIndex))

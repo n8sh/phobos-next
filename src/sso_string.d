@@ -3,7 +3,8 @@ module sso_string;
 /** Small-size-optimized (SSO) variant of `string`.
  *
  * Store on the stack if constructed with <= `smallCapacity` number of
- * characters, otherwise on the GC heap.
+ * characters, otherwise as a normal `string`. This `string` will be allocated
+ * on the GC-heap if the `SSOString` is constructed from a non-`string` type.
  *
  * Because `SSOString` doesn't have a destructor it can safely allocate using a
  * GC-backed region allocator without relying on a GC finalizer.

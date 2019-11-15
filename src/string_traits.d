@@ -8,7 +8,7 @@ module string_traits;
  */
 bool isASCII(scope const(char)[] input)
 {
-    foreach (e; cast(const(ubyte)[])input) // no decoding needed
+    foreach (e; cast(const(ubyte)[])input) // no decoding to `dchar` needed
     {
         if (e >= 0x7F) { return false; }
     }

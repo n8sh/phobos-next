@@ -4,7 +4,8 @@ module sso_string;
  *
  * Store on the stack if constructed with <= `smallCapacity` number of
  * characters, otherwise as a normal `string`. This `string` will be allocated
- * on the GC-heap if the `SSOString` is constructed from a non-`string` type.
+ * on the GC-heap if the `SSOString` is constructed from a non-`string`
+ * parameter.
  *
  * Because `SSOString` doesn't have a destructor it can safely allocate using a
  * GC-backed region allocator without relying on a GC finalizer.

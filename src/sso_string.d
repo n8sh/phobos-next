@@ -10,7 +10,7 @@ module sso_string;
  * Because `SSOString` doesn't have a destructor it can safely allocate using a
  * GC-backed region allocator without relying on a GC finalizer.
  *
- * WARNING not tested on big-endian platforms, but should be supported.
+ * NOTE big-endian platforms should be supported but this hasn't been verified.
  *
  * TODO add tests that toString and to!string only allocates for non-immutable
  * `this`

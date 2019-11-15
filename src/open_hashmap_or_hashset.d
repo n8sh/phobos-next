@@ -34,7 +34,7 @@ import pure_mallocator : Mallocator = PureMallocator;
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  * See_Also: https://gankro.github.io/blah/hashbrown-insert/
  *
- * TODO implement opIndexOpAssign using https://dlang.org/spec/operatoroverloading.html#index_op_assignment and update uses of h[key] op= ...
+ * TODO implement opIndexOpAssign using https://dlang.org/spec/operatoroverloading.html#index_op_assignment and update uses of h[key] op= ... in knet
  *
  * TODO use `StoreK` in store and cast between it and `KeyType`
  *

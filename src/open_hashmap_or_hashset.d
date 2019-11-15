@@ -1376,8 +1376,8 @@ struct OpenHashMapOrSet(K, V = void,
         auto ref inout(V) get()(const scope K key, // template-lazy
                                 auto ref inout(V) defaultValue) inout
         {
-            auto valuePtr = key in this;
-            if (valuePtr !is null)
+            pragma(inline, true);
+            if (auto valuePtr = key in this)
             {
                 return *valuePtr;
             }

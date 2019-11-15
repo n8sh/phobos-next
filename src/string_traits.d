@@ -7,7 +7,7 @@ module string_traits;
  * See_Also: `std.ascii.isASCII`.
  * See_Also: https://forum.dlang.org/post/syaqzkpybhvdehbhffjn@forum.dlang.org
  */
-bool isASCII(scope const(char)[] input)
+bool isASCIIString(scope const(char)[] input)
 {
     foreach (e; cast(const(ubyte)[])input) // no decoding to `dchar` needed
     {
@@ -19,12 +19,12 @@ bool isASCII(scope const(char)[] input)
 ///
 @safe pure unittest
 {
-    assert(``.isASCII);
-    assert(`_`.isASCII);
-    assert(`a`.isASCII);
-    assert(`ab`.isASCII);
-    assert(`abc`.isASCII);
-    assert(!`å`.isASCII);
-    assert(!`åä`.isASCII);
-    assert(!`åäö`.isASCII);
+    assert(``.isASCIIString);
+    assert(`_`.isASCIIString);
+    assert(`a`.isASCIIString);
+    assert(`ab`.isASCIIString);
+    assert(`abc`.isASCIIString);
+    assert(!`å`.isASCIIString);
+    assert(!`åä`.isASCIIString);
+    assert(!`åäö`.isASCIIString);
 }

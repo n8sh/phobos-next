@@ -1454,7 +1454,6 @@ struct OpenHashMapOrSet(K, V = void,
             auto valuePtr = key in this;
             if (!valuePtr)
             {
-
                 reserveExtra(1);
                 size_t hitIndex;
                 static if (isCopyable!K)

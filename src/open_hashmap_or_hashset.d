@@ -1484,6 +1484,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
 
         ref V opIndexOpAssign(string op, Rhs)(Rhs rhs, K key) // TODO return scope
+        if (true)               // TODO pre-check that mixin will work
         {
             assert(!key.isNull);
             static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(key)); }

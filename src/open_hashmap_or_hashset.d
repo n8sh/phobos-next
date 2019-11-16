@@ -1472,7 +1472,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         /** Supports the syntax `aa[key] = value;`.
          */
-        ref V opIndexAssign()(V value, K key) // template-lazy
+        ref V opIndexAssign()(V value, K key) // template-lazy. TODO return scope
         {
             version(LDC) pragma(inline, true);
             assert(!key.isNull);

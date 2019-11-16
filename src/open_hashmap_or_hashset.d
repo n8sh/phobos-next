@@ -1302,10 +1302,7 @@ struct OpenHashMapOrSet(K, V = void,
 
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)key); // cast scoped `key` is @trusted
             return (hitIndex != _bins.length &&
-                    isOccupiedAtIndex(hitIndex)) ? &_bins[hitIndex] :
-            null; /* TODO instead of null return a reference to a struct SlotRef
-                   * when assigned to sets value in slot and increases
-                   * table._count += 1; */
+                    isOccupiedAtIndex(hitIndex)) ? &_bins[hitIndex] : null;
         }
 
         /** Try to retrieve `class`-element of type `Class` constructed with
@@ -1354,7 +1351,7 @@ struct OpenHashMapOrSet(K, V = void,
             }
             else
             {
-                return null;    // TODO return reference to where element should be placed
+                return null;
             }
         }
 
@@ -1420,7 +1417,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             /** Supports $(B aa[key] = value;) syntax.
              */
-            V opIndexAssign()(V value, K key) // template-lazy
+            V opIndexAssign()(V value, K key) // template-lazy. TODO auto ref V return?
             {
                 version(LDC) pragma(inline, true);
                 static if (isCopyable!K)
@@ -1432,6 +1429,20 @@ struct OpenHashMapOrSet(K, V = void,
                     insert(T(move(key), value));
                 }
                 return value;
+            }
+            auto ref V opIndexOpAssign(string op)(V value, size_t key) //  TODO auto ref V return?
+            {
+                auto valuePtr = k in this;
+                if (valuePtr)
+                {
+
+                }
+                else
+                {
+                    valuePtr = &insert(k, v);
+                }
+                mixin(`*valuePtr ` ~ op ~ `= value;`);
+                return *valuePtr;
             }
         }
         else

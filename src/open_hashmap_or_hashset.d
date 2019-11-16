@@ -1476,9 +1476,9 @@ struct OpenHashMapOrSet(K, V = void,
 
                 reserveExtra(1);
                 size_t hitIndex;
-                static if (isCopyable!V)
+                static if (isCopyable!K)
                 {
-                    insertWithoutGrowth(T(move(key), V.init), hitIndex);
+                    insertWithoutGrowth(T(key, V.init), hitIndex);
                 }
                 else
                 {
@@ -3786,11 +3786,11 @@ unittest
 
     X a;
 
-    a[K("a")] = 1;
-    assert(a[K("a")] == 1);
+    a[K("a")] = 17;
+    assert(a[K("a")] == 17);
 
     a[K("a")] += 10;            // opIndexOpAssign!("+=") with existing key
-    assert(a[K("a")] == 11);
+    assert(a[K("a")] == 27);
 
     a[K("b")] += 10;            // opIndexOpAssign!("+=") with non-existing key
     assert(a[K("b")] == 10);

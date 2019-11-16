@@ -1465,7 +1465,7 @@ struct OpenHashMapOrSet(K, V = void,
             }
         }
 
-        ref V opIndexOpAssign(string op)(V value, K key) // TODO return scope
+        ref V opIndexOpAssign(string op, Rhs)(Rhs rhs, K key) // TODO return scope
         {
             assert(!key.isNull);
             static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(key)); }
@@ -1486,7 +1486,7 @@ struct OpenHashMapOrSet(K, V = void,
                 }
                 valuePtr = &(_bins[hitIndex].value);
             }
-            mixin(`return *valuePtr ` ~ op ~ `= value;`);
+            mixin(`return *valuePtr ` ~ op ~ `= rhs;`);
         }
 
     }

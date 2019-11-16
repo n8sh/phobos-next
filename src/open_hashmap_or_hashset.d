@@ -3800,7 +3800,10 @@ unittest
 
     assert(a == b);
 
-    a ~= K("alpha");
+    const us = K("_");
+    assert(!a.contains(us));
+    a ~= us;
+    assert(a.contains(us));
 }
 
 /// test `opIndexOpAssign`

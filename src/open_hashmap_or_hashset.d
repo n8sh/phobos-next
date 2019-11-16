@@ -1465,7 +1465,7 @@ struct OpenHashMapOrSet(K, V = void,
             }
         }
 
-        ref V opIndexOpAssign(string op)(V value, K key)
+        ref V opIndexOpAssign(string op)(V value, K key) // TODO return scope
         {
             assert(!key.isNull);
             static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(key)); }

@@ -1414,55 +1414,36 @@ struct OpenHashMapOrSet(K, V = void,
             }
         }
 
-        static if (isAddress!V)
+        /** Supports the syntax `aa[key] = value;`.
+         */
+        ref V opIndexAssign()(V value, K key) // template-lazy
         {
-            /** Supports $(B aa[key] = value;) syntax.
-             */
-            V opIndexAssign()(V value, K key) // template-lazy. TODO auto ref V return?
+            version(LDC) pragma(inline, true);
+            reserveExtra(1);
+            size_t hitIndex;
+            static if (isCopyable!K)
             {
-                version(LDC) pragma(inline, true);
-                static if (isCopyable!K)
+                static if (isCopyable!V)
                 {
-                    insert(T(key, value));
+                    insertWithoutGrowth(T(key, value), hitIndex);
                 }
                 else
                 {
-                    insert(T(move(key), value));
+                    insertWithoutGrowth(T(key, move(value)), hitIndex);
                 }
-                return value;
             }
-        }
-        else
-        {
-            /** Supports $(B aa[key] = value;) syntax.
-             */
-            void opIndexAssign()(V value, K key) // template-lazy
+            else
             {
-                version(LDC) pragma(inline, true);
-                static if (isCopyable!K)
+                static if (isCopyable!V)
                 {
-                    static if (isCopyable!V)
-                    {
-                        insert(T(key, value));
-                    }
-                    else
-                    {
-                        insert(T(key, move(value)));
-                    }
+                    insertWithoutGrowth(T(move(key), value), hitIndex);
                 }
                 else
                 {
-                    static if (isCopyable!V)
-                    {
-                        insert(T(move(key), value));
-                    }
-                    else
-                    {
-                        insert(T(move(key), move(value)));
-                    }
+                    insertWithoutGrowth(T(move(key), move(value)), hitIndex);
                 }
-                // TODO return scoped reference to value
             }
+            return _bins[hitIndex].value;
         }
 
         ref V opIndexOpAssign(string op, Rhs)(Rhs rhs, K key) // TODO return scope

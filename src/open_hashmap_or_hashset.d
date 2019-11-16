@@ -927,14 +927,13 @@ struct OpenHashMapOrSet(K, V = void,
         }
         foreach (element; elements)
         {
-            size_t hitIndex;
             static if (hasIndirections!T)
             {
-                const instationStatus = insertWithoutGrowth(element, hitIndex);
+                insertWithoutGrowthNoStatus(element);
             }
             else
             {
-                const instationStatus = insertWithoutGrowth(*cast(Unqual!T*)&element, hitIndex);
+                insertWithoutGrowthNoStatus(*cast(Unqual!T*)&element);
             }
         }
     }

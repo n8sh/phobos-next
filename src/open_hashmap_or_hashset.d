@@ -748,7 +748,7 @@ struct OpenHashMapOrSet(K, V = void,
     private auto adjustKeyType(SomeKey)(const return scope SomeKey key) const @trusted
     {
         pragma(inline, true);            // must be inlined
-        static if (is(SomeKey : U[], U)) // is array
+        static if (is(SomeKey : U[], U)) // is array (slice)
         {
             /* because return value is used only temporarily it's ok to cast to
              * `immutable` to prevent GC-allocations in types such as

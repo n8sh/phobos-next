@@ -1243,6 +1243,62 @@ struct OpenHashMapOrSet(K, V = void,
         return InsertionStatus.unmodified;
     }
 
+    private size_t insertWithoutGrowthNoStatus(SomeElement)(const scope SomeElement element) @trusted // template-lazy
+    {
+        version(LDC) pragma(inline, true);
+        version(internalUnittest)
+        {
+            assert(!keyOf(element).isNull);
+            static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(cast(K)adjustKeyType(keyOf(element)))); }
+            static if (hasHoleableKey) { assert(!isHoleKeyConstant(keyOf(element))); }
+        }
+
+        size_t hitIndex;
+        size_t holeIndex = size_t.max; // first hole index to written to if hole found
+        immutable hitIndexPrel = indexOfKeyOrVacancyAndFirstHole(keyOf(element), holeIndex);
+        if (hitIndexPrel == _bins.length || // keys miss and holes may have filled all empty slots
+            keyOf(_bins[hitIndexPrel]).isNull) // just key miss but a hole may have been found on the way
+        {
+            immutable hasHole = holeIndex != size_t.max; // hole was found along the way
+            if (hasHole)
+            {
+                hitIndex = holeIndex; // pick hole instead
+            }
+            else
+            {
+                hitIndex = hitIndexPrel; // normal hit
+            }
+            version(internalUnittest) assert(hitIndex != _bins.length, "no null or hole slot");
+            static if (isCopyable!SomeElement)
+            {
+                insertElementAtIndex(*cast(SomeElement*)&element, hitIndex);
+            }
+            else
+            {
+                insertElementAtIndex(move(*cast(SomeElement*)&element), hitIndex);
+            }
+            static if (!hasHoleableKey)
+            {
+                if (hasHole) { untagHoleAtIndex(hitIndex); }
+            }
+            _count = _count + 1;
+            return hitIndex;
+        }
+        else
+        {
+            hitIndex = hitIndexPrel;
+        }
+
+        static if (hasValue)
+        {
+            // modify existing value
+            move(valueOf(*cast(SomeElement*)&element),
+                 valueOf(_bins[hitIndexPrel])); // value is defined so overwrite it
+        }
+
+        return hitIndex;
+    }
+
     /** Insert `element`, being either a key-value (map-case) or a just a key (set-case).
      */
     private InsertionStatus insertMoveWithoutGrowth()(ref T element) // template-lazy
@@ -1423,27 +1479,26 @@ struct OpenHashMapOrSet(K, V = void,
             static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(key)); }
             static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
             reserveExtra(1);
-            size_t hitIndex;
             static if (isCopyable!K)
             {
                 static if (isCopyable!V)
                 {
-                    insertWithoutGrowth(T(key, value), hitIndex);
+                    const hitIndex = insertWithoutGrowthNoStatus(T(key, value));
                 }
                 else
                 {
-                    insertWithoutGrowth(T(key, move(value)), hitIndex);
+                    const hitIndex = insertWithoutGrowthNoStatus(T(key, move(value)));
                 }
             }
             else
             {
                 static if (isCopyable!V)
                 {
-                    insertWithoutGrowth(T(move(key), value), hitIndex);
+                    const hitIndex = insertWithoutGrowthNoStatus(T(move(key), value));
                 }
                 else
                 {
-                    insertWithoutGrowth(T(move(key), move(value)), hitIndex);
+                    const hitIndex = insertWithoutGrowthNoStatus(T(move(key), move(value)));
                 }
             }
             return _bins[hitIndex].value;
@@ -1458,14 +1513,13 @@ struct OpenHashMapOrSet(K, V = void,
             if (!valuePtr)
             {
                 reserveExtra(1);
-                size_t hitIndex;
                 static if (isCopyable!K)
                 {
-                    insertWithoutGrowth(T(key, V.init), hitIndex);
+                    const hitIndex = insertWithoutGrowthNoStatus(T(key, V.init));
                 }
                 else
                 {
-                    insertWithoutGrowth(T(move(key), V.init), hitIndex);
+                    const hitIndex = insertWithoutGrowthNoStatus(T(move(key), V.init));
                 }
                 valuePtr = &(_bins[hitIndex].value);
             }

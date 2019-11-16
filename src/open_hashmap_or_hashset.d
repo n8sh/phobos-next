@@ -3815,16 +3815,22 @@ unittest
     alias V = long;
     alias X = OpenHashMap!(K, V, FNV!(64, true));
 
-    X a;
+    X x;
 
-    a[K("a")] = 17;
-    assert(a[K("a")] == 17);
+    const a = K("a");
+    const b = K("b");
 
-    a[K("a")] += 10;            // opIndexOpAssign!("+=") with existing key
-    assert(a[K("a")] == 27);
+    x[a] = 17;
+    assert(x[a] == 17);
 
-    a[K("b")] += 10;            // opIndexOpAssign!("+=") with non-existing key
-    assert(a[K("b")] == 10);
+    x[a] += 10;                 // opIndexOpAssign!("+=") with existing key
+    assert(x[a] == 27);
+
+    x[b] += 10;                 // opIndexOpAssign!("+=") with non-existing key
+    assert(x[b] == 10);
+
+    x[b] *= 10;                 // opIndexOpAssign!("*=") with non-existing key
+    assert(x[b] == 100);
 }
 
 /// `SSOString` as map key type

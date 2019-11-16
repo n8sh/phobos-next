@@ -34,12 +34,6 @@ import pure_mallocator : Mallocator = PureMallocator;
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  * See_Also: https://gankro.github.io/blah/hashbrown-insert/
  *
- * TODO implement opIndexOpAssign using
- * https://dlang.org/spec/operatoroverloading.html#index_op_assignment and
- * update uses of h[key] op= ... in knet where value supports arithmetic. If key
- * and value doesn't exist first default to Value.init before applying operation
- * via a mixin. Compare with implementation of builtin associative arrays in D.
- *
  * TODO use `StoreK` in store and cast between it and `KeyType`
  *
  * TODO allocate _holesPtr array together with _bins to reduce size of
@@ -1437,16 +1431,6 @@ struct OpenHashMapOrSet(K, V = void,
                 }
                 return value;
             }
-            ref V opIndexOpAssign(string op)(V value, size_t key)
-            {
-                auto valuePtr = k in this;
-                if (!valuePtr)
-                {
-                    valuePtr = &insert(k, v);
-                }
-                mixin(`*valuePtr ` ~ op ~ `= value;`);
-                return *valuePtr;
-            }
         }
         else
         {
@@ -1480,6 +1464,32 @@ struct OpenHashMapOrSet(K, V = void,
                 // TODO return scoped reference to value
             }
         }
+
+        ref V opIndexOpAssign(string op)(V value, K key)
+        {
+            assert(!key.isNull);
+            static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(key)); }
+            static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
+            auto valuePtr = key in this;
+            if (!valuePtr)
+            {
+
+                reserveExtra(1);
+                size_t hitIndex;
+                static if (isCopyable!V)
+                {
+                    insertWithoutGrowth(T(move(key), value), hitIndex);
+                }
+                else
+                {
+                    insertWithoutGrowth(T(move(key), move(value)), hitIndex);
+                }
+                valuePtr = &(_bins[hitIndex].value);
+            }
+            mixin(`*valuePtr ` ~ op ~ `= value;`);
+            return *valuePtr;
+        }
+
     }
 
     /** Remove `element`.
@@ -3764,6 +3774,27 @@ unittest
     }
 
     assert(a == b);
+}
+
+/// test `opIndexOpAssign`
+@safe pure nothrow
+unittest
+{
+    import sso_string : SSOString;
+    alias K = SSOString;
+    alias V = long;
+    alias X = OpenHashMap!(K, V, FNV!(64, true));
+
+    X a;
+
+    a[K("a")] = 1;
+    assert(a[K("a")] == 1);
+
+    a[K("a")] += 10;            // opIndexOpAssign!("+=")
+    assert(a[K("a")] == 11);
+
+    a[K("b")] += 10;            // opIndexOpAssign!("+=")
+    assert(a[K("b")] == 10);
 }
 
 /// `SSOString` as map key type

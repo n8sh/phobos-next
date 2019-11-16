@@ -473,8 +473,7 @@ struct OpenHashMapOrSet(K, V = void,
             typeof(this) that = withCapacity(elements.length);
             foreach (element; elements)
             {
-                size_t hitIndex;
-                const instationStatus = that.insertWithoutGrowth(element, hitIndex);
+                that.insertWithoutGrowthNoStatus(element);
             }
         }
         else
@@ -901,14 +900,13 @@ struct OpenHashMapOrSet(K, V = void,
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
 
         reserveExtra(1);
-        size_t hitIndex;
         static if (isCopyable!SomeElement)
         {
-            const instationStatus = insertWithoutGrowth(element, hitIndex);
+            const hitIndex = insertWithoutGrowthNoStatus(element);
         }
         else
         {
-            const instationStatus = insertWithoutGrowth(move(element), hitIndex);
+            const hitIndex = insertWithoutGrowthNoStatus(move(element));
         }
         return _bins[hitIndex];
     }

@@ -1478,16 +1478,15 @@ struct OpenHashMapOrSet(K, V = void,
                 size_t hitIndex;
                 static if (isCopyable!V)
                 {
-                    insertWithoutGrowth(T(move(key), value), hitIndex);
+                    insertWithoutGrowth(T(move(key), V.init), hitIndex);
                 }
                 else
                 {
-                    insertWithoutGrowth(T(move(key), move(value)), hitIndex);
+                    insertWithoutGrowth(T(move(key), V.init), hitIndex);
                 }
                 valuePtr = &(_bins[hitIndex].value);
             }
-            mixin(`*valuePtr ` ~ op ~ `= value;`);
-            return *valuePtr;
+            mixin(`return *valuePtr ` ~ op ~ `= value;`);
         }
 
     }
@@ -3790,10 +3789,10 @@ unittest
     a[K("a")] = 1;
     assert(a[K("a")] == 1);
 
-    a[K("a")] += 10;            // opIndexOpAssign!("+=")
+    a[K("a")] += 10;            // opIndexOpAssign!("+=") with existing key
     assert(a[K("a")] == 11);
 
-    a[K("b")] += 10;            // opIndexOpAssign!("+=")
+    a[K("b")] += 10;            // opIndexOpAssign!("+=") with non-existing key
     assert(a[K("b")] == 10);
 }
 

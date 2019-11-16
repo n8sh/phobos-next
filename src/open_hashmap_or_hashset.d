@@ -1437,14 +1437,10 @@ struct OpenHashMapOrSet(K, V = void,
                 }
                 return value;
             }
-            auto ref V opIndexOpAssign(string op)(V value, size_t key) //  TODO auto ref V return?
+            ref V opIndexOpAssign(string op)(V value, size_t key) //  TODO auto ref V return?
             {
                 auto valuePtr = k in this;
-                if (valuePtr)
-                {
-
-                }
-                else
+                if (!valuePtr)
                 {
                     valuePtr = &insert(k, v);
                 }

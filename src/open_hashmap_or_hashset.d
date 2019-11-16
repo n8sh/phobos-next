@@ -1419,6 +1419,10 @@ struct OpenHashMapOrSet(K, V = void,
         ref V opIndexAssign()(V value, K key) // template-lazy
         {
             version(LDC) pragma(inline, true);
+            assert(!key.isNull);
+            static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(key)); }
+            static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
+
             reserveExtra(1);
             size_t hitIndex;
             static if (isCopyable!K)
@@ -1451,6 +1455,7 @@ struct OpenHashMapOrSet(K, V = void,
             assert(!key.isNull);
             static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(key)); }
             static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
+
             auto valuePtr = key in this;
             if (!valuePtr)
             {

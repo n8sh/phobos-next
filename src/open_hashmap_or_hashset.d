@@ -751,7 +751,7 @@ struct OpenHashMapOrSet(K, V = void,
         static if (is(SomeKey : U[], U)) // is array
         {
             /* because return value is used only temporarily it's ok to cast to
-             * `immutable` to prevent GC-allocations in types such ass
+             * `immutable` to prevent GC-allocations in types such as
              * `sso_string.SSOString` */
             return cast(immutable(typeof(key[0]))[])key;
         }

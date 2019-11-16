@@ -128,29 +128,7 @@ struct OpenHashMapOrSet(K, V = void,
     enum hasAddressLikeKey = (isAddress!K ||
                               isDynamicArray!K);
 
-    static if (isHoleable!K)
-    {
-        enum hasHoleableKey = true;
-        static K holeKeyConstant() @safe pure nothrow @nogc
-        {
-            pragma(inline, true);
-            return K.holeValue;
-        }
-        static bool isHoleKeyConstant(const scope K key) @safe pure nothrow @nogc
-        {
-            pragma(inline, true);
-            static if (__traits(hasMember, K, "isHole"))
-            {
-                // typically faster by asserting value of member of aggregate `K`
-                return key.isHole;
-            }
-            else
-            {
-                return key is K.holeValue;
-            }
-        }
-    }
-    else static if (hasAddressLikeKey)
+    static if (hasAddressLikeKey)
     {
         enum hasHoleableKey = true;
         enum holeKeyOffset = 0x1; // TODO is this a good value? Or is 0xffff_ffff_ffff_ffff better?
@@ -194,6 +172,28 @@ struct OpenHashMapOrSet(K, V = void,
          */
         // enum K holeKey_1 = cast(K)((cast(size_t*)null));
         // static immutable K holeKey_2 = cast(K)((cast(size_t*)null));
+    }
+    else static if (isHoleable!K)
+    {
+        enum hasHoleableKey = true;
+        static K holeKeyConstant() @safe pure nothrow @nogc
+        {
+            pragma(inline, true);
+            return K.holeValue;
+        }
+        static bool isHoleKeyConstant(const scope K key) @safe pure nothrow @nogc
+        {
+            pragma(inline, true);
+            static if (__traits(hasMember, K, "isHole"))
+            {
+                // typically faster by asserting value of member of aggregate `K`
+                return key.isHole;
+            }
+            else
+            {
+                return key is K.holeValue;
+            }
+        }
     }
     else static if (__traits(hasMember, K, "nullifier"))
     {

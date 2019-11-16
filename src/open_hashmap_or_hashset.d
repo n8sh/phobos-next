@@ -844,41 +844,23 @@ struct OpenHashMapOrSet(K, V = void,
      *
      * If `element` is a nullable type and it is null an `AssertError` is thrown.
      */
-    static if (is(T == class))
+    InsertionStatus insert()(const T element) @trusted // template-lazy. need `T` to be `const` in `class` case
     {
-        InsertionStatus insert()(const T element) // template-lazy
+        version(LDC) pragma(inline, true);
+
+        assert(!keyOf(element).isNull);
+        static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(keyOf(element))); }
+        static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
+
+        reserveExtra(1);
+        size_t hitIndex;
+        static if (isCopyable!T)
         {
-            version(LDC) pragma(inline, true);
-
-            assert(!keyOf(element).isNull);
-            static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(keyOf(element))); }
-            static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
-
-            reserveExtra(1);
-            size_t hitIndex;
             return insertWithoutGrowth(element, hitIndex);
         }
-    }
-    else
-    {
-        InsertionStatus insert()(T element) // template-lazy
+        else
         {
-            version(LDC) pragma(inline, true);
-
-            assert(!keyOf(element).isNull);
-            static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(keyOf(element))); }
-            static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
-
-            reserveExtra(1);
-            size_t hitIndex;
-            static if (isCopyable!T)
-            {
-                return insertWithoutGrowth(element, hitIndex);
-            }
-            else
-            {
-                return insertWithoutGrowth(move(element), hitIndex);
-            }
+            return insertWithoutGrowth(move(*cast(T*)&element), hitIndex);
         }
     }
 

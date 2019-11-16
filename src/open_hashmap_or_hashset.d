@@ -1301,8 +1301,15 @@ struct OpenHashMapOrSet(K, V = void,
             static if (hasHoleableKey) { assert(!isHoleKeyConstant(cast(K)adjustKeyType(key))); }
 
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)key); // cast scoped `key` is @trusted
-            return (hitIndex != _bins.length &&
-                    isOccupiedAtIndex(hitIndex)) ? &_bins[hitIndex] : null;
+            if (hitIndex != _bins.length &&
+                isOccupiedAtIndex(hitIndex))
+            {
+                return &_bins[hitIndex];
+            }
+            else
+            {
+                return null;
+            }
         }
 
         /** Try to retrieve `class`-element of type `Class` constructed with

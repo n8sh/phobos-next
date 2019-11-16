@@ -1341,6 +1341,15 @@ struct OpenHashMapOrSet(K, V = void,
             }
         }
 
+        ref typeof(this) opOpAssign(string op, SomeKey)(const scope SomeKey key) return @trusted
+        if (op == `~` &&
+            isScopedKeyType!(typeof(key)))
+        {
+            pragma(inline, true);
+            const hitIndex = insertWithoutGrowthNoStatus(key);
+            return this;
+        }
+
         /** Try to retrieve `class`-element of type `Class` constructed with
          * parameters `params`.
          *
@@ -3790,6 +3799,8 @@ unittest
     }
 
     assert(a == b);
+
+    a ~= K("alpha");
 }
 
 /// test `opIndexOpAssign`

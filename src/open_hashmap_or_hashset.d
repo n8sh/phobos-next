@@ -796,7 +796,6 @@ struct OpenHashMapOrSet(K, V = void,
     {
         assert(!key.isNull);
         static if (hasHoleableKey) { assert(!isHoleKeyConstant(cast(K)adjustKeyType(key))); }
-
         static if (isInstanceOf!(Nullable, SomeKey))
         {
             import std.algorithm.searching : canFind;

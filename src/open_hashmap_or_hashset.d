@@ -794,8 +794,6 @@ struct OpenHashMapOrSet(K, V = void,
     bool containsUsingLinearSearch(SomeKey)(const scope SomeKey key) const @trusted // template-lazy, `auto ref` here makes things slow
     if (isScopedKeyType!(typeof(key)))
     {
-        version(LDC) pragma(inline, true);
-
         assert(!key.isNull);
         static if (hasHoleableKey) { assert(!isHoleKeyConstant(cast(K)adjustKeyType(key))); }
 

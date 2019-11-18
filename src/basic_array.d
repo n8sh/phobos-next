@@ -7,7 +7,7 @@ import core.internal.traits : Unqual;
 static if (__VERSION__ > 2089)
 {
     static assert(0, `TODO Tjoho!: Activate uproj.el "-checkaction=context"`);
-    static assert(0, `TODO Tjoho!: Uncomment this DUB-line in all my projects or at least for unittest: dflags "-checkaction=context" platform="linux-dmd"`);
+    static assert(0, `TODO Tjoho!: Uncomment or add this DUB-line in all my projects or at least for unittest: dflags "-checkaction=context" platform="linux-dmd"`);
 }
 
 /** Array type with deterministic control of memory. The memory allocated for

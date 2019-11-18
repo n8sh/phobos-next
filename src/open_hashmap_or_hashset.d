@@ -812,11 +812,19 @@ struct OpenHashMapOrSet(K, V = void,
             // TODO optimize using sentinel being `key` after end of `_bins`
             foreach (const ref bin; _bins)
             {
-                import std.functional : binaryFun;
-                alias pred = binaryFun!keyEqualPred;
-                if (pred(key, bin))
+                static if (keyEqualPred == "a == b")
                 {
-                    return true;
+                    if (key == bin) { return true; } // fast compilation path
+                }
+                else static if (keyEqualPred == "a is b")
+                {
+                    if (key is bin) { return true; } // fast compilation path
+                }
+                else
+                {
+                    import std.functional : binaryFun;
+                    alias pred = binaryFun!keyEqualPred;
+                    if (pred(key, bin)) { return true; }
                 }
             }
             return false;

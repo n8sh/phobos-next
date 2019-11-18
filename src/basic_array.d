@@ -4,6 +4,12 @@ import core.internal.traits : Unqual;
 
 @safe:
 
+static if (__VERSION__ > 2089)
+{
+    static assert(0, `TODO Tjoho!: Activate uproj.el "-checkaction=context"`);
+    static assert(0, `TODO Tjoho!: DUB-line and remove this comment: dflags "-checkaction=context" platform="linux-dmd"`);
+}
+
 /** Array type with deterministic control of memory. The memory allocated for
     the array is reclaimed as soon as possible; there is no reliance on the
     garbage collector. Array uses malloc, realloc and free for managing its own

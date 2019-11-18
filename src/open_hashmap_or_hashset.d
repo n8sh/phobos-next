@@ -34,6 +34,10 @@ import pure_mallocator : Mallocator = PureMallocator;
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  * See_Also: https://gankro.github.io/blah/hashbrown-insert/
  *
+ * TOOD Use linear search (excluding nulls and holes) for stores smaller than
+ * some threshold with standard `keyEqualPred` being `a is b` for addresses and
+ * `a == b` for other keys.
+ *
  * TODO use `StoreK` in store and cast between it and `KeyType`
  *
  * TODO allocate _holesPtr array together with _bins to reduce size of

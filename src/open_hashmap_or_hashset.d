@@ -1786,9 +1786,17 @@ private:
              * with LDC. TODO remove when LDC is fixed. */
             static if (hasHoleableKey)
             {
-                // TODO add linear search case for small stores
                 alias pred = (const scope element) => (keyOf(element).isNull ||
                                                        keyEqualPredFn(keyOf(element), key));
+                // TODO make this compile:
+                // if (_bins.length * T.sizeof <= linearSearchMaxSize)
+                // {
+                //     foreach (const index, const ref bin; _bins) // linear search is faster for small arrays
+                //     {
+                //         if (pred(bin)) { return index; }
+                //     }
+                //     return _bins.length;
+                // }
             }
             else
             {

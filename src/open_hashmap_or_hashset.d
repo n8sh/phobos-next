@@ -136,6 +136,11 @@ struct OpenHashMapOrSet(K, V = void,
     enum hasAddressLikeKey = (isAddress!K ||
                               isDynamicArray!K);
 
+    /** Stores less than or equal to this size will be searched using linear
+     * search.
+     */
+    enum linearSearchMaxSize = 1024;
+
     static if (hasAddressLikeKey)
     {
         enum hasHoleableKey = true;
@@ -1781,6 +1786,7 @@ private:
              * with LDC. TODO remove when LDC is fixed. */
             static if (hasHoleableKey)
             {
+                // TODO add linear search case for small stores
                 alias pred = (const scope element) => (keyOf(element).isNull ||
                                                        keyEqualPredFn(keyOf(element), key));
             }
@@ -1796,6 +1802,7 @@ private:
         {
             static if (hasHoleableKey)
             {
+                // TODO add linear search case for small stores
                 alias pred = (const scope auto ref element) => (keyOf(element).isNull ||
                                                                 keyEqualPredFn(keyOf(element), key));
             }
@@ -1829,6 +1836,7 @@ private:
              * with LDC. TODO remove when LDC is fixed. */
             static if (hasHoleableKey)
             {
+                // TODO add linear search case for small stores
                 alias hitPred = (const scope element) => (keyOf(element).isNull ||
                                                           keyEqualPredFn(keyOf(element), key));
                 alias holePred = (const scope element) => (isHoleKeyConstant(keyOf(element)));
@@ -1847,6 +1855,7 @@ private:
         {
             static if (hasHoleableKey)
             {
+                // TODO add linear search case for small stores
                 alias hitPred = (const scope auto ref element) => (keyOf(element).isNull ||
                                                                    keyEqualPredFn(keyOf(element), key));
                 alias holePred = (const scope auto ref element) => (isHoleKeyConstant(keyOf(element)));

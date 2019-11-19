@@ -89,10 +89,9 @@ struct OpenHashMapOrSet(K, V = void,
 {
     // pragma(msg, K.stringof, " => ", V.stringof);
     import core.exception : onOutOfMemoryError;
-    import core.internal.traits : hasElaborateDestructor;
+    import core.internal.traits : hasElaborateDestructor, Unqual;
     import std.math : nextPow2;
-    import std.traits : isCopyable, hasIndirections,
-        isStaticArray, Unqual, hasFunctionAttributes, isMutable, TemplateArgsOf;
+    import std.traits : isCopyable, hasIndirections, isStaticArray, hasFunctionAttributes, isMutable, TemplateArgsOf;
     import std.typecons : Nullable;
 
     import container_traits : defaultNullKeyConstantOf, mustAddGCRange, isNull, nullify;

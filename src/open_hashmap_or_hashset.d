@@ -1831,10 +1831,7 @@ private:
         version(internalUnittest)
         {
             assert(!key.isNull);
-            static if (hasHoleableKey)
-            {
-                assert(!isHoleKeyConstant(key));
-            }
+            static if (hasHoleableKey) { assert(!isHoleKeyConstant(key)); }
         }
         static if (isCopyable!T)
         {

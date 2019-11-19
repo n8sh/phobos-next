@@ -92,7 +92,7 @@ struct OpenHashMapOrSet(K, V = void,
     import core.internal.traits : hasElaborateDestructor;
     import std.math : nextPow2;
     import std.traits : isCopyable, hasIndirections,
-        isDynamicArray, isStaticArray, Unqual, hasFunctionAttributes, isMutable, TemplateArgsOf;
+        isStaticArray, Unqual, hasFunctionAttributes, isMutable, TemplateArgsOf;
     import std.typecons : Nullable;
 
     import container_traits : defaultNullKeyConstantOf, mustAddGCRange, isNull, nullify;
@@ -101,6 +101,8 @@ struct OpenHashMapOrSet(K, V = void,
 
     import std.functional : binaryFun;
     alias keyEqualPredFn = binaryFun!keyEqualPred;
+
+    private enum isSlice(T) = is(T : const(E)[], E);
 
     static if ((is(K == class)) &&
                keyEqualPred == `a is b`) // TODO use better predicate compare?
@@ -134,7 +136,7 @@ struct OpenHashMapOrSet(K, V = void,
      * a specific value `holeKeyConstant`.
      */
     enum hasAddressLikeKey = (isAddress!K ||
-                              isDynamicArray!K);
+                              isSlice!K);
 
     /** Stores less than or equal to this size will be searched using linear
      * search.
@@ -155,7 +157,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             pragma(inline, true);
             // TODO note that cast(size_t*) will give address 0x8 instead of 0x1
-            static if (isDynamicArray!K)
+            static if (isSlice!K)
             {
                 alias E = typeof(K.init[0])*; // array element type
                 auto ptr = cast(E)((cast(void*)null) + holeKeyOffset); // indicates a lazily deleted key
@@ -170,7 +172,7 @@ struct OpenHashMapOrSet(K, V = void,
         static bool isHoleKeyConstant(const scope K key) @trusted pure nothrow @nogc
         {
             pragma(inline, true);
-            static if (isDynamicArray!K) // for slices
+            static if (isSlice!K) // for slices
             {
                 // suffice to compare pointer part
                 return (key.ptr is holeKeyAddress);
@@ -1001,7 +1003,7 @@ struct OpenHashMapOrSet(K, V = void,
     private void insertElementAtIndex(SomeElement)(scope SomeElement element, size_t index) @trusted // template-lazy
     {
         version(LDC) pragma(inline, true);
-        static if (isDynamicArray!SomeElement &&
+        static if (isSlice!SomeElement &&
                    !is(typeof(SomeElement.init[0]) == immutable))
         {
             /* key is an array of non-`immutable` elements which cannot safely

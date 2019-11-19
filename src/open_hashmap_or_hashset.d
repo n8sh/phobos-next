@@ -91,7 +91,7 @@ struct OpenHashMapOrSet(K, V = void,
     import core.exception : onOutOfMemoryError;
     import core.internal.traits : hasElaborateDestructor, Unqual;
     import std.math : nextPow2;
-    import std.traits : isCopyable, hasIndirections, isStaticArray, hasFunctionAttributes, TemplateArgsOf;
+    import std.traits : isCopyable, hasIndirections, isStaticArray, hasFunctionAttributes;
     import std.typecons : Nullable;
 
     import container_traits : defaultNullKeyConstantOf, mustAddGCRange, isNull, nullify;

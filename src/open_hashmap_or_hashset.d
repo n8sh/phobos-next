@@ -1771,7 +1771,7 @@ private:
     /** Find index to `key` if it exists or to first empty slot found, skipping
      * (ignoring) lazily deleted slots.
      */
-    private size_t indexOfKeyOrVacancySkippingHoles(const scope K key) const @trusted // `auto ref` here makes things slow
+    private size_t indexOfKeyOrVacancySkippingHoles(const scope K key) const @trusted scope // `auto ref` here makes things slow
     {
         version(LDC) pragma(inline, true);
         version(internalUnittest)
@@ -1788,15 +1788,14 @@ private:
             {
                 alias pred = (const scope element) => (keyOf(element).isNull ||
                                                        keyEqualPredFn(keyOf(element), key));
-                // TODO make this compile:
-                // if (_bins.length * T.sizeof <= linearSearchMaxSize)
-                // {
-                //     foreach (const index, const ref bin; _bins) // linear search is faster for small arrays
-                //     {
-                //         if (pred(bin)) { return index; }
-                //     }
-                //     return _bins.length;
-                // }
+                /* if (_bins.length * T.sizeof <= linearSearchMaxSize) */
+                /* { */
+                /*     foreach (const index, const ref element; _bins) // linear search is faster for small arrays */
+                /*     { */
+                /*         if (pred(element)) { return index; } */
+                /*     } */
+                /*     return _bins.length; */
+                /* } */
             }
             else
             {
@@ -1826,7 +1825,7 @@ private:
     }
 
     private size_t indexOfKeyOrVacancyAndFirstHole(SomeKey)(const scope SomeKey key, // `auto ref` here makes things slow
-                                                            ref size_t holeIndex) const @trusted
+                                                            ref size_t holeIndex) const @trusted scope
     {
         version(LDC) pragma(inline, true);
         version(internalUnittest)

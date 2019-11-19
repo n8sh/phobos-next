@@ -34,7 +34,11 @@ import pure_mallocator : Mallocator = PureMallocator;
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  * See_Also: https://gankro.github.io/blah/hashbrown-insert/
  *
- * TOOD Use `containsUsingLinearSearch` (excluding nulls and holes) for stores
+ * TODO Either change search in
+ * - indexOfKeyOrVacancySkippingHoles
+ * - indexOfKeyOrVacancyAndFirstHole
+ * or
+ * `containsUsingLinearSearch` (excluding nulls and holes) for stores
  * smaller than some threshold with standard `keyEqualPred` being `a is b` for
  * addresses and `a == b` for other keys.
  *

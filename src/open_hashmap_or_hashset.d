@@ -91,7 +91,7 @@ struct OpenHashMapOrSet(K, V = void,
     import core.exception : onOutOfMemoryError;
     import core.internal.traits : hasElaborateDestructor, Unqual;
     import std.math : nextPow2;
-    import std.traits : isCopyable, hasIndirections, isStaticArray, hasFunctionAttributes;
+    import std.traits : isCopyable, hasIndirections, hasFunctionAttributes;
     import std.typecons : Nullable;
 
     import container_traits : defaultNullKeyConstantOf, mustAddGCRange, isNull, nullify;
@@ -1220,7 +1220,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         static if (hasValue)
         {
-            static if (isStaticArray!V)
+            static if (__traits(isStaticArray, V))
             {
                 // identity comparison of static arrays implicitly coerces them
                 // to slices, which are compared by reference, so don't use !is here

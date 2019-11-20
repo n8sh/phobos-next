@@ -1789,14 +1789,6 @@ private:
             {
                 alias pred = (const scope element) => (keyOf(element).isNull ||
                                                        keyEqualPredFn(keyOf(element), key));
-                /* if (_bins.length * T.sizeof <= linearSearchMaxSize) */
-                /* { */
-                /*     foreach (const index, const ref element; _bins) // linear search is faster for small arrays */
-                /*     { */
-                /*         if (pred(element)) { return index; } */
-                /*     } */
-                /*     return _bins.length; */
-                /* } */
             }
             else
             {
@@ -1822,6 +1814,27 @@ private:
                                                                  keyEqualPredFn(keyOf(element), key)));
             }
         }
+
+        enum useLinearSearch = false;
+        static if (useLinearSearch)
+        {
+            if (_bins.length * T.sizeof <= linearSearchMaxSize)
+            {
+                foreach (const index, const ref element; _bins) // linear search is faster for small arrays
+                {
+                    static if (hasHoleableKey)
+                    {
+                        if (pred(element)) { return index; }
+                    }
+                    else
+                    {
+                        if (pred(index, element)) { return index; }
+                    }
+                }
+                return _bins.length;
+            }
+        }
+
         return _bins[].triangularProbeFromIndex!(pred)(keyToIndex(key));
     }
 

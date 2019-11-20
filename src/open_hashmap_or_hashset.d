@@ -137,10 +137,12 @@ struct OpenHashMapOrSet(K, V = void,
     enum hasAddressLikeKey = (isAddress!K ||
                               isSlice!K);
 
+    private enum _doSmallLinearSearch = false;
+
     /** Stores less than or equal to this size will be searched using linear
-     * search.
+     * searcnh.
      */
-    enum linearSearchMaxSize = 1024;
+    private enum _linearSearchMaxSize = 1024;
 
     static if (hasAddressLikeKey)
     {
@@ -1815,10 +1817,9 @@ private:
             }
         }
 
-        enum doSmallLinearSearch = false;
-        static if (doSmallLinearSearch)
+        static if (_doSmallLinearSearch)
         {
-            if (_bins.length * T.sizeof <= linearSearchMaxSize)
+            if (_bins.length * T.sizeof <= _linearSearchMaxSize)
             {
                 foreach (const index, const ref element; _bins) // linear search is faster for small arrays
                 {

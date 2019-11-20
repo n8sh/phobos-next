@@ -1815,8 +1815,8 @@ private:
             }
         }
 
-        enum useLinearSearch = false;
-        static if (useLinearSearch)
+        enum doSmallLinearSearch = false;
+        static if (doSmallLinearSearch)
         {
             if (_bins.length * T.sizeof <= linearSearchMaxSize)
             {

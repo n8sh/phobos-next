@@ -366,13 +366,13 @@ struct OpenHashMapOrSet(K, V = void,
     {
         version(LDC) pragma(inline, true);
         version(showEntries) dbg(__FUNCTION__, " minimumCapacity:", minimumCapacity);
-        return typeof(return)(makeDefaultInitializedBins(minimumCapacity), 0);
+        return typeof(return)(makeDefaultInitializedStore(minimumCapacity), 0);
     }
 
-    /** Make default-initialized bins with room for storing for at least
+    /** Make default-initialized store with room for storing for at least
      * `minimumCapacity` number of elements.
      */
-    static private T[] makeDefaultInitializedBins()(size_t minimumCapacity) @trusted pure nothrow @nogc // template-lazy
+    static private T[] makeDefaultInitializedStore()(size_t minimumCapacity) @trusted pure nothrow @nogc // template-lazy
     {
         version(LDC) pragma(inline, true);
         immutable capacity = nextPow2(minimumCapacity);
@@ -381,7 +381,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         // TODO cannot use makeArray here because it cannot handle uncopyable types
         // import std.experimental.allocator : makeArray;
-        // auto bins = Allocator.makeArray!T(capacity, nullKeyElement);
+        // auto store = Allocator.makeArray!T(capacity, nullKeyElement);
 
         import bit_traits : isAllZeroBits;
 
@@ -398,8 +398,8 @@ struct OpenHashMapOrSet(K, V = void,
             // pragma(msg, "zero-allocate:", "K:", K, " V:", V);
             // TODO use std.experimental.allocator.makeArray instead of this which handles clever checking for isZeroInit
             import container_traits : makeInitZeroArray;
-            auto bins = makeInitZeroArray!(T, Allocator)(capacity);
-            if (bins.ptr is null && capacity >= 1)
+            auto store = makeInitZeroArray!(T, Allocator)(capacity);
+            if (store.ptr is null && capacity >= 1)
             {
                 onOutOfMemoryError();
             }
@@ -407,12 +407,12 @@ struct OpenHashMapOrSet(K, V = void,
         else                    // when default null key is not represented by zeros
         {
             // pragma(msg, "emplace:", "K:", K, " V:", V);
-            auto bins = cast(T[])Allocator.allocate(byteCount);
-            if (bins.ptr is null && byteCount >= 1)
+            auto store = cast(T[])Allocator.allocate(byteCount);
+            if (store.ptr is null && byteCount >= 1)
             {
                 onOutOfMemoryError();
             }
-            foreach (ref bin; bins)
+            foreach (ref bin; store)
             {
                 enum hasNullValueKey = __traits(hasMember, K, `nullValue`);
                 static if (hasNullValueKey &&
@@ -451,31 +451,57 @@ struct OpenHashMapOrSet(K, V = void,
 
         static if (mustAddGCRange!T)
         {
-            gc_addRange(bins.ptr, byteCount);
+            gc_addRange(store.ptr, byteCount);
         }
 
-        return bins;
+        return store;
     }
 
-    static private T[] allocateUninitializedBins()(size_t capacity) @trusted pure nothrow @nogc // template-lazy
+    static private T[] allocateUninitializedStore()(size_t capacity) @trusted pure nothrow @nogc // template-lazy
     {
         version(LDC) pragma(inline, true);
         version(showEntries) dbg(__FUNCTION__, " newCapacity:", capacity);
         immutable byteCount = T.sizeof*capacity;
-        auto bins = cast(typeof(return))Allocator.allocate(byteCount);
+        auto store = cast(typeof(return))Allocator.allocate(byteCount);
         static if (mustAddGCRange!T)
         {
-            gc_addRange(bins.ptr, byteCount);
+            gc_addRange(store.ptr, byteCount);
         }
-        if (bins.ptr is null && byteCount >= 1)
+        if (store.ptr is null && byteCount >= 1)
         {
             onOutOfMemoryError();
         }
-        return bins;
+        return store;
     }
 
     import std.range.primitives : StdElementType = ElementType;
     import std.traits : isIterable, isAssignable;
+
+    /** Make with the element `element`. */
+    this(T element)
+    {
+        _store = makeDefaultInitializedStore(1);
+        _count = 1;
+        move(element, _store[0]);
+    }
+
+    static if (hasHoleableKey)
+    {
+        private this(T[] store, size_t count)
+        {
+            _store = store;
+            _count = count;
+        }
+    }
+    else
+    {
+        private this(T[] store, size_t count, size_t* holesPtr = null)
+        {
+            _store = store;
+            _count = count;
+            _holesPtr = holesPtr;
+        }
+    }
 
     /** Make with the elements `elements`. */
     static typeof(this) withElements(R)(R elements)
@@ -518,25 +544,25 @@ struct OpenHashMapOrSet(K, V = void,
     {
         // dbg(__FUNCTION__, " this:", &this, " with length ", length);
         version(showEntries) dbg(__FUNCTION__, " length:", length);
-        T[] binsCopy = allocateUninitializedBins(_store.length); // unsafe
+        T[] storeCopy = allocateUninitializedStore(_store.length); // unsafe
         foreach (immutable index, ref bin; _store)
         {
             if (isOccupiedAtIndex(index)) // normal case
             {
                 static if (hasValue) // map
                 {
-                    duplicateEmplace(bin.key, binsCopy[index].key);
-                    duplicateEmplace(bin.value, binsCopy[index].value);
+                    duplicateEmplace(bin.key, storeCopy[index].key);
+                    duplicateEmplace(bin.value, storeCopy[index].value);
                 }
                 else            // set
                 {
-                    duplicateEmplace(bin, binsCopy[index]);
+                    duplicateEmplace(bin, storeCopy[index]);
                 }
             }
             else
             {
-                emplace(&binsCopy[index]); // TODO only emplace key and not value
-                keyOf(binsCopy[index]).nullify();
+                emplace(&storeCopy[index]); // TODO only emplace key and not value
+                keyOf(storeCopy[index]).nullify();
             }
         }
         static if (!hasHoleableKey)
@@ -548,24 +574,10 @@ struct OpenHashMapOrSet(K, V = void,
                 auto holesPtrCopy = makeUninitializedBitArray!Allocator(_store.length);
                 holesPtrCopy[0 .. wordCount] = _holesPtr[0 .. wordCount]; // TODO use memcpy instead?
 
-                static if (isBorrowChecked)
-                {
-                    debug
-                    {
-                        return typeof(return)(binsCopy, _count, 0, holesPtrCopy);
-                    }
-                    else
-                    {
-                        return typeof(return)(binsCopy, _count, holesPtrCopy);
-                    }
-                }
-                else
-                {
-                    return typeof(return)(binsCopy, _count, holesPtrCopy);
-                }
+                return typeof(return)(storeCopy, _count, holesPtrCopy);
             }
         }
-        return typeof(return)(binsCopy, _count);
+        return typeof(return)(storeCopy, _count);
     }
 
     /// Equality.
@@ -711,7 +723,7 @@ struct OpenHashMapOrSet(K, V = void,
     private void release() scope
     {
         releaseBinElements();
-        releaseBinsAndHolesSlices();
+        releaseStoreAndHolesSlices();
     }
 
     /// Release bin elements.
@@ -727,30 +739,30 @@ struct OpenHashMapOrSet(K, V = void,
     }
 
     /// Release bin slice.
-    private void releaseBinsAndHolesSlices() scope
+    private void releaseStoreAndHolesSlices() scope
     {
-        releaseBinsSlice(_store);
+        releaseStoreSlice(_store);
         static if (!hasHoleableKey)
         {
             deallocateHoles();
         }
     }
 
-    static private void releaseBinsSlice(T[] bins) @trusted
+    static private void releaseStoreSlice(T[] store) @trusted
     {
-        version(showEntries) dbg(__FUNCTION__, " bins.ptr:", bins.ptr, " bins.length", bins.length);
-        if (bins.ptr is null) { return; } // `gc_removeRange` fails for null input
+        version(showEntries) dbg(__FUNCTION__, " store.ptr:", store.ptr, " store.length", store.length);
+        if (store.ptr is null) { return; } // `gc_removeRange` fails for null input
         static if (mustAddGCRange!T)
         {
-            gc_removeRange(bins.ptr); // `gc_removeRange` fails for null input
+            gc_removeRange(store.ptr); // `gc_removeRange` fails for null input
         }
         static if (__traits(hasMember, Allocator, "deallocatePtr"))
         {
-            Allocator.deallocatePtr(bins.ptr);
+            Allocator.deallocatePtr(store.ptr);
         }
         else
         {
-            Allocator.deallocate(bins);
+            Allocator.deallocate(store);
         }
     }
 
@@ -875,7 +887,7 @@ struct OpenHashMapOrSet(K, V = void,
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
 
         reserveExtra(1);
-        size_t hitIndex;
+        size_t hitIndex = 0;
         static if (isCopyable!T)
         {
             return insertWithoutGrowth(element, hitIndex);
@@ -1116,18 +1128,18 @@ struct OpenHashMapOrSet(K, V = void,
         immutable powerOf2newCapacity = nextPow2(minimumCapacity);
         immutable newByteCount = T.sizeof*powerOf2newCapacity;
 
-        const oldBinsPtr = _store.ptr;
+        const oldStorePtr = _store.ptr;
         immutable oldLength = _store.length;
 
-        auto rawBins = cast(void[])_store;
-        if (Allocator.reallocate(rawBins, newByteCount))
+        auto rawStore = cast(void[])_store;
+        if (Allocator.reallocate(rawStore, newByteCount))
         {
-            _store = cast(T[])rawBins;
+            _store = cast(T[])rawStore;
             static if (mustAddGCRange!T)
             {
-                if (oldBinsPtr !is null)
+                if (oldStorePtr !is null)
                 {
-                    gc_removeRange(oldBinsPtr); // `gc_removeRange` fails for null input
+                    gc_removeRange(oldStorePtr); // `gc_removeRange` fails for null input
                 }
                 gc_addRange(_store.ptr, newByteCount);
             }
@@ -1258,7 +1270,7 @@ struct OpenHashMapOrSet(K, V = void,
             static if (hasHoleableKey) { assert(!isHoleKeyConstant(keyOf(element))); }
         }
 
-        size_t hitIndex;
+        size_t hitIndex = 0;
         size_t holeIndex = size_t.max; // first hole index to written to if hole found
         immutable hitIndexPrel = indexOfKeyOrVacancyAndFirstHole(keyOf(element), holeIndex);
         if (hitIndexPrel == _store.length || // keys miss and holes may have filled all empty slots
@@ -1309,7 +1321,7 @@ struct OpenHashMapOrSet(K, V = void,
     private InsertionStatus insertMoveWithoutGrowth()(ref T element) // template-lazy
     {
         version(LDC) pragma(inline, true);
-        size_t hitIndex;
+        size_t hitIndex = 0;
         return insertWithoutGrowth(move(element), hitIndex);
     }
 
@@ -1520,29 +1532,56 @@ struct OpenHashMapOrSet(K, V = void,
         }
 
         ref V opIndexOpAssign(string op, Rhs)(Rhs rhs, K key) // TODO return scope
-        if (true)               // TODO pre-check that mixin will work
+        // if (true)               // TODO pre-check that mixin will work
         {
+            // pragma(msg, "opIndexOpAssign: Key:", K, " Value:", V, " Rhs:", Rhs, " op:", op);
             assert(!key.isNull);
             static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(key)); }
             static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
-            // TODO optimize by copying insertWithoutGrowthNoStatus but with modified logic for OP= rhs
-            auto valuePtr = key in this;
-            if (!valuePtr)
+
+            reserveExtra(1);
+
+            size_t holeIndex = size_t.max; // first hole index to written to if hole found
+            immutable hitIndex = indexOfKeyOrVacancyAndFirstHole(key, holeIndex);
+            if (hitIndex == _store.length || // keys miss and holes may have filled all empty slots
+                keyOf(_store[hitIndex]).isNull) // just key miss but a hole may have been found on the way
             {
-                reserveExtra(1);
+                immutable hasHole = holeIndex != size_t.max; // hole was found along the way
+                const index = (hasHole ?
+                               holeIndex : // pick hole instead
+                               hitIndex); // normal hit
+                version(internalUnittest) assert(index != _store.length, "no null or hole slot");
                 static if (isCopyable!K)
                 {
-                    const hitIndex = insertWithoutGrowthNoStatus(T(key, V.init));
+                    static if (op == "~" &&
+                               is(V : Rhs[]))
+                    {
+                        insertElementAtIndex(T(key, [rhs]), // TODO if `V(rhs)` is not supported use `V.init` followed by `OP= rhs`
+                                             index);
+                    }
+                    else
+                    {
+                        insertElementAtIndex(T(key, V(rhs)), // TODO if `V(rhs)` is not supported use `V.init` followed by `OP= rhs`
+                                             index);
+                    }
                 }
                 else
                 {
-                    const hitIndex = insertWithoutGrowthNoStatus(T(move(key), V.init));
+                    static assert(0, "Handle uncopyable key " ~ K.stringof);
+                    // insertElementAtIndex(move(*cast(SomeElement*)&element), index);
                 }
-                valuePtr = &(_store[hitIndex].value);
+                static if (!hasHoleableKey)
+                {
+                    if (hasHole) { untagHoleAtIndex(index); }
+                }
+                _count = _count + 1;
+                return _store[index].value;
             }
-            mixin(`return *valuePtr ` ~ op ~ `= rhs;`);
+            else                // `key`-hit at index `hitIndex`
+            {
+                mixin(`return _store[hitIndex].value ` ~ op ~ `= rhs;`); // modify existing value
+            }
         }
-
     }
 
     /** Remove `element`.
@@ -1643,11 +1682,11 @@ struct OpenHashMapOrSet(K, V = void,
         return cast(typeof(return))totalProbeCount/length;
     }
 
-    /** Unsafe access to raw bins.
+    /** Unsafe access to raw store.
      *
      * Needed by wrapper containers such as SSOOpenHashSet.
      */
-    inout(T)[] rawBins() inout @system pure nothrow @nogc
+    inout(T)[] rawStore() inout @system pure nothrow @nogc
     {
         pragma(inline, true);
         return _store;
@@ -1672,6 +1711,18 @@ private:
     else
     {
         T[] _store;              // one element per bin
+    }
+
+    static if (!hasHoleableKey)
+    {
+        static if (hasFunctionAttributes!(Allocator.allocate, "@nogc"))
+        {
+            @NoGc size_t* _holesPtr; // bit array describing which bin elements that has been removed (holes)
+        }
+        else
+        {
+            size_t* _holesPtr; // bit array describing which bin elements that has been removed (holes)
+        }
     }
 
     static if (borrowChecked)
@@ -1735,18 +1786,6 @@ private:
     else
     {
         size_t _count;        // total number of non-null elements stored in `_store`
-    }
-
-    static if (!hasHoleableKey)
-    {
-        static if (hasFunctionAttributes!(Allocator.allocate, "@nogc"))
-        {
-            @NoGc size_t* _holesPtr; // bit array describing which bin elements that has been removed (holes)
-        }
-        else
-        {
-            size_t* _holesPtr; // bit array describing which bin elements that has been removed (holes)
-        }
     }
 
     /** Returns: bin index of `key`. */

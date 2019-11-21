@@ -1525,6 +1525,7 @@ struct OpenHashMapOrSet(K, V = void,
             assert(!key.isNull);
             static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(key)); }
             static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
+            // TODO optimize by copying insertWithoutGrowthNoStatus but with modified logic for `OP= rhs`
             auto valuePtr = key in this;
             if (!valuePtr)
             {

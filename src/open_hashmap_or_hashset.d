@@ -1368,7 +1368,7 @@ struct OpenHashMapOrSet(K, V = void,
         }
 
         ref typeof(this) opOpAssign(string op, SomeKey)(const scope SomeKey key) return @trusted
-        if (op == `~` &&
+        if (op == `~` &&        // binary assignment operator `~=`
             isScopedKeyType!(typeof(key)))
         {
             pragma(inline, true);

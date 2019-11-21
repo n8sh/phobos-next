@@ -44,7 +44,7 @@ import pure_mallocator : Mallocator = PureMallocator;
  *
  * TODO use `StoreK` in store and cast between it and `KeyType`
  *
- * TODO allocate _holesPtr array together with _bins to reduce size of
+ * TODO allocate _holesPtr array together with _store to reduce size of
  * `OpenHashMapOrSet` to 3 words when element type doesn't support it
  *
  * TODO fix bug in `growInPlaceWithCapacity` and benchmark
@@ -518,8 +518,8 @@ struct OpenHashMapOrSet(K, V = void,
     {
         // dbg(__FUNCTION__, " this:", &this, " with length ", length);
         version(showEntries) dbg(__FUNCTION__, " length:", length);
-        T[] binsCopy = allocateUninitializedBins(_bins.length); // unsafe
-        foreach (immutable index, ref bin; _bins)
+        T[] binsCopy = allocateUninitializedBins(_store.length); // unsafe
+        foreach (immutable index, ref bin; _store)
         {
             if (isOccupiedAtIndex(index)) // normal case
             {
@@ -543,9 +543,9 @@ struct OpenHashMapOrSet(K, V = void,
         {
             if (_holesPtr)
             {
-                immutable wordCount = holesWordCount(_bins.length);
+                immutable wordCount = holesWordCount(_store.length);
 
-                auto holesPtrCopy = makeUninitializedBitArray!Allocator(_bins.length);
+                auto holesPtrCopy = makeUninitializedBitArray!Allocator(_store.length);
                 holesPtrCopy[0 .. wordCount] = _holesPtr[0 .. wordCount]; // TODO use memcpy instead?
 
                 static if (isBorrowChecked)
@@ -572,7 +572,7 @@ struct OpenHashMapOrSet(K, V = void,
     bool opEquals()(const scope auto ref typeof(this) rhs) const
     {
         if (_count != rhs._count) { return false; } // quick discardal
-        foreach (immutable index, const ref bin; _bins)
+        foreach (immutable index, const ref bin; _store)
         {
             if (isOccupiedAtIndex(index))
             {
@@ -618,7 +618,7 @@ struct OpenHashMapOrSet(K, V = void,
                     }
                     else
                     {
-                        Allocator.deallocate(_holesPtr[0 .. holesWordCount(_bins.length)]);
+                        Allocator.deallocate(_holesPtr[0 .. holesWordCount(_store.length)]);
                     }
                 }
             }
@@ -656,7 +656,7 @@ struct OpenHashMapOrSet(K, V = void,
 
             void untagHoleAtIndex(size_t index) @trusted
             {
-                version(internalUnittest) assert(index < _bins.length);
+                version(internalUnittest) assert(index < _store.length);
                 if (_holesPtr !is null)
                 {
                     btr(_holesPtr, index);
@@ -672,16 +672,16 @@ struct OpenHashMapOrSet(K, V = void,
 
         void tagHoleAtIndex(size_t index) @trusted
         {
-            version(internalUnittest) assert(index < _bins.length);
+            version(internalUnittest) assert(index < _store.length);
             static if (hasHoleableKey)
             {
-                keyOf(_bins[index]) = holeKeyConstant;
+                keyOf(_store[index]) = holeKeyConstant;
             }
             else
             {
                 if (_holesPtr is null) // lazy allocation
                 {
-                    _holesPtr = makeZeroedBitArray!Allocator(_bins.length);
+                    _holesPtr = makeZeroedBitArray!Allocator(_store.length);
                 }
                 bts(_holesPtr, index);
             }
@@ -699,7 +699,7 @@ struct OpenHashMapOrSet(K, V = void,
     {
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
         release();
-        _bins = typeof(_bins).init;
+        _store = typeof(_store).init;
         static if (!hasHoleableKey)
         {
             _holesPtr = null;
@@ -717,7 +717,7 @@ struct OpenHashMapOrSet(K, V = void,
     /// Release bin elements.
     private void releaseBinElements() scope
     {
-        foreach (ref bin; _bins)
+        foreach (ref bin; _store)
         {
             static if (hasElaborateDestructor!T)
             {
@@ -729,7 +729,7 @@ struct OpenHashMapOrSet(K, V = void,
     /// Release bin slice.
     private void releaseBinsAndHolesSlices() scope
     {
-        releaseBinsSlice(_bins);
+        releaseBinsSlice(_store);
         static if (!hasHoleableKey)
         {
             deallocateHoles();
@@ -789,7 +789,7 @@ struct OpenHashMapOrSet(K, V = void,
         static if (hasHoleableKey) { assert(!isHoleKeyConstant(cast(K)adjustKeyType(key))); }
 
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)adjustKeyType(key)); // cast scoped `key` is @trusted
-        return (hitIndex != _bins.length &&
+        return (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex));
     }
 
@@ -817,12 +817,12 @@ struct OpenHashMapOrSet(K, V = void,
             debug static assert(args.length == 2,
                           "linear search for Nullable without nullValue is slower than default `this.contains()` and is not allowed");
             alias UnderlyingType = args[0];
-            return (cast(UnderlyingType[])_bins).canFind!keyEqualPred(key.get());
+            return (cast(UnderlyingType[])_store).canFind!keyEqualPred(key.get());
         }
         else
         {
-            // TODO optimize using sentinel being `key` after end of `_bins`
-            foreach (const ref bin; _bins)
+            // TODO optimize using sentinel being `key` after end of `_store`
+            foreach (const ref bin; _store)
             {
                 static if (keyEqualPred == "a == b")
                 {
@@ -840,7 +840,7 @@ struct OpenHashMapOrSet(K, V = void,
                 }
             }
             return false;
-            // return _bins.canFind!keyEqualPred(key);
+            // return _store.canFind!keyEqualPred(key);
         }
     }
 
@@ -857,7 +857,7 @@ struct OpenHashMapOrSet(K, V = void,
 
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
         // TODO update holes
-        return (hitIndex != _bins.length &&
+        return (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex));
     }
 
@@ -912,7 +912,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             const hitIndex = insertWithoutGrowthNoStatus(move(element));
         }
-        return _bins[hitIndex];
+        return _store[hitIndex];
     }
 
     /** Insert `elements`, all being either a key-value (map-case) or a just a key (set-case).
@@ -925,7 +925,7 @@ struct OpenHashMapOrSet(K, V = void,
         import std.range.primitives : hasLength;
         static if (hasLength!R)
         {
-            reserveExtra(elements.length); // might create unused space in `_bins` store
+            reserveExtra(elements.length); // might create unused space in `_store` store
         }
         foreach (element; elements)
         {
@@ -958,7 +958,7 @@ struct OpenHashMapOrSet(K, V = void,
         version(LDC) pragma(inline, true);
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
         immutable newCapacity = (_count + extraCapacity)*growScaleP/growScaleQ;
-        if (newCapacity > _bins.length)
+        if (newCapacity > _store.length)
         {
             growWithNewCapacity(newCapacity);
         }
@@ -969,7 +969,7 @@ struct OpenHashMapOrSet(K, V = void,
     {
         version(LDC) pragma(inline, true);
         version(showEntries) dbg(__FUNCTION__, " newCapacity:", newCapacity);
-        version(internalUnittest) assert(newCapacity > _bins.length);
+        version(internalUnittest) assert(newCapacity > _store.length);
         static if (__traits(hasMember, Allocator, "reallocate"))
         {
             static if (growInPlaceFlag)
@@ -992,16 +992,16 @@ struct OpenHashMapOrSet(K, V = void,
         pragma(inline, true);
         static if (hasHoleableKey)
         {
-            keyOf(_bins[index]) = holeKeyConstant;
+            keyOf(_store[index]) = holeKeyConstant;
         }
         else
         {
-            keyOf(_bins[index]).nullify();
+            keyOf(_store[index]).nullify();
             tagHoleAtIndex(index);
         }
         static if (hasElaborateDestructor!V) // if we should clear all
         {
-            .destroy(valueOf(_bins[index]));
+            .destroy(valueOf(_store[index]));
         }
     }
 
@@ -1014,27 +1014,27 @@ struct OpenHashMapOrSet(K, V = void,
             /* key is an array of non-`immutable` elements which cannot safely
              * be stored because keys must be immutable for hashing to work
              * properly, therefore duplicate */
-            keyOf(_bins[index]) = element.idup;
+            keyOf(_store[index]) = element.idup;
         }
         else
         {
             static if (isCopyable!SomeElement)
             {
-                _bins[index] = element;
+                _store[index] = element;
             }
             else
             {
                 static if (isCopyable!K)
                 {
-                    keyOf(_bins[index]) = keyOf(element);
+                    keyOf(_store[index]) = keyOf(element);
                 }
                 else
                 {
-                    move(keyOf(element), keyOf(_bins[index]));
+                    move(keyOf(element), keyOf(_store[index]));
                 }
                 static if (hasValue)
                 {
-                    moveEmplace(valueOf(element), valueOf(_bins[index]));
+                    moveEmplace(valueOf(element), valueOf(_store[index]));
                 }
             }
             }
@@ -1048,20 +1048,20 @@ struct OpenHashMapOrSet(K, V = void,
         import core.bitop : bts, bt;
         import array_help : makeZeroedBitArray, wordCountOfBitCount;
 
-        size_t* dones = makeZeroedBitArray!Allocator(_bins.length);
+        size_t* dones = makeZeroedBitArray!Allocator(_store.length);
 
-        foreach (immutable doneIndex; 0 .. _bins.length)
+        foreach (immutable doneIndex; 0 .. _store.length)
         {
-            if (bt(dones, doneIndex)) { continue; } // if _bins[doneIndex] continue
+            if (bt(dones, doneIndex)) { continue; } // if _store[doneIndex] continue
             if (isOccupiedAtIndex(doneIndex))
             {
                 T currentElement = void;
 
                 // TODO functionize:
-                moveEmplace(_bins[doneIndex], currentElement);
+                moveEmplace(_store[doneIndex], currentElement);
                 static if (isInstanceOf!(Nullable, K))
                 {
-                    keyOf(_bins[doneIndex]).nullify(); // `moveEmplace` doesn't init source of type Nullable
+                    keyOf(_store[doneIndex]).nullify(); // `moveEmplace` doesn't init source of type Nullable
                 }
 
                 while (true)
@@ -1069,36 +1069,36 @@ struct OpenHashMapOrSet(K, V = void,
                     alias pred = (const scope index,
                                   const scope auto ref element) => (!isOccupiedAtIndex(index) || // free slot
                                                                     !bt(dones, index)); // or a not yet replaced element
-                    immutable hitIndex = _bins[].triangularProbeFromIndex!(pred)(keyToIndex(keyOf(currentElement)));
-                    assert(hitIndex != _bins.length, "no free slot");
+                    immutable hitIndex = _store[].triangularProbeFromIndex!(pred)(keyToIndex(keyOf(currentElement)));
+                    assert(hitIndex != _store.length, "no free slot");
 
-                    bts(dones, hitIndex); // _bins[hitIndex] will be at it's correct position
+                    bts(dones, hitIndex); // _store[hitIndex] will be at it's correct position
 
                     if (isOccupiedAtIndex(doneIndex))
                     {
                         T nextElement = void;
 
                         // TODO functionize:
-                        moveEmplace(_bins[hitIndex], nextElement); // save non-free slot
+                        moveEmplace(_store[hitIndex], nextElement); // save non-free slot
                         static if (isInstanceOf!(Nullable, K))
                         {
-                            keyOf(_bins[hitIndex]).nullify(); // `moveEmplace` doesn't init source of type Nullable
+                            keyOf(_store[hitIndex]).nullify(); // `moveEmplace` doesn't init source of type Nullable
                         }
 
-                        moveEmplace(currentElement, _bins[hitIndex]);
+                        moveEmplace(currentElement, _store[hitIndex]);
                         moveEmplace(nextElement, currentElement);
                     }
                     else // if no free slot
                     {
-                        moveEmplace(currentElement, _bins[hitIndex]);
+                        moveEmplace(currentElement, _store[hitIndex]);
                         break; // inner iteration is finished
                     }
                 }
             }
-            bts(dones, doneIndex); // _bins[doneIndex] is at it's correct position
+            bts(dones, doneIndex); // _store[doneIndex] is at it's correct position
         }
 
-        Allocator.deallocate(cast(void[])(dones[0 .. wordCountOfBitCount(_bins.length)]));
+        Allocator.deallocate(cast(void[])(dones[0 .. wordCountOfBitCount(_store.length)]));
 
         static if (!hasHoleableKey)
         {
@@ -1111,25 +1111,25 @@ struct OpenHashMapOrSet(K, V = void,
      */
     private void growInPlaceWithCapacity()(size_t minimumCapacity) @trusted // template-lazy
     {
-        assert(minimumCapacity > _bins.length);
+        assert(minimumCapacity > _store.length);
 
         immutable powerOf2newCapacity = nextPow2(minimumCapacity);
         immutable newByteCount = T.sizeof*powerOf2newCapacity;
 
-        const oldBinsPtr = _bins.ptr;
-        immutable oldLength = _bins.length;
+        const oldBinsPtr = _store.ptr;
+        immutable oldLength = _store.length;
 
-        auto rawBins = cast(void[])_bins;
+        auto rawBins = cast(void[])_store;
         if (Allocator.reallocate(rawBins, newByteCount))
         {
-            _bins = cast(T[])rawBins;
+            _store = cast(T[])rawBins;
             static if (mustAddGCRange!T)
             {
                 if (oldBinsPtr !is null)
                 {
                     gc_removeRange(oldBinsPtr); // `gc_removeRange` fails for null input
                 }
-                gc_addRange(_bins.ptr, newByteCount);
+                gc_addRange(_store.ptr, newByteCount);
             }
 
             static if (!hasHoleableKey)
@@ -1138,12 +1138,12 @@ struct OpenHashMapOrSet(K, V = void,
                 {
                     _holesPtr = makeReallocatedBitArrayZeroPadded!Allocator(_holesPtr,
                                                                             oldLength,
-                                                                            _bins.length);
+                                                                            _store.length);
                 }
             }
 
             // TODO make this an array operation `nullifyAll` or `nullifyN`
-            foreach (ref bin; _bins[oldLength .. powerOf2newCapacity])
+            foreach (ref bin; _store[oldLength .. powerOf2newCapacity])
             {
                 keyOf(bin).nullify(); // move this `init` to reallocate() above?
             }
@@ -1162,9 +1162,9 @@ struct OpenHashMapOrSet(K, V = void,
     {
         version(LDC) pragma(inline, true); // LDC needs this or to prevent 10x performance regression in contains()
         version(showEntries) dbg(__FUNCTION__, " newCapacity:", newCapacity);
-        version(internalUnittest) assert(newCapacity > _bins.length);
+        version(internalUnittest) assert(newCapacity > _store.length);
         auto next = typeof(this).withCapacity(newCapacity);
-        foreach (immutable index, ref bin; _bins)
+        foreach (immutable index, ref bin; _store)
         {
             if (isOccupiedAtIndex(index))
             {
@@ -1191,8 +1191,8 @@ struct OpenHashMapOrSet(K, V = void,
 
         size_t holeIndex = size_t.max; // first hole index to written to if hole found
         immutable hitIndexPrel = indexOfKeyOrVacancyAndFirstHole(keyOf(element), holeIndex);
-        if (hitIndexPrel == _bins.length || // keys miss and holes may have filled all empty slots
-            keyOf(_bins[hitIndexPrel]).isNull) // just key miss but a hole may have been found on the way
+        if (hitIndexPrel == _store.length || // keys miss and holes may have filled all empty slots
+            keyOf(_store[hitIndexPrel]).isNull) // just key miss but a hole may have been found on the way
         {
             immutable hasHole = holeIndex != size_t.max; // hole was found along the way
             if (hasHole)
@@ -1203,7 +1203,7 @@ struct OpenHashMapOrSet(K, V = void,
             {
                 hitIndex = hitIndexPrel; // normal hit
             }
-            version(internalUnittest) assert(hitIndex != _bins.length, "no null or hole slot");
+            version(internalUnittest) assert(hitIndex != _store.length, "no null or hole slot");
             static if (isCopyable!SomeElement)
             {
                 insertElementAtIndex(*cast(SomeElement*)&element, hitIndex);
@@ -1231,17 +1231,17 @@ struct OpenHashMapOrSet(K, V = void,
                 // identity comparison of static arrays implicitly coerces them
                 // to slices, which are compared by reference, so don't use !is here
                 immutable valueDiffers = (valueOf(element) !=
-                                          valueOf(_bins[hitIndexPrel])); // only value changed
+                                          valueOf(_store[hitIndexPrel])); // only value changed
             }
             else
             {
                 immutable valueDiffers = (valueOf(element) !is
-                                          valueOf(_bins[hitIndexPrel])); // only value changed
+                                          valueOf(_store[hitIndexPrel])); // only value changed
             }
             if (valueDiffers) // only value changed
             {
                 move(valueOf(*cast(SomeElement*)&element),
-                     valueOf(_bins[hitIndexPrel])); // value is defined so overwrite it
+                     valueOf(_store[hitIndexPrel])); // value is defined so overwrite it
                 return InsertionStatus.modified;
             }
         }
@@ -1261,8 +1261,8 @@ struct OpenHashMapOrSet(K, V = void,
         size_t hitIndex;
         size_t holeIndex = size_t.max; // first hole index to written to if hole found
         immutable hitIndexPrel = indexOfKeyOrVacancyAndFirstHole(keyOf(element), holeIndex);
-        if (hitIndexPrel == _bins.length || // keys miss and holes may have filled all empty slots
-            keyOf(_bins[hitIndexPrel]).isNull) // just key miss but a hole may have been found on the way
+        if (hitIndexPrel == _store.length || // keys miss and holes may have filled all empty slots
+            keyOf(_store[hitIndexPrel]).isNull) // just key miss but a hole may have been found on the way
         {
             immutable hasHole = holeIndex != size_t.max; // hole was found along the way
             if (hasHole)
@@ -1273,7 +1273,7 @@ struct OpenHashMapOrSet(K, V = void,
             {
                 hitIndex = hitIndexPrel; // normal hit
             }
-            version(internalUnittest) assert(hitIndex != _bins.length, "no null or hole slot");
+            version(internalUnittest) assert(hitIndex != _store.length, "no null or hole slot");
             static if (isCopyable!SomeElement)
             {
                 insertElementAtIndex(*cast(SomeElement*)&element, hitIndex);
@@ -1298,7 +1298,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             // modify existing value
             move(valueOf(*cast(SomeElement*)&element),
-                 valueOf(_bins[hitIndexPrel])); // value is defined so overwrite it
+                 valueOf(_store[hitIndexPrel])); // value is defined so overwrite it
         }
 
         return hitIndex;
@@ -1356,10 +1356,10 @@ struct OpenHashMapOrSet(K, V = void,
             static if (hasHoleableKey) { assert(!isHoleKeyConstant(cast(K)adjustKeyType(key))); }
 
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)key); // cast scoped `key` is @trusted
-            if (hitIndex != _bins.length &&
+            if (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex))
             {
-                return &_bins[hitIndex];
+                return &_store[hitIndex];
             }
             else
             {
@@ -1416,10 +1416,10 @@ struct OpenHashMapOrSet(K, V = void,
             version(LDC) pragma(inline, true);
             // pragma(msg, SomeKey, " => ", K);
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)adjustKeyType(key)); // cast scoped `key` is @trusted
-            if (hitIndex != _bins.length &&
+            if (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex))
             {
-                return cast(typeof(return))&_bins[hitIndex].value;
+                return cast(typeof(return))&_store[hitIndex].value;
             }
             else
             {
@@ -1433,10 +1433,10 @@ struct OpenHashMapOrSet(K, V = void,
         {
             version(LDC) pragma(inline, true);
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)adjustKeyType(key)); // cast scoped `key` is @trusted
-            if (hitIndex != _bins.length &&
+            if (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex))
             {
-                return _bins[hitIndex].value;
+                return _store[hitIndex].value;
             }
             import core.exception : RangeError;
             throw new RangeError("Key not found"); // TODO use assert instead?
@@ -1474,10 +1474,10 @@ struct OpenHashMapOrSet(K, V = void,
         {
             version(LDC) pragma(inline, true);
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)adjustKeyType(key)); // cast scoped `key` is @trusted
-            if (hitIndex != _bins.length &&
+            if (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex))
             {
-                return _bins[hitIndex].key;
+                return _store[hitIndex].key;
             }
             else
             {
@@ -1516,7 +1516,7 @@ struct OpenHashMapOrSet(K, V = void,
                     const hitIndex = insertWithoutGrowthNoStatus(T(move(key), move(value)));
                 }
             }
-            return _bins[hitIndex].value;
+            return _store[hitIndex].value;
         }
 
         ref V opIndexOpAssign(string op, Rhs)(Rhs rhs, K key) // TODO return scope
@@ -1538,7 +1538,7 @@ struct OpenHashMapOrSet(K, V = void,
                 {
                     const hitIndex = insertWithoutGrowthNoStatus(T(move(key), V.init));
                 }
-                valuePtr = &(_bins[hitIndex].value);
+                valuePtr = &(_store[hitIndex].value);
             }
             mixin(`return *valuePtr ` ~ op ~ `= rhs;`);
         }
@@ -1554,7 +1554,7 @@ struct OpenHashMapOrSet(K, V = void,
         version(LDC) pragma(inline, true);
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(adjustKeyType(key));
-        if (hitIndex != _bins.length &&
+        if (hitIndex != _store.length &&
             isOccupiedAtIndex(hitIndex))
         {
             tagAsLazilyDeletedElementAtIndex(hitIndex);
@@ -1590,7 +1590,7 @@ struct OpenHashMapOrSet(K, V = void,
     @property size_t length() const { return _count; }
 
     /// Get bin count.
-    @property size_t binCount() const { return _bins.length; }
+    @property size_t binCount() const { return _store.length; }
 
     /** Returns: get total probe count for all elements stored. */
     size_t totalProbeCount()() const // template-lazy
@@ -1620,7 +1620,7 @@ struct OpenHashMapOrSet(K, V = void,
                 alias pred = (const scope auto ref element) => (keyEqualPredFn(keyOf(element),
                                                                                keyOf(currentElement)));
             }
-            const probeCount = triangularProbeCountFromIndex!pred(_bins[], keyToIndex(keyOf(currentElement)));
+            const probeCount = triangularProbeCountFromIndex!pred(_store[], keyToIndex(keyOf(currentElement)));
 
             version(none)
             if (probeCount >= 20)
@@ -1650,7 +1650,7 @@ struct OpenHashMapOrSet(K, V = void,
     inout(T)[] rawBins() inout @system pure nothrow @nogc
     {
         pragma(inline, true);
-        return _bins;
+        return _store;
     }
 
     static if (hasHoleableKey)
@@ -1667,11 +1667,11 @@ private:
     static if (hasFunctionAttributes!(Allocator.allocate, "@nogc"))
     {
         import gc_traits : NoGc;
-        @NoGc T[] _bins;        // one element per bin
+        @NoGc T[] _store;        // one element per bin
     }
     else
     {
-        T[] _bins;              // one element per bin
+        T[] _store;              // one element per bin
     }
 
     static if (borrowChecked)
@@ -1729,12 +1729,12 @@ private:
         }
         else
         {
-            size_t _count;        // total number of non-null elements stored in `_bins`
+            size_t _count;        // total number of non-null elements stored in `_store`
         }
     }
     else
     {
-        size_t _count;        // total number of non-null elements stored in `_bins`
+        size_t _count;        // total number of non-null elements stored in `_store`
     }
 
     static if (!hasHoleableKey)
@@ -1768,11 +1768,11 @@ private:
     private size_t powerOf2Mask() const
     {
         pragma(inline, true);
-        immutable typeof(return) mask = _bins.length - 1;
+        immutable typeof(return) mask = _store.length - 1;
         version(internalUnittest)
         {
             import std.math : isPowerOf2;
-            _bins.length.isPowerOf2();
+            _store.length.isPowerOf2();
         }
         return mask;
     }
@@ -1825,9 +1825,9 @@ private:
 
         static if (_doSmallLinearSearch)
         {
-            if (_bins.length * T.sizeof <= _linearSearchMaxSize)
+            if (_store.length * T.sizeof <= _linearSearchMaxSize)
             {
-                foreach (const index, const ref element; _bins) // linear search is faster for small arrays
+                foreach (const index, const ref element; _store) // linear search is faster for small arrays
                 {
                     static if (hasHoleableKey)
                     {
@@ -1838,11 +1838,11 @@ private:
                         if (pred(index, element)) { return index; }
                     }
                 }
-                return _bins.length;
+                return _store.length;
             }
         }
 
-        return _bins[].triangularProbeFromIndex!(pred)(keyToIndex(key));
+        return _store[].triangularProbeFromIndex!(pred)(keyToIndex(key));
     }
 
     private size_t indexOfKeyOrVacancyAndFirstHole(SomeKey)(const scope SomeKey key, // `auto ref` here makes things slow
@@ -1898,17 +1898,17 @@ private:
 
         static if (_doSmallLinearSearch)
         {
-            if (_bins.length * T.sizeof <= _linearSearchMaxSize)
+            if (_store.length * T.sizeof <= _linearSearchMaxSize)
             {
-                foreach (const index, const ref element; _bins) // linear search is faster for small arrays
+                foreach (const index, const ref element; _store) // linear search is faster for small arrays
                 {
                     if (hitPred(element)) { return index; }
                 }
-                return _bins.length;
+                return _store.length;
             }
         }
 
-        return _bins[].triangularProbeFromIndexIncludingHoles!(hitPred, holePred)(keyToIndex(key),
+        return _store[].triangularProbeFromIndexIncludingHoles!(hitPred, holePred)(keyToIndex(key),
                                                                                   holeIndex);
     }
 
@@ -1918,11 +1918,11 @@ private:
     private bool isOccupiedAtIndex(size_t index) const
     {
         version(LDC) pragma(inline, true);
-        version(internalUnittest) assert(index < _bins.length);
-        if (keyOf(_bins[index]).isNull) { return false; }
+        version(internalUnittest) assert(index < _store.length);
+        if (keyOf(_store[index]).isNull) { return false; }
         static if (hasHoleableKey)
         {
-            return !isHoleKeyConstant(keyOf(_bins[index]));
+            return !isHoleKeyConstant(keyOf(_store[index]));
         }
         else
         {
@@ -2137,11 +2137,11 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) && // TODO generalize to `isSetOrMap`
 {
     import container_traits : nullify;
     size_t removalCount = 0;
-    foreach (immutable index, ref bin; x._bins)
+    foreach (immutable index, ref bin; x._store)
     {
         // TODO:
-        // move to Table.removeRef(bin) // uses: `offset = &bin - _bins.ptr`
-        // move to Table.inplaceRemove(bin) // uses: `offset = &bin - _bins.ptr`
+        // move to Table.removeRef(bin) // uses: `offset = &bin - _store.ptr`
+        // move to Table.inplaceRemove(bin) // uses: `offset = &bin - _store.ptr`
         // or   to Table.removeAtIndex(index)
         if (x.isOccupiedAtIndex(index) &&
             unaryFun!pred(bin))
@@ -2227,7 +2227,7 @@ unittest
     assert(a == b);
 
     // bin storage must be deterministic
-    () @trusted { assert(a._bins != b._bins); }();
+    () @trusted { assert(a._store != b._store); }();
 }
 
 @safe pure nothrow @nogc unittest
@@ -2519,7 +2519,7 @@ unittest
 
     auto x0 = X.init;
     assert(x0.length == 0);
-    assert(x0._bins.length == 0);
+    assert(x0._store.length == 0);
     assert(!x0.contains(K(1)));
 
     auto x1 = X.withElements([K(12)].s);
@@ -2607,7 +2607,7 @@ pragma(inline, true):
         @property scope Table.ElementType front()() return @trusted
         {
             // cast to head-const for class key
-            return (cast(typeof(return))_table._bins[_binIndex]);
+            return (cast(typeof(return))_table._store[_binIndex]);
         }
     }
     else
@@ -2615,7 +2615,7 @@ pragma(inline, true):
         /// Get reference to front element.
         @property scope auto ref front() return @trusted
         {
-            return *(cast(const(Table.ElementType)*)&_table._bins[_binIndex]); // propagate constnes
+            return *(cast(const(Table.ElementType)*)&_table._store[_binIndex]); // propagate constnes
         }
     }
     import core.internal.traits : Unqual;
@@ -2635,7 +2635,7 @@ pragma(inline, true):
         @property scope Table.ElementType front()() return @trusted
         {
             // cast to head-const for class key
-            return cast(typeof(return))_table._bins[_binIndex];
+            return cast(typeof(return))_table._store[_binIndex];
         }
     }
     else
@@ -2643,7 +2643,7 @@ pragma(inline, true):
         /// Get reference to front element.
         @property scope auto ref front() return
         {
-            return *(cast(const(Table.ElementType)*)&_table._bins[_binIndex]); // propagate constnes
+            return *(cast(const(Table.ElementType)*)&_table._store[_binIndex]); // propagate constnes
         }
     }
     import core.internal.traits : Unqual;
@@ -2680,7 +2680,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     @property const scope auto ref front() return // key access must be const, TODO auto ref => ref K
     {
         pragma(inline, true);
-        return _table._bins[_binIndex].key;
+        return _table._store[_binIndex].key;
     }
     import core.internal.traits : Unqual;
     public LvalueElementRef!(Unqual!Table) _elementRef;
@@ -2694,7 +2694,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     @property const scope auto ref front() return // key access must be const, TODO auto ref => ref K
     {
         pragma(inline, true);
-        return _table._bins[_binIndex].key;
+        return _table._store[_binIndex].key;
     }
     import core.internal.traits : Unqual;
     public RvalueElementRef!(Unqual!Table) _elementRef;
@@ -2739,7 +2739,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
         {
             alias E = const(Table.ValueType);
         }
-        return *(cast(E*)&_table._bins[_binIndex].value);
+        return *(cast(E*)&_table._store[_binIndex].value);
     }
     import core.internal.traits : Unqual;
     public LvalueElementRef!(Unqual!Table) _elementRef;
@@ -2763,7 +2763,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
         {
             alias E = const(Table.ValueType);
         }
-        return *(cast(E*)&_table._bins[_binIndex].value);
+        return *(cast(E*)&_table._store[_binIndex].value);
     }
     import core.internal.traits : Unqual;
     public RvalueElementRef!(Unqual!Table) _elementRef;
@@ -2809,7 +2809,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
         {
             alias E = const(Table.T);
         }
-        return *(cast(E*)&_table._bins[_binIndex]);
+        return *(cast(E*)&_table._store[_binIndex]);
     }
     import core.internal.traits : Unqual;
     public LvalueElementRef!(Unqual!Table) _elementRef;
@@ -3293,7 +3293,7 @@ version(unittest)
     {
         typeof(return) y = x.dup;
 
-        assert(x._bins.ptr !is y._bins.ptr);
+        assert(x._store.ptr !is y._store.ptr);
         assert(x.length == y.length);
         assert(y.length == n);
         // non-symmetric algorithm so both are needed

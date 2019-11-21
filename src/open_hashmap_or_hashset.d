@@ -34,6 +34,8 @@ import pure_mallocator : Mallocator = PureMallocator;
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  * See_Also: https://gankro.github.io/blah/hashbrown-insert/
  *
+ * TODO use mmap allocator when store is larger than at least 4 pages
+ *
  * TODO Either change search in
  * - indexOfKeyOrVacancySkippingHoles
  * - indexOfKeyOrVacancyAndFirstHole

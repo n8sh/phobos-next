@@ -1368,6 +1368,7 @@ struct OpenHashMapOrSet(K, V = void,
             isScopedKeyType!(typeof(key)))
         {
             pragma(inline, true);
+            reserveExtra(1);
             const hitIndex = insertWithoutGrowthNoStatus(key);
             return this;
         }

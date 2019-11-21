@@ -1889,6 +1889,19 @@ private:
                                   const scope auto ref element) => (hasHoleAtPtrIndex(_holesPtr, index));
             }
         }
+
+        static if (_doSmallLinearSearch)
+        {
+            if (_bins.length * T.sizeof <= _linearSearchMaxSize)
+            {
+                foreach (const index, const ref element; _bins) // linear search is faster for small arrays
+                {
+                    if (hitPred(element)) { return index; }
+                }
+                return _bins.length;
+            }
+        }
+
         return _bins[].triangularProbeFromIndexIncludingHoles!(hitPred, holePred)(keyToIndex(key),
                                                                                   holeIndex);
     }

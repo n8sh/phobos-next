@@ -482,7 +482,14 @@ struct OpenHashMapOrSet(K, V = void,
     {
         _store = makeDefaultInitializedStore(1);
         _count = 1;
-        move(element, _store[0]);
+        static if (isCopyable!T)
+        {
+            _store[0] = element;
+        }
+        else
+        {
+            move(element, _store[0]);
+        }
     }
 
     static if (hasHoleableKey)
@@ -1564,7 +1571,7 @@ struct OpenHashMapOrSet(K, V = void,
                         }
                         else
                         {
-                            // dbg("opIndexOpAssign-new: k:", key, " rhs:", rhs);
+                            dbg("opIndexOpAssign-new: k:", key, " rhs:", rhs);
                             insertElementAtIndex(T(key, V(rhs)), // TODO if `V(rhs)` is not supported use `V.init` followed by `OP= rhs`
                                                  index);
                         }
@@ -1588,7 +1595,7 @@ struct OpenHashMapOrSet(K, V = void,
             }
             else                // `key`-hit at index `hitIndex`
             {
-                // dbg("opIndexOpAssign-mod: k:", key, " rhs:", rhs);
+                dbg("opIndexOpAssign-mod: k:", key, " rhs:", rhs);
                 mixin(`return _store[hitIndex].value ` ~ op ~ `= rhs;`); // modify existing value
             }
         }

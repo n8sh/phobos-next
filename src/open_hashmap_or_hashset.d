@@ -925,10 +925,14 @@ struct OpenHashMapOrSet(K, V = void,
         import std.range.primitives : hasLength;
         static if (hasLength!R)
         {
-            reserveExtra(elements.length);
+            reserveExtra(elements.length); // might create unused space in `_bins` store
         }
         foreach (element; elements)
         {
+            static if (!hasLength!R)
+            {
+                reserveExtra(1);
+            }
             static if (hasIndirections!T)
             {
                 insertWithoutGrowthNoStatus(element);

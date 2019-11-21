@@ -1553,16 +1553,24 @@ struct OpenHashMapOrSet(K, V = void,
                 version(internalUnittest) assert(index != _store.length, "no null or hole slot");
                 static if (isCopyable!K)
                 {
-                    static if (op == "~" &&
-                               is(V : Rhs[]))
+                    static if (op == "~" ||
+                               op == "+" ||
+                               op == "*")
                     {
-                        insertElementAtIndex(T(key, [rhs]), // TODO if `V(rhs)` is not supported use `V.init` followed by `OP= rhs`
-                                             index);
+                        static if (is(V : Rhs[]))
+                        {
+                            insertElementAtIndex(T(key, [rhs]), // TODO if `V(rhs)` is not supported use `V.init` followed by `OP= rhs`
+                                                 index);
+                        }
+                        else
+                        {
+                            insertElementAtIndex(T(key, V(rhs)), // TODO if `V(rhs)` is not supported use `V.init` followed by `OP= rhs`
+                                                 index);
+                        }
                     }
                     else
                     {
-                        insertElementAtIndex(T(key, V(rhs)), // TODO if `V(rhs)` is not supported use `V.init` followed by `OP= rhs`
-                                             index);
+                        static assert(0, "Handel op " ~ op);
                     }
                 }
                 else

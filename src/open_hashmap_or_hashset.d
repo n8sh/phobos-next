@@ -142,7 +142,7 @@ struct OpenHashMapOrSet(K, V = void,
     /** Stores less than or equal to this size will be searched using linear
      * searcnh.
      */
-    private enum _linearSearchMaxSize = 1024;
+    private enum _linearSearchMaxSize = 64; // one cache-line for now
 
     static if (hasAddressLikeKey)
     {

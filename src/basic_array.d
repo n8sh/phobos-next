@@ -36,7 +36,6 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     import std.traits : hasIndirections, hasAliasing,
         isMutable, TemplateOf, isArray, isAssignable, isCopyable, isType, hasFunctionAttributes, isIterable;
     import core.lifetime : emplace, move, moveEmplace;
-    // import std.algorithm.mutation : moveEmplaceAll;
 
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
     import container_traits : mustAddGCRange, needsMove;
@@ -271,6 +270,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
             }
             else
             {
+                // import std.algorithm.mutation : moveEmplaceAll;
                 /* TODO optimize with `moveEmplaceAll` that does a raw copy and
                  * zeroing of values */
                 foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
@@ -833,6 +833,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
         // immutable si = index + 1;   // source index
         // immutable ti = index;       // target index
         // immutable restLength = this.length - (index + 1);
+        // import std.algorithm.mutation : moveEmplaceAll;
         // moveEmplaceAll(_mptr[si .. si + restLength],
         //                _mptr[ti .. ti + restLength]);
         foreach (immutable i; 0 .. this.length - (index + 1)) // each element index that needs to be moved

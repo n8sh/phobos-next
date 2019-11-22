@@ -464,7 +464,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /// Calculate D associative array (AA) key hash.
-    hash_t toHash()() const @trusted // template-lazy
+    hash_t toHash()() const scope @trusted // template-lazy
     {
         import core.internal.hash : hashOf;
         static if (isCopyable!T)
@@ -486,7 +486,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     {
         /** Construct a string representation of `this` at `sink`.
          */
-        void toString()(scope void delegate(const(char)[]) sink) const // template-lazy
+        void toString()(scope void delegate(const(char)[]) sink) const scope // template-lazy
         {
             sink("[");
             foreach (immutable ix, ref value; slice())
@@ -500,14 +500,14 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /// Check if empty.
-    @property bool empty()() const // template-lazy
+    @property bool empty()() const scope // template-lazy
     {
         pragma(inline, true);
         return _store.length == 0;
     }
 
     /// Get length.
-    @property size_t length() const // can't be template-lazy
+    @property size_t length() const scope // can't be template-lazy
     {
         pragma(inline, true)
         return _store.length;
@@ -519,7 +519,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
      * If `newLength` < `length` elements are truncate.
      * If `newLength` > `length` default-initialized elements are appended.
      */
-    @property void length(size_t newLength) @trusted // can't template-lazy
+    @property void length(size_t newLength) @trusted scope // can't template-lazy
     {
         if (newLength < length) // if truncatation
         {
@@ -562,7 +562,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /// Get capacity.
-    @property size_t capacity() const // can't be template-lazy
+    @property size_t capacity() const scope // can't be template-lazy
     {
         pragma(inline, true)
         return _store.capacity;
@@ -572,7 +572,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
      * of elements. If `minimumCapacity` < `capacity`, this method does
      * nothing.
      */
-    void reserve(size_t minimumCapacity) @trusted pure nothrow @nogc
+    void reserve(size_t minimumCapacity) @trusted scope pure nothrow @nogc
     {
         static if (!is(CapacityType == size_t))
         {

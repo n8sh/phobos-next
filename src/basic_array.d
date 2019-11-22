@@ -450,19 +450,13 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /** Comparison for equality. */
-    bool opEquals()(const scope typeof(this) rhs) const // template-lazy
+    bool opEquals()(const scope auto ref typeof(this) rhs) const scope // template-lazy
     {
         pragma(inline, true);
         return slice() == rhs.slice();
     }
     /// ditto
-    bool opEquals()(const scope ref typeof(this) rhs) const // template-lazy
-    {
-        pragma(inline, true);
-        return slice() == rhs.slice();
-    }
-    /// ditto
-    bool opEquals(U)(const scope U[] rhs) const
+    bool opEquals(U)(const scope U[] rhs) const scope
     if (is(typeof(T[].init == U[].init)))
     {
         pragma(inline, true);

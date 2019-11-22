@@ -36,7 +36,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     import std.traits : hasIndirections, hasAliasing,
         isMutable, TemplateOf, isArray, isAssignable, isCopyable, isType, hasFunctionAttributes, isIterable;
     import core.lifetime : emplace, move, moveEmplace;
-    import std.algorithm : moveEmplaceAll;
+    // import std.algorithm.mutation : moveEmplaceAll;
 
     import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
     import container_traits : mustAddGCRange, needsMove;
@@ -245,7 +245,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
                    !hasElaborateDestructor!(ElementType!R))
         {
             result.reserve(values.length);
-            import std.algorithm : copy;
+            import std.algorithm.mutation : copy;
             copy(values[0 .. values.length],
                  result._mptr[0 .. values.length]); // TODO better to use foreach instead?
             result._store.length = values.length;
@@ -743,7 +743,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
                    hasLength!R)
         {
             reserve(_store.length + elements.length);
-            import std.algorithm : copy;
+            import std.algorithm.mutation : copy;
             copy(elements, _mptr[_store.length .. _store.length + elements.length]);
             _store.length += elements.length;
         }
@@ -995,7 +995,7 @@ if (isInstanceOf!(BasicArray, C) &&
 
     c.freeStore();
 
-    import std.algorithm : moveEmplace;
+    import core.lifetime : moveEmplace;
     moveEmplace(tmp, c);
 
     return count;

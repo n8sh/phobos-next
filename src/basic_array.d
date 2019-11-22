@@ -1514,7 +1514,7 @@ unittest
     x ~= z[];
 
     auto y = x;
-    assert(y == z);
+    assert(y[] == z);
 
     auto _ = x.toHash;
 }

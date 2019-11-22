@@ -5,21 +5,21 @@ import core.internal.traits : Unqual;
 @safe:
 
 /** Array type with deterministic control of memory. The memory allocated for
-    the array is reclaimed as soon as possible; there is no reliance on the
-    garbage collector. Array uses malloc, realloc and free for managing its own
-    memory.
-
-    Use `std.bitmanip.BitArray` for array container storing boolean values.
-
-    TODO optimize by making members templates. 0.579s before, eval-dwim: 0.67s
-
-    TODO Add OutputRange.writer support as
-    https://github.com/burner/StringBuffer/blob/master/source/stringbuffer.d#L45
-
-    TODO Use `std.traits.areCopyCompatibleArrays`
-
-    See_Also: https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md
-*/
+ * the array is reclaimed as soon as possible; there is no reliance on the
+ * garbage collector. Array uses malloc, realloc and free for managing its own
+ * memory.
+ *
+ * Use `std.bitmanip.BitArray` for array container storing boolean values.
+ *
+ * TODO optimize by making members templates. 0.579s before, eval-dwim: 0.67s
+ *
+ * TODO Add OutputRange.writer support as
+ * https://github.com/burner/StringBuffer/blob/master/source/stringbuffer.d#L45
+ *
+ * TODO Use `std.traits.areCopyCompatibleArrays`
+ *
+ * See_Also: https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md
+ */
 struct BasicArray(T,
                   alias Allocator = null, // null means means to qcmeman functions. TODO use `PureMallocator` by default
                   CapacityType = size_t)  // see also https://github.com/izabera/s
@@ -1212,7 +1212,8 @@ version(unittest)
     assert(b == [T(100), T(400), T(900)].s);
 
     const c = A.withElementsOfRange_untested([10, 20, 30].s[].filter!(_ => _ == 30).map!(_ => T(_^^2))); // !hasLength
-    assert(c == [T(900)].s);
+    const d = [T(900)].s;
+    assert(c[] == d[]);
 }
 
 // construct from ranges of copyable elements

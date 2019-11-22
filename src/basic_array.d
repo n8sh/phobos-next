@@ -1042,7 +1042,7 @@ if (isInstanceOf!(BasicArray, C) &&
     a.insertBack([3].s);
     assert(a[] == [10, 11, 12, 0, 3].s);
 
-    import std.algorithm : filter;
+    import std.algorithm.iteration : filter;
 
     a.insertBack([42].s[].filter!(_ => _ is 42));
     assert(a[] == [10, 11, 12, 0, 3, 42].s);
@@ -1205,7 +1205,7 @@ version(unittest)
     A a;
     assert(a.empty);
 
-    import std.algorithm : map, filter;
+    import std.algorithm.iteration : map, filter;
 
     const b = A.withElementsOfRange_untested([10, 20, 30].s[].map!(_ => T(_^^2))); // hasLength
     assert(b.length == 3);
@@ -1225,7 +1225,7 @@ version(unittest)
     A a;
     assert(a.empty);
 
-    import std.algorithm : map, filter;
+    import std.algorithm.iteration : map, filter;
 
     const b = A.withElementsOfRange_untested([10, 20, 30].s[].map!(_ => T(_^^2))); // hasLength
     assert(b.length == 3);
@@ -1495,7 +1495,7 @@ unittest
 /// construct from map range
 @safe pure nothrow unittest
 {
-    import std.algorithm : map;
+    import std.algorithm.iteration : map;
     alias T = int;
     alias A = BasicArray!(T);
     auto a = A.withElementsOfRange_untested([10, 20, 30].s[].map!(_ => _^^2));

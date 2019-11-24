@@ -529,7 +529,7 @@ private:
             if (_input[cursor] == '\n' ||
                 _input[cursor] == '\r')
             {
-                newlineCounter -= 1;
+                newlineCounter += 1;
             }
             cursor -= 1;
         }

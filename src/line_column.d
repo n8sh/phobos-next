@@ -19,6 +19,8 @@ LineColumn offsetLineColumn(scope const char[] haystack,
     {
         cursor -= 1;
     }
+    dbg(cursor);
+
     const column = offset-cursor;
 
     // find 0-based line offset
@@ -52,7 +54,12 @@ LineColumn offsetLineColumn(scope const char[] haystack,
 {
     auto x = "\nx\n y";
     assert(x.length == 5);
-    assert(x.offsetLineColumn(0) == LineColumn(0, 0));
-    // assert(x.offsetLineColumn(1) == LineColumn(1, 0));
+    // assert(x.offsetLineColumn(0) == LineColumn(0, 0));
+    assert(x.offsetLineColumn(1) == LineColumn(1, 0));
     // assert(x.offsetLineColumn(2) == LineColumn(1, 1));
+}
+
+version(unittest)
+{
+    import dbgio;
 }

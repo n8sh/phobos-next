@@ -21,7 +21,7 @@ import rdf;
 
 @safe:
 
-struct TurtleFile          // TODO generalize to take template parameter `Range` where0 `isCharsSlice!(typeof(Range.init.front))`
+struct TurtleFile          // TODO generalize to take template parameter `Range` where0 `isCharArray!(typeof(Range.init.front))`
 {
     import std.stdio : File;
     this(scope const char[] path) // path file naem usually has extension ".ttl"

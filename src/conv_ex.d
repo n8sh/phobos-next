@@ -1,6 +1,6 @@
 module conv_ex;
 
-import array_traits : isCharsSlice;
+import array_traits : isCharArray;
 import traits_ex : isSourceOfSomeChar;
 
 /** Variant of std.conv.to with $(D defaultValue) making it $(D nothrow).
@@ -66,7 +66,7 @@ auto tolerantTo(U, S)(S value,
                       bool tryToLower = true,
                       bool tryLevenshtein = true,
                       size_t levenshteinMaxDistance = 3)
-if (isCharsSlice!S)
+if (isCharArray!S)
 {
     import std.conv: to;
     try

@@ -90,7 +90,7 @@ struct SSOString
      * `source.length > smallCapacity` and `source` is not a `string`).
      */
     this(Chars)(const scope auto ref Chars source) @trusted
-    if (isCharsSlice!(typeof(source[]))) // not immutable `E`
+    if (isCharArray!(typeof(source[]))) // not immutable `E`
     {
         static if (__traits(isStaticArray, Chars))
         {
@@ -139,7 +139,7 @@ struct SSOString
     import std.traits : isIterable;
 
     this(Source)(const scope auto ref Source source) @trusted
-    if (!isCharsSlice!(typeof(source[])) &&
+    if (!isCharArray!(typeof(source[])) &&
         isIterable!(Source)) // iterable of char
     {
         static assert(0, "Implement iterable of char");
@@ -746,7 +746,7 @@ version(show)
     writeln(SSOString("alpha"));
 }
 
-private enum isCharsSlice(T) = (is(T : const(char)[]));
+private enum isCharArray(T) = (is(T : const(char)[]));
 
 version(unittest)
 {

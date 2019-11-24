@@ -505,8 +505,12 @@ private:
 
     import line_column : LineColumn, offsetLineColumn;
 
-    // TODO factor to common code in parsing.d
-    public LineColumn offsetToLineColumn(scope const SExpr sexpr) const @trusted pure nothrow @nogc
+    public LineColumn offsetToLineColumn(size_t offset) const @trusted pure nothrow @nogc
+    {
+        return offsetLineColumn(_input, offset);
+    }
+
+    public LineColumn sexprToLineColumn(scope const SExpr sexpr) const @trusted pure nothrow @nogc
     {
         return offsetLineColumn(_input, offsetTo(sexpr.token.src));
     }

@@ -1,11 +1,11 @@
 module string_ex;
 
-import array_traits : isCharsSlice;
+import array_traits : isCharArray;
 
 Chars[] quotedWords(Chars)(Chars s,
                            const scope string quoteBeginChar = `"`,
                            const scope string quoteEndChar = `"`)
-if (isCharsSlice!Chars)
+if (isCharArray!Chars)
 {
     typeof(return) words;
     import std.array : array;

@@ -516,7 +516,7 @@ private:
 
         // find 0-based column offset
         size_t cursor = offset;      // cursor
-        while (cursor != 0 &&
+        while (cursor != 0 &&        // TODO extend to support UTF-8
                !(_input[cursor] == '\n' ||
                  _input[cursor] == '\r'))
         {

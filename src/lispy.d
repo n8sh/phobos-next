@@ -525,7 +525,7 @@ private:
         const column = offset-cursor;
 
         // find 0-based line offset
-        size_t eolCounter = 0;
+        size_t lineCounter = 0;
         while (cursor != 0)
         {
             if (_input[cursor] == '\n' ||
@@ -537,7 +537,7 @@ private:
                 {
                     cursor -= 1;
                 }
-                eolCounter += 1;
+                lineCounter += 1;
             }
             else                // UNIX-style line endoing "\n"
             {
@@ -545,7 +545,7 @@ private:
             }
         }
 
-        return typeof(return)(eolCounter, column);
+        return typeof(return)(lineCounter, column);
     }
 
 private:

@@ -522,16 +522,18 @@ private:
         }
         const column = offset-cursor;
 
-        size_t rowCounter = 0;
-        while (cursor != 0 &&
-               !(_input[cursor] == '\n' ||
-                 _input[cursor] == '\r'))
+        size_t newlineCounter = 0;
+        while (cursor != 0)
         {
+            if (_input[cursor] == '\n' ||
+                _input[cursor] == '\r')
+            {
+                newlineCounter -= 1;
+            }
             cursor -= 1;
-            rowCounter -= 1;
         }
 
-        return typeof(return)(rowCounter, column);
+        return typeof(return)(newlineCounter, column);
     }
 
 private:

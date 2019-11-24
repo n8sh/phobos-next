@@ -535,12 +535,12 @@ private:
                 {
                     cursor -= 1;
                 }
+                newlineCounter += 1;
             }
             else
             {
                 cursor -= 1;
             }
-            newlineCounter += 1;
         }
 
         return typeof(return)(newlineCounter, column);

@@ -529,9 +529,15 @@ private:
             if (_input[cursor] == '\n' ||
                 _input[cursor] == '\r')
             {
+                cursor -= 1;
+                if (cursor != 0 &&
+                    (_input[cursor] == '\n' ||
+                     _input[cursor] == '\r'))
+                {
+                    cursor -= 1;
+                }
                 newlineCounter += 1;
             }
-            cursor -= 1;
         }
 
         return typeof(return)(newlineCounter, column);

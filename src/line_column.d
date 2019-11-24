@@ -47,3 +47,11 @@ LineColumn offsetLineColumn(scope const char[] haystack,
 
     return typeof(return)(lineCounter, column);
 }
+
+@safe pure unittest
+{
+    auto x = "\nx\n y";
+    assert(x.length == 5);
+    assert(x.offsetLineColumn(0) == LineColumn(0, 0));
+    assert(x.offsetLineColumn(1) == LineColumn(0, 1));
+}

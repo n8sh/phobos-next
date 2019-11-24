@@ -1,7 +1,7 @@
 module array_traits;
 
 /// Is `true` iff `T` is a slice of `char`s.
-enum isCharArray(T) = (is(T : const(char)[])); // TODO rename to `isCharArray`
+enum isCharArray(T) = (is(T : const(char)[]));
 
 ///
 @safe pure unittest

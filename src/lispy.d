@@ -512,6 +512,7 @@ private:
     public LineColumn offsetToLineColumn(scope const SExpr sexpr) const @trusted pure nothrow @nogc
     {
         const offset = offsetTo(sexpr.token.src);
+
         size_t cursor = offset;      // cursor
         while (cursor != 0 &&
                !(_input[cursor] == '\n' ||
@@ -519,8 +520,9 @@ private:
         {
             cursor -= 1;
         }
-        // _input[cursor] is now newline
-        return typeof(return)(0, offset-cursor);
+        const column = offset-cursor;
+
+        return typeof(return)(0, column);
     }
 
 private:

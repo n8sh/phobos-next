@@ -531,8 +531,7 @@ private:
             {
                 cursor -= 1;
                 if (cursor != 0 &&
-                    (_input[cursor] == '\n' ||
-                     _input[cursor] == '\r'))
+                    (_input[cursor] == '\r')) // DOS-style line ending
                 {
                     cursor -= 1;
                 }

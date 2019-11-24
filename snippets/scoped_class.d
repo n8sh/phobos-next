@@ -1,3 +1,7 @@
+/**
+ * See_Also: https://forum.dlang.org/post/itlbdbdnybtyheyxdunq@forum.dlang.org
+ */
+
 @safe:
 
 class C

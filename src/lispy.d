@@ -498,9 +498,29 @@ private:
         }
     }
 
-    ptrdiff_t offsetTo(scope const char[] expr) const @trusted pure nothrow @nogc
+    public ptrdiff_t offsetTo(scope const char[] expr) const @trusted pure nothrow @nogc
     {
         return expr.ptr - _input.ptr;
+    }
+
+    struct LineColumn
+    {
+        size_t line;
+        size_t column;
+    }
+
+    public LineColumn offsetToLineColumn(scope const SExpr sexpr) const @trusted pure nothrow @nogc
+    {
+        const offset = offsetTo(sexpr.token.src);
+        size_t cursor = offset;      // cursor
+        while (cursor != 0 &&
+               !(_input[cursor] == '\n' ||
+                 _input[cursor] == '\r'))
+        {
+            cursor -= 1;
+        }
+        // _input[cursor] is now newline
+        return typeof(return)(0, offset-cursor);
     }
 
 private:

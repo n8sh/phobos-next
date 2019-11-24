@@ -503,7 +503,7 @@ private:
         return expr.ptr - _input.ptr;
     }
 
-    import rowcolumn : LineColumn, offsetLineColumn;
+    import line_column : LineColumn, offsetLineColumn;
 
     // TODO factor to common code in parsing.d
     public LineColumn offsetToLineColumn(scope const SExpr sexpr) const @trusted pure nothrow @nogc

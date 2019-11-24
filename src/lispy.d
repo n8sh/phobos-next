@@ -539,7 +539,7 @@ private:
                 }
                 lineCounter += 1;
             }
-            else                // UNIX-style line endoing "\n"
+            else                // UNIX-style line ending "\n"
             {
                 cursor -= 1;
             }

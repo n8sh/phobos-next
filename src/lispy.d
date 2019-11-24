@@ -514,7 +514,7 @@ private:
     {
         const offset = offsetTo(sexpr.token.src);
 
-        // find column offset
+        // find column 0-based offset
         size_t cursor = offset;      // cursor
         while (cursor != 0 &&
                !(_input[cursor] == '\n' ||
@@ -524,7 +524,7 @@ private:
         }
         const column = offset-cursor;
 
-        // find line offset
+        // find line 0-based offset
         size_t eolCounter = 0;
         while (cursor != 0)
         {

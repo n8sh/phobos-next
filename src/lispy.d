@@ -522,7 +522,16 @@ private:
         }
         const column = offset-cursor;
 
-        return typeof(return)(0, column);
+        size_t rowCounter = 0;
+        while (cursor != 0 &&
+               !(_input[cursor] == '\n' ||
+                 _input[cursor] == '\r'))
+        {
+            cursor -= 1;
+            rowCounter -= 1;
+        }
+
+        return typeof(return)(rowCounter, column);
     }
 
 private:

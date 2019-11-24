@@ -542,7 +542,7 @@ private:
                 }
                 lineCounter += 1;
             }
-            else
+            else                // no line ending at cursor
             {
                 cursor -= 1;
             }

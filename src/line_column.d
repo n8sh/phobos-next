@@ -64,6 +64,7 @@ LineColumn offsetLineColumn(scope const char[] haystack,
     assert(x.offsetLineColumn(1) == LineColumn(1, 0));
     assert(x.offsetLineColumn(2) == LineColumn(1, 1));
     assert(x.offsetLineColumn(3) == LineColumn(2, 0));
+    assert(x.offsetLineColumn(4) == LineColumn(2, 1));
 }
 
 version(unittest)

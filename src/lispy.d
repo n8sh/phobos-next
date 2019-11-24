@@ -533,7 +533,7 @@ private:
             {
                 cursor -= 1;
                 if (cursor != 0 &&
-                    (_input[cursor] == '\r')) // DOS-style line ending
+                    (_input[cursor] == '\r')) // DOS-style line ending "\r\n"
                 {
                     cursor -= 1;
                 }

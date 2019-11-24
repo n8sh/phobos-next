@@ -509,6 +509,7 @@ private:
         size_t column;
     }
 
+    // TODO factor to common code in parsing.d
     public LineColumn offsetToLineColumn(scope const SExpr sexpr) const @trusted pure nothrow @nogc
     {
         const offset = offsetTo(sexpr.token.src);

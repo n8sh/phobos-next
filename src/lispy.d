@@ -524,7 +524,7 @@ private:
         }
         const column = offset-cursor;
 
-        // find line count
+        // find line offset
         size_t eolCounter = 0;
         while (cursor != 0)
         {

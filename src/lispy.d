@@ -539,7 +539,7 @@ private:
                 }
                 eolCounter += 1;
             }
-            else
+            else                // UNIX-style line endoing "\n"
             {
                 cursor -= 1;
             }

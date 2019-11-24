@@ -503,52 +503,12 @@ private:
         return expr.ptr - _input.ptr;
     }
 
-    struct LineColumn
-    {
-        size_t line;
-        size_t column;
-    }
+    import rowcolumn : LineColumn, offsetLineColumn;
 
     // TODO factor to common code in parsing.d
     public LineColumn offsetToLineColumn(scope const SExpr sexpr) const @trusted pure nothrow @nogc
     {
-        const offset = offsetTo(sexpr.token.src);
-
-        // find 0-based column offset
-        size_t cursor = offset;      // cursor
-        while (cursor != 0 &&        // TODO extend to support UTF-8
-               !(_input[cursor] == '\n' ||
-                 _input[cursor] == '\r'))
-        {
-            cursor -= 1;
-        }
-        const column = offset-cursor;
-
-        // find 0-based line offset
-        size_t lineCounter = 0;
-        while (cursor != 0)
-        {
-            if (_input[cursor] == '\n' ||
-                _input[cursor] == '\r')
-            {
-                cursor -= 1;
-                if (cursor != 0 &&
-                    (_input[cursor] == '\r')) // DOS-style line ending "\r\n"
-                {
-                    cursor -= 1;
-                }
-                else            // UNIX-style line ending "\n"
-                {
-                }
-                lineCounter += 1;
-            }
-            else                // no line ending at cursor
-            {
-                cursor -= 1;
-            }
-        }
-
-        return typeof(return)(lineCounter, column);
+        return offsetLineColumn(_input, offsetTo(sexpr.token.src));
     }
 
 private:

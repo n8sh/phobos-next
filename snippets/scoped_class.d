@@ -12,6 +12,17 @@ class C
     int x;
 }
 
+C leakClass() @safe pure nothrow
+{
+    scope x = new C(42);
+    return x;
+}
+
+@safe pure nothrow unittest
+{
+    auto x = leakClass();
+}
+
 @trusted unittest
 {
     C f()
@@ -22,15 +33,4 @@ class C
     }
     auto c = f();
     c.x = 42;                   // invalid memory access
-}
-
-C leakClass() @safe pure nothrow
-{
-    scope x = new C(42);
-    return x;
-}
-
-@safe pure nothrow unittest
-{
-    auto x = leakClass();
 }

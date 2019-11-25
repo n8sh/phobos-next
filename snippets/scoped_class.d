@@ -15,7 +15,7 @@ class C
 C leakClass() @safe pure nothrow
 {
     scope x = new C(42);
-    return x;
+    return x;                   // Error: scope variable `x` may not be returned
 }
 
 @safe pure nothrow unittest

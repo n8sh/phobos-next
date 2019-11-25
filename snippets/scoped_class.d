@@ -6,7 +6,7 @@
 
 class C
 {
-@safe pure:
+    @safe pure nothrow @nogc:
     this(int x)
     {
         this.x = x;
@@ -26,13 +26,13 @@ class C
     c.x = 42;                   // invalid memory access
 }
 
-C leakClass() @safe pure
+C leakClass() @safe pure nothrow
 {
     scope x = new C(42);
     return x;
 }
 
-@safe pure unittest
+@safe pure nothrow unittest
 {
     auto x = leakClass();
 }

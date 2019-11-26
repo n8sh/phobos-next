@@ -6,7 +6,7 @@ class Long
 {
     @safe:
 
-    @property void toString(scope void delegate(const(char)[]) @safe sink) const
+    @property void toString(scope void delegate(scope const(char)[]) @safe sink) const
     {
         import std.conv : to;
         sink(_data.to!(string));

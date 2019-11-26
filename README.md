@@ -10,7 +10,8 @@ It includes various kinds of
 
 ## Containers
 - Trie in `trie.d`.
-- Basic uncopyable array with explicit copying via `.dup`: `basic_array.d`,
+- Basic uncopyable array with value semantics and explicit copying via `.dup`:
+  `basic_array.d`, Wrap in std.typecons.RefCounter for reference semantics.
 - Bit array: `bitarray.d`.
 - Combined hashset and hashmap with open addressing: `open_hashmap_or_hashset.d`.
 - Cyclic arry: `cyclic_array.d`.

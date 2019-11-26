@@ -27,8 +27,8 @@ module nxt.sso_string;
 struct SSOString
 {
     private alias E = char;     // element type
-
-    @property void toString(scope void delegate(const(E)[]) @safe sink) const @trusted
+@safe:
+    @property void toString(scope void delegate(const(E)[]) @safe sink) const
     {
         sink(opSlice());        // opSlice is @trusted here
     }

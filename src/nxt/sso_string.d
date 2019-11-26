@@ -27,13 +27,15 @@ module nxt.sso_string;
 struct SSOString
 {
     private alias E = char;     // element type
+
 @safe:
+
     @property void toString(scope void delegate(const(E)[]) @safe sink) const
     {
         sink(opSlice());        // opSlice is @trusted here
     }
 
-    pure:
+pure:
 
     /** Return `this` lowercased. */
     typeof(this) toLower()() const @trusted // template-lazy

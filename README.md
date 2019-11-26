@@ -6,7 +6,7 @@ Most definitions are probably generic enough to be part of Phobos.
 
 See_Also: http://forum.dlang.org/post/tppptevxiygafzpicmgz@forum.dlang.org
 
-It includes various kinds of
+Includes
 
 ## Containers
 - Trie in `trie.d`.

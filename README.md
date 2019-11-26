@@ -14,7 +14,7 @@ Includes
   copying via `.dup`.
 - `bitarray.d`: Bit array.
 - `open_hashmap_or_hashset.d`: Combined hashset and hashmap with open addressing.
-- `cyclic_array.d`: Cyclic arry.
+- `cyclic_array.d`: Cyclic array.
 - `filterarray.d`: Filter array.
 - `fixed_array.d`: Fixed-sized statically allocated (heap) array similar to C++ `std::array`.
 - `fixed_dynamic_array.d`: Fixed-sized heap-allocated array.

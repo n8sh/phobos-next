@@ -19,6 +19,8 @@ Includes
 - Statically allocated array similar to C++ `std::static_array`: `fixed_array.d`
 - Dynamically allocated (heap) array of fixed length: `fixed_dynamic_array.d`
 - A fixed-size (statically stack-allocated) variant of `bitarray.d` in `static_bitarray.d`.
+- Minimalistic fixed-length (static) array with length fitting in an `ubyte` for
+compact packing: `minimal_fixed_array.d`.
 - ...
 
 ## Wrapper types

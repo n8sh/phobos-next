@@ -1,11 +1,11 @@
 module nxt.tree;
 
 /** N-ary tree that cannot shrink but only grow (in breadth and depth).
-
-    Because of this a region allocator can be used for internal memory
-    allocation.
-
-    See_Also: http://forum.dlang.org/post/prsxfcmkngfwomygmthi@forum.dlang.org
+ *
+ * Because of this a region allocator can be used for internal memory
+ * allocation.
+ *
+ * See_Also: http://forum.dlang.org/post/prsxfcmkngfwomygmthi@forum.dlang.org
  */
 struct GrowOnlyNaryTree(E)
 {

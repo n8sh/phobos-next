@@ -1175,7 +1175,7 @@ struct StaticBitArray(uint length_, Block = size_t)
      * $(LI $(B %b) which prints the bits as 8-bit byte packets)
      * separated with an underscore.
      */
-    void toString(scope void delegate(const(char)[]) sink,
+    void toString(scope void delegate(scope const(char)[]) sink,
                   FormatSpec!char fmt) const @trusted
     {
         switch(fmt.spec)
@@ -1200,7 +1200,7 @@ struct StaticBitArray(uint length_, Block = size_t)
         assert(s2 == "00001111_00001111");
     }
 
-    private void formatBitString()(scope void delegate(const(char)[]) sink) const @trusted
+    private void formatBitString()(scope void delegate(scope const(char)[]) sink) const @trusted
     {
         import std.range.primitives : put;
 
@@ -1231,7 +1231,7 @@ struct StaticBitArray(uint length_, Block = size_t)
         }
     }
 
-    private void formatBitSet()(scope void delegate(const(char)[]) sink) const @trusted
+    private void formatBitSet()(scope void delegate(scope const(char)[]) sink) const @trusted
     {
         sink("[");
         foreach (immutable ix; 0 .. length_)

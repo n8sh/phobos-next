@@ -152,7 +152,7 @@ struct Point(E, uint D)
     E[D] _point;
     enum dimension = D;
 
-    @property void toString(scope void delegate(const(char)[]) sink) const
+    @property void toString(scope void delegate(scope const(char)[]) sink) const
     {
         import std.format : formattedWrite;
         sink.formattedWrite("Point(%s)", _point);
@@ -281,7 +281,7 @@ struct Vector(E, uint D,
         string joinString()() { return orient == Orient.column ? ` \\ ` : ` & `; }
     }
 
-    @property void toString(scope void delegate(const(char)[]) sink) const
+    @property void toString(scope void delegate(scope const(char)[]) sink) const
     {
         import std.format : formattedWrite;
         sink(orientationString);
@@ -1010,7 +1010,7 @@ struct Matrix(E, uint rows_, uint cols_,
 
     /// Returns: The current _matrix formatted as flat string.
 
-    @property void toString(scope void delegate(const(char)[]) sink) const
+    @property void toString(scope void delegate(scope const(char)[]) sink) const
     {
         import std.format : formattedWrite;
         sink.formattedWrite("Matrix(%s)", _matrix);
@@ -1341,7 +1341,7 @@ struct SpherePoint3(E)
     E[D] _spherePoint;
     enum dimension = D;
 
-    @property void toString(scope void delegate(const(char)[]) sink) const
+    @property void toString(scope void delegate(scope const(char)[]) sink) const
     {
         import std.format : formattedWrite;
         sink.formattedWrite("SpherePoint3(%s)", _spherePoint);
@@ -1434,7 +1434,7 @@ struct Box(E, uint D)
     this(Vector!(E,D) l_,
          Vector!(E,D) h_) { min = l_; max = h_; }
 
-    @property void toString(scope void delegate(const(char)[]) sink) const
+    @property void toString(scope void delegate(scope const(char)[]) sink) const
     {
         import std.format : formattedWrite;
         sink.formattedWrite("Box(lower:%s, upper:%s)", min, max);
@@ -1560,7 +1560,7 @@ struct Plane(E, uint D)
     }
     E distance;                  /// Plane Constant (Offset from origo).
 
-    @property void toString(scope void delegate(const(char)[]) sink) const
+    @property void toString(scope void delegate(scope const(char)[]) sink) const
     {
         import std.format : formattedWrite;
         sink.formattedWrite("Plane(normal:%s, distance:%s)", normal, distance);

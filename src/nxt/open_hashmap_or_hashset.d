@@ -3396,7 +3396,7 @@ version(unittest)
             return _value;
         }
 
-        @property void toString(scope void delegate(const(char)[]) sink) const
+        @property void toString(scope void delegate(scope const(char)[]) sink) const
         {
             import std.format : formattedWrite;
             sink.formattedWrite(typeof(this).stringof, "(%s)", _value);

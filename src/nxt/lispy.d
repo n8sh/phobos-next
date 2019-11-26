@@ -49,7 +49,7 @@ struct Token
         this.tok = tok;
         this.src = src;
     }
-    @property final void toString(scope void delegate(const(char)[]) sink) const @trusted
+    @property final void toString(scope void delegate(scope const(char)[]) sink) const @trusted
     {
         switch (tok)
         {
@@ -93,7 +93,7 @@ struct SExpr
 {
     Token token;
     SExpr[] subs;
-    @property final void toString(scope void delegate(const(char)[]) sink) const @trusted
+    @property final void toString(scope void delegate(scope const(char)[]) sink) const @trusted
     {
         if (subs) { sink(`(`); }
 

@@ -12,7 +12,7 @@ struct PossiblePythagoreanTriples(T)
     {
         T x, y, z;
         version(none)
-        @property void toString(scope void delegate(const(char)[]) @safe sink) const @safe
+        @property void toString(scope void delegate(scope const(char)[]) @safe sink) const @safe
         {
             import std.conv : to;
             sink(x.to!string);

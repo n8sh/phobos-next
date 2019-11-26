@@ -17,7 +17,7 @@ struct UTCOffset
     static immutable quarterValues = [00, 15, 30, 45];
     static immutable quarterNames = ["00", "15", "30", "45"];
 
-    @property void toString(scope void delegate(const(char)[]) sink) const @trusted
+    @property void toString(scope void delegate(scope const(char)[]) sink) const @trusted
     {
         if (isDefined)
         {

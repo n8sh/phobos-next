@@ -90,7 +90,7 @@ public:
         }
     }
 
-    @property void toString()(scope void delegate(const(char)[]) sink) const // template-lazy. TODO pure
+    @property void toString()(scope void delegate(scope const(char)[]) sink) const // template-lazy. TODO pure
     {
         import std.format : formattedWrite;
         if (!hasValue) { return sink("<Uninitialized LightAlgebraic>"); }
@@ -106,7 +106,7 @@ public:
     }
 
     /** Returns: $(D this) as a HTML-tagged $(D string). */
-    @property void toHTML()(scope void delegate(const(char)[]) sink) const // template-lazy. TODO pure
+    @property void toHTML()(scope void delegate(scope const(char)[]) sink) const // template-lazy. TODO pure
     {
         // wrap information in HTML tags with CSS propertie
         immutable tag = `dlang-` ~ typeName;

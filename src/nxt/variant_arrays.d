@@ -116,7 +116,7 @@ private struct VariantRef(DefinedTypes...)
         return nrOfKind!(SomeKind) == _kindNr;
     }
 
-    @property void toString(scope void delegate(const(char)[]) sink) const @trusted
+    @property void toString(scope void delegate(scope const(char)[]) sink) const @trusted
     {
         import std.format : formattedWrite;
         if (isDefined)

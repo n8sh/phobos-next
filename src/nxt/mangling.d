@@ -88,7 +88,7 @@ struct CxxType
     byte pointyness = 0;           // pointer level
     CXXCVQualifiers cvQ;
 
-    @property void toString(scope void delegate(const(char)[]) sink) const
+    @property void toString(scope void delegate(scope const(char)[]) sink) const
     {
         if (cvQ.isVolatile) { sink("volatile "); }
         if (cvQ.isRestrict) { sink("restrict "); }
@@ -633,7 +633,7 @@ struct CXXCVQualifiers
                 isConst);
     }
 
-    @property void toString(scope void delegate(const(char)[]) sink) const
+    @property void toString(scope void delegate(scope const(char)[]) sink) const
     {
         if (isRestrict) sink(`restrict `);
         if (isVolatile) sink(`volatile `);

@@ -480,7 +480,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     {
         /** Construct a string representation of `this` at `sink`.
          */
-        void toString()(scope void delegate(const(char)[]) sink) const scope // template-lazy
+        void toString()(scope void delegate(scope const(char)[]) sink) const scope // template-lazy
         {
             sink("[");
             foreach (immutable ix, ref value; slice())

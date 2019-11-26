@@ -18,9 +18,10 @@ Includes
 - `filterarray.d`: Filter array.
 - `fixed_array.d`: Statically allocated array similar to C++ `std::array`.
 - `fixed_dynamic_array.d`: Dynamically allocated (heap) array of fixed length.
-- A fixed-size (statically stack-allocated) variant of `bitarray.d` in `static_bitarray.d`.
-- Minimalistic fixed-length (static) array with length fitting in an `ubyte` for
-compact packing: `minimal_fixed_array.d`.
+- `bitarray.d`: A dynamically-sized (heap-allocated) bit array.
+- `static_bitarray.d`: A statically-size (stack-allocated) bit array.
+- `minimal_fixed_array.d`: Minimalistic statically-sized array with length
+fitting in an `ubyte` for compact packing.
 - ...
 
 For reference semantics wrap uncopyable containers in `std.typecons.RefCounter`.

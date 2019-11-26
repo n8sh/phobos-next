@@ -16,7 +16,7 @@ Includes
 - `open_hashmap_or_hashset.d`: Combined hashset and hashmap with open addressing.
 - `cyclic_array.d`: Cyclic arry.
 - `filterarray.d`: Filter array.
-- `fixed_array.d`: Statically allocated array similar to C++ `std::array`.
+- `fixed_array.d`: Fixed-sized statically allocated (heap) array similar to C++ `std::array`.
 - `fixed_dynamic_array.d`: Fixed-sized heap-allocated array.
 - `bitarray.d`: A dynamically-sized (heap) bit array.
 - `static_bitarray.d`: A statically-size (stack) bit array.

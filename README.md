@@ -26,15 +26,15 @@ compact packing: `minimal_fixed_array.d`.
 For reference semantics wrap uncopyable containers in `std.typecons.RefCounter`.
 
 ## Wrapper types
-- A wrapper for bounded types: `bound.d`
-- Enhanced `NotNull`: `notnull.d`
-- A structured wrapper for message digests: `digest_ex.d`
+- `bound.d`: A wrapper for bounded types.
+- `notnull.d`: Enhanced `NotNull`.
+- `digest_ex.d`: A structured wrapper for message digests.
 - ...
 
 ## Algorithms
 
-- Integer sorting algorithms, including radix sort: `integer_sorting.d`
-- Boyer-Moore-Hoorspool search: `horspool.d`
+- `integer_sorting.d`: Integer sorting algorithms, including radix sort.
+- `horspool.d`: Boyer-Moore-Hoorspool search.
 - ...
 
 ## Utilities

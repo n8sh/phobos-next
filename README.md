@@ -23,7 +23,7 @@ It includes various kinds of
 
 ## Utilities
 
-- Clever printing of groups of arrays/slices: `show.d`
+- Debug printing: `dbg.d`
 - Symbol regex (structured regular expressions similar to elisps rx): `symbolic.d`
 
 - An n-gram implementation (many nested for loops): `ngram.d`

@@ -26,9 +26,9 @@ module nxt.sso_string;
  */
 struct SSOString
 {
-    private alias E = char;     // element type
-
 @safe:
+
+    private alias E = char;     // element type
 
     @property void toString(scope void delegate(const(E)[]) @safe sink) const
     {

@@ -10,7 +10,7 @@ It includes various kinds of
 
 ## Containers
 - Trie in `trie.d`.
-- Basic C++-style (uncopyable) arrays with explicit copying via `.dup`: `basic_array.d`,
+- Basic uncopyable array with explicit copying via `.dup`: `basic_array.d`,
 - Bit array: `bitarray.d`.
 - Combined hashset and hashmap with open addressing: `open_hashmap_or_hashset.d`.
 - Cyclic arry: `cyclic_array.d`.

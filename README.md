@@ -13,7 +13,10 @@ Includes
 - `basic_array.d`: Basic uncopyable array with value semantics and explicit
   copying via `.dup`.
 - `bitarray.d`: Bit array.
-- `open_hashmap_or_hashset.d`: Combined hashset and hashmap with open addressing.
+- `open_hashmap_or_hashset.d`: Combined hashset and hashmap with open addressing
+  and support for deletion via hole handling. Pointers and classes are stored as
+  is with support for vacancy and hole handling. Vacancy support for
+  `std.typecons.Nullable`.
 - `cyclic_array.d`: Cyclic array.
 - `filterarray.d`: Filter array.
 - `fixed_array.d`: Fixed-sized statically allocated (heap) array similar to C++ `std::array`.

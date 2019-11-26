@@ -1,6 +1,6 @@
 import std.traits : isIntegral;
 import std.meta : AliasSeq, NoDuplicates, anySatisfy, allSatisfy;
-import traits_ex : allSame, allSameIterative, allSameTypeIterative, allSameTypeRecursive, allSameTypeHybrid, anySatisfyIterative, allSatisfyIterative;
+import nxt.traits_ex : allSame, allSameIterative, allSameTypeIterative, allSameTypeRecursive, allSameTypeHybrid, anySatisfyIterative, allSatisfyIterative;
 
 struct W(T, size_t n)
 {

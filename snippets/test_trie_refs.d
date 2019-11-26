@@ -1,9 +1,9 @@
 #!/usr/bin/env rdmd
 
 import std.algorithm.comparison : equal;
-import dbgio : dbg;
+import nxt.dbgio : dbg;
 import std.stdio : writeln;
-import trie : RadixTreeSetGrowOnly;
+import nxt.trie : RadixTreeSetGrowOnly;
 
 alias Tree = RadixTreeSetGrowOnly!string;
 

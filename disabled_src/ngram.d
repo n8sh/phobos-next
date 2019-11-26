@@ -9,16 +9,16 @@
     TODO Remove overloads using std.string:representation and use sparse maps
     over dchar for strings.
 */
-module ngram;
+module nxt.ngram;
 
-import static_bitarray;
+import nxt.static_bitarray;
 import std.range: InputRange, ElementType, isInputRange;
 import std.traits: isSomeChar, isUnsigned, isIntegral, isFloatingPoint, Unqual, isStaticArray, isIterable, isAssociativeArray, CommonType;
 import std.stdint: uint64_t;
 import std.typecons: Tuple, tuple;
-import predicates: allZero, allEqualTo;
-import nesses: denseness;
-import rational: Rational;
+import nxt.predicates: allZero, allEqualTo;
+import nxt.nesses: denseness;
+import nxt.rational: Rational;
 // import msgpack;
 import std.numeric: dotProduct;
 import std.string: representation;
@@ -263,7 +263,7 @@ struct NGram(ValueType,
 
     void reset() @safe nothrow
     {
-        import algorithm_ex: reset;
+        import nxt.algorithm_ex: reset;
         _bins.reset();
     }
     // alias reset = clear;

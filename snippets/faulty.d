@@ -1,4 +1,4 @@
-module faulty;
+module nxt.faulty;
 
 auto identity(T)(T x)
 {

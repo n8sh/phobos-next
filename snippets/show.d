@@ -1,6 +1,6 @@
-module show;
+module nxt.show;
 
-import algorithm_ex: overlap;
+import nxt.algorithm_ex: overlap;
 
 /** Show Format. */
 enum Format { Text, HTML, };

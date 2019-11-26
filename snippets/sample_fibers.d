@@ -1,4 +1,4 @@
-module sample_fibers;
+module nxt.sample_fibers;
 
 import core.thread: Fiber;
 

@@ -3,7 +3,7 @@
 void main(string[] args)
 {
     import std.algorithm.comparison : equal;
-    import trie : RadixTreeSetGrowOnly;
+    import nxt.trie : RadixTreeSetGrowOnly;
     import std.stdio : writeln;
 
     struct S

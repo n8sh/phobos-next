@@ -1,7 +1,7 @@
 /** Decoding Algorithms.
     See_Also: https://forum.dlang.org/post/na7ov2$1np5$1@digitalmars.com
 */
-module decoding;
+module nxt.decoding;
 
 import std.stdio;
 import std.string;

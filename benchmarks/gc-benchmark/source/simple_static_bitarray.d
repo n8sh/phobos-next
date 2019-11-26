@@ -1,7 +1,7 @@
 /**
  * Static bit array container for internal usage.
  */
-module simple_static_bitarray;
+module nxt.simple_static_bitarray;
 
 static private alias Block = size_t;
 
@@ -65,7 +65,7 @@ struct StaticBitArray(uint length_)
      */
     size_t indexOfFirstZero()() const
     {
-        import bitarray_algorithm;
+        import nxt.bitarray_algorithm;
         enum bool blockAlignedLength = length_ % (8*Block.sizeof) == 0;
         return bitarray_algorithm.indexOfFirstZero!(const(Block)[blockCount],
                                                     blockAlignedLength)(_blocks, length);
@@ -77,7 +77,7 @@ struct StaticBitArray(uint length_)
      */
     size_t indexOfFirstOne()() const
     {
-        import bitarray_algorithm;
+        import nxt.bitarray_algorithm;
         enum bool blockAlignedLength = length_ % (8*Block.sizeof) == 0;
         return bitarray_algorithm.indexOfFirstOne!(const(Block)[blockCount],
                                                    blockAlignedLength)(_blocks, length);
@@ -93,18 +93,18 @@ struct StaticBitArray(uint length_)
 
     StaticBitArray!(length) x;
     static assert(x.blockCount == blockCount);
-    
+
     assertThrown!AssertError(x[length] = false);
 
     x[length/2 - 1] = true;
     assert(x[length/2 - 1]);
-    
+
     x[length/2 - 1] = false;
     assert(!x[length/2 - 1]);
 
     x[length - 1] = true;
     assert(x[length - 1]);
-    
+
     x[length - 1] = false;
     assert(!x[length - 1]);
 }
@@ -123,7 +123,7 @@ struct StaticBitArray(uint length_)
             const n = 2 * 8*Block.sizeof + 1;
         }
         alias BA = StaticBitArray!(n);
-        
+
         auto a = BA();
 
         a[0] = false;
@@ -149,7 +149,7 @@ struct StaticBitArray(uint length_)
             const n = 2 * 8*Block.sizeof + 1;
         }
         alias BA = StaticBitArray!(n);
-        
+
         auto a = BA();
 
         a[0] = true;

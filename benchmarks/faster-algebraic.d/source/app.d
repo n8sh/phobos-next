@@ -3,7 +3,7 @@ void main(string[] args)
     import std.datetime.stopwatch : benchmark;
     import std.meta : AliasSeq;
     import std.variant : Algebraic;
-    import vary;
+    import nxt.vary;
     import std.stdio : writeln;
 
     alias Types = AliasSeq!(long, double);

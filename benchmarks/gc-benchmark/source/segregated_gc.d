@@ -4,7 +4,7 @@
  * License:   $(HTTP www.boost.org/LICENSE_1_0.txt, Boost License 1.0).
  * Authors:   Per Nordlöw
  */
-module segregated_gc;
+module nxt.segregated_gc;
 
 private static void *os_mem_map(size_t nbytes) nothrow @nogc
 {   void *p;
@@ -25,8 +25,8 @@ private static int os_mem_unmap(void *base, size_t nbytes) nothrow @nogc
 import core.gc.config;
 import core.gc.gcinterface;
 
-import paged_dynamic_array : Array = PagedDynamicArray;
-import simple_static_bitarray : StaticBitArray;
+import nxt.paged_dynamic_array : Array = PagedDynamicArray;
+import nxt.simple_static_bitarray : StaticBitArray;
 
 import core.stdc.stdio: printf;
 import cstdlib = core.stdc.stdlib : calloc, free, malloc, realloc;

@@ -26,7 +26,7 @@ DEALINGS IN THE SOFTWARE.
 
 ****************/
 
-module rational;
+module nxt.rational;
 
 template Tpl(T...){alias T Tpl;}
 

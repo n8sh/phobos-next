@@ -1,4 +1,4 @@
-module attr;
+module nxt.attr;
 
 struct sillyWalk { int i; }
 

@@ -3,7 +3,7 @@
  * See_Also: http://ddili.org/ders/d.en/fibers.html
  * See_Also: https://dlang.org/migrate-to-shared.html#shared
  */
-module fibers;
+module nxt.fibers;
 
 template isFiberParameter(T)
 {

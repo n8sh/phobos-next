@@ -1,4 +1,4 @@
-module fibonacci_heap;
+module nxt.fibonacci_heap;
 
 struct Node(V)
 {

@@ -9,7 +9,7 @@
 
    TODO reuse `IndexedBy` `Cells` and `CellIx`
 */
-module nevo;
+module nxt.nevo;
 
 @safe pure:
 
@@ -277,13 +277,13 @@ enum Gop
 import std.bitmanip : BitArray;
 import std.random : Random, uniform;
 
-import basic_array : BasicArray;
-import basic_array : BasicArray;
+import nxt.basic_array : BasicArray;
+import nxt.basic_array : BasicArray;
 
-import typecons_ex : IndexedBy;
-import owned : Owned;
+import nxt.typecons_ex : IndexedBy;
+import nxt.owned : Owned;
 
-import vary : FastAlgebraic;
+import nxt.vary : FastAlgebraic;
 
 alias Data = FastAlgebraic!(long, double);
 alias Datas = Owned!(BasicArray!Data);

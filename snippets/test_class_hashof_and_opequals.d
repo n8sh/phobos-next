@@ -1,4 +1,4 @@
-module test_class_hash;
+module nxt.test_class_hash;
 
 import core.internal.hash : hashOf;
 

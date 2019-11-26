@@ -1,6 +1,6 @@
 /** Helper to import useful Phobos packages.
     */
-module all;
+module nxt.all;
 
 /* std */
 public import std.algorithm;

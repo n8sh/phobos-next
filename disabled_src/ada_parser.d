@@ -4,7 +4,7 @@
     Authors: $(WEB Per Nordlöw)
     See_Also: https://mentorembedded.github.io/cxx-abi/abi.html
  */
-module ada;
+module nxt.ada;
 
 import std.range: empty, popFront, popFrontExactly, take, drop, front, takeOne, moveFront, repeat, replicate, isInputRange;
 import std.algorithm: startsWith, findSplitAfter, skipOver, joiner, min;
@@ -14,8 +14,8 @@ import std.ascii: isDigit;
 import std.array: array;
 import std.stdio;
 import std.traits: isSomeString, isSomeChar;
-import algorithm_ex: moveWhile, moveUntil, either;
-import ada_lexer;
+import nxt.algorithm_ex: moveWhile, moveUntil, either;
+import nxt.ada_lexer;
 
 /** Ada Parser. */
 class Parser(R) if (isSomeString!R)

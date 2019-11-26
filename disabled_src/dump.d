@@ -2,7 +2,7 @@
  *
  * See_Also: https://github.com/dlang/phobos/pull/4318
  */
-module dump;
+module nxt.dump;
 
 import std.exception : enforce;
 import std.traits : isCallable, ReturnType;

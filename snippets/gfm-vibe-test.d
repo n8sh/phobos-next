@@ -9,7 +9,7 @@ import std.typecons,
 
 import vibe.d;
 
-import fs;
+import nxt.fs;
 
 import std.stdio;
 import std.concurrency: spawn;

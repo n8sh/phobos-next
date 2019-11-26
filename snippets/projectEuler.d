@@ -1,4 +1,4 @@
-module projectEuler;
+module nxt.projectEuler;
 
 /** Solve Euler Problem 2.
     See_Also: https://www.reddit.com/r/programming/comments/rif9x/uniform_function_call_syntax_for_the_d/

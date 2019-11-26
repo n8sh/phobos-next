@@ -1,4 +1,4 @@
-import lispy;
+import nxt.lispy;
 
 import std.path : expandTilde;
 import std.stdio : write, writeln;
@@ -9,7 +9,7 @@ import std.utf;
 import std.algorithm.searching : canFind;
 import std.path : pathSplitter;
 
-import array_algorithm : endsWith;
+import nxt.array_algorithm : endsWith;
 
 /** Read all SUO-KIF files (.kif) located under `rootDirPath`.
  */

@@ -4,7 +4,7 @@ void main()
 {
     import std.algorithm.comparison : equal;
     import std.algorithm : filter;
-    import trie : radixTreeSet;
+    import nxt.trie : radixTreeSet;
 
     alias Key = int;
     auto set = radixTreeSet!Key;

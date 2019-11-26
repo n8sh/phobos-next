@@ -1,4 +1,4 @@
-module priority_queue;
+module nxt.priority_queue;
 
 /** Priority Queue.
     `P` is Priority Type. Lower priority means higher precedence in queue.

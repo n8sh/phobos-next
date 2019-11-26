@@ -1,6 +1,6 @@
 #!/usr/bin/env rdmd-dev
 
-import fs;
+import nxt.fs;
 import backtrace.backtrace;
 
 void main(string[] args)

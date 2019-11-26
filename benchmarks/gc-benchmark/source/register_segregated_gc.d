@@ -1,7 +1,7 @@
 // See_Also: https://dlang.org/spec/garbage.html#gc_registry
 
 import core.gc.gcinterface, core.gc.registry;
-import segregated_gc;
+import nxt.segregated_gc;
 
 version(segregated_gc)
 {

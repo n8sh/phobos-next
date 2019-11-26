@@ -8,7 +8,7 @@ Source:    $(PHOBOSSRC std/_benchmark.d)
 
 Synopsis:
 ----
-module module_one;
+module nxt.module_one;
 import std.benchmark, std.file;
 
 void benchmark_fileWrite()
@@ -519,7 +519,7 @@ and `printBenchmarks` distinguishes each visually.
 
 Example:
 ---
-module acme;
+module nxt.acme;
 import std.file, std.array;
 
 void benchmark_fileWrite()

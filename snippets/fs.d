@@ -118,7 +118,7 @@
 
    TODO Make use of @nonPacked in version(msgpack).
 */
-module fs;
+module nxt.fs;
 
 version = msgpack; // Use msgpack serialization
 /* version = cerealed; // Use cerealed serialization */
@@ -139,38 +139,38 @@ import std.experimental.allocator;
 import std.functional: memoize;
 import std.complex: Complex;
 
-import predicates: isUntouched;
+import nxt.predicates: isUntouched;
 
 import core.memory: GC;
 import core.exception;
 
-import traits_ex;
-import getopt_ex;
-import digest_ex;
-import algorithm_ex;
-import codec;
-import csunits;
+import nxt.traits_ex;
+import nxt.getopt_ex;
+import nxt.digest_ex;
+import nxt.algorithm_ex;
+import nxt.codec;
+import nxt.csunits;
 alias Bytes64 = Bytes!ulong;
 import arsd.terminal : Color;
-import symbolic;
-import static_bitarray;
-import dbgio;
-import tempfs;
-import rational: Rational;
-import ngram;
-import notnull;
-import pretty;
+import nxt.symbolic;
+import nxt.static_bitarray;
+import nxt.dbgio;
+import nxt.tempfs;
+import nxt.rational: Rational;
+import nxt.ngram;
+import nxt.notnull;
+import nxt.pretty;
 
-import geometry;
-import random_ex;
-import mathml;
-import mangling;
-import lingua;
-import attributes;
-import find_ex;
+import nxt.geometry;
+import nxt.random_ex;
+import nxt.mathml;
+import nxt.mangling;
+import nxt.lingua;
+import nxt.attributes;
+import nxt.find_ex;
 
-import elf;
-import typedoc;
+import nxt.elf;
+import nxt.typedoc;
 import lock_free.rwqueue;
 
 /* NGram Aliases */
@@ -1366,7 +1366,7 @@ class RegFile : File
                      * Write automatic parallelizing library for this? */
                     foreach (elt; chunk)
                     {
-                        import bitop_ex: bt;
+                        import nxt.bitop_ex: bt;
                         isASCII = isASCII && !elt.bt(7); // ASCII has no topmost bit set
                     }
                 }
@@ -2306,7 +2306,7 @@ class GStats
         txtFKinds ~= kindFortan;
 
         // Ada
-        import ada_defs;
+        import nxt.ada_defs;
         static immutable keywordsAda83 = ada_defs.keywords83;
         static immutable keywordsAda95 = keywordsAda83 ~ ada_defs.keywordsNew95;
         static immutable keywordsAda2005 = keywordsAda95 ~ ada_defs.keywordsNew2005;
@@ -5061,7 +5061,7 @@ class Scanner(Term)
                      const string[] keys,
                      GStats gstats)
     {
-        import elfdoc: sectionNameExplanations;
+        import nxt.elfdoc: sectionNameExplanations;
         /* TODO Add mouse hovering help for sectionNameExplanations[section] */
         dbg("before: ", elfFile);
         ELF decoder = ELF.fromFile(elfFile._mmfile);
@@ -5101,7 +5101,7 @@ class Scanner(Term)
         auto sst = decoder.getSymbolsStringTable;
         if (!sst.isNull)
         {
-            import algorithm_ex: findFirstOfAnyInOrder;
+            import nxt.algorithm_ex: findFirstOfAnyInOrder;
             import std.range : tee;
 
             auto scan = (sst.strings
@@ -5224,7 +5224,7 @@ class Scanner(Term)
                 const binKindHit = binHit[0];
                 if (binKindHit)
                 {
-                    import numerals: toOrdinal;
+                    import nxt.numerals: toOrdinal;
                     const nnKind = binHit[1].enforceNotNull;
                     const kindIndex = binHit[2];
                     if (_showSkipped)

@@ -9,23 +9,23 @@ void main()
     import std.container.rbtree : RedBlackTree;
 
     // my containers
-    import basic_array : BasicArray;
-    import array_help : toUbytes;
-    import variant_arrays : VariantArrays;
-    import sso_hashmap_or_hashset : SSOHashSet, SSOHashMap;
-    import open_hashmap_or_hashset : OpenHashMap, OpenHashSet;
-    import sso_string : SSOString;
+    import nxt.basic_array : BasicArray;
+    import nxt.array_help : toUbytes;
+    import nxt.variant_arrays : VariantArrays;
+    import nxt.sso_hashmap_or_hashset : SSOHashSet, SSOHashMap;
+    import nxt.open_hashmap_or_hashset : OpenHashMap, OpenHashSet;
+    import nxt.sso_string : SSOString;
 
     import std.digest.murmurhash : MurmurHash3;
-    import xxhash64 : XXHash64;
-    import hash_functions;
+    import nxt.xxhash64 : XXHash64;
+    import nxt.hash_functions;
     import digestx.fnv : FNV;
 
-    import filters : DenseSetFilter;
-    import filterarray : DenseSetFilterGrowableArray;
+    import nxt.filters : DenseSetFilter;
+    import nxt.filterarray : DenseSetFilterGrowableArray;
 
     import std.typecons : Nullable;
-    import trie : RadixTreeSetGrowOnly;
+    import nxt.trie : RadixTreeSetGrowOnly;
 
     import std.stdio : write, writeln, writef, writefln;
     import std.datetime : MonoTime;
@@ -468,7 +468,7 @@ T[] iotaArrayOf(T, U)(U n)
         }
         else
         {
-            import sso_string : SSOString;
+            import nxt.sso_string : SSOString;
             static if (is(T == SSOString))
             {
                 es[i] = T(i.to!string);     // otherwise conv which may allocate

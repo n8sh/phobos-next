@@ -34,7 +34,7 @@
     TODO Remove explicit moves when DMD std.algorithm.mutation.move calls these
     members for us (if they exist)
  */
-module array_ex;
+module nxt.array_ex;
 
 /// Array element ordering.
 enum Ordering
@@ -54,11 +54,11 @@ version(unittest)
     import std.conv : to;
     import std.meta : AliasSeq;
     import core.internal.traits : Unqual;
-    import dbgio : dbg;
-    import array_help : s;
+    import nxt.dbgio : dbg;
+    import nxt.array_help : s;
 }
 
-import container_traits : ContainerElementType, needsMove;
+import nxt.container_traits : ContainerElementType, needsMove;
 
 /// Is `true` iff `C` is an instance of an `Array` container.
 template isArrayContainer(C)
@@ -106,7 +106,7 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
 
-    import qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
+    import nxt.qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
 
     private template shouldAddGCRange(T)
     {
@@ -959,7 +959,7 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
             }
             else
             {
-                import overlapping : overlaps;
+                import nxt.overlapping : overlaps;
                 if (this.ptr == values[].ptr) // called for instances as: `this ~= this`
                 {
                     reserve(2*this.length);
@@ -1112,7 +1112,7 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
             {
                 static if (values.length == 1) // faster because `contains()` followed by `completeSort()` searches array twice
                 {
-                    import searching_ex : containsStoreIndex;
+                    import nxt.searching_ex : containsStoreIndex;
                     size_t index;
                     if (slice.assumeSorted!comp.containsStoreIndex!sp(values, index)) // faster than `completeSort` for single value
                     {
@@ -1175,7 +1175,7 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
                 // TODO add optimization for values.length == 2
                 static if (values.length == 1)
                 {
-                    import searching_ex : containsStoreIndex;
+                    import nxt.searching_ex : containsStoreIndex;
                     size_t index;
                     if (!slice.assumeSorted!comp.containsStoreIndex!sp(values, index)) // faster than `completeSort` for single value
                     {
@@ -1216,7 +1216,7 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
 
         alias prepend = pushFront;
 
-        import traits_ex : isComparable;
+        import nxt.traits_ex : isComparable;
         static if (isCopyable!E &&
                    !is(E == char) &&
                    !is(E == wchar) &&
@@ -2671,7 +2671,7 @@ version(none)
 /*@safe*/ pure nothrow @nogc unittest // TODO make @safe when collect has been made safe
 {
     import std.range : iota, isOutputRange;
-    import algorithm_ex : collect;
+    import nxt.algorithm_ex : collect;
 
     alias E = int;
     alias A = Array!E;

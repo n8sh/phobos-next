@@ -1,7 +1,7 @@
 /** Reference Counted Array.
     See_Also: http://dpaste.dzfl.pl/817283c163f5
  */
-module rcstring;
+module nxt.rcstring;
 
 import core.memory : GC;
 // import core.stdc.stdlib;

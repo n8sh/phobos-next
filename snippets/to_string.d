@@ -1,6 +1,6 @@
 /** Test multiple overloads of toString()
  */
-module to_string;
+module nxt.to_string;
 
 class Long
 {

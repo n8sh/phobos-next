@@ -4,14 +4,14 @@
     dependency "automem" version="~>0.3.3"
     dependency "test_allocator" version="~>0.2.1"
 +/
-module app;
+module nxt.app;
 
 import std.experimental.allocator;
 import std.stdio;
 import std.typecons;
 
-import automem;
-import test_allocator;
+import nxt.automem;
+import nxt.test_allocator;
 
 alias Tup = Tuple!(int, int);
 

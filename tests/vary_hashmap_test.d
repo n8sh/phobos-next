@@ -1,11 +1,11 @@
-module vary_hashmap_test;
+module nxt.vary_hashmap_test;
 
 ///
 pure unittest
 {
     import digestx.fnv : FNV;
-    import sso_hashmap : HashMap;
-    import vary : FastAlgebraic;
+    import nxt.sso_hashmap : HashMap;
+    import nxt.vary : FastAlgebraic;
 
     alias K = FastAlgebraic!(size_t, string);
     alias V = K;

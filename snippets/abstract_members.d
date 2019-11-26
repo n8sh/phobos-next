@@ -1,5 +1,5 @@
 /// Test diagnostics for abstract members.
-module abstract_members;
+module nxt.abstract_members;
 
 enum Rel { subkindOf, partOf }
 

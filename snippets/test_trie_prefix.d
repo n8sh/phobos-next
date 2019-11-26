@@ -1,7 +1,7 @@
 #!/usr/bin/env rdmd
 
 import std.algorithm.comparison : equal;
-import trie : radixTreeSet;
+import nxt.trie : radixTreeSet;
 
 void main(string[] args)
 {

@@ -46,16 +46,16 @@
    assert(equal(s, t));
 
  */
-module symbolic;
+module nxt.symbolic;
 
 import std.algorithm: find, all, map, reduce, min, max, joiner, equal, each, filter;
 import std.range: empty;
 import std.array: array;
 import std.string: representation;
 import std.traits: isSomeString;
-import find_ex: findAcronymAt, FindContext;
-import dbgio;
-import static_bitarray;
+import nxt.find_ex: findAcronymAt, FindContext;
+import nxt.dbgio;
+import nxt.static_bitarray;
 
 /** Base Pattern.
  */
@@ -536,7 +536,7 @@ class Alt : SPatt
     {
         assert(!alts.empty);    // TODO Move to in contract?
 
-        import dbgio;
+        import nxt.dbgio;
 
         switch (alts.length)
         {
@@ -620,7 +620,7 @@ class Alt : SPatt
         // TODO Merge these loops using tuple algorithm.
         auto mins = _subs.map!(a => a.minLength);
         auto maxs = _subs.map!(a => a.maxLength);
-        import predicates: allEqual;
+        import nxt.predicates: allEqual;
         return (mins.allEqual &&
                 maxs.allEqual);
     }
@@ -1078,7 +1078,7 @@ Clause parend(Args...)(Args args) { return new Clause(lit('('), lit(')'), args);
 Clause hooked(Args...)(Args args) { return new Clause(lit('['), lit(']'), args); }
 Clause braced(Args...)(Args args) { return new Clause(lit('{'), lit('}'), args); }
 
-import assert_ex;
+import nxt.assert_ex;
 
 @safe pure nothrow unittest
 {

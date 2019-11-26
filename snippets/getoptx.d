@@ -1,4 +1,4 @@
-module getoptx;
+module nxt.getoptx;
 
 public import std.getopt;
 

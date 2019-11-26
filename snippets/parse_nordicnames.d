@@ -14,7 +14,7 @@ void readNordicNames()
     import std.net.curl;
     import std.array: array;
     import arsd.dom;
-    import skip_ex: skipOverBack;
+    import nxt.skip_ex: skipOverBack;
 
     const dirPath = `~/Knowledge/nordic_names/wiki`;
     const fixedPath = dirPath.expandTilde.buildNormalizedPath;

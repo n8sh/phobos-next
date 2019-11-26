@@ -1,7 +1,7 @@
-module module1;
+module nxt.module1;
 
 void f1(string[] args) {
-    import module2: f2;
+    import nxt.module2: f2;
 }
 
 unittest {

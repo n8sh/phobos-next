@@ -1,4 +1,4 @@
-module stringcache;
+module nxt.stringcache;
 
 /**
  * The string cache is used for string interning.

@@ -1,5 +1,5 @@
 /** Ada Lexer.  */
-module ada_lexer;
+module nxt.ada_lexer;
 
 import std.typecons;
 import std.meta;
@@ -7,9 +7,9 @@ import std.array;
 import std.algorithm;
 import std.range;
 
-import lexer;
-import ada_defs;
-import stringcache;
+import nxt.lexer;
+import nxt.ada_defs;
+import nxt.stringcache;
 
 /// Operators
 private enum operators = ada_defs.operators;

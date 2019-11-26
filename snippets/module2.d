@@ -1,7 +1,7 @@
-module module2;
+module nxt.module2;
 
 void f2(string[] args)
 {
-    import module1: f1;
-    import dbgio;
+    import nxt.module1: f1;
+    import nxt.dbgio;
 }

@@ -39,7 +39,7 @@ DEALINGS IN THE SOFTWARE.
 import std.stdio;
 import std.math;
 import std.traits;
-import rational;
+import nxt.rational;
 
 template T(Tp...){alias Tp T;}
 

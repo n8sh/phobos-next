@@ -13,7 +13,7 @@
     TODO Add asGCCMessage pretty prints
           seq $PATH, ':', $ROW, ':', $COL, ':', message, '[', $TYPE, ']'
 */
-module pretty;
+module nxt.pretty;
 
 import std.algorithm : map;
 import std.range: isInputRange, repeat;
@@ -24,13 +24,13 @@ import std.path: dirSeparator;
 import std.string: empty;
 
 /* TODO Move logic (toHTML) to these deps and remove these imports */
-import mathml;
-import lingua;
-import attributes;
-import slicing : preSlicer;
+import nxt.mathml;
+import nxt.lingua;
+import nxt.attributes;
+import nxt.slicing : preSlicer;
 
-import traits_ex: ElementTypeOf, isCallableWith;
-import rational;
+import nxt.traits_ex: ElementTypeOf, isCallableWith;
+import nxt.rational;
 import arsd.terminal;
 import core.time: Duration;
 
@@ -353,7 +353,7 @@ class Viz
         {
             if (form == VizForm.HTML)
             {
-                import w3c : encodeHTML;
+                import nxt.w3c : encodeHTML;
                 outFile.write(arg.encodeHTML(nbsp));
             }
             else

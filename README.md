@@ -9,9 +9,9 @@ See_Also: http://forum.dlang.org/post/tppptevxiygafzpicmgz@forum.dlang.org
 Includes
 
 ## Containers
-- Trie in `trie.d`.
-- Basic uncopyable array with value semantics and explicit copying via `.dup`:
-  `basic_array.d`, Wrap in std.typecons.RefCounter for reference semantics.
+- `trie.d`: Trie for prefix completion.
+- `basic_array.d`: Basic uncopyable array with value semantics and explicit
+  copying via `.dup`.
 - Bit array: `bitarray.d`.
 - Combined hashset and hashmap with open addressing: `open_hashmap_or_hashset.d`.
 - Cyclic arry: `cyclic_array.d`.
@@ -22,6 +22,8 @@ Includes
 - Minimalistic fixed-length (static) array with length fitting in an `ubyte` for
 compact packing: `minimal_fixed_array.d`.
 - ...
+
+For reference semantics wrap uncopyable containers in `std.typecons.RefCounter`.
 
 ## Wrapper types
 - A wrapper for bounded types: `bound.d`

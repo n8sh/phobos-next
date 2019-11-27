@@ -5,6 +5,7 @@ import std.algorithm : max;
 import std.container.array : Array;
 import std.range;
 import std.traits : isMutable;
+import nxt.container_traits : isAddress;
 
 private mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast() this) copy;")
 {
@@ -114,6 +115,10 @@ private mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast()
         static if (hasElaborateDestructor!T)
         {
             destroy(array[(start + size) % array.length]);
+        }
+        else static if (isAddress!T)
+        {
+            array[(start + size) % array.length] = null;
         }
     }
 

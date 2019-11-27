@@ -38,7 +38,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     import core.lifetime : emplace, move, moveEmplace;
 
     import nxt.qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
-    import nxt.container_traits : mustAddGCRange, needsMove;
+    import nxt.container_traits : mustAddGCRange, needsMove, isAddress;
 
     /// Mutable element type.
     private alias MutableE = Unqual!T;
@@ -1027,6 +1027,7 @@ if (isInstanceOf!(BasicArray, C) &&
         {
             count += 1;
             import core.internal.traits : hasElaborateDestructor;
+            import nxt.container_traits : isAddress;
             static if (hasElaborateDestructor!(typeof(c[i])))
             {
                 .destroy(c[i]);
@@ -1603,14 +1604,6 @@ struct BasicCopyableArray
 
 /// TODO Move to Phobos.
 private enum bool isRefIterable(T) = is(typeof({ foreach (ref elem; T.init) {} }));
-
-/** Is `true` iff `T` is a memory address. */
-private template isAddress(T)
-{
-    import std.traits : isPointer;
-    enum isAddress = (is(T == class) || // a class is memory-wise
-                      isPointer!T);     // just a pointer, consistent with opCmp
-}
 
 version(unittest)
 {

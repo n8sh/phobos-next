@@ -528,6 +528,13 @@ pragma(inline):
                     .destroy(_mptr[index]);
                 }
             }
+            else static if (isAddress!T)
+            {
+                foreach (immutable index; newLength .. _store.length)
+                {
+                    _mptr[index] = null;
+                }
+            }
         }
         else
         {

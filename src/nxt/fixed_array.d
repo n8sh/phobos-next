@@ -21,6 +21,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     import std.bitmanip : bitfields;
     import std.traits : isSomeChar, isAssignable, isCopyable;
     import core.internal.traits : hasElaborateDestructor;
+    import nxt.container_traits : isAddress;
 
     alias capacity = capacity_; // for public use
 
@@ -236,6 +237,10 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
         static if (hasElaborateDestructor!T)
         {
             .destroy(_store.ptr[_length]);
+        }
+        else static if (isAddress!T)
+        {
+            _store.ptr[_length] = null;
         }
     }
 

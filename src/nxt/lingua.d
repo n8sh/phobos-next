@@ -675,7 +675,8 @@ string inPlural(string word, int count = 2,
 }
 
 /** Return $(D s) lemmatized (normalized).
-    See_Also: https://en.wikipedia.org/wiki/Lemmatisation
+ *
+ * See_Also: https://en.wikipedia.org/wiki/Lemmatisation
  */
 S lemmatized(S)(S s) nothrow
 if (isSomeString!S)

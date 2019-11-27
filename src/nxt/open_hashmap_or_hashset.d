@@ -36,14 +36,6 @@ import nxt.pure_mallocator : Mallocator = PureMallocator;
  *
  * TODO use mmap allocator when store is larger than at least 4 pages
  *
- * TODO Either change search in
- * - indexOfKeyOrVacancySkippingHoles
- * - indexOfKeyOrVacancyAndFirstHole
- * or
- * `containsUsingLinearSearch` (excluding nulls and holes) for stores
- * smaller than some threshold with standard `keyEqualPred` being `a is b` for
- * addresses and `a == b` for other keys.
- *
  * TODO use `StoreK` in store and cast between it and `KeyType`
  *
  * TODO allocate _holesPtr array together with _store to reduce size of

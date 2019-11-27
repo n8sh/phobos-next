@@ -491,9 +491,15 @@ template hasElaborateDestructorNew(S)
 /** Is `true` iff `T` is a memory address. */
 template isAddress(T)
 {
-    import std.traits : isPointer;
-    enum isAddress = (is(T == class) || // a class is memory-wise
-                      isPointer!T);     // just a pointer, consistent with opCmp
+    static if (is(T == class))
+    {
+        enum isAddress = true;  // a class is memory-wise just a pointer
+    }
+    else
+    {
+        import std.traits : isPointer;
+        enum isAddress = isPointer!T;
+    }
 }
 
 ///

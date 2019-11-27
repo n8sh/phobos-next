@@ -596,14 +596,16 @@ enum irrealisMoods = [Mood.subjunctive,
                       Mood.inferential];
 
 /** English Negation Prefixes.
-    See_Also: http://www.english-for-students.com/Negative-Prefixes.html
-*/
+ *
+ * See_Also: http://www.english-for-students.com/Negative-Prefixes.html
+ */
 static immutable englishNegationPrefixes = [ `un`, `non`, `dis`, `im`, `in`, `il`, `ir`, ];
 
 static immutable swedishNegationPrefixes = [ `icke`, `o`, ];
 
 /** English Noun Suffixes.
-    See_Also: http://www.english-for-students.com/Noun-Suffixes.html
+ *
+ * See_Also: http://www.english-for-students.com/Noun-Suffixes.html
  */
 static immutable adjectiveNounSuffixes = [ `ness`, `ity`, `ment`, `ance` ];
 static immutable verbNounSuffixes = [ `tion`, `sion`, `ment`, `ence` ];
@@ -620,9 +622,11 @@ static immutable verbSuffixes = [ `s`, `ies`, `es`, `es`, `ed`, `ed`, `ing`, `in
 static immutable adjectiveSuffixes = [ `er`, `est`, `er`, `est` ];
 
 /** English Job/Professin Title Suffixes.
-    Typically built from noun or verb bases.
-    See_Also: http://www.english-for-students.com/Job-Title-Suffixes.html
-*/
+ *
+ * Typically built from noun or verb bases.
+ *
+ * See_Also: http://www.english-for-students.com/Job-Title-Suffixes.html
+ */
 static immutable jobTitleSuffixes = [ `or`, // traitor
                                       `er`, // builder
                                       `ist`, // typist

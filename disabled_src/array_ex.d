@@ -742,8 +742,7 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
     /// Destroy elements.
     static if (hasElaborateDestructor!E)
     {
-        private void destroyElements()
-            @trusted
+        private void destroyElements() @trusted
         {
             foreach (immutable i; 0 .. this.length)
             {

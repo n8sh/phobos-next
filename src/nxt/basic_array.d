@@ -27,7 +27,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     (is(CapacityType == ulong) ||        // 3 64-bit words
      is(CapacityType == uint)))          // 2 64-bit words
 {
-    @safe:
+@safe:
 
     // import core.exception : onOutOfMemoryError;
     import core.internal.traits : hasElaborateDestructor;
@@ -46,7 +46,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     /// Is `true` if `U` can be assign to the element type `T` of `this`.
     enum isElementAssignable(U) = isAssignable!(MutableE, U);
 
-    pragma(inline):
+pragma(inline):
 
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
     static typeof(this) withLength()(size_t initialLength) // template-lazy
@@ -789,6 +789,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
      */
     void popBackN()(size_t n) @trusted   // template-lazy
     {
+        // TODO optimize:
         foreach (const _ ; 0 .. n)
         {
             popBack();

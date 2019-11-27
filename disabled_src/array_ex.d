@@ -752,8 +752,7 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
     }
 
     /// Release internal store.
-    private void release()
-        @trusted
+    private void release() @trusted
     {
         static if (hasElaborateDestructor!E)
         {

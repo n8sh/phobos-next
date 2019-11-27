@@ -1020,13 +1020,16 @@ struct OpenHashMapOrSet(K, V = void,
         }
 
         // value
-        static if (hasElaborateDestructor!V) // if we should clear all
+        static if (hasValue)
         {
-            .destroy(valueOf(_store[index]));
-        }
-        static if (isAddress!V) // if we should clear all
-        {
-            valueOf(_store[index]) = null; // please the GC
+            static if (hasElaborateDestructor!V) // if we should clear all
+            {
+                .destroy(valueOf(_store[index]));
+            }
+            static if (isAddress!V) // if we should clear all
+            {
+                valueOf(_store[index]) = null; // please the GC
+            }
         }
     }
 

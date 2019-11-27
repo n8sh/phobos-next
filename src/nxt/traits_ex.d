@@ -1346,20 +1346,6 @@ unittest
     static assert(propertySemantics!(S, "rwp") == tuple!("canRead", "canWrite")(true, true));
 }
 
-///
-@safe pure nothrow @nogc unittest
-{
-    static assert( isAddress!(int*));
-    static assert(!isAddress!(int));
-
-    class C {}
-    static assert( isAddress!(C));
-
-    struct S {}
-    static assert(!isAddress!(S));
-    static assert( isAddress!(S*));
-}
-
 /** Is `true` iff the postblit of `T` is disabled (`@disable this(this)`).
  *
  * See_Also: https://forum.dlang.org/post/dkohvpbmakbdbhnmnmbg@forum.dlang.org

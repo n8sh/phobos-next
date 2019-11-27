@@ -330,9 +330,9 @@ pragma(inline):
     {
         private void destroyElements() @trusted
         {
-            foreach (immutable i; 0 .. _store.length)
+            foreach (immutable index; 0 .. _store.length)
             {
-                .destroy(_mptr[i]);
+                .destroy(_mptr[index]);
             }
         }
     }
@@ -432,9 +432,9 @@ pragma(inline):
                     // onOutOfMemoryError();
                     return null;
                 }
-                foreach (immutable i; 0 .. initialCapacity)
+                foreach (immutable index; 0 .. initialCapacity)
                 {
-                    emplace(&ptr[i], elementValue);
+                    emplace(&ptr[index], elementValue);
                 }
             }
 
@@ -472,9 +472,9 @@ pragma(inline):
         else
         {
             typeof(return) hash = this.length;
-            foreach (immutable i; 0 .. this.length)
+            foreach (immutable index; 0 .. this.length)
             {
-                hash ^= this.ptr[i].hashOf;
+                hash ^= this.ptr[index].hashOf;
             }
             return hash;
         }
@@ -523,9 +523,9 @@ pragma(inline):
         {
             static if (hasElaborateDestructor!T)
             {
-                foreach (immutable i; newLength .. _store.length)
+                foreach (immutable index; newLength .. _store.length)
                 {
-                    .destroy(_mptr[i]);
+                    .destroy(_mptr[index]);
                 }
             }
         }
@@ -535,17 +535,17 @@ pragma(inline):
             static if (hasElaborateDestructor!T)
             {
                 // TODO remove when compiler does it for us
-                foreach (immutable i; _store.length .. newLength)
+                foreach (immutable index; _store.length .. newLength)
                 {
                     // TODO remove when compiler does it for us:
                     static if (isCopyable!T)
                     {
-                        emplace(&_mptr[i], T.init);
+                        emplace(&_mptr[index], T.init);
                     }
                     else
                     {
                         auto _ = T.init;
-                        moveEmplace(_, _mptr[i]);
+                        moveEmplace(_, _mptr[index]);
                     }
                 }
             }

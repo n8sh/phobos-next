@@ -29,7 +29,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
 {
     @safe:
 
-    import core.exception : onOutOfMemoryError;
+    // import core.exception : onOutOfMemoryError;
     import core.internal.traits : hasElaborateDestructor;
 
     import std.range.primitives : isInputRange, ElementType, isInfinite;
@@ -357,8 +357,9 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     }
 
     /** Allocate heap region with `initialCapacity` number of elements of type `T`.
-        If `zero` is `true` they will be zero-initialized.
-    */
+     *
+     * If `zero` is `true` they will be zero-initialized.
+     */
     private static MutableE* allocate(size_t initialCapacity, bool zero) @trusted
     {
         immutable size_t numBytes = initialCapacity * T.sizeof;
@@ -391,7 +392,8 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
 
         if (ptr is null && initialCapacity >= 1 )
         {
-            onOutOfMemoryError();
+            // onOutOfMemoryError();
+            return null;
         }
 
         static if (mustAddGCRange!T)
@@ -418,7 +420,8 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
                 ptr = Allocator.makeArray!T(initialCapacity, elementValue).ptr; // TODO set length
                 if (ptr is null && initialCapacity >= 1)
                 {
-                    onOutOfMemoryError();
+                    // onOutOfMemoryError();
+                    return null;
                 }
             }
             else
@@ -426,7 +429,8 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
                 ptr = cast(typeof(return))malloc(numBytes);
                 if (ptr is null && initialCapacity >= 1)
                 {
-                    onOutOfMemoryError();
+                    // onOutOfMemoryError();
+                    return null;
                 }
                 foreach (immutable i; 0 .. initialCapacity)
                 {
@@ -779,6 +783,18 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
         }
     }
 
+    /** Remove `n` last values from the end of the array.
+     *
+     * See_Also: http://mir-algorithm.libmir.org/mir_appender.html#.ScopedBuffer.popBackN
+     */
+    void popBackN()(size_t n) @trusted   // template-lazy
+    {
+        foreach (const _ ; 0 .. n)
+        {
+            popBack();
+        }
+    }
+
     /** Pop back element and return it. */
     T backPop()() @trusted      // template-lazy
     {
@@ -922,7 +938,8 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
         _store.ptr = cast(T*)realloc(_mptr, T.sizeof * _store.capacity);
         if (_store.ptr is null && newCapacity >= 1)
         {
-            onOutOfMemoryError();
+            // onOutOfMemoryError();
+            return;
         }
 
         static if (mustAddGCRange!T)

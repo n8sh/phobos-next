@@ -15,7 +15,7 @@ module nxt.digestion;
 
 import std.traits : hasMember, isScalarType, hasIndirections, isArray, isPointer;
 import std.digest : isDigest;
-import nxt.traits_ex : isAddress;
+import nxt.container_traits : isAddress;
 
 @safe:
 

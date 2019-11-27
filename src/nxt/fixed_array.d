@@ -240,7 +240,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
         }
         else static if (isAddress!T)
         {
-            _store.ptr[_length] = null;
+            _store.ptr[_length] = null; // please the GC
         }
     }
 
@@ -257,7 +257,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
                 .destroy(_store.ptr[_length + i]);
             }
         }
-        else static if (isAddress!T)
+        else static if (isAddress!T) // please the GC
         {
             foreach (const i; 0 .. n)
             {

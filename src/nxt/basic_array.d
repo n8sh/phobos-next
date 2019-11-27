@@ -532,7 +532,7 @@ pragma(inline):
             {
                 foreach (immutable index; newLength .. _store.length)
                 {
-                    _mptr[index] = null;
+                    _mptr[index] = null; // please the GC
                 }
             }
         }
@@ -790,7 +790,7 @@ pragma(inline):
         }
         else static if (isAddress!T)
         {
-            _mptr[_store.length] = null;
+            _mptr[_store.length] = null; // please the GC
         }
     }
 
@@ -813,7 +813,7 @@ pragma(inline):
         {
             foreach (const index; 0 .. n)
             {
-                _mptr[_store.length + index] = null;
+                _mptr[_store.length + index] = null; // please the GC
             }
         }
     }

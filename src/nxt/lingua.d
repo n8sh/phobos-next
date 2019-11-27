@@ -710,8 +710,9 @@ enum Manner
 }
 
 /** Grammatical Case.
-    See_Also: https://en.wikipedia.org/wiki/Grammatical_case
-*/
+ *
+ * See_Also: https://en.wikipedia.org/wiki/Grammatical_case
+ */
 enum Case
 {
     unknown,

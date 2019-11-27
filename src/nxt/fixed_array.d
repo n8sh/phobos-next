@@ -257,6 +257,13 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
                 .destroy(_store.ptr[_length + i]);
             }
         }
+        else static if (isAddress!T)
+        {
+            foreach (const i; 0 .. n)
+            {
+                _store.ptr[_length + i] = null;
+            }
+        }
     }
 
     /** Move element at `index` to return. */

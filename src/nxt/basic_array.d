@@ -804,14 +804,14 @@ pragma(inline):
         _store.length -= n;
         static if (hasElaborateDestructor!T)
         {
-            foreach (const index ; 0 .. n)
+            foreach (const index; 0 .. n)
             {
                 .destroy(_mptr[_store.length + index]);
             }
         }
         else static if (isAddress!T)
         {
-            foreach (const index ; 0 .. n)
+            foreach (const index; 0 .. n)
             {
                 _mptr[_store.length + index] = null;
             }

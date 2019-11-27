@@ -1523,7 +1523,9 @@ unittest
     alias A = BasicArray!(T);
     auto a = A.withElementsOfRange_untested([10, 20, 30].s[].map!(_ => _^^2));
     assert(a[] == [100, 400, 900].s);
-    a.popBackN(3);
+    a.popBackN(2);
+    assert(a.length == 1);
+    a.popBackN(1);
     assert(a.empty);
 }
 

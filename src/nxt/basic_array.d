@@ -788,6 +788,10 @@ pragma(inline):
         {
             .destroy(_mptr[_store.length]);
         }
+        else static if (isAddress!T)
+        {
+            _mptr[_store.length] = null;
+        }
     }
 
     /** Rmove `n` last values from the end of the array.

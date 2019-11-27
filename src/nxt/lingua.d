@@ -356,8 +356,8 @@ if (isSomeString!S)
 }
 
 /** Comparation.
-    See_Also: https://en.wikipedia.org/wiki/Comparison_(grammar)
-*/
+ * See_Also: https://en.wikipedia.org/wiki/Comparison_(grammar)
+ */
 enum Comparation
 {
     unknown,
@@ -377,12 +377,12 @@ if (isSomeString!S)
 }
 
 /** English Tense.
-
-    Same as "tempus" in Swedish.
-
-    See_Also: http://www.ego4u.com/en/cram-up/grammar/tenses-graphic
-    See_Also: http://www.ego4u.com/en/cram-up/grammar/tenses-examples
-*/
+ *
+ * Same as "tempus" in Swedish.
+ *
+ * See_Also: http://www.ego4u.com/en/cram-up/grammar/tenses-graphic
+ * See_Also: http://www.ego4u.com/en/cram-up/grammar/tenses-examples
+ */
 enum Tense
 {
     unknown,

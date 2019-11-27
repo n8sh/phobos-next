@@ -496,6 +496,20 @@ template isAddress(T)
                       isPointer!T);     // just a pointer, consistent with opCmp
 }
 
+///
+@safe pure nothrow @nogc unittest
+{
+    static assert( isAddress!(int*));
+    static assert(!isAddress!(int));
+
+    class C {}
+    static assert( isAddress!(C));
+
+    struct S {}
+    static assert(!isAddress!(S));
+    static assert( isAddress!(S*));
+}
+
 version(unittest)
 {
     import std.typecons : Nullable;

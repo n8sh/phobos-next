@@ -783,17 +783,21 @@ pragma(inline):
         }
     }
 
-    /** Remove `n` last values from the end of the array.
+    /** Rmove `n` last values from the end of the array.
      *
      * See_Also: http://mir-algorithm.libmir.org/mir_appender.html#.ScopedBuffer.popBackN
      */
     void popBackN()(size_t n) @trusted   // template-lazy
     {
-        // TODO optimize:
-        foreach (const _ ; 0 .. n)
+        assert(length >= n);
+        static if (hasElaborateDestructor!T)
         {
-            popBack();
+            foreach (const index ; 0 .. n)
+            {
+                .destroy(_mptr[_store.length - 1 - index]);
+            }
         }
+        _store.length -= n;
     }
 
     /** Pop back element and return it. */
@@ -1519,6 +1523,8 @@ unittest
     alias A = BasicArray!(T);
     auto a = A.withElementsOfRange_untested([10, 20, 30].s[].map!(_ => _^^2));
     assert(a[] == [100, 400, 900].s);
+    a.popBackN(3);
+    assert(a.empty);
 }
 
 /// construct from map range

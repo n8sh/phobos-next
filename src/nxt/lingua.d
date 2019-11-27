@@ -279,9 +279,9 @@ enum TokenId
 }
 
 /** Swedish Verb Inflection (conjugation of a verb).
-
-    See_Also: http://www.101languages.net/swedish/swedish-verb-conjugator/
-    See_Also: http://www.verbix.com/webverbix/Swedish/springa.html
+ *
+ * See_Also: http://www.101languages.net/swedish/swedish-verb-conjugator/
+ * See_Also: http://www.verbix.com/webverbix/Swedish/springa.html
  */
 enum SwedishVerbInflection
 {
@@ -289,8 +289,8 @@ enum SwedishVerbInflection
 }
 
 /** Verb Form.
-
-    See_Also: http://verb.woxikon.se/sv/springa
+ *
+ * See_Also: http://verb.woxikon.se/sv/springa
  */
 enum VerbForm
 {

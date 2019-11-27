@@ -801,21 +801,21 @@ pragma(inline):
     void popBackN()(size_t n) @trusted   // template-lazy
     {
         assert(length >= n);
+        _store.length -= n;
         static if (hasElaborateDestructor!T)
         {
             foreach (const index ; 0 .. n)
             {
-                .destroy(_mptr[_store.length - 1 - index]);
+                .destroy(_mptr[_store.length + index]);
             }
         }
         else static if (isAddress!T)
         {
             foreach (const index ; 0 .. n)
             {
-                _mptr[_store.length - 1 - index] = null;
+                _mptr[_store.length + index] = null;
             }
         }
-        _store.length -= n;
     }
 
     /** Pop back element and return it. */

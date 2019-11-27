@@ -1009,6 +1009,10 @@ if (isInstanceOf!(BasicArray, C) &&
             {
                 .destroy(c[i]);
             }
+            static if (isAddress!(typeof(c[i])))
+            {
+                c[i] = null;    // please the GC
+            }
         }
         else
         {
@@ -1577,6 +1581,14 @@ struct BasicCopyableArray
 
 /// TODO Move to Phobos.
 private enum bool isRefIterable(T) = is(typeof({ foreach (ref elem; T.init) {} }));
+
+/** Is `true` iff `T` is a memory address. */
+private template isAddress(T)
+{
+    import std.traits : isPointer;
+    enum isAddress = (is(T == class) || // a class is memory-wise
+                      isPointer!T);     // just a pointer, consistent with opCmp
+}
 
 version(unittest)
 {

@@ -1521,7 +1521,7 @@ unittest
     import std.algorithm.iteration : map;
     alias T = int;
     alias A = BasicArray!(T);
-    auto a = A.withElementsOfRange_untested([10, 20, 30].s[].map!(_ => _^^2));
+    A a = A.withElementsOfRange_untested([10, 20, 30].s[].map!(_ => _^^2));
     assert(a[] == [100, 400, 900].s);
     a.popBackN(2);
     assert(a.length == 1);

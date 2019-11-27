@@ -47,6 +47,7 @@ if (!isInstanceOf!(Unexpected, T) && // an `Unexpected` cannot be `Expected` :)
     !is(T == void)) // disallow void for now, for ref see https://forum.dlang.org/post/ncjhsxshttikzjqgiwev@forum.dlang.org
 {
     import core.lifetime : moveEmplace;
+    import nxt.container_traits : isAddress;
 
     // TODO ok for default construction to initialize
     // - _expectedValue = T.init (zeros)
@@ -251,12 +252,4 @@ version(unittest)
 inout(string) threeUnderscores(inout(string) x) @safe pure nothrow @nogc
 {
     return "___";
-}
-
-/** Is `true` iff `T` is a memory address. */
-private template isAddress(T)
-{
-    import std.traits : isPointer;
-    enum isAddress = (is(T == class) || // a class is memory-wise
-                      isPointer!T);     // just a pointer, consistent with opCmp
 }

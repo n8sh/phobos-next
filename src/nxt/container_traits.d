@@ -488,7 +488,7 @@ template hasElaborateDestructorNew(S)
     }
 }
 
-/** Is `true` iff `T` is repesented in memory as an memory address. */
+/** Is `true` iff `T` is repesented as an memory address. */
 template isAddress(T)
 {
     static if (is(T == class))

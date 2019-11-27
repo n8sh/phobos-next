@@ -556,7 +556,8 @@ enum Mood
 }
 
 /** Check if $(D mood) is a Realis Mood.
-    See_Also: https://en.wikipedia.org/wiki/Grammatical_mood#Realis_moods
+ *
+ * See_Also: https://en.wikipedia.org/wiki/Grammatical_mood#Realis_moods
  */
 bool isRealis(Mood mood) @nogc nothrow
 {
@@ -569,8 +570,9 @@ bool isRealis(Mood mood) @nogc nothrow
 enum realisMoods = [Mood.indicative];
 
 /** Check if $(D mood) is a Irrealis Mood.
-    See_Also: https://en.wikipedia.org/wiki/Grammatical_mood#Irrealis_moods
-*/
+ *
+ * See_Also: https://en.wikipedia.org/wiki/Grammatical_mood#Irrealis_moods
+ */
 bool isIrrealis(Mood mood) @nogc nothrow
 {
     with (Mood)

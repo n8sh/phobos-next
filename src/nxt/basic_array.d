@@ -797,6 +797,13 @@ pragma(inline):
                 .destroy(_mptr[_store.length - 1 - index]);
             }
         }
+        else static if (isAddress!T)
+        {
+            foreach (const index ; 0 .. n)
+            {
+                _mptr[_store.length - 1 - index] = null;
+            }
+        }
         _store.length -= n;
     }
 
@@ -824,6 +831,10 @@ pragma(inline):
         static if (hasElaborateDestructor!T)
         {
             .destroy(_mptr[index]);
+        }
+        else static if (isAddress!T)
+        {
+            _mptr[index] = null; // please the GC
         }
         shiftToFrontAt(index);
         _store.length -= 1;
@@ -1009,7 +1020,7 @@ if (isInstanceOf!(BasicArray, C) &&
             {
                 .destroy(c[i]);
             }
-            static if (isAddress!(typeof(c[i])))
+            else static if (isAddress!(typeof(c[i])))
             {
                 c[i] = null;    // please the GC
             }

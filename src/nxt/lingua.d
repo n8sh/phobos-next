@@ -37,13 +37,13 @@ enum Usage
 /// ================ English Articles
 
 /** English indefinite articles. */
-immutable englishIndefiniteArticles = [`a`, `an`];
+static immutable englishIndefiniteArticles = [`a`, `an`];
 
 /** English definite articles. */
-immutable englishDefiniteArticles = [`the`];
+static immutable englishDefiniteArticles = [`the`];
 
 /** English definite articles. */
-immutable englishArticles = englishIndefiniteArticles ~ englishDefiniteArticles;
+static immutable englishArticles = englishIndefiniteArticles ~ englishDefiniteArticles;
 
 bool isEnglishIndefiniteArticle(S)(S s)
 {
@@ -65,13 +65,13 @@ if (isSomeString!S)
 /// ================ German Articles
 
 /** German indefinite articles. */
-immutable germanIndefiniteArticles = [`ein`, `eine`, `einer`, `einen`, `einem`, `eines`];
+static immutable germanIndefiniteArticles = [`ein`, `eine`, `einer`, `einen`, `einem`, `eines`];
 
 /** German definite articles. */
-immutable germanDefiniteArticles = [`der`, `die`, `das`, `den`, `dem`, `des`];
+static immutable germanDefiniteArticles = [`der`, `die`, `das`, `den`, `dem`, `des`];
 
 /** German definite articles. */
-immutable germanArticles = germanIndefiniteArticles ~ germanDefiniteArticles;
+static immutable germanArticles = germanIndefiniteArticles ~ germanDefiniteArticles;
 
 /** Check if $(D s) is a Vowel. */
 bool isGermanIndefiniteArticle(S)(S s)
@@ -103,7 +103,7 @@ enum EnglishVowel { a, o, u, e, i, y,
                     A, O, U, E, I, Y }
 
 /** English Vowels. */
-immutable dchar[] englishVowels = ['a', 'o', 'u', 'e', 'i', 'y',
+static immutable dchar[] englishVowels = ['a', 'o', 'u', 'e', 'i', 'y',
                                    'A', 'O', 'U', 'E', 'I', 'Y'];
 
 /** Check if $(D c) is a Vowel. */
@@ -114,7 +114,7 @@ if (isSomeChar!C)
 }
 
 /** English Accented Vowels. */
-immutable dchar[] englishAccentedVowels = ['é'];
+static immutable dchar[] englishAccentedVowels = ['é'];
 
 /** Check if $(D c) is an Accented Vowel. */
 bool isEnglishAccentedVowel(C)(C c)
@@ -129,15 +129,15 @@ nothrow @nogc unittest
 }
 
 /** Swedish Hard Vowels. */
-immutable swedishHardVowels = ['a', 'o', 'u', 'å',
+static immutable swedishHardVowels = ['a', 'o', 'u', 'å',
                                'A', 'O', 'U', 'Å'];
 
 /** Swedish Soft Vowels. */
-immutable swedishSoftVowels = ['e', 'i', 'y', 'ä', 'ö',
+static immutable swedishSoftVowels = ['e', 'i', 'y', 'ä', 'ö',
                                'E', 'I', 'Y', 'Ä', 'Ö'];
 
 /** Swedish Vowels. */
-immutable swedishVowels = swedishHardVowels ~ swedishSoftVowels;
+static immutable swedishVowels = swedishHardVowels ~ swedishSoftVowels;
 
 /** Check if $(D c) is a Swedish Vowel. */
 bool isSwedishVowel(C)(C c)
@@ -208,13 +208,13 @@ nothrow @nogc unittest
 enum EnglishConsonant { b, c, d, f, g, h, j, k, l, m, n, p, q, r, s, t, v, w, x }
 
 /** English lowercase consontant characters. */
-immutable dchar[] englishLowerConsonants = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x'];
+static immutable dchar[] englishLowerConsonants = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x'];
 
 /** English uppercase consontant characters. */
-immutable dchar[] englishUpperConsonants = ['B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X'];
+static immutable dchar[] englishUpperConsonants = ['B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X'];
 
 /** English consontant characters. */
-immutable dchar[] englishConsonants = englishLowerConsonants ~ englishUpperConsonants;
+static immutable dchar[] englishConsonants = englishLowerConsonants ~ englishUpperConsonants;
 
 /** Check if $(D c) is a Consonant. */
 bool isEnglishConsonant(C)(C c)
@@ -231,7 +231,7 @@ nothrow @nogc unittest
 }
 
 /** English letters. */
-immutable dchar[] englishLetters = englishVowels ~ englishConsonants;
+static immutable dchar[] englishLetters = englishVowels ~ englishConsonants;
 
 /** Check if $(D c) is a letter. */
 bool isEnglishLetter(C)(C c)

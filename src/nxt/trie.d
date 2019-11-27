@@ -1366,7 +1366,7 @@ template RawRadixTree(Value = void)
 
         inout(Node) subNodeAt(UIx ix) inout
         {
-            import searching_ex : binarySearch; // need this instead of `SortedRange.contains` because we need the index
+            import nxt.searching_ex : binarySearch; // need this instead of `SortedRange.contains` because we need the index
             immutable hitIndex = subIxSlots[0 .. subCount].binarySearch(ix); // find index where insertion should be made
             return (hitIndex != typeof(hitIndex).max) ? subNodeSlots[hitIndex] : Node.init;
         }
@@ -4276,7 +4276,7 @@ if (isTrieableKeyType!TypedKey)
 {
     enum radix = 2^^span;     // branch-multiplicity, typically either 2, 4, 16 or 256
 
-    import nxt.traits_ex : isAddress;
+    import nxt.container_traits : isAddress;
     static if (isAddress!TypedKey)
     {
         static assert(0, "Shift TypedKey " ~ TypedKey.stringof ~ " down by its alignment before returning");
@@ -4361,7 +4361,7 @@ if (isTrieableKeyType!TypedKey)
 inout(TypedKey) toTypedKey(TypedKey)(inout(Ix)[] ukey) @trusted
 if (isTrieableKeyType!TypedKey)
 {
-    import nxt.traits_ex : isAddress;
+    import nxt.container_traits : isAddress;
     static if (isAddress!TypedKey)
     {
         static assert(0, "Shift TypedKey " ~ TypedKey.stringof ~ " up by its alignment before returning");

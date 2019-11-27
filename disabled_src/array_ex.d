@@ -784,8 +784,7 @@ if (is(CapacityType == ulong) ||       // 3 64-bit words
 
     /// Reset internal data.
     pragma(inline, true)
-    private void resetInternalData()
-        @trusted pure @nogc
+    private void resetInternalData() @trusted pure @nogc
     {
         if (isLarge)
         {

@@ -140,7 +140,7 @@ struct OpenHashMapOrSet(K, V = void,
                               isSlice!K);
 
     /** Use linear search instead probing when store is small than `_linearSearchMaxSize`. */
-    private enum _doSmallLinearSearch = true;
+    private enum _doSmallLinearSearch = false;
 
     /** Stores less than or equal to this size will be searched using linear
      * searcnh.

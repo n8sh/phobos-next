@@ -34,6 +34,8 @@ import nxt.pure_mallocator : Mallocator = PureMallocator;
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  * See_Also: https://gankro.github.io/blah/hashbrown-insert/
  *
+ * TODO remove use of `static if (isCopyable` in cases where compiler can handle more moves
+ *
  * TODO use mmap allocator when store is larger than at least 4 pages
  *
  * TODO use `StoreK` in store and cast between it and `KeyType`

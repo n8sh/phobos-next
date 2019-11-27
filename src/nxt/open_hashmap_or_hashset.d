@@ -1013,6 +1013,8 @@ struct OpenHashMapOrSet(K, V = void,
     private void tagAsLazilyDeletedElementAtIndex(size_t index)
     {
         pragma(inline, true);
+
+        // key
         static if (hasHoleableKey)
         {
             keyOf(_store[index]) = holeKeyConstant;
@@ -1022,9 +1024,15 @@ struct OpenHashMapOrSet(K, V = void,
             keyOf(_store[index]).nullify();
             tagHoleAtIndex(index);
         }
+
+        // value
         static if (hasElaborateDestructor!V) // if we should clear all
         {
             .destroy(valueOf(_store[index]));
+        }
+        static if (isAddress!V) // if we should clear all
+        {
+            valueOf(_store[index]) = null; // please the GC
         }
     }
 
@@ -2302,7 +2310,7 @@ unittest
         static immutable nullValue = typeof(this).init;
     }
 
-    import digestx.fnv : FNV;
+    import nxt.digestx.fnv : FNV;
     alias X = OpenHashSet!(ExprPot, FNV!(64, true));
 
     X x;
@@ -2331,7 +2339,7 @@ unittest
 @safe pure nothrow @nogc unittest
 {
     version(showEntries) dbg();
-    import digestx.fnv : FNV;
+    import nxt.digestx.fnv : FNV;
 
     alias X = OpenHashSet!(string, FNV!(64, true));
     debug static assert(!mustAddGCRange!X);
@@ -2409,7 +2417,7 @@ unittest
 @safe pure nothrow unittest
 {
     version(showEntries) dbg();
-    import digestx.fnv : FNV;
+    import nxt.digestx.fnv : FNV;
     alias X = OpenHashSet!(string, FNV!(64, true));
     auto x = X();
 

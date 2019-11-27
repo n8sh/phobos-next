@@ -489,7 +489,7 @@ template hasElaborateDestructorNew(S)
 }
 
 /** Is `true` iff `T` is a memory address. */
-private template isAddress(T)
+template isAddress(T)
 {
     import std.traits : isPointer;
     enum isAddress = (is(T == class) || // a class is memory-wise

@@ -522,6 +522,13 @@ public:
                     destroy(array[(start + i) % array.length]);
                 }
             }
+            else static if (isAddress!T)
+            {
+                foreach (const i; val .. size)
+                {
+                    array[(start + i) % array.length] = null; // plesae the GC
+                }
+            }
         }
         return size = val;
     }

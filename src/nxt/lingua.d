@@ -203,8 +203,8 @@ nothrow @nogc unittest
 }
 
 /** English consonant type.
-    See_Also: https://simple.wikipedia.org/wiki/Consonant
-*/
+ * See_Also: https://simple.wikipedia.org/wiki/Consonant
+ */
 enum EnglishConsonant { b, c, d, f, g, h, j, k, l, m, n, p, q, r, s, t, v, w, x }
 
 /** English lowercase consontant characters. */

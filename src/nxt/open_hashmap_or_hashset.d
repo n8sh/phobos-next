@@ -140,7 +140,7 @@ struct OpenHashMapOrSet(K, V = void,
                               isSlice!K);
 
     /** Use linear search instead probing when store is small than `_linearSearchMaxSize`. */
-    private enum _doSmallLinearSearch = false;
+    private enum _doSmallLinearSearch = true;
 
     /** Stores less than or equal to this size will be searched using linear
      * searcnh.
@@ -1856,6 +1856,7 @@ private:
             assert(!key.isNull);
             static if (hasHoleableKey) { assert(!isHoleKeyConstant(key)); }
         }
+
         static if (isCopyable!T)
         {
             /* don't use `auto ref` for copyable `T`'s to prevent
@@ -1970,14 +1971,23 @@ private:
             {
                 foreach (const index, const ref element; _store) // linear search is faster for small arrays
                 {
-                    if (hitPred(element)) { return index; }
+                    static if (hasHoleableKey)
+                    {
+                        if (holePred(element)) { holeIndex = index; continue; }
+                        if (hitPred(element)) { return index; }
+                    }
+                    else
+                    {
+                        if (holePred(index, element)) { holeIndex = index; continue; }
+                        if (hitPred(index, element)) { return index; }
+                    }
                 }
-                return _store.length;
+                return _store.length; // miss
             }
         }
 
         return _store[].triangularProbeFromIndexIncludingHoles!(hitPred, holePred)(keyToIndex(key),
-                                                                                  holeIndex);
+                                                                                   holeIndex);
     }
 
     /** Returns: `true` iff `index` indexes a non-null element, `false`

@@ -83,7 +83,7 @@ private mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast()
         }
         else static if (isAddress!T)
         {
-            array[start] = null;
+            array[start] = null; // please the GC
         }
         start = (start + 1) % array.length;
         size--;
@@ -118,7 +118,7 @@ private mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast()
         }
         else static if (isAddress!T)
         {
-            array[(start + size) % array.length] = null;
+            array[(start + size) % array.length] = null; // please the GC
         }
     }
 
@@ -526,7 +526,7 @@ public:
             {
                 foreach (const i; val .. size)
                 {
-                    array[(start + i) % array.length] = null; // plesae the GC
+                    array[(start + i) % array.length] = null; // please the GC
                 }
             }
         }

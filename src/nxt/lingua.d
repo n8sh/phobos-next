@@ -97,8 +97,8 @@ if (isSomeString!C)
 /// ================ Vowels
 
 /** English vowel type.
-    See_Also: https://simple.wikipedia.org/wiki/Vowel
-*/
+ * See_Also: https://simple.wikipedia.org/wiki/Vowel
+ */
 enum EnglishVowel { a, o, u, e, i, y,
                     A, O, U, E, I, Y }
 

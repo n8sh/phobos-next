@@ -3,8 +3,7 @@ module nxt.sso_open_hashset;
 import nxt.open_hashmap_or_hashset;
 
 import std.traits : isInstanceOf;
-import nxt.traits_ex : isAddress;
-import nxt.container_traits : isNullable;
+import nxt.container_traits : isNullable, isAddress;
 import nxt.pure_mallocator : PureMallocator;
 
 /** Small-set-optimized `OpenHashSet`.

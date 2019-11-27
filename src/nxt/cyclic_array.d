@@ -80,6 +80,10 @@ private mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast()
         {
             destroy(array[start]);
         }
+        else static if (isAddress!T)
+        {
+            array[start] = null;
+        }
         start = (start + 1) % array.length;
         size--;
     }

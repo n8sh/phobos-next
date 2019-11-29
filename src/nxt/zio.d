@@ -330,7 +330,7 @@ struct Bz2libFileInputRange
 {
     enum chunkSize = 128 * 1024; // 128K
     enum defaultExtension = `.bz2`;
-    enum useGC = false;
+    enum useGC = false;         // TODO generalize to allocator parameter
 
 @safe:
 

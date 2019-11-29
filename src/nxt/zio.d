@@ -428,7 +428,7 @@ private:
     size_t _bufIx;              // current stream read index in `_buf`
 }
 
-void testInputRange(FileInputRange)()
+@safe void testInputRange(FileInputRange)()
 {
     import std.stdio : File;
 

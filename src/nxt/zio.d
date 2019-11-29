@@ -428,6 +428,7 @@ private:
     size_t _bufIx;              // current stream read index in `_buf`
 }
 
+version(none)
 void testInputRange(FileInputRange)()
 {
     import std.stdio : File;
@@ -440,8 +441,8 @@ void testInputRange(FileInputRange)()
     {
         const source = wholeSource[0 .. n]; // slice from the beginning
 
-        scope File file = File(path, `w`); // TODO temporary file
-        scope auto of = new GzipOut(file);
+        File file = File(path, `w`); // TODO `scope`
+        auto of = new GzipOut(file); // TODO `scope`
         of.compress(source);
         of.finish();
 
@@ -469,7 +470,6 @@ unittest
 
 /** Read Age of Aqcuisitions.
  */
-version(none)
 unittest
 {
     import std.path: expandTilde;

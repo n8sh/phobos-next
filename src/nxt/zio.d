@@ -512,7 +512,7 @@ unittest
 }
 
 version(none)
-unittest
+@safe unittest
 {
     const path = `/home/per/Knowledge/ConceptNet5/latest/conceptnet-assertions-5.6.0.csv.gz`;
     alias R = ZlibFileInputRange;
@@ -541,7 +541,7 @@ unittest
 
 /// benchmark DBpedia parsing
 version(none)
-unittest
+@safe unittest
 {
     const rootPath = `/home/per/Knowledge/DBpedia/latest`;
     alias R = Bz2libFileInputRange;

@@ -329,12 +329,10 @@ private:
 struct Bz2libFileInputRange
 {
     enum chunkSize = 128 * 1024; // 128K
-
     enum defaultExtension = `.bz2`;
-
     enum useGC = false;
 
-    @safe:
+@safe:
 
     this(in char[] path) @trusted
     {

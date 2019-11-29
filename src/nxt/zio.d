@@ -4,6 +4,8 @@
  */
 module nxt.zio;
 
+@safe:
+
 struct GzipFileInputRange
 {
     import std.stdio : File;
@@ -13,7 +15,7 @@ struct GzipFileInputRange
 
     enum defaultExtension = `.gz`;
 
-    this(in char[] path)
+    this(in char[] path) @trusted
     {
         _f = File(path, `r`);
         _chunkRange = _f.byChunk(chunkSize);
@@ -21,7 +23,7 @@ struct GzipFileInputRange
         loadNextChunk();
     }
 
-    void loadNextChunk()
+    void loadNextChunk() @trusted
     {
         if (!_chunkRange.empty)
         {
@@ -52,8 +54,8 @@ struct GzipFileInputRange
         }
     }
 
-    pragma(inline, true):
-    @safe pure nothrow @nogc:
+pragma(inline, true):
+@safe pure nothrow @nogc:
 
     @property ubyte front() const
     {
@@ -70,9 +72,9 @@ private:
     UnCompress _uncompress;
     File _f;
     ReturnType!(_f.byChunk) _chunkRange;
-    bool _exhausted;
-    ubyte[] _uncompressedBuf;
-    size_t _bufIx;
+    bool _exhausted;            ///< True if exhausted.
+    ubyte[] _uncompressedBuf;   ///< Uncompressed buffer.
+    size_t _bufIx;              ///< Current byte index into `_uncompressedBuf`.
 }
 
 /** Is `true` iff `R` is a block input range.

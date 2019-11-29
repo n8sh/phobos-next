@@ -434,7 +434,7 @@ void testInputRange(FileInputRange)() @safe
 
     enum path = `test` ~ FileInputRange.defaultExtension;
 
-    const wholeSource = "abc\ndef\nghi";
+    const wholeSource = "abc\ndef\nghi"; // contents of source
 
     foreach (const n; wholeSource.length .. wholeSource.length) // TODO from 0
     {

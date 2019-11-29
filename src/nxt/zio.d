@@ -110,7 +110,7 @@ class DecompressByLine(BlockInputRange)
         popFront();
     }
 
-    void popFront()
+    void popFront() @trusted
     {
         _lbuf.shrinkTo(0);
 
@@ -201,19 +201,19 @@ class GzipOut
     import std.zlib: Compress, HeaderFormat;
     import std.stdio: File;
 
-    this(File file)
+    this(File file) @trusted
     {
         _f = file;
         _compress = new Compress(HeaderFormat.gzip);
     }
 
-    void compress(const string s)
+    void compress(const string s) @trusted
     {
         auto compressed = _compress.compress(s);
         _f.rawWrite(compressed);
     }
 
-    void finish()
+    void finish() @trusted
     {
         auto compressed = _compress.flush;
         _f.rawWrite(compressed);
@@ -284,8 +284,8 @@ struct ZlibFileInputRange
         }
     }
 
-    pragma(inline, true):
-    pure nothrow @nogc:
+pragma(inline, true):
+pure nothrow @nogc:
 
     @property ubyte front() const @trusted
     {

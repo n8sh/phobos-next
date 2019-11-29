@@ -460,7 +460,7 @@ void testInputRange(FileInputRange)() @safe
     }
 }
 
-unittest
+@safe unittest
 {
     testInputRange!(GzipFileInputRange);
     testInputRange!(ZlibFileInputRange);

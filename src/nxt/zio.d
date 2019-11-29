@@ -585,8 +585,3 @@ static private void showStat(T)(in const(char[]) tag,
              cast(double)(after - before).total!`msecs`,
              cast(double)(after - before).total!`usecs` / lineCount);
 }
-
-version(unittest)
-{
-    import std.stdio : write, writeln, stdout;
-}

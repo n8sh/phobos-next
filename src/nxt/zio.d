@@ -428,7 +428,6 @@ private:
     size_t _bufIx;              // current stream read index in `_buf`
 }
 
-version(none)
 void testInputRange(FileInputRange)()
 {
     import std.stdio : File;
@@ -470,6 +469,7 @@ unittest
 
 /** Read Age of Aqcuisitions.
  */
+version(none)
 unittest
 {
     import std.path: expandTilde;

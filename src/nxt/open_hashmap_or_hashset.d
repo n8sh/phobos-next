@@ -132,7 +132,9 @@ struct OpenHashMapOrSet(K, V = void,
     enum hasAddressLikeKey = (isAddress!K ||
                               isSlice!K);
 
-    /** Use linear search instead probing when store is small than `_linearSearchMaxSize`. */
+    /** Use linear search instead probing when `_store` is smaller than
+     * `_linearSearchMaxSize`.
+     */
     private enum _useSmallLinearSearch = false;
 
     /** Stores less than or equal to this size will be searched using linear

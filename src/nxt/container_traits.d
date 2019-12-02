@@ -222,7 +222,12 @@ template isNullable(T)
      * is(typeof(T.init.isNull()) == bool)
      */
     // use static if's for full lazyness of trait evaluations in order of likelyhood
-    static if (hasStandardNullValue!T)
+    static if (is(T == typeof(null)) ||
+               is(T == class))
+    {
+        enum isNullable = true; // prevent instantiation of `hasStandardNullValue`
+    }
+    else static if (hasStandardNullValue!T)
     {
         enum isNullable = true;
     }

@@ -1009,14 +1009,21 @@ struct OpenHashMapOrSet(K, V = void,
         pragma(inline, true);
 
         // key
-        static if (hasHoleableKey)
+        static if (_doSmallLinearSearch)
         {
-            keyOf(_store[index]) = holeKeyConstant;
+            keyOf(_store[index]).nullify();
         }
         else
         {
-            keyOf(_store[index]).nullify();
-            tagHoleAtIndex(index);
+            static if (hasHoleableKey)
+            {
+                keyOf(_store[index]) = holeKeyConstant;
+            }
+            else
+            {
+                keyOf(_store[index]).nullify();
+                tagHoleAtIndex(index);
+            }
         }
 
         // value
@@ -1854,6 +1861,22 @@ private:
             static if (hasHoleableKey) { assert(!isHoleKeyConstant(key)); }
         }
 
+        static if (_doSmallLinearSearch)
+        {
+            if (_store.length * T.sizeof <= _linearSearchMaxSize)
+            {
+                foreach (const index, const ref element; _store) // linear search is faster for small arrays
+                {
+                    if ((keyOf(element).isNull ||
+                         keyEqualPredFn(keyOf(element), key)))
+                    {
+                        return index;
+                    }
+                }
+                return _store.length;
+            }
+        }
+
         static if (isCopyable!T)
         {
             /* don't use `auto ref` for copyable `T`'s to prevent
@@ -1876,7 +1899,6 @@ private:
         {
             static if (hasHoleableKey)
             {
-                // TODO add linear search case for small stores
                 alias pred = (const scope auto ref element) => (keyOf(element).isNull ||
                                                                 keyEqualPredFn(keyOf(element), key));
             }
@@ -1886,25 +1908,6 @@ private:
                               const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
                                                                 (keyOf(element).isNull ||
                                                                  keyEqualPredFn(keyOf(element), key)));
-            }
-        }
-
-        static if (_doSmallLinearSearch)
-        {
-            if (_store.length * T.sizeof <= _linearSearchMaxSize)
-            {
-                foreach (const index, const ref element; _store) // linear search is faster for small arrays
-                {
-                    static if (hasHoleableKey)
-                    {
-                        if (pred(element)) { return index; }
-                    }
-                    else
-                    {
-                        if (pred(index, element)) { return index; }
-                    }
-                }
-                return _store.length;
             }
         }
 
@@ -1920,6 +1923,25 @@ private:
             assert(!key.isNull);
             static if (hasHoleableKey) { assert(!isHoleKeyConstant(key)); }
         }
+
+
+        static if (_doSmallLinearSearch)
+        {
+            if (_store.length * T.sizeof <= _linearSearchMaxSize)
+            {
+                foreach (const index, const ref element; _store) // linear search is faster for small arrays
+                {
+                    if ((keyOf(element).isNull ||
+                         keyEqualPredFn(keyOf(element), key)))
+                    {
+                        return index;
+                    }
+                }
+                return _store.length;
+            }
+
+        }
+
         static if (isCopyable!T)
         {
             /* don't use `auto ref` for copyable `T`'s to prevent
@@ -1927,7 +1949,6 @@ private:
              * with LDC. TODO remove when LDC is fixed. */
             static if (hasHoleableKey)
             {
-                // TODO add linear search case for small stores
                 alias hitPred = (const scope element) => (keyOf(element).isNull ||
                                                           keyEqualPredFn(keyOf(element), key));
                 alias holePred = (const scope element) => (isHoleKeyConstant(keyOf(element)));
@@ -1946,7 +1967,6 @@ private:
         {
             static if (hasHoleableKey)
             {
-                // TODO add linear search case for small stores
                 alias hitPred = (const scope auto ref element) => (keyOf(element).isNull ||
                                                                    keyEqualPredFn(keyOf(element), key));
                 alias holePred = (const scope auto ref element) => (isHoleKeyConstant(keyOf(element)));
@@ -1959,27 +1979,6 @@ private:
                                                                     keyEqualPredFn(keyOf(element), key)));
                 alias holePred = (const scope index, // TODO use only index
                                   const scope auto ref element) => (hasHoleAtPtrIndex(_holesPtr, index));
-            }
-        }
-
-        static if (_doSmallLinearSearch)
-        {
-            if (_store.length * T.sizeof <= _linearSearchMaxSize)
-            {
-                foreach (const index, const ref element; _store) // linear search is faster for small arrays
-                {
-                    static if (hasHoleableKey)
-                    {
-                        if (holePred(element)) { holeIndex = index; continue; }
-                        if (hitPred(element)) { return index; }
-                    }
-                    else
-                    {
-                        if (holePred(index, element)) { holeIndex = index; continue; }
-                        if (hitPred(index, element)) { return index; }
-                    }
-                }
-                return _store.length; // miss
             }
         }
 

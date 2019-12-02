@@ -2542,6 +2542,10 @@ unittest
             auto key = K(i);
             auto value = V.withElements([VE(i)].s);
 
+            // TODO fix bug
+            // dbg("i: ", i);
+            // dbg("length: ", x.length);
+            // dbg("key: ", key);
             assert(x.contains(key));
             {
                 auto valuePtr = key in x;

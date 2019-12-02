@@ -2413,11 +2413,7 @@ unittest
     assert(x.contains(bb[1 .. 2]));
     assert(x.containsUsingLinearSearch(bb[1 .. 2]));
 
-    dbg("1");
-    dbg(x._store);
     x.remove(bb[0 .. 1]);
-    dbg(x._store);
-    dbg("2");
     assert(!x.contains(bb[1 .. 2]));
     assert(!x.containsUsingLinearSearch(bb[1 .. 2]));
 

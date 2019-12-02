@@ -4,7 +4,6 @@ module nxt.open_hashmap_or_hashset;
 // version = internalUnittest; // fed by dub (see dub.sdl) in unittest-internal mode
 
 import core.lifetime : emplace, move, moveEmplace;
-
 import nxt.container_traits : isNullable;
 import nxt.pure_mallocator : Mallocator = PureMallocator;
 // TODO import std.experimental.allocator.mallocator : Mallocator;
@@ -134,7 +133,7 @@ struct OpenHashMapOrSet(K, V = void,
                               isSlice!K);
 
     /** Use linear search instead probing when store is small than `_linearSearchMaxSize`. */
-    private enum _doSmallLinearSearch = false;
+    private enum _useSmallLinearSearch = false;
 
     /** Stores less than or equal to this size will be searched using linear
      * searcnh.
@@ -805,7 +804,7 @@ struct OpenHashMapOrSet(K, V = void,
         assert(!key.isNull);
         static if (hasHoleableKey) { assert(!isHoleKeyConstant(cast(K)adjustKeyType(key))); }
 
-        static if (_doSmallLinearSearch)
+        static if (_useSmallLinearSearch)
         {
             if (_store.length * T.sizeof <= _linearSearchMaxSize)
             {
@@ -848,7 +847,7 @@ struct OpenHashMapOrSet(K, V = void,
         {
             foreach (const ref bin; _store)
             {
-                if (keyEqualPredFn(key, keyOf(bin))) { return true; }
+                if (keyEqualPredFn(keyOf(bin), key)) { return true; }
             }
             return false;
         }
@@ -1002,7 +1001,7 @@ struct OpenHashMapOrSet(K, V = void,
         pragma(inline, true);
 
         // key
-        static if (_doSmallLinearSearch)
+        static if (_useSmallLinearSearch)
         {
             keyOf(_store[index]).nullify();
         }
@@ -1618,6 +1617,24 @@ struct OpenHashMapOrSet(K, V = void,
     {
         version(LDC) pragma(inline, true);
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
+
+        static if (_useSmallLinearSearch)
+        {
+            if (_store.length * T.sizeof <= _linearSearchMaxSize)
+            {
+                foreach (const index, const ref element; _store) // linear search is faster for small arrays
+                {
+                    if (keyEqualPredFn(keyOf(element), key))
+                    {
+                        tagAsLazilyDeletedElementAtIndex(index);
+                        _count = _count - 1;
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(adjustKeyType(key));
         if (hitIndex != _store.length &&
             isOccupiedAtIndex(hitIndex))
@@ -1854,7 +1871,7 @@ private:
             static if (hasHoleableKey) { assert(!isHoleKeyConstant(key)); }
         }
 
-        static if (_doSmallLinearSearch)
+        static if (_useSmallLinearSearch)
         {
             if (_store.length * T.sizeof <= _linearSearchMaxSize)
             {
@@ -1918,7 +1935,7 @@ private:
         }
 
 
-        static if (_doSmallLinearSearch)
+        static if (_useSmallLinearSearch)
         {
             if (_store.length * T.sizeof <= _linearSearchMaxSize)
             {
@@ -2396,7 +2413,11 @@ unittest
     assert(x.contains(bb[1 .. 2]));
     assert(x.containsUsingLinearSearch(bb[1 .. 2]));
 
+    dbg("1");
+    dbg(x._store);
     x.remove(bb[0 .. 1]);
+    dbg(x._store);
+    dbg("2");
     assert(!x.contains(bb[1 .. 2]));
     assert(!x.containsUsingLinearSearch(bb[1 .. 2]));
 

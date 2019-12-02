@@ -146,8 +146,8 @@ template isSetOf(T, E)
  */
 template hasStandardNullValue(T)
 {
-    static if (is(T == typeof(null)) ||
-               is(T == class))
+    static if (is(T == class) ||
+               is(T == typeof(null)))
     {
         enum hasStandardNullValue = true; // fast path first
     }
@@ -222,8 +222,8 @@ template isNullable(T)
      * is(typeof(T.init.isNull()) == bool)
      */
     // use static if's for full lazyness of trait evaluations in order of likelyhood
-    static if (is(T == typeof(null)) ||
-               is(T == class))
+    static if (is(T == class) ||
+               is(T == typeof(null)))
     {
         enum isNullable = true; // prevent instantiation of `hasStandardNullValue`
     }

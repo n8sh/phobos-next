@@ -794,7 +794,7 @@ struct OpenHashMapOrSet(K, V = void,
      *
      * Returns: `true` if element is present, `false` otherwise.
      */
-    bool contains(SomeKey)(const scope SomeKey key) const @trusted // template-lazy, `auto ref` here makes things slow
+    bool contains(SomeKey)(const scope SomeKey key) const scope @trusted // template-lazy, `auto ref` here makes things slow
     if (isScopedKeyType!(typeof(key)))
     {
         // pragma(msg, SomeKey.stringof ~ " " ~ K.stringof, " ", is(K : SomeKey), " ", is(SomeKey : K));
@@ -804,6 +804,14 @@ struct OpenHashMapOrSet(K, V = void,
 
         assert(!key.isNull);
         static if (hasHoleableKey) { assert(!isHoleKeyConstant(cast(K)adjustKeyType(key))); }
+
+        static if (_doSmallLinearSearch)
+        {
+            if (_store.length * T.sizeof <= _linearSearchMaxSize)
+            {
+                return containsUsingLinearSearch(key);
+            }
+        }
 
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)adjustKeyType(key)); // cast scoped `key` is @trusted
         return (hitIndex != _store.length &&
@@ -820,7 +828,7 @@ struct OpenHashMapOrSet(K, V = void,
      *
      * Returns: `true` if element is present, `false` otherwise.
      */
-    bool containsUsingLinearSearch(SomeKey)(const scope SomeKey key) const @trusted // template-lazy, `auto ref` here makes things slow
+    bool containsUsingLinearSearch(SomeKey)(const scope SomeKey key) const scope @trusted // template-lazy, `auto ref` here makes things slow
     if (isScopedKeyType!(typeof(key)))
     {
         assert(!key.isNull);
@@ -834,30 +842,15 @@ struct OpenHashMapOrSet(K, V = void,
             debug static assert(args.length == 2,
                           "linear search for Nullable without nullValue is slower than default `this.contains()` and is not allowed");
             alias UnderlyingType = args[0];
-            return (cast(UnderlyingType[])_store).canFind!keyEqualPred(key.get());
+            return (cast(UnderlyingType[])_store).canFind!keyEqualPredFn(key.get());
         }
         else
         {
-            // TODO optimize using sentinel being `key` after end of `_store`
             foreach (const ref bin; _store)
             {
-                static if (keyEqualPred == "a == b")
-                {
-                    if (key == bin) { return true; } // fast compilation path
-                }
-                else static if (keyEqualPred == "a is b")
-                {
-                    if (key is bin) { return true; } // fast compilation path
-                }
-                else
-                {
-                    import std.functional : binaryFun;
-                    alias pred = binaryFun!keyEqualPred;
-                    if (pred(key, bin)) { return true; }
-                }
+                if (keyEqualPredFn(key, keyOf(bin))) { return true; }
             }
             return false;
-            // return _store.canFind!keyEqualPred(key);
         }
     }
 

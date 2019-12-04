@@ -89,9 +89,13 @@ import std.functional : binaryFun;
 import std.range : SearchPolicy;
 import nxt.range_ex : haveCommonElementType;
 
-struct SetIntersectionFast(alias less = "a < b",
-                           SearchPolicy preferredSearchPolicy = SearchPolicy.gallop,
-                           Rs...)
+/** Intersection of two or more ranges of type `Rs`.
+ *
+ * See_Also: https://forum.dlang.org/post/puwffthbqaktlqnourrs@forum.dlang.org
+ */
+private struct SetIntersectionFast(alias less = "a < b",
+                                   SearchPolicy preferredSearchPolicy = SearchPolicy.gallop,
+                                   Rs...)
     if (Rs.length >= 2 &&
         allSatisfy!(isInputRange, Rs) &&
         haveCommonElementType!Rs)
@@ -229,7 +233,10 @@ auto assumeMoveableSorted(alias pred = "a < b", R)(R r)
     return MoveableSortedRange!(Unqual!R, pred)(move(r)); // TODO remove `move` when compiler does it for us
 }
 
-/// ditto
+/** Get intersection of `ranges`.
+ *
+ * See_Also: https://forum.dlang.org/post/puwffthbqaktlqnourrs@forum.dlang.org
+ */
 MoveableSortedRange!(SetIntersectionFast!(less, preferredSearchPolicy, Rs))
 setIntersectionFast(alias less = "a < b",
                     SearchPolicy preferredSearchPolicy = SearchPolicy.gallop,

@@ -78,9 +78,9 @@ struct OpenHashMapOrSet(K, V = void,
                         string keyEqualPred = defaultKeyEqualPredOf!(K),
                         alias Allocator = Mallocator.instance,
                         bool borrowChecked = false)
-    if (isNullable!K
-        // isHashable!K
-        )
+if (isNullable!K
+    // isHashable!K
+    )
 {
     // pragma(msg, K.stringof, " => ", V.stringof);
     import core.exception : onOutOfMemoryError;

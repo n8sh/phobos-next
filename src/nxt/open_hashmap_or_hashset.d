@@ -35,7 +35,7 @@ import nxt.pure_mallocator : Mallocator = PureMallocator;
  *
  * TODO remove use of `static if (isCopyable` in cases where compiler can handle more moves
  *
- * TODO use mmap allocator when store is larger than at least 4 pages
+ * TODO use mmap allocator when _store.siezof is larger than at least 8 pages
  *
  * TODO use `StoreK` in store and cast between it and `KeyType`
  *

@@ -135,7 +135,7 @@ if (isNullable!K
     /** Use linear search instead probing when `_store` is smaller than
      * `_linearSearchMaxSize`.
      */
-    private enum _useSmallLinearSearch = false;
+    private enum _useSmallLinearSearch = true;
 
     /** Stores less than or equal to this size will be searched using linear
      * searcnh.
@@ -1005,20 +1005,24 @@ if (isNullable!K
         // key
         static if (_useSmallLinearSearch)
         {
-            keyOf(_store[index]).nullify();
+            if (_store.length * T.sizeof <= _linearSearchMaxSize)
+            {
+                keyOf(_store[index]).nullify();
+                goto done;
+            }
+        }
+
+        static if (hasHoleableKey)
+        {
+            keyOf(_store[index]) = holeKeyConstant;
         }
         else
         {
-            static if (hasHoleableKey)
-            {
-                keyOf(_store[index]) = holeKeyConstant;
-            }
-            else
-            {
-                keyOf(_store[index]).nullify();
-                tagHoleAtIndex(index);
-            }
+            keyOf(_store[index]).nullify();
+            tagHoleAtIndex(index);
         }
+
+    done:
 
         // value
         static if (hasValue)
@@ -2542,10 +2546,6 @@ unittest
             auto key = K(i);
             auto value = V.withElements([VE(i)].s);
 
-            // TODO fix bug
-            // dbg("i: ", i);
-            // dbg("length: ", x.length);
-            // dbg("key: ", key);
             assert(x.contains(key));
             {
                 auto valuePtr = key in x;

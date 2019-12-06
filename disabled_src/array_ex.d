@@ -1,38 +1,38 @@
 /** Array container(s) with optional sortedness via template-parameter
-    `Ordering` and optional use of GC via `useGCAllocation`.
-
-    TODO UniqueArray!(const(E)) where E has indirections
-
-    TODO Support for constructing from r-value range (container) of non-copyable
-    elements.
-
-    TODO Add some way to implement lazy sorting either for the whole array (via
-    bool flag) or completeSort at a certain offset (extra member).
-
-    TODO Replace ` = void` with construction or emplace
-
-    TODO Break out common logic into private `BasicArray` and reuse with `alias
-    this` to express StandardArray, SortedArray, SortedSetArray
-
-    TODO Use std.array.insertInPlace in insert()?
-    TODO Use std.array.replaceInPlace?
-
-    TODO Use `std.algorithm.mutation.move` and `std.range.primitives.moveAt`
-    when moving internal sub-slices
-
-    TODO Add `c.insertAfter(r, x)` where `c` is a collection, `r` is a range
-    previously extracted from `c`, and `x` is a value convertible to
-    collection's element type. See_Also:
-    https://forum.dlang.org/post/n3qq6e$2bis$1@digitalmars.com
-
-    TODO replace qcmeman with std.experimental.allocator parameter defaulting to
-    `Mallocator`
-
-    TODO use `integer_sorting.radixSort` when element type `isSigned` or `isUnsigned` and
-    above or below a certain threshold calculated by my benchmarks
-
-    TODO Remove explicit moves when DMD std.algorithm.mutation.move calls these
-    members for us (if they exist)
+ * `Ordering` and optional use of GC via `useGCAllocation`.
+ *
+ * TODO UniqueArray!(const(E)) where E has indirections
+ *
+ * TODO Support for constructing from r-value range (container) of non-copyable
+ * elements.
+ *
+ * TODO Add some way to implement lazy sorting either for the whole array (via
+ * bool flag) or completeSort at a certain offset (extra member).
+ *
+ * TODO Replace ` = void` with construction or emplace
+ *
+ * TODO Break out common logic into private `BasicArray` and reuse with `alias
+ * this` to express StandardArray, SortedArray, SortedSetArray
+ *
+ * TODO Use std.array.insertInPlace in insert()?
+ * TODO Use std.array.replaceInPlace?
+ *
+ * TODO Use `std.algorithm.mutation.move` and `std.range.primitives.moveAt`
+ * when moving internal sub-slices
+ *
+ * TODO Add `c.insertAfter(r, x)` where `c` is a collection, `r` is a range
+ * previously extracted from `c`, and `x` is a value convertible to
+ * collection's element type. See_Also:
+ * https://forum.dlang.org/post/n3qq6e$2bis$1@digitalmars.com
+ *
+ * TODO replace qcmeman with std.experimental.allocator parameter defaulting to
+ * `Mallocator`
+ *
+ * TODO use `integer_sorting.radixSort` when element type `isSigned` or `isUnsigned` and
+ * above or below a certain threshold calculated by my benchmarks
+ *
+ * TODO Remove explicit moves when DMD std.algorithm.mutation.move calls these
+ * members for us (if they exist)
  */
 module nxt.array_ex;
 
@@ -76,17 +76,17 @@ enum Assignment
 }
 
 /** Array of value types `E` with optional sortedness/ordering.
-
-    Always `@safe pure nothrow @nogc` when possible.
-
-    `Assignment` either
-    - is disabled
-    - does Rust-style move, or
-    - does C++-style copying
-
-    Params:
-        useGCAllocation = `true` iff `GC.malloc` is used for store allocation,
-                          otherwise C's `{m,ce,re}alloc()` is used.
+ *
+ * Always `@safe pure nothrow @nogc` when possible.
+ *
+ * `Assignment` either
+ * - is disabled
+ * - does Rust-style move, or
+ * - does C++-style copying
+ *
+ * Params:
+ * GCAllocation = `true` iff `GC.malloc` is used for store allocation,
+ * otherwise C's `{m,ce,re}alloc()` is used.
  */
 private struct Array(E,
                      // TODO merge these flags into one to reduce template bloat
@@ -95,8 +95,8 @@ private struct Array(E,
                      bool useGCAllocation = false,
                      CapacityType = size_t, // see also https://github.com/izabera/s
                      alias less = "a < b") // TODO move out of this definition and support only for the case when `ordering` is not `Ordering.unsorted`
-if (is(CapacityType == ulong) ||       // 3 64-bit words
-        is(CapacityType == uint))          // 2 64-bit words
+if (is(CapacityType == ulong) ||           // 3 64-bit words
+    is(CapacityType == uint))              // 2 64-bit words
 {
     import core.internal.traits : hasElaborateDestructor;
     import core.lifetime : emplace, move, moveEmplace;

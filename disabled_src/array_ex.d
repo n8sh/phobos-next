@@ -1,5 +1,4 @@
-/** Array container(s) with optional sortedness via template-parameter
- * `Ordering` and optional use of GC via `useGCAllocation`.
+/** Array container(s) with optional sortedness via template-parameter `Ordering` and optional use of GC via `useGCAllocation`.
  *
  * TODO UniqueArray!(const(E)) where E has indirections
  *

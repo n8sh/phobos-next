@@ -44,11 +44,13 @@ enum TOK
 /** Lisp-like token. */
 struct Token
 {
-    this(TOK tok, const(char)[] src = null) @safe pure nothrow @nogc
+@safe:
+    this(TOK tok, const(char)[] src = null) pure nothrow @nogc
     {
         this.tok = tok;
         this.src = src;
     }
+
     @property final void toString(scope void delegate(scope const(char)[]) sink) const @trusted
     {
         switch (tok)
@@ -84,6 +86,7 @@ struct Token
             break;
         }
     }
+
     TOK tok;
     const(char)[] src;          // optional source slice
 }
@@ -91,8 +94,7 @@ struct Token
 /** Lisp-like S-expression. */
 struct SExpr
 {
-    Token token;
-    SExpr[] subs;
+@safe:
     @property final void toString(scope void delegate(scope const(char)[]) sink) const @trusted
     {
         if (subs) { sink(`(`); }
@@ -113,6 +115,9 @@ struct SExpr
 
         if (subs) { sink(`)`); }
     }
+
+    Token token;
+    SExpr[] subs;
 }
 
 /** Returns: true if `s` is null-terminated (ending with `'\0'`).

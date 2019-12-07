@@ -142,7 +142,7 @@ struct LispParser
 
     alias Input = const(char)[];
 
-    @safe pure:
+@safe pure:
 
     /** Parse `input` into returned array of expressions (`SExpr`).
      */

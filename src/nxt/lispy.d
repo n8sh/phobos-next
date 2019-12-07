@@ -105,7 +105,9 @@ struct SExpr
         foreach (const ref sub; subs)
         {
             import std.algorithm.comparison : among;
-            if (!lastTok.among!(TOK.comma, TOK.backquote, TOK.singlequote))
+            if (!lastTok.among!(TOK.comma,
+                                TOK.backquote,
+                                TOK.singlequote))
             {
                 sink(` `);
             }

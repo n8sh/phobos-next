@@ -74,11 +74,11 @@ struct Token
             sink(`()`);
             break;
         default:
-            import std.conv : to;
-            sink(tok.to!string);
+            // import std.conv : to;
+            // sink(tok.to!string);
             if (src)
             {
-                sink(`:`);
+                // sink(`:`);
                 sink(src);
             }
             break;
@@ -575,4 +575,16 @@ struct LispFileParser
 
     _topExprs.popFront();
     assert(_topExprs.empty);
+
 }
+
+@trusted unittest               // TODO @safe
+{
+    const text = ";;a comment\n(instance AttrFn BinaryFunction);;another comment\0";
+    auto _topExprs = LispParser(text);
+    import std.conv : to;
+    assert(_topExprs.front.to!string == `(instance AttrFn BinaryFunction)`);
+    assert(!_topExprs.empty);
+}
+
+import dbgio;

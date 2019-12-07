@@ -589,5 +589,3 @@ struct LispFileParser
     assert(_topExprs.front.to!string == `(instance AttrFn BinaryFunction)`);
     assert(!_topExprs.empty);
 }
-
-import dbgio;

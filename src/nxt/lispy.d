@@ -129,8 +129,7 @@ struct SExpr
  *
  * See_Also: https://en.wikipedia.org/wiki/Sentinel_value
  */
-bool isNullTerminated(const(char)[] s)
-    @safe pure nothrow @nogc
+bool isNullTerminated(const(char)[] s) @safe pure nothrow @nogc
 {
     pragma(inline, true);
     return s.length >= 1 && s[$ - 1] == '\0';
@@ -263,7 +262,6 @@ private:
     /// Skip line comment.
     void skipLineComment() scope nothrow @nogc
     {
-        pragma(inline);
         while (!peekNext().among!('\0', endOfLineChars))
         {
             _offset += 1;
@@ -273,7 +271,6 @@ private:
     /// Get symbol.
     Input getSymbol() return nothrow @nogc
     {
-        pragma(inline);
         size_t i = 0;
         while ((!peekNextNth(i).among!('\0', '(', ')', whiteChars))) // NOTE this is faster than !src[i].isWhite
         {
@@ -285,7 +282,6 @@ private:
     /// Get numeric literal (number) in integer or decimal form.
     Input getNumberOrSymbol(out bool gotSymbol) return nothrow @nogc
     {
-        pragma(inline);
         size_t i = 0;
         while ((peekNextNth(i).among!('+', '-', '.', digitChars))) // NOTE this is faster than !src[i].isWhite
         {
@@ -309,7 +305,6 @@ private:
     /// Get whitespace.
     Input getWhitespace() return nothrow @nogc
     {
-        pragma(inline);
         size_t i = 0;
         while (peekNextNth(i).among!(whiteChars)) // NOTE this is faster than `src[i].isWhite`
         {
@@ -321,7 +316,6 @@ private:
     /// Get string literal in input.
     Input getStringLiteral() return nothrow @nogc
     {
-        pragma(inline);
         dropFront();
         size_t i = 0;
         while (!peekNextNth(i).among!('\0', '"'))

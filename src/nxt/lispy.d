@@ -129,7 +129,7 @@ struct SExpr
  *
  * See_Also: https://en.wikipedia.org/wiki/Sentinel_value
  */
-bool isNullTerminated(const(char)[] s) @safe pure nothrow @nogc
+bool isNullTerminated(scope const(char)[] s) @safe pure nothrow @nogc
 {
     pragma(inline, true);
     return s.length >= 1 && s[$ - 1] == '\0';

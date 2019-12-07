@@ -172,7 +172,7 @@ struct LispParser
         return _endOfFile;
     }
 
-    ref const(SExpr) front() const return
+    ref const(SExpr) front() const scope return
     {
         pragma(inline, true);
         assert(!empty);
@@ -578,7 +578,7 @@ struct LispFileParser
 
 }
 
-@trusted unittest               // TODO @safe
+@safe unittest
 {
     const text = ";;a comment\n(instance AttrFn BinaryFunction);;another comment\0";
     auto _topExprs = LispParser(text);

@@ -578,6 +578,7 @@ struct LispFileParser
 
 }
 
+///
 @safe unittest
 {
     const text = ";;a comment\n(instance AttrFn BinaryFunction);;another comment\0";

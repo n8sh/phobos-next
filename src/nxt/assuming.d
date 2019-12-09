@@ -9,7 +9,8 @@ import std.traits : isFunctionPointer, isDelegate, functionAttributes, FunctionA
 void assumeNogc(alias fun, T...)(T xs) @nogc
 {
     static auto assumeNogcPtr(T)(T f)
-    if (isFunctionPointer!T || isDelegate!T)
+    if (isFunctionPointer!T ||
+        isDelegate!T)
     {
         enum attrs = functionAttributes!T | FunctionAttribute.nogc;
         return cast(SetFunctionAttributes!(T, functionLinkage!T, attrs)) f;
@@ -23,7 +24,8 @@ void assumeNogc(alias fun, T...)(T xs) @nogc
  * See_Also: https://forum.dlang.org/post/hmucolyghbomttqpsili@forum.dlang.org
  */
 auto assumePure(T)(T t)
-if (isFunctionPointer!T || isDelegate!T)
+if (isFunctionPointer!T ||
+    isDelegate!T)
 {
     enum attrs = functionAttributes!T | FunctionAttribute.pure_;
     return cast(SetFunctionAttributes!(T, functionLinkage!T, attrs)) t;
@@ -45,7 +47,8 @@ version(unittest)
 }
 
 auto assumePureNogc(T)(T t)
-if (isFunctionPointer!T || isDelegate!T)
+if (isFunctionPointer!T ||
+    isDelegate!T)
 {
     enum attrs = functionAttributes!T | FunctionAttribute.pure_ | FunctionAttribute.nogc;
     return cast(SetFunctionAttributes!(T, functionLinkage!T, attrs)) t;

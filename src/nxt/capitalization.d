@@ -77,6 +77,8 @@ if (isSomeString!S)
 {
     assert(!`A`.isLowercased);
     assert(`a`.isLowercased);
+    assert(!`Ä`.isLowercased);
+    assert(`ä`.isLowercased);
 }
 
 /** Check if `s` uppercased, that is only contains upper-case characters.

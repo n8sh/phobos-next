@@ -79,6 +79,8 @@ if (isSomeString!S)
     assert(`a`.isLowercased);
 }
 
+/** Check if `s` uppercased, that is only contains upper-case characters.
+ */
 import std.uni : isUpper;
 bool isUppercased(S, alias pred = isUpper)(S s)
 if (isSomeString!S)
@@ -101,6 +103,8 @@ if (isSomeString!S)
 {
     assert(`A`.isUppercased);
     assert(!`a`.isUppercased);
+    assert(`Ä`.isUppercased);
+    assert(!`ä`.isUppercased);
 }
 
 /** Check if `s` has proper noun capitalization.

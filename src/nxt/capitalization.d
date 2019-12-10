@@ -55,6 +55,8 @@ if (isSomeString!S)
 
 import std.uni : isLower;
 
+/** Check if `s` uppercased, that is only contains lower-case characters.
+ */
 bool isLowercased(S, alias pred = isLower)(S s)
 if (isSomeString!S)
 {

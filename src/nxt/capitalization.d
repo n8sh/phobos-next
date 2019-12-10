@@ -4,7 +4,7 @@ import std.traits : isSomeString;
 
 /** Check if `s` starts with a capital letter followed by a lower letter.
  */
-bool isCapitalizedEasy(S)(S s)
+bool isCapitalizedSimple(S)(S s)
 if (isSomeString!S)
 {
     import std.range.primitives : empty, front, popFront;
@@ -22,13 +22,13 @@ if (isSomeString!S)
 
 @safe pure unittest
 {
-    assert(!`A`.isCapitalizedEasy);
-    assert(!`a`.isCapitalizedEasy);
-    assert(!`alpha`.isCapitalizedEasy);
-    assert(!`ALPHA`.isCapitalizedEasy);
-    assert(!`aThing`.isCapitalizedEasy);
-    assert(`Alpha`.isCapitalizedEasy);
-    assert(`Jack London`.isCapitalizedEasy);
+    assert(!`A`.isCapitalizedSimple);
+    assert(!`a`.isCapitalizedSimple);
+    assert(!`alpha`.isCapitalizedSimple);
+    assert(!`ALPHA`.isCapitalizedSimple);
+    assert(!`aThing`.isCapitalizedSimple);
+    assert(`Alpha`.isCapitalizedSimple);
+    assert(`Jack London`.isCapitalizedSimple);
 }
 
 /** Check if `s` starts with a capital letter followed by a lower letter.

@@ -147,10 +147,10 @@ if (isSomeString!S)
     assert(!`Jack London`.isCapitalized);
 }
 
-/** Return `true` if `s` has proper name-style capitalization, such as in "Alpha
- * Centauri".
+/** Return `true` if `s` has proper name capitalization, such as in
+ * "Africa" or "South Africa".
  */
-bool isNameCapitalized(S)(S s)
+bool isProperNameCapitalized(S)(S s)
 if (isSomeString!S)
 {
     import nxt.splitter_ex : splitterASCII;
@@ -174,25 +174,25 @@ if (isSomeString!S)
 ///
 @safe pure unittest
 {
-    assert(!`alpha`.isNameCapitalized);
-    assert(!`alpha centauri`.isNameCapitalized);
-    assert(!`ALPHA`.isNameCapitalized);
-    assert(!`ALPHA CENTAURI`.isNameCapitalized);
-    assert(!`aThing`.isNameCapitalized);
-    assert(`Alpha`.isNameCapitalized);
-    assert(`Alpha Centauri`.isNameCapitalized);
-    assert(`11104 Airion`.isNameCapitalized);
-    assert(`New York City`.isNameCapitalized);
-    assert(`1-Hexanol`.isNameCapitalized);
-    assert(`11-Hexanol`.isNameCapitalized);
-    assert(`22nd Army`.isNameCapitalized);
-    assert(!`22nd army`.isNameCapitalized);
-    assert(`2nd World War`.isNameCapitalized);
-    assert(`Second World War`.isNameCapitalized);
-    assert(`Värmland`.isNameCapitalized);
-    assert(!`The big sky`.isNameCapitalized);
-    assert(`Suur-London`.isNameCapitalized);
-    assert(`Kingdom of Sweden`.isNameCapitalized);
-    assert(`Stratford upon Avon`.isNameCapitalized);
-    assert(`Henry II`.isNameCapitalized);
+    assert(!`alpha`.isProperNameCapitalized);
+    assert(!`alpha centauri`.isProperNameCapitalized);
+    assert(!`ALPHA`.isProperNameCapitalized);
+    assert(!`ALPHA CENTAURI`.isProperNameCapitalized);
+    assert(!`aThing`.isProperNameCapitalized);
+    assert(`Alpha`.isProperNameCapitalized);
+    assert(`Alpha Centauri`.isProperNameCapitalized);
+    assert(`11104 Airion`.isProperNameCapitalized);
+    assert(`New York City`.isProperNameCapitalized);
+    assert(`1-Hexanol`.isProperNameCapitalized);
+    assert(`11-Hexanol`.isProperNameCapitalized);
+    assert(`22nd Army`.isProperNameCapitalized);
+    assert(!`22nd army`.isProperNameCapitalized);
+    assert(`2nd World War`.isProperNameCapitalized);
+    assert(`Second World War`.isProperNameCapitalized);
+    assert(`Värmland`.isProperNameCapitalized);
+    assert(!`The big sky`.isProperNameCapitalized);
+    assert(`Suur-London`.isProperNameCapitalized);
+    assert(`Kingdom of Sweden`.isProperNameCapitalized);
+    assert(`Stratford upon Avon`.isProperNameCapitalized);
+    assert(`Henry II`.isProperNameCapitalized);
 }

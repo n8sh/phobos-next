@@ -103,7 +103,9 @@ if (isSomeString!S)
     assert(!`a`.isUppercased);
 }
 
-/** Check if `s` starts with a capital letter followed by only lower letters.
+/** Check if `s` has proper noun capitalization.
+ *
+ * That is, `s` starts with a capital letter followed by only lower letters.
  */
 bool isCapitalized(S)(S s)
 if (isSomeString!S)

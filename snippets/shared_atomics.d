@@ -1,8 +1,11 @@
 shared int x;
 shared int y;
 shared int* ptr;
+
 shared static this() { ptr = new int; } // silence null-dereference errors
+
 class NS { shared int x; }
+
 shared class S { int sx; }
 
 version(none)

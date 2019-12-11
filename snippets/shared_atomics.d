@@ -43,6 +43,10 @@ void ok()
     writeln(x);
     atomicOp!"+="(x, 1);
     writeln(x);
+    atomicOp!"*="(x, 2);
+    writeln(x);
+    atomicOp!"/="(x, 2);
+    writeln(x);
 }
 
 void main()

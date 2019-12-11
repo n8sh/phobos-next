@@ -1,6 +1,3 @@
-import core.atomic : atomicOp;
-import std.stdio : writeln;
-
 shared int x;
 shared int y;
 shared int* ptr;
@@ -40,6 +37,8 @@ void err()
 
 void ok()
 {
+    import core.atomic : atomicOp;
+    import std.stdio : writeln;
     writeln(x);
     atomicOp!"+="(x, 1);
     writeln(x);

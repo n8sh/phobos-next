@@ -1,4 +1,5 @@
 import core.atomic : atomicOp;
+import std.stdio : writeln;
 
 shared int x;
 shared int y;
@@ -7,6 +8,7 @@ shared static this() { ptr = new int; } // silence null-dereference errors
 class NS { shared int x; }
 shared class S { int sx; }
 
+version(none)
 void err()
 {
     ++x;
@@ -38,4 +40,12 @@ void err()
 
 void ok()
 {
+    writeln(x);
+    atomicOp!"+="(x, 1);
+    writeln(x);
+}
+
+void main()
+{
+    ok();
 }

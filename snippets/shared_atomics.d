@@ -1,3 +1,5 @@
+import core.atomic : atomicOp;
+
 shared int x;
 shared int y;
 shared int* ptr;
@@ -5,7 +7,7 @@ shared static this() { ptr = new int; } // silence null-dereference errors
 class NS { shared int x; }
 shared class S { int sx; }
 
-void main()
+void err()
 {
     ++x;
     x++;
@@ -32,4 +34,8 @@ void main()
     ns.x++;
     S s = new S;
     s.sx++;
+}
+
+void ok()
+{
 }

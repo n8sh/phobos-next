@@ -814,7 +814,7 @@ if (isNullable!K
             }
         }
 
-        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)adjustKeyType(key)); // cast scoped `key` is @trusted
+        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key); // cast scoped `key` is @trusted
         return (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex));
     }
@@ -1388,7 +1388,7 @@ if (isNullable!K
             assert(!key.isNull);
             static if (hasHoleableKey) { assert(!isHoleKeyConstant(cast(K)adjustKeyType(key))); }
 
-            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)key); // cast scoped `key` is @trusted
+            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key); // cast scoped `key` is @trusted
             if (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex))
             {
@@ -1448,7 +1448,7 @@ if (isNullable!K
         {
             version(LDC) pragma(inline, true);
             // pragma(msg, SomeKey, " => ", K);
-            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)adjustKeyType(key)); // cast scoped `key` is @trusted
+            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key); // cast scoped `key` is @trusted
             if (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex))
             {
@@ -1465,7 +1465,7 @@ if (isNullable!K
         if (isScopedKeyType!(typeof(key)))
         {
             version(LDC) pragma(inline, true);
-            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)adjustKeyType(key)); // cast scoped `key` is @trusted
+            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key); // cast scoped `key` is @trusted
             if (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex))
             {
@@ -1506,7 +1506,7 @@ if (isNullable!K
         if (isScopedKeyType!(SomeKey))
         {
             version(LDC) pragma(inline, true);
-            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(K)adjustKeyType(key)); // cast scoped `key` is @trusted
+            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key); // cast scoped `key` is @trusted
             if (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex))
             {
@@ -1641,7 +1641,7 @@ if (isNullable!K
             }
         }
 
-        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(adjustKeyType(key));
+        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
         if (hitIndex != _store.length &&
             isOccupiedAtIndex(hitIndex))
         {
@@ -1868,7 +1868,8 @@ private:
     /** Find index to `key` if it exists or to first empty slot found, skipping
      * (ignoring) lazily deleted slots.
      */
-    private size_t indexOfKeyOrVacancySkippingHoles(const scope K key) const @trusted scope // `auto ref` here makes things slow
+    private size_t indexOfKeyOrVacancySkippingHoles(SomeKey)(const scope SomeKey key) const @trusted scope // `auto ref` here makes things slow
+    // TODO if (...)
     {
         version(LDC) pragma(inline, true);
         version(internalUnittest)
@@ -3941,9 +3942,9 @@ unittest
         assert(!a.contains(k));
         assert(a.insert(K(ch)) == X.InsertionStatus.added);
 
-        // assert(a.remove(ch));
-        // assert(!a.contains(k));
-        // assert(a.insert(K(ch)) == X.InsertionStatus.added);
+        assert(a.remove(ch[]));
+        assert(!a.contains(k));
+        assert(a.insert(K(ch)) == X.InsertionStatus.added);
     }
 
     X b;

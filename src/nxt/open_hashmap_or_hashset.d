@@ -772,7 +772,7 @@ if (isNullable!K
         }
     }
 
-    private auto adjustKeyType(SomeKey)(const return scope SomeKey key) const @trusted
+    private auto adjustKeyType(SomeKey)(const return scope SomeKey key) const scope @trusted
     {
         pragma(inline, true);            // must be inlined
         static if (is(SomeKey : U[], U)) // is array (slice)
@@ -1618,7 +1618,7 @@ if (isNullable!K
     /** Remove `element`.
      * Returns: `true` if element was removed, `false` otherwise.
      */
-    bool remove(SomeKey)(const scope SomeKey key) // template-lazy
+    bool remove(SomeKey)(const scope SomeKey key) scope // template-lazy
     if (isScopedKeyType!(typeof(key)))
     {
         version(LDC) pragma(inline, true);
@@ -3928,12 +3928,22 @@ unittest
     {
         const char[1] ch = ['a' + i];
         const k = K(ch);        // @nogc
+
         assert(!a.contains(k));
         assert(!a.containsUsingLinearSearch(k));
+
         assert(a.insert(K(ch)) == X.InsertionStatus.added);
         // TODO assert(a.insertAndReturnElement(K(ch)) == k);
         assert(a.contains(k));
         assert(a.containsUsingLinearSearch(k));
+
+        assert(a.remove(k));
+        assert(!a.contains(k));
+        assert(a.insert(K(ch)) == X.InsertionStatus.added);
+
+        // assert(a.remove(ch));
+        // assert(!a.contains(k));
+        // assert(a.insert(K(ch)) == X.InsertionStatus.added);
     }
 
     X b;
@@ -3941,12 +3951,20 @@ unittest
     {
         const char[1] ch = ['a' + (n - 1 - i)];
         const k = K(ch);        // @nogc
+
         assert(!b.contains(k));
         assert(!b.containsUsingLinearSearch(k));
+
         assert(b.insert(K(ch)) == X.InsertionStatus.added);
         // TODO assert(b.insertAndReturnElement(K(ch)) == k);
+
         assert(b.contains(k));
         assert(b.containsUsingLinearSearch(k));
+
+        assert(b.remove(k));
+        assert(!b.contains(k));
+
+        assert(b.insert(K(ch)) == X.InsertionStatus.added);
     }
 
     assert(a == b);

@@ -133,6 +133,7 @@ struct NTriple
  */
 auto parseNTriple(scope return inout(char)[] line)
 {
+    debug const originalLine = line;
     import nxt.array_algorithm : skipOverBack, indexOf;
 
     assert(line.length >= 4);
@@ -143,13 +144,13 @@ auto parseNTriple(scope return inout(char)[] line)
 
     // subject IRI
     const ix0 = line.indexOf(' '); // TODO use array_algorithm.findSplit(' ')
-    assert(ix0 != -1);
+    debug assert(ix0 != -1, `Failed to parse: "` ~ originalLine ~ `"`);
     const subject = line[0 .. ix0];
     line = line[ix0 + 1 .. $];
 
     // predicate IRI
     const ix1 = line.indexOf(' '); // TODO use array_algorithm.findSplit(' ')
-    assert(ix1 != -1);
+    debug assert(ix1 != -1, `Failed to parse: "` ~ originalLine ~ `"`);
     const predicate = line[0 .. ix1];
     line = line[ix1 + 1 .. $];
 

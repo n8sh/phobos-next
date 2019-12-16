@@ -136,7 +136,7 @@ auto parseNTriple(scope return inout(char)[] line)
     debug const originalLine = line;
     import nxt.array_algorithm : skipOverBack, indexOf;
 
-    assert(line.length >= 4, `Line to short: "` ~ originalLine ~ `"`);
+    debug assert(line.length >= 4, `Failed to parse too short: "` ~ originalLine ~ `"`);
 
     // strip suffix
     line.skipOverBack('.');

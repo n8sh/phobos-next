@@ -227,6 +227,8 @@ private:
 
 struct ZlibFileInputRange
 {
+    import std.file : FileException;
+
     /* Zlib docs:
        CHUNK is simply the buffer size for feeding data to and pulling data from
        the zlib routines. Larger buffer sizes would be more efficient,
@@ -245,7 +247,7 @@ struct ZlibFileInputRange
         _f = gzopen(path.toStringz, `rb`);
         if (!_f)
         {
-            throw new Exception(`Couldn't open file ` ~ path.idup);
+            throw new FileException(`Couldn't open file ` ~ path.idup);
         }
         _buf = new ubyte[chunkSize];
         loadNextChunk();
@@ -256,7 +258,7 @@ struct ZlibFileInputRange
         const int ret = gzclose(_f);
         if (ret < 0)
         {
-            throw new Exception(`Couldn't close file`);
+            throw new FileException(`Couldn't close file`);
         }
     }
 
@@ -328,6 +330,8 @@ private:
 
 struct Bz2libFileInputRange
 {
+    import std.file : FileException;
+
     enum chunkSize = 128 * 1024; // 128K
     enum defaultExtension = `.bz2`;
     enum useGC = false;         // TODO generalize to allocator parameter
@@ -340,7 +344,7 @@ struct Bz2libFileInputRange
         _f = BZ2_bzopen(path.toStringz, `rb`);
         if (!_f)
         {
-            throw new Exception(`Couldn't open file ` ~ path.idup);
+            throw new FileException(`Couldn't open file ` ~ path.idup);
         }
 
         static if (useGC)

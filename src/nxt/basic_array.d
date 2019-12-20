@@ -1252,7 +1252,6 @@ if (isInstanceOf!(BasicArray, C) &&
 
 version(unittest)
 {
-    /// uncopyable struct
     private static struct SomeUncopyable
     {
         @disable this(this);

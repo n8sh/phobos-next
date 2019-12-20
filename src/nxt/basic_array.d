@@ -1,6 +1,6 @@
 module nxt.basic_array;
 
-// version = showCtorParams;
+// version = showCtors;
 
 import core.internal.traits : Unqual;
 
@@ -132,6 +132,7 @@ pragma(inline):
 
     private this(Store store) // template-lazy
     {
+        version(showCtors) pragma(msg, __FILE_FULL_PATH__, ":", __LINE__, ": info: ", typeof(store));
         _store = store;
     }
 
@@ -139,6 +140,7 @@ pragma(inline):
     this()(T value) @trusted    // template-lazy
     if (!isCopyable!T)
     {
+        version(showCtors) pragma(msg, __FILE_FULL_PATH__, ":", __LINE__, ": info: ", typeof(value));
         _store.ptr = typeof(this).allocate(1, false);
         _store.capacity = 1;
         _store.length = 1;
@@ -150,6 +152,7 @@ pragma(inline):
     if (isCopyable!U &&
         isElementAssignable!U)
     {
+        version(showCtors) pragma(msg, __FILE_FULL_PATH__, ":", __LINE__, ": info: ", typeof(value));
         _store.ptr = typeof(this).allocate(1, false);
         _store.capacity = 1;
         _store.length = 1;
@@ -161,6 +164,7 @@ pragma(inline):
     {
         static typeof(this) withElements()(const T[] elements) @trusted // template-lazy
         {
+            version(showCtors) pragma(msg, __FILE_FULL_PATH__, ":", __LINE__, ": info: ", typeof(elements));
             immutable length = elements.length;
             auto ptr = typeof(this).allocate(length, false);
 
@@ -196,6 +200,7 @@ pragma(inline):
     this(U)(U[] values) @trusted
     if (isElementAssignable!(U))
     {
+        version(showCtors) pragma(msg, __FILE_FULL_PATH__, ":", __LINE__, ": info: ", typeof(values));
         // TODO use import emplace_all instead
         reserve(values.length);
         setLengthChecked(values.length);
@@ -216,6 +221,7 @@ pragma(inline):
     this(uint n, U)(U[n] values) @trusted
     if (isElementAssignable!(U))
     {
+        version(showCtors) pragma(msg, __FILE_FULL_PATH__, ":", __LINE__, ": info: ", typeof(values));
         // TODO use import emplace_all instead
         reserve(values.length);
         setLengthChecked(values.length);
@@ -238,7 +244,7 @@ pragma(inline):
         isElementAssignable!(ElementType!R) &&
         !isArray!R)
     {
-        version(showCtorParams) pragma(msg, __FILE_FULL_PATH__, ":", __LINE__, ": info: ", R.stringof);
+        version(showCtors) pragma(msg, __FILE_FULL_PATH__, ":", __LINE__, ": info: ", typeof(values));
         static if (hasLength!R)
         {
             reserve(values.length);

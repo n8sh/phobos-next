@@ -223,6 +223,16 @@ pragma(inline):
         }
     }
 
+    /// ditto
+    this(R)(R values)
+    if (isInputRange!R &&
+        !isInfinite!R &&
+        !isArray!R &&
+        isElementAssignable!(ElementType!R))
+    {
+        insertBack(values);
+    }
+
     /** Is `true` iff constructable from the iterable (or range) `I`.
      */
     private enum isAssignableFromElementsOfFiniteRefIterable(I) = (is(I == struct) && // exclude class ranges for aliasing control

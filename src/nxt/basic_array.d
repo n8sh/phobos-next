@@ -246,13 +246,20 @@ pragma(inline):
         static if (hasLength!R)
         {
             reserve(values.length);
+            size_t i = 0;
+            foreach (ref value; values)
+            {
+                _mptr[i++] = value;
+            }
+            setLengthChecked(values.length);
         }
-        size_t i = 0;
-        foreach (ref value; values)
+        else
         {
-            _mptr[i++] = value;
+            foreach (ref value; values)
+            {
+                insertBack1(value);
+            }
         }
-        _store.length = cast(CapacityType)values.length;
     }
 
     /** Is `true` iff the iterable container `C` can be insert to `this`.

@@ -213,6 +213,7 @@ pragma(inline):
     }
 
     /// Construct from `n` number of element(s) `values` (in a static array).
+    version(none)
     this(uint n)(T[n] values...) @trusted
     {
         reserve(values.length);

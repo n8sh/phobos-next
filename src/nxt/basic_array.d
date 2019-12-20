@@ -1634,6 +1634,17 @@ unittest
     auto _ = x.toHash;
 }
 
+/// construct from static array slice
+@trusted pure nothrow @nogc unittest
+{
+    alias T = int;
+    alias A = BasicArray!(T);
+
+    auto x = A([1, 2, 3].s[]);
+    assert(x == [1, 2, 3].s);
+    assert(x == [1, 2, 3].s[]);
+}
+
 /// GCAllocator
 @trusted pure nothrow unittest
 {

@@ -130,7 +130,7 @@ pragma(inline):
         return *thatPtr;
     }
 
-    private this(Store store) // template-lazy
+    private this(Store store)
     {
         version(debugCtors) pragma(msg, __FILE_FULL_PATH__, ":", __LINE__, ": info: ", typeof(store));
         _store = store;

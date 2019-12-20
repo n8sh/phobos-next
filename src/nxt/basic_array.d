@@ -32,7 +32,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     // import core.exception : onOutOfMemoryError;
     import core.internal.traits : hasElaborateDestructor;
 
-    import std.range.primitives : isInputRange, ElementType, isInfinite;
+    import std.range.primitives : isInputRange, ElementType, hasLength, hasSlicing, isInfinite;
     import std.traits : hasIndirections, hasAliasing,
         isMutable, TemplateOf, isArray, isAssignable, isCopyable, isType, hasFunctionAttributes, isIterable;
     import core.lifetime : emplace, move, moveEmplace;
@@ -224,11 +224,21 @@ pragma(inline):
     }
 
     /// ditto
-    this(R)(R values)
-    if (isInsertableContainer!R &&
+    this(R)(scope R values) @trusted
+    if (isInputRange!R &&
+        isElementAssignable!(ElementType!R) &&
         !isArray!R)
     {
-        insertBack(values);
+        static if (hasLength!R)
+        {
+            reserve(values.length);
+        }
+        size_t i = 0;
+        foreach (const ref value; values)
+        {
+            _mptr[i++] = value;
+        }
+        _store.length = values.length;
     }
 
     /** Is `true` iff the iterable container `C` can be insert to `this`.
@@ -242,8 +252,6 @@ pragma(inline):
     static typeof(this) withElementsOfRange_untested(R)(R values) @trusted
     if (isInsertableContainer!R)
     {
-        import std.range.primitives : hasLength, hasSlicing;
-
         typeof(this) result;
 
         static if (hasLength!R)

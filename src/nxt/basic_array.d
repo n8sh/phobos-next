@@ -202,8 +202,8 @@ pragma(inline):
     {
         version(debugCtors) pragma(msg, __FILE_FULL_PATH__, ":", __LINE__, ": info: ", typeof(values));
         // TODO use import emplace_all instead
-        reserve(values.length);
-        setLengthChecked(values.length);
+        _store.ptr = allocate(values.length, false);
+        _store.capacity = values.length;
         foreach (index; 0 .. values.length)
         {
             static if (needsMove!(T))
@@ -215,6 +215,7 @@ pragma(inline):
                 _mptr[index] = values[index];
             }
         }
+        setLengthChecked(values.length);
     }
 
     /// Construct from the `n` number of element(s) in the static array `values`.
@@ -223,8 +224,8 @@ pragma(inline):
     {
         version(debugCtors) pragma(msg, __FILE_FULL_PATH__, ":", __LINE__, ": info: ", typeof(values));
         // TODO use import emplace_all instead
-        reserve(values.length);
-        setLengthChecked(values.length);
+        _store.ptr = allocate(values.length, false);
+        _store.capacity = values.length;
         static foreach (index; 0 .. values.length)
         {
             static if (needsMove!(T))
@@ -236,6 +237,7 @@ pragma(inline):
                 _mptr[index] = values[index];
             }
         }
+        setLengthChecked(values.length);
     }
 
     /// ditto

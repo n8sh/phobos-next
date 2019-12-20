@@ -226,7 +226,8 @@ pragma(inline):
     }
 
     /// Construct from `n` number of element(s) `values` (in a static array).
-    this(uint n)(T[n] values) @trusted
+    this(uint n, U)(U[n] values) @trusted
+    if (isElementAssignable!(U))
     {
         // TODO use import emplace_all instead
         reserve(values.length);
@@ -1634,15 +1635,30 @@ unittest
     auto _ = x.toHash;
 }
 
+/// construct from static array
+@trusted pure nothrow @nogc unittest
+{
+    alias T = uint;
+    alias A = BasicArray!(T);
+
+    ushort[3] a = [1, 2, 3];
+
+    auto x = A(a);
+    assert(x == a);
+    assert(x == a[]);
+}
+
 /// construct from static array slice
 @trusted pure nothrow @nogc unittest
 {
-    alias T = int;
+    alias T = uint;
     alias A = BasicArray!(T);
 
-    auto x = A([1, 2, 3].s[]);
-    assert(x == [1, 2, 3].s);
-    assert(x == [1, 2, 3].s[]);
+    ushort[3] a = [1, 2, 3];
+
+    auto y = A(a[]);
+    assert(y == a);
+    assert(y == a[]);
 }
 
 /// GCAllocator

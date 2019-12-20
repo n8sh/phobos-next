@@ -190,7 +190,7 @@ pragma(inline):
         }
     }
 
-    /// Construct from the element(s) `values` (in a dynamic array).
+    /// Construct from the element(s) of the dynamic array `values`.
     this(U)(U[] values) @trusted
     if (isElementAssignable!(U))
     {
@@ -210,7 +210,7 @@ pragma(inline):
         }
     }
 
-    /// Construct from `n` number of element(s) `values` (in a static array).
+    /// Construct from the `n` number of element(s) in the static array `values`.
     this(uint n, U)(U[n] values) @trusted
     if (isElementAssignable!(U))
     {

@@ -633,9 +633,32 @@ pragma(inline):
         // growth factor
         // Motivation: https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md#memory-handling
         reallocateAndSetCapacity(3*minimumCapacity/2); // use 1.5 like Facebook's `fbvector` does
-
         // import std.math : nextPow2;
         // reallocateAndSetCapacity(minimumCapacity.nextPow2);
+    }
+
+    /// Reallocate storage.
+    private void reallocateAndSetCapacity()(size_t newCapacity) @trusted // template-lazy
+    {
+        // assert(newCapacity <= CapacityType.max);
+
+        static if (mustAddGCRange!T)
+        {
+            gc_removeRange(_store.ptr);
+        }
+
+        _store.capacity = cast(CapacityType)newCapacity;
+        _store.ptr = cast(T*)realloc(_mptr, T.sizeof * _store.capacity);
+        if (_store.ptr is null && newCapacity >= 1)
+        {
+            // onOutOfMemoryError();
+            return;
+        }
+
+        static if (mustAddGCRange!T)
+        {
+            gc_addRange(_store.ptr, _store.capacity * T.sizeof);
+        }
     }
 
     /// Index support.
@@ -993,30 +1016,6 @@ pragma(inline):
     {
         pragma(inline, true);
         return _store.ptr;
-    }
-
-    /// Reallocate storage.
-    private void reallocateAndSetCapacity()(size_t newCapacity) @trusted // template-lazy
-    {
-        assert(newCapacity <= CapacityType.max);
-
-        static if (mustAddGCRange!T)
-        {
-            gc_removeRange(_store.ptr);
-        }
-
-        _store.capacity = cast(CapacityType)newCapacity;
-        _store.ptr = cast(T*)realloc(_mptr, T.sizeof * _store.capacity);
-        if (_store.ptr is null && newCapacity >= 1)
-        {
-            // onOutOfMemoryError();
-            return;
-        }
-
-        static if (mustAddGCRange!T)
-        {
-            gc_addRange(_store.ptr, _store.capacity * T.sizeof);
-        }
     }
 
     /// Mutable pointer.

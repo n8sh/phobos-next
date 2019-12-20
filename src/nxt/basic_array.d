@@ -1,5 +1,7 @@
 module nxt.basic_array;
 
+// version = showCtorParams;
+
 import core.internal.traits : Unqual;
 
 @safe:
@@ -128,9 +130,8 @@ pragma(inline):
         return *thatPtr;
     }
 
-    private this(Store store)
+    private this(Store store) // template-lazy
     {
-        pragma(msg, T);
         _store = store;
     }
 
@@ -138,7 +139,6 @@ pragma(inline):
     this()(T value) @trusted    // template-lazy
     if (!isCopyable!T)
     {
-        pragma(msg, T);
         _store.ptr = typeof(this).allocate(1, false);
         _store.capacity = 1;
         _store.length = 1;
@@ -150,7 +150,6 @@ pragma(inline):
     if (isCopyable!U &&
         isElementAssignable!U)
     {
-        pragma(msg, T);
         _store.ptr = typeof(this).allocate(1, false);
         _store.capacity = 1;
         _store.length = 1;
@@ -197,7 +196,6 @@ pragma(inline):
     this(U)(U[] values) @trusted
     if (isElementAssignable!(U))
     {
-        pragma(msg, T);
         // TODO use import emplace_all instead
         reserve(values.length);
         setLengthChecked(values.length);
@@ -218,7 +216,6 @@ pragma(inline):
     this(uint n, U)(U[n] values) @trusted
     if (isElementAssignable!(U))
     {
-        pragma(msg, T);
         // TODO use import emplace_all instead
         reserve(values.length);
         setLengthChecked(values.length);
@@ -241,7 +238,7 @@ pragma(inline):
         isElementAssignable!(ElementType!R) &&
         !isArray!R)
     {
-        pragma(msg, T);
+        version(showCtorParams) pragma(msg, __FILE_FULL_PATH__, ":", __LINE__, ": info: ", R.stringof);
         static if (hasLength!R)
         {
             reserve(values.length);
@@ -1105,7 +1102,6 @@ if (isInstanceOf!(BasicArray, C) &&
 }
 
 /// construct and append from slices
-version(none)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
@@ -1127,7 +1123,6 @@ version(none)
 }
 
 ///
-version(none)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
@@ -1161,7 +1156,6 @@ version(none)
 }
 
 ///
-version(none)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
@@ -1204,7 +1198,6 @@ version(none)
 }
 
 ///
-version(none)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
@@ -1230,7 +1223,6 @@ version(none)
 }
 
 /// DIP-1000 return ref escape analysis
-version(none)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
@@ -1263,7 +1255,6 @@ version(unittest)
 }
 
 /// construct and insert from non-copyable element type passed by value
-version(none)
 @safe pure nothrow /*@nogc*/ unittest
 {
     alias A = BasicArray!(SomeUncopyable);
@@ -1282,7 +1273,6 @@ version(none)
 }
 
 /// construct from slice of uncopyable type
-version(none)
 @safe pure nothrow @nogc unittest
 {
     alias A = BasicArray!(SomeUncopyable);
@@ -1290,7 +1280,6 @@ version(none)
 }
 
 // construct from array with uncopyable elements
-version(none)
 @safe pure nothrow @nogc unittest
 {
     alias A = BasicArray!(SomeUncopyable);
@@ -1303,7 +1292,6 @@ version(none)
 }
 
 // construct from ranges of uncopyable elements
-version(none)
 @safe pure nothrow @nogc unittest
 {
     alias T = SomeUncopyable;
@@ -1324,7 +1312,6 @@ version(none)
 }
 
 // construct from ranges of copyable elements
-version(none)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
@@ -1344,7 +1331,6 @@ version(none)
 }
 
 /// construct with string as element type that needs GC-range
-version(none)
 @safe pure nothrow @nogc unittest
 {
     alias T = string;
@@ -1366,7 +1352,6 @@ version(none)
 }
 
 /// convert to string
-version(none)
 unittest
 {
     alias T = int;
@@ -1377,7 +1362,6 @@ unittest
 }
 
 /// foreach
-version(none)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
@@ -1392,7 +1376,6 @@ version(none)
 }
 
 /// removal
-version(none)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
@@ -1433,7 +1416,6 @@ version(none)
 }
 
 /// removal
-version(none)
 @safe pure nothrow unittest
 {
     size_t mallocCount = 0;
@@ -1493,7 +1475,6 @@ version(none)
 }
 
 /// test `OutputRange` behaviour with std.format
-version(none)
 @safe pure /*TODO nothrow @nogc*/ unittest
 {
     import std.format : formattedWrite;
@@ -1505,7 +1486,6 @@ version(none)
 }
 
 /// test emplaceWithMovedElements
-version(none)
 @trusted pure nothrow @nogc unittest
 {
     const x = "42";
@@ -1522,7 +1502,6 @@ version(none)
 }
 
 /// test emplaceWithCopiedElements
-version(none)
 @trusted pure nothrow @nogc unittest
 {
     const x = "42";
@@ -1538,7 +1517,6 @@ version(none)
     assert(a[] == ae);
 }
 
-version(none)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
@@ -1548,7 +1526,6 @@ version(none)
 }
 
 /// check duplication via `dup`
-version(none)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
@@ -1563,7 +1540,6 @@ version(none)
 }
 
 /// element type is a class
-version(none)
 @safe pure nothrow unittest
 {
     class T
@@ -1585,7 +1561,6 @@ version(none)
 }
 
 /// check filtered removal via `remove`
-version(none)
 @safe pure nothrow @nogc unittest
 {
     struct T
@@ -1613,7 +1588,6 @@ version(none)
 }
 
 /// construct from map range
-version(none)
 @safe pure nothrow unittest
 {
     import std.algorithm.iteration : map;
@@ -1639,7 +1613,6 @@ version(none)
 }
 
 /// construct from map range
-version(none)
 @trusted pure nothrow unittest
 {
     alias T = int;
@@ -1658,7 +1631,6 @@ version(none)
 }
 
 /// construct from static array
-version(none)
 @trusted pure nothrow @nogc unittest
 {
     alias T = uint;
@@ -1672,21 +1644,20 @@ version(none)
 }
 
 /// construct from static array slice
-version(none)
 @trusted pure nothrow @nogc unittest
 {
     alias T = uint;
     alias A = BasicArray!(T);
 
     ushort[3] a = [1, 2, 3];
+    ushort[] b = a[];
 
-    auto y = A(a[]);
+    auto y = A(b);          // cannot construct directly from `a[]` because its type is `ushort[3]`
     assert(y == a);
     assert(y == a[]);
 }
 
 /// GCAllocator
-version(none)
 @trusted pure nothrow unittest
 {
     import std.experimental.allocator.gc_allocator : GCAllocator;
@@ -1696,7 +1667,6 @@ version(none)
 }
 
 /// construct with slices as element types
-version(none)
 @trusted pure nothrow unittest
 {
     alias A = BasicArray!(string);

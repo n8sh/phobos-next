@@ -279,7 +279,7 @@ pragma(inline):
             else
             {
                 // import std.algorithm.mutation : moveEmplaceAll;
-                /* todo optimize with `moveEmplaceAll` that does a raw copy and
+                /* TODO optimize with `moveEmplaceAll` that does a raw copy and
                  * zeroing of values */
                 foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
                 {

@@ -252,7 +252,7 @@ pragma(inline):
         {
             _mptr[i++] = value;
         }
-        _store.length = values.length;
+        _store.length = cast(CapacityType)values.length;
     }
 
     /** Is `true` iff the iterable container `C` can be insert to `this`.

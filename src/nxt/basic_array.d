@@ -130,6 +130,7 @@ pragma(inline):
 
     private this(Store store)
     {
+        pragma(msg, T);
         _store = store;
     }
 
@@ -137,6 +138,7 @@ pragma(inline):
     this()(T value) @trusted    // template-lazy
     if (!isCopyable!T)
     {
+        pragma(msg, T);
         _store.ptr = typeof(this).allocate(1, false);
         _store.capacity = 1;
         _store.length = 1;
@@ -148,6 +150,7 @@ pragma(inline):
     if (isCopyable!U &&
         isElementAssignable!U)
     {
+        pragma(msg, T);
         _store.ptr = typeof(this).allocate(1, false);
         _store.capacity = 1;
         _store.length = 1;
@@ -194,6 +197,7 @@ pragma(inline):
     this(U)(U[] values) @trusted
     if (isElementAssignable!(U))
     {
+        pragma(msg, T);
         // TODO use import emplace_all instead
         reserve(values.length);
         setLengthChecked(values.length);
@@ -214,6 +218,7 @@ pragma(inline):
     this(uint n, U)(U[n] values) @trusted
     if (isElementAssignable!(U))
     {
+        pragma(msg, T);
         // TODO use import emplace_all instead
         reserve(values.length);
         setLengthChecked(values.length);
@@ -236,6 +241,7 @@ pragma(inline):
         isElementAssignable!(ElementType!R) &&
         !isArray!R)
     {
+        pragma(msg, T);
         static if (hasLength!R)
         {
             reserve(values.length);

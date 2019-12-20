@@ -225,7 +225,7 @@ pragma(inline):
 
     /// ditto
     this(R)(scope R values) @trusted
-    if (isInputRange!R &&
+    if (isRefIterable!R &&
         isElementAssignable!(ElementType!R) &&
         !isArray!R)
     {

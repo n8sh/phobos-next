@@ -603,7 +603,8 @@ pragma(inline):
     {
         static if (!is(CapacityType == size_t))
         {
-            assert(newLength <= CapacityType.max);
+            assert(newLength <= CapacityType.max,
+                   "New length doesn't fit in capacity type.");
         }
         _store.length = cast(CapacityType)newLength;
     }
@@ -623,7 +624,8 @@ pragma(inline):
     {
         static if (!is(CapacityType == size_t))
         {
-            assert(minimumCapacity <= CapacityType.max);
+            assert(minimumCapacity <= CapacityType.max,
+                   "New capacity doesn't fit in capacity type.");
         }
 
         if (minimumCapacity <= capacity) { return; }

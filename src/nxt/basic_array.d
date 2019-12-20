@@ -625,7 +625,7 @@ pragma(inline):
         static if (!is(CapacityType == size_t))
         {
             assert(minimumCapacity <= CapacityType.max,
-                   "New capacity doesn't fit in capacity type.");
+                   "Minimum capacity doesn't fit in capacity type.");
         }
 
         if (minimumCapacity <= capacity) { return; }
@@ -640,7 +640,11 @@ pragma(inline):
     /// Reallocate storage.
     private void reallocateAndSetCapacity()(size_t newCapacity) @trusted // template-lazy
     {
-        // assert(newCapacity <= CapacityType.max);
+        static if (!is(CapacityType == size_t))
+        {
+            assert(newCapacity <= CapacityType.max,
+                   "New capacity doesn't fit in capacity type.");
+        }
 
         static if (mustAddGCRange!T)
         {

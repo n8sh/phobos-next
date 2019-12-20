@@ -1105,6 +1105,7 @@ if (isInstanceOf!(BasicArray, C) &&
 }
 
 /// construct and append from slices
+version(none)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
@@ -1126,6 +1127,7 @@ if (isInstanceOf!(BasicArray, C) &&
 }
 
 ///
+version(none)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
@@ -1159,6 +1161,7 @@ if (isInstanceOf!(BasicArray, C) &&
 }
 
 ///
+version(none)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
@@ -1201,6 +1204,7 @@ if (isInstanceOf!(BasicArray, C) &&
 }
 
 ///
+version(none)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
@@ -1226,6 +1230,7 @@ if (isInstanceOf!(BasicArray, C) &&
 }
 
 /// DIP-1000 return ref escape analysis
+version(none)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
@@ -1258,6 +1263,7 @@ version(unittest)
 }
 
 /// construct and insert from non-copyable element type passed by value
+version(none)
 @safe pure nothrow /*@nogc*/ unittest
 {
     alias A = BasicArray!(SomeUncopyable);
@@ -1276,6 +1282,7 @@ version(unittest)
 }
 
 /// construct from slice of uncopyable type
+version(none)
 @safe pure nothrow @nogc unittest
 {
     alias A = BasicArray!(SomeUncopyable);
@@ -1283,6 +1290,7 @@ version(unittest)
 }
 
 // construct from array with uncopyable elements
+version(none)
 @safe pure nothrow @nogc unittest
 {
     alias A = BasicArray!(SomeUncopyable);
@@ -1295,6 +1303,7 @@ version(unittest)
 }
 
 // construct from ranges of uncopyable elements
+version(none)
 @safe pure nothrow @nogc unittest
 {
     alias T = SomeUncopyable;
@@ -1315,6 +1324,7 @@ version(unittest)
 }
 
 // construct from ranges of copyable elements
+version(none)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
@@ -1334,6 +1344,7 @@ version(unittest)
 }
 
 /// construct with string as element type that needs GC-range
+version(none)
 @safe pure nothrow @nogc unittest
 {
     alias T = string;
@@ -1355,6 +1366,7 @@ version(unittest)
 }
 
 /// convert to string
+version(none)
 unittest
 {
     alias T = int;
@@ -1365,6 +1377,7 @@ unittest
 }
 
 /// foreach
+version(none)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
@@ -1379,6 +1392,7 @@ unittest
 }
 
 /// removal
+version(none)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
@@ -1419,6 +1433,7 @@ unittest
 }
 
 /// removal
+version(none)
 @safe pure nothrow unittest
 {
     size_t mallocCount = 0;
@@ -1478,6 +1493,7 @@ unittest
 }
 
 /// test `OutputRange` behaviour with std.format
+version(none)
 @safe pure /*TODO nothrow @nogc*/ unittest
 {
     import std.format : formattedWrite;
@@ -1489,6 +1505,7 @@ unittest
 }
 
 /// test emplaceWithMovedElements
+version(none)
 @trusted pure nothrow @nogc unittest
 {
     const x = "42";
@@ -1505,6 +1522,7 @@ unittest
 }
 
 /// test emplaceWithCopiedElements
+version(none)
 @trusted pure nothrow @nogc unittest
 {
     const x = "42";
@@ -1520,6 +1538,7 @@ unittest
     assert(a[] == ae);
 }
 
+version(none)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
@@ -1529,6 +1548,7 @@ unittest
 }
 
 /// check duplication via `dup`
+version(none)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
@@ -1543,6 +1563,7 @@ unittest
 }
 
 /// element type is a class
+version(none)
 @safe pure nothrow unittest
 {
     class T
@@ -1564,6 +1585,7 @@ unittest
 }
 
 /// check filtered removal via `remove`
+version(none)
 @safe pure nothrow @nogc unittest
 {
     struct T
@@ -1591,6 +1613,7 @@ unittest
 }
 
 /// construct from map range
+version(none)
 @safe pure nothrow unittest
 {
     import std.algorithm.iteration : map;
@@ -1616,6 +1639,7 @@ unittest
 }
 
 /// construct from map range
+version(none)
 @trusted pure nothrow unittest
 {
     alias T = int;
@@ -1634,6 +1658,7 @@ unittest
 }
 
 /// construct from static array
+version(none)
 @trusted pure nothrow @nogc unittest
 {
     alias T = uint;
@@ -1647,6 +1672,7 @@ unittest
 }
 
 /// construct from static array slice
+version(none)
 @trusted pure nothrow @nogc unittest
 {
     alias T = uint;
@@ -1660,6 +1686,7 @@ unittest
 }
 
 /// GCAllocator
+version(none)
 @trusted pure nothrow unittest
 {
     import std.experimental.allocator.gc_allocator : GCAllocator;
@@ -1669,6 +1696,7 @@ unittest
 }
 
 /// construct with slices as element types
+version(none)
 @trusted pure nothrow unittest
 {
     alias A = BasicArray!(string);

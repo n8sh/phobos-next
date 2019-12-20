@@ -190,28 +190,6 @@ pragma(inline):
         }
     }
 
-
-    /// Construct from element(s) `values`.
-    version(none)               // TODO rename to withElementsNary()
-    this(U)(U[] values...) @trusted
-    if (isCopyable!U &&
-        isElementAssignable!U) // prevent accidental move of l-value `values` in array calls
-    {
-        if (values.length == 1) // TODO branch should be detected at compile-time
-        {
-            // twice as fast as array assignment below
-            _store.ptr = typeof(this).allocate(1, false);
-            _store.capacity = 1;
-            _store.length = 1;
-            emplace(&_mptr[0], values[0]);
-            return;
-        }
-        reserve(values.length);
-        setLengthChecked(values.length);
-        import nxt.emplace_all : moveEmplaceAllNoReset;
-        moveEmplaceAllNoReset(values, _mptr[0 .. _store.length]);
-    }
-
     /// Construct from the element(s) `values` (in a dynamic array).
     this(U)(U[] values) @trusted
     if (isElementAssignable!(U))
@@ -234,7 +212,14 @@ pragma(inline):
         setLengthChecked(values.length);
         static foreach (i; 0 .. values.length)
         {
-            _mptr[i] = values[i];
+            static if (needsMove!(T))
+            {
+                move(values[i], _mptr[i]);
+            }
+            else
+            {
+                _mptr[i] = values[i];
+            }
         }
     }
 

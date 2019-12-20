@@ -212,27 +212,26 @@ pragma(inline):
         moveEmplaceAllNoReset(values, _mptr[0 .. _store.length]);
     }
 
-    /// Construct from `n` number of element(s) `values` (in a static array).
-    version(none)
-    this(uint n)(T[n] values...) @trusted
+    /// Construct from the element(s) `values` (in a dynamic array).
+    this(U)(U[] values) @trusted
+    if (isElementAssignable!(U))
     {
+        // TODO use import emplace_all instead
         reserve(values.length);
         setLengthChecked(values.length);
-        // TODO use import emplace_all instead
-        static foreach (i; 0 .. values.length)
+        foreach (i; 0 .. values.length)
         {
             _mptr[i] = values[i];
         }
     }
 
-    /// Construct from the element(s) `values` (in a dynamic array).
-    this(U)(U[] values) @trusted
-    if (isElementAssignable!(U))
+    /// Construct from `n` number of element(s) `values` (in a static array).
+    this(uint n)(T[n] values) @trusted
     {
+        // TODO use import emplace_all instead
         reserve(values.length);
         setLengthChecked(values.length);
-        // TODO use import emplace_all instead
-        foreach (i; 0 .. values.length)
+        static foreach (i; 0 .. values.length)
         {
             _mptr[i] = values[i];
         }

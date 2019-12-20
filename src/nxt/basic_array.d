@@ -281,7 +281,7 @@ pragma(inline):
             import std.algorithm.mutation : copy;
             copy(values[0 .. values.length],
                  result._mptr[0 .. values.length]); // TODO better to use foreach instead?
-            result._store.length = values.length;
+            result._store.length = cast(CapacityType)values.length;
         }
         else
         {
@@ -299,7 +299,7 @@ pragma(inline):
                         result._mptr[i++] = value;
                     }
                 }
-                result._store.length = values.length;
+                result._store.length = cast(CapacityType)values.length;
             }
             else
             {
@@ -595,7 +595,16 @@ pragma(inline):
             }
         }
 
-        assert(newLength <= CapacityType.max);
+        setLengthChecked(newLength);
+    }
+
+    /// Set capacity, checking for overflow when `CapacityType` is not `size_t`.
+    private void setLengthChecked(size_t newLength) scope
+    {
+        static if (!is(CapacityType == size_t))
+        {
+            assert(newLength <= CapacityType.max);
+        }
         _store.length = cast(CapacityType)newLength;
     }
 

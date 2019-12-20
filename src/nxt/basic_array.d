@@ -280,8 +280,8 @@ pragma(inline):
             }
             else
             {
-                // import std.algorithm.mutation : moveEmplaceAll;
-                /* TODO optimize with `moveEmplaceAll` that does a raw copy and
+                // import std.algorithm.mutation : moveemplaceall;
+                /* todo optimize with `moveemplaceall` that does a raw copy and
                  * zeroing of values */
                 foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
                 {
@@ -1558,12 +1558,20 @@ unittest
     import std.algorithm.iteration : map;
     alias T = int;
     alias A = BasicArray!(T);
+
     A a = A.withElementsOfRange_untested([10, 20, 30].s[].map!(_ => _^^2));
     assert(a[] == [100, 400, 900].s);
     a.popBackN(2);
     assert(a.length == 1);
     a.popBackN(1);
     assert(a.empty);
+
+    A b = A([10, 20, 30].s[].map!(_ => _^^2));
+    assert(b[] == [100, 400, 900].s);
+    b.popBackN(2);
+    assert(b.length == 1);
+    b.popBackN(1);
+    assert(b.empty);
 }
 
 /// construct from map range

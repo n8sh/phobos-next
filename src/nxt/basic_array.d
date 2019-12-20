@@ -246,12 +246,16 @@ pragma(inline):
 
         typeof(this) result;
 
+        static if (hasLength!R)
+        {
+            result.reserve(values.length);
+        }
+
         static if (hasLength!R &&
                    hasSlicing!R &&
                    isCopyable!(ElementType!R) &&
                    !hasElaborateDestructor!(ElementType!R))
         {
-            result.reserve(values.length);
             import std.algorithm.mutation : copy;
             copy(values[0 .. values.length],
                  result._mptr[0 .. values.length]); // TODO better to use foreach instead?
@@ -261,7 +265,6 @@ pragma(inline):
         {
             static if (hasLength!R)
             {
-                result.reserve(values.length);
                 size_t i = 0;
                 foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
                 {

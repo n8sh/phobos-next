@@ -612,7 +612,7 @@ pragma(inline):
     /// Get capacity.
     @property size_t capacity() const scope // can't be template-lazy
     {
-        pragma(inline, true)
+        pragma(inline, true);
         return _store.capacity;
     }
 

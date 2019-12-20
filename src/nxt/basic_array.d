@@ -225,24 +225,22 @@ pragma(inline):
 
     /// ditto
     this(R)(R values)
-    if (isInputRange!R &&
-        !isInfinite!R &&
-        !isArray!R &&
-        isElementAssignable!(ElementType!R))
+    if (isInsertableContainer!R &&
+        !isArray!R)
     {
         insertBack(values);
     }
 
-    /** Is `true` iff constructable from the iterable (or range) `I`.
+    /** Is `true` iff the iterable container `C` can be insert to `this`.
      */
-    private enum isAssignableFromElementsOfFiniteRefIterable(I) = (is(I == struct) && // exclude class ranges for aliasing control
-                                                                   isRefIterable!I && // elements may be non-copyable
-                                                                   !isInfinite!I &&
-                                                                   isElementAssignable!(ElementType!I));
+    private enum isInsertableContainer(C) = (is(C == struct) && // exclude class ranges for aliasing control
+                                             isRefIterable!C && // elements may be non-copyable
+                                             !isInfinite!C &&
+                                             isElementAssignable!(ElementType!C));
 
     /// Construct from the elements `values`.
     static typeof(this) withElementsOfRange_untested(R)(R values) @trusted
-    if (isAssignableFromElementsOfFiniteRefIterable!R)
+    if (isInsertableContainer!R)
     {
         import std.range.primitives : hasLength, hasSlicing;
 
@@ -280,8 +278,8 @@ pragma(inline):
             }
             else
             {
-                // import std.algorithm.mutation : moveemplaceall;
-                /* todo optimize with `moveemplaceall` that does a raw copy and
+                // import std.algorithm.mutation : moveEmplaceAll;
+                /* todo optimize with `moveEmplaceAll` that does a raw copy and
                  * zeroing of values */
                 foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
                 {
@@ -757,7 +755,7 @@ pragma(inline):
     /** Insert the elements `elements` into the end of the array.
      */
     void insertBack(R)(scope R elements) @trusted
-    if (isAssignableFromElementsOfFiniteRefIterable!R)
+    if (isInsertableContainer!R)
     {
         import std.range.primitives : hasLength;
         static if (isInputRange!R &&

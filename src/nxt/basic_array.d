@@ -192,6 +192,7 @@ pragma(inline):
 
 
     /// Construct from element(s) `values`.
+    version(none)               // TODO rename to withElementsNary()
     this(U)(U[] values...) @trusted
     if (isCopyable!U &&
         isElementAssignable!U) // prevent accidental move of l-value `values` in array calls
@@ -223,9 +224,22 @@ pragma(inline):
         }
     }
 
+    /// Construct from the element(s) `values` (in a dynamic array).
+    this(U)(U[] values) @trusted
+    if (isElementAssignable!(U))
+    {
+        reserve(values.length);
+        _store.length = cast(CapacityType)values.length;
+        // TODO use import emplace_all instead
+        foreach (i; 0 .. values.length)
+        {
+            _mptr[i] = values[i];
+        }
+    }
+
     /// ditto
     this(R)(scope R values) @trusted
-    if (isRefIterable!R &&
+    if (// isRefIterable!R &&
         isElementAssignable!(ElementType!R) &&
         !isArray!R)
     {
@@ -234,7 +248,7 @@ pragma(inline):
             reserve(values.length);
         }
         size_t i = 0;
-        foreach (const ref value; values)
+        foreach (ref value; values)
         {
             _mptr[i++] = value;
         }
@@ -1189,10 +1203,7 @@ if (isInstanceOf!(BasicArray, C) &&
     assert(a == b);
 
     auto c = A([1, 2, 3].s);
-
-    auto d = A(1, 2, 3);
 }
-
 
 /// DIP-1000 return ref escape analysis
 @safe pure nothrow @nogc unittest
@@ -1214,8 +1225,6 @@ if (isInstanceOf!(BasicArray, C) &&
 
     auto lp = leakPointer();    // TODO shouldn't compile with -dip1000
     auto ls = leakSlice();      // TODO shouldn't compile with -dip1000
-    T[] as = A(1, 2)[];         // TODO shouldn't compile with -dip1000
-    auto bs = A(1, 2)[];        // TODO shouldn't compile with -dip1000
 }
 
 version(unittest)
@@ -1581,6 +1590,9 @@ unittest
     assert(b.length == 1);
     b.popBackN(1);
     assert(b.empty);
+
+    A c = A([10, 20, 30].s[]);
+    assert(c[] == [10, 20, 30].s);
 }
 
 /// construct from map range

@@ -207,7 +207,7 @@ pragma(inline):
             return;
         }
         reserve(values.length);
-        _store.length = cast(CapacityType)values.length;
+        setLengthChecked(values.length);
         import nxt.emplace_all : moveEmplaceAllNoReset;
         moveEmplaceAllNoReset(values, _mptr[0 .. _store.length]);
     }
@@ -216,7 +216,7 @@ pragma(inline):
     this(uint n)(T[n] values...) @trusted
     {
         reserve(values.length);
-        _store.length = cast(CapacityType)values.length;
+        setLengthChecked(values.length);
         // TODO use import emplace_all instead
         static foreach (i; 0 .. values.length)
         {
@@ -229,7 +229,7 @@ pragma(inline):
     if (isElementAssignable!(U))
     {
         reserve(values.length);
-        _store.length = cast(CapacityType)values.length;
+        setLengthChecked(values.length);
         // TODO use import emplace_all instead
         foreach (i; 0 .. values.length)
         {
@@ -288,7 +288,7 @@ pragma(inline):
             import std.algorithm.mutation : copy;
             copy(values[0 .. values.length],
                  result._mptr[0 .. values.length]); // TODO better to use foreach instead?
-            result._store.length = cast(CapacityType)values.length;
+            result.setLengthChecked(values.length);
         }
         else
         {
@@ -306,7 +306,7 @@ pragma(inline):
                         result._mptr[i++] = value;
                     }
                 }
-                result._store.length = cast(CapacityType)values.length;
+                result.setLengthChecked(values.length);
             }
             else
             {

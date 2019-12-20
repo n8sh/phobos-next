@@ -197,9 +197,16 @@ pragma(inline):
         // TODO use import emplace_all instead
         reserve(values.length);
         setLengthChecked(values.length);
-        foreach (i; 0 .. values.length)
+        foreach (index; 0 .. values.length)
         {
-            _mptr[i] = values[i];
+            static if (needsMove!(T))
+            {
+                move(values[index], _mptr[index]);
+            }
+            else
+            {
+                _mptr[index] = values[index];
+            }
         }
     }
 
@@ -210,15 +217,15 @@ pragma(inline):
         // TODO use import emplace_all instead
         reserve(values.length);
         setLengthChecked(values.length);
-        static foreach (i; 0 .. values.length)
+        static foreach (index; 0 .. values.length)
         {
             static if (needsMove!(T))
             {
-                move(values[i], _mptr[i]);
+                move(values[index], _mptr[index]);
             }
             else
             {
-                _mptr[i] = values[i];
+                _mptr[index] = values[index];
             }
         }
     }
@@ -232,10 +239,10 @@ pragma(inline):
         static if (hasLength!R)
         {
             reserve(values.length);
-            size_t i = 0;
+            size_t index = 0;
             foreach (ref value; values)
             {
-                _mptr[i++] = value;
+                _mptr[index++] = value;
             }
             setLengthChecked(values.length);
         }

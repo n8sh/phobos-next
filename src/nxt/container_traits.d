@@ -18,7 +18,7 @@ template needsMove(T)
 {
     import core.internal.traits : hasElaborateDestructor;
     import std.traits : isCopyable;
-    enum needsMove = hasElaborateDestructor!T || !isCopyable!T;
+    enum needsMove = hasElaborateDestructor!T || !isCopyable!T; // TODO is this ok?
 }
 
 // TODO this can be simplified for faster compilation

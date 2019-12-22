@@ -3777,9 +3777,9 @@ version(unittest)
     static class Base
     {
         static size_t dtorCount = 0; // number of calls to this destructor
-        @safe nothrow @nogc:
+    @safe nothrow @nogc:
         ~this() { dtorCount += 1; }
-        pure:
+    pure:
         this(ulong value) { this._value = value; }
         @property bool opEquals(const scope typeof(this) rhs) const
         {

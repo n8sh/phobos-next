@@ -1801,7 +1801,7 @@ private:
                           ));
             }
 
-        pragma(inline, true):
+            pragma(inline, true):
             @safe pure nothrow @nogc:
 
             @property

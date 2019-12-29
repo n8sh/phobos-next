@@ -548,7 +548,6 @@ if (isNullable!K
     /// Returns: a shallow duplicate of `this`.
     typeof(this) dup()() const @trusted // template-lazy
     {
-        // dbg(__FUNCTION__, " this:", &this, " with length ", length);
         version(showEntries) dbg(__FUNCTION__, " length:", length);
         T[] storeCopy = allocateUninitializedStore(_store.length); // unsafe
         foreach (immutable index, ref bin; _store)
@@ -808,19 +807,13 @@ if (isNullable!K
 
         static if (_useSmallLinearSearch)
         {
-            dbg(_store.length);
             if (_store.length * T.sizeof <= _linearSearchMaxSize)
             {
-                dbg("Using linear search");
                 return containsUsingLinearSearch(key);
             }
         }
 
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key); // cast scoped `key` is @trusted
-        dbg("key:", key,
-            " hitIndex:", hitIndex,
-            "_store.length:", _store.length,
-            "isOccupiedAtIndex(hitIndex):", isOccupiedAtIndex(hitIndex));
         return (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex));
     }

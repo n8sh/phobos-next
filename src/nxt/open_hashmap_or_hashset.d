@@ -842,7 +842,7 @@ if (isNullable!K
             debug static assert(args.length == 2,
                           "linear search for Nullable without nullValue is slower than default `this.contains()` and is not allowed");
             alias UnderlyingType = args[0];
-            return (cast(UnderlyingType[])_store).canFind!keyEqualPredFn(key.get());
+            return length >= 1 && (cast(UnderlyingType[])_store).canFind!keyEqualPredFn(key.get());
         }
         else
         {
@@ -1886,7 +1886,7 @@ private:
         import nxt.sso_string : SSOString;
         static if (is(K == SSOString))
         {
-            dbg(key, " ", _store[]);
+            // dbg(key, " ", _store[]);
         }
 
         static if (isCopyable!T)

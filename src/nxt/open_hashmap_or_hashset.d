@@ -808,13 +808,19 @@ if (isNullable!K
 
         static if (_useSmallLinearSearch)
         {
+            dbg(_store.length);
             if (_store.length * T.sizeof <= _linearSearchMaxSize)
             {
+                dbg("Using linear search");
                 return containsUsingLinearSearch(key);
             }
         }
 
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key); // cast scoped `key` is @trusted
+        dbg("key:", key,
+            " hitIndex:", hitIndex,
+            "_store.length:", _store.length,
+            "isOccupiedAtIndex(hitIndex):", isOccupiedAtIndex(hitIndex));
         return (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex));
     }
@@ -1710,16 +1716,6 @@ if (isNullable!K
             }
             const probeCount = triangularProbeCountFromIndex!pred(_store[], keyToIndex(keyOf(currentElement)));
 
-            version(none)
-            if (probeCount >= 20)
-            {
-                static if (is(K == class))
-                {
-                    import nxt.dbgio;
-                    dbg(typeid(currentElement).name, " ", currentElement);
-                }
-            }
-
             totalCount += probeCount;
         }
         return totalCount;
@@ -1892,6 +1888,12 @@ private:
                 }
                 return _store.length;
             }
+        }
+
+        import nxt.sso_string : SSOString;
+        static if (is(K == SSOString))
+        {
+            dbg(key, " ", _store[]);
         }
 
         static if (isCopyable!T)

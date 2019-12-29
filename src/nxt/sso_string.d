@@ -455,6 +455,9 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     assert(y == "42");
 
     assert(x == y);
+    assert(x == y[]);
+    assert(x[] == y);
+    assert(x[] == y[]);
     assert(x[] is x[]);
     assert(y[] is y[]);
     assert(x[] !is y[]);

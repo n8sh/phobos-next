@@ -487,7 +487,7 @@ class FKind
     */
     auto ref const(SHA1Digest) behaviorId() @property @safe /* pure nothrow */
         out(result) { assert(!result.empty); }
-    body
+    do
     {
         if (_behaviourDigest.empty) // if not yet defined
         {
@@ -903,7 +903,7 @@ class File
     /** NOTE: Currently not used. */
     int depthIterative() @property @safe pure
         out (depth) { debug assert(depth == depth); }
-    body
+    do
     {
         typeof(return) depth = 0;
         for (auto curr = dir; curr !is null && !curr.isRoot; depth++)
@@ -951,7 +951,7 @@ class File
     string path() @property @trusted pure out (result) {
         /* assert(result == pathRecursive); */
     }
-    body
+    do
     {
         if (!parent) { return dirSeparator; }
 
@@ -1292,7 +1292,7 @@ class RegFile : File
     const(SHA1Digest) contId(inout (ubyte[]) src,
                              File[][SHA1Digest] filesByContentId)
         @property pure out(result) { assert(!result.empty); } // must have be defined
-    body
+    do
     {
         if (_cstat._contentId.empty) // if not yet defined
         {
@@ -3356,7 +3356,7 @@ class Dir : File
 
     this(string root_path, GStats gstats)
         in { assert(root_path == "/"); assert(gstats); }
-    body
+    do
     {
         auto rootDent = DirEntry(root_path);
         Dir rootParent = null;
@@ -3365,7 +3365,7 @@ class Dir : File
 
     this(ref DirEntry dent, Dir parent, GStats gstats)
         in { assert(gstats); }
-    body
+    do
     {
         this(dent.name.baseName, parent, dent.size.Bytes64, dent.timeLastModified, dent.timeLastAccessed, gstats);
     }
@@ -3962,7 +3962,7 @@ import std.path: isRooted;
 Dir getDir(NotNull!Dir rootDir, string dirPath, ref DirEntry dent,
            ref Symlink[] followedSymlinks) @trusted
     in { assert(dirPath.isRooted); }
-body
+do
 {
     Dir currDir = rootDir;
 

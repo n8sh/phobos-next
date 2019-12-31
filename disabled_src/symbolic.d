@@ -794,7 +794,7 @@ class Rep : SPatt1
     {
         assert(count >= 2);
     }
-    body
+    do
     {
         super(sub);
         this.countReq = count;
@@ -807,7 +807,7 @@ class Rep : SPatt1
         assert(countMax >= 2);
         assert(countMin <= countMax);
     }
-    body
+    do
     {
         super(sub);
         this.countReq = countMin;

@@ -648,7 +648,7 @@ if (isInputRange!R)
         bool _initialized = false;
 
         this(R range) in { assert(!range.empty); }
-        body
+        do
         {
             auto tmp = range;
             if (tmp.dropOne.empty) // TODO This may be an unneccesary cost but is practical to remove extra logic

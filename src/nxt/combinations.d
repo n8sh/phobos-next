@@ -67,7 +67,7 @@ struct Combinations(T, bool copy = true, bool useArray = true)
         {
             assert(n > 0, "binomial: n must be > 0.");
         }
-        body
+        do
         {
             if (k < 0 || k > n)
                 return 0;
@@ -132,7 +132,7 @@ in
 {
     assert(items.length, "combinations: items can't be empty.");
 }
-body
+do
 {
     return Combinations!(T, copy, useArray)(items, k);
 }

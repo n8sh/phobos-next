@@ -1464,7 +1464,7 @@ if (isNullable!K
         {
             version(LDC) pragma(inline, true);
             // pragma(msg, SomeKey, " => ", K);
-            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(adjustKeyType(key)); // cast scoped `key` is @trusted
+            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(const(K))adjustKeyType(key)); // cast scoped `key` is @trusted
             if (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex))
             {

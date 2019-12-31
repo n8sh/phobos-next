@@ -82,7 +82,7 @@ public:
         {
             assert (str.length > 0);
         }
-    body
+    do
     {
         return _intern(str, hash);
 //		string s = _intern(str, hash);
@@ -157,7 +157,7 @@ private:
             assert (data !is null);
             assert (data.length > 0);
         }
-    body
+    do
     {
         uint hash = 0;
         foreach (ubyte b; data)
@@ -177,7 +177,7 @@ private:
         {
             assert (result.length == numBytes);
         }
-    body
+    do
     {
         if (numBytes > (blockSize / 4))
             return (cast(ubyte*) malloc(numBytes))[0 .. numBytes];

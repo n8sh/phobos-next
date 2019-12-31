@@ -398,7 +398,7 @@ struct Xoroshiro128plus
         // seeds are not both 0
         assert(!(!s0 && !s1));
     }
-    body
+    do
     {
         s[0] = s0;
         s[1] = s1;
@@ -410,7 +410,7 @@ struct Xoroshiro128plus
         // seeds are not both 0
         assert(!(!s01[0] && !s01[1]));
     }
-    body
+    do
     {
         s[] = s01[];
     }
@@ -423,7 +423,7 @@ private:
     {
         assert(k <= 64);
     }
-    body
+    do
     {
         return (x << k) | (x >> (64 - k));
     }

@@ -224,7 +224,7 @@ in
     assert(t <= 100, err);
     assert(t >= 0, err);
 }
-body
+do
 {
     import std.random: uniform;
     static immutable T min = 0;

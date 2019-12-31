@@ -94,7 +94,7 @@ in
     assert(templateName.length);
     assert(minDimension <= maxDimension);
 }
-body
+do
 {
     import std.string : toLower;
     import std.conv : to;

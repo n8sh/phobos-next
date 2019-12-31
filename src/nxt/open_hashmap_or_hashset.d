@@ -3,6 +3,7 @@ module nxt.open_hashmap_or_hashset;
 // version = showEntries;
 // version = internalUnittest; // fed by dub (see dub.sdl) in unittest-internal mode
 
+import core.internal.hash : hashOf;
 import core.lifetime : emplace, move, moveEmplace;
 import nxt.container_traits : isNullable;
 import nxt.pure_mallocator : Mallocator = PureMallocator;
@@ -799,7 +800,6 @@ if (isNullable!K
     {
         // pragma(msg, SomeKey.stringof ~ " " ~ K.stringof, " ", is(K : SomeKey), " ", is(SomeKey : K));
         // debug static assert(isScopedKeyType!(typeof(key)), SomeKey.stringof ~ " " ~ K.stringof);
-        // pragma(msg, SomeKey);
         version(LDC) pragma(inline, true);
 
         assert(!key.isNull);
@@ -809,11 +809,28 @@ if (isNullable!K
         {
             if (_store.length * T.sizeof <= _linearSearchMaxSize)
             {
+                // dbg("using linear serach");
                 return containsUsingLinearSearch(key);
+            }
+            else
+            {
+                // dbg("using normal serach");
             }
         }
 
-        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key); // cast scoped `key` is @trusted
+        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(adjustKeyType(key)); // cast scoped `key` is @trusted
+
+        version(none)
+        static if (SomeKey.stringof == "SSOString" ||
+                   is(SomeKey == const(char)[]))
+        {
+            dbg(SomeKey.stringof, " key:", key,
+                " store length:", _store.length,
+                " hitIndex:", hitIndex,
+                " isOcc:", isOccupiedAtIndex(hitIndex),
+                " store:", _store);
+        }
+
         return (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex));
     }
@@ -865,7 +882,7 @@ if (isNullable!K
         static if (hasHoleableKey) { assert(!isHoleKeyConstant(key)); }
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
 
-        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
+        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(adjustKeyType(key));
         // TODO update holes
         return (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex));
@@ -1387,7 +1404,7 @@ if (isNullable!K
             assert(!key.isNull);
             static if (hasHoleableKey) { assert(!isHoleKeyConstant(cast(K)adjustKeyType(key))); }
 
-            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key); // cast scoped `key` is @trusted
+            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(adjustKeyType(key)); // cast scoped `key` is @trusted
             if (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex))
             {
@@ -1447,7 +1464,7 @@ if (isNullable!K
         {
             version(LDC) pragma(inline, true);
             // pragma(msg, SomeKey, " => ", K);
-            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key); // cast scoped `key` is @trusted
+            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(adjustKeyType(key)); // cast scoped `key` is @trusted
             if (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex))
             {
@@ -1464,7 +1481,7 @@ if (isNullable!K
         if (isScopedKeyType!(typeof(key)))
         {
             version(LDC) pragma(inline, true);
-            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key); // cast scoped `key` is @trusted
+            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(adjustKeyType(key)); // cast scoped `key` is @trusted
             if (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex))
             {
@@ -1505,7 +1522,7 @@ if (isNullable!K
         if (isScopedKeyType!(SomeKey))
         {
             version(LDC) pragma(inline, true);
-            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key); // cast scoped `key` is @trusted
+            immutable hitIndex = indexOfKeyOrVacancySkippingHoles(adjustKeyType(key)); // cast scoped `key` is @trusted
             if (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex))
             {
@@ -1640,7 +1657,7 @@ if (isNullable!K
             }
         }
 
-        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(key);
+        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(adjustKeyType(key));
         if (hitIndex != _store.length &&
             isOccupiedAtIndex(hitIndex))
         {
@@ -1881,12 +1898,6 @@ private:
                 }
                 return _store.length;
             }
-        }
-
-        import nxt.sso_string : SSOString;
-        static if (is(K == SSOString))
-        {
-            // dbg(key, " ", _store[]);
         }
 
         static if (isCopyable!T)

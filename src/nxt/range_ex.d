@@ -184,7 +184,7 @@ if (isSomeString!Range ||
 
     this(R)(R data, size_t lower = 0)
     in { assert(lower <= data.length); }
-    body
+    do
     {
         _data = data;
         static if (hasSlicing!Range) // TODO should we use isSomeString here instead?
@@ -207,7 +207,7 @@ if (isSomeString!Range ||
     in { assert(lower <= upper + 1 || // the extra + 1 makes empty initialization (lower + 1 == upper) possible in for example opSlice below
                 ((lower <= data.length) &&
                  (upper <= data.length))); }
-    body
+    do
     {
         _data = data;
         _lower = lower;
@@ -293,7 +293,7 @@ if (isSomeString!Range ||
     {
         Tuple!(R, R) opIndex(size_t i)
         in { assert(i < length); }
-        body
+        do
         {
             return typeof(return)(_data[0 .. _lower + i],
                                   _data[_lower + i .. _upper]);

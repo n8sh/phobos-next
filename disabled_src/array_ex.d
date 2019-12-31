@@ -1105,7 +1105,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
                 assert(sort(valuesArray[]).findAdjacent.empty,
                        "Parameter `values` must not contain duplicate elements");
             }
-            body
+            do
             {
                 static if (values.length == 1) // faster because `contains()` followed by `completeSort()` searches array twice
                 {

@@ -89,7 +89,7 @@ template Mod(size_t m,
                 assert(value < m, `value too large`);
             }
         }
-        body
+        do
         {
             this._value = cast(T)value;
         }
@@ -116,7 +116,7 @@ template Mod(size_t m,
                 assert(value < m, `value too large`);
             }
         }
-        body
+        do
         {
             this._value = cast(T)value; // overflow checked in ctor
         }

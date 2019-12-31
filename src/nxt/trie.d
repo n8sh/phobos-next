@@ -628,7 +628,7 @@ static private struct SparseLeaf1(Value)
             assert(values.length <= maxCapacity);
             assert(ixs.isSorted);
         }
-        body
+        do
         {
             _capacity = capacity;
             _length = ixs.length;
@@ -649,7 +649,7 @@ static private struct SparseLeaf1(Value)
             assert(ixs.length <= maxCapacity);
             assert(ixs.isSorted);
         }
-        body
+        do
         {
             _capacity = cast(Capacity)capacity;
             _length = cast(Length)ixs.length;
@@ -1258,7 +1258,7 @@ template RawRadixTree(Value = void)
             assert(subCapacity > rhs.subCapacity);
             assert(rhs);
         }
-        body
+        do
         {
             version(LDC) pragma(inline, true);
             // these two must be in this order:

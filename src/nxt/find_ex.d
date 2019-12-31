@@ -21,7 +21,7 @@ in
 {
     assert(end <= rest.length);
 }
-body
+do
 {
     import std.ascii: isAlphaNum;
     return ((off == 0 || // either beginning of line
@@ -48,7 +48,7 @@ in
 {
     assert(end <= rest.length);
 }
-body
+do
 {
     import std.ascii: isAlphaNum;
     return ((off == 0 || // either beginning of line

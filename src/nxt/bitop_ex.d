@@ -42,7 +42,7 @@ in
                "Bit index " ~ n.stringof ~ " is out of range");
     }
 }
-body
+do
 {
     T x = 0;
     foreach (const bix; bixs)

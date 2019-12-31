@@ -99,7 +99,7 @@ class Patt
     /* out (hit) { */
     /*     assert((!hit) || hit >= minLength); // TODO Is this needed? */
     /* } */
-    /* body */
+    /* do */
     {
         return atU(haystack.representation, soff);
     }

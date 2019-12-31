@@ -126,7 +126,7 @@ in
 {
     assert(r.length >= n);
 }
-body
+do
 {
     auto s = r[0 .. n];
 
@@ -355,7 +355,7 @@ in
 {
     assert(r.length == n);
 }
-body
+do
 {
     x[].networkSortUpTo!(n);
 }

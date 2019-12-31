@@ -818,7 +818,7 @@ if (isNullable!K
             }
         }
 
-        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(adjustKeyType(key)); // cast scoped `key` is @trusted
+        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(const(K))adjustKeyType(key)); // cast scoped `key` is @trusted
 
         version(none)
         static if (SomeKey.stringof == "SSOString" ||
@@ -1309,7 +1309,7 @@ if (isNullable!K
 
         size_t hitIndex = 0;
         size_t holeIndex = size_t.max; // first hole index to written to if hole found
-        immutable hitIndexPrel = indexOfKeyOrVacancyAndFirstHole(keyOf(element), holeIndex);
+        immutable hitIndexPrel = indexOfKeyOrVacancyAndFirstHole(adjustKeyType(keyOf(element)), holeIndex);
         if (hitIndexPrel == _store.length || // keys miss and holes may have filled all empty slots
             keyOf(_store[hitIndexPrel]).isNull) // just key miss but a hole may have been found on the way
         {
@@ -1657,7 +1657,7 @@ if (isNullable!K
             }
         }
 
-        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(adjustKeyType(key));
+        immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(const(K))adjustKeyType(key));
         if (hitIndex != _store.length &&
             isOccupiedAtIndex(hitIndex))
         {
@@ -1874,7 +1874,7 @@ private:
     /** Find index to `key` if it exists or to first empty slot found, skipping
      * (ignoring) lazily deleted slots.
      */
-    private size_t indexOfKeyOrVacancySkippingHoles(SomeKey)(const scope SomeKey key) const @trusted scope // `auto ref` here makes things slow
+    private size_t indexOfKeyOrVacancySkippingHoles(const scope K key) const @trusted scope // `auto ref` here makes things slow
     // TODO if (...)
     {
         version(LDC) pragma(inline, true);
@@ -1937,8 +1937,8 @@ private:
         return _store[].triangularProbeFromIndex!(pred)(keyToIndex(key));
     }
 
-    private size_t indexOfKeyOrVacancyAndFirstHole(SomeKey)(const scope SomeKey key, // `auto ref` here makes things slow
-                                                            ref size_t holeIndex) const @trusted scope
+    private size_t indexOfKeyOrVacancyAndFirstHole(const scope K key, // `auto ref` here makes things slow
+                                                   ref size_t holeIndex) const @trusted scope
     {
         version(LDC) pragma(inline, true);
         version(internalUnittest)

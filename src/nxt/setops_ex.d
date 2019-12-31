@@ -365,7 +365,7 @@ struct MoveableSortedRange(Range, alias pred = "a < b")
         // moved out of the body as a workaround for Issue 12661
         dbgVerifySorted();
     }
-    body
+    do
     {
         import core.lifetime : move;
         this._input = move(input); // TODO

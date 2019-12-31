@@ -200,7 +200,7 @@ struct StaticBitArray(uint length_, Block = size_t)
     {
         assert(i < length_);        // TODO nothrow or not?
     }
-    body
+    do
     {
         pragma(inline, true);
         // Andrei: review for @@@64-bit@@@
@@ -270,7 +270,7 @@ struct StaticBitArray(uint length_, Block = size_t)
         /* } */
         assert(i < length_);
     }
-    body
+    do
     {
         pragma(inline, true);
         if (b)
@@ -428,7 +428,7 @@ struct StaticBitArray(uint length_, Block = size_t)
     {
         assert(result == this);
     }
-    body
+    do
     {
         static if (length == blockCount * bitsPerBlock)
         {
@@ -536,7 +536,7 @@ struct StaticBitArray(uint length_, Block = size_t)
     {
         assert(result == this);
     }
-    body
+    do
     {
         if (length_ >= 2)
         {
@@ -680,7 +680,7 @@ struct StaticBitArray(uint length_, Block = size_t)
     {
         assert(length == ba.length);
     }
-    body
+    do
     {
         foreach (immutable i, const b; ba)
         {
@@ -978,7 +978,7 @@ struct StaticBitArray(uint length_, Block = size_t)
     /* void init(void[] v, size_t numbits) in { */
     /*     assert(numbits <= v.length * 8); */
     /*     assert((v.length & 3) == 0); // must be whole bytes */
-    /* } body { */
+    /* } do { */
     /*     _blocks[] = cast(size_t*)v.ptr[0..v.length]; */
     /* } */
 

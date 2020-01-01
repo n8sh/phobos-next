@@ -4008,6 +4008,8 @@ unittest
     x[b] *= 10;                 // opIndexOpAssign!("*=") with non-existing key
     assert(x[b] == 100);
 
+    assert(x.length == 2);
+
     assert(x.contains(a));
     assert(x.contains(a[]));
     assert(a in x);

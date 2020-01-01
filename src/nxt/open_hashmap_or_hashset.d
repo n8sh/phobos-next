@@ -4007,6 +4007,22 @@ unittest
 
     x[b] *= 10;                 // opIndexOpAssign!("*=") with non-existing key
     assert(x[b] == 100);
+
+    assert(x.contains(a));
+    assert(x.contains(a[]));
+    assert(a in x);
+    assert(a[] in x);
+
+    assert(x.contains(b));
+    assert(x.contains(b[]));
+    assert(b in x);
+    assert(b[] in x);
+
+    const c = K("c");
+    assert(!x.contains(c));
+    assert(!x.contains(c[]));
+    assert(c !in x);
+    assert(c[] !in x);
 }
 
 /// `SSOString` as map key type

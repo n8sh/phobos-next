@@ -701,7 +701,7 @@ public:
     auto front() const @nogc
     {
         assert(!empty);
-        // TODO: make safe
+        // TODO make safe
         static if (isString)
         {
             return unsafeDecode(ptr);
@@ -720,7 +720,7 @@ public:
             assert(!empty);
             auto p = ptr + length - 1;
             if (*p < 0b1000_0000) return *p;
-            // TODO: make safe
+            // TODO make safe
             do
             {
                 --p;
@@ -771,7 +771,7 @@ public:
         if (isSmall)
         {
             // Must shuffle in place
-            // TODO: make faster
+            // TODO make faster
             foreach (i; 0 .. length - toPop)
             {
                 msmall[i] = small[i + toPop];
@@ -816,7 +816,7 @@ public:
             else large.length = large.length - 1;
             return;
         }
-        // TODO: make safe
+        // TODO make safe
         auto p1 = p;
         do
         {

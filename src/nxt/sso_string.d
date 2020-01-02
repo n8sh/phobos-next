@@ -566,7 +566,7 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
         s.metadata = i;
         assert(s.metadata == i);
         assert(s.length == 0);
-        // TODO: assert(!s.isNull);
+        // TODO assert(!s.isNull);
     }
 }
 

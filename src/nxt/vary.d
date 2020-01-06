@@ -602,7 +602,7 @@ nothrow @nogc unittest
     const C c = 2.0f;
     const C d = 1.0f;
 
-        assert(a.commonValue == 1);
+    assert(a.commonValue == 1);
     assert(b.commonValue == 2);
     assert(c.commonValue == 2);
     assert(d.commonValue == 1);

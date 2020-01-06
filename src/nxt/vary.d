@@ -12,20 +12,20 @@ static class LightAlgebraicException : Exception
 }
 
 /** Light-Weight Version of $(D std.variant.Algebraic) that, when possible,
-    provides `@safe pure nothrow @nogc` and more space-efficient storage (packing).
-
-    TODO Use
-
-    align(1)
-    struct Unaligned
-    {
-    align(1):
-    ubyte filler;
-    Victim* p;
-    }
-
-    See_Also: http://forum.dlang.org/post/osfrjcuabwscvrecuvre@forum.dlang.org
-    See_Also: https://issues.dlang.org/show_bug.cgi?id=15399
+ * provides `@safe pure nothrow @nogc` and more space-efficient storage (packing).
+ *
+ * TODO Use
+ *
+ * align(1)
+ * struct Unaligned
+ * {
+ * align(1):
+ * ubyte filler;
+ * Victim* p;
+ * }
+ *
+ * See_Also: http://forum.dlang.org/post/osfrjcuabwscvrecuvre@forum.dlang.org
+ * See_Also: https://issues.dlang.org/show_bug.cgi?id=15399
  */
 private struct LightAlgebraic(bool memoryPacked = false,
                               TypesParam...)

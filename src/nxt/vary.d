@@ -239,7 +239,7 @@ public:
         }
     }
     /// ditto
-    alias nullify = clear;      // compatible with std.typecons.Nullable
+    alias nullify = clear;      // compatible with `std.typecons.Nullable`
 
     /// Nullable type support.
     static immutable nullValue = typeof(this).init;

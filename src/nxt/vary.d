@@ -720,7 +720,7 @@ nothrow @nogc unittest
     assert(C(1) == C(1.0));
 }
 
-/// if types have CommonType comparison is nothrow @nogc
+/// if types have `CommonType` then comparison is nothrow @nogc
 nothrow @nogc unittest
 {
     alias C = FastAlgebraic!(short, int, long, float, double);
@@ -729,7 +729,6 @@ nothrow @nogc unittest
     assert(C(1) == C(1.0));
 }
 
-///
 nothrow @nogc unittest
 {
     alias C = FastAlgebraic!(long, double, string);

@@ -17,6 +17,8 @@ unittest
                          immutable(int*));
     A x;
     x = x;
+    x = 42;
+    assert(x == 42);
 }
 
 ///

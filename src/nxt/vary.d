@@ -386,7 +386,8 @@ public:
                         }
                     }
                 }
-                assert(false); // this is for knet to compile but not in this modulue. TODO remove when compiler is fixed
+
+                assert(false); // this is for knet to compile but not in this module. TODO remove when compiler is fixed
             }
         }
 

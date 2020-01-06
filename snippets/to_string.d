@@ -4,7 +4,7 @@ module nxt.to_string;
 
 class Long
 {
-    @safe:
+@safe:
 
     @property void toString(scope void delegate(scope const(char)[]) @safe sink) const
     {

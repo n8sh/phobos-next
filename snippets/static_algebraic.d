@@ -15,7 +15,7 @@ unittest
     alias A = Algebraic!(int, string);
     A x;
     x = x;
-    x = 42;                     // note that this fails for `Algebraic!(long, string)`
+    x = 42;               // note that this fails for `Algebraic!(long, string)`
 }
 
 ///

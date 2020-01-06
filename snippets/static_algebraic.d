@@ -14,7 +14,7 @@ unittest
 {
     alias A = Algebraic!(int, string);
     A x;
-    x = x;
+    x = x;                      // BAD unsafe unpure assignment
     x = 42;                     // NOTE fails for `Algebraic!(long, string)`
 }
 

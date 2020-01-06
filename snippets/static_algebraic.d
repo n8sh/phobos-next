@@ -5,8 +5,18 @@ import std.variant : Algebraic;
 {
     alias A = Algebraic!(int,
                          const(long),
-                         immutable(float));
+                         immutable(int*));
     A x;
+}
+
+/// assignment is unsafe and unpure
+unittest
+{
+    alias A = Algebraic!(int,
+                         const(long),
+                         immutable(int*));
+    A x;
+    x = x;
 }
 
 ///
@@ -15,5 +25,4 @@ import std.variant : Algebraic;
     alias A = Algebraic!(int, string);
     static immutable A x;
     A y;
-    y = 32;
 }

@@ -12,13 +12,10 @@ import std.variant : Algebraic;
 /// assignment is unsafe and unpure
 unittest
 {
-    alias A = Algebraic!(int,
-                         const(long),
+    alias A = Algebraic!(const(int),
                          immutable(int*));
     A x;
     x = x;
-    x = 42;
-    assert(x == 42);
 }
 
 ///

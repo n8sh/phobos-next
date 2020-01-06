@@ -186,7 +186,7 @@ public:
         {
             static assert(allowsAssignmentFrom!MT, "Cannot store a " ~ MT.stringof ~ " in a " ~ name);
         }
-        if (!isOfType!MT) return null;
+        if (!ofType!MT) return null;
         return cast(inout MT*)&_store; // TODO alignment
     }
 
@@ -194,7 +194,7 @@ public:
     @property auto ref inout(T) get(T)() inout @trusted
     {
         version(LDC) pragma(inline, true); // DMD cannot inline
-        if (!isOfType!T) throw new LightAlgebraicException("LightAlgebraic doesn't contain type");
+        if (!ofType!T) throw new LightAlgebraicException("LightAlgebraic doesn't contain type");
         return as!T;
     }
 
@@ -222,7 +222,7 @@ public:
     }
 
     /// Returns: $(D true) iff $(D this) $(D LightAlgebraic) can store an instance of $(D T).
-    bool isOfType(T)() const @safe nothrow @nogc // TODO shorter name such `isA`, `ofType`
+    bool ofType(T)() const @safe nothrow @nogc // TODO shorter name such `isA`, `ofType`
     {
         pragma(inline, true);
         return _tix == indexOf!T + 1;
@@ -397,7 +397,7 @@ public:
                            "Cannot equal any possible type of " ~ LightAlgebraic.stringof ~
                            " with " ~ T.stringof);
 
-            if (!isOfType!T) return false; // throw new LightAlgebraicException("Cannot equal LightAlgebraic with current type " ~ "[Types][typeIndex]" ~ " with different types " ~ "T.stringof");
+            if (!ofType!T) return false; // throw new LightAlgebraicException("Cannot equal LightAlgebraic with current type " ~ "[Types][typeIndex]" ~ " with different types " ~ "T.stringof");
 
             static if (isIntegral!T) // TODO extend by reusing some generic trait, say isBitwiseComparable
             {
@@ -465,7 +465,7 @@ public:
             {
                 static assert(allowsAssignmentFrom!U, // TODO relax to allowsComparisonWith!U
                               "Cannot compare " ~ LightAlgebraic.stringof ~ " with " ~ U.stringof);
-                if (!isOfType!U)
+                if (!ofType!U)
                 {
                     throw new LightAlgebraicException("Cannot compare " ~ LightAlgebraic.stringof ~ " with " ~ U.stringof);
                 }
@@ -641,7 +641,7 @@ nothrow @nogc unittest
 
     static assert(a.hasFixedSize);
 
-    assert(a.isOfType!double);
+    assert(a.ofType!double);
     assert(a.peek!long is null);
     assert(a.peek!double !is null);
 
@@ -761,9 +761,9 @@ unittest
     d = 1.0f;
     assertThrown!LightAlgebraicException(d.get!double);
     assert(d.hasValue);
-    assert(d.isOfType!float);
+    assert(d.ofType!float);
     assert(d.peek!float !is null);
-    assert(!d.isOfType!double);
+    assert(!d.ofType!double);
     assert(d.peek!double is null);
     assert(d.get!float == 1.0f);
     assert(d == 1.0f);
@@ -777,7 +777,7 @@ unittest
     d = 2;
     assert(d.hasValue);
     assert(d.peek!int !is null);
-    assert(!d.isOfType!float);
+    assert(!d.ofType!float);
     assert(d.peek!float is null);
     assert(d.get!int == 2);
     assert(d == 2);
@@ -791,7 +791,7 @@ unittest
     assert(d.hasValue);
     assert(d.get!0 == "abc");
     assert(d.get!string == "abc");
-    assert(d.isOfType!string);
+    assert(d.ofType!string);
     assert(d.peek!string !is null);
     assert(d == "abc");
     assert(d != "abcd");
@@ -803,7 +803,7 @@ unittest
     d = 2.0;
     assert(d.hasValue);
     assert(d.get!double == 2.0);
-    assert(d.isOfType!double);
+    assert(d.ofType!double);
     assert(d.peek!double !is null);
     assert(d == 2.0);
     assert(d != 3.0);

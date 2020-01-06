@@ -12,6 +12,8 @@ import std.variant : Algebraic;
 ///
 @safe pure unittest
 {
-    alias A = Algebraic!(int, long);
+    alias A = Algebraic!(int, string);
     static immutable A x;
+    A y;
+    y = 32;
 }

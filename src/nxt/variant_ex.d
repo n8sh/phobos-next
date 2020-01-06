@@ -120,7 +120,7 @@ pragma(inline):
 
     @property inout(Ref!T) peek(T)() inout @trusted if (canStore!T)
     {
-        if (!isOfType!T) { return typeof(return).init; }
+        if (!ofType!T) { return typeof(return).init; }
         return typeof(return)(_raw, true);
     }
 
@@ -166,7 +166,7 @@ pragma(inline):
         }
     }
 
-    private bool isOfType(T)() const if (canStore!T)
+    private bool ofType(T)() const if (canStore!T)
     {
         return !isNull && typeIndex == indexOf!T + 1;
     }
@@ -174,7 +174,7 @@ pragma(inline):
     inout(T) as(T)() inout @trusted if (canStore!T)
     {
         // only in debug mode because it's meant to be called in conjunction with `typeIndex`
-        assert(isOfType!T);
+        assert(ofType!T);
         inout x = rawValue;
         return *(cast(typeof(return)*)(cast(void*)&x)); // reinterpret
     }
@@ -264,7 +264,7 @@ pure nothrow unittest
         assert(v);
         assert(!v.isNull);
         assert(v.typeIndex != 0);
-        assert(v.isOfType!Tp);
+        assert(v.ofType!Tp);
 
         assert(v == &a);
         assert(v != &a_);

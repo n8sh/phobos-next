@@ -3,15 +3,15 @@ import std.variant : Algebraic;
 ///
 @safe pure unittest
 {
-    alias Ail = Algebraic!(int,
-                           const(long),
-                           immutable(float));
-    immutable Ail _;
+    alias A = Algebraic!(int,
+                         const(long),
+                         immutable(float));
+    A x;
 }
 
 ///
 @safe pure unittest
 {
-    alias Ail = Algebraic!(int, long);
-    static immutable Ail _;
+    alias A = Algebraic!(int, long);
+    static immutable A x;
 }

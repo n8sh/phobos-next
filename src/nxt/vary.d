@@ -576,7 +576,6 @@ private static template maxSize(T...)
     }
 }
 
-
 @safe:
 
 unittest
@@ -731,8 +730,10 @@ nothrow @nogc unittest
 
 nothrow @nogc unittest
 {
-    alias C = FastAlgebraic!(long, double, string);
+    alias C = FastAlgebraic!(int, string);
     static assert(!C.hasFixedSize);
+    C x;
+    x = 42;
 }
 
 unittest

@@ -1368,7 +1368,7 @@ unittest
     // TODO make this work: A([1, 2, 3]).toString(sink.put);
 }
 
-/// foreach over mutable elements
+/// iteration over mutable elements
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
@@ -1382,7 +1382,7 @@ unittest
     }
 }
 
-/// foreach over `const`ant elements
+/// iteration over `const`ant elements
 @safe pure nothrow @nogc unittest
 {
     alias T = const(int);
@@ -1396,7 +1396,7 @@ unittest
     }
 }
 
-/// foreach over immutable elements
+/// iteration over immutable elements
 @safe pure nothrow @nogc unittest
 {
     alias T = immutable(int);

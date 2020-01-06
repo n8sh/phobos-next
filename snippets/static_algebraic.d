@@ -1,9 +1,17 @@
 import std.variant : Algebraic;
 
-alias Ail = Algebraic!(int, long);
-
-static immutable Ail _;
-
-void main(string[] args)
+///
+@safe pure unittest
 {
+    alias Ail = Algebraic!(int,
+                           const(long),
+                           immutable(float));
+    immutable Ail _;
+}
+
+///
+@safe pure unittest
+{
+    alias Ail = Algebraic!(int, long);
+    static immutable Ail _;
 }

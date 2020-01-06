@@ -1368,10 +1368,24 @@ unittest
     // TODO make this work: A([1, 2, 3]).toString(sink.put);
 }
 
-/// foreach
+/// foreach over mutable elements
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
+    alias A = BasicArray!(T);
+
+    auto a = A([1, 2, 3].s);
+
+    foreach (immutable i, const e; a)
+    {
+        assert(i + 1 == e);
+    }
+}
+
+/// foreach over immutable elements
+@safe pure nothrow @nogc unittest
+{
+    alias T = immutable(int);
     alias A = BasicArray!(T);
 
     auto a = A([1, 2, 3].s);

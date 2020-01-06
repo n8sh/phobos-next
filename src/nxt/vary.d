@@ -36,7 +36,7 @@ private struct LightAlgebraic(bool memoryPacked = false,
     enum maxTypesCount = 2^^(Ix.sizeof * 8) - 1; // maximum number of allowed type parameters
 
     import core.internal.traits : Unqual;
-    import std.meta : anySatisfy, allSatisfy, staticIndexOf, staticMap, NoDuplicates;
+    import std.meta : anySatisfy, allSatisfy, staticIndexOf, NoDuplicates;
     import core.stdc.string : memcmp;
     import std.traits : StdCommonType = CommonType, isIntegral, hasIndirections, isCopyable, hasAliasing;
     import nxt.traits_ex : isComparable, isEquable, sizesOf, stringsOf, allSame;

@@ -720,6 +720,22 @@ nothrow @nogc unittest
     assert(C(1) == C(1.0));
 }
 
+/// if types have CommonType comparison is nothrow @nogc
+nothrow @nogc unittest
+{
+    alias C = FastAlgebraic!(short, int, long, float, double);
+    static assert(!C.hasFixedSize);
+    assert(C(1) != C(2.0));
+    assert(C(1) == C(1.0));
+}
+
+/// if types have CommonType comparison is nothrow @nogc
+nothrow @nogc unittest
+{
+    alias C = FastAlgebraic!(long, double, string);
+    static assert(!C.hasFixedSize);
+}
+
 unittest
 {
     import std.exception : assertThrown;

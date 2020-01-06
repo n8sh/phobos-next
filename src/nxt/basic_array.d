@@ -1382,6 +1382,20 @@ unittest
     }
 }
 
+/// foreach over `const`ant elements
+@safe pure nothrow @nogc unittest
+{
+    alias T = const(int);
+    alias A = BasicArray!(T);
+
+    auto a = A([1, 2, 3].s);
+
+    foreach (immutable i, const e; a)
+    {
+        assert(i + 1 == e);
+    }
+}
+
 /// foreach over immutable elements
 @safe pure nothrow @nogc unittest
 {

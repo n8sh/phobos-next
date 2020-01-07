@@ -283,7 +283,7 @@ import nxt.basic_array : BasicArray;
 import nxt.typecons_ex : IndexedBy;
 import nxt.owned : Owned;
 
-import nxt.vary : FastAlgebraic;
+import nxt.variant : FastAlgebraic;
 
 alias Data = FastAlgebraic!(long, double);
 alias Datas = Owned!(BasicArray!Data);

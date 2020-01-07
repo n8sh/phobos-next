@@ -1,4 +1,4 @@
-module nxt.vary;
+module nxt.variant;
 
 import core.internal.traits : hasElaborateCopyConstructor, hasElaborateDestructor;
 import nxt.traits_ex : haveCommonType;

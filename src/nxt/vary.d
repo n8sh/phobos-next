@@ -37,8 +37,7 @@ private struct LightAlgebraic(bool memoryPacked = false,
 
     import core.internal.traits : Unqual;
     import std.meta : anySatisfy, allSatisfy, staticIndexOf, NoDuplicates;
-    import core.stdc.string : memcmp;
-    import std.traits : StdCommonType = CommonType, isIntegral, hasIndirections, isCopyable, hasAliasing;
+    import std.traits : StdCommonType = CommonType, hasIndirections, isCopyable, hasAliasing;
     import nxt.traits_ex : isComparable, isEquable, sizesOf, stringsOf, allSame;
 
 public:
@@ -374,16 +373,8 @@ public:
                     foreach (const i, T; Types)
                     {
                     case i:
-                        static if (isIntegral!T) // TODO extend by reusing some generic trait, say isBitwiseComparable
-                        {
-                            return memcmp(cast(void*)&this._store,
-                                          cast(void*)&that._store, currentSize) == 0; // this is faster than final switch
-                        }
-                        else
-                        {
-                            return (this.as!T ==
-                                    that.as!T);
-                        }
+                        return (this.as!T ==
+                                that.as!T);
                     }
                 }
 
@@ -399,16 +390,7 @@ public:
                            " with " ~ T.stringof);
 
             if (!ofType!T) return false; // throw new LightAlgebraicException("Cannot equal LightAlgebraic with current type " ~ "[Types][typeIndex]" ~ " with different types " ~ "T.stringof");
-
-            static if (isIntegral!T) // TODO extend by reusing some generic trait, say isBitwiseComparable
-            {
-                return memcmp(cast(void*)&this._store,
-                              cast(void*)&that, T.sizeof) == 0; // this is faster than final switch
-            }
-            else
-            {
-                return (this.as!T == that);
-            }
+            return (this.as!T == that);
         }
     }
 

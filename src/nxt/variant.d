@@ -14,8 +14,7 @@ static class LightAlgebraicException : Exception
 /** Light-Weight Version of $(D std.variant.Algebraic) that, when possible,
  * provides `@safe pure nothrow @nogc` and more space-efficient storage (packing).
  *
- * TODO support implicit conversions of unsigned integer types to larger type
- * TODO support implicit conversions of signed integer types to larger type
+ * TODO support implicit conversions of (un)signed integer type to larger type
  * TODO add warnings about combining byte, short, int, long, etc.
  * TODO add warnings about combining ubyte, ushort, uint, ulong, etc.
  *

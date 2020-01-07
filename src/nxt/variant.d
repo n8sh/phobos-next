@@ -26,6 +26,7 @@ static class LightAlgebraicException : Exception
  *
  * See_Also: http://forum.dlang.org/post/osfrjcuabwscvrecuvre@forum.dlang.org
  * See_Also: https://issues.dlang.org/show_bug.cgi?id=15399
+ * See_Also: https://forum.dlang.org/post/jfasmgwoffmbtuvrtxey@forum.dlang.org
  */
 private struct LightAlgebraic(bool memoryPacked = false,
                               TypesParam...)

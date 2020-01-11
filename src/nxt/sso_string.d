@@ -12,8 +12,7 @@ module nxt.sso_string;
  *
  * NOTE big-endian platforms should be supported but this hasn't been verified.
  *
- * TODO add tests that toString and to!string only allocates for non-immutable
- * `this`
+ * TODO add tests that `toString` only allocates for non-immutable `this`
  *
  * TODO Add to Phobos' std.typecons or std.array or std.string
  *

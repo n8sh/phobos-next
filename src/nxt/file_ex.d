@@ -13,10 +13,12 @@ module nxt.file_ex;
 immutable(void)[] rawReadNullTerminated(string path) @trusted
 {
     import std.stdio : File;
-
     auto file = File(path, `rb`);
 
     import std.array : uninitializedArray;
+    // import nxt.dbgio;
+    // dbg("Size:", file.size);
+    // ubyte[] data = new ubyte[](file.size + 1);
     ubyte[] data = uninitializedArray!(ubyte[])(file.size + 1); // one extra for terminator
     file.rawRead(data);
     data[file.size] = 0;     // zero terminator for sentinel

@@ -69,8 +69,7 @@ public:
     private enum indexOf(T) = staticIndexOf!(T, Types); // TODO cast to ubyte if N is <= 256
 
     // static checking
-    static assert(N >= 1,
-                  "No use storing zero types in a " ~ name);
+    static assert(N >= 1, "No use storing zero types in a " ~ name);
     static assert(N < maxTypesCount,
                   "Cannot store more than " ~ maxTypesCount.stringof ~ " Types in a " ~ name);
 

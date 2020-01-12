@@ -691,10 +691,9 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
     alias pack = compress;
 
     /// Reallocate storage. TODO move to Large.reallocateAndSetCapacity
-    pragma(inline, true)
-    private void reallocateLargeStoreAndSetCapacity(size_t newCapacity)
-        pure @trusted
+    private void reallocateLargeStoreAndSetCapacity(size_t newCapacity) pure @trusted
     {
+        pragma(inline, true);
         _large.setCapacity(newCapacity);
         static if (useGCAllocation)
         {
@@ -708,10 +707,9 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
     }
 
     /// Destruct.
-    pragma(inline)
-    ~this()
-        @trusted
+    ~this() @trusted @nogc
     {
+        pragma(inline, true);
         assert(!isBorrowed);
         if (isLarge)
         {
@@ -725,9 +723,9 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
     }
 
     /// Empty.
-    pragma(inline)
-    void clear()
+    void clear() @nogc
     {
+        pragma(inline, true);
         assert(!isBorrowed);
         release();
         resetInternalData();
@@ -752,7 +750,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
     }
 
     /// Release internal store.
-    private void release() @trusted
+    private void release() @trusted @nogc
     {
         static if (hasElaborateDestructor!E)
         {

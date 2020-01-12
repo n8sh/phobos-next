@@ -253,12 +253,12 @@ struct ZlibFileInputRange
         loadNextChunk();
     }
 
-    ~this() @trusted
+    ~this() @trusted @nogc
     {
         const int ret = gzclose(_f);
         if (ret < 0)
         {
-            throw new FileException(`Couldn't close file`);
+            assert(`Couldn't close file`); // TODO replace with non-GC-allocated exception
         }
     }
 

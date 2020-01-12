@@ -19,7 +19,8 @@ immutable(void)[] rawReadNullTerminated(string path) @trusted
     // import nxt.dbgio;
     // dbg("Size:", file.size);
     // ubyte[] data = new ubyte[](file.size + 1);
-    ubyte[] data = uninitializedArray!(ubyte[])(file.size + 1); // one extra for terminator
+    alias Data = ubyte[];
+    Data data = uninitializedArray!(Data)(file.size + 1); // one extra for terminator
     file.rawRead(data);
     data[file.size] = 0;     // zero terminator for sentinel
 

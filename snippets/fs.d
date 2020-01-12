@@ -1262,7 +1262,10 @@ class RegFile : File
         ++parent.gstats.noRegFiles;
     }
 
-    ~this() { _cstat.deallocate(false); }
+    ~this() @nogc
+    {
+        _cstat.deallocate(false);
+    }
 
     override string toTextual() const @property { return `Regular File`; }
 

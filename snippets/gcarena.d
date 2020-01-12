@@ -56,7 +56,7 @@ struct ArenaHandler {
     @disable this(this);
     ~this() @nogc { stop(); }
 
-    void stop() {
+    void stop() @nogc {
         if (stopped) return;
         gcaData.clearProxy();
         stopped = true;
@@ -76,7 +76,7 @@ auto useCleanArena() {
 auto pauseArena() {
     gcaData.clearProxy();
     struct ArenaPause {
-        ~this() { gcaData.installProxy(); }
+        ~this() @nogc { gcaData.installProxy(); }
         @disable this(this);
     }
     return ArenaPause();
@@ -176,13 +176,13 @@ struct GCAData {
         arena_pos = 0;
     }
 
-    void installProxy() {
-        writeln("using arena now");
+    void installProxy() @nogc {
+        // writeln("using arena now");
         *pproxy = &myProxy;
     }
 
-    void clearProxy() {
-        writeln("using GC now");
+    void clearProxy() @nogc {
+        // writeln("using GC now");
         *pproxy = null;
     }
 }

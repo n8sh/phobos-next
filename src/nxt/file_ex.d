@@ -24,7 +24,7 @@ immutable(void)[] rawReadNullTerminated(string path) @trusted
     static if (extraTest)
     {
         size_t n = 1;
-        while (n < 1_000_000_000)
+        while (n < 10_000_000)
         {
             dbg("Allocating ", n, " bytes ...");
             Data _ = new Data(n);
@@ -33,7 +33,6 @@ immutable(void)[] rawReadNullTerminated(string path) @trusted
     }
 
     Data data = uninitializedArray!(Data)(file.size + 1); // one extra for terminator
-    dbg();
     file.rawRead(data);
     data[file.size] = 0;     // zero terminator for sentinel
 

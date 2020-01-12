@@ -188,7 +188,7 @@ struct Region(ParentAllocator = NullAllocator,
     */
     static if (!is(ParentAllocator == NullAllocator)
                && hasMember!(ParentAllocator, "deallocate"))
-        ~this()
+        ~this() @nogc
         {
             parent.deallocate(_begin[0 .. _end - _begin]);
         }
@@ -1274,7 +1274,7 @@ shared struct SharedRegion(ParentAllocator = NullAllocator,
     */
     static if (!is(ParentAllocator == NullAllocator)
                && hasMember!(ParentAllocator, "deallocate"))
-        ~this()
+        ~this() @nogc
         {
             parent.deallocate(cast(void[]) _begin[0 .. _end - _begin]);
         }

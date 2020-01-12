@@ -360,7 +360,7 @@ struct Bz2libFileInputRange
         loadNextChunk();
     }
 
-    ~this() @trusted
+    ~this() @trusted @nogc
     {
         BZ2_bzclose(_f);       // TODO error handling?
 

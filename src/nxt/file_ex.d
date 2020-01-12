@@ -16,11 +16,24 @@ immutable(void)[] rawReadNullTerminated(string path) @trusted
     auto file = File(path, `rb`);
 
     import std.array : uninitializedArray;
-    // import nxt.dbgio;
-    // dbg("Size:", file.size);
-    // ubyte[] data = new ubyte[](file.size + 1);
+    import nxt.dbgio;
+
     alias Data = ubyte[];
+
+    const extraTest = false;
+    if (extraTest)
+    {
+        size_t n = 1;
+        while (n < 1_000_000_000)
+        {
+            dbg("Allocating ", n, " bytes ...");
+            Data _ = new Data(n);
+            n *= 2;
+        }
+    }
+
     Data data = uninitializedArray!(Data)(file.size + 1); // one extra for terminator
+    dbg();
     file.rawRead(data);
     data[file.size] = 0;     // zero terminator for sentinel
 

@@ -20,8 +20,8 @@ immutable(void)[] rawReadNullTerminated(string path) @trusted
 
     alias Data = ubyte[];
 
-    const extraTest = false;
-    if (extraTest)
+    enum extraTest = false;
+    static if (extraTest)
     {
         size_t n = 1;
         while (n < 1_000_000_000)

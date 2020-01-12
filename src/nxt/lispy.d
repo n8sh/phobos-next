@@ -521,6 +521,7 @@ private:
     const Input _input;         // input
 
     import nxt.fixed_array : FixedArray;
+    // import nxt.basic_array : BasicArray;
     alias TopExprs = FixedArray!(SExpr, 1024);
     TopExprs _topExprs;           // top s-expressions (stack)
     size_t _subExprsCount;

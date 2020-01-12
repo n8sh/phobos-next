@@ -310,7 +310,7 @@ private:
     }
 
     // release all memory associated with this
-    private void decRef()
+    private void decRef() @nogc
     {
         if (!isSmall) large.decRef;
     }
@@ -435,7 +435,7 @@ public:
     }
 
     // Dtor decrements refcount and may deallocate
-    ~this()
+    ~this() @nogc
     {
         decRef;
     }

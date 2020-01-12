@@ -347,20 +347,20 @@ pragma(inline):
      * TODO what effect does have here?
      * See_Also: https://github.com/atilaneves/automem/blob/master/source/automem/vector.d#L92
      */
-    ~this() /*TODO scope*/
+    ~this() @nogc /*TODO scope*/
     {
         release();
     }
 
     /// Empty.
-    void clear()
+    void clear() @nogc
     {
         release();
         resetInternalData();
     }
 
     /// Release internal store.
-    private void release()
+    private void release() @nogc
     {
         static if (hasElaborateDestructor!T)
         {
@@ -392,7 +392,7 @@ pragma(inline):
     }
 
     /// Reset internal data.
-    private void resetInternalData()
+    private void resetInternalData() @nogc
     {
         pragma(inline, true);
         _store.ptr = null;
@@ -1473,7 +1473,7 @@ unittest
 
         @disable this(this);
 
-        ~this() @trusted
+        ~this() @trusted @nogc
         {
             free(_ptr);
             freeCount += 1;
@@ -1583,7 +1583,7 @@ unittest
         {
             this.x = x;
         }
-        ~this() { x = 42; }
+        ~this() @nogc { x = 42; }
         int x;
     }
     alias A = BasicArray!(T);

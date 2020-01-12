@@ -68,7 +68,7 @@ struct BitArray(bool blockAlignedLength = false,
     }
 
     /// Destroy.
-    ~this()
+    ~this() @nogc
     {
         release();
     }
@@ -88,7 +88,7 @@ struct BitArray(bool blockAlignedLength = false,
     alias clear = reset;
 
     /// Release internal store.
-    private void release() @trusted
+    private void release() @trusted @nogc
     {
         fakePureFree(_blockPtr);
     }

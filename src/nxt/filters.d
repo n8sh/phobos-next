@@ -60,14 +60,14 @@ if (isDenseSetFilterable!E)
         }
     }
 
-    ~this()
+    ~this() @nogc
     {
         pragma(inline, true);
         release();
     }
 
     /// Free storage.
-    private void release() @trusted
+    private void release() @trusted @nogc
     {
         pragma(inline, true);
         import nxt.qcmeman : free;
@@ -75,7 +75,7 @@ if (isDenseSetFilterable!E)
     }
 
     /// Clear contents.
-    void clear()()
+    void clear()() @nogc
     {
         pragma(inline, true);
         release();

@@ -236,9 +236,9 @@ struct SSOHashMapOrSet(K, V = void,
     }
 
     /// Destruct.
-    pragma(inline, true)
-    ~this()
+    ~this() @nogc
     {
+        pragma(inline, true);
         release();
     }
 

@@ -869,7 +869,7 @@ private T staticError(T, Args...)(auto ref Args args) @trusted if (is(T : Error)
             assert(i == 1337);
         }
 
-        ~this()
+        ~this() @nogc
         {
             assert(i == 1337);
         }
@@ -904,7 +904,7 @@ private T staticError(T, Args...)(auto ref Args args) @trusted if (is(T : Error)
             ++i;
         }
 
-        ~this()
+        ~this() @nogc
         {
             --i;
         }
@@ -1215,7 +1215,7 @@ private struct structBug5920
 {
     int order;
     uint* pDestructionMask;
-    ~this()
+    ~this() @nogc
     {
         if (pDestructionMask)
             *pDestructionMask += 1 << order;

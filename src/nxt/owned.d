@@ -24,7 +24,7 @@ struct Owned(Container)
 
 pragma(inline):
 
-    ~this()
+    ~this() @nogc
     {
         assert(!_writeBorrowed, "This is still write-borrowed, cannot release!");
         assert(_readBorrowCount == 0, "This is still read-borrowed, cannot release!");

@@ -87,7 +87,7 @@ static struct Store(E, bool useGCallocation = false)
     enum maxLargeLength = size_t.max >> 8;
 
     /// Destruct.
-    ~this() nothrow @trusted
+    ~this() nothrow @trusted @nogc
     {
         if (isLarge) { large.clear; }
     }

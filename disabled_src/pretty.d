@@ -238,7 +238,7 @@ class Viz
         }
     }
 
-    ~this()
+    ~this() @nogc
     {
         if (form == VizForm.HTML)
         {

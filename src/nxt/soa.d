@@ -78,7 +78,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
         return _capacity;
     }
 
-    ~this() @trusted
+    ~this() @trusted @nogc
     {
         import std.experimental.allocator : dispose;
         static foreach (const index, _; S.tupleof)

@@ -151,7 +151,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
                hasElaborateDestructor!T)
     {
         /** Destruct. */
-        ~this() @trusted
+        ~this() @trusted @nogc
         {
             static if (borrowChecked) { assert(!isBorrowed); }
             static if (hasElaborateDestructor!T)

@@ -548,7 +548,7 @@ struct LispFileParser
         parser = LispParser(cast(LispParser.Input)filePath.expandTilde.rawReadNullTerminated(),
                             false, false, false, subExprsCount);
     }
-    ~this()
+    ~this() @nogc
     {
         // TODO write parser.subExprsCount
     }

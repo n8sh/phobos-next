@@ -537,7 +537,7 @@ if (isNullable!K
     }
 
     /// Destruct.
-    ~this()
+    ~this() @nogc
     {
         version(LDC) pragma(inline, true);
         release();
@@ -2092,7 +2092,7 @@ static private struct LvalueElementRef(Table)
         }
     }
 
-    ~this() @trusted
+    ~this() @nogc @trusted
     {
         pragma(inline, true);
         static if (Table.isBorrowChecked)
@@ -3784,7 +3784,7 @@ version(unittest)
     {
         static size_t dtorCount = 0; // number of calls to this destructor
     @safe nothrow @nogc:
-        ~this() { dtorCount += 1; }
+        ~this() @nogc { dtorCount += 1; }
     pure:
         this(ulong value) { this._value = value; }
         @property bool opEquals(const scope typeof(this) rhs) const

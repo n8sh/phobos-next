@@ -17,7 +17,7 @@ struct SomeUncopyable
 
     @disable this(this);
 
-    ~this() @trusted
+    ~this() @trusted @nogc
     {
         if (_i)
         {

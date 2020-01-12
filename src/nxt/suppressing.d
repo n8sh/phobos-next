@@ -8,7 +8,7 @@ enum SuppressOptions
     postblit = 2
 }
 
-/** Suppres.
+/** Suppress.
  *
  * See_Also: http://forum.dlang.org/post/dxakoknmzblxpgiibfmu@forum.dlang.org
  */
@@ -42,7 +42,7 @@ struct Suppress(T, SuppressOptions options)
     // Call dtor
     static if (!suppressDestructor)
     {
-        ~this()
+        ~this() @nogc
         {
             destroy(get);
         }
@@ -77,9 +77,9 @@ struct Suppress(T, SuppressOptions options)
 struct S1
 {
     @disable this(this);
-    ~this()
+    ~this() @nogc
     {
-        throw new Exception("Don't touch my destructor!");
+        assert("Don't touch my destructor!");
     }
 }
 

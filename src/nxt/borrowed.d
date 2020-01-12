@@ -14,7 +14,7 @@ struct WriteBorrowed(Range, Owner)
 
     @disable this(this);        // cannot be copied
 
-    ~this()
+    ~this() @nogc
     {
         debug assert(_owner._writeBorrowed, "Write borrow flag is already false, something is wrong with borrowing logic");
         _owner._writeBorrowed = false;
@@ -52,7 +52,7 @@ struct ReadBorrowed(Range, Owner)
         }
     }
 
-    ~this()
+    ~this() @nogc
     {
         if (_owner)
         {

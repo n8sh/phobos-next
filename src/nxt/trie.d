@@ -657,7 +657,7 @@ static private struct SparseLeaf1(Value)
         }
     }
 
-    ~this()
+    ~this() @nogc
     {
         pragma(inline, true);
         deinit();
@@ -962,7 +962,7 @@ static private struct DenseLeaf1(Value)
         }
     }
 
-    ~this()
+    ~this() @nogc
     {
         pragma(inline, true);
         static if (hasGCScannedValues)

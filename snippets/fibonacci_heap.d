@@ -47,7 +47,7 @@ public:
     // }
 
     /*virtual*/
-    ~this()
+    ~this() @nogc
     {
         if (root)
         {

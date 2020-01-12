@@ -59,7 +59,7 @@ pragma(inline, true):
     }
 
     /// Destruct.
-    ~this() @trusted
+    ~this() @trusted @nogc
     {
         pureFree(_store.ptr);
     }

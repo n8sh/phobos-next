@@ -70,7 +70,7 @@ struct SSOOpenHashSet(K,
         return result;
     }
 
-    ~this() @trusted
+    ~this() @trusted @nogc
     {
         if (isLarge)
         {
@@ -304,7 +304,7 @@ static private struct LvalueElementRef(Table)
         // }
     }
 
-    ~this() @trusted
+    ~this() @trusted @nogc
     {
         pragma(inline, true);
         // static if (Table.isBorrowChecked)

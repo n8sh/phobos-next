@@ -136,7 +136,7 @@ public:
     }
 
     /// Destruct.
-    ~this()
+    ~this() @nogc
     {
         pragma(inline, true);
         if (hasValue)

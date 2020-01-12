@@ -28,7 +28,7 @@ public:
         buckets = (cast(Node**) calloc((Node*).sizeof, bucketCount))[0 .. bucketCount];
     }
 
-    ~this()
+    ~this() @nogc
     {
         Block* current = rootBlock;
         while (current !is null)
@@ -294,6 +294,6 @@ private:
     Block* rootBlock;
 }
 
-private extern (C) void* calloc(size_t, size_t) nothrow pure;
-private extern (C) void* malloc(size_t) nothrow pure;
-private extern (C) void free(void*) nothrow pure;
+private extern (C) void* calloc(size_t, size_t) nothrow pure @nogc;
+private extern (C) void* malloc(size_t) nothrow pure @nogc;
+private extern (C) void free(void*) nothrow pure @nogc;

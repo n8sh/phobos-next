@@ -155,10 +155,10 @@ struct LispParser
     {
         _input = input;
 
-        if (subExprCountsGuess) // if guess use region
-        {
-            _subExprsStore = new SExpr[subExprCountsGuess]; // region store
-        }
+        // if (subExprCountsGuess) // if guess use region
+        // {
+        //     _subExprsStore = new SExpr[subExprCountsGuess]; // region store
+        // }
 
         import std.exception : enforce;
         enforce(_input.isNullTerminated, "Input isn't null-terminated"); // input cannot be trusted
@@ -526,8 +526,8 @@ private:
     TopExprs _topExprs;           // top s-expressions (stack)
     size_t _subExprsCount;
 
-    SExpr[] _subExprsStore;     // sub s-expressions (region)
-    size_t _subExprsOffset = 0; // offset into `_subExprsStore`
+    // SExpr[] _subExprsStore;     // sub s-expressions (region)
+    // size_t _subExprsOffset = 0; // offset into `_subExprsStore`
 
     size_t _depth;              // parenthesis depth
     bool _endOfFile;            // signals null terminator found

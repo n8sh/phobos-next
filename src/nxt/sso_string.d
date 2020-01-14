@@ -729,8 +729,11 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     assert(S("A").toLower[] == "a");
     assert(S("a").toUpper[] == "A");
     assert(S("ABCDEFGHIJKLMNO").toLower[] == "abcdefghijklmno"); // small
+    assert(S("abcdefghijklmno").toUpper[] == "ABCDEFGHIJKLMNO"); // small
     assert(S("ÅÄÖ").toLower[] == "åäö");
+    assert(S("åäö").toUpper[] == "ÅÄÖ");
     assert(S("ABCDEFGHIJKLMNOP").toLower[] == "abcdefghijklmnop"); // large
+    assert(S("abcdefghijklmnop").toUpper[] == "ABCDEFGHIJKLMNOP"); // large
 
     char[6] x = "ÅÄÖ";
     import std.uni : toLowerInPlace;

@@ -83,6 +83,55 @@ pure:
         }
     }
 
+    /** Return `this` uppercased. */
+    typeof(this) toUpper()() const @trusted // template-lazy
+    {
+        if (isSmallASCIIClean())
+        {
+            typeof(return) result = void;
+            result.small.length = small.length;
+            foreach (const index; 0 .. smallCapacity)
+            {
+                import std.ascii : toUpper;
+                (cast(E[])(result.small.data))[index] = toUpper(small.data[index]); // TODO can this be parallelized?
+            }
+            return result;
+        }
+        else
+        {
+            if (isLarge)
+            {
+                import std.uni : asUpperCase;
+                import std.conv : to;
+                return typeof(return)(opSlice().asUpperCase.to!string); // TODO make .to!string nothrow
+            }
+            else
+            {
+                typeof(return) result = this; // copy
+                import std.uni : toUpperInPlace;
+                auto slice = cast(E[])(result.opSlice()); // need ref to slice
+                toUpperInPlace(slice);
+                if (slice is result.opSlice() || // no reallocation
+                    slice.length == result.length) // or same length (happens for German double-s)
+                {
+                    return result;
+                }
+                else
+                {
+                    version(none)
+                    {
+                        import nxt.dbgio;
+                        dbg(`toUpperInPlace reallocated from "`,
+                            result.opSlice(), `" of length `, result.opSlice().length,
+                            ` to "`
+                            , slice, `" of length `, slice.length);
+                    }
+                    return typeof(return)(slice); // reallocation occurred
+                }
+            }
+        }
+    }
+
     pure nothrow:
 
     /** Construct from `source`, which potentially needs GC-allocation (iff
@@ -678,6 +727,7 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
 {
     alias S = SSOString;
     assert(S("A").toLower[] == "a");
+    assert(S("a").toUpper[] == "A");
     assert(S("ABCDEFGHIJKLMNO").toLower[] == "abcdefghijklmno"); // small
     assert(S("ÅÄÖ").toLower[] == "åäö");
     assert(S("ABCDEFGHIJKLMNOP").toLower[] == "abcdefghijklmnop"); // large

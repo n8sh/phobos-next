@@ -15,6 +15,8 @@ static class LightAlgebraicException : Exception
  * provides `@safe pure nothrow @nogc` and more space-efficient storage (packing).
  *
  * TODO support implicit conversions of (un)signed integer type to larger type
+ * See_Also: https://forum.dlang.org/post/jfasmgwoffmbtuvrtxey@forum.dlang.org
+ *
  * TODO add warnings about combining byte, short, int, long, etc.
  * TODO add warnings about combining ubyte, ushort, uint, ulong, etc.
  *
@@ -29,8 +31,8 @@ static class LightAlgebraicException : Exception
  * }
  *
  * See_Also: http://forum.dlang.org/post/osfrjcuabwscvrecuvre@forum.dlang.org
- * See_Also: https://issues.dlang.org/show_bug.cgi?id=15399
  * See_Also: https://forum.dlang.org/post/jfasmgwoffmbtuvrtxey@forum.dlang.org
+ * See_Also: https://issues.dlang.org/show_bug.cgi?id=15399
  */
 private struct LightAlgebraic(bool memoryPacked = false,
                               TypesParam...)

@@ -38,7 +38,7 @@ if (isFloatingPoint!T)
     }
 
     /// Convert to `string`.
-    auto toString(scope void delegate(scope const(char)[]) sink) const @trusted
+    auto toString(scope void delegate(scope const(char)[]) @safe sink) const @safe
     {
         import std.format : formattedWrite;
         sink.formattedWrite!(`%f° N %f° W`)(latitude, longitude);

@@ -186,11 +186,35 @@ pure:
 
     import std.traits : isIterable;
 
-    this(Source)(const scope auto ref Source source) @trusted
-    if (!isCharArray!(typeof(source[])) &&
-        isIterable!(Source)) // iterable of char
+    this(Source)(Source source)
+    if (isIterable!(Source) &&
+        is(ElementType!Source : dchar))
     {
-        static assert(0, "Implement iterable of char");
+        static assert(0, "TODO complete this function");
+        size_t precount = 0;
+        foreach (dch; source)
+        {
+            import std.utf : encode;
+            char[4] chars;
+            precount += encode(chars, dch);
+        }
+
+        if (precount <= smallCapacity)
+        {
+            size_t offset = 0;
+            foreach (dch; source)
+            {
+                import std.utf : encode;
+                char[4] chars;
+                const count = encode(chars, dch);
+                offset += count;
+            }
+            small.length = offset;
+        }
+        else
+        {
+            assert(0);
+        }
     }
 
     /** Return `this` converted to a `string`, without any GC-allocation because

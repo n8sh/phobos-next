@@ -4,13 +4,13 @@ import std.algorithm;
 
 alias X = int;
 
-ref const(X) identity(ref return X x)
+ref const(X) identity(ref return const(X) x)
 {
     return x;
 }
 
 @safe pure unittest
 {
-    X x = 42;
+    const X x = 42;
     assert(x == identity(x));
 }

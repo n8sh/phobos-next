@@ -20,9 +20,8 @@ if (isFloatingPoint!T)
     }
 
     /// Construct from string `s` and separator `separator`.
-    this(S, Separator)(S s, Separator separator = ` `)
-    if (isSomeString!S &&
-        isSomeString!Separator)
+    this(scope const(char)[] s,
+         scope string separator = ` `)
     {
         import std.algorithm : findSplit;
         if (auto parts = s.findSplit(separator)) // TODO use const functional findSplit in DMD 2.070

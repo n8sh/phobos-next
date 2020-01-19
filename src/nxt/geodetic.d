@@ -23,12 +23,12 @@ if (isFloatingPoint!T)
     this(scope const(char)[] s,
          scope string separator = ` `)
     {
-        import std.algorithm : findSplit;
-        if (auto parts = s.findSplit(separator)) // TODO use const functional findSplit in DMD 2.070
+        import nxt.array_algorithm : findSplit;
+        if (auto parts = s.findSplit(separator))
         {
             import std.conv : to;
-            this(parts[0].to!T,
-                 parts[2].to!T);
+            this(parts.pre.to!T,
+                 parts.post.to!T);
         }
         else
         {

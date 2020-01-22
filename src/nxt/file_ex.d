@@ -2,7 +2,7 @@ module nxt.file_ex;
 
 /** Read file $(D path) into raw array with one extra terminating zero byte.
  *
- * This extra terminating zero (null) byte at the end is typically used as a
+ * This extra terminating zero (`null`) byte at the end is typically used as a
  * sentinel value to speed up textual parsers.
  *
  * TODO add or merge to Phobos?

@@ -773,7 +773,7 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     assert(xref == "åäö");
 }
 
-/// comparison
+/// lexicographic comparison
 @safe pure unittest
 {
     alias S = SSOString;

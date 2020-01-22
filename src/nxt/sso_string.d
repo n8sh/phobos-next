@@ -137,7 +137,7 @@ pure:
     /** Construct from `source`, which potentially needs GC-allocation (iff
      * `source.length > smallCapacity` and `source` is not a `string`).
      */
-    this(Chars)(Chars source) @trusted
+    this(Chars)(const scope auto ref Chars source) @trusted
     if (isCharArray!(typeof(source[]))) // not immutable `E`
     {
         static if (__traits(isStaticArray, Chars))
@@ -162,7 +162,7 @@ pure:
                 raw.length = encodeLargeLength(raw.length);
             }
         }
-        else
+        else                    // `Chars` is a dynamic array
         {
             if (source.length <= smallCapacity)
             {

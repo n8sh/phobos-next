@@ -166,7 +166,7 @@ pure:
         {
             if (source.length <= smallCapacity)
             {
-                small.data[0 .. source.length] = source;
+                (cast(char*)small.data.ptr)[0 .. source.length] = source;
                 small.length = cast(typeof(small.length))(encodeSmallLength(source.length));
             }
             else
@@ -327,7 +327,7 @@ pure:
         }
         else
         {
-            return &small.data[0]; // stack pointer
+            return small.data.ptr; // stack pointer
         }
     }
 

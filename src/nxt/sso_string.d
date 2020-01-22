@@ -352,8 +352,11 @@ pure:
     @property int opCmp()(const scope typeof(this) that) const scope // template-lazy
     {
         pragma(inline, true);
-        import core.internal.array.comparison : __cmp; // instead of `std.algorithm.comparison : cmp`;
-        return __cmp(this[], that[]);
+        auto a = this[];
+        auto b = that[];
+        return a < b ? -1 : (a > b);
+        // import core.internal.array.comparison : __cmp; // instead of `std.algorithm.comparison : cmp`;
+        // return __cmp(this[], that[]);
     }
 
     /** Check if is the same as to `rhs`.

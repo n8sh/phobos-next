@@ -245,6 +245,12 @@ pure:
 
     @nogc:
 
+    @property int opCmp()(const scope typeof(this) that) const @nogc // template-lazy
+    {
+        import std.algorithm.comparison : cmp;
+        return cmp(this[], that[]);
+    }
+
     /** Get hash of `this`, with extra fast computation for the small case.
      */
     @property hash_t toHash() const scope @trusted
@@ -765,6 +771,17 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     toLowerInPlace(xref);
     assert(x == "åäö");
     assert(xref == "åäö");
+}
+
+/// comparison
+@safe pure unittest
+{
+    alias S = SSOString;
+    const S a = S("a");
+    assert(a == S("a"));
+    const S b = S("b");
+    assert(a < b);
+    assert(b > a);
 }
 
 /// to string conversion

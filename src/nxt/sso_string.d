@@ -510,7 +510,7 @@ private:
 }
 version(unittest) static assert(SSOString.sizeof == string.sizeof);
 
-/// construct from non-immutable source is allowed in non-@nogc context
+/// construct from non-immutable source is allowed in non-`@nogc` context
 @safe pure nothrow unittest
 {
     alias S = SSOString;
@@ -522,7 +522,7 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     const s16 = S(x16);         // will call .idup
 }
 
-/// construct from non-immutable source is not allowed in @nogc context
+/// construct from non-immutable source is not allowed in `@nogc` context
 @safe pure nothrow @nogc unittest
 {
     alias S = SSOString;

@@ -162,7 +162,7 @@ pure:
                 raw.length = encodeLargeLength(raw.length);
             }
         }
-        else                    // `Chars` is a dynamic array
+        else                    // `Chars` is a dynamic array slice
         {
             if (source.length <= smallCapacity)
             {

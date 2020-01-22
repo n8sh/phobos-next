@@ -318,7 +318,7 @@ pure:
         return opSlice()[index]; // does range check
     }
 
-    /// Get pointer to elements.
+    /// Get pointer to the internally stored `char`s.
     @property immutable(E)* ptr() const return @trusted
     {
         if (isLarge)

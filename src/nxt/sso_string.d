@@ -137,7 +137,7 @@ pure:
     /** Construct from `source`, which potentially needs GC-allocation (iff
      * `source.length > smallCapacity` and `source` is not a `string`).
      */
-    this(Chars)(const scope auto ref Chars source) @trusted
+    this(Chars)(Chars source) @trusted
     if (isCharArray!(typeof(source[]))) // not immutable `E`
     {
         static if (__traits(isStaticArray, Chars))

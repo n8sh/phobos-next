@@ -550,7 +550,7 @@ struct LispFileParser
         import nxt.file_ex : rawReadPath;
         size_t subExprsCount = 0;
         // TODO lookup `subExprsCount` using `filePath` extended attr or hash and pass to constructor
-        parser = LispParser(cast(LispParser.Input)filePath.expandTilde.rawReadPath(true),
+        parser = LispParser(cast(LispParser.Input)filePath.expandTilde.rawReadPath(),
                             false, false, false, subExprsCount);
     }
     ~this() @nogc

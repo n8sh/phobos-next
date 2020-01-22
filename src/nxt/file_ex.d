@@ -10,7 +10,8 @@ module nxt.file_ex;
  * See_Also: https://en.wikipedia.org/wiki/Sentinel_value
  * See_Also: http://forum.dlang.org/post/pdzxpkusvifelumkrtdb@forum.dlang.org
  */
-immutable(void)[] rawReadNullTerminated(string path) @trusted
+immutable(void)[] rawReadNullTerminated(string path,
+                                        const bool appendTerminatingNull) @trusted
 {
     import std.array : uninitializedArray;
 
@@ -18,9 +19,17 @@ immutable(void)[] rawReadNullTerminated(string path) @trusted
     auto file = File(path, `rb`);
 
     alias Data = ubyte[];
-    Data data = uninitializedArray!(Data)(file.size + 1); // one extra for terminator
+
+    const totalSize = appendTerminatingNull ? file.size + 1 : file.size;
+
+    Data data = uninitializedArray!(Data)(totalSize); // one extra for terminator
+
     file.rawRead(data);
-    data[file.size] = 0;     // zero terminator for sentinel
+
+    if (totalSize)
+    {
+        data[file.size] = 0;     // zero terminator for sentinel
+    }
 
     import std.exception : assumeUnique;
     return assumeUnique(data);

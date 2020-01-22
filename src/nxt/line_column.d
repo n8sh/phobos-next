@@ -23,6 +23,7 @@ struct LineColumn
     size_t column;
 }
 
+/** Convert `offset` into `haystack` to line and column. */
 LineColumn offsetLineColumn(scope const char[] haystack,
                             size_t offset)
 {

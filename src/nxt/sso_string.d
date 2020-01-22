@@ -300,6 +300,8 @@ pure:
         }
     }
 
+    /** Return the `index`ed `char` of `this`.
+     */
     ref inout(E) opIndex(size_t index) inout return @trusted
     {
         pragma(inline, true);

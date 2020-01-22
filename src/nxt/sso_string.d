@@ -245,16 +245,6 @@ pure:
 
     @nogc:
 
-    /** Compare `this` with `that`.
-     *
-     * See_Also: https://forum.dlang.org/post/muhfypwftdivluqdbmdf@forum.dlang.org
-     */
-    @property int opCmp()(const scope typeof(this) that) const @nogc // template-lazy
-    {
-        import core.internal.array.comparison : __cmp; // instead of `std.algorithm.comparison : cmp`;
-        return __cmp(this[], that[]);
-    }
-
     /** Get hash of `this`, with extra fast computation for the small case.
      */
     @property hash_t toHash() const scope @trusted
@@ -341,6 +331,16 @@ pure:
     {
         pragma(inline, true);
         return opSlice() == rhs.opSlice();
+    }
+
+    /** Compare `this` with `that`.
+     *
+     * See_Also: https://forum.dlang.org/post/muhfypwftdivluqdbmdf@forum.dlang.org
+     */
+    @property int opCmp()(const scope typeof(this) that) const scope @nogc // template-lazy
+    {
+        import core.internal.array.comparison : __cmp; // instead of `std.algorithm.comparison : cmp`;
+        return __cmp(this[], that[]);
     }
 
     /** Check if is the same as to `rhs`.

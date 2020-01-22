@@ -19,7 +19,7 @@ immutable(void)[] rawReadPath(string path) @trusted
 
     alias Data = ubyte[];
 
-    const bool appendTerminatingNull;
+    const bool appendTerminatingNull = true;
     const totalSize = appendTerminatingNull ? file.size + 1 : file.size;
 
     Data data = uninitializedArray!(Data)(totalSize); // one extra for terminator

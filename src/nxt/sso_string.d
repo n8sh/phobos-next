@@ -326,18 +326,25 @@ pure:
         }
     }
 
-    /** Check if equal to `rhs`. */
+    /** Check if `this` is equal to `rhs`. */
     bool opEquals()(const scope auto ref typeof(this) rhs) const scope @trusted
     {
         pragma(inline, true);
         return opSlice() == rhs.opSlice();
     }
 
+    /** Check if `this` is equal to `rhs`. */
+    bool opEquals()(const scope const(E)[] rhs) const scope @trusted
+    {
+        pragma(inline, true);
+        return opSlice() == rhs;
+    }
+
     /** Compare `this` with `that`.
      *
      * See_Also: https://forum.dlang.org/post/muhfypwftdivluqdbmdf@forum.dlang.org
      */
-    @property int opCmp()(const scope typeof(this) that) const scope @nogc // template-lazy
+    @property int opCmp()(const scope typeof(this) that) const scope // template-lazy
     {
         import core.internal.array.comparison : __cmp; // instead of `std.algorithm.comparison : cmp`;
         return __cmp(this[], that[]);
@@ -353,13 +360,6 @@ pure:
     {
         pragma(inline, true);
         return opSlice() == rhs.opSlice();
-    }
-
-    /** Check if equal to `rhs`. */
-    bool opEquals()(const scope const(E)[] rhs) const scope @trusted
-    {
-        pragma(inline, true);
-        return opSlice() == rhs;
     }
 
     /** Support trait `isNullable`. */

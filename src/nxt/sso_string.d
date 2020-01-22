@@ -2,10 +2,10 @@ module nxt.sso_string;
 
 /** Small-size-optimized (SSO) variant of `string`.
  *
- * Store on the stack if constructed with <= `smallCapacity` number of
- * characters, otherwise as a normal `string`. This `string` will be allocated
- * on the GC-heap if the `SSOString` is constructed from a non-`string`
- * parameter.
+ * Storage is placed on the stack if the number of `char`s is <=
+ * `smallCapacity`, otherwise as a normal `string`. If the large case the stored
+ * `string` will be allocated on the GC-heap if the `SSOString` is constructed
+ * from a non-`string` (non-`immutable`) parameter.
  *
  * Because `SSOString` doesn't have a destructor it can safely allocate using a
  * GC-backed region allocator without relying on a GC finalizer.
@@ -782,6 +782,7 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     const S b = S("b");
     assert(a < b);
     assert(b > a);
+    assert(a[] < b[]);
 }
 
 /// to string conversion

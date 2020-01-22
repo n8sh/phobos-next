@@ -5,8 +5,6 @@ module nxt.line_column;
 void diagnoseGNUStyle(Args...)(scope const string tag,
                                scope const string path,
                                const LineColumn lc,
-                               const size_t line,
-                               const size_t column,
                                Args args)
 {
     import std.stdio : writeln;

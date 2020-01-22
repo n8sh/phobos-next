@@ -516,6 +516,11 @@ private:
         return offsetLineColumn(_input, offsetTo(sexpr.token.src));
     }
 
+    public LineColumn charsToLineColumn(scope const(char)[] chars) const @trusted pure nothrow @nogc
+    {
+        return offsetLineColumn(_input, offsetTo(chars));
+    }
+
 private:
     size_t _offset;             // current offset in `_input`
     const Input _input;         // input

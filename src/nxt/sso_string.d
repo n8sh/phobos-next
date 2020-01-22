@@ -300,7 +300,10 @@ pure:
         }
     }
 
-    /// ditto
+    /** Return a slice `[i .. j]` to either the internally stored large or small `string`.
+     *
+     * Implementation is kept in sync with `toString`.
+     */
     inout(E)[] opSlice(size_t i, size_t j) inout return @safe
     {
         pragma(inline, true);

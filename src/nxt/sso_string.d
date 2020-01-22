@@ -283,7 +283,7 @@ pure:
 
     @property bool isNull() const scope @safe pure nothrow @nogc { return this == typeof(this).init; }
 
-    /** Return a slice to either the large or small `string`.
+    /** Return a slice to either the whole large or whole small `string`.
      *
      * Implementation is kept in sync with `toString`.
      */
@@ -300,7 +300,7 @@ pure:
         }
     }
 
-    /** Return a slice `[i .. j]` to either the internally stored large or small `string`.
+    /** Return a slice at `[i .. j]` to either the internally stored large or small `string`.
      *
      * Implementation is kept in sync with `toString`.
      */

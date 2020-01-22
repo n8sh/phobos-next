@@ -319,7 +319,7 @@ pure:
     }
 
     /// Get pointer to the internally stored `char`s.
-    @property immutable(E)* ptr() const return @trusted
+    @property private immutable(E)* ptr() const return @trusted
     {
         if (isLarge)
         {

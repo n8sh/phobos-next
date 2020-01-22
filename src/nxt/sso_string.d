@@ -300,19 +300,19 @@ pure:
         }
     }
 
+    /// ditto
+    inout(E)[] opSlice(size_t i, size_t j) inout return @safe
+    {
+        pragma(inline, true);
+        return opSlice()[i .. j];
+    }
+
     /** Return the `index`ed `char` of `this`.
      */
     ref inout(E) opIndex(size_t index) inout return @trusted
     {
         pragma(inline, true);
         return opSlice()[index]; // does range check
-    }
-
-    /// ditto
-    inout(E)[] opSlice(size_t i, size_t j) inout return @safe
-    {
-        pragma(inline, true);
-        return opSlice()[i .. j];
     }
 
     /// Get pointer to elements.

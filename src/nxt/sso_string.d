@@ -251,8 +251,9 @@ pure:
      */
     @property int opCmp()(const scope typeof(this) that) const @nogc // template-lazy
     {
-        import std.algorithm.comparison : cmp;
-        return cmp(this[], that[]);
+        import core.internal.array.comparison : __cmp;
+        // import std.algorithm.comparison : cmp;
+        return __cmp(this[], that[]);
     }
 
     /** Get hash of `this`, with extra fast computation for the small case.
@@ -781,9 +782,12 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
 @safe pure unittest
 {
     alias S = SSOString;
+
     const S a = S("a");
     assert(a == S("a"));
-    const S b = S("b");
+
+    immutable S b = S("b");
+
     assert(a < b);
     assert(b > a);
     assert(a[] < b[]);

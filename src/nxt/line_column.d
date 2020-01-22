@@ -18,8 +18,8 @@ void diagnoseGNUStyle(Args...)(scope const string tag,
 
 struct LineColumn
 {
-    size_t line;
-    size_t column;
+    uint line; ///< 32-bit should suffice for now.
+    uint column; ///< 32-bit should suffice for now.
 }
 
 /** Convert `offset` at `haystack` to line and column. */
@@ -68,7 +68,8 @@ LineColumn offsetLineColumn(scope const char[] haystack,
         }
     }
 
-    return typeof(return)(lineCounter, column);
+    return typeof(return)(cast(uint)lineCounter,
+                          cast(uint)column);
 }
 
 @safe pure unittest

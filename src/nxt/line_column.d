@@ -4,14 +4,15 @@ module nxt.line_column;
 
 void diagnoseGNUStyle(Args...)(scope const string tag,
                                scope const string path,
+                               const LineColumn lc,
                                const size_t line,
                                const size_t column,
                                Args args)
 {
     import std.stdio : writeln;
     debug writeln(path,
-                  ":", line + 1, // line offset starts at 1
-                  ":", column,   // column counter starts at 0
+                  ":", lc.line + 1, // line offset starts at 1
+                  ":", lc.column,   // column counter starts at 0
                   ": ", tag, ": ", args);
 }
 

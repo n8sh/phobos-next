@@ -251,8 +251,7 @@ pure:
      */
     @property int opCmp()(const scope typeof(this) that) const @nogc // template-lazy
     {
-        import core.internal.array.comparison : __cmp;
-        // import std.algorithm.comparison : cmp;
+        import core.internal.array.comparison : __cmp; // instead of `std.algorithm.comparison : cmp`;
         return __cmp(this[], that[]);
     }
 
@@ -791,6 +790,12 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     assert(a < b);
     assert(b > a);
     assert(a[] < b[]);
+
+    assert("a" < "b");
+    assert("a" < "å");
+    assert("Å" < "å");
+    assert(S("a") < S("å"));
+    assert(S("ÅÄÖ") < S("åäö"));
 }
 
 /// to string conversion

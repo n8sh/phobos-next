@@ -1,5 +1,20 @@
 module nxt.line_column;
 
+@safe:
+
+void diagnoseGNUStyle(Args...)(scope const string tag,
+                               scope const string path,
+                               const size_t line,
+                               const size_t column,
+                               Args args)
+{
+    import std.stdio : writeln;
+    debug writeln(path,
+                  ":", line + 1, // line offset starts at 1
+                  ":", column,   // column counter starts at 0
+                  ": ", tag, ": ", args);
+}
+
 @safe pure nothrow @nogc:
 
 struct LineColumn

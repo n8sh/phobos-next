@@ -16,7 +16,6 @@ immutable(void)[] rawReadNullTerminated(string path) @trusted
     auto file = File(path, `rb`);
 
     import std.array : uninitializedArray;
-    import nxt.dbgio;
 
     alias Data = ubyte[];
 

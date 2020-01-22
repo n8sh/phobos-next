@@ -418,7 +418,7 @@ private:
     public enum smallCapacity = Large.sizeof - Small.length.sizeof;
     static assert(smallCapacity > 0, "No room for small source for immutable(E) being " ~ immutable(E).stringof);
 
-    enum largeLengthTagBit = 0;       // bit position for large tag in length
+    enum largeLengthTagBit = 0; ///< bit position for large tag in length.
     enum smallLengthBitCount = 4;
     static assert(smallCapacity == 2^^smallLengthBitCount-1);
 

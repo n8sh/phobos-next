@@ -20,18 +20,6 @@ immutable(void)[] rawReadNullTerminated(string path) @trusted
 
     alias Data = ubyte[];
 
-    enum extraTest = false;
-    static if (extraTest)
-    {
-        size_t n = 1;
-        while (n < 10_000_000)
-        {
-            dbg("Allocating ", n, " bytes ...");
-            Data _ = new Data(n);
-            n *= 2;
-        }
-    }
-
     Data data = uninitializedArray!(Data)(file.size + 1); // one extra for terminator
     file.rawRead(data);
     data[file.size] = 0;     // zero terminator for sentinel

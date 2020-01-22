@@ -10,8 +10,7 @@ module nxt.file_ex;
  * See_Also: https://en.wikipedia.org/wiki/Sentinel_value
  * See_Also: http://forum.dlang.org/post/pdzxpkusvifelumkrtdb@forum.dlang.org
  */
-immutable(void)[] rawReadNullTerminated(string path,
-                                        const bool appendTerminatingNull) @trusted
+immutable(void)[] rawReadPath(string path) @trusted
 {
     import std.array : uninitializedArray;
 
@@ -20,6 +19,7 @@ immutable(void)[] rawReadNullTerminated(string path,
 
     alias Data = ubyte[];
 
+    const bool appendTerminatingNull;
     const totalSize = appendTerminatingNull ? file.size + 1 : file.size;
 
     Data data = uninitializedArray!(Data)(totalSize); // one extra for terminator

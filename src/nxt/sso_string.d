@@ -245,6 +245,10 @@ pure:
 
     @nogc:
 
+    /** Compare `this` with `that`.
+     *
+     * See_Also: https://forum.dlang.org/post/muhfypwftdivluqdbmdf@forum.dlang.org
+     */
     @property int opCmp()(const scope typeof(this) that) const @nogc // template-lazy
     {
         import std.algorithm.comparison : cmp;

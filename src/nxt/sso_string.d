@@ -295,7 +295,7 @@ pure:
 
     /** Return a slice to either the large or small `string`.
      *
-     * implementation kept in sync with `toString`.
+     * Implementation is kept in sync with `toString`.
      */
     inout(E)[] opSlice() inout return scope @trusted @nogc
     {

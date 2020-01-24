@@ -1,3 +1,7 @@
+/** ANSI escape codes and sequences.
+ *
+ * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code
+ */
 module nxt.ansi_escape;
 
 @safe:
@@ -28,13 +32,18 @@ private template ColorType(uint offset)
     }
 }
 
-/** Foreground. */
-alias Fg = ColorType!(0).Type;
+/** Foreground.
+ */
+alias FgColor = ColorType!(0).Type;
 
-/** Background. */
-alias Bg = ColorType!(10).Type;
+/** Background.
+ */
+alias BgColor = ColorType!(10).Type;
 
-/** ANSI Color Mode. */
+/** Mode.
+ *
+ * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters
+ */
 static enum Mode : uint
 {
     init      = 0,              ///< Default.
@@ -46,8 +55,8 @@ static enum Mode : uint
 }
 
 void setFormat(scope void delegate(scope const(char)[]) @safe sink,
-               const Fg fg = Fg.init,
-               const Bg bg = Bg.init,
+               const FgColor fg = FgColor.init,
+               const BgColor bg = BgColor.init,
                const Mode mode = Mode.init) @safe
 {
     sink("\033[");
@@ -67,10 +76,10 @@ void setFormat(scope void delegate(scope const(char)[]) @safe sink,
     // fg
     final switch (fg)
     {
-        static foreach (member; __traits(allMembers, Fg))
+        static foreach (member; __traits(allMembers, FgColor))
         {
-        case __traits(getMember, Fg, member):
-            enum _ = cast(int)__traits(getMember, Fg, member); // avoids `std.conv.to`
+        case __traits(getMember, FgColor, member):
+            enum _ = cast(int)__traits(getMember, FgColor, member); // avoids `std.conv.to`
             sink(_.stringof);
         }
     }
@@ -79,10 +88,10 @@ void setFormat(scope void delegate(scope const(char)[]) @safe sink,
     // bg
     final switch (bg)
     {
-        static foreach (member; __traits(allMembers, Bg))
+        static foreach (member; __traits(allMembers, BgColor))
         {
-        case __traits(getMember, Bg, member):
-            enum _ = cast(int)__traits(getMember, Bg, member); // avoids `std.conv.to`
+        case __traits(getMember, BgColor, member):
+            enum _ = cast(int)__traits(getMember, BgColor, member); // avoids `std.conv.to`
             sink(_.stringof);
         }
     }
@@ -98,8 +107,8 @@ void resetFormat(scope void delegate(scope const(char)[]) @safe sink) @safe
 
 void putFormattedText(scope void delegate(scope const(char)[]) @safe sink,
                       scope return inout(char)[] text,
-                      const Fg fg = Fg.init,
-                      const Bg bg = Bg.init,
+                      const FgColor fg = FgColor.init,
+                      const BgColor bg = BgColor.init,
                       const Mode mode = Mode.init) @safe
 {
     setFormat(sink, fg, bg, mode); // set

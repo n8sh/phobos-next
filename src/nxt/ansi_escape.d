@@ -83,7 +83,7 @@ done:
 }
 
 private void setFgColor(scope void delegate(scope const(char)[]) @safe sink,
-                const FgColor fgColor)
+                        const FgColor fgColor)
 {
     final switch (fgColor)
     {

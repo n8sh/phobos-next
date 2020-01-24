@@ -113,11 +113,14 @@ private void setBgColor(scope void delegate(scope const(char)[]) @safe sink,
 void setFormat(scope void delegate(scope const(char)[]) @safe sink,
                const FgColor fgColor,
                const BgColor bgColor,
-               const SGR sgr) @safe
+               const SGR[] sgrs...) @safe
 {
     sink("\033[");
-    setSGR(sink, sgr);          // needs to be first
-    sink(";");
+    foreach (const sgr; sgrs)
+    {
+        setSGR(sink, sgr);          // needs to be first
+        sink(";");
+    }
     setFgColor(sink, fgColor);
     sink(";");
     setBgColor(sink, bgColor);
@@ -133,9 +136,9 @@ void putFormattedText(scope void delegate(scope const(char)[]) @safe sink,
                       scope const(char)[] text,
                       const FgColor fgColor,
                       const BgColor bgColor,
-                      const SGR sgr) @safe
+                      const SGR[] sgrs...) @safe
 {
-    setFormat(sink, fgColor, bgColor, sgr); // set
+    setFormat(sink, fgColor, bgColor, sgrs); // set
     sink(text);
     resetFormat(sink);            // reset
 }

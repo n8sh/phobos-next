@@ -149,7 +149,6 @@ class C
 @safe:
     @property void toString(scope void delegate(scope const(char)[]) @safe sink) const @trusted
     {
-        dbg();
         putFormattedText(sink, "a C", FgColor.blue, BgColor.init, SGR.init);
     }
     this()

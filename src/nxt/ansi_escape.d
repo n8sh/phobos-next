@@ -44,7 +44,7 @@ alias BgColor = ColorType!(10).Type;
  *
  * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters
  */
-enum Mode : uint
+enum SGR : uint
 {
     init         = 0,              ///< Default.
     bold         = 1,              ///< Bold or increased intensity.
@@ -66,17 +66,17 @@ enum Mode : uint
 void setFormat(scope void delegate(scope const(char)[]) @safe sink,
                const FgColor fgColor = FgColor.init,
                const BgColor bgColor = BgColor.init,
-               const Mode mode = Mode.init) @safe
+               const SGR mode = SGR.init) @safe
 {
     sink("\033[");
 
     // mode
     final switch (mode)
     {
-        static foreach (member; __traits(allMembers, Mode))
+        static foreach (member; __traits(allMembers, SGR))
         {
-        case __traits(getMember, Mode, member):
-            enum _ = cast(int)__traits(getMember, Mode, member); // avoids `std.conv.to`
+        case __traits(getMember, SGR, member):
+            enum _ = cast(int)__traits(getMember, SGR, member); // avoids `std.conv.to`
             sink(_.stringof);
         }
     }
@@ -118,7 +118,7 @@ void putFormattedText(scope void delegate(scope const(char)[]) @safe sink,
                       scope return inout(char)[] text,
                       const FgColor fgColor = FgColor.init,
                       const BgColor bgColor = BgColor.init,
-                      const Mode mode = Mode.init) @safe
+                      const SGR mode = SGR.init) @safe
 {
     setFormat(sink, fgColor, bgColor, mode); // set
     sink(text);

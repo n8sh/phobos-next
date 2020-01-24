@@ -67,8 +67,8 @@ enum SGR : uint
     overlined    = 53,             ///< Overlined.
 }
 
-void setSGR(scope void delegate(scope const(char)[]) @safe sink,
-            const SGR sgr) @safe
+private void setSGR(scope void delegate(scope const(char)[]) @safe sink,
+                    const SGR sgr)
 {
     final switch (sgr)
     {
@@ -86,7 +86,7 @@ done:
 }
 
 private void setFgColor(scope void delegate(scope const(char)[]) @safe sink,
-                const FgColor fgColor) @safe
+                const FgColor fgColor)
 {
     final switch (fgColor)
     {
@@ -104,7 +104,7 @@ done:
 }
 
 private void setBgColor(scope void delegate(scope const(char)[]) @safe sink,
-                        const BgColor bgColor) @safe
+                        const BgColor bgColor)
 {
     final switch (bgColor)
     {
@@ -133,7 +133,7 @@ void setFormat(scope void delegate(scope const(char)[]) @safe sink,
     sink("m");
 }
 
-void resetFormat(scope void delegate(scope const(char)[]) @safe sink) @safe
+void resetFormat(scope void delegate(scope const(char)[]) @safe sink)
 {
     sink("\033[0m");
 }

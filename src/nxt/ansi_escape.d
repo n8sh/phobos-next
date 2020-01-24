@@ -6,6 +6,8 @@ module nxt.ansi_escape;
 
 @safe:
 
+/** Abstract color.
+ */
 private template ColorType(uint offset)
 {
     static enum Type : uint
@@ -32,11 +34,11 @@ private template ColorType(uint offset)
     }
 }
 
-/** Foreground.
+/** Foreground color.
  */
 alias FgColor = ColorType!(0).Type;
 
-/** Background.
+/** Background color.
  */
 alias BgColor = ColorType!(10).Type;
 

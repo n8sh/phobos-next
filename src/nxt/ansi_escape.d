@@ -57,6 +57,10 @@ enum Mode : uint
     hide         = 8,              ///< Conceal (Hide). Not widely supported.
     crossedOut   = 9,              ///< Crossed-out. Characters legible, but marked for deletion.
     primaryDefaultFont = 10,       ///< Primary (default) font.
+    fraktur      = 20,             ///< Fraktur. Rarely supported
+    framed       = 51,             ///< Framed.
+    encircled    = 52,             ///< Encircled.
+    overlined    = 53,             ///< Overlined.
 }
 
 void setFormat(scope void delegate(scope const(char)[]) @safe sink,

@@ -44,7 +44,7 @@ alias BgColor = ColorType!(10).Type;
  *
  * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters
  */
-static enum Mode : uint
+enum Mode : uint
 {
     init      = 0,              ///< Default.
     bold      = 1,              ///< Bold.

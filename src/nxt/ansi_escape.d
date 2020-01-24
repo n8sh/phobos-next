@@ -64,9 +64,9 @@ enum SGR : uint
 }
 
 void setFormat(scope void delegate(scope const(char)[]) @safe sink,
-               const FgColor fgColor = FgColor.init,
-               const BgColor bgColor = BgColor.init,
-               const SGR sgr = SGR.init) @safe
+               const FgColor fgColor,
+               const BgColor bgColor,
+               const SGR sgr) @safe
 {
     sink("\033[");
 
@@ -116,9 +116,9 @@ void resetFormat(scope void delegate(scope const(char)[]) @safe sink) @safe
 
 void putFormattedText(scope void delegate(scope const(char)[]) @safe sink,
                       scope return inout(char)[] text,
-                      const FgColor fgColor = FgColor.init,
-                      const BgColor bgColor = BgColor.init,
-                      const SGR sgr = SGR.init) @safe
+                      const FgColor fgColor,
+                      const BgColor bgColor,
+                      const SGR sgr) @safe
 {
     setFormat(sink, fgColor, bgColor, sgr); // set
     sink(text);

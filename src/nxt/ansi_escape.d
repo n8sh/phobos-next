@@ -56,6 +56,7 @@ enum Mode : uint
     reverseVideo = 7,              ///< Reversed video (swap). Swap foreground with background color.
     hide         = 8,              ///< Conceal (Hide). Not widely supported.
     crossedOut   = 9,              ///< Crossed-out. Characters legible, but marked for deletion.
+    primaryDefaultFont = 10,       ///< Primary (default) font.
 }
 
 void setFormat(scope void delegate(scope const(char)[]) @safe sink,

@@ -6,6 +6,8 @@ module nxt.ansi_escape;
 
 @safe:
 
+import dbgio;
+
 /** Abstract color.
  */
 private template ColorType(uint offset)
@@ -65,49 +67,69 @@ enum SGR : uint
     overlined    = 53,             ///< Overlined.
 }
 
+void setSGR(scope void delegate(scope const(char)[]) @safe sink,
+            const SGR sgr) @safe
+{
+    final switch (sgr)
+    {
+        static foreach (member; __traits(allMembers, SGR))
+        {
+        case __traits(getMember, SGR, member):
+            dbg(member);
+            enum _ = cast(int)__traits(getMember, SGR, member); // avoids `std.conv.to`
+            sink(_.stringof);
+            goto done;
+        }
+    }
+done:
+    sink(";");
+}
+
+private void setFgColor(scope void delegate(scope const(char)[]) @safe sink,
+                const FgColor fgColor) @safe
+{
+    final switch (fgColor)
+    {
+        static foreach (member; __traits(allMembers, FgColor))
+        {
+        case __traits(getMember, FgColor, member):
+            dbg(member);
+            enum _ = cast(int)__traits(getMember, FgColor, member); // avoids `std.conv.to`
+            sink(_.stringof);
+            goto done;
+        }
+    }
+done:
+    sink(";");
+}
+
+private void setBgColor(scope void delegate(scope const(char)[]) @safe sink,
+                        const BgColor bgColor) @safe
+{
+    final switch (bgColor)
+    {
+        static foreach (member; __traits(allMembers, BgColor))
+        {
+        case __traits(getMember, BgColor, member):
+            dbg(member);
+            enum _ = cast(int)__traits(getMember, BgColor, member); // avoids `std.conv.to`
+            sink(_.stringof);
+            goto done;
+        }
+    }
+done:
+    sink(";");
+}
+
 void setFormat(scope void delegate(scope const(char)[]) @safe sink,
                const FgColor fgColor,
                const BgColor bgColor,
                const SGR sgr) @safe
 {
     sink("\033[");
-
-    // sgr
-    final switch (sgr)
-    {
-        static foreach (member; __traits(allMembers, SGR))
-        {
-        case __traits(getMember, SGR, member):
-            enum _ = cast(int)__traits(getMember, SGR, member); // avoids `std.conv.to`
-            sink(_.stringof);
-        }
-    }
-    sink(";");
-
-    // fgColor
-    final switch (fgColor)
-    {
-        static foreach (member; __traits(allMembers, FgColor))
-        {
-        case __traits(getMember, FgColor, member):
-            enum _ = cast(int)__traits(getMember, FgColor, member); // avoids `std.conv.to`
-            sink(_.stringof);
-        }
-    }
-    sink(";");
-
-    // bgColor
-    final switch (bgColor)
-    {
-        static foreach (member; __traits(allMembers, BgColor))
-        {
-        case __traits(getMember, BgColor, member):
-            enum _ = cast(int)__traits(getMember, BgColor, member); // avoids `std.conv.to`
-            sink(_.stringof);
-        }
-    }
-    sink(";");
-
+    setSGR(sink, sgr);
+    setFgColor(sink, fgColor);
+    setBgColor(sink, bgColor);
     sink("m");
 }
 
@@ -117,7 +139,7 @@ void resetFormat(scope void delegate(scope const(char)[]) @safe sink) @safe
 }
 
 void putFormattedText(scope void delegate(scope const(char)[]) @safe sink,
-                      scope return inout(char)[] text,
+                      scope const(char)[] text,
                       const FgColor fgColor,
                       const BgColor bgColor,
                       const SGR sgr) @safe
@@ -125,4 +147,23 @@ void putFormattedText(scope void delegate(scope const(char)[]) @safe sink,
     setFormat(sink, fgColor, bgColor, sgr); // set
     sink(text);
     resetFormat(sink);            // reset
+}
+
+class C
+{
+@safe:
+    @property void toString(scope void delegate(scope const(char)[]) @safe sink) const @trusted
+    {
+        dbg();
+        putFormattedText(sink, "a C", FgColor.blue, BgColor.init, SGR.init);
+    }
+    this()
+    {
+    }
+}
+
+@safe unittest
+{
+    import std.stdio : writeln;
+    writeln(new C());
 }

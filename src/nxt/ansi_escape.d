@@ -46,12 +46,15 @@ alias BgColor = ColorType!(10).Type;
  */
 enum Mode : uint
 {
-    init      = 0,              ///< Default.
-    bold      = 1,              ///< Bold.
-    underline = 4,              ///< Underline.
-    blink     = 5,              ///< Blink.
-    swap      = 7,              ///< Swap.
-    hide      = 8,              ///< Hide.
+    init         = 0,              ///< Default.
+    bold         = 1,              ///< Bold or increased intensity.
+    faint        = 2,              ///< Faint (decreased intensity)
+    italic       = 3,              ///< Italic. Not widely supported. Sometimes treated as inverse.
+    underline    = 4,              ///< Underline.
+    slowBlink    = 5,              ///< Slow blink.
+    rapidBlink   = 6,              ///< Rapid blink.
+    reverseVideo = 7,              ///< Reversed video (swap). Swap foreground with background color.
+    hide         = 8,              ///< Conceal (Hide). Not widely supported.
 }
 
 void setFormat(scope void delegate(scope const(char)[]) @safe sink,

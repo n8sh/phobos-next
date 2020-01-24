@@ -55,6 +55,7 @@ enum Mode : uint
     rapidBlink   = 6,              ///< Rapid blink.
     reverseVideo = 7,              ///< Reversed video (swap). Swap foreground with background color.
     hide         = 8,              ///< Conceal (Hide). Not widely supported.
+    corssedOut   = 9,              ///< Crossed-out. Characters legible, but marked for deletion.
 }
 
 void setFormat(scope void delegate(scope const(char)[]) @safe sink,

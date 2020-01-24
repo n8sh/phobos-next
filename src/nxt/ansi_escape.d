@@ -75,11 +75,9 @@ private void setSGR(scope void delegate(scope const(char)[]) @safe sink,
         case __traits(getMember, SGR, member):
             enum _ = cast(int)__traits(getMember, SGR, member); // avoids `std.conv.to`
             sink(_.stringof);
-            goto done;
+            return;
         }
     }
-done:
-    sink(";");
 }
 
 private void setFgColor(scope void delegate(scope const(char)[]) @safe sink,
@@ -92,11 +90,9 @@ private void setFgColor(scope void delegate(scope const(char)[]) @safe sink,
         case __traits(getMember, FgColor, member):
             enum _ = cast(int)__traits(getMember, FgColor, member); // avoids `std.conv.to`
             sink(_.stringof);
-            goto done;
+            return;
         }
     }
-done:
-    sink(";");
 }
 
 private void setBgColor(scope void delegate(scope const(char)[]) @safe sink,
@@ -109,11 +105,9 @@ private void setBgColor(scope void delegate(scope const(char)[]) @safe sink,
         case __traits(getMember, BgColor, member):
             enum _ = cast(int)__traits(getMember, BgColor, member); // avoids `std.conv.to`
             sink(_.stringof);
-            goto done;
+            return;
         }
     }
-done:
-    sink(";");
 }
 
 void setFormat(scope void delegate(scope const(char)[]) @safe sink,
@@ -123,7 +117,9 @@ void setFormat(scope void delegate(scope const(char)[]) @safe sink,
 {
     sink("\033[");
     setSGR(sink, sgr);
+    sink(";");
     setFgColor(sink, fgColor);
+    sink(";");
     setBgColor(sink, bgColor);
     sink("m");
 }
@@ -149,7 +145,7 @@ class C
 @safe:
     @property void toString(scope void delegate(scope const(char)[]) @safe sink) const @trusted
     {
-        putFormattedText(sink, "a C", FgColor.blue, BgColor.init, SGR.init);
+        putFormattedText(sink, "XXX", FgColor.blue, BgColor.init, SGR.init);
     }
     this()
     {
@@ -159,5 +155,7 @@ class C
 @safe unittest
 {
     import std.stdio : writeln;
-    writeln(new C());
+    import std.conv:to;
+    auto c = new C();
+    writeln(c.to!string);
 }

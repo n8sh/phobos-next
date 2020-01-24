@@ -116,7 +116,7 @@ void setFormat(scope void delegate(scope const(char)[]) @safe sink,
                const SGR sgr) @safe
 {
     sink("\033[");
-    setSGR(sink, sgr);
+    setSGR(sink, sgr);          // needs to be first
     sink(";");
     setFgColor(sink, fgColor);
     sink(";");

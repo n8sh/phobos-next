@@ -178,7 +178,7 @@ nothrow @nogc unittest
 }
 
 /** Check if `c` is a Vowel in language $(D lang). */
-bool isVowel(dchar c, Lang lang) nothrow @nogc
+bool isVowel(const dchar c, Lang lang) nothrow @nogc
 {
     switch (lang)
     {

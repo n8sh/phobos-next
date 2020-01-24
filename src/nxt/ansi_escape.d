@@ -6,8 +6,6 @@ module nxt.ansi_escape;
 
 @safe:
 
-import dbgio;
-
 /** Abstract color.
  */
 private template ColorType(uint offset)
@@ -75,7 +73,6 @@ private void setSGR(scope void delegate(scope const(char)[]) @safe sink,
         static foreach (member; __traits(allMembers, SGR))
         {
         case __traits(getMember, SGR, member):
-            dbg(member);
             enum _ = cast(int)__traits(getMember, SGR, member); // avoids `std.conv.to`
             sink(_.stringof);
             goto done;
@@ -93,7 +90,6 @@ private void setFgColor(scope void delegate(scope const(char)[]) @safe sink,
         static foreach (member; __traits(allMembers, FgColor))
         {
         case __traits(getMember, FgColor, member):
-            dbg(member);
             enum _ = cast(int)__traits(getMember, FgColor, member); // avoids `std.conv.to`
             sink(_.stringof);
             goto done;
@@ -111,7 +107,6 @@ private void setBgColor(scope void delegate(scope const(char)[]) @safe sink,
         static foreach (member; __traits(allMembers, BgColor))
         {
         case __traits(getMember, BgColor, member):
-            dbg(member);
             enum _ = cast(int)__traits(getMember, BgColor, member); // avoids `std.conv.to`
             sink(_.stringof);
             goto done;

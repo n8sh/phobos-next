@@ -104,11 +104,10 @@ enum EnglishVowel { a, o, u, e, i, y,
 
 /** English Vowels. */
 static immutable dchar[] englishVowels = ['a', 'o', 'u', 'e', 'i', 'y',
-                                   'A', 'O', 'U', 'E', 'I', 'Y'];
+                                          'A', 'O', 'U', 'E', 'I', 'Y'];
 
-/** Check if $(D c) is a Vowel. */
-bool isEnglishVowel(C)(C c)
-if (isSomeChar!C)
+/** Check if `c` is a Vowel. */
+bool isEnglishVowel(const dchar c) nothrow @nogc
 {
     return cast(bool)c.among!(aliasSeqOf!englishVowels);
 }
@@ -116,9 +115,8 @@ if (isSomeChar!C)
 /** English Accented Vowels. */
 static immutable dchar[] englishAccentedVowels = ['é'];
 
-/** Check if $(D c) is an Accented Vowel. */
-bool isEnglishAccentedVowel(C)(C c)
-if (isSomeChar!C)
+/** Check if `c` is an Accented Vowel. */
+bool isEnglishAccentedVowel(const dchar c) nothrow @nogc
 {
     return cast(bool)c.among!(aliasSeqOf!englishAccentedVowels);
 }
@@ -139,23 +137,20 @@ static immutable swedishSoftVowels = ['e', 'i', 'y', 'ä', 'ö',
 /** Swedish Vowels. */
 static immutable swedishVowels = swedishHardVowels ~ swedishSoftVowels;
 
-/** Check if $(D c) is a Swedish Vowel. */
-bool isSwedishVowel(C)(C c)
-if (isSomeChar!C)
+/** Check if `c` is a Swedish Vowel. */
+bool isSwedishVowel(const dchar c) nothrow @nogc
 {
     return cast(bool)c.among!(aliasSeqOf!swedishVowels);
 }
 
-/** Check if $(D c) is a Swedish hard vowel. */
-bool isSwedishHardVowel(C)(C c)
-if (isSomeChar!C)
+/** Check if `c` is a Swedish hard vowel. */
+bool isSwedishHardVowel(const dchar c) nothrow @nogc
 {
     return cast(bool)c.among!(aliasSeqOf!swedishHardVowels);
 }
 
-/** Check if $(D c) is a Swedish soft vowel. */
-bool isSwedishSoftVowel(C)(C c)
-if (isSomeChar!C)
+/** Check if `c` is a Swedish soft vowel. */
+bool isSwedishSoftVowel(const dchar c) nothrow @nogc
 {
     return cast(bool)c.among!(aliasSeqOf!swedishSoftVowels);
 }
@@ -164,16 +159,14 @@ if (isSomeChar!C)
 enum spanishAccentedVowels = ['á', 'é', 'í', 'ó', 'ú',
                               'Á', 'É', 'Í', 'Ó', 'Ú'];
 
-/** Check if $(D c) is a Spanish Accented Vowel. */
-bool isSpanishAccentedVowel(C)(C c)
-if (isSomeChar!C)
+/** Check if `c` is a Spanish Accented Vowel. */
+bool isSpanishAccentedVowel(const dchar c) nothrow @nogc
 {
     return cast(bool)c.among!(aliasSeqOf!spanishAccentedVowels);
 }
 
-/** Check if $(D c) is a Spanish Vowel. */
-bool isSpanishVowel(C)(C c)
-if (isSomeChar!C)
+/** Check if `c` is a Spanish Vowel. */
+bool isSpanishVowel(const dchar c) nothrow @nogc
 {
     return (c.isEnglishVowel ||
             c.isSpanishAccentedVowel);
@@ -184,9 +177,8 @@ nothrow @nogc unittest
     assert('é'.isSpanishVowel);
 }
 
-/** Check if $(D c) is a Vowel in language $(D lang). */
-bool isVowel(C)(C c, Lang lang)
-if (isSomeChar!C)
+/** Check if `c` is a Vowel in language $(D lang). */
+bool isVowel(dchar c, Lang lang) nothrow @nogc
 {
     switch (lang)
     {
@@ -216,9 +208,8 @@ static immutable dchar[] englishUpperConsonants = ['B', 'C', 'D', 'F', 'G', 'H',
 /** English consontant characters. */
 static immutable dchar[] englishConsonants = englishLowerConsonants ~ englishUpperConsonants;
 
-/** Check if $(D c) is a Consonant. */
-bool isEnglishConsonant(C)(C c)
-if (isSomeChar!C)
+/** Check if `c` is a Consonant. */
+bool isEnglishConsonant(const dchar c) nothrow @nogc
 {
     return cast(bool)c.among!(aliasSeqOf!englishConsonants);
 }
@@ -233,9 +224,8 @@ nothrow @nogc unittest
 /** English letters. */
 static immutable dchar[] englishLetters = englishVowels ~ englishConsonants;
 
-/** Check if $(D c) is a letter. */
-bool isEnglishLetter(C)(C c)
-if (isSomeChar!C)
+/** Check if `c` is a letter. */
+bool isEnglishLetter(const dchar c) nothrow @nogc
 {
     return cast(bool)c.among!(aliasSeqOf!englishLetters);
 }
@@ -249,11 +239,10 @@ nothrow @nogc unittest
 
 static immutable englishDoubleConsonants = [`bb`, `dd`, `ff`, `gg`, `mm`, `nn`, `pp`, `rr`, `tt`, `ck`, `ft`];
 
-/** Check if $(D c) is an English Double consonant. */
-bool isEnglishDoubleConsonant(S)(S s)
-if (isSomeString!S)
+/** Check if `s` is an English Double consonant. */
+bool isEnglishDoubleConsonant(scope const(char)[] s) nothrow @nogc
 {
-    return cast(bool)c.among!(`bb`, `dd`, `ff`, `gg`, `mm`, `nn`, `pp`, `rr`, `tt`, `ck`, `ft`);
+    return cast(bool)s.among!(`bb`, `dd`, `ff`, `gg`, `mm`, `nn`, `pp`, `rr`, `tt`, `ck`, `ft`);
 }
 
 /** Computer token. */

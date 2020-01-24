@@ -40,7 +40,7 @@ alias FgColor = ColorType!(0).Type;
  */
 alias BgColor = ColorType!(10).Type;
 
-/** Mode.
+/** SGR (Select Graphic Rendition) sets display attributes.
  *
  * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters
  */

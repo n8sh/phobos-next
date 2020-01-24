@@ -55,8 +55,8 @@ static enum Mode : uint
 }
 
 void setFormat(scope void delegate(scope const(char)[]) @safe sink,
-               const FgColor fg = FgColor.init,
-               const BgColor bg = BgColor.init,
+               const FgColor fgColor = FgColor.init,
+               const BgColor bgColor = BgColor.init,
                const Mode mode = Mode.init) @safe
 {
     sink("\033[");
@@ -73,8 +73,8 @@ void setFormat(scope void delegate(scope const(char)[]) @safe sink,
     }
     sink(";");
 
-    // fg
-    final switch (fg)
+    // fgColor
+    final switch (fgColor)
     {
         static foreach (member; __traits(allMembers, FgColor))
         {
@@ -85,8 +85,8 @@ void setFormat(scope void delegate(scope const(char)[]) @safe sink,
     }
     sink(";");
 
-    // bg
-    final switch (bg)
+    // bgColor
+    final switch (bgColor)
     {
         static foreach (member; __traits(allMembers, BgColor))
         {
@@ -107,11 +107,11 @@ void resetFormat(scope void delegate(scope const(char)[]) @safe sink) @safe
 
 void putFormattedText(scope void delegate(scope const(char)[]) @safe sink,
                       scope return inout(char)[] text,
-                      const FgColor fg = FgColor.init,
-                      const BgColor bg = BgColor.init,
+                      const FgColor fgColor = FgColor.init,
+                      const BgColor bgColor = BgColor.init,
                       const Mode mode = Mode.init) @safe
 {
-    setFormat(sink, fg, bg, mode); // set
+    setFormat(sink, fgColor, bgColor, mode); // set
     sink(text);
     resetFormat(sink);            // reset
 }

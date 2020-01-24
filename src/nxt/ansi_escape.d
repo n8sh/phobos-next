@@ -66,12 +66,12 @@ enum SGR : uint
 void setFormat(scope void delegate(scope const(char)[]) @safe sink,
                const FgColor fgColor = FgColor.init,
                const BgColor bgColor = BgColor.init,
-               const SGR mode = SGR.init) @safe
+               const SGR sgr = SGR.init) @safe
 {
     sink("\033[");
 
-    // mode
-    final switch (mode)
+    // sgr
+    final switch (sgr)
     {
         static foreach (member; __traits(allMembers, SGR))
         {
@@ -118,9 +118,9 @@ void putFormattedText(scope void delegate(scope const(char)[]) @safe sink,
                       scope return inout(char)[] text,
                       const FgColor fgColor = FgColor.init,
                       const BgColor bgColor = BgColor.init,
-                      const SGR mode = SGR.init) @safe
+                      const SGR sgr = SGR.init) @safe
 {
-    setFormat(sink, fgColor, bgColor, mode); // set
+    setFormat(sink, fgColor, bgColor, sgr); // set
     sink(text);
     resetFormat(sink);            // reset
 }

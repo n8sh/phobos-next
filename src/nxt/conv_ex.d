@@ -29,7 +29,7 @@ T toDefaulted(T)(scope const(char)[] value,
                  const T defaultValue) @safe pure nothrow @nogc
 if (is(T == enum))
 {
-    switch (value)              // instead of slower `std.conv.to`
+    switch (value)              // instead of slower `std.conv.to`:
     {
         static foreach (member; __traits(allMembers, T)) // instead of slower `EnumMembers`
         {

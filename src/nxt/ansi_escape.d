@@ -71,7 +71,7 @@ enum SGR : uint
     cyanForegroundColor    = 36,  ///< Cyan foreground color.
     whiteForegroundColor   = 37,  ///< White foreground color.
 
-    defaultForeground      = 39,  ///< Default foreground color.
+    defaultForegroundColor = 39,  ///< Default foreground color.
 
     lightBlackForegroundColor   = 90, ///< Light black foreground color.
     lightRedForegroundColor     = 91, ///< Light red foreground color.
@@ -82,9 +82,14 @@ enum SGR : uint
     lightCyanForegroundColor    = 96, ///< Light cyan foreground color.
     lightWhiteForegroundColor   = 97, ///< Light white foreground color.
 
+    defaultBackgroundColor = 49,  ///< Default background color.
+
     framed       = 51,             ///< Framed.
     encircled    = 52,             ///< Encircled.
     overlined    = 53,             ///< Overlined.
+    notFramedOrEncircled = 54,     ///< Not framed or encircled.
+    notOverlined = 55,             ///< Not overlined.
+    IdeogramUnderlineOrRightSideLine = 60, ///< Ideogram underline or right side line.
 }
 
 private void setSGR(scope void delegate(scope const(char)[]) @safe sink,

@@ -132,11 +132,11 @@ void resetSGRs(scope void delegate(scope const(char)[]) @safe sink)
     sink("\033[0m");
 }
 
-void putFormatted(scope void delegate(scope const(char)[]) @safe sink,
-                  scope const(char)[] text,
-                  const FgColor fgColor,
-                  const BgColor bgColor,
-                  scope const SGR[] sgrs...) @safe
+void putWithSGRs(scope void delegate(scope const(char)[]) @safe sink,
+                 scope const(char)[] text,
+                 const FgColor fgColor,
+                 const BgColor bgColor,
+                 scope const SGR[] sgrs...) @safe
 {
     setSGRs(sink, fgColor, bgColor, sgrs); // set
     sink(text);
@@ -148,7 +148,7 @@ class C
 @safe:
     @property void toString(scope void delegate(scope const(char)[]) @safe sink) const @trusted
     {
-        putFormatted(sink, "XXX", FgColor.blue, BgColor.init, SGR.init);
+        putWithSGRs(sink, "XXX", FgColor.blue, BgColor.init, SGR.init);
     }
     this()
     {

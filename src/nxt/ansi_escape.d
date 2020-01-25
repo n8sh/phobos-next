@@ -113,7 +113,7 @@ private void setBgColor(scope void delegate(scope const(char)[]) @safe sink,
 void setFormat(scope void delegate(scope const(char)[]) @safe sink,
                const FgColor fgColor,
                const BgColor bgColor,
-               const SGR[] sgrs...) @safe
+               scope const SGR[] sgrs...) @safe
 {
     sink("\033[");
     foreach (const sgr; sgrs)
@@ -136,7 +136,7 @@ void putFormatted(scope void delegate(scope const(char)[]) @safe sink,
                   scope const(char)[] text,
                   const FgColor fgColor,
                   const BgColor bgColor,
-                  const SGR[] sgrs...) @safe
+                  scope const SGR[] sgrs...) @safe
 {
     setFormat(sink, fgColor, bgColor, sgrs); // set
     sink(text);

@@ -150,9 +150,7 @@ class C
     {
         putWithSGRs(sink, "XXX", FgColor.blue, BgColor.init, SGR.init);
     }
-    this()
-    {
-    }
+    this() {}
 }
 
 @safe unittest

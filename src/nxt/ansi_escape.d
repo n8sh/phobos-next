@@ -82,7 +82,7 @@ enum SGR : uint
     lightCyanForegroundColor    = 96, ///< Light cyan foreground color.
     lightWhiteForegroundColor   = 97, ///< Light white foreground color.
 
-    defaultBackgroundColor = 49,  ///< Default background color.
+    defaultBackgroundColor = 49, ///< Default background color.
 
     framed       = 51,             ///< Framed.
     encircled    = 52,             ///< Encircled.

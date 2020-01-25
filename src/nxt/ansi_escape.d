@@ -138,19 +138,18 @@ private void setBgColor(scope void delegate(scope const(char)[]) @safe sink,
 }
 
 void setSGRs(scope void delegate(scope const(char)[]) @safe sink,
-               const FgColor fgColor,
-               const BgColor bgColor,
-               scope const SGR[] sgrs...) @safe
+             scope const SGR[] sgrs...) @safe
 {
     sink("\033[");
-    foreach (const sgr; sgrs)
+    const n = sgrs.length;
+    foreach (const index, const sgr; sgrs)
     {
-        setSGR(sink, sgr);          // needs to be first
-        sink(";");
+        setSGR(sink, sgr);      // needs to be first
+        if (index != n - 1)     // if not last
+        {
+            sink(";");          // separator
+        }
     }
-    setFgColor(sink, fgColor);
-    sink(";");
-    setBgColor(sink, bgColor);
     sink("m");
 }
 
@@ -161,11 +160,9 @@ void resetSGRs(scope void delegate(scope const(char)[]) @safe sink)
 
 void putWithSGRs(scope void delegate(scope const(char)[]) @safe sink,
                  scope const(char)[] text,
-                 const FgColor fgColor,
-                 const BgColor bgColor,
                  scope const SGR[] sgrs...) @safe
 {
-    setSGRs(sink, fgColor, bgColor, sgrs); // set
+    setSGRs(sink, sgrs); // set
     sink(text);
     resetSGRs(sink);            // reset
 }
@@ -175,7 +172,7 @@ class C
 @safe:
     @property void toString(scope void delegate(scope const(char)[]) @safe sink) const @trusted
     {
-        putWithSGRs(sink, "XXX", FgColor.blue, BgColor.init, SGR.init);
+        putWithSGRs(sink, "XXX", SGR.yellowForegroundColor);
     }
     this() {}
 }

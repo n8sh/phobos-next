@@ -110,7 +110,7 @@ private void setBgColor(scope void delegate(scope const(char)[]) @safe sink,
     }
 }
 
-void setFormat(scope void delegate(scope const(char)[]) @safe sink,
+void setSGRs(scope void delegate(scope const(char)[]) @safe sink,
                const FgColor fgColor,
                const BgColor bgColor,
                scope const SGR[] sgrs...) @safe
@@ -127,7 +127,7 @@ void setFormat(scope void delegate(scope const(char)[]) @safe sink,
     sink("m");
 }
 
-void resetFormat(scope void delegate(scope const(char)[]) @safe sink)
+void resetSGRs(scope void delegate(scope const(char)[]) @safe sink)
 {
     sink("\033[0m");
 }
@@ -138,9 +138,9 @@ void putFormatted(scope void delegate(scope const(char)[]) @safe sink,
                   const BgColor bgColor,
                   scope const SGR[] sgrs...) @safe
 {
-    setFormat(sink, fgColor, bgColor, sgrs); // set
+    setSGRs(sink, fgColor, bgColor, sgrs); // set
     sink(text);
-    resetFormat(sink);            // reset
+    resetSGRs(sink);            // reset
 }
 
 class C

@@ -6,43 +6,6 @@ module nxt.ansi_escape;
 
 @safe:
 
-/** Abstract color.
- */
-private template ColorType(uint offset)
-{
-    static enum Type : uint
-    {
-        init = 39 + offset,     ///< Default color.
-
-        black   = 30 + offset,  ///< Black color.
-        red     = 31 + offset,  ///< Red color.
-        green   = 32 + offset,  ///< Green color.
-        yellow  = 33 + offset,  ///< Yellow color.
-        blue    = 34 + offset,  ///< Blue color.
-        magenta = 35 + offset,  ///< Magenta color.
-        cyan    = 36 + offset,  ///< Cyan color.
-        white   = 37 + offset,  ///< White color.
-        /* defaultForeground   = 39, */
-
-        light_black   = 90 + offset, ///< Light black color.
-        light_red     = 91 + offset, ///< Light red color.
-        light_green   = 92 + offset, ///< Light green color.
-        light_yellow  = 93 + offset, ///< Light yellow color.
-        light_blue    = 94 + offset, ///< Light blue color.
-        light_magenta = 95 + offset, ///< Light magenta color.
-        light_cyan    = 96 + offset, ///< Light cyan color.
-        light_white   = 97 + offset, ///< Light white color.
-    }
-}
-
-/** Foreground color.
- */
-alias FgColor = ColorType!(0).Type;
-
-/** Background color.
- */
-alias BgColor = ColorType!(10).Type;
-
 /** SGR (Select Graphic Rendition) sets display attributes.
  *
  * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters
@@ -101,36 +64,6 @@ private void setSGR(scope void delegate(scope const(char)[]) @safe sink,
         {
         case __traits(getMember, SGR, member):
             enum _ = cast(int)__traits(getMember, SGR, member); // avoids `std.conv.to`
-            sink(_.stringof);
-            return;
-        }
-    }
-}
-
-private void setFgColor(scope void delegate(scope const(char)[]) @safe sink,
-                        const FgColor fgColor)
-{
-    final switch (fgColor)
-    {
-        static foreach (member; __traits(allMembers, FgColor))
-        {
-        case __traits(getMember, FgColor, member):
-            enum _ = cast(int)__traits(getMember, FgColor, member); // avoids `std.conv.to`
-            sink(_.stringof);
-            return;
-        }
-    }
-}
-
-private void setBgColor(scope void delegate(scope const(char)[]) @safe sink,
-                        const BgColor bgColor)
-{
-    final switch (bgColor)
-    {
-        static foreach (member; __traits(allMembers, BgColor))
-        {
-        case __traits(getMember, BgColor, member):
-            enum _ = cast(int)__traits(getMember, BgColor, member); // avoids `std.conv.to`
             sink(_.stringof);
             return;
         }

@@ -132,11 +132,11 @@ void resetFormat(scope void delegate(scope const(char)[]) @safe sink)
     sink("\033[0m");
 }
 
-void putFormattedText(scope void delegate(scope const(char)[]) @safe sink,
-                      scope const(char)[] text,
-                      const FgColor fgColor,
-                      const BgColor bgColor,
-                      const SGR[] sgrs...) @safe
+void putFormatted(scope void delegate(scope const(char)[]) @safe sink,
+                  scope const(char)[] text,
+                  const FgColor fgColor,
+                  const BgColor bgColor,
+                  const SGR[] sgrs...) @safe
 {
     setFormat(sink, fgColor, bgColor, sgrs); // set
     sink(text);
@@ -148,7 +148,7 @@ class C
 @safe:
     @property void toString(scope void delegate(scope const(char)[]) @safe sink) const @trusted
     {
-        putFormattedText(sink, "XXX", FgColor.blue, BgColor.init, SGR.init);
+        putFormatted(sink, "XXX", FgColor.blue, BgColor.init, SGR.init);
     }
     this()
     {

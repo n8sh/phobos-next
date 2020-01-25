@@ -22,6 +22,7 @@ private template ColorType(uint offset)
         magenta = 35 + offset,  ///< Magenta color.
         cyan    = 36 + offset,  ///< Cyan color.
         white   = 37 + offset,  ///< White color.
+        /* defaultForeground   = 39, */
 
         light_black   = 90 + offset, ///< Light black color.
         light_red     = 91 + offset, ///< Light red color.

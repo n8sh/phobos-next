@@ -61,6 +61,27 @@ enum SGR : uint
     crossedOut   = 9,              ///< Crossed-out. Characters legible, but marked for deletion.
     primaryDefaultFont = 10,       ///< Primary (default) font.
     fraktur      = 20,             ///< Fraktur. Rarely supported
+
+    blackForegroundColor   = 30,  ///< Black foreground color.
+    redForegroundColor     = 31,  ///< Red foreground color.
+    greenForegroundColor   = 32,  ///< Green foreground color.
+    yellowForegroundColor  = 33,  ///< Yellow foreground color.
+    blueForegroundColor    = 34,  ///< Blue foreground color.
+    magentaForegroundColor = 35,  ///< Magenta foreground color.
+    cyanForegroundColor    = 36,  ///< Cyan foreground color.
+    whiteForegroundColor   = 37,  ///< White foreground color.
+
+    defaultForeground      = 39,  ///< Default foreground color.
+
+    lightBlackForegroundColor   = 90, ///< Light black foreground color.
+    lightRedForegroundColor     = 91, ///< Light red foreground color.
+    lightGreenForegroundColor   = 92, ///< Light green foreground color.
+    lightYellowForegroundColor  = 93, ///< Light yellow foreground color.
+    lightBlueForegroundColor    = 94, ///< Light blue foreground color.
+    lightMagentaForegroundColor = 95, ///< Light magenta foreground color.
+    lightCyanForegroundColor    = 96, ///< Light cyan foreground color.
+    lightWhiteForegroundColor   = 97, ///< Light white foreground color.
+
     framed       = 51,             ///< Framed.
     encircled    = 52,             ///< Encircled.
     overlined    = 53,             ///< Overlined.

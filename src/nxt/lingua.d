@@ -462,7 +462,10 @@ class Part
 // {
 // }
 
-// TODO: Conversion to Sense
+/** Article.
+ *
+ * See_Also: https://en.wikipedia.org/wiki/Article_(grammar)
+ */
 enum Article
 {
     unknown,

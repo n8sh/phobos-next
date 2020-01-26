@@ -474,6 +474,7 @@ enum Article
     proper,     ///< See_Also: https://en.wikipedia.org/wiki/Article_(grammar)#Proper_article
     partitive, ///< See_Also: https://en.wikipedia.org/wiki/Article_(grammar)#Partitive_article.
     negative,  ///< See_Also: https://en.wikipedia.org/wiki/Article_(grammar)#Negative_article
+    zero,      ///< See_Also: https://en.wikipedia.org/wiki/Article_(grammar)#Zero_article
 }
 
 class Subject : Part

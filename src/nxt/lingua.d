@@ -462,7 +462,7 @@ class Part
 // {
 // }
 
-/** Article.
+/** Article (of noun).
  *
  * See_Also: https://en.wikipedia.org/wiki/Article_(grammar)
  */

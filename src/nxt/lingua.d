@@ -468,7 +468,7 @@ enum Article
     unknown,
     indefinite,
     definite,
-    partitive
+    partitive ///< See_Also: https://en.wikipedia.org/wiki/Article_(grammar)#Partitive_article.
 }
 
 class Subject : Part

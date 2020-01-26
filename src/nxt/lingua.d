@@ -469,8 +469,8 @@ class Part
 enum Article
 {
     unknown,                    ///< Unknown.
-    indefinite, ///< See_Also: https://en.wikipedia.org/wiki/Article_(grammar)#Indefinite_article
     definite, ///< See_Also: https://en.wikipedia.org/wiki/Article_(grammar)#Definite_article
+    indefinite, ///< See_Also: https://en.wikipedia.org/wiki/Article_(grammar)#Indefinite_article
     partitive, ///< See_Also: https://en.wikipedia.org/wiki/Article_(grammar)#Partitive_article.
 }
 

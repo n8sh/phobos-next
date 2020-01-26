@@ -471,6 +471,7 @@ enum Article
     unknown,                    ///< Unknown.
     definite, ///< See_Also: https://en.wikipedia.org/wiki/Article_(grammar)#Definite_article
     indefinite, ///< See_Also: https://en.wikipedia.org/wiki/Article_(grammar)#Indefinite_article
+    proper,     ///< See_Also: https://en.wikipedia.org/wiki/Article_(grammar)#Proper_article
     partitive, ///< See_Also: https://en.wikipedia.org/wiki/Article_(grammar)#Partitive_article.
 }
 

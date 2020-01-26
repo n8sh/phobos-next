@@ -53,8 +53,6 @@ enum SGR : uint
     notFramedOrEncircled = 54,     ///< Not framed or encircled.
     notOverlined = 55,             ///< Not overlined.
     IdeogramUnderlineOrRightSideLine = 60, ///< Ideogram underline or right side line.
-
-    quoted = 1000, ///< Extra.
 }
 
 private void setSGR(scope void delegate(scope const(char)[]) @safe sink,

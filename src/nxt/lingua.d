@@ -473,6 +473,7 @@ enum Article
     indefinite, ///< See_Also: https://en.wikipedia.org/wiki/Article_(grammar)#Indefinite_article
     proper,     ///< See_Also: https://en.wikipedia.org/wiki/Article_(grammar)#Proper_article
     partitive, ///< See_Also: https://en.wikipedia.org/wiki/Article_(grammar)#Partitive_article.
+    negative,  ///< See_Also: https://en.wikipedia.org/wiki/Article_(grammar)#Negative_article
 }
 
 class Subject : Part

@@ -12,7 +12,7 @@ public import nxt.color : ColorRGB8;
  */
 struct Attrs
 {
-    SGR[] sgrs;                 ///< Set of SGR.
+    immutable(SGR)[] sgrs;      ///< Ordered set of SGR, typically initialized from `static immutable(SGR)[]`.
     ColorRGB8 foregroundColor;  ///< Foreground color.
     ColorRGB8 backgroundColor;  ///< Background color.
     bool useForegroundColor;    ///< Indicate if 'foregroundColor is to be used.

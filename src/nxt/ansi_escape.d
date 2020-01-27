@@ -100,6 +100,41 @@ void putWithSGRs(scope void delegate(scope const(char)[]) @safe sink,
     resetSGRs(sink);            // reset
 }
 
+/** RGB 24-bit color.
+ */
+struct RGB
+{
+    ubyte red;                  ///< Red component.
+    ubyte green;                ///< Green component.
+    ubyte blue;                 ///< Blue component.
+}
+
+/** Set RGB 24-bit foreground color.
+ *
+ * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
+ */
+void setForegroundColorRGB(scope void delegate(scope const(char)[]) @safe sink,
+                           const RGB rgb) @safe
+{
+    sink("\033[ 38;2;");
+    import std.conv : to;
+    setForegroundColorRGBComponent(sink, rgb.red);
+    sink(";");
+    setForegroundColorRGBComponent(sink, rgb.green);
+    sink(";");
+    setForegroundColorRGBComponent(sink, rgb.blue);
+    sink(" m");
+}
+
+/** Set RGB 24-bit foreground color.
+ *
+ * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
+ */
+static private void setForegroundColorRGBComponent(scope void delegate(scope const(char)[]) @safe sink,
+                                                   ubyte component) @safe
+{
+}
+
 class C
 {
 @safe:

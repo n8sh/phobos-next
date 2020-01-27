@@ -6,7 +6,7 @@ module nxt.color;
 
 @safe pure nothrow @nogc:
 
-/** RGB 24-bit color.
+/** RGB 24-bit color, where each color component has 8-bit precision.
  *
  * See_Also: https://github.com/TurkeyMan/color
  */

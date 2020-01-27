@@ -1,3 +1,7 @@
+/** Colors.
+ *
+ * See_Also: https://github.com/TurkeyMan/color
+ */
 module nxt.color;
 
 @safe pure nothrow @nogc:

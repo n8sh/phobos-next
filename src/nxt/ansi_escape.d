@@ -12,24 +12,29 @@ public import nxt.color : ColorRGB8;
  */
 struct Attrs
 {
+@safe:
     immutable(SGR)[] sgrs;      ///< Ordered set of SGR, typically initialized from `static immutable(SGR)[]`.
     ColorRGB8 foregroundColor;  ///< Foreground color.
     ColorRGB8 backgroundColor;  ///< Background color.
     bool useForegroundColor;    ///< Indicate if 'foregroundColor is to be used.
     bool useBackgroundColor;    ///< Indicate if 'backgroundColor is to be used.
-}
 
-void setAttrs(scope void delegate(scope const(char)[]) @safe sink,
-              scope const Attrs attrs)
-{
-    setSGRs(sink, attrs.sgrs);
-    if (attrs.useForegroundColor)
+    void set(scope void delegate(scope const(char)[]) @safe sink)
     {
-        setForegroundColorRGB8(sink, attrs.foregroundColor);
+        setSGRs(sink, sgrs);
+        if (useForegroundColor)
+        {
+            setForegroundColorRGB8(sink, foregroundColor);
+        }
+        if (useBackgroundColor)
+        {
+            setBackgroundColorRGB8(sink, backgroundColor);
+        }
     }
-    if (attrs.useBackgroundColor)
+
+    void reset(scope void delegate(scope const(char)[]) @safe sink)
     {
-        setBackgroundColorRGB8(sink, attrs.backgroundColor);
+        resetSGRs(sink);
     }
 }
 

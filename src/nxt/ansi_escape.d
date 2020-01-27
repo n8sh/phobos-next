@@ -19,6 +19,20 @@ struct Attrs
     bool useBackgroundColor;    ///< Indicate if 'backgroundColor is to be used.
 }
 
+void setAttrs(scope void delegate(scope const(char)[]) @safe sink,
+              scope const Attrs attrs)
+{
+    setSGRs(sink, attrs.sgrs);
+    if (attrs.useForegroundColor)
+    {
+        setForegroundColorRGB8(sink, attrs.foregroundColor);
+    }
+    if (attrs.useBackgroundColor)
+    {
+        setBackgroundColorRGB8(sink, attrs.backgroundColor);
+    }
+}
+
 /** SGR (Select Graphic Rendition) sets display attributes.
  *
  * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters

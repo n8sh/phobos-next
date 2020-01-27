@@ -150,7 +150,7 @@ void setBackgroundColorRGB8(scope void delegate(scope const(char)[]) @safe sink,
  * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
  */
 static private void setColorRGB8Component(scope void delegate(scope const(char)[]) @safe sink,
-                                         ubyte rgbComponent) @safe
+                                          ubyte rgbComponent) @safe
 {
     final switch (rgbComponent)
     {

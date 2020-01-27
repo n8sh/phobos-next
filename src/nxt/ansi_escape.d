@@ -163,20 +163,22 @@ static private void setColorRGB8Component(scope void delegate(scope const(char)[
     }
 }
 
-// class C
-// {
-// @safe:
-//     @property void toString(scope void delegate(scope const(char)[]) @safe sink) const @trusted
-//     {
-//         putWithSGRs(sink, "XXX", SGR.yellowForegroundColor);
-//     }
-//     this() {}
-// }
+version(none):
 
-// @safe unittest
-// {
-//     import std.stdio : writeln;
-//     import std.conv:to;
-//     auto c = new C();
-//     writeln(c.to!string);
-// }
+class C
+{
+@safe:
+    @property void toString(scope void delegate(scope const(char)[]) @safe sink) const @trusted
+    {
+        putWithSGRs(sink, "XXX", SGR.yellowForegroundColor);
+    }
+    this() {}
+}
+
+@safe unittest
+{
+    import std.stdio : writeln;
+    import std.conv:to;
+    auto c = new C();
+    writeln(c.to!string);
+}

@@ -163,7 +163,7 @@ static private void setColorRGB8Component(scope void delegate(scope const(char)[
     }
 }
 
-version(none):
+version(unittest)
 class C
 {
 @safe:
@@ -173,10 +173,11 @@ class C
     }
     this() {}
 }
+
 @safe unittest
 {
     import std.stdio : writeln;
-    import std.conv:to;
+    import std.conv : to;
     auto c = new C();
     writeln(c.to!string);
 }

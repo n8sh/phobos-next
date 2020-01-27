@@ -4,7 +4,7 @@
  */
 module nxt.ansi_escape;
 
-public import nxt.color : ColorRGB;
+public import nxt.color : ColorRGB8;
 
 @safe:
 
@@ -106,16 +106,16 @@ void putWithSGRs(scope void delegate(scope const(char)[]) @safe sink,
  *
  * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
  */
-void setForegroundColorRGB(scope void delegate(scope const(char)[]) @safe sink,
-                           const ColorRGB rgb) @safe
+void setForegroundColorRGB8(scope void delegate(scope const(char)[]) @safe sink,
+                           const ColorRGB8 rgb) @safe
 {
     sink("\033[ 38;2;");
     import std.conv : to;
-    setColorRGBComponent(sink, rgb.red);
+    setColorRGB8Component(sink, rgb.red);
     sink(";");
-    setColorRGBComponent(sink, rgb.green);
+    setColorRGB8Component(sink, rgb.green);
     sink(";");
-    setColorRGBComponent(sink, rgb.blue);
+    setColorRGB8Component(sink, rgb.blue);
     sink(" m");
 }
 
@@ -123,16 +123,16 @@ void setForegroundColorRGB(scope void delegate(scope const(char)[]) @safe sink,
  *
  * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
  */
-void setBackgroundColorRGB(scope void delegate(scope const(char)[]) @safe sink,
-                           const ColorRGB rgb) @safe
+void setBackgroundColorRGB8(scope void delegate(scope const(char)[]) @safe sink,
+                           const ColorRGB8 rgb) @safe
 {
     sink("\033[ 48;2;");
     import std.conv : to;
-    setColorRGBComponent(sink, rgb.red);
+    setColorRGB8Component(sink, rgb.red);
     sink(";");
-    setColorRGBComponent(sink, rgb.green);
+    setColorRGB8Component(sink, rgb.green);
     sink(";");
-    setColorRGBComponent(sink, rgb.blue);
+    setColorRGB8Component(sink, rgb.blue);
     sink(" m");
 }
 
@@ -140,7 +140,7 @@ void setBackgroundColorRGB(scope void delegate(scope const(char)[]) @safe sink,
  *
  * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
  */
-static private void setColorRGBComponent(scope void delegate(scope const(char)[]) @safe sink,
+static private void setColorRGB8Component(scope void delegate(scope const(char)[]) @safe sink,
                                          ubyte rgbComponent) @safe
 {
     final switch (rgbComponent)

@@ -11,7 +11,7 @@ module nxt.color;
  * See_Also: Implements the $(LINK2 https://en.wikipedia.org/wiki/RGB_color_space, RGB) _color type.
  * See_Also: https://github.com/TurkeyMan/color
  */
-struct ColorRGB
+struct ColorRGB8
 {
     ubyte red;                  ///< Red component.
     ubyte green;                ///< Green component.

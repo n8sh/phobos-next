@@ -1,6 +1,8 @@
 module nxt.color;
 
 /** RGB 24-bit color.
+ *
+ * See_Also: https://github.com/TurkeyMan/color
  */
 struct ColorRGB
 {

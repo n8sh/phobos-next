@@ -145,14 +145,14 @@ void setBackgroundColorRGB8(scope void delegate(scope const(char)[]) @safe sink,
     sink("m");
 }
 
-/** Set RGB 24-bit color component `rgbComponent`.
+/** Set RGB 24-bit color component `component`.
  *
  * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
  */
 static private void setColorRGB8Component(scope void delegate(scope const(char)[]) @safe sink,
-                                          ubyte rgbComponent) @safe
+                                          const ubyte component) @safe
 {
-    final switch (rgbComponent)
+    final switch (component)
     {
         static foreach (value; 0 .. 256)
         {

@@ -150,6 +150,15 @@ void setBackgroundColorRGB(scope void delegate(scope const(char)[]) @safe sink,
 static private void setColorRGBComponent(scope void delegate(scope const(char)[]) @safe sink,
                                          ubyte rgbComponent) @safe
 {
+    final switch (rgbComponent)
+    {
+        static foreach (value; 0 .. 256)
+        {
+        case value:
+            sink(value.stringof);
+            return;
+        }
+    }
 }
 
 class C

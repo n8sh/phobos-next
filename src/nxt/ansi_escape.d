@@ -4,6 +4,8 @@
  */
 module nxt.ansi_escape;
 
+public import nxt.color : ColorRGB;
+
 @safe:
 
 /** SGR (Select Graphic Rendition) sets display attributes.
@@ -100,21 +102,12 @@ void putWithSGRs(scope void delegate(scope const(char)[]) @safe sink,
     resetSGRs(sink);            // reset
 }
 
-/** RGB 24-bit color.
- */
-struct RGB
-{
-    ubyte red;                  ///< Red component.
-    ubyte green;                ///< Green component.
-    ubyte blue;                 ///< Blue component.
-}
-
 /** Set foreground color to `rgb`.
  *
  * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
  */
 void setForegroundColorRGB(scope void delegate(scope const(char)[]) @safe sink,
-                           const RGB rgb) @safe
+                           const ColorRGB rgb) @safe
 {
     sink("\033[ 38;2;");
     import std.conv : to;
@@ -131,7 +124,7 @@ void setForegroundColorRGB(scope void delegate(scope const(char)[]) @safe sink,
  * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
  */
 void setBackgroundColorRGB(scope void delegate(scope const(char)[]) @safe sink,
-                           const RGB rgb) @safe
+                           const ColorRGB rgb) @safe
 {
     sink("\033[ 48;2;");
     import std.conv : to;

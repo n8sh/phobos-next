@@ -1,4 +1,4 @@
-module knet.color;
+module nxt.color;
 
 /** RGB 24-bit color.
  */

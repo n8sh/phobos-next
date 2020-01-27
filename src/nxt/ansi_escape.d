@@ -95,7 +95,7 @@ void putWithSGRs(scope void delegate(scope const(char)[]) @safe sink,
                  scope const(char)[] text,
                  scope const SGR[] sgrs...) @safe
 {
-    setSGRs(sink, sgrs); // set
+    setSGRs(sink, sgrs);        // set
     sink(text);
     resetSGRs(sink);            // reset
 }

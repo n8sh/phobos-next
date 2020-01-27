@@ -109,7 +109,7 @@ struct RGB
     ubyte blue;                 ///< Blue component.
 }
 
-/** Set foreground color.
+/** Set foreground color to `rgb`.
  *
  * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
  */
@@ -126,7 +126,7 @@ void setForegroundColorRGB(scope void delegate(scope const(char)[]) @safe sink,
     sink(" m");
 }
 
-/** Set background color.
+/** Set background color to `rgb`.
  *
  * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
  */
@@ -143,12 +143,12 @@ void setBackgroundColorRGB(scope void delegate(scope const(char)[]) @safe sink,
     sink(" m");
 }
 
-/** Set RGB 24-bit foreground color.
+/** Set RGB 24-bit color component `rgbComponent`.
  *
  * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
  */
 static private void setColorRGBComponent(scope void delegate(scope const(char)[]) @safe sink,
-                                         ubyte component) @safe
+                                         ubyte rgbComponent) @safe
 {
 }
 

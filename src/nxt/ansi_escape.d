@@ -8,6 +8,15 @@ public import nxt.color : ColorRGB8;
 
 @safe:
 
+/** Visual attributes.
+ */
+struct Attrs
+{
+    SGR[] sgrs;                 ///< Set of SGR.
+    ColorRGB8 foregroundColor;  ///< Foreground color (optional).
+    ColorRGB8 backgroundColor;  ///< Background color (optional).
+}
+
 /** SGR (Select Graphic Rendition) sets display attributes.
  *
  * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters

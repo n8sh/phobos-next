@@ -109,7 +109,7 @@ struct RGB
     ubyte blue;                 ///< Blue component.
 }
 
-/** Set RGB 24-bit foreground color.
+/** Set foreground color.
  *
  * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
  */

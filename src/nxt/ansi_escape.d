@@ -121,7 +121,6 @@ void setForegroundColorRGB8(scope void delegate(scope const(char)[]) @safe sink,
                             const ColorRGB8 rgb) @safe
 {
     sink("\033[38;2;");
-    import std.conv : to;
     setColorRGB8Component(sink, rgb.red);
     sink(";");
     setColorRGB8Component(sink, rgb.green);
@@ -138,7 +137,6 @@ void setBackgroundColorRGB8(scope void delegate(scope const(char)[]) @safe sink,
                             const ColorRGB8 rgb) @safe
 {
     sink("\033[48;2;");
-    import std.conv : to;
     setColorRGB8Component(sink, rgb.red);
     sink(";");
     setColorRGB8Component(sink, rgb.green);
@@ -159,7 +157,7 @@ static private void setColorRGB8Component(scope void delegate(scope const(char)[
         static foreach (value; 0 .. 256)
         {
         case value:
-            sink(value.stringof);
+            sink(value.stringof); // avoids `std.conv.to`
             return;
         }
     }

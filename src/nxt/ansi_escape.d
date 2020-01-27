@@ -13,8 +13,8 @@ public import nxt.color : ColorRGB8;
 struct Attrs
 {
     SGR[] sgrs;                 ///< Set of SGR.
-    ColorRGB8 foregroundColor;  ///< Foreground color (optional).
-    ColorRGB8 backgroundColor;  ///< Background color (optional).
+    ColorRGB8 foregroundColor;  ///< Foreground color.
+    ColorRGB8 backgroundColor;  ///< Background color.
 }
 
 /** SGR (Select Graphic Rendition) sets display attributes.

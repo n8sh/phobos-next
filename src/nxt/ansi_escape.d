@@ -15,6 +15,8 @@ struct Attrs
     SGR[] sgrs;                 ///< Set of SGR.
     ColorRGB8 foregroundColor;  ///< Foreground color.
     ColorRGB8 backgroundColor;  ///< Background color.
+    bool useForegroundColor;    ///< Indicate if 'foregroundColor is to be used.
+    bool useBackgroundColor;    ///< Indicate if 'backgroundColor is to be used.
 }
 
 /** SGR (Select Graphic Rendition) sets display attributes.

@@ -118,11 +118,11 @@ void setForegroundColorRGB(scope void delegate(scope const(char)[]) @safe sink,
 {
     sink("\033[ 38;2;");
     import std.conv : to;
-    setRGBComponent(sink, rgb.red);
+    setColorRGBComponent(sink, rgb.red);
     sink(";");
-    setRGBComponent(sink, rgb.green);
+    setColorRGBComponent(sink, rgb.green);
     sink(";");
-    setRGBComponent(sink, rgb.blue);
+    setColorRGBComponent(sink, rgb.blue);
     sink(" m");
 }
 
@@ -135,11 +135,11 @@ void setBackgroundColorRGB(scope void delegate(scope const(char)[]) @safe sink,
 {
     sink("\033[ 48;2;");
     import std.conv : to;
-    setRGBComponent(sink, rgb.red);
+    setColorRGBComponent(sink, rgb.red);
     sink(";");
-    setRGBComponent(sink, rgb.green);
+    setColorRGBComponent(sink, rgb.green);
     sink(";");
-    setRGBComponent(sink, rgb.blue);
+    setColorRGBComponent(sink, rgb.blue);
     sink(" m");
 }
 
@@ -147,8 +147,8 @@ void setBackgroundColorRGB(scope void delegate(scope const(char)[]) @safe sink,
  *
  * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
  */
-static private void setRGBComponent(scope void delegate(scope const(char)[]) @safe sink,
-                                    ubyte component) @safe
+static private void setColorRGBComponent(scope void delegate(scope const(char)[]) @safe sink,
+                                         ubyte component) @safe
 {
 }
 

@@ -109,14 +109,14 @@ void putWithSGRs(scope void delegate(scope const(char)[]) @safe sink,
 void setForegroundColorRGB8(scope void delegate(scope const(char)[]) @safe sink,
                            const ColorRGB8 rgb) @safe
 {
-    sink("\033[ 38;2;");
+    sink("\033[38;2;");
     import std.conv : to;
     setColorRGB8Component(sink, rgb.red);
     sink(";");
     setColorRGB8Component(sink, rgb.green);
     sink(";");
     setColorRGB8Component(sink, rgb.blue);
-    sink(" m");
+    sink("m");
 }
 
 /** Set background color to `rgb`.
@@ -126,14 +126,14 @@ void setForegroundColorRGB8(scope void delegate(scope const(char)[]) @safe sink,
 void setBackgroundColorRGB8(scope void delegate(scope const(char)[]) @safe sink,
                            const ColorRGB8 rgb) @safe
 {
-    sink("\033[ 48;2;");
+    sink("\033[48;2;");
     import std.conv : to;
     setColorRGB8Component(sink, rgb.red);
     sink(";");
     setColorRGB8Component(sink, rgb.green);
     sink(";");
     setColorRGB8Component(sink, rgb.blue);
-    sink(" m");
+    sink("m");
 }
 
 /** Set RGB 24-bit color component `rgbComponent`.

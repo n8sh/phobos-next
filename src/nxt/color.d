@@ -1,5 +1,7 @@
 module nxt.color;
 
+@safe pure nothrow @nogc:
+
 /** RGB 24-bit color.
  *
  * See_Also: https://github.com/TurkeyMan/color

@@ -107,7 +107,7 @@ void putWithSGRs(scope void delegate(scope const(char)[]) @safe sink,
  * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
  */
 void setForegroundColorRGB8(scope void delegate(scope const(char)[]) @safe sink,
-                           const ColorRGB8 rgb) @safe
+                            const ColorRGB8 rgb) @safe
 {
     sink("\033[38;2;");
     import std.conv : to;
@@ -124,7 +124,7 @@ void setForegroundColorRGB8(scope void delegate(scope const(char)[]) @safe sink,
  * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
  */
 void setBackgroundColorRGB8(scope void delegate(scope const(char)[]) @safe sink,
-                           const ColorRGB8 rgb) @safe
+                            const ColorRGB8 rgb) @safe
 {
     sink("\033[48;2;");
     import std.conv : to;

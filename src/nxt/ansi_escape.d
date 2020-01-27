@@ -163,6 +163,8 @@ static private void setColorRGB8Component(scope void delegate(scope const(char)[
     }
 }
 
+version(none):
+
 version(unittest)
 class C
 {

@@ -113,16 +113,33 @@ struct RGB
  *
  * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
  */
-void setForegroundColor(scope void delegate(scope const(char)[]) @safe sink,
-                        const RGB rgb) @safe
+void setForegroundColorRGB(scope void delegate(scope const(char)[]) @safe sink,
+                           const RGB rgb) @safe
 {
     sink("\033[ 38;2;");
     import std.conv : to;
-    setForegroundColorRGBComponent(sink, rgb.red);
+    setRGBComponent(sink, rgb.red);
     sink(";");
-    setForegroundColorRGBComponent(sink, rgb.green);
+    setRGBComponent(sink, rgb.green);
     sink(";");
-    setForegroundColorRGBComponent(sink, rgb.blue);
+    setRGBComponent(sink, rgb.blue);
+    sink(" m");
+}
+
+/** Set background color.
+ *
+ * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
+ */
+void setBackgroundColorRGB(scope void delegate(scope const(char)[]) @safe sink,
+                           const RGB rgb) @safe
+{
+    sink("\033[ 48;2;");
+    import std.conv : to;
+    setRGBComponent(sink, rgb.red);
+    sink(";");
+    setRGBComponent(sink, rgb.green);
+    sink(";");
+    setRGBComponent(sink, rgb.blue);
     sink(" m");
 }
 
@@ -130,8 +147,8 @@ void setForegroundColor(scope void delegate(scope const(char)[]) @safe sink,
  *
  * See_Also: https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
  */
-static private void setForegroundColorRGBComponent(scope void delegate(scope const(char)[]) @safe sink,
-                                                   ubyte component) @safe
+static private void setRGBComponent(scope void delegate(scope const(char)[]) @safe sink,
+                                    ubyte component) @safe
 {
 }
 

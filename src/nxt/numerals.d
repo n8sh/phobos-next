@@ -9,7 +9,7 @@ import std.traits: isIntegral, isUnsigned, isSomeString;
  *
  * See_Also: https://en.wikipedia.org/wiki/Ordinal_number_(linguistics)
  */
-string toOrdinal(T)(T n, string defaultOrdinal)
+string toEnglishOrdinal(T)(T n, string defaultOrdinal)
 if (isUnsigned!T)
 {
     switch (n)

@@ -43,7 +43,7 @@ if (isUnsigned!T)
  *
  * See_Also: https://en.wikipedia.org/wiki/Ordinal_number_(linguistics)
  */
-T fromOrdinalTo(T)(scope const(char)[] ordinal)
+T fromEnglishOrdinalTo(T)(scope const(char)[] ordinal)
 if (isUnsigned!T)
 {
     switch (ordinal)
@@ -78,8 +78,8 @@ if (isUnsigned!T)
 
 @safe pure nothrow @nogc unittest
 {
-    assert(`zeroth`.fromOrdinalTo!uint == 0);
-    assert(`fourteenth`.fromOrdinalTo!uint == 14);
+    assert(`zeroth`.fromEnglishOrdinalTo!uint == 0);
+    assert(`fourteenth`.fromEnglishOrdinalTo!uint == 14);
 }
 
 enum onesNumerals = [ `zero`, `one`, `two`, `three`, `four`,

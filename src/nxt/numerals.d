@@ -4,44 +4,44 @@ module nxt.numerals;
 import std.conv: to;
 import std.traits: isIntegral, isUnsigned, isSomeString;
 
-/** Get English ordinal number of unsigned integer $(D n).
-    See_Also: https://en.wikipedia.org/wiki/Ordinal_number_(linguistics)
+/** Get English ordinal number of unsigned integer $(D n) default to
+ * `defaultOrdinal` if `n` is too large.
+ *
+ * See_Also: https://en.wikipedia.org/wiki/Ordinal_number_(linguistics)
  */
-string toOrdinal(T)(T n)
-if (isUnsinged!T)
+string toOrdinal(T)(T n, string defaultOrdinal)
+if (isUnsigned!T)
 {
-    string ordinal;
     switch (n)
     {
-        case 0: ordinal = `zeroth`; break;
-        case 1: ordinal = `first`; break;
-        case 2: ordinal = `second`; break;
-        case 3: ordinal = `third`; break;
-        case 4: ordinal = `fourth`; break;
-        case 5: ordinal = `fifth`; break;
-        case 6: ordinal = `sixth`; break;
-        case 7: ordinal = `seventh`; break;
-        case 8: ordinal = `eighth`; break;
-        case 9: ordinal = `ninth`; break;
-        case 10: ordinal = `tenth`; break;
-        case 11: ordinal = `eleventh`; break;
-        case 12: ordinal = `twelveth`; break;
-        case 13: ordinal = `thirteenth`; break;
-        case 14: ordinal = `fourteenth`; break;
-        case 15: ordinal = `fifteenth`; break;
-        case 16: ordinal = `sixteenth`; break;
-        case 17: ordinal = `seventeenth`; break;
-        case 18: ordinal = `eighteenth`; break;
-        case 19: ordinal = `nineteenth`; break;
-        case 20: ordinal = `twentieth`; break;
-        default:
-            assert(0, "Handle this case");
+        case 0: return `zeroth`;
+        case 1: return `first`;
+        case 2: return `second`;
+        case 3: return `third`;
+        case 4: return `fourth`;
+        case 5: return `fifth`;
+        case 6: return `sixth`;
+        case 7: return `seventh`;
+        case 8: return `eighth`;
+        case 9: return `ninth`;
+        case 10: return `tenth`;
+        case 11: return `eleventh`;
+        case 12: return `twelveth`;
+        case 13: return `thirteenth`;
+        case 14: return `fourteenth`;
+        case 15: return `fifteenth`;
+        case 16: return `sixteenth`;
+        case 17: return `seventeenth`;
+        case 18: return `eighteenth`;
+        case 19: return `nineteenth`;
+        case 20: return `twentieth`;
+        default: return defaultOrdinal;
     }
-    return ordinal;
 }
 
 /** Get English ordinal number of unsigned integer $(D n).
-    See_Also: https://en.wikipedia.org/wiki/Ordinal_number_(linguistics)
+ *
+ * See_Also: https://en.wikipedia.org/wiki/Ordinal_number_(linguistics)
  */
 T fromOrdinalTo(T)(scope const(char)[] ordinal)
 if (isUnsigned!T)

@@ -13,7 +13,8 @@ bool isFormat(scope const(char)[] chars) pure nothrow @nogc
     {
         import std.ascii: isDigit;
         if (chars.length >= 1 &&
-            (isDigit(chars[0]) || chars[0] == '*'))
+            (isDigit(chars[0]) ||
+             chars[0] == '*'))
         {
             return true;
         }

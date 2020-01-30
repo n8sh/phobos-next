@@ -1,6 +1,6 @@
 /** Helper functions for the SU(M)O-KIF file format.
  *
- * Used as an encoding for the SUMO ontology.
+ * SUO-KIF is used the default encoding of the SUMO ontology.
  */
 module nxt.suo_kif;
 

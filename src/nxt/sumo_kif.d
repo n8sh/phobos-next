@@ -11,7 +11,7 @@ bool isFormat(scope const(char)[] chars) pure nothrow @nogc
     import nxt.array_algorithm : findSkip;
     while (chars.findSkip('%'))
     {
-        import std.ascii: isDigit;
+        import std.ascii : isDigit;
         if (chars.length >= 1 &&
             (isDigit(chars[0]) ||
              chars[0] == '*'))

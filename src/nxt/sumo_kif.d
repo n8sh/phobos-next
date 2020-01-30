@@ -1,4 +1,4 @@
-/** SU(M)O-KIF file format.
+/** Helper functions for the SU(M)O-KIF file format.
  *
  * Used as an encoding for the SUMO ontology.
  */

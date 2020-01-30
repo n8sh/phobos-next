@@ -9,12 +9,15 @@ module nxt.suo_kif;
 bool isFormat(scope const(char)[] chars) pure nothrow @nogc
 {
     import nxt.array_algorithm : findSkip;
-    if (chars.findSkip('%'))
+    while (chars.findSkip('%'))
     {
         if (chars.length >= 1)
         {
             import std.ascii: isDigit;
-            return isDigit(chars[0]) || chars[0] == '*';
+            if (isDigit(chars[0]) || chars[0] == '*')
+            {
+                return true;
+            }
         }
     }
     return false;
@@ -34,6 +37,10 @@ bool isFormat(scope const(char)[] chars) pure nothrow @nogc
     assert(!"%".isFormat);
     assert(!"% ".isFormat);
     assert(!" % ".isFormat);
+
+    assert("%n %1".isFormat);
+    assert("%n %1".isFormat);
+    assert("%n %*".isFormat);
 }
 
 bool isTermFormat(scope const(char)[] chars) pure nothrow @nogc

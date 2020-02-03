@@ -832,7 +832,7 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
 
     assert(S.init.small.length == 0);
     assert(!S());
-    // assert(S(""));
+    // TODO assert(S(""));
     assert(S("abc"));
 }
 

@@ -213,8 +213,7 @@ pure:
             foreach (const dch; source)
             {
                 char[4] chars;
-                const count = encode(chars, dch);
-                offset += count;
+                offset += encode(chars, dch);
             }
             small.length = offset;
         }

@@ -196,6 +196,8 @@ pure:
         is(ElementType!Source : dchar))
     {
         static assert(0, "TODO complete this function");
+
+        // pre-calculate number of `char`s needed
         size_t precount = 0;
         foreach (dch; source)
         {

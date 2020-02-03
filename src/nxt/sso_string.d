@@ -195,13 +195,14 @@ pure:
     if (isIterable!(Source) &&
         is(ElementType!Source : dchar))
     {
+        import std.utf : encode;
+
         static assert(0, "TODO complete this function");
 
         // pre-calculate number of `char`s needed
         size_t precount = 0;
-        foreach (dch; source)
+        foreach (const dch; source)
         {
-            import std.utf : encode;
             char[4] chars;
             precount += encode(chars, dch);
         }
@@ -209,9 +210,8 @@ pure:
         if (precount <= smallCapacity)
         {
             size_t offset = 0;
-            foreach (dch; source)
+            foreach (const dch; source)
             {
-                import std.utf : encode;
                 char[4] chars;
                 const count = encode(chars, dch);
                 offset += count;

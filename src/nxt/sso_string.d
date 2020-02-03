@@ -829,8 +829,6 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
 @safe pure unittest
 {
     alias S = SSOString;
-
-    assert(S.init.small.length == 0);
     assert(!S());
     // TODO assert(S(""));
     assert(S("abc"));

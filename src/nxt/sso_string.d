@@ -359,6 +359,19 @@ pure:
         // return __cmp(this[], that[]);
     }
 
+    bool opCast(T : bool)() const scope @trusted
+    {
+        pragma(inline, true);
+        if (isLarge)
+        {
+            return large !is null;
+        }
+        else
+        {
+            return small.length != 0;
+        }
+    }
+
     /** Check if is the same as to `rhs`.
      *
      * See_Also: https://forum.dlang.org/post/agzznbzkacfhyqvoezht@forum.dlang.org.
@@ -805,6 +818,17 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     assert("Å" < "å");
     assert(S("a") < S("å"));
     assert(S("ÅÄÖ") < S("åäö"));
+}
+
+/// cast to bool
+@safe pure unittest
+{
+    alias S = SSOString;
+
+    assert(S.init.small.length == 0);
+    assert(!S());
+    // assert(S(""));
+    assert(S("abc"));
 }
 
 /// to string conversion

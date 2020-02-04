@@ -1185,6 +1185,24 @@ auto findSplitBefore(alias needlePred, T)(scope return inout(T)[] haystack)
 ///
 @safe pure nothrow @nogc unittest
 {
+    const r = "a*b".findSplitBefore!(_ => _ == '*' || _ == '+');
+    assert(r);
+    assert(r.pre == "a");
+    assert(r.post == "*b");
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    const r = "a+b".findSplitBefore!(_ => _ == '*' || _ == '+');
+    assert(r);
+    assert(r.pre == "a");
+    assert(r.post == "+b");
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
     const r = "a*b".findSplitBefore!(_ => _ == '_');
     assert(!r);
     assert(r.pre == "a*b");

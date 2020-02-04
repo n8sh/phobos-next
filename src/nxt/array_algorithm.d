@@ -1100,6 +1100,97 @@ auto findSplitBefore(T)(scope return inout(T)[] haystack,
     assert(r.post == "");
 }
 
+/** Array-specialization of `findSplitBefore` with explicit needle-only predicate `needlePred`.
+ *
+ * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org
+ * See_Also: https://forum.dlang.org/post/zhgajqdhybtbufeiiofp@forum.dlang.org
+ */
+auto findSplitBefore(alias needlePred, T)(scope return inout(T)[] haystack)
+{
+    static struct Result // NOTE `static` qualifier is needed for `inout` to propagate correctly
+    {
+        private T[] _haystack;
+        private size_t _offset;
+
+    pragma(inline, true):
+
+        inout(T)[] pre() @trusted inout
+        {
+            return _haystack.ptr[0 .. _offset];
+        }
+
+        inout(T)[] post() @trusted inout
+        {
+            if (empty) { return _haystack[$ .. $]; }
+            return _haystack.ptr[_offset .. _haystack.length];
+        }
+
+        bool opCast(T : bool)() const
+        {
+            return !empty;
+        }
+
+        private @property bool empty() const
+        {
+            return _haystack.length == _offset;
+        }
+    }
+
+    foreach (const offset, const ref element; haystack)
+    {
+        if (needlePred(element))
+        {
+            return inout(Result)(haystack, offset);
+        }
+    }
+    return inout(Result)(haystack, haystack.length);
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    char[] haystack;
+    auto r = haystack.findSplitBefore!(_ => _ == '_');
+    static assert(is(typeof(r.pre()) == char[]));
+    static assert(is(typeof(r.post()) == char[]));
+    assert(!r);
+    assert(!r.pre);
+    assert(!r.post);
+
+    auto f()() @safe pure nothrow { char[1] x = "_"; return x[].findSplitBefore!(_ => _ == ' '); }
+    static if (isDIP1000) static assert(!__traits(compiles, { auto _ = f(); }));
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    const(char)[] haystack;
+    auto r = haystack.findSplitBefore!(_ => _ == '_');
+    static assert(is(typeof(r.pre()) == const(char)[]));
+    static assert(is(typeof(r.post()) == const(char)[]));
+    assert(!r);
+    assert(!r.pre);
+    assert(!r.post);
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    const r = "a*b".findSplitBefore!(_ => _ == '*');
+    assert(r);
+    assert(r.pre == "a");
+    assert(r.post == "*b");
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    const r = "a*b".findSplitBefore!(_ => _ == '_');
+    assert(!r);
+    assert(r.pre == "a*b");
+    assert(r.post == "");
+}
+
 /** Array-specialization of `findSplitAfter` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org

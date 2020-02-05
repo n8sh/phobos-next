@@ -10,10 +10,10 @@ module nxt.sso_string;
  * Because `SSOString` doesn't have a destructor it can safely allocate using a
  * GC-backed region allocator without relying on a GC finalizer.
  *
- * In order to mimic `string/array/slice`-behaviour, opCast should return
+ * In order to mimic `string/array/slice`-behaviour, opCast returns
  * - `false` for `S()` and
  * - `true` for `S("")`
- * This requires `S()` to default to a large string in which large pointer is set to null
+ * This requires `S()` to default to a large string in which large pointer is set to `null`.
  *
  * NOTE big-endian platforms should be supported but this hasn't been verified.
  *
@@ -417,9 +417,9 @@ pure:
     bool isSmallASCIIClean() const scope @trusted
     {
         pragma(inline, true);
-        static assert(largeLengthTagBit == 0);// bit 0 of lsbyte not set => small
+        static assert(largeLengthTagBitOffset == 0);// bit 0 of lsbyte not set => small
         // should be fast on 64-bit platforms:
-        return ((words[0] & 0x_80_80_80_80__80_80_80_01UL) == 0 && // bit 0 of lsbyte not set => small
+        return ((words[0] & 0x_80_80_80_80__80_80_80_01UL) == 1 && // bit 0 of lsbyte is set => small
                 (words[1] & 0x_80_80_80_80__80_80_80_80UL) == 0);
     }
 
@@ -429,7 +429,7 @@ private:
     @property bool isLarge() const @trusted
     {
         pragma(inline, true);
-        return large.length & (1 << largeLengthTagBit); // first bit discriminates small from large
+        return !(large.length & (1 << largeLengthTagBitOffset)); // first bit discriminates small from large
     }
 
     alias Large = immutable(E)[];
@@ -437,7 +437,7 @@ private:
     public enum smallCapacity = Large.sizeof - Small.length.sizeof;
     static assert(smallCapacity > 0, "No room for small source for immutable(E) being " ~ immutable(E).stringof);
 
-    enum largeLengthTagBit = 0; ///< bit position for large tag in length.
+    enum largeLengthTagBitOffset = 0; ///< bit position for large tag in length.
     enum smallLengthBitCount = 4;
     static assert(smallCapacity == 2^^smallLengthBitCount-1);
 
@@ -449,7 +449,7 @@ private:
     /// Get metadata byte with first `metaBits` bits set.
     @property ubyte metadata() const @safe pure nothrow @nogc
     {
-        return (small.length >> (1 << largeLengthTagBit)) & metaMask; // git bits [1 .. 1+metaBits]
+        return (small.length >> (1 << largeLengthTagBitOffset)) & metaMask; // git bits [1 .. 1+metaBits]
     }
 
     /// Set metadata.
@@ -458,11 +458,11 @@ private:
         assert(data < (1 << metaBits));
         if (isLarge)
         {
-            raw.length = encodeLargeLength(length) | ((data & metaMask) << (largeLengthTagBit + 1));
+            raw.length = encodeLargeLength(length) | ((data & metaMask) << (largeLengthTagBitOffset + 1));
         }
         else
         {
-            small.length = cast(ubyte)encodeSmallLength(length) | ((data & metaMask) << (largeLengthTagBit + 1));
+            small.length = cast(ubyte)encodeSmallLength(length) | ((data & metaMask) << (largeLengthTagBitOffset + 1));
         }
     }
 
@@ -475,14 +475,14 @@ private:
     /// Encode `Large` length from `Length`.
     static size_t encodeLargeLength(size_t length) @safe pure nothrow @nogc
     {
-        return (length << tagsBitCount) | 1;
+        return (length << tagsBitCount);
     }
 
     /// Encode `Small` length from `Length`.
     static size_t encodeSmallLength(size_t length) @safe pure nothrow @nogc
     {
         assert(length <= smallCapacity);
-        return length << tagsBitCount;
+        return (length << tagsBitCount) | (1 << largeLengthTagBitOffset);
     }
 
     version(LittleEndian) // see: http://forum.dlang.org/posting/zifyahfohbwavwkwbgmw
@@ -596,7 +596,7 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     auto s0 = S.init;
     assert(s0.isNull);
     assert(s0.length == 0);
-    assert(!s0.isLarge);
+    assert(s0.isLarge);
     assert(s0[] == []);
 
     char[S.smallCapacity] charsSmallCapacity = "123456789_12345"; // fits in small string
@@ -830,8 +830,9 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
 @safe pure unittest
 {
     alias S = SSOString;
+    // mimics behaviour of casting of `string` to `bool`
     assert(!S());
-    // TODO assert(S(""));
+    assert(S(""));
     assert(S("abc"));
 }
 

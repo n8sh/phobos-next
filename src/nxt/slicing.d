@@ -122,9 +122,6 @@ alias preSplitter = preSlicer;
 
 unittest
 {
-    import std.algorithm.comparison : equal;
-    import std.algorithm.iteration : map;
-
     import std.uni : isUpper, isWhite;
     alias sepPred = ch => (ch == '-' || ch.isWhite);
     assert(equal("doThis or doThat do-stuff".preSlicer!(_ => (_.isUpper ||
@@ -170,12 +167,11 @@ unittest
     /* assert(equal([-1, 1, -1, 1].retro.preSlicer!(a => a > 0), [[1, -1], [1, -1]])); */
 }
 
+version(none)                   // TODO enable
 auto wordByMixedCaseSubWord(Range)(Range r)
 {
     static struct Result
     {
-    @safe pure nothrow @nogc:
-
         this(Range input)
         {
             _input = input;
@@ -236,4 +232,16 @@ auto wordByMixedCaseSubWord(Range)(Range r)
         private size_t _end = 0;    // _input[0 .. _end] is current front
     }
     return Result(r);
+}
+
+version(none)                   // TODO enable
+@safe pure unittest
+{
+    assert(equal("äaÖ".wordByMixedCaseSubWord, ["äa", "Ö"]));
+}
+
+version(unittest)
+{
+     import std.algorithm.comparison : equal;
+     import std.algorithm.iteration : map;
 }

@@ -169,3 +169,71 @@ unittest
     /* import std.range : retro; */
     /* assert(equal([-1, 1, -1, 1].retro.preSlicer!(a => a > 0), [[1, -1], [1, -1]])); */
 }
+
+auto wordByMixedCaseSubWord(Range)(Range r)
+{
+    static struct Result
+    {
+    @safe pure nothrow @nogc:
+
+        this(Range input)
+        {
+            _input = input;
+            import std.range.primitives : empty;
+            if (_input.empty)
+            {
+                _end = size_t.max;
+            }
+            else
+            {
+                skipTerminatorsAndSetEnd();
+            }
+        }
+
+        @property bool empty()
+        {
+            return _end == size_t.max;
+        }
+
+        @property auto front()
+        {
+            return _input[0 .. _end];
+        }
+
+        void popFront()
+        {
+            _input = _input[_end .. $];
+            import std.range.primitives : empty;
+            if (_input.empty)
+            {
+                _end = size_t.max;
+                return;
+            }
+            skipTerminatorsAndSetEnd();
+        }
+
+        private void skipTerminatorsAndSetEnd()
+        {
+            // `_end` is now invalid in relation to `_input`
+            size_t offset = 0;
+            while (offset != _input.length)
+            {
+                auto slice = _input[offset .. $];
+                import std.utf : decodeFront;
+                size_t numCodeUnits;
+                const dchar dch = decodeFront(slice, numCodeUnits);
+                if (offset != 0 && // ignore terminator at offset 0
+                    isTerminator(dch))
+                {
+                    break;
+                }
+                offset += numCodeUnits; // skip over
+            }
+            _end = offset;
+        }
+
+        private Range _input;
+        private size_t _end = 0;    // _input[0 .. _end] is current front
+    }
+    return Result(r);
+}

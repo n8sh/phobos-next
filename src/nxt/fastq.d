@@ -25,7 +25,7 @@ struct FastQRecord
 
     static auto parse(const(char)[] from)
     {
-        struct Result
+        static struct Result
         {
             private
             {

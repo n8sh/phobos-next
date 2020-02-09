@@ -270,11 +270,11 @@ setIntersectionFast(alias less = "a < b",
     import std.algorithm.sorting : sort;
     import std.algorithm.setops : setIntersection;
     import nxt.random_ex : randInPlaceWithElementRange;
-    import nxt.basic_array : BasicArray;
+    import nxt.basic_array : DynamicArray;
     import nxt.algorithm_ex : collect;
 
     alias E = ulong;
-    alias A = BasicArray!E;
+    alias A = DynamicArray!E;
 
     auto a0 = A();
     auto a1 = A(1);

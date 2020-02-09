@@ -532,7 +532,7 @@ if (hasIndexing!(R))
 ///
 @safe pure nothrow unittest
 {
-    import nxt.basic_array : Array = BasicArray;
+    import nxt.basic_array : Array = DynamicArray;
 
     enum Lang { en, sv, fr }
 

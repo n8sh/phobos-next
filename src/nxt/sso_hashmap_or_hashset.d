@@ -1104,7 +1104,7 @@ struct SSOHashMapOrSet(K, V = void,
                                    LargeBin.sizeof / T.sizeof);
 
 private:
-    import nxt.basic_array : Array = BasicArray;
+    import nxt.basic_array : Array = DynamicArray;
 
     /** 32-bit capacity and length for LargeBinLnegth on 64-bit platforms
      * saves one word and makes insert() and contains() significantly faster */
@@ -1609,7 +1609,7 @@ pure nothrow @nogc unittest
 
         static if (X.hasValue)
         {
-            import nxt.basic_array : Array = BasicArray;
+            import nxt.basic_array : Array = DynamicArray;
             Array!(X.ElementType) a1;
 
             foreach (const ref key; x1.byKey)

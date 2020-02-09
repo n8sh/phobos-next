@@ -145,7 +145,7 @@ import nxt.bijections : isIntegralBijectableType, bijectToUnsigned, bijectFromUn
 import nxt.variant_ex : WordVariant;
 import nxt.typecons_ex : IndexedBy;
 import nxt.container_traits : mustAddGCRange;
-import nxt.basic_array : Array = BasicArray;
+import nxt.basic_array : Array = DynamicArray;
 
 // version = enterSingleInfiniteMemoryLeakTest;
 version = benchmark;

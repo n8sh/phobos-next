@@ -17,7 +17,7 @@ struct DenseSetFilterGrowableArray(E,
 if (isDenseSetFilterable!E)
 {
     import nxt.filters : DenseSetFilter, Growable, Copyable;
-    import nxt.basic_array : BasicArray;
+    import nxt.basic_array : DynamicArray;
 
     alias ElementType = E;
 
@@ -79,7 +79,7 @@ if (isDenseSetFilterable!E)
 private:
     // TODO merge into store with only one length and capcity
     DenseSetFilter!(E, Growable.yes, Copyable.no) _set;
-    BasicArray!(E, Allocator) _array;
+    DynamicArray!(E, Allocator) _array;
 }
 
 @safe pure nothrow @nogc:

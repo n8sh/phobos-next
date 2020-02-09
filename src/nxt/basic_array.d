@@ -22,7 +22,7 @@ import core.internal.traits : Unqual;
  *
  * See_Also: https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md
  */
-struct BasicArray(T,
+struct DynamicArray(T,
                   alias Allocator = null, // null means means to qcmeman functions. TODO use `PureMallocator` by default
                   CapacityType = size_t)  // see also https://github.com/izabera/s
 if (!is(Unqual!T == bool) &&             // use `BitArray` instead
@@ -189,7 +189,7 @@ pragma(inline):
         }
 
         /// Returns: shallow duplicate of `this`.
-        @property BasicArray!(Unqual!T, Allocator, CapacityType) dup()() const @trusted // template-lazy
+        @property DynamicArray!(Unqual!T, Allocator, CapacityType) dup()() const @trusted // template-lazy
         {
             pragma(inline, true);
             return typeof(this).withElements(this[]);
@@ -1074,7 +1074,7 @@ import std.functional : unaryFun;
  */
 size_t remove(alias predicate, C)(ref C c) @trusted
     @("complexity", "O(length)")
-if (isInstanceOf!(BasicArray, C) &&
+if (isInstanceOf!(DynamicArray, C) &&
     is(typeof(unaryFun!predicate(C.init[0]))))
 {
     C tmp;
@@ -1113,7 +1113,7 @@ if (isInstanceOf!(BasicArray, C) &&
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = BasicArray!(T, null, uint);
+    alias A = DynamicArray!(T, null, uint);
     static if (size_t.sizeof == 8) // only 64-bit
     {
         static assert(A.sizeof == 2 * size_t.sizeof); // only two words
@@ -1134,7 +1134,7 @@ if (isInstanceOf!(BasicArray, C) &&
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = BasicArray!(T);
+    alias A = DynamicArray!(T);
 
     A a;
 
@@ -1167,7 +1167,7 @@ if (isInstanceOf!(BasicArray, C) &&
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = BasicArray!(T);
+    alias A = DynamicArray!(T);
 
     A a;                        // default construction allowed
     assert(a.empty);
@@ -1175,7 +1175,7 @@ if (isInstanceOf!(BasicArray, C) &&
     assert(a.capacity == 0);
     assert(a[] == []);
 
-    auto b = BasicArray!int.withLength(3);
+    auto b = DynamicArray!int.withLength(3);
     assert(!b.empty);
     assert(b.length == 3);
     assert(b.capacity == 3);
@@ -1187,7 +1187,7 @@ if (isInstanceOf!(BasicArray, C) &&
     b[] = [4, 5, 6].s;
     assert(b[] == [4, 5, 6].s);
 
-    const c = BasicArray!int.withCapacity(3);
+    const c = DynamicArray!int.withCapacity(3);
     assert(c.empty);
     assert(c.capacity == 3);
     assert(c[] == []);
@@ -1200,7 +1200,7 @@ if (isInstanceOf!(BasicArray, C) &&
     }
     auto d = f();
 
-    const e = BasicArray!int([1, 2, 3, 4].s);
+    const e = DynamicArray!int([1, 2, 3, 4].s);
     assert(e.length == 4);
     assert(e[] == [1, 2, 3, 4].s);
 }
@@ -1209,7 +1209,7 @@ if (isInstanceOf!(BasicArray, C) &&
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = BasicArray!(T);
+    alias A = DynamicArray!(T);
 
     auto a = A([1, 2, 3].s);
     A b = a.dup;                // copy construction enabled
@@ -1234,7 +1234,7 @@ if (isInstanceOf!(BasicArray, C) &&
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = BasicArray!T;
+    alias A = DynamicArray!T;
 
     T[] leakSlice() @safe pure nothrow @nogc
     {
@@ -1264,7 +1264,7 @@ version(unittest)
 /// construct and insert from non-copyable element type passed by value
 @safe pure nothrow /*@nogc*/ unittest
 {
-    alias A = BasicArray!(SomeUncopyable);
+    alias A = DynamicArray!(SomeUncopyable);
 
     A a = A(SomeUncopyable(17));
     assert(a[] == [SomeUncopyable(17)]);
@@ -1282,14 +1282,14 @@ version(unittest)
 /// construct from slice of uncopyable type
 @safe pure nothrow @nogc unittest
 {
-    alias A = BasicArray!(SomeUncopyable);
+    alias A = DynamicArray!(SomeUncopyable);
     // TODO can we safely support this?: A a = [SomeUncopyable(17)];
 }
 
 // construct from array with uncopyable elements
 @safe pure nothrow @nogc unittest
 {
-    alias A = BasicArray!(SomeUncopyable);
+    alias A = DynamicArray!(SomeUncopyable);
 
     A a;
     assert(a.empty);
@@ -1302,7 +1302,7 @@ version(unittest)
 @safe pure nothrow @nogc unittest
 {
     alias T = SomeUncopyable;
-    alias A = BasicArray!T;
+    alias A = DynamicArray!T;
 
     A a;
     assert(a.empty);
@@ -1322,7 +1322,7 @@ version(unittest)
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = BasicArray!T;
+    alias A = DynamicArray!T;
 
     A a;
     assert(a.empty);
@@ -1341,7 +1341,7 @@ version(unittest)
 @safe pure nothrow @nogc unittest
 {
     alias T = string;
-    alias A = BasicArray!(T);
+    alias A = DynamicArray!(T);
 
     A a;
     a ~= `alpha`;
@@ -1362,9 +1362,9 @@ version(unittest)
 unittest
 {
     alias T = int;
-    alias A = BasicArray!(T);
+    alias A = DynamicArray!(T);
 
-    BasicArray!char sink;
+    DynamicArray!char sink;
     // TODO make this work: A([1, 2, 3]).toString(sink.put);
 }
 
@@ -1372,7 +1372,7 @@ unittest
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = BasicArray!(T);
+    alias A = DynamicArray!(T);
 
     auto a = A([1, 2, 3].s);
 
@@ -1386,7 +1386,7 @@ unittest
 @safe pure nothrow @nogc unittest
 {
     alias T = const(int);
-    alias A = BasicArray!(T);
+    alias A = DynamicArray!(T);
 
     auto a = A([1, 2, 3].s);
 
@@ -1400,7 +1400,7 @@ unittest
 @safe pure nothrow @nogc unittest
 {
     alias T = immutable(int);
-    alias A = BasicArray!(T);
+    alias A = DynamicArray!(T);
 
     auto a = A([1, 2, 3].s);
 
@@ -1414,7 +1414,7 @@ unittest
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = BasicArray!(T);
+    alias A = DynamicArray!(T);
 
     auto a = A([1, 2, 3].s);
     assert(a == [1, 2, 3].s);
@@ -1488,9 +1488,9 @@ unittest
      * always done. */
     size_t extraDtor = 1;
 
-    alias A = BasicArray!(S);
+    alias A = DynamicArray!(S);
     static assert(!mustAddGCRange!A);
-    alias AA = BasicArray!(A);
+    alias AA = DynamicArray!(A);
     static assert(!mustAddGCRange!AA);
 
     assert(mallocCount == 0);
@@ -1514,7 +1514,7 @@ unittest
 {
     import std.format : formattedWrite;
     const x = "42";
-    alias A = BasicArray!(char);
+    alias A = DynamicArray!(char);
     A a;
     a.formattedWrite!("x : %s")(x);
     assert(a == "x : 42");
@@ -1524,7 +1524,7 @@ unittest
 @trusted pure nothrow @nogc unittest
 {
     const x = "42";
-    alias A = BasicArray!(char);
+    alias A = DynamicArray!(char);
 
     auto ae = ['a', 'b'].s;
 
@@ -1540,7 +1540,7 @@ unittest
 @trusted pure nothrow @nogc unittest
 {
     const x = "42";
-    alias A = BasicArray!(char);
+    alias A = DynamicArray!(char);
 
     auto ae = ['a', 'b'].s;
 
@@ -1555,7 +1555,7 @@ unittest
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = BasicArray!(T, null, uint);
+    alias A = DynamicArray!(T, null, uint);
     const a = A(17);
     assert(a[] == [17].s);
 }
@@ -1564,7 +1564,7 @@ unittest
 @safe pure nothrow @nogc unittest
 {
     alias T = int;
-    alias A = BasicArray!(T);
+    alias A = DynamicArray!(T);
 
     static assert(!__traits(compiles, { A b = a; })); // copying disabled
 
@@ -1586,7 +1586,7 @@ unittest
         ~this() @nogc { x = 42; }
         int x;
     }
-    alias A = BasicArray!(T);
+    alias A = DynamicArray!(T);
     auto a = A([new T(10),
                 new T(11),
                 new T(12)].s);
@@ -1603,7 +1603,7 @@ unittest
         int value;
     }
 
-    alias A = BasicArray!(T);
+    alias A = DynamicArray!(T);
 
     static assert(!__traits(compiles, { A b = a; })); // copying disabled
 
@@ -1627,7 +1627,7 @@ unittest
 {
     import std.algorithm.iteration : map;
     alias T = int;
-    alias A = BasicArray!(T);
+    alias A = DynamicArray!(T);
 
     A a = A.withElementsOfRange_untested([10, 20, 30].s[].map!(_ => _^^2));
     assert(a[] == [100, 400, 900].s);
@@ -1651,7 +1651,7 @@ unittest
 @trusted pure nothrow unittest
 {
     alias T = int;
-    alias A = BasicArray!(T);
+    alias A = DynamicArray!(T);
 
     import std.typecons : RefCounted;
     RefCounted!A x;
@@ -1669,7 +1669,7 @@ unittest
 @trusted pure nothrow @nogc unittest
 {
     alias T = uint;
-    alias A = BasicArray!(T);
+    alias A = DynamicArray!(T);
 
     ushort[3] a = [1, 2, 3];
 
@@ -1682,7 +1682,7 @@ unittest
 @trusted pure nothrow @nogc unittest
 {
     alias T = uint;
-    alias A = BasicArray!(T);
+    alias A = DynamicArray!(T);
 
     ushort[3] a = [1, 2, 3];
     ushort[] b = a[];
@@ -1697,18 +1697,18 @@ unittest
 {
     import std.experimental.allocator.gc_allocator : GCAllocator;
     alias T = int;
-    alias A = BasicArray!(T, GCAllocator.instance);
+    alias A = DynamicArray!(T, GCAllocator.instance);
     A a;
 }
 
 /// construct with slices as element types
 @trusted pure nothrow unittest
 {
-    alias A = BasicArray!(string);
-    alias B = BasicArray!(char[]);
+    alias A = DynamicArray!(string);
+    alias B = DynamicArray!(char[]);
 }
 
-/** Variant of `BasicArray` with copy construction (postblit) enabled.
+/** Variant of `DynamicArray` with copy construction (postblit) enabled.
  *
  * See_Also: suppressing.d
  * See_Also: http://forum.dlang.org/post/eitlbtfbavdphbvplnrk@forum.dlang.org

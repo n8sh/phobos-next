@@ -141,10 +141,10 @@ if (hasIndexing!C && // TODO extend to `isArrayContainer`!C eller `isRandomAcces
     import std.algorithm.mutation : move;
     import std.meta : AliasSeq;
     import nxt.unique_range : intoUniqueRange;
-    import nxt.basic_array : BasicArray;
+    import nxt.basic_array : DynamicArray;
 
     alias E = int;
-    foreach (C; AliasSeq!(BasicArray// ,
+    foreach (C; AliasSeq!(DynamicArray// ,
                           // TODO SortedSetUniqueArray
                  ))
     {

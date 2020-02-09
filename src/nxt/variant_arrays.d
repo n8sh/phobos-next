@@ -169,8 +169,8 @@ unittest
 
 private mixin template VariantArrayOf(Type)
 {
-    import nxt.basic_array : BasicArray;
-    BasicArray!Type store;
+    import nxt.basic_array : DynamicArray;
+    DynamicArray!Type store;
 }
 
 /** Stores set of variants.
@@ -185,13 +185,13 @@ struct VariantArrays(Types...)
 
     alias Ref = VariantRef!Types;
 
-    import nxt.basic_array : BasicArray;
+    import nxt.basic_array : DynamicArray;
 
     /// Returns: array type (as a string) of `Type`.
     private static immutable(string) arrayTypeStringOfIndex(uint typeIndex)()
     {
         pragma(inline, true);
-        return `BasicArray!(Types[` ~ typeIndex.stringof ~ `])`;
+        return `DynamicArray!(Types[` ~ typeIndex.stringof ~ `])`;
     }
 
     /** Returns: array instance (as a strinng) storing `SomeKind`.

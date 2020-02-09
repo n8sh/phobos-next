@@ -59,8 +59,8 @@ version(unittest)
 
     import std.array : Appender;
     alias Raw = Appender!(ubyte[]);
-    // import nxt.basic_array : BasicArray;
-    // alias Raw = BasicArray!ubyte;
+    // import nxt.basic_array : DynamicArray;
+    // alias Raw = DynamicArray!ubyte;
 }
 
 @safe pure nothrow unittest

@@ -328,12 +328,12 @@ if (isDigest!Digest &&
 /// arrays and containers and its slices
 @safe pure unittest
 {
-    import nxt.basic_array : BasicArray;
+    import nxt.basic_array : DynamicArray;
 
     alias E = double;
 
     immutable e = [cast(E)1, cast(E)2, cast(E)3].s;
-    auto a = BasicArray!E.withElements(e.s);
+    auto a = DynamicArray!E.withElements(e.s);
 
     // static array and its slice (dynamic array) hash differently
     const sh = hashOf2!(FNV64)(e); /* does not need to include length in hash

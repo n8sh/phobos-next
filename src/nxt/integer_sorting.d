@@ -270,7 +270,7 @@ version(benchmark)
     {
         writef("%8-s, %10-s, ", E.stringof, n);
 
-        import nxt.basic_array : Array = BasicArray;
+        import nxt.basic_array : Array = DynamicArray;
 
         import std.traits : isIntegral, isSigned, isUnsigned;
         import nxt.random_ex : randInPlace, randInPlaceWithElementRange;
@@ -397,7 +397,7 @@ version(benchmark)
                               long, ulong,
                               float, double))
     {
-        import nxt.basic_array : Array = BasicArray;
+        import nxt.basic_array : Array = DynamicArray;
         import std.algorithm.sorting : sort, isSorted;
         import std.algorithm.mutation : swap;
         import nxt.random_ex : randInPlace;

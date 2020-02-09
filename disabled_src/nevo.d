@@ -205,7 +205,7 @@ enum CellOp
     seqClone,                   /// sequential clone
     parClone,                   /// parallel clone
 }
-alias CellOps = Owned!(BasicArray!CellOp); // TODO bit-pack
+alias CellOps = Owned!(DynamicArray!CellOp); // TODO bit-pack
 
 /**m Network (Transformation) Operation Type Code.
  *
@@ -277,8 +277,8 @@ enum Gop
 import std.bitmanip : BitArray;
 import std.random : Random, uniform;
 
-import nxt.basic_array : BasicArray;
-import nxt.basic_array : BasicArray;
+import nxt.basic_array : DynamicArray;
+import nxt.basic_array : DynamicArray;
 
 import nxt.typecons_ex : IndexedBy;
 import nxt.owned : Owned;
@@ -286,7 +286,7 @@ import nxt.owned : Owned;
 import nxt.variant : FastAlgebraic;
 
 alias Data = FastAlgebraic!(long, double);
-alias Datas = Owned!(BasicArray!Data);
+alias Datas = Owned!(DynamicArray!Data);
 
 /// Scalar Operation Count.
 alias OpCount = size_t;
@@ -295,7 +295,7 @@ alias OpCount = size_t;
 alias CellRIx = ptrdiff_t;
 
 /// Relative Cell indexs.
-alias CellRIxs = Owned!(BasicArray!CellRIx);
+alias CellRIxs = Owned!(DynamicArray!CellRIx);
 
 /// Calculating Cell.
 struct Cell
@@ -382,7 +382,7 @@ struct Cell
     Lop lop;                  /// operation
     CellRIxs inputCellRIxs;   /// relative indexes to (neighbouring) input cells
 }
-alias Cells = IndexedBy!(Owned!(BasicArray!Cell), `Ix`);
+alias Cells = IndexedBy!(Owned!(DynamicArray!Cell), `Ix`);
 
 /// Network/Graph of `Cells`.
 struct Network

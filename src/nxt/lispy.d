@@ -16,29 +16,29 @@ module nxt.lispy;
 /** Lisp-like token type. */
 enum TOK
 {
-    unknown,
+    unknown,                    ///< Unknown.
 
-    leftParen,
-    rightParen,
+    leftParen,                  ///< Left parenthesis, `(`.
+    rightParen,                 ///< Right parenthesis, `)`.
 
-    symbol,
+    symbol,                     ///< Symbol.
 
-    stringLiteral,
+    stringLiteral,              ///< String literal.
 
-    comma,                  // Lisp comma expression
-    backquote,              // Lisp backquote expression
-    singlequote,            // Lisp singlequote expression
+    comma,                      ///< Lisp comma expression, `,`.
+    backquote,                  ///< Lisp backquote expression, `\``.
+    singlequote,                ///< Lisp singlequote expression.
 
     variable,
-    variableList,               // one or more variables (parameters) starting with an at-sign, for instance `@ROW`
+    variableList, ///< one or more variables (parameters) starting with an at-sign, for instance `@ROW`
     functionName,
 
-    number,                     // number as integer or floating point literal
+    number,                     ///< number as integer or floating point literal.
 
-    comment,
-    whitespace,
+    comment,                    ///< Comment (to end of line).
+    whitespace,                 ///< Whitespace.
 
-    emptyList,
+    emptyList,                  ///< Empty list.
 }
 
 /** Lisp-like token. */

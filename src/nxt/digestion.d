@@ -328,7 +328,7 @@ if (isDigest!Digest &&
 /// arrays and containers and its slices
 @safe pure unittest
 {
-    import nxt.basic_array : DynamicArray;
+    import nxt.dynamic_array : DynamicArray;
 
     alias E = double;
 

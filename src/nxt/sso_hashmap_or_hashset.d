@@ -1104,7 +1104,7 @@ struct SSOHashMapOrSet(K, V = void,
                                    LargeBin.sizeof / T.sizeof);
 
 private:
-    import nxt.basic_array : Array = DynamicArray;
+    import nxt.dynamic_array : Array = DynamicArray;
 
     /** 32-bit capacity and length for LargeBinLnegth on 64-bit platforms
      * saves one word and makes insert() and contains() significantly faster */
@@ -1265,7 +1265,7 @@ void removeAllMatching(alias predicate, SomeHashMapOrSet)(auto ref SomeHashMapOr
     {
         if (x._bstates[binIx].isLarge)
         {
-            import nxt.basic_array : remove;
+            import nxt.dynamic_array : remove;
             immutable removeCount = x._bins[binIx].large.remove!predicate();
             x._length -= removeCount;
             x.tryShrinkLargeBinAt(binIx);
@@ -1609,7 +1609,7 @@ pure nothrow @nogc unittest
 
         static if (X.hasValue)
         {
-            import nxt.basic_array : Array = DynamicArray;
+            import nxt.dynamic_array : Array = DynamicArray;
             Array!(X.ElementType) a1;
 
             foreach (const ref key; x1.byKey)

@@ -9,7 +9,7 @@ void main()
     import std.container.rbtree : RedBlackTree;
 
     // my containers
-    import nxt.basic_array : BasicArray;
+    import nxt.dynamic_array : BasicArray;
     import nxt.array_help : toUbytes;
     import nxt.variant_arrays : VariantArrays;
     import nxt.sso_hashmap_or_hashset : SSOHashSet, SSOHashMap;

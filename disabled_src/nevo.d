@@ -277,8 +277,8 @@ enum Gop
 import std.bitmanip : BitArray;
 import std.random : Random, uniform;
 
-import nxt.basic_array : DynamicArray;
-import nxt.basic_array : DynamicArray;
+import nxt.dynamic_array : DynamicArray;
+import nxt.dynamic_array : DynamicArray;
 
 import nxt.typecons_ex : IndexedBy;
 import nxt.owned : Owned;

@@ -17,7 +17,7 @@ struct DenseSetFilterGrowableArray(E,
 if (isDenseSetFilterable!E)
 {
     import nxt.filters : DenseSetFilter, Growable, Copyable;
-    import nxt.basic_array : DynamicArray;
+    import nxt.dynamic_array : DynamicArray;
 
     alias ElementType = E;
 

@@ -187,7 +187,7 @@ alias intoGenerator = intoUniqueRange;
 /// basics
 @safe pure nothrow @nogc unittest
 {
-    import nxt.basic_array : SA = DynamicArray;
+    import nxt.dynamic_array : SA = DynamicArray;
     import std.traits : isIterable;
     import std.range.primitives : isInputRange;
     alias C = SA!int;
@@ -233,7 +233,7 @@ alias intoGenerator = intoUniqueRange;
 /// combined with Phobos ranges
 @safe pure nothrow unittest
 {
-    import nxt.basic_array : SA = DynamicArray;
+    import nxt.dynamic_array : SA = DynamicArray;
     alias C = SA!int;
     assert(C([11, 13, 15, 17].s)
            .intoUniqueRange()
@@ -701,7 +701,7 @@ struct UniqueTake(Range)
 /// array range
 @safe pure nothrow @nogc unittest
 {
-    import nxt.basic_array : SA = DynamicArray;
+    import nxt.dynamic_array : SA = DynamicArray;
     import std.traits : isIterable;
     import std.range.primitives : isInputRange;
     alias C = SA!int;

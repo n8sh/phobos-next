@@ -190,7 +190,7 @@ private:
     Appender!(E[]) _lbuf;       // line buffer
 
     // NOTE this is slower for ldc:
-    // import nxt.basic_array : Array;
+    // import nxt.dynamic_array : Array;
     // Array!E _lbuf;
 
     E _separator;

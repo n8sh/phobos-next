@@ -53,7 +53,7 @@ void main(string[] args)
 {
     immutable n = 10_000_000;
 
-    import nxt.basic_array : BasicArray;
+    import nxt.dynamic_array : BasicArray;
     import std.array : Appender;
 
     {

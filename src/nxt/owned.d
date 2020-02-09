@@ -407,6 +407,6 @@ nothrow unittest
 
 version(unittest)
 {
-    import nxt.basic_array : UniqueArray = DynamicArray;
+    import nxt.dynamic_array : UniqueArray = DynamicArray;
     import nxt.dbgio;
 }

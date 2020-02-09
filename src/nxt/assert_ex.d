@@ -6,7 +6,7 @@
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
     Authors: $(WEB Per Nordlöw)
 
-    TODO make these @safe pure nothrow @nogc by utilizing basic_array and printf
+    TODO make these @safe pure nothrow @nogc by utilizing dynamic_array and printf
 
     extend to something like:
 

@@ -8,7 +8,7 @@ void main()
     import nxt.sso_string : String = SSOString;
     import nxt.open_hashmap_or_hashset : HashSet = OpenHashSet;
     import nxt.open_hashmap_or_hashset : HashMap = OpenHashMap;
-    import nxt.basic_array : Array = BasicArray;
+    import nxt.dynamic_array : Array = BasicArray;
 
     alias Strs = HashSet!(String);
 

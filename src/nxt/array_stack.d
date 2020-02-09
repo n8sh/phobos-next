@@ -2,7 +2,7 @@
     See_Also: http://forum.dlang.org/thread/wswbtzakdvpgaebuhbom@forum.dlang.org
 */
 
-import nxt.basic_array : Stack = DynamicArray;
+import nxt.dynamic_array : Stack = DynamicArray;
 
 @safe pure nothrow @nogc unittest
 {

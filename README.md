@@ -10,7 +10,7 @@ Includes
 
 ## Containers
 - `trie.d`: Trie for prefix completion.
-- `basic_array.d`: Basic uncopyable array with value semantics and explicit
+- `dynamic_array.d`: Basic uncopyable array with value semantics and explicit
   copying via `.dup`.
 - `bitarray.d`: Bit array.
 - `open_hashmap_or_hashset.d`: Combined hashset and hashmap with open addressing

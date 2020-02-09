@@ -2462,7 +2462,7 @@ unittest
 {
     version(showEntries) dbg();
 
-    import nxt.basic_array : Array = DynamicArray;
+    import nxt.dynamic_array : Array = DynamicArray;
 
     alias K = Nullable!(uint, uint.max);
 
@@ -3663,7 +3663,7 @@ version(unittest)
 
             static if (X.hasValue)
             {
-                import nxt.basic_array : Array = DynamicArray;
+                import nxt.dynamic_array : Array = DynamicArray;
                 Array!(X.ElementType) a1; // remember the keys
 
                 foreach (const ref key; x1.byKey)
@@ -3699,7 +3699,7 @@ version(unittest)
 {
     version(showEntries) dbg();
     alias X = OpenHashMapOrSet!(Nullable!(size_t, size_t.max), size_t, FNV!(64, true));
-    import nxt.basic_array : Array = DynamicArray;
+    import nxt.dynamic_array : Array = DynamicArray;
     X x;
     // TODO these segfault:
     // TODO auto a = Array!(X.KeyType).withElementsOfRange_untested(x.byKey); // l-value byKey

@@ -1,4 +1,4 @@
-module nxt.basic_array;
+module nxt.dynamic_array;
 
 // version = debugCtors;
 

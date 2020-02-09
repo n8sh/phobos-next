@@ -27,7 +27,7 @@ enum TOK
 
     comma,                      ///< Lisp comma expression, `,`.
     backquote,                  ///< Lisp backquote expression, `\``.
-    singlequote,                ///< Lisp singlequote expression.
+    singlequote,                ///< Lisp singlequote expression, `'`.
 
     variable,
     variableList, ///< one or more variables (parameters) starting with an at-sign, for instance `@ROW`

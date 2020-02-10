@@ -11,8 +11,11 @@ static class LightAlgebraicException : Exception
     }
 }
 
-/** Light-Weight Version of $(D std.variant.Algebraic) that, when possible,
- * provides `@safe pure nothrow @nogc` and more space-efficient storage (packing).
+/** Light-weight version of $(D std.variant.Algebraic) that doesn't rely on TypeInfo.
+ *
+ * Member functions are, when possible, `@safe pure nothrow @nogc`.
+ *
+ * Storage (packing) is more space-efficient.
  *
  * TODO support implicit conversions of (un)signed integer type to larger type
  * See_Also: https://forum.dlang.org/post/jfasmgwoffmbtuvrtxey@forum.dlang.org

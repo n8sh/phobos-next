@@ -272,7 +272,7 @@ private:
     Input getSymbol() return nothrow @nogc
     {
         size_t i = 0;
-        while ((!peekNextNth(i).among!('\0', '(', ')', whiteChars))) // NOTE this is faster than !src[i].isWhite
+        while ((!peekNextNth(i).among!('\0', '(', ')', '"', whiteChars))) // NOTE this is faster than !src[i].isWhite
         {
             ++i;
         }
@@ -291,7 +291,7 @@ private:
         if (peekNextNth(i).isAlpha) // if followed by letter
         {
             size_t alphaCount = 0;
-            while ((!peekNextNth(i).among!('\0', '(', ')', whiteChars))) // NOTE this is faster than !src[i].isWhite
+            while ((!peekNextNth(i).among!('\0', '(', ')', '"', whiteChars))) // NOTE this is faster than !src[i].isWhite
             {
                 alphaCount += peekNextNth(i).isAlpha;
                 ++i;

@@ -23,8 +23,8 @@ import core.internal.traits : Unqual;
  * See_Also: https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md
  */
 struct DynamicArray(T,
-                  alias Allocator = null, // null means means to qcmeman functions. TODO use `PureMallocator` by default
-                  CapacityType = size_t)  // see also https://github.com/izabera/s
+                    alias Allocator = null, // null means means to qcmeman functions. TODO use `PureMallocator` by default
+                    CapacityType = size_t)  // see also https://github.com/izabera/s
 if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     (is(CapacityType == ulong) ||        // 3 64-bit words
      is(CapacityType == uint)))          // 2 64-bit words

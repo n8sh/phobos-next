@@ -5,8 +5,6 @@ module nxt.meta_ex;
 import std.range.primitives : isInputRange;
 import std.meta : AliasSeq, aliasSeqOf;
 
-alias toAliasSeq = aliasSeqOf;
-
 @safe pure nothrow @nogc unittest
 {
     import std.range : iota;

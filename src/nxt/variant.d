@@ -214,7 +214,10 @@ public:
         return get!(Types[index]);
     }
 
-    /// Interpret data as type $(D T).
+    /** Interpret data as type $(D T).
+     *
+     * See_Also: https://forum.dlang.org/post/thhrulbqsxbtzoyojqwx@forum.dlang.org
+     */
     private @property auto ref inout(T) as(T)() inout @trusted nothrow @nogc
     {
         static if (_store.alignof >= T.alignof)

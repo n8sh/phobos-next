@@ -38,7 +38,7 @@ static class LightAlgebraicException : Exception
  * See_Also: https://issues.dlang.org/show_bug.cgi?id=15399
  */
 private struct LightAlgebraic(bool memoryPacked = false,
-                              TypesParam...)
+                              Types...)
 {
     @safe:
 
@@ -46,14 +46,13 @@ private struct LightAlgebraic(bool memoryPacked = false,
     enum maxTypesCount = 2^^(Ix.sizeof * 8) - 1; // maximum number of allowed type parameters
 
     import core.internal.traits : Unqual;
-    import std.meta : anySatisfy, allSatisfy, staticIndexOf, NoDuplicates;
+    import std.meta : anySatisfy, allSatisfy, staticIndexOf;
     import std.traits : StdCommonType = CommonType, hasIndirections, isCopyable, hasAliasing;
     import nxt.traits_ex : isComparable, isEquable, sizesOf, stringsOf, allSame;
 
 public:
 
     enum name = LightAlgebraic.stringof;
-    alias Types = NoDuplicates!TypesParam;
     alias CommonType = StdCommonType!Types;
     enum hasCommonType = !is(CommonType == void);
 
@@ -583,11 +582,6 @@ unittest
 }
 
 pure:
-
-nothrow @nogc unittest
-{
-    static assert(FastAlgebraic!(float, float, double).typeCount == 2);
-}
 
 nothrow @nogc unittest
 {

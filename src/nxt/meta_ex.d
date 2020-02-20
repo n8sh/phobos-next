@@ -3,9 +3,7 @@ module nxt.meta_ex;
 @safe:
 
 import std.range.primitives : isInputRange;
-import std.meta : AliasSeq;
-
-import std.meta : aliasSeqOf;
+import std.meta : AliasSeq, aliasSeqOf;
 
 alias toAliasSeq = aliasSeqOf;
 

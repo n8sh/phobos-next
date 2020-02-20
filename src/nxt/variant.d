@@ -11,7 +11,7 @@ static class LightAlgebraicException : Exception
     }
 }
 
-/** Lightweight version of $(D std.variant.Algebraic) that doesn't rely on TypeInfo.
+/** Lightweight version of $(D std.variant.Algebraic) that doesn't rely on `TypeInfo`.
  *
  * Member functions are, when possible, `@safe pure nothrow @nogc`.
  *

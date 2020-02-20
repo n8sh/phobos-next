@@ -47,7 +47,7 @@ private struct LightAlgebraic(bool memoryPacked = false,
 
     import core.internal.traits : Unqual;
     import std.meta : anySatisfy, allSatisfy, staticIndexOf;
-    import std.traits : StdCommonType = CommonType, hasIndirections, isCopyable, hasAliasing;
+    import std.traits : StdCommonType = CommonType, hasIndirections, hasAliasing;
     import nxt.traits_ex : isComparable, isEquable, sizesOf, stringsOf, allSame;
 
 public:

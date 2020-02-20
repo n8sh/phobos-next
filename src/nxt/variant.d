@@ -554,10 +554,9 @@ private:
 }
 
 alias FastAlgebraic(Types...) = LightAlgebraic!(false, Types);
+alias Algebraic = FastAlgebraic;
 
 alias PackedAlgebraic(Types...) = LightAlgebraic!(true, Types);
-
-alias Algebraic = FastAlgebraic;
 
 /// Copied from std.variant.
 private static template maxSize(T...)

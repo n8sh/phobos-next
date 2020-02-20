@@ -218,7 +218,7 @@ public:
      *
      * See_Also: https://forum.dlang.org/post/thhrulbqsxbtzoyojqwx@forum.dlang.org
      */
-    private @property auto ref inout(T) as(T)() inout @trusted nothrow @nogc
+    private @property auto ref inout(T) as(T)() inout @system nothrow @nogc
     {
         static if (_store.alignof >= T.alignof)
         {
@@ -310,7 +310,7 @@ public:
     }
 
     /// Blindly Implicitly Convert Stored Value in $(D U).
-    private U convertTo(U)() const @safe nothrow
+    private U convertTo(U)() const @trusted nothrow
     {
         assert(hasValue);
         final switch (typeIndex)
@@ -325,7 +325,7 @@ public:
 
     static if (hasCommonType)
     {
-        CommonType commonValue() const @safe pure nothrow @nogc
+        CommonType commonValue() const @trusted pure nothrow @nogc
         {
             assert(hasValue);
             final switch (typeIndex)

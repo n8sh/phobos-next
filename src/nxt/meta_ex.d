@@ -3,7 +3,7 @@ module nxt.meta_ex;
 @safe:
 
 import std.range.primitives : isInputRange;
-import std.meta : NoDuplicates, AliasSeq;
+import std.meta : AliasSeq;
 
 import std.meta : aliasSeqOf;
 
@@ -17,9 +17,6 @@ alias toAliasSeq = aliasSeqOf;
         // pragma(msg, i);
     }
 }
-
-alias Deduplicate = NoDuplicates;
-alias Uniq = NoDuplicates;
 
 /**
    See_Also: http://forum.dlang.org/post/sulxqtfprmkeekjatqup@forum.dlang.org

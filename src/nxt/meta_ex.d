@@ -18,7 +18,7 @@ import std.meta : AliasSeq, aliasSeqOf;
    See_Also: http://forum.dlang.org/post/sulxqtfprmkeekjatqup@forum.dlang.org
 */
 template Merge1(A...)
-    if (!(A.length & 1))
+if (!(A.length & 1))
 {
     static if (A.length == 0)
     {
@@ -135,7 +135,7 @@ import std.functional : unaryFun;
  * See_Also: https://forum.dlang.org/post/zjxmreegqkxgdzvihvyk@forum.dlang.org
  */
 auto forwardMap(alias fun, Ts...)(Ts xs)
-    if (is(typeof(unaryFun!(fun))))
+if (is(typeof(unaryFun!(fun))))
 {
     import std.meta : staticMap;
     alias MappedTypeOf(T) = typeof(fun(T.init));

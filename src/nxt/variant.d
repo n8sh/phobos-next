@@ -424,7 +424,7 @@ public:
                 if (_tix != that._tix)
                 {
                     throw new LightAlgebraicException("Cannot compare LightAlgebraic of type " ~ typeNamesRT[typeIndex] ~
-                                             " with LightAlgebraic of type " ~ typeNamesRT[that.typeIndex]);
+                                                      " with LightAlgebraic of type " ~ typeNamesRT[that.typeIndex]);
                 }
             }
 

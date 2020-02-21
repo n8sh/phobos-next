@@ -164,7 +164,7 @@ public:
     }
 
     LightAlgebraic opAssign(T)(T that) @trusted nothrow @nogc
-        if (allowsAssignmentFrom!T)
+    if (allowsAssignmentFrom!T)
     {
         import core.lifetime : moveEmplace;
 

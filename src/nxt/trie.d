@@ -5251,8 +5251,7 @@ if (Keys.length != 0)
 
         auto sw2 = StopWatch(AutoStart.yes);
 
-        void testPrefix()
-            @trusted
+        void testPrefix() @trusted
         {
             assert(set[].equal(sortedKeys));
             import std.algorithm : filter, map;
@@ -5429,8 +5428,7 @@ unittest
 /** Generate `count` number of random unique strings of minimum length 1 and
     maximum length of `maxLength`.
  */
-private static auto randomUniqueSortedStrings(size_t count, uint maxLength)
-    @trusted pure nothrow
+private static auto randomUniqueSortedStrings(size_t count, uint maxLength) @trusted pure nothrow
 {
     import std.random : Random, uniform;
     auto gen = Random();
@@ -5550,14 +5548,12 @@ unittest
     testWords!size_t;
 }
 
-static private void testSlice(T)(ref T x)
-    @trusted
+static private void testSlice(T)(ref T x) @trusted
 {
     auto xr = x[];
 }
 
-bool testEqual(T, U)(ref T x, ref U y)
-    @trusted
+bool testEqual(T, U)(ref T x, ref U y) @trusted
 {
     import std.algorithm : equal;
     return equal(x[], y[]);

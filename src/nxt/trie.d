@@ -5111,9 +5111,10 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
     size_t totalBytesUsed = 0;
 
     // Node-usage
-    foreach (immutable RT.NodeType.Ix ix, pop; stats.popByNodeType) // TODO use stats.byPair when added to typecons_ex.d
+    foreach (const index, const pop; stats.popByNodeType) // TODO use stats.byPair when added to typecons_ex.d
     {
         size_t bytesUsed = 0;
+        const ix = cast(RT.NodeType.Ix)index;
         final switch (ix) with (RT.NodeType.Ix)
         {
         case undefined: continue; // ignore

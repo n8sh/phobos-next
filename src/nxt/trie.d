@@ -5,12 +5,12 @@
     $(LI `RawRadixTree` stores its untyped keys as variable length ubyte-strings (`UKey`))
     $(LI On top of that `RadixTree` implements typed-key access via its template parameter `Key`.)
     )
-    Both layers currently
+    Both layers currently support
     $(UL
-    $(LI have template parameterization on the `Value`-type in the map case (when `Value` is non-`void`))
-    $(LI are completely `@nogc` and, when possible, `@safe pure nothrow`)
-    $(LI Insertion with returned modifications status: `auto newKeyWasInserted = set.insert(Key key)`)
-    $(LI Support AA-style `in`-operator)
+    $(LI template parameterization on the `Value`-type in the map case (when `Value` is non-`void`))
+    $(LI `@nogc` and, when possible, `@safe pure nothrow`)
+    $(LI insertion with returned modifications status: `auto newKeyWasInserted = set.insert(Key key)`)
+    $(LI AA-style `in`-operator)
       $(UL
       $(LI `key in set` is `bool` for set-case)
       $(LI `key in map` returns non-`null` `value` pointer when `key` is stored in `map`)
@@ -18,9 +18,9 @@
     $(LI AA-style iteration of map keys: `map.byKey()`)
     $(LI AA-style iteration of map values: `map.byValue()`)
     $(LI `SortedRange`-style iteration over elements sorted by key: `assert(set[].isSorted)`)
-    $(LI Containment checking: `bool contains(in Key key)`)
-    $(LI Elt indexing and element index assignment for map case via `opIndex` and `opIndexAssign`)
-    $(LI Key-Prefix Completion (returning a `Range` over all set/map-elements that match a key prefix): `prefix(Key keyPrefix)`)
+    $(LI containment checking: `bool contains(in Key key)`)
+    $(LI element indexing and element index assignment for map case via `opIndex` and `opIndexAssign`)
+    $(LI key-prefix Completion (returning a `Range` over all set/map-elements that match a key prefix): `prefix(Key keyPrefix)`)
     )
     Typed layer supports
     $(UL

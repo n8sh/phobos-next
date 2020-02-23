@@ -1,4 +1,4 @@
-/** Bounded Arithmetic Wrapper Type, similar to Ada Range/Interval Types.
+/** Bounded arithmetic wrapper type, similar to Ada's range/interval types.
 
     Copyright: Per Nordlöw 2018-.
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).

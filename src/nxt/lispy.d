@@ -18,8 +18,8 @@ enum TOK
 {
     unknown,                    ///< Unknown.
 
-    leftParen,                  ///< Left parenthesis, `(`.
-    rightParen,                 ///< Right parenthesis, `)`.
+    leftParen,                  ///< Left parenthesis.
+    rightParen,                 ///< Right parenthesis.
 
     symbol,                     ///< Symbol.
 

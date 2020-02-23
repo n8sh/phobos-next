@@ -4,3 +4,4 @@
 dub.selections.json
 *.lst
 phobos-next-test-library
+docs

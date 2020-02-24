@@ -73,8 +73,9 @@ struct BiMap(X, Y,
         return _right;
     }
 
-    LeftMap _left;
-    RightMap _right;
+private:
+    LeftMap _left;              ///< Left map.
+    RightMap _right;            ///< Right map.
 }
 
 @safe pure nothrow:

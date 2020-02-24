@@ -1,5 +1,7 @@
 module nxt.bimap;
 
+@safe pure:
+
 /** Bidirectional map between key-and-values of type `X` and `Y` inspired by C++
     Boost Bimap (`boost::bimap`).
 
@@ -8,6 +10,7 @@ module nxt.bimap;
 struct BiMap(X, Y,
              alias Map = Y[X])
 {
+@safe pure nothrow:
     alias LeftMap = Map!(X, Y);
     alias RightMap = Map!(Y, X);
 
@@ -39,7 +42,7 @@ struct BiMap(X, Y,
         _right.clear();
     }
 
-    @safe pure nothrow @nogc:
+@nogc:
 
     /// Check if empty.
     bool empty() const

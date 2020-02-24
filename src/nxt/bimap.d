@@ -23,7 +23,8 @@ struct BiMap(X, Y,
     }
 
     /// Check if (`x`, `y`) is stored.
-    bool contains(in X x, in Y y) const
+    bool contains(scope const X x,
+                  scope const Y y) const
     {
         version(LDC) pragma(inline, true);
         // TODO do this symmetric?

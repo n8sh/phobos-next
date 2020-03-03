@@ -900,7 +900,12 @@ pragma(inline):
         }
     }
 
-    /** Pop back element and return it. */
+    /** Pop back element and return it.
+     *
+     * This is well-missed feature of C++'s `std::vector` because of problems
+     * with exception handling. For more details see
+     * https://stackoverflow.com/questions/12600330/pop-back-return-value.
+     */
     T backPop()() @trusted      // template-lazy
     {
         pragma(inline, true);

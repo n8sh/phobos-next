@@ -592,7 +592,7 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     static assert(mustAddGCRange!S); // `Large large.ptr` must be scanned
 
     static assert(__traits(isZeroInit, S));
-    // TODO static assert(S.init == S.nullValue);
+    // TODO assert(S.init == S.nullValue);
 
     auto s0 = S.init;
     assert(s0.isNull);

@@ -20,6 +20,7 @@ module nxt.sso_string;
  * TODO Add to Phobos' std.typecons or std.array or std.string
  *
  * See_Also: https://forum.dlang.org/post/pb87rn$2icb$1@digitalmars.com
+ * See_Also: https://issues.dlang.org/show_bug.cgi?id=18792
  *
  * TODO Use extra bits in Short.length for
  * - lowercase English into 128/5 = 25 chars
@@ -871,6 +872,7 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
         static assert(!__traits(compiles, { immutable(char)* f1() @safe pure nothrow { S x; return x.ptr; } }));
         static assert(!__traits(compiles, { immutable(char)* f1() @safe pure nothrow { const S x; return x.ptr; } }));
         static assert(!__traits(compiles, { immutable(char)* f1() @safe pure nothrow { immutable S x; return x.ptr; } }));
+        // TODO static assert(!__traits(compiles, { string f1() @safe pure nothrow { immutable S x; return x[]; } }));
     }
 
     // large will never allocate regardless of head-mutability

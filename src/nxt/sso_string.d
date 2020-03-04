@@ -872,7 +872,12 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
         static assert(!__traits(compiles, { immutable(char)* f1() @safe pure nothrow { S x; return x.ptr; } }));
         static assert(!__traits(compiles, { immutable(char)* f1() @safe pure nothrow { const S x; return x.ptr; } }));
         static assert(!__traits(compiles, { immutable(char)* f1() @safe pure nothrow { immutable S x; return x.ptr; } }));
-        // TODO static assert(!__traits(compiles, { string f1() @safe pure nothrow { immutable S x; return x[]; } }));
+
+        /** TODO Enable the following line when DIP-1000 works for opSlice()
+         *
+         * See_Also: https://issues.dlang.org/show_bug.cgi?id=18792
+         */
+        // static assert(!__traits(compiles, { string f1() @safe pure nothrow { immutable S x; return x[]; } }));
     }
 
     // large will never allocate regardless of head-mutability

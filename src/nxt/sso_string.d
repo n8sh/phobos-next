@@ -264,7 +264,7 @@ pure:
         else                    // fast path for small string
         {
             import nxt.hash_functions : wangMixHash64;
-            return (wangMixHash64(words[0] >> 1) ^ // shift away LS-bit always being zero
+            return (wangMixHash64(words[0] >> 1) ^ // shift away LS-bit always being one
                     wangMixHash64(words[1]));
         }
     }

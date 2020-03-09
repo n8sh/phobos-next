@@ -17,6 +17,8 @@ module nxt.sso_string;
  *
  * NOTE big-endian platforms should be supported but this hasn't been verified.
  *
+ * TODO Add @trusted wrappers large() and small() to try to make DIP-1000 kick in in `opSlice`
+ *
  * TODO Add to Phobos' std.typecons or std.array or std.string
  *
  * See_Also: https://forum.dlang.org/post/pb87rn$2icb$1@digitalmars.com

@@ -301,11 +301,12 @@ pure:
         if (isLarge)
         {
             return cast(typeof(return))raw.ptr[0 .. decodeRawLength(raw.length)]; // no allocation
-            // alternative:  return large.ptr[0 .. large.length/2];
+            // return getLarge();
         }
         else
         {
             return cast(typeof(return))small.data.ptr[0 .. decodeRawLength(small.length)]; // scoped
+            // return getSmall();
         }
     }
 
@@ -317,6 +318,17 @@ pure:
     {
         pragma(inline, true);
         return opSlice()[i .. j];
+    }
+
+    private inout(E)[] getLarge() inout return scope @trusted @nogc
+    {
+        return cast(typeof(return))raw.ptr[0 .. decodeRawLength(raw.length)]; // no allocation
+        // alternative:  return large.ptr[0 .. large.length/2];
+    }
+
+    private inout(E)[] getSmall() inout return scope @trusted @nogc
+    {
+        return cast(typeof(return))small.data.ptr[0 .. decodeRawLength(small.length)]; // scoped
     }
 
     /** Return the `index`ed `char` of `this`.
@@ -429,7 +441,7 @@ pure:
 private:
 
     /** Returns: `true` iff this is a large string, otherwise `false.` */
-    @property bool isLarge() const @trusted
+    @property bool isLarge() const scope @trusted
     {
         pragma(inline, true);
         return !(large.length & (1 << largeLengthTagBitOffset)); // first bit discriminates small from large

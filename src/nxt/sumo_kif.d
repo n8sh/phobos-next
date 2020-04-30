@@ -2,7 +2,7 @@
  *
  * SUO-KIF is used the default encoding of the SUMO ontology.
  */
-module nxt.suo_kif;
+module nxt.sumo_kif;
 
 @safe:
 

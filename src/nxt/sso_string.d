@@ -859,22 +859,22 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     // mutable small will GC-allocate
     {
         S s = S("123456789_12345");
-        assert(s.ptr is s.opSlice.ptr);
-        assert(s.ptr !is s.toString.ptr);
+        assert(s.ptr is &s.opSlice()[0]);
+        assert(s.ptr !is &s.toString()[0]);
     }
 
     // const small will GC-allocate
     {
         const S s = S("123456789_12345");
-        assert(s.ptr is s.opSlice.ptr);
-        assert(s.ptr !is s.toString.ptr);
+        assert(s.ptr is &s.opSlice()[0]);
+        assert(s.ptr !is &s.toString()[0]);
     }
 
     // immutable small will not allocate
     {
         immutable S s = S("123456789_12345");
-        assert(s.ptr is s.opSlice.ptr);
-        assert(s.ptr is s.toString.ptr);
+        assert(s.ptr is &s.opSlice()[0]);
+        assert(s.ptr is &s.toString()[0]);
         // TODO check return via -dip1000
     }
 
@@ -897,8 +897,8 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     // large will never allocate regardless of head-mutability
     {
         S s = S("123456789_123456");
-        assert(s.ptr is s.opSlice.ptr);
-        assert(s.ptr is s.toString.ptr); // shouldn't this change?
+        assert(s.ptr is &s.opSlice()[0]);
+        assert(s.ptr is &s.toString()[0]); // shouldn't this change?
     }
 }
 

@@ -2390,7 +2390,7 @@ unittest
         return x.byElement.front;
     }
 
-    assert("a".ptr is "a".ptr); // string literals are store in common place
+    assert(&"a"[0] is &"a"[0]); // string literals are store in common place
 
     const aa = "aa";
 

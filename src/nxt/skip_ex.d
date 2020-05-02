@@ -185,7 +185,7 @@ if (Ranges.length >= 2)
     {
         // get needle lengths
         size_t[needles.length] lengths;
-        foreach (const index, const ref needle; needles)
+        foreach (const index, ref needle; needles)
         {
             import std.traits : isSomeString, isSomeChar;
             import std.range.primitives : ElementType;

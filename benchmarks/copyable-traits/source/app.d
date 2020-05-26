@@ -6,7 +6,7 @@ struct W(T, size_t n)
     T value;
 }
 
-void main()
+@safe pure unittest
 {
     alias Ts(uint n) = AliasSeq!(W!(byte, n), W!(ubyte, n),
                                  W!(short, n), W!(ushort, n),
@@ -17,12 +17,17 @@ void main()
                                  W!(real, n), W!(creal, n),
                                  W!(string, n), W!(wstring, n), W!(dstring, n));
 
-    enum n = 5000;              // number of different sets of instantations of Ts
+    enum n = 100;
+    enum m = 100;
     static foreach (i; 0 .. n)
     {
-        static foreach (T; Ts!(n))
+        foreach (T; Ts!(n))
         {
-            static assert(isCopyable!(T));
+            static foreach (j; 0 .. m)
+            {
+                static assert(isCopyable!(T));
+                // static assert(__traits(isCopyable, T));
+            }
         }
     }
 }

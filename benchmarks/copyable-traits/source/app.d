@@ -25,8 +25,8 @@ struct W(T, size_t n)
         {
             static foreach (j; 0 .. m)
             {
-                static assert(isCopyable!(T));
-                // static assert(__traits(isCopyable, T));
+                static assert(__traits(isCopyable, T));
+                // static assert(isCopyable!(T));
             }
         }
     }

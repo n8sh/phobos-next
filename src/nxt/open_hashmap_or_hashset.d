@@ -803,7 +803,8 @@ if (isNullable!K
         version(LDC) pragma(inline, true);
 
         assert(!key.isNull);
-        static if (hasHoleableKey) { assert(!isHoleKeyConstant(cast(K)adjustKeyType(key))); }
+        pragma(msg, K, " ", typeof(adjustKeyType(key)));
+        static if (hasHoleableKey) { assert(!isHoleKeyConstant(cast(const(K))adjustKeyType(key))); }
 
         static if (_useSmallLinearSearch)
         {
@@ -849,7 +850,7 @@ if (isNullable!K
     if (isScopedKeyType!(typeof(key)))
     {
         assert(!key.isNull);
-        static if (hasHoleableKey) { assert(!isHoleKeyConstant(cast(K)adjustKeyType(key))); }
+        static if (hasHoleableKey) { assert(!isHoleKeyConstant(cast(const(K))adjustKeyType(key))); }
 
         static if (isInstanceOf!(Nullable, SomeKey))
         {

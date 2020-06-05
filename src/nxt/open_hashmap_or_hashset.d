@@ -803,7 +803,6 @@ if (isNullable!K
         version(LDC) pragma(inline, true);
 
         assert(!key.isNull);
-        pragma(msg, K, " ", typeof(adjustKeyType(key)));
         static if (hasHoleableKey) { assert(!isHoleKeyConstant(cast(const(K))adjustKeyType(key))); }
 
         static if (_useSmallLinearSearch)

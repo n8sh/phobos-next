@@ -169,7 +169,7 @@ struct SSOOpenHashSet(K,
         moveEmplace(large, largeCopy); // TODO no need to reset `large`
 
         size_t count = 0;
-        foreach (ref e; largeCopy.rawBins)
+        foreach (ref e; largeCopy.rawStore)
         {
             if (e.isNull) { continue; }
             static if (Large.hasAddressLikeKey)
@@ -241,7 +241,7 @@ struct SSOOpenHashSet(K,
         pragma(inline, true);
         if (isLarge)
         {
-            return large.rawBins;
+            return large.rawStore;
         }
         else
         {
@@ -250,8 +250,6 @@ struct SSOOpenHashSet(K,
     }
 
 private:
-    enum borrowChecked = false; // only works if set is not borrow checked
-
     bool isLarge() const pure nothrow @trusted @nogc
     {
         pragma(inline, true);
@@ -263,7 +261,7 @@ private:
 
     union
     {
-        alias Large = OpenHashSet!(K, hasher, Allocator, borrowChecked);
+        alias Large = OpenHashSet!(K, hasher);
         Large large;
         static struct Small
         {

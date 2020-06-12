@@ -217,7 +217,6 @@ auto whirlpoolOf(T...)(T data)
 alias WhirlpoolDigest = WrapperDigest!Whirlpool;
 
 ///
-version(none)
 unittest
 {
     import nxt.digestx.whirlpool;

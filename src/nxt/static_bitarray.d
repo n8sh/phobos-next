@@ -840,10 +840,10 @@ struct StaticBitArray(uint length_, Block = size_t)
          */
         size_t indexOfFirstOne()() const
         {
-            import nxt.bitarray_algorithm;
+            import nxt.bitarray_algorithm : ba_indexOfFirstOne = indexOfFirstOne;
             enum bool blockAlignedLength = length_ % (8*Block.sizeof) == 0;
-            return bitarray_algorithm.indexOfFirstOne!(const(Block)[blockCount],
-                                                       blockAlignedLength)(_blocks, length);
+            return ba_indexOfFirstOne!(const(Block)[blockCount],
+                                       blockAlignedLength)(_blocks, length);
         }
 
         /** Get number of bits set. */

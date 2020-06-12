@@ -12,8 +12,8 @@ import std.range.primitives : ElementType, isRandomAccessRange;
     See_Also: http://forum.dlang.org/thread/nqwzojnlidlsmpunpqqy@forum.dlang.org#post-dmfvkbfhzigecnwglrur:40forum.dlang.org
  */
 auto sortBy(alias xtor, R)(R r)
-    if (isRandomAccessRange!R &&
-        isAggregateType!(ElementType!R))
+if (isRandomAccessRange!R &&
+    isAggregateType!(ElementType!R))
 {
     import std.algorithm : sort;
     import std.functional : unaryFun;
@@ -25,8 +25,8 @@ auto sortBy(alias xtor, R)(R r)
     See_Also: http://forum.dlang.org/thread/nqwzojnlidlsmpunpqqy@forum.dlang.org#post-dmfvkbfhzigecnwglrur:40forum.dlang.org
 */
 auto rsortBy(alias xtor, R)(R r)
-    if (isRandomAccessRange!R &&
-        isAggregateType!(ElementType!R))
+if (isRandomAccessRange!R &&
+    isAggregateType!(ElementType!R))
 {
     import std.algorithm : sort;
     import std.functional : unaryFun;

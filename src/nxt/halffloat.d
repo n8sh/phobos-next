@@ -289,7 +289,7 @@ unittest
         ushort u = floatToShort(s.f);
         if (u != s.u)
         {
-            printf("[%d] %g %04x expected %04x\n", i, s.f, u, s.u);
+            printf("[%llu] %g %04x expected %04x\n", i, s.f, u, s.u);
             assert(0);
         }
     }
@@ -379,7 +379,7 @@ unittest
         float f = shortToFloat(s.u);
         if (f != s.f)
         {
-            printf("[%d] %04x %g expected %g\n", i, s.u, f, s.f);
+            printf("[%llu] %04x %g expected %g\n", i, s.u, f, s.f);
             assert(0);
         }
     }

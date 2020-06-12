@@ -418,6 +418,8 @@ auto byElement(Table)(auto ref return Table c) @trusted
 }
 alias range = byElement;        // EMSI-container naming
 
+version(none):                  // TODO enable
+
 /// start small and expand to large
 @safe pure nothrow unittest
 {

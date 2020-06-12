@@ -109,6 +109,7 @@ if (isSet!C &&
 }
 
 /// inplace filtering on hashset
+version(none)                   // TODO activate
 @safe pure nothrow @nogc unittest
 {
     import std.algorithm.iteration : filter;

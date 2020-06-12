@@ -13,7 +13,7 @@ enum SuppressOptions
  * See_Also: http://forum.dlang.org/post/dxakoknmzblxpgiibfmu@forum.dlang.org
  */
 struct Suppress(T, SuppressOptions options)
-    if (options != 0)
+if (options != 0)
 {
     import std.traits : isCopyable;
     private enum suppressPostblit   = (options & SuppressOptions.postblit)   != 0;

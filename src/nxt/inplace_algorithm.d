@@ -109,7 +109,7 @@ if (isSet!C &&
 }
 
 /// inplace filtering on hashset
-version(none)                   // TODO activate
+version(none)                   // TODO activate or remove SSOHashSet
 @safe pure nothrow @nogc unittest
 {
     import std.algorithm.iteration : filter;

@@ -48,8 +48,14 @@ if (isSomeString!S)
     import std.utf : byUTF;
 
     // TODO functionize
-    static if (isNarrowString!S) return s.byUTF!dchar.map!(ch => ch.toLower);
-    else                         return t.map!(ch => ch.toLower);
+    static if (isNarrowString!S)
+    {
+        return s.byUTF!dchar.map!(ch => ch.toLower);
+    }
+    else
+    {
+        return t.map!(ch => ch.toLower);
+    }
 }
 
 ///

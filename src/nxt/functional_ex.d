@@ -1,3 +1,5 @@
+module nxt.functional_ex;
+
 import std.traits;
 import std.conv;
 import std.variant;
@@ -54,7 +56,7 @@ unittest
 }
 
 /** Turn the function what into a curried function.
- * 
+ *
  * See_Also: https://stackoverflow.com/questions/58147381/template-for-currying-functions-in-d
  */
 template autocurry(alias Fun)

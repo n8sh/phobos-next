@@ -1,3 +1,5 @@
+module nxt.graph;
+
 @safe pure nothrow:
 
 import std.array : Appender;

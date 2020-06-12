@@ -1,3 +1,5 @@
+module nxt.array_stack;
+
 /** Stack.
     See_Also: http://forum.dlang.org/thread/wswbtzakdvpgaebuhbom@forum.dlang.org
 */

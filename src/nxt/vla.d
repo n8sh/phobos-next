@@ -7,8 +7,8 @@ module nxt.vla;
     Construction is done using `malloc` plus `emplace`.
 */
 T* constructVariableLength(T, Args...)(size_t requiredCapacity, Args args) @trusted
-    if (is(T == struct) ||
-        is(T == class))
+if (is(T == struct) ||
+    is(T == class))
 {
     import std.math : nextPow2;
     import std.algorithm : clamp;

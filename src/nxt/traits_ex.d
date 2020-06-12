@@ -950,7 +950,7 @@ template sizesOf(T...)          // TODO Add to Phobos
 }
 
 ///
-@safe pure nothrow @nogc unittest
+@safe pure nothrow unittest
 {
     enum sizes = sizesOf!(bool, short, int, long);
 

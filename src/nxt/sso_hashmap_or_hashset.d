@@ -567,7 +567,7 @@ struct SSOHashMapOrSet(K, V = void,
                     {
                         import nxt.concatenation : concatenate;
                         auto smallCopy = concatenate(_bins[binIx].small, element);
-                        emplace!(LargeBin)(&_bins[binIx].large, smallCopy[]);
+                        emplace!(LargeBin)(&_bins[binIx].large, smallCopy);
                     }
                     _bstates[binIx].makeLarge();
                 }
@@ -807,7 +807,7 @@ struct SSOHashMapOrSet(K, V = void,
         }
 
         /// Returns forward range that iterates through the keys of `this`.
-        @property scope auto byKey()() inout return // template-lazy property
+        @property scope auto byKey()() inout return @trusted // template-lazy property
         {
             alias This = ConstThis;
             auto result = ByKey!This((LvalueElementRef!This(cast(This*)&this)));
@@ -828,7 +828,7 @@ struct SSOHashMapOrSet(K, V = void,
         }
 
         /// Returns forward range that iterates through the values of `this`.
-        @property scope auto byValue()() inout return // template-lazy property
+        @property scope auto byValue()() inout return @trusted // template-lazy property
         {
             alias This = ConstThis;
             auto result = ByValue!This((LvalueElementRef!This(cast(This*)&this)));
@@ -857,7 +857,7 @@ struct SSOHashMapOrSet(K, V = void,
         }
 
         /// Returns forward range that iterates through the keys and values of `this`.
-        @property scope auto byKeyValue()() return // template-lazy property
+        @property scope auto byKeyValue()() return @trusted // template-lazy property
         {
             alias This = MutableThis;
             auto result = ByKeyValue!This((LvalueElementRef!This(cast(This*)&this)));
@@ -865,7 +865,7 @@ struct SSOHashMapOrSet(K, V = void,
             return result;
         }
         /// ditto
-        @property scope auto byKeyValue()() const return // template-lazy property
+        @property scope auto byKeyValue()() const return @trusted // template-lazy property
         {
             alias This = ConstThis;
             auto result = ByKeyValue!This((LvalueElementRef!This(cast(This*)&this)));
@@ -1341,8 +1341,6 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     }
 }
 
-version(none):
-
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {
@@ -1529,7 +1527,7 @@ pure nothrow @nogc unittest
             {
                 X q;
                 auto qv = [11U, 12U, 13U, 14U].s;
-                q.insertN(qv[]);
+                q.insertN(qv);
                 foreach (e; qv[])
                 {
                     assert(q.contains(e));

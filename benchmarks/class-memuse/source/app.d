@@ -53,11 +53,11 @@ void main(string[] args)
 {
     immutable n = 10_000_000;
 
-    import nxt.dynamic_array : BasicArray;
+    import nxt.dynamic_array : DynamicArray;
     import std.array : Appender;
 
     {
-        BasicArray!(NodeCxxStruct) x;
+        DynamicArray!(NodeCxxStruct) x;
         x.reserve(n);
 
         immutable before = MonoTime.currTime();
@@ -85,7 +85,7 @@ void main(string[] args)
     }
 
     {
-        BasicArray!(NodeCxxClass) x;
+        DynamicArray!(NodeCxxClass) x;
         x.reserve(n);
 
         immutable before = MonoTime.currTime();
@@ -115,7 +115,7 @@ void main(string[] args)
     import std.experimental.allocator : theAllocator, make;
 
     {
-        BasicArray!(NodeCxxClass) x;
+        DynamicArray!(NodeCxxClass) x;
         x.reserve(n);
 
         immutable before = MonoTime.currTime();

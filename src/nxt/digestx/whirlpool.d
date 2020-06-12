@@ -220,7 +220,7 @@ alias WhirlpoolDigest = WrapperDigest!Whirlpool;
 version(none)
 unittest
 {
-    import digestx.whirlpool;
+    import nxt.digestx.whirlpool;
 
     ubyte[1024] data;
     Whirlpool wp;

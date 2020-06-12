@@ -422,7 +422,7 @@ alias range = byElement;        // EMSI-container naming
 @safe pure nothrow unittest
 {
     import std.algorithm.comparison : equal;
-    import digestx.fnv : FNV;
+    import nxt.digestx.fnv : FNV;
     import nxt.array_help : s;
 
     // construct small
@@ -515,7 +515,7 @@ alias range = byElement;        // EMSI-container naming
 /// start large
 @safe pure nothrow unittest
 {
-    import digestx.fnv : FNV;
+    import nxt.digestx.fnv : FNV;
     alias X = SSOOpenHashSet!(K, FNV!(64, true));
     import nxt.container_traits : mustAddGCRange;
     static assert(mustAddGCRange!K);

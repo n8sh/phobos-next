@@ -9,7 +9,7 @@ void main()
     import std.container.rbtree : RedBlackTree;
 
     // my containers
-    import nxt.dynamic_array : BasicArray;
+    import nxt.dynamic_array : DynamicArray;
     import nxt.array_help : toUbytes;
     import nxt.variant_arrays : VariantArrays;
     import nxt.sso_hashmap_or_hashset : SSOHashSet, SSOHashMap;
@@ -19,7 +19,7 @@ void main()
     import std.digest.murmurhash : MurmurHash3;
     import nxt.xxhash64 : XXHash64;
     import nxt.hash_functions;
-    import digestx.fnv : FNV;
+    import nxt.digestx.fnv : FNV;
 
     import nxt.filters : DenseSetFilter;
     import nxt.filterarray : DenseSetFilterGrowableArray;
@@ -46,7 +46,7 @@ void main()
 
     writefln("\nArrays:\n");
 
-    foreach (A; AliasSeq!(BasicArray!uint,
+    foreach (A; AliasSeq!(DynamicArray!uint,
                           VariantArrays!uint,
                           StdArray!uint,
                           Appender!(uint[]),

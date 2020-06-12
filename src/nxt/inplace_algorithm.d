@@ -114,7 +114,7 @@ version(none)                   // TODO activate or remove SSOHashSet
 {
     import std.algorithm.iteration : filter;
     import nxt.sso_hashmap_or_hashset : SSOHashSet, byElement;
-    import digestx.fnv : FNV;
+    import nxt.digestx.fnv : FNV;
 
     alias X = SSOHashSet!(uint, null, FNV!(64, true));
     enum pred = "a != 11";

@@ -3,12 +3,12 @@ void main()
     import std.stdio;
     import std.datetime : MonoTime;
     import std.algorithm : max;
-    import digestx.fnv : FNV;
+    import nxt.digestx.fnv : FNV;
 
     import nxt.sso_string : String = SSOString;
     import nxt.open_hashmap_or_hashset : HashSet = OpenHashSet;
     import nxt.open_hashmap_or_hashset : HashMap = OpenHashMap;
-    import nxt.dynamic_array : Array = BasicArray;
+    import nxt.dynamic_array : Array = DynamicArray;
 
     alias Strs = HashSet!(String);
 

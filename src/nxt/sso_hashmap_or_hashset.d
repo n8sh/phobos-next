@@ -1341,6 +1341,8 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     }
 }
 
+version(none):
+
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {

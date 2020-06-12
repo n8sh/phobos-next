@@ -37,7 +37,7 @@ struct SSOOpenHashSet(K,
                 __traits(compiles, { enum _ = isAllZeroBits!(K, K.nullValue); }) && // prevent strange error given when `K` is `knet.data.Data`
                 !isAllZeroBits!(K, K.nullValue)))
     {
-        pragma(msg, "TODO warning key type ", K, " has non-zero-bit init value, default construction should be disabled or Small._bins should be set to init value");
+        pragma(msg, "TODO warning key type ", K, " has non-zero-bit init value, default construction should be disabled or Small._store should be set to init value");
     }
     // TODO @disable this();
 
@@ -61,7 +61,7 @@ struct SSOOpenHashSet(K,
             {
                 static foreach (immutable index; 0 .. small.maxCapacity)
                 {
-                    result.small._bins[index].nullify();
+                    result.small._store[index].nullify();
                 }
             }
 
@@ -106,7 +106,7 @@ struct SSOOpenHashSet(K,
         else
         {
             import std.algorithm.searching : count;
-            return small._bins[].count!(bin => Large.isOccupiedBin(bin));
+            return small._store[].count!(bin => Large.isOccupiedBin(bin));
         }
     }
 
@@ -123,9 +123,9 @@ struct SSOOpenHashSet(K,
             // try inserting into small
             foreach (immutable index; 0 .. small.maxCapacity) // TODO benchmark with `static foreach`
             {
-                if (small._bins[index].isNull) // free slot
+                if (small._store[index].isNull) // free slot
                 {
-                    move(key, small._bins[index]);
+                    move(key, small._store[index]);
                     return InsertionStatus.added;
                 }
             }
@@ -153,9 +153,9 @@ struct SSOOpenHashSet(K,
         {
             foreach (immutable index; 0 .. small.maxCapacity) // TODO benchmark with `static foreach`
             {
-                if (small._bins[index] is key)
+                if (small._store[index] is key)
                 {
-                    small._bins[index].nullify(); // don't need holes for small array
+                    small._store[index].nullify(); // don't need holes for small array
                     return true;
                 }
             }
@@ -176,7 +176,7 @@ struct SSOOpenHashSet(K,
             {
                 if (Large.isHoleKeyConstant(e)) { continue; }
             }
-            moveEmplace(e, small._bins[count]);
+            moveEmplace(e, small._store[count]);
             count += 1;
         }
 
@@ -184,9 +184,9 @@ struct SSOOpenHashSet(K,
         {
             static if (hasElaborateDestructor!K)
             {
-                emplace(&small._bins[index]); // reset
+                emplace(&small._store[index]); // reset
             }
-            small._bins[index].nullify();
+            small._store[index].nullify();
         }
     }
 
@@ -209,13 +209,13 @@ struct SSOOpenHashSet(K,
             // TODO is static foreach faster here?
             import std.algorithm.searching : canFind;
             alias pred = (a, b) => a is b;            // TODO add to template
-            return small._bins[].canFind!(pred)(key);
+            return small._store[].canFind!(pred)(key);
         }
     }
 
     private void expandWithExtraCapacity(size_t extraCapacity) @trusted
     {
-        Small.Bins binsCopy = small._bins; // TODO moveEmplace
+        Small.Bins binsCopy = small._store; // TODO moveEmplace
         // TODO merge these lines?
         emplace!Large(&large);
         large.reserveExtra(Small.maxCapacity + extraCapacity);
@@ -245,7 +245,7 @@ struct SSOOpenHashSet(K,
         }
         else
         {
-            return small._bins[];
+            return small._store[];
         }
     }
 
@@ -266,13 +266,13 @@ private:
         static struct Small
         {
             /* discriminator between large and small storage; must be placed at
-             * exactly here (maps to position of `large._bins.length`) and
+             * exactly here (maps to position of `large._store.length`) and
              * always contain `maxCapacity` when this is small */
             size_t _capacityDummy;
             enum maxCapacity = (large.sizeof - _capacityDummy.sizeof)/K.sizeof;
             static assert(maxCapacity, "Cannot fit a single element in a Small");
             alias Bins = K[maxCapacity];
-            Bins _bins;
+            Bins _store;
         }
         Small small;
     };
@@ -386,7 +386,7 @@ pragma(inline, true):
         /// Get reference to front element.
         @property scope auto ref front() return @trusted
         {
-            return *(cast(const(Table.ElementType)*)&_table._bins[_binIndex]); // propagate constnes
+            return *(cast(const(Table.ElementType)*)&_table._store[_binIndex]); // propagate constnes
         }
     }
     import core.internal.traits : Unqual;

@@ -17,7 +17,6 @@ if (isSomeString!S)
     import std.algorithm.iteration : map;
     import std.ascii : toLower;
     import std.traits : isNarrowString;
-    // debug assert(isASCIIString(a));
     static if (isNarrowString!S)
     {
         import std.utf : byUTF;

@@ -3806,7 +3806,7 @@ version(unittest)
     }
     debug static assert(is(Node : Base));
 
-    import hash_functions : hashOfPolymorphic; // neede to separate hash of `Base(N)` from `Node(N)`
+    import nxt.hash_functions : hashOfPolymorphic; // neede to separate hash of `Base(N)` from `Node(N)`
     alias X = OpenHashSet!(Base, hashOfPolymorphic, "a && b && (typeid(a) is typeid(b)) && a.opEquals(b)");
     debug static assert(X.sizeof == 24);
     X x;

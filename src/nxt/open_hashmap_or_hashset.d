@@ -232,7 +232,7 @@ if (isNullable!K
         else
         {
             enum hasHoleableKey = false;
-            pragma(msg, "Need explicit hole bitset for non-address-like key: ", K);
+            // pragma(msg, "Need explicit hole bitset for non-address-like key: ", K);
             import core.bitop : bts, bt, btr;
             import nxt.array_help : makeUninitializedBitArray, makeZeroedBitArray, makeReallocatedBitArrayZeroPadded;
         }
@@ -240,7 +240,7 @@ if (isNullable!K
     else
     {
         enum hasHoleableKey = false;
-        pragma(msg, "Need explicit hole bitset for non-address-like key: ", K);
+        // pragma(msg, "Need explicit hole bitset for non-address-like key: ", K);
         import core.bitop : bts, bt, btr;
         import nxt.array_help : makeUninitializedBitArray, makeZeroedBitArray, makeReallocatedBitArrayZeroPadded;
     }

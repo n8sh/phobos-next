@@ -58,7 +58,7 @@ if (capacity*elementLength >= 2) // no use storing less than 2 bytes
     if (Es.length >= 1 &&
         Es.length <= capacity)
     {
-        foreach (immutable i, const ix; es)
+        foreach (immutable i, ix; es)
         {
             _store[i] = ix;
         }

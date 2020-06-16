@@ -515,7 +515,7 @@ static private void testReadAgeofAqcuisitions(const string rootDirPath = `~/Work
 
 /** Read Concept 5 assertions.
  */
-static private void readConcept5Assertions(const string path = `/home/per/Knowledge/ConceptNet5/latest/conceptnet-assertions-5.6.0.csv.gz`) @safe
+static private void testReadConcept5Assertions(const string path = `/home/per/Knowledge/ConceptNet5/latest/conceptnet-assertions-5.6.0.csv.gz`) @safe
 {
     alias R = ZlibFileInputRange;
 
@@ -542,10 +542,8 @@ static private void readConcept5Assertions(const string path = `/home/per/Knowle
 }
 
 /// benchmark DBpedia parsing
-version(none)
-@safe unittest
+static private void benchmarkDbpediaParsing(const string rootPath = `/home/per/Knowledge/DBpedia/latest`) @system
 {
-    const rootPath = `/home/per/Knowledge/DBpedia/latest`;
     alias R = Bz2libFileInputRange;
 
     import nxt.array_algorithm : startsWith, endsWith;

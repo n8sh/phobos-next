@@ -10,7 +10,7 @@ struct StaticModArray(uint capacity,
                       uint elementLength,
                       uint span,
                       bool useModuloFlag)
-    if (capacity*elementLength >= 2) // no use storing less than 2 bytes
+if (capacity*elementLength >= 2) // no use storing less than 2 bytes
 {
     private enum radix = 2^^span;
 
@@ -55,8 +55,8 @@ struct StaticModArray(uint capacity,
 
     /** Construct with elements `es`. */
     this(Es...)(Es es)
-        if (Es.length >= 1 &&
-            Es.length <= capacity)
+    if (Es.length >= 1 &&
+        Es.length <= capacity)
     {
         foreach (immutable i, const ix; es)
         {
@@ -173,7 +173,7 @@ struct StaticModArray(uint capacity,
         NOTE Doesn't invalidate any borrow.
     */
     auto ref pushBack(Es...)(Es es)
-        if (Es.length <= capacity)
+    if (Es.length <= capacity)
     {
         assert(length + Es.length <= capacity);
         foreach (immutable i, const e; es)
@@ -202,7 +202,7 @@ struct StaticModArray(uint capacity,
         static if (useModuloFlag)
         {
             bool contains(ModUInt)(in Mod!(radix, ModUInt) ix) const @nogc
-                if (isUnsigned!ModUInt)
+            if (isUnsigned!ModUInt)
             {
                 pragma(inline, true);
                 // TODO use binarySearch instead of canFind
@@ -213,7 +213,7 @@ struct StaticModArray(uint capacity,
         else
         {
             bool contains(UInt)(in UInt ix) const @nogc
-                if (isUnsigned!UInt)
+            if (isUnsigned!UInt)
             {
                 pragma(inline, true);
                 // TODO use binarySearch instead of canFind
@@ -233,7 +233,7 @@ struct StaticModArray(uint capacity,
 
     /** Variant of `opIndex` with compile-time range checking. */
     auto ref at(uint ix)() inout @trusted
-        if (ix < capacity)      // assert below memory allocation bound
+    if (ix < capacity)      // assert below memory allocation bound
     {
         pragma(inline, true);
         assert(ix < _length);   // assert accessing initialized elements

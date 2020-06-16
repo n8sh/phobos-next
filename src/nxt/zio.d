@@ -573,7 +573,6 @@ static private void benchmarkDbpediaParsing(const string rootPath = `/home/per/K
 }
 
 /// Show statistics.
-version(unittest)
 static private void showStat(T)(in const(char[]) tag,
                                 in T before,
                                 in T after,

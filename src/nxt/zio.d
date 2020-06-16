@@ -473,11 +473,9 @@ void testInputRange(FileInputRange)() @safe
 
 /** Read Age of Aqcuisitions.
  */
-version(none)
-unittest
+static private void testReadAgeofAqcuisitions(const string rootDirPath = `~/Work/knet/knowledge/en/age-of-aqcuisition`) @safe
 {
     import std.path: expandTilde;
-    const string rootDirPath = `~/Work/knet/knowledge/en/age-of-aqcuisition`;
     import nxt.zio : DecompressByLine, GzipFileInputRange;
     import std.path : buildNormalizedPath;
 
@@ -515,10 +513,10 @@ unittest
     }
 }
 
-version(none)
-@safe unittest
+/** Read Concept 5 assertions.
+ */
+static private void readConcept5Assertions(const string path = `/home/per/Knowledge/ConceptNet5/latest/conceptnet-assertions-5.6.0.csv.gz`) @safe
 {
-    const path = `/home/per/Knowledge/ConceptNet5/latest/conceptnet-assertions-5.6.0.csv.gz`;
     alias R = ZlibFileInputRange;
 
     import std.stdio: writeln;

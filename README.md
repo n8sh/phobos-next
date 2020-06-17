@@ -21,8 +21,8 @@ Includes
 - `filterarray.d`: Filter array.
 - `fixed_array.d`: Fixed-sized statically allocated (heap) array similar to C++ `std::array`.
 - `fixed_dynamic_array.d`: Fixed-sized heap-allocated array.
-- `bitarray.d`: A dynamically-sized (heap) bit array.
-- `static_bitarray.d`: A statically-size (stack) bit array.
+- `bitarray.d`: A dynamically sized (heap) bit array.
+- `static_bitarray.d`: A statically sized (stack) bit array.
 - `minimal_fixed_array.d`: Minimalistic statically-sized (stack) array of length smaller
 than 255 fitting in an `ubyte` for compact packing.
 - ...

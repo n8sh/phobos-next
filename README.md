@@ -9,7 +9,7 @@ See_Also: http://forum.dlang.org/post/tppptevxiygafzpicmgz@forum.dlang.org
 Includes
 
 ## Containers
-- `trie.d`: Trie for prefix completion.
+- `trie.d`: Trie for prefix completion(s).
 - `dynamic_array.d`: Basic uncopyable array with value semantics and explicit
   copying via `.dup`.
 - `bitarray.d`: Bit array.

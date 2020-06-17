@@ -3,6 +3,8 @@ module nxt.fixed_dynamic_array;
 @safe:
 
 /** Dynamically allocated (heap) array with fixed length.
+ *
+ * TODO Support allocators.
  */
 struct FixedDynamicArray(T)
 {

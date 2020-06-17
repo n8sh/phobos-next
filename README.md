@@ -13,6 +13,8 @@ Includes
 - `dynamic_array.d`: Basic uncopyable array with value semantics and explicit
   copying via `.dup`.
 - `fixed_dynamic_array.d`: Dynamically allocated (heap) array with fixed length.
+- `minimal_fixed_array.d`: Minimalistic statically-sized (stack) array of length smaller
+than 255 fitting in an `ubyte` for compact packing.
 - `open_hashmap_or_hashset.d`: Combined hashset and hashmap with open addressing
   and support for deletion via hole handling. Pointers and classes are stored as
   is with support for vacancy and hole handling. Vacancy support for
@@ -23,8 +25,6 @@ Includes
 - `fixed_dynamic_array.d`: Fixed-sized heap-allocated array.
 - `bitarray.d`: A dynamically sized (heap) bit array.
 - `static_bitarray.d`: A statically sized (stack) bit array.
-- `minimal_fixed_array.d`: Minimalistic statically-sized (stack) array of length smaller
-than 255 fitting in an `ubyte` for compact packing.
 - ...
 
 For reference semantics wrap uncopyable containers in `std.typecons.RefCounter`.

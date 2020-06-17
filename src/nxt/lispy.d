@@ -136,6 +136,8 @@ bool isNullTerminated(scope const(char)[] s) @safe pure nothrow @nogc
 }
 
 /** Parse from `input` into lazy range over top-level expressions (`SExpr`).
+ *
+ * See_Also: https://forum.dlang.org/post/okqdldjnoyrtuizevqeo@forum.dlang.org
  */
 struct LispParser               // TODO convert to `class`
 {
@@ -541,6 +543,10 @@ private:
     bool _disallowEmptyLists = false;
 }
 
+/** Parse the contents of `filePath` into lazy range over top-level expressions (`SExpr`).
+ *
+ * See_Also: https://forum.dlang.org/post/okqdldjnoyrtuizevqeo@forum.dlang.org
+ */
 struct LispFileParser           // TODO convert to `class`
 {
 @safe:

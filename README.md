@@ -13,7 +13,6 @@ Includes
 - `dynamic_array.d`: Basic uncopyable array with value semantics and explicit
   copying via `.dup`.
 - `fixed_dynamic_array.d`: Dynamically allocated (heap) array with fixed length.
-- `bitarray.d`: Bit array.
 - `open_hashmap_or_hashset.d`: Combined hashset and hashmap with open addressing
   and support for deletion via hole handling. Pointers and classes are stored as
   is with support for vacancy and hole handling. Vacancy support for

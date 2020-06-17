@@ -541,7 +541,7 @@ private:
     bool _disallowEmptyLists = false;
 }
 
-struct LispFileParser
+struct LispFileParser           // TODO convert to `class`
 {
 @safe:
     this(const string filePath)

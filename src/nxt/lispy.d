@@ -137,7 +137,7 @@ bool isNullTerminated(scope const(char)[] s) @safe pure nothrow @nogc
 
 /** Parse from `input` into lazy range over top-level expressions (`SExpr`).
  */
-struct LispParser
+struct LispParser               // TODO convert to `class`
 {
     import std.algorithm.comparison : among;
 

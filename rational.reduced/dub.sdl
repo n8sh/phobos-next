@@ -7,4 +7,4 @@ authors "Per Nordlöw <per.nordlow@gmail.com>"
 
 # dependency "arsd" version="~master"
 
-dflags "-preview=in" platform="dmd" # TODO activate for ldc. TODO this triggers the error
+dflags "-preview=in"

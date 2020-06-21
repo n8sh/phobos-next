@@ -164,8 +164,8 @@ enum isRational(T) = (is(typeof(T.init.numerator)) &&
  * as the type returned by I1.init * I2.init.
  */
 template CommonInteger(I1, I2)
-    if (isIntegerLike!I1 &&
-        isIntegerLike!I2)
+if (isIntegerLike!I1 &&
+    isIntegerLike!I2)
 {
     import core.internal.traits : Unqual;
     alias CommonInteger = typeof(Unqual!(I1).init *
@@ -231,8 +231,8 @@ template CommonRational(R1, R2)
  * ---
  */
 Rational!(CommonInteger!(I1, I2)) rational(I1, I2)(I1 i1, I2 i2)
-    if (isIntegerLike!I1 &&
-        isIntegerLike!I2)
+if (isIntegerLike!I1 &&
+    isIntegerLike!I2)
 {
     static if (is(typeof(typeof(return)(i1, i2))))
     {
@@ -254,7 +254,7 @@ Rational!(CommonInteger!(I1, I2)) rational(I1, I2)(I1 i1, I2 i2)
 
 ///Ditto
 Rational!(I) rational(I)(I val)
-    if (isIntegerLike!I)
+if (isIntegerLike!I)
 {
     return rational(val, 1);
 }
@@ -266,33 +266,33 @@ Rational!(I) rational(I)(I val)
  * $(D Rational) or another integer type.
  */
 struct Rational(Int)
-    if (isIntegerLike!Int)
+if (isIntegerLike!Int)
 {
 public:
 
     // ----------------Multiplication operators----------------------------------
     auto opBinary(string op, Rhs)(Rhs rhs)
-        if (op == "*" && is(CommonRational!(Int, Rhs)) && isRational!Rhs)
+    if (op == "*" && is(CommonRational!(Int, Rhs)) && isRational!Rhs)
     {
         auto ret = CommonRational!(Int, Rhs)(this.numerator, this.denominator);
         return ret *= rhs;
     }
 
     auto opBinary(string op, Rhs)(Rhs rhs)
-        if (op == "*" && is(CommonRational!(Int, Rhs)) && isIntegerLike!Rhs)
+    if (op == "*" && is(CommonRational!(Int, Rhs)) && isIntegerLike!Rhs)
     {
         auto ret = this;
         return ret *= rhs;
     }
 
     auto opBinaryRight(string op, Rhs)(Rhs rhs)
-        if (op == "*" && is(CommonRational!(Int, Rhs)) && isIntegerLike!Rhs)
+    if (op == "*" && is(CommonRational!(Int, Rhs)) && isIntegerLike!Rhs)
     {
         return opBinary!(op, Rhs)(rhs);
     }
 
     typeof(this) opOpAssign(string op, Rhs)(Rhs rhs)
-        if (op == "*" && isRational!Rhs)
+    if (op == "*" && isRational!Rhs)
     {
         /* Cancel common factors first, then multiply.  This prevents
          * overflows and is much more efficient when using BigInts.
@@ -316,7 +316,7 @@ public:
     }
 
     typeof(this) opOpAssign(string op, Rhs)(Rhs rhs)
-        if (op == "*" && isIntegerLike!Rhs)
+    if (op == "*" && isIntegerLike!Rhs)
     {
         auto divisor = gcf(this.den, rhs);
         this.den /= divisor;
@@ -332,9 +332,9 @@ public:
 
     // --------------------Division operators--------------------------------------
     auto opBinary(string op, Rhs)(Rhs rhs)
-        if (op == "/" &&
-            is(CommonRational!(Int, Rhs)) &&
-            isRational!Rhs)
+    if (op == "/" &&
+        is(CommonRational!(Int, Rhs)) &&
+        isRational!Rhs)
     {
         // Division = multiply by inverse.
         swap(rhs.num, rhs.den);
@@ -342,26 +342,26 @@ public:
     }
 
     typeof(this) opBinary(string op, Rhs)(Rhs rhs)
-        if (op == "/" &&
-            is(CommonRational!(Int, Rhs)) &&
-            isIntegerLike!(Rhs))
+    if (op == "/" &&
+        is(CommonRational!(Int, Rhs)) &&
+        isIntegerLike!(Rhs))
     {
         auto ret = CommonRational!(Int, Rhs)(this.numerator, this.denominator);
         return ret /= rhs;
     }
 
     typeof(this) opBinaryRight(string op, Rhs)(Rhs rhs)
-        if (op == "/" &&
-            is(CommonRational!(Int, Rhs)) &&
-            isIntegerLike!Rhs)
+    if (op == "/" &&
+        is(CommonRational!(Int, Rhs)) &&
+        isIntegerLike!Rhs)
     {
         auto ret = CommonRational!(Int, Rhs)(this.denominator, this.numerator);
         return ret *= rhs;
     }
 
     typeof(this) opOpAssign(string op, Rhs)(Rhs rhs)
-        if (op == "/" &&
-            isIntegerLike!Rhs)
+    if (op == "/" &&
+        isIntegerLike!Rhs)
     {
         auto divisor = gcf(this.num, rhs);
         this.num /= divisor;
@@ -376,8 +376,8 @@ public:
     }
 
     typeof(this) opOpAssign(string op, Rhs)(Rhs rhs)
-        if (op == "/" &&
-            isRational!Rhs)
+    if (op == "/" &&
+        isRational!Rhs)
     {
         // Division = multiply by inverse.
         swap(rhs.num, rhs.den);
@@ -386,25 +386,25 @@ public:
 
     // ---------------------Addition operators-------------------------------------
     auto opBinary(string op, Rhs)(Rhs rhs)
-        if (op == "+" &&
-            (isRational!Rhs ||
-             isIntegerLike!Rhs))
+    if (op == "+" &&
+        (isRational!Rhs ||
+         isIntegerLike!Rhs))
     {
         auto ret = CommonRational!(typeof(this), Rhs)(this.numerator, this.denominator);
         return ret += rhs;
     }
 
     auto opBinaryRight(string op, Rhs)(Rhs rhs)
-        if (op == "+" &&
-            is(CommonRational!(Int, Rhs)) &&
-            isIntegerLike!Rhs)
+    if (op == "+" &&
+        is(CommonRational!(Int, Rhs)) &&
+        isIntegerLike!Rhs)
     {
         return opBinary!(op, Rhs)(rhs);
     }
 
     typeof(this) opOpAssign(string op, Rhs)(Rhs rhs)
-        if (op == "+" &&
-            isRational!Rhs)
+    if (op == "+" &&
+        isRational!Rhs)
     {
         if (this.den == rhs.den)
         {
@@ -423,8 +423,8 @@ public:
     }
 
     typeof(this) opOpAssign(string op, Rhs)(Rhs rhs)
-        if (op == "+" &&
-            isIntegerLike!Rhs)
+    if (op == "+" &&
+        isIntegerLike!Rhs)
     {
         this.num += rhs * this.den;
 
@@ -434,8 +434,8 @@ public:
 
     // -----------------------Subtraction operators-------------------------------
     auto opBinary(string op, Rhs)(Rhs rhs)
-        if (op == "-" &&
-            is(CommonRational!(Int, Rhs)))
+    if (op == "-" &&
+        is(CommonRational!(Int, Rhs)))
     {
         auto ret = CommonRational!(typeof(this), Rhs)(this.numerator,
                                                       this.denominator);
@@ -443,8 +443,8 @@ public:
     }
 
     typeof(this) opOpAssign(string op, Rhs)(Rhs rhs)
-        if (op == "-" &&
-            isRational!Rhs)
+    if (op == "-" &&
+        isRational!Rhs)
     {
         if (this.den == rhs.den)
         {
@@ -463,8 +463,8 @@ public:
     }
 
     typeof(this) opOpAssign(string op, Rhs)(Rhs rhs)
-        if (op == "-" &&
-            isIntegerLike!Rhs)
+    if (op == "-" &&
+        isIntegerLike!Rhs)
     {
         this.num -= rhs * this.den;
 
@@ -473,9 +473,9 @@ public:
     }
 
     typeof(this) opBinaryRight(string op, Rhs)(Rhs rhs)
-        if (op == "-" &&
-            is(CommonInteger!(Int, Rhs)) &&
-            isIntegerLike!Rhs)
+    if (op == "-" &&
+        is(CommonInteger!(Int, Rhs)) &&
+        isIntegerLike!Rhs)
     {
         typeof(this) ret;
         ret.den = this.den;
@@ -487,7 +487,7 @@ public:
 
     // ----------------------Unary operators---------------------------------------
     typeof(this) opUnary(string op)()
-        if (op == "-" || op == "+")
+    if (op == "-" || op == "+")
     {
         mixin("return typeof(this)(" ~ op ~ "num, den);");
     }
@@ -495,8 +495,8 @@ public:
     // ---------------------Exponentiation operator---------------------------------
     // Can only handle integer powers if the result has to also be rational.
     typeof(this) opOpAssign(string op, Rhs)(Rhs rhs)
-        if (op == "^^" &&
-            isIntegerLike!Rhs)
+    if (op == "^^" &&
+        isIntegerLike!Rhs)
     {
         if (rhs < 0)
         {
@@ -514,9 +514,9 @@ public:
     }
 
     auto opBinary(string op, Rhs)(Rhs rhs)
-        if (op == "^^" &&
-            isIntegerLike!Rhs &&
-            is(CommonRational!(Int, Rhs)))
+    if (op == "^^" &&
+        isIntegerLike!Rhs &&
+        is(CommonRational!(Int, Rhs)))
     {
         auto ret = CommonRational!(Int, Rhs)(this.numerator, this.denominator);
         ret ^^= rhs;
@@ -527,8 +527,8 @@ public:
 
     // ---------------------Assignment operators------------------------------------
     typeof(this) opAssign(Rhs)(Rhs rhs)
-        if (isIntegerLike!Rhs &&
-            isAssignable!(Int, Rhs))
+    if (isIntegerLike!Rhs &&
+        isAssignable!(Int, Rhs))
     {
         this.num = rhs;
         this.den = 1;
@@ -536,8 +536,8 @@ public:
     }
 
     typeof(this) opAssign(Rhs)(Rhs rhs)
-        if (isRational!Rhs &&
-            isAssignable!(Int, typeof(Rhs.numerator)))
+    if (isRational!Rhs &&
+        isAssignable!(Int, typeof(Rhs.numerator)))
     {
         this.num = rhs.numerator;
         this.den = rhs.denominator;
@@ -546,8 +546,8 @@ public:
 
     // --------------------Comparison/Equality Operators---------------------------
     bool opEquals(Rhs)(Rhs rhs)
-        if (isRational!Rhs ||
-            isIntegerLike!Rhs)
+    if (isRational!Rhs ||
+        isIntegerLike!Rhs)
     {
         static if (isRational!Rhs)
         {
@@ -563,7 +563,7 @@ public:
     }
 
     int opCmp(Rhs)(Rhs rhs)
-        if (isRational!Rhs)
+    if (isRational!Rhs)
     {
         if (opEquals(rhs))
         {
@@ -619,7 +619,7 @@ public:
     }
 
     int opCmp(Rhs)(Rhs rhs)
-        if (isIntegerLike!Rhs)
+    if (isIntegerLike!Rhs)
     {
         if (opEquals(rhs))
         {
@@ -659,7 +659,7 @@ public:
 
     ///Convert to floating point representation.
     F opCast(F)()
-        if (isFloatingPoint!F)
+    if (isFloatingPoint!F)
     {
         import std.traits : isIntegral;
         // Do everything in real precision, then convert to F at the end.
@@ -748,8 +748,8 @@ public:
      * Equivalent to $(D integerPart), and then casting it to type $(D I).
      */
     I opCast(I)()
-        if (isIntegerLike!I &&
-            is(typeof(cast(I) Int.init)))
+    if (isIntegerLike!I &&
+        is(typeof(cast(I) Int.init)))
     {
         return cast(I) integerPart;
     }
@@ -1063,8 +1063,8 @@ unittest
  * $(D m) and $(D n).
  */
 CommonInteger!(I1, I2) gcf(I1, I2)(I1 m, I2 n)
-    if (isIntegerLike!I1 &&
-        isIntegerLike!I2)
+if (isIntegerLike!I1 &&
+    isIntegerLike!I2)
 {
     static if (is(I1 == const) || is(I1 == immutable) ||
                is(I2 == const) || is(I2 == immutable))
@@ -1105,8 +1105,8 @@ pure unittest
 
 /// Find the Least Common Multiple (LCM) of $(D n1) and $(D n2).
 CommonInteger!(I1, I2) lcm(I1, I2)(I1 n1, I2 n2)
-    if (isIntegerLike!I1 &&
-        isIntegerLike!I2)
+if (isIntegerLike!I1 &&
+    isIntegerLike!I2)
 {
     n1 = abs(n1);
     n2 = abs(n2);

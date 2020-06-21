@@ -7,6 +7,4 @@ authors "Per Nordlöw <per.nordlow@gmail.com>"
 
 # dependency "arsd" version="~master"
 
-dflags "-vcolumns" "-dip25" "-dip1008" # "-dip1000"
-dflags "-preview=intpromote" "-preview=dtorfields" "-preview=markdown"
 dflags "-preview=in" platform="dmd" # TODO activate for ldc. TODO this triggers the error

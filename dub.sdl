@@ -13,7 +13,7 @@ authors "Per Nordlöw <per.nordlow@gmail.com>"
 
 dflags "-vcolumns" "-dip25" "-dip1008" # "-dip1000"
 dflags "-preview=intpromote" "-preview=dtorfields" "-preview=markdown"
-# dflags "-preview=in"
+# TODO dflags "-preview=in"
 
 libs "z" "bz2" "zstd"
 

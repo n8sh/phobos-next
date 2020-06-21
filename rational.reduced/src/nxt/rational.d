@@ -1,5 +1,3 @@
-module nxt.rational;
-
 Rational!(I1) rational(I1, I2)(I1 , I2)
 {
     return typeof(return)();

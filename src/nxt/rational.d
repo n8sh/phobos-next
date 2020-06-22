@@ -45,7 +45,9 @@
  */
 module nxt.rational;
 
-import std.algorithm, std.conv, std.exception, std.math;
+import std.algorithm.mutation : swap;
+import std.conv : to;
+import std.math : abs;
 
 alias abs = std.math.abs;       // allow cross-module overloading
 
@@ -265,31 +267,39 @@ if (isIntegerLike!I)
  * operand for all binary operators except exponentiation may be either another
  * $(D Rational) or another integer type.
  */
-struct Rational(Int)
-if (isIntegerLike!Int)
+struct Rational(SomeIntegral)
+if (isIntegerLike!SomeIntegral)
 {
 public:
 
     // ----------------Multiplication operators----------------------------------
-    Rational!(Int) opBinary(string op, Rhs)(const scope Rhs rhs) const
-    if (op == "*" && is(CommonRational!(Int, Rhs)) && isRational!Rhs)
+    Rational!(SomeIntegral) opBinary(string op, Rhs)(const scope Rhs rhs) const
+    if (op == "*" && is(CommonRational!(SomeIntegral, Rhs)) && isRational!Rhs)
     {
-        auto ret = CommonRational!(Int, Rhs)(this.numerator, this.denominator);
+        auto ret = CommonRational!(SomeIntegral, Rhs)(this.numerator, this.denominator);
         return ret *= rhs;
     }
-
-    Rational!(Int) opBinary(string op, Rhs)(const scope Rhs rhs) const
-    if (op == "*" && is(CommonRational!(Int, Rhs)) && isIntegerLike!Rhs)
+    /// ditto
+    Rational!(SomeIntegral) opBinary(string op, Rhs)(const scope Rhs rhs) const
+    if (op == "*" && is(CommonRational!(SomeIntegral, Rhs)) && isIntegerLike!Rhs)
     {
         const factor = gcf(this._den, rhs);
-        const adjusted_den = this._den / factor;
+        const adjusted_den = cast(SomeIntegral)(this._den / factor);
         const adjusted_rhs = rhs / factor;
-        return typeof(this)(this._num * adjusted_rhs, // TODO cast
-                            adjusted_den);
+        const long new_den = this._num * adjusted_rhs;
+        if (new_den > SomeIntegral.max)
+        {
+            throw new Exception("");
+        }
+        else
+        {
+            return typeof(this)(cast(SomeIntegral)new_den,
+                                adjusted_den);
+        }
     }
 
     auto opBinaryRight(string op, Rhs)(const scope Rhs rhs) const
-    if (op == "*" && is(CommonRational!(Int, Rhs)) && isIntegerLike!Rhs)
+    if (op == "*" && is(CommonRational!(SomeIntegral, Rhs)) && isIntegerLike!Rhs)
     {
         return opBinary!(op, Rhs)(rhs); // commutative
     }
@@ -317,7 +327,7 @@ public:
 
         return this;
     }
-
+    /// ditto
     typeof(this) opOpAssign(string op, Rhs)(const scope Rhs rhs)
     if (op == "*" && isIntegerLike!Rhs)
     {
@@ -329,36 +339,34 @@ public:
         /* don't need to simplify.  already cancelled common factors before
          * multiplying.
          */
-        fixsigns();
+        fixSigns();
         return this;
-    }
-
-    // --------------------division operators--------------------------------------
-    auto opBinary(string op, Rhs)(const scope Rhs rhs) const
-    if (op == "/" &&
-        is(commonrational!(int, rhs)) &&
-        isRational!Rhs)
-    {
-        // division = multiply by inverse.
-        swap(rhs._num, rhs._den);
-        return this *= rhs;
     }
 
     typeof(this) opBinary(string op, Rhs)(const scope Rhs rhs) const
     if (op == "/" &&
-        is(commonrational!(int, rhs)) &&
-        isIntegerLike!(rhs))
+        is(CommonRational!(int, Rhs)) &&
+        isRational!Rhs)
     {
-        auto ret = commonrational!(int, rhs)(this.numerator, this.denominator);
+        return typeof(return)(_num * rhs._den,
+                              _den * rhs._num);
+    }
+    // ditto
+    typeof(this) opBinary(string op, Rhs)(const scope Rhs rhs) const
+    if (op == "/" &&
+        is(CommonRational!(int, Rhs)) &&
+        isIntegerLike!(Rhs))
+    {
+        auto ret = CommonRational!(int, Rhs)(this.numerator, this.denominator);
         return ret /= rhs;
     }
 
     typeof(this) opBinaryRight(string op, Rhs)(const scope Rhs rhs) const
     if (op == "/" &&
-        is(commonrational!(int, rhs)) &&
+        is(CommonRational!(int, Rhs)) &&
         isIntegerLike!Rhs)
     {
-        auto ret = commonrational!(int, rhs)(this.denominator, this.numerator);
+        auto ret = CommonRational!(int, Rhs)(this.denominator, this.numerator);
         return ret *= rhs;
     }
 
@@ -374,7 +382,7 @@ public:
         /* don't need to simplify.  already cancelled common factors before
          * multiplying.
          */
-        fixsigns();
+        fixSigns();
         return this;
     }
 
@@ -394,13 +402,13 @@ public:
         (isRational!Rhs ||
          isIntegerLike!Rhs))
     {
-        auto ret = commonrational!(typeof(this), rhs)(this.numerator, this.denominator);
+        auto ret = CommonRational!(typeof(this), rhs)(this.numerator, this.denominator);
         return ret += rhs;
     }
 
     auto opBinaryRight(string op, Rhs)(const scope Rhs rhs) const
     if (op == "+" &&
-        is(CommonRational!(Int, Rhs)) &&
+        is(CommonRational!(SomeIntegral, Rhs)) &&
         isIntegerLike!Rhs)
     {
         return opBinary!(op, Rhs)(rhs); // commutative
@@ -417,7 +425,7 @@ public:
             return this;
         }
 
-        Int commonDenom = lcm(this._den, rhs._den);
+        SomeIntegral commonDenom = lcm(this._den, rhs._den);
         this._num *= commonDenom / this._den;
         this._num += (commonDenom / rhs._den) * rhs._num;
         this._den = commonDenom;
@@ -439,7 +447,7 @@ public:
     // -----------------------Subtraction operators-------------------------------
     auto opBinary(string op, Rhs)(const scope Rhs rhs) const
     if (op == "-" &&
-        is(CommonRational!(Int, Rhs)))
+        is(CommonRational!(SomeIntegral, Rhs)))
     {
         auto ret = CommonRational!(typeof(this), Rhs)(this.numerator,
                                                       this.denominator);
@@ -478,7 +486,7 @@ public:
 
     typeof(this) opBinaryRight(string op, Rhs)(const scope Rhs rhs) const
     if (op == "-" &&
-        is(CommonInteger!(Int, Rhs)) &&
+        is(CommonInteger!(SomeIntegral, Rhs)) &&
         isIntegerLike!Rhs)
     {
         typeof(this) ret;
@@ -520,9 +528,9 @@ public:
     auto opBinary(string op, Rhs)(const scope Rhs rhs) const
     if (op == "^^" &&
         isIntegerLike!Rhs &&
-        is(CommonRational!(Int, Rhs)))
+        is(CommonRational!(SomeIntegral, Rhs)))
     {
-        auto ret = CommonRational!(Int, Rhs)(this.numerator, this.denominator);
+        auto ret = CommonRational!(SomeIntegral, Rhs)(this.numerator, this.denominator);
         ret ^^= rhs;
         return ret;
     }
@@ -531,7 +539,7 @@ public:
 
     typeof(this) opAssign(Rhs)(const scope Rhs rhs)
     if (isIntegerLike!Rhs &&
-        isAssignable!(Int, Rhs))
+        isAssignable!(SomeIntegral, Rhs))
     {
         this._num = rhs;
         this._den = 1;
@@ -540,7 +548,7 @@ public:
 
     typeof(this) opAssign(Rhs)(const scope Rhs rhs)
     if (isRational!Rhs &&
-        isAssignable!(Int, typeof(Rhs.numerator)))
+        isAssignable!(SomeIntegral, typeof(Rhs.numerator)))
     {
         this._num = rhs.numerator;
         this._den = rhs.denominator;
@@ -653,8 +661,7 @@ public:
     ///Fast inversion, equivalent to 1 / rational.
     typeof(this) invert() const
     {
-        swap(_num, _den);
-        return this;
+        return typeof(return)(_den, _num);
     }
 
     import std.traits : isFloatingPoint;
@@ -665,7 +672,7 @@ public:
     {
         import std.traits : isIntegral;
         // Do everything in real precision, then convert to F at the end.
-        static if (isIntegral!(Int))
+        static if (isIntegral!(SomeIntegral))
         {
             return cast(real) _num / _den;
         }
@@ -718,12 +725,12 @@ public:
 
                 auto intPart = temp._num / temp._den;
 
-                static if (is(Int == struct) ||
-                           is(Int == class))
+                static if (is(SomeIntegral == struct) ||
+                           is(SomeIntegral == class))
                 {
                     import std.bigint;
                 }
-                static if (is(Int == std.bigint.BigInt))
+                static if (is(SomeIntegral == std.bigint.BigInt))
                 {
                     /* This should really be a cast, but BigInt still has a few
                      * issues.
@@ -756,25 +763,25 @@ public:
      */
     I opCast(I)() const
     if (isIntegerLike!I &&
-        is(typeof(cast(I) Int.init)))
+        is(typeof(cast(I) SomeIntegral.init)))
     {
         return cast(I) integerPart;
     }
 
     ///Returns the numerator.
-    @property inout(Int) numerator() inout
+    @property inout(SomeIntegral) numerator() inout
     {
         return _num;
     }
 
     ///Returns the denominator.
-    @property inout(Int) denominator() inout
+    @property inout(SomeIntegral) denominator() inout
     {
         return _den;
     }
 
     /// Returns the integer part of this rational, with any remainder truncated.
-    @property Int integerPart() const
+    @property SomeIntegral integerPart() const
     {
         return this.numerator / this.denominator;
     }
@@ -788,7 +795,7 @@ public:
     /// Returns a string representation of $(D this) in the form a/b.
     string toString() const
     {
-        static if (is(Int == std.bigint.BigInt))
+        static if (is(SomeIntegral == std.bigint.BigInt))
         {
             // Special case it for now.  This should be fixed later.
             return toDecimalString(_num) ~ "/" ~
@@ -801,8 +808,8 @@ public:
     }
 
 private:
-    Int _num;                    ///< Numerator.
-    Int _den;                    ///< Denominator.
+    SomeIntegral _num;                    ///< Numerator.
+    SomeIntegral _den;                    ///< Denominator.
 
     void simplify()
     {
@@ -821,10 +828,10 @@ private:
 
     void fixSigns() scope
     {
-        static if (!is(Int == ulong) &&
-                   !is(Int == uint) &&
-                   !is(Int == ushort) &&
-                   !is(Int == ubyte))
+        static if (!is(SomeIntegral == ulong) &&
+                   !is(SomeIntegral == uint) &&
+                   !is(SomeIntegral == ushort) &&
+                   !is(SomeIntegral == ubyte))
         {
             // Write in canonical form w.r.t. signs.
             if (_den < 0)
@@ -834,6 +841,12 @@ private:
             }
         }
     }
+}
+
+class OverflowException : Exception
+{
+@safe pure nothrow @nogc:
+    this(string msg) { super(msg); }
 }
 
 pure unittest
@@ -956,7 +969,7 @@ pure unittest
 }
 
 /** Convert a floating point number to a $(D Rational) based on integer type $(D
- * Int).  Allows an error tolerance of $(D epsilon).  (Default $(D epsilon) =
+ * SomeIntegral).  Allows an error tolerance of $(D epsilon).  (Default $(D epsilon) =
  * 1e-8.)
  *
  * $(D epsilon) must be greater than 1.0L / long.max.
@@ -970,7 +983,7 @@ pure unittest
  * writeln(toRational!int(PI, 1e-1));
  * ---
  */
-Rational!(Int) toRational(Int)(real floatNum, real epsilon = 1e-8)
+Rational!(SomeIntegral) toRational(SomeIntegral)(real floatNum, real epsilon = 1e-8)
 {
     enforce(floatNum != real.infinity &&
             floatNum != -real.infinity &&
@@ -987,21 +1000,21 @@ Rational!(Int) toRational(Int)(real floatNum, real epsilon = 1e-8)
      */
     if (abs(floatNum) < epsilon)
     {
-        Rational!Int ret;
+        Rational!SomeIntegral ret;
         ret._num = 0;
         ret._den = 1;
         return ret;
     }
 
-    return toRationalImpl!(Int)(floatNum, epsilon);
+    return toRationalImpl!(SomeIntegral)(floatNum, epsilon);
 }
 
-private Rational!Int toRationalImpl(Int)(real floatNum, real epsilon)
+private Rational!SomeIntegral toRationalImpl(SomeIntegral)(real floatNum, real epsilon)
 {
     import std.traits : isIntegral;
 
     real actualEpsilon;
-    Rational!Int ret;
+    Rational!SomeIntegral ret;
 
     if (abs(floatNum) < 1)
     {
@@ -1009,10 +1022,10 @@ private Rational!Int toRationalImpl(Int)(real floatNum, real epsilon)
         long intPart = roundTo!long(invFloatNum);
         actualEpsilon = floatNum - 1.0L / intPart;
 
-        static if (isIntegral!(Int))
+        static if (isIntegral!(SomeIntegral))
         {
-            ret._den = cast(Int) intPart;
-            ret._num = cast(Int) 1;
+            ret._den = cast(SomeIntegral) intPart;
+            ret._num = cast(SomeIntegral) 1;
         }
         else
         {
@@ -1025,10 +1038,10 @@ private Rational!Int toRationalImpl(Int)(real floatNum, real epsilon)
         long intPart = roundTo!long(floatNum);
         actualEpsilon = floatNum - intPart;
 
-        static if (isIntegral!(Int))
+        static if (isIntegral!(SomeIntegral))
         {
-            ret._den = cast(Int) 1;
-            ret._num = cast(Int) intPart;
+            ret._den = cast(SomeIntegral) 1;
+            ret._num = cast(SomeIntegral) intPart;
         }
         else
         {
@@ -1043,7 +1056,7 @@ private Rational!Int toRationalImpl(Int)(real floatNum, real epsilon)
     }
 
     // Else get results from downstream recursions, add them to this result.
-    return ret + toRationalImpl!(Int)(actualEpsilon, epsilon);
+    return ret + toRationalImpl!(SomeIntegral)(actualEpsilon, epsilon);
 }
 
 unittest
@@ -1124,9 +1137,9 @@ if (isIntegerLike!I1 &&
 }
 
 /// Returns the largest integer less than or equal to $(D r).
-Int floor(Int)(const scope Rational!Int r)
+SomeIntegral floor(SomeIntegral)(const scope Rational!SomeIntegral r)
 {
-    Int intPart = r.integerPart;
+    SomeIntegral intPart = r.integerPart;
     if (r > 0 || intPart == r)
     {
         return intPart;
@@ -1148,9 +1161,9 @@ Int floor(Int)(const scope Rational!Int r)
 }
 
 /// Returns the smallest integer greater than or equal to $(D r).
-Int ceil(Int)(const scope Rational!Int r)
+SomeIntegral ceil(SomeIntegral)(const scope Rational!SomeIntegral r)
 {
-    Int intPart = r.integerPart;
+    SomeIntegral intPart = r.integerPart;
     if (intPart == r || r < 0)
     {
         return intPart;
@@ -1174,10 +1187,10 @@ Int ceil(Int)(const scope Rational!Int r)
 /** Round $(D r) to the nearest integer.  If the fractional part is exactly 1/2,
  * $(D r) will be rounded such that the absolute value is increased by rounding.
  */
-Int round(Int)(const scope Rational!Int r)
+SomeIntegral round(SomeIntegral)(const scope Rational!SomeIntegral r)
 {
-    Int intPart = r.integerPart;
-    Int fractPart = r.fractionPart;
+    SomeIntegral intPart = r.integerPart;
+    SomeIntegral fractPart = r.fractionPart;
 
     bool added;
     if (fractPart >= rational(1, 2))
@@ -1188,7 +1201,7 @@ Int round(Int)(const scope Rational!Int r)
 
     import std.traits : isUnsigned;
 
-    static if (!isUnsigned!Int)
+    static if (!isUnsigned!SomeIntegral)
     {
         if (!added && fractPart <= rational(-1, 2))
         {

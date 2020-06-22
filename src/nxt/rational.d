@@ -271,32 +271,21 @@ if (isIntegerLike!Int)
 public:
 
     // ----------------Multiplication operators----------------------------------
-    auto opBinary(string op, Rhs)(const scope Rhs rhs) const
+    Rational!(Int) opBinary(string op, Rhs)(const scope Rhs rhs) const
     if (op == "*" && is(CommonRational!(Int, Rhs)) && isRational!Rhs)
     {
         auto ret = CommonRational!(Int, Rhs)(this.numerator, this.denominator);
         return ret *= rhs;
     }
 
-    auto opBinary(string op, Rhs)(const scope Rhs rhs) const
+    Rational!(Int) opBinary(string op, Rhs)(const scope Rhs rhs) const
     if (op == "*" && is(CommonRational!(Int, Rhs)) && isIntegerLike!Rhs)
     {
-        auto divisor = this._num;
-        const this_num_d = this._num / divisor;
-        const rhs_den_d = rhs._den / divisor;
-
-        divisor = gcf(this._den, rhs);
-        this._den /= divisor;
-        rhs /= divisor;
-
-        this._num *= rhs._num;
-        this._den *= rhs._den;
-
-        /* Don't need to simplify.  Already cancelled common factors before
-         * multiplying.
-         */
-        fixSigns();
-        return this;
+        const factor = gcf(this._den, rhs);
+        const adjusted_den = this._den / factor;
+        const adjusted_rhs = rhs / factor;
+        return typeof(this)(this._num * adjusted_rhs, // TODO cast
+                            adjusted_den);
     }
 
     auto opBinaryRight(string op, Rhs)(const scope Rhs rhs) const

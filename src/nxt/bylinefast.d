@@ -35,7 +35,6 @@ alias KeepTerminator = Flag!"keepTerminator";
 */
 struct ByLineFast(Char, Terminator)
 {
-    import std.string : indexOf; // TODO array_algorithm indexOf
     import core.stdc.string : memmove;
     import std.stdio : fgetc, ungetc;
 
@@ -114,6 +113,8 @@ struct ByLineFast(Char, Terminator)
             }
         }
 
+        // import std.string : indexOf; // TODO array_algorithm indexOf
+        import nxt.array_algorithm : indexOf;
         const pos = strBuffer.indexOf(this.separator);
         if (pos != -1)
         {
@@ -190,7 +191,7 @@ unittest
     import std.stdio: File, writeln;
     import std.algorithm.searching: count;
 
-    const path = "/etc/passwd";
+    const path = "/tmp/tmp.Cnh58DYr0y";
 
     assert(File(path).byLineFast.count ==
            File(path).byLine.count);

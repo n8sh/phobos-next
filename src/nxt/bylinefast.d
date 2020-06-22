@@ -185,23 +185,16 @@ auto byLineFast(Terminator = char,
     return ByLineFast!(Char, Terminator)(f, keepTerminator, separator, bufferSize);
 }
 
-string tempFile(const scope string prefix,
-                const scope string extension = null)
+/**
+ * Returns the path to a temporary file.
+ */
+string tempFilePath(const scope string prefix,
+                    const scope string extension = null)
 {
-	import std.uuid : randomUUID;
-	import std.array: replace;
-
-	string fileName = prefix ~ "-" ~ randomUUID.toString() ~ extension;
-
-	if (extension !is null &&
-        extension == ".d")
-    {
-		fileName = fileName.replace("-", "_");
-    }
-
+    import std.uuid : randomUUID;
     import std.file : tempDir;
-	auto path = tempDir() ~ fileName;
-	return path;
+    import std.path : buildPath;
+    return buildPath(tempDir(), prefix ~ "_" ~ randomUUID.toString() ~ extension); // TODO use append()
 }
 
 version(linux)
@@ -210,10 +203,12 @@ unittest
     import std.stdio: File, writeln;
     import std.algorithm.searching: count;
 
-    const path = "/tmp/tmp.Cnh58DYr0y";
-
-    assert(File(path).byLineFast.count ==
-           File(path).byLine.count);
+    import std.file : write;
+    const path = tempFilePath("x");
+    writeln(path);
+    File(path, "wb").write("a\n");
+    assert(File(path, "rb").byLineFast.count ==
+           File(path, "rb").byLine.count);
 }
 
 version(none) :

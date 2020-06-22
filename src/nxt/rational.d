@@ -319,9 +319,7 @@ public:
         this._num *= rhs_num;
         this._den *= rhs_den;
 
-        /* Don't need to simplify.  Already cancelled common factors before
-         * multiplying.
-         */
+        /* no simplify. already cancelled common factors before multiplying. */
         fixSigns();
 
         return this;
@@ -332,12 +330,8 @@ public:
     {
         const divisor = gcf(this._den, that);
         this._den /= divisor;
-        that /= divisor;
-        this._num *= that;
-
-        /* don't need to simplify.  already cancelled common factors before
-         * multiplying.
-         */
+        this._num *= that / divisor;
+        /* no to simplify. already cancelled common factors before multiplying. */
         fixSigns();
         return this;
     }
@@ -375,12 +369,9 @@ public:
     {
         const divisor = gcf(this._num, that);
         this._num /= divisor;
-        that /= divisor;
-        this._den *= that;
+        this._den *= that / divisor;
 
-        /* don't need to simplify.  already cancelled common factors before
-         * multiplying.
-         */
+        /* no to simplify. already cancelled common factors before multiplying. */
         fixSigns();
         return this;
     }

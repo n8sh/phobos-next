@@ -90,6 +90,4 @@ if (args.length != 0)
     // data.append(d, d);
 
     static assert(!__traits(compiles, { data.append(); }));
-
-    assert(append("alpha ", "beta ", "gamma") == "alpha beta gamma");
 }

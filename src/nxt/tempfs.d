@@ -5,13 +5,13 @@
  */
 module nxt.tempfs;
 
-version(linux)                  // TODO wrap in OS-independent interface
-{
-/** Create a New Temporary File starting with ($D namePrefix) and ending with 6
-    randomly defined characters.
-    Returns: File Descriptor to opened file.
+/** Create a New Temporary File starting with ($D namePrefix) and ending with 6 randomly defined characters.
+ *
+ * Returns: File Descriptor to opened file.
 */
-    int tempfile(string namePrefix = null) @trusted
+int tempfile(string namePrefix = null) @trusted
+{
+    version(linux)
     {
         import core.sys.posix.stdlib: mkstemp;
 
@@ -25,21 +25,19 @@ version(linux)                  // TODO wrap in OS-independent interface
         // dbg(buf[0 .. namePrefix.length + 6]);
         return tmp;
     }
+}
 
 /** TODO Scoped variant of tempfile.
-    Search http://forum.dlang.org/thread/mailman.262.1386205638.3242.digitalmars-d-learn@puremagic.com
-*/
+ *
+ * Search http://forum.dlang.org/thread/mailman.262.1386205638.3242.digitalmars-d-learn@puremagic.com
+ */
 
 /** Create a New Temporary Directory Tree.
-    Returns: Path to root of tree.
-*/
-    char* temptree(char* name_x,
-                   char* template_ = null) @trusted
-    {
-        return null;
-    }
-
-    unittest
-    {
-    }
+ *
+ * Returns: Path to root of tree.
+ */
+char* temptree(char* name_x,
+               char* template_ = null) @trusted
+{
+    return null;
 }

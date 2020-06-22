@@ -185,25 +185,13 @@ auto byLineFast(Terminator = char,
     return ByLineFast!(Char, Terminator)(f, keepTerminator, separator, bufferSize);
 }
 
-/**
- * Returns the path to a temporary file.
- */
-string tempFilePath(const scope string prefix,
-                    const scope string extension = null)
-{
-    import std.uuid : randomUUID;
-    import std.file : tempDir;
-    import std.path : buildPath;
-    return buildPath(tempDir(), prefix ~ "_" ~ randomUUID.toString() ~ extension); // TODO use append()
-}
-
 version(linux)
 unittest
 {
     import std.stdio: File, writeln;
     import std.algorithm.searching: count;
-
     import std.file : write;
+    import tempfs : tempFilePath;
     const path = tempFilePath("x");
     writeln(path);
     File(path, "wb").write("a\n");

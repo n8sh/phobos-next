@@ -48,8 +48,6 @@ module nxt.rational;
 import std.conv : to;
 import std.math : abs;
 
-alias abs = std.math.abs;       // allow cross-module overloading
-
 /** Checks whether $(D T) is structurally an integer, i.e. whether it supports
  * all of the operations an integer type should support.  Does not check the
  * nominal type of $(D T).  In particular, for a mutable type $(D T) the

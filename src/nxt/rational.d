@@ -509,11 +509,10 @@ public:
             _den ^^= that;
         }
 
-        /* Don't need to simplify here.  This is already simplified, meaning
-         * the numerator and denominator don't have any common factors.  Raising
+        /* don't need to simplify here.  this is already simplified, meaning
+         * the numerator and denominator don't have any common factors.  raising
          * both to a positive integer power won't create any.
          */
-
         return this;
     }
     /// ditto

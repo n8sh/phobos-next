@@ -45,7 +45,7 @@
  */
 module nxt.rational;
 
-import std.algorithm, std.bigint, std.conv, std.exception, std.math;
+import std.algorithm, std.conv, std.exception, std.math;
 
 alias abs = std.math.abs;       // allow cross-module overloading
 
@@ -157,13 +157,13 @@ template isIntegerLike(T)
 /** Checks if $(D T) has the basic properties of a rational type, i.e.  it has a
  * numerator and a denominator.
  */
-enum isRational(T) = (is(typeof(T.init.numerator)) &&
-                      is(typeof(T.init.denominator)));
+enum isRational(T) = (is(typeof(T.init.numerator)) && // TODO faster to use hasMember? TODO check that member `isIntegerLike`?
+                      is(typeof(T.init.denominator))); // TODO faster to use hasMember? TODO check that member `isIntegerLike`?
 
 /** Returns a Common Integral Type between $(D I1) and $(D I2).  This is defined
  * as the type returned by I1.init * I2.init.
  */
-template CommonInteger(I1, I2)
+private template CommonInteger(I1, I2)
 if (isIntegerLike!I1 &&
     isIntegerLike!I2)
 {
@@ -183,15 +183,15 @@ if (isIntegerLike!I1 &&
  * just on the CommonInteger of ($D R1) and $(D R2), if they themselves are
  * integers).
  */
-template CommonRational(R1, R2)
+private template CommonRational(R1, R2) // TODO avoid recursions below
 {
     static if (isRational!R1)
     {
-        alias CommonRational = CommonRational!(typeof(R1.numerator), R2);
+        alias CommonRational = CommonRational!(typeof(R1.numerator), R2); // recurse. TODO avoid
     }
     else static if (isRational!R2)
     {
-        alias CommonRational = CommonRational!(R1, typeof(R2.numerator));
+        alias CommonRational = CommonRational!(R1, typeof(R2.numerator)); // recurse. TODO avoid
     }
     else static if (is(CommonInteger!(R1, R2)))
     {
@@ -245,14 +245,14 @@ if (isIntegerLike!I1 &&
          * assignment operator, copy c'tor, etc.
          */
         typeof(return) ret;
-        ret.num = i1;
-        ret.den = i2;
+        ret._num = i1;
+        ret._den = i2;
     }
     ret.simplify();
     return ret;
 }
 
-///Ditto
+/// ditto
 Rational!(I) rational(I)(I val)
 if (isIntegerLike!I)
 {
@@ -271,169 +271,184 @@ if (isIntegerLike!Int)
 public:
 
     // ----------------Multiplication operators----------------------------------
-    auto opBinary(string op, Rhs)(Rhs rhs)
+    auto opBinary(string op, Rhs)(const scope Rhs rhs) const
     if (op == "*" && is(CommonRational!(Int, Rhs)) && isRational!Rhs)
     {
         auto ret = CommonRational!(Int, Rhs)(this.numerator, this.denominator);
         return ret *= rhs;
     }
 
-    auto opBinary(string op, Rhs)(Rhs rhs)
+    auto opBinary(string op, Rhs)(const scope Rhs rhs) const
     if (op == "*" && is(CommonRational!(Int, Rhs)) && isIntegerLike!Rhs)
     {
-        auto ret = this;
-        return ret *= rhs;
+        auto divisor = this._num;
+        const this_num_d = this._num / divisor;
+        const rhs_den_d = rhs._den / divisor;
+
+        divisor = gcf(this._den, rhs);
+        this._den /= divisor;
+        rhs /= divisor;
+
+        this._num *= rhs._num;
+        this._den *= rhs._den;
+
+        /* Don't need to simplify.  Already cancelled common factors before
+         * multiplying.
+         */
+        fixSigns();
+        return this;
     }
 
-    auto opBinaryRight(string op, Rhs)(Rhs rhs)
+    auto opBinaryRight(string op, Rhs)(const scope Rhs rhs) const
     if (op == "*" && is(CommonRational!(Int, Rhs)) && isIntegerLike!Rhs)
     {
-        return opBinary!(op, Rhs)(rhs);
+        return opBinary!(op, Rhs)(rhs); // commutative
     }
 
-    typeof(this) opOpAssign(string op, Rhs)(Rhs rhs)
+    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs rhs)
     if (op == "*" && isRational!Rhs)
     {
         /* Cancel common factors first, then multiply.  This prevents
-         * overflows and is much more efficient when using BigInts.
-         */
-        auto divisor = gcf(this.num, rhs.den);
-        this.num /= divisor;
-        rhs.den /= divisor;
+         * overflows and is much more efficient when using BigInts. */
+        auto divisor = gcf(this._num, rhs._den);
+        this._num /= divisor;
+        const rhs_den = rhs._den / divisor;
 
-        divisor = gcf(this.den, rhs.num);
-        this.den /= divisor;
-        rhs.num /= divisor;
+        divisor = gcf(this._den, rhs._num); // reuse divisor
+        this._den /= divisor;
+        const rhs_num = rhs._num / divisor;
 
-        this.num *= rhs.num;
-        this.den *= rhs.den;
+        this._num *= rhs_num;
+        this._den *= rhs_den;
 
         /* Don't need to simplify.  Already cancelled common factors before
          * multiplying.
          */
         fixSigns();
+
         return this;
     }
 
-    typeof(this) opOpAssign(string op, Rhs)(Rhs rhs)
+    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs rhs)
     if (op == "*" && isIntegerLike!Rhs)
     {
-        auto divisor = gcf(this.den, rhs);
-        this.den /= divisor;
+        auto divisor = gcf(this._den, rhs);
+        this._den /= divisor;
         rhs /= divisor;
-        this.num *= rhs;
+        this._num *= rhs;
 
-        /* Don't need to simplify.  Already cancelled common factors before
+        /* don't need to simplify.  already cancelled common factors before
          * multiplying.
          */
-        fixSigns();
+        fixsigns();
         return this;
     }
 
-    // --------------------Division operators--------------------------------------
-    auto opBinary(string op, Rhs)(Rhs rhs)
+    // --------------------division operators--------------------------------------
+    auto opBinary(string op, Rhs)(const scope Rhs rhs) const
     if (op == "/" &&
-        is(CommonRational!(Int, Rhs)) &&
+        is(commonrational!(int, rhs)) &&
         isRational!Rhs)
     {
-        // Division = multiply by inverse.
-        swap(rhs.num, rhs.den);
+        // division = multiply by inverse.
+        swap(rhs._num, rhs._den);
         return this *= rhs;
     }
 
-    typeof(this) opBinary(string op, Rhs)(Rhs rhs)
+    typeof(this) opBinary(string op, Rhs)(const scope Rhs rhs) const
     if (op == "/" &&
-        is(CommonRational!(Int, Rhs)) &&
-        isIntegerLike!(Rhs))
+        is(commonrational!(int, rhs)) &&
+        isIntegerLike!(rhs))
     {
-        auto ret = CommonRational!(Int, Rhs)(this.numerator, this.denominator);
+        auto ret = commonrational!(int, rhs)(this.numerator, this.denominator);
         return ret /= rhs;
     }
 
-    typeof(this) opBinaryRight(string op, Rhs)(Rhs rhs)
+    typeof(this) opBinaryRight(string op, Rhs)(const scope Rhs rhs) const
     if (op == "/" &&
-        is(CommonRational!(Int, Rhs)) &&
+        is(commonrational!(int, rhs)) &&
         isIntegerLike!Rhs)
     {
-        auto ret = CommonRational!(Int, Rhs)(this.denominator, this.numerator);
+        auto ret = commonrational!(int, rhs)(this.denominator, this.numerator);
         return ret *= rhs;
     }
 
-    typeof(this) opOpAssign(string op, Rhs)(Rhs rhs)
+    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs rhs)
     if (op == "/" &&
         isIntegerLike!Rhs)
     {
-        auto divisor = gcf(this.num, rhs);
-        this.num /= divisor;
+        auto divisor = gcf(this._num, rhs);
+        this._num /= divisor;
         rhs /= divisor;
-        this.den *= rhs;
+        this._den *= rhs;
 
-        /* Don't need to simplify.  Already cancelled common factors before
+        /* don't need to simplify.  already cancelled common factors before
          * multiplying.
          */
-        fixSigns();
+        fixsigns();
         return this;
     }
 
-    typeof(this) opOpAssign(string op, Rhs)(Rhs rhs)
+    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs rhs)
     if (op == "/" &&
         isRational!Rhs)
     {
-        // Division = multiply by inverse.
-        swap(rhs.num, rhs.den);
+        // division = multiply by inverse.
+        swap(rhs._num, rhs._den);
         return this *= rhs;
     }
 
-    // ---------------------Addition operators-------------------------------------
-    auto opBinary(string op, Rhs)(Rhs rhs)
+    // ---------------------addition operators-------------------------------------
+
+    auto opBinary(string op, Rhs)(const scope Rhs rhs) const
     if (op == "+" &&
         (isRational!Rhs ||
          isIntegerLike!Rhs))
     {
-        auto ret = CommonRational!(typeof(this), Rhs)(this.numerator, this.denominator);
+        auto ret = commonrational!(typeof(this), rhs)(this.numerator, this.denominator);
         return ret += rhs;
     }
 
-    auto opBinaryRight(string op, Rhs)(Rhs rhs)
+    auto opBinaryRight(string op, Rhs)(const scope Rhs rhs) const
     if (op == "+" &&
         is(CommonRational!(Int, Rhs)) &&
         isIntegerLike!Rhs)
     {
-        return opBinary!(op, Rhs)(rhs);
+        return opBinary!(op, Rhs)(rhs); // commutative
     }
 
-    typeof(this) opOpAssign(string op, Rhs)(Rhs rhs)
+    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs rhs)
     if (op == "+" &&
         isRational!Rhs)
     {
-        if (this.den == rhs.den)
+        if (this._den == rhs._den)
         {
-            this.num += rhs.num;
+            this._num += rhs._num;
             simplify();
             return this;
         }
 
-        Int commonDenom = lcm(this.den, rhs.den);
-        this.num *= commonDenom / this.den;
-        this.num += (commonDenom / rhs.den) * rhs.num;
-        this.den = commonDenom;
+        Int commonDenom = lcm(this._den, rhs._den);
+        this._num *= commonDenom / this._den;
+        this._num += (commonDenom / rhs._den) * rhs._num;
+        this._den = commonDenom;
 
         simplify();
         return this;
     }
 
-    typeof(this) opOpAssign(string op, Rhs)(Rhs rhs)
+    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs rhs)
     if (op == "+" &&
         isIntegerLike!Rhs)
     {
-        this.num += rhs * this.den;
+        this._num += rhs * this._den;
 
         simplify();
         return this;
     }
 
     // -----------------------Subtraction operators-------------------------------
-    auto opBinary(string op, Rhs)(Rhs rhs)
+    auto opBinary(string op, Rhs)(const scope Rhs rhs) const
     if (op == "-" &&
         is(CommonRational!(Int, Rhs)))
     {
@@ -442,59 +457,59 @@ public:
         return ret -= rhs;
     }
 
-    typeof(this) opOpAssign(string op, Rhs)(Rhs rhs)
+    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs rhs)
     if (op == "-" &&
         isRational!Rhs)
     {
-        if (this.den == rhs.den)
+        if (this._den == rhs._den)
         {
-            this.num -= rhs.num;
+            this._num -= rhs._num;
             simplify();
             return this;
         }
 
-        auto commonDenom = lcm(this.den, rhs.den);
-        this.num *= commonDenom / this.den;
-        this.num -= (commonDenom / rhs.den) * rhs.num;
-        this.den = commonDenom;
+        auto commonDenom = lcm(this._den, rhs._den);
+        this._num *= commonDenom / this._den;
+        this._num -= (commonDenom / rhs._den) * rhs._num;
+        this._den = commonDenom;
 
         simplify();
         return this;
     }
 
-    typeof(this) opOpAssign(string op, Rhs)(Rhs rhs)
+    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs rhs)
     if (op == "-" &&
         isIntegerLike!Rhs)
     {
-        this.num -= rhs * this.den;
+        this._num -= rhs * this._den;
 
         simplify();
         return this;
     }
 
-    typeof(this) opBinaryRight(string op, Rhs)(Rhs rhs)
+    typeof(this) opBinaryRight(string op, Rhs)(const scope Rhs rhs) const
     if (op == "-" &&
         is(CommonInteger!(Int, Rhs)) &&
         isIntegerLike!Rhs)
     {
         typeof(this) ret;
-        ret.den = this.den;
-        ret.num = (rhs * this.den) - this.num;
+        ret._den = this._den;
+        ret._num = (rhs * this._den) - this._num;
 
         simplify();
         return ret;
     }
 
     // ----------------------Unary operators---------------------------------------
-    typeof(this) opUnary(string op)()
+    typeof(this) opUnary(string op)() const
     if (op == "-" || op == "+")
     {
-        mixin("return typeof(this)(" ~ op ~ "num, den);");
+        mixin("return typeof(this)(" ~ op ~ "_num, _den);");
     }
 
     // ---------------------Exponentiation operator---------------------------------
     // Can only handle integer powers if the result has to also be rational.
-    typeof(this) opOpAssign(string op, Rhs)(Rhs rhs)
+    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs rhs)
     if (op == "^^" &&
         isIntegerLike!Rhs)
     {
@@ -508,12 +523,12 @@ public:
          * the numerator and denominator don't have any common factors.  Raising
          * both to a positive integer power won't create any.
          */
-         num ^^= rhs;
-         den ^^= rhs;
+         _num ^^= rhs;
+         _den ^^= rhs;
          return this;
     }
 
-    auto opBinary(string op, Rhs)(Rhs rhs)
+    auto opBinary(string op, Rhs)(const scope Rhs rhs) const
     if (op == "^^" &&
         isIntegerLike!Rhs &&
         is(CommonRational!(Int, Rhs)))
@@ -525,44 +540,42 @@ public:
 
     import std.traits : isAssignable;
 
-    // ---------------------Assignment operators------------------------------------
-    typeof(this) opAssign(Rhs)(Rhs rhs)
+    typeof(this) opAssign(Rhs)(const scope Rhs rhs)
     if (isIntegerLike!Rhs &&
         isAssignable!(Int, Rhs))
     {
-        this.num = rhs;
-        this.den = 1;
+        this._num = rhs;
+        this._den = 1;
         return this;
     }
 
-    typeof(this) opAssign(Rhs)(Rhs rhs)
+    typeof(this) opAssign(Rhs)(const scope Rhs rhs)
     if (isRational!Rhs &&
         isAssignable!(Int, typeof(Rhs.numerator)))
     {
-        this.num = rhs.numerator;
-        this.den = rhs.denominator;
+        this._num = rhs.numerator;
+        this._den = rhs.denominator;
         return this;
     }
 
-    // --------------------Comparison/Equality Operators---------------------------
-    bool opEquals(Rhs)(Rhs rhs)
+    bool opEquals(Rhs)(const scope Rhs rhs) const
     if (isRational!Rhs ||
         isIntegerLike!Rhs)
     {
         static if (isRational!Rhs)
         {
-            return (rhs.num == this.num &&
-                    rhs.den == this.den);
+            return (rhs._num == this._num &&
+                    rhs._den == this._den);
         }
         else
         {
             static assert(isIntegerLike!Rhs);
-            return (rhs == this.num &&
-                    this.den == 1);
+            return (rhs == this._num &&
+                    this._den == 1);
         }
     }
 
-    int opCmp(Rhs)(Rhs rhs)
+    int opCmp(Rhs)(const scope Rhs rhs) const
     if (isRational!Rhs)
     {
         if (opEquals(rhs))
@@ -576,32 +589,32 @@ public:
          * Assumption:  When simplify() is called, rational will be written in
          * canonical form, with any negative signs being only in the numerator.
          */
-        if (this.num < 0 &&
-            rhs.num > 0)
+        if (this._num < 0 &&
+            rhs._num > 0)
         {
             return -1;
         }
-        else if (this.num > 0 &&
-                 rhs.num < 0)
+        else if (this._num > 0 &&
+                 rhs._num < 0)
         {
             return 1;
         }
-        else if (this.num >= rhs.num &&
-                 this.den <= rhs.den)
+        else if (this._num >= rhs._num &&
+                 this._den <= rhs._den)
         {
             // We've already ruled out equality, so this must be > rhs.
             return 1;
         }
-        else if (rhs.num >= this.num &&
-                 rhs.den <= this.den)
+        else if (rhs._num >= this._num &&
+                 rhs._den <= this._den)
         {
             return -1;
         }
 
         // Can't do it without common denominator.  Argh.
-        auto commonDenom = lcm(this.den, rhs.den);
-        auto lhsNum = this.num * (commonDenom / this.den);
-        auto rhsNum = rhs.num * (commonDenom / rhs.den);
+        auto commonDenom = lcm(this._den, rhs._den);
+        auto lhsNum = this._num * (commonDenom / this._den);
+        auto rhsNum = rhs._num * (commonDenom / rhs._den);
 
         if (lhsNum > rhsNum)
         {
@@ -618,7 +631,7 @@ public:
         assert(0);
     }
 
-    int opCmp(Rhs)(Rhs rhs)
+    int opCmp(Rhs)(const scope Rhs rhs) const
     if (isIntegerLike!Rhs)
     {
         if (opEquals(rhs))
@@ -627,17 +640,17 @@ public:
         }
 
         // Again, check the obvious cases first.
-        if (rhs >= this.num)
+        if (rhs >= this._num)
         {
             return -1;
         }
 
-        rhs *= this.den;
-        if (rhs > this.num)
+        rhs *= this._den;
+        if (rhs > this._num)
         {
             return -1;
         }
-        else if (rhs < this.num)
+        else if (rhs < this._num)
         {
             return 1;
         }
@@ -649,23 +662,23 @@ public:
     ///////////////////////////////////////////////////////////////////////////////
 
     ///Fast inversion, equivalent to 1 / rational.
-    typeof(this) invert()
+    typeof(this) invert() const
     {
-        swap(num, den);
+        swap(_num, _den);
         return this;
     }
 
     import std.traits : isFloatingPoint;
 
     ///Convert to floating point representation.
-    F opCast(F)()
+    F opCast(F)() const
     if (isFloatingPoint!F)
     {
         import std.traits : isIntegral;
         // Do everything in real precision, then convert to F at the end.
         static if (isIntegral!(Int))
         {
-            return cast(real) num / den;
+            return cast(real) _num / _den;
         }
         else
         {
@@ -673,34 +686,34 @@ public:
             real expon = 1.0;
             real ans = 0;
             byte sign = 1;
-            if (temp.num < 0)
+            if (temp._num < 0)
             {
-                temp.num *= -1;
+                temp._num *= -1;
                 sign = -1;
             }
 
-            while (temp.num > 0)
+            while (temp._num > 0)
             {
-                while (temp.num < temp.den)
+                while (temp._num < temp._den)
                 {
 
-                    assert(temp.den > 0);
+                    assert(temp._den > 0);
 
-                    static if (is(typeof(temp.den & 1)))
+                    static if (is(typeof(temp._den & 1)))
                     {
                         // Try to make numbers smaller instead of bigger.
-                        if ((temp.den & 1) == 0)
+                        if ((temp._den & 1) == 0)
                         {
-                            temp.den >>= 1;
+                            temp._den >>= 1;
                         }
                         else
                         {
-                            temp.num <<= 1;
+                            temp._num <<= 1;
                         }
                     }
                     else
                     {
-                        temp.num <<= 1;
+                        temp._num <<= 1;
                     }
 
                     expon *= 0.5;
@@ -708,14 +721,19 @@ public:
                     /* This checks for overflow in case we're working with a
                      * user-defined fixed-precision integer.
                      */
-                    enforce(temp.num > 0, text(
+                    enforce(temp._num > 0, text(
                         "Overflow while converting ", typeof(this).stringof,
                         " to ", F.stringof, "."));
 
                 }
 
-                auto intPart = temp.num / temp.den;
+                auto intPart = temp._num / temp._den;
 
+                static if (is(Int == struct) ||
+                           is(Int == class))
+                {
+                    import std.bigint;
+                }
                 static if (is(Int == std.bigint.BigInt))
                 {
                     /* This should really be a cast, but BigInt still has a few
@@ -725,7 +743,7 @@ public:
                 }
                 else
                 {
-                    long lIntPart = cast(long) intPart;
+                    long lIntPart = cast(long)intPart;
                 }
 
                 // Test for changes.
@@ -737,7 +755,7 @@ public:
                 }
 
                 // Subtract out int part.
-                temp.num -= intPart * temp.den;
+                temp._num -= intPart * temp._den;
             }
 
             return ans * sign;
@@ -747,7 +765,7 @@ public:
     /** Casts $(D this) to an integer by truncating the fractional part.
      * Equivalent to $(D integerPart), and then casting it to type $(D I).
      */
-    I opCast(I)()
+    I opCast(I)() const
     if (isIntegerLike!I &&
         is(typeof(cast(I) Int.init)))
     {
@@ -757,62 +775,62 @@ public:
     ///Returns the numerator.
     @property inout(Int) numerator() inout
     {
-        return num;
+        return _num;
     }
 
     ///Returns the denominator.
     @property inout(Int) denominator() inout
     {
-        return den;
+        return _den;
     }
 
     /// Returns the integer part of this rational, with any remainder truncated.
-    @property inout(Int) integerPart() inout
+    @property Int integerPart() const
     {
         return this.numerator / this.denominator;
     }
 
     /// Returns the fractional part of this rational.
-    @property typeof(this) fractionPart()
+    @property typeof(this) fractionPart() const
     {
         return this - integerPart;
     }
 
     /// Returns a string representation of $(D this) in the form a/b.
-    string toString()
+    string toString() const
     {
         static if (is(Int == std.bigint.BigInt))
         {
             // Special case it for now.  This should be fixed later.
-            return toDecimalString(num) ~ "/" ~
-                toDecimalString(den);
+            return toDecimalString(_num) ~ "/" ~
+                toDecimalString(_den);
         }
         else
         {
-            return to!string(num) ~ "/" ~ to!string(den);
+            return to!string(_num) ~ "/" ~ to!string(_den);
         }
     }
 
-private :
-    Int num; // numerator
-    Int den; // denominator
+private:
+    Int _num;                    ///< Numerator.
+    Int _den;                    ///< Denominator.
 
     void simplify()
     {
-        if (num == 0)
+        if (_num == 0)
         {
-            den = 1;
+            _den = 1;
             return;
         }
 
-        auto divisor = gcf(num, den);
-        num /= divisor;
-        den /= divisor;
+        auto divisor = gcf(_num, _den);
+        _num /= divisor;
+        _den /= divisor;
 
         fixSigns();
     }
 
-    void fixSigns()
+    void fixSigns() scope
     {
         static if (!is(Int == ulong) &&
                    !is(Int == uint) &&
@@ -820,10 +838,10 @@ private :
                    !is(Int == ubyte))
         {
             // Write in canonical form w.r.t. signs.
-            if (den < 0)
+            if (_den < 0)
             {
-                den *= -1;
-                num *= -1;
+                _den *= -1;
+                _num *= -1;
             }
         }
     }
@@ -832,13 +850,12 @@ private :
 pure unittest
 {
     // All reference values from the Maxima computer algebra system.
-
     // Test c'tor and simplification first.
-    auto num = BigInt("295147905179352825852");
-    auto den = BigInt("147573952589676412920");
+    auto _num = BigInt("295147905179352825852");
+    auto _den = BigInt("147573952589676412920");
     auto simpNum = BigInt("24595658764946068821");
     auto simpDen = BigInt("12297829382473034410");
-    auto f1 = rational(num, den);
+    auto f1 = rational(_num, _den);
     auto f2 = rational(simpNum, simpDen);
     assert(f1 == f2);
     // Check that signs of numerator/denominator are corrected
@@ -982,8 +999,8 @@ Rational!(Int) toRational(Int)(real floatNum, real epsilon = 1e-8)
     if (abs(floatNum) < epsilon)
     {
         Rational!Int ret;
-        ret.num = 0;
-        ret.den = 1;
+        ret._num = 0;
+        ret._den = 1;
         return ret;
     }
 
@@ -1005,13 +1022,13 @@ private Rational!Int toRationalImpl(Int)(real floatNum, real epsilon)
 
         static if (isIntegral!(Int))
         {
-            ret.den = cast(Int) intPart;
-            ret.num = cast(Int) 1;
+            ret._den = cast(Int) intPart;
+            ret._num = cast(Int) 1;
         }
         else
         {
-            ret.den = intPart;
-            ret.num = 1;
+            ret._den = intPart;
+            ret._num = 1;
         }
     }
     else
@@ -1021,13 +1038,13 @@ private Rational!Int toRationalImpl(Int)(real floatNum, real epsilon)
 
         static if (isIntegral!(Int))
         {
-            ret.den = cast(Int) 1;
-            ret.num = cast(Int) intPart;
+            ret._den = cast(Int) 1;
+            ret._num = cast(Int) intPart;
         }
         else
         {
-            ret.den = 1;
-            ret.num = intPart;
+            ret._den = 1;
+            ret._num = intPart;
         }
     }
 
@@ -1103,13 +1120,13 @@ pure unittest
     assert(gcf(BigInt("8589934596"), BigInt("295147905179352825852")) == 12);
 }
 
-/// Find the Least Common Multiple (LCM) of $(D n1) and $(D n2).
-CommonInteger!(I1, I2) lcm(I1, I2)(I1 n1, I2 n2)
+/// Find the Least Common Multiple (LCM) of $(D a) and $(D b).
+CommonInteger!(I1, I2) lcm(I1, I2)(const scope I1 a, const scope I2 b)
 if (isIntegerLike!I1 &&
     isIntegerLike!I2)
 {
-    n1 = abs(n1);
-    n2 = abs(n2);
+    const n1 = abs(a);
+    const n2 = abs(b);
     if (n1 == n2)
     {
         return n1;
@@ -1118,9 +1135,9 @@ if (isIntegerLike!I1 &&
 }
 
 /// Returns the largest integer less than or equal to $(D r).
-Int floor(Int)(Rational!Int r)
+Int floor(Int)(const scope Rational!Int r)
 {
-    auto intPart = r.integerPart;
+    Int intPart = r.integerPart;
     if (r > 0 || intPart == r)
     {
         return intPart;
@@ -1142,9 +1159,9 @@ Int floor(Int)(Rational!Int r)
 }
 
 /// Returns the smallest integer greater than or equal to $(D r).
-Int ceil(Int)(Rational!Int r)
+Int ceil(Int)(const scope Rational!Int r)
 {
-    auto intPart = r.integerPart;
+    Int intPart = r.integerPart;
     if (intPart == r || r < 0)
     {
         return intPart;
@@ -1168,10 +1185,10 @@ Int ceil(Int)(Rational!Int r)
 /** Round $(D r) to the nearest integer.  If the fractional part is exactly 1/2,
  * $(D r) will be rounded such that the absolute value is increased by rounding.
  */
-Int round(Int)(Rational!Int r)
+Int round(Int)(const scope Rational!Int r)
 {
-    auto intPart = r.integerPart;
-    auto fractPart = r.fractionPart;
+    Int intPart = r.integerPart;
+    Int fractPart = r.fractionPart;
 
     bool added;
     if (fractPart >= rational(1, 2))
@@ -1199,4 +1216,9 @@ Int round(Int)(Rational!Int r)
     assert(round(rational(7, 2)) == 4);
     assert(round(rational(-3, 4)) == -1);
     assert(round(rational(8U, 15U)) == 1);
+}
+
+version(unittest)
+{
+    import std.bigint;
 }

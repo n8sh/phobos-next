@@ -42,7 +42,7 @@ char* temptree(char* name_x,
     return null;
 }
 
-/** Returns the path to a new (unique) temporary file path. */
+/** Returns the path to a new (unique) temporary file. */
 string tempFilePath(const scope string prefix,
                     const scope string extension = null)
 {

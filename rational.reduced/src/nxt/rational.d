@@ -1,3 +1,5 @@
+module rational;
+
 Rational!(I1) rational(I1, I2)(I1 , I2)
 {
     return typeof(return)();
@@ -5,7 +7,8 @@ Rational!(I1) rational(I1, I2)(I1 , I2)
 
 struct Rational(Int)
 {
-    bool opEquals(Rhs)(Rhs _) {}
+    // bool opEquals(Rhs)(Rhs _) const { return true; }
+    bool opEquals(Rhs)(Rhs _) { return true; }
 }
 
 @nogc unittest

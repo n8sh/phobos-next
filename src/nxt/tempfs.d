@@ -49,5 +49,5 @@ string tempFilePath(const scope string prefix,
     import std.uuid : randomUUID;
     import std.file : tempDir;
     import std.path : buildPath;
-    return buildPath(tempDir(), prefix ~ "_" ~ randomUUID.toString() ~ extension); // TODO use append()
+    return buildPath(tempDir(), prefix ~ "_" ~ randomUUID.toString() ~ extension); // TODO use nxt.appending.append()
 }

@@ -390,7 +390,7 @@ public:
         (isRational!Rhs ||
          isIntegerLike!Rhs))
     {
-        auto ret = CommonRational!(typeof(this), that)(this.numerator, this.denominator);
+        auto ret = CommonRational!(typeof(this), Rhs)(this.numerator, this.denominator);
         return ret += that;
     }
 
@@ -477,11 +477,11 @@ public:
         is(CommonInteger!(SomeIntegral, Rhs)) &&
         isIntegerLike!Rhs)
     {
-        typeof(this) ret;
+        Rational!(SomeIntegral) ret;
         ret._den = this._den;
         ret._num = (that * this._den) - this._num;
 
-        simplify();
+        ret.simplify();
         return ret;
     }
 
@@ -492,7 +492,6 @@ public:
         mixin("return typeof(this)(" ~ op ~ "_num, _den);");
     }
 
-    // ---------------------Exponentiation operator---------------------------------
     // Can only handle integer powers if the result has to also be rational.
     typeof(this) opOpAssign(string op, Rhs)(const scope Rhs that)
     if (op == "^^" &&
@@ -500,19 +499,24 @@ public:
     {
         if (that < 0)
         {
-            this.inverse();
-            that *= -1;
+            this.invert();
+            _num ^^= that * -1;
+            _den ^^= that * -1;
+        }
+        else
+        {
+            _num ^^= that;
+            _den ^^= that;
         }
 
         /* Don't need to simplify here.  This is already simplified, meaning
          * the numerator and denominator don't have any common factors.  Raising
          * both to a positive integer power won't create any.
          */
-         _num ^^= that;
-         _den ^^= that;
-         return this;
-    }
 
+        return this;
+    }
+    /// ditto
     auto opBinary(string op, Rhs)(const scope Rhs that) const
     if (op == "^^" &&
         isIntegerLike!Rhs &&

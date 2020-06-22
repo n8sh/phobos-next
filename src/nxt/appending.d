@@ -2,8 +2,6 @@ module nxt.appending;
 
 /** Append arguments $(args) to `data`.
  *
- * TODO Add support for other random-access-ranges such as array_ex.d.
- *
  * See_Also: http://forum.dlang.org/thread/mevnosveagdiswkxtbrv@forum.dlang.org?page=1
  */
 ref R append(R, Args...)(ref R data,
@@ -92,4 +90,6 @@ if (args.length != 0)
     // data.append(d, d);
 
     static assert(!__traits(compiles, { data.append(); }));
+
+    assert(append("alpha ", "beta ", "gamma") == "alpha beta gamma");
 }

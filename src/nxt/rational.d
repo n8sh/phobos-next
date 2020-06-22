@@ -45,7 +45,6 @@
  */
 module nxt.rational;
 
-import std.algorithm.mutation : swap;
 import std.conv : to;
 import std.math : abs;
 
@@ -273,19 +272,19 @@ if (isIntegerLike!SomeIntegral)
 public:
 
     // ----------------Multiplication operators----------------------------------
-    Rational!(SomeIntegral) opBinary(string op, Rhs)(const scope Rhs rhs) const
+    Rational!(SomeIntegral) opBinary(string op, Rhs)(const scope Rhs that) const
     if (op == "*" && is(CommonRational!(SomeIntegral, Rhs)) && isRational!Rhs)
     {
         auto ret = CommonRational!(SomeIntegral, Rhs)(this.numerator, this.denominator);
-        return ret *= rhs;
+        return ret *= that;
     }
     /// ditto
-    Rational!(SomeIntegral) opBinary(string op, Rhs)(const scope Rhs rhs) const
+    Rational!(SomeIntegral) opBinary(string op, Rhs)(const scope Rhs that) const
     if (op == "*" && is(CommonRational!(SomeIntegral, Rhs)) && isIntegerLike!Rhs)
     {
-        const factor = gcf(this._den, rhs);
+        const factor = gcf(this._den, that);
         const adjusted_den = cast(SomeIntegral)(this._den / factor);
-        const adjusted_rhs = rhs / factor;
+        const adjusted_rhs = that / factor;
         const long new_den = this._num * adjusted_rhs;
         if (new_den > SomeIntegral.max)
         {
@@ -298,24 +297,24 @@ public:
         }
     }
 
-    auto opBinaryRight(string op, Rhs)(const scope Rhs rhs) const
+    auto opBinaryRight(string op, Rhs)(const scope Rhs that) const
     if (op == "*" && is(CommonRational!(SomeIntegral, Rhs)) && isIntegerLike!Rhs)
     {
-        return opBinary!(op, Rhs)(rhs); // commutative
+        return opBinary!(op, Rhs)(that); // commutative
     }
 
-    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs rhs)
+    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs that)
     if (op == "*" && isRational!Rhs)
     {
         /* Cancel common factors first, then multiply.  This prevents
          * overflows and is much more efficient when using BigInts. */
-        auto divisor = gcf(this._num, rhs._den);
+        auto divisor = gcf(this._num, that._den);
         this._num /= divisor;
-        const rhs_den = rhs._den / divisor;
+        const rhs_den = that._den / divisor;
 
-        divisor = gcf(this._den, rhs._num); // reuse divisor
+        divisor = gcf(this._den, that._num); // reuse divisor
         this._den /= divisor;
-        const rhs_num = rhs._num / divisor;
+        const rhs_num = that._num / divisor;
 
         this._num *= rhs_num;
         this._den *= rhs_den;
@@ -328,13 +327,13 @@ public:
         return this;
     }
     /// ditto
-    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs rhs)
+    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs that)
     if (op == "*" && isIntegerLike!Rhs)
     {
-        auto divisor = gcf(this._den, rhs);
+        const divisor = gcf(this._den, that);
         this._den /= divisor;
-        rhs /= divisor;
-        this._num *= rhs;
+        that /= divisor;
+        this._num *= that;
 
         /* don't need to simplify.  already cancelled common factors before
          * multiplying.
@@ -343,41 +342,41 @@ public:
         return this;
     }
 
-    typeof(this) opBinary(string op, Rhs)(const scope Rhs rhs) const
+    typeof(this) opBinary(string op, Rhs)(const scope Rhs that) const
     if (op == "/" &&
         is(CommonRational!(int, Rhs)) &&
         isRational!Rhs)
     {
-        return typeof(return)(_num * rhs._den,
-                              _den * rhs._num);
+        return typeof(return)(_num * that._den,
+                              _den * that._num);
     }
     // ditto
-    typeof(this) opBinary(string op, Rhs)(const scope Rhs rhs) const
+    typeof(this) opBinary(string op, Rhs)(const scope Rhs that) const
     if (op == "/" &&
         is(CommonRational!(int, Rhs)) &&
         isIntegerLike!(Rhs))
     {
         auto ret = CommonRational!(int, Rhs)(this.numerator, this.denominator);
-        return ret /= rhs;
+        return ret /= that;
     }
 
-    typeof(this) opBinaryRight(string op, Rhs)(const scope Rhs rhs) const
+    typeof(this) opBinaryRight(string op, Rhs)(const scope Rhs that) const
     if (op == "/" &&
         is(CommonRational!(int, Rhs)) &&
         isIntegerLike!Rhs)
     {
         auto ret = CommonRational!(int, Rhs)(this.denominator, this.numerator);
-        return ret *= rhs;
+        return ret *= that;
     }
 
-    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs rhs)
+    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs that)
     if (op == "/" &&
         isIntegerLike!Rhs)
     {
-        auto divisor = gcf(this._num, rhs);
+        const divisor = gcf(this._num, that);
         this._num /= divisor;
-        rhs /= divisor;
-        this._den *= rhs;
+        that /= divisor;
+        this._den *= that;
 
         /* don't need to simplify.  already cancelled common factors before
          * multiplying.
@@ -386,112 +385,110 @@ public:
         return this;
     }
 
-    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs rhs)
+    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs that)
     if (op == "/" &&
         isRational!Rhs)
     {
-        // division = multiply by inverse.
-        swap(rhs._num, rhs._den);
-        return this *= rhs;
+        return this *= that.inverse();
     }
 
     // ---------------------addition operators-------------------------------------
 
-    auto opBinary(string op, Rhs)(const scope Rhs rhs) const
+    auto opBinary(string op, Rhs)(const scope Rhs that) const
     if (op == "+" &&
         (isRational!Rhs ||
          isIntegerLike!Rhs))
     {
-        auto ret = CommonRational!(typeof(this), rhs)(this.numerator, this.denominator);
-        return ret += rhs;
+        auto ret = CommonRational!(typeof(this), that)(this.numerator, this.denominator);
+        return ret += that;
     }
 
-    auto opBinaryRight(string op, Rhs)(const scope Rhs rhs) const
+    auto opBinaryRight(string op, Rhs)(const scope Rhs that) const
     if (op == "+" &&
         is(CommonRational!(SomeIntegral, Rhs)) &&
         isIntegerLike!Rhs)
     {
-        return opBinary!(op, Rhs)(rhs); // commutative
+        return opBinary!(op, Rhs)(that); // commutative
     }
 
-    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs rhs)
+    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs that)
     if (op == "+" &&
         isRational!Rhs)
     {
-        if (this._den == rhs._den)
+        if (this._den == that._den)
         {
-            this._num += rhs._num;
+            this._num += that._num;
             simplify();
             return this;
         }
 
-        SomeIntegral commonDenom = lcm(this._den, rhs._den);
+        SomeIntegral commonDenom = lcm(this._den, that._den);
         this._num *= commonDenom / this._den;
-        this._num += (commonDenom / rhs._den) * rhs._num;
+        this._num += (commonDenom / that._den) * that._num;
         this._den = commonDenom;
 
         simplify();
         return this;
     }
 
-    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs rhs)
+    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs that)
     if (op == "+" &&
         isIntegerLike!Rhs)
     {
-        this._num += rhs * this._den;
+        this._num += that * this._den;
 
         simplify();
         return this;
     }
 
     // -----------------------Subtraction operators-------------------------------
-    auto opBinary(string op, Rhs)(const scope Rhs rhs) const
+    auto opBinary(string op, Rhs)(const scope Rhs that) const
     if (op == "-" &&
         is(CommonRational!(SomeIntegral, Rhs)))
     {
         auto ret = CommonRational!(typeof(this), Rhs)(this.numerator,
                                                       this.denominator);
-        return ret -= rhs;
+        return ret -= that;
     }
 
-    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs rhs)
+    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs that)
     if (op == "-" &&
         isRational!Rhs)
     {
-        if (this._den == rhs._den)
+        if (this._den == that._den)
         {
-            this._num -= rhs._num;
+            this._num -= that._num;
             simplify();
             return this;
         }
 
-        auto commonDenom = lcm(this._den, rhs._den);
+        auto commonDenom = lcm(this._den, that._den);
         this._num *= commonDenom / this._den;
-        this._num -= (commonDenom / rhs._den) * rhs._num;
+        this._num -= (commonDenom / that._den) * that._num;
         this._den = commonDenom;
 
         simplify();
         return this;
     }
 
-    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs rhs)
+    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs that)
     if (op == "-" &&
         isIntegerLike!Rhs)
     {
-        this._num -= rhs * this._den;
+        this._num -= that * this._den;
 
         simplify();
         return this;
     }
 
-    typeof(this) opBinaryRight(string op, Rhs)(const scope Rhs rhs) const
+    typeof(this) opBinaryRight(string op, Rhs)(const scope Rhs that) const
     if (op == "-" &&
         is(CommonInteger!(SomeIntegral, Rhs)) &&
         isIntegerLike!Rhs)
     {
         typeof(this) ret;
         ret._den = this._den;
-        ret._num = (rhs * this._den) - this._num;
+        ret._num = (that * this._den) - this._num;
 
         simplify();
         return ret;
@@ -506,76 +503,76 @@ public:
 
     // ---------------------Exponentiation operator---------------------------------
     // Can only handle integer powers if the result has to also be rational.
-    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs rhs)
+    typeof(this) opOpAssign(string op, Rhs)(const scope Rhs that)
     if (op == "^^" &&
         isIntegerLike!Rhs)
     {
-        if (rhs < 0)
+        if (that < 0)
         {
-            this.invert();
-            rhs *= -1;
+            this.inverse();
+            that *= -1;
         }
 
         /* Don't need to simplify here.  This is already simplified, meaning
          * the numerator and denominator don't have any common factors.  Raising
          * both to a positive integer power won't create any.
          */
-         _num ^^= rhs;
-         _den ^^= rhs;
+         _num ^^= that;
+         _den ^^= that;
          return this;
     }
 
-    auto opBinary(string op, Rhs)(const scope Rhs rhs) const
+    auto opBinary(string op, Rhs)(const scope Rhs that) const
     if (op == "^^" &&
         isIntegerLike!Rhs &&
         is(CommonRational!(SomeIntegral, Rhs)))
     {
         auto ret = CommonRational!(SomeIntegral, Rhs)(this.numerator, this.denominator);
-        ret ^^= rhs;
+        ret ^^= that;
         return ret;
     }
 
     import std.traits : isAssignable;
 
-    typeof(this) opAssign(Rhs)(const scope Rhs rhs)
+    typeof(this) opAssign(Rhs)(const scope Rhs that)
     if (isIntegerLike!Rhs &&
         isAssignable!(SomeIntegral, Rhs))
     {
-        this._num = rhs;
+        this._num = that;
         this._den = 1;
         return this;
     }
 
-    typeof(this) opAssign(Rhs)(const scope Rhs rhs)
+    typeof(this) opAssign(Rhs)(const scope Rhs that)
     if (isRational!Rhs &&
         isAssignable!(SomeIntegral, typeof(Rhs.numerator)))
     {
-        this._num = rhs.numerator;
-        this._den = rhs.denominator;
+        this._num = that.numerator;
+        this._den = that.denominator;
         return this;
     }
 
-    bool opEquals(Rhs)(const scope Rhs rhs) const
+    bool opEquals(Rhs)(const scope Rhs that) const
     if (isRational!Rhs ||
         isIntegerLike!Rhs)
     {
         static if (isRational!Rhs)
         {
-            return (rhs._num == this._num &&
-                    rhs._den == this._den);
+            return (that._num == this._num &&
+                    that._den == this._den);
         }
         else
         {
             static assert(isIntegerLike!Rhs);
-            return (rhs == this._num &&
+            return (that == this._num &&
                     this._den == 1);
         }
     }
 
-    int opCmp(Rhs)(const scope Rhs rhs) const
+    int opCmp(Rhs)(const scope Rhs that) const
     if (isRational!Rhs)
     {
-        if (opEquals(rhs))
+        if (opEquals(that))
         {
             return 0;
         }
@@ -587,31 +584,31 @@ public:
          * canonical form, with any negative signs being only in the numerator.
          */
         if (this._num < 0 &&
-            rhs._num > 0)
+            that._num > 0)
         {
             return -1;
         }
         else if (this._num > 0 &&
-                 rhs._num < 0)
+                 that._num < 0)
         {
             return 1;
         }
-        else if (this._num >= rhs._num &&
-                 this._den <= rhs._den)
+        else if (this._num >= that._num &&
+                 this._den <= that._den)
         {
-            // We've already ruled out equality, so this must be > rhs.
+            // We've already ruled out equality, so this must be > that.
             return 1;
         }
-        else if (rhs._num >= this._num &&
-                 rhs._den <= this._den)
+        else if (that._num >= this._num &&
+                 that._den <= this._den)
         {
             return -1;
         }
 
         // Can't do it without common denominator.  Argh.
-        auto commonDenom = lcm(this._den, rhs._den);
+        auto commonDenom = lcm(this._den, that._den);
         auto lhsNum = this._num * (commonDenom / this._den);
-        auto rhsNum = rhs._num * (commonDenom / rhs._den);
+        auto rhsNum = that._num * (commonDenom / that._den);
 
         if (lhsNum > rhsNum)
         {
@@ -628,26 +625,26 @@ public:
         assert(0);
     }
 
-    int opCmp(Rhs)(const scope Rhs rhs) const
+    int opCmp(Rhs)(const scope Rhs that) const
     if (isIntegerLike!Rhs)
     {
-        if (opEquals(rhs))
+        if (opEquals(that))
         {
             return 0;
         }
 
         // Again, check the obvious cases first.
-        if (rhs >= this._num)
+        if (that >= this._num)
         {
             return -1;
         }
 
-        rhs *= this._den;
-        if (rhs > this._num)
+        that *= this._den;
+        if (that > this._num)
         {
             return -1;
         }
-        else if (rhs < this._num)
+        else if (that < this._num)
         {
             return 1;
         }
@@ -658,10 +655,17 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////////
 
-    ///Fast inversion, equivalent to 1 / rational.
-    typeof(this) invert() const
+    /// Get inverse.
+    typeof(this) inverse() const
     {
         return typeof(return)(_den, _num);
+    }
+
+    /// Invert `this`.
+    typeof(this) invert()
+    {
+        import std.algorithm.mutation : swap;
+        swap(_den, _num);
     }
 
     import std.traits : isFloatingPoint;
@@ -819,7 +823,7 @@ private:
             return;
         }
 
-        auto divisor = gcf(_num, _den);
+        const divisor = gcf(_num, _den);
         _num /= divisor;
         _den /= divisor;
 

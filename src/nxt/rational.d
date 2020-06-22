@@ -633,12 +633,12 @@ public:
             return -1;
         }
 
-        that *= this._den;
-        if (that > this._num)
+        const that_ = that * this._den;
+        if (that_ > this._num)
         {
             return -1;
         }
-        else if (that < this._num)
+        else if (that_ < this._num)
         {
             return 1;
         }
@@ -656,7 +656,7 @@ public:
     }
 
     /// Invert `this`.
-    typeof(this) invert()
+    void invert()
     {
         import std.algorithm.mutation : swap;
         swap(_den, _num);
@@ -676,7 +676,7 @@ public:
         }
         else
         {
-            auto temp = this;
+            Rational!SomeIntegral temp = this;
             real expon = 1.0;
             real ans = 0;
             byte sign = 1;
@@ -715,6 +715,8 @@ public:
                     /* This checks for overflow in case we're working with a
                      * user-defined fixed-precision integer.
                      */
+                    import std.exception : enforce;
+                    import std.conv : text;
                     enforce(temp._num > 0, text(
                         "Overflow while converting ", typeof(this).stringof,
                         " to ", F.stringof, "."));
@@ -849,6 +851,8 @@ class OverflowException : Exception
 
 pure unittest
 {
+    import std.math : approxEqual;
+
     // All reference values from the Maxima computer algebra system.
     // Test c'tor and simplification first.
     auto _num = BigInt("295147905179352825852");
@@ -983,6 +987,8 @@ pure unittest
  */
 Rational!(SomeIntegral) toRational(SomeIntegral)(real floatNum, real epsilon = 1e-8)
 {
+    import std.math: isNaN;
+    import std.exception : enforce;
     enforce(floatNum != real.infinity &&
             floatNum != -real.infinity &&
             !isNaN(floatNum),
@@ -1009,6 +1015,7 @@ Rational!(SomeIntegral) toRational(SomeIntegral)(real floatNum, real epsilon = 1
 
 private Rational!SomeIntegral toRationalImpl(SomeIntegral)(real floatNum, real epsilon)
 {
+    import std.conv : roundTo;
     import std.traits : isIntegral;
 
     real actualEpsilon;
@@ -1059,6 +1066,7 @@ private Rational!SomeIntegral toRationalImpl(SomeIntegral)(real floatNum, real e
 
 unittest
 {
+    import std.math : PI, E;
     // Start with simple cases.
     assert(toRational!int(0.5) == rational(1, 2));
     assert(toRational!BigInt(0.333333333333333L) == rational(BigInt(1), BigInt(3)));
@@ -1187,8 +1195,8 @@ SomeIntegral ceil(SomeIntegral)(const scope Rational!SomeIntegral r)
  */
 SomeIntegral round(SomeIntegral)(const scope Rational!SomeIntegral r)
 {
-    SomeIntegral intPart = r.integerPart;
-    SomeIntegral fractPart = r.fractionPart;
+    auto intPart = r.integerPart;
+    const fractPart = r.fractionPart;
 
     bool added;
     if (fractPart >= rational(1, 2))

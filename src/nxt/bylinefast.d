@@ -185,6 +185,25 @@ auto byLineFast(Terminator = char,
     return ByLineFast!(Char, Terminator)(f, keepTerminator, separator, bufferSize);
 }
 
+string tempFile(const scope string prefix,
+                const scope string extension = null)
+{
+	import std.uuid : randomUUID;
+	import std.array: replace;
+
+	string fileName = prefix ~ "-" ~ randomUUID.toString() ~ extension;
+
+	if (extension !is null &&
+        extension == ".d")
+    {
+		fileName = fileName.replace("-", "_");
+    }
+
+    import std.file : tempDir;
+	auto path = tempDir() ~ fileName;
+	return path;
+}
+
 version(linux)
 unittest
 {
@@ -196,6 +215,8 @@ unittest
     assert(File(path).byLineFast.count ==
            File(path).byLine.count);
 }
+
+version(none) :
 
 version(linux)
 @safe unittest

@@ -6,10 +6,10 @@ import nxt.rational: Rational;
 import std.traits : isIterable, isFloatingPoint;
 
 /** Returns: number of default-initialized (zero) elements in $(D x) at
-    recursion depth $(D depth).
-
-    Depth defaults -1 meaning infinite depth.
-*/
+ * recursion depth $(D depth).
+ *
+ * Depth defaults -1 meaning infinite depth.
+ */
 Rational!ulong sparseness(T)(const scope T x,
                              int depth = -1)
 {

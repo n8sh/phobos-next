@@ -1211,7 +1211,7 @@ if (isInstanceOf!(DynamicArray, C) &&
 }
 
 ///
-@safe pure nothrow @nogc unittest
+@trusted pure nothrow @nogc unittest
 {
     alias T = int;
     alias A = DynamicArray!(T);
@@ -1220,7 +1220,7 @@ if (isInstanceOf!(DynamicArray, C) &&
     A b = a.dup;                // copy construction enabled
 
     assert(a[] == b[]);          // same content
-    assert(a[].ptr !is b[].ptr); // but not the same
+    assert(&a[0] !is &b[0]); // but not the same
 
     assert(b[] == [1, 2, 3].s);
     assert(b.length == 3);
@@ -1320,6 +1320,7 @@ version(unittest)
 
     const c = A.withElementsOfRange_untested([10, 20, 30].s[].filter!(_ => _ == 30).map!(_ => T(_^^2))); // !hasLength
     const d = [T(900)].s;
+
     assert(c[] == d[]);
 }
 
@@ -1566,7 +1567,7 @@ unittest
 }
 
 /// check duplication via `dup`
-@safe pure nothrow @nogc unittest
+@trusted pure nothrow @nogc unittest
 {
     alias T = int;
     alias A = DynamicArray!(T);
@@ -1576,7 +1577,7 @@ unittest
     auto a = A([10, 11, 12].s);
     auto b = a.dup;
     assert(a == b);
-    assert(a[].ptr !is b[].ptr);
+    assert(&a[0] !is &b[0]);
 }
 
 /// element type is a class

@@ -73,6 +73,6 @@ auto denseness(T)(const scope T x, int depth = -1)
 {
     immutable float[3] f = [1, 2, 3];
     alias Q = Rational!ulong;
-    assert(f[].denseness == Q(3, 3));
-    assert(f.denseness == Q(3, 3));
+    assert(f[].denseness == Q(1, 1)); // TODO should this be 3/3?
+    assert(f.denseness == Q(1, 1));   // TODO should this be 3/3?
 }

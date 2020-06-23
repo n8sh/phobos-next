@@ -55,6 +55,7 @@ struct TurtleFile          // TODO generalize to take template parameter `Range`
     private File _file;
 }
 
+version(none)
 @safe unittest
 {
     auto ttf = TurtleFile("");

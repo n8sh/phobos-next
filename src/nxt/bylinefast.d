@@ -195,35 +195,15 @@ unittest
 
     const path = tempFilePath("x");
 
+    writeln(path);
     File(path, "wb").write("a\n");
 
     assert(File(path, "rb").byLineFast.count ==
            File(path, "rb").byLine.count);
 }
 
-version(none) :
+version(none):
 
-version(linux)
-@safe unittest
-{
-    import std.stdio: File;
-
-    const path = "/etc/passwd";
-
-    char[] mutable_line;
-
-    foreach (line; File(path).byLineFast)
-    {
-        mutable_line = line; // TODO this should fail
-    }
-
-    {
-        auto byline = File(path).byLineFast;
-        mutable_line = byline.front; // TODO this should fail
-    }
-}
-
-version(none)
 unittest
 {
     import std.stdio: File, writeln;

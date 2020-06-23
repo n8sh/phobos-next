@@ -185,31 +185,12 @@ auto byLineFast(Terminator = char,
     return ByLineFast!(Char, Terminator)(f, keepTerminator, separator, bufferSize);
 }
 
-version(linux)
-unittest
-{
-    import std.stdio: File, writeln;
-    import std.algorithm.searching: count;
-    import tempfs : tempFilePath;
-    import std.file : write;
-
-    const path = tempFilePath("x");
-
-    writeln(path);
-    File(path, "wb").write("a\n");
-
-    assert(File(path, "rb").byLineFast.count ==
-           File(path, "rb").byLine.count);
-}
-
-version(none):
-
 unittest
 {
     import std.stdio: File, writeln;
     import std.algorithm.searching: count;
 
-    const path = "/home/per/Knowledge/DBpedia/latest/instance_types_en.ttl";
+    const path = "/media/per/NORDLOW_2019-06-/Knowledge/DBpedia/latest/instance_types_en.ttl";
 
     import std.datetime: StopWatch;
 
@@ -234,4 +215,21 @@ unittest
     }
 
     writeln("Speed-Up: ", d1 / d2);
+}
+
+version(linux)
+unittest
+{
+    import std.stdio: File, writeln;
+    import std.algorithm.searching: count;
+    import tempfs : tempFilePath;
+    import std.file : write;
+
+    const path = tempFilePath("x");
+
+    writeln(path);
+    File(path, "wb").write("a\n");
+
+    assert(File(path, "rb").byLineFast.count ==
+           File(path, "rb").byLine.count);
 }

@@ -190,11 +190,11 @@ unittest
 {
     import std.stdio: File, writeln;
     import std.algorithm.searching: count;
-    import std.file : write;
-    import tempfs : tempFilePath;
 
+    import tempfs : tempFilePath;
     const path = tempFilePath("x");
 
+    import std.file : write;
     File(path, "wb").write("a\n");
 
     assert(File(path, "rb").byLineFast.count ==

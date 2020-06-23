@@ -796,8 +796,7 @@ public:
         static if (is(SomeIntegral == std.bigint.BigInt))
         {
             // Special case it for now.  This should be fixed later.
-            return toDecimalString(_num) ~ "/" ~
-                toDecimalString(_den);
+            return toDecimalString(_num) ~ "/" ~ toDecimalString(_den);
         }
         else
         {

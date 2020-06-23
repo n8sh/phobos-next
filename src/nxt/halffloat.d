@@ -1,4 +1,3 @@
-
 /**
  * Implement IEEE 754 half-precision binary floating point format binary16.
  *

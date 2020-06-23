@@ -35,9 +35,6 @@ int tempfile(string namePrefix = null) @trusted
 /** Create a New Temporary Directory Tree.
  *
  * Returns: Path to root of tree.
- *
- * See_Also: https://forum.dlang.org/post/ytmwfzmeqjumzfzxithe@forum.dlang.org
- * See_Also: https://dlang.org/library/std/stdio/file.tmpfile.html
  */
 char* temptree(char* name_x,
                char* template_ = null) @trusted
@@ -45,7 +42,11 @@ char* temptree(char* name_x,
     return null;
 }
 
-/** Returns the path to a new (unique) temporary file. */
+/** Returns the path to a new (unique) temporary file.
+ *
+ * See_Also: https://forum.dlang.org/post/ytmwfzmeqjumzfzxithe@forum.dlang.org
+ * See_Also: https://dlang.org/library/std/stdio/file.tmpfile.html
+ */
 string tempFilePath(const scope string prefix,
                     const scope string extension = null)
 {

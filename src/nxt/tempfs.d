@@ -35,6 +35,8 @@ int tempfile(string namePrefix = null) @trusted
 /** Create a New Temporary Directory Tree.
  *
  * Returns: Path to root of tree.
+ *
+ * See_Also: https://dlang.org/library/std/stdio/file.tmpfile.html
  */
 char* temptree(char* name_x,
                char* template_ = null) @trusted

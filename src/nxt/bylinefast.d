@@ -192,9 +192,11 @@ unittest
     import std.algorithm.searching: count;
     import std.file : write;
     import tempfs : tempFilePath;
+
     const path = tempFilePath("x");
-    writeln(path);
+
     File(path, "wb").write("a\n");
+
     assert(File(path, "rb").byLineFast.count ==
            File(path, "rb").byLine.count);
 }

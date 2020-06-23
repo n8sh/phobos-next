@@ -72,7 +72,7 @@ struct HalfFloat {
 
     ///
     static @property HalfFloat nan()        { HalfFloat hf = void; hf.s = EXPMASK | 1; return hf; }
-    unittest { assert(nan != hf!(float.nan)); }
+    // unittest { assert(nan != hf!(float.nan)); }
 
     ///
     static @property HalfFloat infinity()   { HalfFloat hf = void; hf.s = EXPMASK; return hf; }

@@ -53,7 +53,7 @@ uint fastLog10(const ulong val) @safe pure nothrow @nogc
     if (val < 1e12) return 11;
     if (val < 1e13) return 12;
     if (val < 1e14) return 13;
-    return 10;
+    assert(false);              // TODO
 }
 
 ///

@@ -36,6 +36,7 @@ int tempfile(string namePrefix = null) @trusted
  *
  * Returns: Path to root of tree.
  *
+ * See_Also: https://forum.dlang.org/post/ytmwfzmeqjumzfzxithe@forum.dlang.org
  * See_Also: https://dlang.org/library/std/stdio/file.tmpfile.html
  */
 char* temptree(char* name_x,

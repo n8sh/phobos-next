@@ -122,6 +122,7 @@ void scanMagicFiles(string dir)
     version(show) writeln(`Found `, attrCount, ` number of magic attributes`);
 }
 
+version(none)
 unittest
 {
     scanMagicFiles(`/home/per/Work/file/magic/Magdir/`);

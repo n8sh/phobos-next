@@ -54,6 +54,7 @@ uint fastLog10(const ulong val) @safe pure nothrow @nogc
     if (val < cast(ulong)1e13) return 12;
     if (val < cast(ulong)1e14) return 13;
     if (val < cast(ulong)1e15) return 14;
+    if (val < cast(ulong)1e16) return 15;
     assert(false);              // TODO
 }
 
@@ -77,6 +78,7 @@ uint fastLog10(const ulong val) @safe pure nothrow @nogc
     assert(fastLog10(1_000_000_000_000UL) == 12);
     assert(fastLog10(10_000_000_000_000UL) == 13);
     assert(fastLog10(100_000_000_000_000UL) == 14);
+    assert(fastLog10(1_000_000_000_000_000UL) == 15);
 }
 
 /*@unique*/

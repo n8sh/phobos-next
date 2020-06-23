@@ -125,5 +125,5 @@ void scanMagicFiles(string dir)
 version(none)
 unittest
 {
-    scanMagicFiles(`/home/per/Work/file/magic/Magdir/`);
+    scanMagicFiles(`/home/per/ware/file/magic/Magdir/`);
 }

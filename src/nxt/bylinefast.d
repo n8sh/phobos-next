@@ -185,6 +185,25 @@ auto byLineFast(Terminator = char,
     return ByLineFast!(Char, Terminator)(f, keepTerminator, separator, bufferSize);
 }
 
+version(none):
+
+version(linux)
+unittest
+{
+    import std.stdio: File, writeln;
+    import std.algorithm.searching: count;
+    import tempfs : tempFilePath;
+    import std.file : write;
+
+    const path = tempFilePath("x");
+
+    writeln(path);
+    File(path, "wb").write("a\n");
+
+    assert(File(path, "rb").byLineFast.count ==
+           File(path, "rb").byLine.count);
+}
+
 unittest
 {
     import std.stdio: File, writeln;
@@ -215,21 +234,4 @@ unittest
     }
 
     writeln("Speed-Up: ", d1 / d2);
-}
-
-version(linux)
-unittest
-{
-    import std.stdio: File, writeln;
-    import std.algorithm.searching: count;
-    import tempfs : tempFilePath;
-    import std.file : write;
-
-    const path = tempFilePath("x");
-
-    writeln(path);
-    File(path, "wb").write("a\n");
-
-    assert(File(path, "rb").byLineFast.count ==
-           File(path, "rb").byLine.count);
 }

@@ -1319,9 +1319,8 @@ version(unittest)
     assert(b == [T(100), T(400), T(900)].s);
 
     const c = A.withElementsOfRange_untested([10, 20, 30].s[].filter!(_ => _ == 30).map!(_ => T(_^^2))); // !hasLength
-    const d = [T(900)].s;
-
-    assert(c[] == d[]);
+    assert(c.length == 1);
+    assert(c == [T(900)].s);
 }
 
 // construct from ranges of copyable elements

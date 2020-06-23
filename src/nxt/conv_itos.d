@@ -39,20 +39,20 @@ uint fastLog10(const uint val) @safe pure nothrow @nogc
 uint fastLog10(const ulong val) @safe pure nothrow @nogc
 {
     // in order of probability
-    if (val < 1e1) return 0;
-    if (val < 1e2) return 1;
-    if (val < 1e3) return 2;
-    if (val < 1e4) return 3;
-    if (val < 1e5) return 4;
-    if (val < 1e6) return 5;
-    if (val < 1e7) return 6;
-    if (val < 1e8) return 7;
-    if (val < 1e9) return 8;
-    if (val < 1e10) return 9;
-    if (val < 1e11) return 10;
-    if (val < 1e12) return 11;
-    if (val < 1e13) return 12;
-    if (val < 1e14) return 13;
+    if (val < cast(ulong)1e1) return 0;
+    if (val < cast(ulong)1e2) return 1;
+    if (val < cast(ulong)1e3) return 2;
+    if (val < cast(ulong)1e4) return 3;
+    if (val < cast(ulong)1e5) return 4;
+    if (val < cast(ulong)1e6) return 5;
+    if (val < cast(ulong)1e7) return 6;
+    if (val < cast(ulong)1e8) return 7;
+    if (val < cast(ulong)1e9) return 8;
+    if (val < cast(ulong)1e10) return 9;
+    if (val < cast(ulong)1e11) return 10;
+    if (val < cast(ulong)1e12) return 11;
+    if (val < cast(ulong)1e13) return 12;
+    if (val < cast(ulong)1e14) return 13;
     assert(false);              // TODO
 }
 
@@ -72,6 +72,8 @@ uint fastLog10(const ulong val) @safe pure nothrow @nogc
     assert(fastLog10(999_999_999UL) == 8);
     assert(fastLog10(1_000_000_000UL) == 9);
     assert(fastLog10(10_000_000_000UL) == 10);
+    assert(fastLog10(100_000_000_000UL) == 11);
+    assert(fastLog10(1000_000_000_000UL) == 12);
 }
 
 /*@unique*/

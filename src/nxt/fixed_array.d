@@ -441,7 +441,10 @@ pragma(inline, true):
     }
 }
 
-/** Stack-allocated string of maximum length of `capacity.` */
+/** Stack-allocated string of maximum length of `capacity.`
+ *
+ * Similar to `mir.small_string` at http://mir-algorithm.libmir.org/mir_small_string.html.
+ */
 alias StringN(uint capacity, bool borrowChecked = false) = FixedArray!(immutable(char), capacity, borrowChecked);
 
 /** Stack-allocated wstring of maximum length of `capacity.` */

@@ -4,8 +4,10 @@ module nxt.fixed_array;
 
 @safe pure:
 
-/** Statically allocated `T`-array of fixed pre-allocated length.  Similar to
- * Rust's `fixedvec`: https://docs.rs/fixedvec/0.2.3/fixedvec/
+/** Statically allocated `T`-array of fixed pre-allocated length.
+ *
+ * Similar to Rust's `fixedvec`: https://docs.rs/fixedvec/0.2.3/fixedvec/
+ * Similar to `mir.small_array` at http://mir-algorithm.libmir.org/mir_small_array.html.
  *
  * TODO Merge member functions with basic_*_array.d and array_ex.d
  *

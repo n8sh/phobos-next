@@ -534,17 +534,6 @@ if (!hasVariableLength!NodeType)
     }
 }
 
-// auto emplaceMallocedVariableLength(NodeType, Args...)(size_t requiredCapacity, Args args)
-//     @trusted pure nothrow @nogc
-//     if (isPointer!NodeType &&
-//         hasVariableLength!NodeType)
-// {
-//     // debug ++nodeCountsByIx[Node.indexOf!NodeType];
-//     // debug ++_heapAllocBalance;
-//     return emplaceMallocedVariableLength!(typeof(*NodeType.init))(requiredCapacity, args);
-//     // TODO ensure alignment of node at least that of NodeType.alignof
-// }
-
 void freeNode(NodeType)(NodeType nt) @trusted pure nothrow @nogc
 {
     static if (isPointer!NodeType)
@@ -858,7 +847,8 @@ static private struct SparseLeaf1(Value)
         }
     }
 
-    /** Get allocated size (in bytes) of `this` including the variable-length part. */
+    /** Get allocated size (in bytes) of `this` including the variable-length part.
+     */
     size_t allocatedSize() const @safe pure nothrow @nogc
     {
         return allocationSizeOfCapacity(_capacity);
@@ -5783,9 +5773,10 @@ if (is(T == struct))
                                      (nextPow2(requiredCapacity - 1).clamp(T.minCapacity,
                                                                            T.maxCapacity)));
 
-    // import nxt.dbgio;
-    // dbg(paddedRequestedCapacity, " ", requiredCapacity);
+    import nxt.dbgio;
+    dbg(T.stringof, " paddedRequestedCapacity:", paddedRequestedCapacity, " requiredCapacity:", requiredCapacity);
 
+    // TODO activate this trait when things work again
     // assert(paddedRequestedCapacity >= requiredCapacity);
 
     import nxt.qcmeman : malloc;

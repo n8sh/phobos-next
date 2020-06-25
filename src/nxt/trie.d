@@ -127,7 +127,7 @@
 
     TODO opBinaryRight shall return `_rawTree.ElementRef` instead of `bool`
 
-    TODO Fix vla-allocations in emplaceMallocedVariableLength according
+    TODO Fix vla-allocations in constructVariableSizeNode according
     C11-recommendations. For reference set commit
     d2f1971dd570439da4198fa76603b53b072060f8 at
     https://github.com/emacs-mirror/emacs.git
@@ -516,17 +516,17 @@ struct HeptLeaf1
 
 /** Check if type `T` is a variable-length aggregate (`struct`) type.
 */
-private template hasVariableLength(T)
+private template hasVariableSize(T)
 {
     import std.traits: hasMember;
-    enum hasVariableLength = hasMember!(T, "allocationSizeOfCapacity");
+    enum hasVariableSize = hasMember!(T, "allocationSizeOfCapacity");
 }
 
 /** Allocate (if pointer) and Construct a `Node`-type of value type `NodeType`
-    using constructor arguments `args` of `Args`.
-*/
-auto construct(NodeType, Args...)(Args args) @trusted pure nothrow @nogc
-if (!hasVariableLength!NodeType)
+ * using constructor arguments `args` of `Args`.
+ */
+auto constructFixedSizeNode(NodeType, Args...)(Args args) @trusted pure nothrow @nogc
+if (!hasVariableSize!NodeType)
 {
     // debug ++nodeCountsByIx[Node.indexOf!NodeType];
     static if (isPointer!NodeType)
@@ -546,9 +546,11 @@ if (!hasVariableLength!NodeType)
  *
  * Construction is done using `malloc` plus `emplace`.
  */
-private T* emplaceMallocedVariableLength(T, Args...)(size_t requiredCapacity, Args args) @trusted
-if (is(T == struct))
+private T* constructVariableSizeNode(T, Args...)(size_t requiredCapacity, Args args) @trusted
+if (is(T == struct) &&
+    hasVariableSize!T)
 {
+    // debug ++nodeCountsByIx[Node.indexOf!NodeType];
     import std.math : nextPow2;
     import std.algorithm : clamp;
     const paddedRequestedCapacity = (requiredCapacity == 1 ?
@@ -625,11 +627,11 @@ static private struct SparseLeaf1(Value)
     {
         static if (hasValue)
         {
-            return emplaceMallocedVariableLength!(typeof(this))(this._capacity, ixs, values);
+            return constructVariableSizeNode!(typeof(this))(this._capacity, ixs, values);
         }
         else
         {
-            return emplaceMallocedVariableLength!(typeof(this))(this._capacity, ixs);
+            return constructVariableSizeNode!(typeof(this))(this._capacity, ixs);
         }
     }
 
@@ -704,11 +706,11 @@ static private struct SparseLeaf1(Value)
                 // make room
                 static if (hasValue)
                 {
-                    next = emplaceMallocedVariableLength!(typeof(this))(length + 1, ixsSlots, valuesSlots);
+                    next = constructVariableSizeNode!(typeof(this))(length + 1, ixsSlots, valuesSlots);
                 }
                 else
                 {
-                    next = emplaceMallocedVariableLength!(typeof(this))(length + 1, ixsSlots);
+                    next = constructVariableSizeNode!(typeof(this))(length + 1, ixsSlots);
                 }
                 this.deinit(); free(&this); // clear `this`. TODO reuse existing helper function in Phobos?
             }
@@ -977,11 +979,11 @@ static private struct DenseLeaf1(Value)
         pragma(inline, true);
         static if (hasValue)
         {
-            return construct!(typeof(this)*)(_ixBits, _values);
+            return constructFixedSizeNode!(typeof(this)*)(_ixBits, _values);
         }
         else
         {
-            return construct!(typeof(this)*)(_ixBits);
+            return constructFixedSizeNode!(typeof(this)*)(_ixBits);
         }
     }
 
@@ -1315,7 +1317,7 @@ template RawRadixTree(Value = void)
 
         typeof(this)* dup() @nogc
         {
-            auto copy = emplaceMallocedVariableLength!(typeof(this))(this.subCapacity);
+            auto copy = constructVariableSizeNode!(typeof(this))(this.subCapacity);
             copy.leaf1 = dupAt(this.leaf1);
             copy.prefix = this.prefix;
             copy.subCount = this.subCount;
@@ -1355,7 +1357,7 @@ template RawRadixTree(Value = void)
             {
                 if (subCount < maxCapacity) // if we can expand more
                 {
-                    next = emplaceMallocedVariableLength!(typeof(this))(subCount + 1, &this);
+                    next = constructVariableSizeNode!(typeof(this))(subCount + 1, &this);
 
                     this.deinit(); free(&this); // clear `this`. TODO reuse existing helper function in Phobos?
                 }
@@ -1470,7 +1472,7 @@ template RawRadixTree(Value = void)
         Ix[0] _subIxSlots0;     // needs to special alignment
     }
 
-    static assert(hasVariableLength!SparseBranch);
+    static assert(hasVariableSize!SparseBranch);
     static if (!isValue)
     {
         static assert(SparseBranch.sizeof == 16);
@@ -1524,7 +1526,7 @@ template RawRadixTree(Value = void)
 
         typeof(this)* dup() @trusted // TODO remove @trusted qualifier when .ptr problem has been fixed
         {
-            auto copy = construct!(typeof(this)*);
+            auto copy = constructFixedSizeNode!(typeof(this)*);
             copy.leaf1 = dupAt(leaf1);
             copy.prefix = prefix;
             foreach (immutable i, subNode; subNodes)
@@ -2622,18 +2624,18 @@ template RawRadixTree(Value = void)
         assert(curr.subCount < radix); // we shouldn't expand beyond radix
         if (curr.empty)     // if curr also empty length capacity must be zero
         {
-            next = emplaceMallocedVariableLength!(typeof(*curr))(1, curr); // so allocate one
+            next = constructVariableSizeNode!(typeof(*curr))(1, curr); // so allocate one
         }
         else if (curr.subCount + capacityIncrement <= curr.maxCapacity) // if we can expand to curr
         {
             immutable requiredCapacity = curr.subCapacity + capacityIncrement;
-            auto next_ = emplaceMallocedVariableLength!(typeof(*curr))(requiredCapacity, curr);
+            auto next_ = constructVariableSizeNode!(typeof(*curr))(requiredCapacity, curr);
             assert(next_.subCapacity >= requiredCapacity);
             next = next_;
         }
         else
         {
-            next = construct!(DenseBranch*)(curr);
+            next = constructFixedSizeNode!(DenseBranch*)(curr);
         }
         freeNode(curr);
         return next;
@@ -2648,18 +2650,18 @@ template RawRadixTree(Value = void)
         assert(curr.length < radix); // we shouldn't expand beyond radix
         if (curr.empty)     // if curr also empty length capacity must be zero
         {
-            next = emplaceMallocedVariableLength!(typeof(*curr))(capacityIncrement); // make room for at least one
+            next = constructVariableSizeNode!(typeof(*curr))(capacityIncrement); // make room for at least one
         }
         else if (curr.length + capacityIncrement <= curr.maxCapacity) // if we can expand to curr
         {
             immutable requiredCapacity = curr.capacity + capacityIncrement;
             static if (isValue)
             {
-                auto next_ = emplaceMallocedVariableLength!(typeof(*curr))(requiredCapacity, curr.ixs, curr.values);
+                auto next_ = constructVariableSizeNode!(typeof(*curr))(requiredCapacity, curr.ixs, curr.values);
             }
             else
             {
-                auto next_ = emplaceMallocedVariableLength!(typeof(*curr))(requiredCapacity, curr.ixs);
+                auto next_ = constructVariableSizeNode!(typeof(*curr))(requiredCapacity, curr.ixs);
             }
             assert(next_.capacity >= requiredCapacity);
             next = next_;
@@ -2668,11 +2670,11 @@ template RawRadixTree(Value = void)
         {
             static if (isValue)
             {
-                next = construct!(DenseLeaf1!Value*)(curr.ixs, curr.values); // TODO make use of sortedness of `curr.keys`?
+                next = constructFixedSizeNode!(DenseLeaf1!Value*)(curr.ixs, curr.values); // TODO make use of sortedness of `curr.keys`?
             }
             else
             {
-                next = construct!(DenseLeaf1!Value*)(curr.ixs); // TODO make use of sortedness of `curr.keys`?
+                next = constructFixedSizeNode!(DenseLeaf1!Value*)(curr.ixs); // TODO make use of sortedness of `curr.keys`?
             }
         }
         freeNode(curr);
@@ -3156,14 +3158,14 @@ template RawRadixTree(Value = void)
             // debug if (willFail) { dbg("WILL FAIL: key:", key); }
             switch (key.length)
             {
-            case 0: assert(false, "key must not be empty"); // return elementRef = Node(construct!(OneLeafMax7)());
-            case 1: next = Node(construct!(HeptLeaf1)(key[0])); break;
-            case 2: next = Node(construct!(TriLeaf2)(key)); break;
-            case 3: next = Node(construct!(TwoLeaf3)(key)); break;
+            case 0: assert(false, "key must not be empty"); // return elementRef = Node(constructFixedSizeNode!(OneLeafMax7)());
+            case 1: next = Node(constructFixedSizeNode!(HeptLeaf1)(key[0])); break;
+            case 2: next = Node(constructFixedSizeNode!(TriLeaf2)(key)); break;
+            case 3: next = Node(constructFixedSizeNode!(TwoLeaf3)(key)); break;
             default:
                 if (key.length <= OneLeafMax7.capacity)
                 {
-                    next = Node(construct!(OneLeafMax7)(key));
+                    next = Node(constructFixedSizeNode!(OneLeafMax7)(key));
                     break;
                 }
                 else                // key doesn't fit in a `OneLeafMax7`
@@ -3187,7 +3189,7 @@ template RawRadixTree(Value = void)
         immutable prefixLength = min(key.length - 1, // all but last Ix of key
                                  DefaultBranch.prefixCapacity); // as much as possible of key in branch prefix
         auto prefix = key[0 .. prefixLength];
-        typeof(return) next = insertAtBelowPrefix(Branch(emplaceMallocedVariableLength!(DefaultBranch)(1, prefix)),
+        typeof(return) next = insertAtBelowPrefix(Branch(constructVariableSizeNode!(DefaultBranch)(1, prefix)),
                                                   eltKeyDropExactly!Value(elt, prefixLength), elementRef);
         assert(elementRef);
         return next;
@@ -3308,7 +3310,7 @@ template RawRadixTree(Value = void)
                 {
                     // debug if (willFail) { dbg("WILL FAIL"); }
                     popFrontNPrefix(curr, 1);
-                    auto next = emplaceMallocedVariableLength!(DefaultBranch)(2, null, IxSub(currSubIx, Node(curr)));
+                    auto next = constructVariableSizeNode!(DefaultBranch)(2, null, IxSub(currSubIx, Node(curr)));
                     return insertAtAbovePrefix(Branch(next), elt, elementRef);
                 }
             }
@@ -3327,7 +3329,7 @@ template RawRadixTree(Value = void)
                 // NOTE: prefix and key share beginning: prefix:"ab11", key:"ab22"
                 immutable currSubIx = UIx(currPrefix[matchedKeyPrefix.length]); // need index first before we modify curr.prefix
                 popFrontNPrefix(curr, matchedKeyPrefix.length + 1);
-                auto next = emplaceMallocedVariableLength!(DefaultBranch)(2, matchedKeyPrefix, IxSub(currSubIx, Node(curr)));
+                auto next = constructVariableSizeNode!(DefaultBranch)(2, matchedKeyPrefix, IxSub(currSubIx, Node(curr)));
                 return insertAtBelowPrefix(Branch(next), eltKeyDropExactly!Value(elt, matchedKeyPrefix.length), elementRef);
             }
         }
@@ -3342,7 +3344,7 @@ template RawRadixTree(Value = void)
                 immutable nextPrefixLength = matchedKeyPrefix.length - 1;
                 immutable currSubIx = UIx(currPrefix[nextPrefixLength]); // need index first
                 popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
-                auto next = emplaceMallocedVariableLength!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
+                auto next = constructVariableSizeNode!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
                                                                     IxSub(currSubIx, Node(curr)));
                 return insertAtBelowPrefix(Branch(next), eltKeyDropExactly!Value(elt, nextPrefixLength), elementRef);
             }
@@ -3353,7 +3355,7 @@ template RawRadixTree(Value = void)
                 assert(matchedKeyPrefix.length);
                 immutable currSubIx = UIx(currPrefix[matchedKeyPrefix.length - 1]); // need index first
                 popFrontNPrefix(curr, matchedKeyPrefix.length); // drop matchedKeyPrefix plus index to next super branch
-                auto next = emplaceMallocedVariableLength!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
+                auto next = constructVariableSizeNode!(DefaultBranch)(2, matchedKeyPrefix[0 .. $ - 1],
                                                                     IxSub(currSubIx, Node(curr)));
                 static if (isValue)
                 {
@@ -3525,7 +3527,7 @@ template RawRadixTree(Value = void)
             {
                 Ix[1] ixs = [Ix(key)]; // TODO scope
                 Value[1] values = [value]; // TODO scope
-                auto leaf_ = emplaceMallocedVariableLength!(SparseLeaf1!Value)(1, ixs, values); // needed for values
+                auto leaf_ = constructVariableSizeNode!(SparseLeaf1!Value)(1, ixs, values); // needed for values
                 elementRef = ElementRef(Node(leaf_), UIx(0), ModStatus.added);
                 setLeaf1(curr, Leaf1!Value(leaf_));
             }
@@ -3546,7 +3548,7 @@ template RawRadixTree(Value = void)
             }
             else
             {
-                auto leaf_ = construct!(HeptLeaf1)(key); // can pack more efficiently when no value
+                auto leaf_ = constructFixedSizeNode!(HeptLeaf1)(key); // can pack more efficiently when no value
                 elementRef = ElementRef(Node(leaf_), UIx(0), ModStatus.added);
                 setLeaf1(curr, Leaf1!Value(leaf_));
             }
@@ -3575,7 +3577,7 @@ template RawRadixTree(Value = void)
             assert(key.length >= 2);
             immutable prefixLength = key.length - 2; // >= 0
             const nextPrefix = key[0 .. prefixLength];
-            auto next = emplaceMallocedVariableLength!(DefaultBranch)(1, nextPrefix, curr); // one sub-node and one leaf
+            auto next = constructVariableSizeNode!(DefaultBranch)(1, nextPrefix, curr); // one sub-node and one leaf
             return Node(insertAtBelowPrefix(Branch(next), eltKeyDropExactly!Value(elt, prefixLength), elementRef));
         }
     }
@@ -3602,22 +3604,22 @@ template RawRadixTree(Value = void)
                     switch (matchedKeyPrefix.length)
                     {
                     case 0:
-                        next = construct!(HeptLeaf1)(curr.key[0], key[0]);
+                        next = constructFixedSizeNode!(HeptLeaf1)(curr.key[0], key[0]);
                         elementRef = ElementRef(next, UIx(1), ModStatus.added);
                         break;
                     case 1:
-                        next = construct!(TriLeaf2)(curr.key, key);
+                        next = constructFixedSizeNode!(TriLeaf2)(curr.key, key);
                         elementRef = ElementRef(next, UIx(1), ModStatus.added);
                         break;
                     case 2:
-                        next = construct!(TwoLeaf3)(curr.key, key);
+                        next = constructFixedSizeNode!(TwoLeaf3)(curr.key, key);
                         elementRef = ElementRef(next, UIx(1), ModStatus.added);
                         break;
                     default:
                         import std.algorithm : min;
                         const nextPrefix = matchedKeyPrefix[0 .. min(matchedKeyPrefix.length,
                                                                      DefaultBranch.prefixCapacity)]; // limit prefix branch capacity
-                        Branch nextBranch = emplaceMallocedVariableLength!(DefaultBranch)(1 + 1, // `curr` and `key`
+                        Branch nextBranch = constructVariableSizeNode!(DefaultBranch)(1 + 1, // `curr` and `key`
                                                                                     nextPrefix);
                         nextBranch = insertNewAtBelowPrefix(nextBranch, curr.key[nextPrefix.length .. $]);
                         nextBranch = insertAtBelowPrefix(nextBranch, key[nextPrefix.length .. $], elementRef);
@@ -3685,7 +3687,7 @@ template RawRadixTree(Value = void)
                 import std.algorithm.sorting : sort;
                 sort(nextKeys[]); // TODO move this sorting elsewhere
 
-                auto next = emplaceMallocedVariableLength!(SparseLeaf1!Value)(nextKeys.length, nextKeys[]);
+                auto next = constructVariableSizeNode!(SparseLeaf1!Value)(nextKeys.length, nextKeys[]);
                 elementRef = ElementRef(Node(next), UIx(curr.capacity), ModStatus.added);
 
                 freeNode(curr);
@@ -3700,7 +3702,7 @@ template RawRadixTree(Value = void)
             {
                 return Node(insertAt(curr, UIx(key[0]), elementRef)); // use `Ix key`-overload
             }
-            return insertAt(Node(emplaceMallocedVariableLength!(DefaultBranch)(1, Leaf1!Value(curr))), // current `key`
+            return insertAt(Node(constructVariableSizeNode!(DefaultBranch)(1, Leaf1!Value(curr))), // current `key`
                             key, elementRef); // NOTE stay at same (depth)
         }
 
@@ -3718,22 +3720,22 @@ template RawRadixTree(Value = void)
                     if (prefix.length == 0)
                     {
                         freeNode(curr);
-                        return Node(construct!(HeptLeaf1)(curr.key)); // TODO removing parameter has no effect. why?
+                        return Node(constructFixedSizeNode!(HeptLeaf1)(curr.key)); // TODO removing parameter has no effect. why?
                     }
                     break;
                 case 2:
                     freeNode(curr);
-                    return Node(construct!(TriLeaf2)(curr.key));
+                    return Node(constructFixedSizeNode!(TriLeaf2)(curr.key));
                 case 3:
                     freeNode(curr);
-                    return Node(construct!(TwoLeaf3)(curr.key));
+                    return Node(constructFixedSizeNode!(TwoLeaf3)(curr.key));
                 default:
                     break;
                 }
             }
 
             // default case
-            Branch next = emplaceMallocedVariableLength!(DefaultBranch)(1 + 1, prefix); // current plus one more
+            Branch next = constructVariableSizeNode!(DefaultBranch)(1 + 1, prefix); // current plus one more
             next = insertNewAtBelowPrefix(next, curr.key[prefix.length .. $]);
             freeNode(curr);   // remove old current
 
@@ -3749,12 +3751,12 @@ template RawRadixTree(Value = void)
 
             if (curr.key.length <= DefaultBranch.prefixCapacity + 1) // if `key` fits in `prefix` of `DefaultBranch`
             {
-                next = emplaceMallocedVariableLength!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. $ - 1], // all but last
-                                                                     Leaf1!Value(construct!(HeptLeaf1)(curr.key.back))); // last as a leaf
+                next = constructVariableSizeNode!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. $ - 1], // all but last
+                                                                     Leaf1!Value(constructFixedSizeNode!(HeptLeaf1)(curr.key.back))); // last as a leaf
             }
             else                // curr.key.length > DefaultBranch.prefixCapacity + 1
             {
-                next = emplaceMallocedVariableLength!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. DefaultBranch.prefixCapacity]);
+                next = constructVariableSizeNode!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. DefaultBranch.prefixCapacity]);
                 next = insertNewAtBelowPrefix(next, curr.key[DefaultBranch.prefixCapacity .. $]);
             }
 
@@ -3769,13 +3771,13 @@ template RawRadixTree(Value = void)
             typeof(return) next;
             if (curr.keys.length == 1) // only one key
             {
-                next = emplaceMallocedVariableLength!(DefaultBranch)(1 + capacityIncrement);
+                next = constructVariableSizeNode!(DefaultBranch)(1 + capacityIncrement);
                 next = insertNewAtAbovePrefix(next, // current keys plus one more
                                               curr.keys.at!0);
             }
             else
             {
-                next = emplaceMallocedVariableLength!(DefaultBranch)(curr.keys.length + capacityIncrement, curr.prefix);
+                next = constructVariableSizeNode!(DefaultBranch)(curr.keys.length + capacityIncrement, curr.prefix);
                 // TODO functionize and optimize to insertNewAtAbovePrefix(next, curr.keys)
                 foreach (key; curr.keys)
                 {
@@ -3793,12 +3795,12 @@ template RawRadixTree(Value = void)
             typeof(return) next;
             if (curr.keys.length == 1) // only one key
             {
-                next = emplaceMallocedVariableLength!(DefaultBranch)(1 + capacityIncrement); // current keys plus one more
+                next = constructVariableSizeNode!(DefaultBranch)(1 + capacityIncrement); // current keys plus one more
                 next = insertNewAtAbovePrefix(next, curr.keys.at!0);
             }
             else
             {
-                next = emplaceMallocedVariableLength!(DefaultBranch)(curr.keys.length + capacityIncrement, curr.prefix);
+                next = constructVariableSizeNode!(DefaultBranch)(curr.keys.length + capacityIncrement, curr.prefix);
                 // TODO functionize and optimize to insertNewAtAbovePrefix(next, curr.keys)
                 foreach (key; curr.keys)
                 {
@@ -3812,7 +3814,7 @@ template RawRadixTree(Value = void)
         /** Destructively expand `curr` making room for `nextKey` and return it. */
         Node expand(HeptLeaf1 curr, size_t capacityIncrement = 1)
         {
-            auto next = emplaceMallocedVariableLength!(SparseLeaf1!Value)(curr.keys.length + capacityIncrement, curr.keys);
+            auto next = constructVariableSizeNode!(SparseLeaf1!Value)(curr.keys.length + capacityIncrement, curr.keys);
             freeNode(curr);
             return Node(next);
         }

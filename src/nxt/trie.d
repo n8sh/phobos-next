@@ -542,31 +542,31 @@ if (!hasVariableSize!NodeType)
     }
 }
 
-/** Allocate (via malloc) and emplace an instance of a variable-length aggregate (`struct`) type `T`.
+/** Allocate (via malloc) and emplace an instance of a variable-length aggregate (`struct`) type `NodeType`.
  *
  * Construction is done using `malloc` plus `emplace`.
  */
-private T* constructVariableSizeNode(T, Args...)(size_t requiredCapacity, Args args) @trusted
-if (is(T == struct) &&
-    hasVariableSize!T)
+private NodeType* constructVariableSizeNode(NodeType, Args...)(size_t requiredCapacity, Args args) @trusted
+if (is(NodeType == struct) &&
+    hasVariableSize!NodeType)
 {
     // debug ++nodeCountsByIx[Node.indexOf!NodeType];
     import std.math : nextPow2;
     import std.algorithm : clamp;
     const paddedRequestedCapacity = (requiredCapacity == 1 ?
                                      1 :
-                                     (nextPow2(requiredCapacity - 1).clamp(T.minCapacity,
-                                                                           T.maxCapacity)));
+                                     (nextPow2(requiredCapacity - 1).clamp(NodeType.minCapacity,
+                                                                           NodeType.maxCapacity)));
 
     import nxt.dbgio;
-    dbg(T.stringof, " paddedRequestedCapacity:", paddedRequestedCapacity, " requiredCapacity:", requiredCapacity);
+    dbg(NodeType.stringof, " paddedRequestedCapacity:", paddedRequestedCapacity, " requiredCapacity:", requiredCapacity);
 
     // TODO activate this trait when things work again
     // assert(paddedRequestedCapacity >= requiredCapacity);
 
     import nxt.qcmeman : malloc;
     import core.lifetime : emplace;
-    return emplace(cast(typeof(return))malloc(T.allocationSizeOfCapacity(paddedRequestedCapacity)),
+    return emplace(cast(typeof(return))malloc(NodeType.allocationSizeOfCapacity(paddedRequestedCapacity)),
                    paddedRequestedCapacity, args);
 }
 

@@ -9,8 +9,7 @@ shared static this()
 {
     foreach (i, E; IntegralBijectableTypes)
     {
-        import std.stdio : writeln;
-        writeln("TODO Calculate radixSortMinLength for ", E.stringof);
+        // TODO Calculate radixSortMinLength for E
         radixSortMinLength[i] = 0; // calulate limit
     }
 }
@@ -18,7 +17,7 @@ shared static this()
 import std.range.primitives : isRandomAccessRange;
 
 auto hybridSort(alias less = "a < b", Range)(Range r)
-    if (isRandomAccessRange!Range)
+if (isRandomAccessRange!Range)
 {
     import std.range.primitives : ElementType;
     import std.traits : isNumeric;

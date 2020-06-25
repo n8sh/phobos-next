@@ -528,7 +528,6 @@ private template hasVariableSize(NodeType)
 auto constructFixedSizeNode(NodeType, Args...)(Args args) @trusted pure nothrow @nogc
 if (!hasVariableSize!NodeType)
 {
-    // debug ++nodeCountsByIx[Node.indexOf!NodeType];
     static if (isPointer!NodeType)
     {
         // debug ++_heapAllocBalance;
@@ -550,7 +549,6 @@ private NodeType* constructVariableSizeNode(NodeType, Args...)(size_t requiredCa
 if (is(NodeType == struct) &&
     hasVariableSize!NodeType)
 {
-    // debug ++nodeCountsByIx[Node.indexOf!NodeType];
     import std.math : nextPow2;
     import std.algorithm : clamp;
     const paddedRequestedCapacity = (requiredCapacity == 1 ?
@@ -577,7 +575,6 @@ void freeNode(NodeType)(NodeType nt) @trusted pure nothrow @nogc
         free(cast(void*)nt);  // TODO Allocator.free
         // debug --_heapAllocBalance;
     }
-    // debug --nodeCountsByIx[Node.indexOf!NodeType];
 }
 
 /** Sparsely coded leaves with values of type `Value`. */

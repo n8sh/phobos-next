@@ -1,7 +1,6 @@
 module nxt.hybridsort;
 
 import nxt.bijections : IntegralBijectableTypes;
-import nxt.integer_sorting : radixSort;
 
 static immutable size_t[IntegralBijectableTypes.length] radixSortMinLength;
 

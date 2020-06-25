@@ -556,8 +556,8 @@ if (is(NodeType == struct) &&
                                      (nextPow2(requiredCapacity - 1).clamp(NodeType.minCapacity,
                                                                            NodeType.maxCapacity)));
 
-    import nxt.dbgio;
-    dbg(NodeType.stringof, " paddedRequestedCapacity:", paddedRequestedCapacity, " requiredCapacity:", requiredCapacity);
+    // import nxt.dbgio;
+    // dbg(NodeType.stringof, " paddedRequestedCapacity:", paddedRequestedCapacity, " requiredCapacity:", requiredCapacity);
 
     // TODO activate this trait when things work again
     // assert(paddedRequestedCapacity >= requiredCapacity);

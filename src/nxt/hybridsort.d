@@ -50,15 +50,15 @@ unittest
         auto a = Array!T();
         a.length = n;
 
-        a[].randInPlace();
+        randInPlace(a[]);
 
         auto b = a.dup;
 
-        a[].hybridSort;
+        hybridSort(a[]);
         assert(a[].isSorted);
 
         import std.algorithm.sorting : sort;
-        b[].sort;
+        sort(b[]);
         assert(b[].isSorted);
 
         assert(a == b);

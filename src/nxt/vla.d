@@ -23,14 +23,6 @@ if (is(T == struct))
                    paddedRequestedCapacity, args);
 }
 
-T* expandVariableLength(T, Args...)(T* curr, size_t requiredCapacity, Args args) @trusted
-{
-    T* next;
-    import nxt.qcmeman : free;
-    free(cast(voidf*)(&this));
-    return next;
-}
-
 /** Check if type `T` is a variable-length aggregate (`struct`) type.
 */
 template hasVariableLength(T)

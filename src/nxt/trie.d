@@ -841,7 +841,8 @@ static private struct SparseLeaf1(Value)
     }
 
     /** Get allocation size (in bytes) needed to hold `length` number of
-        elements (keys and optionally values). */
+     * elements (keys and optionally values).
+     */
     static size_t allocationSizeOfCapacity(size_t capacity) @safe pure nothrow @nogc
     {
         static if (hasValue)
@@ -5781,9 +5782,12 @@ if (is(T == struct))
                                      1 :
                                      (nextPow2(requiredCapacity - 1).clamp(T.minCapacity,
                                                                            T.maxCapacity)));
-    import nxt.dbgio;
-    dbg(paddedRequestedCapacity, " ", requiredCapacity);
+
+    // import nxt.dbgio;
+    // dbg(paddedRequestedCapacity, " ", requiredCapacity);
+
     // assert(paddedRequestedCapacity >= requiredCapacity);
+
     import nxt.qcmeman : malloc;
     import core.lifetime : emplace;
     return emplace(cast(typeof(return))malloc(T.allocationSizeOfCapacity(paddedRequestedCapacity)),

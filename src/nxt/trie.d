@@ -514,12 +514,12 @@ struct HeptLeaf1
     IxsN!(capacity, 1) keys;    // should never be empty
 }
 
-/** Check if type `T` is a variable-length aggregate (`struct`) type.
+/** Check if type `NodeType` is a variable-length aggregate (`struct`) type.
 */
-private template hasVariableSize(T)
+private template hasVariableSize(NodeType)
 {
     import std.traits: hasMember;
-    enum hasVariableSize = hasMember!(T, "allocationSizeOfCapacity");
+    enum hasVariableSize = hasMember!(NodeType, "allocationSizeOfCapacity");
 }
 
 /** Allocate (if pointer) and Construct a `Node`-type of value type `NodeType`

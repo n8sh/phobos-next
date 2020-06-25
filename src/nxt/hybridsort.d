@@ -26,12 +26,12 @@ if (isRandomAccessRange!Range)
     static if (isNumeric!(ElementType!Range))
     {
         import nxt.integer_sorting : radixSort;
-        return r.radixSort;
+        return radixSort(r);
     }
     else
     {
         import std.algorithm.sorting : sort;
-        return r.sort!less;
+        return sort!less(r);
     }
 }
 

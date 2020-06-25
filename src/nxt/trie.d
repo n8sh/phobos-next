@@ -559,8 +559,7 @@ if (is(NodeType == struct) &&
     // import nxt.dbgio;
     // dbg(NodeType.stringof, " paddedRequestedCapacity:", paddedRequestedCapacity, " requiredCapacity:", requiredCapacity);
 
-    // TODO this fails for dmd but not for ldc. Compiler-bug?
-    // assert(paddedRequestedCapacity >= requiredCapacity);
+    // assert(paddedRequestedCapacity >= requiredCapacity);// TODO this fails for dmd but not for ldc:
 
     import nxt.qcmeman : malloc;
     import core.lifetime : emplace;

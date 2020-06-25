@@ -16,6 +16,8 @@ shared static this()
 
 import std.range.primitives : isRandomAccessRange;
 
+/** Perform either radix or standard sort depending on `ElementType` of `Range`.
+ */
 auto hybridSort(alias less = "a < b", Range)(Range r)
 if (isRandomAccessRange!Range)
 {

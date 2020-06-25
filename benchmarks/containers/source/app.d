@@ -12,7 +12,7 @@ void main()
     import nxt.dynamic_array : DynamicArray;
     import nxt.array_help : toUbytes;
     import nxt.variant_arrays : VariantArrays;
-    import nxt.sso_hashmap_or_hashset : SSOHashSet, SSOHashMap;
+    // import nxt.sso_hashmap_or_hashset : SSOHashSet, SSOHashMap;
     import nxt.open_hashmap_or_hashset : OpenHashMap, OpenHashSet;
     import nxt.sso_string : SSOString;
 
@@ -99,17 +99,17 @@ void main()
                           DenseSetFilterGrowableArray!(uint),
 
                           // functions
-                          SSOHashSet!(uint, null, identityHash64Of),
-                          SSOHashSet!(uint, null, typeidHashOf),
-                          SSOHashSet!(uint, null, hashOf),
+                          // SSOHashSet!(uint, null, identityHash64Of),
+                          // SSOHashSet!(uint, null, typeidHashOf),
+                          // SSOHashSet!(uint, null, hashOf),
 
-                          SSOHashSet!(uint, null, muellerHash64),
-                          SSOHashSet!(uint, null, wangMixHash64),
-                          SSOHashSet!(uint, null, FNV!(64, true)),
+                          // SSOHashSet!(uint, null, muellerHash64),
+                          // SSOHashSet!(uint, null, wangMixHash64),
+                          // SSOHashSet!(uint, null, FNV!(64, true)),
 
                           // std.digests
-                          SSOHashSet!(uint, null, MurmurHash3!(128)),
-                          SSOHashSet!(uint, null, XXHash64),
+                          // SSOHashSet!(uint, null, MurmurHash3!(128)),
+                          // SSOHashSet!(uint, null, XXHash64),
 
                           OpenHashSet!(Nullable!(uint, uint.max)),
                           OpenHashSet!(Nullable!(uint, uint.max), FNV!(64, true)),
@@ -117,11 +117,11 @@ void main()
                           RadixTreeSetGrowOnly!(uint),
                           RedBlackTree!(uint),
 
-                          SSOHashSet!(ulong, null, wangMixHash64),
-                          SSOHashSet!(ulong, null, muellerHash64),
-                          SSOHashSet!(ulong, null, FNV!(64, true), 2),
-                          SSOHashSet!(ulong, null, FNV!(64, true), 3),
-                          SSOHashSet!(ulong, null, FNV!(64, true), 4),
+                          // SSOHashSet!(ulong, null, wangMixHash64),
+                          // SSOHashSet!(ulong, null, muellerHash64),
+                          // SSOHashSet!(ulong, null, FNV!(64, true), 2),
+                          // SSOHashSet!(ulong, null, FNV!(64, true), 3),
+                          // SSOHashSet!(ulong, null, FNV!(64, true), 4),
 
                           OpenHashSet!(Nullable!(ulong, ulong.max)),
                           OpenHashSet!(Nullable!(ulong, ulong.max), FNV!(64, true)),
@@ -293,16 +293,16 @@ void main()
     foreach (A; AliasSeq!(
 
                  // uint => uint
-                 SSOHashMap!(uint, uint, null, muellerHash64),
-                 SSOHashMap!(uint, uint, null, wangMixHash64),
-                 SSOHashMap!(uint, uint, null, FNV!(64, true)),
+                 // SSOHashMap!(uint, uint, null, muellerHash64),
+                 // SSOHashMap!(uint, uint, null, wangMixHash64),
+                 // SSOHashMap!(uint, uint, null, FNV!(64, true)),
                  OpenHashMap!(Nullable!(uint, uint.max), uint),
                  OpenHashMap!(Nullable!(uint, uint.max), uint, FNV!(64, true)),
 
                  // ulong => ulong
-                 SSOHashMap!(ulong, ulong, null, muellerHash64),
-                 SSOHashMap!(ulong, ulong, null, wangMixHash64),
-                 SSOHashMap!(ulong, ulong, null, FNV!(64, true)),
+                 // SSOHashMap!(ulong, ulong, null, muellerHash64),
+                 // SSOHashMap!(ulong, ulong, null, wangMixHash64),
+                 // SSOHashMap!(ulong, ulong, null, FNV!(64, true)),
                  OpenHashMap!(Nullable!(ulong, ulong.max), ulong),
                  OpenHashMap!(Nullable!(ulong, ulong.max), ulong, FNV!(64, true)),
                  OpenHashMap!(Nullable!(ulong, ulong.max), ulong, wangMixHash64),

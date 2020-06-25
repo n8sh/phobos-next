@@ -565,7 +565,7 @@ void readMTypeDefinition(DirEntry de)
 void readMatlabSimulinkModelBlockdiagram(string path)
 {
     enum show = false;
-    import std.xml;
+    import undead.xml;          // Needs DUB package undead
 
     writeln("Reading Simulink model ", path);
     import std.zip : ZipArchive;

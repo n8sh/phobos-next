@@ -514,8 +514,6 @@ struct HeptLeaf1
     IxsN!(capacity, 1) keys;    // should never be empty
 }
 
-import nxt.vla : hasVariableLength, emplaceMallocedVariableLength;
-
 /** Allocate (if pointer) and Construct a `Node`-type of value type `NodeType`
     using constructor arguments `args` of `Args`.
 */
@@ -543,7 +541,6 @@ if (!hasVariableLength!NodeType)
 // {
 //     // debug ++nodeCountsByIx[Node.indexOf!NodeType];
 //     // debug ++_heapAllocBalance;
-//     import nxt.vla : emplaceMallocedVariableLength;
 //     return emplaceMallocedVariableLength!(typeof(*NodeType.init))(requiredCapacity, args);
 //     // TODO ensure alignment of node at least that of NodeType.alignof
 // }
@@ -1333,7 +1330,6 @@ template RawRadixTree(Value = void)
             {
                 if (subCount < maxCapacity) // if we can expand more
                 {
-                    import nxt.vla : emplaceMallocedVariableLength;
                     next = emplaceMallocedVariableLength!(typeof(this))(subCount + 1, &this);
 
                     this.deinit(); free(&this); // clear `this`. TODO reuse existing helper function in Phobos?
@@ -5770,6 +5766,34 @@ private template iotaImpl(size_t to, size_t now)
     {
         alias iotaImpl = AliasSeq!(now, iotaImpl!(to, now + 1));
     }
+}
+
+/** Allocate (via malloc) and emplace an instance of a variable-length aggregate (`struct`) type `T`.
+ *
+ * Construction is done using `malloc` plus `emplace`.
+*/
+private T* emplaceMallocedVariableLength(T, Args...)(size_t requiredCapacity, Args args) @trusted
+if (is(T == struct))
+{
+    import std.math : nextPow2;
+    import std.algorithm : clamp;
+    const paddedRequestedCapacity = (requiredCapacity == 1 ?
+                                     1 :
+                                     (nextPow2(requiredCapacity - 1).clamp(T.minCapacity,
+                                                                           T.maxCapacity)));
+    assert(paddedRequestedCapacity >= requiredCapacity);
+    import nxt.qcmeman : malloc;
+    import core.lifetime : emplace;
+    return emplace(cast(typeof(return))malloc(T.allocationSizeOfCapacity(paddedRequestedCapacity)),
+                   paddedRequestedCapacity, args);
+}
+
+/** Check if type `T` is a variable-length aggregate (`struct`) type.
+*/
+private template hasVariableLength(T)
+{
+    import std.traits: hasMember;
+    enum hasVariableLength = hasMember!(T, "allocationSizeOfCapacity");
 }
 
 unittest

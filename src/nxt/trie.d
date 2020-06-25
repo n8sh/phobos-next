@@ -514,6 +514,14 @@ struct HeptLeaf1
     IxsN!(capacity, 1) keys;    // should never be empty
 }
 
+/** Check if type `T` is a variable-length aggregate (`struct`) type.
+*/
+private template hasVariableLength(T)
+{
+    import std.traits: hasMember;
+    enum hasVariableLength = hasMember!(T, "allocationSizeOfCapacity");
+}
+
 /** Allocate (if pointer) and Construct a `Node`-type of value type `NodeType`
     using constructor arguments `args` of `Args`.
 */
@@ -532,6 +540,32 @@ if (!hasVariableLength!NodeType)
     {
         return NodeType(args);
     }
+}
+
+/** Allocate (via malloc) and emplace an instance of a variable-length aggregate (`struct`) type `T`.
+ *
+ * Construction is done using `malloc` plus `emplace`.
+ */
+private T* emplaceMallocedVariableLength(T, Args...)(size_t requiredCapacity, Args args) @trusted
+if (is(T == struct))
+{
+    import std.math : nextPow2;
+    import std.algorithm : clamp;
+    const paddedRequestedCapacity = (requiredCapacity == 1 ?
+                                     1 :
+                                     (nextPow2(requiredCapacity - 1).clamp(T.minCapacity,
+                                                                           T.maxCapacity)));
+
+    import nxt.dbgio;
+    dbg(T.stringof, " paddedRequestedCapacity:", paddedRequestedCapacity, " requiredCapacity:", requiredCapacity);
+
+    // TODO activate this trait when things work again
+    // assert(paddedRequestedCapacity >= requiredCapacity);
+
+    import nxt.qcmeman : malloc;
+    import core.lifetime : emplace;
+    return emplace(cast(typeof(return))malloc(T.allocationSizeOfCapacity(paddedRequestedCapacity)),
+                   paddedRequestedCapacity, args);
 }
 
 void freeNode(NodeType)(NodeType nt) @trusted pure nothrow @nogc
@@ -5757,40 +5791,6 @@ private template iotaImpl(size_t to, size_t now)
     {
         alias iotaImpl = AliasSeq!(now, iotaImpl!(to, now + 1));
     }
-}
-
-/** Allocate (via malloc) and emplace an instance of a variable-length aggregate (`struct`) type `T`.
- *
- * Construction is done using `malloc` plus `emplace`.
-*/
-private T* emplaceMallocedVariableLength(T, Args...)(size_t requiredCapacity, Args args) @trusted
-if (is(T == struct))
-{
-    import std.math : nextPow2;
-    import std.algorithm : clamp;
-    const paddedRequestedCapacity = (requiredCapacity == 1 ?
-                                     1 :
-                                     (nextPow2(requiredCapacity - 1).clamp(T.minCapacity,
-                                                                           T.maxCapacity)));
-
-    import nxt.dbgio;
-    dbg(T.stringof, " paddedRequestedCapacity:", paddedRequestedCapacity, " requiredCapacity:", requiredCapacity);
-
-    // TODO activate this trait when things work again
-    // assert(paddedRequestedCapacity >= requiredCapacity);
-
-    import nxt.qcmeman : malloc;
-    import core.lifetime : emplace;
-    return emplace(cast(typeof(return))malloc(T.allocationSizeOfCapacity(paddedRequestedCapacity)),
-                   paddedRequestedCapacity, args);
-}
-
-/** Check if type `T` is a variable-length aggregate (`struct`) type.
-*/
-private template hasVariableLength(T)
-{
-    import std.traits: hasMember;
-    enum hasVariableLength = hasMember!(T, "allocationSizeOfCapacity");
 }
 
 unittest

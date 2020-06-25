@@ -550,7 +550,7 @@ if (is(NodeType == struct) &&
     hasVariableSize!NodeType)
 {
     import std.math : nextPow2;
-    import std.algorithm : clamp;
+    import std.algorithm.comparison : clamp;
     const paddedRequestedCapacity = (requiredCapacity == 1 ?
                                      1 :
                                      (nextPow2(requiredCapacity - 1).clamp(NodeType.minCapacity,

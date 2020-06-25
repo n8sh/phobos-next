@@ -598,8 +598,9 @@ static private struct SparseLeaf1(Value)
     }
 
     /** Returns a an allocated duplicate of this.
-        Shallowly duplicates the values in the map case.
-    */
+     *
+     * Shallowly duplicates the values in the map case.
+     */
     typeof(this)* dup()
     {
         static if (hasValue)

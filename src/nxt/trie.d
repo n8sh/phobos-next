@@ -3725,7 +3725,7 @@ template RawRadixTree(Value = void)
             if (curr.key.length <= DefaultBranch.prefixCapacity + 1) // if `key` fits in `prefix` of `DefaultBranch`
             {
                 next = emplaceMallocedVariableLength!(DefaultBranch)(1 + capacityIncrement, curr.key[0 .. $ - 1], // all but last
-                                                                             Leaf1!Value(construct!(HeptLeaf1)(curr.key.back))); // last as a leaf
+                                                                     Leaf1!Value(construct!(HeptLeaf1)(curr.key.back))); // last as a leaf
             }
             else                // curr.key.length > DefaultBranch.prefixCapacity + 1
             {
@@ -5781,7 +5781,9 @@ if (is(T == struct))
                                      1 :
                                      (nextPow2(requiredCapacity - 1).clamp(T.minCapacity,
                                                                            T.maxCapacity)));
-    assert(paddedRequestedCapacity >= requiredCapacity);
+    import nxt.dbgio;
+    dbg(paddedRequestedCapacity, " ", requiredCapacity);
+    // assert(paddedRequestedCapacity >= requiredCapacity);
     import nxt.qcmeman : malloc;
     import core.lifetime : emplace;
     return emplace(cast(typeof(return))malloc(T.allocationSizeOfCapacity(paddedRequestedCapacity)),

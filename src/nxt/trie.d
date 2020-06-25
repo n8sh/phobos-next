@@ -559,7 +559,7 @@ if (is(NodeType == struct) &&
     // import nxt.dbgio;
     // dbg(NodeType.stringof, " paddedRequestedCapacity:", paddedRequestedCapacity, " requiredCapacity:", requiredCapacity);
 
-    // TODO activate this trait when things work again
+    // TODO this fails for dmd but not for ldc:
     // assert(paddedRequestedCapacity >= requiredCapacity);
 
     import nxt.qcmeman : malloc;

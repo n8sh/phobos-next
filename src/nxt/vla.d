@@ -3,12 +3,12 @@
  */
 module nxt.vla;
 
-/** Construct an instance of a variable-length aggregate (`struct`) type `T`.
-    Construction is done using `malloc` plus `emplace`.
+/** Allocate (via malloc) and emplace an instance of a variable-length aggregate (`struct`) type `T`.
+ *
+ * Construction is done using `malloc` plus `emplace`.
 */
-T* constructVariableLength(T, Args...)(size_t requiredCapacity, Args args) @trusted
-if (is(T == struct) ||
-    is(T == class))
+T* emplaceMallocedVariableLength(T, Args...)(size_t requiredCapacity, Args args) @trusted
+if (is(T == struct))
 {
     import std.math : nextPow2;
     import std.algorithm : clamp;
@@ -17,7 +17,7 @@ if (is(T == struct) ||
                                      (nextPow2(requiredCapacity - 1).clamp(T.minCapacity,
                                                                            T.maxCapacity)));
     assert(paddedRequestedCapacity >= requiredCapacity);
-    import core.memory : malloc = pureMalloc;
+    import nxt.qcmeman : malloc;
     import core.lifetime : emplace;
     return emplace(cast(typeof(return))malloc(T.allocationSizeOfCapacity(paddedRequestedCapacity)),
                    paddedRequestedCapacity, args);

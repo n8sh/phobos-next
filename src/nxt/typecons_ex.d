@@ -83,9 +83,11 @@ enum isIndex(I) = (is(I == enum) ||
                    isCastableTo!(I, size_t));
 
 /** Check if `T` can be indexed by an instance of `I`.
-    See_Also: http://forum.dlang.org/post/ajxtksnsxqmeulsedmae@forum.dlang.org
-    TODO move to traits_ex.d
-    TODO Add to Phobos
+ *
+ * See_Also: http://forum.dlang.org/post/ajxtksnsxqmeulsedmae@forum.dlang.org
+ *
+ * TODO move to traits_ex.d
+ * TODO Add to Phobos
  */
 enum hasIndexing(T, I = size_t) = __traits(compiles,
                                            {

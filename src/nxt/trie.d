@@ -138,8 +138,7 @@ import std.algorithm.mutation : move;
 import std.algorithm.comparison : min, max;
 import std.meta : allSatisfy;
 import std.traits : isSomeString, isArray, isPointer, Unqual;
-import std.range.primitives : isInputRange, isBidirectionalRange, ElementType;
-import std.range.primitives : hasLength;
+import std.range.primitives : isInputRange, ElementType, hasLength;
 
 import nxt.bijections : isIntegralBijectableType, bijectToUnsigned, bijectFromUnsigned;
 import nxt.variant_ex : WordVariant;
@@ -1193,7 +1192,7 @@ static assert((DenseLeaf1!void).sizeof == 32);
 template RawRadixTree(Value = void)
 {
     import std.bitmanip : bitfields;
-    import std.algorithm : filter;
+    import std.algorithm.iteration : filter;
     import std.meta : AliasSeq, staticMap;
 
     import nxt.static_bitarray : StaticBitArray;
@@ -1546,7 +1545,7 @@ template RawRadixTree(Value = void)
 
         bool findSubNodeAtIx(size_t currIx, out UIx nextIx) inout @nogc
         {
-            import std.algorithm : countUntil;
+            import std.algorithm.searching : countUntil;
             immutable cnt = subNodes[currIx .. $].countUntil!(subNode => cast(bool)subNode);
             immutable bool hit = cnt >= 0;
             if (hit)
@@ -3178,7 +3177,6 @@ template RawRadixTree(Value = void)
 
     Branch insertNewBranch(Elt!Value elt, out ElementRef elementRef) @safe pure nothrow @nogc
     {
-        import std.algorithm : min;
         // debug if (willFail) { dbg("WILL FAIL: elt:", elt); }
         auto key = eltKey!Value(elt);
         assert(key.length);
@@ -3612,7 +3610,6 @@ template RawRadixTree(Value = void)
                         elementRef = ElementRef(next, UIx(1), ModStatus.added);
                         break;
                     default:
-                        import std.algorithm : min;
                         const nextPrefix = matchedKeyPrefix[0 .. min(matchedKeyPrefix.length,
                                                                      DefaultBranch.prefixCapacity)]; // limit prefix branch capacity
                         Branch nextBranch = constructVariableSizeNode!(DefaultBranch)(1 + 1, // `curr` and `key`
@@ -4917,7 +4914,7 @@ auto radixTreeMapGrowOnly(Key, Value)()
 /*TODO @safe*/ pure nothrow
 /*TODO:@nogc*/ unittest
 {
-    import std.algorithm : equal;
+    import std.algorithm.comparison : equal;
     alias Key = string;
     auto set = radixTreeSet!(Key);
 
@@ -5063,7 +5060,7 @@ if (Keys.length != 0)
         }
 
         import std.algorithm.comparison : equal;
-        import std.algorithm : map;
+        import std.algorithm.iteration : map;
         assert(set[].equal(low.iota(high + 1).map!(uk => cast(Key)uk)));
 
         import std.algorithm.sorting : isSorted;
@@ -5231,7 +5228,7 @@ auto testString(Keys...)(size_t count, uint maxLength) @safe
 if (Keys.length != 0)
 {
     void testContainsAndInsert(Set, Key)(ref Set set, Key key)
-        if (isSomeString!Key)
+    if (isSomeString!Key)
     {
         import std.conv : to;
         immutable failMessage = `Failed for key: "` ~ key.to!string ~ `"`;
@@ -5245,7 +5242,7 @@ if (Keys.length != 0)
         assert(set.contains(key), failMessage);
     }
 
-    import std.algorithm : equal;
+    import std.algorithm.comparison : equal;
     import std.datetime.stopwatch : StopWatch, AutoStart;
 
     foreach (Key; Keys)
@@ -5274,7 +5271,7 @@ if (Keys.length != 0)
         void testPrefix() @trusted
         {
             assert(set[].equal(sortedKeys));
-            import std.algorithm : filter, map;
+            import std.algorithm.iteration : filter, map;
             assert(set.prefix("a")
                       .equal(sortedKeys.filter!(x => x.length && x[0] == 'a')
                                        .map!(x => x[1 .. $])));
@@ -5575,7 +5572,7 @@ static private void testSlice(T)(ref T x) @trusted
 
 bool testEqual(T, U)(ref T x, ref U y) @trusted
 {
-    import std.algorithm : equal;
+    import std.algorithm.comparison : equal;
     return equal(x[], y[]);
 }
 
@@ -5586,7 +5583,7 @@ if (Keys.length != 0)
     import std.traits : isIntegral, isFloatingPoint;
     foreach (immutable it; 0 .. 1)
     {
-        import std.algorithm : equal;
+        import std.algorithm.comparison : equal;
         struct TestValueType { int i = 42; float f = 43; char ch = 'a'; }
         alias Value = TestValueType;
         import std.meta : AliasSeq;
@@ -5683,7 +5680,7 @@ void benchmark()()
 {
     import std.stdio : writeln;
 
-    import std.algorithm : equal;
+    import std.algorithm.comparison : equal;
     struct TestValueType { int i = 42; float f = 43; char ch = 'a'; }
     alias Value = TestValueType;
     import std.meta : AliasSeq;

@@ -10,6 +10,7 @@ auto encode(T)(Group!("a == b", T[]) sf)
     import std.typecons : tuple;
     import std.array : array;
     import std.container.binaryheap : heapify;
+    // import mir.container.binaryheap : heapify;
 
     auto heap = sf.map!(s => tuple(s[1], [tuple(s[0], "")]))
                   .array.heapify!q{b < a};

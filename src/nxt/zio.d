@@ -4,6 +4,8 @@
  */
 module nxt.zio;
 
+import std.range.primitives : isInputRange;
+
 @safe:
 
 struct GzipFileInputRange
@@ -433,6 +435,7 @@ private:
 }
 
 void testInputRange(FileInputRange)() @safe
+if (isInputRange!FileInputRange)
 {
     import std.stdio : File;
 

@@ -23,9 +23,9 @@ module nxt.sso_string;
  * See_Also: https://issues.dlang.org/show_bug.cgi?id=18792
  *
  * TODO Use extra bits in Short.length for these special text encodings:
- * - lowercase English into 128/5 = 25 chars
- * - uppercase English into 120/5 = 25 chars
- * - mixedcase English into 120/6 = 20 chars
+ * - 5-bit lowercase English letter into 128/5 = 25 chars
+ * - 5-bit uppercase English letter into 120/5 = 25 chars
+ * - 6-bit uppercase English letter into 120/6 = 20 chars
  */
 struct SSOString
 {

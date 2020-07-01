@@ -13,7 +13,7 @@ struct GzipFileInputRange
     import std.stdio : File;
     import std.traits : ReturnType;
 
-    enum chunkSize = 0x4000;
+    enum chunkSize = 0x4000;    // TODO find optimal value via benchmark
 
     enum defaultExtension = `.gz`;
 

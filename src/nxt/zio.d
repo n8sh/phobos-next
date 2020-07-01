@@ -334,7 +334,7 @@ struct Bz2libFileInputRange
 {
     import std.file : FileException;
 
-    enum chunkSize = 128 * 1024; // 128K
+    enum chunkSize = 128 * 1024; // 128K. TODO find optimal value via benchmark
     enum defaultExtension = `.bz2`;
     enum useGC = false;         // TODO generalize to allocator parameter
 

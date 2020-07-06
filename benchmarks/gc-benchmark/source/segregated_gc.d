@@ -121,6 +121,8 @@ if (sizeClass >= smallSizeClasses[0] &&
     static assert(slots.sizeof == PAGESIZE);
 }
 
+enum minimumSmallPageWordCount = PAGESIZE;
+
 @safe pure nothrow @nogc unittest
 {
     static foreach (sizeClass; smallSizeClasses)

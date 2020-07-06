@@ -16,7 +16,7 @@ code especially when D's design by introspection via `static foreach` plus
 faster execution for some parts of the collect phase but remains to be proven
 via benchmarks. Segregation happens on all combinations of
 
-- size class,
+- size of type in bytes (size class),
 - scanningness: (whether they may contain pointers or not), and
 - whether they contain finalizers or now (`struct` or `class`)
 

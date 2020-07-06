@@ -18,7 +18,7 @@ via benchmarks. Segregation happens on all combinations of
 
 - *size class* (typically 8, 16, 24, 32, 40, 48, etc),
 - *scanningness* (whether they may contain pointers or not), and
-- *whether they contain finalizers* or now (`struct` or `class`)
+- *whether they contain finalizers* or not (`struct` or `class`)
 
 resulting in `2*2*number_of_size_classes` different pool kinds. This is matches
 Dmitry Olshansky recommendations for a new GC in his blog post titled "Inside

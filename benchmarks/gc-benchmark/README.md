@@ -19,7 +19,7 @@ proven.
 Segregation happens on all combinations of
 
 - *size class* (typically 8, 16, 24, 32, 40, 48, etc),
-- *scanningness* (whether they may contain pointers or not), and
+- *scanningness* (whether they *may* contain pointers or not), and
 - *finalization* (whether type is an aggregate type `struct` or
   `class` having a finalizer)
 

@@ -5,7 +5,7 @@
  * License:   $(HTTP www.boost.org/LICENSE_1_0.txt, Boost License 1.0).
  * Authors:   Per Nordlöw
  */
-module nxt.paged_dynamic_array;
+module paged_dynamic_array;
 
 import core.stdc.stdio: printf;
 

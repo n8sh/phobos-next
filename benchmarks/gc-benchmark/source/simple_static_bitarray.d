@@ -1,7 +1,7 @@
 /**
  * Static bit array container for internal usage.
  */
-module nxt.simple_static_bitarray;
+module simple_static_bitarray;
 
 static private alias Block = size_t;
 

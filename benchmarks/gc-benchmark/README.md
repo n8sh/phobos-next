@@ -5,7 +5,11 @@ collector for the D programming language.
 
 ## Specification
 
+### Conservative
+
 Make it conservative for now and later merge Rainer's precise add-ons.
+
+### Segregated by Pool Type
 
 Pools types are segregated on both
 

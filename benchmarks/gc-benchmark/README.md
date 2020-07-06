@@ -5,7 +5,7 @@ collector for the D programming language.
 
 ## Specification
 
-### Segregated by pool type
+### Segregated by type class
 
 Opposite to D's current GC, different type classes are allocated in separate
 pools (segregated allocation). This will lead to worse cache locality during

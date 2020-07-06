@@ -28,8 +28,8 @@ D's GC" which is currently missing from the web. A copy is hosted [locally
 here](./inside-d-gc-by-dmitry-olshansky.md).
 
 Note that because segregation happens not only on size class the term *size
-class* might need to be changed to a term incorporates the segregation on
-*scanningness* and *finalization*.
+class* might need to be changed to a term that also incorporates the segregation
+on *scanningness* and *finalization*.
 
 ### Uses compile-time introspection
 

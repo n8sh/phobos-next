@@ -7,7 +7,7 @@ collector for the D programming language.
 
 ### Densely stored mark bits and sweep-free
 
-GC is inspired by Go's [Proposal: Dense mark bits and sweep-free
+Inspired by Go's [Proposal: Dense mark bits and sweep-free
 allocation](https://github.com/golang/proposal/blob/master/design/12800-sweep-free-alloc.md)
 also reference [here](https://github.com/golang/go/issues/12800). This spec
 makes use of two continuous bitmaps, called `slotUsages` is used during

@@ -53,7 +53,8 @@ private
     }
 }
 
-enum PAGESIZE = 4096;           // Linux $(shell getconf PAGESIZE)
+enum WORDSIZE = size_t.sizeof;  ///< Size of word type (size_t).
+enum PAGESIZE = 4096;           ///< Page size in bytes. Linux $(shell getconf PAGESIZE)
 
 /// Small slot sizes classes (in bytes).
 static immutable smallSizeClasses = [8,
@@ -99,7 +100,7 @@ size_t ceilPow2(size_t sz) @safe pure nothrow @nogc
 struct SmallSlot(uint wordCount)
 if (wordCount >= 1)
 {
-    void[8*wordCount] raw;      // raw slot data (bytes)
+    size_t[wordCount] words;    // words
 }
 
 @safe pure nothrow @nogc unittest
@@ -111,17 +112,16 @@ if (wordCount >= 1)
 /// Small page storing slots of size `sizeClass`.
 struct SmallPage(uint sizeClass)
 if (sizeClass >= smallSizeClasses[0] &&
-    sizeClass % 8 == 0)
+    sizeClass % WORDSIZE == 0)
 {
-    enum wordCount = sizeClass/8;
+    enum wordCount = sizeClass/WORDSIZE;
     enum slotCount = PAGESIZE/sizeClass;
     alias Slot = SmallSlot!(wordCount);
 
     Slot[slotCount] slots;
-    static assert(slots.sizeof == PAGESIZE);
+    static assert(slots.sizeof == PAGESIZE); // TODO adjust if pages of different byte sizes are preferred
 }
-
-enum minimumSmallPageWordCount = PAGESIZE;
+enum minimumSmallPageWordCount = PAGESIZE/WORDSIZE; // TODO may be computed
 
 @safe pure nothrow @nogc unittest
 {

@@ -62,12 +62,21 @@ Calculate size class at compile-time using next power of 2 of `T.sizeof` for
 calls to `new T()` and feed into `N` size-dependent overloads of `mallocN()`,
 `callocN()`, `reallocN()` etc.
 
-For each pool use a hash-table from base pointer to page index instead of a
-binary search to speed up page-search ([Olshansky
-again](./inside-d-gc-by-dmitry-olshansky.md)). Use hash-table with open
+Each pool of a given size class (`SmallPool(uint sizeClass)`) contains a set of
+unordered page tables of a given size class (`SmallPageTable(uint
+sizeClass)`). Each page table contains a page and set of usage and mark bits.
+
+The smallest size memory granularity is `wordSize` being 64 on a 64-bit system.
+
+All pages are built up of an array of slots (`SmallSlots`). The minimum common
+word length of all pages is defined by `minimumPageWordCount` with is computed
+automatically at compile-time.
+
+A single hash-table maps all base pointer(s) of pages inside all page tables
+Block instance pointer instead of a binary search to speed up page-search
+([Olshansky again](./inside-d-gc-by-dmitry-olshansky.md)). Hash-table use open
 addressing and Fibonacci hashing, for instance, phobos-next's
-[`open_hashmap_or_hashset.c`](https://github.com/nordlow/phobos-next/blob/master/src/open_hashmap_or_hashset.d). This
-hash-table needs to be cleared up after mark phase or during allocation.
+[`open_hashmap_or_hashset.c`](https://github.com/nordlow/phobos-next/blob/master/src/open_hashmap_or_hashset.d).
 
 Add run-time information for implicit (by compiler) and explicit (by developer
 in library) casting from mutable to `immutable` and, in turn, `shared` for

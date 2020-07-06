@@ -9,12 +9,12 @@ collector for the D programming language.
 
 Opposite to D's current GC, different (pool) size classes are allocated in
 separate pools, called *segregated* allocation. This will lead to worse cache
-locality during consecutive allocation of instances of different (size)
-types. The implementation will however be significantly simpler to express in
-code especially when D's design by introspection via `static foreach` plus
-`mixin` is utilized to implement different pool types. This will likely lead to
-faster execution for some parts of the collect phase but remains to be proven
-via benchmarks. Segregation happens on all combinations of
+locality during consecutive allocation of different size classes. However, the
+implementation be significantly simpler to express in code especially when D's
+design by introspection via `static foreach` plus `mixin` to realize different
+pool types. This will likely lead to faster execution for some parts of the
+collect phase but remains to be proven via benchmarks. Segregation happens on
+all combinations of
 
 - *size class* (typically 8, 16, 24, 32, 40, 48, etc),
 - *scanningness* (whether they may contain pointers or not), and

@@ -13,7 +13,9 @@ Pools types are segregated on both
 - scanningness: (whether they may contain pointers or not), and
 - whether they contain finalizers or now (`struct` or `class`)
 
-resulting in `2*2*number_of_size_classes` different pool kinds.
+resulting in `2*2*number_of_size_classes` different pool kinds. This is matches
+Dmitry Olshansky recommendations for a new GC in his blog post titled "Inside
+D's GC".
 
 Use `static foreach` plus `mixin` to construct and use instances of these
 different pool types without code duplication.

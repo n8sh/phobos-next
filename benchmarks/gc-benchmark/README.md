@@ -8,11 +8,11 @@ collector for the D programming language.
 ### Segregated by type class
 
 Opposite to D's current GC, different (pool) type classes are allocated in
-separate pools (*segregated* allocation). This will lead to worse cache locality
-during consecutive allocation of instances of different (size) types. The
-implementation will however be significantly simpler especially when D's design
-by introspection via `static foreach` plus `mixin` is utilized to implement
-different pool types. Segregation happens on all combinations of
+separate pools, called *segregated* allocation. This will lead to worse cache
+locality during consecutive allocation of instances of different (size)
+types. The implementation will however be significantly simpler especially when
+D's design by introspection via `static foreach` plus `mixin` is utilized to
+implement different pool types. Segregation happens on all combinations of
 
 - size class,
 - scanningness: (whether they may contain pointers or not), and

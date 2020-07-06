@@ -21,7 +21,7 @@ via benchmarks. Segregation happens on all combinations of
 - *finalization* (whether type is an aggregate type `struct` or
   `class` having a finalizer)
 
-resulting in `2*2*number_of_size_classes` different pool kinds. This is matches
+resulting in `2*2*number_of_size_classes` different pool kinds. This matches
 Dmitry Olshansky recommendations for a new GC in his blog post titled "Inside
 D's GC" which is currently missing from the web. A copy is hosted [locally
 here](./inside-d-gc-by-dmitry-olshansky.md).

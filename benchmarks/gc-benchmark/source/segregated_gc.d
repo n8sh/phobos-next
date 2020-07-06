@@ -32,7 +32,7 @@ import core.stdc.stdio: printf;
 import cstdlib = core.stdc.stdlib : calloc, free, malloc, realloc;
 static import core.memory;
 
-// debug = PRINTF;
+debug = PRINTF;
 
 extern (C) void onOutOfMemoryError(void* pretend_sideffect = null)
     @trusted pure nothrow @nogc; /* dmd @@@BUG11461@@@ */
@@ -354,7 +354,7 @@ class SegregatedGC : GC
     void finalize()
     {
         debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
-        Dtor();
+        dtor();
     }
 
     this()
@@ -362,7 +362,7 @@ class SegregatedGC : GC
         debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
     }
 
-    void Dtor()
+    void dtor()
     {
         debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
     }

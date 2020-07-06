@@ -14,7 +14,7 @@ implementation be significantly simpler to express in code especially when D's
 design by introspection via `static foreach` plus `mixin` to realize different
 pool types. This will likely lead to faster execution of the collect phase for
 some pool types, such as types containing no addresses, but this remains to be
-proven via benchmarks.
+proven.
 
 Segregation initially happens on all combinations of
 

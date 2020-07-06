@@ -249,6 +249,7 @@ struct SmallPools
         default:
             blkinfo.base = null;
             printf("### %s(size:%lu, bits:%u) Cannot handle blkinfo.size:%lu\n", __FUNCTION__.ptr, size, bits, blkinfo.size);
+            // TODO find closest match of blkinfo.size <= smallSizeClasses
             onOutOfMemoryError();
             assert(0, "Handle other blkinfo.size");
         }

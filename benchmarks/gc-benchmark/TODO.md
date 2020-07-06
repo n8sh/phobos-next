@@ -1,6 +1,9 @@
 ## TODO
 
-- Compilation works with ldmd2 but fails with compiler `dmd` as.
+- Compilation works with ldmd2 but fails with compiler `dmd` as
+
+    Error: unrecognized switch '-d-version=segregated_gc'
+
 - Check why finalizers are being called for classes and structs without destructors
 - Check ti to check if we should use value or ref pool
 - Use `slotUsages` during allocation

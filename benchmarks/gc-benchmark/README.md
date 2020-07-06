@@ -18,8 +18,7 @@ Dmitry Olshansky recommendations for a new GC in his blog post titled "Inside
 D's GC".
 
 Implementation uses `static foreach` plus `mixin` to construct and use instances
-of these different pool types specializations for different size classe with
-minimal code duplication.
+of these pool types for different size classes with minimal code duplication.
 
 This makes the GC sweep-free (as in [0]) because only one continuous bitmap
 `slotUsages` needs to be kept during the normal allocation phase. During

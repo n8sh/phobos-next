@@ -50,8 +50,9 @@ calls to `new T()` and feed into `N` size-dependent overloads of `mallocN()`,
 `callocN()`, `reallocN()` etc.
 
 For each pool use a hash-table from base pointer to page index instead of a
-binary search to speed up page-search ([1]). Use hash-table with open addressing
-and Fibonacci hashing, for instance, phobos-next's
+binary search to speed up page-search ([Olshansky
+again](./inside-d-gc-by-dmitry-olshansky.md)). Use hash-table with open
+addressing and Fibonacci hashing, for instance, phobos-next's
 [`open_hashmap_or_hashset.c`](https://github.com/nordlow/phobos-next/blob/master/src/open_hashmap_or_hashset.d). This
 hash-table needs to be cleared up after mark phase or during allocation.
 

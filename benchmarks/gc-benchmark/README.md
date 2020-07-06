@@ -1,4 +1,4 @@
-# Sweep-Free Segregated GC for the Dlang
+# Sweep-Free Segregated GC for the D programming language (Dlang)
 
 This project contains a specification and implementation of a new garbage
 collector for the D programming language.

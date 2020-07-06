@@ -20,12 +20,15 @@ D's GC".
 GC is uses `static foreach` plus `mixin` to construct and use instances of these
 pool types for different size classes with minimal code duplication.
 
-GC is sweep-free (as in [0]) because only one continuous bitmap
-`slotUsages` needs to be kept during the normal allocation phase. During
-mark-phase an equally sized bitmap, `slotMarks`, is zero-constructed using
-mmap and filled in as pointers to slots are discovered. When mark-phase is
-complete this new bitmap `slotMarks` replaces `slotUsages`. This may or may
-not work for pools of objects that have finalizers (TODO find out).
+GC is inspired by Go's [Proposal: Dense mark bits and sweep-free
+allocation](https://github.com/golang/proposal/blob/master/design/12800-sweep-free-alloc.md)
+also reference [here](https://github.com/golang/go/issues/12800). This spec
+makes use of two continuous bitmaps, called `slotUsages` is used during
+allocation phase. During mark-phase an equally sized bitmap, `slotMarks`, is
+zero-initialized and filled in as pointers to slots are discovered to be
+referenced. When mark-phase is complete this new bitmap `slotMarks` is swapped
+with `slotUsages`. This may or may not work for pools of objects that have
+finalizers (TODO find out).
 
 When the allocator has grown too large it will be neccessary to indeed do
 sweeps to free pages. But such sweeps can be triggered by low memory and
@@ -84,10 +87,6 @@ allocator below, this tracking is done via a leading uint bitmask.  A real
 allocator may do better to store this data separately, similar to the basic GC.
 
 ## References
-
-0. Proposal: Dense mark bits and sweep-free allocation
-   https://github.com/golang/proposal/blob/master/design/12800-sweep-free-alloc.md
-   and in turn https://github.com/golang/go/issues/12800
 
 1. [Inside D's GC](https://olshansky.me/gc/runtime/dlang/2017/06/14/inside-d-gc.html)
 

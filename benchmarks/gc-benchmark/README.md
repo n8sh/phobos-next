@@ -50,8 +50,8 @@ class* might need to be changed to a term that also expresses the segregation on
 
 ### Uses compile-time introspection
 
-New GC uses `static foreach` plus `mixin` to realize pool types for different
-size classes with minimal code duplication.
+Uses `static foreach` plus `mixin` to realize pool types for different size
+classes with minimal code duplication.
 
 ### Choice of Size Classes
 

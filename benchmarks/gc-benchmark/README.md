@@ -27,6 +27,8 @@ here](./inside-d-gc-by-dmitry-olshansky.md).
 GC is uses `static foreach` plus `mixin` to construct and use instances of these
 pool types for different size classes with minimal code duplication.
 
+### Densely stored mark bits and sweep-free
+
 GC is inspired by Go's [Proposal: Dense mark bits and sweep-free
 allocation](https://github.com/golang/proposal/blob/master/design/12800-sweep-free-alloc.md)
 also reference [here](https://github.com/golang/go/issues/12800). This spec

@@ -11,7 +11,9 @@ Make it conservative for now and later merge Rainer's precise add-ons.
 
 ### Segregated by pool type
 
-Pools types are segregated on both
+Opposite to D's current GC, meaning different pools types are allocated in
+separate pools. This named a segregated GC. Segregation happens on all
+combinations of
 
 - size class,
 - scanningness: (whether they may contain pointers or not), and
@@ -42,6 +44,8 @@ finalizers (TODO find out).
 When the allocator has grown too large it will be neccessary to indeed do
 sweeps to free pages. But such sweeps can be triggered by low memory and
 doesn't have to do a complete sweep if low latency is needed.
+
+### Choice of Size Classes
 
 Use jemalloc `size classes`: For size classes in between powers of two we can
 allocate pages in 3*n chunks. This is has been added to D's default GC aswell.

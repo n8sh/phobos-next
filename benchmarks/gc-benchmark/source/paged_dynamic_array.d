@@ -226,7 +226,7 @@ struct PagedDynamicArray(T)
 
     invariant
     {
-        assert(!_ptr == !_length);
+        // TODO assert(!_ptr == !_length);
     }
 
 private:

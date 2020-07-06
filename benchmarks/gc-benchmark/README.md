@@ -7,7 +7,7 @@ collector for the D programming language.
 
 ### Segregated by pool type
 
-Opposite to D's current GC, different type classes are allocated in separate
+Opposite to D's current GC, new GC different type classes are allocated in separate
 pools. This is named a segregated GC. Segregation happens on all combinations of
 
 - size class,

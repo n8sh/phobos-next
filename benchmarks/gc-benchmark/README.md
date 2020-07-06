@@ -1,6 +1,9 @@
 # A Segregated GC along with benchmarker `app.d`
 
-## Spec
+A specification and partial implementation of a new garbage collector for the D
+programming language.
+
+## Specification
 
 Make it conservative for now and later merge Rainer's precise add-ons.
 
@@ -46,10 +49,11 @@ make this convenient the compiler might ahead-of-time calculate figure out if
 non-`shared` allocation later must be treated as `shared` and allocated in the
 first place on the global GC heap.
 
-## Mark-phase
+### Mark-phase
 
 - For each potential pointer `p` in stack
-  - Check if `p` lies within address bounds of all pools.
+  - Check if `p` lies within address bounds of all pools. This phase might be
+    integrated with a hash-table lookup of the block part of the pointer.
   - If so, find page storing that pointer (using a hashmap from base pointers to pages)
   - If that slot lies in a pool and and that slot belongs to a pool whols
     element types may contain pointers that slot hasn't yet been marked scan that
@@ -58,7 +62,7 @@ first place on the global GC heap.
 - Find first free slot (0) in pageSlotOccupancies bitarray of length using
   `core.bitop`. Use my own bitarray implementation.
 
-## Key-Question
+## Key-Questions
 
 - Should slot occupancy status
 

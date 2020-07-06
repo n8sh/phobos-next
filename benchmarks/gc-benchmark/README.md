@@ -1,4 +1,4 @@
-# A Segregated GC along with benchmarker `app.d`
+# Sweep-Free Segregated GC for the Dlang
 
 A specification and partial implementation of a new garbage collector for the D
 programming language.

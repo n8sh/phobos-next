@@ -58,9 +58,14 @@ enum PAGESIZE = 4096;           ///< Page size in bytes. Linux $(shell getconf P
 
 /// Small slot sizes classes (in bytes).
 static immutable smallSizeClasses = [8,
-                                     16, // TODO 16 + 8,
-                                     32, // TODO 32 + 16,
-                                     64, // TODO 64 + 32,
+                                     16,
+                                     24,
+                                     32,
+                                     40,
+                                     48,
+                                     56,
+                                     64,
+                                     92,
                                      128, // TODO 128 +64,
                                      256, // TODO 256 + 128,
                                      512, // TODO 512 + 256,
@@ -111,29 +116,17 @@ if (wordCount >= 1)
 
 /// Small page storing slots of size `sizeClass`.
 struct SmallPage(uint sizeClass)
-if (sizeClass >= smallSizeClasses[0] &&
-    sizeClass % WORDSIZE == 0)
+if (sizeClass >= smallSizeClasses[0])
 {
     enum wordCount = sizeClass/WORDSIZE;
     enum slotCount = PAGESIZE/sizeClass;
     alias Slot = SmallSlot!(wordCount);
 
     Slot[slotCount] slots;
-    static assert(slots.sizeof == PAGESIZE); // TODO adjust if pages of different byte sizes are preferred
+    byte[PAGESIZE-slots.sizeof] __padding;
+    static assert(this.sizeof == PAGESIZE); // TODO adjust if pages of different byte sizes are preferred
 }
 enum minimumSmallPageWordCount = PAGESIZE/WORDSIZE; // TODO may be computed
-
-@safe pure nothrow @nogc unittest
-{
-    static foreach (sizeClass; smallSizeClasses)
-    {
-        {
-            SmallPage!(sizeClass) x;
-            SmallPage!(sizeClass) y;
-            static assert(!__traits(compiles, { SmallPage!(sizeClass+1) _; }));
-        }
-    }
-}
 
 struct SmallPageTable(uint sizeClass)
 {

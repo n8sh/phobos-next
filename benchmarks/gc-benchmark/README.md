@@ -17,10 +17,10 @@ resulting in `2*2*number_of_size_classes` different pool kinds. This is matches
 Dmitry Olshansky recommendations for a new GC in his blog post titled "Inside
 D's GC".
 
-Implementation uses `static foreach` plus `mixin` to construct and use instances
-of these pool types for different size classes with minimal code duplication.
+GC is uses `static foreach` plus `mixin` to construct and use instances of these
+pool types for different size classes with minimal code duplication.
 
-This makes the GC sweep-free (as in [0]) because only one continuous bitmap
+GC is sweep-free (as in [0]) because only one continuous bitmap
 `slotUsages` needs to be kept during the normal allocation phase. During
 mark-phase an equally sized bitmap, `slotMarks`, is zero-constructed using
 mmap and filled in as pointers to slots are discovered. When mark-phase is

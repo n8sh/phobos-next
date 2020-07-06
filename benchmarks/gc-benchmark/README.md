@@ -7,12 +7,12 @@ collector for the D programming language.
 
 ### Segregated by pool type
 
-Opposite to D's current GC, new GC different type classes are allocated in
-separate pools. This will lead to worse cache locality during consecutive
-allocation of instances of different (size) types. The implementation will
-however be significantly simpler especially when D's design by introspection via
-`static foreach` plus `mixin` is utilized to implement different pool types.
-. This is the reason for naming "segregated". Segregation happens on all
+Opposite to D's current GC, different type classes are allocated in separate
+pools. This will lead to worse cache locality during consecutive allocation of
+instances of different (size) types. The implementation will however be
+significantly simpler especially when D's design by introspection via `static
+foreach` plus `mixin` is utilized to implement different pool types.  . This is
+the reason for naming this GC "segregated". Segregation happens on all
 combinations of
 
 - size class,

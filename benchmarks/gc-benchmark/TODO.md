@@ -1,6 +1,6 @@
 ## TODO
 
-- Make compilation work with dmd
+- Compilation works with ldmd2 but fails with compiler `dmd` as.
 - Check why finalizers are being called for classes and structs without destructors
 - Check ti to check if we should use value or ref pool
 - Use `slotUsages` during allocation

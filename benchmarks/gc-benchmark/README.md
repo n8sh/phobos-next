@@ -25,6 +25,9 @@ Dmitry Olshansky recommendations for a new GC in his blog post titled "Inside
 D's GC" which is currently missing from the web. A copy is hosted [locally
 here](./inside-d-gc-by-dmitry-olshansky.md).
 
+Note that because segregation happens not only on size class the naming size
+class might need to be changed to something more suitable.
+
 ### Uses compile-time introspection
 
 GC is uses `static foreach` plus `mixin` to construct and use instances of these

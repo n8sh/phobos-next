@@ -5,9 +5,9 @@ collector for the D programming language.
 
 ## Specification
 
-### Segregated by type class
+### Segregated by size class
 
-Opposite to D's current GC, different (pool) type classes are allocated in
+Opposite to D's current GC, different (pool) size classes are allocated in
 separate pools, called *segregated* allocation. This will lead to worse cache
 locality during consecutive allocation of instances of different (size)
 types. The implementation will however be significantly simpler to express in

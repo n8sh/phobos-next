@@ -2,6 +2,12 @@
 
 DC=ldmd2
 
+# Segregated GC
+echo
+echo "=============="
+echo "Segregated GC:"
+dub run --compiler=${DC} --build=release-nobounds-segregated-gc
+
 # Conservative GC
 echo
 echo "================"
@@ -14,9 +20,3 @@ echo
 echo "==========="
 echo "Precise GC:"
 dub run --compiler=${DC} --build=release-nobounds -- --DRT-gcopt=gc:precise
-
-# Segregated GC
-echo
-echo "=============="
-echo "Segregated GC:"
-dub run --compiler=${DC} --build=release-nobounds-segregated-gc

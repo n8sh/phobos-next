@@ -15,7 +15,7 @@ Pools types are segregated on both
 
 resulting in `2*2*number_of_size_classes` different pool kinds. This is matches
 Dmitry Olshansky recommendations for a new GC in his blog post titled "Inside
-D's GC".
+D's GC" which is currently missing from the web.
 
 GC is uses `static foreach` plus `mixin` to construct and use instances of these
 pool types for different size classes with minimal code duplication.

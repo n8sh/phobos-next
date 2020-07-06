@@ -59,13 +59,19 @@ enum PAGESIZE = 4096;           ///< Page size in bytes. Linux $(shell getconf P
 /// Small slot sizes classes (in bytes).
 static immutable smallSizeClasses = [8,
                                      16,
-                                     24,
+                                     24, // TODO move
                                      32,
-                                     40,
-                                     48,
-                                     56,
+                                     40, // TODO move
+                                     48, // TODO move
+                                     56, // TODO move
                                      64,
-                                     92,
+                                     72,
+                                     80,
+                                     88,
+                                     96, // TODO move
+                                     104, // TODO move
+                                     112, // TODO move
+                                     120, // TODO move
                                      128, // TODO 128 +64,
                                      256, // TODO 256 + 128,
                                      512, // TODO 512 + 256,
@@ -119,6 +125,7 @@ struct SmallPage(uint sizeClass)
 if (sizeClass >= smallSizeClasses[0])
 {
     enum wordCount = sizeClass/WORDSIZE;
+    static assert(sizeClass % WORDSIZE == 0, sizeClass);
     enum slotCount = PAGESIZE/sizeClass;
     alias Slot = SmallSlot!(wordCount);
 
@@ -394,6 +401,11 @@ class SegregatedGC : GC
     }
 
     void collect() nothrow
+    {
+        printf("### %s: \n", __FUNCTION__.ptr);
+    }
+
+    void collectNoStack() nothrow
     {
         printf("### %s: \n", __FUNCTION__.ptr);
     }

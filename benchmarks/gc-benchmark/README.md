@@ -12,8 +12,8 @@ pools, called *segregated* allocation. This will lead to worse cache locality
 during consecutive allocation of different size classes. However, the
 implementation be significantly simpler to express in code especially when D's
 design by introspection via `static foreach` plus `mixin` to realize different
-pool types. This will likely lead to faster execution for some parts of the
-collect phase for some pool types but remains to be proven via benchmarks.
+pool types. This will likely lead to faster execution of the collect phase for
+some pool types but remains to be proven via benchmarks.
 
 Segregation happens on all combinations of
 

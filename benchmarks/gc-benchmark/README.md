@@ -9,7 +9,7 @@ collector for the D programming language.
 
 Make it conservative for now and later merge Rainer's precise add-ons.
 
-### Segregated by Pool Type
+### Segregated by pool type
 
 Pools types are segregated on both
 
@@ -21,6 +21,8 @@ resulting in `2*2*number_of_size_classes` different pool kinds. This is matches
 Dmitry Olshansky recommendations for a new GC in his blog post titled "Inside
 D's GC" which is currently missing from the web but a copy is hosted [locally
 here](./inside-d-gc-by-dmitry-olshansky.md).
+
+### Uses compile-time introspection
 
 GC is uses `static foreach` plus `mixin` to construct and use instances of these
 pool types for different size classes with minimal code duplication.

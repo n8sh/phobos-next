@@ -5,10 +5,6 @@ collector for the D programming language.
 
 ## Specification
 
-### Conservative
-
-Make it conservative for now and later merge Rainer's precise add-ons.
-
 ### Segregated by pool type
 
 Opposite to D's current GC, meaning different pools types are allocated in
@@ -90,6 +86,11 @@ bitarray to be dynamically expanded and deleted in-place when pages are
 removed
 2. automatically deduced during sweep into a hashset of pointers (more
 performant for sparse data) and keep some extra
+
+### Conservative for now, Precise later
+
+GC is conservative for now but will be prepared for a merge with Rainer's
+precise add-ons.
 
 ## Note
 

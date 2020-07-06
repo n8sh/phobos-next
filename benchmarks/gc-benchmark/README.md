@@ -15,7 +15,7 @@ design by introspection via `static foreach` plus `mixin` to realize different
 pool types. This will likely lead to faster execution of the collect phase for
 some pool types but remains to be proven via benchmarks.
 
-Segregation happens on all combinations of
+Segregation initially happens on all combinations of
 
 - *size class* (typically 8, 16, 24, 32, 40, 48, etc),
 - *scanningness* (whether they may contain pointers or not), and

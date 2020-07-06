@@ -632,7 +632,7 @@ class SegregatedGC : GC
     /**
      * Run finalizers.
      */
-    void runFinalizers(in void[] segment) nothrow
+    void runFinalizers(const scope void[] segment) nothrow
     {
         debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
     }

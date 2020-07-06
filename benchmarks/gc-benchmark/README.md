@@ -80,7 +80,8 @@ first place on the global GC heap.
 
 - For each potential pointer `p` in stack
   - Check if `p` lies within address bounds of all pools. This phase might be
-    integrated with a hash-table lookup of the block part of the pointer.
+    better expressed via the hash-table lookup of the block base part of the
+    pointer.
   - If so, find page storing that pointer (using a hashmap from base pointers to pages)
   - If that slot lies in a pool and and that slot belongs to a pool whols
     element types may contain pointers that slot hasn't yet been marked scan that

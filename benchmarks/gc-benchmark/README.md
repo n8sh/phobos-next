@@ -16,7 +16,7 @@ pool types. This will likely lead to faster execution of the collect phase for
 some pool types, such as types containing no pointers, but this remains to be
 proven.
 
-Segregation initially happens on all combinations of
+Segregation happens on all combinations of
 
 - *size class* (typically 8, 16, 24, 32, 40, 48, etc),
 - *scanningness* (whether they may contain pointers or not), and

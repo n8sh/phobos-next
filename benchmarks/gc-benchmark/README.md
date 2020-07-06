@@ -1,9 +1,25 @@
-# Segregated and Sweep-Free GC for the D programming language (Dlang)
+# Sweep-Free and Segregated GC for the D programming language (Dlang)
 
 This project contains a specification and implementation of a new garbage
 collector for the D programming language.
 
 ## Specification
+
+### Densely stored mark bits and sweep-free
+
+GC is inspired by Go's [Proposal: Dense mark bits and sweep-free
+allocation](https://github.com/golang/proposal/blob/master/design/12800-sweep-free-alloc.md)
+also reference [here](https://github.com/golang/go/issues/12800). This spec
+makes use of two continuous bitmaps, called `slotUsages` is used during
+allocation phase. During mark-phase an equally sized bitmap, `slotMarks`, is
+zero-initialized and filled in as pointers to slots are discovered to be
+referenced. When mark-phase is complete this new bitmap `slotMarks` is swapped
+with `slotUsages`. This may or may not work for pools of objects that have
+finalizers (TODO find out).
+
+When the allocator has grown too large it will be neccessary to indeed do
+sweeps to free pages. But such sweeps can be triggered by low memory and
+doesn't have to do a complete sweep if low latency is needed.
 
 ### Segregated by size class
 
@@ -36,22 +52,6 @@ class* might need to be changed to a term that also expresses the segregation on
 
 New GC uses `static foreach` plus `mixin` to realize pool types for different
 size classes with minimal code duplication.
-
-### Densely stored mark bits and sweep-free
-
-GC is inspired by Go's [Proposal: Dense mark bits and sweep-free
-allocation](https://github.com/golang/proposal/blob/master/design/12800-sweep-free-alloc.md)
-also reference [here](https://github.com/golang/go/issues/12800). This spec
-makes use of two continuous bitmaps, called `slotUsages` is used during
-allocation phase. During mark-phase an equally sized bitmap, `slotMarks`, is
-zero-initialized and filled in as pointers to slots are discovered to be
-referenced. When mark-phase is complete this new bitmap `slotMarks` is swapped
-with `slotUsages`. This may or may not work for pools of objects that have
-finalizers (TODO find out).
-
-When the allocator has grown too large it will be neccessary to indeed do
-sweeps to free pages. But such sweeps can be triggered by low memory and
-doesn't have to do a complete sweep if low latency is needed.
 
 ### Choice of Size Classes
 

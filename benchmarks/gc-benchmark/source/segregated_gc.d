@@ -395,12 +395,12 @@ class SegregatedGC : GC
 
     void collect() nothrow
     {
-        debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
+        printf("### %s: \n", __FUNCTION__.ptr);
     }
 
     void collectNoStack() nothrow
     {
-        debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
+        printf("### %s: \n", __FUNCTION__.ptr);
     }
 
     void minimize() nothrow
@@ -533,7 +533,7 @@ class SegregatedGC : GC
 
     void addRoot(void* p) nothrow @nogc
     {
-        debug(PRINTF) printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
+        printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
         tlGcx.roots.insertBack(Root(p));
     }
 
@@ -577,7 +577,7 @@ class SegregatedGC : GC
      */
     void addRange(void* p, size_t sz, const TypeInfo ti = null) nothrow @nogc
     {
-        debug(PRINTF) printf("### %s(p:%p, sz:%lu)\n", __FUNCTION__.ptr, p, sz);
+        printf("### %s(p:%p, sz:%lu ti:%p)\n", __FUNCTION__.ptr, p, sz, ti);
         tlGcx.ranges.insertBack(Range(p, p + sz, cast() ti));
     }
 

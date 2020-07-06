@@ -13,7 +13,7 @@ during consecutive allocation of different size classes. However, the
 implementation be significantly simpler to express in code especially when D's
 design by introspection via `static foreach` plus `mixin` to realize different
 pool types. This will likely lead to faster execution for some parts of the
-collect phase but remains to be proven via benchmarks.
+collect phase for some pool types but remains to be proven via benchmarks.
 
 Segregation happens on all combinations of
 

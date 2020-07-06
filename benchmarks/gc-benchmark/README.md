@@ -70,8 +70,8 @@ The smallest byte size memory granularity is `wordSize` being 64 on a 64-bit
 system.
 
 All pages are built up of an array of slots (`SmallSlots`). The minimum common
-word length of all pages is defined by `minimumPageWordCount` with is computed
-automatically at compile-time.
+word length of all pages is defined by `minimumSmallPageWordCount` with is computed
+automatically at compile-time from the minimum size of all instances of `SmallPage`.
 
 A single hash-table maps all base pointer(s) of pages inside all page tables
 Block instance pointer instead of a binary search to speed up page-search

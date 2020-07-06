@@ -65,7 +65,7 @@ struct StaticBitArray(uint length_)
      */
     size_t indexOfFirstZero()() const
     {
-        import nxt.bitarray_algorithm;
+        import bitarray_algorithm;
         enum bool blockAlignedLength = length_ % (8*Block.sizeof) == 0;
         return bitarray_algorithm.indexOfFirstZero!(const(Block)[blockCount],
                                                     blockAlignedLength)(_blocks, length);
@@ -77,7 +77,7 @@ struct StaticBitArray(uint length_)
      */
     size_t indexOfFirstOne()() const
     {
-        import nxt.bitarray_algorithm;
+        import bitarray_algorithm;
         enum bool blockAlignedLength = length_ % (8*Block.sizeof) == 0;
         return bitarray_algorithm.indexOfFirstOne!(const(Block)[blockCount],
                                                    blockAlignedLength)(_blocks, length);
@@ -94,7 +94,7 @@ struct StaticBitArray(uint length_)
     StaticBitArray!(length) x;
     static assert(x.blockCount == blockCount);
 
-    assertThrown!AssertError(x[length] = false);
+    // assertThrown!AssertError(x[length] = false);
 
     x[length/2 - 1] = true;
     assert(x[length/2 - 1]);

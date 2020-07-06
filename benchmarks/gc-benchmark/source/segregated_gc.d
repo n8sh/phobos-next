@@ -578,6 +578,7 @@ class SegregatedGC : GC
     void addRange(void* p, size_t sz, const TypeInfo ti = null) nothrow @nogc
     {
         printf("### %s(p:%p, sz:%lu ti:%p)\n", __FUNCTION__.ptr, p, sz, ti);
+        if (p is null) return;
         tlGcx.ranges.insertBack(Range(p, p + sz, cast() ti));
     }
 
@@ -587,6 +588,7 @@ class SegregatedGC : GC
     void removeRange(void* p) nothrow @nogc
     {
         debug(PRINTF) printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
+        if (p is null) return;
         foreach (ref r; tlGcx.ranges)
         {
             if (r.pbot is p)

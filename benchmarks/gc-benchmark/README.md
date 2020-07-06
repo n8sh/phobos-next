@@ -7,9 +7,9 @@ collector for the D programming language.
 
 ### Segregated by size class
 
-Opposite to D's current GC, different (pool) size classes are allocated in
-separate pools, called *segregated* allocation. This will lead to worse cache
-locality during consecutive allocation of different size classes. However, the
+Opposite to D's current GC, different size classes are allocated in separate
+pools, called *segregated* allocation. This will lead to worse cache locality
+during consecutive allocation of different size classes. However, the
 implementation be significantly simpler to express in code especially when D's
 design by introspection via `static foreach` plus `mixin` to realize different
 pool types. This will likely lead to faster execution for some parts of the

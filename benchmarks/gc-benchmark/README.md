@@ -13,7 +13,7 @@ during consecutive allocation of different size classes. However, the
 implementation be significantly simpler to express in code especially when D's
 design by introspection via `static foreach` plus `mixin` to realize different
 pool types. This will likely lead to faster execution of the collect phase for
-some pool types, such as types containing no addresses, but this remains to be
+some pool types, such as types containing no pointers, but this remains to be
 proven.
 
 Segregation initially happens on all combinations of

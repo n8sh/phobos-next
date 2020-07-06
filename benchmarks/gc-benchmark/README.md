@@ -66,7 +66,8 @@ Each pool of a given size class (`SmallPool(uint sizeClass)`) contains a set of
 unordered page tables of a given size class (`SmallPageTable(uint
 sizeClass)`). Each page table contains a page and set of usage and mark bits.
 
-The smallest size memory granularity is `wordSize` being 64 on a 64-bit system.
+The smallest byte size memory granularity is `wordSize` being 64 on a 64-bit
+system.
 
 All pages are built up of an array of slots (`SmallSlots`). The minimum common
 word length of all pages is defined by `minimumPageWordCount` with is computed

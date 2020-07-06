@@ -354,17 +354,10 @@ class SegregatedGC : GC
     void finalize()
     {
         debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
-        dtor();
     }
 
     this()
     {
-        debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
-    }
-
-    void dtor()
-    {
-        debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
     }
 
     void enable()

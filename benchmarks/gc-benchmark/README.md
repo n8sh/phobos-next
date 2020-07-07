@@ -147,3 +147,5 @@ allocator may do better to store this data separately, similar to the basic GC.
 9. [What are the advantages and disadvantages of having mark bits together and separate for Garbage Collection](https://stackoverflow.com/questions/23057531/what-are-the-advantages-and-disadvantages-of-having-mark-bits-together-and-separ)
 
 10. [Adding your own GC to the GC Registry](https://dlang.org/spec/garbage.html#gc_registry)
+
+11. [Understanding GC memory ranges and roots](https://forum.dlang.org/post/uiuedvfnftsnbpmkchyq@forum.dlang.org)

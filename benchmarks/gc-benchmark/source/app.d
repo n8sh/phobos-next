@@ -40,6 +40,7 @@ void main(string[] args)
             benchmarkAllocation!(ulong, wordCount)();
         }
     }
+    GC.collect();
     writeln("  ns/w: nanoseconds per word");
 }
 

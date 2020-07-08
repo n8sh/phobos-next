@@ -31,7 +31,7 @@ import nxt.slicing : preSlicer;
 
 import nxt.traits_ex: ElementTypeOf, isCallableWith;
 import nxt.rational;
-import arsd.terminal;
+// import arsd.terminal;
 import core.time: Duration;
 
 /// See_Also: http://forum.dlang.org/thread/fihymjelvnwfevegwryt@forum.dlang.org#post-fihymjelvnwfevegwryt:40forum.dlang.org
@@ -203,7 +203,7 @@ class Viz
     import std.stdio: ioFile = File;
 
     ioFile outFile;
-    Terminal* term;
+    // Terminal* term;
 
     bool treeFlag;
     VizForm form;
@@ -217,7 +217,7 @@ class Viz
     bool newlinedTags = true;
 
     this(ioFile outFile,
-         Terminal* term,
+         //  Terminal* term,
          VizForm form = VizForm.textAsciiDocUTF8,
          bool treeFlag = true,
          bool colorFlag = true,
@@ -238,7 +238,7 @@ class Viz
         }
     }
 
-    ~this() @nogc
+    ~this()
     {
         if (form == VizForm.HTML)
         {
@@ -249,7 +249,7 @@ class Viz
     /** Put `arg` to `this` without any conversion nor coloring. */
     void ppRaw(T...)(T args)
     {
-        foreach (arg; args)
+        foreach (const arg; args)
         {
             if (outFile == stdout)
             {

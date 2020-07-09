@@ -8,6 +8,8 @@ echo "=============="
 echo "Segregated GC:"
 dub run --compiler=${DC} --build=release-nobounds-segregated-gc
 
+exit 0
+
 # Conservative GC
 echo
 echo "================"

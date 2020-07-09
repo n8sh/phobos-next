@@ -53,7 +53,7 @@ private
 }
 
 enum WORDSIZE = size_t.sizeof;  ///< Size of word type (size_t).
-enum PAGESIZE = 4096;           ///< Page size in bytes. Linux $(shell getconf PAGESIZE)
+enum PAGESIZE = 4096;           ///< Page size in bytes. Linux $(shell getconf PAGESIZE).
 
 /// Small slot sizes classes (in bytes).
 static immutable smallSizeClasses = [8,

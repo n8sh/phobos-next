@@ -15,8 +15,8 @@ enum HAlign { left, center, right }
 
 /** Generic case. */
 string toMathML(T)(T x) @trusted /* pure nothrow */
-    if (isScalarType!T &&
-        !isFloatingPoint!T)
+if (isScalarType!T &&
+    !isFloatingPoint!T)
 {
     import std.conv : to;
     return to!string(x);
@@ -31,7 +31,7 @@ string toML(T)(T x,
                bool usePowPlus = false,
                bool useLeadZeros = false,
                MarkupLang mlang = MarkupLang.HTML) @trusted /* pure nothrow */
-    if (isFloatingPoint!T)
+if (isFloatingPoint!T)
 {
     import std.conv : to;
     import nxt.find_split_ex : findSplitAmong;
@@ -80,13 +80,13 @@ string toML(T)(T x,
 }
 
 auto toMathML(T)(T x, bool usePowPlus = false, bool useLeadZeros = false) @trusted /* pure nothrow */
-    if (isFloatingPoint!T)
+if (isFloatingPoint!T)
 {
     return toML(x, usePowPlus, useLeadZeros, MarkupLang.MathML);
 }
 
 auto toHTML(T)(T x, bool usePowPlus = false, bool useLeadZeros = false) @trusted /* pure nothrow */
-    if (isFloatingPoint!T)
+if (isFloatingPoint!T)
 {
     return toML(x, usePowPlus, useLeadZeros, MarkupLang.HTML);
 }

@@ -1319,15 +1319,17 @@ void show(Viz viz)
     assert(chromePid.wait() == 0);
 }
 
-unittest
+version(unittest)
 {
     import std.algorithm.iteration : map;
-
     // TODO hide these stuff in constructor for Viz
     import std.uuid: randomUUID;
     import std.stdio: File;
+}
 
-    immutable outPath = `/tmp/fs-` ~ randomUUID.toString() ~ `.` ~ `html`;
+unittest
+{
+    immutable outPath = `/tmp/fs-` ~ randomUUID.toString() ~ `.` ~ `html`; // reuse `nxt.tempfs`
     File outFile = File(outPath, `w`);
     auto term = Terminal(ConsoleOutputType.linear);
     auto viz = new Viz(outFile, &term, VizForm.HTML);

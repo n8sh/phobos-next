@@ -92,13 +92,17 @@ if (isFloatingPoint!T)
     }
 }
 
-auto toMathML(T)(T x, bool usePowPlus = false, bool useLeadZeros = false) @trusted /* pure nothrow */
+auto toMathML(T)(in T x,
+                 bool usePowPlus = false,
+                 bool useLeadZeros = false) @trusted /* pure nothrow */
 if (isFloatingPoint!T)
 {
     return toML(x, usePowPlus, useLeadZeros, MarkupLang.MathML);
 }
 
-auto toHTML(T)(T x, bool usePowPlus = false, bool useLeadZeros = false) @trusted /* pure nothrow */
+auto toHTML(T)(in T x,
+               bool usePowPlus = false,
+               bool useLeadZeros = false) @trusted /* pure nothrow */
 if (isFloatingPoint!T)
 {
     return toML(x, usePowPlus, useLeadZeros, MarkupLang.HTML);

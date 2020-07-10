@@ -579,7 +579,7 @@ string toMathML(Lang lang) @safe pure nothrow /*TODO @nogc*/
 }
 
 /** Markup Lang */
-enum MarkupLang:ubyte
+enum MarkupLang : ubyte
 {
     unknown,                    // Unknown: ?
     HTML,

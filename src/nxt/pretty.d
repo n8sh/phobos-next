@@ -851,7 +851,7 @@ class Viz
                 else if (arg.rowNr == RowNr.offsetOne)  pplnTaggedN(`td`, `1-Offset`);
                 foreach (ix, Member; typeof(Front.tupleof))
                 {
-                    import std.ascii : isUpper; // D symbols cannot have Unicode
+                    import std.ascii : isUpper; // TODO support ASCII in fast path and Unicode in slow path
                     import std.string : capitalize;
                     import std.algorithm.iteration : joiner;
 

@@ -45,7 +45,7 @@ else
 // TODO use import core.simd;
 import std.math: sqrt, isNaN, isInfinity, PI, sin, cos, acos;
 import std.conv: to;
-import std.traits: isSomeString, isIntegral, isFloatingPoint, isNumeric, isSigned, isDynamicArray, isImplicitlyConvertible, isAssignable, isArray, CommonType;
+import std.traits: isFloatingPoint, isNumeric, isSigned, isDynamicArray, isAssignable, isArray, CommonType;
 import std.string: format, rightJustify;
 import std.array: join;
 import std.algorithm : map, all, any, min, max, reduce;

@@ -115,6 +115,8 @@ enum VizForm
  *
  * Each enumerator is an RGB hex string.
  *
+ * TODO use RGB-type as enumerator instead
+ *
  * See_Also: http://ethanschoonover.com/solarized
  */
 enum SolarizedLightColorTheme

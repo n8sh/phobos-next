@@ -28,7 +28,7 @@ else
         {
             this(that._payload);
         }
-        alias _payload this;
+        alias _payload this;    // mimic
     }
 }
 

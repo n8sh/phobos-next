@@ -138,7 +138,7 @@ enum SolarizedLightColorTheme
     See_Also: http://www.w3schools.com/html/html_formatting.asp
 */
 static immutable nonStateHTMLTags = [`b`, `i`, `strong`, `em`, `sub`, `sup`, `small`, `ins`, `del`, `mark`,
-                         `code`, `kbd`, `samp`, `samp`, `var`, `pre`];
+                                     `code`, `kbd`, `samp`, `samp`, `var`, `pre`];
 
 static immutable htmlHeader = `<!DOCTYPE html>
 <html>
@@ -859,10 +859,10 @@ class Viz
                     else                                   static immutable qual = ``; // TODO Are there more qualifiers
 
                     pplnTaggedN(`td`,
-                                    idName.asItalic.asBold,
-                                    `<br>`,
-                                    qual.asKeyword,
-                                    typeName.asType);
+                                idName.asItalic.asBold,
+                                `<br>`,
+                                qual.asKeyword,
+                                typeName.asType);
                 }
                 if (form == VizForm.HTML) { pplnTagClose(`tr`); }
             }

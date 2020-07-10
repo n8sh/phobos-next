@@ -849,7 +849,7 @@ class Viz
                 // index column
                 if      (arg.rowNr == RowNr.offsetZero) pplnTaggedN(`td`, `0-Offset`);
                 else if (arg.rowNr == RowNr.offsetOne)  pplnTaggedN(`td`, `1-Offset`);
-                foreach (ix, Member; typeof(Front.tupleof))
+                foreach (const ix, Member; typeof(Front.tupleof))
                 {
                     import std.ascii : isUpper; // TODO support ASCII in fast path and Unicode in slow path
                     import std.string : capitalize;

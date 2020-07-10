@@ -24,9 +24,9 @@ else
             _payload = init;
         }
 
-        this(Typedef tdef)
+        this(Typedef that)
         {
-            this(tdef._payload);
+            this(that._payload);
         }
         alias _payload this;
     }

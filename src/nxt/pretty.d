@@ -261,7 +261,7 @@ class Viz
         {
             if (outFile == stdout)
             {
-                (*term).write(arg);
+                term.write(arg); // trick
             }
             else
             {
@@ -279,11 +279,11 @@ class Viz
             {
                 if (flushNewlines)
                 {
-                    (*term).writeln(arg);
+                    term.writeln(arg);
                 }
                 else
                 {
-                    (*term).write(arg, '\n');
+                    term.write(arg, '\n');
                 }
             }
             else
@@ -355,7 +355,7 @@ class Viz
     {
         if (outFile == stdout)
         {
-            (*term).write(arg);
+            term.write(arg);
         }
         else
         {
@@ -376,7 +376,7 @@ class Viz
                   T arg,
                   bool nbsp = true)
     {
-        (*term).setFace(face, colorFlag);
+        term.setFace(face, colorFlag);
         ppPut(arg, nbsp);
     }
 
@@ -857,14 +857,14 @@ class Viz
                     import std.string: capitalize;
                     import std.algorithm: joiner;
 
-                    static immutable idName = __traits(identifier, Front.tupleof[ix]).preSlicer!isUpper.map!capitalize.joiner(` `);
-                    static immutable typeName = Unqual!(Member).stringof; // constness of no interest hee
+                    immutable idName = __traits(identifier, Front.tupleof[ix]).preSlicer!isUpper.map!capitalize.joiner(` `);
+                    immutable typeName = Unqual!(Member).stringof; // constness of no interest hee
 
-                    static      if (is(Memb == struct))    static immutable qual = `struct `;
-                    else static if (is(Memb == class))     static immutable qual = `class `;
-                    else static if (is(Memb == enum))      static immutable qual = `enum `;
-                    else static if (is(Memb == interface)) static immutable qual = `interface `;
-                    else                                   static immutable qual = ``; // TODO Are there more qualifiers
+                    static      if (is(Memb == struct))    immutable qual = `struct `;
+                    else static if (is(Memb == class))     immutable qual = `class `;
+                    else static if (is(Memb == enum))      immutable qual = `enum `;
+                    else static if (is(Memb == interface)) immutable qual = `interface `;
+                    else                                   immutable qual = ``; // TODO Are there more qualifiers
 
                     pplnTaggedN(`td`,
                                 idName.asItalic.asBold,
@@ -1123,10 +1123,10 @@ class Viz
             }
 
             // write
-            (*term).setFace(arg.getFace(), colorFlag);
+            term.setFace(arg.getFace(), colorFlag);
             if (outFile == stdout)
             {
-                (*term).write(arg_string);
+                term.write(arg_string);
             }
             else
             {
@@ -1162,7 +1162,7 @@ class Viz
         ppN(args);
         if (outFile == stdout)
         {
-            (*term).flush();
+            term.flush();
         }
     }
 
@@ -1172,8 +1172,8 @@ class Viz
         ppN(args);
         if (outFile == stdout)
         {
-            (*term).writeln(lbr(form == VizForm.HTML));
-            (*term).flush();
+            term.writeln(lbr(form == VizForm.HTML));
+            term.flush();
         }
         else
         {

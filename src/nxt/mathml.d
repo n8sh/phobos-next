@@ -35,7 +35,7 @@ if (isScalarType!T &&
     return to!string(x);
 }
 
-/** Return x in $(D MarkupLang) format.
+/** Returns: x in $(D MarkupLang) format.
  *
  * See_Also: http://forum.dlang.org/thread/awkynfizwqjnbilgddbh@forum.dlang.org#post-awkynfizwqjnbilgddbh:40forum.dlang.org
  * See_Also: https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mn

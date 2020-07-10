@@ -1,5 +1,6 @@
-/* Attributes.
-   Only make T args const when they have value semantics (allAre!hasIndirections!T).
+/** Attributes.
+ *
+ * Only make T args const when they have value semantics (allAre!hasIndirections!T).
  */
 module nxt.attributes;
 

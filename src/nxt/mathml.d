@@ -104,21 +104,21 @@ if (isFloatingPoint!T)
     return toML(x, usePowPlus, useLeadZeros, MarkupLang.HTML);
 }
 
-/**
-   Returns: MathML Representation of $(D x).
-   See_Also: https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mfrac
+/** Returns: MathML Representation of $(D x).
+ *
+ * See_Also: https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mfrac
  */
 string toMathML(T)(Rational!T x,
                    bool bevelled = false,
-                   HAlign numalign = HAlign.center,
-                   HAlign denomalign = HAlign.center,
+                   HAlign numAlign = HAlign.center,
+                   HAlign denomAlign = HAlign.center,
                    string href = null) @safe pure
 {
     import std.conv : to;
     return (`<math><mfrac` ~
             (bevelled ? ` bevelled="true"` : ``) ~
-            (numalign != HAlign.center ? ` numalign="` ~ to!string(numalign) ~ `"` : ``) ~
-            (denomalign != HAlign.center ? ` denomalign="` ~ to!string(denomalign) ~ `"` : ``) ~
+            (numAlign != HAlign.center ? ` numAlign="` ~ to!string(numAlign) ~ `"` : ``) ~
+            (denomAlign != HAlign.center ? ` denomAlign="` ~ to!string(denomAlign) ~ `"` : ``) ~
             `><mi>`
             ~ to!string(x.numerator) ~ `</mi><mi>` ~
             to!string(x.denominator) ~

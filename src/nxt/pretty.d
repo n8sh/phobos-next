@@ -15,6 +15,8 @@
 */
 module nxt.pretty;
 
+import core.time: Duration;
+
 import std.algorithm : map;
 import std.range: isInputRange, repeat;
 import std.traits: isInstanceOf, isSomeString, isSomeChar, isAggregateType, Unqual, isArray, isIterable;
@@ -31,8 +33,8 @@ import nxt.slicing : preSlicer;
 
 import nxt.traits_ex: ElementTypeOf, isCallableWith;
 import nxt.rational;
+
 import arsd.terminal;
-import core.time: Duration;
 
 /// See_Also: http://forum.dlang.org/thread/fihymjelvnwfevegwryt@forum.dlang.org#post-fihymjelvnwfevegwryt:40forum.dlang.org
 template Concise(Tuple)

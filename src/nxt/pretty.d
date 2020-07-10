@@ -119,7 +119,7 @@ enum VizForm
  *
  * See_Also: http://ethanschoonover.com/solarized
  */
-enum SolarizedLightColorTheme
+enum SolarizedLightColorTheme_hexstring
 {
     base00  = `657b83`,
     base01  = `586e75`,
@@ -195,8 +195,8 @@ td, th { border: 1px solid black; }
 table { border-collapse: collapse; }
 
 tr:nth-child(even) { background-color: #EBEBEB; }
-tr:nth-child(2n+0) { background: #` ~ SolarizedLightColorTheme.base2 ~ `; }
-tr:nth-child(2n+1) { background: #` ~ SolarizedLightColorTheme.base3 ~ `; }
+tr:nth-child(2n+0) { background: #` ~ SolarizedLightColorTheme_hexstring.base2 ~ `; }
+tr:nth-child(2n+1) { background: #` ~ SolarizedLightColorTheme_hexstring.base3 ~ `; }
 
 </style>
 </head>

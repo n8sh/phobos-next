@@ -15,13 +15,12 @@
 */
 module nxt.pretty;
 
-import core.time: Duration;
+import core.time : Duration;
 
 import std.algorithm.iteration : map;
-import std.range.primitives: isInputRange;
-import std.traits: isInstanceOf, isSomeString, Unqual, isArray, isIterable;
-import std.stdio: stdout;
-import std.string: empty;
+import std.range.primitives : isInputRange;
+import std.traits : isInstanceOf, isSomeString, Unqual, isArray, isIterable;
+import std.stdio : stdout;
 
 /* TODO Move logic (toHTML) to these deps and remove these imports */
 import nxt.mathml;
@@ -384,6 +383,7 @@ class Viz
         static if (args.length == 1 &&
                    isSomeString!(typeof(args[0])))
         {
+            import std.string : empty;
             if (form == VizForm.HTML &&
                 args[0].empty &&
                 !nonStateHTMLTags.find(tag).empty)
@@ -1331,8 +1331,8 @@ version(unittest)
 {
     import std.algorithm.iteration : map;
     // TODO hide these stuff in constructor for Viz
-    import std.uuid: randomUUID;
-    import std.stdio: File;
+    import std.uuid : randomUUID;
+    import std.stdio : File;
 }
 
 unittest

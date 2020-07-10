@@ -28,7 +28,6 @@ import nxt.mathml;
 import nxt.lingua;
 import nxt.attributes;
 import nxt.slicing : preSlicer;
-
 import nxt.rational;
 
 import arsd.terminal;

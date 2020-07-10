@@ -11,7 +11,12 @@ import nxt.rational : Rational; // TODO Can we turn this dep into a duck type de
 import nxt.languages : MarkupLang;
 
 /** Horizontal Alignment. */
-enum HAlign { left, center, right }
+enum HAlign
+{
+    left,                       ///< Left aligned.
+    center,                     ///< Center aligned.
+    right                       ///< Right aligned.
+}
 
 /** Generic case. */
 string toMathML(T)(T x) @trusted /* pure nothrow */

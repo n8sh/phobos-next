@@ -72,8 +72,7 @@ auto concise(T)(T t) { return Concise!T(t); }
 /** Returns: Duration `dur` in a Level-Of-Detail (LOD) string
     representation.
 */
-string shortDurationString(in Duration dur)
-    @safe pure nothrow
+string shortDurationString(in Duration dur) @safe pure nothrow
 {
     import std.conv: to;
     immutable weeks = dur.total!`weeks`;

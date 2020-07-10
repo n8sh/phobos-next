@@ -19,9 +19,8 @@ import core.time: Duration;
 
 import std.algorithm.iteration : map;
 import std.range.primitives: isInputRange;
-import std.traits: isInstanceOf, isSomeString, isSomeChar, isAggregateType, Unqual, isArray, isIterable;
+import std.traits: isInstanceOf, isSomeString, Unqual, isArray, isIterable;
 import std.stdio: stdout;
-import std.path: dirSeparator;
 import std.string: empty;
 
 /* TODO Move logic (toHTML) to these deps and remove these imports */
@@ -835,7 +834,10 @@ class Viz
 
             // use aggregate members as header
             alias Front = ElementTypeOf!(arg.args[0]); // elementtype of Iteratable
-            static if (isAggregateType!Front)
+            static if (is(Front == struct) ||
+                       is(Front == union) ||
+                       is(Front == class) ||
+                       is(Front == interface))
             {
                 /* TODO When __traits(documentation,x)
                    here https://github.com/D-Programming-Language/dmd/pull/3531
@@ -1052,6 +1054,7 @@ class Viz
         }
         else static if (__traits(hasMember, arg, `parent`)) // TODO Use isFile = File or NonNull!File
         {
+            import std.path: dirSeparator;
             if (form == VizForm.HTML)
             {
                 ppRaw(`<a href="file://`);

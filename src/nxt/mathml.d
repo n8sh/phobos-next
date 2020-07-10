@@ -108,7 +108,7 @@ if (isFloatingPoint!T)
  *
  * See_Also: https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mfrac
  */
-string toMathML(T)(Rational!T x,
+string toMathML(T)(in Rational!T x,
                    bool bevelled = false,
                    HAlign numAlign = HAlign.center,
                    HAlign denomAlign = HAlign.center,

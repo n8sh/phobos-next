@@ -9,7 +9,7 @@ license "BSL-1.0"
 copyright "Copyright © 2018, Per Nordlöw"
 authors "Per Nordlöw <per.nordlow@gmail.com>"
 
-# dependency "arsd" version="~master"
+dependency "arsd" version="~master"
 
 dflags "-vcolumns" "-dip25" "-dip1008" # "-dip1000"
 dflags "-preview=intpromote" "-preview=dtorfields" "-preview=markdown" # TODO "-preview=in"

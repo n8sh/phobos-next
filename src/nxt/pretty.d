@@ -31,7 +31,7 @@ import nxt.slicing : preSlicer;
 
 import nxt.traits_ex: ElementTypeOf, isCallableWith;
 import nxt.rational;
-// import arsd.terminal;
+import arsd.terminal;
 import core.time: Duration;
 
 /// See_Also: http://forum.dlang.org/thread/fihymjelvnwfevegwryt@forum.dlang.org#post-fihymjelvnwfevegwryt:40forum.dlang.org

@@ -18,6 +18,14 @@ enum HAlign
     right                       ///< Right aligned.
 }
 
+/** Vertical Alignment. */
+enum VAlign
+{
+    top,                        ///< Top aligned.
+    middle,                     ///< Middle aligned.
+    bottom,                     ///< Bottom aligned.
+}
+
 /** Generic case. */
 string toMathML(T)(T x) @trusted /* pure nothrow */
 if (isScalarType!T &&

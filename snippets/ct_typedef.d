@@ -1,4 +1,33 @@
-import std.typecons : Typedef;
+// version = usePhobos;
+
+version(usePhobos)
+{
+    import std.typecons : Typedef;
+}
+else
+{
+    struct Typedef(T, T init = T.init, string cookie=null)
+    {
+        private T Typedef_payload = init;
+
+        // https://issues.dlang.org/show_bug.cgi?id=18415
+        // prevent default construction if original type does too.
+        static if ((is(T == struct) || is(T == union)) && !is(typeof({T t;})))
+        {
+            @disable this();
+        }
+
+        this(T init)
+        {
+            Typedef_payload = init;
+        }
+
+        this(Typedef tdef)
+        {
+            this(tdef.Typedef_payload);
+        }
+    }
+}
 
 alias X1 = Typedef!(float, float.init, "X1");
 alias X2 = Typedef!(float, float.init, "X2");

@@ -8,7 +8,7 @@ else
 {
     struct Typedef(T, T init = T.init, string cookie=null)
     {
-        private T Typedef_payload = init;
+        private T _payload = init;
 
         // https://issues.dlang.org/show_bug.cgi?id=18415
         // prevent default construction if original type does too.
@@ -19,13 +19,14 @@ else
 
         this(T init)
         {
-            Typedef_payload = init;
+            _payload = init;
         }
 
         this(Typedef tdef)
         {
-            this(tdef.Typedef_payload);
+            this(tdef._payload);
         }
+        alias _payload this;
     }
 }
 

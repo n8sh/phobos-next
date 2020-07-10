@@ -112,7 +112,7 @@ string toMathML(T)(in Rational!T x,
                    bool bevelled = false,
                    HAlign numAlign = HAlign.center,
                    HAlign denomAlign = HAlign.center,
-                   string href = null) @safe pure
+                   in string href = null) @safe pure
 {
     import std.conv : to;
     return (`<math><mfrac` ~

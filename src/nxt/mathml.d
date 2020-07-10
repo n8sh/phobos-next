@@ -27,7 +27,7 @@ enum VAlign
 }
 
 /** Generic case. */
-string toMathML(T)(T x) @trusted /* pure nothrow */
+string toMathML(T)(in T x) @trusted /* pure nothrow */
 if (isScalarType!T &&
     !isFloatingPoint!T)
 {
@@ -40,7 +40,7 @@ if (isScalarType!T &&
     See_Also: https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mn
     See_Also: https://developer.mozilla.org/en-US/docs/Web/MathML/Element/msup
  */
-string toML(T)(T x,
+string toML(T)(in T x,
                bool usePowPlus = false,
                bool useLeadZeros = false,
                MarkupLang mlang = MarkupLang.HTML) @trusted /* pure nothrow */

@@ -111,7 +111,10 @@ enum VizForm
     Markdown,       // TODO.
 }
 
-/** See_Also: http://ethanschoonover.com/solarized */
+/** Solarized light color theme.
+ *
+ * See_Also: http://ethanschoonover.com/solarized
+ */
 enum SolarizedLightColorTheme
 {
     base00  = `657b83`,

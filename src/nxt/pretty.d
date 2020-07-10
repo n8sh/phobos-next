@@ -1337,7 +1337,7 @@ version(unittest)
 
 unittest
 {
-    immutable outPath = `/tmp/fs-` ~ randomUUID.toString() ~ `.` ~ `html`; // reuse `nxt.tempfs`
+    string outPath = `/tmp/fs-` ~ randomUUID.toString() ~ `.` ~ `html`; // reuse `nxt.tempfs`
     File outFile = File(outPath, `w`);
     auto term = Terminal(ConsoleOutputType.linear);
     auto viz = new Viz(outFile, &term, VizForm.HTML);

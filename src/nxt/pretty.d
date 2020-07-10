@@ -29,7 +29,6 @@ import nxt.lingua;
 import nxt.attributes;
 import nxt.slicing : preSlicer;
 
-import nxt.traits_ex: ElementTypeOf, isCallableWith;
 import nxt.rational;
 
 import arsd.terminal;
@@ -833,11 +832,12 @@ class Viz
             /* See_Also: http://forum.dlang.org/thread/wjksldfpkpenoskvhsqa@forum.dlang.org#post-jwfildowqrbwtamywsmy:40forum.dlang.org */
 
             // use aggregate members as header
-            alias Front = ElementTypeOf!(arg.args[0]); // elementtype of Iteratable
+            import std.range.primitives : ElementType;
+            alias Front = ElementType!(typeof(arg.args[0]));
             static if (is(Front == struct) ||
                        is(Front == union) ||
                        is(Front == class) ||
-                       is(Front == interface))
+                       is(Front == interface)) // isAggregateType
             {
                 /* TODO When __traits(documentation,x)
                    here https://github.com/D-Programming-Language/dmd/pull/3531
@@ -889,8 +889,12 @@ class Viz
         }
         else static if (isInstanceOf!(AsCols, Arg))
         {
+            alias T_ = typeof(arg.args[0]);
             if (arg.args.length == 1 &&
-                isAggregateType!(typeof(arg.args[0])))
+                (is(T_ == struct) ||
+                 is(T_ == class) ||
+                 is(T_ == union) ||
+                 is(T_ == interface))) // isAggregateType
             {
                 auto args0 = arg.args[0];
                 if (form == VizForm.jiraWikiMarkup)

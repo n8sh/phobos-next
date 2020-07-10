@@ -861,7 +861,7 @@ class Viz
                     else static if (is(Memb == interface)) immutable qual = `interface `;
                     else                                   immutable qual = ``; // TODO Are there more qualifiers
 
-                    immutable idName = __traits(identifier, Front.tupleof[ix]).preSlicer!isUpper.map!capitalize.joiner(` `); // TODO reuse function `nxt.casing`
+                    immutable idName = __traits(identifier, Front.tupleof[ix]).preSlicer!isUpper.map!capitalize.joiner(` `); // TODO reuse `nxt.casing.camelCasedToLowerSpaced`
                     immutable typeName = Unqual!(Member).stringof; // constness of no interest hee
 
                     pplnTaggedN(`td`,

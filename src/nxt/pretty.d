@@ -113,6 +113,8 @@ enum VizForm
 
 /** Solarized light color theme.
  *
+ * Each enumerator is an RGB hex string.
+ *
  * See_Also: http://ethanschoonover.com/solarized
  */
 enum SolarizedLightColorTheme

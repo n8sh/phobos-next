@@ -203,7 +203,7 @@ class Viz
     import std.stdio: ioFile = File;
 
     ioFile outFile;
-    // Terminal* term;
+    Terminal* term;
 
     bool treeFlag;
     VizForm form;
@@ -217,7 +217,7 @@ class Viz
     bool newlinedTags = true;
 
     this(ioFile outFile,
-         //  Terminal* term,
+         Terminal* term,
          VizForm form = VizForm.textAsciiDocUTF8,
          bool treeFlag = true,
          bool colorFlag = true,

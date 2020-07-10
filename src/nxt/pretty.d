@@ -19,7 +19,6 @@ import core.time: Duration;
 
 import std.algorithm.iteration : map;
 import std.range.primitives: isInputRange;
-import std.range: repeat;
 import std.traits: isInstanceOf, isSomeString, isSomeChar, isAggregateType, Unqual, isArray, isIterable;
 import std.stdio: stdout;
 import std.conv: to;
@@ -681,18 +680,17 @@ class Viz
             }
             else if (form == VizForm.Markdown)
             {
-                ppN(`#`.repeat(arg.level), ` `, arg.args);
+                foreach (_; 0 .. arg.level) { pp1(0, `#`); }
+                ppN(` `, arg.args);
                 pplnRaw(``);
             }
             else if (form == VizForm.textAsciiDoc ||
                      form == VizForm.textAsciiDocUTF8)
             {
                 ppRaw('\n');
-                ppN(`=`.repeat(arg.level),
-                        ' ',
-                        arg.args,
-                        ' ',
-                        `=`.repeat(arg.level));
+                foreach (_; 0 .. arg.level) { pp1(0, `=`); }
+                ppN(' ', arg.args, ' ');
+                foreach (_; 0 .. arg.level) { pp1(0, `=`); }
                 ppRaw('\n');
             }
         }
@@ -711,9 +709,8 @@ class Viz
                      form == VizForm.textAsciiDocUTF8)
             {
                 ppRaw('\n');
-                ppN(`=`.repeat(arg.level),
-                        ` `, arg.args,
-                        ` `, tag, '\n');
+                foreach (_; 0 .. arg.level) { pp1(0, `=`); }
+                ppN(` `, arg.args, ` `, tag, '\n');
             }
         }
         else static if (isInstanceOf!(AsBlockquote, Arg))

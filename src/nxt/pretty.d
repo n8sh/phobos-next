@@ -862,7 +862,7 @@ class Viz
                     else                                   immutable qual = ``; // TODO Are there more qualifiers
 
                     immutable idName = __traits(identifier, Front.tupleof[ix]).preSlicer!isUpper.map!capitalize.joiner(` `); // TODO reuse `nxt.casing.camelCasedToLowerSpaced`
-                    immutable typeName = Unqual!(Member).stringof; // constness of no interest hee
+                    immutable typeName = Unqual!(Member).stringof; // constness of no interest here
 
                     pplnTaggedN(`td`,
                                 idName.asItalic.asBold,

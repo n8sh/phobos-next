@@ -28,7 +28,7 @@ import nxt.mathml;
 import nxt.lingua;
 import nxt.attributes;
 import nxt.slicing : preSlicer;
-import nxt.rational;
+import nxt.rational : Rational;
 
 import arsd.terminal;
 
@@ -1281,10 +1281,13 @@ struct Fazed(T)
 {
     T text;
     const Face!Color face;
-    string toString() const @property pure nothrow { return to!string(text); }
+    string toString() const @property pure nothrow
+    {
+        import std.conv : to;
+        return to!string(text);
+    }
 }
-auto faze(T)(T text,
-             in Face!Color face = stdFace) @safe pure nothrow
+auto faze(T)(T text, in Face!Color face = stdFace) @safe pure nothrow
 {
     return Fazed!T(text, face);
 }

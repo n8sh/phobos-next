@@ -855,14 +855,14 @@ class Viz
                     import std.string: capitalize;
                     import std.algorithm.iteration : joiner;
 
-                    immutable idName = __traits(identifier, Front.tupleof[ix]).preSlicer!isUpper.map!capitalize.joiner(` `);
-                    immutable typeName = Unqual!(Member).stringof; // constness of no interest hee
-
                     static      if (is(Memb == struct))    immutable qual = `struct `;
                     else static if (is(Memb == class))     immutable qual = `class `;
                     else static if (is(Memb == enum))      immutable qual = `enum `;
                     else static if (is(Memb == interface)) immutable qual = `interface `;
                     else                                   immutable qual = ``; // TODO Are there more qualifiers
+
+                    immutable idName = __traits(identifier, Front.tupleof[ix]).preSlicer!isUpper.map!capitalize.joiner(` `);
+                    immutable typeName = Unqual!(Member).stringof; // constness of no interest hee
 
                     pplnTaggedN(`td`,
                                 idName.asItalic.asBold,

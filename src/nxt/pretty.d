@@ -21,7 +21,6 @@ import std.algorithm.iteration : map;
 import std.range.primitives: isInputRange;
 import std.traits: isInstanceOf, isSomeString, isSomeChar, isAggregateType, Unqual, isArray, isIterable;
 import std.stdio: stdout;
-import std.conv: to;
 import std.path: dirSeparator;
 import std.string: empty;
 
@@ -669,11 +668,13 @@ class Viz
         {
             if      (form == VizForm.HTML)
             {
+                import std.conv: to;
                 pplnTaggedN(`h` ~ to!string(arg.level),
-                                arg.args);
+                            arg.args);
             }
             else if (form == VizForm.jiraWikiMarkup)
             {
+                import std.conv: to;
                 ppRaw(`h` ~ to!string(arg.level) ~ `. `);
                 ppN(arg.args);
                 pplnRaw(``);
@@ -1105,6 +1106,7 @@ class Viz
             }
             else
             {
+                import std.conv: to;
                 const arg_string = to!string(arg);
             }
 

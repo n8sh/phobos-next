@@ -17,8 +17,9 @@ module nxt.pretty;
 
 import core.time: Duration;
 
-import std.algorithm : map;
-import std.range: isInputRange, repeat;
+import std.algorithm.iteration : map;
+import std.range.primitives: isInputRange;
+import std.range: repeat;
 import std.traits: isInstanceOf, isSomeString, isSomeChar, isAggregateType, Unqual, isArray, isIterable;
 import std.stdio: stdout;
 import std.conv: to;
@@ -384,7 +385,7 @@ class Viz
     void ppTaggedN(Tag, Args...)(in Tag tag, Args args)
         if (isSomeString!Tag)
     {
-        import std.algorithm: find;
+        import std.algorithm.searching : find;
         static if (args.length == 1 &&
                    isSomeString!(typeof(args[0])))
         {
@@ -855,7 +856,7 @@ class Viz
                 {
                     import std.ascii: isUpper; // D symbols cannot have unicode
                     import std.string: capitalize;
-                    import std.algorithm: joiner;
+                    import std.algorithm.iteration : joiner;
 
                     immutable idName = __traits(identifier, Front.tupleof[ix]).preSlicer!isUpper.map!capitalize.joiner(` `);
                     immutable typeName = Unqual!(Member).stringof; // constness of no interest hee
@@ -1314,13 +1315,13 @@ void show(Viz viz)
 {
     viz.outFile.flush();
     import std.process : spawnProcess, wait;
-    auto chromePid = spawnProcess([`google-chrome`, viz.outFile.name]);
+    auto chromePid = spawnProcess([`xdg-open`, viz.outFile.name]);
     assert(chromePid.wait() == 0);
 }
 
 unittest
 {
-    import std.algorithm : map;
+    import std.algorithm.iteration : map;
 
     // TODO hide these stuff in constructor for Viz
     import std.uuid: randomUUID;

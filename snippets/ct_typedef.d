@@ -12,7 +12,9 @@ else
 
         // https://issues.dlang.org/show_bug.cgi?id=18415
         // prevent default construction if original type does too.
-        static if ((is(T == struct) || is(T == union)) && !is(typeof({T t;})))
+        static if ((is(T == struct) ||
+                    is(T == union)) &&
+                   !is(typeof({T t;})))
         {
             @disable this();
         }

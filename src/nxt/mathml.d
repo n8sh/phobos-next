@@ -36,9 +36,10 @@ if (isScalarType!T &&
 }
 
 /** Return x in $(D MarkupLang) format.
-    See_Also: http://forum.dlang.org/thread/awkynfizwqjnbilgddbh@forum.dlang.org#post-awkynfizwqjnbilgddbh:40forum.dlang.org
-    See_Also: https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mn
-    See_Also: https://developer.mozilla.org/en-US/docs/Web/MathML/Element/msup
+ *
+ * See_Also: http://forum.dlang.org/thread/awkynfizwqjnbilgddbh@forum.dlang.org#post-awkynfizwqjnbilgddbh:40forum.dlang.org
+ * See_Also: https://developer.mozilla.org/en-US/docs/Web/MathML/Element/mn
+ * See_Also: https://developer.mozilla.org/en-US/docs/Web/MathML/Element/msup
  */
 string toML(T)(in T x,
                bool usePowPlus = false,

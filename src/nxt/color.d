@@ -17,6 +17,11 @@ struct ColorRGB8
     ubyte blue;                 ///< Blue component.
 }
 
+alias Color = ColorRGB8;
+
+static immutable white = Color(0xff, 0xff, 0xff); ///< White.
+static immutable black = Color(0x00, 0x00, 0x00); ///< Black.
+
 /** BGR 24-bit color, where each color component has 8-bit precision.
  */
 struct ColorBGR8

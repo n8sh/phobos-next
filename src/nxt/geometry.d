@@ -48,7 +48,9 @@ import std.conv: to;            // TODO use `mir.format` instead
 import std.traits: isFloatingPoint, isNumeric, isSigned, isDynamicArray, isAssignable, isArray, CommonType;
 import std.string: format, rightJustify;
 import std.array: join;
-import std.algorithm : map, all, any, min, max, reduce;
+import std.algorithm.iteration : map, reduce;
+import std.algorithm.searching : all, any;
+import std.algorithm.comparison : min, max;
 import std.random: uniform;
 
 import nxt.mathml;

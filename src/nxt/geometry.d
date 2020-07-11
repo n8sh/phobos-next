@@ -11,8 +11,12 @@
    All static methods are strongly pure.
 
    TODO Support radian and degree types (from units-d package)
+
+   TODO Use `sink` as param in `toMathML` and `toLaTeX`
+
    TODO Replace toMathML() with fmt argument %M to toString functions
    TODO Replace toLaTeX() with fmt argument %L to toString functions
+
    TODO Optimize using core.simd or std.simd
    TODO Merge with analyticgeometry
    TODO Merge with https://github.com/CyberShadow/ae/blob/master/utils/geometry.d

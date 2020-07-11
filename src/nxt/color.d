@@ -19,8 +19,8 @@ struct ColorRGB8
 
 alias Color = ColorRGB8;
 
-static immutable white   = Color(0xff, 0xff, 0xff); ///< White.
 static immutable black   = Color(0x00, 0x00, 0x00); ///< Black.
+static immutable white   = Color(0xff, 0xff, 0xff); ///< White.
 static immutable red     = Color(0xff, 0x00, 0x00); ///< Red.
 static immutable green   = Color(0x00, 0xff, 0x00); ///< Green.
 static immutable blue    = Color(0x00, 0x00, 0xff); ///< Blue.

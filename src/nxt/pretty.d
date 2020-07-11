@@ -1179,7 +1179,7 @@ class Viz
     }
 
     /** Pretty-Print Arguments `args` to Terminal `term` without Line Termination. */
-    void pp(Args...)(Args args)
+    void ppNFlushed(Args...)(Args args)
     {
         ppN(args);
         if (outFile == stdout)
@@ -1359,13 +1359,13 @@ unittest
     auto term = Terminal(ConsoleOutputType.linear);
     auto viz = new Viz(outFile, &term, VizForm.HTML);
 
-    viz.pp(`Pretty Printing`.asH!1,
-           horizontalRuler);
+    viz.pp1(`Pretty Printing`.asH!1);
+    viz.pp1(horizontalRuler);
 
-    viz.pp(`First Heading`.asH!2);
+    viz.pp1(`First Heading`.asH!2);
     viz.ppln(`Something first.`);
 
-    viz.pp(`Second Heading`.asH!2);
+    viz.pp1(`Second Heading`.asH!2);
     viz.ppln(`Something else.`);
 
     struct S
@@ -1377,17 +1377,17 @@ unittest
     S[] s = [S("meter", 42),
              S("second", 43)];
 
-    viz.pp("Struct Array".asH!2,
-           s.asTable);
+    viz.pp1("Struct Array".asH!2);
+    viz.pp1(s.asTable);
 
-    viz.pp("Map Struct Array".asH!2,
-           s.map!(_ => S(_.theUnit,
-                         _.theSuperValue^^2)).asTable);
+    viz.pp1("Map Struct Array".asH!2);
+    viz.pp1(s.map!(_ => S(_.theUnit,
+                          _.theSuperValue^^2)).asTable);
 
-    viz.pp("Rational Number Array".asH!2,
-           [rational(11, 13),
-            rational(14, 15),
-            rational(17, 32)]);
+    viz.pp1("Rational Number Array".asH!2);
+    viz.pp1([rational(11, 13),
+             rational(14, 15),
+             rational(17, 32)]);
 
     struct NamedRational
     {
@@ -1395,10 +1395,10 @@ unittest
         Rational!long value;
     }
 
-    viz.pp("Named Rational Number Array as Table".asH!2,
-           [NamedRational("x", Rational!long(11, 13)),
-            NamedRational("y", Rational!long(111, 133)),
-            NamedRational("z", Rational!long(1111, 1333))].asTable);
+    viz.pp1("Named Rational Number Array as Table".asH!2);
+    viz.pp1([NamedRational("x", Rational!long(11, 13)),
+             NamedRational("y", Rational!long(111, 133)),
+             NamedRational("z", Rational!long(1111, 1333))].asTable);
 
     viz.show();
 }

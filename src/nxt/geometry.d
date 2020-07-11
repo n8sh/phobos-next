@@ -154,8 +154,9 @@ struct Point(E, uint D)
 
     @property void toString(scope void delegate(scope const(char)[]) @safe sink) const
     {
-        import std.format : formattedWrite;
-        sink.formattedWrite("Point(%s)", _point);
+        sink(`Point(`);
+        sink(to!string(_point));
+        sink(`)`);
     }
 
     @property string toMathML()() const

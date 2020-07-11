@@ -1342,8 +1342,8 @@ void show(Viz viz)
 {
     viz.outFile.flush();
     import std.process : spawnProcess, wait;
-    auto chromePid = spawnProcess([`xdg-open`, viz.outFile.name]);
-    assert(chromePid.wait() == 0);
+    auto pid = spawnProcess([`xdg-open`, viz.outFile.name]);
+    assert(pid.wait() == 0);
 }
 
 version(unittest)

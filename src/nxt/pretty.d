@@ -8,6 +8,9 @@
  * `void toString(scope void delegate(scope const(char)[]) @safe sink)`
  * for independency on arsd.
  *
+ * Rename `pp1` to `ppL` and `pp` to `pp1` where relevant to reduce number of
+ * template instantiations.
+ *
  * TODO Add tester that prints types from `nxt.geometry`
  *
  * TODO Remove all restrictions on pp.*Raw.* and call them using ranges such as repeat

@@ -15,7 +15,9 @@
  * TODO Use "alias this" on wrapper structures and test!
  *
  * TODO How should std.typecons.Tuple be pretty printed?
+ *
  * TODO Add visited member to keeps track of what objects that have been visited
+ *
  * TODO Add asGCCMessage pretty prints
  * seq $PATH, ':', $ROW, ':', $COL, ':', message, '[', $TYPE, ']'
  */

@@ -44,7 +44,7 @@ else
 
 // TODO use import core.simd;
 import std.math: sqrt, isNaN, isInfinity, PI, sin, cos, acos;
-import std.conv: to;
+import std.conv: to;            // TODO use `mir.format` instead
 import std.traits: isFloatingPoint, isNumeric, isSigned, isDynamicArray, isAssignable, isArray, CommonType;
 import std.string: format, rightJustify;
 import std.array: join;

@@ -12,27 +12,27 @@ module nxt.color;
  */
 struct ColorRGB8
 {
-    ubyte red;                  ///< Red component.
-    ubyte green;                ///< Green component.
-    ubyte blue;                 ///< Blue component.
+    ubyte redC;                  ///< Red component.
+    ubyte greenC;                ///< Green component.
+    ubyte blueC;                 ///< Blue component.
+
+    static immutable black   = Color(0x00, 0x00, 0x00); ///< Black.
+    static immutable white   = Color(0xff, 0xff, 0xff); ///< White.
+    static immutable red     = Color(0xff, 0x00, 0x00); ///< Red.
+    static immutable green   = Color(0x00, 0xff, 0x00); ///< Green.
+    static immutable blue    = Color(0x00, 0x00, 0xff); ///< Blue.
+    static immutable cyan    = Color(0x00, 0xff, 0xff); ///< Cyan.
+    static immutable magenta = Color(0xff, 0x00, 0xff); ///< Magenta.
+    static immutable yellow  = Color(0xff, 0xff, 0x00); ///< Yellow.
 }
 
 alias Color = ColorRGB8;
-
-static immutable black   = Color(0x00, 0x00, 0x00); ///< Black.
-static immutable white   = Color(0xff, 0xff, 0xff); ///< White.
-static immutable red     = Color(0xff, 0x00, 0x00); ///< Red.
-static immutable green   = Color(0x00, 0xff, 0x00); ///< Green.
-static immutable blue    = Color(0x00, 0x00, 0xff); ///< Blue.
-static immutable cyan    = Color(0x00, 0xff, 0xff); ///< Cyan.
-static immutable magenta = Color(0xff, 0x00, 0xff); ///< Magenta.
-static immutable yellow  = Color(0xff, 0xff, 0x00); ///< Yellow.
 
 /** BGR 24-bit color, where each color component has 8-bit precision.
  */
 struct ColorBGR8
 {
-    ubyte blue;                 ///< Blue component.
-    ubyte green;                ///< Green component.
-    ubyte red;                  ///< Red component.
+    ubyte blueC;                ///< Blue component.
+    ubyte greenC;               ///< Green component.
+    ubyte redC;                 ///< Red component.
 }

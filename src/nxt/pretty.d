@@ -6,6 +6,7 @@
  *
  * TODO Convert `Viz` param to delegate like for
  * `void toString(scope void delegate(scope const(char)[]) @safe sink)`
+ * for independency on arsd.
  *
  * TODO Remove all restrictions on pp.*Raw.* and call them using ranges such as repeat
  *

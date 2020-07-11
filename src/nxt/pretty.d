@@ -9,7 +9,7 @@
  * for independency on arsd.
  *
  * Rename `pp1` to `ppL` and `pp` to `pp1` where relevant to reduce number of
- * template instantiations.
+ * template instantiations. And replace multi-calls to viz.pp() to viz.pp1()
  *
  * TODO Add tester that prints types from `nxt.geometry`
  *

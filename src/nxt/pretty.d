@@ -821,7 +821,7 @@ class Viz
                 auto rows = arg.args[0].asRows();
                 rows.recurseFlag = arg.recurseFlag; // propagate
                 rows.rowNr = arg.rowNr;
-                pp(rows);
+                ppNFlushed(rows);
             }
             else
             {

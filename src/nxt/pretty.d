@@ -1,18 +1,21 @@
 /** Pretty Printing to AsciiDoc, HTML, LaTeX, JIRA Wikitext, etc.
-
-    Copyright: Per Nordlöw 2018-.
-    License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
-    Authors: $(WEB Per Nordlöw)
-
-    TODO Remove all restrictions on pp.*Raw.* and call them using ranges such as repeat
-
-    TODO Use "alias this" on wrapper structures and test!
-
-    TODO How should std.typecons.Tuple be pretty printed?
-    TODO Add visited member to keeps track of what objects that have been visited
-    TODO Add asGCCMessage pretty prints
-          seq $PATH, ':', $ROW, ':', $COL, ':', message, '[', $TYPE, ']'
-*/
+ *
+ * Copyright: Per Nordlöw 2018-.
+ * License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
+ * Authors: $(WEB Per Nordlöw)
+ *
+ * TODO Convert `Viz` param to delegate like for
+ * `void toString(scope void delegate(scope const(char)[]) @safe sink)`
+ *
+ * TODO Remove all restrictions on pp.*Raw.* and call them using ranges such as repeat
+ *
+ * TODO Use "alias this" on wrapper structures and test!
+ *
+ * TODO How should std.typecons.Tuple be pretty printed?
+ * TODO Add visited member to keeps track of what objects that have been visited
+ * TODO Add asGCCMessage pretty prints
+ * seq $PATH, ':', $ROW, ':', $COL, ':', message, '[', $TYPE, ']'
+ */
 module nxt.pretty;
 
 import core.time : Duration;

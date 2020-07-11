@@ -284,9 +284,10 @@ struct Vector(E, uint D,
 
     @property void toString(scope void delegate(scope const(char)[]) @safe sink) const
     {
-        import std.format : formattedWrite;
         sink(orientationString);
-        sink.formattedWrite("Vector(%s)", _vector);
+        sink(`Vector(`);
+        sink(to!string(_vector));
+        sink(`)`);
     }
 
     /** Returns: LaTeX Encoding of Vector. http://www.thestudentroom.co.uk/wiki/LaTex#Matrices_and_Vectors */
@@ -1013,8 +1014,9 @@ struct Matrix(E, uint rows_, uint cols_,
 
     @property void toString(scope void delegate(scope const(char)[]) @safe sink) const
     {
-        import std.format : formattedWrite;
-        sink.formattedWrite("Matrix(%s)", _matrix);
+        sink(`Matrix(`);
+        sink(to!string(_matrix));
+        sink(`)`);
     }
 
     @property string toLaTeX()() const
@@ -1344,8 +1346,9 @@ struct SpherePoint3(E)
 
     @property void toString(scope void delegate(scope const(char)[]) @safe sink) const
     {
-        import std.format : formattedWrite;
-        sink.formattedWrite("SpherePoint3(%s)", _spherePoint);
+        sink(`SpherePoint3(`);
+        sink(to!string(_spherePoint));
+        sink(`)`);
     }
 
     @property string toMathML()() const
@@ -1437,8 +1440,11 @@ struct Box(E, uint D)
 
     @property void toString(scope void delegate(scope const(char)[]) @safe sink) const
     {
-        import std.format : formattedWrite;
-        sink.formattedWrite("Box(lower:%s, upper:%s)", min, max);
+        sink(`Box(lower:`);
+        sink(to!string(min));
+        sink(`, upper:`);
+        sink(to!string(max));
+        sink(`)`);
     }
 
     /// Get Box Center.
@@ -1563,8 +1569,11 @@ struct Plane(E, uint D)
 
     @property void toString(scope void delegate(scope const(char)[]) @safe sink) const
     {
-        import std.format : formattedWrite;
-        sink.formattedWrite("Plane(normal:%s, distance:%s)", normal, distance);
+        sink(`Plane(normal:`);
+        sink(to!string(normal));
+        sink(`, distance:`);
+        sink(to!string(distance));
+        sink(`)`);
     }
 
     /// Constructs the plane, from either four scalars of type $(I E)

@@ -40,7 +40,7 @@ import nxt.lingua;
 import nxt.attributes;
 import nxt.rational : Rational;
 
-import arsd.terminal : Terminal;
+import arsd.terminal : Terminal, Bright;
 
 /// See_Also: http://forum.dlang.org/thread/fihymjelvnwfevegwryt@forum.dlang.org#post-fihymjelvnwfevegwryt:40forum.dlang.org
 template Concise(Tuple)
@@ -417,7 +417,7 @@ class Viz
     }
 
     // TODO Check for MathML support on backend
-    @property void ppMathML(T)(Rational!T arg)
+    @property void ppMathML(SomeIntegral)(Rational!SomeIntegral arg)
     {
         ppTagOpen(`math`);
         ppTagOpen(`mfrac`);
@@ -1222,9 +1222,13 @@ class Viz
 }
 
 /// Face with color of type `SomeColor`.
-struct Face(SomeColor)
+struct Face
 {
-    this(SomeColor fg, SomeColor bg, bool bright, bool italic, string[] tagsHTML)
+    this(Color fg,
+         Color bg,
+         bool bright = false,
+         bool italic = false,
+         string[] tagsHTML = [])
     {
         this.fg = fg;
         this.bg = bg;
@@ -1232,60 +1236,51 @@ struct Face(SomeColor)
         this.tagsHTML = tagsHTML;
     }
     string[] tagsHTML;
-    SomeColor fg;
-    SomeColor bg;
+    Color fg;
+    Color bg;
     bool bright;
     bool italic;
 }
 
-/// Instantiator for `Face`.
-Face!SomeColor face(SomeColor)(SomeColor fg, SomeColor bg,
-                               bool bright = false,
-                               bool italic = false,
-                               string[] tagsHTML = [])
-{
-    return Face!SomeColor(fg, bg, bright, italic, tagsHTML);
-}
-
 // Faces (Font/Color)
-enum stdFace = face(Color.white, Color.black);
-enum pathFace = face(Color.green, Color.black, true);
+enum stdFace = Face(Color.white, Color.black);
+enum pathFace = Face(Color.green, Color.black, true);
 
-enum dirFace = face(Color.blue, Color.black, true);
-enum fileFace = face(Color.magenta, Color.black, true);
+enum dirFace = Face(Color.blue, Color.black, true);
+enum fileFace = Face(Color.magenta, Color.black, true);
 enum baseNameFace = fileFace;
-enum specialFileFace = face(Color.red, Color.black, true);
-enum regFileFace = face(Color.white, Color.black, true, false, [`b`]);
-enum symlinkFace = face(Color.cyan, Color.black, true, true, [`i`]);
-enum symlinkBrokenFace = face(Color.red, Color.black, true, true, [`i`]);
-enum missingSymlinkTargetFace = face(Color.red, Color.black, false, true, [`i`]);
+enum specialFileFace = Face(Color.red, Color.black, true);
+enum regFileFace = Face(Color.white, Color.black, true, false, [`b`]);
+enum symlinkFace = Face(Color.cyan, Color.black, true, true, [`i`]);
+enum symlinkBrokenFace = Face(Color.red, Color.black, true, true, [`i`]);
+enum missingSymlinkTargetFace = Face(Color.red, Color.black, false, true, [`i`]);
 
-enum contextFace = face(Color.green, Color.black);
+enum contextFace = Face(Color.green, Color.black);
 
-enum timeFace = face(Color.magenta, Color.black);
-enum digestFace = face(Color.yellow, Color.black);
+enum timeFace = Face(Color.magenta, Color.black);
+enum digestFace = Face(Color.yellow, Color.black);
 
-enum infoFace = face(Color.white, Color.black, true);
-enum warnFace = face(Color.yellow, Color.black);
+enum infoFace = Face(Color.white, Color.black, true);
+enum warnFace = Face(Color.yellow, Color.black);
 enum kindFace = warnFace;
-enum errorFace = face(Color.red, Color.black);
+enum errorFace = Face(Color.red, Color.black);
 
-enum titleFace = face(Color.white, Color.black, false, false, [`title`]);
-enum h1Face = face(Color.white, Color.black, false, false, [`h1`]);
+enum titleFace = Face(Color.white, Color.black, false, false, [`title`]);
+enum h1Face = Face(Color.white, Color.black, false, false, [`h1`]);
 
 // Support these as immutable
 
 /** Key (Hit) Face Palette. */
-enum ctxFaces = [face(Color.red, Color.black),
-                 face(Color.green, Color.black),
-                 face(Color.blue, Color.black),
-                 face(Color.cyan, Color.black),
-                 face(Color.magenta, Color.black),
-                 face(Color.yellow, Color.black),
+enum ctxFaces = [Face(Color.red, Color.black),
+                 Face(Color.green, Color.black),
+                 Face(Color.blue, Color.black),
+                 Face(Color.cyan, Color.black),
+                 Face(Color.magenta, Color.black),
+                 Face(Color.yellow, Color.black),
     ];
 
 /** Key (Hit) Faces. */
-enum keyFaces = ctxFaces.map!(a => face(a.fg, a.bg, true));
+enum keyFaces = ctxFaces.map!(a => Face(a.fg, a.bg, true));
 
 void setFace(Term, Face)(ref Term term,
                          Face face,

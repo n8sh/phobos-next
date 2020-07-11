@@ -140,11 +140,11 @@ void setForegroundColorRGB8(scope void delegate(scope const(char)[]) @safe sink,
                             const ColorRGB8 rgb) @safe
 {
     sink("\033[38;2;");
-    setColorRGB8Component(sink, rgb.red);
+    setColorRGB8Component(sink, rgb.redC);
     sink(";");
-    setColorRGB8Component(sink, rgb.green);
+    setColorRGB8Component(sink, rgb.greenC);
     sink(";");
-    setColorRGB8Component(sink, rgb.blue);
+    setColorRGB8Component(sink, rgb.blueC);
     sink("m");
 }
 
@@ -156,11 +156,11 @@ void setBackgroundColorRGB8(scope void delegate(scope const(char)[]) @safe sink,
                             const ColorRGB8 rgb) @safe
 {
     sink("\033[48;2;");
-    setColorRGB8Component(sink, rgb.red);
+    setColorRGB8Component(sink, rgb.redC);
     sink(";");
-    setColorRGB8Component(sink, rgb.green);
+    setColorRGB8Component(sink, rgb.greenC);
     sink(";");
-    setColorRGB8Component(sink, rgb.blue);
+    setColorRGB8Component(sink, rgb.blueC);
     sink("m");
 }
 

@@ -211,7 +211,7 @@ tr:nth-child(2n+1) { background: #` ~ SolarizedLightColorTheme_hexstring.base3 ~
  */
 class Viz
 {
-    import std.stdio: ioFile = File;
+    import std.stdio : ioFile = File;
 
     ioFile outFile;
     Terminal* term;

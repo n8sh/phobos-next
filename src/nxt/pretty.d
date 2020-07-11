@@ -1388,9 +1388,9 @@ unittest
     }
 
     viz.pp("Named rational number array as table".asH!2,
-           [NamedRational("x", rational(11, 13)),
-            NamedRational("y", rational(111, 133)),
-            NamedRational("z", rational(1111, 1333))].asTable);
+           [NamedRational("x", Rational!long(11, 13)),
+            NamedRational("y", Rational!long(111, 133)),
+            NamedRational("z", Rational!long(1111, 1333))].asTable);
 
     viz.show();
 }

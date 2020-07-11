@@ -33,7 +33,7 @@ import nxt.attributes;
 import nxt.slicing : preSlicer;
 import nxt.rational : Rational;
 
-import arsd.terminal;
+import arsd.terminal : Terminal;
 
 /// See_Also: http://forum.dlang.org/thread/fihymjelvnwfevegwryt@forum.dlang.org#post-fihymjelvnwfevegwryt:40forum.dlang.org
 template Concise(Tuple)

@@ -36,7 +36,7 @@ import nxt.lingua;
 import nxt.attributes;
 import nxt.rational : Rational;
 
-import arsd.terminal : Terminal;
+import arsd.terminal;
 
 /// See_Also: http://forum.dlang.org/thread/fihymjelvnwfevegwryt@forum.dlang.org#post-fihymjelvnwfevegwryt:40forum.dlang.org
 template Concise(Tuple)
@@ -1341,6 +1341,7 @@ version(unittest)
     // TODO hide these stuff in constructor for Viz
     import std.uuid : randomUUID;
     import std.stdio : File;
+    import nxt.rational : Rational;
 }
 
 unittest
@@ -1374,6 +1375,9 @@ unittest
     viz.pp("Map Struct Array".asH!2,
            s.map!(_ => S(_.theUnit,
                          _.theSuperValue^^2)).asTable);
+
+    viz.pp("Rational number".asH!2,
+           rational(11, 13));
 
     viz.show();
 }

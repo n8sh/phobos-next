@@ -1282,14 +1282,17 @@ enum ctxFaces = [face(Color.red, Color.black),
                  face(Color.magenta, Color.black),
                  face(Color.yellow, Color.black),
     ];
+
 /** Key (Hit) Faces. */
 enum keyFaces = ctxFaces.map!(a => face(a.fg, a.bg, true));
 
 void setFace(Term, Face)(ref Term term, Face face, bool colorFlag)
 {
     if (colorFlag)
+    {
         term.color(face.fg | (face.bright ? Bright : 0) ,
                    face.bg);
+    }
 }
 
 /** Fazed (Rich) Text. */

@@ -1343,7 +1343,7 @@ void show(Viz viz)
     viz.outFile.flush();
     import std.process : spawnProcess, wait;
     auto pid = spawnProcess([`xdg-open`, viz.outFile.name]);
-    assert(pid.wait() == 0);
+    assert(wait(pid) == 0);
 }
 
 version(unittest)

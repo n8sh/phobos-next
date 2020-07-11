@@ -1341,7 +1341,7 @@ version(unittest)
     // TODO hide these stuff in constructor for Viz
     import std.uuid : randomUUID;
     import std.stdio : File;
-    import nxt.rational : Rational;
+    import nxt.rational : rational;
 }
 
 unittest
@@ -1376,8 +1376,21 @@ unittest
            s.map!(_ => S(_.theUnit,
                          _.theSuperValue^^2)).asTable);
 
-    viz.pp("Rational number".asH!2,
-           rational(11, 13));
+    viz.pp("Rational number array".asH!2,
+           [rational(11, 13),
+            rational(14, 15),
+            rational(17, 32)]);
+
+    struct NamedRational
+    {
+        string name;
+        Rational!long value;
+    }
+
+    viz.pp("Named rational number array as table".asH!2,
+           [NamedRational("x", rational(11, 13)),
+            NamedRational("y", rational(111, 133)),
+            NamedRational("z", rational(1111, 1333))].asTable);
 
     viz.show();
 }

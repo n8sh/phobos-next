@@ -427,9 +427,14 @@ class Viz
     }
 
     /** Pretty-Print Single Argument `arg` to Terminal `term`. */
+    void pp1(Arg)(Arg arg)
+    {
+        pp1(0, arg);
+    }
+
+    /** Pretty-Print Single Argument `arg` to Terminal `term`. */
     void pp1(Arg)(int depth,
                   Arg arg)
-
     {
         static if (is(typeof(ppMathML(arg))))
         {

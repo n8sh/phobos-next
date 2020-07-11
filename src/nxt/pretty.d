@@ -1376,7 +1376,7 @@ unittest
            s.map!(_ => S(_.theUnit,
                          _.theSuperValue^^2)).asTable);
 
-    viz.pp("Rational number array".asH!2,
+    viz.pp("Rational Number Array".asH!2,
            [rational(11, 13),
             rational(14, 15),
             rational(17, 32)]);
@@ -1387,7 +1387,7 @@ unittest
         Rational!long value;
     }
 
-    viz.pp("Named rational number array as table".asH!2,
+    viz.pp("Named Rational Number Array as Table".asH!2,
            [NamedRational("x", Rational!long(11, 13)),
             NamedRational("y", Rational!long(111, 133)),
             NamedRational("z", Rational!long(1111, 1333))].asTable);

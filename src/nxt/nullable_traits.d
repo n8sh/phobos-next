@@ -7,11 +7,11 @@ module nxt.nullable_traits;
 template hasStandardNullValue(T)
 {
     static if (is(T == class) ||
-               is(T == typeof(null)))
+               is(T == typeof(null))) // fast compilation path
     {
         enum hasStandardNullValue = true; // fast path first
     }
-    else
+    else                        // slow compilation path
     {
         import std.traits : isPointer, isDynamicArray;
         enum hasStandardNullValue = (isPointer!T ||

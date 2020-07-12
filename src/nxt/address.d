@@ -22,9 +22,12 @@ struct Address
     static assert(hasNullValue!Address);
 
     import nxt.open_hashmap_or_hashset : OpenHashMap;
+
     alias K = Address;
     alias V = Address;
+
     OpenHashMap!(K, V) m;
+
     static assert(m.sizeof == 3*size_t.sizeof); // assure that hole bitmap is not used
 
     foreach (const address; 1 .. 0x1000)

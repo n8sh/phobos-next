@@ -390,7 +390,7 @@ class Viz
 
     /** Print `args` tagged as `tag`. */
     void ppTaggedN(Tag, Args...)(in Tag tag, Args args)
-        if (isSomeString!Tag)
+    if (isSomeString!Tag)
     {
         import std.algorithm.searching : find;
         static if (args.length == 1 &&
@@ -411,7 +411,7 @@ class Viz
 
     /** Print `args` tagged as `tag` on a separate line. */
     void pplnTaggedN(Tag, Args...)(in Tag tag, Args args)
-        if (isSomeString!Tag)
+    if (isSomeString!Tag)
     {
         ppTaggedN(tag, args);
         if (newlinedTags)

@@ -55,7 +55,6 @@ template hasMemberNullValue(T)
  */
 template hasNullValue(T)
 {
-    import std.traits : isPointer, isDynamicArray;
     enum hasNullValue = (hasStandardNullValue!T ||
                          hasMemberNullValue!T);
 }

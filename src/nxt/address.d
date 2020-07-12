@@ -18,7 +18,7 @@ struct Address
 ///
 @safe pure unittest
 {
-    import nullable_traits:hasNullValue;
+    import nullable_traits : hasNullValue;
     static assert(hasNullValue!Address);
 
     import nxt.open_hashmap_or_hashset : OpenHashMap;

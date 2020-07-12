@@ -18,10 +18,11 @@ struct Address
 ///
 @safe pure unittest
 {
-    import nullable_traits : hasNullValue;
+    import nullable_traits : hasNullValue, isNullable;
     import nxt.open_hashmap_or_hashset : OpenHashMap;
 
     static assert(hasNullValue!Address);
+    static assert(isNullable!Address);
 
     alias K = Address;
     alias V = Address;

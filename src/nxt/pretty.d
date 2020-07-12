@@ -26,6 +26,8 @@
  */
 module nxt.pretty;
 
+// version = useTerm;
+
 import core.time : Duration;
 
 import std.algorithm.iteration : map;
@@ -40,7 +42,7 @@ import nxt.lingua;
 import nxt.attributes;
 import nxt.rational : Rational;
 
-import arsd.terminal : Terminal, Bright;
+import arsd.terminal : Terminal, ConsoleOutputType, Bright;
 
 /// See_Also: http://forum.dlang.org/thread/fihymjelvnwfevegwryt@forum.dlang.org#post-fihymjelvnwfevegwryt:40forum.dlang.org
 template Concise(Tuple)
@@ -378,7 +380,7 @@ class Viz
     }
 
     /** Put `arg` to `viz` possibly with conversion. */
-    void ppPut(T)(Face!Color face,
+    void ppPut(T)(Face face,
                   T arg,
                   bool nbsp = true)
     {
@@ -1224,20 +1226,20 @@ class Viz
 /// Face with color of type `SomeColor`.
 struct Face
 {
-    this(Color fg,
-         Color bg,
+    this(Color foregroundColor,
+         Color backgroundColor,
          bool bright = false,
          bool italic = false,
          string[] tagsHTML = [])
     {
-        this.fg = fg;
-        this.bg = bg;
+        this.foregroundColor = foregroundColor;
+        this.backgroundColor = backgroundColor;
         this.bright = bright;
         this.tagsHTML = tagsHTML;
     }
     string[] tagsHTML;
-    Color fg;
-    Color bg;
+    Color foregroundColor;
+    Color backgroundColor;
     bool bright;
     bool italic;
 }
@@ -1280,7 +1282,7 @@ enum ctxFaces = [Face(Color.red, Color.black),
     ];
 
 /** Key (Hit) Faces. */
-enum keyFaces = ctxFaces.map!(a => Face(a.fg, a.bg, true));
+enum keyFaces = ctxFaces.map!(a => Face(a.foregroundColor, a.backgroundColor, true));
 
 void setFace(Term, Face)(ref Term term,
                          Face face,
@@ -1288,8 +1290,11 @@ void setFace(Term, Face)(ref Term term,
 {
     if (colorFlag)
     {
-        term.color(face.fg | (face.bright ? Bright : 0) ,
-                   face.bg);
+        version(useTerm)
+        {
+            term.color(face.foregroundColor | (face.bright ? Bright : 0) ,
+                       face.backgroundColor);
+        }
     }
 }
 
@@ -1297,14 +1302,14 @@ void setFace(Term, Face)(ref Term term,
 struct Fazed(T)
 {
     T text;
-    const Face!Color face;
+    const Face face;
     string toString() const @property pure nothrow
     {
         import std.conv : to;
         return to!string(text);
     }
 }
-auto faze(T)(T text, in Face!Color face = stdFace) @safe pure nothrow
+auto faze(T)(T text, in Face face = stdFace) @safe pure nothrow
 {
     return Fazed!T(text, face);
 }
@@ -1357,7 +1362,9 @@ unittest
 {
     string outPath = `/tmp/fs-` ~ randomUUID.toString() ~ `.` ~ `html`; // reuse `nxt.tempfs`
     File outFile = File(outPath, `w`);
+
     auto term = Terminal(ConsoleOutputType.linear);
+
     auto viz = new Viz(outFile, &term, VizForm.HTML);
 
     viz.pp1(`Pretty Printing`.asH!1);

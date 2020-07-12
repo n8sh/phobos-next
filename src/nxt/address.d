@@ -10,7 +10,7 @@ module nxt.address;
 struct Address
 {
     static immutable typeof(this) nullValue = typeof(this).init;
-    static immutable typeof(this) holeValue = typeof(this)(1);
+    static immutable typeof(this) holeValue = typeof(this)(_ptrValue.max); ///< Prevent hole bitmap from being used.
     size_t _ptrValue;           ///< Actual pointer value.
     alias _ptrValue this;
 }
@@ -18,4 +18,14 @@ struct Address
 ///
 @safe pure unittest
 {
+    import nxt.open_hashmap_or_hashset : OpenHashMap;
+    alias K = Address;
+    alias V = Address;
+    OpenHashMap!(K, V) m;
+    static assert(m.sizeof == 3*size_t.sizeof); // assure that hole bitmap is not used
+
+    assert(Address(0x100) !in m);
+    m[Address(0x100)] = Address(0x200);
+    assert(m[Address(0x100)] == Address(0x200));
+    assert(Address(0x100) in m);
 }

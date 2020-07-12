@@ -24,8 +24,14 @@ struct Address
     OpenHashMap!(K, V) m;
     static assert(m.sizeof == 3*size_t.sizeof); // assure that hole bitmap is not used
 
-    assert(Address(0x100) !in m);
-    m[Address(0x100)] = Address(0x200);
-    assert(m[Address(0x100)] == Address(0x200));
-    assert(Address(0x100) in m);
+    foreach (const address; 1 .. 0x1000)
+    {
+        const key = address;
+        const value = 2*address;
+
+        assert(Address(key) !in m);
+        m[Address(key)] = Address(value);
+        assert(m[Address(key)] == Address(value));
+        assert(Address(key) in m);
+    }
 }

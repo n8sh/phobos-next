@@ -109,7 +109,7 @@ template isNullable(T)
     else
     {
         // TODO remove this later on
-        // import std.meta : anySatisfy;
+        // importf std.meta : anySatisfy;
         // static if ((is(T == struct) && // unions excluded for now
         //             anySatisfy!(isNullable, typeof(T.init.tupleof))))
         // {

@@ -1,6 +1,6 @@
 module nxt.roptional;
 
-import nxt.container_traits : isNullable;
+import nxt.nullable_traits : isNullable;
 
 private struct None {}
 

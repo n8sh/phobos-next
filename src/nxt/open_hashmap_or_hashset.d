@@ -5,7 +5,7 @@ module nxt.open_hashmap_or_hashset;
 
 import core.internal.hash : hashOf;
 import core.lifetime : emplace, move, moveEmplace;
-import nxt.container_traits : isNullable;
+import nxt.nullable_traits : isNullable;
 import nxt.pure_mallocator : Mallocator = PureMallocator;
 // TODO import std.experimental.allocator.mallocator : Mallocator;
 
@@ -90,7 +90,8 @@ if (isNullable!K
     import std.traits : isCopyable, hasIndirections, hasFunctionAttributes;
     import std.typecons : Nullable;
 
-    import nxt.container_traits : defaultNullKeyConstantOf, mustAddGCRange, isNull, nullify;
+    import nxt.nullable_traits : defaultNullKeyConstantOf, isNull, nullify;
+    import nxt.container_traits : mustAddGCRange;
     import nxt.qcmeman : gc_addRange, gc_removeRange;
     import nxt.probing : triangularProbeFromIndex, triangularProbeFromIndexIncludingHoles, triangularProbeCountFromIndex;
 
@@ -2232,7 +2233,7 @@ size_t removeAllMatching(alias pred, Table)(auto ref Table x) @trusted
 if (isInstanceOf!(OpenHashMapOrSet, Table) && // TODO generalize to `isSetOrMap`
     is(typeof((unaryFun!pred))))
 {
-    import nxt.container_traits : nullify;
+    import nxt.nullable_traits : nullify;
     size_t removalCount = 0;
     foreach (immutable index, ref bin; x._store)
     {

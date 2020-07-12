@@ -3,7 +3,7 @@ module nxt.sso_open_hashset;
 import nxt.open_hashmap_or_hashset;
 
 import std.traits : isInstanceOf;
-import nxt.container_traits : isNullable, isAddress;
+import nxt.nullable_traits : isNullable, isAddress;
 import nxt.pure_mallocator : PureMallocator;
 
 /** Small-set-optimized `OpenHashSet`.
@@ -25,7 +25,7 @@ struct SSOOpenHashSet(K,
     import core.lifetime : emplace, move, moveEmplace;
     import std.traits : isDynamicArray;
     import core.internal.traits : hasElaborateDestructor;
-    import nxt.container_traits : defaultNullKeyConstantOf, isNull, nullify;
+    import nxt.nullable_traits : defaultNullKeyConstantOf, isNull, nullify;
     import nxt.bit_traits : isAllZeroBits;
 
     alias InsertionStatus = Large.InsertionStatus;

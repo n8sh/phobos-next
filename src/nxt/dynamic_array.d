@@ -533,8 +533,8 @@ pragma(inline):
             sink("[");
             foreach (immutable ix, ref value; slice())
             {
-                import std.format : formattedWrite;
-                sink.formattedWrite("%s", value);
+                import std.conv : to;
+                sink(to!string(value));
                 if (ix + 1 < length) { sink(", "); } // separator
             }
             sink("]");

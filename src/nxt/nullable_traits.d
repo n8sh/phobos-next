@@ -50,11 +50,8 @@ enum hasMemberNullValue(T) = __traits(compiles, { T _; _ = T.nullValue; });
 
 /** Is `true` iff `T` is a type with a standardized null (zero address) value.
  */
-template hasNullValue(T)
-{
-    enum hasNullValue = (hasStandardNullValue!T ||
-                         hasMemberNullValue!T);
-}
+enum hasNullValue(T) = (hasStandardNullValue!T ||
+                        hasMemberNullValue!T);
 
 ///
 @safe pure nothrow @nogc unittest

@@ -1515,6 +1515,7 @@ unittest
 }
 
 /// test `OutputRange` behaviour with std.format
+version(none)                   // TODO replace with other exercise of std.format
 @safe pure /*TODO nothrow @nogc*/ unittest
 {
     import std.format : formattedWrite;

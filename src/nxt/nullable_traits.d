@@ -34,10 +34,7 @@ template hasStandardNullValue(T)
 
 /** Is `true` iff `T` is a type with a member null value.
  */
-template hasMemberNullValue(T)
-{
-    enum hasMemberNullValue = __traits(compiles, { T _; _ = T.nullValue; });
-}
+enum hasMemberNullValue(T) = __traits(compiles, { T _; _ = T.nullValue; });
 
 ///
 @safe pure nothrow @nogc unittest

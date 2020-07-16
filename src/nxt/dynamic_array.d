@@ -36,7 +36,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
 
     import std.range.primitives : isInputRange, ElementType, hasLength, hasSlicing, isInfinite;
     import std.traits : hasIndirections, hasAliasing,
-        isMutable, TemplateOf, isArray, isAssignable, isCopyable, isType, hasFunctionAttributes, isIterable;
+        isMutable, TemplateOf, isArray, isAssignable, isType, hasFunctionAttributes, isIterable;
     import core.lifetime : emplace, move, moveEmplace;
 
     import nxt.qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
@@ -64,7 +64,7 @@ pragma(inline):
         return withCapacityLengthZero(initialCapacity, 0, false);
     }
 
-    static if (isCopyable!T)
+    static if (__traits(isCopyable, T))
     {
         /** Construct using
          * - initial length `length`,
@@ -116,7 +116,7 @@ pragma(inline):
     /** Emplace `thatPtr` with elements copied from `elements`. */
     static ref typeof(this) emplaceWithCopiedElements()(typeof(this)* thatPtr, // template-lazy
                                                         const(T)[] elements) @system
-    if (isCopyable!T)
+    if (__traits(isCopyable, T))
     {
         immutable length = elements.length;
         thatPtr._store.ptr = typeof(this).allocate(length, false);
@@ -138,7 +138,7 @@ pragma(inline):
 
     /// Construct from uncopyable element `value`.
     this()(T value) @trusted    // template-lazy
-    if (!isCopyable!T)
+    if (!__traits(isCopyable, T))
     {
         version(debugCtors) pragma(msg, __FILE_FULL_PATH__, ":", __LINE__, ": info: ", typeof(value));
         _store.ptr = typeof(this).allocate(1, false);
@@ -149,7 +149,7 @@ pragma(inline):
 
     /// Construct from copyable element `value`.
     this(U)(U value) @trusted
-    if (isCopyable!U &&
+    if (__traits(isCopyable, U) &&
         isElementAssignable!U)
     {
         version(debugCtors) pragma(msg, __FILE_FULL_PATH__, ":", __LINE__, ": info: ", typeof(value));
@@ -159,7 +159,7 @@ pragma(inline):
         emplace(&_mptr[0], value);
     }
 
-    static if (isCopyable!T &&
+    static if (__traits(isCopyable, T) &&
                !is(T == union)) // forbid copying of unions such as `HybridBin` in hashmap.d
     {
         static typeof(this) withElements()(const T[] elements) @trusted // template-lazy
@@ -286,7 +286,7 @@ pragma(inline):
 
         static if (hasLength!R &&
                    hasSlicing!R &&
-                   isCopyable!(ElementType!R) &&
+                   __traits(isCopyable, ElementType!R) &&
                    !hasElaborateDestructor!(ElementType!R))
         {
             import std.algorithm.mutation : copy;
@@ -448,7 +448,7 @@ pragma(inline):
         return ptr;
     }
 
-    static if (isCopyable!T)
+    static if (__traits(isCopyable, T))
     {
         /** Allocate heap region with `initialCapacity` number of elements of type `T` all set to `elementValue`.
          */
@@ -509,7 +509,7 @@ pragma(inline):
     hash_t toHash()() const scope @trusted // template-lazy
     {
         import core.internal.hash : hashOf;
-        static if (isCopyable!T)
+        static if (__traits(isCopyable, T))
         {
             return this.length ^ hashOf(slice());
         }
@@ -524,7 +524,7 @@ pragma(inline):
         }
     }
 
-    static if (isCopyable!T)
+    static if (__traits(isCopyable, T))
     {
         /** Construct a string representation of `this` at `sink`.
          */
@@ -589,7 +589,7 @@ pragma(inline):
                 foreach (immutable index; _store.length .. newLength)
                 {
                     // TODO remove when compiler does it for us:
-                    static if (isCopyable!T)
+                    static if (__traits(isCopyable, T))
                     {
                         emplace(&_mptr[index], T.init);
                     }
@@ -757,7 +757,7 @@ pragma(inline):
     /** Insert unmoveable `value` into the end of the array.
      */
     void insertBack()(T value) @trusted // template-lazy
-    if (!isCopyable!T)
+    if (!__traits(isCopyable, T))
     {
         version(LDC) pragma(inline, true);
         insertBackMove(value);
@@ -767,7 +767,7 @@ pragma(inline):
      */
     void insertBack(U)(U[] values...) @trusted
     if (isElementAssignable!U &&
-        isCopyable!U)       // prevent accidental move of l-value `values`
+        __traits(isCopyable, U))       // prevent accidental move of l-value `values`
     {
         if (values.length == 1) // TODO branch should be detected at compile-time
         {
@@ -844,7 +844,7 @@ pragma(inline):
         {
             foreach (ref element; move(elements)) // TODO remove `move` when compiler does it for us
             {
-                static if (isCopyable!(ElementType!R))
+                static if (__traits(isCopyable, ElementType!R))
                 {
                     insertBack(element);
                 }
@@ -988,7 +988,7 @@ pragma(inline):
     void opOpAssign(string op, U)(U[] values...) @trusted
     if (op == "~" &&
         isElementAssignable!U &&
-        isCopyable!U)       // prevent accidental move of l-value `values`
+        __traits(isCopyable, U))       // prevent accidental move of l-value `values`
     {
         pragma(inline, true);
         insertBack(values);

@@ -21,7 +21,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     import core.exception : onRangeError;
     import core.lifetime : move, moveEmplace;
     import std.bitmanip : bitfields;
-    import std.traits : isSomeChar, isAssignable, isCopyable;
+    import std.traits : isSomeChar, isAssignable;
     import core.internal.traits : hasElaborateDestructor;
     import nxt.container_traits : isAddress;
 
@@ -115,7 +115,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
 
     /// Construct from element `values`.
     this(U)(U[] values) @trusted
-    if (isCopyable!U//  &&
+    if (__traits(isCopyable, U)//  &&
         // TODO isElementAssignable!U
         ) // prevent accidental move of l-value `values` in array calls
     {
@@ -131,7 +131,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
 
     /// Construct from element `values`.
     static typeof(this) fromValuesUnsafe(U)(U[] values) @system
-    if (isCopyable!U &&
+    if (__traits(isCopyable, U) &&
         isElementAssignable!U
         ) // prevent accidental move of l-value `values` in array calls
     {

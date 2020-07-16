@@ -84,7 +84,7 @@ struct SSOHashMapOrSet(K, V = void,
     import core.lifetime : emplace, move, moveEmplace;
     import core.internal.traits : hasElaborateCopyConstructor, hasElaborateDestructor, Unqual;
     import nxt.emplace_all : moveEmplaceAllNoReset;
-    import std.traits : isCopyable, isMutable, hasIndirections;
+    import std.traits : isMutable, hasIndirections;
     import std.algorithm.comparison : max;
     // TODO activate and use import nxt.prime_modulo;
 
@@ -246,7 +246,7 @@ struct SSOHashMapOrSet(K, V = void,
     @disable this(this);
 
     /// Duplicate.
-    static if (isCopyable!T)
+    static if (__traits(isCopyable, T))
     {
         typeof(this) dup()() const @trusted // template-lazy
         {
@@ -442,7 +442,7 @@ struct SSOHashMapOrSet(K, V = void,
      */
     void insertN(R)(R elements) @trusted
         if (isIterable!R &&
-            isCopyable!T)
+            __traits(isCopyable, T))
     {
         import std.range.primitives : hasLength;
         static if (hasLength!R)

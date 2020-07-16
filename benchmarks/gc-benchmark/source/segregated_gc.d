@@ -549,11 +549,11 @@ class SegregatedGC : GC
     void removeRoot(void* p) nothrow @nogc
     {
         debug(PRINTF) printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
-        foreach (ref r; tlGcx.roots)
+        foreach (ref root; tlGcx.roots)
         {
-            if (r is p)
+            if (root is p)
             {
-                r = tlGcx.roots.back;
+                root = tlGcx.roots.back;
                 tlGcx.roots.popBack();
                 return;
             }
@@ -596,11 +596,11 @@ class SegregatedGC : GC
     {
         debug(PRINTF) printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
         if (p is null) return;
-        foreach (ref r; tlGcx.ranges)
+        foreach (ref range; tlGcx.ranges)
         {
-            if (r.pbot is p)
+            if (range.pbot is p)
             {
-                r = tlGcx.ranges.back;
+                range = tlGcx.ranges.back;
                 tlGcx.ranges.popBack();
                 return;
             }
@@ -617,9 +617,9 @@ class SegregatedGC : GC
     private int rangesApply(scope int delegate(ref Range) nothrow dg)
     {
         debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
-        foreach (ref r; tlGcx.ranges)
+        foreach (ref range; tlGcx.ranges)
         {
-            if (auto result = dg(r))
+            if (auto result = dg(range))
                 return result;
         }
         return 0;

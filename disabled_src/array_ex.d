@@ -102,7 +102,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
     import core.lifetime : emplace, move, moveEmplace;
     import std.algorithm.mutation : moveEmplaceAll;
     import std.range.primitives : isInputRange, isInfinite, ElementType;
-    import std.traits : isIterable, isAssignable, Unqual, isArray, isScalarType, hasIndirections, TemplateOf, isCopyable;
+    import std.traits : isIterable, isAssignable, Unqual, isArray, isScalarType, hasIndirections, TemplateOf;
     import std.functional : binaryFun;
     import std.meta : allSatisfy;
 
@@ -213,7 +213,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         }
 
         // move element
-        static if (isCopyable!E)
+        static if (__traits(isCopyable, E))
         {
             that._mptr[0] = element;
         }
@@ -369,7 +369,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         }
     }
 
-    static if (isCopyable!E)
+    static if (__traits(isCopyable, E))
     {
         /// Returns: shallow duplicate of `this`.
         @property MutableThis dup() const @trusted // `MutableThis` mimics behaviour of `dup` for builtin D arrays
@@ -399,7 +399,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
     bool opEquals(in ref typeof(this) rhs) const
         @trusted
     {
-        static if (isCopyable!E)
+        static if (__traits(isCopyable, E))
         {
             return this[] == rhs[]; // TODO fix DMD to make this work for non-copyable aswell
         }
@@ -416,7 +416,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
     bool opEquals(in typeof(this) rhs) const
         @trusted
     {
-        static if (isCopyable!E)
+        static if (__traits(isCopyable, E))
         {
             return this[] == rhs[]; // TODO fix DMD to make this work for non-copyable aswell
         }
@@ -445,7 +445,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
     {
         pragma(msg, "WARNING: using toHash() when we should use toDigest instead");
         import core.internal.hash : hashOf;
-        static if (isCopyable!E)
+        static if (__traits(isCopyable, E))
         {
             return this.length ^ hashOf(slice());
         }
@@ -1212,7 +1212,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         alias prepend = pushFront;
 
         import nxt.traits_ex : isComparable;
-        static if (isCopyable!E &&
+        static if (__traits(isCopyable, E) &&
                    !is(E == char) &&
                    !is(E == wchar) &&
                    isComparable!E)
@@ -1371,7 +1371,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         }
 
         /// Slice assign operator.
-        static if (isCopyable!E)
+        static if (__traits(isCopyable, E))
         {
             void opSliceAssign(V)(V value, size_t i, size_t j)
                 @trusted return scope
@@ -1429,7 +1429,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
 
     alias data = opSlice;   // `std.array.Appender` compatibility
 
-    // static if (isCopyable!E)
+    // static if (__traits(isCopyable, E))
     // {
     //     string toString() const @property @trusted pure
     //     {
@@ -2343,12 +2343,12 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
 /// disabled copying
 @safe pure nothrow @nogc unittest
 {
-    import std.traits : isAssignable, isCopyable;
+    import std.traits : isAssignable;
 
     alias E = string;
 
     alias A = Array!E;
-    static assert(!isCopyable!A);
+    static assert(!__traits(isCopyable, A));
 
     alias CA = CopyingArray!E;
     static assert(__traits(isCopyable, CA));
@@ -2531,7 +2531,7 @@ pure nothrow /+TODO @nogc+/ unittest
             assert(x.length == i + 1);
             auto a = A.withElement(E(i, 2*i));
             import std.traits : isCopyable;
-            static if (isCopyable!A)
+            static if (__traits(isCopyable, A))
             {
                 // TODO why do these fail when `A` is uncopyable?
                 assert(a in x);

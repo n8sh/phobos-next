@@ -2348,10 +2348,10 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     alias E = string;
 
     alias A = Array!E;
-    static assert(!isCopyable!(A));
+    static assert(!isCopyable!A);
 
     alias CA = CopyingArray!E;
-    static assert(isCopyable!(CA));
+    static assert(__traits(isCopyable, CA));
 
     // import std.traits : isRvalueAssignable, isLvalueAssignable;
     // static assert(isRvalueAssignable!(A));

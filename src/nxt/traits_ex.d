@@ -13,8 +13,6 @@ import std.traits: isArray, ParameterTypeTuple, isStaticArray, isDynamicArray, i
 import std.meta : allSatisfy;
 import std.range: ElementType, isForwardRange, isRandomAccessRange, isInputRange, isBidirectionalRange, isOutputRange;
 
-public import std.traits : isCopyable;
-
 /** Returns: `true` iff $(D ptr) is handled by D's garbage collector (GC).
  */
 bool isGCPointer(T)(const T* ptr)
@@ -1121,9 +1119,9 @@ enum isRvalue(alias sym) = !isLvalue!sym;
 
 template ownsItsElements(C)
 {
-    import std.traits : isCopyable, hasIndirections;
+    import std.traits : hasIndirections;
     import std.range.primitives : ElementType;
-    enum ownsItsElements = !isCopyable!C && !hasIndirections!(ElementType!C);
+    enum ownsItsElements = !__traits(isCopyable, C) && !hasIndirections!(ElementType!C);
 }
 
 /** Copied from private definition in Phobos' std.meta.

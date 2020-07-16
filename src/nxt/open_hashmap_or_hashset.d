@@ -72,7 +72,7 @@ import nxt.pure_mallocator : Mallocator = PureMallocator;
  * fast as value passing. add LDC issue for this
  *
  * TODO always use `const scope auto ref` in predicates (including when
- * `isCopyable!K` is true) to reduce static if branch complexity
+ * `__traits(isCopyable, K)` is `true`) to reduce static if branch complexity
  */
 struct OpenHashMapOrSet(K, V = void,
                         alias hasher = hashOf,
@@ -87,7 +87,7 @@ if (isNullable!K
     import core.exception : onOutOfMemoryError;
     import core.internal.traits : hasElaborateDestructor, Unqual;
     import std.math : nextPow2;
-    import std.traits : isCopyable, hasIndirections, hasFunctionAttributes;
+    import std.traits : hasIndirections, hasFunctionAttributes;
     import std.typecons : Nullable;
 
     import nxt.nullable_traits : defaultNullKeyConstantOf, isNull, nullify;
@@ -483,7 +483,7 @@ if (isNullable!K
         _store = makeDefaultInitializedStore(1);
         _count = 0;
         // TODO can this be optimized?
-        static if (isCopyable!T)
+        static if (__traits(isCopyable, T))
         {
             insertWithoutGrowthNoStatus(element);
         }
@@ -904,7 +904,7 @@ if (isNullable!K
 
         reserveExtra(1);
         size_t hitIndex = 0;
-        static if (isCopyable!T)
+        static if (__traits(isCopyable, T))
         {
             return insertWithoutGrowth(element, hitIndex);
         }
@@ -932,7 +932,7 @@ if (isNullable!K
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
 
         reserveExtra(1);
-        static if (isCopyable!SomeElement)
+        static if (__traits(isCopyable, SomeElement))
         {
             const hitIndex = insertWithoutGrowthNoStatus(element);
         }
@@ -947,7 +947,7 @@ if (isNullable!K
      */
     void insertN(R)(R elements) @trusted
     if (isIterable!R &&
-        isCopyable!T)           // TODO support uncopyable T?
+        __traits(isCopyable, T))           // TODO support uncopyable T?
     {
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
         import std.range.primitives : hasLength;
@@ -1068,13 +1068,13 @@ if (isNullable!K
         }
         else
         {
-            static if (isCopyable!SomeElement)
+            static if (__traits(isCopyable, SomeElement))
             {
                 _store[index] = element;
             }
             else
             {
-                static if (isCopyable!K)
+                static if (__traits(isCopyable, K))
                 {
                     keyOf(_store[index]) = keyOf(element);
                 }
@@ -1254,7 +1254,7 @@ if (isNullable!K
                 hitIndex = hitIndexPrel; // normal hit
             }
             version(internalUnittest) assert(hitIndex != _store.length, "no null or hole slot");
-            static if (isCopyable!SomeElement)
+            static if (__traits(isCopyable, SomeElement))
             {
                 insertElementAtIndex(*cast(SomeElement*)&element, hitIndex);
             }
@@ -1324,7 +1324,7 @@ if (isNullable!K
                 hitIndex = hitIndexPrel; // normal hit
             }
             version(internalUnittest) assert(hitIndex != _store.length, "no null or hole slot");
-            static if (isCopyable!SomeElement)
+            static if (__traits(isCopyable, SomeElement))
             {
                 insertElementAtIndex(*cast(SomeElement*)&element, hitIndex);
             }
@@ -1369,9 +1369,9 @@ if (isNullable!K
         InsertionStatus insert()(K key, V value) // template-lazy
         {
             pragma(inline, true); // LDC must have this
-            static if (isCopyable!K)
+            static if (__traits(isCopyable, K))
             {
-                static if (isCopyable!V)
+                static if (__traits(isCopyable, V))
                 {
                     return insert(T(key, value));
                 }
@@ -1382,7 +1382,7 @@ if (isNullable!K
             }
             else
             {
-                static if (isCopyable!V)
+                static if (__traits(isCopyable, V))
                 {
                     return insert(T(move(key), value));
                 }
@@ -1544,9 +1544,9 @@ if (isNullable!K
             static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(key)); }
             static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
             reserveExtra(1);
-            static if (isCopyable!K)
+            static if (__traits(isCopyable, K))
             {
-                static if (isCopyable!V)
+                static if (__traits(isCopyable, V))
                 {
                     const hitIndex = insertWithoutGrowthNoStatus(T(key, value));
                 }
@@ -1557,7 +1557,7 @@ if (isNullable!K
             }
             else
             {
-                static if (isCopyable!V)
+                static if (__traits(isCopyable, V))
                 {
                     const hitIndex = insertWithoutGrowthNoStatus(T(move(key), value));
                 }
@@ -1589,7 +1589,7 @@ if (isNullable!K
                                holeIndex : // pick hole instead
                                hitIndex); // normal hit
                 version(internalUnittest) assert(index != _store.length, "no null or hole slot");
-                static if (isCopyable!K)
+                static if (__traits(isCopyable, K))
                 {
                     static if (op == "~" ||
                                op == "+" ||
@@ -1712,7 +1712,7 @@ if (isNullable!K
         typeof(return) totalCount = 0;
         foreach (const ref currentElement; range)
         {
-            static if (isCopyable!T)
+            static if (__traits(isCopyable, T))
             {
                 /* don't use `auto ref` for copyable `T`'s to prevent
                  * massive performance drop for small elements when compiled
@@ -1901,7 +1901,7 @@ private:
             }
         }
 
-        static if (isCopyable!T)
+        static if (__traits(isCopyable, T))
         {
             /* don't use `auto ref` for copyable `T`'s to prevent
              * massive performance drop for small elements when compiled
@@ -1966,7 +1966,7 @@ private:
 
         }
 
-        static if (isCopyable!T)
+        static if (__traits(isCopyable, T))
         {
             /* don't use `auto ref` for copyable `T`'s to prevent
              * massive performance drop for small elements when compiled
@@ -2037,7 +2037,7 @@ static private void duplicateEmplace(T)(const scope ref T src,
 {
     pragma(inline, true);
     import core.internal.traits : hasElaborateCopyConstructor;
-    import std.traits : isCopyable, isBasicType, isInstanceOf;
+    import std.traits : isBasicType, isInstanceOf;
     static if (!hasElaborateCopyConstructor!T)
     {
         import std.typecons : Nullable;

@@ -1901,38 +1901,17 @@ private:
             }
         }
 
-        static if (__traits(isCopyable, T))
+        static if (hasHoleableKey)
         {
-            /* don't use `auto ref` for copyable `T`'s to prevent
-             * massive performance drop for small elements when compiled
-             * with LDC. TODO remove when LDC is fixed. */
-            static if (hasHoleableKey)
-            {
-                alias pred = (const scope element) => (keyOf(element).isNull ||
-                                                       keyEqualPredFn(keyOf(element), key));
-            }
-            else
-            {
-                alias pred = (const scope index,
-                              const scope element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
-                                                       (keyOf(element).isNull ||
-                                                        keyEqualPredFn(keyOf(element), key)));
-            }
+            alias pred = (const scope auto ref element) => (keyOf(element).isNull ||
+                                                            keyEqualPredFn(keyOf(element), key));
         }
         else
         {
-            static if (hasHoleableKey)
-            {
-                alias pred = (const scope auto ref element) => (keyOf(element).isNull ||
-                                                                keyEqualPredFn(keyOf(element), key));
-            }
-            else
-            {
-                alias pred = (const scope index,
-                              const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
-                                                                (keyOf(element).isNull ||
-                                                                 keyEqualPredFn(keyOf(element), key)));
-            }
+            alias pred = (const scope index,
+                          const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
+                                                            (keyOf(element).isNull ||
+                                                             keyEqualPredFn(keyOf(element), key)));
         }
 
         return _store[].triangularProbeFromIndex!(pred)(keyToIndex(key));
@@ -1966,44 +1945,20 @@ private:
 
         }
 
-        static if (__traits(isCopyable, T))
+        static if (hasHoleableKey)
         {
-            /* don't use `auto ref` for copyable `T`'s to prevent
-             * massive performance drop for small elements when compiled
-             * with LDC. TODO remove when LDC is fixed. */
-            static if (hasHoleableKey)
-            {
-                alias hitPred = (const scope element) => (keyOf(element).isNull ||
-                                                          keyEqualPredFn(keyOf(element), key));
-                alias holePred = (const scope element) => (isHoleKeyConstant(keyOf(element)));
-            }
-            else
-            {
-                alias hitPred = (const scope index,
-                                 const scope element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
-                                                          (keyOf(element).isNull ||
-                                                           keyEqualPredFn(keyOf(element), key)));
-                alias holePred = (const scope index, // TODO use only index
-                                  const scope element) => (hasHoleAtPtrIndex(_holesPtr, index));
-            }
+            alias hitPred = (const scope auto ref element) => (keyOf(element).isNull ||
+                                                               keyEqualPredFn(keyOf(element), key));
+            alias holePred = (const scope auto ref element) => (isHoleKeyConstant(keyOf(element)));
         }
         else
         {
-            static if (hasHoleableKey)
-            {
-                alias hitPred = (const scope auto ref element) => (keyOf(element).isNull ||
-                                                                   keyEqualPredFn(keyOf(element), key));
-                alias holePred = (const scope auto ref element) => (isHoleKeyConstant(keyOf(element)));
-            }
-            else
-            {
-                alias hitPred = (const scope index,
-                                 const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
-                                                                   (keyOf(element).isNull ||
-                                                                    keyEqualPredFn(keyOf(element), key)));
-                alias holePred = (const scope index, // TODO use only index
-                                  const scope auto ref element) => (hasHoleAtPtrIndex(_holesPtr, index));
-            }
+            alias hitPred = (const scope index,
+                             const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
+                                                               (keyOf(element).isNull ||
+                                                                keyEqualPredFn(keyOf(element), key)));
+            alias holePred = (const scope index, // TODO use only index
+                              const scope auto ref element) => (hasHoleAtPtrIndex(_holesPtr, index));
         }
 
         return _store[].triangularProbeFromIndexIncludingHoles!(hitPred, holePred)(keyToIndex(key),

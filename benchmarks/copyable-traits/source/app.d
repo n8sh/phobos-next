@@ -1,6 +1,3 @@
-import std.traits : isCopyable;
-import std.meta : AliasSeq;
-
 struct W(T, size_t n)
 {
     T value;
@@ -8,6 +5,8 @@ struct W(T, size_t n)
 
 @safe pure unittest
 {
+    import std.meta : AliasSeq;
+    import std.traits : isCopyable;
     alias Ts(uint n) = AliasSeq!(W!(byte, n), W!(ubyte, n),
                                  W!(short, n), W!(ushort, n),
                                  W!(int, n), W!(uint, n),

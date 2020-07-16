@@ -87,8 +87,7 @@ struct UniqueRange(Source)
         assert(!empty);
 
         import core.internal.traits : hasElaborateDestructor;
-        import std.traits : isCopyable;
-        static if (isCopyable!E &&
+        static if (__traits(isCopyable, E) &&
                    !hasElaborateDestructor!E)
         {
             typeof(return) value = front;
@@ -137,8 +136,7 @@ struct UniqueRange(Source)
             assert(!empty);
 
             import core.internal.traits : hasElaborateDestructor;
-            import std.traits : isCopyable;
-            static if (isCopyable!E &&
+            static if (__traits(isCopyable, E) &&
                        !hasElaborateDestructor!E)
             {
                 typeof(return) value = back;
@@ -287,7 +285,6 @@ template mapUnique(fun...) if (fun.length >= 1)
 private struct MapUniqueResult(alias fun, Range)
 {
     import core.internal.traits : Unqual;
-    import std.traits : isCopyable;
     import std.range.primitives : isInputRange, isForwardRange, isBidirectionalRange, isRandomAccessRange, isInfinite, hasSlicing;
     import std.algorithm.mutation : move;
 
@@ -363,7 +360,7 @@ private struct MapUniqueResult(alias fun, Range)
     }
 
     static if (hasSlicing!R &&
-               isCopyable!R)
+               __traits(isCopyable, R))
     {
         static if (is(typeof(_input[ulong.max .. ulong.max])))
             private alias opSlice_t = ulong;
@@ -395,7 +392,7 @@ private struct MapUniqueResult(alias fun, Range)
     }
 
     static if (isForwardRange!R &&
-               isCopyable!R)    // TODO should save be allowed for non-copyable?
+               __traits(isCopyable, R))    // TODO should save be allowed for non-copyable?
     {
         @property auto save()
         {
@@ -424,7 +421,6 @@ private struct FilterUniqueResult(alias pred, Range)
     import std.algorithm.mutation : move;
     import std.range.primitives : isForwardRange, isInfinite;
     import core.internal.traits : Unqual;
-    import std.traits : isCopyable;
     alias R = Unqual!Range;
     R _input;
 
@@ -437,7 +433,7 @@ private struct FilterUniqueResult(alias pred, Range)
         }
     }
 
-    static if (isCopyable!Range)
+    static if (__traits(isCopyable, Range))
     {
         auto opSlice() { return this; }
     }
@@ -466,7 +462,7 @@ private struct FilterUniqueResult(alias pred, Range)
     }
 
     static if (isForwardRange!R &&
-               isCopyable!R) // TODO should save be allowed for non-copyable?
+               __traits(isCopyable, R)) // TODO should save be allowed for non-copyable?
     {
         @property auto save()
         {

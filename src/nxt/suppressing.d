@@ -15,7 +15,6 @@ enum SuppressOptions
 struct Suppress(T, SuppressOptions options)
 if (options != 0)
 {
-    import std.traits : isCopyable;
     private enum suppressPostblit   = (options & SuppressOptions.postblit)   != 0;
     private enum suppressDestructor = (options & SuppressOptions.destructor) != 0;
     private enum postblitName = __traits(hasMember, T, "__xpostblit") ? "__xpostblit" : "__postblit";
@@ -51,7 +50,7 @@ if (options != 0)
     // Call postblit
     static if (!suppressPostblit)
     {
-        static if (!isCopyable!T)
+        static if (!__traits(isCopyable, T))
         {
             @disable this(this);
         }

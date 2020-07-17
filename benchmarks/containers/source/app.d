@@ -79,13 +79,21 @@ void main()
             A a;
         }
 
-        immutable startTime = MonoTime.currTime();
-        foreach (immutable i; testSource)
         {
-            a ~= i.to!uint;     // need to cast away const here for now. TODO remove this requirement
+            auto spans_ns = DynamicArray!double(runCount);
+            foreach (const _; 0 .. runCount)
+            {
+                immutable startTime = MonoTime.currTime();
+                foreach (immutable i; testSource)
+                {
+                    a ~= i.to!uint;     // need to cast away const here for now. TODO remove this requirement
+                }
+                immutable after = MonoTime.currTime();
+                spans_ns.insertBack(cast(double)(MonoTime.currTime() - startTime).total!"nsecs");
+            }
+            writef("Appended: %3.1f ns/op",
+                   minElement(spans_ns[]) / elementCount);
         }
-        immutable after = MonoTime.currTime();
-        writef("Appended: %3.1f ns/op", cast(double)(after - startTime).total!"nsecs" / elementCount);
 
         writefln(` for %s`, A.stringof);
 

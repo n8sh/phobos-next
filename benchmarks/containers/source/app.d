@@ -156,7 +156,7 @@ void main()
             auto a = A();
         }
 
-        // TODO const testSource = iotaArrayOf!(A.ElementType)(elementCount);
+        // TODO const testSource = iotaArrayOf!(0, A.ElementType)(elementCount);
 
         writef("- ");
 
@@ -363,7 +363,7 @@ void main()
         writef("- ");
 
         // allocate
-        const keys = iotaArrayOf!(A.KeyType)(elementCount);
+        const keys = iotaArrayOf!(A.KeyType)(0, elementCount);
 
         {
             auto spans_ns = DynamicArray!double(runCount);
@@ -467,7 +467,7 @@ void main()
         writef("- ");
 
         // allocate
-        const es = iotaArrayOf!E(elementCount);
+        const es = iotaArrayOf!E(0, elementCount);
 
         // insert
         {
@@ -541,10 +541,10 @@ void main()
     }
 }
 
-T[] iotaArrayOf(T, U)(U n)
+private T[] iotaArrayOf(T, U)(U begin, U end)
 {
-    typeof(return) es = new T[n];
-    foreach (immutable i; 0 .. n)
+    typeof(return) es = new T[end];
+    foreach (immutable i; begin .. end)
     {
         import std.conv : to;
         static if (is(typeof(T(i)))) // if possible

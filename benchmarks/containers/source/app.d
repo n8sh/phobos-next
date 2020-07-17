@@ -46,6 +46,7 @@ void main()
     }
 
     writefln("\nElement count: %s", elementCount);
+    writefln("\nRun count: %s", runCount);
 
     writefln("\nArrays:\n");
 

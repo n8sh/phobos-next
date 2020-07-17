@@ -88,7 +88,6 @@ void main()
                 {
                     a ~= i.to!uint;     // need to cast away const here for now. TODO remove this requirement
                 }
-                immutable after = MonoTime.currTime();
                 spans_ns[runIx] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
             }
             writef("Appended: %3.1f ns/op",
@@ -249,30 +248,34 @@ void main()
         static if (hasMember!(A, `withCapacity`))
         {
             A b = A.withCapacity(elementCount);
-
-            immutable startTime = MonoTime.currTime();
-            foreach (immutable i; testSource)
+            auto spans_ns = DynamicArray!double(runCount);
+            foreach (const runIx; 0 .. runCount)
             {
-                static if (hasMember!(A, `ElementType`) &&
-                           is(A.ElementType == ubyte[]))
+                immutable startTime = MonoTime.currTime();
+                foreach (immutable i; testSource)
                 {
-                    b.insert(i.toUbytes);
-                }
-                else
-                {
-                    static if (hasMember!(A, `ElementType`))
+                    static if (hasMember!(A, `ElementType`) &&
+                               is(A.ElementType == ubyte[]))
                     {
-                        const element = A.ElementType(i); // wrap in i in Nullable
+                        b.insert(i.toUbytes);
                     }
                     else
                     {
-                        const element = i;
+                        static if (hasMember!(A, `ElementType`))
+                        {
+                            const element = A.ElementType(i); // wrap in i in Nullable
+                        }
+                        else
+                        {
+                            const element = i;
+                        }
+                        b.insert(element);
                     }
-                    b.insert(element);
                 }
+                spans_ns[runIx] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
             }
-            immutable after = MonoTime.currTime();
-            writef(", insert (no growth): %3.1f ns/op", cast(double)(after - startTime).total!"nsecs" / elementCount);
+            writef(", insert (no growth): %3.1f ns/op",
+                   minElement(spans_ns[]) / elementCount);
         }
 
         writef(` for %s`, A.stringof);

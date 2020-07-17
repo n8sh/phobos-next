@@ -7,6 +7,7 @@ void main()
     import std.random : randomShuffle;
     import std.container.array : StdArray = Array;
     import std.container.rbtree : RedBlackTree;
+    import std.algorithm.searching : minElement;
 
     // my containers
     import nxt.dynamic_array : DynamicArray;
@@ -33,16 +34,17 @@ void main()
 
     import std.conv : to;
 
-    immutable n = 400_000;
+    immutable elementCount = 400_000;
+    immutable runCount = 3;
 
-    auto testSource = iota(0, n).array;
+    auto testSource = iota(0, elementCount).array;
     const useRandomShuffledSource = true;
     if (useRandomShuffledSource)
     {
         randomShuffle(testSource);
     }
 
-    writefln("\nElement count: %s", n);
+    writefln("\nElement count: %s", elementCount);
 
     writefln("\nArrays:\n");
 
@@ -56,20 +58,20 @@ void main()
 
         static if (hasMember!(A, `withCapacity`))
         {
-            auto a = A.withCapacity(n);
+            auto a = A.withCapacity(elementCount);
         }
         else static if (hasMember!(A, `reserve`))
         {
             A a;
             static if (hasMember!(A, `reserve`) &&
-                       __traits(compiles, { a.reserve(n); }))
+                       __traits(compiles, { a.reserve(elementCount); }))
             {
-                a.reserve(n);
+                a.reserve(elementCount);
             }
             else static if (hasMember!(A, `reserve`) &&
-                            __traits(compiles, { a.reserve!uint(n); }))
+                            __traits(compiles, { a.reserve!uint(elementCount); }))
             {
-                a.reserve!uint(n);
+                a.reserve!uint(elementCount);
             }
         }
         else
@@ -83,7 +85,7 @@ void main()
             a ~= i.to!uint;     // need to cast away const here for now. TODO remove this requirement
         }
         immutable after = MonoTime.currTime();
-        writef("Appended: %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
+        writef("Appended: %3.1f ns/op", cast(double)(after - before).total!"nsecs" / elementCount);
 
         writefln(` for %s`, A.stringof);
 
@@ -145,7 +147,7 @@ void main()
             auto a = A();
         }
 
-        // TODO const testSource = iotaArrayOf!(A.ElementType)(n);
+        // TODO const testSource = iotaArrayOf!(A.ElementType)(elementCount);
 
         writef("- ");
 
@@ -172,7 +174,7 @@ void main()
                 }
             }
             immutable after = MonoTime.currTime();
-            writef("insert (w growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
+            writef("insert (w growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / elementCount);
         }
 
         {
@@ -205,9 +207,9 @@ void main()
                     }
                 }
             }
-            const ok = hitCount == n; // for side effect in output
+            const ok = hitCount == elementCount; // for side effect in output
             immutable after = MonoTime.currTime();
-            writef(", contains: %3.1f ns/op (%s)", cast(double)(after - before).total!"nsecs" / n, ok ? "OK" : "ERR");
+            writef(", contains: %3.1f ns/op (%s)", cast(double)(after - before).total!"nsecs" / elementCount, ok ? "OK" : "ERR");
         }
 
         /* NOTE I couldn't make this faster so skiping */
@@ -238,7 +240,7 @@ void main()
 
         static if (hasMember!(A, `withCapacity`))
         {
-            A b = A.withCapacity(n);
+            A b = A.withCapacity(elementCount);
 
             immutable before = MonoTime.currTime();
             foreach (immutable i; testSource)
@@ -262,7 +264,7 @@ void main()
                 }
             }
             immutable after = MonoTime.currTime();
-            writef(", insert (no growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
+            writef(", insert (no growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / elementCount);
         }
 
         writef(` for %s`, A.stringof);
@@ -323,7 +325,7 @@ void main()
         writef("- ");
 
         // allocate
-        const keys = iotaArrayOf!(A.KeyType)(n);
+        const keys = iotaArrayOf!(A.KeyType)(elementCount);
 
         {
             immutable before = MonoTime.currTime();
@@ -332,19 +334,26 @@ void main()
                 a.insert(A.ElementType(keys[i], A.ValueType.init));
             }
             immutable after = MonoTime.currTime();
-            writef("insert (w growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
+            writef("insert (w growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / elementCount);
         }
 
         {
-            immutable before = MonoTime.currTime();
-            size_t hitCount = 0;
-            foreach (immutable i; testSource)
+            bool okAll = true;
+            auto spans_ns = DynamicArray!double(runCount);
+            foreach (_; 0 .. runCount)
             {
-                hitCount += a.contains(keys[i]);
+                immutable before = MonoTime.currTime();
+                size_t hitCount = 0;
+                foreach (immutable i; testSource)
+                {
+                    hitCount += a.contains(keys[i]);
+                }
+                const ok = hitCount == elementCount; // for side effect in output
+                if (!ok) { okAll = false; }
+                immutable after = MonoTime.currTime();
+                spans_ns.insertBack(cast(double)(after - before).total!"nsecs" / elementCount);
             }
-            const ok = hitCount == n; // for side effect in output
-            immutable after = MonoTime.currTime();
-            writef(", contains: %3.1f ns/op (%s)", cast(double)(after - before).total!"nsecs" / n, ok ? "OK" : "ERR");
+            writef(", contains: %3.1f ns/op (%s)", minElement(spans_ns[]), okAll ? "OK" : "ERR");
         }
 
         {
@@ -354,19 +363,19 @@ void main()
             {
                 hitCount += cast(bool)(keys[i] in a);
             }
-            const ok = hitCount == n; // for side effect in output
+            const ok = hitCount == elementCount; // for side effect in output
             immutable after = MonoTime.currTime();
-            writef(", in: %3.1f ns/op (%s)", cast(double)(after - before).total!"nsecs" / n, ok ? "OK" : "ERR");
+            writef(", in: %3.1f ns/op (%s)", cast(double)(after - before).total!"nsecs" / elementCount, ok ? "OK" : "ERR");
         }
 
-        A b = A.withCapacity(n);
+        A b = A.withCapacity(elementCount);
         immutable before = MonoTime.currTime();
         foreach (immutable i; testSource)
         {
             b.insert(A.ElementType(keys[i], A.ValueType.init));
         }
         immutable after = MonoTime.currTime();
-        writef(", insert (no growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
+        writef(", insert (no growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / elementCount);
 
         writef(` for %s`, A.stringof);
 
@@ -400,7 +409,7 @@ void main()
         writef("- ");
 
         // allocate
-        const es = iotaArrayOf!E(n);
+        const es = iotaArrayOf!E(elementCount);
 
         // insert
         {
@@ -410,7 +419,7 @@ void main()
                 a[es[i]] = ValueType.init;
             }
             immutable after = MonoTime.currTime();
-            writef("insert (w growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
+            writef("insert (w growth): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / elementCount);
         }
 
         // in
@@ -421,9 +430,9 @@ void main()
             {
                 hitCount += cast(bool)(es[i] in a);
             }
-            const ok = hitCount == n; // for side effect in output
+            const ok = hitCount == elementCount; // for side effect in output
             immutable after = MonoTime.currTime();
-            writef(", contains: %3.1f ns/op (%s)", cast(double)(after - before).total!"nsecs" / n, ok ? "OK" : "ERR");
+            writef(", contains: %3.1f ns/op (%s)", cast(double)(after - before).total!"nsecs" / elementCount, ok ? "OK" : "ERR");
         }
 
         // rahash
@@ -431,7 +440,7 @@ void main()
             immutable before = MonoTime.currTime();
             a.rehash();
             immutable after = MonoTime.currTime();
-            writef(", rehash: %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
+            writef(", rehash: %3.1f ns/op", cast(double)(after - before).total!"nsecs" / elementCount);
         }
 
         // in
@@ -442,7 +451,7 @@ void main()
                 const hit = es[i] in a;
             }
             immutable after = MonoTime.currTime();
-            writef(", contains (after rehash): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / n);
+            writef(", contains (after rehash): %3.1f ns/op", cast(double)(after - before).total!"nsecs" / elementCount);
         }
 
         writef(` for %s`, A.stringof);

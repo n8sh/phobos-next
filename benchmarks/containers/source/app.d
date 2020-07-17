@@ -311,15 +311,14 @@ void main()
                  // SSOHashMap!(uint, uint, null, muellerHash64),
                  // SSOHashMap!(uint, uint, null, wangMixHash64),
                  // SSOHashMap!(uint, uint, null, FNV!(64, true)),
-                 OpenHashMap!(Nullable!(uint, uint.max), uint),
+                 OpenHashMap!(Nullable!(uint, uint.max), uint, hashOf),
                  OpenHashMap!(Nullable!(uint, uint.max), uint, FNV!(64, true)),
 
                  // ulong => ulong
                  // SSOHashMap!(ulong, ulong, null, muellerHash64),
                  // SSOHashMap!(ulong, ulong, null, wangMixHash64),
                  // SSOHashMap!(ulong, ulong, null, FNV!(64, true)),
-                 OpenHashMap!(Nullable!(ulong, ulong.max), ulong),
-
+                 OpenHashMap!(Nullable!(ulong, ulong.max), ulong, hashOf),
                  OpenHashMap!(Nullable!(ulong, ulong.max), ulong, FNV!(64, true)),
                  OpenHashMap!(Nullable!(ulong, ulong.max), ulong, wangMixHash64),
 
@@ -328,13 +327,13 @@ void main()
                  OpenHashMap!(Address, Address, wangMixHash64),
 
                  // string => string
-                 OpenHashMap!(string, string),
+                 OpenHashMap!(string, string, hashOf),
                  OpenHashMap!(string, string, XXHash64),
                  OpenHashMap!(string, string, MurmurHash3!(128)),
                  OpenHashMap!(string, string, FNV!(64, true)),
 
                  // SSOString => SSOString
-                 OpenHashMap!(SSOString, SSOString),
+                 OpenHashMap!(SSOString, SSOString, hashOf),
                  OpenHashMap!(SSOString, SSOString, FNV!(64, true)),
                  ))
     {

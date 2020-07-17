@@ -323,6 +323,7 @@ void main()
                  OpenHashMap!(Nullable!(ulong, ulong.max), ulong, FNV!(64, true)),
                  OpenHashMap!(Nullable!(ulong, ulong.max), ulong, wangMixHash64),
 
+                 OpenHashMap!(Address, Address, hashOf),
                  OpenHashMap!(Address, Address, FNV!(64, true)),
                  OpenHashMap!(Address, Address, wangMixHash64),
 

@@ -6,6 +6,8 @@ module nxt.address;
  *
  * Used as key, value or element instead of a pointer `OpenHashMapOrSet` to
  * prevent triggering of `gc_addRange` and `gc_removeRange`.
+ *
+ * TODO is `holeValue` suitably chosen?
  */
 struct Address
 {

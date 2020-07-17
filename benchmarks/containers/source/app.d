@@ -38,7 +38,7 @@ void main()
     immutable elementCount = 400_000;
     immutable runCount = 3;     ///< Number of runs per benchmark.
 
-    auto testSource = iota(0, elementCount).array;
+    auto testSource = iota(1, elementCount).array; ///< Start at 1 instead of 0 because `Address` uses 0 for `nullValue`.
     const useRandomShuffledSource = true;
     if (useRandomShuffledSource)
     {

@@ -444,13 +444,17 @@ void main()
 
         // insert
         {
-            immutable startTime = MonoTime.currTime();
-            foreach (immutable i; testSource)
+            auto spans_ns = DynamicArray!double(runCount);
+            foreach (const runIx; 0 .. runCount)
             {
-                a[es[i]] = ValueType.init;
+                immutable startTime = MonoTime.currTime();
+                foreach (immutable i; testSource)
+                {
+                    a[es[i]] = ValueType.init;
+                }
+                spans_ns[runIx] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
             }
-            immutable after = MonoTime.currTime();
-            writef("insert (w growth): %3.1f ns/op", cast(double)(after - startTime).total!"nsecs" / elementCount);
+            writef("insert (w growth): %3.1f ns/op", minElement(spans_ns[]) / elementCount);
         }
 
         // in

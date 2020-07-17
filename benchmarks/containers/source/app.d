@@ -459,15 +459,21 @@ void main()
 
         // in
         {
-            immutable startTime = MonoTime.currTime();
-            size_t hitCount = 0;
-            foreach (immutable i; testSource)
+            auto spans_ns = DynamicArray!double(runCount);
+            bool okAll = true;
+            foreach (const runIx; 0 .. runCount)
             {
-                hitCount += cast(bool)(es[i] in a);
+                immutable startTime = MonoTime.currTime();
+                size_t hitCount = 0;
+                foreach (immutable i; testSource)
+                {
+                    hitCount += cast(bool)(es[i] in a);
+                }
+                const ok = hitCount == elementCount; // for side effect in output
+                if (!ok) { okAll = false; }
+                spans_ns[runIx] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
             }
-            const ok = hitCount == elementCount; // for side effect in output
-            immutable after = MonoTime.currTime();
-            writef(", contains: %3.1f ns/op (%s)", cast(double)(after - startTime).total!"nsecs" / elementCount, ok ? "OK" : "ERR");
+            writef(", contains: %3.1f ns/op (%s)", minElement(spans_ns[]) / elementCount, okAll ? "OK" : "ERR");
         }
 
         // rahash

@@ -546,7 +546,6 @@ private T[] iotaArrayOf(T, U)(U begin, U end)
     typeof(return) es = new T[end];
     foreach (immutable i; begin .. end)
     {
-        import std.conv : to;
         static if (is(typeof(T(i)))) // if possible
         {
             es[i] = T(i);       // try normal construction
@@ -554,6 +553,7 @@ private T[] iotaArrayOf(T, U)(U begin, U end)
         else
         {
             import nxt.sso_string : SSOString;
+            import std.conv : to;
             static if (is(T == SSOString))
             {
                 es[i] = T(i.to!string);     // otherwise conv which may allocate

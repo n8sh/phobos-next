@@ -10,12 +10,12 @@ enum isDenseSetFilterable(E) = (is(typeof(cast(size_t)E.init)) // is castable to
                                 /* && cast(size_t)E.max <= uint.max */ );      // and small enough
 
 /** Store presence of elements of type `E` in a set in the range `0 .. length`.
-    Can be seen as a generalization of `std.typecons.BitFlags` to integer types.
-
-    Typically used to implement very fast membership checking. For instance in
-    graph traversal algorithms, this filter is typically used as a temporary set
-    node (integer) ids that checks if a node has been previously visisted or
-    not.
+ *
+ * Can be seen as a generalization of `std.typecons.BitFlags` to integer types.
+ *
+ * Typically used to implement very fast membership checking. For instance in
+ * graph traversal algorithms, this filter is typically used as a temporary set
+ * node (integer) ids that checks if a node has been previously visisted or not.
  */
 struct DenseSetFilter(E,
                       // TODO make these use the Flags template

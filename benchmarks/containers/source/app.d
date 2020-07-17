@@ -173,7 +173,7 @@ void main()
                 {
                     static if (hasMember!(A, `ElementType`))
                     {
-                        const element = A.ElementType(i); // wrap in i in Nullable
+                        const element = A.ElementType(i); // wrap in `i` in `Nullable`
                     }
                     else
                     {

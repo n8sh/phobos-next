@@ -81,7 +81,7 @@ void main()
 
         {
             auto spans_ns = DynamicArray!double(runCount);
-            foreach (const _; 0 .. runCount)
+            foreach (const ix; 0 .. runCount)
             {
                 immutable startTime = MonoTime.currTime();
                 foreach (immutable i; testSource)
@@ -89,7 +89,7 @@ void main()
                     a ~= i.to!uint;     // need to cast away const here for now. TODO remove this requirement
                 }
                 immutable after = MonoTime.currTime();
-                spans_ns.insertBack(cast(double)(MonoTime.currTime() - startTime).total!"nsecs");
+                spans_ns[ix] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
             }
             writef("Appended: %3.1f ns/op",
                    minElement(spans_ns[]) / elementCount);
@@ -337,14 +337,14 @@ void main()
 
         {
             auto spans_ns = DynamicArray!double(runCount);
-            foreach (const _; 0 .. runCount)
+            foreach (const ix; 0 .. runCount)
             {
                 immutable startTime = MonoTime.currTime();
                 foreach (immutable i; testSource)
                 {
                     a.insert(A.ElementType(keys[i], A.ValueType.init));
                 }
-                spans_ns.insertBack(cast(double)(MonoTime.currTime() - startTime).total!"nsecs");
+                spans_ns[ix] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
             }
             writef("insert (w growth): %3.1f ns/op",
                    minElement(spans_ns[]) / elementCount);
@@ -353,7 +353,7 @@ void main()
         {
             bool okAll = true;
             auto spans_ns = DynamicArray!double(runCount);
-            foreach (const _; 0 .. runCount)
+            foreach (const ix; 0 .. runCount)
             {
                 immutable startTime = MonoTime.currTime();
                 size_t hitCount = 0;
@@ -363,7 +363,7 @@ void main()
                 }
                 const ok = hitCount == elementCount; // for side effect in output
                 if (!ok) { okAll = false; }
-                spans_ns.insertBack(cast(double)(MonoTime.currTime() - startTime).total!"nsecs");
+                spans_ns[ix] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
             }
             writef(", contains: %3.1f ns/op (%s)",
                    minElement(spans_ns[]) / elementCount,
@@ -373,7 +373,7 @@ void main()
         {
             bool okAll = true;
             auto spans_ns = DynamicArray!double(runCount);
-            foreach (const _; 0 .. runCount)
+            foreach (const ix; 0 .. runCount)
             {
                 immutable startTime = MonoTime.currTime();
                 size_t hitCount = 0;
@@ -383,7 +383,7 @@ void main()
                 }
                 const ok = hitCount == elementCount; // for side effect in output
                 if (!ok) { okAll = false; }
-                spans_ns.insertBack(cast(double)(MonoTime.currTime() - startTime).total!"nsecs");
+                spans_ns[ix] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
             }
             writef(", in: %3.1f ns/op (%s)",
                    minElement(spans_ns[]) / elementCount,
@@ -392,7 +392,7 @@ void main()
 
         {
             auto spans_ns = DynamicArray!double(runCount);
-            foreach (const _; 0 .. runCount)
+            foreach (const ix; 0 .. runCount)
             {
                 A b = A.withCapacity(elementCount);
                 immutable startTime = MonoTime.currTime();
@@ -400,7 +400,7 @@ void main()
                 {
                     b.insert(A.ElementType(keys[i], A.ValueType.init));
                 }
-                spans_ns.insertBack(cast(double)(MonoTime.currTime() - startTime).total!"nsecs");
+                spans_ns[ix] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
             }
             writef(", insert (no growth): %3.1f ns/op", minElement(spans_ns[]) / elementCount);
         }

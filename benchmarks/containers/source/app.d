@@ -35,7 +35,7 @@ void main()
     import std.conv : to;
 
     immutable elementCount = 400_000;
-    immutable runCount = 5;     ///< Number of runs per benchmark.
+    immutable runCount = 1;     ///< Number of runs per benchmark.
 
     auto testSource = iota(0, elementCount).array;
     const useRandomShuffledSource = true;

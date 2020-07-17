@@ -7,7 +7,7 @@ void main()
     import std.random : randomShuffle;
     import std.container.array : StdArray = Array;
     import std.container.rbtree : RedBlackTree;
-    import std.algorithm.searching : minElement;
+    import std.algorithm.searching : minElement, maxElement;
 
     // my containers
     import nxt.dynamic_array : DynamicArray;
@@ -478,21 +478,29 @@ void main()
 
         // rahash
         {
-            immutable startTime = MonoTime.currTime();
-            a.rehash();
-            immutable after = MonoTime.currTime();
-            writef(", rehash: %3.1f ns/op", cast(double)(after - startTime).total!"nsecs" / elementCount);
+            auto spans_ns = DynamicArray!double(runCount);
+            foreach (const runIx; 0 .. runCount)
+            {
+                immutable startTime = MonoTime.currTime();
+                a.rehash();
+                spans_ns[runIx] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
+            }
+            writef(", rehash: %3.1f ns/op", maxElement(spans_ns[]) / elementCount);
         }
 
         // in
         {
-            immutable startTime = MonoTime.currTime();
-            foreach (immutable i; testSource)
+            auto spans_ns = DynamicArray!double(runCount);
+            foreach (const runIx; 0 .. runCount)
             {
-                const hit = es[i] in a;
+                immutable startTime = MonoTime.currTime();
+                foreach (immutable i; testSource)
+                {
+                    const hit = es[i] in a;
+                }
+                spans_ns[runIx] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
             }
-            immutable after = MonoTime.currTime();
-            writef(", contains (after rehash): %3.1f ns/op", cast(double)(after - startTime).total!"nsecs" / elementCount);
+            writef(", contains (after rehash): %3.1f ns/op", minElement(spans_ns[]) / elementCount);
         }
 
         writef(` for %s`, A.stringof);

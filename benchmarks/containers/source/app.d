@@ -351,21 +351,32 @@ void main()
                 const ok = hitCount == elementCount; // for side effect in output
                 if (!ok) { okAll = false; }
                 immutable after = MonoTime.currTime();
-                spans_ns.insertBack(cast(double)(after - before).total!"nsecs" / elementCount);
+                spans_ns.insertBack(cast(double)(after - before).total!"nsecs");
             }
-            writef(", contains: %3.1f ns/op (%s)", minElement(spans_ns[]), okAll ? "OK" : "ERR");
+            writef(", contains: %3.1f ns/op (%s)",
+                   minElement(spans_ns[]) / elementCount,
+                   okAll ? "OK" : "ERR");
         }
 
         {
-            immutable before = MonoTime.currTime();
-            size_t hitCount = 0;
-            foreach (immutable i; testSource)
+            bool okAll = true;
+            auto spans_ns = DynamicArray!double(runCount);
+            foreach (_; 0 .. runCount)
             {
-                hitCount += cast(bool)(keys[i] in a);
+                immutable before = MonoTime.currTime();
+                size_t hitCount = 0;
+                foreach (immutable i; testSource)
+                {
+                    hitCount += cast(bool)(keys[i] in a);
+                }
+                const ok = hitCount == elementCount; // for side effect in output
+                if (!ok) { okAll = false; }
+                immutable after = MonoTime.currTime();
+                spans_ns.insertBack(cast(double)(after - before).total!"nsecs");
             }
-            const ok = hitCount == elementCount; // for side effect in output
-            immutable after = MonoTime.currTime();
-            writef(", in: %3.1f ns/op (%s)", cast(double)(after - before).total!"nsecs" / elementCount, ok ? "OK" : "ERR");
+            writef(", in: %3.1f ns/op (%s)",
+                   minElement(spans_ns[]) / elementCount,
+                   okAll ? "OK" : "ERR");
         }
 
         A b = A.withCapacity(elementCount);

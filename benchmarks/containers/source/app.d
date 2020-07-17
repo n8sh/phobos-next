@@ -16,6 +16,7 @@ void main()
     // import nxt.sso_hashmap_or_hashset : SSOHashSet, SSOHashMap;
     import nxt.open_hashmap_or_hashset : OpenHashMap, OpenHashSet;
     import nxt.sso_string : SSOString;
+    import nxt.address : Address;
 
     import std.digest.murmurhash : MurmurHash3;
     import nxt.xxhash64 : XXHash64;
@@ -135,6 +136,7 @@ void main()
                           OpenHashSet!(Nullable!(ulong, ulong.max)),
                           OpenHashSet!(Nullable!(ulong, ulong.max), FNV!(64, true)),
                           OpenHashSet!(Nullable!(ulong, ulong.max), wangMixHash64),
+                          OpenHashSet!(Address),
                           // TODO OpenHashSet!(ulong*, FNV!(64, true)),
 
                           RadixTreeSetGrowOnly!(ulong),
@@ -317,8 +319,12 @@ void main()
                  // SSOHashMap!(ulong, ulong, null, wangMixHash64),
                  // SSOHashMap!(ulong, ulong, null, FNV!(64, true)),
                  OpenHashMap!(Nullable!(ulong, ulong.max), ulong),
+
                  OpenHashMap!(Nullable!(ulong, ulong.max), ulong, FNV!(64, true)),
                  OpenHashMap!(Nullable!(ulong, ulong.max), ulong, wangMixHash64),
+
+                 OpenHashMap!(Address, Address, FNV!(64, true)),
+                 OpenHashMap!(Address, Address, wangMixHash64),
 
                  // string => string
                  OpenHashMap!(string, string),

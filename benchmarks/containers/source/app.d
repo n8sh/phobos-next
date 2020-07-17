@@ -173,7 +173,14 @@ void main()
                 {
                     static if (hasMember!(A, `ElementType`))
                     {
-                        const element = A.ElementType(i); // wrap in `i` in `Nullable`
+                        static if (is(A.ElementType == Address))
+                        {
+                            const element = A.ElementType(i + 1); ///< Start at 1 instead of 0 because `Address` uses 0 for `nullValue`.
+                        }
+                        else
+                        {
+                            const element = A.ElementType(i); // wrap in `i` in `Nullable`
+                        }
                     }
                     else
                     {
@@ -200,7 +207,14 @@ void main()
                 {
                     static if (hasMember!(A, `ElementType`))
                     {
-                        const element = A.ElementType(i); // wrap in i in Nullable
+                        static if (is(A.ElementType == Address))
+                        {
+                            const element = A.ElementType(i + 1); ///< Start at 1 instead of 0 because `Address` uses 0 for `nullValue`.
+                        }
+                        else
+                        {
+                            const element = A.ElementType(i); // wrap in `i` in `Nullable`
+                        }
                     }
                     else
                     {
@@ -265,7 +279,14 @@ void main()
                     {
                         static if (hasMember!(A, `ElementType`))
                         {
-                            const element = A.ElementType(i); // wrap in i in Nullable
+                            static if (is(A.ElementType == Address))
+                            {
+                                const element = A.ElementType(i + 1); ///< Start at 1 instead of 0 because `Address` uses 0 for `nullValue`.
+                            }
+                            else
+                            {
+                                const element = A.ElementType(i); // wrap in `i` in `Nullable`
+                            }
                         }
                         else
                         {

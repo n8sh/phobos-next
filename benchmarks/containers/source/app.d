@@ -372,7 +372,16 @@ void main()
                 immutable startTime = MonoTime.currTime();
                 foreach (immutable i; testSource)
                 {
-                    a.insert(A.ElementType(keys[i], A.ValueType.init));
+                    static if (is(A.KeyType == Address))
+                    {
+                        const element = A.ElementType(Address(keys[i] + 1), // avoid `Address.nullValue`
+                                                      A.ValueType.init);
+                    }
+                    else
+                    {
+                        const element = A.ElementType(keys[i], A.ValueType.init);
+                    }
+                    a.insert(element);
                 }
                 spans_ns[runIx] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
             }
@@ -389,7 +398,14 @@ void main()
                 size_t hitCount = 0;
                 foreach (immutable i; testSource)
                 {
-                    hitCount += a.contains(keys[i]);
+                    static if (is(A.KeyType == Address))
+                    {
+                        hitCount += a.contains(Address(keys[i] + 1)); // avoid `Address.nullValue`
+                    }
+                    else
+                    {
+                        hitCount += a.contains(keys[i]);
+                    }
                 }
                 const ok = hitCount == elementCount; // for side effect in output
                 if (!ok) { okAll = false; }
@@ -409,7 +425,14 @@ void main()
                 size_t hitCount = 0;
                 foreach (immutable i; testSource)
                 {
-                    hitCount += cast(bool)(keys[i] in a);
+                    static if (is(A.KeyType == Address))
+                    {
+                        hitCount += cast(bool)(Address(keys[i] + 1) in a); // avoid `Address.nullValue`
+                    }
+                    else
+                    {
+                        hitCount += cast(bool)(keys[i] in a);
+                    }
                 }
                 const ok = hitCount == elementCount; // for side effect in output
                 if (!ok) { okAll = false; }
@@ -428,7 +451,14 @@ void main()
                 immutable startTime = MonoTime.currTime();
                 foreach (immutable i; testSource)
                 {
-                    b.insert(A.ElementType(keys[i], A.ValueType.init));
+                    static if (is(A.KeyType == Address))
+                    {
+                        b.insert(A.ElementType(Address(keys[i] + 1), A.ValueType.init)); // avoid `Address.nullValue`
+                    }
+                    else
+                    {
+                        b.insert(A.ElementType(keys[i], A.ValueType.init));
+                    }
                 }
                 spans_ns[runIx] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
             }

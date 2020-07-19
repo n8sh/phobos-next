@@ -70,6 +70,8 @@
  */
 module nxt.bound;
 
+version(none):
+
 import std.conv: to;
 import std.traits: CommonType, isIntegral, isUnsigned, isSigned, isFloatingPoint, isSomeChar, isScalarType, isBoolean;
 import nxt.traits_ex : haveCommonType;

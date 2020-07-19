@@ -13,7 +13,7 @@ ${CC} -x c++ -std=gnu++1y \
       -Wall -Warray-bounds -Wempty-body -Wunused-but-set-variable -Wunused-but-set-parameter -Winit-self -Wwrite-strings -Wmissing-braces -Wsign-compare -Wcast-align -Wpointer-arith -Wchar-subscripts \
       app.cpp \
       -I.. -I../src -I../.. -I../../.. \
-      -lstdc++ -lpthread \
+      -lstdc++ -lpthread -lm \
       -o ${EXE_GCC} && ./$EXE_GCC
 
 # TODO use `ccache`
@@ -23,5 +23,5 @@ ${CLANG} -x c++ -std=gnu++1y \
       -Wall -Warray-bounds -Wempty-body -Wunused-but-set-variable -Wunused-but-set-parameter -Winit-self -Wwrite-strings -Wmissing-braces -Wsign-compare -Wcast-align -Wpointer-arith -Wchar-subscripts \
       app.cpp \
       -I.. -I../src -I../.. -I../../.. \
-      -lstdc++ -lpthread \
+      -lstdc++ -lpthread -lm \
       -o ${EXE_CLANG} && ./$EXE_CLANG

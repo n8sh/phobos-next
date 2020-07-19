@@ -116,7 +116,8 @@ void main()
                           OpenHashSet!(Nullable!(ulong, ulong.max)),
                           OpenHashSet!(Nullable!(ulong, ulong.max), FNV!(64, true)),
                           OpenHashSet!(Nullable!(ulong, ulong.max), wangMixHash64),
-                          OpenHashSet!(Address),
+
+                          OpenHashSet!(Address, FNV!(64, true)),
                           // TODO OpenHashSet!(ulong*, FNV!(64, true)),
 
                           RadixTreeSetGrowOnly!(ulong),

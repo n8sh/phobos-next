@@ -148,7 +148,26 @@ void main()
                  ))
     {
         // scope
-        static if (is(A == class))
+
+        static if (hasMember!(A, `withCapacity`))
+        {
+            auto a = A.withCapacity(elementCount);
+        }
+        else static if (hasMember!(A, `reserve`))
+        {
+            A a;
+            static if (hasMember!(A, `reserve`) &&
+                       __traits(compiles, { a.reserve(elementCount); }))
+            {
+                a.reserve(elementCount);
+            }
+            else static if (hasMember!(A, `reserve`) &&
+                            __traits(compiles, { a.reserve!uint(elementCount); }))
+            {
+                a.reserve!uint(elementCount);
+            }
+        }
+        else static if (is(A == class))
         {
             auto a = new A();
         }
@@ -359,7 +378,32 @@ void main()
                  OpenHashMap!(SSOString, SSOString, FNV!(64, true)),
                  ))
     {
-        A a;
+        static if (hasMember!(A, `withCapacity`))
+        {
+            auto a = A.withCapacity(elementCount);
+        }
+        else static if (hasMember!(A, `reserve`))
+        {
+            A a;
+            static if (hasMember!(A, `reserve`) &&
+                       __traits(compiles, { a.reserve(elementCount); }))
+            {
+                a.reserve(elementCount);
+            }
+            else static if (hasMember!(A, `reserve`) &&
+                            __traits(compiles, { a.reserve!uint(elementCount); }))
+            {
+                a.reserve!uint(elementCount);
+            }
+        }
+        else static if (is(A == class))
+        {
+            auto a = new A();
+        }
+        else
+        {
+            auto a = A();
+        }
 
         writef("- ");
 

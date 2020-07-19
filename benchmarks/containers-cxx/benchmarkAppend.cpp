@@ -22,7 +22,7 @@ int main(int argc, const char* argv[], const char* envp[])
     // we don't actually create a clock object
 
     typedef uint E;
-    const size_t n = 1000000;
+    const size_t n = 400_000;
 
     // vector
     {

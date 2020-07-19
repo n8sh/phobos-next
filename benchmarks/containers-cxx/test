@@ -3,4 +3,4 @@
 CC=gcc-10
 EXE=main
 
-ccache ${CC} -x c++ -std=gnu++1y -DCONFIG_LITTLE_ENDIAN -D__MAIN__ -DNDEBUG -O6 -funroll-loops -ftree-vectorize -floop-interchange -floop-block -flto -ftree-partial-pre -fno-diagnostics-show-caret -Warray-bounds -Wempty-body -Wunused-but-set-variable -Wunused-but-set-parameter -Winit-self -Wwrite-strings -Wmissing-braces -Wsign-compare -Wcast-align -Wpointer-arith -Wchar-subscripts -Wall app.cpp -I.. -I../src -I../.. -I../../.. -lm -lstdc++ -lpthread -lfmt -o ${EXE} && ./$EXE
+ccache ${CC} -x c++ -std=gnu++1y -D__MAIN__ -DNDEBUG -O6 -funroll-loops -ftree-vectorize -floop-interchange -floop-block -flto -ftree-partial-pre -fno-diagnostics-show-caret -Warray-bounds -Wempty-body -Wunused-but-set-variable -Wunused-but-set-parameter -Winit-self -Wwrite-strings -Wmissing-braces -Wsign-compare -Wcast-align -Wpointer-arith -Wchar-subscripts -Wall app.cpp -I.. -I../src -I../.. -I../../.. -lm -lstdc++ -lpthread -lfmt -o ${EXE} && ./$EXE

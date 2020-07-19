@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CC=gcc-10
+CXX=g++-10
 EXE=main
 
-ccache $CC -Os benchmarkAppend.cpp -o ${EXE} && ./$EXE
+ccache gcc-10 -x c++ -std=gnu++1y -DCONFIG_LITTLE_ENDIAN -D__MAIN__ -DNDEBUG -O6 -funroll-loops -ftree-vectorize -floop-interchange -floop-block -flto -ftree-partial-pre -fno-diagnostics-show-caret -Warray-bounds -Wempty-body -Wunused-but-set-variable -Wunused-but-set-parameter -Winit-self -Wwrite-strings -Wmissing-braces -Wsign-compare -Wcast-align -Wpointer-arith -Wchar-subscripts -Wall -MD -MF /home/per/.emacs.d/auto-builds/gcc-10/Release/home/per/Work/knet/phobos-next/benchmarks/containers-cxx/benchmarkAppend.dep benchmarkAppend.cpp -I.. -I../src -I../.. -I../../.. -lm -lstdc++ -lpthread -lfmt -o ${EXE} && ./$EXE

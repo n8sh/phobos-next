@@ -521,6 +521,7 @@ if (hasIndexing!(R))
 }
 
 ///
+version(none)
 @safe pure nothrow unittest
 {
     auto x = [1, 2, 3];

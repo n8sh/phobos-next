@@ -22,7 +22,7 @@ int main(int argc, const char* argv[], const char* envp[])
     // we don't actually create a clock object
 
     typedef uint E;
-    const size_t elementCount = 400_000;
+    const size_t elementCount = 400000;
 
     // vector
     {
@@ -77,29 +77,29 @@ int main(int argc, const char* argv[], const char* envp[])
     // flat_hash_set
     {
         ska::flat_hash_set<E> us;
-        us.reserve(n);
+        us.reserve(elementCount);
         cout << "flat_hash_set:: ";
         {
             const auto start_time = my_clock::now();
-            for (size_t i = 0; i < n; ++i)
+            for (size_t i = 0; i < elementCount; ++i)
             {
                 us.insert(i);
             }
             const auto end_time = my_clock::now();
             const auto diff = end_time - start_time;
             cout << "insert: "
-                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / n << " nsecs/op ";
+                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op ";
         }
         {
             const auto start_time = my_clock::now();
-            for (size_t i = 0; i < n; ++i)
+            for (size_t i = 0; i < elementCount; ++i)
             {
                 const auto hit = us.find(i);
             }
             const auto end_time = my_clock::now();
             const auto diff = end_time - start_time;
             cout << "find: "
-                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / n << " nsecs/op ";
+                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op ";
         }
         cout << endl;
         us.clear();
@@ -108,29 +108,29 @@ int main(int argc, const char* argv[], const char* envp[])
     // unordered_map
     {
         unordered_map<E, E> us;
-        us.reserve(n);
+        us.reserve(elementCount);
         cout << "unordered_map:: ";
         {
             const auto start_time = my_clock::now();
-            for (size_t i = 0; i < n; ++i)
+            for (size_t i = 0; i < elementCount; ++i)
             {
                 us.insert(make_pair(i, i));
             }
             const auto end_time = my_clock::now();
             const auto diff = end_time - start_time;
             cout << "insert: "
-                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / n << " nsecs/op ";
+                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op ";
         }
         {
             const auto start_time = my_clock::now();
-            for (size_t i = 0; i < n; ++i)
+            for (size_t i = 0; i < elementCount; ++i)
             {
                 const auto hit = us.find(i);
             }
             const auto end_time = my_clock::now();
             const auto diff = end_time - start_time;
             cout << "find: "
-                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / n << " nsecs/op ";
+                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op ";
         }
         cout << endl;
         us.clear();
@@ -139,29 +139,29 @@ int main(int argc, const char* argv[], const char* envp[])
     // flat_hash_map
     {
         ska::flat_hash_map<E, E> us;
-        us.reserve(n);
+        us.reserve(elementCount);
         cout << "flat_hash_map:: ";
         {
             const auto start_time = my_clock::now();
-            for (size_t i = 0; i < n; ++i)
+            for (size_t i = 0; i < elementCount; ++i)
             {
                 us.insert(make_pair(i, i));
             }
             const auto end_time = my_clock::now();
             const auto diff = end_time - start_time;
             cout << "insert: "
-                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / n << " nsecs/op ";
+                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op ";
         }
         {
             const auto start_time = my_clock::now();
-            for (size_t i = 0; i < n; ++i)
+            for (size_t i = 0; i < elementCount; ++i)
             {
                 const auto hit = us.find(i);
             }
             const auto end_time = my_clock::now();
             const auto diff = end_time - start_time;
             cout << "find: "
-                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / n << " nsecs/op ";
+                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op ";
         }
         cout << endl;
         us.clear();

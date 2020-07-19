@@ -69,7 +69,6 @@
     TODO Move to Phobos std.typecons
  */
 module nxt.bound;
-version(none) :
 
 import std.conv: to;
 import std.traits: CommonType, isIntegral, isUnsigned, isSigned, isFloatingPoint, isSomeChar, isScalarType, isBoolean;
@@ -275,14 +274,14 @@ unittest
     If `optional` is `true`, this stores one extra undefined state (similar to
     Haskell's `Maybe`).
 
-    If `exceptional` is true range errors will throw a `BoundOverflowException`,
+    If `useExceptions` is true range errors will throw a `BoundOverflowException`,
     otherwise truncation plus warnings will issued.
 */
 struct Bound(V,
              alias low,
              alias high,
              bool optional = false,
-             bool exceptional = true,
+             bool useExceptions = true,
              bool packed = true,
              bool signed = false)
 if (isBoundable!V)
@@ -334,7 +333,7 @@ if (isBoundable!V)
     this(U,
          alias low_,
          alias high_)(Bound!(U, low_, high_,
-                             optional, exceptional, packed, signed) rhs)
+                             optional, useExceptions, packed, signed) rhs)
         if (low <= low_ &&
             high_ <= high)
     {
@@ -346,7 +345,7 @@ if (isBoundable!V)
     auto opAssign(U,
                   alias low_,
                   alias high_)(Bound!(U, low_, high_,
-                                      optional, exceptional, packed, signed) rhs)
+                                      optional, useExceptions, packed, signed) rhs)
         if (low <= low_ &&
             high_ <= high &&
             haveCommonType!(V, U))
@@ -396,23 +395,13 @@ if (isBoundable!V)
             goto ok;
           // underflow:
           //   immutable uMsg = "Underflow at " ~ file ~ ":" ~ to!string(line) ~ " (payload: " ~ to!string(value) ~ ")";
-          //   if (exceptional) {
+          //   if (useExceptions) {
           //       throw new BoundUnderflowException(uMsg);
           //   } else {
           //       wln(uMsg);
           //   }
           overflow:
-            immutable oMsg = "Overflow at " ~ file ~ ":" ~ to!string(line) ~
-                " (payload: " ~ to!string(value) ~ ")";
-            if (exceptional)
-            {
-                throw new BoundOverflowException(oMsg);
-            }
-            else
-            {
-                import std.stdio: wln = writeln;
-                wln(oMsg);
-            }
+            throw new BoundOverflowException("Overflow at " ~ file ~ ":" ~ to!string(line) ~ " (payload: " ~ to!string(value) ~ ")");
           ok: ;
         };
     }
@@ -424,17 +413,7 @@ if (isBoundable!V)
         if (rhs > max) goto overflow;
         goto ok;
     overflow:
-        immutable oMsg = "Overflow at " ~ file ~ ":" ~ to!string(line) ~
-            " (payload: " ~ to!string(rhs) ~ ")";
-        if (exceptional)
-        {
-            throw new BoundOverflowException(oMsg);
-        }
-        else
-        {
-            import std.stdio: wln = writeln;
-            wln(oMsg);
-        }
+        throw new BoundOverflowException("Overflow at " ~ file ~ ":" ~ to!string(line) ~ " (payload: " ~ to!string(rhs) ~ ")");
     ok: ;
     }
 
@@ -564,7 +543,7 @@ unittest
 template bound(alias low,
                alias high,
                bool optional = false,
-               bool exceptional = true,
+               bool useExceptions = true,
                bool packed = true,
                bool signed = false)
 if (isCTBound!low &&
@@ -576,11 +555,11 @@ if (isCTBound!low &&
 
     auto bound()
     {
-        return Bound!(V, low, high, optional, exceptional, packed, signed)(V.init);
+        return Bound!(V, low, high, optional, useExceptions, packed, signed)(V.init);
     }
     auto bound(V)(V value = V.init)
     {
-        return Bound!(V, low, high, optional, exceptional, packed, signed)(value);
+        return Bound!(V, low, high, optional, useExceptions, packed, signed)(value);
     }
 }
 
@@ -637,8 +616,8 @@ auto saturated(V,
                bool optional = false,
                bool packed = true)(V x) // TODO inout may be irrelevant here
 {
-    enum exceptional = false;
-    return bound!(V.min, V.max, optional, exceptional, packed)(x);
+    enum useExceptions = false;
+    return bound!(V.min, V.max, optional, useExceptions, packed)(x);
 }
 
 /** Return `x` with automatic packed saturation.
@@ -693,12 +672,12 @@ unittest
 auto min(V1, alias low1, alias high1,
          V2, alias low2, alias high2,
          bool optional = false,
-         bool exceptional = true,
+         bool useExceptions = true,
          bool packed = true,
          bool signed = false)(Bound!(V1, low1, high1,
-                                     optional, exceptional, packed, signed) a1,
+                                     optional, useExceptions, packed, signed) a1,
                               Bound!(V2, low2, high2,
-                                     optional, exceptional, packed, signed) a2)
+                                     optional, useExceptions, packed, signed) a2)
 {
     import std.algorithm: min;
     enum lowMin = min(low1, low2);
@@ -715,12 +694,12 @@ auto min(V1, alias low1, alias high1,
 auto max(V1, alias low1, alias high1,
          V2, alias low2, alias high2,
          bool optional = false,
-         bool exceptional = true,
+         bool useExceptions = true,
          bool packed = true,
          bool signed = false)(Bound!(V1, low1, high1,
-                                     optional, exceptional, packed, signed) a1,
+                                     optional, useExceptions, packed, signed) a1,
                               Bound!(V2, low2, high2,
-                                     optional, exceptional, packed, signed) a2)
+                                     optional, useExceptions, packed, signed) a2)
 {
     import std.algorithm: max;
     enum lowMax = max(low1, low2);
@@ -746,10 +725,10 @@ auto abs(V,
          alias low,
          alias high,
          bool optional = false,
-         bool exceptional = true,
+         bool useExceptions = true,
          bool packed = true,
          bool signed = false)(Bound!(V, low, high,
-                                     optional, exceptional, packed, signed) a)
+                                     optional, useExceptions, packed, signed) a)
 {
     static if (low >= 0 && high >= 0) // all positive
     {
@@ -774,7 +753,7 @@ auto abs(V,
     import std.math: abs;
     return Bound!(BoundsType!(low_, high_),
                   low_, high_,
-                  optional, exceptional, packed, signed)(a.value.abs - low_);
+                  optional, useExceptions, packed, signed)(a.value.abs - low_);
 }
 
 unittest

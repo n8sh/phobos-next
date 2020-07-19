@@ -22,17 +22,17 @@ int main(int argc, const char* argv[], const char* envp[])
     // we don't actually create a clock object
 
     typedef uint E;
-    const size_t n = 400_000;
+    const size_t elementCount = 400_000;
 
     // vector
     {
         cout << "vector:: ";
 
         vector<E> a;
-        a.reserve(n);
+        a.reserve(elementCount);
 
         const auto start_time = my_clock::now();
-        for (size_t i = 0; i < n; ++i)
+        for (size_t i = 0; i < elementCount; ++i)
         {
             a.push_back(i);
         }
@@ -40,35 +40,35 @@ int main(int argc, const char* argv[], const char* envp[])
 
         const auto diff = end_time - start_time;
         cout << "push_back: "
-             << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / n << " nsecs/op\n";
+             << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op\n";
     }
 
     // unordered_set
     {
         unordered_set<E> us;
-        us.reserve(n);
+        us.reserve(elementCount);
         cout << "unordered_set:: ";
         {
             const auto start_time = my_clock::now();
-            for (size_t i = 0; i < n; ++i)
+            for (size_t i = 0; i < elementCount; ++i)
             {
                 us.insert(i);
             }
             const auto end_time = my_clock::now();
             const auto diff = end_time - start_time;
             cout << "insert: "
-                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / n << " nsecs/op ";
+                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op ";
         }
         {
             const auto start_time = my_clock::now();
-            for (size_t i = 0; i < n; ++i)
+            for (size_t i = 0; i < elementCount; ++i)
             {
                 const auto hit = us.find(i);
             }
             const auto end_time = my_clock::now();
             const auto diff = end_time - start_time;
             cout << "find: "
-                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / n << " nsecs/op ";
+                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op ";
         }
         cout << endl;
         us.clear();

@@ -1,3 +1,4 @@
+
 /** Bounded arithmetic wrapper type, similar to Ada's range/interval types.
 
     Copyright: Per Nordlöw 2018-.
@@ -68,6 +69,7 @@
     TODO Move to Phobos std.typecons
  */
 module nxt.bound;
+version(none) :
 
 import std.conv: to;
 import std.traits: CommonType, isIntegral, isUnsigned, isSigned, isFloatingPoint, isSomeChar, isScalarType, isBoolean;
@@ -402,9 +404,12 @@ if (isBoundable!V)
           overflow:
             immutable oMsg = "Overflow at " ~ file ~ ":" ~ to!string(line) ~
                 " (payload: " ~ to!string(value) ~ ")";
-            if (exceptional) {
+            if (exceptional)
+            {
                 throw new BoundOverflowException(oMsg);
-            } else {
+            }
+            else
+            {
                 import std.stdio: wln = writeln;
                 wln(oMsg);
             }
@@ -421,9 +426,12 @@ if (isBoundable!V)
     overflow:
         immutable oMsg = "Overflow at " ~ file ~ ":" ~ to!string(line) ~
             " (payload: " ~ to!string(rhs) ~ ")";
-        if (exceptional) {
+        if (exceptional)
+        {
             throw new BoundOverflowException(oMsg);
-        } else {
+        }
+        else
+        {
             import std.stdio: wln = writeln;
             wln(oMsg);
         }

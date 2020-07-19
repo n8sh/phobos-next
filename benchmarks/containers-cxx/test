@@ -1,7 +1,10 @@
 #!/bin/bash
 
 CC=gcc-10
-EXE=main
+CLANG=clang-10
+
+EXE_GCC=main-gcc
+EXE_CLANG=main-clang
 
 # TODO use `ccache`
 ${CC} -x c++ -std=gnu++1y \
@@ -11,4 +14,14 @@ ${CC} -x c++ -std=gnu++1y \
       app.cpp \
       -I.. -I../src -I../.. -I../../.. \
       -lstdc++ -lpthread \
-      -o ${EXE} && ./$EXE
+      -o ${EXE_GCC} && ./$EXE_GCC
+
+# TODO use `ccache`
+${CLANG} -x c++ -std=gnu++1y \
+      -D__MAIN__ -DNDEBUG \
+      -O3 -funroll-loops -ftree-vectorize -flto \
+      -Wall -Warray-bounds -Wempty-body -Wunused-but-set-variable -Wunused-but-set-parameter -Winit-self -Wwrite-strings -Wmissing-braces -Wsign-compare -Wcast-align -Wpointer-arith -Wchar-subscripts \
+      app.cpp \
+      -I.. -I../src -I../.. -I../../.. \
+      -lstdc++ -lpthread \
+      -o ${EXE_CLANG} && ./$EXE_CLANG

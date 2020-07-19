@@ -1,3 +1,37 @@
+auto makeWithTriedCapacity(A)(size_t elementCount)
+if (is(A == class) ||
+    is(A == struct))
+{
+    import std.traits : hasMember;
+    static if (hasMember!(A, `withCapacity`))
+    {
+        return A.withCapacity(elementCount);
+    }
+    else static if (hasMember!(A, `reserve`))
+    {
+        A a;
+        static if (hasMember!(A, `reserve`) &&
+                   __traits(compiles, { a.reserve(elementCount); }))
+        {
+            a.reserve(elementCount);
+        }
+        else static if (hasMember!(A, `reserve`) &&
+                        __traits(compiles, { a.reserve!uint(elementCount); }))
+        {
+            a.reserve!uint(elementCount);
+        }
+        return a;
+    }
+    else static if (is(A == class))
+    {
+        return new A();
+    }
+    else
+    {
+        return A();
+    }
+}
+
 void main()
 {
     // standard storage

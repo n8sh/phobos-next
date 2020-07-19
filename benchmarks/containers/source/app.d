@@ -1,37 +1,3 @@
-auto makeWithTriedCapacity(A)(size_t elementCount)
-if (is(A == class) ||
-    is(A == struct))
-{
-    import std.traits : hasMember;
-    static if (hasMember!(A, `withCapacity`))
-    {
-        return A.withCapacity(elementCount);
-    }
-    else static if (hasMember!(A, `reserve`))
-    {
-        A a;
-        static if (hasMember!(A, `reserve`) &&
-                   __traits(compiles, { a.reserve(elementCount); }))
-        {
-            a.reserve(elementCount);
-        }
-        else static if (hasMember!(A, `reserve`) &&
-                        __traits(compiles, { a.reserve!uint(elementCount); }))
-        {
-            a.reserve!uint(elementCount);
-        }
-        return a;
-    }
-    else static if (is(A == class))
-    {
-        return new A();
-    }
-    else
-    {
-        return A();
-    }
-}
-
 void main()
 {
     // standard storage
@@ -92,28 +58,7 @@ void main()
     {
         writef("- ");
 
-        static if (hasMember!(A, `withCapacity`))
-        {
-            auto a = A.withCapacity(elementCount);
-        }
-        else static if (hasMember!(A, `reserve`))
-        {
-            A a;
-            static if (hasMember!(A, `reserve`) &&
-                       __traits(compiles, { a.reserve(elementCount); }))
-            {
-                a.reserve(elementCount);
-            }
-            else static if (hasMember!(A, `reserve`) &&
-                            __traits(compiles, { a.reserve!uint(elementCount); }))
-            {
-                a.reserve!uint(elementCount);
-            }
-        }
-        else
-        {
-            A a;
-        }
+        A a = makeWithTriedCapacity!(A)(elementCount);
 
         {
             auto spans_ns = DynamicArray!double.withLength(runCount);
@@ -647,6 +592,52 @@ void main()
         {
             a.clear();
         }
+    }
+}
+
+import std.traits : isDynamicArray;
+
+auto makeWithTriedCapacity(A)(size_t elementCount)
+if (is(A == class) ||
+    is(A == struct) ||
+    isDynamicArray!A)
+{
+    import std.traits : hasMember;
+    static if (hasMember!(A, `withCapacity`))
+    {
+        return A.withCapacity(elementCount);
+    }
+    else static if (hasMember!(A, `reserve`))
+    {
+        A a;
+        static if (hasMember!(A, `reserve`) &&
+                   __traits(compiles, { a.reserve(elementCount); }))
+        {
+            a.reserve(elementCount);
+        }
+        else static if (hasMember!(A, `reserve`) &&
+                        __traits(compiles, { a.reserve!uint(elementCount); }))
+        {
+            a.reserve!uint(elementCount);
+        }
+        return a;
+    }
+    else static if (is(A == class))
+    {
+        return new A();
+    }
+    else static if (isDynamicArray!A)
+    {
+        import std.range.primitives : ElementType;
+        return new ElementType!A[elementCount];
+    }
+    else static if (is(A == struct))
+    {
+        return A();
+    }
+    else
+    {
+        static assert(false);
     }
 }
 

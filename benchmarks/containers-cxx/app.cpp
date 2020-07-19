@@ -60,15 +60,18 @@ int main(int argc, const char* argv[], const char* envp[])
                  << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op ";
         }
         {
+            bool allHit = true;
             const auto start_time = my_clock::now();
             for (size_t i = 0; i < elementCount; ++i)
             {
                 const auto hit = us.find(i);
+                if (hit == us.end()) { allHit = false; }
             }
             const auto end_time = my_clock::now();
             const auto diff = end_time - start_time;
             cout << "find: "
-                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op ";
+                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op "
+                 << (allHit ? "OK" : "ERR");
         }
         cout << endl;
         us.clear();
@@ -91,15 +94,18 @@ int main(int argc, const char* argv[], const char* envp[])
                  << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op ";
         }
         {
+            bool allHit = true;
             const auto start_time = my_clock::now();
             for (size_t i = 0; i < elementCount; ++i)
             {
                 const auto hit = us.find(i);
+                if (hit == us.end()) { allHit = false; }
             }
             const auto end_time = my_clock::now();
             const auto diff = end_time - start_time;
             cout << "find: "
-                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op ";
+                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op "
+                 << (allHit ? "OK" : "ERR");
         }
         cout << endl;
         us.clear();

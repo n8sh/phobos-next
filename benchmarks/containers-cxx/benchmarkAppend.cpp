@@ -21,7 +21,7 @@ int main(int argc, const char* argv[], const char* envp[])
     // note that this is a static function, and
     // we don't actually create a clock object
 
-    typedef uint E;
+    typedef ulong E;
     const size_t elementCount = 400000;
 
     // vector

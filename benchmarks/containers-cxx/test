@@ -1,0 +1,6 @@
+#!/bin/bash
+
+CC=gcc-10
+EXE=main
+
+ccache $CC -Os benchmarkAppend.cpp -o ${EXE} && ./$EXE

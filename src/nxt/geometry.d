@@ -1,4 +1,5 @@
-/**
+/** Geometry types and algorithms.
+
    Special thanks to:
    $(UL
    $(LI Tomasz Stachowiak (h3r3tic): allowed me to use parts of $(LINK2 https://bitbucket.org/h3r3tic/boxen/src/default/src/xf/omg, omg).)

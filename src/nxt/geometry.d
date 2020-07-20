@@ -1763,8 +1763,6 @@ bool intersect(T)(Circle!T circle, Rect!T rect)
 
 @safe unittest
 {
-    import nxt.dbgio;
-
     assert(box2f(vec2f(1, 2),
               vec2f(3, 3)).to!string == `Box(lower:ColumnVector([1, 2]), upper:ColumnVector([3, 3]))`);
     assert([12, 3, 3].to!string == `[12, 3, 3]`);
@@ -1801,9 +1799,31 @@ bool intersect(T)(Circle!T circle, Rect!T rect)
 </mrow></math>
 `);
 
-    // auto m = mat2(1, 2, 3, 4);
-    // dbg("LaTeX:\n", m.toLaTeX);
-    // dbg("MathML:\n", m.toMathML);
+    auto m = mat2(1, 2, 3, 4);
+    assert(m.toLaTeX == `\begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}`);
+    assert(m.toMathML == `<math><mrow>
+  <mo>❲</mo>
+  <mtable>
+    <mtr>
+      <mtd>
+        <mn>1</mn>
+      </mtd>
+      <mtd>
+        <mn>2</mn>
+      </mtd>
+    </mtr>
+    <mtr>
+      <mtd>
+        <mn>3</mn>
+      </mtd>
+      <mtd>
+        <mn>4</mn>
+      </mtd>
+    </mtr>
+  </mtable>
+  <mo>❳</mo>
+</mrow></math>
+`);
 }
 
 version(unittest)

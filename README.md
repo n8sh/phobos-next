@@ -44,9 +44,7 @@ For reference semantics wrap uncopyable containers in `std.typecons.RefCounter`.
 
 ## Utilities
 
-- `dbg.d`: Debug printing.
-- `symbolic.d`: Symbol regex (structured regular expressions similar to elisps rx).
-- `ngram.d`: An n-gram implementation (many nested for loops).
+- `dbgio.d`: Debug printing.
 - `csunits.d`: Computer Science units.
 - ...
 

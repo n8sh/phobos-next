@@ -140,7 +140,7 @@ auto sqrtx(T)(T x)
 
 /// `D`-Dimensional Cartesian Point with Coordinate Type (Precision) `E`.
 struct Point(E, uint D)
-    if (D >= 1 /* && TODO extend trait : isNumeric!E */)
+if (D >= 1 /* && TODO extend trait : isNumeric!E */)
 {
     alias ElementType = E;
 
@@ -211,7 +211,7 @@ struct Point(E, uint D)
 
 /** Instantiator for `Point`. */
 auto point(Ts...)(Ts args)
-    if (haveCommonType!Ts)
+if (haveCommonType!Ts)
 {
     return Point!(CommonType!Ts, args.length)(args);
 }
@@ -234,9 +234,9 @@ enum Orient { column, row } // Vector Orientation.
 struct Vector(E, uint D,
               bool normalizedFlag = false, // set to true for UnitVectors
               Orient orient = Orient.column)
-    if (D >= 1 &&
-        (!normalizedFlag ||
-         isFloatingPoint!E)) // only normalize fp for now
+if (D >= 1 &&
+    (!normalizedFlag ||
+     isFloatingPoint!E)) // only normalize fp for now
 {
     // Construct from vector.
     this(V)(V vec)
@@ -853,14 +853,14 @@ struct Vector(E, uint D,
 }
 
 auto rowVector(Ts...)(Ts args)
-    if (haveCommonType!Ts)
+if (haveCommonType!Ts)
 {
     return Vector!(CommonType!Ts, args.length)(args);
 }
 alias vector = rowVector; // TODO Should rowVector or columnVector be default?
 
 auto columnVector(Ts...)(Ts args)
-    if (haveCommonType!Ts)
+if (haveCommonType!Ts)
 {
     return Vector!(CommonType!Ts, args.length, false, Orient.column)(args);
 }
@@ -893,6 +893,7 @@ alias nvec4f = Vector!(float, 4, true);
 ///
 @safe unittest
 {
+    import std.conv : to;
     assert(vec2f(2, 3).to!string == `ColumnVector(2,3)`);
     assert(transpose(vec2f(11, 22)).to!string == `RowVector(11,22)`);
     assert(vec2f(11, 22).toLaTeX == `\begin{pmatrix} 11 \\ 22 \end{pmatrix}`);
@@ -926,10 +927,10 @@ auto elementwiseLessThanOrEqual(Ta, Tb, uint D)(Vector!(Ta, D) a,
 
 /// Returns: Scalar/Dot-Product of Two Vectors `a` and `b`.
 T dotProduct(T, U)(in T a, in U b)
-    if (isVector!T &&
-        isVector!U &&
-        (T.dimension ==
-         U.dimension))
+if (isVector!T &&
+    isVector!U &&
+    (T.dimension ==
+     U.dimension))
 {
     T c = void;
     static foreach (i; 0 .. T.dimension)
@@ -943,8 +944,8 @@ alias dot = dotProduct;
 /// Returns: Outer-Product of Two Vectors `a` and `b`.
 auto outerProduct(Ta, Tb, uint Da, uint Db)(in Vector!(Ta, Da) a,
                                             in Vector!(Tb, Db) b)
-    if (Da >= 1 &&
-        Db >= 1)
+if (Da >= 1 &&
+    Db >= 1)
 {
     Matrix!(CommonType!(Ta, Tb), Da, Db) y = void;
     static foreach (r; 0 .. Da)
@@ -970,10 +971,10 @@ if (isVector!T &&
 
 /// Returns: (Euclidean) Distance between `a` and `b`.
 real distance(T, U)(in T a, in U b)
-    if ((isVector!T && // either both vectors
-         isVector!U) ||
-        (isPoint!T && // or both points
-         isPoint!U))
+if ((isVector!T && // either both vectors
+     isVector!U) ||
+    (isPoint!T && // or both points
+     isPoint!U))
 {
     return (a - b).magnitude;
 }
@@ -998,8 +999,8 @@ enum Layout { columnMajor, rowMajor }; // Matrix Storage Major Dimension.
 ///  layout = matrix layout
 struct Matrix(E, uint rows_, uint cols_,
               Layout layout = Layout.rowMajor)
-    if (rows_ >= 1 &&
-        cols_ >= 1)
+if (rows_ >= 1 &&
+    cols_ >= 1)
 {
     alias mT = E; /// Internal type of the _matrix
     static const uint rows = rows_; /// Number of rows
@@ -1435,7 +1436,7 @@ if (haveCommonType!Ts)
 */
 struct Particle(E, uint D,
                 bool normalizedVelocityFlag = false)
-    if (D >= 1)
+if (D >= 1)
 {
     Point!(E, D) position;
     Vector!(E, D, normalizedVelocityFlag) velocity;
@@ -1451,7 +1452,7 @@ mixin(makeInstanceAliases("Particle", "particle", 2,4,
 */
 struct ForcedParticle(E, uint D,
                       bool normalizedVelocityFlag = false)
-    if (D >= 1)
+if (D >= 1)
 {
     Point!(E, D) position;
     Vector!(E, D, normalizedVelocityFlag) velocity;
@@ -1469,7 +1470,7 @@ struct ForcedParticle(E, uint D,
     bounding boxes (especially in integer space) to work as desired.
  */
 struct Box(E, uint D)
-    if (D >= 1)
+if (D >= 1)
 {
     this(Vector!(E,D) lh) { min = lh; max = lh; }
     this(Vector!(E,D) l_,
@@ -1579,8 +1580,8 @@ Box!(E,D) unite(E, uint D)(Box!(E,D) a,
     See_Also: http://stackoverflow.com/questions/18600328/preferred-representation-of-a-3d-plane-in-c-c
  */
 struct Plane(E, uint D)
-    if (D >= 2 &&
-        isFloatingPoint!E)
+if (D >= 2 &&
+    isFloatingPoint!E)
 {
     enum dimension = D;
 
@@ -1712,8 +1713,8 @@ mixin(makeInstanceAliases("Plane","plane", 3,4,
 /** `D`-Dimensional Cartesian (Hyper)-Sphere with Element (Component) Type `E`.
  */
 struct Sphere(E, uint D)
-    if (D >= 2 &&
-        isNumeric!E)
+if (D >= 2 &&
+    isNumeric!E)
 {
     alias CenterType = Point!(E, D);
 

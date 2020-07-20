@@ -11,7 +11,7 @@ struct StaticBitArray(uint length_)
     /** Number of bits. */
     enum length = length_;
 
-    alias Block = size_t; ///< Block type.
+    alias Block = size_t;       ///< Block type.
 
     /** Number of bits per `Block`. */
     enum bitsPerBlock = 8*Block.sizeof;

@@ -25,7 +25,10 @@ if (isUnsigned!DefaultBlock)
     import std.format : FormatSpec, format;
     import nxt.modulo : Mod;
 
-    /** Number of bits. */
+    /** Number of bits.
+     *
+     * Length equals capacity.
+     */
     enum length = capacity;
 
     static if (capacity >= 1)

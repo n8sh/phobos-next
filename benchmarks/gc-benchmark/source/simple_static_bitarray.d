@@ -5,9 +5,8 @@ module simple_static_bitarray;
 
 struct StaticBitArray(uint length_)
 {
-    import core.bitop : bt, bts, btr;
-
 @safe pure nothrow @nogc:
+    import core.bitop : bt, bts, btr;
 
     /** Number of bits. */
     enum length = length_;

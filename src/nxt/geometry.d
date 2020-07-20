@@ -47,7 +47,6 @@ else
 
 // TODO use import core.simd;
 import std.math: sqrt, isNaN, isInfinity, PI, sin, cos, acos;
-import std.conv: to;            // TODO use `mir.format` instead
 import std.traits: isFloatingPoint, isNumeric, isSigned, isDynamicArray, isAssignable, isArray, CommonType;
 import std.string: format, rightJustify;
 import std.array: join;
@@ -865,7 +864,6 @@ alias nvec4f = Vector!(float, 4, true);
 ///
 @safe unittest
 {
-    import std.conv : to;
     assert(vec2f(2, 3).to!string == `ColumnVector([2, 3])`);
     assert(transpose(vec2f(11, 22)).to!string == `RowVector([11, 22])`);
     assert(vec2f(11, 22).toLaTeX == `\begin{pmatrix} 11 \\ 22 \end{pmatrix}`);
@@ -1793,5 +1791,6 @@ bool intersect(T)(Circle!T circle, Rect!T rect)
 
 version(unittest)
 {
+    import std.conv : to;
     import nxt.array_help : s;
 }

@@ -18,5 +18,5 @@ buildType "release" {
 buildType "release-nobounds" {
           dflags "-mcpu=native"
           dflags-posix-ldc "-flto=full" "-O3"
-          buildOptions "releaseMode" "optimize" "noBoundsCheck" "inline"
+          buildOptions "releaseMode" "optimize" "inline" "noBoundsCheck"
 }

@@ -8,8 +8,8 @@
    $(LI #D on freenode: answered general questions about D.)
    )
 
-   Note: All methods marked with pure are weakly pure since, they all access an instance member.
-   All static methods are strongly pure.
+   Note: All methods marked with pure are weakly pure since, they all access an
+   instance member.  All static methods are strongly pure.
 
    TODO Support radian and degree types (from units-d package)
 

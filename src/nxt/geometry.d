@@ -1474,9 +1474,9 @@ struct Box(E, uint D)
     @property void toString(scope void delegate(scope const(char)[]) @safe sink) const
     {
         sink(`Box(lower:`);
-        sink(to!string(min));
+        min.toString(sink);
         sink(`, upper:`);
-        sink(to!string(max));
+        max.toString(sink);
         sink(`)`);
     }
 

@@ -560,7 +560,14 @@ if (is(A == class) ||
     }
     else static if (hasMember!(A, `reserve`))
     {
-        A a;
+        static if (is(A == class))
+        {
+            A a = new A();
+        }
+        else
+        {
+            A a;
+        }
         static if (hasMember!(A, `reserve`) &&
                    __traits(compiles, { a.reserve(elementCount); }))
         {

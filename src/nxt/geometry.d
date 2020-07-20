@@ -1782,8 +1782,7 @@ bool intersect(T)(Circle!T circle, Rect!T rect)
 
 @safe unittest
 {
-    assert(box2f(vec2f(1, 2),
-              vec2f(3, 3)).to!string == `Box(lower:ColumnVector([1, 2]), upper:ColumnVector([3, 3]))`);
+    assert(box2f(vec2f(1, 2), vec2f(3, 3)).to!string == `Box(lower:ColumnVector([1, 2]), upper:ColumnVector([3, 3]))`);
     assert([12, 3, 3].to!string == `[12, 3, 3]`);
 
     assert(vec2f(2, 3).to!string == `ColumnVector([2, 3])`);

@@ -1,6 +1,7 @@
 # phobos-next
 
-Various reusable D code.
+Additional useful containers, algorithms, wrapper types, traits etc. Several are
+generic enough to have a place in Phobos.
 
 Documentation generated [here](https://phobos-next.dpldocs.info/index.html).
 

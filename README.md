@@ -4,7 +4,9 @@ Various reusable D code.
 
 Most definitions are probably generic enough to be part of Phobos.
 
-See_Also: http://forum.dlang.org/post/tppptevxiygafzpicmgz@forum.dlang.org
+Documentation generated [here](https://phobos-next.dpldocs.info/index.html).
+
+Announcement [here](http://forum.dlang.org/post/tppptevxiygafzpicmgz@forum.dlang.org).
 
 Includes
 

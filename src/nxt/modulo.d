@@ -3,7 +3,8 @@ module nxt.modulo;
 import std.traits : isIntegral, isSigned;
 
 /** Lookup type representing an unsigned integer in inclusive range (0 .. m - 1).
-    TODO Merge with similar logic in bound.d
+ *
+ * TODO Merge with similar logic in bound.d
  */
 template UnsignedOfModulo(size_t m)
 {

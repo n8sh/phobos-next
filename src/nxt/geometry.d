@@ -1379,7 +1379,11 @@ if (isFloatingPoint!E)
     @property void toString(scope void delegate(scope const(char)[]) @safe sink) const
     {
         sink(`SpherePoint3(`);
-        sink(to!string(_spherePoint));
+        foreach (const ix, const e ; _spherePoint)
+        {
+            if (ix != 0) { sink(","); }
+            sink(to!string(e));
+        }
         sink(`)`);
     }
 
@@ -1417,7 +1421,7 @@ if (isFloatingPoint!E)
 
 /** Instantiator for `SpherePoint3`. */
 auto spherePoint(Ts...)(Ts args)
-    if (haveCommonType!Ts)
+if (haveCommonType!Ts)
 {
     return SpherePoint3!(CommonType!Ts, args.length)(args);
 }

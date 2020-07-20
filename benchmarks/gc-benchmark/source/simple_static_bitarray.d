@@ -87,6 +87,7 @@ struct StaticBitArray(uint length_)
     private Block[blockCount] _blocks;
 }
 
+///
 @trusted pure unittest
 {
     enum blockCount = 2;

@@ -290,7 +290,11 @@ struct Vector(E, uint D,
     {
         sink(orientationString);
         sink(`Vector(`);
-        sink(to!string(_vector));
+        foreach (const ix, const e ; _vector)
+        {
+            if (ix != 0) { sink(","); }
+            sink(to!string(e));
+        }
         sink(`)`);
     }
 
@@ -886,8 +890,8 @@ alias nvec4f = Vector!(float, 4, true);
 ///
 @safe unittest
 {
-    assert(vec2f(2, 3).to!string == `ColumnVector([2, 3])`);
-    assert(transpose(vec2f(11, 22)).to!string == `RowVector([11, 22])`);
+    assert(vec2f(2, 3).to!string == `ColumnVector(2,3)`);
+    assert(transpose(vec2f(11, 22)).to!string == `RowVector(11,22)`);
     assert(vec2f(11, 22).toLaTeX == `\begin{pmatrix} 11 \\ 22 \end{pmatrix}`);
     assert(vec2f(11, 22).T.toLaTeX == `\begin{pmatrix} 11 & 22 \end{pmatrix}`);
 }
@@ -1782,22 +1786,22 @@ bool intersect(T)(Circle!T circle, Rect!T rect)
 
 @safe unittest
 {
-    assert(box2f(vec2f(1, 2), vec2f(3, 3)).to!string == `Box(lower:ColumnVector([1, 2]), upper:ColumnVector([3, 3]))`);
+    assert(box2f(vec2f(1, 2), vec2f(3, 3)).to!string == `Box(lower:ColumnVector(1,2), upper:ColumnVector(3,3))`);
     assert([12, 3, 3].to!string == `[12, 3, 3]`);
 
-    assert(vec2f(2, 3).to!string == `ColumnVector([2, 3])`);
+    assert(vec2f(2, 3).to!string == `ColumnVector(2,3)`);
 
-    assert(vec2f(2, 3).to!string == `ColumnVector([2, 3])`);
-    assert(vec2f(2, 3).to!string == `ColumnVector([2, 3])`);
+    assert(vec2f(2, 3).to!string == `ColumnVector(2,3)`);
+    assert(vec2f(2, 3).to!string == `ColumnVector(2,3)`);
 
-    assert(vec3f(2, 3, 4).to!string == `ColumnVector([2, 3, 4])`);
+    assert(vec3f(2, 3, 4).to!string == `ColumnVector(2,3,4)`);
 
     assert(box2f(vec2f(1, 2),
-                 vec2f(3, 4)).to!string == `Box(lower:ColumnVector([1, 2]), upper:ColumnVector([3, 4]))`);
+                 vec2f(3, 4)).to!string == `Box(lower:ColumnVector(1,2), upper:ColumnVector(3,4))`);
 
-    assert(vec2i(2, 3).to!string == `ColumnVector([2, 3])`);
-    assert(vec3i(2, 3, 4).to!string == `ColumnVector([2, 3, 4])`);
-    assert(vec3i(2, 3, 4).to!string == `ColumnVector([2, 3, 4])`);
+    assert(vec2i(2, 3).to!string == `ColumnVector(2,3)`);
+    assert(vec3i(2, 3, 4).to!string == `ColumnVector(2,3,4)`);
+    assert(vec3i(2, 3, 4).to!string == `ColumnVector(2,3,4)`);
 
     assert(vec2i(2, 3).toMathML == `<math><mrow>
   <mo>⟨</mo>

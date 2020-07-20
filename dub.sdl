@@ -12,7 +12,8 @@ authors "Per Nordlöw <per.nordlow@gmail.com>"
 dependency "arsd-official:terminal" version="~>8.2.0"
 
 dflags "-vcolumns" "-dip25" "-dip1008" # "-dip1000"
-dflags "-preview=intpromote" "-preview=dtorfields" "-preview=markdown" # "-preview=in"
+dflags "-preview=intpromote" "-preview=dtorfields" "-preview=markdown"
+# TODO fails linking: dflags "-preview=in"
 dflags "-checkaction=context"
 
 libs "z" "bz2" "zstd"

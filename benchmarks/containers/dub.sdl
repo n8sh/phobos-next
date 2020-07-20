@@ -1,5 +1,9 @@
 name "benchmark-containers"
 targetType "executable"
+description "Benchmark containers."
+authors "Per Nordlöw"
+copyright "Copyright © 2019, Per Nordlöw"
+license "Boost"
 dependency "phobos-next" path="../../"
 
 # TODO lflags "-ltcmalloc"

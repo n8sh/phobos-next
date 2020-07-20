@@ -5,13 +5,13 @@ module simple_static_bitarray;
 
 alias DefaultBlock = size_t;    ///< Default block type.
 
-struct StaticBitArray(uint length_)
+struct StaticBitArray(uint capacity)
 {
 @safe pure nothrow @nogc:
     import core.bitop : bt, bts, btr;
 
     /** Number of bits. */
-    enum length = length_;
+    enum length = capacity;
 
     alias Block = DefaultBlock; ///< Block type.
 
@@ -19,7 +19,7 @@ struct StaticBitArray(uint length_)
     enum bitsPerBlock = 8*Block.sizeof;
 
     /** Number of blocks of type `Block`. */
-    enum blockCount = (length_ + (bitsPerBlock-1)) / bitsPerBlock;
+    enum blockCount = (capacity + (bitsPerBlock-1)) / bitsPerBlock;
 
     /** Reset all bits (to zero). */
     void reset()
@@ -67,7 +67,7 @@ struct StaticBitArray(uint length_)
     size_t indexOfFirstZero()() const
     {
         import nxt.bitarray_algorithm;
-        enum bool blockAlignedLength = length_ % (8*Block.sizeof) == 0;
+        enum bool blockAlignedLength = capacity % (8*Block.sizeof) == 0;
         return nxt.bitarray_algorithm.indexOfFirstZero!(const(Block)[blockCount],
                                                         blockAlignedLength)(_blocks, length);
     }
@@ -79,7 +79,7 @@ struct StaticBitArray(uint length_)
     size_t indexOfFirstOne()() const
     {
         import nxt.bitarray_algorithm;
-        enum bool blockAlignedLength = length_ % (8*Block.sizeof) == 0;
+        enum bool blockAlignedLength = capacity % (8*Block.sizeof) == 0;
         return nxt.bitarray_algorithm.indexOfFirstOne!(const(Block)[blockCount],
                                                        blockAlignedLength)(_blocks, length);
     }

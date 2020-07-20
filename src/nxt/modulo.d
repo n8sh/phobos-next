@@ -35,8 +35,6 @@ template Mod(size_t m, T = UnsignedOfModulo!m)
 if (m >= 1 &&
     isIntegral!T)
 {
-    import nxt.math_ex : isPowerOf2;
-
     // smallest builtin unsigned integer type that can fit 2^^m
     alias UI = UnsignedOfModulo!m;
 
@@ -114,6 +112,7 @@ if (m >= 1 &&
 
         auto opUnary(string op, string file = __FILE__, int line = __LINE__)()
         {
+            import nxt.math_ex : isPowerOf2;
             static      if (op == `+`)
             {
                 return this;

@@ -118,11 +118,11 @@ void main()
                           OpenHashSet!(Nullable!(ulong, ulong.max), wangMixHash64),
 
                           OpenHashSet!(Address, FNV!(64, true)),
-                          // TODO OpenHashSet!(ulong*, FNV!(64, true)),
 
                           RadixTreeSetGrowOnly!(ulong),
                           RedBlackTree!(ulong),
 
+                          OpenHashSet!(SSOString, FNV!(64, true)),
                           // TODO OpenHashSet!(string, FNV!(64, true)),
                           // TODO OpenHashSet!(string, wangMixHash64),
                  ))
@@ -152,9 +152,14 @@ void main()
                         {
                             const element = A.ElementType(i + 1); ///< Start at 1 instead of 0 because `Address` uses 0 for `nullValue`.
                         }
+                        else static if (is(A.ElementType == SSOString) ||
+                                        is(A.ElementType == string))
+                        {
+                            const element = A.ElementType(to!string(i));
+                        }
                         else
                         {
-                            const element = A.ElementType(i); // wrap in `i` in `Nullable`
+                            const element = A.ElementType(i);
                         }
                     }
                     else

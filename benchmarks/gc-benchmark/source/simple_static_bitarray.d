@@ -3,6 +3,8 @@
  */
 module simple_static_bitarray;
 
+@safe:
+
 alias DefaultBlock = size_t;    ///< Default block type.
 
 struct StaticBitArray(uint capacity)

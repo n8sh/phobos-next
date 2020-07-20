@@ -1,6 +1,5 @@
 name "benchmark-containers"
 targetType "executable"
-
 dependency "phobos-next" path="../../"
 
 # TODO lflags "-ltcmalloc"

@@ -1410,9 +1410,6 @@ if (isFloatingPoint!E)
 
     auto opSlice() { return _spherePoint[]; }
 }
-alias sphointf = SpherePoint3!float;
-alias sphointd = SpherePoint3!double;
-alias sphointr = SpherePoint3!real;
 
 /** Instantiator for `SpherePoint3`. */
 auto spherePoint(Ts...)(Ts args)

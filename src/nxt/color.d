@@ -33,6 +33,8 @@ struct ColorRGB8
     static immutable yellow  = typeof(this)(0xff, 0xff, 0x00); ///< Yellow.
 }
 
+/** Default color format.
+ */
 alias Color = ColorRGB8;
 
 /** BGR 24-bit color, where each color component has 8-bit precision.

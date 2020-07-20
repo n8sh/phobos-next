@@ -55,10 +55,9 @@ template UnsignedOfModulo(size_t m)
 
     TODO Move to Phobos std.typecons
  */
-template Mod(size_t m,
-             T = UnsignedOfModulo!m)
-    if (m >= 1 &&
-        isIntegral!T)
+template Mod(size_t m, T = UnsignedOfModulo!m)
+if (m >= 1 &&
+    isIntegral!T)
 {
     import nxt.math_ex : isPowerOf2;
 
@@ -77,7 +76,7 @@ template Mod(size_t m,
 
         /// Construct from `value` of unsigned integer type `UI`.
         this(U)(U value)
-            if (isIntegral!U)
+        if (isIntegral!U)
         in
         {
             static if (m != 2^^(U.sizeof)) // dynamic check only modulo doesn't equal storage precision
@@ -96,15 +95,14 @@ template Mod(size_t m,
 
         /// Construct from Mod!n, where `n <= m`.
         this(size_t n, U)(Mod!(n, U) rhs)
-            if (n <= m &&
-                isIntegral!U)
+        if (n <= m && isIntegral!U)
         {
             this._value = cast(T)rhs._value; // cannot overflow
         }
 
         /// Assign from `value` of unsigned integer type `UI`.
         auto ref opAssign(U)(U value)
-            if (isIntegral!U)
+        if (isIntegral!U)
         in
         {
             static if (m != 2^^(U.sizeof)) // dynamic check only modulo doesn't equal storage precision
@@ -123,17 +121,16 @@ template Mod(size_t m,
 
         /// Assign from Mod!n, where `n <= m`.
         auto ref opAssign(size_t n, U)(Mod!(n, U) rhs)
-            if (n <= m &&
-                isIntegral!U)
+        if (n <= m && isIntegral!U)
         {
             this._value = cast(T)rhs._value; // cannot overflow
         }
 
         auto ref opOpAssign(string op, U)(U rhs)
-            if (op == `+` ||
-                op == `-` ||
-                op == `*` &&
-                isIntegral!U)
+        if ((op == `+` ||
+             op == `-` ||
+             op == `*`) &&
+            isIntegral!U)
         {
             mixin(`_value = cast(T)(_value ` ~ op ~ `rhs);`);
             return this;
@@ -184,7 +181,7 @@ template Mod(size_t m,
 
 /// Instantiator for `Mod`.
 auto mod(size_t m, T = UnsignedOfModulo!m)(T value)
-    if (m >= 1)
+if (m >= 1)
 {
     return Mod!(m)(value);
 }

@@ -18,7 +18,10 @@ alias DefaultBlock = size_t;    ///< Default block type.
  */
 struct StaticBitArray(uint capacity, Block = DefaultBlock)
 {
-    import std.format : FormatSpec, format;
+    version(unittest)
+    {
+        import std.format : FormatSpec, format;
+    }
     import core.bitop : bitswap;
     import nxt.modulo : Mod;
 

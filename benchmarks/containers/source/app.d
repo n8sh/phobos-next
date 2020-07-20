@@ -595,7 +595,7 @@ if (is(A == class) ||
     }
     else
     {
-        static assert(false, "Unsupported type " ~ A.stringof);
+        static assert(false, "Unsupported type `" ~ A.stringof ~ "`");
     }
 }
 

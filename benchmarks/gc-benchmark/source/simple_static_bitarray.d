@@ -3,6 +3,8 @@
  */
 module simple_static_bitarray;
 
+alias DefaultBlock = size_t;    ///< Default block type.
+
 struct StaticBitArray(uint length_)
 {
 @safe pure nothrow @nogc:
@@ -11,7 +13,7 @@ struct StaticBitArray(uint length_)
     /** Number of bits. */
     enum length = length_;
 
-    alias Block = size_t;       ///< Block type.
+    alias Block = DefaultBlock; ///< Block type.
 
     /** Number of bits per `Block`. */
     enum bitsPerBlock = 8*Block.sizeof;
@@ -88,7 +90,7 @@ struct StaticBitArray(uint length_)
 @trusted pure unittest
 {
     enum blockCount = 2;
-    enum length = blockCount * 8*Block.sizeof - 1; // 2 blocks minus one
+    enum length = blockCount * 8*DefaultBlock.sizeof - 1; // 2 blocks minus one
 
     StaticBitArray!(length) x;
     static assert(x.blockCount == blockCount);
@@ -115,11 +117,11 @@ struct StaticBitArray(uint length_)
     {
         static if (blockAlignedLength)
         {
-            const n = 2 * 8*Block.sizeof;
+            const n = 2 * 8*DefaultBlock.sizeof;
         }
         else
         {
-            const n = 2 * 8*Block.sizeof + 1;
+            const n = 2 * 8*DefaultBlock.sizeof + 1;
         }
         alias BA = StaticBitArray!(n);
 
@@ -145,7 +147,7 @@ struct StaticBitArray(uint length_)
         }
         else
         {
-            const n = 2 * 8*Block.sizeof + 1;
+            const n = 2 * 8*DefaultBlock.sizeof + 1;
         }
         alias BA = StaticBitArray!(n);
 

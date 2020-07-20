@@ -1765,28 +1765,45 @@ bool intersect(T)(Circle!T circle, Rect!T rect)
 {
     import nxt.dbgio;
 
-    dbg(box2f(vec2f(1, 2),
-              vec2f(3, 3)));
-    dbg([12, 3, 3]);
+    assert(box2f(vec2f(1, 2),
+              vec2f(3, 3)).to!string == `Box(lower:ColumnVector([1, 2]), upper:ColumnVector([3, 3]))`);
+    assert([12, 3, 3].to!string == `[12, 3, 3]`);
 
-    dbg(vec2f(2, 3));
+    assert(vec2f(2, 3).to!string == `ColumnVector([2, 3])`);
 
-    dbg(vec2f(2, 3));
-    dbg(vec2f(2, 3));
+    assert(vec2f(2, 3).to!string == `ColumnVector([2, 3])`);
+    assert(vec2f(2, 3).to!string == `ColumnVector([2, 3])`);
 
-    dbg(vec3f(2, 3, 4));
+    assert(vec3f(2, 3, 4).to!string == `ColumnVector([2, 3, 4])`);
 
-    dbg(box2f(vec2f(1, 2),
-              vec2f(3, 4)));
+    assert(box2f(vec2f(1, 2),
+                 vec2f(3, 4)).to!string == `Box(lower:ColumnVector([1, 2]), upper:ColumnVector([3, 4]))`);
 
-    dbg(vec2i(2, 3));
-    dbg(vec3i(2, 3, 4));
-    dbg( + vec3i(2, 3, 4));
-    dbg("vec2i:\n", vec2i(2, 3).toMathML);
+    assert(vec2i(2, 3).to!string == `ColumnVector([2, 3])`);
+    assert(vec3i(2, 3, 4).to!string == `ColumnVector([2, 3, 4])`);
+    assert(vec3i(2, 3, 4).to!string == `ColumnVector([2, 3, 4])`);
 
-    auto m = mat2(1, 2, 3, 4);
-    dbg("LaTeX:\n", m.toLaTeX);
-    dbg("MathML:\n", m.toMathML);
+    assert(vec2i(2, 3).toMathML == `<math><mrow>
+  <mo>⟨</mo>
+  <mtable>
+    <mtr>
+      <mtd>
+        <mn>2</mn>
+      </mtd>
+    </mtr>
+    <mtr>
+      <mtd>
+        <mn>3</mn>
+      </mtd>
+    </mtr>
+  </mtable>
+  <mo>⟩</mo>
+</mrow></math>
+`);
+
+    // auto m = mat2(1, 2, 3, 4);
+    // dbg("LaTeX:\n", m.toLaTeX);
+    // dbg("MathML:\n", m.toMathML);
 }
 
 version(unittest)

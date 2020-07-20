@@ -160,5 +160,3 @@ if (isBlocks!Blocks)
 
 private enum isBlocks(Blocks) = (is(typeof(Blocks.init[0]) : uint) ||
                                  is(typeof(Blocks.init[0]) : ulong));
-
-version(unittest) import nxt.dbgio;

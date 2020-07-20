@@ -239,9 +239,9 @@ struct Vector(E, uint D,
 {
     // Construct from vector.
     this(V)(V vec)
-        if (isVector!V &&
-            // TOREVIEW: is(T.E : E) &&
-            (V.dimension >= dimension))
+    if (isVector!V &&
+        // TOREVIEW: is(T.E : E) &&
+        (V.dimension >= dimension))
     {
         static if (normalizedFlag)
         {
@@ -263,7 +263,7 @@ struct Vector(E, uint D,
 
     /** Construct from Scalar `value`. */
     this(S)(S scalar)
-        if (isAssignable!(E, S))
+    if (isAssignable!(E, S))
     {
         static if (normalizedFlag)
         {
@@ -412,7 +412,7 @@ struct Vector(E, uint D,
 
     /// Sets all values to `value`.
     void clear(V)(V value)
-        if (isAssignable!(E, V))
+    if (isAssignable!(E, V))
     {
         static foreach (i; 0 .. D)
         {
@@ -437,7 +437,7 @@ struct Vector(E, uint D,
     }
 
     bool opEquals(S)(in S scalar) const
-        if (isAssignable!(E, S)) // TODO is(typeof(E.init != S.init))
+    if (isAssignable!(E, S)) // TODO is(typeof(E.init != S.init))
     {
         static foreach (i; 0 .. D)
         {
@@ -450,16 +450,16 @@ struct Vector(E, uint D,
     }
 
     bool opEquals(F)(in F vec) const
-        if (isVector!F &&
-            dimension == F.dimension) // TOREVIEW: Use isEquable instead?
+    if (isVector!F &&
+        dimension == F.dimension) // TOREVIEW: Use isEquable instead?
     {
         return _vector == vec._vector;
     }
 
     bool opEquals(F)(const F[] array) const
-        if (isAssignable!(E, F) &&
-            !isArray!F &&
-            !isVector!F) // TOREVIEW: Use isNotEquable instead?
+    if (isAssignable!(E, F) &&
+        !isArray!F &&
+        !isVector!F) // TOREVIEW: Use isNotEquable instead?
     {
         if (array.length != dimension)
         {
@@ -537,7 +537,7 @@ struct Vector(E, uint D,
     ref inout(Vector) opUnary(string op : "+")() inout { return this; }
 
     Vector opUnary(string op : "-")() const
-        if (isSigned!(E))
+    if (isSigned!(E))
     {
         Vector y;
         static foreach (i; 0 .. D)
@@ -548,8 +548,8 @@ struct Vector(E, uint D,
     }
 
     auto opBinary(string op, F)(Vector!(F, D) r) const
-        if ((op == "+") ||
-            (op == "-"))
+    if (op == "+" ||
+        op == "-")
     {
         Vector!(CommonType!(E, F), D) y;
         static foreach (i; 0 .. D)
@@ -590,8 +590,8 @@ struct Vector(E, uint D,
 
     /** Multiply this Vector with Matrix. */
     Vector!(E, T.rows) opBinary(string op : "*", T)(T inp) const
-        if (isCompatibleMatrix!T &&
-            (T.cols == dimension))
+    if (isCompatibleMatrix!T &&
+        (T.cols == dimension))
     {
         Vector!(E, T.rows) ret;
         ret.clear(0);
@@ -643,8 +643,7 @@ struct Vector(E, uint D,
 
     /// Returns: Non-Rooted `N` - Norm of `x`.
     auto nrnNorm(uint N)() const
-        if (isNumeric!E &&
-            N >= 1)
+    if (isNumeric!E && N >= 1)
     {
         static if (isFloatingPoint!E)
         {
@@ -663,7 +662,7 @@ struct Vector(E, uint D,
 
     /// Returns: Squared Magnitude of x.
     @property real magnitudeSquared()() const
-        if (isNumeric!E)
+    if (isNumeric!E)
     {
         static if (normalizedFlag) // cannot use normalized() here (yet)
         {
@@ -677,7 +676,7 @@ struct Vector(E, uint D,
 
     /// Returns: Magnitude of x.
     @property real magnitude()() const
-        if (isNumeric!E)
+    if (isNumeric!E)
     {
         static if (normalizedFlag) // cannot use normalized() here (yet)
         {
@@ -931,8 +930,8 @@ alias outer = outerProduct;
 
 /// Returns: Vector/Cross-Product of two 3-Dimensional Vectors.
 T cross(T)(in T a, in T b)
-    if (isVector!T &&
-        T.dimension == 3) /// isVector!T &&
+if (isVector!T &&
+    T.dimension == 3) /// isVector!T &&
 {
     return T(a.y * b.z - b.y * a.z,
              a.z * b.x - b.z * a.x,
@@ -1154,17 +1153,17 @@ struct Matrix(E, uint rows_, uint cols_,
     }
 
     this(T)(T mat)
-        if (isMatrix!T &&
-            (T.cols >= cols) &&
-            (T.rows >= rows))
+    if (isMatrix!T &&
+        (T.cols >= cols) &&
+        (T.rows >= rows))
     {
         _matrix[] = mat._matrix[];
     }
 
     this(T)(T mat)
-        if (isMatrix!T &&
-            (T.cols < cols) &&
-            (T.rows < rows))
+    if (isMatrix!T &&
+        (T.cols < cols) &&
+        (T.rows < rows))
     {
         makeIdentity();
         static foreach (r; 0 .. T.rows)
@@ -1333,7 +1332,7 @@ alias mat2_cm = Matrix!(float, 2, 2, Layout.columnMajor);
 
 /// 3-Dimensional Spherical Point with Coordinate Type (Precision) `E`.
 struct SpherePoint3(E)
-    if (isFloatingPoint!E)
+if (isFloatingPoint!E)
 {
     enum D = 3;                 // only in three dimensions
     alias ElementType = E;

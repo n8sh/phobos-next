@@ -158,6 +158,7 @@ struct Point(E, uint D)
 
     @property void toString(scope void delegate(scope const(char)[]) @safe sink) const
     {
+        import std.conv : to;
         sink(`Point(`);
         sink(to!string(_point));
         sink(`)`);
@@ -292,6 +293,7 @@ struct Vector(E, uint D,
         sink(`Vector(`);
         foreach (const ix, const e ; _vector)
         {
+            import std.conv : to;
             if (ix != 0) { sink(","); }
             sink(to!string(e));
         }
@@ -796,6 +798,7 @@ struct Vector(E, uint D,
 
     static if (isNumeric!E)
     {
+        import std.conv : to;
         /* Need these conversions when E is for instance ubyte.
            See this commit: https://github.com/Dav1dde/gl3n/commit/2504003df4f8a091e58a3d041831dc2522377f95 */
         enum E0 = 0.to!E;
@@ -1046,6 +1049,7 @@ struct Matrix(E, uint rows_, uint cols_,
 
     @property void toString(scope void delegate(scope const(char)[]) @safe sink) const
     {
+        import std.conv : to;
         sink(`Matrix(`);
         sink(to!string(_matrix));
         sink(`)`);
@@ -1602,6 +1606,7 @@ struct Plane(E, uint D)
 
     @property void toString(scope void delegate(scope const(char)[]) @safe sink) const
     {
+        import std.conv : to;
         sink(`Plane(normal:`);
         sink(to!string(normal));
         sink(`, distance:`);

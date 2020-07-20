@@ -870,8 +870,8 @@ alias nvec4f = Vector!(float, 4, true);
     import std.conv : to;
     assert(vec2f(2, 3).to!string == `ColumnVector([2, 3])`);
     assert(transpose(vec2f(11, 22)).to!string == `RowVector([11, 22])`);
-    dbg(vec2f(11, 22).toLaTeX);
-    dbg(vec2f(11, 22).T.toLaTeX);
+    assert(vec2f(11, 22).toLaTeX == `\begin{pmatrix} 11 \\ 22 \end{pmatrix}`);
+    assert(vec2f(11, 22).T.toLaTeX == `\begin{pmatrix} 11 & 22 \end{pmatrix}`);
 }
 
 auto transpose(E, uint D, bool normalizedFlag)(in Vector!(E, D,

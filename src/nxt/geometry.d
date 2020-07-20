@@ -36,7 +36,7 @@ module nxt.geometry;
 
 version = unittestAllInstances;
 
-// version = show;
+version = show;
 
 version(NoReciprocalMul)
 {
@@ -868,8 +868,9 @@ alias nvec4f = Vector!(float, 4, true);
 version(show)
 @safe unittest
 {
-    dbg(vec2f(2, 3));
-    dbg(transpose(vec2f(11, 22)));
+    import std.conv : to;
+    assert(vec2f(2, 3).to!string == `ColumnVector([2, 3])`);
+    assert(transpose(vec2f(11, 22)).to!string == `RowVector([11, 22])`);
     dbg(vec2f(11, 22).toLaTeX);
     dbg(vec2f(11, 22).T.toLaTeX);
 }

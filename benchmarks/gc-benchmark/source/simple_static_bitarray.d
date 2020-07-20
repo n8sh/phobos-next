@@ -98,6 +98,8 @@ struct StaticBitArray(uint capacity)
     StaticBitArray!(length) x;
     static assert(x.blockCount == blockCount);
 
+    // import std.exception: assertThrown;
+    // import core.exception : AssertError;
     // assertThrown!AssertError(x[length] = false);
 
     x[length/2 - 1] = true;
@@ -162,10 +164,4 @@ struct StaticBitArray(uint capacity)
         assert(a.indexOfFirstOne == 0);
     }
     test!(false)();
-}
-
-version(unittest)
-{
-    import std.exception: assertThrown;
-    import core.exception : AssertError;
 }

@@ -847,6 +847,7 @@ alias nvec2f = Vector!(float, 2, true);
 alias nvec3f = Vector!(float, 3, true);
 alias nvec4f = Vector!(float, 4, true);
 
+///
 @safe pure nothrow @nogc unittest
 {
     assert(vec2f(2, 3)[] == [2, 3].s);
@@ -858,17 +859,19 @@ alias nvec4f = Vector!(float, 4, true);
     assert(any!"a"(vec2b(false, true)[]));
     assert(any!"a"(vec2b(true, false)[]));
     assert(!any!"a"(vec2b(false, false)[]));
-    version(show)
-    {
-        dbg(vec2f(2, 3));
-        dbg(transpose(vec2f(11, 22)));
-        dbg(vec2f(11, 22).toLaTeX);
-        dbg(vec2f(11, 22).T.toLaTeX);
-    }
     assert((vec2(1, 3)*2.5f)[] == [2.5f, 7.5f].s);
-
     nvec2f v = vec2f(3, 4);
     assert(v[] == nvec2f(0.6, 0.8)[]);
+}
+
+///
+version(show)
+@safe unittest
+{
+    dbg(vec2f(2, 3));
+    dbg(transpose(vec2f(11, 22)));
+    dbg(vec2f(11, 22).toLaTeX);
+    dbg(vec2f(11, 22).T.toLaTeX);
 }
 
 auto transpose(E, uint D, bool normalizedFlag)(in Vector!(E, D,
@@ -1768,34 +1771,31 @@ bool intersect(T)(Circle!T circle, Rect!T rect)
     return (cornerDistance_sq <= circle.r^^2);
 }
 
-@safe pure nothrow @nogc unittest
+version(show)
+@safe unittest
 {
-    version(show)
-    {
-        dbg(box2f(vec2f(1, 2),
-                  vec2f(3, 3)));
-        dbg([12, 3, 3]);
+    dbg(box2f(vec2f(1, 2),
+              vec2f(3, 3)));
+    dbg([12, 3, 3]);
 
-        dbg(sort(vec2f(2, 3)[]));
-        dbg(vec2f(2, 3));
+    dbg(vec2f(2, 3));
 
-        dbg(vec2f(2, 3));
-        dbg(vec2f(2, 3));
+    dbg(vec2f(2, 3));
+    dbg(vec2f(2, 3));
 
-        dbg(vec3f(2, 3, 4));
+    dbg(vec3f(2, 3, 4));
 
-        dbg(box2f(vec2f(1, 2),
-                  vec2f(3, 4)));
+    dbg(box2f(vec2f(1, 2),
+              vec2f(3, 4)));
 
-        dbg(vec2i(2, 3));
-        dbg(vec3i(2, 3, 4));
-        dbg( + vec3i(2, 3, 4));
-        dbg("vec2i:\n", vec2i(2, 3).toMathML);
+    dbg(vec2i(2, 3));
+    dbg(vec3i(2, 3, 4));
+    dbg( + vec3i(2, 3, 4));
+    dbg("vec2i:\n", vec2i(2, 3).toMathML);
 
-        auto m = mat2(1, 2, 3, 4);
-        dbg("LaTeX:\n", m.toLaTeX);
-        dbg("MathML:\n", m.toMathML);
-    }
+    auto m = mat2(1, 2, 3, 4);
+    dbg("LaTeX:\n", m.toLaTeX);
+    dbg("MathML:\n", m.toMathML);
 }
 
 version(unittest)

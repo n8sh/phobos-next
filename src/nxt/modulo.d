@@ -2,31 +2,6 @@ module nxt.modulo;
 
 import std.traits : isIntegral, isSigned;
 
-/** Lookup type representing an unsigned integer in inclusive range (0 .. m - 1).
- *
- * TODO Merge with similar logic in bound.d
- */
-template UnsignedOfModulo(size_t m)
-{
-    static      if (m - 1 <= ubyte.max)
-    {
-        alias UnsignedOfModulo = ubyte;
-    }
-    else static if (m - 1 <= ushort.max)
-    {
-        alias UnsignedOfModulo = ushort;
-    }
-    else static if (m - 1 <= uint.max)
-    {
-        alias UnsignedOfModulo = uint;
-    }
-    else
-    {
-        alias UnsignedOfModulo = ulong;
-    }
-    // TODO ucent?
-}
-
 /** Module type within inclusive value range (0 .. `m`-1).
 
     Similar to Ada's modulo type `0 mod m`.
@@ -185,6 +160,31 @@ auto mod(size_t m, T = UnsignedOfModulo!m)(T value)
 if (m >= 1)
 {
     return Mod!(m)(value);
+}
+
+/** Lookup type representing an unsigned integer in inclusive range (0 .. m - 1).
+ *
+ * TODO Merge with similar logic in bound.d
+ */
+private template UnsignedOfModulo(size_t m)
+{
+    static      if (m - 1 <= ubyte.max)
+    {
+        alias UnsignedOfModulo = ubyte;
+    }
+    else static if (m - 1 <= ushort.max)
+    {
+        alias UnsignedOfModulo = ushort;
+    }
+    else static if (m - 1 <= uint.max)
+    {
+        alias UnsignedOfModulo = uint;
+    }
+    else
+    {
+        alias UnsignedOfModulo = ulong;
+    }
+    // TODO ucent?
 }
 
 ///

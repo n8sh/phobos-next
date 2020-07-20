@@ -10,6 +10,8 @@ module nxt.static_bitarray;
 
 alias DefaultBlock = size_t;    ///< Default block type.
 
+import std.traits : isUnsigned;
+
 /** A statically sized `std.bitmanip.BitArray`.
  *
  * TODO Infer `Block` from `len` as is done for `Bound` and `Mod`.
@@ -17,6 +19,7 @@ alias DefaultBlock = size_t;    ///< Default block type.
  * TODO Optimize `allOne`, `allZero` using intrinsic?
  */
 struct StaticBitArray(uint capacity, Block = DefaultBlock)
+if (isUnsigned!DefaultBlock)
 {
 @safe:
     import std.format : FormatSpec, format;
@@ -24,9 +27,6 @@ struct StaticBitArray(uint capacity, Block = DefaultBlock)
 
     /** Number of bits. */
     enum length = capacity;
-
-    import std.traits : isUnsigned;
-    static assert(isUnsigned!Block, "Block must be a builtin unsigned integer");
 
     static if (capacity >= 1)
     {
@@ -222,7 +222,7 @@ struct StaticBitArray(uint capacity, Block = DefaultBlock)
          * Avoids range-checking because `i` of type is bound to (0 .. capacity-1).
          */
         bool opIndex(ModUInt)(Mod!(capacity, ModUInt) i) const @trusted
-            if (isUnsigned!ModUInt)
+        if (isUnsigned!ModUInt)
         {
             pragma(inline, true);
             static if (Block.sizeof == 8)
@@ -585,9 +585,8 @@ struct StaticBitArray(uint capacity, Block = DefaultBlock)
 
 
     /** Support for operators == and != for $(D StaticBitArray). */
-    bool opEquals(Block2)(in StaticBitArray!(capacity, Block2) a2) const
-        @trusted
-        if (isUnsigned!Block2)
+    bool opEquals(Block2)(in StaticBitArray!(capacity, Block2) a2) const @trusted
+    if (isUnsigned!Block2)
     {
         size_t i;
 
@@ -618,9 +617,8 @@ struct StaticBitArray(uint capacity, Block = DefaultBlock)
     }
 
     /** Supports comparison operators for $(D StaticBitArray). */
-    int opCmp(Block2)(in StaticBitArray!(capacity, Block2) a2) const
-        @trusted
-        if (isUnsigned!Block2)
+    int opCmp(Block2)(in StaticBitArray!(capacity, Block2) a2) const @trusted
+    if (isUnsigned!Block2)
     {
         uint i;
 
@@ -931,7 +929,7 @@ struct StaticBitArray(uint capacity, Block = DefaultBlock)
         bool canFindIndexOf(ModUInt)(bool value,
                                      Mod!(capacity, ModUInt) currIx,
                                      out Mod!(capacity, ModUInt) nextIx) const
-            if (isUnsigned!ModUInt)
+        if (isUnsigned!ModUInt)
         {
             if (currIx >= length) { return false; }
             bool hit = false;
@@ -951,7 +949,7 @@ struct StaticBitArray(uint capacity, Block = DefaultBlock)
         bool canFindIndexOf(UInt)(bool value,
                                   UInt currIx,
                                   out UInt nextIx) const
-            if (isUnsigned!UInt)
+        if (isUnsigned!UInt)
         {
             if (currIx >= length) { return false; }
             bool hit = false;

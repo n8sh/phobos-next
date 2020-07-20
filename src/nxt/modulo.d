@@ -112,13 +112,13 @@ if (m >= 1 &&
 
         auto opUnary(string op, string file = __FILE__, int line = __LINE__)()
         {
-            import nxt.math_ex : isPowerOf2;
             static      if (op == `+`)
             {
                 return this;
             }
             else static if (op == `--`)
             {
+                import nxt.math_ex : isPowerOf2;
                 static if (isPowerOf2(m))
                 {
                     _value = (_value - 1) & max; // more efficient
@@ -131,6 +131,7 @@ if (m >= 1 &&
             }
             else static if (op == `++`)
             {
+                import nxt.math_ex : isPowerOf2;
                 static if (isPowerOf2(m))
                 {
                     _value = (_value + 1) & max; // more efficient

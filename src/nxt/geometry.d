@@ -36,8 +36,6 @@ module nxt.geometry;
 
 version = unittestAllInstances;
 
-version = show;
-
 version(NoReciprocalMul)
 {
     private enum rmul = false;
@@ -1743,12 +1741,6 @@ auto sphere(C, R)(C center, R radius)
 // return Sphere!(CommonType!C, C.length)(center, radius);
 // }
 
-@safe pure nothrow @nogc unittest
-{
-    const x = sphere(point(1.0, 2, 3, 4), 10.0);
-    version(show) dbg(x, " has volume ", x.volume);
-}
-
 /**
    See_Also: http://stackoverflow.com/questions/401847/circle-rectangle-collision-detection-intersect
  */
@@ -1771,9 +1763,10 @@ bool intersect(T)(Circle!T circle, Rect!T rect)
     return (cornerDistance_sq <= circle.r^^2);
 }
 
-version(show)
 @safe unittest
 {
+    import nxt.dbgio;
+
     dbg(box2f(vec2f(1, 2),
               vec2f(3, 3)));
     dbg([12, 3, 3]);
@@ -1801,9 +1794,4 @@ version(show)
 version(unittest)
 {
     import nxt.array_help : s;
-}
-
-version(show)
-{
-    import nxt.dbgio;
 }

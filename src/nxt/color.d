@@ -23,14 +23,14 @@ struct ColorRGB8
     ubyte greenC;                                       ///< Green component.
     ubyte blueC;                                        ///< Blue component.
 
-    static immutable black   = Color(0x00, 0x00, 0x00); ///< Black.
-    static immutable white   = Color(0xff, 0xff, 0xff); ///< White.
-    static immutable red     = Color(0xff, 0x00, 0x00); ///< Red.
-    static immutable green   = Color(0x00, 0xff, 0x00); ///< Green.
-    static immutable blue    = Color(0x00, 0x00, 0xff); ///< Blue.
-    static immutable cyan    = Color(0x00, 0xff, 0xff); ///< Cyan.
-    static immutable magenta = Color(0xff, 0x00, 0xff); ///< Magenta.
-    static immutable yellow  = Color(0xff, 0xff, 0x00); ///< Yellow.
+    static immutable black   = typeof(this)(0x00, 0x00, 0x00); ///< Black.
+    static immutable white   = typeof(this)(0xff, 0xff, 0xff); ///< White.
+    static immutable red     = typeof(this)(0xff, 0x00, 0x00); ///< Red.
+    static immutable green   = typeof(this)(0x00, 0xff, 0x00); ///< Green.
+    static immutable blue    = typeof(this)(0x00, 0x00, 0xff); ///< Blue.
+    static immutable cyan    = typeof(this)(0x00, 0xff, 0xff); ///< Cyan.
+    static immutable magenta = typeof(this)(0xff, 0x00, 0xff); ///< Magenta.
+    static immutable yellow  = typeof(this)(0xff, 0xff, 0x00); ///< Yellow.
 }
 
 alias Color = ColorRGB8;

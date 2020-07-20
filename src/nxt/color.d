@@ -12,9 +12,17 @@ module nxt.color;
  */
 struct ColorRGB8
 {
+    this(ubyte redC, ubyte greenC, ubyte blueC)
+    {
+        this.redC = redC;
+        this.greenC = greenC;
+        this.blueC = blueC;
+    }
+
     ubyte redC;                                         ///< Red component.
     ubyte greenC;                                       ///< Green component.
     ubyte blueC;                                        ///< Blue component.
+
     static immutable black   = Color(0x00, 0x00, 0x00); ///< Black.
     static immutable white   = Color(0xff, 0xff, 0xff); ///< White.
     static immutable red     = Color(0xff, 0x00, 0x00); ///< Red.
@@ -37,6 +45,7 @@ struct ColorBGR8
         this.greenC = greenC;
         this.blueC = blueC;
     }
+
     ubyte blueC;                ///< Blue component.
     ubyte greenC;               ///< Green component.
     ubyte redC;                 ///< Red component.

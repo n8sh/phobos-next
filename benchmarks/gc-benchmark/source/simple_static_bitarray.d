@@ -21,14 +21,14 @@ struct StaticBitArray(uint length_)
     enum blockCount = (length_ + (bitsPerBlock-1)) / bitsPerBlock;
 
     /** Reset all bits (to zero). */
-    void reset() nothrow
+    void reset()
     {
         pragma(inline, true);
         _blocks[] = 0;          // TODO is this the fastest way?
     }
 
     /** Gets the $(D idx)'th bit. */
-    bool opIndex(size_t idx) const @trusted nothrow
+    bool opIndex(size_t idx) const @trusted
     in
     {
         assert(idx < length);     // TODO nothrow or not?
@@ -40,7 +40,7 @@ struct StaticBitArray(uint length_)
     }
 
     /** Sets the $(D idx)'th bit. */
-    bool opIndexAssign(bool b, size_t idx) @trusted nothrow
+    bool opIndexAssign(bool b, size_t idx) @trusted
     in
     {
         assert(idx < length);     // TODO nothrow or not?

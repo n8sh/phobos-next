@@ -865,7 +865,6 @@ alias nvec4f = Vector!(float, 4, true);
 }
 
 ///
-version(show)
 @safe unittest
 {
     import std.conv : to;

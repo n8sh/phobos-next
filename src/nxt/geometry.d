@@ -757,9 +757,33 @@ struct Vector(E, uint D,
     /// Updates the vector with the values from other.
     void update(Vector!(E, D) other) { _vector = other._vector; }
 
-    static if (D == 2) { void set(E x, E y) { _vector[0] = x; _vector[1] = y; } }
-    else static if (D == 3) { void set(E x, E y, E z) { _vector[0] = x; _vector[1] = y; _vector[2] = z; } }
-    else static if (D == 4) { void set(E x, E y, E z, E w) { _vector[0] = x; _vector[1] = y; _vector[2] = z; _vector[3] = w; } }
+    static if (D == 2)
+    {
+        void set(E x, E y)
+        {
+            _vector[0] = x;
+            _vector[1] = y;
+        }
+    }
+    else static if (D == 3)
+    {
+        void set(E x, E y, E z)
+        {
+            _vector[0] = x;
+            _vector[1] = y;
+            _vector[2] = z;
+        }
+    }
+    else static if (D == 4)
+    {
+        void set(E x, E y, E z, E w)
+        {
+            _vector[0] = x;
+            _vector[1] = y;
+            _vector[2] = z;
+            _vector[3] = w;
+        }
+    }
 
     static if (D >= 1) { alias x = get_!'x'; }
     static if (D >= 2) { alias y = get_!'y'; }

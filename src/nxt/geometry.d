@@ -857,7 +857,6 @@ auto columnVector(Ts...)(Ts args)
 {
     return Vector!(CommonType!Ts, args.length, false, Orient.column)(args);
 }
-alias colVector = columnVector;
 
 mixin(makeInstanceAliases("Vector", "vec", 2,4,
                           ["ubyte", "int", "float", "double", "real", "bool"]));

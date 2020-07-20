@@ -3,7 +3,7 @@
  */
 module simple_static_bitarray;
 
-static private alias Block = size_t;
+static private alias Block = size_t; ///< Block type.
 
 struct StaticBitArray(uint length_)
 {

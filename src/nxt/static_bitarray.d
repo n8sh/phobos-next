@@ -18,14 +18,9 @@ alias DefaultBlock = size_t;    ///< Default block type.
  */
 struct StaticBitArray(uint capacity, Block = DefaultBlock)
 {
-    version(unittest)
-    {
-        import std.format : FormatSpec, format;
-    }
-    import core.bitop : bitswap;
+@safe:
+    import std.format : FormatSpec, format;
     import nxt.modulo : Mod;
-
-    @safe:
 
     /** Number of bits. */
     enum length = capacity;
@@ -411,6 +406,7 @@ struct StaticBitArray(uint capacity, Block = DefaultBlock)
     /** Reverse block `Block`. */
     static @property Block reverseBlock()(in Block block)
     {
+        import core.bitop : bitswap;
         pragma(inline, true);
         static if (Block.sizeof == 4)
         {

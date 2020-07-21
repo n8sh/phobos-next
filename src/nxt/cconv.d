@@ -22,8 +22,9 @@ string toString(const double value,
     immutable length = 3 + digitCount; // (sign + dot + null) and digits
     auto buffer = new char[length];
     gcvt(value, digitCount, buffer.ptr);
-    const count = (value < 0 ? 1 : 0) + digitCount + 1; // optional sign plus dot (skipping null)
-    return buffer[0 .. count];
+    // const count = (value < 0 ? 1 : 0) + digitCount + 1; // optional sign plus dot (skipping null)
+    import core.stdc.string : cstrlen = strlen;
+    return buffer[0 .. cstrlen(buffer.ptr)];
 }
 
 private inout(char)[] fromStringz(return scope inout(char)* cString) @nogc @system pure nothrow
@@ -39,7 +40,8 @@ private inout(char)[] fromStringz(return scope inout(char)* cString) @nogc @syst
     assert(0.1.toString(2) == `0.1`);
 
     assert((-1.0).toString(1) == `-1`);
-    assert((-1.0).toString(2) == `-1.0`);
+    assert((-1.0).toString(2) == `-1`);
+    assert((-1.0).toString(3) == `-1`);
 
     assert(3.14.toString(3) == `3.14`);
     assert(3.141.toString(1) == `3`);

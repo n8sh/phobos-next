@@ -35,7 +35,7 @@
 module old_geometry;
 
 // TODO use import core.simd;
-import std.math: sqrt, isNaN, isInfinity, PI, sin, cos, acos;
+import std.math: sqrt, PI, sin, cos, acos;
 import std.traits: isFloatingPoint, isNumeric, isSigned, isDynamicArray, isAssignable, isArray, CommonType, isInstanceOf;
 import std.string: format, rightJustify;
 import std.array: join;

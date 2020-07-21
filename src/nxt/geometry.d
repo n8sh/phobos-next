@@ -154,7 +154,8 @@ if (D >= 1 &&
     {
         static if (normalizedFlag)
         {
-            clear(1/sqrt(cast(E)D));
+            import std.math : sqrt;
+            clear(1/sqrt(cast(E)D)); // TODO costly
         }
         else
         {
@@ -526,8 +527,8 @@ if (D >= 1 &&
     }
 
     void opOpAssign(string op)(in Vector r)
-        if ((op == "+") ||
-            (op == "-"))
+    if ((op == "+") ||
+        (op == "-"))
     {
         static foreach (i; 0 .. dimension)
         {

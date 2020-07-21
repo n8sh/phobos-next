@@ -2,6 +2,20 @@
 module nxt.cconv;
 
 /// Returns: `value` as a `string`.
+void toStringInSink(const double value,
+                      scope void delegate(scope const(char)[]) @safe sink,
+                      uint digitCount = 30)
+    @trusted
+{
+    immutable length = 3 + digitCount; // digits plus + sign + dot + null
+    char* buffer = cast(char*)fakePureMalloc(1*length);
+    gcvt(value, digitCount, buffer);
+    import core.stdc.string : cstrlen = strlen;
+    sink(buffer[0 .. cstrlen(buffer)]);
+    fakePureFree(buffer);
+}
+
+/// Returns: `value` as a `string`.
 string toString(const double value,
                 uint digitCount = 30)
     @trusted pure nothrow
@@ -45,4 +59,11 @@ private extern(C) pragma(inline, false)
 {
     pure nothrow @nogc:
     char *gcvt(double number, int ndigit, char *buf);
+}
+
+// locally purified for internal use here only
+extern (C) private pure @system @nogc nothrow
+{
+    pragma(mangle, "malloc") void* fakePureMalloc(size_t);
+    pragma(mangle, "free") void fakePureFree(void* ptr);
 }

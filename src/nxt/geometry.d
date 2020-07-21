@@ -775,6 +775,6 @@ if (!is(CommonType!Ts == void))
 
 version(unittest)
 {
-    import nxt.array_help : s;
     import std.conv : to;
+    import nxt.array_help : s;
 }

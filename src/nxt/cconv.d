@@ -2,17 +2,16 @@
 module nxt.cconv;
 
 /// Returns: `value` as a `string`.
-void toStringInSink(const double value,
-                      scope void delegate(scope const(char)[]) @safe sink,
-                      uint digitCount = 30)
+void toStringInSink(uint digitCountMax = 64)(const double value,
+                                             scope void delegate(scope const(char)[]) @safe sink,
+                                             uint digitCount = 5)
     @trusted
 {
-    immutable length = 3 + digitCount; // digits plus + sign + dot + null
-    char* buffer = cast(char*)fakePureMalloc(1*length);
+    assert(digitCount < digitCountMax);
+    char[digitCountMax] buffer;
     gcvt(value, digitCount, buffer);
-    import core.stdc.string : cstrlen = strlen;
-    sink(buffer[0 .. cstrlen(buffer)]);
-    fakePureFree(buffer);
+    const count = (value < 0 ? 1 : 0) + digitCount + 1; // optional sign plus dot (skipping null)
+    sink(buffer[0 .. count]);
 }
 
 /// Returns: `value` as a `string`.
@@ -20,10 +19,11 @@ string toString(const double value,
                 uint digitCount = 30)
     @trusted pure nothrow
 {
-    immutable length = 3 + digitCount; // digits plus + sign + dot + null
+    immutable length = 3 + digitCount; // (sign + dot + null) and digits
     auto buffer = new char[length];
     gcvt(value, digitCount, buffer.ptr);
-    return fromStringz(buffer.ptr);
+    const count = (value < 0 ? 1 : 0) + digitCount + 1; // optional sign plus dot (skipping null)
+    return buffer[0 .. count];
 }
 
 private inout(char)[] fromStringz(return scope inout(char)* cString) @nogc @system pure nothrow
@@ -36,11 +36,10 @@ private inout(char)[] fromStringz(return scope inout(char)* cString) @nogc @syst
 @safe pure nothrow unittest
 {
     assert(0.0.toString(1) == `0`);
-    assert(0.1.toString(0) == `0.1`);
-    assert(0.1.toString(1) == `0.1`);
+    assert(0.1.toString(2) == `0.1`);
 
     assert((-1.0).toString(1) == `-1`);
-    assert((-1.0).toString(2) == `-1`);
+    assert((-1.0).toString(2) == `-1.0`);
 
     assert(3.14.toString(3) == `3.14`);
     assert(3.141.toString(1) == `3`);
@@ -59,11 +58,4 @@ private extern(C) pragma(inline, false)
 {
     pure nothrow @nogc:
     char *gcvt(double number, int ndigit, char *buf);
-}
-
-// locally purified for internal use here only
-extern (C) private pure @system @nogc nothrow
-{
-    pragma(mangle, "malloc") void* fakePureMalloc(size_t);
-    pragma(mangle, "free") void fakePureFree(void* ptr);
 }

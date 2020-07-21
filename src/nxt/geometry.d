@@ -1,5 +1,6 @@
 module nxt.geometry;
 
+import mir.conv;
 import std.traits: isFloatingPoint, isNumeric, isSigned, isDynamicArray, isAssignable, isArray, CommonType, isInstanceOf;
 
 version = unittestAllInstances;
@@ -38,7 +39,11 @@ if (D >= 1 /* && TODO extend trait : isNumeric!E */)
     {
         import std.conv : to;
         sink(`Point(`);
-        sink(to!string(_point));
+        foreach (const ix, const e; _point)
+        {
+            if (ix != 0) { sink(","); }
+            sink(to!string(e));
+        }
         sink(`)`);
     }
 
@@ -167,12 +172,13 @@ if (D >= 1 &&
 
     @property void toString(scope void delegate(scope const(char)[]) @safe sink) const
     {
+        import std.conv : to;
         sink(orientationString);
         sink(`Vector(`);
-        foreach (const ix, const e ; _vector)
+        foreach (const ix, const e; _vector)
         {
-            import std.conv : to;
             if (ix != 0) { sink(","); }
+            pragma(msg, typeof(e));
             sink(to!string(e));
         }
         sink(`)`);
@@ -747,11 +753,11 @@ if (!is(CommonType!Ts == void))
     return Vector!(CommonType!Ts, args.length, false, Orient.column)(args);
 }
 
-@safe pure nothrow @nogc unittest
-{
-    assert(point(1, 2) + vector(1, 2) == point(2, 4));
-    assert(point(1, 2) - vector(1, 2) == point(0, 0));
-}
+// @safe pure nothrow @nogc unittest
+// {
+//     assert(point(1, 2) + vector(1, 2) == point(2, 4));
+//     assert(point(1, 2) - vector(1, 2) == point(0, 0));
+// }
 
 version(unittest)
 {

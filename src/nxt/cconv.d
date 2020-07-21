@@ -10,8 +10,8 @@ void toStringInSink(uint digitCountMax = 64)(const double value,
     assert(digitCount < digitCountMax);
     char[digitCountMax] buffer;
     gcvt(value, digitCount, buffer);
-    const count = (value < 0 ? 1 : 0) + digitCount + 1; // optional sign plus dot (skipping null)
-    sink(buffer[0 .. count]);
+    import core.stdc.string : cstrlen = strlen;
+    return buffer[0 .. cstrlen(buffer.ptr)];
 }
 
 /// Returns: `value` as a `string`.
@@ -22,7 +22,6 @@ string toString(const double value,
     immutable length = 3 + digitCount; // (sign + dot + null) and digits
     auto buffer = new char[length];
     gcvt(value, digitCount, buffer.ptr);
-    // const count = (value < 0 ? 1 : 0) + digitCount + 1; // optional sign plus dot (skipping null)
     import core.stdc.string : cstrlen = strlen;
     return buffer[0 .. cstrlen(buffer.ptr)];
 }

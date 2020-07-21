@@ -32,7 +32,7 @@
    See: https://www.google.se/search?q=point+plus+vector
    See: http://mosra.cz/blog/article.php?a=22-introducing-magnum-a-multiplatform-2d-3d-graphics-engine
 */
-module nxt.geometry;
+module old_geometry;
 
 version = unittestAllInstances;
 

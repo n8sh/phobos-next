@@ -177,7 +177,6 @@ if (D >= 1 &&
         foreach (const ix, const e; _vector)
         {
             if (ix != 0) { sink(","); }
-            pragma(msg, typeof(e));
             sink(to!string(e));
         }
         sink(`)`);

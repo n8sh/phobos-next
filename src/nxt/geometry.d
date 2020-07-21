@@ -702,25 +702,25 @@ if (D >= 1 &&
     {
         /* Need these conversions when E is for instance ubyte.
            See this commit: https://github.com/Dav1dde/gl3n/commit/2504003df4f8a091e58a3d041831dc2522377f95 */
-        enum E0 = E(0);
-        enum E1 = E(1);
+        static immutable E0 = E(0);
+        static immutable E1 = E(1);
         static if (dimension == 2)
         {
-            enum Vector e1 = Vector(E1, E0); /// canonical basis for Euclidian space
-            enum Vector e2 = Vector(E0, E1); /// ditto
+            static immutable Vector e1 = Vector(E1, E0); /// canonical basis for Euclidian space
+            static immutable Vector e2 = Vector(E0, E1); /// ditto
         }
         else static if (dimension == 3)
         {
-            enum Vector e1 = Vector(E1, E0, E0); /// canonical basis for Euclidian space
-            enum Vector e2 = Vector(E0, E1, E0); /// ditto
-            enum Vector e3 = Vector(E0, E0, E1); /// ditto
+            static immutable Vector e1 = Vector(E1, E0, E0); /// canonical basis for Euclidian space
+            static immutable Vector e2 = Vector(E0, E1, E0); /// ditto
+            static immutable Vector e3 = Vector(E0, E0, E1); /// ditto
         }
         else static if (dimension == 4)
         {
-            enum Vector e1 = Vector(E1, E0, E0, E0); /// canonical basis for Euclidian space
-            enum Vector e2 = Vector(E0, E1, E0, E0); /// ditto
-            enum Vector e3 = Vector(E0, E0, E1, E0); /// ditto
-            enum Vector e4 = Vector(E0, E0, E0, E1); /// ditto
+            static immutable Vector e1 = Vector(E1, E0, E0, E0); /// canonical basis for Euclidian space
+            static immutable Vector e2 = Vector(E0, E1, E0, E0); /// ditto
+            static immutable Vector e3 = Vector(E0, E0, E1, E0); /// ditto
+            static immutable Vector e4 = Vector(E0, E0, E0, E1); /// ditto
         }
     }
 

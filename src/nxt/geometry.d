@@ -13,15 +13,6 @@ else
     static immutable defaultElementTypes = ["double"];
 }
 
-version(NoReciprocalMul)
-{
-    private enum rmul = false;
-}
-else
-{
-    private enum rmul = true;
-}
-
 enum Orient { column, row } // Vector Orientation.
 
 /** `D`-Dimensional Cartesian Point with Coordinate Type (Precision) `E`.

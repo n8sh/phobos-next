@@ -497,26 +497,6 @@ if (rows_ >= 1 &&
 
     this()(E value) { clear(value); }
 
-    /// Returns: `true` if all values are not nan and finite, otherwise `false`.
-    @property bool ok()() const
-    {
-        static if (isFloatingPoint!E)
-        {
-            foreach (row; _matrix)
-            {
-                foreach (col; row)
-                {
-                    if (isNaN(col) ||
-                        isInfinity(col))
-                    {
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
-    }
-
     /// Sets all values of the matrix to value (each column in each row will contain this value).
     void clear()(E value)
     {

@@ -47,7 +47,7 @@ else
 
 // TODO use import core.simd;
 import std.math: sqrt, isNaN, isInfinity, PI, sin, cos, acos;
-import std.traits: isFloatingPoint, isNumeric, isSigned, isDynamicArray, isAssignable, isArray, CommonType;
+import std.traits: isFloatingPoint, isNumeric, isSigned, isDynamicArray, isAssignable, isArray, CommonType, isInstanceOf;
 import std.string: format, rightJustify;
 import std.array: join;
 import std.algorithm.iteration : map, reduce;
@@ -102,7 +102,6 @@ do
 {
     import std.string : toLower;
     import std.conv : to;
-
     string code;
     if (!aliasName.length)
     {
@@ -216,8 +215,8 @@ if (haveCommonType!Ts)
     return Point!(CommonType!Ts, args.length)(args);
 }
 
-mixin(makeInstanceAliases("Point", "point", 2,3,
-                          ["int", "float", "double", "real"]));
+// mixin(makeInstanceAliases("Point", "point", 2,3,
+//                           ["int", "float", "double", "real"]));
 
 @safe pure nothrow @nogc unittest
 {
@@ -232,7 +231,7 @@ enum Orient { column, row } // Vector Orientation.
  * See_Also: http://physics.stackexchange.com/questions/16850/is-0-0-0-an-undefined-vector
  */
 struct Vector(E, uint D,
-              bool normalizedFlag = false, // set to true for UnitVectors
+              bool normalizedFlag = false, // `true` for unit vectors
               Orient orient = Orient.column)
 if (D >= 1 &&
     (!normalizedFlag ||
@@ -553,21 +552,22 @@ if (D >= 1 &&
         return y;
     }
 
-    auto opBinary(string op, F)(Vector!(F, D) r) const
-    if (op == "+" ||
-        op == "-")
+    auto opBinary(string op, T)(in T rhs) const
+    if (op == "+" || op == "-" &&
+        isInstanceOf!(Vector, T) &&
+        dimension && T.dimension)
     {
         Vector!(CommonType!(E, F), D) y;
         static foreach (i; 0 .. D)
         {
-            y._vector[i] = mixin("_vector[i]" ~ op ~ "r._vector[i]");
+            y._vector[i] = mixin("_vector[i]" ~ op ~ "rhs._vector[i]");
         }
         return y;
     }
 
-    Vector opBinary(string op : "*", F)(F r) const
+    Vector opBinary(string op : "*", F)(in F r) const
     {
-        Vector!(CommonType!(E, F), D) y;
+        Vector!(CommonType!(E, F), D, normalizedFlag) y;
         static foreach (i; 0 .. dimension)
         {
             y._vector[i] = _vector[i] * r;
@@ -575,7 +575,7 @@ if (D >= 1 &&
         return y;
     }
 
-    Vector!(CommonType!(E, F), D) opBinary(string op : "*", F)(Vector!(F, D) r) const
+    Vector!(CommonType!(E, F), D) opBinary(string op : "*", F)(in Vector!(F, D) r) const
     {
         // MATLAB-style Product Behaviour
         static if (orient == Orient.column &&
@@ -594,8 +594,8 @@ if (D >= 1 &&
         }
     }
 
-    /** Multiply this Vector with Matrix. */
-    Vector!(E, T.rows) opBinary(string op : "*", T)(T inp) const
+    /** Multiply with right-hand-side `rhs`. */
+    Vector!(E, T.rows) opBinary(string op : "*", T)(in T rhs) const
     if (isCompatibleMatrix!T &&
         (T.cols == dimension))
     {
@@ -605,23 +605,23 @@ if (D >= 1 &&
         {
             static foreach (r; 0 ..  T.rows)
             {
-                ret._vector[r] += _vector[c] * inp.at(r,c);
+                ret._vector[r] += _vector[c] * rhs.at(r,c);
             }
         }
         return ret;
     }
 
-    /** Multiply this Vector with Matrix. */
-    auto opBinaryRight(string op, T)(T inp) const
-        if (!isVector!T &&
-            !isMatrix!T &&
-            !isQuaternion!T)
+    /** Multiply with left-hand-side `lhs`. */
+    auto opBinaryRight(string op, T)(in T lhs) const
+    if (!isInstanceOf!(Vector, T) &&
+        !isMatrix!T &&
+        !isQuaternion!T)
     {
-        return this.opBinary!(op)(inp);
+        return this.opBinary!(op)(lhs);
     }
 
     /** TODO Suitable Restrictions on F. */
-    void opOpAssign(string op, F)(F r)
+    void opOpAssign(string op, F)(in F r)
         /* if ((op == "+") || (op == "-") || (op == "*") || (op == "%") || (op == "/") || (op == "^^")) */
     {
         static foreach (i; 0 .. dimension)
@@ -631,13 +631,13 @@ if (D >= 1 &&
     }
     unittest
     {
-        auto v2 = vec2(1, 3);
+        auto v2 = vec2f(1, 3);
         v2 *= 5.0f; assert(v2[] == [5, 15].s);
         v2 ^^= 2; assert(v2[] == [25, 225].s);
         v2 /= 5; assert(v2[] == [5, 45].s);
     }
 
-    void opOpAssign(string op)(Vector r)
+    void opOpAssign(string op)(in Vector r)
         if ((op == "+") ||
             (op == "-"))
     {
@@ -761,7 +761,7 @@ if (D >= 1 &&
     }
 
     /// Updates the vector with the values from other.
-    void update(Vector!(E, D) other) { _vector = other._vector; }
+    void update(in Vector!(E, D) other) { _vector = other._vector; }
 
     static if (D == 2)
     {
@@ -823,6 +823,7 @@ if (D >= 1 &&
         }
     }
 
+    version(none)
     @safe pure nothrow @nogc unittest
     {
         static if (isNumeric!E)
@@ -865,13 +866,29 @@ if (haveCommonType!Ts)
     return Vector!(CommonType!Ts, args.length, false, Orient.column)(args);
 }
 
-mixin(makeInstanceAliases("Vector", "vec", 2,4,
-                          ["ubyte", "int", "float", "double", "real", "bool"]));
+import std.meta : AliasSeq;
 
-/* normalized vector aliases */
-alias nvec2f = Vector!(float, 2, true);
-alias nvec3f = Vector!(float, 3, true);
-alias nvec4f = Vector!(float, 4, true);
+version(unittest)
+{
+    static foreach (T; AliasSeq!(ubyte, int, float, double, real))
+    {
+        static foreach (uint n; 2 .. 4 + 1)
+        {
+        }
+    }
+
+    alias vec2b = Vector!(byte, 2, false);
+
+    alias vec2f = Vector!(float, 2, true);
+    alias vec3f = Vector!(float, 3, true);
+
+    alias vec2d = Vector!(float, 2, true);
+
+    alias nvec2f = Vector!(float, 2, true);
+}
+
+// mixin(makeInstanceAliases("Vector", "vec", 2,4,
+//                           ["ubyte", "int", "float", "double", "real"]));
 
 ///
 @safe pure nothrow @nogc unittest
@@ -885,7 +902,7 @@ alias nvec4f = Vector!(float, 4, true);
     assert(any!"a"(vec2b(false, true)[]));
     assert(any!"a"(vec2b(true, false)[]));
     assert(!any!"a"(vec2b(false, false)[]));
-    assert((vec2(1, 3)*2.5f)[] == [2.5f, 7.5f].s);
+    assert((vec2f(1, 3)*2.5f)[] == [2.5f, 7.5f].s);
     nvec2f v = vec2f(3, 4);
     assert(v[] == nvec2f(0.6, 0.8)[]);
 }
@@ -894,22 +911,35 @@ alias nvec4f = Vector!(float, 4, true);
 @safe unittest
 {
     import std.conv : to;
-    assert(vec2f(2, 3).to!string == `ColumnVector(2,3)`);
-    assert(transpose(vec2f(11, 22)).to!string == `RowVector(11,22)`);
+    auto x = vec2f(2, 3);
+    assert(to!string(vec2f(2, 3)) == `ColumnVector(2,3)`);
+    assert(to!string(transpose(vec2f(11, 22))) == `RowVector(11,22)`);
     assert(vec2f(11, 22).toLaTeX == `\begin{pmatrix} 11 \\ 22 \end{pmatrix}`);
     assert(vec2f(11, 22).T.toLaTeX == `\begin{pmatrix} 11 & 22 \end{pmatrix}`);
 }
 
-auto transpose(E, uint D, bool normalizedFlag)(in Vector!(E, D,
-                                                          normalizedFlag,
-                                                          Orient.column) a)
+auto transpose(E, uint D,
+               bool normalizedFlag,
+               Orient orient)(in Vector!(E, D,
+                                         normalizedFlag,
+                                         orient) a)
 {
-    return Vector!(E, D, normalizedFlag, Orient.row)(a);
+    static if (orient == Orient.row)
+    {
+        return Vector!(E, D, normalizedFlag, Orient.column)(a._vector);
+    }
+    else
+    {
+        return Vector!(E, D, normalizedFlag, Orient.row)(a._vector);
+    }
 }
 alias T = transpose; // C++ Armadillo naming convention.
 
-auto elementwiseLessThanOrEqual(Ta, Tb, uint D)(Vector!(Ta, D) a,
-                                                Vector!(Tb, D) b)
+auto elementwiseLessThanOrEqual(Ta, Tb,
+                                uint D,
+                                bool normalizedFlag,
+                                Orient orient)(in Vector!(Ta, D, normalizedFlag, orient) a,
+                                               in Vector!(Tb, D, normalizedFlag, orient) b)
 {
     Vector!(bool, D) c = void;
     static foreach (i; 0 .. D)
@@ -927,8 +957,8 @@ auto elementwiseLessThanOrEqual(Ta, Tb, uint D)(Vector!(Ta, D) a,
 
 /// Returns: Scalar/Dot-Product of Two Vectors `a` and `b`.
 T dotProduct(T, U)(in T a, in U b)
-if (isVector!T &&
-    isVector!U &&
+if (isInstanceOf!(Vector, T) &&
+    isInstanceOf!(Vector, U) &&
     (T.dimension ==
      U.dimension))
 {
@@ -960,9 +990,10 @@ if (Da >= 1 &&
 alias outer = outerProduct;
 
 /// Returns: Vector/Cross-Product of two 3-Dimensional Vectors.
-T cross(T)(in T a, in T b)
-if (isVector!T &&
-    T.dimension == 3) /// isVector!T &&
+auto crossProduct(T, U)(in T a,
+                        in U b)
+if (isInstanceOf!(Vector, T) && T.dimension == 3 &&
+    isInstanceOf!(Vector, U) && U.dimension == 3)
 {
     return T(a.y * b.z - b.y * a.z,
              a.z * b.x - b.z * a.x,
@@ -970,11 +1001,13 @@ if (isVector!T &&
 }
 
 /// Returns: (Euclidean) Distance between `a` and `b`.
-real distance(T, U)(in T a, in U b)
-if ((isVector!T && // either both vectors
-     isVector!U) ||
+real distance(T, U)(in T a,
+                    in U b)
+if ((isInstanceOf!(Vector, T) && // either both vectors
+     isInstanceOf!(Vector, U) &&
+     T.dimension == U.dimension) ||
     (isPoint!T && // or both points
-     isPoint!U))
+     isPoint!U))  // TODO support distance between vector and point
 {
     return (a - b).magnitude;
 }
@@ -983,7 +1016,7 @@ if ((isVector!T && // either both vectors
 {
     auto v1 = vec3f(1, 2, -3);
     auto v2 = vec3f(1, 3, 2);
-    assert(cross(v1, v2)[] == [13, -5, 1].s);
+    assert(crossProduct(v1, v2)[] == [13, -5, 1].s);
     assert(distance(vec2f(0, 0), vec2f(0, 10)) == 10);
     assert(distance(vec2f(0, 0), vec2d(0, 10)) == 10);
     assert(dot(v1, v2) == dot(v2, v1)); // commutative
@@ -1443,8 +1476,8 @@ if (D >= 1)
     E mass;
 }
 
-mixin(makeInstanceAliases("Particle", "particle", 2,4,
-                          ["float", "double", "real"]));
+// mixin(makeInstanceAliases("Particle", "particle", 2,4,
+//                           ["float", "double", "real"]));
 
 /** `D`-Dimensional Particle with Coordinate Position and
     Direction/Velocity/Force Type (Precision) `E`.
@@ -1568,8 +1601,8 @@ if (D >= 1)
     }
 }
 
-mixin(makeInstanceAliases("Box","box", 2,4,
-                          ["int", "float", "double", "real"]));
+// mixin(makeInstanceAliases("Box","box", 2,4,
+//                           ["int", "float", "double", "real"]));
 
 Box!(E,D) unite(E, uint D)(Box!(E,D) a,
                            Box!(E,D) b) { return a.expand(b); }
@@ -1707,8 +1740,8 @@ if (D >= 2 &&
 
 }
 
-mixin(makeInstanceAliases("Plane","plane", 3,4,
-                          defaultElementTypes));
+// mixin(makeInstanceAliases("Plane","plane", 3,4,
+//                           defaultElementTypes));
 
 /** `D`-Dimensional Cartesian (Hyper)-Sphere with Element (Component) Type `E`.
  */

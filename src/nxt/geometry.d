@@ -43,8 +43,8 @@ if (D >= 1 /* && TODO extend trait : isNumeric!E */)
             if (ix != 0) { sink(","); }
             version(use_cconv)
             {
-                import nxt.cconv : toString;
-                sink(toString(e));
+                import nxt.cconv : toStringInSink;
+                toStringInSink(e, sink);
             }
             else
             {

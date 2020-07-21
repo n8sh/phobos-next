@@ -2,6 +2,7 @@ module nxt.geometry;
 
 import std.traits: isFloatingPoint, isNumeric, isSigned, isDynamicArray, isAssignable, isArray, CommonType, isInstanceOf;
 
+version = use_cconv;            ///< Use cconv for faster compilation.
 version = unittestAllInstances;
 
 version(unittestAllInstances)
@@ -171,13 +172,21 @@ if (D >= 1 &&
 
     @property void toString(scope void delegate(scope const(char)[]) @safe sink) const
     {
-        import std.conv : to;
         sink(orientationString);
         sink(`Vector(`);
         foreach (const ix, const e; _vector)
         {
             if (ix != 0) { sink(","); }
-            sink(to!string(e));
+            version(use_cconv)
+            {
+                import nxt.cconv : toString;
+                sink(toString(e));
+            }
+            else
+            {
+                import std.conv : to;
+                sink(to!string(e));
+            }
         }
         sink(`)`);
     }

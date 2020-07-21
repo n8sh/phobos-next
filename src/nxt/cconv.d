@@ -1,18 +1,21 @@
 /// High-level wrappers for C-conversion functions.
 module nxt.cconv;
 
+/// Returns: `value` as a `string`.
 string toString(const double value,
                 uint digitCount = 30)
     @trusted pure nothrow
 {
     immutable length = 3 + digitCount; // digits plus + sign + dot + null
-
     auto buffer = new char[length];
-
     gcvt(value, digitCount, buffer.ptr);
-
-    import std.string : fromStringz;
     return fromStringz(buffer.ptr);
+}
+
+private inout(char)[] fromStringz(return scope inout(char)* cString) @nogc @system pure nothrow
+{
+    import core.stdc.string : cstrlen = strlen;
+    return cString ? cString[0 .. cstrlen(cString)] : null;
 }
 
 ///

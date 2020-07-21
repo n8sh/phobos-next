@@ -37,12 +37,20 @@ if (D >= 1 /* && TODO extend trait : isNumeric!E */)
 
     @property void toString(scope void delegate(scope const(char)[]) @safe sink) const
     {
-        import std.conv : to;
         sink(`Point(`);
         foreach (const ix, const e; _point)
         {
             if (ix != 0) { sink(","); }
-            sink(to!string(e));
+            version(use_cconv)
+            {
+                import nxt.cconv : toString;
+                sink(toString(e));
+            }
+            else
+            {
+                import std.conv : to;
+                sink(to!string(e));
+            }
         }
         sink(`)`);
     }
@@ -692,11 +700,10 @@ if (D >= 1 &&
 
     static if (isNumeric!E)
     {
-        import std.conv : to;
         /* Need these conversions when E is for instance ubyte.
            See this commit: https://github.com/Dav1dde/gl3n/commit/2504003df4f8a091e58a3d041831dc2522377f95 */
-        enum E0 = 0.to!E;
-        enum E1 = 1.to!E;
+        enum E0 = E(0);
+        enum E1 = E(1);
         static if (dimension == 2)
         {
             enum Vector e1 = Vector(E1, E0); /// canonical basis for Euclidian space
@@ -768,6 +775,5 @@ if (!is(CommonType!Ts == void))
 
 version(unittest)
 {
-    import std.conv : to;
     import nxt.array_help : s;
 }

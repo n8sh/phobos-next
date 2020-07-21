@@ -1,6 +1,5 @@
 module nxt.geometry;
 
-import mir.conv;
 import std.traits: isFloatingPoint, isNumeric, isSigned, isDynamicArray, isAssignable, isArray, CommonType, isInstanceOf;
 
 version = unittestAllInstances;

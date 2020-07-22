@@ -90,9 +90,7 @@ struct OpenHashMapOrSet(K, V = void,
                         bool borrowChecked = false,
                         bool useSmallLinearSearch = true,
                         bool usePrimeModulo = false)
-if (isNullable!K
-    // isHashable!K
-    )
+if (isNullable!K /*&& isHashable!K */)
 {
     // pragma(msg, K.stringof, " => ", V.stringof);
     import core.exception : onOutOfMemoryError;

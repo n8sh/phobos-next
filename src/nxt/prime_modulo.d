@@ -135,10 +135,10 @@ unittest
 
 /** Calculate `value` modulo function indexed by `primeIndex`.
  */
-pragma(inline, true)
 size_t primeModulo(in PrimeIndex primeIndex,
                    in size_t value)
 {
+    pragma(inline, true)
     return primeModuloFunctions[primeIndex](value);
 }
 

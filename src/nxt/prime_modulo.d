@@ -13,7 +13,7 @@ module nxt.prime_modulo;
 
 static assert(size_t.sizeof == 8, "This module currently only supports 64-bit platforms");
 
-/** Type-safe index into prime number constants `primeConstants`.
+/** Type-safe index into prime number constants array `primeConstants`.
  */
 struct PrimeIndex
 {

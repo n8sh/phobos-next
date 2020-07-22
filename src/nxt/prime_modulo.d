@@ -218,8 +218,7 @@ static foreach (primeConstant; primeConstants)
     }
 }
 
-// TODO use static foreach over `primeConstants` to generate this function array
-version(none)
+version(none)   // deprecated by `switch` over `static foreach` in `moduloPrime`
 static immutable moduloPrimeFns = [
     &mod0, &mod2, &mod3, &mod5, &mod7, &mod11, &mod13, &mod17, &mod23, &mod29, &mod37,
     &mod47, &mod59, &mod73, &mod97, &mod127, &mod151, &mod197, &mod251, &mod313, &mod397,

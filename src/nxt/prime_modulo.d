@@ -28,8 +28,8 @@ struct PrimeIndex
  *
  * Returns: prime index used as parameter to calculate `primeModulo`.
  */
-PrimeIndex ceilToNearestPrime(ref size_t value,
-                              PrimeIndex currentPrimeIndex = PrimeIndex.init)
+PrimeIndex ceilToPrime(ref size_t value,
+                       PrimeIndex currentPrimeIndex = PrimeIndex.init)
 {
     foreach (const primeIndex; currentPrimeIndex .. PrimeIndex(primeModuloConstants.length))
     {
@@ -50,47 +50,47 @@ unittest
     auto i = PrimeIndex(0);
 
     value = 0;
-    i = ceilToNearestPrime(value, i);
+    i = ceilToPrime(value, i);
     assert(primeModuloConstants[i] == 0);
 
     value = 1;
-    i = ceilToNearestPrime(value, i);
+    i = ceilToPrime(value, i);
     assert(primeModuloConstants[i] == 2);
     assert(value == 2);
 
     value = 2;
-    i = ceilToNearestPrime(value, i);
+    i = ceilToPrime(value, i);
     assert(primeModuloConstants[i] == 2);
     assert(value == 2);
 
     value = 3;
-    i = ceilToNearestPrime(value, i);
+    i = ceilToPrime(value, i);
     assert(primeModuloConstants[i] == 3);
     assert(value == 3);
 
     value = 4;
-    i = ceilToNearestPrime(value, i);
+    i = ceilToPrime(value, i);
     assert(primeModuloConstants[i] == 5);
     assert(value == 5);
 
     value = 5;
-    i = ceilToNearestPrime(value, i);
+    i = ceilToPrime(value, i);
     assert(primeModuloConstants[i] == 5);
     assert(value == 5);
 
     value = 6;
-    i = ceilToNearestPrime(value, i);
+    i = ceilToPrime(value, i);
     assert(primeModuloConstants[i] == 7);
     assert(value == 7);
 
     value = 7;
-    i = ceilToNearestPrime(value, i);
+    i = ceilToPrime(value, i);
     assert(primeModuloConstants[i] == 7);
 
     foreach (const ix; 8 .. 11 + 1)
     {
         value = ix;
-        i = ceilToNearestPrime(value, i);
+        i = ceilToPrime(value, i);
         assert(value == 11);
         assert(primeModuloConstants[i] == 11);
     }
@@ -98,7 +98,7 @@ unittest
     foreach (const ix; 12 .. 13 + 1)
     {
         value = ix;
-        i = ceilToNearestPrime(value, i);
+        i = ceilToPrime(value, i);
         assert(value == 13);
         assert(primeModuloConstants[i] == 13);
     }
@@ -106,7 +106,7 @@ unittest
     foreach (const ix; 14 .. 17 + 1)
     {
         value = ix;
-        i = ceilToNearestPrime(value, i);
+        i = ceilToPrime(value, i);
         assert(value == 17);
         assert(primeModuloConstants[i] == 17);
     }
@@ -114,7 +114,7 @@ unittest
     foreach (const ix; 18 .. 23 + 1)
     {
         value = ix;
-        i = ceilToNearestPrime(value, i);
+        i = ceilToPrime(value, i);
         assert(value == 23);
         assert(primeModuloConstants[i] == 23);
     }
@@ -126,7 +126,7 @@ unittest
     foreach (const prime; primeModuloConstants[3 .. $])
     {
         size_t value = prime - 1;
-        auto primeIndex = ceilToNearestPrime(value);
+        auto primeIndex = ceilToPrime(value);
         assert(value == prime);
         assert(primeModulo(primeIndex, value) == 0);
     }

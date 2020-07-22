@@ -13,10 +13,7 @@ module nxt.prime_modulo;
 
 static assert(size_t.sizeof == 8, "This module currently only supports 64-bit platforms");
 
-/** Index into `primeConstants` and prime modulo function table (`primeModuloFns`).
- *
- * Used by `ceilingPrime` for type-safe external indexing of `primeConstants`
- * and `primeModuloFns`.
+/** Type-safe index into `primeConstants`.
  */
 struct PrimeIndex
 {

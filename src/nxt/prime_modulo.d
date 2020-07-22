@@ -13,7 +13,7 @@ module nxt.prime_modulo;
 
 static assert(size_t.sizeof == 8, "This module currently only supports 64-bit platforms");
 
-/** Index into `primeConstants` and prime modulo function table (`primeModulos`).
+/** Index into `primeConstants` and prime modulo function table (`primeModuloFns`).
  *
  * Requires explicit construction from integers for more type-safety.
  */
@@ -140,12 +140,12 @@ size_t primeModulo(in PrimeIndex primeIndex,
                    in size_t value)
 {
     pragma(inline, true)
-    return primeModulos[primeIndex](value);
+    return primeModuloFns[primeIndex](value);
 }
 
 unittest
 {
-    static assert(primeModulos.length == 187);
+    static assert(primeModuloFns.length == 187);
 
     assert(primeModulo(PrimeIndex(3), 8) == 3); // modulo 5
     assert(primeModulo(PrimeIndex(4), 9) == 2); // modulo 7
@@ -215,7 +215,7 @@ static foreach (primeConstant; primeConstants)
 
 // TODO use static foreach over `primeConstants` to generate this function array
 // TODO add a check in a unittest to verify that all these constants are primes
-static immutable primeModulos = [
+static immutable primeModuloFns = [
     &mod0, &mod2, &mod3, &mod5, &mod7, &mod11, &mod13, &mod17, &mod23, &mod29, &mod37,
     &mod47, &mod59, &mod73, &mod97, &mod127, &mod151, &mod197, &mod251, &mod313, &mod397,
     &mod499, &mod631, &mod797, &mod1009, &mod1259, &mod1597, &mod2011, &mod2539, &mod3203,
@@ -257,13 +257,13 @@ static immutable primeModulos = [
     &mod11493228998133068689, &mod14480561146010017169, &mod18446744073709551557,
     ];
 
-/// verify that `primeConstants` and `primeModulos` are in sync
+/// verify that `primeConstants` and `primeModuloFns` are in sync
 unittest
 {
     static assert(primeConstants.length <= PrimeIndex._index.max);
 
     static assert(primeConstants.length ==
-                  primeModulos.length);
+                  primeModuloFns.length);
 
     foreach (const primeIndex, const prime; primeConstants)
     {

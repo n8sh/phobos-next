@@ -95,6 +95,30 @@ unittest
         assert(value == 11);
         assert(primeModuloConstants[i] == 11);
     }
+
+    foreach (const ix; 12 .. 13 + 1)
+    {
+        value = ix;
+        i = ceilToNearestPrime(value, i);
+        assert(value == 13);
+        assert(primeModuloConstants[i] == 13);
+    }
+
+    foreach (const ix; 14 .. 17 + 1)
+    {
+        value = ix;
+        i = ceilToNearestPrime(value, i);
+        assert(value == 17);
+        assert(primeModuloConstants[i] == 17);
+    }
+
+    foreach (const ix; 18 .. 23 + 1)
+    {
+        value = ix;
+        i = ceilToNearestPrime(value, i);
+        assert(value == 23);
+        assert(primeModuloConstants[i] == 23);
+    }
 }
 
 /// remaining modulos
@@ -128,7 +152,7 @@ unittest
 
 private static:
 
-static immutable primeModuloConstants =
+static immutable size_t[] primeModuloConstants =
 [
     0UL, 2UL, 3UL, 5UL, 7UL, 11UL, 13UL, 17UL, 23UL, 29UL, 37UL, 47UL,
     59UL, 73UL, 97UL, 127UL, 151UL, 197UL, 251UL, 313UL, 397UL,

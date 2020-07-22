@@ -21,22 +21,22 @@ struct PrimeIndex
     alias _ix this;             ///< PrimeIndex becomes type-safe wrapper to `_ix`.
 }
 
-/** Increase `length` in-place to a prime in `primeConstants` being
- * greater than or equal to `length`, where the linear search in
- * `primeConstants` starts at `primeIndex`.
+/** Returns: first prime in `primeConstants` >= `value`, where the linear search
+ * in `primeConstants` starts at `primeIndex`.
  *
- * Returns: prime index used as parameter to calculate `primeModulo`.
+ * Increases `primeIndex` so that `primeConstants[primeIndex]` equals returned
+ * value.
  */
-PrimeIndex ceilingPrime(ref size_t value,
-                        in PrimeIndex primeIndex = PrimeIndex.init)
+size_t ceilingPrime(in size_t value,
+                    scope ref PrimeIndex primeIndex)
 {
     foreach (const nextPrimeIndex; primeIndex .. PrimeIndex(primeConstants.length))
     {
         immutable prime = primeConstants[nextPrimeIndex];
         if (value <= prime)
         {
-            value = prime;
-            return nextPrimeIndex;
+            primeIndex = nextPrimeIndex;
+            return prime;
         }
     }
     assert(0, "Parameter value is too large");
@@ -49,47 +49,47 @@ unittest
     auto i = PrimeIndex(0);
 
     value = 0;
-    i = ceilingPrime(value, i);
+    value = ceilingPrime(value, i);
     assert(primeConstants[i] == 0);
 
     value = 1;
-    i = ceilingPrime(value, i);
+    value = ceilingPrime(value, i);
     assert(primeConstants[i] == 2);
     assert(value == 2);
 
     value = 2;
-    i = ceilingPrime(value, i);
+    value = ceilingPrime(value, i);
     assert(primeConstants[i] == 2);
     assert(value == 2);
 
     value = 3;
-    i = ceilingPrime(value, i);
+    value = ceilingPrime(value, i);
     assert(primeConstants[i] == 3);
     assert(value == 3);
 
     value = 4;
-    i = ceilingPrime(value, i);
+    value = ceilingPrime(value, i);
     assert(primeConstants[i] == 5);
     assert(value == 5);
 
     value = 5;
-    i = ceilingPrime(value, i);
+    value = ceilingPrime(value, i);
     assert(primeConstants[i] == 5);
     assert(value == 5);
 
     value = 6;
-    i = ceilingPrime(value, i);
+    value = ceilingPrime(value, i);
     assert(primeConstants[i] == 7);
     assert(value == 7);
 
     value = 7;
-    i = ceilingPrime(value, i);
+    value = ceilingPrime(value, i);
     assert(primeConstants[i] == 7);
 
     foreach (const ix; 8 .. 11 + 1)
     {
         value = ix;
-        i = ceilingPrime(value, i);
+        value = ceilingPrime(value, i);
         assert(value == 11);
         assert(primeConstants[i] == 11);
     }
@@ -97,7 +97,7 @@ unittest
     foreach (const ix; 12 .. 13 + 1)
     {
         value = ix;
-        i = ceilingPrime(value, i);
+        value = ceilingPrime(value, i);
         assert(value == 13);
         assert(primeConstants[i] == 13);
     }
@@ -105,7 +105,7 @@ unittest
     foreach (const ix; 14 .. 17 + 1)
     {
         value = ix;
-        i = ceilingPrime(value, i);
+        value = ceilingPrime(value, i);
         assert(value == 17);
         assert(primeConstants[i] == 17);
     }
@@ -113,7 +113,7 @@ unittest
     foreach (const ix; 18 .. 23 + 1)
     {
         value = ix;
-        i = ceilingPrime(value, i);
+        value = ceilingPrime(value, i);
         assert(value == 23);
         assert(primeConstants[i] == 23);
     }
@@ -125,7 +125,8 @@ unittest
     foreach (const prime; primeConstants[3 .. $])
     {
         size_t value = prime - 1;
-        auto primeIndex = ceilingPrime(value);
+        PrimeIndex primeIndex;
+        value = ceilingPrime(value, primeIndex);
         assert(value == prime);
         assert(moduloPrimeIndex(value, primeIndex) == 0);
     }

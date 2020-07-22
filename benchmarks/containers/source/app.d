@@ -14,7 +14,8 @@ void main()
     import nxt.array_help : toUbytes;
     import nxt.variant_arrays : VariantArrays;
     // import nxt.sso_hashmap_or_hashset : SSOHashSet, SSOHashMap;
-    import nxt.open_hashmap_or_hashset : OpenHashMap, OpenHashSet;
+    import nxt.pure_mallocator : Mallocator = PureMallocator;
+    import nxt.open_hashmap_or_hashset : OpenHashMap, OpenHashSet, defaultKeyEqualPredOf;
     import nxt.sso_string : SSOString;
     import nxt.address : Address;
 
@@ -115,6 +116,11 @@ void main()
 
                           OpenHashSet!(Nullable!(ulong, ulong.max)),
                           OpenHashSet!(Nullable!(ulong, ulong.max), FNV!(64, true)),
+                          OpenHashSet!(Nullable!(ulong, ulong.max), FNV!(64, true),
+                                       defaultKeyEqualPredOf!(Nullable!(ulong)),
+                                       Mallocator.instance,
+                                       false,
+                                       false),
                           OpenHashSet!(Nullable!(ulong, ulong.max), wangMixHash64),
 
                           OpenHashSet!(Address, FNV!(64, true)),

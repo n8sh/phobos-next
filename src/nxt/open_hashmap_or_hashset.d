@@ -4079,7 +4079,7 @@ enum isHoleable(T) = (// __traits(hasMember, T, "isHole") &&
                       // __traits(hasMember, T, "holeify") &&
     __traits(hasMember, T, "holeValue"));
 
-private template defaultKeyEqualPredOf(T)
+template defaultKeyEqualPredOf(T)
 {
     static if (is(T == class))
     {

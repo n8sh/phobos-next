@@ -6,8 +6,7 @@ module nxt.open_hashmap_or_hashset;
 import core.internal.hash : hashOf;
 import core.lifetime : emplace, move, moveEmplace;
 import nxt.nullable_traits : isNullable;
-import nxt.pure_mallocator : Mallocator = PureMallocator;
-// TODO import std.experimental.allocator.mallocator : Mallocator;
+import nxt.pure_mallocator : Mallocator = PureMallocator; // TODO merge into `std.experimental.allocator.mallocator`
 
 @safe:
 

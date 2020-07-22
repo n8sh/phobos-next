@@ -57,26 +57,32 @@ unittest
     value = 1;
     i = ceilToNearestPrime(value, i);
     assert(primeModuloConstants[i] == 2);
+    assert(value == 2);
 
     value = 2;
     i = ceilToNearestPrime(value, i);
     assert(primeModuloConstants[i] == 2);
+    assert(value == 2);
 
     value = 3;
     i = ceilToNearestPrime(value, i);
     assert(primeModuloConstants[i] == 3);
+    assert(value == 3);
 
     value = 4;
     i = ceilToNearestPrime(value, i);
     assert(primeModuloConstants[i] == 5);
+    assert(value == 5);
 
     value = 5;
     i = ceilToNearestPrime(value, i);
     assert(primeModuloConstants[i] == 5);
+    assert(value == 5);
 
     value = 6;
     i = ceilToNearestPrime(value, i);
     assert(primeModuloConstants[i] == 7);
+    assert(value == 7);
 
     value = 7;
     i = ceilToNearestPrime(value, i);

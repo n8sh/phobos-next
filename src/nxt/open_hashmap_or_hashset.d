@@ -82,7 +82,7 @@ import nxt.pure_mallocator : Mallocator = PureMallocator;
  * TODO keep only predicates with ref arguments (`const scope auto ref`) when
  * LDC can optimize those as fast as value passing. add LDC issue for this
  *
- * TODO safe one word by making `_store.length` be inferred by
+ * TODO save one word by making `_store.length` be inferred by
  * `primeConstants[_primeIndex]`
  */
 struct OpenHashMapOrSet(K, V = void,

@@ -4094,6 +4094,8 @@ enum isHoleable(T) = (// __traits(hasMember, T, "isHole") &&
                       // __traits(hasMember, T, "holeify") &&
     __traits(hasMember, T, "holeValue"));
 
+/** Default key equality/equivalence predicate for the type `T`.
+ */
 template defaultKeyEqualPredOf(T)
 {
     static if (is(T == class))

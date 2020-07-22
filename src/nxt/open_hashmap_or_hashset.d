@@ -1774,6 +1774,10 @@ private:
     {
         T[] _store;              // one element per bin
     }
+    static if (usePrimeModulo)
+    {
+        size_t _primeIndex;     // TODO redundant with `_store.length`
+    }
 
     static if (!hasHoleableKey)
     {

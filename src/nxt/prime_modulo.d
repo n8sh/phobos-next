@@ -165,6 +165,7 @@ static immutable primeModuloConstants =
 ];
 
 // TODO use static foreach over `primeModuloConstants` to generate these functions and function array
+// TODO add a check in a unittest to verify that all these constants are primes
 size_t mod0(in size_t) { return 0UL; }
 size_t mod2(in size_t value) { return value % 2UL; }
 size_t mod3(in size_t value) { return value % 3UL; }

@@ -13,7 +13,7 @@ module nxt.prime_modulo;
 
 static assert(size_t.sizeof == 8, "This module currently only supports 64-bit platforms");
 
-/** Index into prime modulo function table (`primeModuloFunctions`).
+/** Index into `primeModuloConstants` and prime modulo function table (`primeModuloFunctions`).
  *
  * Requires explicit construction from integers for more type-safety.
  */

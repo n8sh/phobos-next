@@ -15,7 +15,8 @@ static assert(size_t.sizeof == 8, "This module currently only supports 64-bit pl
 
 /** Index into `primeConstants` and prime modulo function table (`primeModuloFns`).
  *
- * Requires explicit construction from integers for more type-safety.
+ * Used by `ceilingPrime` for type-safe external indexing of `primeConstants`
+ * and `primeModuloFns`.
  */
 struct PrimeIndex
 {

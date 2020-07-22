@@ -43,7 +43,7 @@ PrimeIndex ceilToNearestPrime(ref size_t value,
     assert(0, "Parameter value is too large");
 }
 
-/// small modulos
+/// verify for small modulos
 unittest
 {
     size_t value = 0;

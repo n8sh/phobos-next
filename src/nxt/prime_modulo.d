@@ -261,10 +261,8 @@ static immutable primeModuloFns = [
 unittest
 {
     static assert(primeConstants.length <= PrimeIndex._index.max);
-
     static assert(primeConstants.length ==
                   primeModuloFns.length);
-
     foreach (const primeIndex, const prime; primeConstants)
     {
         if (prime != 0)

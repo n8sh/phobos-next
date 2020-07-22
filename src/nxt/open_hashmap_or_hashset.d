@@ -35,6 +35,10 @@ import nxt.pure_mallocator : Mallocator = PureMallocator;
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  * See_Also: https://gankro.github.io/blah/hashbrown-insert/
  *
+ * TODO Make load factor dependent on current capacity or length and perhaps
+ * also type and hash-function to get memory efficiency when it matters. Similar
+ * to what is recommended in https://ticki.github.io/blog/horrible/.
+ *
  * TODO remove use of `static if (isCopyable...)` in cases where compiler can handle more moves
  *
  * TODO use mmap allocator when `_store.sizeof` is larger than at least 8 pages

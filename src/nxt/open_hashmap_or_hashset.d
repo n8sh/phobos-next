@@ -382,18 +382,19 @@ if (isNullable!K /*&& isHashable!K */)
     /** Make default-initialized store with room for storing for at least
      * `minimumCapacity` number of elements.
      */
-    static private T[] makeDefaultInitializedStore()(size_t minimumCapacity) @trusted pure nothrow @nogc // template-lazy
+    static private T[] makeDefaultInitializedStore()(in size_t minimumCapacity) @trusted pure nothrow @nogc // template-lazy
     {
         static if (usePrimeModulo)
         {
-            _primeIndex = ceilingPrime(minimumCapacity, _primeIndex);
+            immutable capacity = ceilingPrime(minimumCapacity, _primeIndex);
         }
         else
         {
             immutable capacity = nextPow2(minimumCapacity);
         }
 
-        version(showEntries) dbg(__FUNCTION__, " minimumCapacity:", minimumCapacity,
+        version(showEntries) dbg(__FUNCTION__, " minimumCapacity:",
+                                 minimumCapacity,
                                  " capacity:", capacity);
 
         // TODO cannot use makeArray here because it cannot handle uncopyable types
@@ -1185,8 +1186,7 @@ if (isNullable!K /*&& isHashable!K */)
 
         static if (usePrimeModulo)
         {
-            _primeIndex = ceilingPrime(minimumCapacity, _primeIndex);
-            immutable newCapacity = minimumCapacity;
+            immutable newCapacity = ceilingPrime(minimumCapacity, _primeIndex);
         }
         else
         {

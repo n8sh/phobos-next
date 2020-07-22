@@ -260,10 +260,8 @@ static immutable primeModuloFns = [
 /// verify that `primeConstants` and `primeModuloFns` are in sync
 unittest
 {
-    static assert(primeConstants.length <=
-                  PrimeIndex._index.max);
-    static assert(primeConstants.length ==
-                  primeModuloFns.length);
+    static assert(primeConstants.length <= PrimeIndex._index.max);
+    static assert(primeConstants.length == primeModuloFns.length);
     foreach (const primeIndex, const prime; primeConstants)
     {
         if (prime != 0)

@@ -11,7 +11,7 @@ module nxt.prime_modulo;
 
 @safe pure nothrow @nogc:
 
-static assert(size_t.sizeof == 8, "This module currently only supports 64-bit platforms.");
+static assert(size_t.sizeof == 8, "This module currently only supports 64-bit platforms");
 
 /** Index into prime modulo function table (`primeModuloFunctions`).
  *

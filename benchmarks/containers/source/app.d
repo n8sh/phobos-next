@@ -191,6 +191,11 @@ void main()
                         {
                             const element = A.ElementType(i + 1); ///< Start at 1 instead of 0 because `Address` uses 0 for `nullValue`.
                         }
+                        else static if (is(A.ElementType == SSOString) ||
+                                        is(A.ElementType == string))
+                        {
+                            const element = A.ElementType(to!string(i));
+                        }
                         else
                         {
                             const element = A.ElementType(i); // wrap in `i` in `Nullable`
@@ -262,6 +267,11 @@ void main()
                             static if (is(A.ElementType == Address))
                             {
                                 const element = A.ElementType(i + 1); ///< Start at 1 instead of 0 because `Address` uses 0 for `nullValue`.
+                            }
+                            else static if (is(A.ElementType == SSOString) ||
+                                            is(A.ElementType == string))
+                            {
+                                const element = A.ElementType(to!string(i));
                             }
                             else
                             {

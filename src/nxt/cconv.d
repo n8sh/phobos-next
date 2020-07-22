@@ -2,16 +2,17 @@
 module nxt.cconv;
 
 /// Returns: `value` as a `string`.
-void toStringInSink(uint digitCountMax = 64)(const double value,
-                                             scope void delegate(scope const(char)[]) @safe sink,
-                                             uint digitCount = 5)
+void toStringInSink(const double value,
+                    scope void delegate(scope const(char)[]) @safe sink,
+                    uint digitCount = 5)
     @trusted
 {
+    static immutable digitCountMax = 61;
     assert(digitCount < digitCountMax);
-    char[digitCountMax] buffer;
-    gcvt(value, digitCount, buffer);
+    char[3 + digitCountMax] buffer; // (sign + dot + null) and digits
+    gcvt(value, digitCount, buffer.ptr);
     import core.stdc.string : cstrlen = strlen;
-    return buffer[0 .. cstrlen(buffer.ptr)];
+    sink(buffer[0 .. cstrlen(buffer.ptr)]);
 }
 
 /// Returns: `value` as a `string`.

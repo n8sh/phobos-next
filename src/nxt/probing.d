@@ -68,10 +68,10 @@ size_t triangularProbeFromIndexIncludingHoles(alias hitPred,
                                               T)(const scope T[] haystack,
                                                  size_t index,
                                                  ref size_t holeIndex) // first hole index
-    if ((is(typeof(unaryFun!hitPred(T.init))) ||
-         is(typeof(binaryFun!hitPred(size_t.init, T.init)))) ||
-        (is(typeof(unaryFun!holePred(T.init))) ||
-         is(typeof(binaryFun!holePred(size_t.init, T.init)))))
+if ((is(typeof(unaryFun!hitPred(T.init))) ||
+     is(typeof(binaryFun!hitPred(size_t.init, T.init)))) ||
+    (is(typeof(unaryFun!holePred(T.init))) ||
+     is(typeof(binaryFun!holePred(size_t.init, T.init)))))
 {
     immutable mask = haystack.length - 1;
     assert((~mask ^ mask) == typeof(return).max); // std.math.isPowerOf2(haystack.length)
@@ -127,7 +127,7 @@ size_t triangularProbeFromIndexIncludingHoles(alias hitPred,
 
 size_t triangularProbeCountFromIndex(alias pred,
                                      T)(const scope T[] haystack, size_t index)
-    if (is(typeof(unaryFun!pred(T.init))))
+if (is(typeof(unaryFun!pred(T.init))))
 {
     immutable mask = haystack.length - 1;
     assert((~mask ^ mask) == typeof(return).max); // std.math.isPowerOf2(haystack.length)

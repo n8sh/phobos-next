@@ -767,11 +767,11 @@ if (!is(CommonType!Ts == void))
     return Vector!(CommonType!Ts, args.length, false, Orient.column)(args);
 }
 
-// @safe pure nothrow @nogc unittest
-// {
-//     assert(point(1, 2) + vector(1, 2) == point(2, 4));
-//     assert(point(1, 2) - vector(1, 2) == point(0, 0));
-// }
+@safe pure nothrow @nogc unittest
+{
+    assert(point(1, 2) + vector(1, 2) == point(2, 4));
+    assert(point(1, 2) - vector(1, 2) == point(0, 0));
+}
 
 version(unittest)
 {

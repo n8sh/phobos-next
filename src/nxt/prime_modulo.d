@@ -127,12 +127,12 @@ unittest
         size_t value = prime - 1;
         auto primeIndex = ceilingPrime(value);
         assert(value == prime);
-        assert(moduloPrime(primeIndex, value) == 0);
+        assert(moduloPrimeIndex(primeIndex, value) == 0);
     }
 }
 
-size_t moduloPrime(in PrimeIndex primeIndex,
-                   in size_t value)
+size_t moduloPrimeIndex(in PrimeIndex primeIndex,
+                        in size_t value)
 {
     final switch (primeIndex)
     {
@@ -148,11 +148,11 @@ size_t moduloPrime(in PrimeIndex primeIndex,
 unittest
 {
     static assert(primeConstants.length == 187);
-    assert(moduloPrime(PrimeIndex(3), 8) == 3); // modulo 5
-    assert(moduloPrime(PrimeIndex(4), 9) == 2); // modulo 7
+    assert(moduloPrimeIndex(PrimeIndex(3), 8) == 3); // modulo 5
+    assert(moduloPrimeIndex(PrimeIndex(4), 9) == 2); // modulo 7
 }
 
-/// verify `moduloPrime`
+/// verify `moduloPrimeIndex`
 unittest
 {
     static assert(primeConstants.length <= PrimeIndex._ix.max);
@@ -160,8 +160,8 @@ unittest
     {
         if (prime != 0)
         {
-            assert(moduloPrime(PrimeIndex(cast(typeof(PrimeIndex._ix))primeIndex), prime + 0) == 0);
-            assert(moduloPrime(PrimeIndex(cast(typeof(PrimeIndex._ix))primeIndex), prime + 1) == 1);
+            assert(moduloPrimeIndex(PrimeIndex(cast(typeof(PrimeIndex._ix))primeIndex), prime + 0) == 0);
+            assert(moduloPrimeIndex(PrimeIndex(cast(typeof(PrimeIndex._ix))primeIndex), prime + 1) == 1);
         }
     }
 }
@@ -218,7 +218,7 @@ static immutable size_t[] primeConstants =
     11493228998133068689UL, 14480561146010017169UL, 18446744073709551557UL,
 ];
 
-version(none)   // deprecated by `switch` over `static foreach` in `moduloPrime`
+version(none)   // deprecated by `switch` over `static foreach` in `moduloPrimeIndex`
 static foreach (primeConstant; primeConstants)
 {
     static if (primeConstant == 0)
@@ -231,7 +231,7 @@ static foreach (primeConstant; primeConstants)
     }
 }
 
-version(none)   // deprecated by `switch` over `static foreach` in `moduloPrime`
+version(none)   // deprecated by `switch` over `static foreach` in `moduloPrimeIndex`
 static immutable moduloPrimeFns = [
     &mod0, &mod2, &mod3, &mod5, &mod7, &mod11, &mod13, &mod17, &mod23, &mod29, &mod37,
     &mod47, &mod59, &mod73, &mod97, &mod127, &mod151, &mod197, &mod251, &mod313, &mod397,

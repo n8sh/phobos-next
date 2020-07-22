@@ -17,8 +17,9 @@ import nxt.pure_mallocator : Mallocator = PureMallocator; // TODO merge into `st
  * with behaviour of default value hashing of `class` instances in
  * `digestion.d`.
  *
- * Uses open-addressing for compact storage with default quadratic probing
- * (using triangular numbers)
+ * Use open-addressing for compact storage with default quadratic probing (using
+ * triangular numbers) unless `usePrimeCapacity` is set when a simple probing is
+ * used.
  *
  * Deletion/Removal of elements is lazy via the bitmap `_holesPtr` or through
  * assignment of of reserved value of `KeyType` when `KeyType` has hole-support

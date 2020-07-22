@@ -205,7 +205,21 @@ static immutable size_t[] primeConstants =
     11493228998133068689UL, 14480561146010017169UL, 18446744073709551557UL,
 ];
 
-version(none)
+/// verify `moduloPrime`
+unittest
+{
+    static assert(primeConstants.length <= PrimeIndex._ix.max);
+    foreach (const primeIndex, const prime; primeConstants)
+    {
+        if (prime != 0)
+        {
+            assert(moduloPrime(PrimeIndex(cast(typeof(PrimeIndex._ix))primeIndex), prime + 0) == 0);
+            assert(moduloPrime(PrimeIndex(cast(typeof(PrimeIndex._ix))primeIndex), prime + 1) == 1);
+        }
+    }
+}
+
+version(none)   // deprecated by `switch` over `static foreach` in `moduloPrime`
 static foreach (primeConstant; primeConstants)
 {
     static if (primeConstant == 0)
@@ -260,17 +274,3 @@ static immutable moduloPrimeFns = [
     &mod5746614499066534157, &mod7240280573005008577, &mod9122181901073924329,
     &mod11493228998133068689, &mod14480561146010017169, &mod18446744073709551557,
     ];
-
-/// verify that `primeConstants` and `moduloPrimeFns` are in sync
-unittest
-{
-    static assert(primeConstants.length <= PrimeIndex._ix.max);
-    foreach (const primeIndex, const prime; primeConstants)
-    {
-        if (prime != 0)
-        {
-            assert(moduloPrime(PrimeIndex(cast(typeof(PrimeIndex._ix))primeIndex), prime + 0) == 0);
-            assert(moduloPrime(PrimeIndex(cast(typeof(PrimeIndex._ix))primeIndex), prime + 1) == 1);
-        }
-    }
-}

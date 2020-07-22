@@ -26,6 +26,8 @@ struct PrimeIndex
 /** Increase `length` in-place to a prime in `primeModuloConstants` being
  * greater than or equal to `length`.
  *
+ * The linear search in `primeModuloConstants` starts at `currentPrimeIndex`.
+ *
  * Returns: prime index used as parameter to calculate `primeModulo`.
  */
 PrimeIndex ceilingPrime(ref size_t value,

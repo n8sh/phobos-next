@@ -13,7 +13,7 @@ module nxt.prime_modulo;
 
 static assert(size_t.sizeof == 8, "This module currently only supports 64-bit platforms");
 
-/** Index into `primeModuloConstants` and prime modulo function table (`primeModuloFunctions`).
+/** Index into `primeConstants` and prime modulo function table (`primeModuloFunctions`).
  *
  * Requires explicit construction from integers for more type-safety.
  */
@@ -23,19 +23,19 @@ struct PrimeIndex
     alias _index this;
 }
 
-/** Increase `length` in-place to a prime in `primeModuloConstants` being
+/** Increase `length` in-place to a prime in `primeConstants` being
  * greater than or equal to `length`.
  *
- * The linear search in `primeModuloConstants` starts at `currentPrimeIndex`.
+ * The linear search in `primeConstants` starts at `currentPrimeIndex`.
  *
  * Returns: prime index used as parameter to calculate `primeModulo`.
  */
 PrimeIndex ceilingPrime(ref size_t value,
                         PrimeIndex currentPrimeIndex = PrimeIndex.init)
 {
-    foreach (const primeIndex; currentPrimeIndex .. PrimeIndex(primeModuloConstants.length))
+    foreach (const primeIndex; currentPrimeIndex .. PrimeIndex(primeConstants.length))
     {
-        immutable prime = primeModuloConstants[primeIndex];
+        immutable prime = primeConstants[primeIndex];
         if (value <= prime)
         {
             value = prime;
@@ -53,48 +53,48 @@ unittest
 
     value = 0;
     i = ceilingPrime(value, i);
-    assert(primeModuloConstants[i] == 0);
+    assert(primeConstants[i] == 0);
 
     value = 1;
     i = ceilingPrime(value, i);
-    assert(primeModuloConstants[i] == 2);
+    assert(primeConstants[i] == 2);
     assert(value == 2);
 
     value = 2;
     i = ceilingPrime(value, i);
-    assert(primeModuloConstants[i] == 2);
+    assert(primeConstants[i] == 2);
     assert(value == 2);
 
     value = 3;
     i = ceilingPrime(value, i);
-    assert(primeModuloConstants[i] == 3);
+    assert(primeConstants[i] == 3);
     assert(value == 3);
 
     value = 4;
     i = ceilingPrime(value, i);
-    assert(primeModuloConstants[i] == 5);
+    assert(primeConstants[i] == 5);
     assert(value == 5);
 
     value = 5;
     i = ceilingPrime(value, i);
-    assert(primeModuloConstants[i] == 5);
+    assert(primeConstants[i] == 5);
     assert(value == 5);
 
     value = 6;
     i = ceilingPrime(value, i);
-    assert(primeModuloConstants[i] == 7);
+    assert(primeConstants[i] == 7);
     assert(value == 7);
 
     value = 7;
     i = ceilingPrime(value, i);
-    assert(primeModuloConstants[i] == 7);
+    assert(primeConstants[i] == 7);
 
     foreach (const ix; 8 .. 11 + 1)
     {
         value = ix;
         i = ceilingPrime(value, i);
         assert(value == 11);
-        assert(primeModuloConstants[i] == 11);
+        assert(primeConstants[i] == 11);
     }
 
     foreach (const ix; 12 .. 13 + 1)
@@ -102,7 +102,7 @@ unittest
         value = ix;
         i = ceilingPrime(value, i);
         assert(value == 13);
-        assert(primeModuloConstants[i] == 13);
+        assert(primeConstants[i] == 13);
     }
 
     foreach (const ix; 14 .. 17 + 1)
@@ -110,7 +110,7 @@ unittest
         value = ix;
         i = ceilingPrime(value, i);
         assert(value == 17);
-        assert(primeModuloConstants[i] == 17);
+        assert(primeConstants[i] == 17);
     }
 
     foreach (const ix; 18 .. 23 + 1)
@@ -118,14 +118,14 @@ unittest
         value = ix;
         i = ceilingPrime(value, i);
         assert(value == 23);
-        assert(primeModuloConstants[i] == 23);
+        assert(primeConstants[i] == 23);
     }
 }
 
 /// remaining modulos
 unittest
 {
-    foreach (const prime; primeModuloConstants[3 .. $])
+    foreach (const prime; primeConstants[3 .. $])
     {
         size_t value = prime - 1;
         auto primeIndex = ceilingPrime(value);
@@ -155,7 +155,7 @@ private static:
 
 /** Subset of prime constants in the exclusive range `[0 .. size_t.max]`.
  */
-static immutable size_t[] primeModuloConstants =
+static immutable size_t[] primeConstants =
 [
     0UL, 2UL, 3UL, 5UL, 7UL, 11UL, 13UL, 17UL, 23UL, 29UL, 37UL, 47UL,
     59UL, 73UL, 97UL, 127UL, 151UL, 197UL, 251UL, 313UL, 397UL,
@@ -201,7 +201,7 @@ static immutable size_t[] primeModuloConstants =
     11493228998133068689UL, 14480561146010017169UL, 18446744073709551557UL,
 ];
 
-static foreach (primeConstant; primeModuloConstants)
+static foreach (primeConstant; primeConstants)
 {
     static if (primeConstant == 0)
     {
@@ -213,7 +213,7 @@ static foreach (primeConstant; primeModuloConstants)
     }
 }
 
-// TODO use static foreach over `primeModuloConstants` to generate this function array
+// TODO use static foreach over `primeConstants` to generate this function array
 // TODO add a check in a unittest to verify that all these constants are primes
 static immutable primeModuloFunctions = [
     &mod0, &mod2, &mod3, &mod5, &mod7, &mod11, &mod13, &mod17, &mod23, &mod29, &mod37,
@@ -257,15 +257,15 @@ static immutable primeModuloFunctions = [
     &mod11493228998133068689, &mod14480561146010017169, &mod18446744073709551557,
     ];
 
-/// verify that `primeModuloConstants` and `primeModuloFunctions` are in sync
+/// verify that `primeConstants` and `primeModuloFunctions` are in sync
 unittest
 {
-    static assert(primeModuloConstants.length <= PrimeIndex._index.max);
+    static assert(primeConstants.length <= PrimeIndex._index.max);
 
-    static assert(primeModuloConstants.length ==
+    static assert(primeConstants.length ==
                   primeModuloFunctions.length);
 
-    foreach (const primeIndex, const prime; primeModuloConstants)
+    foreach (const primeIndex, const prime; primeConstants)
     {
         if (prime != 0)
         {

@@ -6,10 +6,9 @@
 module nxt.setops_ex;
 
 /** Specialization for `std.algorithm.setopts.setUnion` for AA. */
-auto setUnionUpdate(T1, T2)(T1 a, T2 b)
-    @trusted
-    if (isAA!T1 &&
-        isAA!T2)
+auto setUnionUpdate(T1, T2)(T1 a, T2 b) @trusted
+if (isAA!T1 &&
+    isAA!T2)
 {
     if (a.length < b.length)
     {
@@ -96,9 +95,9 @@ import nxt.range_ex : haveCommonElementType;
 private struct SetIntersectionFast(alias less = "a < b",
                                    SearchPolicy preferredSearchPolicy = SearchPolicy.gallop,
                                    Rs...)
-    if (Rs.length >= 2 &&
-        allSatisfy!(isInputRange, Rs) &&
-        haveCommonElementType!Rs)
+if (Rs.length >= 2 &&
+    allSatisfy!(isInputRange, Rs) &&
+    haveCommonElementType!Rs)
 {
 private:
     Rs _inputs;
@@ -227,7 +226,7 @@ public:
 import core.internal.traits : Unqual;
 
 auto assumeMoveableSorted(alias pred = "a < b", R)(R r)
-    if (isInputRange!(Unqual!R))
+if (isInputRange!(Unqual!R))
 {
     import core.lifetime : move;
     return MoveableSortedRange!(Unqual!R, pred)(move(r)); // TODO remove `move` when compiler does it for us
@@ -241,9 +240,9 @@ MoveableSortedRange!(SetIntersectionFast!(less, preferredSearchPolicy, Rs))
 setIntersectionFast(alias less = "a < b",
                     SearchPolicy preferredSearchPolicy = SearchPolicy.gallop,
                     Rs...)(Rs ranges)
-    if (Rs.length >= 2 &&
-        allSatisfy!(isInputRange, Rs) &&
-        haveCommonElementType!Rs)
+if (Rs.length >= 2 &&
+    allSatisfy!(isInputRange, Rs) &&
+    haveCommonElementType!Rs)
 {
     // TODO Remove need for these switch cases if this can be fixed:
     // http://forum.dlang.org/post/pknonazfniihvpicxbld@forum.dlang.org
@@ -342,7 +341,7 @@ setIntersectionFast(alias less = "a < b",
 
 // TODO remove this `MoveableSortedRange` and replace with Phobos' `SortedRange` in this buffer
 struct MoveableSortedRange(Range, alias pred = "a < b")
-    if (isInputRange!Range)
+if (isInputRange!Range)
 {
     import std.functional : binaryFun;
 

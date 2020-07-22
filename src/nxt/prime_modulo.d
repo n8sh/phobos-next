@@ -153,6 +153,8 @@ unittest
 
 private static:
 
+/** Subset of prime constants in the exclusive range `[0 .. size_t.max]`.
+ */
 static immutable size_t[] primeModuloConstants =
 [
     0UL, 2UL, 3UL, 5UL, 7UL, 11UL, 13UL, 17UL, 23UL, 29UL, 37UL, 47UL,

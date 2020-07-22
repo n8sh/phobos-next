@@ -31,6 +31,7 @@ import nxt.pure_mallocator : Mallocator = PureMallocator;
  *      useSmallLinearSearch = Use linear search instead probing when `_store` is smaller than `linearSearchMaxSize`
  *      usePrimeModulo = Use prime numbers as capacity of hash table enabling better performance of simpler hash-functions
  *
+ * See_Also: https://github.com/Tessil/robin-map
  * See_Also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  * See_Also: https://en.wikipedia.org/wiki/Lazy_deletion
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
@@ -370,7 +371,6 @@ if (isNullable!K
      */
     static typeof(this) withCapacity()(size_t minimumCapacity) // template-lazy
     {
-        version(LDC) pragma(inline, true);
         version(showEntries) dbg(__FUNCTION__, " minimumCapacity:", minimumCapacity);
         return typeof(return)(makeDefaultInitializedStore(minimumCapacity), 0);
     }
@@ -380,8 +380,15 @@ if (isNullable!K
      */
     static private T[] makeDefaultInitializedStore()(size_t minimumCapacity) @trusted pure nothrow @nogc // template-lazy
     {
-        version(LDC) pragma(inline, true);
-        immutable capacity = nextPow2(minimumCapacity);
+        static if (usePrimeModulo)
+        {
+            _primeIndex = ceilingPrime(minimumCapacity, _primeIndex);
+        }
+        else
+        {
+            immutable capacity = nextPow2(minimumCapacity);
+        }
+
         version(showEntries) dbg(__FUNCTION__, " minimumCapacity:", minimumCapacity,
                                  " capacity:", capacity);
 

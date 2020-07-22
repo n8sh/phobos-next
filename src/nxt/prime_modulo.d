@@ -48,76 +48,76 @@ PrimeIndex ceilingPrime(ref size_t value,
 /// verify for small modulos
 unittest
 {
-    size_t prime = 0;           ///< Prime prime.
+    size_t value = 0;           ///< Prime value.
     auto i = PrimeIndex(0);
 
-    prime = 0;
-    i = ceilingPrime(prime, i);
+    value = 0;
+    i = ceilingPrime(value, i);
     assert(primeConstants[i] == 0);
 
-    prime = 1;
-    i = ceilingPrime(prime, i);
+    value = 1;
+    i = ceilingPrime(value, i);
     assert(primeConstants[i] == 2);
-    assert(prime == 2);
+    assert(value == 2);
 
-    prime = 2;
-    i = ceilingPrime(prime, i);
+    value = 2;
+    i = ceilingPrime(value, i);
     assert(primeConstants[i] == 2);
-    assert(prime == 2);
+    assert(value == 2);
 
-    prime = 3;
-    i = ceilingPrime(prime, i);
+    value = 3;
+    i = ceilingPrime(value, i);
     assert(primeConstants[i] == 3);
-    assert(prime == 3);
+    assert(value == 3);
 
-    prime = 4;
-    i = ceilingPrime(prime, i);
+    value = 4;
+    i = ceilingPrime(value, i);
     assert(primeConstants[i] == 5);
-    assert(prime == 5);
+    assert(value == 5);
 
-    prime = 5;
-    i = ceilingPrime(prime, i);
+    value = 5;
+    i = ceilingPrime(value, i);
     assert(primeConstants[i] == 5);
-    assert(prime == 5);
+    assert(value == 5);
 
-    prime = 6;
-    i = ceilingPrime(prime, i);
+    value = 6;
+    i = ceilingPrime(value, i);
     assert(primeConstants[i] == 7);
-    assert(prime == 7);
+    assert(value == 7);
 
-    prime = 7;
-    i = ceilingPrime(prime, i);
+    value = 7;
+    i = ceilingPrime(value, i);
     assert(primeConstants[i] == 7);
 
     foreach (const ix; 8 .. 11 + 1)
     {
-        prime = ix;
-        i = ceilingPrime(prime, i);
-        assert(prime == 11);
+        value = ix;
+        i = ceilingPrime(value, i);
+        assert(value == 11);
         assert(primeConstants[i] == 11);
     }
 
     foreach (const ix; 12 .. 13 + 1)
     {
-        prime = ix;
-        i = ceilingPrime(prime, i);
-        assert(prime == 13);
+        value = ix;
+        i = ceilingPrime(value, i);
+        assert(value == 13);
         assert(primeConstants[i] == 13);
     }
 
     foreach (const ix; 14 .. 17 + 1)
     {
-        prime = ix;
-        i = ceilingPrime(prime, i);
-        assert(prime == 17);
+        value = ix;
+        i = ceilingPrime(value, i);
+        assert(value == 17);
         assert(primeConstants[i] == 17);
     }
 
     foreach (const ix; 18 .. 23 + 1)
     {
-        prime = ix;
-        i = ceilingPrime(prime, i);
-        assert(prime == 23);
+        value = ix;
+        i = ceilingPrime(value, i);
+        assert(value == 23);
         assert(primeConstants[i] == 23);
     }
 }
@@ -155,9 +155,25 @@ unittest
     assert(moduloPrime(PrimeIndex(4), 9) == 2); // modulo 7
 }
 
+/// verify `moduloPrime`
+unittest
+{
+    static assert(primeConstants.length <= PrimeIndex._ix.max);
+    foreach (const primeIndex, const prime; primeConstants)
+    {
+        if (prime != 0)
+        {
+            assert(moduloPrime(PrimeIndex(cast(typeof(PrimeIndex._ix))primeIndex), prime + 0) == 0);
+            assert(moduloPrime(PrimeIndex(cast(typeof(PrimeIndex._ix))primeIndex), prime + 1) == 1);
+        }
+    }
+}
+
 private static:
 
 /** Subset of prime constants in the exclusive range `[0 .. size_t.max]`.
+ *
+ * Suitable for use as lengths of a growing hash table.
  */
 static immutable size_t[] primeConstants =
 [
@@ -204,20 +220,6 @@ static immutable size_t[] primeConstants =
     5746614499066534157UL, 7240280573005008577UL, 9122181901073924329UL,
     11493228998133068689UL, 14480561146010017169UL, 18446744073709551557UL,
 ];
-
-/// verify `moduloPrime`
-unittest
-{
-    static assert(primeConstants.length <= PrimeIndex._ix.max);
-    foreach (const primeIndex, const prime; primeConstants)
-    {
-        if (prime != 0)
-        {
-            assert(moduloPrime(PrimeIndex(cast(typeof(PrimeIndex._ix))primeIndex), prime + 0) == 0);
-            assert(moduloPrime(PrimeIndex(cast(typeof(PrimeIndex._ix))primeIndex), prime + 1) == 1);
-        }
-    }
-}
 
 version(none)   // deprecated by `switch` over `static foreach` in `moduloPrime`
 static foreach (primeConstant; primeConstants)

@@ -5,7 +5,7 @@
  *
  * See_Also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  */
-module nxt.prime_growth;
+module nxt.prime_modulo;
 
 @safe pure nothrow @nogc:
 

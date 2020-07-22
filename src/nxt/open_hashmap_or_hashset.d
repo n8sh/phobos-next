@@ -391,7 +391,7 @@ if (isNullable!K /*&& isHashable!K */)
         }
     }
 
-    /** Make default-initialized store with length `capacity`.
+    /** Make default-initialized store with `capacity` number of slots.
      */
     static private T[] makeDefaultInitializedStoreOfLength()(in size_t capacity) @trusted pure nothrow @nogc // template-lazy
     {

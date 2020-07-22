@@ -27,12 +27,6 @@ string toString(const double value,
     return buffer[0 .. cstrlen(buffer.ptr)]; // TODO avoid
 }
 
-private inout(char)[] fromStringz(return scope inout(char)* cString) @nogc @system pure nothrow
-{
-    import core.stdc.string : cstrlen = strlen;
-    return cString ? cString[0 .. cstrlen(cString)] : null;
-}
-
 ///
 @safe pure nothrow unittest
 {

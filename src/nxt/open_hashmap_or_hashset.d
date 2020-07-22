@@ -1177,14 +1177,22 @@ if (isNullable!K /*&& isHashable!K */)
         }
     }
 
-    /** Grow (including rehash) store in-place to make room for
-     * `minimumCapacity` number of elements.
+    /** Grow (with rehash) store in-place making room for `minimumCapacity` number of elements.
      */
     private void growInPlaceWithCapacity()(size_t minimumCapacity) @trusted // template-lazy
     {
         assert(minimumCapacity > _store.length);
 
-        immutable newCapacity = nextPow2(minimumCapacity);
+        static if (usePrimeModulo)
+        {
+            _primeIndex = ceilingPrime(minimumCapacity, _primeIndex);
+            immutable newCapacity = minimumCapacity;
+        }
+        else
+        {
+            immutable newCapacity = nextPow2(minimumCapacity);
+        }
+
         immutable newByteCount = T.sizeof*newCapacity;
 
         const oldStorePtr = _store.ptr;

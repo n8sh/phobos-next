@@ -4,7 +4,7 @@ module nxt.open_hashmap_or_hashset;
 // version = internalUnittest; // fed by dub (see dub.sdl) in unittest-internal mode
 
 import core.internal.hash : hashOf;
-import core.lifetime : emplace, move, moveEmplace;
+import core.lifetime : move;
 import nxt.nullable_traits : isNullable;
 import nxt.pure_mallocator : Mallocator = PureMallocator; // TODO merge into `std.experimental.allocator.mallocator`
 
@@ -433,6 +433,7 @@ if (isNullable!K
             }
             foreach (ref bin; store)
             {
+                import core.lifetime : emplace;
                 enum hasNullValueKey = __traits(hasMember, K, `nullValue`);
                 static if (hasNullValueKey &&
                            !is(typeof(emplace(&keyOf(bin), K.nullValue)))) // __traits(compiles) fails here when building knet
@@ -587,6 +588,7 @@ if (isNullable!K
             }
             else
             {
+                import core.lifetime : emplace;
                 emplace(&storeCopy[index]); // TODO only emplace key and not value
                 keyOf(storeCopy[index]).nullify();
             }
@@ -1103,6 +1105,7 @@ if (isNullable!K
                 }
                 static if (hasValue)
                 {
+                    import core.lifetime : moveEmplace;
                     moveEmplace(valueOf(element), valueOf(_store[index]));
                 }
             }
@@ -1124,6 +1127,7 @@ if (isNullable!K
             if (bt(dones, doneIndex)) { continue; } // if _store[doneIndex] continue
             if (isOccupiedAtIndex(doneIndex))
             {
+                import core.lifetime : moveEmplace;
                 T currentElement = void;
 
                 // TODO functionize:
@@ -1459,6 +1463,7 @@ if (isNullable!K
         scope const(Class) tryGetElementFromCtorParams(Class, Params...)(scope Params params) const return @trusted
         if (is(Class : K))
         {
+            import core.lifetime : emplace;
             void[__traits(classInstanceSize, Class)] tempNode_ = void;
             scope Class temp = emplace!(Class)(tempNode_, params);
             Class* hit = cast(Class*)(temp in this);
@@ -2032,11 +2037,13 @@ static private void duplicateEmplace(T)(const scope ref T src,
         else                    // TODO can this case occur?
         {
             import core.internal.traits : Unqual;
+            import core.lifetime : emplace;
             emplace(&dst, cast(Unqual!T)src);
         }
     }
     else static if (__traits(hasMember, T, "dup"))
     {
+        import core.lifetime : emplace;
         // TODO when `emplace` can handle src being an r-value of uncopyable types replace with: `emplace(&dst, src.dup);`
         emplace(&dst);
         dst = src.dup;

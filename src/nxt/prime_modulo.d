@@ -164,196 +164,20 @@ static immutable primeModuloConstants =
     11493228998133068689UL, 14480561146010017169UL, 18446744073709551557UL,
 ];
 
-// TODO use static foreach over `primeModuloConstants` to generate these functions and function array
-// TODO add a check in a unittest to verify that all these constants are primes
-size_t mod0(const size_t) { return 0UL; }
-size_t mod2(const size_t value) { return value % 2UL; }
-size_t mod3(const size_t value) { return value % 3UL; }
-size_t mod5(const size_t value) { return value % 5UL; }
-size_t mod7(const size_t value) { return value % 7UL; }
-size_t mod11(const size_t value) { return value % 11UL; }
-size_t mod13(const size_t value) { return value % 13UL; }
-size_t mod17(const size_t value) { return value % 17UL; }
-size_t mod23(const size_t value) { return value % 23UL; }
-size_t mod29(const size_t value) { return value % 29UL; }
-size_t mod37(const size_t value) { return value % 37UL; }
-size_t mod47(const size_t value) { return value % 47UL; }
-size_t mod59(const size_t value) { return value % 59UL; }
-size_t mod73(const size_t value) { return value % 73UL; }
-size_t mod97(const size_t value) { return value % 97UL; }
-size_t mod127(const size_t value) { return value % 127UL; }
-size_t mod151(const size_t value) { return value % 151UL; }
-size_t mod197(const size_t value) { return value % 197UL; }
-size_t mod251(const size_t value) { return value % 251UL; }
-size_t mod313(const size_t value) { return value % 313UL; }
-size_t mod397(const size_t value) { return value % 397UL; }
-size_t mod499(const size_t value) { return value % 499UL; }
-size_t mod631(const size_t value) { return value % 631UL; }
-size_t mod797(const size_t value) { return value % 797UL; }
-size_t mod1009(const size_t value) { return value % 1009UL; }
-size_t mod1259(const size_t value) { return value % 1259UL; }
-size_t mod1597(const size_t value) { return value % 1597UL; }
-size_t mod2011(const size_t value) { return value % 2011UL; }
-size_t mod2539(const size_t value) { return value % 2539UL; }
-size_t mod3203(const size_t value) { return value % 3203UL; }
-size_t mod4027(const size_t value) { return value % 4027UL; }
-size_t mod5087(const size_t value) { return value % 5087UL; }
-size_t mod6421(const size_t value) { return value % 6421UL; }
-size_t mod8089(const size_t value) { return value % 8089UL; }
-size_t mod10193(const size_t value) { return value % 10193UL; }
-size_t mod12853(const size_t value) { return value % 12853UL; }
-size_t mod16193(const size_t value) { return value % 16193UL; }
-size_t mod20399(const size_t value) { return value % 20399UL; }
-size_t mod25717(const size_t value) { return value % 25717UL; }
-size_t mod32401(const size_t value) { return value % 32401UL; }
-size_t mod40823(const size_t value) { return value % 40823UL; }
-size_t mod51437(const size_t value) { return value % 51437UL; }
-size_t mod64811(const size_t value) { return value % 64811UL; }
-size_t mod81649(const size_t value) { return value % 81649UL; }
-size_t mod102877(const size_t value) { return value % 102877UL; }
-size_t mod129607(const size_t value) { return value % 129607UL; }
-size_t mod163307(const size_t value) { return value % 163307UL; }
-size_t mod205759(const size_t value) { return value % 205759UL; }
-size_t mod259229(const size_t value) { return value % 259229UL; }
-size_t mod326617(const size_t value) { return value % 326617UL; }
-size_t mod411527(const size_t value) { return value % 411527UL; }
-size_t mod518509(const size_t value) { return value % 518509UL; }
-size_t mod653267(const size_t value) { return value % 653267UL; }
-size_t mod823117(const size_t value) { return value % 823117UL; }
-size_t mod1037059(const size_t value) { return value % 1037059UL; }
-size_t mod1306601(const size_t value) { return value % 1306601UL; }
-size_t mod1646237(const size_t value) { return value % 1646237UL; }
-size_t mod2074129(const size_t value) { return value % 2074129UL; }
-size_t mod2613229(const size_t value) { return value % 2613229UL; }
-size_t mod3292489(const size_t value) { return value % 3292489UL; }
-size_t mod4148279(const size_t value) { return value % 4148279UL; }
-size_t mod5226491(const size_t value) { return value % 5226491UL; }
-size_t mod6584983(const size_t value) { return value % 6584983UL; }
-size_t mod8296553(const size_t value) { return value % 8296553UL; }
-size_t mod10453007(const size_t value) { return value % 10453007UL; }
-size_t mod13169977(const size_t value) { return value % 13169977UL; }
-size_t mod16593127(const size_t value) { return value % 16593127UL; }
-size_t mod20906033(const size_t value) { return value % 20906033UL; }
-size_t mod26339969(const size_t value) { return value % 26339969UL; }
-size_t mod33186281(const size_t value) { return value % 33186281UL; }
-size_t mod41812097(const size_t value) { return value % 41812097UL; }
-size_t mod52679969(const size_t value) { return value % 52679969UL; }
-size_t mod66372617(const size_t value) { return value % 66372617UL; }
-size_t mod83624237(const size_t value) { return value % 83624237UL; }
-size_t mod105359939(const size_t value) { return value % 105359939UL; }
-size_t mod132745199(const size_t value) { return value % 132745199UL; }
-size_t mod167248483(const size_t value) { return value % 167248483UL; }
-size_t mod210719881(const size_t value) { return value % 210719881UL; }
-size_t mod265490441(const size_t value) { return value % 265490441UL; }
-size_t mod334496971(const size_t value) { return value % 334496971UL; }
-size_t mod421439783(const size_t value) { return value % 421439783UL; }
-size_t mod530980861(const size_t value) { return value % 530980861UL; }
-size_t mod668993977(const size_t value) { return value % 668993977UL; }
-size_t mod842879579(const size_t value) { return value % 842879579UL; }
-size_t mod1061961721(const size_t value) { return value % 1061961721UL; }
-size_t mod1337987929(const size_t value) { return value % 1337987929UL; }
-size_t mod1685759167(const size_t value) { return value % 1685759167UL; }
-size_t mod2123923447(const size_t value) { return value % 2123923447UL; }
-size_t mod2675975881(const size_t value) { return value % 2675975881UL; }
-size_t mod3371518343(const size_t value) { return value % 3371518343UL; }
-size_t mod4247846927(const size_t value) { return value % 4247846927UL; }
-size_t mod5351951779(const size_t value) { return value % 5351951779UL; }
-size_t mod6743036717(const size_t value) { return value % 6743036717UL; }
-size_t mod8495693897(const size_t value) { return value % 8495693897UL; }
-size_t mod10703903591(const size_t value) { return value % 10703903591UL; }
-size_t mod13486073473(const size_t value) { return value % 13486073473UL; }
-size_t mod16991387857(const size_t value) { return value % 16991387857UL; }
-size_t mod21407807219(const size_t value) { return value % 21407807219UL; }
-size_t mod26972146961(const size_t value) { return value % 26972146961UL; }
-size_t mod33982775741(const size_t value) { return value % 33982775741UL; }
-size_t mod42815614441(const size_t value) { return value % 42815614441UL; }
-size_t mod53944293929(const size_t value) { return value % 53944293929UL; }
-size_t mod67965551447(const size_t value) { return value % 67965551447UL; }
-size_t mod85631228929(const size_t value) { return value % 85631228929UL; }
-size_t mod107888587883(const size_t value) { return value % 107888587883UL; }
-size_t mod135931102921(const size_t value) { return value % 135931102921UL; }
-size_t mod171262457903(const size_t value) { return value % 171262457903UL; }
-size_t mod215777175787(const size_t value) { return value % 215777175787UL; }
-size_t mod271862205833(const size_t value) { return value % 271862205833UL; }
-size_t mod342524915839(const size_t value) { return value % 342524915839UL; }
-size_t mod431554351609(const size_t value) { return value % 431554351609UL; }
-size_t mod543724411781(const size_t value) { return value % 543724411781UL; }
-size_t mod685049831731(const size_t value) { return value % 685049831731UL; }
-size_t mod863108703229(const size_t value) { return value % 863108703229UL; }
-size_t mod1087448823553(const size_t value) { return value % 1087448823553UL; }
-size_t mod1370099663459(const size_t value) { return value % 1370099663459UL; }
-size_t mod1726217406467(const size_t value) { return value % 1726217406467UL; }
-size_t mod2174897647073(const size_t value) { return value % 2174897647073UL; }
-size_t mod2740199326961(const size_t value) { return value % 2740199326961UL; }
-size_t mod3452434812973(const size_t value) { return value % 3452434812973UL; }
-size_t mod4349795294267(const size_t value) { return value % 4349795294267UL; }
-size_t mod5480398654009(const size_t value) { return value % 5480398654009UL; }
-size_t mod6904869625999(const size_t value) { return value % 6904869625999UL; }
-size_t mod8699590588571(const size_t value) { return value % 8699590588571UL; }
-size_t mod10960797308051(const size_t value) { return value % 10960797308051UL; }
-size_t mod13809739252051(const size_t value) { return value % 13809739252051UL; }
-size_t mod17399181177241(const size_t value) { return value % 17399181177241UL; }
-size_t mod21921594616111(const size_t value) { return value % 21921594616111UL; }
-size_t mod27619478504183(const size_t value) { return value % 27619478504183UL; }
-size_t mod34798362354533(const size_t value) { return value % 34798362354533UL; }
-size_t mod43843189232363(const size_t value) { return value % 43843189232363UL; }
-size_t mod55238957008387(const size_t value) { return value % 55238957008387UL; }
-size_t mod69596724709081(const size_t value) { return value % 69596724709081UL; }
-size_t mod87686378464759(const size_t value) { return value % 87686378464759UL; }
-size_t mod110477914016779(const size_t value) { return value % 110477914016779UL; }
-size_t mod139193449418173(const size_t value) { return value % 139193449418173UL; }
-size_t mod175372756929481(const size_t value) { return value % 175372756929481UL; }
-size_t mod220955828033581(const size_t value) { return value % 220955828033581UL; }
-size_t mod278386898836457(const size_t value) { return value % 278386898836457UL; }
-size_t mod350745513859007(const size_t value) { return value % 350745513859007UL; }
-size_t mod441911656067171(const size_t value) { return value % 441911656067171UL; }
-size_t mod556773797672909(const size_t value) { return value % 556773797672909UL; }
-size_t mod701491027718027(const size_t value) { return value % 701491027718027UL; }
-size_t mod883823312134381(const size_t value) { return value % 883823312134381UL; }
-size_t mod1113547595345903(const size_t value) { return value % 1113547595345903UL; }
-size_t mod1402982055436147(const size_t value) { return value % 1402982055436147UL; }
-size_t mod1767646624268779(const size_t value) { return value % 1767646624268779UL; }
-size_t mod2227095190691797(const size_t value) { return value % 2227095190691797UL; }
-size_t mod2805964110872297(const size_t value) { return value % 2805964110872297UL; }
-size_t mod3535293248537579(const size_t value) { return value % 3535293248537579UL; }
-size_t mod4454190381383713(const size_t value) { return value % 4454190381383713UL; }
-size_t mod5611928221744609(const size_t value) { return value % 5611928221744609UL; }
-size_t mod7070586497075177(const size_t value) { return value % 7070586497075177UL; }
-size_t mod8908380762767489(const size_t value) { return value % 8908380762767489UL; }
-size_t mod11223856443489329(const size_t value) { return value % 11223856443489329UL; }
-size_t mod14141172994150357(const size_t value) { return value % 14141172994150357UL; }
-size_t mod17816761525534927(const size_t value) { return value % 17816761525534927UL; }
-size_t mod22447712886978529(const size_t value) { return value % 22447712886978529UL; }
-size_t mod28282345988300791(const size_t value) { return value % 28282345988300791UL; }
-size_t mod35633523051069991(const size_t value) { return value % 35633523051069991UL; }
-size_t mod44895425773957261(const size_t value) { return value % 44895425773957261UL; }
-size_t mod56564691976601587(const size_t value) { return value % 56564691976601587UL; }
-size_t mod71267046102139967(const size_t value) { return value % 71267046102139967UL; }
-size_t mod89790851547914507(const size_t value) { return value % 89790851547914507UL; }
-size_t mod113129383953203213(const size_t value) { return value % 113129383953203213UL; }
-size_t mod142534092204280003(const size_t value) { return value % 142534092204280003UL; }
-size_t mod179581703095829107(const size_t value) { return value % 179581703095829107UL; }
-size_t mod226258767906406483(const size_t value) { return value % 226258767906406483UL; }
-size_t mod285068184408560057(const size_t value) { return value % 285068184408560057UL; }
-size_t mod359163406191658253(const size_t value) { return value % 359163406191658253UL; }
-size_t mod452517535812813007(const size_t value) { return value % 452517535812813007UL; }
-size_t mod570136368817120201(const size_t value) { return value % 570136368817120201UL; }
-size_t mod718326812383316683(const size_t value) { return value % 718326812383316683UL; }
-size_t mod905035071625626043(const size_t value) { return value % 905035071625626043UL; }
-size_t mod1140272737634240411(const size_t value) { return value % 1140272737634240411UL; }
-size_t mod1436653624766633509(const size_t value) { return value % 1436653624766633509UL; }
-size_t mod1810070143251252131(const size_t value) { return value % 1810070143251252131UL; }
-size_t mod2280545475268481167(const size_t value) { return value % 2280545475268481167UL; }
-size_t mod2873307249533267101(const size_t value) { return value % 2873307249533267101UL; }
-size_t mod3620140286502504283(const size_t value) { return value % 3620140286502504283UL; }
-size_t mod4561090950536962147(const size_t value) { return value % 4561090950536962147UL; }
-size_t mod5746614499066534157(const size_t value) { return value % 5746614499066534157UL; }
-size_t mod7240280573005008577(const size_t value) { return value % 7240280573005008577UL; }
-size_t mod9122181901073924329(const size_t value) { return value % 9122181901073924329UL; }
-size_t mod11493228998133068689(const size_t value) { return value % 11493228998133068689UL; }
-size_t mod14480561146010017169(const size_t value) { return value % 14480561146010017169UL; }
-size_t mod18446744073709551557(const size_t value) { return value % 18446744073709551557UL; }
+static foreach (const primeConstant; primeModuloConstants)
+{
+    static if (primeConstant == 0)
+    {
+        mixin(`size_t mod` ~ primeConstant.stringof[0 .. $-2] ~ `(const size_t) { return ` ~ primeConstant.stringof ~ `; }`);
+    }
+    else
+    {
+        mixin(`size_t mod` ~ primeConstant.stringof[0 .. $-2] ~ `(const size_t value) { return value % ` ~ primeConstant.stringof ~ `; }`);
+    }
+}
 
+// TODO use static foreach over `primeModuloConstants` to generate this function array
+// TODO add a check in a unittest to verify that all these constants are primes
 static immutable primeModuloFunctions = [
     &mod0, &mod2, &mod3, &mod5, &mod7, &mod11, &mod13, &mod17, &mod23, &mod29, &mod37,
     &mod47, &mod59, &mod73, &mod97, &mod127, &mod151, &mod197, &mod251, &mod313, &mod397,

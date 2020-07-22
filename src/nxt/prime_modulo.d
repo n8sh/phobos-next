@@ -31,7 +31,7 @@ struct PrimeIndex
 PrimeIndex ceilToNearestPrime(ref size_t value,
                               PrimeIndex currentPrimeIndex = PrimeIndex.init)
 {
-    // TODO use `binarySearch` instead
+    // TODO use `binarySearch` instead?
     for (PrimeIndex primeIndex = currentPrimeIndex; currentPrimeIndex != primeModuloConstants.length; ++primeIndex)
     {
         immutable prime = primeModuloConstants[primeIndex];

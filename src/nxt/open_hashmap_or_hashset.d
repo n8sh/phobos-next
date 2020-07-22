@@ -28,6 +28,7 @@ import nxt.pure_mallocator : Mallocator = PureMallocator;
  *      hasher = hash function or std.digest Hash.
  *      Allocator = memory allocator for bin array
  *      borrowChecked = only activate when it's certain that this won't be moved via std.algorithm.mutation.move()
+ *      useSmallLinearSearch = Use linear search instead probing when `_store` is smaller than `linearSearchMaxSize`
  *
  * See_Also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  * See_Also: https://en.wikipedia.org/wiki/Lazy_deletion
@@ -79,9 +80,6 @@ struct OpenHashMapOrSet(K, V = void,
                         string keyEqualPred = defaultKeyEqualPredOf!(K),
                         alias Allocator = Mallocator.instance,
                         bool borrowChecked = false,
-                        /** Use linear search instead probing when `_store` is smaller than
-                         * `_linearSearchMaxSize`.
-                         */
                         bool useSmallLinearSearch = true)
 if (isNullable!K
     // isHashable!K
@@ -138,10 +136,8 @@ if (isNullable!K
     enum hasAddressLikeKey = (isAddress!K ||
                               isSlice!K);
 
-    /** Stores less than or equal to this size will be searched using linear
-     * searcnh.
-     */
-    private enum _linearSearchMaxSize = 64; // one cache-line for now
+    /** Stores less than or equal to this size will be searched using linear search. */
+    private enum linearSearchMaxSize = 64; // one cache-line for now
 
     static if (hasAddressLikeKey)
     {
@@ -807,7 +803,7 @@ if (isNullable!K
 
         static if (useSmallLinearSearch)
         {
-            if (_store.length * T.sizeof <= _linearSearchMaxSize)
+            if (_store.length * T.sizeof <= linearSearchMaxSize)
             {
                 // dbg("using linear serach");
                 return containsUsingLinearSearch(key);
@@ -1021,7 +1017,7 @@ if (isNullable!K
         // key
         static if (useSmallLinearSearch)
         {
-            if (_store.length * T.sizeof <= _linearSearchMaxSize)
+            if (_store.length * T.sizeof <= linearSearchMaxSize)
             {
                 keyOf(_store[index]).nullify();
                 goto done;
@@ -1642,7 +1638,7 @@ if (isNullable!K
 
         static if (useSmallLinearSearch)
         {
-            if (_store.length * T.sizeof <= _linearSearchMaxSize)
+            if (_store.length * T.sizeof <= linearSearchMaxSize)
             {
                 foreach (const index, const ref element; _store) // linear search is faster for small arrays
                 {
@@ -1886,7 +1882,7 @@ private:
 
         static if (useSmallLinearSearch)
         {
-            if (_store.length * T.sizeof <= _linearSearchMaxSize)
+            if (_store.length * T.sizeof <= linearSearchMaxSize)
             {
                 foreach (const index, const ref element; _store) // linear search is faster for small arrays
                 {
@@ -1929,7 +1925,7 @@ private:
 
         static if (useSmallLinearSearch)
         {
-            if (_store.length * T.sizeof <= _linearSearchMaxSize)
+            if (_store.length * T.sizeof <= linearSearchMaxSize)
             {
                 foreach (const index, const ref element; _store) // linear search is faster for small arrays
                 {

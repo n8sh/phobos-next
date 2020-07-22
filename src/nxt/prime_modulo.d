@@ -48,7 +48,7 @@ PrimeIndex ceilingPrime(ref size_t value,
 /// verify for small modulos
 unittest
 {
-    size_t value = 0;           // to be adjusted to a prime
+    size_t value = 0;           // to be adjusted to nearest prime in `primeConstants`
     auto i = PrimeIndex(0);
 
     value = 0;

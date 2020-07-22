@@ -32,7 +32,7 @@ struct PrimeIndex
  * Returns: prime index used as parameter to calculate `primeModulo`.
  */
 PrimeIndex ceilingPrime(ref size_t value,
-                        PrimeIndex currentPrimeIndex = PrimeIndex.init)
+                        in PrimeIndex currentPrimeIndex = PrimeIndex.init)
 {
     foreach (const primeIndex; currentPrimeIndex .. PrimeIndex(primeConstants.length))
     {

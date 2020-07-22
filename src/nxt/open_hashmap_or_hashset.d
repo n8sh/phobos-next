@@ -73,11 +73,8 @@ import nxt.pure_mallocator : Mallocator = PureMallocator;
  * `opMove` is implemented, in which case opMove() should assert false if this
  * is borrowed. See: https://github.com/dlang/DIPs/pull/109
  *
- * TODO keep only predicates with ref arguments when LDC can optimize those as
- * fast as value passing. add LDC issue for this
- *
- * TODO always use `const scope auto ref` in predicates (including when
- * `__traits(isCopyable, K)` is `true`) to reduce static if branch complexity
+ * TODO keep only predicates with ref arguments (`const scope auto ref`) when
+ * LDC can optimize those as fast as value passing. add LDC issue for this
  */
 struct OpenHashMapOrSet(K, V = void,
                         alias hasher = hashOf,

@@ -1907,28 +1907,38 @@ private:
     private size_t keyToIndex(SomeKey)(const scope SomeKey key) const @trusted
     {
         version(LDC) pragma(inline, true);
-        static if (is(typeof(hasher(key)) == hash_t)) // for instance when hasher being `hashOf`
+        static if (usePrimeCapacity)
         {
-            return hasher(key) & powerOf2Mask;
+            return moduloPrimeIndex(hasher(key), _primeIndex);
         }
         else
         {
-            import nxt.digestion : hashOf2;
-            return hashOf2!(hasher)(key) & powerOf2Mask;
+            static if (is(typeof(hasher(key)) == hash_t)) // for instance when hasher being `hashOf`
+            {
+                return hasher(key) & powerOf2Mask;
+            }
+            else
+            {
+                import nxt.digestion : hashOf2;
+                return hashOf2!(hasher)(key) & powerOf2Mask;
+            }
         }
     }
 
     /** Returns: current index mask from bin count. */
-    private size_t powerOf2Mask() const
+    static if (!usePrimeCapacity)
     {
-        pragma(inline, true);
-        immutable typeof(return) mask = _store.length - 1;
-        version(internalUnittest)
+        private size_t powerOf2Mask() const
         {
-            import std.math : isPowerOf2;
-            _store.length.isPowerOf2();
+            pragma(inline, true);
+            immutable typeof(return) mask = _store.length - 1;
+            version(internalUnittest)
+            {
+                import std.math : isPowerOf2;
+                _store.length.isPowerOf2();
+            }
+            return mask;
         }
-        return mask;
     }
 
     /** Find index to `key` if it exists or to first empty slot found, skipping

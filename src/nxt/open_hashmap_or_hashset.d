@@ -127,6 +127,11 @@ if (isNullable!K
 
     enum isBorrowChecked = borrowChecked;
 
+    static if (usePrimeModulo)
+    {
+        import nxt.prime_modulo;
+    }
+
     /** In the hash map case, `V` is non-void, and a value is stored alongside
      * the key of type `K`.
      */
@@ -1160,8 +1165,8 @@ if (isNullable!K
     {
         assert(minimumCapacity > _store.length);
 
-        immutable powerOf2newCapacity = nextPow2(minimumCapacity);
-        immutable newByteCount = T.sizeof*powerOf2newCapacity;
+        immutable newCapacity = nextPow2(minimumCapacity);
+        immutable newByteCount = T.sizeof*newCapacity;
 
         const oldStorePtr = _store.ptr;
         immutable oldLength = _store.length;
@@ -1190,7 +1195,7 @@ if (isNullable!K
             }
 
             // TODO make this an array operation `nullifyAll` or `nullifyN`
-            foreach (ref bin; _store[oldLength .. powerOf2newCapacity])
+            foreach (ref bin; _store[oldLength .. newCapacity])
             {
                 keyOf(bin).nullify(); // move this `init` to reallocate() above?
             }

@@ -134,7 +134,7 @@ if (isNullable!K /*&& isHashable!K */)
 
     static if (usePrimeModulo)
     {
-        import nxt.prime_modulo : ceilingPrime, moduloPrime;
+        import nxt.prime_modulo : ceilingPrime, moduloPrimeIndex;
     }
     else
     {

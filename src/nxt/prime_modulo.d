@@ -23,8 +23,8 @@ struct PrimeIndex
     alias _index this;
 }
 
-/** Increase `length` in-place to a ceiling prime in `primeModuloConstants`
- * which is greater than or equal to `length`.
+/** Increase `length` in-place to a prime in `primeModuloConstants` being
+ * greater than or equal to `length`.
  *
  * Returns: prime index used as parameter to calculate `primeModulo`.
  */

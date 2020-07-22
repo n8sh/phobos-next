@@ -78,7 +78,11 @@ struct OpenHashMapOrSet(K, V = void,
                         alias hasher = hashOf,
                         string keyEqualPred = defaultKeyEqualPredOf!(K),
                         alias Allocator = Mallocator.instance,
-                        bool borrowChecked = false)
+                        bool borrowChecked = false,
+                        /** Use linear search instead probing when `_store` is smaller than
+                         * `_linearSearchMaxSize`.
+                         */
+                        bool useSmallLinearSearch = true)
 if (isNullable!K
     // isHashable!K
     )
@@ -133,11 +137,6 @@ if (isNullable!K
      */
     enum hasAddressLikeKey = (isAddress!K ||
                               isSlice!K);
-
-    /** Use linear search instead probing when `_store` is smaller than
-     * `_linearSearchMaxSize`.
-     */
-    private enum _useSmallLinearSearch = true;
 
     /** Stores less than or equal to this size will be searched using linear
      * searcnh.
@@ -806,7 +805,7 @@ if (isNullable!K
         assert(!key.isNull);
         static if (hasHoleableKey) { assert(!isHoleKeyConstant(cast(const(K))adjustKeyType(key))); }
 
-        static if (_useSmallLinearSearch)
+        static if (useSmallLinearSearch)
         {
             if (_store.length * T.sizeof <= _linearSearchMaxSize)
             {
@@ -1020,7 +1019,7 @@ if (isNullable!K
         version(LDC) pragma(inline, true);
 
         // key
-        static if (_useSmallLinearSearch)
+        static if (useSmallLinearSearch)
         {
             if (_store.length * T.sizeof <= _linearSearchMaxSize)
             {
@@ -1641,7 +1640,7 @@ if (isNullable!K
         version(LDC) pragma(inline, true);
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
 
-        static if (_useSmallLinearSearch)
+        static if (useSmallLinearSearch)
         {
             if (_store.length * T.sizeof <= _linearSearchMaxSize)
             {
@@ -1885,7 +1884,7 @@ private:
             static if (hasHoleableKey) { assert(!isHoleKeyConstant(key)); }
         }
 
-        static if (_useSmallLinearSearch)
+        static if (useSmallLinearSearch)
         {
             if (_store.length * T.sizeof <= _linearSearchMaxSize)
             {
@@ -1928,7 +1927,7 @@ private:
         }
 
 
-        static if (_useSmallLinearSearch)
+        static if (useSmallLinearSearch)
         {
             if (_store.length * T.sizeof <= _linearSearchMaxSize)
             {
@@ -2166,7 +2165,8 @@ alias OpenHashSet(K,
                   alias hasher = hashOf,
                   string keyEqualPred = defaultKeyEqualPredOf!K,
                   alias Allocator = Mallocator.instance,
-                  bool borrowChecked = false) = OpenHashMapOrSet!(K, void, hasher, keyEqualPred, Allocator, borrowChecked);
+                  bool borrowChecked = false,
+                  bool useSmallLinearSearch = true) = OpenHashMapOrSet!(K, void, hasher, keyEqualPred, Allocator, borrowChecked, useSmallLinearSearch);
 
 /** Immutable hash map storing keys of type `K` and values of type `V`.
  */
@@ -2174,7 +2174,8 @@ alias OpenHashMap(K, V,
                   alias hasher = hashOf,
                   string keyEqualPred = defaultKeyEqualPredOf!K,
                   alias Allocator = Mallocator.instance,
-                  bool borrowChecked = false) = OpenHashMapOrSet!(K, V, hasher, keyEqualPred, Allocator, borrowChecked);
+                  bool borrowChecked = false,
+                  bool useSmallLinearSearch = true) = OpenHashMapOrSet!(K, V, hasher, keyEqualPred, Allocator, borrowChecked, useSmallLinearSearch);
 
 import std.traits : isInstanceOf;
 import std.functional : unaryFun;

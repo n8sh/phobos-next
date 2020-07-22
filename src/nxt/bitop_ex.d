@@ -1,11 +1,13 @@
 /** Various extensions to core.bitop and std.bitmanip.
-    Copyright: Per Nordlöw 2018-.
-    License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
-    Authors: $(WEB Per Nordlöw)
-
-    TODO Add range checking of bit indexes.
-    TODO Make use of TZCNT and LZCNT either as inline assembly or as builtins: https://github.com/dlang/dmd/pull/6364
-*/
+ *
+ * Copyright: Per Nordlöw 2018-.
+ * License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
+ * Authors: $(WEB Per Nordlöw)
+ *
+ * TODO Add range checking of bit indexes.
+ *
+ * TODO Make use of TZCNT and LZCNT either as inline assembly or as builtins: https://github.com/dlang/dmd/pull/6364
+ */
 module nxt.bitop_ex;
 
 import std.meta : allSatisfy;

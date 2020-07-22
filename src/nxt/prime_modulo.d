@@ -3,6 +3,8 @@
  * Used for fast prime modulo calculations when using simple hash-functions to
  * index in hash tables (associative arrays).
  *
+ * See_Also: https://www.reddit.com/r/cpp/comments/anbmol/robin_hoodunordered_map_is_now_the_fastest_hashmap/
+ * See_Also: https://github.com/martinus/robin-hood-hashing
  * See_Also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  */
 module nxt.prime_modulo;

@@ -31,7 +31,7 @@ import nxt.pure_mallocator : Mallocator = PureMallocator; // TODO merge into `st
  *      Allocator = memory allocator for bin array
  *      borrowChecked = only activate when it's certain that this won't be moved via std.algorithm.mutation.move()
  *      useSmallLinearSearch = Use linear search instead probing when `_store` is smaller than `linearSearchMaxSize`
- *      usePrimeModulo = Use prime numbers as capacity of hash table enabling better performance of simpler hash-functions
+ *      usePrimeCapacity = Use prime numbers as capacity of hash table enabling better performance of simpler hash-functions
  *
  * See_Also: https://github.com/Tessil/robin-map
  * See_Also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
@@ -89,7 +89,7 @@ struct OpenHashMapOrSet(K, V = void,
                         alias Allocator = Mallocator.instance,
                         bool borrowChecked = false,
                         bool useSmallLinearSearch = true,
-                        bool usePrimeModulo = false)
+                        bool usePrimeCapacity = false)
 if (isNullable!K /*&& isHashable!K */)
 {
     // pragma(msg, K.stringof, " => ", V.stringof);
@@ -132,7 +132,7 @@ if (isNullable!K /*&& isHashable!K */)
 
     enum isBorrowChecked = borrowChecked;
 
-    static if (usePrimeModulo)
+    static if (usePrimeCapacity)
     {
         import nxt.prime_modulo : ceilingPrime, moduloPrimeIndex;
     }
@@ -376,23 +376,35 @@ if (isNullable!K /*&& isHashable!K */)
     static typeof(this) withCapacity()(size_t minimumCapacity) // template-lazy
     {
         version(showEntries) dbg(__FUNCTION__, " minimumCapacity:", minimumCapacity);
-        return typeof(return)(makeDefaultInitializedStore(minimumCapacity), 0);
+        static if (usePrimeCapacity)
+        {
+            PrimeIndex primeIndex;
+            immutable initialCapacity = ceilingPrime(minimumCapacity + 1, primeIndex);
+            assert(minimumCapacity < initialCapacity); // we need at least one vacancy
+            return typeof(return)(makeDefaultInitializedStore(initialCapacity), primeIndex, 0);
+        }
+        else
+        {
+            immutable initialCapacity = nextPow2(minimumCapacity);
+            assert(minimumCapacity < initialCapacity); // we need at least one vacancy
+            return typeof(return)(makeDefaultInitializedStore(initialCapacity), 0);
+        }
     }
 
     /** Make default-initialized store with room for storing for at least
      * `minimumCapacity` number of elements.
      */
-    static private T[] makeDefaultInitializedStore()(in size_t minimumCapacity) @trusted pure nothrow @nogc // template-lazy
+    static private T[] makeDefaultInitializedStore()(in size_t capacity) @trusted pure nothrow @nogc // template-lazy
     {
-        static if (usePrimeModulo)
+        static if (usePrimeCapacity)
         {
-            immutable capacity = ceilingPrime(minimumCapacity, _primeIndex);
+            // TODO check that capacity is prime
         }
         else
         {
-            immutable capacity = nextPow2(minimumCapacity);
+            import std.math : isPowerOf2;
+            assert(isPowerOf2(capacity)); // quadratic probing needs power of two capacity (`_store.length`)
         }
-
         version(showEntries) dbg(__FUNCTION__, " minimumCapacity:",
                                  minimumCapacity,
                                  " capacity:", capacity);
@@ -499,7 +511,15 @@ if (isNullable!K /*&& isHashable!K */)
     /** Make with the element `element`. */
     this(T element)
     {
-        _store = makeDefaultInitializedStore(1);
+        static if (usePrimeCapacity)
+        {
+            _primeIndex = 0;
+            _store = makeDefaultInitializedStore(ceilingPrime(1 + 1, _primeIndex));
+        }
+        else
+        {
+            _store = makeDefaultInitializedStore(nextPow2(1));
+        }
         _count = 0;
         // TODO can this be optimized?
         static if (__traits(isCopyable, T))
@@ -739,6 +759,10 @@ if (isNullable!K /*&& isHashable!K */)
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
         release();
         _store = typeof(_store).init;
+        static if (usePrimeCapacity)
+        {
+            _primeIndex = 0;
+        }
         static if (!hasHoleableKey)
         {
             _holesPtr = null;
@@ -1184,7 +1208,7 @@ if (isNullable!K /*&& isHashable!K */)
     {
         assert(minimumCapacity > _store.length);
 
-        static if (usePrimeModulo)
+        static if (usePrimeCapacity)
         {
             immutable newCapacity = ceilingPrime(minimumCapacity, _primeIndex);
         }
@@ -1798,7 +1822,7 @@ private:
     {
         T[] _store;              // one element per bin
     }
-    static if (usePrimeModulo)
+    static if (usePrimeCapacity)
     {
         size_t _primeIndex = 0;
     }
@@ -2204,8 +2228,8 @@ alias OpenHashSet(K,
                   alias Allocator = Mallocator.instance,
                   bool borrowChecked = false,
                   bool useSmallLinearSearch = true,
-                  bool usePrimeModulo = false) =
-OpenHashMapOrSet!(K, void, hasher, keyEqualPred, Allocator, borrowChecked, useSmallLinearSearch, usePrimeModulo);
+                  bool usePrimeCapacity = false) =
+OpenHashMapOrSet!(K, void, hasher, keyEqualPred, Allocator, borrowChecked, useSmallLinearSearch, usePrimeCapacity);
 
 /** Immutable hash map storing keys of type `K` and values of type `V`.
  */
@@ -2215,8 +2239,8 @@ alias OpenHashMap(K, V,
                   alias Allocator = Mallocator.instance,
                   bool borrowChecked = false,
                   bool useSmallLinearSearch = true,
-                  bool usePrimeModulo = false) =
-OpenHashMapOrSet!(K, V, hasher, keyEqualPred, Allocator, borrowChecked, useSmallLinearSearch, usePrimeModulo);
+                  bool usePrimeCapacity = false) =
+OpenHashMapOrSet!(K, V, hasher, keyEqualPred, Allocator, borrowChecked, useSmallLinearSearch, usePrimeCapacity);
 
 import std.traits : isInstanceOf;
 import std.functional : unaryFun;

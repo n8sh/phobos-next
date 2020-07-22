@@ -1017,7 +1017,7 @@ if (isNullable!K
 
     private void tagAsLazilyDeletedElementAtIndex(size_t index)
     {
-        pragma(inline, true);
+        version(LDC) pragma(inline, true);
 
         // key
         static if (_useSmallLinearSearch)
@@ -1421,7 +1421,7 @@ if (isNullable!K
         if (op == `~` &&        // binary assignment operator `~=`
             isScopedKeyType!(typeof(key)))
         {
-            pragma(inline, true);
+            version(LDC) pragma(inline, true);
             reserveExtra(1);
             const hitIndex = insertWithoutGrowthNoStatus(key);
             return this;
@@ -1502,7 +1502,7 @@ if (isNullable!K
         auto ref inout(V) get()(const scope K key, // template-lazy
                                 auto ref inout(V) defaultValue) inout
         {
-            pragma(inline, true);
+            version(LDC) pragma(inline, true);
             if (auto valuePtr = key in this)
             {
                 return *valuePtr;

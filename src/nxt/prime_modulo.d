@@ -49,76 +49,76 @@ PrimeIndex ceilingPrime(ref size_t value,
 /// verify for small modulos
 unittest
 {
-    size_t value = 0;
+    size_t prime = 0;           ///< Prime prime.
     auto i = PrimeIndex(0);
 
-    value = 0;
-    i = ceilingPrime(value, i);
+    prime = 0;
+    i = ceilingPrime(prime, i);
     assert(primeConstants[i] == 0);
 
-    value = 1;
-    i = ceilingPrime(value, i);
+    prime = 1;
+    i = ceilingPrime(prime, i);
     assert(primeConstants[i] == 2);
-    assert(value == 2);
+    assert(prime == 2);
 
-    value = 2;
-    i = ceilingPrime(value, i);
+    prime = 2;
+    i = ceilingPrime(prime, i);
     assert(primeConstants[i] == 2);
-    assert(value == 2);
+    assert(prime == 2);
 
-    value = 3;
-    i = ceilingPrime(value, i);
+    prime = 3;
+    i = ceilingPrime(prime, i);
     assert(primeConstants[i] == 3);
-    assert(value == 3);
+    assert(prime == 3);
 
-    value = 4;
-    i = ceilingPrime(value, i);
+    prime = 4;
+    i = ceilingPrime(prime, i);
     assert(primeConstants[i] == 5);
-    assert(value == 5);
+    assert(prime == 5);
 
-    value = 5;
-    i = ceilingPrime(value, i);
+    prime = 5;
+    i = ceilingPrime(prime, i);
     assert(primeConstants[i] == 5);
-    assert(value == 5);
+    assert(prime == 5);
 
-    value = 6;
-    i = ceilingPrime(value, i);
+    prime = 6;
+    i = ceilingPrime(prime, i);
     assert(primeConstants[i] == 7);
-    assert(value == 7);
+    assert(prime == 7);
 
-    value = 7;
-    i = ceilingPrime(value, i);
+    prime = 7;
+    i = ceilingPrime(prime, i);
     assert(primeConstants[i] == 7);
 
     foreach (const ix; 8 .. 11 + 1)
     {
-        value = ix;
-        i = ceilingPrime(value, i);
-        assert(value == 11);
+        prime = ix;
+        i = ceilingPrime(prime, i);
+        assert(prime == 11);
         assert(primeConstants[i] == 11);
     }
 
     foreach (const ix; 12 .. 13 + 1)
     {
-        value = ix;
-        i = ceilingPrime(value, i);
-        assert(value == 13);
+        prime = ix;
+        i = ceilingPrime(prime, i);
+        assert(prime == 13);
         assert(primeConstants[i] == 13);
     }
 
     foreach (const ix; 14 .. 17 + 1)
     {
-        value = ix;
-        i = ceilingPrime(value, i);
-        assert(value == 17);
+        prime = ix;
+        i = ceilingPrime(prime, i);
+        assert(prime == 17);
         assert(primeConstants[i] == 17);
     }
 
     foreach (const ix; 18 .. 23 + 1)
     {
-        value = ix;
-        i = ceilingPrime(value, i);
-        assert(value == 23);
+        prime = ix;
+        i = ceilingPrime(prime, i);
+        assert(prime == 23);
         assert(primeConstants[i] == 23);
     }
 }

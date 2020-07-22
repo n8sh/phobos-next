@@ -4163,5 +4163,6 @@ version(unittest)
     import nxt.digestx.fnv : FNV;
     import nxt.array_help : s;
 
-    import nxt.dbgio;
 }
+
+version(showEntries) import nxt.dbgio : dbg;

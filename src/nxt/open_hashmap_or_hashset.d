@@ -81,7 +81,8 @@ struct OpenHashMapOrSet(K, V = void,
                         string keyEqualPred = defaultKeyEqualPredOf!(K),
                         alias Allocator = Mallocator.instance,
                         bool borrowChecked = false,
-                        bool useSmallLinearSearch = true)
+                        bool useSmallLinearSearch = true,
+                        bool usePrimeModulo = false)
 if (isNullable!K
     // isHashable!K
     )
@@ -2163,7 +2164,9 @@ alias OpenHashSet(K,
                   string keyEqualPred = defaultKeyEqualPredOf!K,
                   alias Allocator = Mallocator.instance,
                   bool borrowChecked = false,
-                  bool useSmallLinearSearch = true) = OpenHashMapOrSet!(K, void, hasher, keyEqualPred, Allocator, borrowChecked, useSmallLinearSearch);
+                  bool useSmallLinearSearch = true,
+                  bool usePrimeModulo = false) =
+OpenHashMapOrSet!(K, void, hasher, keyEqualPred, Allocator, borrowChecked, useSmallLinearSearch, usePrimeModulo);
 
 /** Immutable hash map storing keys of type `K` and values of type `V`.
  */
@@ -2172,7 +2175,9 @@ alias OpenHashMap(K, V,
                   string keyEqualPred = defaultKeyEqualPredOf!K,
                   alias Allocator = Mallocator.instance,
                   bool borrowChecked = false,
-                  bool useSmallLinearSearch = true) = OpenHashMapOrSet!(K, V, hasher, keyEqualPred, Allocator, borrowChecked, useSmallLinearSearch);
+                  bool useSmallLinearSearch = true,
+                  bool usePrimeModulo = false) =
+OpenHashMapOrSet!(K, V, hasher, keyEqualPred, Allocator, borrowChecked, useSmallLinearSearch, usePrimeModulo);
 
 import std.traits : isInstanceOf;
 import std.functional : unaryFun;

@@ -164,6 +164,7 @@ static immutable primeModuloConstants =
     11493228998133068689UL, 14480561146010017169UL, 18446744073709551557UL,
 ];
 
+// TODO use static foreach over `primeModuloConstants` to generate these functions and function array
 size_t mod0(in size_t) { return 0UL; }
 size_t mod2(in size_t value) { return value % 2UL; }
 size_t mod3(in size_t value) { return value % 3UL; }

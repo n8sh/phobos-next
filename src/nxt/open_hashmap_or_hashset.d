@@ -23,12 +23,13 @@ import nxt.pure_mallocator : Mallocator = PureMallocator;
  * lazy deletion/removal.
  *
  * Params:
- *      K = key type.
- *      V = value type.
- *      hasher = hash function or std.digest Hash.
+ *      K = key type
+ *      V = value type
+ *      hasher = hash function or std.digest Hash
  *      Allocator = memory allocator for bin array
  *      borrowChecked = only activate when it's certain that this won't be moved via std.algorithm.mutation.move()
  *      useSmallLinearSearch = Use linear search instead probing when `_store` is smaller than `linearSearchMaxSize`
+ *      usePrimeModulo = Use prime numbers as capacity of hash table enabling better performance of simpler hash-functions
  *
  * See_Also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  * See_Also: https://en.wikipedia.org/wiki/Lazy_deletion

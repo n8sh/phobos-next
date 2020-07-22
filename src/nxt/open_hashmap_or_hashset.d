@@ -104,7 +104,16 @@ if (isNullable!K /*&& isHashable!K */)
     import nxt.nullable_traits : defaultNullKeyConstantOf, isNull, nullify;
     import nxt.container_traits : mustAddGCRange;
     import nxt.qcmeman : gc_addRange, gc_removeRange;
-    import nxt.probing : triangularProbeFromIndex, triangularProbeFromIndexIncludingHoles, triangularProbeCountFromIndex;
+
+    static if (usePrimeCapacity)
+    {
+        import nxt.prime_modulo : ceilingPrime, moduloPrimeIndex;
+    }
+    else
+    {
+        import nxt.probing : triangularProbeFromIndex, triangularProbeFromIndexIncludingHoles, triangularProbeCountFromIndex;
+        import std.math : nextPow2;
+    }
 
     import std.functional : binaryFun;
     alias keyEqualPredFn = binaryFun!keyEqualPred;
@@ -133,15 +142,6 @@ if (isNullable!K /*&& isHashable!K */)
     }
 
     enum isBorrowChecked = borrowChecked;
-
-    static if (usePrimeCapacity)
-    {
-        import nxt.prime_modulo : ceilingPrime, moduloPrimeIndex;
-    }
-    else
-    {
-        import std.math : nextPow2;
-    }
 
     /** In the hash map case, `V` is non-void, and a value is stored alongside
      * the key of type `K`.

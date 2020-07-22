@@ -1,7 +1,7 @@
 /** Optimized prime modulo calculations.
  *
- * Used for fast prime modulo calculations when mapping hash to index in hash
- * tables (associative arrays).
+ * Used for fast prime modulo calculations when using simple hash-functions to
+ * index in hash tables (associative arrays).
  *
  * See_Also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  */

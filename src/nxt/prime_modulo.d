@@ -103,7 +103,7 @@ unittest
  */
 pragma(inline, true)
 size_t primeModulo(in PrimeIndex primeIndex,
-                              in size_t value)
+                   in size_t value)
 {
     return primeModuloFunctions[primeIndex](value);
 }

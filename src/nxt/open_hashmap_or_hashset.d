@@ -4,7 +4,6 @@ module nxt.open_hashmap_or_hashset;
 // version = internalUnittest; // fed by dub (see dub.sdl) in unittest-internal mode
 
 import core.internal.hash : hashOf;
-import core.lifetime : move;
 import nxt.nullable_traits : isNullable;
 import nxt.pure_mallocator : Mallocator = PureMallocator; // TODO merge into `std.experimental.allocator.mallocator`
 
@@ -98,6 +97,7 @@ if (isNullable!K
     // pragma(msg, K.stringof, " => ", V.stringof);
     import core.exception : onOutOfMemoryError;
     import core.internal.traits : hasElaborateDestructor, Unqual;
+    import core.lifetime : move;
     import std.traits : hasIndirections, hasFunctionAttributes;
     import std.typecons : Nullable;
 
@@ -2249,6 +2249,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) && // TODO generalize to `isSetOrMap`
 Table filtered(alias pred, Table)(Table x)
 if (isInstanceOf!(OpenHashMapOrSet, Table)) // TODO generalize to `isSetOrMap`
 {
+    import core.lifetime : move;
     import std.functional : not;
     x.removeAllMatching!(not!pred); // `x` is a singleton (r-value) so safe to mutate
     return move(x);             // functional
@@ -2261,6 +2262,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 if (isInstanceOf!(OpenHashMapOrSet, C1) && // TODO generalize to `isSetOrMap`
     isInstanceOf!(OpenHashMapOrSet, C2))   // TODO generalize to `isSetOrMap`
 {
+    import core.lifetime : move;
     static if (__traits(isRef, y)) // y is l-value
     {
         // @("complexity", "O(x.length)")
@@ -4159,6 +4161,7 @@ template defaultKeyEqualPredOf(T)
 version(unittest)
 {
     debug import std.exception : assertThrown, assertNotThrown;
+    import core.lifetime : move;
     import core.exception : RangeError, AssertError;
     import std.algorithm : count;
     import std.algorithm.comparison : equal;

@@ -127,12 +127,12 @@ unittest
         size_t value = prime - 1;
         auto primeIndex = ceilingPrime(value);
         assert(value == prime);
-        assert(moduloPrimeIndex(primeIndex, value) == 0);
+        assert(moduloPrimeIndex(value, primeIndex) == 0);
     }
 }
 
-size_t moduloPrimeIndex(in PrimeIndex primeIndex,
-                        in size_t value)
+size_t moduloPrimeIndex(in size_t value,
+                        in PrimeIndex primeIndex)
 {
     final switch (primeIndex)
     {
@@ -148,8 +148,8 @@ size_t moduloPrimeIndex(in PrimeIndex primeIndex,
 unittest
 {
     static assert(primeConstants.length == 187);
-    assert(moduloPrimeIndex(PrimeIndex(3), 8) == 3); // modulo 5
-    assert(moduloPrimeIndex(PrimeIndex(4), 9) == 2); // modulo 7
+    assert(moduloPrimeIndex(8, PrimeIndex(3)) == 3); // modulo 5
+    assert(moduloPrimeIndex(9, PrimeIndex(4)) == 2); // modulo 7
 }
 
 /// verify `moduloPrimeIndex`
@@ -160,8 +160,8 @@ unittest
     {
         if (prime != 0)
         {
-            assert(moduloPrimeIndex(PrimeIndex(cast(typeof(PrimeIndex._ix))primeIndex), prime + 0) == 0);
-            assert(moduloPrimeIndex(PrimeIndex(cast(typeof(PrimeIndex._ix))primeIndex), prime + 1) == 1);
+            assert(moduloPrimeIndex(prime + 0, PrimeIndex(cast(typeof(PrimeIndex._ix))primeIndex)) == 0);
+            assert(moduloPrimeIndex(prime + 1, PrimeIndex(cast(typeof(PrimeIndex._ix))primeIndex)) == 1);
         }
     }
 }

@@ -82,9 +82,13 @@ unittest
     i = ceilToNearestPrime(value, i);
     assert(primeModuloConstants[i] == 7);
 
-    value = 8;
-    i = ceilToNearestPrime(value, i);
-    assert(primeModuloConstants[i] == 11);
+    foreach (const ix; 8 .. 11 + 1)
+    {
+        value = ix;
+        i = ceilToNearestPrime(value, i);
+        assert(value == 11);
+        assert(primeModuloConstants[i] == 11);
+    }
 }
 
 /// remaining modulos

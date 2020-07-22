@@ -91,7 +91,6 @@ if (isNullable!K
     // pragma(msg, K.stringof, " => ", V.stringof);
     import core.exception : onOutOfMemoryError;
     import core.internal.traits : hasElaborateDestructor, Unqual;
-    import std.math : nextPow2;
     import std.traits : hasIndirections, hasFunctionAttributes;
     import std.typecons : Nullable;
 
@@ -131,6 +130,10 @@ if (isNullable!K
     static if (usePrimeModulo)
     {
         import nxt.prime_modulo;
+    }
+    else
+    {
+        import std.math : nextPow2;
     }
 
     /** In the hash map case, `V` is non-void, and a value is stored alongside

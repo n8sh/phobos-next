@@ -20,8 +20,8 @@ static assert(size_t.sizeof == 8, "This module currently only supports 64-bit pl
  */
 struct PrimeIndex
 {
-    private ubyte _index;
-    alias _index this;
+    private ubyte _ix;          ///< The index.
+    alias _ix this;             ///< PrimeIndex becomes type-safe wrapper to `_ix`.
 }
 
 /** Increase `length` in-place to a prime in `primeConstants` being
@@ -261,14 +261,14 @@ static immutable primeModuloFns = [
 /// verify that `primeConstants` and `primeModuloFns` are in sync
 unittest
 {
-    static assert(primeConstants.length <= PrimeIndex._index.max);
+    static assert(primeConstants.length <= PrimeIndex._ix.max);
     static assert(primeConstants.length == primeModuloFns.length);
     foreach (const primeIndex, const prime; primeConstants)
     {
         if (prime != 0)
         {
-            assert(primeModulo(PrimeIndex(cast(typeof(PrimeIndex._index))primeIndex), prime + 0) == 0);
-            assert(primeModulo(PrimeIndex(cast(typeof(PrimeIndex._index))primeIndex), prime + 1) == 1);
+            assert(primeModulo(PrimeIndex(cast(typeof(PrimeIndex._ix))primeIndex), prime + 0) == 0);
+            assert(primeModulo(PrimeIndex(cast(typeof(PrimeIndex._ix))primeIndex), prime + 1) == 1);
         }
     }
 }

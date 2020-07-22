@@ -381,19 +381,19 @@ if (isNullable!K /*&& isHashable!K */)
             PrimeIndex primeIndex;
             immutable initialCapacity = ceilingPrime(minimumCapacity + 1, primeIndex);
             assert(minimumCapacity < initialCapacity); // we need at least one vacancy
-            return typeof(return)(makeDefaultInitializedStoreOfLength(initialCapacity), primeIndex, 0);
+            return typeof(return)(makeDefaultInitializedStoreOfCapacity(initialCapacity), primeIndex, 0);
         }
         else
         {
             immutable initialCapacity = nextPow2(minimumCapacity);
             assert(minimumCapacity < initialCapacity); // we need at least one vacancy
-            return typeof(return)(makeDefaultInitializedStoreOfLength(initialCapacity), 0);
+            return typeof(return)(makeDefaultInitializedStoreOfCapacity(initialCapacity), 0);
         }
     }
 
     /** Make default-initialized store with `capacity` number of slots.
      */
-    static private T[] makeDefaultInitializedStoreOfLength()(in size_t capacity) @trusted pure nothrow @nogc // template-lazy
+    static private T[] makeDefaultInitializedStoreOfCapacity()(in size_t capacity) @trusted pure nothrow @nogc // template-lazy
     {
         static if (usePrimeCapacity)
         {
@@ -513,11 +513,11 @@ if (isNullable!K /*&& isHashable!K */)
         static if (usePrimeCapacity)
         {
             _primeIndex = 0;
-            _store = makeDefaultInitializedStoreOfLength(ceilingPrime(1 + 1, _primeIndex));
+            _store = makeDefaultInitializedStoreOfCapacity(ceilingPrime(1 + 1, _primeIndex));
         }
         else
         {
-            _store = makeDefaultInitializedStoreOfLength(nextPow2(1));
+            _store = makeDefaultInitializedStoreOfCapacity(nextPow2(1));
         }
         _count = 0;
         // TODO can this be optimized?

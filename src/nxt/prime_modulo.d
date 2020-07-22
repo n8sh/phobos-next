@@ -164,7 +164,7 @@ static immutable primeModuloConstants =
     11493228998133068689UL, 14480561146010017169UL, 18446744073709551557UL,
 ];
 
-static foreach (const primeConstant; primeModuloConstants)
+static foreach (primeConstant; primeModuloConstants)
 {
     static if (primeConstant == 0)
     {

@@ -12,7 +12,7 @@ void toStringInSink(const double value,
     char[3 + digitCountMax] buffer; // (sign + dot + null) and digits
     gcvt(value, digitCount, buffer.ptr);
     import core.stdc.string : cstrlen = strlen;
-    sink(buffer[0 .. cstrlen(buffer.ptr)]);
+    sink(buffer[0 .. cstrlen(buffer.ptr)]); // TODO avoid
 }
 
 /// Returns: `value` as a `string`.
@@ -24,7 +24,7 @@ string toString(const double value,
     auto buffer = new char[length];
     gcvt(value, digitCount, buffer.ptr);
     import core.stdc.string : cstrlen = strlen;
-    return buffer[0 .. cstrlen(buffer.ptr)];
+    return buffer[0 .. cstrlen(buffer.ptr)]; // TODO avoid
 }
 
 private inout(char)[] fromStringz(return scope inout(char)* cString) @nogc @system pure nothrow

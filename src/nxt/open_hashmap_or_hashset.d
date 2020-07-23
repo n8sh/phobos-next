@@ -1917,7 +1917,7 @@ private:
         else
         {
             /** Returns: current index mask from bin count `_store.length`. */
-            static size_t powerOf2Mask(size_t length)
+            static size_t powerOf2Mask(in size_t length)
             {
                 pragma(inline, true);
                 immutable typeof(return) mask = length - 1;

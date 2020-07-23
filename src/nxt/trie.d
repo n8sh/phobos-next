@@ -5614,8 +5614,8 @@ if (Keys.length != 0)
             {
                 static if (isIntegral!Key)
                 {
-                    immutable low = max(Key.min, -1_000); // chosen to minimize number of lines of debug output before bug in contains happens
-                    immutable high = min(Key.max, 1_000);
+                    immutable low = max(Key.min, -1000);
+                    immutable high = min(Key.max, 1000);
                     immutable factor = 1;
                 }
                 else static if (isFloatingPoint!Key)
@@ -5629,6 +5629,10 @@ if (Keys.length != 0)
                     immutable low = false;
                     immutable high = true;
                     immutable factor = 1;
+                }
+                else
+                {
+                    static assert(false, "Support Key " ~ Key.stringof);
                 }
                 immutable length = high - low + 1;
 

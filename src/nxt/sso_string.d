@@ -42,7 +42,7 @@ pure:
     /** Return `this` lowercased. */
     typeof(this) toLower()() const @trusted // template-lazy
     {
-        if (isSmallASCII())
+        if (isSmallASCII)
         {
             typeof(return) result = void;
             result.small.length = small.length;
@@ -91,7 +91,7 @@ pure:
     /** Return `this` uppercased. */
     typeof(this) toUpper()() const @trusted // template-lazy
     {
-        if (isSmallASCII())
+        if (isSmallASCII)
         {
             typeof(return) result = void;
             result.small.length = small.length;

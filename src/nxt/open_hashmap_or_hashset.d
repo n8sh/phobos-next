@@ -2797,6 +2797,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     }
     else                        // `c` was is an r-value and can be moved
     {
+        import core.lifetime : move;
         auto result = ByRvalueElement!C((RvalueElementRef!(M)(move(*(cast(M*)&c))))); // reinterpret
     }
     result.findNextNonEmptyBin();
@@ -2847,6 +2848,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     }
     else                        // `c` was is an r-value and can be moved
     {
+        import core.lifetime : move;
         auto result = ByKey_rvalue!C((RvalueElementRef!M(move(*(cast(M*)&c))))); // reinterpret
     }
     result.findNextNonEmptyBin();
@@ -2917,6 +2919,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     }
     else                        // `c` was is an r-value and can be moved
     {
+        import core.lifetime : move;
         auto result = ByValue_rvalue!C((RvalueElementRef!M(move(*(cast(M*)&c))))); // reinterpret
     }
     result.findNextNonEmptyBin();
@@ -2961,6 +2964,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     }
     else                        // `c` was is an r-value and can be moved
     {
+        import core.lifetime : move;
         auto result = ByKeyValue_rvalue!Table((RvalueElementRef!M(move(*(cast(M*)&c))))); // reinterpret
     }
     result.findNextNonEmptyBin();

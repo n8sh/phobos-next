@@ -16,7 +16,7 @@
 module nxt.random_ex;
 
 import std.traits: isIntegral, isFloatingPoint, isNumeric, isIterable, isStaticArray, isArray, hasIndirections, isSomeString, isScalarType, isBoolean;
-import std.range: isInputRange, ElementType, hasAssignableElements;
+import std.range: ElementType, hasAssignableElements;
 import std.random: uniform;
 
 version(unittest) private enum testLength = 64;

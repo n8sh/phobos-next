@@ -5,12 +5,6 @@ import std.functional : unaryFun;
 import nxt.container_traits : isSet;
 import nxt.typecons_ex : hasIndexing;
 
-version(unittest)
-{
-    import std.algorithm.comparison : equal;
-    import nxt.dbgio : dbg;
-}
-
 /** Returns: `r` eagerly in-place filtered on `predicate`.
  *
  * TODO Move to free function in array_ex.d to get @trusted access to private Array._mptr
@@ -139,6 +133,7 @@ if (hasIndexing!C && // TODO extend to `isArrayContainer`!C eller `isRandomAcces
 
 @safe pure nothrow @nogc unittest
 {
+    import std.algorithm.comparison : equal;
     import std.algorithm.mutation : move;
     import std.meta : AliasSeq;
     import nxt.unique_range : intoUniqueRange;

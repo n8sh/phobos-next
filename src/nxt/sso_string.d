@@ -42,7 +42,7 @@ pure:
     /** Return `this` lowercased. */
     typeof(this) toLower()() const @trusted // template-lazy
     {
-        if (isSmallASCIIClean())
+        if (isSmallASCII())
         {
             typeof(return) result = void;
             result.small.length = small.length;
@@ -91,7 +91,7 @@ pure:
     /** Return `this` uppercased. */
     typeof(this) toUpper()() const @trusted // template-lazy
     {
-        if (isSmallASCIIClean())
+        if (isSmallASCII())
         {
             typeof(return) result = void;
             result.small.length = small.length;
@@ -432,7 +432,7 @@ pure:
     }
 
     /** Check if `this` is a small ASCII string. */
-    bool isSmallASCIIClean() const scope @trusted
+    bool isSmallASCII() const scope @trusted
     {
         pragma(inline, true);
         static assert(largeLengthTagBitOffset == 0);// bit 0 of lsbyte not set => small
@@ -786,20 +786,20 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     alias S = SSOString;
 
     // these are all small ASCII
-    assert( S("a").isSmallASCIIClean);
-    assert( S("b").isSmallASCIIClean);
-    assert( S("z").isSmallASCIIClean);
-    assert( S("_").isSmallASCIIClean);
-    assert( S("abcd").isSmallASCIIClean);
-    assert( S("123456789_12345").isSmallASCIIClean);
+    assert( S("a").isSmallASCII);
+    assert( S("b").isSmallASCII);
+    assert( S("z").isSmallASCII);
+    assert( S("_").isSmallASCII);
+    assert( S("abcd").isSmallASCII);
+    assert( S("123456789_12345").isSmallASCII);
 
     // these are not
-    assert(!S("123456789_123456").isSmallASCIIClean); // too large
-    assert(!S("123456789_123ö").isSmallASCIIClean);
-    assert(!S("ö").isSmallASCIIClean);
-    assert(!S("Ö").isSmallASCIIClean);
-    assert(!S("åäö").isSmallASCIIClean);
-    assert(!S("ö-värld").isSmallASCIIClean);
+    assert(!S("123456789_123456").isSmallASCII); // too large
+    assert(!S("123456789_123ö").isSmallASCII);
+    assert(!S("ö").isSmallASCII);
+    assert(!S("Ö").isSmallASCII);
+    assert(!S("åäö").isSmallASCII);
+    assert(!S("ö-värld").isSmallASCII);
 }
 
 /// ASCII purity and case-conversion

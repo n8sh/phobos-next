@@ -2360,6 +2360,9 @@ if (isInstanceOf!(OpenHashMapOrSet, C1) && // TODO generalize to `isSetOrMap`
 @safe pure nothrow @nogc
 unittest
 {
+    import std.typecons : Nullable;
+    import nxt.digestx.fnv : FNV;
+
     alias K = Nullable!(ulong, ulong.max);
     alias X = OpenHashSet!(K, FNV!(64, true));
 
@@ -2395,6 +2398,8 @@ unittest
 
 @safe pure nothrow @nogc unittest
 {
+    import nxt.digestx.fnv : FNV;
+
     enum Pot { noun, verb }
     struct ExprPot
     {
@@ -2405,7 +2410,6 @@ unittest
         static immutable nullValue = typeof(this).init;
     }
 
-    import nxt.digestx.fnv : FNV;
     alias X = OpenHashSet!(ExprPot, FNV!(64, true));
 
     X x;
@@ -2434,6 +2438,7 @@ unittest
 @safe pure nothrow @nogc unittest
 {
     version(showEntries) dbg();
+    import nxt.container_traits : mustAddGCRange;
     import nxt.digestx.fnv : FNV;
 
     alias X = OpenHashSet!(string, FNV!(64, true));
@@ -2526,6 +2531,11 @@ unittest
 /// array container as value type
 @safe pure nothrow @nogc unittest
 {
+    import std.meta : AliasSeq;
+    import std.typecons : Nullable;
+    import nxt.container_traits : mustAddGCRange;
+    import nxt.digestx.fnv : FNV;
+    import nxt.array_help : s;
     version(showEntries) dbg();
 
     import nxt.dynamic_array : Array = DynamicArray;
@@ -2670,6 +2680,11 @@ unittest
 /// r-value and l-value intersection
 @safe pure nothrow @nogc unittest
 {
+    import core.lifetime : move;
+    import std.typecons : Nullable;
+    import nxt.digestx.fnv : FNV;
+    import nxt.array_help : s;
+
     version(showEntries) dbg();
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashSet!(K, FNV!(64, true));
@@ -2719,6 +2734,11 @@ unittest
 @safe pure nothrow @nogc unittest
 {
     version(showEntries) dbg();
+
+    import std.typecons : Nullable;
+    import nxt.digestx.fnv : FNV;
+    import nxt.array_help : s;
+
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashSet!(K, FNV!(64, true));
 
@@ -2745,6 +2765,11 @@ if (isInstanceOf!(OpenHashMapOrSet, C1) &&
 @safe pure nothrow @nogc unittest
 {
     version(showEntries) dbg();
+
+    import std.typecons : Nullable;
+    import nxt.digestx.fnv : FNV;
+    import nxt.array_help : s;
+
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashSet!(K, FNV!(64, true));
 
@@ -3007,6 +3032,14 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
 @safe pure unittest
 {
     version(showEntries) dbg();
+
+    import core.exception : RangeError, AssertError;
+    import std.typecons : Nullable;
+    import nxt.digestx.fnv : FNV;
+    import nxt.array_help : s;
+    debug import std.exception : assertThrown, assertNotThrown;
+
+    import std.algorithm.searching : count;
     alias K = Nullable!(uint, uint.max);
     alias X = OpenHashSet!(K,
                            FNV!(64, true),
@@ -3075,6 +3108,10 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
 @safe pure unittest
 {
     version(showEntries) dbg();
+    import core.exception : RangeError, AssertError;
+    import std.typecons : Nullable;
+    import nxt.digestx.fnv : FNV;
+    debug import std.exception : assertThrown, assertNotThrown;
     immutable n = 11;
 
     alias K = Nullable!(uint, uint.max);
@@ -3120,6 +3157,11 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
 @safe pure unittest
 {
     version(showEntries) dbg();
+    import core.exception : RangeError, AssertError;
+    import std.typecons : Nullable;
+    debug import std.exception : assertThrown, assertNotThrown;
+    import nxt.digestx.fnv : FNV;
+
     immutable n = 11;
 
     alias K = Nullable!(uint, uint.max);
@@ -3177,6 +3219,9 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
 pure nothrow unittest
 {
     version(showEntries) dbg();
+    import std.typecons : Nullable;
+    import nxt.digestx.fnv : FNV;
+
     alias K = Nullable!(uint, uint.max);
     class V
     {
@@ -3209,6 +3254,9 @@ pure nothrow unittest
 pure nothrow unittest
 {
     version(showEntries) dbg();
+    import std.typecons : Nullable;
+    import nxt.digestx.fnv : FNV;
+
     struct S
     {
         uint value;
@@ -3262,6 +3310,8 @@ pure nothrow unittest
 /// range key constness and value mutability with `class` key and `class` value
 pure nothrow unittest
 {
+    import nxt.digestx.fnv : FNV;
+
     version(showEntries) dbg();
     class K
     {
@@ -3328,6 +3378,7 @@ pure nothrow unittest
 /// range key constness and value mutability with `class` key and `class` value
 pure nothrow unittest
 {
+    import nxt.digestx.fnv : FNV;
     version(showEntries) dbg();
     class K
     {
@@ -3407,6 +3458,13 @@ version(unittest)
 /// test various things
 @trusted unittest
 {
+    import std.meta : AliasSeq;
+    import std.typecons : Nullable;
+    import std.algorithm.comparison : equal;
+    import nxt.container_traits : mustAddGCRange;
+    import nxt.digestx.fnv : FNV;
+    import nxt.array_help : s;
+
     version(showEntries) dbg();
     const n = 100;
 
@@ -3768,6 +3826,9 @@ version(unittest)
 @safe pure nothrow @nogc unittest
 {
     version(showEntries) dbg();
+    import std.typecons : Nullable;
+    import nxt.digestx.fnv : FNV;
+
     alias X = OpenHashMapOrSet!(Nullable!(size_t, size_t.max), size_t, FNV!(64, true));
     import nxt.dynamic_array : Array = DynamicArray;
     X x;
@@ -3779,6 +3840,8 @@ version(unittest)
 /// manual Nullable type
 @safe pure unittest
 {
+    import nxt.digestx.fnv : FNV;
+
     static class Zing
     {
         @safe pure nothrow @nogc:
@@ -3943,6 +4006,8 @@ version(unittest)
 /// enumeration key
 @safe pure unittest
 {
+    import nxt.digestx.fnv : FNV;
+
     enum Alt
     {
         nullValue,              // trait
@@ -3972,6 +4037,7 @@ version(unittest)
 @safe pure nothrow
 unittest
 {
+    import nxt.digestx.fnv : FNV;
     static struct Rel
     {
         static immutable nullValue = typeof(this).init;
@@ -3995,6 +4061,8 @@ unittest
 unittest
 {
     import nxt.sso_string : SSOString;
+    import nxt.digestx.fnv : FNV;
+
     alias K = SSOString;
     static assert(isHoleable!K);
     alias X = OpenHashSet!(K, FNV!(64, true));
@@ -4057,6 +4125,8 @@ unittest
 unittest
 {
     import nxt.sso_string : SSOString;
+    import nxt.digestx.fnv : FNV;
+
     alias K = SSOString;
     alias V = long;
     alias X = OpenHashMap!(K, V, FNV!(64, true));
@@ -4119,6 +4189,7 @@ unittest
 unittest
 {
     import nxt.sso_string : SSOString;
+    import nxt.digestx.fnv : FNV;
     alias K = SSOString;
     alias V = long;
     alias X = OpenHashMap!(K, V, FNV!(64, true));
@@ -4249,21 +4320,6 @@ template defaultKeyEqualPredOf(T)
         int x;
     }
     static assert(defaultKeyEqualPredOf!(C) == "a is b");
-}
-
-version(unittest)
-{
-    debug import std.exception : assertThrown, assertNotThrown;
-    import core.lifetime : move;
-    import core.exception : RangeError, AssertError;
-    import std.algorithm : count;
-    import std.algorithm.comparison : equal;
-    import std.typecons : Nullable;
-    import std.meta : AliasSeq;
-
-    import nxt.container_traits : mustAddGCRange;
-    import nxt.digestx.fnv : FNV;
-    import nxt.array_help : s;
 }
 
 version(showEntries) import nxt.dbgio : dbg;

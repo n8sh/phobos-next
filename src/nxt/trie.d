@@ -4179,7 +4179,7 @@ template RawRadixTree(Value = void)
             printAt(_root, 0);
         }
 
-        Node getRoot()
+        Node root()
         {
             pragma(inline, true);
             return _root;
@@ -5084,27 +5084,27 @@ if (Keys.length != 0)
     alias Key = ubyte;
     auto set = radixTreeSet!(Key);
 
-    assert(!set.getRoot);
+    assert(!set.root);
 
     foreach (immutable i; 0 .. 7)
     {
         assert(!set.contains(i));
         assert(set.insert(i));
-        assert(set.getRoot.peek!HeptLeaf1);
+        assert(set.root.peek!HeptLeaf1);
     }
 
     foreach (immutable i; 7 .. 48)
     {
         assert(!set.contains(i));
         assert(set.insert(i));
-        assert(set.getRoot.peek!(SparseLeaf1!void*));
+        assert(set.root.peek!(SparseLeaf1!void*));
     }
 
     foreach (immutable i; 48 .. 256)
     {
         assert(!set.contains(i));
         assert(set.insert(i));
-        assert(set.getRoot.peek!(DenseLeaf1!void*));
+        assert(set.root.peek!(DenseLeaf1!void*));
     }
 }
 
@@ -5380,7 +5380,7 @@ unittest
         assert(!set.insert(i));
         assert(set.contains(i));
 
-        immutable rootRef = set.getRoot.peek!(HeptLeaf1);
+        immutable rootRef = set.root.peek!(HeptLeaf1);
         assert(rootRef);
     }
 
@@ -5434,7 +5434,7 @@ unittest
         assert(!set.insert(257));
         assert(set.contains(257));
 
-        immutable rootRef = set.getRoot.peek!(Set.DefaultBranchType*);
+        immutable rootRef = set.root.peek!(Set.DefaultBranchType*);
         assert(rootRef);
         immutable root = *rootRef;
         assert(root.prefix.length == T.sizeof - 2);

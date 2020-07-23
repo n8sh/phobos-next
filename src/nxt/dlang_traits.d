@@ -4,6 +4,8 @@
  */
 module nxt.dlang_traits;
 
+@safe pure nothrow @nogc:
+
 private enum hasAutoRefForeach = __traits(compiles, () {
         mixin(`void f() { int[2] _ = [1, 2]; foreach (const auto ref e; _) {} }`);
     });
@@ -12,6 +14,7 @@ private enum hasRefForeach = __traits(compiles, {
         mixin(`void f() { int[2] _ = [1, 2]; foreach (const ref e; _) {} }`);
     });
 
+///
 unittest
 {
     static assert(hasRefForeach);

@@ -26,10 +26,7 @@ struct Address
     static assert(hasNullValue!Address);
     static assert(isNullable!Address);
 
-    alias K = Address;
-    alias V = Address;
-
-    OpenHashMap!(K, V) m;
+    OpenHashMap!(Address, Address) m;
 
     static assert(m.sizeof == 3*size_t.sizeof); // assure that hole bitmap is not used
 

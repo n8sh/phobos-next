@@ -5591,7 +5591,6 @@ if (Keys.length != 0)
     import std.traits : isIntegral, isFloatingPoint;
     foreach (immutable it; 0 .. 1)
     {
-        import std.algorithm.comparison : equal;
         struct TestValueType { int i = 42; float f = 43; char ch = 'a'; }
         alias Value = TestValueType;
         import std.meta : AliasSeq;

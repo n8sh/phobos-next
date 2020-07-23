@@ -34,8 +34,7 @@ if (hasMember!(C, "length") &&
  * TODO reuse in array*.d
  * TODO better name removeAt
  */
-void shiftToFrontAt(T)(T[] r, size_t index)
-    @trusted
+void shiftToFrontAt(T)(T[] r, size_t index) @trusted
 {
     assert(index + 1 <= r.length);
 

@@ -1913,7 +1913,7 @@ private:
         }
         else
         {
-            /** Returns: current index mask from bin count. */
+            /** Returns: current index mask from bin count `_store.length`. */
             size_t powerOf2Mask()
             {
                 pragma(inline, true);

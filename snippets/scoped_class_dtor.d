@@ -1,3 +1,6 @@
+/** Test how destruction of scoped classes is handled. */
+module scoped_class_dtor;
+
 bool g_dtor_called = false;
 
 class C

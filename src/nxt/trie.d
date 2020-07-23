@@ -5665,6 +5665,7 @@ if (Keys.length != 0)
                     // alternative syntax
                     assert(key in set);
                     assert(key in map);
+
                     if (key != Key.max)        // except last value
                     {
                         assert(!set.contains(cast(Key)(key + 1))); // next key is not yet in set

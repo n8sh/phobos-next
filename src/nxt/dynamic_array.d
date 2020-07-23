@@ -1733,5 +1733,4 @@ version(unittest)
 {
     import nxt.container_traits : mustAddGCRange, needsMove;
     import nxt.array_help : s;
-    import nxt.dip_traits : isDIP1000;
 }

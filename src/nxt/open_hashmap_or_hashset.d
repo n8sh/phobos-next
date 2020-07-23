@@ -1917,25 +1917,25 @@ private:
         else
         {
             /** Returns: current index mask from bin count `_store.length`. */
-            size_t powerOf2Mask()
+            static size_t powerOf2Mask(size_t length)
             {
                 pragma(inline, true);
-                immutable typeof(return) mask = _store.length - 1;
+                immutable typeof(return) mask = length - 1;
                 version(internalUnittest)
                 {
                     import std.math : isPowerOf2;
-                    _store.length.isPowerOf2();
+                    length.isPowerOf2();
                 }
                 return mask;
             }
             static if (is(typeof(hasher(key)) == hash_t)) // for instance when hasher being `hashOf`
             {
-                return hasher(key) & powerOf2Mask;
+                return hasher(key) & powerOf2Mask(_store.length);
             }
             else
             {
                 import nxt.digestion : hashOf2;
-                return hashOf2!(hasher)(key) & powerOf2Mask;
+                return hashOf2!(hasher)(key) & powerOf2Mask(_store.length);
             }
         }
     }

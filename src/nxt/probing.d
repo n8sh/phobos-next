@@ -146,6 +146,8 @@ if (is(typeof(unaryFun!pred(T.init))))
 /// empty case
 @safe pure nothrow unittest
 {
+    import std.typecons : Nullable;
+
     alias T = Nullable!int;
 
     immutable length = 0;
@@ -161,6 +163,8 @@ if (is(typeof(unaryFun!pred(T.init))))
 /// generic case
 @safe pure nothrow unittest
 {
+    import std.typecons : Nullable;
+
     alias T = Nullable!int;
 
     foreach (immutable lengthPower; 0 .. 20)
@@ -183,11 +187,6 @@ if (is(typeof(unaryFun!pred(T.init))))
         // key miss
         assert(haystack.triangularProbeFromIndex!(elementMissPredicate)(lengthPower) == haystack.length);
     }
-}
-
-version(unittest)
-{
-    import std.typecons : Nullable;
 }
 
 @trusted pure unittest

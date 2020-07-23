@@ -1,7 +1,6 @@
 module nxt.variant;
 
 import core.internal.traits : hasElaborateCopyConstructor, hasElaborateDestructor;
-import nxt.traits_ex : haveCommonType;
 
 static class LightAlgebraicException : Exception
 {
@@ -444,7 +443,8 @@ public:
 
         int opCmp(U)(in U that) const @trusted
         {
-            static if (haveCommonType!(Types, U)) // TODO is CommonType or isComparable the correct way of checking this?
+            import std.traits : CommonType;
+            static if (!is(CommonType!(Types, U) == void)) // TODO is CommonType or isComparable the correct way of checking this?
             {
                 final switch (typeIndex)
                 {
@@ -748,11 +748,10 @@ unittest
     // static assert(FastAlgebraic!(int, float).sizeof == 4 + 1);
     // static assert(FastAlgebraic!(char[2], wchar[2]).sizeof == 2 * 2 + 1);
 
-    import std.datetime : Date, TimeOfDay;
     alias C = FastAlgebraic!(string,
                         // fixed length strings: small string optimizations (SSOs)
                         int, float,
-                        long, double, Date, TimeOfDay);
+                        long, double);
     static assert(!C.hasFixedSize);
 
     static assert(C.allowsAssignmentFrom!int);

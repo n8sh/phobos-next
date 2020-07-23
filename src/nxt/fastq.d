@@ -21,6 +21,7 @@ module nxt.fastq;
 
 struct FastQRecord
 {
+    // TODO `inout` support like in `rdf.d`
     const(char)[] sequenceId;
     const(char)[] sequenceLetters;
     const(char)[] quality;

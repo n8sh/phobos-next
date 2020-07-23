@@ -1,7 +1,6 @@
 module nxt.open_hashmap_or_hashset;
 
 // version = showEntries;
-// version = internalUnittest; // fed by dub (see dub.sdl) in unittest-internal mode
 
 import core.internal.hash : hashOf;
 import nxt.nullable_traits : isNullable;
@@ -719,7 +718,7 @@ if (isNullable!K /*&& isHashable!K */)
 
             void untagHoleAtIndex(size_t index) @trusted
             {
-                version(internalUnittest) assert(index < _store.length);
+                version(unittest) assert(index < _store.length);
                 if (_holesPtr !is null)
                 {
                     btr(_holesPtr, index);
@@ -735,7 +734,7 @@ if (isNullable!K /*&& isHashable!K */)
 
         void tagHoleAtIndex(size_t index) @trusted
         {
-            version(internalUnittest) assert(index < _store.length);
+            version(unittest) assert(index < _store.length);
             static if (hasHoleableKey)
             {
                 keyOf(_store[index]) = holeKeyConstant;
@@ -1045,7 +1044,7 @@ if (isNullable!K /*&& isHashable!K */)
     {
         version(LDC) pragma(inline, true);
         version(showEntries) dbg(__FUNCTION__, " newCapacity:", newCapacity);
-        version(internalUnittest) assert(newCapacity > _store.length);
+        version(unittest) assert(newCapacity > _store.length);
         static if (__traits(hasMember, Allocator, "reallocate"))
         {
             static if (growInPlaceFlag)
@@ -1269,7 +1268,7 @@ if (isNullable!K /*&& isHashable!K */)
     {
         version(LDC) pragma(inline, true); // LDC needs this or to prevent 10x performance regression in contains()
         version(showEntries) dbg(__FUNCTION__, " newCapacity:", newCapacity);
-        version(internalUnittest) assert(newCapacity > _store.length);
+        version(unittest) assert(newCapacity > _store.length);
         auto next = typeof(this).withCapacity(newCapacity);
         foreach (immutable index, ref bin; _store)
         {
@@ -1289,11 +1288,10 @@ if (isNullable!K /*&& isHashable!K */)
                                                              out size_t hitIndex) @trusted
     {
         version(LDC) pragma(inline, true);
-        version(internalUnittest)
+        version(unittest)
         {
             assert(!keyOf(element).isNull);
-            static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(cast(K)adjustKeyType(keyOf(element)))); }
-            static if (hasHoleableKey) { assert(!isHoleKeyConstant(keyOf(element))); }
+            static if (hasHoleableKey) { assert(!isHoleKeyConstant(adjustKeyType(keyOf(element)))); }
         }
 
         size_t holeIndex = size_t.max; // first hole index to written to if hole found
@@ -1310,7 +1308,7 @@ if (isNullable!K /*&& isHashable!K */)
             {
                 hitIndex = hitIndexPrel; // normal hit
             }
-            version(internalUnittest) assert(hitIndex != _store.length, "no null or hole slot");
+            version(unittest) assert(hitIndex != _store.length, "no null or hole slot");
             static if (__traits(isCopyable, SomeElement))
             {
                 insertElementAtIndex(*cast(SomeElement*)&element, hitIndex);
@@ -1358,11 +1356,10 @@ if (isNullable!K /*&& isHashable!K */)
     private size_t insertWithoutGrowthNoStatus(SomeElement)(const scope SomeElement element) @trusted // template-lazy
     {
         version(LDC) pragma(inline, true);
-        version(internalUnittest)
+        version(unittest)
         {
             assert(!keyOf(element).isNull);
-            static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(cast(K)adjustKeyType(keyOf(element)))); }
-            static if (hasHoleableKey) { assert(!isHoleKeyConstant(keyOf(element))); }
+            static if (hasHoleableKey) { assert(!isHoleKeyConstant(adjustKeyType(keyOf(element)))); }
         }
 
         size_t hitIndex = 0;
@@ -1380,7 +1377,7 @@ if (isNullable!K /*&& isHashable!K */)
             {
                 hitIndex = hitIndexPrel; // normal hit
             }
-            version(internalUnittest) assert(hitIndex != _store.length, "no null or hole slot");
+            version(unittest) assert(hitIndex != _store.length, "no null or hole slot");
             static if (__traits(isCopyable, SomeElement))
             {
                 insertElementAtIndex(*cast(SomeElement*)&element, hitIndex);
@@ -1646,7 +1643,7 @@ if (isNullable!K /*&& isHashable!K */)
                 const index = (hasHole ?
                                holeIndex : // pick hole instead
                                hitIndex); // normal hit
-                version(internalUnittest) assert(index != _store.length, "no null or hole slot");
+                version(unittest) assert(index != _store.length, "no null or hole slot");
                 static if (__traits(isCopyable, K))
                 {
                     static if (op == "~" ||
@@ -1919,12 +1916,18 @@ private:
             /** Returns: current index mask from bin count `_store.length`. */
             static size_t powerOf2Mask(in size_t length)
             {
-                pragma(inline, true);
+                version(unittest)
+                {
+                }
+                else
+                {
+                    pragma(inline, true);
+                }
                 immutable typeof(return) mask = length - 1;
-                version(internalUnittest)
+                version(unittest)
                 {
                     import std.math : isPowerOf2;
-                    length.isPowerOf2();
+                    assert(isPowerOf2(length));
                 }
                 return mask;
             }
@@ -1947,7 +1950,7 @@ private:
     // TODO if (...)
     {
         version(LDC) pragma(inline, true);
-        version(internalUnittest)
+        version(unittest)
         {
             assert(!key.isNull);
             static if (hasHoleableKey) { assert(!isHoleKeyConstant(key)); }
@@ -1989,7 +1992,7 @@ private:
                                                    ref size_t holeIndex) const @trusted scope
     {
         version(LDC) pragma(inline, true);
-        version(internalUnittest)
+        version(unittest)
         {
             assert(!key.isNull);
             static if (hasHoleableKey) { assert(!isHoleKeyConstant(key)); }
@@ -2039,7 +2042,7 @@ private:
     private bool isOccupiedAtIndex(size_t index) const
     {
         version(LDC) pragma(inline, true);
-        version(internalUnittest) assert(index < _store.length);
+        version(unittest) assert(index < _store.length);
         if (keyOf(_store[index]).isNull) { return false; }
         static if (hasHoleableKey)
         {

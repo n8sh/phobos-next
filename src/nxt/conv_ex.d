@@ -307,15 +307,11 @@ if (isSourceOfSomeChar!Source)
 ///
 @safe pure /*TODO nothrow*/ unittest
 {
+    import std.algorithm : equal;
     assert(`\u00F6`.decodeEscapes.equal("ö"));
     assert(`s\u00F6der`.decodeEscapes.equal("söder"));
     assert(`_\u00F6\u00F6_`.decodeEscapes.equal("_öö_"));
     assert(`http://dbpedia.org/resource/Malm\u00F6`.decodeEscapes.equal(`http://dbpedia.org/resource/Malmö`));
-}
-
-version(unittest)
-{
-    import std.algorithm : equal;
 }
 
 // import std.range.primitives : isInputRange, ElementType;

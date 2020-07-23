@@ -134,7 +134,7 @@ template isIntegerLike(T)
 
 @safe pure nothrow @nogc unittest
 {
-    import std.bigint;
+    import std.bigint : BigInt;
     import std.meta : AliasSeq;
     foreach (T; AliasSeq!(BigInt,
                           long, ulong, int, uint,
@@ -174,7 +174,7 @@ if (isIntegerLike!I1 &&
 
 @safe pure nothrow @nogc unittest
 {
-    import std.bigint;
+    import std.bigint : BigInt;
     static assert(is(CommonInteger!(BigInt, int) == BigInt));
     static assert(is(CommonInteger!(byte, int) == int));
 }
@@ -728,9 +728,9 @@ public:
                 static if (is(SomeIntegral == struct) ||
                            is(SomeIntegral == class))
                 {
-                    import std.bigint;
+                    import std.bigint : BigInt;
                 }
-                static if (is(SomeIntegral == std.bigint.BigInt))
+                static if (is(SomeIntegral == BigInt))
                 {
                     /* This should really be a cast, but BigInt still has a few
                      * issues.
@@ -795,8 +795,8 @@ public:
     /// Returns a string representation of $(D this) in the form a/b.
     string toString() const
     {
-        import std.bigint;
-        static if (is(SomeIntegral == std.bigint.BigInt))
+        import std.bigint : BigInt, toDecimalString;
+        static if (is(SomeIntegral == BigInt))
         {
             // Special case it for now.  This should be fixed later.
             return toDecimalString(_num) ~ "/" ~ toDecimalString(_den);
@@ -1067,7 +1067,7 @@ private Rational!SomeIntegral toRationalImpl(SomeIntegral)(real floatNum, real e
 
 unittest
 {
-    import std.bigint;
+    import std.bigint : BigInt;
     import std.math : PI, E;
     // Start with simple cases.
     assert(toRational!int(0.5) == rational(1, 2));
@@ -1119,7 +1119,7 @@ if (isIntegerLike!I1 &&
 
 pure unittest
 {
-    import std.bigint;
+    import std.bigint : BigInt;
     assert(gcf(0, 0) == 0);
     assert(gcf(0, 1) == 1);
     assert(gcf(999, 0) == 999);

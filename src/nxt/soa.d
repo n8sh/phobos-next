@@ -200,6 +200,8 @@ private struct SOASlice(S)
 
 @safe pure nothrow @nogc unittest
 {
+    import nxt.dip_traits : isDIP1000;
+
     struct S { int i; float f; }
 
     auto x = SOA!S();
@@ -245,9 +247,4 @@ private struct SOASlice(S)
                                     }
                                 }));
     }
-}
-
-version(unittest)
-{
-    import nxt.dip_traits : isDIP1000;
 }

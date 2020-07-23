@@ -285,8 +285,10 @@ pure:
     /// ditto
     alias opDollar = length;
 
+    /** Check if `this` is empty. */
     @property bool empty() const scope @safe pure nothrow @nogc { return length() == 0; }
 
+    /** Check if `this` is `null`. */
     @property bool isNull() const scope @safe pure nothrow @nogc { return this == typeof(this).init; }
 
     /** Return a slice to either the whole large or whole small `string`.

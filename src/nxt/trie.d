@@ -192,9 +192,9 @@ version(useMemoryErrorHandler) unittest
     static assert(isTrieableKeyType!(S));
 }
 
-/// Binary power of radix, typically either 1, 2, 4 or 8.
+/** Binary power of radix, typically either 1, 2, 4 or 8. */
 private enum span = 8;
-/// Branch-multiplicity. Also called order.
+/** Branch-multiplicity. Also called order. */
 private enum radix = 2^^span;
 
 static assert(span == 8, "Radix is currently limited to 8");
@@ -336,7 +336,7 @@ shared static this()
 
 enum keySeparator = ',';
 
-/// Single/1-Key Leaf with maximum key-length 7.
+/** Single/1-Key Leaf with maximum key-length 7. */
 struct OneLeafMax7
 {
     @safe pure:
@@ -371,7 +371,7 @@ struct OneLeafMax7
     IxsN!(capacity, 1) key;
 }
 
-/// Binary/2-Key Leaf with key-length 3.
+/** Binary/2-Key Leaf with key-length 3. */
 struct TwoLeaf3
 {
     enum keyLength = 3; // fixed length key
@@ -416,7 +416,7 @@ struct TwoLeaf3
     IxsN!(capacity, keyLength) keys; // should never be empty
 }
 
-/// Ternary/3-Key Leaf with key-length 2.
+/** Ternary/3-Key Leaf with key-length 2. */
 struct TriLeaf2
 {
     enum keyLength = 2; // fixed length key
@@ -466,7 +466,7 @@ struct TriLeaf2
     IxsN!(capacity, keyLength) keys; // should never be empty
 }
 
-/// Hepa/7-Key Leaf with key-length 1.
+/** Hepa/7-Key Leaf with key-length 1. */
 struct HeptLeaf1
 {
     enum keyLength = 1;
@@ -513,8 +513,7 @@ struct HeptLeaf1
     IxsN!(capacity, 1) keys;    // should never be empty
 }
 
-/** Check if type `NodeType` is a variable-length aggregate (`struct`) type.
-*/
+/** Check if type `NodeType` is a variable-length aggregate (`struct`) type. */
 private template hasVariableSize(NodeType)
 {
     import std.traits: hasMember;
@@ -1068,7 +1067,7 @@ static private struct DenseLeaf1(Value)
 
     static if (hasValue)
     {
-        /// Set value at index `ix` to `value`.
+        /** Set value at index `ix` to `value`. */
         pragma(inline, true) void setValue(UIx ix, in Value value) { _values[ix] = value; }
 
         pragma(inline, true) auto values() inout { return _values; }
@@ -1096,8 +1095,9 @@ alias FixedKeyLeafN = WordVariant!(OneLeafMax7,
                                    TriLeaf2);
 
 /** Mutable leaf node of 1-Ix leaves.
-    Used by branch-leaf.
-*/
+ *
+ * Used by branch-leaf.
+ */
 alias Leaf1(Value) = WordVariant!(HeptLeaf1, // TODO remove from case when Value is void
                                   SparseLeaf1!Value*,
                                   DenseLeaf1!Value*);
@@ -1121,7 +1121,8 @@ UIx firstIx(Value)(Leaf1!Value curr)
 }
 
 /** Try to iterate leaf index `ix` to index, either sparse or dense and put result in `nextIx`.
-    Returns: `true` if `nextIx` was set, `false` if no more indexes was available.
+ *
+ * Returns: `true` if `nextIx` was set, `false` if no more indexes was available.
  */
 pragma(inline) bool tryNextIx(Value)(Leaf1!Value curr, const UIx ix, out Ix nextIx)
 {
@@ -1531,7 +1532,7 @@ template RawRadixTree(Value = void)
             return copy;
         }
 
-        /// Number of non-null sub-Nodes.
+        /** Number of non-null sub-Nodes. */
         SubCount subCount() const
         {
             typeof(return) count = 0; // number of non-zero sub-nodes
@@ -2599,10 +2600,10 @@ template RawRadixTree(Value = void)
         IndexedArray!(size_t, Leaf1!Value.Ix) popByLeaf1Type;
         static assert(is(typeof(popByLeaf1Type).Index == Leaf1!Value.Ix));
 
-        /// Number of heap-allocated `Node`s. Should always equal `heapAllocationBalance`.
+        /** Number of heap-allocated `Node`s. Should always equal `heapAllocationBalance`. */
         size_t heapNodeCount;
 
-        /// Number of heap-allocated `Leaf`s. Should always equal `heapLeafAllocationBalance`.
+        /** Number of heap-allocated `Leaf`s. Should always equal `heapLeafAllocationBalance`. */
         size_t heapLeafCount;
 
         size_t sparseBranchAllocatedSizeSum;
@@ -3849,7 +3850,7 @@ template RawRadixTree(Value = void)
         pragma(inline, true) void release(TriLeaf2 curr) { freeNode(curr); }
         pragma(inline, true) void release(HeptLeaf1 curr) { freeNode(curr); }
 
-        /// Release `Leaf1!Value curr`.
+        /** Release `Leaf1!Value curr`. */
         void release(Leaf1!Value curr)
         {
             final switch (curr.typeIx) with (Leaf1!Value.Ix)
@@ -3861,7 +3862,7 @@ template RawRadixTree(Value = void)
             }
         }
 
-        /// Release `Node curr`.
+        /** Release `Node curr`. */
         void release(Node curr)
         {
             final switch (curr.typeIx) with (Node.Ix)
@@ -4080,7 +4081,7 @@ template RawRadixTree(Value = void)
             debug _root = Node.init;
         }
 
-        /// Removes all contents (elements).
+        /** Removes all contents (elements). */
         void clear() @nogc
         {
             pragma(inline, true);
@@ -4170,7 +4171,7 @@ template RawRadixTree(Value = void)
             }
 
         private:
-            /// Returns: number of nodes used in `this` tree. Should always equal `Stats.heapNodeCount`.
+            /** Returns: number of nodes used in `this` tree. Should always equal `Stats.heapNodeCount`. */
             // debug size_t heapAllocationBalance() { return _heapAllocBalance; }
         }
 
@@ -4457,7 +4458,7 @@ if (isTrieableKeyType!TypedKey)
     }
 }
 
-/// Radix-Tree with key of type `K` and value of type `V` (if non-`void`).
+/** Radix-Tree with key of type `K` and value of type `V` (if non-`void`). */
 struct RadixTree(K, V)
 if (allSatisfy!(isTrieableKeyType, K))
 {
@@ -4468,7 +4469,7 @@ if (allSatisfy!(isTrieableKeyType, K))
 
     static if (RawTree.hasValue)
     {
-        /// Element type with typed key and value.
+        /** Element type with typed key and value. */
         struct TypedElt
         {
             K key;
@@ -4556,7 +4557,7 @@ if (allSatisfy!(isTrieableKeyType, K))
             return _rawTree.contains(rawKey);
         }
 
-        /// AA-style key-value range.
+        /** AA-style key-value range. */
         Range byKeyValue() @nogc // TODO inout?, TODO DIP-1000 scope
         {
             pragma(inline, true);
@@ -4596,7 +4597,7 @@ if (allSatisfy!(isTrieableKeyType, K))
             return _rawTree.contains(rawKey);
         }
 
-        /// AA-style key range.
+        /** AA-style key range. */
         Range byKey() @nogc // TODO inout?. TODO DIP-1000 scope
         {
             pragma(inline, true);
@@ -4866,25 +4867,25 @@ template MutableKey(Key)
 alias RadixTreeSetGrowOnly(Key) = RadixTree!(Key, void);
 alias RadixTreeMapGrowOnly(Key, Value) = RadixTree!(Key, Value);
 
-/// Instantiator for the set-version of `RadixTree` where value-type is `void` (unused).
+/** Instantiator for the set-version of `RadixTree` where value-type is `void` (unused). */
 auto radixTreeSet(Key)() @nogc
 {
     return RadixTree!(MutableKey!Key, void)();
 }
 
-/// Wrapper for a grow-only variant of `radixTreeSet`.
+/** Wrapper for a grow-only variant of `radixTreeSet`. */
 auto radixTreeSetGrowOnly(Key)() @nogc
 {
     return radixTreeSetGrowOnly!(Key);
 }
 
-/// Instantiator for the map-version of `RadixTree` where value-type is `Value`.
+/** Instantiator for the map-version of `RadixTree` where value-type is `Value`. */
 auto radixTreeMap(Key, Value)()
 {
     return RadixTree!(MutableKey!Key, Value)();
 }
 
-/// Wrapper for a grow-only variant of `radixTreeMap`.
+/** Wrapper for a grow-only variant of `radixTreeMap`. */
 auto radixTreeMapGrowOnly(Key, Value)()
 {
     return radixTreeMapGrowOnly!(Key, Value);
@@ -5223,7 +5224,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
     testRange();
 }
 
-/// Check string types in `Keys`.
+/** Check string types in `Keys`. */
 auto testString(Keys...)(size_t count, uint maxLength) @safe
 if (Keys.length != 0)
 {
@@ -5478,7 +5479,7 @@ private static auto randomUniqueSortedStrings(size_t count, uint maxLength) @tru
     return keys;
 }
 
-/// Create a set of words from the file `/usr/share/dict/words`.
+/** Create a set of words from the file `/usr/share/dict/words`. */
 void benchmarkReadDictWords(Value)(in size_t maxCount)
 {
     import std.range : chain;
@@ -5577,7 +5578,7 @@ bool testEqual(T, U)(ref T x, ref U y) @trusted
     return equal(x[], y[]);
 }
 
-/// Check correctness when span is `span` and for each `Key` in `Keys`.
+/** Check correctness when span is `span` and for each `Key` in `Keys`. */
 auto checkNumeric(Keys...)() @safe
 if (Keys.length != 0)
 {
@@ -5676,7 +5677,7 @@ if (Keys.length != 0)
     }
 }
 
-/// Benchmark performance and memory usage when span is `span`.
+/** Benchmark performance and memory usage when span is `span`. */
 void benchmark()()
 {
     version(show) import std.stdio : writeln;
@@ -5769,7 +5770,8 @@ void benchmark()()
 }
 
 /** Static Iota.
-    TODO Move to Phobos std.range.
+ *
+ * TODO Move to Phobos std.range.
  */
 template iota(size_t from, size_t to)
 if (from <= to)

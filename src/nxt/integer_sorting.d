@@ -263,12 +263,12 @@ version = benchmark;
 version(benchmark)
 @safe unittest
 {
-    import std.stdio : write, writef, writeln;
+    version(show) import std.stdio : write, writef, writeln;
 
     /** Test `radixSort` with element-type `E`. */
     void test(E)(int n) @safe
     {
-        writef("%8-s, %10-s, ", E.stringof, n);
+        version(show) writef("%8-s, %10-s, ", E.stringof, n);
 
         import nxt.dynamic_array : Array = DynamicArray;
 
@@ -324,7 +324,7 @@ version(benchmark)
             sw.stop;
             immutable radixTime1 = sw.peek.total!"usecs";
 
-            writef("%9-s, ", cast(real)sortTimeUsecs / radixTime1);
+            version(show) writef("%9-s, ", cast(real)sortTimeUsecs / radixTime1);
             assert(b[].equal(qa[]));
         }
 
@@ -345,7 +345,7 @@ version(benchmark)
                 writeln("standard radix sorted with fast-discardal: ",
                         b[0 .. min(nMax, $)]);
             }
-            writef("%9-s, ", cast(real)sortTimeUsecs / radixTime);
+            version(show) writef("%9-s, ", cast(real)sortTimeUsecs / radixTime);
         }
 
         // inplace-place radix sort
@@ -369,12 +369,12 @@ version(benchmark)
         //     writef("%9-s, ", cast(real)sortTimeUsecs / radixTime);
         // }
 
-        writeln("");
+        version(show) writeln("");
     }
 
     import std.meta : AliasSeq;
     immutable n = 1_00_000;
-    writeln("EType, eCount, radixSort (speed-up), radixSort with fast discardal (speed-up), in-place radixSort (speed-up)");
+    version(show) writeln("EType, eCount, radixSort (speed-up), radixSort with fast discardal (speed-up), in-place radixSort (speed-up)");
     foreach (immutable ix, T; AliasSeq!(byte, short, int, long))
     {
         test!T(n); // test signed

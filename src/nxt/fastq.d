@@ -153,10 +153,13 @@ GATTTGGGGTTCAAAGCAGTATCGATCAAATAGTAAATCCATTTGTTCAACTCACAGTTT
 +
 !''*((((***+))%%%++)(%%%%).1***-+*''))**55CCF>>>>>>CCCCCCC65
 `[1 .. $];
+    assert(equal(FastQRecord.parse(input),
+                 [FastQRecord("seq1", "TTATTTTAAT", "?+BBB/DHH@"),
+                  FastQRecord("seq2", "GACCCTTTGCA", "?+BHB/DIH@"),
+                  FastQRecord("SEQ_ID", "GATTTGGGGTTCAAAGCAGTATCGATCAAATAGTAAATCCATTTGTTCAACTCACAGTTT", "!''*((((***+))%%%++)(%%%%).1***-+*''))**55CCF>>>>>>CCCCCCC65")]));
+}
 
-    foreach(record; FastQRecord.parse(input))
-    {
-        import std.stdio;
-        writeln(record);
-    }
+version(unittest)
+{
+    import std.algorithm.comparison : equal;
 }

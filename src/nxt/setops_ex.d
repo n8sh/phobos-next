@@ -64,11 +64,6 @@ template isAA(Map)
     enum isAA = isAssociativeArray!Map; // TODO check if in operator returns reference to value
 }
 
-version(unittest)
-{
-    import std.algorithm.comparison : equal;
-}
-
 /// union of associative array (via keys)
 @safe pure unittest
 {
@@ -269,6 +264,7 @@ if (Rs.length >= 2 &&
 
 @safe unittest
 {
+    import std.algorithm.comparison : equal;
     import std.algorithm.sorting : sort;
     import std.algorithm.setops : setIntersection;
     import nxt.random_ex : randInPlaceWithElementRange;
@@ -338,6 +334,7 @@ if (Rs.length >= 2 &&
 
 @safe pure nothrow unittest
 {
+    import std.algorithm.comparison : equal;
     enum less = "a < b";
     auto si = setIntersectionFast!(less)([1, 2, 3],
                                          [1, 2, 3]);

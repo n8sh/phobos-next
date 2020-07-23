@@ -1932,9 +1932,7 @@ private:
             /** Returns: current index mask from bin count `_store.length`. */
             static size_t powerOf2Mask(in size_t length)
             {
-                version(unittest)
-                {
-                }
+                version(unittest) {}
                 else
                 {
                     pragma(inline, true);

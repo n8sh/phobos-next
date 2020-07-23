@@ -4846,7 +4846,7 @@ alias CompactPrefixTree = RadixTree;
 template RadixTreeSet(K)
 if (isTrieableKeyType!(K))
 {
-    alias RadixTreeSet = RadixTree(K, void);
+    alias RadixTreeSet = RadixTree!(K, void);
 }
 
 /** Print `tree`. */

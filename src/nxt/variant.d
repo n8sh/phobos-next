@@ -1,13 +1,5 @@
 module nxt.variant;
 
-static class LightAlgebraicException : Exception
-{
-    this(string s) pure @nogc
-    {
-        super(s);
-    }
-}
-
 /** Lightweight version of $(D std.variant.Algebraic) that doesn't rely on `TypeInfo`.
  *
  * Member functions are, when possible, `@safe pure nothrow @nogc`.
@@ -556,6 +548,14 @@ alias FastAlgebraic(Types...) = LightAlgebraic!(false, Types);
 alias Algebraic = FastAlgebraic;
 
 alias PackedAlgebraic(Types...) = LightAlgebraic!(true, Types);
+
+static class LightAlgebraicException : Exception
+{
+    this(string s) pure @nogc
+    {
+        super(s);
+    }
+}
 
 /// Copied from std.variant.
 private static template maxSize(T...)

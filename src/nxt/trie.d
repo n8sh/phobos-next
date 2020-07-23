@@ -5584,6 +5584,7 @@ bool testEqual(T, U)(ref T x, ref U y) @trusted
 }
 
 /** Check correctness when span is `span` and for each `Key` in `Keys`. */
+version(unittest)
 private auto checkNumeric(Keys...)()
 if (Keys.length != 0)
 {
@@ -5685,6 +5686,7 @@ if (Keys.length != 0)
 }
 
 /** Benchmark performance and memory usage when span is `span`. */
+version(benchmark)
 private void benchmark()()
 {
     version(show) import std.stdio : writeln;

@@ -77,9 +77,9 @@ public:
 
     auto ref to(U)() const // TODO pure @nogc
     {
+        import std.conv : to;
         final switch (typeIndex)
         {
-            import std.conv : to;
             foreach (const i, T; Types)
             {
             case i: return as!T.to!U;
@@ -89,15 +89,17 @@ public:
 
     @property void toString()(scope void delegate(scope const(char)[]) sink) const // template-lazy. TODO pure
     {
+        import std.conv : to;
         if (!hasValue) { return sink("<Uninitialized LightAlgebraic>"); }
         final switch (typeIndex)
         {
             foreach (const i, T; Types)
             {
             case i:
-                import std.format : formatValue;
-                formatValue(sink, as!T);
-                // sink(to!string(as!T));
+                // TODO use instead to avoid allocations
+                // import std.format : formatValue;
+                // formatValue(sink, as!T);
+                sink(to!string(as!T));
                 return;
             }
         }

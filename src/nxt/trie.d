@@ -5610,8 +5610,8 @@ if (Keys.length != 0)
             {
                 static if (isIntegral!Key)
                 {
-                    immutable low = max(Key.min, -10_000); // chosen to minimize number of lines of debug output before bug in contains happens
-                    immutable high = min(Key.max, 10_000);
+                    immutable low = max(Key.min, -1_000); // chosen to minimize number of lines of debug output before bug in contains happens
+                    immutable high = min(Key.max, 1_000);
                     immutable factor = 1;
                     immutable length = high - low + 1;
                 }

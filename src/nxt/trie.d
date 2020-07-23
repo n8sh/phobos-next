@@ -5482,7 +5482,6 @@ private static auto randomUniqueSortedStrings(size_t count, uint maxLength) @tru
 /// Create a set of words from the file `/usr/share/dict/words`.
 void benchmarkReadDictWords(Value)(in size_t maxCount)
 {
-    version(show) import std.stdio : File;
     import std.range : chain;
 
     const path = "/usr/share/dict/words";

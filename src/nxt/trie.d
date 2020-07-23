@@ -4869,9 +4869,9 @@ alias RadixTreeSetGrowOnly(Key) = RadixTree!(Key, void);
 alias RadixTreeMapGrowOnly(Key, Value) = RadixTree!(Key, Value);
 
 /** Instantiator for the set-version of `RadixTree` where value-type is `void` (unused). */
-auto radixTreeSet(Key)() @nogc
+RadixTree!(MutableKey!Key, void) radixTreeSet(Key)() @nogc
 {
-    return RadixTree!(MutableKey!Key, void)();
+    return typeof(return)();
 }
 
 /** Wrapper for a grow-only variant of `radixTreeSet`. */
@@ -4881,9 +4881,9 @@ auto radixTreeSetGrowOnly(Key)() @nogc
 }
 
 /** Instantiator for the map-version of `RadixTree` where value-type is `Value`. */
-auto radixTreeMap(Key, Value)()
+RadixTree!(MutableKey!Key, Value) radixTreeMap(Key, Value)()
 {
-    return RadixTree!(MutableKey!Key, Value)();
+    return typeof(return)();
 }
 
 /** Wrapper for a grow-only variant of `radixTreeMap`. */

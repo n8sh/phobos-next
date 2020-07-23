@@ -1,3 +1,5 @@
+/** Detect DIP-support given as compiler flags starting with `-dip`.
+ */
 module nxt.dip_traits;
 
 /** Is `true` iff DIP-1000 checking is enabled via compiler flag -dip1000.

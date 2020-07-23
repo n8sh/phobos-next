@@ -4094,14 +4094,14 @@ unittest
     assert(c[] !in x);
 }
 
-///
+/// use prime numbers as capacity
 @safe pure unittest
 {
-    import nxt.sso_string : SSOString;
-    alias K = SSOString;
-    alias V = long;
+    import nxt.address : Address;
+    alias K = Address;
+    alias V = size_t;
     enum bool usePrimeCapacity = false; // TODO enable
-    alias M = OpenHashMap!(K, V,
+    alias M = OpenHashMap!(Address, V,
                            hashOf,
                            defaultKeyEqualPredOf!K,
                            Mallocator.instance,

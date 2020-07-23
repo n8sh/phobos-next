@@ -1,7 +1,5 @@
 module nxt.variant;
 
-import core.internal.traits : hasElaborateCopyConstructor, hasElaborateDestructor;
-
 static class LightAlgebraicException : Exception
 {
     this(string s) pure @nogc
@@ -264,6 +262,7 @@ public:
     /// Release internal store.
     private void release() @trusted nothrow @nogc
     {
+        import core.internal.traits : hasElaborateDestructor;
         final switch (typeIndex)
         {
             foreach (const i, T; Types)
@@ -737,6 +736,8 @@ nothrow @nogc unittest
 
 unittest
 {
+    import core.internal.traits : hasElaborateCopyConstructor;
+
     import std.exception : assertThrown;
 
     static assert(hasElaborateCopyConstructor!(char[2]) == false);

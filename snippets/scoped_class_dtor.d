@@ -1,4 +1,7 @@
-/** Test how destruction of scoped classes is handled. */
+/** Test how destruction of scoped classes is handled.
+ *
+ * See_Also:
+ */
 module scoped_class_dtor;
 
 bool g_dtor_called = false;

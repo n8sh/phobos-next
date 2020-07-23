@@ -1,6 +1,6 @@
 module nxt.dlang_traits;
 
-/** Check presence of future language support.
+/** Check presence of proposed extensions/modifications to the D language itself.
  *
  * See_Also: https://forum.dlang.org/post/acjltvvqhfcchpwgodqn@forum.dlang.org
  */

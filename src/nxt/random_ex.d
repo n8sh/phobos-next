@@ -24,21 +24,21 @@ version(unittest) private enum testLength = 64;
 
 /** Randomize value $(D x). */
 ref E randInPlace(E)(return ref E x)
-    if (isBoolean!E)
+if (isBoolean!E)
 {
     return x = cast(bool)uniform(0, 2);
 }
 
 /** Randomize value $(D x), optionally in range [$(D low), $(D high)]. */
 ref E randInPlace(E)(return ref E x)
-    if (isIntegral!E)
+if (isIntegral!E)
 {
     return x = uniform(E.min, E.max);    // BUG: Never assigns the value E.max
 }
 
 /** Randomize value $(D x), optional in range [$(D low), $(D high)]. */
 ref E randInPlace(E)(return ref E x)
-    if (isFloatingPoint!E)
+if (isFloatingPoint!E)
 {
     return x = uniform(cast(E)0, cast(E)1);
 }
@@ -47,7 +47,7 @@ ref E randInPlace(E)(return ref E x)
 ref E randInPlaceWithRange(E)(return ref E x,
                               E low,
                               E high)
-    if (isIntegral!E)
+if (isIntegral!E)
 {
     return x = uniform(low, high);    // BUG: Never assigns the value E.max
 }
@@ -56,7 +56,7 @@ ref E randInPlaceWithRange(E)(return ref E x,
 ref E randInPlaceWithRange(E)(return ref E x,
                               E low /* E.min_normal */,
                               E high /* E.max */)
-    if (isFloatingPoint!E)
+if (isFloatingPoint!E)
 {
     return x = uniform(low, high);
 }
@@ -68,7 +68,7 @@ version(unittest)
 
 /** Randomize value of $(D x). */
 ref Rational!E randInPlace(Rational, E)(return ref Rational!E x) @trusted
-    if (isIntegral!E)
+if (isIntegral!E)
 {
     return x = rational(uniform(E.min, E.max),
                         uniform(1, E.max));
@@ -129,8 +129,8 @@ dstring randInPlace(dstring x) @trusted
 /** Randomize value of $(D x).
  */
 R randInPlace(R)(R x)
-    if (isIterable!R &&
-        hasAssignableElements!R)
+if (isIterable!R &&
+    hasAssignableElements!R)
 {
     foreach (ref e; x)
     {
@@ -145,9 +145,9 @@ R randInPlace(R)(R x)
 R randInPlaceWithElementRange(R, E)(R x,
                                     E elementLow,
                                     E elementHigh)
-    if (isIterable!R &&
-        hasAssignableElements!R &&
-        is(ElementType!R == E))
+if (isIterable!R &&
+    hasAssignableElements!R &&
+    is(ElementType!R == E))
 {
     foreach (ref e; x)
     {
@@ -174,7 +174,7 @@ R randInPlaceWithElementRange(R, E)(R x,
 /** Randomize elements of $(D x).
  */
 ref T randInPlace(T)(return ref T x)
-    if (isStaticArray!T)
+if (isStaticArray!T)
 {
     foreach (ref e; x)
     {
@@ -205,8 +205,8 @@ ref T randInPlace(T)(return ref T x)
     Randomizes in array blocks of type $(D B).
  */
 ref A randInPlaceBlockwise(B = size_t, A)(ref A x)
-    if (isArray!A &&
-        isIntegral!(ElementType!A))
+if (isArray!A &&
+    isIntegral!(ElementType!A))
 {
     alias E = ElementType!A;
     static assert(E.sizeof < B.sizeof);
@@ -277,7 +277,7 @@ unittest
 /** Randomize members of $(D x).
  */
 auto ref randInPlace(T)(return ref T x)
-    if (is(T == struct))
+if (is(T == struct))
 {
     foreach (ref e; x.tupleof)
     {
@@ -299,7 +299,7 @@ auto ref randInPlace(T)(return ref T x)
 /** Randomize members of $(D x).
  */
 auto ref randInPlace(T)(T x)
-    if (is(T == class))
+if (is(T == class))
 {
     foreach (ref e; x.tupleof)
     {
@@ -345,7 +345,7 @@ T randomInstanceOf(T)()
  */
 T randomInstanceOf(T)(T low = T.min,
                       T high = T.max)
-    if (isNumeric!T)
+if (isNumeric!T)
 {
     /* TODO recursively only void-initialize parts of T that are POD, not
        reference types */

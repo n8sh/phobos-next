@@ -5686,8 +5686,7 @@ if (Keys.length != 0)
 }
 
 /** Benchmark performance and memory usage when span is `span`. */
-version(benchmark)
-private void benchmark()()
+private void benchmarkTimeAndSpace()
 {
     version(show) import std.stdio : writeln;
 
@@ -5802,7 +5801,7 @@ private template iotaImpl(size_t to, size_t now)
 
 unittest
 { version(showAssertTags) dbg();
-    version(benchmark) benchmark();
+    version(benchmark) benchmarkTimeAndSpace();
 }
 
 import nxt.qcmeman;

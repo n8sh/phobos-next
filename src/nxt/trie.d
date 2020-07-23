@@ -5479,17 +5479,15 @@ private static auto randomUniqueSortedStrings(size_t count, uint maxLength) @tru
     return keys;
 }
 
-/// Create a set of words from /usr/share/dict/words
-void testWords(Value)()
+/// Create a set of words from the file `/usr/share/dict/words`.
+void benchmarkReadDictWords(Value)(in size_t maxCount)
 {
-    import std.datetime.stopwatch : StopWatch, AutoStart;
     version(show) import std.stdio : File;
     import std.range : chain;
 
     const path = "/usr/share/dict/words";
 
     enum hasValue = !is(Value == void);
-
     static if (hasValue)
     {
         auto rtr = radixTreeMap!(string, Value);
@@ -5504,10 +5502,14 @@ void testWords(Value)()
 
     string[] firsts = [];       // used to test various things
     size_t count = 0;
+
+    import std.datetime.stopwatch : StopWatch, AutoStart;
     auto sw = StopWatch(AutoStart.yes);
+
     import std.stdio : File;
     foreach (const word; chain(firsts, File(path).byLine))
     {
+        if (count >= maxCount) { break; }
         import nxt.array_algorithm : endsWith;
         import std.range.primitives : empty;
         if (!word.empty &&
@@ -5562,8 +5564,9 @@ void testWords(Value)()
 
 unittest
 {
-    testWords!void;
-    testWords!size_t;
+    const maxCount = 1000;
+    benchmarkReadDictWords!(void)(maxCount);
+    benchmarkReadDictWords!(size_t)(maxCount);
 }
 
 static private void testSlice(T)(ref T x) @trusted

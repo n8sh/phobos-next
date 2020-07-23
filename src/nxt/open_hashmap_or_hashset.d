@@ -41,6 +41,9 @@ import nxt.pure_mallocator : Mallocator = PureMallocator; // TODO merge into `st
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  * See_Also: https://gankro.github.io/blah/hashbrown-insert/
  *
+ * TODO group nxt.probing functions in Prober struct given as type template
+ * param to `OpenHashMapOrSet`
+ *
  * TODO Make load factor dependent on current capacity or length and perhaps
  * also type and hash-function to get memory efficiency when it matters. Similar
  * to what is recommended in https://ticki.github.io/blog/horrible/.

@@ -15,7 +15,7 @@
  * See_Also: https://en.wikipedia.org/wiki/FASTQ_format
  * See_Also: http://forum.dlang.org/post/nd01qd$2k8c$1@digitalmars.com
  */
-module nxt.fastq;
+module fastq;
 
 @safe pure nothrow @nogc:
 

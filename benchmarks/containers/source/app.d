@@ -28,7 +28,7 @@ void main()
     import nxt.filterarray : DenseSetFilterGrowableArray;
 
     import std.typecons : Nullable;
-    import nxt.trie : RadixTreeSetGrowOnly;
+    import nxt.trie : RadixTreeSet;
 
     import std.stdio : write, writeln, writef, writefln;
     import std.datetime : MonoTime;
@@ -105,7 +105,7 @@ void main()
                           OpenHashSet!(Nullable!(uint, uint.max)),
                           OpenHashSet!(Nullable!(uint, uint.max), FNV!(64, true)),
 
-                          RadixTreeSetGrowOnly!(uint),
+                          RadixTreeSet!(uint),
                           RedBlackTree!(uint),
 
                           // SSOHashSet!(ulong, null, wangMixHash64),
@@ -125,7 +125,7 @@ void main()
 
                           OpenHashSet!(Address, FNV!(64, true)),
 
-                          RadixTreeSetGrowOnly!(ulong),
+                          RadixTreeSet!(ulong),
                           RedBlackTree!(ulong),
 
                           OpenHashSet!(SSOString, FNV!(64, true)),

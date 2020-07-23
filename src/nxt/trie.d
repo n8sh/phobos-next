@@ -4865,29 +4865,14 @@ template MutableKey(Key)
     }
 }
 
-alias RadixTreeSetGrowOnly(Key) = RadixTree!(Key, void);
-alias RadixTreeMapGrowOnly(Key, Value) = RadixTree!(Key, Value);
-
 /** Instantiator for the set-version of `RadixTree` where value-type is `void` (unused). */
 RadixTree!(MutableKey!Key, void) radixTreeSet(Key)() @nogc
 {
     return typeof(return)();
 }
 
-/** Wrapper for a grow-only variant of `radixTreeSet`. */
-RadixTreeSetGrowOnly!(Key) radixTreeSetGrowOnly(Key)() @nogc
-{
-    return typeof(return)();
-}
-
 /** Instantiator for the map-version of `RadixTree` where value-type is `Value`. */
 RadixTree!(MutableKey!Key, Value) radixTreeMap(Key, Value)()
-{
-    return typeof(return)();
-}
-
-/** Wrapper for a grow-only variant of `radixTreeMap`. */
-RadixTreeMapGrowOnly!(Key, Value) radixTreeMapGrowOnly(Key, Value)()
 {
     return typeof(return)();
 }
@@ -5773,14 +5758,6 @@ private void benchmarkTimeAndSpace()
 
     assert(!set.insert(S(43)));
     assert(set.contains(S(43)));
-}
-
-/// TODO activate
-@safe pure nothrow @nogc unittest
-{ version(showAssertTags) dbg();
-    // alias Key = string;
-    // alias Value = Array!int;
-    // RadixTreeMapGrowOnly!(Key, Value) map;
 }
 
 /** Static Iota.

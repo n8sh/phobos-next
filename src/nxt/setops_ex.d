@@ -67,7 +67,6 @@ template isAA(Map)
 version(unittest)
 {
     import std.algorithm.comparison : equal;
-    import nxt.dbgio : dbg;
 }
 
 /// union of associative array (via keys)

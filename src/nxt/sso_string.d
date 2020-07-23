@@ -407,17 +407,21 @@ pure:
 
     /** Support trait `isHoleable`. */
     static immutable holeValue = typeof(this).asHole();
+
     /** Check if this a hole, meaning a removed/erase value. */
     bool isHole() const scope @safe nothrow @nogc
     {
         return words[0] == size_t.max;
     }
+
+    /** That this a hole, meaning a removed/erase value. */
     void holeify() @system @nogc scope
     {
         words[0] = size_t.max;
         words[1] = size_t.max;
     }
-    /** Create a hole, meaning a removed/erase value. */
+
+    /** Returns: a holed `SSOString`, meaning a removed/erase value. */
     private static typeof(this) asHole() @system
     {
         typeof(return) result = void;

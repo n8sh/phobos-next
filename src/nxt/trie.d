@@ -5229,7 +5229,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
 }
 
 /** Check string types in `Keys`. */
-auto testString(Keys...)(size_t count, uint maxLength) @safe
+auto testString(Keys...)(size_t count, uint maxLength)
 if (Keys.length != 0)
 {
     void testContainsAndInsert(Set, Key)(ref Set set, Key key)

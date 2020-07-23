@@ -3898,15 +3898,15 @@ template RawRadixTree(Value = void)
     void printAt(Node curr, size_t depth, uint subIx = uint.max) @safe
     {
         import std.range : repeat;
-        version(show) import std.stdio : write, writeln;
+        import std.stdio : write, writeln;
 
         if (!curr) { return; }
 
-        foreach (immutable i; 0 .. depth) { version(show) write('-'); } // prefix
+        foreach (immutable i; 0 .. depth) { write('-'); } // prefix
         if (subIx != uint.max)
         {
             import std.string : format;
-            version(show) write(format("%.2X ", subIx));
+            write(format("%.2X ", subIx));
         }
 
         final switch (curr.typeIx) with (Node.Ix)
@@ -3916,24 +3916,24 @@ template RawRadixTree(Value = void)
         case ix_OneLeafMax7:
             auto curr_ = curr.as!(OneLeafMax7);
             import std.conv : to;
-            version(show) writeln(typeof(curr_).stringof, " #", curr_.key.length, ": ", curr_.to!string);
+            writeln(typeof(curr_).stringof, " #", curr_.key.length, ": ", curr_.to!string);
             break;
         case ix_TwoLeaf3:
             auto curr_ = curr.as!(TwoLeaf3);
-            version(show) writeln(typeof(curr_).stringof, " #", curr_.keys.length, ": ", curr_.keys);
+            writeln(typeof(curr_).stringof, " #", curr_.keys.length, ": ", curr_.keys);
             break;
         case ix_TriLeaf2:
             auto curr_ = curr.as!(TriLeaf2);
-            version(show) writeln(typeof(curr_).stringof, " #", curr_.keys.length, ": ", curr_.keys);
+            writeln(typeof(curr_).stringof, " #", curr_.keys.length, ": ", curr_.keys);
             break;
         case ix_HeptLeaf1:
             auto curr_ = curr.as!(HeptLeaf1);
-            version(show) writeln(typeof(curr_).stringof, " #", curr_.keys.length, ": ", curr_.keys);
+            writeln(typeof(curr_).stringof, " #", curr_.keys.length, ": ", curr_.keys);
             break;
         case ix_SparseLeaf1Ptr:
             auto curr_ = curr.as!(SparseLeaf1!Value*);
-            version(show) write(typeof(*curr_).stringof, " #", curr_.length, "/", curr_.capacity, " @", curr_);
-            version(show) write(": ");
+            write(typeof(*curr_).stringof, " #", curr_.length, "/", curr_.capacity, " @", curr_);
+            write(": ");
             bool other = false;
             foreach (immutable i, immutable ix; curr_.ixs)
             {
@@ -3948,25 +3948,25 @@ template RawRadixTree(Value = void)
                 }
                 import std.string : format;
                 s ~= format("%.2X", ix);
-                version(show) write(s);
+                write(s);
                 static if (isValue)
                 {
-                    version(show) write("=>", curr_.values[i]);
+                    write("=>", curr_.values[i]);
                 }
             }
-            version(show) writeln();
+            writeln();
             break;
         case ix_DenseLeaf1Ptr:
             auto curr_ = curr.as!(DenseLeaf1!Value*);
-            version(show) write(typeof(*curr_).stringof, " #", curr_.count, " @", curr_);
-            version(show) write(": ");
+            write(typeof(*curr_).stringof, " #", curr_.count, " @", curr_);
+            write(": ");
 
             // keys
             size_t ix = 0;
             bool other = false;
             if (curr_._ixBits.allOne)
             {
-                version(show) write("ALL");
+                write("ALL");
             }
             else
             {
@@ -3986,22 +3986,22 @@ template RawRadixTree(Value = void)
                         import std.string : format;
                         s ~= format("%.2X", ix);
                     }
-                    version(show) write(s);
+                    write(s);
                     static if (isValue)
                     {
-                        version(show) write("=>", curr_.values[ix]);
+                        write("=>", curr_.values[ix]);
                     }
                     ++ix;
                 }
             }
 
-            version(show) writeln();
+            writeln();
             break;
         case ix_SparseBranchPtr:
             auto curr_ = curr.as!(SparseBranch*);
-            version(show) write(typeof(*curr_).stringof, " #", curr_.subCount, "/", curr_.subCapacity, " @", curr_);
-            if (!curr_.prefix.empty) { version(show) write(" prefix=", curr_.prefix.toString('_')); }
-            version(show) writeln(":");
+            write(typeof(*curr_).stringof, " #", curr_.subCount, "/", curr_.subCapacity, " @", curr_);
+            if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix.toString('_')); }
+            writeln(":");
             if (curr_.leaf1)
             {
                 printAt(Node(curr_.leaf1), depth + 1);
@@ -4013,9 +4013,9 @@ template RawRadixTree(Value = void)
             break;
         case ix_DenseBranchPtr:
             auto curr_ = curr.as!(DenseBranch*);
-            version(show) write(typeof(*curr_).stringof, " #", curr_.subCount, "/", radix, " @", curr_);
-            if (!curr_.prefix.empty) { version(show) write(" prefix=", curr_.prefix.toString('_')); }
-            version(show) writeln(":");
+            write(typeof(*curr_).stringof, " #", curr_.subCount, "/", radix, " @", curr_);
+            if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix.toString('_')); }
+            writeln(":");
             if (curr_.leaf1)
             {
                 printAt(Node(curr_.leaf1), depth + 1);
@@ -5112,18 +5112,18 @@ if (Keys.length != 0)
 void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a copy ctor here
 {
     import std.conv : to;
-    version(show) import std.stdio : writeln;
+    import std.stdio : writeln;
 
     auto stats = tree.usageHistograms;
 
-    version(show) writeln("Population By Node Type: ", stats.popByNodeType);
-    version(show) writeln("Population By Leaf1 Type: ", stats.popByLeaf1Type);
+    writeln("Population By Node Type: ", stats.popByNodeType);
+    writeln("Population By Leaf1 Type: ", stats.popByLeaf1Type);
 
-    version(show) writeln("SparseBranch Population Histogram: ", stats.popHist_SparseBranch);
-    version(show) writeln("DenseBranch Population Histogram: ", stats.popHist_DenseBranch);
+    writeln("SparseBranch Population Histogram: ", stats.popHist_SparseBranch);
+    writeln("DenseBranch Population Histogram: ", stats.popHist_DenseBranch);
 
-    version(show) writeln("SparseLeaf1 Population Histogram: ", stats.popHist_SparseLeaf1);
-    version(show) writeln("DenseLeaf1 Population Histogram: ", stats.popHist_DenseLeaf1);
+    writeln("SparseLeaf1 Population Histogram: ", stats.popHist_SparseLeaf1);
+    writeln("DenseLeaf1 Population Histogram: ", stats.popHist_DenseLeaf1);
 
     size_t totalBytesUsed = 0;
 
@@ -5164,12 +5164,12 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
             totalBytesUsed += bytesUsed;
             break;
         }
-        version(show) writeln(pop, " number of ",
+        writeln(pop, " number of ",
                 ix.to!string[3 .. $], // TODO Use RT.NodeType.indexTypeName(ix)
                 " uses ", bytesUsed/1e6, " megabytes");
     }
 
-    version(show) writeln("Tree uses ", totalBytesUsed/1e6, " megabytes");
+    writeln("Tree uses ", totalBytesUsed/1e6, " megabytes");
 }
 
 /// test map from `uint` to values of type `double`

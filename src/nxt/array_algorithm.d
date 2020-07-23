@@ -9,7 +9,7 @@
  * See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
  * See_Also: https://forum.dlang.org/thread/ybamybeakxwxwleebnwb@forum.dlang.org?page=1
  *
- * TODO Merge into array-specializations of Phobos algorithms.
+ * TODO Merge into separate array-specializations of Phobos algorithms for less template bloat in Phobos.
  *
  * TODO Replace `foreach (const ref element, ...)` with `foreach (const auto ref element, ...)` when it gets accepted for possibly better performance for value types.
  */

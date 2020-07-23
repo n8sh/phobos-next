@@ -2,10 +2,10 @@ module nxt.sso_string;
 
 /** Small-size-optimized (SSO) variant of `string`.
  *
- * Storage is placed on the stack if the number of `char`s is <=
- * `smallCapacity`, otherwise as a normal `string`. If the large case the stored
- * `string` will be allocated on the GC-heap if the `SSOString` is constructed
- * from a non-`string` (non-`immutable`) parameter.
+ * Storage is placed on the stack if the number of `char`s is less than
+ * `smallCapacity`, otherwise as a normal (large) `string`. The large `string`
+ * will be allocated on the GC-heap if the `SSOString` is constructed from a
+ * non-`string` (non-`immutable` `char[]`) parameter.
  *
  * Because `SSOString` doesn't have a destructor it can safely allocate using a
  * GC-backed region allocator without relying on a GC finalizer.

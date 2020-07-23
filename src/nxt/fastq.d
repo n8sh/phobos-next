@@ -1,20 +1,20 @@
 /**
-   Fastq is a format for storing DNA sequences together with the associated
-   quality information often encoded in ascii characters. It is typically made
-   of 4 lines for example 2 fastq entries would look like this.
-
-   @seq1
-   TTATTTTAAT
-   +
-   ?+BBB/DHH@
-   @seq2
-   GACCCTTTGCA
-   +
-   ?+BHB/DIH@
-
-   See_Also: https://en.wikipedia.org/wiki/FASTQ_format
-   See_Also: http://forum.dlang.org/post/nd01qd$2k8c$1@digitalmars.com
-   */
+ * FASTQ is a format for storing DNA sequences together with the associated
+ * quality information often encoded in ascii characters. It is typically made
+ * of 4 lines for example 2 fastq entries would look like this.
+ *
+ * @seq1
+ * TTATTTTAAT
+ * +
+ * ?+BBB/DHH@
+ * @seq2
+ * GACCCTTTGCA
+ * +
+ * ?+BHB/DIH@
+ *
+ * See_Also: https://en.wikipedia.org/wiki/FASTQ_format
+ * See_Also: http://forum.dlang.org/post/nd01qd$2k8c$1@digitalmars.com
+ */
 module nxt.fastq;
 
 @safe pure nothrow @nogc:

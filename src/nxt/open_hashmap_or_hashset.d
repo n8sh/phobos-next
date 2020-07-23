@@ -524,7 +524,6 @@ if (isNullable!K /*&& isHashable!K */)
             _store = makeDefaultInitializedStoreOfCapacity(nextPow2(1));
         }
         _count = 0;
-        // TODO can this be optimized?
         static if (__traits(isCopyable, T))
         {
             insertWithoutGrowthNoStatus(element);

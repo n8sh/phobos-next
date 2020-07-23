@@ -1,5 +1,8 @@
-/** TOOD extract reinterpret!T(x)
-    TODO real
+/** Bijections between scalar types and integers.
+ *
+ * TOOD extract reinterpret!T(x)
+ *
+ * TODO support `real`?
  */
 module nxt.bijections;
 

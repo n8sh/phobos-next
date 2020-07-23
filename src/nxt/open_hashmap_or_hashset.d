@@ -115,6 +115,8 @@ if (isNullable!K /*&& isHashable!K */)
     {
         import std.math : nextPow2;
         import nxt.probing : triangularProbeFromIndex, triangularProbeFromIndexIncludingHoles, triangularProbeCountFromIndex;
+
+        /// Setting this true doesn't give measurable performance benefits so keeping it as `false` for now.
         enum bool assumeNonFullHaystack = false;
     }
 

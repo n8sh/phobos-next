@@ -42,7 +42,7 @@ pure:
     /** Return `this` lowercased. */
     typeof(this) toLower()() const @trusted // template-lazy
     {
-        if (isSmallASCII)
+        if (isSmallASCII)       // small ASCII
         {
             typeof(return) result = void;
             result.small.length = small.length;
@@ -55,13 +55,13 @@ pure:
         }
         else
         {
-            if (isLarge)
+            if (isLarge)        // large
             {
                 import std.uni : asLowerCase;
                 import std.conv : to;
                 return typeof(return)(opSlice().asLowerCase.to!string); // TODO make .to!string nothrow
             }
-            else
+            else                // small non-ASCII
             {
                 typeof(return) result = this; // copy
                 import std.uni : toLowerInPlace;
@@ -91,7 +91,7 @@ pure:
     /** Return `this` uppercased. */
     typeof(this) toUpper()() const @trusted // template-lazy
     {
-        if (isSmallASCII)
+        if (isSmallASCII)       // small ASCII
         {
             typeof(return) result = void;
             result.small.length = small.length;
@@ -104,13 +104,13 @@ pure:
         }
         else
         {
-            if (isLarge)
+            if (isLarge)        // large
             {
                 import std.uni : asUpperCase;
                 import std.conv : to;
                 return typeof(return)(opSlice().asUpperCase.to!string); // TODO make .to!string nothrow
             }
-            else
+            else                // small non-ASCII
             {
                 typeof(return) result = this; // copy
                 import std.uni : toUpperInPlace;

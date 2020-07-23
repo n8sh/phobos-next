@@ -17,7 +17,7 @@ import std.functional : unaryFun, binaryFun;
  * See_Also: https://fgiesen.wordpress.com/2015/02/22/triangular-numbers-mod-2n/
  */
 size_t triangularProbeFromIndex(alias pred,
-                                alias assumeNonFullHaystack = false,
+                                bool assumeNonFullHaystack = false,
                                 T)(const scope T[] haystack, size_t index)
 if (is(typeof(unaryFun!pred(T.init))) ||
     is(typeof(binaryFun!pred(size_t.init, T.init))))
@@ -64,7 +64,7 @@ if (is(typeof(unaryFun!pred(T.init))) ||
 
 size_t triangularProbeFromIndexIncludingHoles(alias hitPred,
                                               alias holePred,
-                                              alias assumeNonFullHaystack = false,
+                                              bool assumeNonFullHaystack = false,
                                               T)(const scope T[] haystack,
                                                  size_t index,
                                                  ref size_t holeIndex) // first hole index

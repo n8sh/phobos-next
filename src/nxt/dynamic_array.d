@@ -1458,6 +1458,8 @@ unittest
 /// removal
 @safe pure nothrow unittest
 {
+    import nxt.container_traits : mustAddGCRange;
+
     size_t mallocCount = 0;
     size_t freeCount = 0;
 
@@ -1731,6 +1733,5 @@ private enum bool isRefIterable(T) = is(typeof({ foreach (ref elem; T.init) {} }
 
 version(unittest)
 {
-    import nxt.container_traits : mustAddGCRange;
     import nxt.array_help : s;
 }

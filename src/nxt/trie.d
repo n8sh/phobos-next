@@ -136,7 +136,6 @@ module nxt.trie;
 
 import std.algorithm.mutation : move;
 import std.algorithm.comparison : min, max;
-import std.meta : allSatisfy;
 import std.traits : isSomeString, isArray, isPointer, Unqual;
 import std.range.primitives : isInputRange, ElementType, hasLength;
 
@@ -165,6 +164,7 @@ template isTrieableKeyType(T)
 {
     static if (is(T == struct))
     {
+        import std.meta : allSatisfy;
         enum isTrieableKeyType = allSatisfy!(isScalarTrieableKeyType, // recurse
                                              typeof(T.tupleof));
     }
@@ -4461,7 +4461,7 @@ if (isTrieableKeyType!TypedKey)
 
 /** Radix-Tree with key of type `K` and value of type `V` (if non-`void`). */
 struct RadixTree(K, V)
-if (allSatisfy!(isTrieableKeyType, K))
+if (isTrieableKeyType!(K))
 {
     alias RawTree = RawRadixTree!(V);
 
@@ -4843,9 +4843,15 @@ alias PatriciaTrie = RadixTree;
 alias RadixTrie = RadixTree;
 alias CompactPrefixTree = RadixTree;
 
+template RadixTreeSet(K)
+if (isTrieableKeyType!(K))
+{
+    alias RadixTreeSet = RadixTree(K, void);
+}
+
 /** Print `tree`. */
 void print(Key, Value)(const ref RadixTree!(Key, Value) tree) @safe
-if (allSatisfy!(isTrieableKeyType, Key))
+if (isTrieableKeyType!(K))
 {
     print(tree._rawTree);
 }

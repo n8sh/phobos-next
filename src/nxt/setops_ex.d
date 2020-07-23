@@ -43,9 +43,10 @@ private static auto setUnionHelper(Small, Large)(const Small small, Large large)
 }
 
 /** Is `true` iff `Set` is set-like container, that is provides membership
-    checking via the `in` operator or `contains`.
-    TODO Move to Phobos std.traits
-*/
+ * checking via the `in` operator or `contains`.
+ *
+ * TODO Move to Phobos std.traits
+ */
 template hasContains(Set)
 {
     import std.traits : hasMember;
@@ -53,9 +54,10 @@ template hasContains(Set)
 }
 
 /** Is `true` iff `Map` is map-like container, that is provides membership
-    checking via the `in` operator or `contains`.
-    TODO Move to Phobos std.traits
-*/
+ * checking via the `in` operator or `contains`.
+ *
+ * TODO Move to Phobos std.traits
+ */
 template isAA(Map)
 {
     import std.traits : isAssociativeArray;

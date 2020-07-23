@@ -113,12 +113,10 @@ shared static this()
         }
 
         auto started = MonoTime.currTime;
-
         with (new TaskPool(threads - 1))
         {
             import core.atomic : atomicOp;
             import std.regex : matchFirst;
-
             foreach (test; parallel(tests))
             {
                 if ((!include && !exclude) || (include
@@ -127,19 +125,18 @@ shared static this()
                 {
                     auto result = test.executeTest;
                     writeResult(result, verbose);
-
                     atomicOp!"+="(result.succeed ? passed : failed, 1UL);
                 }
             }
-
             finish(true);
         }
+        auto ended = MonoTime.currTime;
 
         stdout.writeln;
         stdout.writefln("%s: %s passed, %s failed in %d ms", Console.emphasis("Summary"),
                 Console.colour(passed, Colour.ok), Console.colour(failed,
                     failed ? Colour.achtung : Colour.none),
-                (MonoTime.currTime - started).total!"msecs",);
+                (ended - started).total!"msecs",);
 
         return UnitTestResult(passed + failed, passed, false, false);
     };

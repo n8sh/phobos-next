@@ -94,14 +94,19 @@ shared static this()
                 {
                     alias member = __traits(getMember, module_, memberName);
                     pragma(msg, module_.stringof, " has memberName ", memberName.stringof);
-                    static if ( // TODO fails: !__traits(isTemplate,  __traits(getMember, module_, memberName)) &&
-                               __traits(compiles, __traits(parent, member)) &&
-                               __traits(isSame, __traits(parent, member), module_) &&
-                               __traits(compiles, __traits(getUnitTests, member)))
+
+                    static if (__traits(compiles, __traits(parent, member)))
                     {
-                        foreach (test; __traits(getUnitTests, member))
+                        alias parent = __traits(parent, member);
+                         // TODO fails: !__traits(isTemplate,  __traits(getMember, module_, memberName)) &&
+                        static if (__traits(isSame, parent, module_) &&
+                                   __traits(compiles, __traits(getUnitTests, member)))
                         {
-                            tests ~= Test(fullyQualifiedName!test, getTestName!test, &test);
+                            alias unittests = __traits(getUnitTests, member);
+                            foreach (test; unittests)
+                            {
+                                tests ~= Test(fullyQualifiedName!test, getTestName!test, &test);
+                            }
                         }
                     }
                 }

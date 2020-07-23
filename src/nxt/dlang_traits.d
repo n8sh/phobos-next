@@ -1,0 +1,15 @@
+module nxt.dlang_traits;
+
+/** Is `true` if language supports
+ *
+ * See_Also: https://forum.dlang.org/post/acjltvvqhfcchpwgodqn@forum.dlang.org
+ */
+private enum hasAutoRefForeach = __traits(compiles, () @safe { mixin(`void f() { int[2] _ = [1, 2]; foreach (const auto ref e; _) {} }`); });
+
+private enum hasRefForeach = __traits(compiles, () @safe { mixin(`void f() { int[2] _ = [1, 2]; foreach (const ref e; _) {} }`); });
+
+unittest
+{
+    static assert(hasRefForeach);
+    static assert(!hasAutoRefForeach);
+}

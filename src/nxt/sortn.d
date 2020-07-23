@@ -53,8 +53,6 @@ import std.meta : allSatisfy;
 import std.traits : isIntegral;
 import std.range.primitives : isRandomAccessRange;
 
-version(unittest) import std.algorithm.comparison : equal;
-
 /** Static Iota.
     TODO Move to Phobos std.range.
 */
@@ -371,6 +369,7 @@ if (n >= 2)
 ///
 @safe pure nothrow @nogc unittest
 {
+    import std.algorithm.comparison : equal;
     int[4] x = [2, 3, 0, 1];
     const int[4] y = [0, 1, 2, 3];
     x.networkSortExactly;

@@ -30,7 +30,7 @@ module nxt.variant;
 private struct LightAlgebraic(bool memoryPacked = false,
                               Types...)
 {
-    @safe:
+@safe:
 
     alias Ix = ubyte; // type index type. TODO use uint or size_t when there is room (depending on `memoryPacked`)
     enum maxTypesCount = 2^^(Ix.sizeof * 8) - 1; // maximum number of allowed type parameters
@@ -46,9 +46,9 @@ public:
     alias CommonType = StdCommonType!Types;
     enum hasCommonType = !is(CommonType == void);
 
+    enum typeCount = Types.length;
     enum typeSizes = sizesOf!Types;
     enum typeNames = stringsOf!Types;
-    enum typeCount = Types.length;
 
     /// Is `true` iff `this` may have aliasing through any of `Types`.
     enum mayHaveAliasing = anySatisfy!(hasAliasing, Types);
@@ -89,14 +89,15 @@ public:
 
     @property void toString()(scope void delegate(scope const(char)[]) sink) const // template-lazy. TODO pure
     {
-        import std.format : formattedWrite;
         if (!hasValue) { return sink("<Uninitialized LightAlgebraic>"); }
         final switch (typeIndex)
         {
             foreach (const i, T; Types)
             {
             case i:
-                sink.formattedWrite!`%s`(as!T);
+                import std.format : formatValue;
+                formatValue(sink, as!T);
+                // sink(to!string(as!T));
                 return;
             }
         }
@@ -845,6 +846,9 @@ unittest
 ///
 pure unittest
 {
+    import nxt.fixed_array : StringN;
+    alias String15 = StringN!(15);
+
     String15 s;
     String15 t = s;
     assert(t == s);
@@ -877,6 +881,9 @@ pure unittest
 /// check default values
 @safe pure unittest
 {
+    import nxt.fixed_array : StringN;
+    alias String15 = StringN!(15);
+
     alias V = FastAlgebraic!(String15, string);
     V _;
     assert(_._tix == V.Ix.init);
@@ -884,10 +891,4 @@ pure unittest
 
     // TODO import nxt.bit_traits : isInitAllZeroBits;
     // TODO static assert(isInitAllZeroBits!(V));
-}
-
-version(unittest)
-{
-    import nxt.fixed_array : StringN;
-    alias String15 = StringN!(15);
 }

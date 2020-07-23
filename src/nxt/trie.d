@@ -4892,7 +4892,6 @@ auto radixTreeMapGrowOnly(Key, Value)()
     return radixTreeMapGrowOnly!(Key, Value);
 }
 
-///
 @safe pure nothrow @nogc unittest
 { version(showAssertTags) dbg();
     version(enterSingleInfiniteMemoryLeakTest)
@@ -5641,22 +5640,25 @@ if (Keys.length != 0)
                     immutable uk = factor*uk_;
                     immutable Key key = cast(Key)uk;
 
-                    assert(!set.contains(key)); // key should not yet be in set
-                    assert(key !in set);        // alternative syntax
+                    assert(!set.contains(key)); // `key` should not yet be in `set`
+                    assert(!map.contains(key)); // `key` should not yet be in 'map
 
-                    // insert new value returns `true` (previously not stored)
+                    assert(key !in set);        // alternative syntax
+                    assert(key !in map);        // alternative syntax
+
+                    // insertion of new `key` is `true` (previously not stored)
                     assert(set.insert(key));
                     assert(map.insert(key, Value.init));
 
-                    // key should now be in set and map
+                    // `key` should now be in `set` and `map`
                     assert(set.contains(key));
                     assert(map.contains(key));
 
-                    // reinsert same value returns `false` (already in stored)
+                    // reinsertion of same `key` is `false` (already in stored)
                     assert(!set.insert(key));
                     assert(!map.insert(key, Value.init));
 
-                    // key should now be stored
+                    // `key` should now be `stored`
                     assert(set.contains(key));
                     assert(map.contains(key));
 

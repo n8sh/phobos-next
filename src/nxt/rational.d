@@ -134,6 +134,7 @@ template isIntegerLike(T)
 
 @safe pure nothrow @nogc unittest
 {
+    import std.bigint;
     import std.meta : AliasSeq;
     foreach (T; AliasSeq!(BigInt,
                           long, ulong, int, uint,
@@ -173,6 +174,7 @@ if (isIntegerLike!I1 &&
 
 @safe pure nothrow @nogc unittest
 {
+    import std.bigint;
     static assert(is(CommonInteger!(BigInt, int) == BigInt));
     static assert(is(CommonInteger!(byte, int) == int));
 }
@@ -793,6 +795,7 @@ public:
     /// Returns a string representation of $(D this) in the form a/b.
     string toString() const
     {
+        import std.bigint;
         static if (is(SomeIntegral == std.bigint.BigInt))
         {
             // Special case it for now.  This should be fixed later.
@@ -848,6 +851,7 @@ class OverflowException : Exception
 
 pure unittest
 {
+    import std.bigint;
     import std.math : approxEqual;
 
     // All reference values from the Maxima computer algebra system.
@@ -1063,6 +1067,7 @@ private Rational!SomeIntegral toRationalImpl(SomeIntegral)(real floatNum, real e
 
 unittest
 {
+    import std.bigint;
     import std.math : PI, E;
     // Start with simple cases.
     assert(toRational!int(0.5) == rational(1, 2));
@@ -1114,6 +1119,7 @@ if (isIntegerLike!I1 &&
 
 pure unittest
 {
+    import std.bigint;
     assert(gcf(0, 0) == 0);
     assert(gcf(0, 1) == 1);
     assert(gcf(999, 0) == 999);
@@ -1225,5 +1231,4 @@ SomeIntegral round(SomeIntegral)(const scope Rational!SomeIntegral r)
 
 version(unittest)
 {
-    import std.bigint;
 }

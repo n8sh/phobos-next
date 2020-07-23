@@ -5583,7 +5583,7 @@ bool testEqual(T, U)(ref T x, ref U y) @trusted
 }
 
 /** Check correctness when span is `span` and for each `Key` in `Keys`. */
-auto checkNumeric(Keys...)() @safe
+auto checkNumeric(Keys...)()
 if (Keys.length != 0)
 {
     import std.traits : isIntegral, isFloatingPoint;

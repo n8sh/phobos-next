@@ -113,6 +113,7 @@ alias FNV64A = FNV!(64, true); /// 64bit FNV-1a, hash size is ubyte[8]
 ///
 unittest
 {
+    import std.conv : hexString;
     // alias FNV32Digest = WrapperDigest!FNV32; /// OOP API for 32bit FNV-1
     // alias FNV64Digest = WrapperDigest!FNV64; /// OOP API for 64bit FNV-1
     alias FNV32ADigest = WrapperDigest!FNV32A; /// OOP API for 32bit FNV-1a
@@ -164,13 +165,9 @@ auto fnv64aOf(T...)(in T data)
 ///
 @safe pure nothrow @nogc unittest
 {
+    import std.conv : hexString;
     assert(fnv32Of("") == hexString!"811C9DC5");
     assert(fnv64Of("") == hexString!"CBF29CE484222325");
     assert(fnv32aOf("") == hexString!"811C9DC5");
     assert(fnv64aOf("") == hexString!"CBF29CE484222325");
-}
-
-version(unittest)
-{
-    import std.conv : hexString;
 }

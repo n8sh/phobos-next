@@ -85,7 +85,9 @@ import nxt.pure_mallocator : Mallocator = PureMallocator; // TODO merge into `st
  * LDC can optimize those as fast as value passing. add LDC issue for this
  *
  * TODO save one word by making `_store.length` be inferred by
- * `primeConstants[_primeIndex]`
+ * `primeConstants[_primeIndex]` if this is not too costly
+ *
+ * TODO only add one extra element to capacity when `assumeNonFullHaystack` is `true`
  */
 struct OpenHashMapOrSet(K, V = void,
                         alias hasher = hashOf,

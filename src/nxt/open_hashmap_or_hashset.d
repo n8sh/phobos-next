@@ -113,8 +113,9 @@ if (isNullable!K /*&& isHashable!K */)
     }
     else
     {
-        import nxt.probing : triangularProbeFromIndex, triangularProbeFromIndexIncludingHoles, triangularProbeCountFromIndex;
         import std.math : nextPow2;
+        import nxt.probing : triangularProbeFromIndex, triangularProbeFromIndexIncludingHoles, triangularProbeCountFromIndex;
+        enum bool assumeNonFullHaystack = false;
     }
 
     import std.functional : binaryFun;
@@ -1173,7 +1174,7 @@ if (isNullable!K /*&& isHashable!K */)
                     }
                     else
                     {
-                        immutable hitIndex = _store[].triangularProbeFromIndex!(pred)(keyToIndex(keyOf(currentElement)));
+                        immutable hitIndex = _store[].triangularProbeFromIndex!(pred, assumeNonFullHaystack)(keyToIndex(keyOf(currentElement)));
                     }
                     assert(hitIndex != _store.length, "no free slot");
 
@@ -2058,7 +2059,7 @@ private:
         }
         else
         {
-            return _store[].triangularProbeFromIndexIncludingHoles!(hitPred, holePred)(keyToIndex(key), holeIndex);
+            return _store[].triangularProbeFromIndexIncludingHoles!(hitPred, holePred, assumeNonFullHaystack)(keyToIndex(key), holeIndex);
         }
     }
 

@@ -45,14 +45,15 @@ if (T.length == 1)
     }
 }
 
+///
 unittest
 {
     Variant v = 5;
     string s = v.match!((CMatch!7) => "Lucky number seven",
                         (int n)    => "Not a lucky number: " ~ n.to!string,
                         ()         => "No value found!");
-    import std.stdio;
-    writeln(s);
+    // import std.stdio;
+    // writeln(s);
 }
 
 /** Turn the function what into a curried function.

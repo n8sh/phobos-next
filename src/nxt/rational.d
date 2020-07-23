@@ -1228,7 +1228,3 @@ SomeIntegral round(SomeIntegral)(const scope Rational!SomeIntegral r)
     assert(round(rational(-3, 4)) == -1);
     assert(round(rational(8U, 15U)) == 1);
 }
-
-version(unittest)
-{
-}

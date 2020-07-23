@@ -49,7 +49,7 @@ pure:
             foreach (const index; 0 .. smallCapacity)
             {
                 import std.ascii : toLower;
-                (cast(E[])(result.small.data))[index] = toLower(small.data[index]); // TODO can this be parallelized?
+                (cast(E[])(result.small.data))[index] = toLower(small.data[index]);
             }
             return result;
         }
@@ -98,7 +98,7 @@ pure:
             foreach (const index; 0 .. smallCapacity)
             {
                 import std.ascii : toUpper;
-                (cast(E[])(result.small.data))[index] = toUpper(small.data[index]); // TODO can this be parallelized?
+                (cast(E[])(result.small.data))[index] = toUpper(small.data[index]);
             }
             return result;
         }

@@ -13,9 +13,6 @@
  */
 module nxt.array_algorithm;
 
-static assert(__traits(compiles, { void f() { int[2] _ = [1, 2]; foreach (const ref e; _) {} } }));
-static assert(!__traits(compiles, { void f() { int[2] _ = [1, 2]; foreach (const auto ref e; _) {} } }));
-
 // version = unittestAsBetterC; // Run_As: dmd -betterC -unittest -run $(__FILE__).d
 
 /** Array-specialization of `startsWith` with default predicate.

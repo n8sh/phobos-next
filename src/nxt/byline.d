@@ -66,6 +66,7 @@ if (is(typeof(Range.init[0 .. 0])) && // can be sliced
 ///
 @safe pure nothrow @nogc unittest
 {
+    import std.algorithm.comparison: equal;
     assert(equal("a\nb".byLine!(Newline.native), ["a", "b"].s[]));
     assert(equal("a\r\nb".byLine!(Newline.win), ["a", "b"].s[]));
     assert(equal("a\rb".byLine!(Newline.mac), ["a", "b"].s[]));
@@ -75,6 +76,5 @@ if (is(typeof(Range.init[0 .. 0])) && // can be sliced
 
 version(unittest)
 {
-    import std.algorithm: equal;
     import nxt.array_help : s;
 }

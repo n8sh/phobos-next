@@ -147,7 +147,6 @@ if (is(typeof(unaryFun!pred(T.init))))
 @safe pure nothrow unittest
 {
     import std.typecons : Nullable;
-
     alias T = Nullable!int;
 
     immutable length = 0;
@@ -164,7 +163,6 @@ if (is(typeof(unaryFun!pred(T.init))))
 @safe pure nothrow unittest
 {
     import std.typecons : Nullable;
-
     alias T = Nullable!int;
 
     foreach (immutable lengthPower; 0 .. 20)

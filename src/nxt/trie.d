@@ -5613,22 +5613,20 @@ if (Keys.length != 0)
                     immutable low = max(Key.min, -1_000); // chosen to minimize number of lines of debug output before bug in contains happens
                     immutable high = min(Key.max, 1_000);
                     immutable factor = 1;
-                    immutable length = high - low + 1;
                 }
                 else static if (isFloatingPoint!Key)
                 {
                     immutable low = -1_000;
                     immutable high = 1_000;
                     immutable factor = 100;
-                    immutable length = high - low + 1;
                 }
                 else static if (is(Key == bool))
                 {
                     immutable low = false;
                     immutable high = true;
                     immutable factor = 1;
-                    immutable length = high - low + 1;
                 }
+                immutable length = high - low + 1;
 
                 foreach (immutable uk_; low .. high + 1)
                 {

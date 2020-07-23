@@ -434,8 +434,7 @@ public:
 
         int opCmp(U)(in U that) const @trusted
         {
-            import std.traits : CommonType;
-            static if (!is(CommonType!(Types, U) == void)) // TODO is CommonType or isComparable the correct way of checking this?
+            static if (!is(StdCommonType!(Types, U) == void)) // TODO is CommonType or isComparable the correct way of checking this?
             {
                 final switch (typeIndex)
                 {

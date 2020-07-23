@@ -5,6 +5,8 @@
 */
 module nxt.setops_ex;
 
+// version = show;
+
 /** Specialization for `std.algorithm.setopts.setUnion` for AA. */
 auto setUnionUpdate(T1, T2)(T1 a, T2 b) @trusted
 if (isAA!T1 &&
@@ -325,9 +327,12 @@ if (Rs.length >= 2 &&
                         testSetIntersectionNew)(testCount);
     import std.stdio : writeln;
     import std.conv : to;
-    writeln("old testSetIntersection: ", to!Duration(r[0]));
-    writeln("new testSetIntersection: ", to!Duration(r[1]));
 
+    version(show)
+    {
+        writeln("old testSetIntersection: ", to!Duration(r[0]));
+        writeln("new testSetIntersection: ", to!Duration(r[1]));
+    }
 }
 
 @safe pure nothrow unittest

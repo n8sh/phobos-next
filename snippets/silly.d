@@ -97,9 +97,9 @@ shared static this()
                     static if (__traits(compiles, __traits(parent, member)))
                     {
                         alias parent = __traits(parent, member);
-                         // TODO fails: !__traits(isTemplate,  __traits(getMember, module_, memberName)) &&
-                        static if (__traits(isSame, parent, module_) &&
-                                   __traits(compiles, __traits(getUnitTests, member)))
+                        // TODO fails: !__traits(isTemplate,  __traits(getMember, module_, memberName)) &&
+                        static if (__traits(isSame, parent, module_)
+                                && __traits(compiles, __traits(getUnitTests, member)))
                         {
                             alias unittests = __traits(getUnitTests, member);
                             foreach (test; unittests)
@@ -117,6 +117,7 @@ shared static this()
         {
             import core.atomic : atomicOp;
             import std.regex : matchFirst;
+
             foreach (test; parallel(tests))
             {
                 if ((!include && !exclude) || (include
@@ -135,8 +136,7 @@ shared static this()
         stdout.writeln;
         stdout.writefln("%s: %s passed, %s failed in %d ms", Console.emphasis("Summary"),
                 Console.colour(passed, Colour.ok), Console.colour(failed,
-                    failed ? Colour.achtung : Colour.none),
-                (ended - started).total!"msecs",);
+                    failed ? Colour.achtung : Colour.none), (ended - started).total!"msecs",);
 
         return UnitTestResult(passed + failed, passed, false, false);
     };
@@ -307,7 +307,6 @@ static struct Console
 string getTestName(alias test)()
 {
     string name = __traits(identifier, test);
-
     foreach (attribute; __traits(getAttributes, test))
     {
         static if (is(typeof(attribute) : string))
@@ -316,7 +315,6 @@ string getTestName(alias test)()
             break;
         }
     }
-
     return name;
 }
 

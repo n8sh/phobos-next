@@ -61,7 +61,7 @@ pure:
                 import std.conv : to;
                 return typeof(return)(opSlice().asLowerCase.to!string); // TODO make .to!string nothrow
             }
-            else       // small non-ASCII can be performed without GC-allocation
+            else // small non-ASCII can usually be performed without GC-allocation
             {
                 typeof(return) result = this; // copy
                 import std.uni : toLowerInPlace;
@@ -110,7 +110,7 @@ pure:
                 import std.conv : to;
                 return typeof(return)(opSlice().asUpperCase.to!string); // TODO make .to!string nothrow
             }
-            else       // small non-ASCII can be performed without GC-allocation
+            else // small non-ASCII can usually be performed without GC-allocation
             {
                 typeof(return) result = this; // copy
                 import std.uni : toUpperInPlace;

@@ -11,7 +11,7 @@ import std.traits: isSomeChar, isSomeString;
 
 /** Convert character $(D c) to HTML representation. */
 string toHTML(C)(C c, bool nbsp = true) @safe pure
-    if (isSomeChar!C)
+if (isSomeChar!C)
 {
     import std.conv : to;
     if      (nbsp && c == ' ') return "&nbsp;"; // non breaking space

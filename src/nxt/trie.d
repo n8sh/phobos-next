@@ -323,11 +323,11 @@ enum ModStatus:ubyte
 }
 
 /** Size of a CPU cache line in bytes.
-
-    Container layouts should be adapted to make use of at least this many bytes
-    in its nodes.
+ *
+ * Container layouts should be adapted to make use of at least this many bytes
+ * in its nodes.
 */
-enum cacheLineSize = 64;
+private enum cacheLineSize = 64;
 
 shared static this()
 {

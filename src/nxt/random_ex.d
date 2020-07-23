@@ -221,7 +221,7 @@ if (isArray!A &&
     size_t k = 0; // E-index to first B-block
     if (r)
     {
-        import std.algorithm: min;
+        import std.algorithm.comparison : min;
         k = min(n, mult - r); // at first aligned B-block
         foreach (i, ref e; x[0 .. k])
         {

@@ -5039,22 +5039,26 @@ if (Keys.length != 0)
 
         static if (isIntegral!Key)
         {
-            immutable low = max(Key.min, -100_000);
-            immutable high = min(Key.max, 100_000);
+            immutable low = max(Key.min, -1_000);
+            immutable high = min(Key.max, 1_000);
+            immutable factor = 1;
         }
         else static if (isFloatingPoint!Key)
         {
-            immutable low = -100_000;
-            immutable high = 100_000;
+            immutable low = -1_000;
+            immutable high = 1_000;
+            immutable factor = 1;
         }
         else static if (is(Key == bool))
         {
             immutable low = false;
             immutable high = true;
+            immutable factor = 1;
         }
 
-        foreach (immutable uk; low.iota(high + 1))
+        foreach (immutable uk_; low.iota(high + 1))
         {
+            immutable uk = factor*uk_;
             immutable Key key = cast(Key)uk;
             assert(set.insert(key));  // insert new value returns `true` (previously not in set)
             assert(!set.insert(key)); // reinsert same value returns `false` (already in set)

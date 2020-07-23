@@ -81,6 +81,7 @@ if (is(typeof(Range.init[0 .. 0])) && // can be sliced
 {
     import std.algorithm.comparison : equal;
     import std.algorithm.comparison : among;
+    import nxt.array_help : s;
 
     assert(``.splitterASCII!(_ => _ == ' ')
              .empty);
@@ -113,6 +114,8 @@ if (is(typeof(Range.init[0 .. 0])) && // can be sliced
 /// DIP-1000 return ref escape analysis
 @safe pure nothrow unittest
 {
+    import nxt.dip_traits : isDIP1000;
+
     static if (isDIP1000)
     {
         // See_Also: https://forum.dlang.org/post/pzddsrwhfvcopfaamvak@forum.dlang.org
@@ -173,6 +176,7 @@ if (separators.length != 0 &&
 @safe pure nothrow @nogc unittest
 {
     import std.algorithm.comparison : equal;
+    import nxt.array_help : s;
 
     assert(``.splitterASCIIAmong!(' ')
              .empty);
@@ -206,10 +210,4 @@ if (separators.length != 0 &&
 
     assert(` - aa ///  bb--c-_d--_e`.splitterASCIIAmong!(' ', '-', '_', '/')
                                     .equal([`aa`, `bb`, `c`, `d`, `e`].s[]));
-}
-
-version(unittest)
-{
-    import nxt.array_help : s;
-    import nxt.dip_traits : isDIP1000;
 }

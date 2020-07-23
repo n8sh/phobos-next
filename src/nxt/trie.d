@@ -5297,7 +5297,7 @@ if (Keys.length != 0)
 unittest
 {
     testString!(string)(512, 8);
-    testString!(string)(2^^18, 2^^5);
+    testString!(string)(512, 2^^5);
 }
 
 /// test map to values of type `bool`

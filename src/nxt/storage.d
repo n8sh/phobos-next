@@ -214,13 +214,9 @@ static void storeTester(E, bool useGCallocation)()
     assert(si.isSmall);
 }
 
-version(unittest)
-{
-    import std.meta : AliasSeq;
-}
-
 pure nothrow @nogc unittest
 {
+    import std.meta : AliasSeq;
     foreach (E; AliasSeq!(char, byte, short, int))
     {
         storeTester!(E, false);
@@ -229,6 +225,7 @@ pure nothrow @nogc unittest
 
 pure nothrow unittest
 {
+    import std.meta : AliasSeq;
     foreach (E; AliasSeq!(char, byte, short, int))
     {
         storeTester!(E, true);

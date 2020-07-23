@@ -5028,7 +5028,7 @@ auto radixTreeMapGrowOnly(Key, Value)()
 }
 
 version(unittest)
-auto testScalar(uint span, Keys...)()
+auto testScalar(uint span, Keys...)() @safe
 if (Keys.length != 0)
 {
     import std.traits : isIntegral, isFloatingPoint;
@@ -5066,15 +5066,15 @@ if (Keys.length != 0)
 
         import std.algorithm.comparison : equal;
         import std.algorithm.iteration : map;
-        assert(set[].equal(low.iota(high + 1).map!(uk => cast(Key)uk)));
+        () @trusted { assert(set[].equal(low.iota(high + 1).map!(uk => cast(Key)uk))); } (); // TODO remove @trusted when opSlice support DIP-1000
 
         import std.algorithm.sorting : isSorted;
-        assert(set[].isSorted);
+        () @trusted { assert(set[].isSorted); } (); // TODO remove @trusted when opSlice support DIP-1000
     }
 }
 
 ///
-/* TODO @safe */ pure nothrow @nogc unittest
+@safe pure nothrow @nogc unittest
 { dbg();
     testScalar!(8,
                 bool,

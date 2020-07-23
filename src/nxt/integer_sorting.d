@@ -51,7 +51,7 @@ auto radixSort(R,
 {
     import std.range : assumeSorted;
     import std.algorithm.sorting : isSorted; // TODO move this to radixSort when know how map less to descending
-    import std.algorithm : min, max;
+    import std.algorithm.comparison : min, max;
     import std.range.primitives : front;
 
     immutable n = input.length; // number of elements
@@ -235,13 +235,13 @@ auto radixSort(R,
                 }
                 else
                 {
-                    import std.algorithm : copy;
+                    import std.algorithm.mutation : copy;
                     copy(tempSlice[], input[]); // TODO use memcpy
                 }
             }
             else
             {
-                import std.algorithm : swap;
+                import std.algorithm.mutation : swap;
                 swap(input, tempSlice);
             }
         }

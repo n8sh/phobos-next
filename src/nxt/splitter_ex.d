@@ -79,6 +79,9 @@ if (is(typeof(Range.init[0 .. 0])) && // can be sliced
 ///
 @safe pure nothrow @nogc unittest
 {
+    import std.algorithm.comparison : equal;
+    import std.algorithm.comparison : among;
+
     assert(``.splitterASCII!(_ => _ == ' ')
              .empty);
 
@@ -169,6 +172,8 @@ if (separators.length != 0 &&
 ///
 @safe pure nothrow @nogc unittest
 {
+    import std.algorithm.comparison : equal;
+
     assert(``.splitterASCIIAmong!(' ')
              .empty);
 
@@ -205,8 +210,6 @@ if (separators.length != 0 &&
 
 version(unittest)
 {
-    import std.algorithm.comparison : equal;
-    import std.algorithm.comparison : among;
     import nxt.array_help : s;
     import nxt.dip_traits : isDIP1000;
 }

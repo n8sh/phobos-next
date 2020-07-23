@@ -4875,9 +4875,9 @@ RadixTree!(MutableKey!Key, void) radixTreeSet(Key)() @nogc
 }
 
 /** Wrapper for a grow-only variant of `radixTreeSet`. */
-auto radixTreeSetGrowOnly(Key)() @nogc
+RadixTreeSetGrowOnly!(Key) radixTreeSetGrowOnly(Key)() @nogc
 {
-    return radixTreeSetGrowOnly!(Key);
+    return typeof(return)();
 }
 
 /** Instantiator for the map-version of `RadixTree` where value-type is `Value`. */
@@ -4887,9 +4887,9 @@ RadixTree!(MutableKey!Key, Value) radixTreeMap(Key, Value)()
 }
 
 /** Wrapper for a grow-only variant of `radixTreeMap`. */
-auto radixTreeMapGrowOnly(Key, Value)()
+RadixTreeMapGrowOnly!(Key, Value) radixTreeMapGrowOnly(Key, Value)()
 {
-    return radixTreeMapGrowOnly!(Key, Value);
+    return typeof(return)();
 }
 
 @safe pure nothrow @nogc unittest

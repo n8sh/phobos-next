@@ -109,7 +109,7 @@ if (isNullable!K /*&& isHashable!K */)
 
     static if (usePrimeCapacity)
     {
-        import nxt.prime_modulo : ceilingPrime, moduloPrimeIndex;
+        import nxt.prime_modulo : PrimeIndex, ceilingPrime, moduloPrimeIndex;
     }
     else
     {
@@ -516,7 +516,7 @@ if (isNullable!K /*&& isHashable!K */)
     {
         static if (usePrimeCapacity)
         {
-            _primeIndex = 0;
+            _primeIndex = PrimeIndex.init;
             _store = makeDefaultInitializedStoreOfCapacity(ceilingPrime(1 + 1, _primeIndex));
         }
         else
@@ -1167,7 +1167,14 @@ if (isNullable!K /*&& isHashable!K */)
                     alias pred = (const scope index,
                                   const scope auto ref element) => (!isOccupiedAtIndex(index) || // free slot
                                                                     !bt(dones, index)); // or a not yet replaced element
-                    immutable hitIndex = _store[].triangularProbeFromIndex!(pred)(keyToIndex(keyOf(currentElement)));
+                    static if (usePrimeCapacity)
+                    {
+                        immutable hitIndex = xxx;
+                    }
+                    else
+                    {
+                        immutable hitIndex = _store[].triangularProbeFromIndex!(pred)(keyToIndex(keyOf(currentElement)));
+                    }
                     assert(hitIndex != _store.length, "no free slot");
 
                     bts(dones, hitIndex); // _store[hitIndex] will be at it's correct position
@@ -1779,7 +1786,14 @@ if (isNullable!K /*&& isHashable!K */)
                 alias pred = (const scope auto ref element) => (keyEqualPredFn(keyOf(element),
                                                                                keyOf(currentElement)));
             }
-            const probeCount = triangularProbeCountFromIndex!pred(_store[], keyToIndex(keyOf(currentElement)));
+            static if (usePrimeCapacity)
+            {
+                const probeCount = xxx;
+            }
+            else
+            {
+                const probeCount = triangularProbeCountFromIndex!pred(_store[], keyToIndex(keyOf(currentElement)));
+            }
 
             totalCount += probeCount;
         }
@@ -1824,7 +1838,7 @@ private:
     }
     static if (usePrimeCapacity)
     {
-        size_t _primeIndex = 0;
+        PrimeIndex _primeIndex = PrimeIndex.init;
     }
 
     static if (!hasHoleableKey)
@@ -1984,7 +1998,14 @@ private:
                                                              keyEqualPredFn(keyOf(element), key)));
         }
 
-        return _store[].triangularProbeFromIndex!(pred)(keyToIndex(key));
+        static if (usePrimeCapacity)
+        {
+            return xxx;
+        }
+        else
+        {
+            return _store[].triangularProbeFromIndex!(pred)(keyToIndex(key));
+        }
     }
 
     private size_t indexOfKeyOrVacancyAndFirstHole(const scope K key, // `auto ref` here makes things slow
@@ -2031,8 +2052,14 @@ private:
                               const scope auto ref element) => (hasHoleAtPtrIndex(_holesPtr, index));
         }
 
-        return _store[].triangularProbeFromIndexIncludingHoles!(hitPred, holePred)(keyToIndex(key),
-                                                                                   holeIndex);
+        static if (usePrimeCapacity)
+        {
+            return xxx;
+        }
+        else
+        {
+            return _store[].triangularProbeFromIndexIncludingHoles!(hitPred, holePred)(keyToIndex(key), holeIndex);
+        }
     }
 
     /** Returns: `true` iff `index` indexes a non-null element, `false`
@@ -4065,6 +4092,23 @@ unittest
     assert(!x.contains(c[]));
     assert(c !in x);
     assert(c[] !in x);
+}
+
+///
+@safe pure unittest
+{
+    import nxt.sso_string : SSOString;
+    alias K = SSOString;
+    alias V = long;
+    enum bool usePrimeCapacity = false; // TODO enable
+    alias M = OpenHashMap!(K, V,
+                           hashOf,
+                           defaultKeyEqualPredOf!K,
+                           Mallocator.instance,
+                           false,
+                           true,
+                           usePrimeCapacity);
+    M x;
 }
 
 /// `SSOString` as map key type

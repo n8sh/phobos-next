@@ -17,6 +17,8 @@
    */
 module nxt.fastq;
 
+@safe pure nothrow @nogc:
+
 struct FastQRecord
 {
     const(char)[] sequenceId;
@@ -27,6 +29,7 @@ struct FastQRecord
     {
         static struct Result
         {
+        @safe pure nothrow:
             private
             {
                 const(char)[] source;
@@ -156,10 +159,11 @@ GATTTGGGGTTCAAAGCAGTATCGATCAAATAGTAAATCCATTTGTTCAACTCACAGTTT
     assert(equal(FastQRecord.parse(input),
                  [FastQRecord("seq1", "TTATTTTAAT", "?+BBB/DHH@"),
                   FastQRecord("seq2", "GACCCTTTGCA", "?+BHB/DIH@"),
-                  FastQRecord("SEQ_ID", "GATTTGGGGTTCAAAGCAGTATCGATCAAATAGTAAATCCATTTGTTCAACTCACAGTTT", "!''*((((***+))%%%++)(%%%%).1***-+*''))**55CCF>>>>>>CCCCCCC65")]));
+                  FastQRecord("SEQ_ID", "GATTTGGGGTTCAAAGCAGTATCGATCAAATAGTAAATCCATTTGTTCAACTCACAGTTT", "!''*((((***+))%%%++)(%%%%).1***-+*''))**55CCF>>>>>>CCCCCCC65")].s[]));
 }
 
 version(unittest)
 {
     import std.algorithm.comparison : equal;
+    import nxt.array_help : s;
 }

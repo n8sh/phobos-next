@@ -10,12 +10,11 @@ module nxt.sso_string;
  * Because `SSOString` doesn't have a destructor it can safely allocate using a
  * GC-backed region allocator without relying on a GC finalizer.
  *
- * In order to mimic `string/array/slice`-behaviour, opCast returns
- * - `false` for `S()` and
- * - `true` for `S("")`
- * This requires `S()` to default to a large string in which large pointer is set to `null`.
+ * In order to mimic `string/array/slice`-behaviour, opCast returns `false` for
+ * `SSOString()` and `true` for `SSOString("")`. This requires `SSOString()` to
+ * default to a large string in which large pointer is set to `null`.
  *
- * NOTE big-endian platforms should be supported but this hasn't been verified.
+ * NOTE big-endian platform support hasn't been verified.
  *
  * TODO Add to Phobos' std.typecons or std.array or std.string
  *

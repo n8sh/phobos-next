@@ -93,8 +93,7 @@ shared static this()
                 static if (__traits(compiles, __traits(getMember, module_, memberName)))
                 {
                     alias member = __traits(getMember, module_, memberName);
-                    pragma(msg, module_.stringof, " has memberName ", memberName.stringof);
-
+                    // pragma(msg, module_.stringof, " has memberName ", memberName.stringof);
                     static if (__traits(compiles, __traits(parent, member)))
                     {
                         alias parent = __traits(parent, member);

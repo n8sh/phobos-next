@@ -189,8 +189,7 @@ template defaultNullKeyConstantOf(T)
 
 /** Returns: `true` iff `x` has a null value.
  */
-bool isNull(T)(const scope auto ref T x)
-    @safe pure nothrow @nogc
+bool isNull(T)(const scope auto ref T x) @safe pure nothrow @nogc
 if (isNullable!(T))
 {
     pragma(inline, true);
@@ -212,8 +211,7 @@ if (isNullable!(T))
     }
 }
 
-void nullify(T)(scope ref T x)
-    @safe pure nothrow @nogc
+void nullify(T)(scope ref T x) @safe pure nothrow @nogc
 if (isNullable!(T))
 {
     pragma(inline, true);

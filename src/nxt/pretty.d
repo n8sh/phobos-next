@@ -30,7 +30,6 @@ module nxt.pretty;
 
 import core.time : Duration;
 
-import std.algorithm.iteration : map;
 import std.range.primitives : isInputRange;
 import std.traits : isInstanceOf, isSomeString, Unqual, isArray, isIterable;
 import std.stdio : stdout;
@@ -881,6 +880,7 @@ class Viz
                     else static if (is(Memb == interface)) immutable qual = `interface `;
                     else                                   immutable qual = ``; // TODO Are there more qualifiers
 
+                    import std.algorithm.iteration : map;
                     import nxt.slicing : preSlicer;
                     immutable idName = __traits(identifier, Front.tupleof[ix]).preSlicer!isUpper.map!capitalize.joiner(` `); // TODO reuse `nxt.casing.camelCasedToLowerSpaced`
                     immutable typeName = Unqual!(Member).stringof; // constness of no interest here
@@ -1282,7 +1282,7 @@ enum ctxFaces = [Face(Color.red, Color.black),
     ];
 
 /** Key (Hit) Faces. */
-enum keyFaces = ctxFaces.map!(a => Face(a.foregroundColor, a.backgroundColor, true));
+enum keyFaces = ctxFaces.map!(a => Face(a.foregroundColor, a.backgroundColor, true)); // TODO avoid map
 
 void setFace(Term, Face)(ref Term term,
                          Face face,
@@ -1351,7 +1351,6 @@ void show(Viz viz)
 
 version(unittest)
 {
-    import std.algorithm.iteration : map;
     // TODO hide these stuff in constructor for Viz
     import std.uuid : randomUUID;
     import std.stdio : File;
@@ -1360,6 +1359,8 @@ version(unittest)
 
 unittest
 {
+    import std.algorithm.iteration : map;
+
     string outPath = `/tmp/fs-` ~ randomUUID.toString() ~ `.` ~ `html`; // reuse `nxt.tempfs`
     File outFile = File(outPath, `w`);
 

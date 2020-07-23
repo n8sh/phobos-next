@@ -36,7 +36,9 @@ struct Address
         const value = 2*address;
 
         assert(Address(key) !in m);
+
         m[Address(key)] = Address(value);
+
         assert(m[Address(key)] == Address(value));
         assert(Address(key) in m);
     }

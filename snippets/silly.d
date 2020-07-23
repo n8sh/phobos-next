@@ -225,7 +225,6 @@ TestResult executeTest(Test test)
 struct Test
 {
     string fullName, testName;
-
     void function() ptr;
 }
 
@@ -234,7 +233,6 @@ struct TestResult
     Test test;
     bool succeed;
     Duration duration;
-
     immutable(Thrown)[] thrown;
 }
 

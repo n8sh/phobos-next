@@ -185,7 +185,7 @@ version(useMemoryErrorHandler) unittest
 }
 
 @safe pure nothrow @nogc unittest
-{
+{ dbg();
     static assert(isTrieableKeyType!(const(char)[]));
 
     struct S { int x, y, z; double w; bool b; }
@@ -4893,7 +4893,7 @@ auto radixTreeMapGrowOnly(Key, Value)()
 
 ///
 @safe pure nothrow @nogc unittest
-{
+{ dbg();
     version(enterSingleInfiniteMemoryLeakTest)
     {
         while (true)
@@ -4914,7 +4914,7 @@ auto radixTreeMapGrowOnly(Key, Value)()
 /// exercise all switch-cases in `RawRadixTree.prefixAt()`
 /*TODO @safe*/ pure nothrow
 /*TODO:@nogc*/ unittest
-{
+{ dbg();
     import std.algorithm.comparison : equal;
     alias Key = string;
     auto set = radixTreeSet!(Key);
@@ -5002,7 +5002,7 @@ auto radixTreeMapGrowOnly(Key, Value)()
 
 /// test floating-point key range sortedness
 /*@ TODO safe */ pure nothrow @nogc unittest
-{
+{ dbg();
     alias T = double;
 
     auto set = radixTreeSet!(T);
@@ -5071,7 +5071,7 @@ if (Keys.length != 0)
 
 ///
 /* TODO @safe */ pure nothrow @nogc unittest
-{
+{ dbg();
     testScalar!(8,
                 bool,
                 double, float,
@@ -5081,7 +5081,7 @@ if (Keys.length != 0)
 
 ///
 @safe pure nothrow @nogc unittest
-{
+{ dbg();
     alias Key = ubyte;
     auto set = radixTreeSet!(Key);
 
@@ -5175,7 +5175,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
 
 /// test map from `uint` to values of type `double`
 @safe pure nothrow @nogc unittest
-{
+{ dbg();
     alias Key = uint;
     alias Value = uint;
 
@@ -5295,14 +5295,14 @@ if (Keys.length != 0)
 ///
 @safe /* TODO pure nothrow @nogc */
 unittest
-{
+{ dbg();
     testString!(string)(512, 8);
     testString!(string)(512, 32);
 }
 
 /// test map to values of type `bool`
 @safe pure nothrow @nogc unittest
-{
+{ dbg();
     alias Key = uint;
     alias Value = bool;
 
@@ -5315,7 +5315,7 @@ unittest
 
 /// test packing of set elements
 @safe pure nothrow @nogc unittest
-{
+{ dbg();
     auto set = radixTreeSet!(ulong);
     enum N = HeptLeaf1.capacity;
 
@@ -5366,7 +5366,7 @@ unittest
 
 ///
 @safe pure nothrow @nogc unittest
-{
+{ dbg();
     auto set = radixTreeSet!(ubyte);
     alias Set = typeof(set);
 
@@ -5398,7 +5398,7 @@ unittest
 
 ///
 @safe pure nothrow @nogc unittest
-{
+{ dbg();
     import std.meta : AliasSeq;
     foreach (T; AliasSeq!(ushort, uint))
     {
@@ -5561,7 +5561,7 @@ void benchmarkReadDictWords(Value)(in size_t maxCount)
 }
 
 unittest
-{
+{ dbg();
     const maxCount = 1000;
     benchmarkReadDictWords!(void)(maxCount);
     benchmarkReadDictWords!(size_t)(maxCount);
@@ -5591,6 +5591,7 @@ if (Keys.length != 0)
         import std.meta : AliasSeq;
         foreach (Key; Keys)
         {
+            dbg("Key:", Key.stringof);
             auto set = radixTreeSet!(Key);
             auto map = radixTreeMap!(Key, Value);
 
@@ -5609,25 +5610,29 @@ if (Keys.length != 0)
             {
                 static if (isIntegral!Key)
                 {
-                    immutable low = max(Key.min, -98_900); // chosen to minimize number of lines of debug output before bug in contains happens
-                    immutable high = min(Key.max, 100_000);
+                    immutable low = max(Key.min, -10_000); // chosen to minimize number of lines of debug output before bug in contains happens
+                    immutable high = min(Key.max, 10_000);
+                    immutable factor = 1;
                     immutable length = high - low + 1;
                 }
                 else static if (isFloatingPoint!Key)
                 {
-                    immutable low = -100_000;
-                    immutable high = 100_000;
+                    immutable low = -1_000;
+                    immutable high = 1_000;
+                    immutable factor = 100;
                     immutable length = high - low + 1;
                 }
                 else static if (is(Key == bool))
                 {
                     immutable low = false;
                     immutable high = true;
+                    immutable factor = 1;
                     immutable length = high - low + 1;
                 }
 
-                foreach (immutable uk; low .. high + 1)
+                foreach (immutable uk_; low .. high + 1)
                 {
+                    immutable uk = factor*uk_;
                     immutable Key key = cast(Key)uk;
 
                     assert(!set.contains(key)); // key should not yet be in set
@@ -5746,7 +5751,7 @@ void benchmark()()
 
 ///
 @safe pure nothrow @nogc unittest
-{
+{dbg(); dbg();
     struct S { int x; }
 
     alias Key = S;
@@ -5763,7 +5768,7 @@ void benchmark()()
 
 /// TODO activate
 @safe pure nothrow @nogc unittest
-{
+{ dbg();
     // alias Key = string;
     // alias Value = Array!int;
     // RadixTreeMapGrowOnly!(Key, Value) map;
@@ -5792,7 +5797,7 @@ private template iotaImpl(size_t to, size_t now)
 }
 
 unittest
-{
+{ dbg();
     version(benchmark) benchmark();
 }
 
@@ -5801,4 +5806,5 @@ import nxt.qcmeman;
 version(unittest)
 {
     import nxt.array_help : s;
+    import nxt.dbgio : dbg;
 }

@@ -5485,7 +5485,7 @@ private static auto randomUniqueSortedStrings(size_t count, uint maxLength) @tru
 }
 
 /** Create a set of words from the file `/usr/share/dict/words`. */
-void benchmarkReadDictWords(Value)(in size_t maxCount)
+private void benchmarkReadDictWords(Value)(in size_t maxCount)
 {
     import std.range : chain;
 
@@ -5584,7 +5584,7 @@ bool testEqual(T, U)(ref T x, ref U y) @trusted
 }
 
 /** Check correctness when span is `span` and for each `Key` in `Keys`. */
-auto checkNumeric(Keys...)()
+private auto checkNumeric(Keys...)()
 if (Keys.length != 0)
 {
     import std.traits : isIntegral, isFloatingPoint;
@@ -5685,7 +5685,7 @@ if (Keys.length != 0)
 }
 
 /** Benchmark performance and memory usage when span is `span`. */
-void benchmark()()
+private void benchmark()()
 {
     version(show) import std.stdio : writeln;
 

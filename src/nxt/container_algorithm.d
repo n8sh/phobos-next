@@ -63,9 +63,3 @@ void shiftToFrontAt(T)(T[] r, size_t index)
     x[].shiftToFrontAt(1);
     assert(x == [11, 13, 14, 14]);
 }
-
-version(unittest)
-{
-    // import nxt.array_help : s;
-    // import nxt.dbgio;
-}

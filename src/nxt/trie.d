@@ -147,8 +147,8 @@ import nxt.container_traits : mustAddGCRange;
 import nxt.dynamic_array : Array = DynamicArray;
 
 // version = enterSingleInfiniteMemoryLeakTest;
-version = benchmark;
-version = print;
+// version = benchmark;
+// version = show;
 // version = useMemoryErrorHandler;
 // version = showBranchSizes;
 
@@ -3898,15 +3898,15 @@ template RawRadixTree(Value = void)
     void printAt(Node curr, size_t depth, uint subIx = uint.max) @safe
     {
         import std.range : repeat;
-        import std.stdio : write, writeln;
+        version(show) import std.stdio : write, writeln;
 
         if (!curr) { return; }
 
-        foreach (immutable i; 0 .. depth) { write('-'); } // prefix
+        foreach (immutable i; 0 .. depth) { version(show) write('-'); } // prefix
         if (subIx != uint.max)
         {
             import std.string : format;
-            write(format("%.2X ", subIx));
+            version(show) write(format("%.2X ", subIx));
         }
 
         final switch (curr.typeIx) with (Node.Ix)
@@ -3916,24 +3916,24 @@ template RawRadixTree(Value = void)
         case ix_OneLeafMax7:
             auto curr_ = curr.as!(OneLeafMax7);
             import std.conv : to;
-            writeln(typeof(curr_).stringof, " #", curr_.key.length, ": ", curr_.to!string);
+            version(show) writeln(typeof(curr_).stringof, " #", curr_.key.length, ": ", curr_.to!string);
             break;
         case ix_TwoLeaf3:
             auto curr_ = curr.as!(TwoLeaf3);
-            writeln(typeof(curr_).stringof, " #", curr_.keys.length, ": ", curr_.keys);
+            version(show) writeln(typeof(curr_).stringof, " #", curr_.keys.length, ": ", curr_.keys);
             break;
         case ix_TriLeaf2:
             auto curr_ = curr.as!(TriLeaf2);
-            writeln(typeof(curr_).stringof, " #", curr_.keys.length, ": ", curr_.keys);
+            version(show) writeln(typeof(curr_).stringof, " #", curr_.keys.length, ": ", curr_.keys);
             break;
         case ix_HeptLeaf1:
             auto curr_ = curr.as!(HeptLeaf1);
-            writeln(typeof(curr_).stringof, " #", curr_.keys.length, ": ", curr_.keys);
+            version(show) writeln(typeof(curr_).stringof, " #", curr_.keys.length, ": ", curr_.keys);
             break;
         case ix_SparseLeaf1Ptr:
             auto curr_ = curr.as!(SparseLeaf1!Value*);
-            write(typeof(*curr_).stringof, " #", curr_.length, "/", curr_.capacity, " @", curr_);
-            write(": ");
+            version(show) write(typeof(*curr_).stringof, " #", curr_.length, "/", curr_.capacity, " @", curr_);
+            version(show) write(": ");
             bool other = false;
             foreach (immutable i, immutable ix; curr_.ixs)
             {
@@ -3948,25 +3948,25 @@ template RawRadixTree(Value = void)
                 }
                 import std.string : format;
                 s ~= format("%.2X", ix);
-                write(s);
+                version(show) write(s);
                 static if (isValue)
                 {
-                    write("=>", curr_.values[i]);
+                    version(show) write("=>", curr_.values[i]);
                 }
             }
-            writeln();
+            version(show) writeln();
             break;
         case ix_DenseLeaf1Ptr:
             auto curr_ = curr.as!(DenseLeaf1!Value*);
-            write(typeof(*curr_).stringof, " #", curr_.count, " @", curr_);
-            write(": ");
+            version(show) write(typeof(*curr_).stringof, " #", curr_.count, " @", curr_);
+            version(show) write(": ");
 
             // keys
             size_t ix = 0;
             bool other = false;
             if (curr_._ixBits.allOne)
             {
-                write("ALL");
+                version(show) write("ALL");
             }
             else
             {
@@ -3986,22 +3986,22 @@ template RawRadixTree(Value = void)
                         import std.string : format;
                         s ~= format("%.2X", ix);
                     }
-                    write(s);
+                    version(show) write(s);
                     static if (isValue)
                     {
-                        write("=>", curr_.values[ix]);
+                        version(show) write("=>", curr_.values[ix]);
                     }
                     ++ix;
                 }
             }
 
-            writeln();
+            version(show) writeln();
             break;
         case ix_SparseBranchPtr:
             auto curr_ = curr.as!(SparseBranch*);
-            write(typeof(*curr_).stringof, " #", curr_.subCount, "/", curr_.subCapacity, " @", curr_);
-            if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix.toString('_')); }
-            writeln(":");
+            version(show) write(typeof(*curr_).stringof, " #", curr_.subCount, "/", curr_.subCapacity, " @", curr_);
+            if (!curr_.prefix.empty) { version(show) write(" prefix=", curr_.prefix.toString('_')); }
+            version(show) writeln(":");
             if (curr_.leaf1)
             {
                 printAt(Node(curr_.leaf1), depth + 1);
@@ -4013,9 +4013,9 @@ template RawRadixTree(Value = void)
             break;
         case ix_DenseBranchPtr:
             auto curr_ = curr.as!(DenseBranch*);
-            write(typeof(*curr_).stringof, " #", curr_.subCount, "/", radix, " @", curr_);
-            if (!curr_.prefix.empty) { write(" prefix=", curr_.prefix.toString('_')); }
-            writeln(":");
+            version(show) write(typeof(*curr_).stringof, " #", curr_.subCount, "/", radix, " @", curr_);
+            if (!curr_.prefix.empty) { version(show) write(" prefix=", curr_.prefix.toString('_')); }
+            version(show) writeln(":");
             if (curr_.leaf1)
             {
                 printAt(Node(curr_.leaf1), depth + 1);
@@ -5112,18 +5112,18 @@ if (Keys.length != 0)
 void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a copy ctor here
 {
     import std.conv : to;
-    import std.stdio : writeln;
+    version(show) import std.stdio : writeln;
 
     auto stats = tree.usageHistograms;
 
-    writeln("Population By Node Type: ", stats.popByNodeType);
-    writeln("Population By Leaf1 Type: ", stats.popByLeaf1Type);
+    version(show) writeln("Population By Node Type: ", stats.popByNodeType);
+    version(show) writeln("Population By Leaf1 Type: ", stats.popByLeaf1Type);
 
-    writeln("SparseBranch Population Histogram: ", stats.popHist_SparseBranch);
-    writeln("DenseBranch Population Histogram: ", stats.popHist_DenseBranch);
+    version(show) writeln("SparseBranch Population Histogram: ", stats.popHist_SparseBranch);
+    version(show) writeln("DenseBranch Population Histogram: ", stats.popHist_DenseBranch);
 
-    writeln("SparseLeaf1 Population Histogram: ", stats.popHist_SparseLeaf1);
-    writeln("DenseLeaf1 Population Histogram: ", stats.popHist_DenseLeaf1);
+    version(show) writeln("SparseLeaf1 Population Histogram: ", stats.popHist_SparseLeaf1);
+    version(show) writeln("DenseLeaf1 Population Histogram: ", stats.popHist_DenseLeaf1);
 
     size_t totalBytesUsed = 0;
 
@@ -5164,12 +5164,12 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
             totalBytesUsed += bytesUsed;
             break;
         }
-        writeln(pop, " number of ",
+        version(show) writeln(pop, " number of ",
                 ix.to!string[3 .. $], // TODO Use RT.NodeType.indexTypeName(ix)
                 " uses ", bytesUsed/1e6, " megabytes");
     }
 
-    writeln("Tree uses ", totalBytesUsed/1e6, " megabytes");
+    version(show) writeln("Tree uses ", totalBytesUsed/1e6, " megabytes");
 }
 
 /// test map from `uint` to values of type `double`
@@ -5259,11 +5259,11 @@ if (Keys.length != 0)
         }
         sw1.stop;
 
-        version(print)
+        version(show)
         {
             import std.conv : to;
-            import std.stdio : writeln;
-            writeln("Test for contains and insert took ", sw1.peek());
+            version(show) import std.stdio : writeln;
+            version(show) writeln("Test for contains and insert took ", sw1.peek());
         }
 
         auto sw2 = StopWatch(AutoStart.yes);
@@ -5283,11 +5283,11 @@ if (Keys.length != 0)
         testPrefix();
 
         sw2.stop;
-        version(print)
+        version(show)
         {
             import std.conv : to;
-            import std.stdio : writeln;
-            writeln("Compare took ", sw2.peek());
+            version(show) import std.stdio : writeln;
+            version(show) writeln("Compare took ", sw2.peek());
         }
     }
 }
@@ -5483,7 +5483,7 @@ private static auto randomUniqueSortedStrings(size_t count, uint maxLength) @tru
 void testWords(Value)()
 {
     import std.datetime.stopwatch : StopWatch, AutoStart;
-    import std.stdio : File;
+    version(show) import std.stdio : File;
     import std.range : chain;
 
     const path = "/usr/share/dict/words";
@@ -5505,6 +5505,7 @@ void testWords(Value)()
     string[] firsts = [];       // used to test various things
     size_t count = 0;
     auto sw = StopWatch(AutoStart.yes);
+    import std.stdio : File;
     foreach (const word; chain(firsts, File(path).byLine))
     {
         import nxt.array_algorithm : endsWith;
@@ -5550,11 +5551,11 @@ void testWords(Value)()
         }
     }
     sw.stop;
-    version(print)
+    version(show)
     {
         import std.conv : to;
-        import std.stdio : writeln;
-        writeln("Added ", count, " words from ", path, " in ", sw.peek());
+        version(show) import std.stdio : writeln;
+        version(show) writeln("Added ", count, " words from ", path, " in ", sw.peek());
         rtr.showStatistics();
     }
 }
@@ -5678,7 +5679,7 @@ if (Keys.length != 0)
 /// Benchmark performance and memory usage when span is `span`.
 void benchmark()()
 {
-    import std.stdio : writeln;
+    version(show) import std.stdio : writeln;
 
     import std.algorithm.comparison : equal;
     struct TestValueType { int i = 42; float f = 43; char ch = 'a'; }
@@ -5721,7 +5722,7 @@ void benchmark()()
                 static if (false) { assert(!set.insert(k)); }
             }
 
-            writeln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek());
+            version(show) writeln("trie: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek());
             set.showStatistics();
         }
 
@@ -5731,7 +5732,7 @@ void benchmark()()
 
             foreach (Key k; randomSamples) { aa[k] = true; }
 
-            writeln("D-AA: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek());
+            version(show) writeln("D-AA: Added ", n, " ", Key.stringof, "s of size ", n*Key.sizeof/1e6, " megabytes in ", sw.peek());
         }
 
         auto map = radixTreeMap!(Key, Value);

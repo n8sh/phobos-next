@@ -122,8 +122,15 @@ if (isNullable!K /*&& isHashable!K */)
         enum bool assumeNonFullHaystack = false;
     }
 
-    import std.functional : binaryFun;
-    alias keyEqualPredFn = binaryFun!keyEqualPred;
+    static if (is(typeof(keyEqualPred) : string))
+    {
+        import std.functional : binaryFun;
+        alias keyEqualPredFn = binaryFun!keyEqualPred;
+    }
+    else
+    {
+        alias keyEqualPredFn = keyEqualPred;
+    }
 
     private enum isSlice(T) = is(T : const(E)[], E);
 

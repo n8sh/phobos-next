@@ -5285,9 +5285,8 @@ if (Keys.length != 0)
         sw2.stop;
         version(show)
         {
-            import std.conv : to;
-            version(show) import std.stdio : writeln;
-            version(show) writeln("Compare took ", sw2.peek());
+            import std.stdio : writeln;
+            writeln("Compare took ", sw2.peek());
         }
     }
 }
@@ -5554,9 +5553,8 @@ void benchmarkReadDictWords(Value)(in size_t maxCount)
     sw.stop;
     version(show)
     {
-        import std.conv : to;
-        version(show) import std.stdio : writeln;
-        version(show) writeln("Added ", count, " words from ", path, " in ", sw.peek());
+        import std.stdio : writeln;
+        writeln("Added ", count, " words from ", path, " in ", sw.peek());
         rtr.showStatistics();
     }
 }

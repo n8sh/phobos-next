@@ -4264,7 +4264,6 @@ version(unittest)
     import nxt.container_traits : mustAddGCRange;
     import nxt.digestx.fnv : FNV;
     import nxt.array_help : s;
-
 }
 
 version(showEntries) import nxt.dbgio : dbg;

@@ -118,6 +118,8 @@ template isNullable(T)
 ///
 @safe pure nothrow @nogc unittest
 {
+    import std.typecons : Nullable;
+
     class C {}
 
     static assert( isNullable!(C));
@@ -162,6 +164,8 @@ template defaultNullKeyConstantOf(T)
 ///
 @safe pure nothrow @nogc unittest
 {
+    import std.typecons : Nullable;
+
     static assert(defaultNullKeyConstantOf!(void*) == null);
 
     alias Ni = Nullable!int;
@@ -234,6 +238,8 @@ if (isNullable!(T))
 ///
 @safe pure nothrow @nogc unittest
 {
+    import std.typecons : Nullable;
+
     assert(null.isNull);
 
     alias Ni = Nullable!int;
@@ -279,9 +285,4 @@ if (isNullable!(T))
 
     const y = new C(42);
     assert(!y.isNull);
-}
-
-version(unittest)
-{
-    import std.typecons : Nullable;
 }

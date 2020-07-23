@@ -15,7 +15,6 @@
  */
 module nxt.random_ex;
 
-import core.lifetime : move;
 import std.traits: isIntegral, isFloatingPoint, isNumeric, isIterable, isStaticArray, isArray, hasIndirections, isSomeString, isScalarType, isBoolean;
 import std.range: isInputRange, ElementType, hasAssignableElements;
 import std.random: uniform;
@@ -132,6 +131,7 @@ R randInPlace(R)(R x)
 if (isIterable!R &&
     hasAssignableElements!R)
 {
+    import core.lifetime : move;
     foreach (ref e; x)
     {
         e.randInPlace();
@@ -149,6 +149,7 @@ if (isIterable!R &&
     hasAssignableElements!R &&
     is(ElementType!R == E))
 {
+    import core.lifetime : move;
     foreach (ref e; x)
     {
         e.randInPlaceWithRange(elementLow, elementHigh);

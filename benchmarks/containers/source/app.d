@@ -104,6 +104,7 @@ void main()
 
                           OpenHashSet!(Nullable!(uint, uint.max)),
                           OpenHashSet!(Nullable!(uint, uint.max), FNV!(64, true)),
+                          OpenHashSet!(Nullable!(uint, uint.max), lemireHash64),
 
                           RadixTreeSet!(uint),
                           RedBlackTree!(uint),

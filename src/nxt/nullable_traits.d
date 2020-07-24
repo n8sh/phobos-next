@@ -76,7 +76,8 @@ template isNullable(T)
      */
     // use static if's for full lazyness of trait evaluations in order of likelyhood
     static if (is(T == class) ||
-               is(T == typeof(null)))
+               is(T == typeof(null)) ||
+               (is(T : const(E)[], E) && !__traits(isStaticArray, T))) // `isDynamicArrayFast`
     {
         enum isNullable = true; // prevent instantiation of `hasStandardNullValue`
     }
@@ -197,6 +198,10 @@ if (isNullable!(T))
                is(T == typeof(null))) // fast compilation path
     {
         return x is null;
+    }
+    else static if (is(T : const(E)[], E)) // array/slice
+    {
+        return x.ptr is null;
     }
     else static if (hasStandardNullValue!T)
     {

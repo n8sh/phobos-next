@@ -128,12 +128,10 @@ version(unittest)
     testDifferent2();
 }
 
-pure @nogc:
+@nogc:
 
 /** Dummy-hash for benchmarking performance of HashSet. */
-ulong identityHash64Of(T)(in T x)
-if (isIntegral!T &&
-    T.sizeof <= ulong.sizeof)
+ulong identityHash64Of(in ulong x)
 {
     pragma(inline, true);
     return x;               // maps -1 to ulong.max

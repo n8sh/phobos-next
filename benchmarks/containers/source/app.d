@@ -122,6 +122,7 @@ void main()
                                        false,
                                        false),
                           OpenHashSet!(Nullable!(ulong, ulong.max), wangMixHash64),
+                          OpenHashSet!(Nullable!(ulong, ulong.max), lemireHash64),
 
                           OpenHashSet!(Address, FNV!(64, true)),
 
@@ -338,10 +339,12 @@ void main()
                  OpenHashMap!(Nullable!(ulong, ulong.max), ulong, hashOf),
                  OpenHashMap!(Nullable!(ulong, ulong.max), ulong, FNV!(64, true)),
                  OpenHashMap!(Nullable!(ulong, ulong.max), ulong, wangMixHash64),
+                 OpenHashMap!(Nullable!(ulong, ulong.max), ulong, lemireHash64),
 
                  OpenHashMap!(Address, Address, hashOf),
                  OpenHashMap!(Address, Address, FNV!(64, true)),
                  OpenHashMap!(Address, Address, wangMixHash64),
+                 OpenHashMap!(Address, Address, lemireHash64),
 
                  // string => string
                  OpenHashMap!(string, string, hashOf),

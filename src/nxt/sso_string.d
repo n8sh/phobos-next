@@ -286,10 +286,16 @@ pure:
     alias opDollar = length;
 
     /** Check if `this` is empty. */
-    @property bool empty() const scope @safe pure nothrow @nogc { return length() == 0; }
+    @property bool empty() const scope @safe pure nothrow @nogc
+    {
+        return length() == 0;
+    }
 
     /** Check if `this` is `null`. */
-    @property bool isNull() const scope @safe pure nothrow @nogc { return this == typeof(this).init; }
+    @property bool isNull() const scope @trusted pure nothrow @nogc
+    {
+        return raw.length == 0;
+    }
 
     /** Return a slice to either the whole large or whole small `string`.
      *
@@ -567,6 +573,34 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     static assert(__traits(compiles, { const s0_ = S(s); }));
 }
 
+/// verify `isNull` when constructing from static array of `char`s
+@trusted pure nothrow unittest
+{
+    alias S = SSOString;
+    static foreach (const n; 0 .. 32)
+    {
+        {
+            immutable(char)[n] x;
+            S s = S(x);
+            assert(!s.isNull);
+        }
+    }
+}
+
+/// verify `isNull` when constructing from dynamic array of `char`s
+@trusted pure nothrow unittest
+{
+    alias S = SSOString;
+    foreach (const n; 0 .. 32)
+    {
+        import dbgio;
+        dbg(n);
+        auto x = new immutable(char)[n];
+        S s = S(x);
+        assert(!s.isNull);
+    }
+}
+
 /// test behaviour of `==` and `is` operator
 @trusted pure nothrow @nogc unittest
 {
@@ -624,7 +658,7 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     assert(sSmallCapacity == charsSmallCapacity);
 
     const s0_ = S("");
-    assert(s0_.isNull);         // cannot distinguish
+    assert(!s0_.isNull);         // cannot distinguish
     assert(s0 == s0_);
 
     const s7 = S("0123456");

@@ -2,8 +2,6 @@
  */
 module nxt.hash_functions;
 
-import std.traits : isIntegral;
-
 @safe pure nothrow:
 
 /** See_Also: http://forum.dlang.org/post/o1igoc$21ma$1@digitalmars.com
@@ -168,9 +166,7 @@ uint muellerHash32(uint x)
  * See_Also: http://zimbry.blogspot.se/2011/09/better-bit-mixing-improving-on.html
  * See_Also: http://xorshift.di.unimi.it/splitmix64.c
  */
-ulong muellerHash64(T)(T x)
-if (isIntegral!T &&
-    T.sizeof <= ulong.sizeof)
+ulong muellerHash64(in ulong x)
 {
     pragma(inline, true);
     typeof(return) y = x;

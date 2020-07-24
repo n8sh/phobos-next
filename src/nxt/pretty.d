@@ -1281,6 +1281,8 @@ enum ctxFaces = [Face(Color.red, Color.black),
                  Face(Color.yellow, Color.black),
     ];
 
+import std.algorithm.iteration : map;
+
 /** Key (Hit) Faces. */
 enum keyFaces = ctxFaces.map!(a => Face(a.foregroundColor, a.backgroundColor, true)); // TODO avoid map
 

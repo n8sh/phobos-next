@@ -777,9 +777,8 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
 /// construct from static array larger than `smallCapacity`
 @safe pure nothrow unittest
 {
-    alias S = SSOString;
-    char[S.smallCapacity + 1] charsMinLargeCapacity;
-    const _ = S(charsMinLargeCapacity);
+    char[SSOString.smallCapacity + 1] charsMinLargeCapacity;
+    const _ = SSOString(charsMinLargeCapacity);
 }
 
 /// hole handling

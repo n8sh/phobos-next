@@ -568,20 +568,18 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
 /// construct from non-immutable source is not allowed in `@nogc` context
 @safe pure nothrow @nogc unittest
 {
-    alias S = SSOString;
     const char[] s;
-    static assert(__traits(compiles, { const s0_ = S(s); }));
+    static assert(__traits(compiles, { const s0_ = SSOString(s); }));
 }
 
 /// verify `isNull` when constructing from static array of `char`s
 @trusted pure nothrow unittest
 {
-    alias S = SSOString;
     static foreach (const n; 0 .. 32)
     {
         {
             immutable(char)[n] x;
-            S s = S(x);
+            auto s = SSOString(x);
             assert(!s.isNull);
         }
     }
@@ -590,11 +588,10 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
 /// verify `isNull` when constructing from dynamic array of `char`s
 @trusted pure nothrow unittest
 {
-    alias S = SSOString;
     foreach (const n; 0 .. 32)
     {
         auto x = new immutable(char)[n];
-        S s = S(x);
+        auto s = SSOString(x);
         assert(!s.isNull);
     }
 }
@@ -716,8 +713,7 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
 /// metadata for null string
 @safe pure nothrow @nogc unittest
 {
-    alias S = SSOString;
-    auto s = S.init;
+    auto s = SSOString.init;
     assert(s.isNull);
     foreach (const i; 0 .. 8)
     {
@@ -731,8 +727,7 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
 /// metadata for small string
 @safe pure nothrow @nogc unittest
 {
-    alias S = SSOString;
-    auto s = S("0123456");
+    auto s = SSOString("0123456");
     assert(!s.isNull);
     assert(!s.isLarge);
     foreach (const i; 0 .. 8)
@@ -748,9 +743,8 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
 /// metadata for small string with maximum length
 @safe pure nothrow @nogc unittest
 {
-    alias S = SSOString;
-    auto s = S("0123456789abcde");
-    assert(s.length == S.smallCapacity);
+    auto s = SSOString("0123456789abcde");
+    assert(s.length == SSOString.smallCapacity);
     assert(!s.isNull);
     assert(!s.isLarge);
     foreach (const i; 0 .. 8)
@@ -766,9 +760,8 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
 /// metadata for large string with minimum length
 @safe pure nothrow @nogc unittest
 {
-    alias S = SSOString;
-    auto s = S("0123456789abcdef");
-    assert(s.length == S.smallCapacity + 1);
+    auto s = SSOString("0123456789abcdef");
+    assert(s.length == SSOString.smallCapacity + 1);
     assert(!s.isNull);
     assert(s.isLarge);
     foreach (const i; 0 .. 8)

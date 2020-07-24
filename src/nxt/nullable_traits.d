@@ -79,7 +79,7 @@ template isNullable(T)
                is(T == typeof(null)) ||
                (is(T : const(E)[], E) && !__traits(isStaticArray, T))) // `isDynamicArrayFast`
     {
-        enum isNullable = true; // prevent instantiation of `hasStandardNullValue`
+        enum isNullable = true; // fast path first, prevent instantiation of `hasStandardNullValue`
     }
     else static if (hasStandardNullValue!T)
     {

@@ -96,12 +96,12 @@ version(unittest)
 }
 
 ///
-@safe pure nothrow unittest
+@safe pure nothrow @nogc unittest
 {
-    auto car1 = new Expr("car");
-    auto car2 = new Expr("car");
-    auto bar1 = new Expr("bar");
-    auto ncar = new NounExpr("car");
+    scope car1 = new Expr("car");
+    scope car2 = new Expr("car");
+    scope bar1 = new Expr("bar");
+    scope ncar = new NounExpr("car");
 
     void testEqual() @safe pure nothrow @nogc
     {

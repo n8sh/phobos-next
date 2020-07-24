@@ -572,10 +572,23 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     static assert(__traits(compiles, { const s0_ = SSOString(s); }));
 }
 
-/// verify `isNull` when constructing from static array of `char`s
+/// verify `isNull` when @nogc constructing from small static array of `char`s
+@trusted pure nothrow @nogc unittest
+{
+    static foreach (const n; 0 .. SSOString.smallCapacity + 1)
+    {
+        {
+            immutable(char)[n] x;
+            auto s = SSOString(x);
+            assert(!s.isNull);
+        }
+    }
+}
+
+/// verify `isNull` when constructing from large static array of `char`s
 @trusted pure nothrow unittest
 {
-    static foreach (const n; 0 .. 32)
+    static foreach (const n; SSOString.smallCapacity + 1 .. 32)
     {
         {
             immutable(char)[n] x;

@@ -208,7 +208,7 @@ unittest
  * Added a final multiplcation with a constant for more mixing. It is most important that the
  * lower bits are well mixed.
  */
-size_t lemireHash64(in ulong x)
+ulong lemireHash64(in ulong x)
 {
     pragma(inline, true);
     import core.bitop : ror;

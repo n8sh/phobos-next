@@ -565,11 +565,11 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     const s16 = SSOString(x16);         // will call .idup
 }
 
-/// construct from non-immutable source is not allowed in `@nogc` context
+/// construct from non-immutable source is not allowed in `@nogc`-scope
 @safe pure nothrow @nogc unittest
 {
     const char[] s;
-    static assert(__traits(compiles, { const _ = SSOString(s); }));
+    static assert(__traits(compiles, { const _ = SSOString(s); })); // TODO
 }
 
 /// verify `isNull` when @nogc constructing from small static array of `char`s

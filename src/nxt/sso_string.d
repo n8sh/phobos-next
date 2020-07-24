@@ -592,8 +592,7 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     {
         {
             immutable(char)[n] x;
-            auto s = SSOString(x);
-            assert(!s.isNull);
+            assert(!SSOString(x).isNull);
         }
     }
 }
@@ -604,8 +603,7 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     foreach (const n; 0 .. 32)
     {
         auto x = new immutable(char)[n];
-        auto s = SSOString(x);
-        assert(!s.isNull);
+        assert(!SSOString(x).isNull);
     }
 }
 

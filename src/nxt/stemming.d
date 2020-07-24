@@ -477,7 +477,7 @@ private:
 
 unittest
 {
-    auto stemmer = new Stemmer!string();
+    scope stemmer = new Stemmer!string();
 
     assert(stemmer.stem("") == "");
     assert(stemmer.stem("x") == "x");

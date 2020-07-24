@@ -225,7 +225,12 @@ void nullify(T)(scope ref T x) @safe pure nothrow @nogc
 if (isNullable!(T))
 {
     pragma(inline, true);
-    static if (hasStandardNullValue!T)
+    static if (is(T == class) ||
+               is(T == typeof(null))) // fast compilation path
+    {
+        x = null;
+    }
+    else static if (hasStandardNullValue!T)
     {
         x = T.init;
     }

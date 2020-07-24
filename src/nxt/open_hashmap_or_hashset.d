@@ -3406,7 +3406,7 @@ pure nothrow unittest
     alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
     auto x = X();
 
-    auto key42 = new K(42);
+    scope key42 = new K(42);
     x[key42] = V(43);
 
     assert(x.length == 1);
@@ -3886,7 +3886,7 @@ version(unittest)
     debug static assert(X.sizeof == 32); // TODO fix hole handling and change to 24
     X x;
 
-    auto e = ZingRelation(new Zing(42), Alt.init);
+    scope e = ZingRelation(new Zing(42), Alt.init);
 
     assert(!x.contains(e));
     assert(!x.containsUsingLinearSearch(e));
@@ -3952,7 +3952,7 @@ version(unittest)
     X x;
 
     // top-class
-    auto b42 = new Base(42);
+    scope b42 = new Base(42);
     assert(!x.contains(b42));
     assert(!x.containsUsingLinearSearch(b42));
     assert(x.insert(b42) == X.InsertionStatus.added);
@@ -3966,7 +3966,7 @@ version(unittest)
     assert(Base.dtorCount == 3);
 
     // top-class
-    const b43 = new Base(43);
+    scope b43 = new Base(43);
     assert(!x.contains(b43));
     assert(!x.containsUsingLinearSearch(b43));
     assert(x.insert(b43) == X.InsertionStatus.added);

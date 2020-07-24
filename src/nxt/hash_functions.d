@@ -29,12 +29,6 @@ hash_t hashOfTypeInfoPtr(TypeInfo_Class typeinfo) @trusted pure nothrow @nogc
     return (cast(hash_t)(cast(void*)typeinfo) >> 3);
 }
 
-size_t fibonacci_hash(hash_t hash) @safe pure nothrow @nogc
-{
-    pragma(inline, true);
-    return (hash * 11400714819323198485LU);
-}
-
 /** Hash that incorporates the hash of `typeid` bit-xored with `hashOf(a)`.
  *
  * See_Also: https://forum.dlang.org/post/lxqoknwuujbymolnlyfw@forum.dlang.org
@@ -47,6 +41,12 @@ if (is(Class == class))
     // const class_typeid_hash = (cast(hash_t)(cast(void*)typeid(Class)) >> 3)
     import core.internal.hash : hashOf;
     return fibonacci_hash(hashOf(cast(void*)typeid(a))) ^ hashOf(a);
+}
+
+size_t fibonacci_hash(hash_t hash) @safe pure nothrow @nogc
+{
+    pragma(inline, true);
+    return (hash * 11400714819323198485LU);
 }
 
 version(unittest)

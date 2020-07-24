@@ -600,7 +600,7 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
 /// verify `isNull` when constructing from dynamic array of `char`s
 @trusted pure nothrow unittest
 {
-    foreach (const n; 0 .. 32)
+    foreach (const n; 0 .. 100)
     {
         auto x = new immutable(char)[n];
         assert(!SSOString(x).isNull);

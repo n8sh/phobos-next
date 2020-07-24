@@ -250,6 +250,10 @@ if (isNullable!(T))
 
     assert(null.isNull);
 
+    assert((int[]).init.isNull);
+    immutable int[2] x = [1, 2];
+    assert(!x[].isNull);
+
     alias Ni = Nullable!int;
     assert(Ni.init.isNull);
 

@@ -579,8 +579,7 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     {
         {
             immutable(char)[n] x;
-            auto s = SSOString(x);
-            assert(!s.isNull);
+            assert(!SSOString(x).isNull);
         }
     }
 }
@@ -600,7 +599,7 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
 /// verify `isNull` when constructing from dynamic array of `char`s
 @trusted pure nothrow unittest
 {
-    foreach (const n; 0 .. 100)
+    foreach (const n; 0 .. 32)
     {
         auto x = new immutable(char)[n];
         assert(!SSOString(x).isNull);

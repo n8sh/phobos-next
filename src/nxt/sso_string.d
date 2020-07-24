@@ -559,10 +559,10 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     alias S = SSOString;
 
     const char[] x0;
-    const s0 = S(x0);           // no .idup
+    const s0 = SSOString(x0);           // no .idup
 
     const char[] x16 = new char[16];
-    const s16 = S(x16);         // will call .idup
+    const s16 = SSOString(x16);         // will call .idup
 }
 
 /// construct from non-immutable source is not allowed in `@nogc` context
@@ -599,13 +599,11 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
 /// test behaviour of `==` and `is` operator
 @trusted pure nothrow @nogc unittest
 {
-    alias S = SSOString;
-
-    const S x = "42";
+    const SSOString x = "42";
     assert(!x.isNull);
     assert(x == "42");
 
-    const S y = "42";
+    const SSOString y = "42";
     assert(!y.isNull);
     assert(y == "42");
 
@@ -618,7 +616,7 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     assert(x[] !is y[]);
     assert(x.ptr !is y.ptr);
 
-    const S z = "43";
+    const SSOString z = "43";
     assert(!z.isNull);
     assert(z == "43");
     assert(x != z);
@@ -630,40 +628,38 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
 ///
 @safe pure nothrow @nogc unittest
 {
-    alias S = SSOString;
-
-    static assert(S.smallCapacity == 15);
+    static assert(SSOString.smallCapacity == 15);
 
     import nxt.gc_traits : mustAddGCRange;
-    static assert(mustAddGCRange!S); // `Large large.ptr` must be scanned
+    static assert(mustAddGCRange!SSOString); // `Large large.ptr` must be scanned
 
-    static assert(__traits(isZeroInit, S));
-    // TODO assert(S.init == S.nullValue);
+    static assert(__traits(isZeroInit, SSOString));
+    // TODO assert(SSOString.init == SSOString.nullValue);
 
-    auto s0 = S.init;
+    auto s0 = SSOString.init;
     assert(s0.isNull);
     assert(s0.length == 0);
     assert(s0.isLarge);
     assert(s0[] == []);
 
-    char[S.smallCapacity] charsSmallCapacity = "123456789_12345"; // fits in small string
-    const sSmallCapacity = S(charsSmallCapacity);
+    char[SSOString.smallCapacity] charsSmallCapacity = "123456789_12345"; // fits in small string
+    const sSmallCapacity = SSOString(charsSmallCapacity);
     assert(!sSmallCapacity.isLarge);
-    assert(sSmallCapacity.length == S.smallCapacity);
+    assert(sSmallCapacity.length == SSOString.smallCapacity);
     assert(sSmallCapacity == charsSmallCapacity);
 
-    const s0_ = S("");
+    const s0_ = SSOString("");
     assert(!s0_.isNull);         // cannot distinguish
     assert(s0 == s0_);
 
-    const s7 = S("0123456");
+    const s7 = SSOString("0123456");
     assert(!s7.isNull);
 
-    const s7_ = S("0123456_"[0 .. $ - 1]);
+    const s7_ = SSOString("0123456_"[0 .. $ - 1]);
     assert(s7.ptr !is s7_.ptr); // string data shall not overlap
     assert(s7 == s7_);
 
-    const _s7 = S("_0123456"[1 .. $]); // source from other string literal
+    const _s7 = SSOString("_0123456"[1 .. $]); // source from other string literal
     assert(s7.ptr !is _s7.ptr); // string data shall not overlap
     assert(s7 == _s7);
 
@@ -674,7 +670,7 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     assert(s7[] == "0123456_"[0 .. $ - 1]);
     assert(s7[0 .. 4] == "0123");
 
-    const s15 = S("0123456789abcde");
+    const s15 = SSOString("0123456789abcde");
     assert(!s15.isNull);
     static assert(is(typeof(s15[]) == const(char)[]));
     assert(!s15.isLarge);
@@ -684,18 +680,18 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     assert(s15[10 .. 15] == "abcde");
     assert(s15[10 .. $] == "abcde");
 
-    const s16 = S("0123456789abcdef");
+    const s16 = SSOString("0123456789abcdef");
     assert(!s16.isNull);
     static assert(is(typeof(s16[]) == const(char)[]));
     assert(s16.isLarge);
 
-    const s16_ = S("0123456789abcdef_"[0 .. s16.length]);
+    const s16_ = SSOString("0123456789abcdef_"[0 .. s16.length]);
     assert(s16.length == s16_.length);
     assert(s16[] == s16_[]);
     assert(s16.ptr !is s16_.ptr); // string data shall not overlap
     assert(s16 == s16_);              // but contents is equal
 
-    const _s16 = S("_0123456789abcdef"[1 .. $]);
+    const _s16 = SSOString("_0123456789abcdef"[1 .. $]);
     assert(s16.length == _s16.length);
     assert(s16[] == _s16[]);    // contents is equal
     assert(s16 == _s16);        // contents is equal
@@ -805,37 +801,34 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
 /// ASCII purity and case-conversion
 @safe pure nothrow @nogc unittest
 {
-    alias S = SSOString;
-
     // these are all small ASCII
-    assert( S("a").isSmallASCII);
-    assert( S("b").isSmallASCII);
-    assert( S("z").isSmallASCII);
-    assert( S("_").isSmallASCII);
-    assert( S("abcd").isSmallASCII);
-    assert( S("123456789_12345").isSmallASCII);
+    assert( SSOString("a").isSmallASCII);
+    assert( SSOString("b").isSmallASCII);
+    assert( SSOString("z").isSmallASCII);
+    assert( SSOString("_").isSmallASCII);
+    assert( SSOString("abcd").isSmallASCII);
+    assert( SSOString("123456789_12345").isSmallASCII);
 
     // these are not
-    assert(!S("123456789_123456").isSmallASCII); // too large
-    assert(!S("123456789_123ö").isSmallASCII);
-    assert(!S("ö").isSmallASCII);
-    assert(!S("Ö").isSmallASCII);
-    assert(!S("åäö").isSmallASCII);
-    assert(!S("ö-värld").isSmallASCII);
+    assert(!SSOString("123456789_123456").isSmallASCII); // too large
+    assert(!SSOString("123456789_123ö").isSmallASCII);
+    assert(!SSOString("ö").isSmallASCII);
+    assert(!SSOString("Ö").isSmallASCII);
+    assert(!SSOString("åäö").isSmallASCII);
+    assert(!SSOString("ö-värld").isSmallASCII);
 }
 
 /// ASCII purity and case-conversion
 @safe pure unittest
 {
-    alias S = SSOString;
-    assert(S("A").toLower[] == "a");
-    assert(S("a").toUpper[] == "A");
-    assert(S("ABCDEFGHIJKLMNO").toLower[] == "abcdefghijklmno"); // small
-    assert(S("abcdefghijklmno").toUpper[] == "ABCDEFGHIJKLMNO"); // small
-    assert(S("ÅÄÖ").toLower[] == "åäö");
-    assert(S("åäö").toUpper[] == "ÅÄÖ");
-    assert(S("ABCDEFGHIJKLMNOP").toLower[] == "abcdefghijklmnop"); // large
-    assert(S("abcdefghijklmnop").toUpper[] == "ABCDEFGHIJKLMNOP"); // large
+    assert(SSOString("A").toLower[] == "a");
+    assert(SSOString("a").toUpper[] == "A");
+    assert(SSOString("ABCDEFGHIJKLMNO").toLower[] == "abcdefghijklmno"); // small
+    assert(SSOString("abcdefghijklmno").toUpper[] == "ABCDEFGHIJKLMNO"); // small
+    assert(SSOString("ÅÄÖ").toLower[] == "åäö");
+    assert(SSOString("åäö").toUpper[] == "ÅÄÖ");
+    assert(SSOString("ABCDEFGHIJKLMNOP").toLower[] == "abcdefghijklmnop"); // large
+    assert(SSOString("abcdefghijklmnop").toUpper[] == "ABCDEFGHIJKLMNOP"); // large
 
     char[6] x = "ÅÄÖ";
     import std.uni : toLowerInPlace;
@@ -848,12 +841,10 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
 /// lexicographic comparison
 @safe pure unittest
 {
-    alias S = SSOString;
+    const SSOString a = SSOString("a");
+    assert(a == SSOString("a"));
 
-    const S a = S("a");
-    assert(a == S("a"));
-
-    immutable S b = S("b");
+    immutable SSOString b = SSOString("b");
 
     assert(a < b);
     assert(b > a);
@@ -862,42 +853,39 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     assert("a" < "b");
     assert("a" < "å");
     assert("Å" < "å");
-    assert(S("a") < S("å"));
-    assert(S("ÅÄÖ") < S("åäö"));
+    assert(SSOString("a") < SSOString("å"));
+    assert(SSOString("ÅÄÖ") < SSOString("åäö"));
 }
 
 /// cast to bool
 @safe pure unittest
 {
-    alias S = SSOString;
     // mimics behaviour of casting of `string` to `bool`
-    assert(!S());
-    assert(S(""));
-    assert(S("abc"));
+    assert(!SSOString());
+    assert(SSOString(""));
+    assert(SSOString("abc"));
 }
 
 /// to string conversion
 @safe pure unittest
 {
-    alias S = SSOString;
-
     // mutable small will GC-allocate
     {
-        S s = S("123456789_12345");
+        SSOString s = SSOString("123456789_12345");
         assert(s.ptr is &s.opSlice()[0]);
         assert(s.ptr !is &s.toString()[0]);
     }
 
     // const small will GC-allocate
     {
-        const S s = S("123456789_12345");
+        const SSOString s = SSOString("123456789_12345");
         assert(s.ptr is &s.opSlice()[0]);
         assert(s.ptr !is &s.toString()[0]);
     }
 
     // immutable small will not allocate
     {
-        immutable S s = S("123456789_12345");
+        immutable SSOString s = SSOString("123456789_12345");
         assert(s.ptr is &s.opSlice()[0]);
         assert(s.ptr is &s.toString()[0]);
         // TODO check return via -dip1000
@@ -908,20 +896,20 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
      */
     static if (isDIP1000)
     {
-        static assert(!__traits(compiles, { immutable(char)* f1() @safe pure nothrow { S x; return x.ptr; } }));
-        static assert(!__traits(compiles, { immutable(char)* f1() @safe pure nothrow { const S x; return x.ptr; } }));
-        static assert(!__traits(compiles, { immutable(char)* f1() @safe pure nothrow { immutable S x; return x.ptr; } }));
+        static assert(!__traits(compiles, { immutable(char)* f1() @safe pure nothrow { SSOString x; return x.ptr; } }));
+        static assert(!__traits(compiles, { immutable(char)* f1() @safe pure nothrow { const SSOString x; return x.ptr; } }));
+        static assert(!__traits(compiles, { immutable(char)* f1() @safe pure nothrow { immutable SSOString x; return x.ptr; } }));
 
         /** TODO Enable the following line when DIP-1000 works for opSlice()
          *
          * See_Also: https://issues.dlang.org/show_bug.cgi?id=18792
          */
-        // static assert(!__traits(compiles, { string f1() @safe pure nothrow { immutable S x; return x[]; } }));
+        // static assert(!__traits(compiles, { string f1() @safe pure nothrow { immutable SSOString x; return x[]; } }));
     }
 
     // large will never allocate regardless of head-mutability
     {
-        S s = S("123456789_123456");
+        SSOString s = SSOString("123456789_123456");
         assert(s.ptr is &s.opSlice()[0]);
         assert(s.ptr is &s.toString()[0]); // shouldn't this change?
     }

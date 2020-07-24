@@ -288,7 +288,7 @@ pure:
     /** Check if `this` is empty. */
     @property bool empty() const scope @safe pure nothrow @nogc
     {
-        return length() == 0;
+        return length == 0;
     }
 
     /** Check if `this` is `null`. */
@@ -593,8 +593,6 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     alias S = SSOString;
     foreach (const n; 0 .. 32)
     {
-        import dbgio;
-        dbg(n);
         auto x = new immutable(char)[n];
         S s = S(x);
         assert(!s.isNull);

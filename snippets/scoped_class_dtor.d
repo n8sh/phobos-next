@@ -12,6 +12,7 @@ class C
     this(int x) { this.x = x; }
     ~this() { g_dtor_called = true; }
     int x;
+    // class field cannot be scope: scope D d = new D(3);
 }
 
 class D

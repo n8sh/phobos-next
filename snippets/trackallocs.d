@@ -1,5 +1,5 @@
 /*
-  A tiny hack to install a GC proxy and track all allocations, gathering some 
+  A tiny hack to install a GC proxy and track all allocations, gathering some
   stats and logging to given File (or stdout, by default).
 
   Use it like this:
@@ -9,7 +9,7 @@
         // while `tracker` is alive all allocations will be shown
   }
 
-  Alternatively use pair of functions 
+  Alternatively use pair of functions
     startTrackingAllocs() and stopTrackingAllocs().
 
 */
@@ -36,14 +36,14 @@ void startTrackingAllocs(File logFile = stdout) {
         initGcProxy();
         myProxy.gc_malloc = &genAlloc!("m");
         myProxy.gc_qalloc = &genAlloc!("q");
-        myProxy.gc_calloc = &genAlloc!("c");		
+        myProxy.gc_calloc = &genAlloc!("c");
     }
-    *pproxy = &myProxy;  
+    *pproxy = &myProxy;
     logFile.writeln("allocs tracking started");
 }
 
 void stopTrackingAllocs() {
-    *pproxy = null; 
+    *pproxy = null;
     allocs_file.writeln("allocs tracking ended");
 }
 
@@ -112,7 +112,7 @@ struct Proxy // taken from proxy.d (d runtime)
 __gshared Proxy myProxy;
 __gshared Proxy *pOrg; // pointer to original Proxy of runtime
 __gshared Proxy** pproxy; // should point to proxy var in runtime (proxy.d)
-__gshared File allocs_file; // where to write messages 
+__gshared File allocs_file; // where to write messages
 
 template FunArgsTypes(string funname) {
     alias FunType = typeof(*__traits(getMember, myProxy, funname));
@@ -124,17 +124,17 @@ extern(C) {
 
     auto genCall(string funname)(FunArgsTypes!funname args) {
         *pproxy = null;
-        scope(exit) *pproxy = &myProxy; 
+        scope(exit) *pproxy = &myProxy;
         return __traits(getMember, pOrg, funname)(args);
     }
 
     static if (__VERSION__ >= 2066) {
         auto genAlloc(string letter)(size_t sz, uint ba, const TypeInfo ti) {
             *pproxy = null;
-            scope(exit) *pproxy = &myProxy; 
+            scope(exit) *pproxy = &myProxy;
 
-            mixin("alias cc = allocs_" ~ letter ~ "c;"); 
-            mixin("alias asz = allocs_" ~ letter ~ "sz;"); 
+            mixin("alias cc = allocs_" ~ letter ~ "c;");
+            mixin("alias asz = allocs_" ~ letter ~ "sz;");
             allocs_file.writefln("gc_"~letter~"alloc(%d, %d) :%d %s", sz, ba, cc, ti is null ? "" : ti.toString());
             asz += sz; cc++;
             return __traits(getMember, pOrg, "gc_"~letter~"alloc")(sz, ba, ti);
@@ -142,10 +142,10 @@ extern(C) {
     } else {
         auto genAlloc(string letter)(size_t sz, uint ba) {
             *pproxy = null;
-            scope(exit) *pproxy = &myProxy; 
+            scope(exit) *pproxy = &myProxy;
 
-            mixin("alias cc = allocs_" ~ letter ~ "c;"); 
-            mixin("alias asz = allocs_" ~ letter ~ "sz;"); 
+            mixin("alias cc = allocs_" ~ letter ~ "c;");
+            mixin("alias asz = allocs_" ~ letter ~ "sz;");
             allocs_file.writefln("gc_"~letter~"alloc(%d, %d) :%d", sz, ba, cc);
             asz += sz; cc++;
             return __traits(getMember, pOrg, "gc_"~letter~"alloc")(sz, ba);
@@ -156,9 +156,9 @@ extern(C) {
 }
 
 void initGcProxy() {
-    pOrg = gc_getProxy();    
+    pOrg = gc_getProxy();
     pproxy = cast(Proxy**) (cast(byte*)pOrg + Proxy.sizeof);
-    foreach(funname; __traits(allMembers, Proxy)) 
+    foreach(funname; __traits(allMembers, Proxy))
         __traits(getMember, myProxy, funname) = &genCall!funname;
 }
 
@@ -188,9 +188,9 @@ unittest {
 
 unittest {
     clearAllocStats();
-    auto atr = allocsTracker();
+    scope atr = allocsTracker();
     assert(allocs_qsz == 0 && allocs_qc == 0);
-    auto arr = new int[32];
+    scope arr = new int[32];
     assert(allocs_qsz == 129 && allocs_qc == 1);
     writeln("allocsTracker() and new int[] test OK");
 }
@@ -199,15 +199,15 @@ unittest {
     clearAllocStats();
     startTrackingAllocs(stderr);
     assert(allocs_qsz == 0 && allocs_qc == 0);
-    auto arr = new int[32];
+    scope arr = new int[32];
     assert(allocs_qsz == 129 && allocs_qc == 1);
     stopTrackingAllocs();
 
-    auto arr2 = new int[42];
+    scope arr2 = new int[42];
     assert(allocs_qsz == 129 && allocs_qc == 1);
 
     startTrackingAllocs(stderr);
-    auto arr3 = new byte[10];
+    scope arr3 = new byte[10];
     assert(allocs_qsz != 129 && allocs_qc != 1);
     stopTrackingAllocs();
 

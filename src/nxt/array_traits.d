@@ -15,6 +15,21 @@ enum isCharArray(T) = (is(T : const(char)[]));
     static assert(!isCharArray!(dstring));
 }
 
+/// Is `true` iff `T` is a slice of `char`s.
+enum isArrayFast(T) = (is(T : const(E)[], E));
+
+///
+@safe pure unittest
+{
+    static assert(isArrayFast!(char[]));
+    static assert(isArrayFast!(int[]));
+    static assert(isArrayFast!(const(char[])));
+    static assert(isArrayFast!(const char[]));
+    static assert(isArrayFast!(const const(char)[]));
+    static assert(isArrayFast!(string[]));
+    static assert(isArrayFast!(immutable(int)[]));
+}
+
 /** Is `true` iff all `Ts` are slices with same unqualified matching element types.
  *
  * Used to define template-restrictions on template parameters of only arrays

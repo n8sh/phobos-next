@@ -125,8 +125,8 @@ extern(D):
 @safe pure nothrow unittest
 {
     auto db = new Db();
-    Node node = new Node(db);
-    Edge edge = new Edge(db);
-    auto rela2 = new Rela!2(db);
-    auto func1 = new Func!1(db);
+    scope node = new Node(db);
+    scope edge = new Edge(db);
+    scope rela2 = new Rela!2(db);
+    scope func1 = new Func!1(db);
 }

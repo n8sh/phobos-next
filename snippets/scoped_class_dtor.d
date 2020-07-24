@@ -14,6 +14,13 @@ class C
     int x;
 }
 
+class D
+{
+@safe nothrow @nogc:
+    this(float x) { this.x = x; }
+    float x;
+}
+
 void scopedC() @safe nothrow
 {
     scope x = new C(42);

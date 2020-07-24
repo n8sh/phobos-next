@@ -16,7 +16,7 @@ enum isCharArray(T) = (is(T : const(char)[]));
 }
 
 /// Is `true` iff `T` is a slice of `char`s.
-enum isArrayFast(T) = (is(T : const(E)[], E));
+enum isArrayFast(T) = is(T : const(E)[], E);
 
 ///
 @safe pure unittest
@@ -28,6 +28,23 @@ enum isArrayFast(T) = (is(T : const(E)[], E));
     static assert(isArrayFast!(const const(char)[]));
     static assert(isArrayFast!(string[]));
     static assert(isArrayFast!(immutable(int)[]));
+    static assert(isArrayFast!(char[3]));
+}
+
+/// Is `true` iff `T` is a slice of `char`s.
+enum isDynamicArrayFast(T) = is(T : const(E)[], E) && !__traits(isStaticArray, T);
+
+///
+@safe pure unittest
+{
+    static assert(isDynamicArrayFast!(char[]));
+    static assert(isDynamicArrayFast!(int[]));
+    static assert(isDynamicArrayFast!(const(char[])));
+    static assert(isDynamicArrayFast!(const char[]));
+    static assert(isDynamicArrayFast!(const const(char)[]));
+    static assert(isDynamicArrayFast!(string[]));
+    static assert(isDynamicArrayFast!(immutable(int)[]));
+    static assert(!isDynamicArrayFast!(char[3]));
 }
 
 /** Is `true` iff all `Ts` are slices with same unqualified matching element types.

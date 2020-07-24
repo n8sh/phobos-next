@@ -784,11 +784,10 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
 /// hole handling
 @trusted pure nothrow @nogc unittest
 {
-    alias S = SSOString;
-    assert(!S.init.isHole);
-    assert(!S("").isHole);
-    assert(!S("a").isHole);
-    assert(S.asHole.isHole);
+    assert(!SSOString.init.isHole);
+    assert(!SSOString("").isHole);
+    assert(!SSOString("a").isHole);
+    assert(SSOString.asHole.isHole);
 }
 
 /// DIP-1000 return ref escape analysis

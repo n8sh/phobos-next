@@ -30,7 +30,7 @@ class Long
 
 @safe pure nothrow unittest
 {
-    auto i = new Long(42);
+    scope i = new Long(42);
     assert(i.toString == `42`); // picks non-delegate version
 }
 
@@ -38,7 +38,7 @@ class Long
 {
     import std.array : Appender;
     Appender!(int[]) app;
-    auto i = new Long(42);
+    scope i = new Long(42);
     i.toString(&(app.put!(const(char)[])));
     assert(app.data == `42`);
 }

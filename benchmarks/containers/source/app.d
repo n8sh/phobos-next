@@ -102,9 +102,9 @@ void main()
                           // SSOHashSet!(uint, null, MurmurHash3!(128)),
                           // SSOHashSet!(uint, null, XXHash64),
 
-                          OpenHashSet!(Nullable!(uint, uint.max)),
-                          OpenHashSet!(Nullable!(uint, uint.max), FNV!(64, true)),
+                          OpenHashSet!(Nullable!(uint, uint.max), hashOf),
                           OpenHashSet!(Nullable!(uint, uint.max), lemireHash64),
+                          OpenHashSet!(Nullable!(uint, uint.max), FNV!(64, true)),
 
                           RadixTreeSet!(uint),
                           RedBlackTree!(uint),
@@ -115,21 +115,22 @@ void main()
                           // SSOHashSet!(ulong, null, FNV!(64, true), 3),
                           // SSOHashSet!(ulong, null, FNV!(64, true), 4),
 
-                          OpenHashSet!(Nullable!(ulong, ulong.max)),
+                          OpenHashSet!(Nullable!(ulong, ulong.max), hashOf),
+                          OpenHashSet!(Nullable!(ulong, ulong.max), wangMixHash64),
+                          OpenHashSet!(Nullable!(ulong, ulong.max), lemireHash64),
                           OpenHashSet!(Nullable!(ulong, ulong.max), FNV!(64, true)),
                           OpenHashSet!(Nullable!(ulong, ulong.max), FNV!(64, true),
                                        defaultKeyEqualPredOf!(Nullable!(ulong)),
                                        Mallocator.instance,
                                        false,
                                        false),
-                          OpenHashSet!(Nullable!(ulong, ulong.max), wangMixHash64),
-                          OpenHashSet!(Nullable!(ulong, ulong.max), lemireHash64),
 
                           OpenHashSet!(Address, FNV!(64, true)),
 
                           RadixTreeSet!(ulong),
                           RedBlackTree!(ulong),
 
+                          OpenHashSet!(SSOString, hashOf),
                           OpenHashSet!(SSOString, FNV!(64, true)),
                           // TODO OpenHashSet!(string, FNV!(64, true)),
                           // TODO OpenHashSet!(string, wangMixHash64),

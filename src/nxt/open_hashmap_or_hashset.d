@@ -2028,7 +2028,6 @@ private:
             static if (hasHoleableKey) { assert(!isHoleKeyConstant(key)); }
         }
 
-
         static if (useSmallLinearSearch)
         {
             if (_store.length * T.sizeof <= linearSearchMaxSize)
@@ -4180,7 +4179,7 @@ unittest
     import nxt.address : Address;
     alias K = Address;
     alias V = size_t;
-    enum bool usePrimeCapacity = false; // TODO enable
+    enum bool usePrimeCapacity = true; // TODO enable
     alias M = OpenHashMap!(Address, V,
                            hashOf,
                            defaultKeyEqualPredOf!K,

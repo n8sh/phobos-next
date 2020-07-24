@@ -553,7 +553,7 @@ private:
 }
 version(unittest) static assert(SSOString.sizeof == string.sizeof);
 
-/// construct from non-immutable source is allowed in non-`@nogc` context
+/// construct from non-immutable source is allowed in non-`@nogc`-scope
 @safe pure nothrow unittest
 {
     alias S = SSOString;

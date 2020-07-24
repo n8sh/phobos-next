@@ -7,5 +7,5 @@ class C
 
 @safe pure unittest
 {
-    auto c = new C();
+    scope c = new C();
 }

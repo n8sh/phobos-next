@@ -15,7 +15,7 @@ size_t typeidHashOf(T)(in T x) @trusted
 }
 
 ///
-unittest
+@safe pure nothrow unittest
 {
     // TODO auto x = typeidHashOf(cast(int)17);
 }
@@ -136,7 +136,7 @@ ulong identityHash64Of(in ulong x)
 }
 
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
     assert(identityHash64Of(-1) == ulong.max);
     assert(identityHash64Of(int.max) == int.max);
@@ -194,7 +194,7 @@ public ulong wangMixHash64(ulong x)
 }
 
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
     assert(wangMixHash64(0) == 8633297058295171728UL);
     assert(wangMixHash64(1) == 6614235796240398542UL);
@@ -220,7 +220,7 @@ ulong lemireHash64(in ulong x)
 }
 
 ///
-unittest
+@safe pure nothrow @nogc unittest
 {
     assert(lemireHash64(0) == 0UL);
     assert(lemireHash64(1) == 10826341276197359097UL);

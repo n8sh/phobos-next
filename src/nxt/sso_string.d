@@ -263,9 +263,18 @@ pure:
         }
         else                    // fast path for small string
         {
-            import nxt.hash_functions : wangMixHash64;
-            return (wangMixHash64(words[0] >> 1) ^ // shift away LS-bit being a constant for a small string
-                    wangMixHash64(words[1]));
+            import nxt.hash_functions : lemireHash64, wangMixHash64;
+            enum useLemire = false;
+            static if (useLemire)
+            {
+                return (lemireHash64(words[0] >> 1) ^ // shift away LS-bit being a constant for a small string
+                        lemireHash64(words[1]));
+            }
+            else
+            {
+                return (wangMixHash64(words[0] >> 1) ^ // shift away LS-bit being a constant for a small string
+                        wangMixHash64(words[1]));
+            }
         }
     }
 

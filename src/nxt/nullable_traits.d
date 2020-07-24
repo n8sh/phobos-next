@@ -199,7 +199,7 @@ if (isNullable!(T))
     {
         return x is null;
     }
-    else static if (is(T : const(E)[], E)) // array/slice
+    else static if (is(T : const(E)[], E) && !__traits(isStaticArray, T)) // `isDynamicArrayFast`
     {
         return x.ptr is null;
     }

@@ -569,7 +569,7 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
 @safe pure nothrow @nogc unittest
 {
     const char[] s;
-    static assert(__traits(compiles, { const s0_ = SSOString(s); }));
+    static assert(__traits(compiles, { const _ = SSOString(s); }));
 }
 
 /// verify `isNull` when @nogc constructing from small static array of `char`s

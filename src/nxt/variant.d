@@ -73,7 +73,7 @@ public:
                                           ((!hasIndirections!U) && // no indirections and
                                            indexOf!(Unqual!U) >= 0))); // ok to remove constness of value types
 
-    enum dataMaxSize = maxSize!Types;
+    enum dataMaxSize = maxSizeOf!Types;
 
     auto ref to(U)() const // TODO pure @nogc
     {
@@ -546,11 +546,16 @@ private:
     Ix _tix = 0;                // type index
 }
 
+/// Algebraic type optimized for high performance.
 alias FastAlgebraic(Types...) = LightAlgebraic!(false, Types);
+
+/// Default Algebraic type.
 alias Algebraic = FastAlgebraic;
 
+/// Algebraic type optimized for small size.
 alias PackedAlgebraic(Types...) = LightAlgebraic!(true, Types);
 
+/// Algebraic type exception.
 static class LightAlgebraicException : Exception
 {
     this(string s) pure @nogc
@@ -559,17 +564,18 @@ static class LightAlgebraicException : Exception
     }
 }
 
-/// Copied from std.variant.
-private static template maxSize(T...)
+/// Copied from std.variant and adjusted to not use `std.algorithm.max`.
+private static template maxSizeOf(T...)
 {
     static if (T.length == 1)
     {
-        enum size_t maxSize = T[0].sizeof;
+        enum size_t maxSizeOf = T[0].sizeof;
     }
     else
     {
-        import std.algorithm.comparison : max;
-        enum size_t maxSize = max(T[0].sizeof, maxSize!(T[1 .. $]));
+        enum size_t firstSize = T[0].sizeof;
+        enum size_t maxSizeRest = maxSizeOf!(T[1 .. $]);
+        enum size_t maxSizeOf = firstSize >= maxSizeRest ? firstSize : maxSizeRest;
     }
 }
 

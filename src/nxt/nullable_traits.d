@@ -11,11 +11,17 @@ template hasStandardNullValue(T)
     {
         enum hasStandardNullValue = true; // fast path first
     }
+    else static if (is(T == struct) ||
+                    is(T == interface) ||
+                    is(T == union))
+    {
+        enum hasStandardNullValue = false;
+    }
     else                        // slow compilation path
     {
-        import std.traits : isPointer, isDynamicArray;
-        enum hasStandardNullValue = (isPointer!T ||
-                                     isDynamicArray!T);
+        enum hasStandardNullValue = (is(T == U*, U) ||
+                                     (is(T : const(E)[], E) &&
+                                      !__traits(isStaticArray, T))); // `isDynamicArrayFast`
     }
 }
 
@@ -77,7 +83,8 @@ template isNullable(T)
     // use static if's for full lazyness of trait evaluations in order of likelyhood
     static if (is(T == class) ||
                is(T == typeof(null)) ||
-               (is(T : const(E)[], E) && !__traits(isStaticArray, T))) // `isDynamicArrayFast`
+               (is(T : const(E)[], E) &&
+                !__traits(isStaticArray, T))) // `isDynamicArrayFast`
     {
         enum isNullable = true; // fast path first, prevent instantiation of `hasStandardNullValue`
     }
@@ -199,7 +206,8 @@ if (isNullable!(T))
     {
         return x is null;
     }
-    else static if (is(T : const(E)[], E) && !__traits(isStaticArray, T)) // `isDynamicArrayFast`
+    else static if (is(T : const(E)[], E) &&
+                    !__traits(isStaticArray, T)) // `isDynamicArrayFast`
     {
         return x.ptr is null;   // no need to check `length`, as in `x.ptr == T.init`
     }

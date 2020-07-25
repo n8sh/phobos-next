@@ -18,6 +18,8 @@ module nxt.sso_string;
  *
  * TODO Add to Phobos' std.typecons or std.array or std.string
  *
+ * TODO make `toLower` and `toUpper` free functions
+ *
  * See_Also: https://forum.dlang.org/post/pb87rn$2icb$1@digitalmars.com
  * See_Also: https://issues.dlang.org/show_bug.cgi?id=18792
  *

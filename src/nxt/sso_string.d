@@ -925,11 +925,6 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     }
 }
 
-@safe pure unittest
-{
-    // TODO static immutable any = SSOString(`alpha`);
-}
-
 ///
 version(show)
 @safe unittest

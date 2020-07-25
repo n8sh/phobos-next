@@ -22,6 +22,7 @@ private struct Unexpected(E)
  * See_Also: https://github.com/dlang/phobos/pull/6665
  * See_Also: https://code.dlang.org/packages/expectations
  * See_Also: https://doc.rust-lang.org/std/result/
+ * See_Also: https://github.com/tchaloupka/expected
  *
  * TODO https://dlang.org/phobos/std_typecons.html#.apply
  *

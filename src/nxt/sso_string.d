@@ -925,14 +925,6 @@ version(unittest) static assert(SSOString.sizeof == string.sizeof);
     }
 }
 
-///
-version(show)
-@safe unittest
-{
-    import std.stdio;
-    writeln(SSOString("alpha"));
-}
-
 private enum isCharArray(T) = (is(T : const(char)[]));
 
 version(unittest)

@@ -16,8 +16,6 @@ import nxt.pure_mallocator : Mallocator = PureMallocator; // TODO merge into `st
  * overridden by setting `keyEqualPred` to, for instance, `a == b` for `class`
  * keys.
  *
- * Use open-addressing for compact storage.
- *
  * Uses quadratic probing (using triangular numbers) unless `usePrimeCapacity`
  * in which case a simpler probing is used.
  *

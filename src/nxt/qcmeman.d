@@ -1,5 +1,5 @@
 /** Qualified C memory management, being `pure nothrow @nogc` and, when
- * possible, @trusted.
+ * possible, `@trusted`.
  *
  * See `std.internal.memory` for Phobos's way of doing this.
  */

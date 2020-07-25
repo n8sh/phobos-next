@@ -8,6 +8,33 @@ module nxt.qcmeman;
 // disabled for now:
 // version = checkErrno;
 
+// locally purified for internal use here only
+extern (C) private pure @system @nogc nothrow
+{
+    version(checkErrno) pragma(mangle, "getErrno") int fakePureGetErrno();
+    version(checkErrno) pragma(mangle, "setErrno") int fakePureSetErrno(int);
+    pragma(mangle, "malloc") void* fakePureMalloc(size_t);
+    pragma(mangle, "calloc") void* fakePureCalloc(size_t nmemb, size_t size);
+    pragma(mangle, "realloc") void* fakePureRealloc(void* ptr, size_t size);
+    pragma(mangle, "free") void fakePureFree(void* ptr);
+}
+
+// qualified C memory allocations
+extern(C) pure nothrow @nogc
+{
+    /* See_Also:
+     * https://forum.dlang.org/post/mailman.1130.1521239659.3374.digitalmars-d@puremagic.com
+     * for an explanation of why `pureMalloc` and `pureCalloc` both can
+     * be @trusted. */
+    void* malloc(size_t size) @trusted;
+    void* calloc(size_t nmemb, size_t size) @trusted;
+    void* realloc(void* ptr, size_t size) @system;
+    void* alloca(size_t length) @safe;
+    void free(void* ptr) @system;
+    void gc_addRange(in void* p, size_t sz, const TypeInfo ti = null);
+    void gc_removeRange(in void* p );
+}
+
 /**
  * Pure variants of C's memory allocation functions `malloc`, `calloc`, and
  * `realloc` and deallocation function `free`.
@@ -57,31 +84,4 @@ void pureFree(void* ptr) @system pure @nogc nothrow
     version(checkErrno) const errno = fakePureGetErrno();
     fakePureFree(ptr);
     version(checkErrno) cast(void)fakePureSetErrno(errno);
-}
-
-// locally purified for internal use here only
-extern (C) private pure @system @nogc nothrow
-{
-    version(checkErrno) pragma(mangle, "getErrno") int fakePureGetErrno();
-    version(checkErrno) pragma(mangle, "setErrno") int fakePureSetErrno(int);
-    pragma(mangle, "malloc") void* fakePureMalloc(size_t);
-    pragma(mangle, "calloc") void* fakePureCalloc(size_t nmemb, size_t size);
-    pragma(mangle, "realloc") void* fakePureRealloc(void* ptr, size_t size);
-    pragma(mangle, "free") void fakePureFree(void* ptr);
-}
-
-// qualified C memory allocations
-extern(C) pure nothrow @nogc
-{
-    /* See_Also:
-     * https://forum.dlang.org/post/mailman.1130.1521239659.3374.digitalmars-d@puremagic.com
-     * for an explanation of why `pureMalloc` and `pureCalloc` both can
-     * be @trusted. */
-    void* malloc(size_t size) @trusted;
-    void* calloc(size_t nmemb, size_t size) @trusted;
-    void* realloc(void* ptr, size_t size) @system;
-    void* alloca(size_t length) @safe;
-    void free(void* ptr) @system;
-    void gc_addRange(in void* p, size_t sz, const TypeInfo ti = null);
-    void gc_removeRange(in void* p );
 }

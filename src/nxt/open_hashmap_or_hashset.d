@@ -34,6 +34,7 @@ import nxt.pure_mallocator : Mallocator = PureMallocator; // TODO merge into `st
  *
  * See_Also: https://arxiv.org/abs/1605.04031
  * See_Also: https://github.com/Tessil/robin-map
+ * See_Also: https://github.com/martinus/robin-hood-hashing
  * See_Also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  * See_Also: https://en.wikipedia.org/wiki/Lazy_deletion
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org

@@ -201,7 +201,7 @@ if (isNullable!(T))
     }
     else static if (is(T : const(E)[], E) && !__traits(isStaticArray, T)) // `isDynamicArrayFast`
     {
-        return x.ptr is null;
+        return x.ptr is null;   // no need to check `length`, as in `x.ptr == T.init`
     }
     else static if (hasStandardNullValue!T)
     {

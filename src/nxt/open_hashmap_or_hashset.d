@@ -4179,7 +4179,7 @@ unittest
     import nxt.address : Address;
     alias K = Address;
     alias V = size_t;
-    enum bool usePrimeCapacity = true; // TODO enable
+    enum bool usePrimeCapacity = false; // TODO enable
     alias M = OpenHashMap!(Address, V,
                            hashOf,
                            defaultKeyEqualPredOf!K,

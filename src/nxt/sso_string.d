@@ -139,7 +139,7 @@ pure:
         }
     }
 
-    pure nothrow:
+nothrow:
 
     /** Construct from `source`, which potentially needs GC-allocation (iff
      * `source.length > smallCapacity` and `source` is not a `string`).

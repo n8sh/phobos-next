@@ -1,12 +1,18 @@
-/// Qualified (`@safe pure nothrow @nogc`) C memory management.
+/** Qualified (`@safe pure nothrow @nogc`) C memory management.
+ *
+ * See `std.internal.memory` for Phobos's way of doing this.
+ */
 module nxt.qcmeman;
+
+// disabled for now:
+// version = checkErrno;
 
 /**
  * Pure variants of C's memory allocation functions `malloc`, `calloc`, and
  * `realloc` and deallocation function `free`.
  *
  * Purity is achieved by saving and restoring the value of `errno`, thus
- * behaving as if it were never changed.
+ * having as if it were never changed.
  *
  * See_Also:
  *     $(LINK2 https://dlang.org/spec/function.html#pure-functions, D's rules for purity),
@@ -14,9 +20,9 @@ module nxt.qcmeman;
  */
 private void* pureMalloc(size_t size) @trusted pure @nogc nothrow
 {
-    debug const errno = fakePureGetErrno();
+    version(checkErrno) const errno = fakePureGetErrno();
     void* ret = fakePureMalloc(size);
-    debug if (!ret || errno != 0)
+    version(checkErrno) if (!ret || errno != 0)
     {
         cast(void)fakePureSetErrno(errno);
     }
@@ -25,9 +31,9 @@ private void* pureMalloc(size_t size) @trusted pure @nogc nothrow
 /// ditto
 private void* pureCalloc(size_t nmemb, size_t size) @trusted pure @nogc nothrow
 {
-    debug const errno = fakePureGetErrno();
+    version(checkErrno) const errno = fakePureGetErrno();
     void* ret = fakePureCalloc(nmemb, size);
-    debug if (!ret || errno != 0)
+    version(checkErrno) if (!ret || errno != 0)
     {
         cast(void)fakePureSetErrno(errno);
     }
@@ -36,9 +42,9 @@ private void* pureCalloc(size_t nmemb, size_t size) @trusted pure @nogc nothrow
 /// ditto
 private void* pureRealloc(void* ptr, size_t size) @system pure @nogc nothrow
 {
-    debug const errno = fakePureGetErrno();
+    version(checkErrno) const errno = fakePureGetErrno();
     void* ret = fakePureRealloc(ptr, size);
-    debug if (!ret || errno != 0)
+    version(checkErrno) if (!ret || errno != 0)
     {
         cast(void)fakePureSetErrno(errno);
     }
@@ -47,16 +53,16 @@ private void* pureRealloc(void* ptr, size_t size) @system pure @nogc nothrow
 /// ditto
 void pureFree(void* ptr) @system pure @nogc nothrow
 {
-    debug const errno = fakePureGetErrno();
+    version(checkErrno) const errno = fakePureGetErrno();
     fakePureFree(ptr);
-    debug cast(void)fakePureSetErrno(errno);
+    version(checkErrno) cast(void)fakePureSetErrno(errno);
 }
 
 // locally purified for internal use here only
 extern (C) private pure @system @nogc nothrow
 {
-    pragma(mangle, "getErrno") int fakePureGetErrno();
-    pragma(mangle, "setErrno") int fakePureSetErrno(int);
+    version(checkErrno) pragma(mangle, "getErrno") int fakePureGetErrno();
+    version(checkErrno) pragma(mangle, "setErrno") int fakePureSetErrno(int);
     pragma(mangle, "malloc") void* fakePureMalloc(size_t);
     pragma(mangle, "calloc") void* fakePureCalloc(size_t nmemb, size_t size);
     pragma(mangle, "realloc") void* fakePureRealloc(void* ptr, size_t size);

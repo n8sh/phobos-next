@@ -12,9 +12,9 @@ import nxt.pure_mallocator : Mallocator = PureMallocator; // TODO merge into `st
  * `K` and values of type `V`.
  *
  * Keys are immutable except for when they are `class`es in which case they are
- * head-const (through bin reinterpretation to `KeyValueType`), This corresponds
- * with behaviour of default value hashing of `class` instances in
- * `digestion.d`.
+ * head-const (through bin reinterpretation to `KeyValueType`), This can be
+ * overridden by setting `keyEqualPred` to, for instance, `a == b` for `class`
+ * keys.
  *
  * Use open-addressing for compact storage.
  *

@@ -47,7 +47,7 @@ import nxt.pure_mallocator : Mallocator = PureMallocator; // TODO merge into `st
  * also type and hash-function to get memory efficiency when it matters. Similar
  * to what is recommended in https://ticki.github.io/blog/horrible/.
  *
- * TODO remove use of `static if (isCopyable...)` in cases where compiler can handle more moves
+ * TODO remove use of `static if (__traits(isCopyable, ...))` in cases where compiler can handle more moves
  *
  * TODO use mmap allocator when `_store.sizeof` is larger than at least 8 pages
  *

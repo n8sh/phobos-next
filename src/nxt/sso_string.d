@@ -801,20 +801,18 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
 // test construction from range
 @safe pure unittest
 {
-    static void test(const scope char[] x) @safe pure
+    static void test(const scope char[] x,
+                     const bool isLarge) @safe pure
     {
         import std.utf : byDchar;
         const scope s = SSOString(x.byDchar);
-        assert(!s.isLarge);
         assert(s == x);
+        assert(s.isLarge == isLarge);
     }
-    test("");
-    test("_");
-    test("123456789_12345");
-    // const x = "123456789_123456";
-    // auto s = SSOString(x.byDchar);
-    // assert(!s.isLarge);
-    // assert(s == x);
+    test("", false);
+    test("_", false);
+    test("123456789_12345", false);
+    // test("123456789_123456", true);
 }
 
 /// hole handling

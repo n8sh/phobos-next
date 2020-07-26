@@ -9,13 +9,25 @@ module nxt.address;
  *
  * TODO is `holeValue` suitably chosen?
  */
-struct Address
+struct AlignedAddress(uint alignment_ = 1) // TODO adjust alignment here
 {
+    enum alignement = alignment_; ///< Alignment in bytes.
+
+    /// Null value.
     static immutable typeof(this) nullValue = typeof(this).init;
-    static immutable typeof(this) holeValue = typeof(this)(_ptrValue.max); ///< Prevent hole bitmap from being used.
+
+    /// Hole/Deletion value. Prevent hole bitmap from being used.
+    static immutable typeof(this) holeValue = typeof(this)(_ptrValue.max);
+
     size_t _ptrValue;           ///< Actual pointer value.
     alias _ptrValue this;
 }
+alias Address1 = AlignedAddress!(1);
+alias Address2 = AlignedAddress!(2);
+alias Address4 = AlignedAddress!(4);
+alias Address8 = AlignedAddress!(8);
+
+alias Address = Address1;
 
 ///
 @safe pure unittest

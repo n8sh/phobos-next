@@ -86,6 +86,8 @@ pure:
         }
     }
 
+    /** Construct from `source` of `dchar`
+     */
     this(Source)(Source source) @trusted
     if (is(typeof({ foreach (const dchar elem; Source.init) {} })) && // TODO `isConstRefIterable`
         is(typeof(Source.init.front) == dchar))
@@ -948,6 +950,10 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
     }
     {
         const x = "123456789_12345";
+        assert(SSOString(x.byDchar) == x);
+    }
+    {
+        const x = "123456789_123456";
         assert(SSOString(x.byDchar) == x);
     }
 }

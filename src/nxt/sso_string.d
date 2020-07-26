@@ -92,25 +92,24 @@ pure nothrow:
     if (isIterable!(Source) &&
         is(ElementType!Source : dchar))
     {
+        static assert(0, "TODO complete this function");
         import std.utf : encode;
 
-        static assert(0, "TODO complete this function");
-
         // pre-calculate number of `char`s needed
-        size_t precount = 0;
-        foreach (const dch; source)
+        size_t charCount = 0;
+        foreach (const e; source)
         {
-            char[4] chars;
-            precount += encode(chars, dch);
+            char[4] chars;      // TODO `= void`
+            charCount += encode(chars, e);
         }
 
-        if (precount <= smallCapacity)
+        if (charCount <= smallCapacity)
         {
             size_t offset = 0;
-            foreach (const dch; source)
+            foreach (const e; source)
             {
                 char[4] chars;
-                offset += encode(chars, dch);
+                offset += encode(chars, e);
             }
             small.length = offset;
         }

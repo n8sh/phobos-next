@@ -88,7 +88,7 @@ pure:
 
     /** Construct from `source` of `dchar`
      */
-    this(Source)(Source source) @trusted
+    this(Source)(scope Source source) @trusted
     if (is(typeof({ foreach (const dchar elem; Source.init) {} })) && // TODO `isConstRefIterable`
         is(typeof(Source.init.front) == dchar))
     {
@@ -801,7 +801,7 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
 // test construction from range
 @safe pure unittest
 {
-    static void test(const char[] x) @safe pure
+    static void test(const scope char[] x) @safe pure
     {
         import std.utf : byDchar;
         scope s = SSOString(x.byDchar);

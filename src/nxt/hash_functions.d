@@ -226,3 +226,30 @@ ulong lemireHash64(in ulong x)
     assert(lemireHash64(1) == 10826341276197359097UL);
     assert(lemireHash64(2) == 3205938474390199283UL);
 }
+
+/** Inspired by lemire's strongly universal hashing.
+ *
+ * See_Also: https://lemire.me/blog/2018/08/15/fast-strongly-universal-64-bit-hashing-everywhere/
+ *
+ * Instead of shifts, we use rotations so we don't lose any bits.
+ *
+ * Added a final multiplcation with a constant for more mixing. It is most important that the
+ * lower bits are well mixed.
+ */
+ulong lemireHash64(in double x) @trusted
+{
+    pragma(inline, true);
+    import core.bitop : ror;
+    const ulong h1 = *(cast(ulong*)&x) * 0xA24BAED4963EE407UL;
+    const ulong h2 = ror(*(cast(ulong*)&x), 32U) * 0x9FB21C651E98DF25UL;
+    const ulong h = ror(h1 + h2, 32U);
+    return h;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    assert(lemireHash64(0f) == 0UL);
+    assert(lemireHash64(1f) == 5597974336836488763);
+    assert(lemireHash64(2f) == 4611686018555721673UL);
+}

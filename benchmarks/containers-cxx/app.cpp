@@ -177,7 +177,7 @@ int main(__attribute__((unused)) int argc,
     cout << "# Unordered Maps:" << endl;
     benchmarkMap<ska::flat_hash_map<E, E>>(elementCount);
     /* benchmarkMap<ska::bytell_hash_map<E, E>>(elementCount); */
-    /* benchmarkSet<tsl::robin_map<E, E>>(elementCount); */
+    benchmarkMap<tsl::robin_map<E, E>>(elementCount);
     benchmarkMap<robin_hood::unordered_flat_map<E, E>>(elementCount);
     benchmarkMap<robin_hood::unordered_node_map<E, E>>(elementCount);
     benchmarkMap<robin_hood::unordered_map<E, E>>(elementCount);

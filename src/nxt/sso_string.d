@@ -798,6 +798,25 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
     const _ = SSOString(charsMinLargeCapacity);
 }
 
+// test construction from iterable
+@safe pure unittest
+{
+    static void test(const char[] x) @safe pure
+    {
+        import std.utf : byDchar;
+        scope s = SSOString(x.byDchar);
+        assert(!s.isLarge);
+        assert(s == x);
+    }
+    test("");
+    test("_");
+    test("123456789_12345");
+    // const x = "123456789_123456";
+    // auto s = SSOString(x.byDchar);
+    // assert(!s.isLarge);
+    // assert(s == x);
+}
+
 /// hole handling
 @trusted pure nothrow @nogc unittest
 {
@@ -933,36 +952,6 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
         SSOString s = SSOString("123456789_123456");
         assert(s.ptr is &s.opSlice()[0]);
         assert(s.ptr is &s.toString()[0]); // shouldn't this change?
-    }
-}
-
-//
-@safe pure unittest
-{
-    import std.utf : byDchar;
-    {
-        const x = "";
-        auto s = SSOString(x.byDchar);
-        assert(!s.isLarge);
-        assert(s == x);
-    }
-    {
-        const x = "1";
-        auto s = SSOString(x.byDchar);
-        assert(!s.isLarge);
-        assert(s == x);
-    }
-    {
-        const x = "123456789_12345";
-        auto s = SSOString(x.byDchar);
-        assert(!s.isLarge);
-        assert(s == x);
-    }
-    {
-        // const x = "123456789_123456";
-        // auto s = SSOString(x.byDchar);
-        // assert(!s.isLarge);
-        // assert(s == x);
     }
 }
 

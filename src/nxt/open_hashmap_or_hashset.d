@@ -94,7 +94,7 @@ struct OpenHashMapOrSet(K, V = void,
                         string keyEqualPred = defaultKeyEqualPredOf!(K),
                         alias Allocator = Mallocator.instance,
                         bool borrowChecked = false,
-                        bool useSmallLinearSearch = false,
+                        bool useSmallLinearSearch = true,
                         bool usePrimeCapacity = false)
 if (isNullable!K /*&& isHashable!K */)
 {
@@ -2275,7 +2275,7 @@ alias OpenHashSet(K,
                   string keyEqualPred = defaultKeyEqualPredOf!K,
                   alias Allocator = Mallocator.instance,
                   bool borrowChecked = false,
-                  bool useSmallLinearSearch = false,
+                  bool useSmallLinearSearch = true,
                   bool usePrimeCapacity = false) =
 OpenHashMapOrSet!(K, void, hasher, keyEqualPred, Allocator, borrowChecked, useSmallLinearSearch, usePrimeCapacity);
 
@@ -2286,7 +2286,7 @@ alias OpenHashMap(K, V,
                   string keyEqualPred = defaultKeyEqualPredOf!K,
                   alias Allocator = Mallocator.instance,
                   bool borrowChecked = false,
-                  bool useSmallLinearSearch = false,
+                  bool useSmallLinearSearch = true,
                   bool usePrimeCapacity = false) =
 OpenHashMapOrSet!(K, V, hasher, keyEqualPred, Allocator, borrowChecked, useSmallLinearSearch, usePrimeCapacity);
 

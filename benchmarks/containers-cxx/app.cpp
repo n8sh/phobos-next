@@ -249,6 +249,7 @@ int main(__attribute__((unused)) int argc,
     benchmarkSet<robin_hood::unordered_node_set<E>>(ulongArray, runCount);
     benchmarkSet<robin_hood::unordered_set<E>>(ulongArray, runCount);
     benchmarkSet<std::unordered_set<E>>(ulongArray, runCount);
+    benchmarkSet<std::unordered_multiset<E>>(ulongArray, runCount);
 
     cout << "# Ordered Sets:" << endl;
     benchmarkSet<std::set<E>>(ulongArray, runCount);

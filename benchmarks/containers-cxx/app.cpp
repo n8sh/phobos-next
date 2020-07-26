@@ -44,7 +44,7 @@ void showTime(const string& tag, const Durs& durs, size_t elementCount, bool okF
     const auto min_dur = *min_element(begin(durs), end(durs));
     const auto dur_ns = cr::duration_cast<cr::nanoseconds>(min_dur).count();
     cout << tag << ": "
-         << (static_cast<double>(dur_ns)) / elementCount << " nsecs/op "
+         << (static_cast<double>(dur_ns)) / elementCount << " ns/op "
          << (okFlag ? "OK" : "ERR")
          << ", ";
 }
@@ -231,7 +231,7 @@ int main(__attribute__((unused)) int argc,
     std::random_shuffle(begin(ulongArray),
                         end(ulongArray));
 
-    cout << fixed << setprecision(3);
+    cout << fixed << setprecision(0);
 
     cout << "# Vector:" << endl;
     benchmarkVector<std::vector<E>>(ulongArray, runCount);

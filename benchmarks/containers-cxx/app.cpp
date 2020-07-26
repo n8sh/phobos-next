@@ -54,7 +54,9 @@ void showResults(const string& tag, const Durs& durs, size_t elementCount, bool 
     const auto min_dur = *min_element(begin(durs), end(durs));
     const auto dur_ns = cr::duration_cast<cr::nanoseconds>(min_dur).count();
     cout << tag << ":"
-         << (static_cast<double>(dur_ns)) / elementCount << "ns"
+         << fixed << right << setprecision(0) << setw(3) << setfill(' ')
+         << (static_cast<double>(dur_ns)) / elementCount
+         << "ns"
          << (okFlag ? "" : " ERR")
          << ", ";
 }
@@ -215,6 +217,17 @@ void benchmarkMap(const UlongArray& ulongArray, const size_t runCount)
     showHeader<Map>();
 }
 
+UlongArray getSource(size_t elementCount)
+{
+    UlongArray source(elementCount);
+    for (size_t i = 0; i < elementCount; ++i)
+    {
+        source[i] = i;
+    }
+    std::random_shuffle(begin(source), end(source));
+    return source;
+}
+
 int main(__attribute__((unused)) int argc,
          __attribute__((unused)) const char* argv[],
          __attribute__((unused)) const char* envp[])
@@ -222,15 +235,7 @@ int main(__attribute__((unused)) int argc,
     const size_t elementCount = 400000; ///< Number of elements.
     const size_t runCount = 5;          ///< Number of runs per benchmark.
 
-    UlongArray ulongArray(elementCount);
-    for (size_t i = 0; i < elementCount; ++i)
-    {
-        ulongArray[i] = i;
-    }
-    std::random_shuffle(begin(ulongArray),
-                        end(ulongArray));
-
-    cout << fixed << right << setprecision(0) << setw(3) << setfill(' ');
+    const auto ulongArray = getSource(elementCount);
 
     cout << "# Vector:" << endl;
     benchmarkVector<std::vector<E>>(ulongArray, runCount);

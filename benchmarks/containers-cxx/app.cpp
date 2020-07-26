@@ -21,6 +21,9 @@
 
 using namespace std;
 
+using E = ulong;
+using TestSource = std::vector<E>;
+
 /// Copied from: https://gist.github.com/maddouri/0da889b331d910f35e05ba3b7b9d869b
 /// Alternative solution for C++14: https://medium.com/@LoopPerfect/c-17-vs-c-14-if-constexpr-b518982bb1e2
 /// Alternative solution for C++20: https://brevzin.github.io/c++/2019/01/15/if-constexpr-isnt-broken/
@@ -68,7 +71,8 @@ void showHeader()
 }
 
 template<class Vector>
-void benchmarkVector(size_t elementCount)
+void benchmarkVector(size_t elementCount,
+                     const TestSource& testSource)
 {
     showHeader<Vector>();
     Vector x;
@@ -80,7 +84,7 @@ void benchmarkVector(size_t elementCount)
     auto beg = Clock::now();
     for (size_t i = 0; i < elementCount; ++i)
     {
-        x.push_back(i);
+        x.push_back(testSource[i]);
     }
     auto end = Clock::now();
     showTime("push_back", end - beg, elementCount, true);
@@ -88,7 +92,8 @@ void benchmarkVector(size_t elementCount)
 }
 
 template<class Set>
-void benchmarkSet(size_t elementCount)
+void benchmarkSet(size_t elementCount,
+                  const TestSource& testSource)
 {
     showHeader<Set>();
     Set x;
@@ -98,18 +103,18 @@ void benchmarkSet(size_t elementCount)
     }
 
     auto beg = Clock::now();
-    for (size_t i = 0; i < elementCount; ++i)
+    for (const auto& e : testSource)
     {
-        x.insert(i);
+        x.insert(e);
     }
     auto end = Clock::now();
     showTime("insert", end - beg, elementCount, true);
 
     bool allHit = true;
     beg = Clock::now();
-    for (size_t i = 0; i < elementCount; ++i)
+    for (const auto& e : testSource)
     {
-        const auto hit = x.find(i);
+        const auto hit = x.find(e);
         if (hit == x.end()) { allHit = false; }
     }
     end = Clock::now();
@@ -117,9 +122,9 @@ void benchmarkSet(size_t elementCount)
 
     bool allErase = true;
     beg = Clock::now();
-    for (size_t i = 0; i < elementCount; ++i)
+    for (const auto& e : testSource)
     {
-        const auto count = x.erase(i);
+        const auto count = x.erase(e);
         if (count != 1) { allErase = false; }
     }
     end = Clock::now();
@@ -130,7 +135,8 @@ void benchmarkSet(size_t elementCount)
 }
 
 template<class Map>
-void benchmarkMap(size_t elementCount)
+void benchmarkMap(size_t elementCount,
+                  const TestSource& testSource)
 {
     showHeader<Map>();
     Map x;
@@ -167,6 +173,7 @@ void benchmarkMap(size_t elementCount)
     end = Clock::now();
     showTime("erase", end - beg, elementCount, allErase);
 
+
     cout << endl << endl;
     x.clear();
 }
@@ -175,10 +182,9 @@ int main(__attribute__((unused)) int argc,
          __attribute__((unused)) const char* argv[],
          __attribute__((unused)) const char* envp[])
 {
-    using E = ulong;
     const size_t elementCount = 400000;
 
-    std::vector<E> testSource(elementCount);
+    TestSource testSource(elementCount);
     for (size_t i = 0; i < elementCount; ++i)
     {
         testSource[i] = i;
@@ -189,33 +195,33 @@ int main(__attribute__((unused)) int argc,
     cout << fixed << setprecision(3);
 
     cout << "# Vector:" << endl;
-    benchmarkVector<std::vector<E>>(elementCount);
+    benchmarkVector<std::vector<E>>(elementCount, testSource);
 
     cout << "# Unordered Sets:" << endl;
-    benchmarkSet<tsl::robin_set<E>>(elementCount);
-    benchmarkSet<tsl::robin_pg_set<E>>(elementCount);
-    benchmarkSet<ska::flat_hash_set<E>>(elementCount);
-    /* TODO benchmarkSet<ska::bytell_hash_set<E>>(elementCount); */
-    benchmarkSet<robin_hood::unordered_flat_set<E>>(elementCount);
-    benchmarkSet<robin_hood::unordered_node_set<E>>(elementCount);
-    benchmarkSet<robin_hood::unordered_set<E>>(elementCount);
-    benchmarkSet<std::unordered_set<E>>(elementCount);
+    benchmarkSet<tsl::robin_set<E>>(elementCount, testSource);
+    benchmarkSet<tsl::robin_pg_set<E>>(elementCount, testSource);
+    benchmarkSet<ska::flat_hash_set<E>>(elementCount, testSource);
+    /* TODO benchmarkSet<ska::bytell_hash_set<E>>(elementCount, testSource); */
+    benchmarkSet<robin_hood::unordered_flat_set<E>>(elementCount, testSource);
+    benchmarkSet<robin_hood::unordered_node_set<E>>(elementCount, testSource);
+    benchmarkSet<robin_hood::unordered_set<E>>(elementCount, testSource);
+    benchmarkSet<std::unordered_set<E>>(elementCount, testSource);
 
     cout << "# Ordered Sets:" << endl;
-    benchmarkSet<std::set<E>>(elementCount);
+    benchmarkSet<std::set<E>>(elementCount, testSource);
 
     cout << "# Unordered Maps:" << endl;
-    benchmarkMap<tsl::robin_map<E, E>>(elementCount);
-    benchmarkMap<tsl::robin_pg_map<E, E>>(elementCount);
-    benchmarkMap<ska::flat_hash_map<E, E>>(elementCount);
-    /* TODO benchmarkMap<ska::bytell_hash_map<E, E>>(elementCount); */
-    benchmarkMap<robin_hood::unordered_flat_map<E, E>>(elementCount);
-    benchmarkMap<robin_hood::unordered_node_map<E, E>>(elementCount);
-    benchmarkMap<robin_hood::unordered_map<E, E>>(elementCount);
-    benchmarkMap<std::unordered_map<E, E>>(elementCount);
+    benchmarkMap<tsl::robin_map<E, E>>(elementCount, testSource);
+    benchmarkMap<tsl::robin_pg_map<E, E>>(elementCount, testSource);
+    benchmarkMap<ska::flat_hash_map<E, E>>(elementCount, testSource);
+    /* TODO benchmarkMap<ska::bytell_hash_map<E, E>>(elementCount, testSource); */
+    benchmarkMap<robin_hood::unordered_flat_map<E, E>>(elementCount, testSource);
+    benchmarkMap<robin_hood::unordered_node_map<E, E>>(elementCount, testSource);
+    benchmarkMap<robin_hood::unordered_map<E, E>>(elementCount, testSource);
+    benchmarkMap<std::unordered_map<E, E>>(elementCount, testSource);
 
     cout << "# Ordered Maps:" << endl;
-    benchmarkMap<std::map<E, E>>(elementCount);
+    benchmarkMap<std::map<E, E>>(elementCount, testSource);
 
     return 0;
 }

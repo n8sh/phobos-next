@@ -51,13 +51,13 @@ void main()
 
     writefln("\nArrays:\n");
 
-    alias T = ulong;
+    alias FloatSample = double;
 
-    foreach (A; AliasSeq!(DynamicArray!(T),
-                          VariantArrays!(T),
-                          StdArray!(T),
-                          Appender!(T[]),
-                          T[]))
+    foreach (A; AliasSeq!(DynamicArray!(FloatSample),
+                          VariantArrays!(FloatSample),
+                          StdArray!(FloatSample),
+                          Appender!(FloatSample[]),
+                          FloatSample[]))
     {
         writef("- ");
 
@@ -70,7 +70,7 @@ void main()
                 immutable startTime = MonoTime.currTime();
                 foreach (immutable i; testSource)
                 {
-                    a ~= i.to!T;     // need to cast away const here for now. TODO remove this requirement
+                    a ~= i.to!FloatSample;     // need to cast away const here for now. TODO remove this requirement
                 }
                 spans_ns[runIx] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
             }
@@ -107,6 +107,9 @@ void main()
                           OpenHashSet!(Nullable!(uint, uint.max), hashOf),
                           OpenHashSet!(Nullable!(uint, uint.max), lemireHash64),
                           OpenHashSet!(Nullable!(uint, uint.max), FNV!(64, true)),
+
+                          OpenHashSet!(Nullable!(FloatSample, FloatSample.max), hashOf),
+                          OpenHashSet!(Nullable!(FloatSample, FloatSample.max), FNV!(64, true)),
 
                           RadixTreeSet!(uint),
                           RedBlackTree!(uint),

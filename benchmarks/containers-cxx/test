@@ -18,7 +18,7 @@ ${CC} -x c++ -std=gnu++1y \
       app.cpp \
       -I.. -I../src -I../.. -I../../.. \
       -lstdc++ -lpthread -lm \
-      -o ${EXE_GCC} && ./$EXE_GCC
+      -o ${EXE_GCC} && ./${EXE_GCC}
 
 echo "====="
 echo "Clang:"
@@ -32,4 +32,4 @@ ${CLANG} -x c++ -std=gnu++1y \
       app.cpp \
       -I.. -I../src -I../.. -I../../.. \
       -lstdc++ -lpthread -lm \
-      -o ${EXE_CLANG} && ./$EXE_CLANG
+      -o ${EXE_CLANG} && ./${EXE_CLANG}

@@ -772,6 +772,22 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
     }
 }
 
+/// equality and equivalence
+@safe pure nothrow @nogc unittest
+{
+    assert(SSOString() == SSOString(""));
+    assert(SSOString() !is SSOString(""));
+}
+
+/// hashing of null, empty and non-empty
+@safe pure nothrow @nogc unittest
+{
+    assert(SSOString().toHash == 0);
+    assert(SSOString("").toHash == 0);
+    assert(SSOString("a").toHash != 0);
+    assert(SSOString("0123456789abcdef").toHash != 0);
+}
+
 /// construct from static array larger than `smallCapacity`
 @safe pure nothrow unittest
 {

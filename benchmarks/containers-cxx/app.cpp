@@ -44,8 +44,8 @@ void showTime(const string& tag, const Durs& durs, size_t elementCount, bool okF
     const auto min_dur = *min_element(begin(durs), end(durs));
     const auto dur_ns = cr::duration_cast<cr::nanoseconds>(min_dur).count();
     cout << tag << ": "
-         << (static_cast<double>(dur_ns)) / elementCount << " ns/op "
-         << (okFlag ? "OK" : "ERR")
+         << (static_cast<double>(dur_ns)) / elementCount << " ns/op"
+         << (okFlag ? "" : " ERR")
          << ", ";
 }
 

@@ -67,7 +67,10 @@ void benchmarkVector(size_t elementCount)
 {
     showHeader<Vector>();
     Vector x;
-    x.reserve(elementCount);
+    if constexpr (has_member(Vector, reserve))
+    {
+        x.reserve(elementCount);
+    }
 
     const auto beg = Clock::now();
     for (size_t i = 0; i < elementCount; ++i)

@@ -27,6 +27,25 @@ void showTime(const string& tag, Duration dur, size_t elementCount, bool okFlag)
          << (okFlag ? "OK" : "ERR");
 }
 
+template<class Vector>
+void benchmarkVector(size_t elementCount)
+{
+    int status;
+    const auto name = abi::__cxa_demangle(typeid(Vector).name(), 0, 0, &status);
+    cout << name << ":" << endl;
+    Vector a;
+    a.reserve(elementCount);
+    const auto beg = Clock::now();
+    for (size_t i = 0; i < elementCount; ++i)
+    {
+        a.push_back(i);
+    }
+    const auto end = Clock::now();
+    const auto diff = end - beg;
+    cout << "push_back: "
+         << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op\n";
+}
+
 template<class Set>
 void benchmarkSet(size_t elementCount)
 {
@@ -96,24 +115,7 @@ int main(int argc, const char* argv[], const char* envp[])
     typedef ulong E;
     const size_t elementCount = 400000;
 
-    // vector
-    {
-        cout << "vector:: ";
-
-        vector<E> a;
-        a.reserve(elementCount);
-
-        const auto beg = Clock::now();
-        for (size_t i = 0; i < elementCount; ++i)
-        {
-            a.push_back(i);
-        }
-        const auto end = Clock::now();
-
-        const auto diff = end - beg;
-        cout << "push_back: "
-             << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op\n";
-    }
+    benchmarkVector<vector<E>>(elementCount);
 
     benchmarkSet<std::unordered_set<E>>(elementCount);
     benchmarkSet<ska::flat_hash_set<E>>(elementCount);

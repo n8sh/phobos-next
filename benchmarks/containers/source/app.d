@@ -51,13 +51,13 @@ void main()
 
     writefln("\nArrays:\n");
 
-    alias FloatSample = double;
+    alias Sample = ulong;
 
-    foreach (A; AliasSeq!(DynamicArray!(FloatSample),
-                          VariantArrays!(FloatSample),
-                          StdArray!(FloatSample),
-                          Appender!(FloatSample[]),
-                          FloatSample[]))
+    foreach (A; AliasSeq!(DynamicArray!(Sample),
+                          VariantArrays!(Sample),
+                          StdArray!(Sample),
+                          Appender!(Sample[]),
+                          Sample[]))
     {
         writef("- ");
 
@@ -70,7 +70,7 @@ void main()
                 immutable startTime = MonoTime.currTime();
                 foreach (immutable i; testSource)
                 {
-                    a ~= i.to!FloatSample;     // need to cast away const here for now. TODO remove this requirement
+                    a ~= i.to!Sample;     // need to cast away const here for now. TODO remove this requirement
                 }
                 spans_ns[runIx] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
             }
@@ -108,8 +108,10 @@ void main()
                           OpenHashSet!(Nullable!(uint, uint.max), lemireHash64),
                           OpenHashSet!(Nullable!(uint, uint.max), FNV!(64, true)),
 
-                          OpenHashSet!(Nullable!(FloatSample, FloatSample.max), hashOf),
-                          OpenHashSet!(Nullable!(FloatSample, FloatSample.max), FNV!(64, true)),
+                          // TODO why are these so slow?
+                          // OpenHashSet!(Nullable!(Sample, Sample.max), hashOf),
+                          // OpenHashSet!(Nullable!(Sample, Sample.max), lemireHash64),
+                          // OpenHashSet!(Nullable!(Sample, Sample.max), FNV!(64, true)),
 
                           RadixTreeSet!(uint),
                           RedBlackTree!(uint),

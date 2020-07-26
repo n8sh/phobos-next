@@ -252,6 +252,7 @@ int main(__attribute__((unused)) int argc,
 
     cout << "# Ordered Sets:" << endl;
     benchmarkSet<std::set<E>>(ulongArray, runCount);
+    benchmarkSet<std::multiset<E>>(ulongArray, runCount);
 
     cout << "# Unordered Maps:" << endl;
     benchmarkMap<tsl::robin_map<E, E>>(ulongArray, runCount);

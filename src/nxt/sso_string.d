@@ -102,7 +102,7 @@ pure:
             charCount += encode(chars, e);
         }
 
-        if (charCount <= smallCapacity) // first in small
+        if (charCount <= smallCapacity) // fits in small
         {
             size_t offset = 0;
             foreach (const e; source)
@@ -115,9 +115,18 @@ pure:
             assert(offset <= smallCapacity);
             small.length = cast(typeof(small.length))(encodeSmallLength(offset));
         }
-        else
+        else                    // needs large
         {
-            assert(0);
+            large = new char[charCount];
+            size_t offset = 0;
+            foreach (const e; source)
+            {
+                char[4] chars;
+                const count = encode(chars, e);
+                (cast(char[])(large))[offset .. offset + count] = chars[0 .. count];
+                offset += count;
+            }
+            raw.length = encodeLargeLength(charCount);
         }
     }
 
@@ -812,7 +821,8 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
     test("", false);
     test("_", false);
     test("123456789_12345", false);
-    // test("123456789_123456", true);
+    test("123456789_123456", true);
+    test("123456789_123456789_123456789_", true);
 }
 
 /// hole handling

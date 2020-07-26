@@ -6,6 +6,12 @@ copyright "Copyright © 2019, Per Nordlöw"
 license "Boost"
 dependency "phobos-next" path="../../"
 
+dflags "-vcolumns" "-dip25" "-dip1008" # "-dip1000"
+dflags "-preview=intpromote" "-preview=dtorfields" "-preview=markdown"
+# TODO fails linking: dflags "-preview=in"
+# TODO fails linking: dflags "-checkaction=context"
+dflags "-verrors=context" platform="dmd" # dmd only, fails with ldc
+
 # TODO lflags "-ltcmalloc"
 
 dflags "-linker=gold" platform="linux-ldc" # use GNU gold linker

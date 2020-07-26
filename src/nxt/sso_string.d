@@ -549,17 +549,17 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
 {
     alias S = SSOString;
 
-    const char[] x0;
+    scope const char[] x0;
     const s0 = SSOString(x0);           // no .idup
 
-    const char[] x16 = new char[16];
+    scope const char[] x16 = new char[16];
     const s16 = SSOString(x16);         // will call .idup
 }
 
 /// construct from non-immutable source is not allowed in `@nogc`-scope
 @safe pure nothrow @nogc unittest
 {
-    const char[] s;
+    scope const char[] s;
     // TODO why does this fail? static assert(!__traits(compiles, { const _ = SSOString(s); }));
 }
 
@@ -592,7 +592,7 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
 {
     foreach (const n; 0 .. 32)
     {
-        auto x = new immutable(char)[n];
+        scope x = new immutable(char)[n];
         assert(!SSOString(x).isNull);
     }
 }

@@ -78,39 +78,14 @@ void benchmarkVector(size_t elementCount)
 }
 
 template<class Set>
-void benchmarkUnorderedSet(size_t elementCount)
+void benchmarkSet(size_t elementCount)
 {
     showHeader<Set>();
     Set x;
-    x.reserve(elementCount);
-
-    auto beg = Clock::now();
-    for (size_t i = 0; i < elementCount; ++i)
+    if constexpr (has_member(Set, reserve))
     {
-        x.insert(i);
+        x.reserve(elementCount);
     }
-    auto end = Clock::now();
-    showTime("insert", end - beg, elementCount, true);
-
-    bool allHit = true;
-    beg = Clock::now();
-    for (size_t i = 0; i < elementCount; ++i)
-    {
-        const auto hit = x.find(i);
-        if (hit == x.end()) { allHit = false; }
-    }
-    end = Clock::now();
-
-    showTime("find", end - beg, elementCount, allHit);
-    cout << endl << endl;
-    x.clear();
-}
-
-template<class Set>
-void benchmarkOrderedSet(size_t elementCount)
-{
-    showHeader<Set>();
-    Set x;
 
     auto beg = Clock::now();
     for (size_t i = 0; i < elementCount; ++i)
@@ -180,14 +155,14 @@ int main(__attribute__((unused)) int argc,
     benchmarkVector<std::vector<E>>(elementCount);
 
     cout << "# Unordered Sets:" << endl;
-    benchmarkUnorderedSet<ska::flat_hash_set<E>>(elementCount);
-    benchmarkUnorderedSet<robin_hood::unordered_flat_set<E>>(elementCount);
-    benchmarkUnorderedSet<robin_hood::unordered_node_set<E>>(elementCount);
-    benchmarkUnorderedSet<robin_hood::unordered_set<E>>(elementCount);
-    benchmarkUnorderedSet<std::unordered_set<E>>(elementCount);
+    benchmarkSet<ska::flat_hash_set<E>>(elementCount);
+    benchmarkSet<robin_hood::unordered_flat_set<E>>(elementCount);
+    benchmarkSet<robin_hood::unordered_node_set<E>>(elementCount);
+    benchmarkSet<robin_hood::unordered_set<E>>(elementCount);
+    benchmarkSet<std::unordered_set<E>>(elementCount);
 
     cout << "# Ordered Sets:" << endl;
-    benchmarkOrderedSet<std::set<E>>(elementCount);
+    benchmarkSet<std::set<E>>(elementCount);
 
     cout << "# Unordered Maps:" << endl;
     benchmarkMap<ska::flat_hash_map<E, E>>(elementCount);

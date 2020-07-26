@@ -40,19 +40,17 @@ pure:
      * `source.length > smallCapacity` and `source` is not a `string`).
      */
     this(Chars)(const scope auto ref Chars source) @trusted nothrow
-    if (is(Chars : const(char)[])) // not immutable `char`
+    if (is(Chars : const(char)[])) // `isCharArray`
     {
         static if (__traits(isStaticArray, Chars))
         {
             static if (source.length <= smallCapacity) // inferred @nogc
             {
-                // pragma(msg, "Small static array source of length ", Chars.length);
                 small.data[0 .. source.length] = source;
                 small.length = cast(typeof(small.length))(encodeSmallLength(source.length));
             }
             else
             {
-                // pragma(msg, "Large static array source of length ", Chars.length);
                 static if (is(typeof(source[0]) == immutable(char)))
                 {
                     raw.ptr[0 .. source.length] = source; // copy elements

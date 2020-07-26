@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <vector>
 #include <unordered_set>
@@ -23,7 +24,8 @@ template<class Duration>
 void showTime(const string& tag, Duration dur, size_t elementCount, bool okFlag)
 {
     const auto dur_ns = cr::duration_cast<cr::nanoseconds>(dur).count();
-    cout << tag << ": " << (static_cast<double>(dur_ns)) / elementCount << " nsecs/op "
+    cout << tag << ": "
+         << (static_cast<double>(dur_ns)) / elementCount << " nsecs/op "
          << (okFlag ? "OK" : "ERR")
          << ", ";
 }
@@ -122,6 +124,8 @@ int main(int argc, const char* argv[], const char* envp[])
 {
     typedef ulong E;
     const size_t elementCount = 400000;
+
+    cout << fixed << setprecision(3);
 
     benchmarkVector<vector<E>>(elementCount);
 

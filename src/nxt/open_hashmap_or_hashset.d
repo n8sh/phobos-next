@@ -1999,33 +1999,15 @@ private:
 
         static if (hasHoleableKey)
         {
-            static if (__traits(isCopyable, T))
-            {
-                alias pred = (const scope element) => (keyOf(element).isNull ||
-                                                       keyEqualPredFn(keyOf(element), key));
-            }
-            else
-            {
-                alias pred = (const scope auto ref element) => (keyOf(element).isNull ||
-                                                                keyEqualPredFn(keyOf(element), key));
-            }
+            alias pred = (const scope auto ref element) => (keyOf(element).isNull ||
+                                                            keyEqualPredFn(keyOf(element), key));
         }
         else
         {
-            static if (__traits(isCopyable, T))
-            {
-                alias pred = (const scope index,
-                              const scope element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
-                                                       (keyOf(element).isNull ||
-                                                        keyEqualPredFn(keyOf(element), key)));
-            }
-            else
-            {
-                alias pred = (const scope index,
-                              const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
-                                                                (keyOf(element).isNull ||
-                                                                 keyEqualPredFn(keyOf(element), key)));
-            }
+            alias pred = (const scope index,
+                          const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
+                                                            (keyOf(element).isNull ||
+                                                             keyEqualPredFn(keyOf(element), key)));
         }
 
         static if (usePrimeCapacity)
@@ -2067,39 +2049,18 @@ private:
 
         static if (hasHoleableKey)
         {
-            static if (__traits(isCopyable, T))
-            {
-                alias hitPred = (const scope element) => (keyOf(element).isNull ||
-                                                          keyEqualPredFn(keyOf(element), key));
-                alias holePred = (const scope element) => (isHoleKeyConstant(keyOf(element)));
-            }
-            else
-            {
-                alias hitPred = (const scope auto ref element) => (keyOf(element).isNull ||
-                                                                   keyEqualPredFn(keyOf(element), key));
-                alias holePred = (const scope auto ref element) => (isHoleKeyConstant(keyOf(element)));
-            }
+            alias hitPred = (const scope auto ref element) => (keyOf(element).isNull ||
+                                                               keyEqualPredFn(keyOf(element), key));
+            alias holePred = (const scope auto ref element) => (isHoleKeyConstant(keyOf(element)));
         }
         else
         {
-            static if (__traits(isCopyable, T))
-            {
-                alias hitPred = (const scope index,
-                                 const scope element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
-                                                          (keyOf(element).isNull ||
-                                                           keyEqualPredFn(keyOf(element), key)));
-                alias holePred = (const scope index, // TODO use only index
-                                  const scope element) => (hasHoleAtPtrIndex(_holesPtr, index));
-            }
-            else
-            {
-                alias hitPred = (const scope index,
-                                 const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
-                                                                   (keyOf(element).isNull ||
-                                                                    keyEqualPredFn(keyOf(element), key)));
-                alias holePred = (const scope index, // TODO use only index
-                                  const scope auto ref element) => (hasHoleAtPtrIndex(_holesPtr, index));
-            }
+            alias hitPred = (const scope index,
+                             const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
+                                                               (keyOf(element).isNull ||
+                                                                keyEqualPredFn(keyOf(element), key)));
+            alias holePred = (const scope index, // TODO use only index
+                              const scope auto ref element) => (hasHoleAtPtrIndex(_holesPtr, index));
         }
 
         static if (usePrimeCapacity)

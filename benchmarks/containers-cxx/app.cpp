@@ -151,7 +151,6 @@ void benchmarkMap(const UlongArray& ulongArray)
     end = Clock::now();
     showTime("erase", end - beg, ulongArray.size(), allErase);
 
-
     cout << endl << endl;
     x.clear();
 }
@@ -160,7 +159,8 @@ int main(__attribute__((unused)) int argc,
          __attribute__((unused)) const char* argv[],
          __attribute__((unused)) const char* envp[])
 {
-    const size_t elementCount = 400000;
+    constexpr size_t elementCount = 400000; ///< Number of elements.
+    constexpr size_t runCount = 10;         ///< Number of runs per benchmark.
 
     UlongArray ulongArray(elementCount);
     for (size_t i = 0; i < elementCount; ++i)

@@ -312,15 +312,8 @@ nothrow:
         }
         else
         {
-            return cast(typeof(return))small.data.ptr[0 .. decodeRawLength(small.length)]; // scoped
-            // return getSmall();
+            return opSliceSmall();
         }
-    }
-
-    private inout(E)[] opSliceLarge() inout return scope @system @nogc
-    {
-        pragma(inline, true);
-        return cast(typeof(return))raw.ptr[0 .. decodeRawLength(raw.length)]; // no allocation
     }
 
     /** Return a slice at `[i .. j]` to either the internally stored large or small `string`.
@@ -333,14 +326,18 @@ nothrow:
         return opSlice()[i .. j];
     }
 
-    private inout(E)[] getLarge() inout return scope @trusted @nogc
+    private inout(E)[] opSliceLarge() inout return scope @system @nogc
     {
+        pragma(inline, true);
+        version(unittest) assert(isLarge);
         return cast(typeof(return))raw.ptr[0 .. decodeRawLength(raw.length)]; // no allocation
         // alternative:  return large.ptr[0 .. large.length/2];
     }
 
-    private inout(E)[] getSmall() inout return scope @trusted @nogc
+    private inout(E)[] opSliceSmall() inout return scope @trusted @nogc
     {
+        pragma(inline, true);
+        version(unittest) assert(!isLarge);
         return cast(typeof(return))small.data.ptr[0 .. decodeRawLength(small.length)]; // scoped
     }
 

@@ -34,12 +34,12 @@ struct SSOString
         sink(opSlice());
     }
 
-pure nothrow:
+pure:
 
     /** Construct from `source`, which potentially needs GC-allocation (iff
      * `source.length > smallCapacity` and `source` is not a `string`).
      */
-    this(Chars)(const scope auto ref Chars source) @trusted
+    this(Chars)(const scope auto ref Chars source) @trusted nothrow
     if (is(Chars : const(char)[])) // not immutable `char`
     {
         static if (__traits(isStaticArray, Chars))
@@ -86,11 +86,10 @@ pure nothrow:
         }
     }
 
-    this(Source)(Source source)
+    this(Source)(Source source) @trusted
     if (is(typeof({ foreach (const dchar elem; Source.init) {} })) && // TODO `isConstRefIterable`
-        is(Source.init.front : const(dchar)))
+        is(typeof(Source.init.front) == dchar))
     {
-        static assert(0, "TODO complete this function");
         import std.utf : encode;
 
         // pre-calculate number of `char`s needed
@@ -101,21 +100,26 @@ pure nothrow:
             charCount += encode(chars, e);
         }
 
-        if (charCount <= smallCapacity)
+        if (charCount <= smallCapacity) // first in small
         {
             size_t offset = 0;
             foreach (const e; source)
             {
                 char[4] chars;
-                offset += encode(chars, e);
+                const count = encode(chars, e);
+                (cast(char[])(small.data))[offset .. offset + count] = chars[0 .. count];
+                offset += count;
             }
-            small.length = offset;
+            assert(offset <= smallCapacity);
+            small.length = cast(typeof(small.length))(encodeSmallLength(offset));
         }
         else
         {
             assert(0);
         }
     }
+
+nothrow:
 
     /** Return `this` converted to a `string`, without any GC-allocation because
      * `this` is `immutable`.
@@ -934,7 +938,8 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
 @safe pure unittest
 {
     import std.utf : byDchar;
-    // TODO SSOString("alpha".byDchar);
+    const x = "alpha beta";
+    assert(SSOString(x.byDchar) == x);
 }
 
 version(unittest)

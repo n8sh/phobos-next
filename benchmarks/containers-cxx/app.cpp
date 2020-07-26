@@ -54,8 +54,9 @@ void showHeader()
 {
     int status;
     std::string name = abi::__cxa_demangle(typeid(T).name(), 0, 0, &status);
-    const auto fixed_name = inplace_replace_all(name, "unsigned long", "ulong");
-    cout << fixed_name << ":" << endl;
+    name = inplace_replace_all(name, "unsigned long", "ulong");
+    // name = inplace_replace_all(name, "std::", "");
+    cout << name << ":" << endl;
 }
 
 template<class Vector>

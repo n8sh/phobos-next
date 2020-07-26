@@ -761,6 +761,7 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
     assert(s.length == SSOString.smallCapacity + 1);
     assert(!s.isNull);
     assert(s.isLarge);
+    assert(!s.empty);
     foreach (const i; 0 .. 8)
     {
         s.metadata = i;

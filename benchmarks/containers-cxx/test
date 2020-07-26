@@ -7,6 +7,9 @@ EXE_GCC=main-gcc
 EXE_CLANG=main-clang
 
 # TODO use `ccache`
+echo "===="
+echo "GCC:"
+echo "===="
 ${CC} -x c++ -std=gnu++1y \
       -D__MAIN__ -DNDEBUG \
       -O6 -funroll-loops -ftree-vectorize -floop-interchange -floop-block -flto -ftree-partial-pre -fno-diagnostics-show-caret \
@@ -17,6 +20,9 @@ ${CC} -x c++ -std=gnu++1y \
       -o ${EXE_GCC} && ./$EXE_GCC
 
 # TODO use `ccache`
+echo "====="
+echo "Clang:"
+echo "======"
 ${CLANG} -x c++ -std=gnu++1y \
       -D__MAIN__ -DNDEBUG \
       -O3 -funroll-loops -ftree-vectorize -flto \

@@ -59,11 +59,9 @@ void benchmarkVector(size_t elementCount)
 template<class Set>
 void benchmarkSet(size_t elementCount)
 {
+    showHeader<Set>();
     Set us;
     us.reserve(elementCount);
-    int status;
-    const auto name = abi::__cxa_demangle(typeid(Set).name(), 0, 0, &status);
-    cout << name << ":" << endl;
     {
         const auto beg = Clock::now();
         for (size_t i = 0; i < elementCount; ++i)
@@ -91,11 +89,9 @@ void benchmarkSet(size_t elementCount)
 template<class Map>
 void benchmarkMap(size_t elementCount)
 {
+    showHeader<Map>();
     Map us;
     us.reserve(elementCount);
-    int status;
-    const auto name = abi::__cxa_demangle(typeid(Map).name(), 0, 0, &status);
-    cout << name << ":" << endl;
     {
         const auto beg = Clock::now();
         for (size_t i = 0; i < elementCount; ++i)

@@ -938,8 +938,18 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
 @safe pure unittest
 {
     import std.utf : byDchar;
-    const x = "123456789_12345";
-    assert(SSOString(x.byDchar) == x);
+    {
+        const x = "";
+        assert(SSOString(x.byDchar) == x);
+    }
+    {
+        const x = "1";
+        assert(SSOString(x.byDchar) == x);
+    }
+    {
+        const x = "123456789_12345";
+        assert(SSOString(x.byDchar) == x);
+    }
 }
 
 version(unittest)

@@ -125,16 +125,19 @@ int main(__attribute__((unused)) int argc,
 
     cout << fixed << setprecision(3);
 
-    benchmarkVector<vector<E>>(elementCount);
+    cout << "# Vector:" << endl;
+    benchmarkVector<std::vector<E>>(elementCount);
 
-    benchmarkSet<std::unordered_set<E>>(elementCount);
+    cout << "# Sets:" << endl;
     benchmarkSet<ska::flat_hash_set<E>>(elementCount);
     benchmarkSet<robin_hood::unordered_flat_set<E>>(elementCount);
     benchmarkSet<robin_hood::unordered_node_set<E>>(elementCount);
     benchmarkSet<robin_hood::unordered_set<E>>(elementCount);
+    benchmarkSet<std::unordered_set<E>>(elementCount);
 
-    benchmarkMap<unordered_map<E, E>>(elementCount);
+    cout << "# Maps:" << endl;
     benchmarkMap<ska::flat_hash_map<E, E>>(elementCount);
+    benchmarkMap<std::unordered_map<E, E>>(elementCount);
 
     return 0;
 }

@@ -154,7 +154,7 @@ int main(__attribute__((unused)) int argc,
          __attribute__((unused)) const char* argv[],
          __attribute__((unused)) const char* envp[])
 {
-    typedef ulong E;
+    using E = ulong;
     const size_t elementCount = 400000;
 
     cout << fixed << setprecision(3);

@@ -15,7 +15,7 @@ dependency "silly" version="~>1.0.2"
 dflags "-vcolumns" "-dip25" "-dip1008" # "-dip1000"
 dflags "-preview=intpromote" "-preview=dtorfields" "-preview=markdown"
 # TODO fails linking: dflags "-preview=in"
-dflags "-checkaction=context"
+# TODO fails linking of benchmark: dflags "-checkaction=context"
 dflags "-verrors=context" platform="dmd" # dmd only, fails with ldc
 
 libs "z" "bz2" "zstd"

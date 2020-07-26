@@ -62,7 +62,7 @@ void main()
         A a = makeWithTriedCapacity!(A)(elementCount);
 
         {
-            auto spans_ns = DynamicArray!double.withLength(runCount);
+            auto spans_ns = DynamicArray!(double).withLength(runCount);
             foreach (const runIx; 0 .. runCount)
             {
                 immutable startTime = MonoTime.currTime();
@@ -258,7 +258,7 @@ void main()
         static if (hasMember!(A, `withCapacity`))
         {
             A b = A.withCapacity(elementCount);
-            auto spans_ns = DynamicArray!double.withLength(runCount);
+            auto spans_ns = DynamicArray!(double).withLength(runCount);
             foreach (const runIx; 0 .. runCount)
             {
                 immutable startTime = MonoTime.currTime();
@@ -367,7 +367,7 @@ void main()
         const keys = iotaArrayOf!(A.KeyType)(0, elementCount);
 
         {
-            auto spans_ns = DynamicArray!double.withLength(runCount);
+            auto spans_ns = DynamicArray!(double).withLength(runCount);
             foreach (const runIx; 0 .. runCount)
             {
                 immutable startTime = MonoTime.currTime();
@@ -392,7 +392,7 @@ void main()
 
         {
             bool okAll = true;
-            auto spans_ns = DynamicArray!double.withLength(runCount);
+            auto spans_ns = DynamicArray!(double).withLength(runCount);
             foreach (const runIx; 0 .. runCount)
             {
                 immutable startTime = MonoTime.currTime();
@@ -419,7 +419,7 @@ void main()
 
         {
             bool okAll = true;
-            auto spans_ns = DynamicArray!double.withLength(runCount);
+            auto spans_ns = DynamicArray!(double).withLength(runCount);
             foreach (const runIx; 0 .. runCount)
             {
                 immutable startTime = MonoTime.currTime();
@@ -445,7 +445,7 @@ void main()
         }
 
         {
-            auto spans_ns = DynamicArray!double.withLength(runCount);
+            auto spans_ns = DynamicArray!(double).withLength(runCount);
             foreach (const runIx; 0 .. runCount)
             {
                 A b = A.withCapacity(elementCount);
@@ -502,7 +502,7 @@ void main()
 
         // insert
         {
-            auto spans_ns = DynamicArray!double.withLength(runCount);
+            auto spans_ns = DynamicArray!(double).withLength(runCount);
             foreach (const runIx; 0 .. runCount)
             {
                 immutable startTime = MonoTime.currTime();
@@ -517,7 +517,7 @@ void main()
 
         // in
         {
-            auto spans_ns = DynamicArray!double.withLength(runCount);
+            auto spans_ns = DynamicArray!(double).withLength(runCount);
             bool okAll = true;
             foreach (const runIx; 0 .. runCount)
             {
@@ -536,7 +536,7 @@ void main()
 
         // rahash
         {
-            auto spans_ns = DynamicArray!double.withLength(runCount);
+            auto spans_ns = DynamicArray!(double).withLength(runCount);
             foreach (const runIx; 0 .. runCount)
             {
                 immutable startTime = MonoTime.currTime();
@@ -548,7 +548,7 @@ void main()
 
         // in
         {
-            auto spans_ns = DynamicArray!double.withLength(runCount);
+            auto spans_ns = DynamicArray!(double).withLength(runCount);
             foreach (const runIx; 0 .. runCount)
             {
                 immutable startTime = MonoTime.currTime();

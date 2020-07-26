@@ -9,7 +9,6 @@ EXE_CLANG=main-clang
 echo "====="
 echo "Clang:"
 echo "======"
-echo
 
 ${CLANG} -x c++ -std=gnu++20 \
       -D__MAIN__ -DNDEBUG \
@@ -23,7 +22,6 @@ ${CLANG} -x c++ -std=gnu++20 \
 echo "===="
 echo "GCC:"
 echo "===="
-echo
 
 ${CC} -x c++ -std=gnu++20 \
       -D__MAIN__ -DNDEBUG \

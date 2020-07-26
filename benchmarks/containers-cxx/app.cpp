@@ -25,14 +25,11 @@ define_has_member(reserve);
 using namespace std;
 namespace cr = chrono;
 
-using E = ulong;
-using UlongArray = std::vector<E>;
-
-// you can replace this with steady_clock or system_clock
+using E = ulong;                ///< Sample.
+using UlongArray = std::vector<E>; ///< Samples.
 using Clock = cr::high_resolution_clock;
-
-using Dur = decltype(Clock::now() - Clock::now());
-using Durs = std::vector<Dur>;
+using Dur = decltype(Clock::now() - Clock::now()); ///< Duration.
+using Durs = std::vector<Dur>;                     ///< Durations.
 
 template<class Duration>
 void showTime(const string& tag, Duration dur, size_t elementCount, bool okFlag)

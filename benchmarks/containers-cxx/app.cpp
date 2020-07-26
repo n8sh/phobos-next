@@ -120,7 +120,9 @@ void benchmarkMap(size_t elementCount)
     us.clear();
 }
 
-int main(int argc, const char* argv[], const char* envp[])
+int main(__attribute__((unused)) int argc,
+         __attribute__((unused)) const char* argv[],
+         __attribute__((unused)) const char* envp[])
 {
     typedef ulong E;
     const size_t elementCount = 400000;

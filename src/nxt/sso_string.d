@@ -86,11 +86,9 @@ pure nothrow:
         }
     }
 
-    import std.traits : isIterable;
-
     this(Source)(Source source)
-    if (isIterable!(Source) &&
-        is(ElementType!Source : dchar))
+    if (is(typeof({ foreach (const dchar elem; Source.init) {} })) && // TODO `isConstRefIterable`
+        is(ElementType!Source : const(dchar)))
     {
         static assert(0, "TODO complete this function");
         import std.utf : encode;
@@ -930,6 +928,13 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
         assert(s.ptr is &s.opSlice()[0]);
         assert(s.ptr is &s.toString()[0]); // shouldn't this change?
     }
+}
+
+//
+@safe pure unittest
+{
+    import std.utf : byDchar;
+    // SSOString("alpha".);
 }
 
 private enum isCharArray(T) = (is(T : const(char)[]));

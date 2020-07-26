@@ -942,19 +942,27 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
     import std.utf : byDchar;
     {
         const x = "";
-        assert(SSOString(x.byDchar) == x);
+        auto s = SSOString(x.byDchar);
+        assert(!s.isLarge);
+        assert(s == x);
     }
     {
         const x = "1";
-        assert(SSOString(x.byDchar) == x);
+        auto s = SSOString(x.byDchar);
+        assert(!s.isLarge);
+        assert(s == x);
     }
     {
         const x = "123456789_12345";
-        assert(SSOString(x.byDchar) == x);
+        auto s = SSOString(x.byDchar);
+        assert(!s.isLarge);
+        assert(s == x);
     }
     {
-        const x = "123456789_123456";
-        assert(SSOString(x.byDchar) == x);
+        // const x = "123456789_123456";
+        // auto s = SSOString(x.byDchar);
+        // assert(!s.isLarge);
+        // assert(s == x);
     }
 }
 

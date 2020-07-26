@@ -4,6 +4,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <chrono>
+#include <typeinfo>
 
 #include "flat_hash_map.hpp"
 #include "robin_hood.h"
@@ -21,7 +22,7 @@ void benchmarkSet(size_t elementCount)
 {
     Set us;
     us.reserve(elementCount);
-    cout << "unordered_set:: ";
+    cout << typeid(Set).name() << ": ";
     {
         const auto start_time = Clock::now();
         for (size_t i = 0; i < elementCount; ++i)

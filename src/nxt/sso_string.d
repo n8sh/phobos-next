@@ -261,7 +261,7 @@ nothrow:
         if (isLarge)
         {
             import core.internal.hash : hashOf;
-            return hashOf(opSlice());
+            return hashOf(opSliceLarge()); // use default
         }
         else                    // fast path for small string
         {
@@ -305,16 +305,22 @@ nothrow:
      */
     inout(E)[] opSlice() inout return scope @trusted @nogc
     {
+        pragma(inline, true);
         if (isLarge)
         {
-            return cast(typeof(return))raw.ptr[0 .. decodeRawLength(raw.length)]; // no allocation
-            // return getLarge();
+            return opSliceLarge();
         }
         else
         {
             return cast(typeof(return))small.data.ptr[0 .. decodeRawLength(small.length)]; // scoped
             // return getSmall();
         }
+    }
+
+    private inout(E)[] opSliceLarge() inout return scope @system @nogc
+    {
+        pragma(inline, true);
+        return cast(typeof(return))raw.ptr[0 .. decodeRawLength(raw.length)]; // no allocation
     }
 
     /** Return a slice at `[i .. j]` to either the internally stored large or small `string`.

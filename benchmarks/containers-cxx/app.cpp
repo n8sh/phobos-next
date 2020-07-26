@@ -75,12 +75,12 @@ void benchmarkVector(size_t elementCount)
         x.reserve(elementCount);
     }
 
-    const auto beg = Clock::now();
+    auto beg = Clock::now();
     for (size_t i = 0; i < elementCount; ++i)
     {
         x.push_back(i);
     }
-    const auto end = Clock::now();
+    auto end = Clock::now();
     showTime("push_back", end - beg, elementCount, true);
     cout << endl << endl;
 }

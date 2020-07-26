@@ -46,7 +46,7 @@ void showHeader()
     std::string name = abi::__cxa_demangle(typeid(T).name(), 0, 0, &status);
     name = inplace_replace_all(name, "unsigned long", "ulong");
     // name = inplace_replace_all(name, "std::", "");
-    cout << name << ":" << endl;
+    cout << "--- " << name << ":" << endl;
 }
 
 void showResults(const string& tag, const Durs& durs, size_t elementCount, bool okFlag)

@@ -55,13 +55,13 @@ pure:
                 // pragma(msg, "Large static array source of length ", Chars.length);
                 static if (is(typeof(source[0]) == immutable(char)))
                 {
-                    large = source; // already immutable so no duplication needed
+                    raw.ptr[0 .. source.length] = source; // copy elements
                 }
                 else
                 {
-                    large = source.idup; // GC-allocate
+                    raw.ptr = source.idup.ptr; // GC-allocate
                 }
-                raw.length = encodeLargeLength(raw.length);
+                raw.length = encodeLargeLength(source.length);
             }
         }
         else                    // `Chars` is a (dynamic) array slice
@@ -75,13 +75,13 @@ pure:
             {
                 static if (is(typeof(source[0]) == immutable(char)))
                 {
-                    large = source; // already immutable so no duplication needed
+                    raw.ptr = source.ptr; // already immutable so no duplication needed
                 }
                 else
                 {
-                    large = source.idup; // GC-allocate
+                    raw.ptr = source.idup.ptr; // GC-allocate
                 }
-                raw.length = encodeLargeLength(raw.length);
+                raw.length = encodeLargeLength(source.length);
             }
         }
     }

@@ -804,7 +804,7 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
     static void test(const scope char[] x) @safe pure
     {
         import std.utf : byDchar;
-        scope s = SSOString(x.byDchar);
+        const scope s = SSOString(x.byDchar);
         assert(!s.isLarge);
         assert(s == x);
     }

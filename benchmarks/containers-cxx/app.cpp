@@ -178,6 +178,14 @@ int main(__attribute__((unused)) int argc,
     using E = ulong;
     const size_t elementCount = 400000;
 
+    std::vector<E> testSource(elementCount);
+    for (size_t i = 0; i < elementCount; ++i)
+    {
+        testSource[i] = i;
+    }
+    std::random_shuffle(begin(testSource),
+                        end(testSource));
+
     cout << fixed << setprecision(3);
 
     cout << "# Vector:" << endl;

@@ -51,11 +51,13 @@ void main()
 
     writefln("\nArrays:\n");
 
-    foreach (A; AliasSeq!(DynamicArray!uint,
-                          VariantArrays!uint,
-                          StdArray!uint,
-                          Appender!(uint[]),
-                          uint[]))
+    alias T = ulong;
+
+    foreach (A; AliasSeq!(DynamicArray!(T),
+                          VariantArrays!(T),
+                          StdArray!(T),
+                          Appender!(T[]),
+                          T[]))
     {
         writef("- ");
 
@@ -68,7 +70,7 @@ void main()
                 immutable startTime = MonoTime.currTime();
                 foreach (immutable i; testSource)
                 {
-                    a ~= i.to!uint;     // need to cast away const here for now. TODO remove this requirement
+                    a ~= i.to!T;     // need to cast away const here for now. TODO remove this requirement
                 }
                 spans_ns[runIx] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
             }

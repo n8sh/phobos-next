@@ -3,13 +3,14 @@
 CC=gcc-10
 CLANG=clang-10
 
-EXE_GCC=main-gcc
-EXE_CLANG=main-clang
+EXE_GCC=main-gcc                # TODO use ccache
+EXE_CLANG=main-clang            # TODO use ccache
 
-# TODO use `ccache`
 echo "===="
 echo "GCC:"
 echo "===="
+echo
+
 ${CC} -x c++ -std=gnu++1y \
       -D__MAIN__ -DNDEBUG \
       -O6 -funroll-loops -ftree-vectorize -floop-interchange -floop-block -flto -ftree-partial-pre -fno-diagnostics-show-caret \
@@ -19,14 +20,15 @@ ${CC} -x c++ -std=gnu++1y \
       -lstdc++ -lpthread -lm \
       -o ${EXE_GCC} && ./$EXE_GCC
 
-# TODO use `ccache`
 echo "====="
 echo "Clang:"
 echo "======"
+echo
+
 ${CLANG} -x c++ -std=gnu++1y \
       -D__MAIN__ -DNDEBUG \
       -O3 -funroll-loops -ftree-vectorize -flto \
-      -Wall -Warray-bounds -Wempty-body -Wunused-but-set-variable -Wunused-but-set-parameter -Winit-self -Wwrite-strings -Wmissing-braces -Wsign-compare -Wcast-align -Wpointer-arith -Wchar-subscripts \
+      -Wall -Warray-bounds -Wempty-body -Wunused-const-variable -Wunused-parameter -Winit-self -Wwrite-strings -Wmissing-braces -Wsign-compare -Wcast-align -Wpointer-arith -Wchar-subscripts \
       app.cpp \
       -I.. -I../src -I../.. -I../../.. \
       -lstdc++ -lpthread -lm \

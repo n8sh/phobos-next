@@ -146,18 +146,18 @@ void benchmarkMap(size_t elementCount,
     }
 
     auto beg = Clock::now();
-    for (size_t i = 0; i < elementCount; ++i)
+    for (const auto& e : testSource)
     {
-        x[i] = i;
+        x[e] = e;
     }
     auto end = Clock::now();
     showTime("insert", end - beg, elementCount, true);
 
     bool allHit = true;
     beg = Clock::now();
-    for (size_t i = 0; i < elementCount; ++i)
+    for (const auto& e : testSource)
     {
-        const auto hit = x.find(i);
+        const auto hit = x.find(e);
         if (hit == x.end()) { allHit = false; }
     }
     end = Clock::now();
@@ -165,9 +165,9 @@ void benchmarkMap(size_t elementCount,
 
     bool allErase = true;
     beg = Clock::now();
-    for (size_t i = 0; i < elementCount; ++i)
+    for (const auto& e : testSource)
     {
-        const auto count = x.erase(i);
+        const auto count = x.erase(e);
         if (count != 1) { allErase = false; }
     }
     end = Clock::now();

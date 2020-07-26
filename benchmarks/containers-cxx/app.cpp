@@ -210,8 +210,8 @@ int main(__attribute__((unused)) int argc,
          __attribute__((unused)) const char* argv[],
          __attribute__((unused)) const char* envp[])
 {
-    constexpr size_t elementCount = 400000; ///< Number of elements.
-    constexpr size_t runCount = 5;          ///< Number of runs per benchmark.
+    const size_t elementCount = 400000; ///< Number of elements.
+    const size_t runCount = 5;          ///< Number of runs per benchmark.
 
     UlongArray ulongArray(elementCount);
     for (size_t i = 0; i < elementCount; ++i)

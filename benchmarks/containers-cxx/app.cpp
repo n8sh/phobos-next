@@ -25,40 +25,12 @@ define_has_member(reserve);
 using namespace std;
 namespace cr = chrono;
 
-template <typename T>
-std::basic_string<T> replace_all(const std::basic_string<T>& s,
-                                 const T* from,
-                                 const T* to)
+std::string& inplace_replace_all(std::string& s, const std::string& from, const std::string& to)
 {
-    const auto length = std::char_traits<T>::length;
-    size_t toLen = length(to), fromLen = length(from), delta = toLen - fromLen;
-    std::string ns = s;
-
-    size_t newLen = ns.length();
-
-    for (bool estimate : { true, false })
-    {
-        size_t pos = 0;
-
-        for (; (pos = ns.find(from, pos)) != std::string::npos; pos++)
-        {
-            if (estimate)
-            {
-                newLen += delta;
-                pos += fromLen;
-            }
-            else
-            {
-                ns.replace(pos, fromLen, to);
-                pos += delta;
-            }
-        }
-
-        if (estimate)
-            ns.resize(newLen);
-    }
-
-    return ns;
+    if (!from.empty())
+        for (size_t pos = 0; (pos = s.find(from, pos)) != std::string::npos; pos += to.size())
+            s.replace(pos, from.size(), to);
+    return s;
 }
 
 using E = ulong;                ///< Sample.
@@ -82,7 +54,7 @@ void showHeader()
 {
     int status;
     std::string name = abi::__cxa_demangle(typeid(T).name(), 0, 0, &status);
-    const auto fixed_name = replace_all(name, "unsigned long", "ulong");
+    const auto fixed_name = inplace_replace_all(name, "unsigned long", "ulong");
     cout << fixed_name << ":" << endl;
 }
 

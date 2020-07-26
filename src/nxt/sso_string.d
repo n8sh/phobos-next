@@ -16,10 +16,6 @@ module nxt.sso_string;
  *
  * NOTE big-endian platform support hasn't been verified.
  *
- * TODO Add to Phobos' std.typecons or std.array or std.string
- *
- * TODO make `toLower` and `toUpper` free functions
- *
  * See_Also: https://forum.dlang.org/post/pb87rn$2icb$1@digitalmars.com
  * See_Also: https://issues.dlang.org/show_bug.cgi?id=18792
  *
@@ -27,125 +23,24 @@ module nxt.sso_string;
  * - 5-bit lowercase English letter into 128/5 = 25 chars
  * - 5-bit uppercase English letter into 120/5 = 25 chars
  * - 6-bit mixedcase English letter into 120/6 = 20 chars
+ *
+ * TODO Add to Phobos' std.typecons or std.array or std.string
  */
 struct SSOString
 {
 @safe:
-
-    private alias E = char;     // element type
-
-    @property void toString(scope void delegate(const(E)[]) @safe sink) const
+    @property void toString(scope void delegate(const(char)[]) @safe sink) const
     {
         sink(opSlice());
     }
 
-pure:
-
-    /** Return `this` lowercased. */
-    typeof(this) toLower()() const @trusted // template-lazy
-    {
-        if (isSmallASCII)
-        {
-            typeof(return) result = void;
-            result.small.length = small.length;
-            foreach (const index; 0 .. smallCapacity)
-            {
-                import std.ascii : toLower;
-                (cast(E[])(result.small.data))[index] = toLower(small.data[index]);
-            }
-            return result;
-        }
-        else
-        {
-            if (isLarge)
-            {
-                import std.uni : asLowerCase;
-                import std.conv : to;
-                return typeof(return)(opSlice().asLowerCase.to!string); // TODO make .to!string nothrow
-            }
-            else // small non-ASCII can usually be performed without GC-allocation
-            {
-                typeof(return) result = this; // copy
-                import std.uni : toLowerInPlace;
-                auto slice = cast(E[])(result.opSlice()); // need ref to slice
-                toLowerInPlace(slice);
-                if (slice is result.opSlice() || // no reallocation
-                    slice.length == result.length) // or same length (happens for German double-s)
-                {
-                    return result;
-                }
-                else
-                {
-                    version(none)
-                    {
-                        import nxt.dbgio;
-                        dbg(`toLowerInPlace reallocated from "`,
-                            result.opSlice(), `" of length `, result.opSlice().length,
-                            ` to "`
-                            , slice, `" of length `, slice.length);
-                    }
-                    return typeof(return)(slice); // reallocation occurred
-                }
-            }
-        }
-    }
-
-    /** Return `this` uppercased. */
-    typeof(this) toUpper()() const @trusted // template-lazy
-    {
-        if (isSmallASCII)
-        {
-            typeof(return) result = void;
-            result.small.length = small.length;
-            foreach (const index; 0 .. smallCapacity)
-            {
-                import std.ascii : toUpper;
-                (cast(E[])(result.small.data))[index] = toUpper(small.data[index]);
-            }
-            return result;
-        }
-        else
-        {
-            if (isLarge)
-            {
-                import std.uni : asUpperCase;
-                import std.conv : to;
-                return typeof(return)(opSlice().asUpperCase.to!string); // TODO make .to!string nothrow
-            }
-            else // small non-ASCII can usually be performed without GC-allocation
-            {
-                typeof(return) result = this; // copy
-                import std.uni : toUpperInPlace;
-                auto slice = cast(E[])(result.opSlice()); // need ref to slice
-                toUpperInPlace(slice);
-                if (slice is result.opSlice() || // no reallocation
-                    slice.length == result.length) // or same length (happens for German double-s)
-                {
-                    return result;
-                }
-                else
-                {
-                    version(none)
-                    {
-                        import nxt.dbgio;
-                        dbg(`toUpperInPlace reallocated from "`,
-                            result.opSlice(), `" of length `, result.opSlice().length,
-                            ` to "`
-                            , slice, `" of length `, slice.length);
-                    }
-                    return typeof(return)(slice); // reallocation occurred
-                }
-            }
-        }
-    }
-
-nothrow:
+pure nothrow:
 
     /** Construct from `source`, which potentially needs GC-allocation (iff
      * `source.length > smallCapacity` and `source` is not a `string`).
      */
     this(Chars)(const scope auto ref Chars source) @trusted
-    if (isCharArray!(typeof(source[]))) // not immutable `E`
+    if (isCharArray!(typeof(source[]))) // not immutable `char`
     {
         static if (__traits(isStaticArray, Chars))
         {
@@ -158,7 +53,7 @@ nothrow:
             else
             {
                 // pragma(msg, "Large static array source of length ", Chars.length);
-                static if (is(typeof(source[0]) == immutable(E)))
+                static if (is(typeof(source[0]) == immutable(char)))
                 {
                     large = source; // already immutable so no duplication needed
                 }
@@ -178,7 +73,7 @@ nothrow:
             }
             else
             {
-                static if (is(typeof(source[0]) == immutable(E)))
+                static if (is(typeof(source[0]) == immutable(char)))
                 {
                     large = source; // already immutable so no duplication needed
                 }
@@ -303,7 +198,7 @@ nothrow:
      *
      * Implementation is kept in sync with `toString`.
      */
-    inout(E)[] opSlice() inout return scope @trusted @nogc
+    inout(char)[] opSlice() inout return scope @trusted @nogc
     {
         pragma(inline, true);
         if (isLarge)
@@ -320,13 +215,13 @@ nothrow:
      *
      * Implementation is kept in sync with `toString`.
      */
-    inout(E)[] opSlice(size_t i, size_t j) inout return @safe
+    inout(char)[] opSlice(size_t i, size_t j) inout return @safe
     {
         pragma(inline, true);
         return opSlice()[i .. j];
     }
 
-    private inout(E)[] opSliceLarge() inout return scope @system @nogc
+    private inout(char)[] opSliceLarge() inout return scope @system @nogc
     {
         pragma(inline, true);
         version(unittest) assert(isLarge);
@@ -334,7 +229,7 @@ nothrow:
         // alternative:  return large.ptr[0 .. large.length/2];
     }
 
-    private inout(E)[] opSliceSmall() inout return scope @trusted @nogc
+    private inout(char)[] opSliceSmall() inout return scope @trusted @nogc
     {
         pragma(inline, true);
         version(unittest) assert(!isLarge);
@@ -343,14 +238,14 @@ nothrow:
 
     /** Return the `index`ed `char` of `this`.
      */
-    ref inout(E) opIndex(size_t index) inout return @trusted
+    ref inout(char) opIndex(size_t index) inout return @trusted
     {
         pragma(inline, true);
         return opSlice()[index]; // does range check
     }
 
     /// Get pointer to the internally stored `char`s.
-    @property private immutable(E)* ptr() const return @trusted
+    @property private immutable(char)* ptr() const return @trusted
     {
         if (isLarge)
         {
@@ -370,7 +265,7 @@ nothrow:
     }
 
     /** Check if `this` is equal to `rhs`. */
-    bool opEquals()(const scope const(E)[] rhs) const scope @trusted
+    bool opEquals()(const scope const(char)[] rhs) const scope @trusted
     {
         pragma(inline, true);
         return opSlice() == rhs;
@@ -461,10 +356,10 @@ private:
         return !(large.length & (1 << largeLengthTagBitOffset)); // first bit discriminates small from large
     }
 
-    alias Large = immutable(E)[];
+    alias Large = immutable(char)[];
 
     public enum smallCapacity = Large.sizeof - Small.length.sizeof;
-    static assert(smallCapacity > 0, "No room for small source for immutable(E) being " ~ immutable(E).stringof);
+    static assert(smallCapacity > 0, "No room for small source for immutable(char) being " ~ immutable(char).stringof);
 
     enum largeLengthTagBitOffset = 0; ///< bit position for large tag in length.
     enum smallLengthBitCount = 4;
@@ -522,18 +417,18 @@ private:
              * 0-15, use other 4 bits.
              */
             ubyte length = 0;
-            immutable(E)[smallCapacity] data = [0,0,0,0,0,
-                                                0,0,0,0,0,
-                                                0,0,0,0,0]; // explicit init needed for `__traits(isZeroInit)` to be true.
+            immutable(char)[smallCapacity] data = [0,0,0,0,0,
+                                                   0,0,0,0,0,
+                                                   0,0,0,0,0]; // explicit init needed for `__traits(isZeroInit)` to be true.
         }
     }
     else
     {
         struct Small
         {
-            immutable(E)[smallCapacity] data = [0,0,0,0,0,
-                                                0,0,0,0,0,
-                                                0,0,0,0,0]; // explicit init needed for `__traits(isZeroInit)` to be true.
+            immutable(char)[smallCapacity] data = [0,0,0,0,0,
+                                                   0,0,0,0,0,
+                                                   0,0,0,0,0]; // explicit init needed for `__traits(isZeroInit)` to be true.
             /* TODO only first 4 bits are needed to represent a length between
              * 0-15, use other 4 bits.
              */
@@ -542,10 +437,10 @@ private:
         static assert(0, "TODO add BigEndian support and test");
     }
 
-    struct Raw                  // same memory layout as `immutable(E)[]`
+    struct Raw                  // same memory layout as `immutable(char)[]`
     {
         size_t length = 0;      // can be bit-fiddled without GC allocation
-        immutable(E)* ptr = null;
+        immutable(char)* ptr = null;
     }
 
     union
@@ -557,6 +452,98 @@ private:
     }
 }
 version(unittest) static assert(SSOString.sizeof == string.sizeof);
+
+/** Returns: `x` lowercased. */
+SSOString toLower()(const SSOString x) @trusted // template-lazy
+{
+    if (x.isSmallASCII)         // small ASCII fast-path
+    {
+        typeof(return) result = void;
+        result.small.length = x.small.length;
+        foreach (const index; 0 .. x.smallCapacity)
+        {
+            import std.ascii : toLower;
+            (cast(char[])(result.small.data))[index] = toLower(x.small.data[index]);
+        }
+        return result;
+    }
+    else if (x.isLarge)
+    {
+        import std.uni : asLowerCase;
+        import std.conv : to;
+        return typeof(return)(x.opSlice().asLowerCase.to!string); // TODO make .to!string nothrow
+    }
+    else // small non-ASCII can usually be performed without GC-allocation
+    {
+        typeof(return) result = x; // copy
+        import std.uni : toLowerInPlace;
+        auto slice = cast(char[])(result.opSlice()); // need ref to slice
+        toLowerInPlace(slice);
+        if (slice is result.opSlice() || // no reallocation
+            slice.length == result.length) // or same length (happens for German double-s)
+        {
+            return result;
+        }
+        else
+        {
+            version(none)
+            {
+                import nxt.dbgio;
+                dbg(`toLowerInPlace reallocated from "`,
+                    result.opSlice(), `" of length `, result.opSlice().length,
+                    ` to "`
+                    , slice, `" of length `, slice.length);
+            }
+            return typeof(return)(slice); // reallocation occurred
+        }
+    }
+}
+
+/** Returns: `x` uppercased. */
+SSOString toUpper()(const SSOString x) @trusted // template-lazy
+{
+    if (x.isSmallASCII)         // small ASCII fast-path
+    {
+        typeof(return) result = void;
+        result.small.length = x.small.length;
+        foreach (const index; 0 .. x.smallCapacity)
+        {
+            import std.ascii : toUpper;
+            (cast(char[])(result.small.data))[index] = toUpper(x.small.data[index]);
+        }
+        return result;
+    }
+    else if (x.isLarge)
+    {
+        import std.uni : asUpperCase;
+        import std.conv : to;
+        return typeof(return)(x.opSlice().asUpperCase.to!string); // TODO make .to!string nothrow
+    }
+    else // small non-ASCII can usually be performed without GC-allocation
+    {
+        typeof(return) result = x; // copy
+        import std.uni : toUpperInPlace;
+        auto slice = cast(char[])(result.opSlice()); // need ref to slice
+        toUpperInPlace(slice);
+        if (slice is result.opSlice() || // no reallocation
+            slice.length == result.length) // or same length (happens for German double-s)
+        {
+            return result;
+        }
+        else
+        {
+            version(none)
+            {
+                import nxt.dbgio;
+                dbg(`toUpperInPlace reallocated from "`,
+                    result.opSlice(), `" of length `, result.opSlice().length,
+                    ` to "`
+                    , slice, `" of length `, slice.length);
+            }
+            return typeof(return)(slice); // reallocation occurred
+        }
+    }
+}
 
 /// construct from non-immutable source is allowed in non-`@nogc`-scope
 @safe pure nothrow unittest

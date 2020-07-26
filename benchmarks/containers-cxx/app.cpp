@@ -58,6 +58,38 @@ void benchmarkSet(size_t elementCount)
     us.clear();
 }
 
+template<class Map>
+void benchmarkMap(size_t elementCount)
+{
+    Map us;
+    us.reserve(elementCount);
+    int status;
+    const auto name = abi::__cxa_demangle(typeid(Map).name(), 0, 0, &status);
+    cout << name << ":" << endl;
+    {
+        const auto beg = Clock::now();
+        for (size_t i = 0; i < elementCount; ++i)
+        {
+            us.insert(make_pair(i, i));
+        }
+        const auto end = Clock::now();
+        showTime("insert", end - beg, elementCount, true);
+    }
+    {
+        bool allHit = true;
+        const auto beg = Clock::now();
+        for (size_t i = 0; i < elementCount; ++i)
+        {
+            const auto hit = us.find(i);
+            if (hit == us.end()) { allHit = false; }
+        }
+        const auto end = Clock::now();
+        showTime("find", end - beg, elementCount, allHit);
+    }
+    cout << endl << endl;
+    us.clear();
+}
+
 int main(int argc, const char* argv[], const char* envp[])
 {
     typedef ulong E;
@@ -88,65 +120,8 @@ int main(int argc, const char* argv[], const char* envp[])
     benchmarkSet<robin_hood::unordered_node_set<E>>(elementCount);
     benchmarkSet<robin_hood::unordered_set<E>>(elementCount);
 
-    {
-        unordered_map<E, E> us;
-        us.reserve(elementCount);
-        cout << "unordered_map:: ";
-        {
-            const auto beg = Clock::now();
-            for (size_t i = 0; i < elementCount; ++i)
-            {
-                us.insert(make_pair(i, i));
-            }
-            const auto end = Clock::now();
-            const auto diff = end - beg;
-            cout << "insert: "
-                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op ";
-        }
-        {
-            const auto beg = Clock::now();
-            for (size_t i = 0; i < elementCount; ++i)
-            {
-                const auto hit = us.find(i);
-            }
-            const auto end = Clock::now();
-            const auto diff = end - beg;
-            cout << "find: "
-                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op ";
-        }
-        cout << endl;
-        us.clear();
-    }
-
-    {
-        ska::flat_hash_map<E, E> us;
-        us.reserve(elementCount);
-        cout << "ska::flat_hash_map:: ";
-        {
-            const auto beg = Clock::now();
-            for (size_t i = 0; i < elementCount; ++i)
-            {
-                us.insert(make_pair(i, i));
-            }
-            const auto end = Clock::now();
-            const auto diff = end - beg;
-            cout << "insert: "
-                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op ";
-        }
-        {
-            const auto beg = Clock::now();
-            for (size_t i = 0; i < elementCount; ++i)
-            {
-                const auto hit = us.find(i);
-            }
-            const auto end = Clock::now();
-            const auto diff = end - beg;
-            cout << "find: "
-                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op ";
-        }
-        cout << endl;
-        us.clear();
-    }
+    benchmarkMap<unordered_map<E, E>>(elementCount);
+    benchmarkMap<ska::flat_hash_map<E, E>>(elementCount);
 
     return 0;
 }

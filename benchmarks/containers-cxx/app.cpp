@@ -39,16 +39,6 @@ using Clock = cr::high_resolution_clock;
 using Dur = decltype(Clock::now() - Clock::now()); ///< Duration.
 using Durs = std::vector<Dur>;                     ///< Durations.
 
-void showTime(const string& tag, const Durs& durs, size_t elementCount, bool okFlag)
-{
-    const auto min_dur = *min_element(begin(durs), end(durs));
-    const auto dur_ns = cr::duration_cast<cr::nanoseconds>(min_dur).count();
-    cout << tag << ":"
-         << (static_cast<double>(dur_ns)) / elementCount << "ns"
-         << (okFlag ? "" : " ERR")
-         << ", ";
-}
-
 template<class T>
 void showHeader()
 {
@@ -59,11 +49,19 @@ void showHeader()
     cout << name << ":" << endl;
 }
 
+void showResults(const string& tag, const Durs& durs, size_t elementCount, bool okFlag)
+{
+    const auto min_dur = *min_element(begin(durs), end(durs));
+    const auto dur_ns = cr::duration_cast<cr::nanoseconds>(min_dur).count();
+    cout << tag << ":"
+         << (static_cast<double>(dur_ns)) / elementCount << "ns"
+         << (okFlag ? "" : " ERR")
+         << ", ";
+}
+
 template<class Vector>
 void benchmarkVector(const UlongArray& ulongArray, const size_t runCount)
 {
-    showHeader<Vector>();
-
     Vector x;
     if constexpr (has_member(Vector, reserve))
     {
@@ -81,16 +79,14 @@ void benchmarkVector(const UlongArray& ulongArray, const size_t runCount)
         }
         durs[runIx] = Clock::now() - beg;
     }
-    showTime("push_back", durs, ulongArray.size(), true);
+    showResults("push_back", durs, ulongArray.size(), true);
 
-    cout << endl << endl;
+    showHeader<Vector>();
 }
 
 template<class Set>
 void benchmarkSet(const UlongArray& ulongArray, const size_t runCount)
 {
-    showHeader<Set>();
-
     Set x;
     if constexpr (has_member(Set, reserve))
     {
@@ -108,7 +104,7 @@ void benchmarkSet(const UlongArray& ulongArray, const size_t runCount)
         }
         durs[runIx] = Clock::now() - beg;
     }
-    showTime("insert", durs, ulongArray.size(), true);
+    showResults("insert", durs, ulongArray.size(), true);
 
     bool allHit = true;
     for (size_t runIx = 0; runIx != runCount; ++runIx)
@@ -121,7 +117,7 @@ void benchmarkSet(const UlongArray& ulongArray, const size_t runCount)
         }
         durs[runIx] = Clock::now() - beg;
     }
-    showTime("find", durs, ulongArray.size(), allHit);
+    showResults("find", durs, ulongArray.size(), allHit);
 
     bool allErase = true;
     for (size_t runIx = 0; runIx != runCount; ++runIx)
@@ -134,7 +130,7 @@ void benchmarkSet(const UlongArray& ulongArray, const size_t runCount)
         }
         durs[runIx] = Clock::now() - beg;
     }
-    showTime("erase", durs, ulongArray.size(), allErase);
+    showResults("erase", durs, ulongArray.size(), allErase);
 
     for (size_t runIx = 0; runIx != runCount; ++runIx)
     {
@@ -145,17 +141,16 @@ void benchmarkSet(const UlongArray& ulongArray, const size_t runCount)
         }
         durs[runIx] = Clock::now() - beg;
     }
-    showTime("reinsert", durs, ulongArray.size(), true);
+    showResults("reinsert", durs, ulongArray.size(), true);
 
-    cout << endl << endl;
     x.clear();
+
+    showHeader<Set>();
 }
 
 template<class Map>
 void benchmarkMap(const UlongArray& ulongArray, const size_t runCount)
 {
-    showHeader<Map>();
-
     Map x;
     if constexpr (has_member(Map, reserve))
     {
@@ -173,7 +168,7 @@ void benchmarkMap(const UlongArray& ulongArray, const size_t runCount)
         }
         durs[runIx] = Clock::now() - beg;
     }
-    showTime("insert", durs, ulongArray.size(), true);
+    showResults("insert", durs, ulongArray.size(), true);
 
     bool allHit = true;
     for (size_t runIx = 0; runIx != runCount; ++runIx)
@@ -186,7 +181,7 @@ void benchmarkMap(const UlongArray& ulongArray, const size_t runCount)
         }
         durs[runIx] = Clock::now() - beg;
     }
-    showTime("find", durs, ulongArray.size(), allHit);
+    showResults("find", durs, ulongArray.size(), allHit);
 
     bool allErase = true;
     for (size_t runIx = 0; runIx != runCount; ++runIx)
@@ -199,7 +194,7 @@ void benchmarkMap(const UlongArray& ulongArray, const size_t runCount)
         }
         durs[runIx] = Clock::now() - beg;
     }
-    showTime("erase", durs, ulongArray.size(), allErase);
+    showResults("erase", durs, ulongArray.size(), allErase);
 
     for (size_t runIx = 0; runIx != runCount; ++runIx)
     {
@@ -210,10 +205,11 @@ void benchmarkMap(const UlongArray& ulongArray, const size_t runCount)
         }
         durs[runIx] = Clock::now() - beg;
     }
-    showTime("reinsert", durs, ulongArray.size(), true);
+    showResults("reinsert", durs, ulongArray.size(), true);
 
-    cout << endl << endl;
     x.clear();
+
+    showHeader<Map>();
 }
 
 int main(__attribute__((unused)) int argc,

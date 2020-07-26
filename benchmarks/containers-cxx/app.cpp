@@ -32,9 +32,8 @@ void benchmarkSet(size_t elementCount)
     Set us;
     us.reserve(elementCount);
 
-    char * name = 0;
     int status;
-    name = abi::__cxa_demangle(typeid(Set).name(), 0, 0, &status);
+    const auto name = abi::__cxa_demangle(typeid(Set).name(), 0, 0, &status);
 
     cout << name << ":" << endl;
     {

@@ -166,6 +166,7 @@ int main(__attribute__((unused)) int argc,
     benchmarkSet<ska::flat_hash_set<E>>(elementCount);
     /* TODO benchmarkSet<ska::bytell_hash_set<E>>(elementCount); */
     benchmarkSet<tsl::robin_set<E>>(elementCount);
+    benchmarkSet<tsl::robin_pg_set<E>>(elementCount);
     benchmarkSet<robin_hood::unordered_flat_set<E>>(elementCount);
     benchmarkSet<robin_hood::unordered_node_set<E>>(elementCount);
     benchmarkSet<robin_hood::unordered_set<E>>(elementCount);
@@ -178,6 +179,7 @@ int main(__attribute__((unused)) int argc,
     benchmarkMap<ska::flat_hash_map<E, E>>(elementCount);
     /* TODO benchmarkMap<ska::bytell_hash_map<E, E>>(elementCount); */
     benchmarkMap<tsl::robin_map<E, E>>(elementCount);
+    benchmarkMap<tsl::robin_pg_map<E, E>>(elementCount);
     benchmarkMap<robin_hood::unordered_flat_map<E, E>>(elementCount);
     benchmarkMap<robin_hood::unordered_node_map<E, E>>(elementCount);
     benchmarkMap<robin_hood::unordered_map<E, E>>(elementCount);

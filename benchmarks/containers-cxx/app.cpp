@@ -230,7 +230,7 @@ int main(__attribute__((unused)) int argc,
     std::random_shuffle(begin(ulongArray),
                         end(ulongArray));
 
-    cout << fixed << setprecision(0);
+    cout << fixed << setprecision(0) << setw(3);
 
     cout << "# Vector:" << endl;
     benchmarkVector<std::vector<E>>(ulongArray, runCount);

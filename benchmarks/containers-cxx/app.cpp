@@ -33,8 +33,8 @@ std::string& inplace_replace_all(std::string& s, const std::string& from, const 
     return s;
 }
 
-using E = ulong;                ///< Sample.
-using UlongArray = std::vector<E>; ///< Samples.
+using Sample = ulong;                ///< Sample.
+using Samples = std::vector<Sample>; ///< Samples.
 using Clock = cr::high_resolution_clock;
 using Dur = decltype(Clock::now() - Clock::now()); ///< Duration.
 using Durs = std::vector<Dur>;                     ///< Durations.
@@ -62,7 +62,7 @@ void showResults(const string& tag, const Durs& durs, size_t elementCount, bool 
 }
 
 template<class Vector>
-void benchmarkVector(const UlongArray& ulongArray, const size_t runCount)
+void benchmarkVector(const Samples& ulongArray, const size_t runCount)
 {
     cout << "- ";
     Vector x;
@@ -88,7 +88,7 @@ void benchmarkVector(const UlongArray& ulongArray, const size_t runCount)
 }
 
 template<class Set>
-void benchmarkSet(const UlongArray& ulongArray, const size_t runCount)
+void benchmarkSet(const Samples& ulongArray, const size_t runCount)
 {
     cout << "- ";
     Set x;
@@ -153,7 +153,7 @@ void benchmarkSet(const UlongArray& ulongArray, const size_t runCount)
 }
 
 template<class Map>
-void benchmarkMap(const UlongArray& ulongArray, const size_t runCount)
+void benchmarkMap(const Samples& ulongArray, const size_t runCount)
 {
     cout << "- ";
     Map x;
@@ -217,9 +217,9 @@ void benchmarkMap(const UlongArray& ulongArray, const size_t runCount)
     showHeader<Map>();
 }
 
-UlongArray getSource(size_t elementCount)
+Samples getSource(size_t elementCount)
 {
-    UlongArray source(elementCount);
+    Samples source(elementCount);
     for (size_t i = 0; i < elementCount; ++i)
     {
         source[i] = i;
@@ -238,35 +238,35 @@ int main(__attribute__((unused)) int argc,
     const auto ulongArray = getSource(elementCount);
 
     cout << "# Vector:" << endl;
-    benchmarkVector<std::vector<E>>(ulongArray, runCount);
+    benchmarkVector<std::vector<Sample>>(ulongArray, runCount);
 
     cout << "# Unordered Sets:" << endl;
-    benchmarkSet<tsl::robin_set<E>>(ulongArray, runCount);
-    benchmarkSet<tsl::robin_pg_set<E>>(ulongArray, runCount);
-    benchmarkSet<ska::flat_hash_set<E>>(ulongArray, runCount);
-    /* TODO benchmarkSet<ska::bytell_hash_set<E>>(ulongArray, runCount); */
-    benchmarkSet<robin_hood::unordered_flat_set<E>>(ulongArray, runCount);
-    benchmarkSet<robin_hood::unordered_node_set<E>>(ulongArray, runCount);
-    benchmarkSet<robin_hood::unordered_set<E>>(ulongArray, runCount);
-    benchmarkSet<std::unordered_set<E>>(ulongArray, runCount);
-    benchmarkSet<std::unordered_multiset<E>>(ulongArray, runCount);
+    benchmarkSet<tsl::robin_set<Sample>>(ulongArray, runCount);
+    benchmarkSet<tsl::robin_pg_set<Sample>>(ulongArray, runCount);
+    benchmarkSet<ska::flat_hash_set<Sample>>(ulongArray, runCount);
+    /* TODO benchmarkSet<ska::bytell_hash_set<Sample>>(ulongArray, runCount); */
+    benchmarkSet<robin_hood::unordered_flat_set<Sample>>(ulongArray, runCount);
+    benchmarkSet<robin_hood::unordered_node_set<Sample>>(ulongArray, runCount);
+    benchmarkSet<robin_hood::unordered_set<Sample>>(ulongArray, runCount);
+    benchmarkSet<std::unordered_set<Sample>>(ulongArray, runCount);
+    benchmarkSet<std::unordered_multiset<Sample>>(ulongArray, runCount);
 
     cout << "# Ordered Sets:" << endl;
-    benchmarkSet<std::set<E>>(ulongArray, runCount);
-    benchmarkSet<std::multiset<E>>(ulongArray, runCount);
+    benchmarkSet<std::set<Sample>>(ulongArray, runCount);
+    benchmarkSet<std::multiset<Sample>>(ulongArray, runCount);
 
     cout << "# Unordered Maps:" << endl;
-    benchmarkMap<tsl::robin_map<E, E>>(ulongArray, runCount);
-    benchmarkMap<tsl::robin_pg_map<E, E>>(ulongArray, runCount);
-    benchmarkMap<ska::flat_hash_map<E, E>>(ulongArray, runCount);
-    /* TODO benchmarkMap<ska::bytell_hash_map<E, E>>(ulongArray, runCount); */
-    benchmarkMap<robin_hood::unordered_flat_map<E, E>>(ulongArray, runCount);
-    benchmarkMap<robin_hood::unordered_node_map<E, E>>(ulongArray, runCount);
-    benchmarkMap<robin_hood::unordered_map<E, E>>(ulongArray, runCount);
-    benchmarkMap<std::unordered_map<E, E>>(ulongArray, runCount);
+    benchmarkMap<tsl::robin_map<Sample, Sample>>(ulongArray, runCount);
+    benchmarkMap<tsl::robin_pg_map<Sample, Sample>>(ulongArray, runCount);
+    benchmarkMap<ska::flat_hash_map<Sample, Sample>>(ulongArray, runCount);
+    /* TODO benchmarkMap<ska::bytell_hash_map<Sample, Sample>>(ulongArray, runCount); */
+    benchmarkMap<robin_hood::unordered_flat_map<Sample, Sample>>(ulongArray, runCount);
+    benchmarkMap<robin_hood::unordered_node_map<Sample, Sample>>(ulongArray, runCount);
+    benchmarkMap<robin_hood::unordered_map<Sample, Sample>>(ulongArray, runCount);
+    benchmarkMap<std::unordered_map<Sample, Sample>>(ulongArray, runCount);
 
     cout << "# Ordered Maps:" << endl;
-    benchmarkMap<std::map<E, E>>(ulongArray, runCount);
+    benchmarkMap<std::map<Sample, Sample>>(ulongArray, runCount);
 
     return 0;
 }

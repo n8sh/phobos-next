@@ -42,12 +42,12 @@ template<class Vector>
 void benchmarkVector(size_t elementCount)
 {
     showHeader<Vector>();
-    Vector a;
-    a.reserve(elementCount);
+    Vector x;
+    x.reserve(elementCount);
     const auto beg = Clock::now();
     for (size_t i = 0; i < elementCount; ++i)
     {
-        a.push_back(i);
+        x.push_back(i);
     }
     const auto end = Clock::now();
     const auto diff = end - beg;
@@ -60,13 +60,13 @@ template<class Set>
 void benchmarkSet(size_t elementCount)
 {
     showHeader<Set>();
-    Set us;
-    us.reserve(elementCount);
+    Set x;
+    x.reserve(elementCount);
     {
         const auto beg = Clock::now();
         for (size_t i = 0; i < elementCount; ++i)
         {
-            us.insert(i);
+            x.insert(i);
         }
         const auto end = Clock::now();
         showTime("insert", end - beg, elementCount, true);
@@ -76,27 +76,27 @@ void benchmarkSet(size_t elementCount)
         const auto beg = Clock::now();
         for (size_t i = 0; i < elementCount; ++i)
         {
-            const auto hit = us.find(i);
-            if (hit == us.end()) { allHit = false; }
+            const auto hit = x.find(i);
+            if (hit == x.end()) { allHit = false; }
         }
         const auto end = Clock::now();
         showTime("find", end - beg, elementCount, allHit);
     }
     cout << endl << endl;
-    us.clear();
+    x.clear();
 }
 
 template<class Map>
 void benchmarkMap(size_t elementCount)
 {
     showHeader<Map>();
-    Map us;
-    us.reserve(elementCount);
+    Map x;
+    x.reserve(elementCount);
     {
         const auto beg = Clock::now();
         for (size_t i = 0; i < elementCount; ++i)
         {
-            us.insert(make_pair(i, i));
+            x.insert(make_pair(i, i));
         }
         const auto end = Clock::now();
         showTime("insert", end - beg, elementCount, true);
@@ -106,14 +106,14 @@ void benchmarkMap(size_t elementCount)
         const auto beg = Clock::now();
         for (size_t i = 0; i < elementCount; ++i)
         {
-            const auto hit = us.find(i);
-            if (hit == us.end()) { allHit = false; }
+            const auto hit = x.find(i);
+            if (hit == x.end()) { allHit = false; }
         }
         const auto end = Clock::now();
         showTime("find", end - beg, elementCount, allHit);
     }
     cout << endl << endl;
-    us.clear();
+    x.clear();
 }
 
 int main(__attribute__((unused)) int argc,

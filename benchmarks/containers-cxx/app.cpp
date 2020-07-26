@@ -62,6 +62,7 @@ void showResults(const string& tag, const Durs& durs, size_t elementCount, bool 
 template<class Vector>
 void benchmarkVector(const UlongArray& ulongArray, const size_t runCount)
 {
+    cout << "- ";
     Vector x;
     if constexpr (has_member(Vector, reserve))
     {
@@ -87,6 +88,7 @@ void benchmarkVector(const UlongArray& ulongArray, const size_t runCount)
 template<class Set>
 void benchmarkSet(const UlongArray& ulongArray, const size_t runCount)
 {
+    cout << "- ";
     Set x;
     if constexpr (has_member(Set, reserve))
     {
@@ -151,6 +153,7 @@ void benchmarkSet(const UlongArray& ulongArray, const size_t runCount)
 template<class Map>
 void benchmarkMap(const UlongArray& ulongArray, const size_t runCount)
 {
+    cout << "- ";
     Map x;
     if constexpr (has_member(Map, reserve))
     {

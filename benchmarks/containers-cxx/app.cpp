@@ -113,8 +113,18 @@ void benchmarkSet(size_t elementCount)
         if (hit == x.end()) { allHit = false; }
     }
     end = Clock::now();
-
     showTime("find", end - beg, elementCount, allHit);
+
+    bool allErase = true;
+    beg = Clock::now();
+    for (size_t i = 0; i < elementCount; ++i)
+    {
+        const auto count = x.erase(i);
+        if (count != 1) { allErase = false; }
+    }
+    end = Clock::now();
+    showTime("erase", end - beg, elementCount, allErase);
+
     cout << endl << endl;
     x.clear();
 }
@@ -133,7 +143,6 @@ void benchmarkMap(size_t elementCount)
     for (size_t i = 0; i < elementCount; ++i)
     {
         x[i] = i;
-        // x.insert(make_pair(i, i));
     }
     auto end = Clock::now();
     showTime("insert", end - beg, elementCount, true);
@@ -146,8 +155,18 @@ void benchmarkMap(size_t elementCount)
         if (hit == x.end()) { allHit = false; }
     }
     end = Clock::now();
-
     showTime("find", end - beg, elementCount, allHit);
+
+    bool allErase = true;
+    beg = Clock::now();
+    for (size_t i = 0; i < elementCount; ++i)
+    {
+        const auto count = x.erase(i);
+        if (count != 1) { allErase = false; }
+    }
+    end = Clock::now();
+    showTime("erase", end - beg, elementCount, allErase);
+
     cout << endl << endl;
     x.clear();
 }

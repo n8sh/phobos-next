@@ -6,16 +6,53 @@
 #include <chrono>
 
 #include "flat_hash_map.hpp"
+#include "robin_hood.h"
 
 using namespace std;
 
+// save some typing
+namespace cr = chrono;
+
+// you can replace this with steady_clock or system_clock
+typedef cr::high_resolution_clock my_clock;
+
+template<class Set>
+void benchmarkSet(size_t elementCount)
+{
+    Set us;
+    us.reserve(elementCount);
+    cout << "unordered_set:: ";
+    {
+        const auto start_time = my_clock::now();
+        for (size_t i = 0; i < elementCount; ++i)
+        {
+            us.insert(i);
+        }
+        const auto end_time = my_clock::now();
+        const auto diff = end_time - start_time;
+        cout << "insert: "
+             << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op ";
+    }
+    {
+        bool allHit = true;
+        const auto start_time = my_clock::now();
+        for (size_t i = 0; i < elementCount; ++i)
+        {
+            const auto hit = us.find(i);
+            if (hit == us.end()) { allHit = false; }
+        }
+        const auto end_time = my_clock::now();
+        const auto diff = end_time - start_time;
+        cout << "find: "
+             << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op "
+             << (allHit ? "OK" : "ERR");
+    }
+    cout << endl;
+    us.clear();
+}
+
 int main(int argc, const char* argv[], const char* envp[])
 {
-    // save some typing
-    namespace cr = chrono;
-
-    // you can replace this with steady_clock or system_clock
-    typedef cr::high_resolution_clock my_clock;
 
     // get the clock time before operation.
     // note that this is a static function, and
@@ -43,45 +80,12 @@ int main(int argc, const char* argv[], const char* envp[])
              << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op\n";
     }
 
-    // unordered_set
-    {
-        unordered_set<E> us;
-        us.reserve(elementCount);
-        cout << "unordered_set:: ";
-        {
-            const auto start_time = my_clock::now();
-            for (size_t i = 0; i < elementCount; ++i)
-            {
-                us.insert(i);
-            }
-            const auto end_time = my_clock::now();
-            const auto diff = end_time - start_time;
-            cout << "insert: "
-                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op ";
-        }
-        {
-            bool allHit = true;
-            const auto start_time = my_clock::now();
-            for (size_t i = 0; i < elementCount; ++i)
-            {
-                const auto hit = us.find(i);
-                if (hit == us.end()) { allHit = false; }
-            }
-            const auto end_time = my_clock::now();
-            const auto diff = end_time - start_time;
-            cout << "find: "
-                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op "
-                 << (allHit ? "OK" : "ERR");
-        }
-        cout << endl;
-        us.clear();
-    }
+    benchmarkSet<unordered_set<E>>(elementCount);
 
-    // flat_hash_set
     {
         ska::flat_hash_set<E> us;
         us.reserve(elementCount);
-        cout << "flat_hash_set:: ";
+        cout << "ska::flat_hash_set:: ";
         {
             const auto start_time = my_clock::now();
             for (size_t i = 0; i < elementCount; ++i)
@@ -111,7 +115,105 @@ int main(int argc, const char* argv[], const char* envp[])
         us.clear();
     }
 
-    // unordered_map
+    {
+        robin_hood::unordered_flat_set<E> us;
+        us.reserve(elementCount);
+        cout << "robin_hood::unordered_flat_set:: ";
+        {
+            const auto start_time = my_clock::now();
+            for (size_t i = 0; i < elementCount; ++i)
+            {
+                us.insert(i);
+            }
+            const auto end_time = my_clock::now();
+            const auto diff = end_time - start_time;
+            cout << "insert: "
+                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op ";
+        }
+        {
+            bool allHit = true;
+            const auto start_time = my_clock::now();
+            for (size_t i = 0; i < elementCount; ++i)
+            {
+                const auto hit = us.find(i);
+                if (hit == us.end()) { allHit = false; }
+            }
+            const auto end_time = my_clock::now();
+            const auto diff = end_time - start_time;
+            cout << "find: "
+                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op "
+                 << (allHit ? "OK" : "ERR");
+        }
+        cout << endl;
+        us.clear();
+    }
+
+    {
+        robin_hood::unordered_node_set<E> us;
+        us.reserve(elementCount);
+        cout << "robin_hood::unordered_node_set:: ";
+        {
+            const auto start_time = my_clock::now();
+            for (size_t i = 0; i < elementCount; ++i)
+            {
+                us.insert(i);
+            }
+            const auto end_time = my_clock::now();
+            const auto diff = end_time - start_time;
+            cout << "insert: "
+                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op ";
+        }
+        {
+            bool allHit = true;
+            const auto start_time = my_clock::now();
+            for (size_t i = 0; i < elementCount; ++i)
+            {
+                const auto hit = us.find(i);
+                if (hit == us.end()) { allHit = false; }
+            }
+            const auto end_time = my_clock::now();
+            const auto diff = end_time - start_time;
+            cout << "find: "
+                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op "
+                 << (allHit ? "OK" : "ERR");
+        }
+        cout << endl;
+        us.clear();
+    }
+
+    {
+        robin_hood::unordered_set<E> us;
+        us.reserve(elementCount);
+        cout << "robin_hood::unordered_set:: ";
+        {
+            const auto start_time = my_clock::now();
+            for (size_t i = 0; i < elementCount; ++i)
+            {
+                us.insert(i);
+            }
+            const auto end_time = my_clock::now();
+            const auto diff = end_time - start_time;
+            cout << "insert: "
+                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op ";
+        }
+        {
+            bool allHit = true;
+            const auto start_time = my_clock::now();
+            for (size_t i = 0; i < elementCount; ++i)
+            {
+                const auto hit = us.find(i);
+                if (hit == us.end()) { allHit = false; }
+            }
+            const auto end_time = my_clock::now();
+            const auto diff = end_time - start_time;
+            cout << "find: "
+                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op "
+                 << (allHit ? "OK" : "ERR");
+        }
+        cout << endl;
+        us.clear();
+    }
+
     {
         unordered_map<E, E> us;
         us.reserve(elementCount);
@@ -142,11 +244,10 @@ int main(int argc, const char* argv[], const char* envp[])
         us.clear();
     }
 
-    // flat_hash_map
     {
         ska::flat_hash_map<E, E> us;
         us.reserve(elementCount);
-        cout << "flat_hash_map:: ";
+        cout << "ska::flat_hash_map:: ";
         {
             const auto start_time = my_clock::now();
             for (size_t i = 0; i < elementCount; ++i)

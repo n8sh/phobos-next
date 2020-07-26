@@ -23,8 +23,9 @@ template<class Duration>
 void showTime(const string& tag, Duration dur, size_t elementCount, bool okFlag)
 {
     const auto dur_ns = cr::duration_cast<cr::nanoseconds>(dur).count();
-    cout << "insert: " << (static_cast<double>(dur_ns)) / elementCount << " nsecs/op "
-         << (okFlag ? "OK" : "ERR");
+    cout << tag << ": " << (static_cast<double>(dur_ns)) / elementCount << " nsecs/op "
+         << (okFlag ? "OK" : "ERR")
+         << ", ";
 }
 
 template<class T>

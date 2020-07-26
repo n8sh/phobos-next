@@ -25,6 +25,40 @@ define_has_member(reserve);
 using namespace std;
 namespace cr = chrono;
 
+template <typename T>
+std::basic_string<T> replaceAll(const std::basic_string<T>& s, const T* from, const T* to)
+{
+    auto length = std::char_traits<T>::length;
+    size_t toLen = length(to), fromLen = length(from), delta = toLen - fromLen;
+    std::string ns = s;
+
+    size_t newLen = ns.length();
+
+    for (bool estimate : { true, false })
+    {
+        size_t pos = 0;
+
+        for (; (pos = ns.find(from, pos)) != std::string::npos; pos++)
+        {
+            if (estimate)
+            {
+                newLen += delta;
+                pos += fromLen;
+            }
+            else
+            {
+                ns.replace(pos, fromLen, to);
+                pos += delta;
+            }
+        }
+
+        if (estimate)
+            ns.resize(newLen);
+    }
+
+    return ns;
+}
+
 using E = ulong;                ///< Sample.
 using UlongArray = std::vector<E>; ///< Samples.
 using Clock = cr::high_resolution_clock;
@@ -45,8 +79,9 @@ template<class T>
 void showHeader()
 {
     int status;
-    const auto name = abi::__cxa_demangle(typeid(T).name(), 0, 0, &status);
-    cout << name << ":" << endl;
+    std::string name = abi::__cxa_demangle(typeid(T).name(), 0, 0, &status);
+    const auto fixed_name = replaceAll(name, "unsigned long", "ulong");
+    cout << fixed_name << ":" << endl;
 }
 
 template<class Vector>

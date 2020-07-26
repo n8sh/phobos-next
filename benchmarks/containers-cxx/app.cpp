@@ -22,7 +22,8 @@ using Clock = cr::high_resolution_clock;
 template<class Duration>
 void showTime(const string& tag, Duration dur, size_t elementCount, bool okFlag)
 {
-    cout << "insert: " << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(dur).count())) / elementCount << " nsecs/op "
+    const auto dur_ns = cr::duration_cast<cr::nanoseconds>(dur).count();
+    cout << "insert: " << (static_cast<double>(dur_ns)) / elementCount << " nsecs/op "
          << (okFlag ? "OK" : "ERR");
 }
 

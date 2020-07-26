@@ -23,15 +23,16 @@
 define_has_member(reserve);
 
 using namespace std;
+namespace cr = chrono;
 
 using E = ulong;
 using UlongArray = std::vector<E>;
 
-// save some typing
-namespace cr = chrono;
-
 // you can replace this with steady_clock or system_clock
 using Clock = cr::high_resolution_clock;
+
+using Dur = decltype(Clock::now() - Clock::now());
+using Durs = std::vector<Dur>;
 
 template<class Duration>
 void showTime(const string& tag, Duration dur, size_t elementCount, bool okFlag)
@@ -62,13 +63,19 @@ void benchmarkVector(const UlongArray& ulongArray, const size_t runCount)
         x.reserve(ulongArray.size());
     }
 
-    auto beg = Clock::now();
-    for (size_t i = 0; i < ulongArray.size(); ++i)
+    Durs durs(runCount);
+
+    for (size_t runIx = 0; runIx != runCount; ++runIx)
     {
-        x.push_back(ulongArray[i]);
+        auto beg = Clock::now();
+        for (size_t i = 0; i < ulongArray.size(); ++i)
+        {
+            x.push_back(ulongArray[i]);
+        }
+        durs[runIx] = Clock::now() - beg;
     }
-    auto end = Clock::now();
-    showTime("push_back", end - beg, ulongArray.size(), true);
+    showTime("push_back", *min_element(begin(durs), end(durs)), ulongArray.size(), true);
+
     cout << endl << endl;
 }
 
@@ -83,33 +90,55 @@ void benchmarkSet(const UlongArray& ulongArray, const size_t runCount)
         x.reserve(ulongArray.size());
     }
 
-    auto beg = Clock::now();
-    for (const auto& e : ulongArray)
+    Durs durs(runCount);
+
+    for (size_t runIx = 0; runIx != runCount; ++runIx)
     {
-        x.insert(e);
+        const auto beg = Clock::now();
+        for (const auto& e : ulongArray)
+        {
+            x.insert(e);
+        }
+        durs[runIx] = Clock::now() - beg;
     }
-    auto end = Clock::now();
-    showTime("insert", end - beg, ulongArray.size(), true);
+    showTime("insert", *min_element(begin(durs), end(durs)), ulongArray.size(), true);
 
     bool allHit = true;
-    beg = Clock::now();
-    for (const auto& e : ulongArray)
+    for (size_t runIx = 0; runIx != runCount; ++runIx)
     {
-        const auto hit = x.find(e);
-        if (hit == x.end()) { allHit = false; }
+        const auto beg = Clock::now();
+        for (const auto& e : ulongArray)
+        {
+            const auto hit = x.find(e);
+            if (hit == x.end()) { allHit = false; }
+        }
+        durs[runIx] = Clock::now() - beg;
     }
-    end = Clock::now();
-    showTime("find", end - beg, ulongArray.size(), allHit);
+    showTime("find", *min_element(begin(durs), end(durs)), ulongArray.size(), allHit);
 
     bool allErase = true;
-    beg = Clock::now();
-    for (const auto& e : ulongArray)
+    for (size_t runIx = 0; runIx != runCount; ++runIx)
     {
-        const auto count = x.erase(e);
-        if (count != 1) { allErase = false; }
+        const auto beg = Clock::now();
+        for (const auto& e : ulongArray)
+        {
+            const auto count = x.erase(e);
+            if (count != 1) { allErase = false; }
+        }
+        durs[runIx] = Clock::now() - beg;
     }
-    end = Clock::now();
-    showTime("erase", end - beg, ulongArray.size(), allErase);
+    showTime("erase", *min_element(begin(durs), end(durs)), ulongArray.size(), allErase);
+
+    for (size_t runIx = 0; runIx != runCount; ++runIx)
+    {
+        const auto beg = Clock::now();
+        for (const auto& e : ulongArray)
+        {
+            x.insert(e);
+        }
+        durs[runIx] = Clock::now() - beg;
+    }
+    showTime("reinsert", *min_element(begin(durs), end(durs)), ulongArray.size(), true);
 
     cout << endl << endl;
     x.clear();
@@ -126,33 +155,55 @@ void benchmarkMap(const UlongArray& ulongArray, const size_t runCount)
         x.reserve(ulongArray.size());
     }
 
-    auto beg = Clock::now();
-    for (const auto& e : ulongArray)
+    Durs durs(runCount);
+
+    for (size_t runIx = 0; runIx != runCount; ++runIx)
     {
-        x[e] = e;
+        const auto beg = Clock::now();
+        for (const auto& e : ulongArray)
+        {
+            x[e] = e;
+        }
+        durs[runIx] = Clock::now() - beg;
     }
-    auto end = Clock::now();
-    showTime("insert", end - beg, ulongArray.size(), true);
+    showTime("insert", *min_element(begin(durs), end(durs)), ulongArray.size(), true);
 
     bool allHit = true;
-    beg = Clock::now();
-    for (const auto& e : ulongArray)
+    for (size_t runIx = 0; runIx != runCount; ++runIx)
     {
-        const auto hit = x.find(e);
-        if (hit == x.end()) { allHit = false; }
+        const auto beg = Clock::now();
+        for (const auto& e : ulongArray)
+        {
+            const auto hit = x.find(e);
+            if (hit == x.end()) { allHit = false; }
+        }
+        durs[runIx] = Clock::now() - beg;
     }
-    end = Clock::now();
-    showTime("find", end - beg, ulongArray.size(), allHit);
+    showTime("find", *min_element(begin(durs), end(durs)), ulongArray.size(), allHit);
 
     bool allErase = true;
-    beg = Clock::now();
-    for (const auto& e : ulongArray)
+    for (size_t runIx = 0; runIx != runCount; ++runIx)
     {
-        const auto count = x.erase(e);
-        if (count != 1) { allErase = false; }
+        const auto beg = Clock::now();
+        for (const auto& e : ulongArray)
+        {
+            const auto count = x.erase(e);
+            if (count != 1) { allErase = false; }
+        }
+        durs[runIx] = Clock::now() - beg;
     }
-    end = Clock::now();
-    showTime("erase", end - beg, ulongArray.size(), allErase);
+    showTime("erase", *min_element(begin(durs), end(durs)), ulongArray.size(), allErase);
+
+    for (size_t runIx = 0; runIx != runCount; ++runIx)
+    {
+        const auto beg = Clock::now();
+        for (const auto& e : ulongArray)
+        {
+            x[e] = e;
+        }
+        durs[runIx] = Clock::now() - beg;
+    }
+    showTime("reinsert", *min_element(begin(durs), end(durs)), ulongArray.size(), true);
 
     cout << endl << endl;
     x.clear();
@@ -163,7 +214,7 @@ int main(__attribute__((unused)) int argc,
          __attribute__((unused)) const char* envp[])
 {
     constexpr size_t elementCount = 400000; ///< Number of elements.
-    constexpr size_t runCount = 10;         ///< Number of runs per benchmark.
+    constexpr size_t runCount = 1;         ///< Number of runs per benchmark.
 
     UlongArray ulongArray(elementCount);
     for (size_t i = 0; i < elementCount; ++i)

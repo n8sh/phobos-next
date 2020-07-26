@@ -31,10 +31,8 @@ void benchmarkSet(size_t elementCount)
 {
     Set us;
     us.reserve(elementCount);
-
     int status;
     const auto name = abi::__cxa_demangle(typeid(Set).name(), 0, 0, &status);
-
     cout << name << ":" << endl;
     {
         const auto beg = Clock::now();
@@ -86,105 +84,9 @@ int main(int argc, const char* argv[], const char* envp[])
 
     benchmarkSet<std::unordered_set<E>>(elementCount);
     benchmarkSet<ska::flat_hash_set<E>>(elementCount);
-
-    {
-        robin_hood::unordered_flat_set<E> us;
-        us.reserve(elementCount);
-        cout << "robin_hood::unordered_flat_set:: ";
-        {
-            const auto beg = Clock::now();
-            for (size_t i = 0; i < elementCount; ++i)
-            {
-                us.insert(i);
-            }
-            const auto end = Clock::now();
-            const auto diff = end - beg;
-            cout << "insert: "
-                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op ";
-        }
-        {
-            bool allHit = true;
-            const auto beg = Clock::now();
-            for (size_t i = 0; i < elementCount; ++i)
-            {
-                const auto hit = us.find(i);
-                if (hit == us.end()) { allHit = false; }
-            }
-            const auto end = Clock::now();
-            const auto diff = end - beg;
-            cout << "find: "
-                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op "
-                 << (allHit ? "OK" : "ERR");
-        }
-        cout << endl;
-        us.clear();
-    }
-
-    {
-        robin_hood::unordered_node_set<E> us;
-        us.reserve(elementCount);
-        cout << "robin_hood::unordered_node_set:: ";
-        {
-            const auto beg = Clock::now();
-            for (size_t i = 0; i < elementCount; ++i)
-            {
-                us.insert(i);
-            }
-            const auto end = Clock::now();
-            const auto diff = end - beg;
-            cout << "insert: "
-                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op ";
-        }
-        {
-            bool allHit = true;
-            const auto beg = Clock::now();
-            for (size_t i = 0; i < elementCount; ++i)
-            {
-                const auto hit = us.find(i);
-                if (hit == us.end()) { allHit = false; }
-            }
-            const auto end = Clock::now();
-            const auto diff = end - beg;
-            cout << "find: "
-                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op "
-                 << (allHit ? "OK" : "ERR");
-        }
-        cout << endl;
-        us.clear();
-    }
-
-    {
-        robin_hood::unordered_set<E> us;
-        us.reserve(elementCount);
-        cout << "robin_hood::unordered_set:: ";
-        {
-            const auto beg = Clock::now();
-            for (size_t i = 0; i < elementCount; ++i)
-            {
-                us.insert(i);
-            }
-            const auto end = Clock::now();
-            const auto diff = end - beg;
-            cout << "insert: "
-                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op ";
-        }
-        {
-            bool allHit = true;
-            const auto beg = Clock::now();
-            for (size_t i = 0; i < elementCount; ++i)
-            {
-                const auto hit = us.find(i);
-                if (hit == us.end()) { allHit = false; }
-            }
-            const auto end = Clock::now();
-            const auto diff = end - beg;
-            cout << "find: "
-                 << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op "
-                 << (allHit ? "OK" : "ERR");
-        }
-        cout << endl;
-        us.clear();
-    }
+    benchmarkSet<robin_hood::unordered_flat_set<E>>(elementCount);
+    benchmarkSet<robin_hood::unordered_node_set<E>>(elementCount);
+    benchmarkSet<robin_hood::unordered_set<E>>(elementCount);
 
     {
         unordered_map<E, E> us;

@@ -94,7 +94,8 @@ void benchmarkMap(size_t elementCount)
     auto beg = Clock::now();
     for (size_t i = 0; i < elementCount; ++i)
     {
-        x.insert(make_pair(i, i));
+        x[i] = i;
+        // x.insert(make_pair(i, i));
     }
     auto end = Clock::now();
     showTime("insert", end - beg, elementCount, true);
@@ -134,6 +135,9 @@ int main(__attribute__((unused)) int argc,
 
     cout << "# Maps:" << endl;
     benchmarkMap<ska::flat_hash_map<E, E>>(elementCount);
+    benchmarkMap<robin_hood::unordered_flat_map<E, E>>(elementCount);
+    benchmarkMap<robin_hood::unordered_node_map<E, E>>(elementCount);
+    benchmarkMap<robin_hood::unordered_map<E, E>>(elementCount);
     benchmarkMap<std::unordered_map<E, E>>(elementCount);
 
     return 0;

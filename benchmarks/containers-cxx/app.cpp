@@ -4,7 +4,9 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <chrono>
+
 #include <typeinfo>
+#include <cxxabi.h>
 
 #include "flat_hash_map.hpp"
 #include "robin_hood.h"
@@ -22,7 +24,12 @@ void benchmarkSet(size_t elementCount)
 {
     Set us;
     us.reserve(elementCount);
-    cout << typeid(Set).name() << ": ";
+
+    char * name = 0;
+    int status;
+    name = abi::__cxa_demangle(typeid(Set).name(), 0, 0, &status);
+
+    cout << name << ":" << endl;
     {
         const auto start_time = Clock::now();
         for (size_t i = 0; i < elementCount; ++i)
@@ -48,7 +55,7 @@ void benchmarkSet(size_t elementCount)
              << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op "
              << (allHit ? "OK" : "ERR");
     }
-    cout << endl;
+    cout << endl << endl;
     us.clear();
 }
 

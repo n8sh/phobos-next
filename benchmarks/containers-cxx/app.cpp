@@ -14,6 +14,8 @@
 #include "flat_hash_map.hpp"
 #include "bytell_hash_map.hpp"
 #include "robin_hood.h"
+#include "tsl/robin_set.h"
+#include "tsl/robin_map.h"
 
 using namespace std;
 

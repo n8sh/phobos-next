@@ -26,9 +26,11 @@ using namespace std;
 namespace cr = chrono;
 
 template <typename T>
-std::basic_string<T> replaceAll(const std::basic_string<T>& s, const T* from, const T* to)
+std::basic_string<T> replace_all(const std::basic_string<T>& s,
+                                 const T* from,
+                                 const T* to)
 {
-    auto length = std::char_traits<T>::length;
+    const auto length = std::char_traits<T>::length;
     size_t toLen = length(to), fromLen = length(from), delta = toLen - fromLen;
     std::string ns = s;
 
@@ -80,7 +82,7 @@ void showHeader()
 {
     int status;
     std::string name = abi::__cxa_demangle(typeid(T).name(), 0, 0, &status);
-    const auto fixed_name = replaceAll(name, "unsigned long", "ulong");
+    const auto fixed_name = replace_all(name, "unsigned long", "ulong");
     cout << fixed_name << ":" << endl;
 }
 

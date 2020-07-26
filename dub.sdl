@@ -16,6 +16,7 @@ dflags "-vcolumns" "-dip25" "-dip1008" # "-dip1000"
 dflags "-preview=intpromote" "-preview=dtorfields" "-preview=markdown"
 # TODO fails linking: dflags "-preview=in"
 dflags "-checkaction=context"
+dflags "-verrors=context"
 
 libs "z" "bz2" "zstd"
 

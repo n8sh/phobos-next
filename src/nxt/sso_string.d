@@ -14,7 +14,7 @@ module nxt.sso_string;
  * `SSOString()` and `true` for `SSOString("")`. This requires `SSOString()` to
  * default to a large string in which large pointer is set to `null`.
  *
- * NOTE big-endian platform support hasn't been verified.
+ * Big-endian platform support hasn't been verified.
  *
  * See_Also: https://forum.dlang.org/post/pb87rn$2icb$1@digitalmars.com
  * See_Also: https://issues.dlang.org/show_bug.cgi?id=18792

@@ -40,7 +40,7 @@ pure nothrow:
      * `source.length > smallCapacity` and `source` is not a `string`).
      */
     this(Chars)(const scope auto ref Chars source) @trusted
-    if (isCharArray!(typeof(source[]))) // not immutable `char`
+    if (is(Chars : const(char)[])) // not immutable `char`
     {
         static if (__traits(isStaticArray, Chars))
         {
@@ -88,7 +88,7 @@ pure nothrow:
 
     this(Source)(Source source)
     if (is(typeof({ foreach (const dchar elem; Source.init) {} })) && // TODO `isConstRefIterable`
-        is(ElementType!Source : const(dchar)))
+        is(Source.init.front : const(dchar)))
     {
         static assert(0, "TODO complete this function");
         import std.utf : encode;
@@ -934,10 +934,8 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
 @safe pure unittest
 {
     import std.utf : byDchar;
-    // SSOString("alpha".);
+    // TODO SSOString("alpha".byDchar);
 }
-
-private enum isCharArray(T) = (is(T : const(char)[]));
 
 version(unittest)
 {

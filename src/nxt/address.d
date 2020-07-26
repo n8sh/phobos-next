@@ -8,6 +8,8 @@ module nxt.address;
  * prevent triggering of `gc_addRange` and `gc_removeRange`.
  *
  * TODO is `holeValue` suitably chosen?
+ *
+ * See_Also: https://en.wikipedia.org/wiki/Data_structure_alignment
  */
 struct ByteAlignedAddress(uint byteAlignment_) // TODO adjust alignment here
 {

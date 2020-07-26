@@ -40,6 +40,8 @@ import nxt.pure_mallocator : Mallocator = PureMallocator; // TODO merge into `st
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  * See_Also: https://gankro.github.io/blah/hashbrown-insert/
  *
+ * TODO tests fails when `useSmallLinearSearch` is set to `false`
+ *
  * TODO group nxt.probing functions in Prober struct given as type template
  * param to `OpenHashMapOrSet`
  *

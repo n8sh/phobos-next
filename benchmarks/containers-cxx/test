@@ -1,10 +1,10 @@
 #!/bin/bash
 
-CC=gcc-10
-CLANG=clang-10
+CC='ccache gcc-10'
+CLANG='ccache clang-10'
 
-EXE_GCC=main-gcc                # TODO use ccache
-EXE_CLANG=main-clang            # TODO use ccache
+EXE_GCC=main-gcc
+EXE_CLANG=main-clang
 
 echo "===="
 echo "GCC:"

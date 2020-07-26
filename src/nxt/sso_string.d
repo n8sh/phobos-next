@@ -472,7 +472,7 @@ SSOString toLower()(const SSOString x) @trusted // template-lazy
         import std.conv : to;
         return typeof(return)(x.opSlice().asLowerCase.to!string); // TODO make .to!string nothrow
     }
-    else // small non-ASCII can usually be performed without GC-allocation
+    else                   // small non-ASCII path usually without GC-allocation
     {
         typeof(return) result = x; // copy
         import std.uni : toLowerInPlace;
@@ -518,7 +518,7 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
         import std.conv : to;
         return typeof(return)(x.opSlice().asUpperCase.to!string); // TODO make .to!string nothrow
     }
-    else // small non-ASCII can usually be performed without GC-allocation
+    else                   // small non-ASCII path usually without GC-allocation
     {
         typeof(return) result = x; // copy
         import std.uni : toUpperInPlace;

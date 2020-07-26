@@ -27,12 +27,18 @@ void showTime(const string& tag, Duration dur, size_t elementCount, bool okFlag)
          << (okFlag ? "OK" : "ERR");
 }
 
+template<class T>
+void showHeader()
+{
+    int status;
+    const auto name = abi::__cxa_demangle(typeid(T).name(), 0, 0, &status);
+    cout << name << ":" << endl;
+}
+
 template<class Vector>
 void benchmarkVector(size_t elementCount)
 {
-    int status;
-    const auto name = abi::__cxa_demangle(typeid(Vector).name(), 0, 0, &status);
-    cout << name << ":" << endl;
+    showHeader<Vector>();
     Vector a;
     a.reserve(elementCount);
     const auto beg = Clock::now();
@@ -43,7 +49,8 @@ void benchmarkVector(size_t elementCount)
     const auto end = Clock::now();
     const auto diff = end - beg;
     cout << "push_back: "
-         << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op\n";
+         << (static_cast<double>(cr::duration_cast<cr::nanoseconds>(diff).count())) / elementCount << " nsecs/op";
+    cout << endl << endl;
 }
 
 template<class Set>

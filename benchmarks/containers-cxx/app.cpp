@@ -25,7 +25,7 @@ define_has_member(reserve);
 using namespace std;
 
 using E = ulong;
-using TestSource = std::vector<E>;
+using LongVector = std::vector<E>;
 
 // save some typing
 namespace cr = chrono;
@@ -53,7 +53,7 @@ void showHeader()
 
 template<class Vector>
 void benchmarkVector(size_t elementCount,
-                     const TestSource& testSource)
+                     const LongVector& testSource)
 {
     showHeader<Vector>();
     Vector x;
@@ -74,7 +74,7 @@ void benchmarkVector(size_t elementCount,
 
 template<class Set>
 void benchmarkSet(size_t elementCount,
-                  const TestSource& testSource)
+                  const LongVector& testSource)
 {
     showHeader<Set>();
     Set x;
@@ -117,7 +117,7 @@ void benchmarkSet(size_t elementCount,
 
 template<class Map>
 void benchmarkMap(size_t elementCount,
-                  const TestSource& testSource)
+                  const LongVector& testSource)
 {
     showHeader<Map>();
     Map x;
@@ -165,7 +165,7 @@ int main(__attribute__((unused)) int argc,
 {
     const size_t elementCount = 400000;
 
-    TestSource testSource(elementCount);
+    LongVector testSource(elementCount);
     for (size_t i = 0; i < elementCount; ++i)
     {
         testSource[i] = i;

@@ -16,6 +16,7 @@
 
 using namespace std;
 
+/// Copied from: https://gist.github.com/maddouri/0da889b331d910f35e05ba3b7b9d869b
 #define define_has_member(member_name)                                  \
     template <typename T>                                                      \
     class has_member_##member_name                                             \
@@ -27,7 +28,6 @@ using namespace std;
     public:                                                                    \
         static constexpr bool value = sizeof(test<T>(0)) == sizeof(yes_type);  \
     }
-
 define_has_member(reserve);
 
 /// Shorthand for testing if "class_" has a member called "member_name"
@@ -135,7 +135,7 @@ void benchmarkOrderedSet(size_t elementCount)
 }
 
 template<class Map>
-void benchmarkUnorderedMap(size_t elementCount)
+void benchmarkMap(size_t elementCount)
 {
     showHeader<Map>();
     Map x;
@@ -190,11 +190,14 @@ int main(__attribute__((unused)) int argc,
     benchmarkOrderedSet<std::set<E>>(elementCount);
 
     cout << "# Unordered Maps:" << endl;
-    benchmarkUnorderedMap<ska::flat_hash_map<E, E>>(elementCount);
-    benchmarkUnorderedMap<robin_hood::unordered_flat_map<E, E>>(elementCount);
-    benchmarkUnorderedMap<robin_hood::unordered_node_map<E, E>>(elementCount);
-    benchmarkUnorderedMap<robin_hood::unordered_map<E, E>>(elementCount);
-    benchmarkUnorderedMap<std::unordered_map<E, E>>(elementCount);
+    benchmarkMap<ska::flat_hash_map<E, E>>(elementCount);
+    benchmarkMap<robin_hood::unordered_flat_map<E, E>>(elementCount);
+    benchmarkMap<robin_hood::unordered_node_map<E, E>>(elementCount);
+    benchmarkMap<robin_hood::unordered_map<E, E>>(elementCount);
+    benchmarkMap<std::unordered_map<E, E>>(elementCount);
+
+    cout << "# Ordered Maps:" << endl;
+    benchmarkMap<std::map<E, E>>(elementCount);
 
     return 0;
 }

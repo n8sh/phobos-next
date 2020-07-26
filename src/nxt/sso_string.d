@@ -560,7 +560,7 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
 @safe pure nothrow @nogc unittest
 {
     const char[] s;
-    // TODO static assert(__traits(!compiles, { const _ = SSOString(s); }));
+    // TODO why does this fail? static assert(!__traits(compiles, { const _ = SSOString(s); }));
 }
 
 /// verify `isNull` when @nogc constructing from small static array of `char`s
@@ -717,7 +717,6 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
         s.metadata = i;
         assert(s.metadata == i);
         assert(s.length == 0);
-        // TODO assert(!s.isNull);
     }
 }
 

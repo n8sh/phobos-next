@@ -31,10 +31,10 @@ using Clock = cr::high_resolution_clock;
 using Dur = decltype(Clock::now() - Clock::now()); ///< Duration.
 using Durs = std::vector<Dur>;                     ///< Durations.
 
-template<class Duration>
-void showTime(const string& tag, Duration dur, size_t elementCount, bool okFlag)
+void showTime(const string& tag, const Durs& durs, size_t elementCount, bool okFlag)
 {
-    const auto dur_ns = cr::duration_cast<cr::nanoseconds>(dur).count();
+    const auto min_dur = *min_element(begin(durs), end(durs));
+    const auto dur_ns = cr::duration_cast<cr::nanoseconds>(min_dur).count();
     cout << tag << ": "
          << (static_cast<double>(dur_ns)) / elementCount << " nsecs/op "
          << (okFlag ? "OK" : "ERR")
@@ -71,7 +71,7 @@ void benchmarkVector(const UlongArray& ulongArray, const size_t runCount)
         }
         durs[runIx] = Clock::now() - beg;
     }
-    showTime("push_back", *min_element(begin(durs), end(durs)), ulongArray.size(), true);
+    showTime("push_back", durs, ulongArray.size(), true);
 
     cout << endl << endl;
 }
@@ -98,7 +98,7 @@ void benchmarkSet(const UlongArray& ulongArray, const size_t runCount)
         }
         durs[runIx] = Clock::now() - beg;
     }
-    showTime("insert", *min_element(begin(durs), end(durs)), ulongArray.size(), true);
+    showTime("insert", durs, ulongArray.size(), true);
 
     bool allHit = true;
     for (size_t runIx = 0; runIx != runCount; ++runIx)
@@ -111,7 +111,7 @@ void benchmarkSet(const UlongArray& ulongArray, const size_t runCount)
         }
         durs[runIx] = Clock::now() - beg;
     }
-    showTime("find", *min_element(begin(durs), end(durs)), ulongArray.size(), allHit);
+    showTime("find", durs, ulongArray.size(), allHit);
 
     bool allErase = true;
     for (size_t runIx = 0; runIx != runCount; ++runIx)
@@ -124,7 +124,7 @@ void benchmarkSet(const UlongArray& ulongArray, const size_t runCount)
         }
         durs[runIx] = Clock::now() - beg;
     }
-    showTime("erase", *min_element(begin(durs), end(durs)), ulongArray.size(), allErase);
+    showTime("erase", durs, ulongArray.size(), allErase);
 
     for (size_t runIx = 0; runIx != runCount; ++runIx)
     {
@@ -135,7 +135,7 @@ void benchmarkSet(const UlongArray& ulongArray, const size_t runCount)
         }
         durs[runIx] = Clock::now() - beg;
     }
-    showTime("reinsert", *min_element(begin(durs), end(durs)), ulongArray.size(), true);
+    showTime("reinsert", durs, ulongArray.size(), true);
 
     cout << endl << endl;
     x.clear();
@@ -163,7 +163,7 @@ void benchmarkMap(const UlongArray& ulongArray, const size_t runCount)
         }
         durs[runIx] = Clock::now() - beg;
     }
-    showTime("insert", *min_element(begin(durs), end(durs)), ulongArray.size(), true);
+    showTime("insert", durs, ulongArray.size(), true);
 
     bool allHit = true;
     for (size_t runIx = 0; runIx != runCount; ++runIx)
@@ -176,7 +176,7 @@ void benchmarkMap(const UlongArray& ulongArray, const size_t runCount)
         }
         durs[runIx] = Clock::now() - beg;
     }
-    showTime("find", *min_element(begin(durs), end(durs)), ulongArray.size(), allHit);
+    showTime("find", durs, ulongArray.size(), allHit);
 
     bool allErase = true;
     for (size_t runIx = 0; runIx != runCount; ++runIx)
@@ -189,7 +189,7 @@ void benchmarkMap(const UlongArray& ulongArray, const size_t runCount)
         }
         durs[runIx] = Clock::now() - beg;
     }
-    showTime("erase", *min_element(begin(durs), end(durs)), ulongArray.size(), allErase);
+    showTime("erase", durs, ulongArray.size(), allErase);
 
     for (size_t runIx = 0; runIx != runCount; ++runIx)
     {
@@ -200,7 +200,7 @@ void benchmarkMap(const UlongArray& ulongArray, const size_t runCount)
         }
         durs[runIx] = Clock::now() - beg;
     }
-    showTime("reinsert", *min_element(begin(durs), end(durs)), ulongArray.size(), true);
+    showTime("reinsert", durs, ulongArray.size(), true);
 
     cout << endl << endl;
     x.clear();

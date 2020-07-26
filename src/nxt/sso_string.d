@@ -798,7 +798,7 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
     const _ = SSOString(charsMinLargeCapacity);
 }
 
-// test construction from iterable
+// test construction from range
 @safe pure unittest
 {
     static void test(const char[] x) @safe pure

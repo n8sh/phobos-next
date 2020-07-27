@@ -7,8 +7,8 @@ import std.experimental.allocator.building_blocks.ascending_page_allocator : Asc
 import std.experimental.allocator.building_blocks.aligned_block_list : AlignedBlockList;
 import std.experimental.allocator.building_blocks.bitmapped_block : BitmappedBlock;
 
-import region_allocator : Region; // using my own until @safe fixes has been merged
-import pure_gc_allocator : PureGCAllocator; // using my own until @safe fixes has been merged
+import nxt.region_allocator : Region; // using my own until @safe fixes has been merged
+import nxt.pure_gc_allocator : PureGCAllocator; // using my own until @safe fixes has been merged
 
 enum wordSize = size_t.sizeof;
 

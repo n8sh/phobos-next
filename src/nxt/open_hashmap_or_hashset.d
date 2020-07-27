@@ -129,10 +129,10 @@ if (isNullable!K /*&& isHashable!K */)
     else
     {
         import std.math : nextPow2;
+        import nxt.probing : triangularProbeFromIndex, triangularProbeFromIndexIncludingHoles, triangularProbeCountFromIndex;
+        /// Setting this `true` doesn't give measurable speedups so set it to `false` for now.
+        enum bool assumeNonFullHaystack = false;
     }
-
-    import nxt.probing : triangularProbeFromIndex, triangularProbeFromIndexIncludingHoles, triangularProbeCountFromIndex;
-    enum bool assumeNonFullHaystack = false; ///< Setting this `true` doesn't give measurable speedups so set it to `false` for now.
 
     static if (is(typeof(keyEqualPred) : string))
     {

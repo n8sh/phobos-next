@@ -3,13 +3,11 @@ void main()
     // standard storage
     import std.traits : hasMember;
     import std.range : iota;
-    import std.array : array, Appender;
+    import std.array : array;
     import std.random : randomShuffle;
-    import std.container.rbtree : RedBlackTree;
-    import std.algorithm.searching : minElement, maxElement;
+    import std.algorithm.searching : minElement;
     import std.typecons : Nullable;
 
-    import nxt.array_help : toUbytes;
     import nxt.pure_mallocator : Mallocator = PureMallocator;
     import nxt.open_hashmap_or_hashset : OpenHashMap, OpenHashSet, defaultKeyEqualPredOf;
     import nxt.hash_functions : lemireHash64;
@@ -54,23 +52,15 @@ void main()
             immutable startTime = MonoTime.currTime();
             foreach (immutable i; testSource)
             {
-                static if (hasMember!(A, `ElementType`) &&
-                           is(A.ElementType == ubyte[]))
+                static if (hasMember!(A, `ElementType`))
                 {
-                    a.insert(i.toUbytes);
+                    const element = A.ElementType(i);
                 }
                 else
                 {
-                    static if (hasMember!(A, `ElementType`))
-                    {
-                        const element = A.ElementType(i);
-                    }
-                    else
-                    {
-                        const element = i;
-                    }
-                    a.insert(element);
+                    const element = i;
                 }
+                a.insert(element);
             }
             immutable after = MonoTime.currTime();
             writef("insert (w growth): %3.1f ns/op", cast(double)(after - startTime).total!"nsecs" / elementCount);
@@ -110,32 +100,6 @@ void main()
             immutable after = MonoTime.currTime();
             writef(", contains: %3.1f ns/op (%s)", cast(double)(after - startTime).total!"nsecs" / elementCount, ok ? "OK" : "ERR");
         }
-
-        /* NOTE I couldn't make this faster so skiping */
-        /* static if (hasMember!(A, "containsUsingLinearSearch")) */
-        /* { */
-        /*     { */
-        /*         immutable startTime = MonoTime.currTime(); */
-        /*         size_t hitCount = 0; */
-        /*         import std.algorithm.comparison : min; */
-        /*         const testSourceCount = min(100, testSource.length); // reduce to 1000 tests for now because of slow linear search */
-        /*         foreach (immutable i; testSource[0 .. testSourceCount]) */
-        /*         { */
-        /*             static if (hasMember!(A, `ElementType`)) */
-        /*             { */
-        /*                 const element = A.ElementType(i); // wrap in i in Nullable */
-        /*             } */
-        /*             else */
-        /*             { */
-        /*                 const element = i; */
-        /*             } */
-        /*             hitCount += a.containsUsingLinearSearch(element); */
-        /*         } */
-        /*         const ok = hitCount == testSourceCount; // for side effect in output */
-        /*         immutable after = MonoTime.currTime(); */
-        /*         writef(", containsUsingLinearSearch: %3.1f ns/op (%s)", cast(double)(after - startTime).total!"nsecs" / testSourceCount, ok ? "OK" : "ERR"); */
-        /*     } */
-        /* } */
 
         static if (hasMember!(A, `withCapacity`))
         {

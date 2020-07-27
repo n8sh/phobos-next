@@ -430,7 +430,7 @@ if (isNullable!K /*&& isHashable!K */)
         else
         {
             debug import std.math : isPowerOf2;
-            assert(isPowerOf2(capacity)); // quadratic probing needs power of two capacity (`_store.length`)
+            debug assert(isPowerOf2(capacity)); // quadratic probing needs power of two capacity (`_store.length`)
         }
         version(showEntries) dbg(__FUNCTION__, " minimumCapacity:",
                                  minimumCapacity,
@@ -1957,7 +1957,7 @@ private:
             version(unittest)
             {
                 debug import std.math : isPowerOf2;
-                assert(isPowerOf2(length));
+                debug assert(isPowerOf2(length));
             }
             return mask;
         }

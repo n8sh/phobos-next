@@ -1964,10 +1964,9 @@ private:
 
         static if (is(typeof(hasher(key)) == hash_t)) // for instance when hasher being `hashOf`
         {
-            pragma(msg, typeof(this));
             const size_t hash = hasher(key);
         }
-        else static if (is(hasher == struct) ||
+        else static if (is(hasher == struct) || // such as `FNV`
                         is(hasher == class))
         {
             import nxt.digestion : hashOf2;

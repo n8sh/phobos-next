@@ -129,11 +129,11 @@ if (isNullable!K /*&& isHashable!K */)
     else
     {
         import std.math : nextPow2;
-        import nxt.probing : triangularProbeFromIndex, triangularProbeFromIndexIncludingHoles, triangularProbeCountFromIndex;
-
-        /// Setting this `true` doesn't give measurable speedups so set it to `false` for now.
-        enum bool assumeNonFullHaystack = false;
     }
+
+    import nxt.probing : triangularProbeFromIndex, triangularProbeFromIndexIncludingHoles, triangularProbeCountFromIndex;
+    /// Setting this `true` doesn't give measurable speedups so set it to `false` for now.
+    enum bool assumeNonFullHaystack = false;
 
     static if (is(typeof(keyEqualPred) : string))
     {
@@ -426,7 +426,7 @@ if (isNullable!K /*&& isHashable!K */)
     {
         static if (usePrimeCapacity)
         {
-            // TODO check that capacity is prime
+            // TODO check that capacity is prime?
         }
         else
         {
@@ -1817,7 +1817,7 @@ if (isNullable!K /*&& isHashable!K */)
             }
             else
             {
-                const probeCount = triangularProbeCountFromIndex!pred(_store[], keyToIndex(keyOf(currentElement)));
+                const probeCount = triangularProbeCountFromIndex!(pred, assumeNonFullHaystack)(_store[], keyToIndex(keyOf(currentElement)));
             }
 
             totalCount += probeCount;
@@ -2037,7 +2037,7 @@ private:
         }
         else
         {
-            return _store[].triangularProbeFromIndex!(pred)(keyToIndex(key));
+            return _store[].triangularProbeFromIndex!(pred, assumeNonFullHaystack)(keyToIndex(key));
         }
     }
 

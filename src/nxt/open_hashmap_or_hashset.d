@@ -1816,7 +1816,7 @@ if (isNullable!K /*&& isHashable!K */)
             }
             else
             {
-                const probeCount = triangularProbeCountFromIndex!(pred, assumeNonFullHaystack)(_store[], keyToIndex(keyOf(currentElement)));
+                const probeCount = triangularProbeCountFromIndex!(pred)(_store[], keyToIndex(keyOf(currentElement)));
             }
 
             totalCount += probeCount;

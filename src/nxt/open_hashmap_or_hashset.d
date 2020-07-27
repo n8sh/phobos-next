@@ -42,6 +42,8 @@ import nxt.pure_mallocator : Mallocator = PureMallocator; // TODO merge into `st
  *
  * TODO tests fails when `useSmallLinearSearch` is set to `false`
  *
+ * TODO Use bit-ored Flags as template params
+ *
  * TODO group nxt.probing functions in Prober struct given as type template
  * param to `OpenHashMapOrSet`
  *

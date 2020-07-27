@@ -419,7 +419,7 @@ if (isNullable!K /*&& isHashable!K */)
         }
         else
         {
-            import std.math : isPowerOf2;
+            debug import std.math : isPowerOf2;
             assert(isPowerOf2(capacity)); // quadratic probing needs power of two capacity (`_store.length`)
         }
         version(showEntries) dbg(__FUNCTION__, " minimumCapacity:",
@@ -1934,37 +1934,47 @@ private:
     private size_t keyToIndex(SomeKey)(const scope SomeKey key) const @trusted
     {
         version(LDC) pragma(inline, true);
-        static if (usePrimeCapacity)
+
+        /** Returns: current index mask from bin count `_store.length`. */
+        static size_t powerOf2Mask(in size_t length)
         {
-            return moduloPrimeIndex(hasher(key), _primeIndex);
+            version(unittest) {}
+            else
+            {
+                pragma(inline, true);
+            }
+            immutable typeof(return) mask = length - 1;
+            version(unittest)
+            {
+                debug import std.math : isPowerOf2;
+                assert(isPowerOf2(length));
+            }
+            return mask;
+        }
+
+        static if (is(typeof(hasher(key)) == hash_t)) // for instance when hasher being `hashOf`
+        {
+            pragma(msg, typeof(this));
+            const size_t hash = hasher(key);
+        }
+        else static if (is(hasher == struct) ||
+                        is(hasher == class))
+        {
+            import nxt.digestion : hashOf2;
+            const size_t hash = hashOf2!(hasher)(key);
         }
         else
         {
-            /** Returns: current index mask from bin count `_store.length`. */
-            static size_t powerOf2Mask(in size_t length)
-            {
-                version(unittest) {}
-                else
-                {
-                    pragma(inline, true);
-                }
-                immutable typeof(return) mask = length - 1;
-                version(unittest)
-                {
-                    import std.math : isPowerOf2;
-                    assert(isPowerOf2(length));
-                }
-                return mask;
-            }
-            static if (is(typeof(hasher(key)) == hash_t)) // for instance when hasher being `hashOf`
-            {
-                return hasher(key) & powerOf2Mask(_store.length);
-            }
-            else
-            {
-                import nxt.digestion : hashOf2;
-                return hashOf2!(hasher)(key) & powerOf2Mask(_store.length);
-            }
+            static assert(false, "Unsupported hasher of type " ~ typeof(hasher).stringof);
+        }
+
+        static if (usePrimeCapacity)
+        {
+            return moduloPrimeIndex(hash, _primeIndex);
+        }
+        else
+        {
+            return hash & powerOf2Mask(_store.length);
         }
     }
 

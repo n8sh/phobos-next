@@ -1,0 +1,9 @@
+#!/bin/bash
+
+D_COMPILER="dmd"
+
+DMD=$(type -p $D_COMPILER)
+DMD_DIR=$(dirname "$DMD")
+DMD_DUB="$DMD_DIR/dub"
+
+exec "$DMD_DUB" run --compiler=$D_COMPILER --build=debug

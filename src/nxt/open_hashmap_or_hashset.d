@@ -13,7 +13,7 @@ enum Flag
     usePrimeCapacity,
 }
 import std.typecons : BitFlags;
-alias Flags = BitFlags!Flag;    ///< Use as Flags flags param to `OpenHashMapOrSet`
+alias Flags = BitFlags!Flag;    ///< Use as Flags flags param to `OpenHashMap`
 
 @safe:
 
@@ -41,6 +41,7 @@ alias Flags = BitFlags!Flag;    ///< Use as Flags flags param to `OpenHashMapOrS
  *      useSmallLinearSearch = Use linear search instead probing when `_store` is smaller than `linearSearchMaxSize`
  *      usePrimeCapacity = Use prime numbers as capacity of hash table enabling better performance of simpler hash-functions
  *
+ * See_Also: https://www.sebastiansylvan.com/post/robin-hood-hashing-should-be-your-default-hash-table-implementation/
  * See_Also: https://arxiv.org/abs/1605.04031
  * See_Also: https://github.com/Tessil/robin-map
  * See_Also: https://github.com/martinus/robin-hood-hashing
@@ -54,7 +55,7 @@ alias Flags = BitFlags!Flag;    ///< Use as Flags flags param to `OpenHashMapOrS
  * TODO Use set of `Flag`s (defined here) as template params
  *
  * TODO group nxt.probing functions in Prober struct given as type template
- * param to `OpenHashMapOrSet`
+ * param to `OpenHashMap`
  *
  * TODO Make load factor dependent on current capacity or length and perhaps
  * also type and hash-function to get memory efficiency when it matters. Similar
@@ -67,7 +68,7 @@ alias Flags = BitFlags!Flag;    ///< Use as Flags flags param to `OpenHashMapOrS
  * TODO use `StoreK` in store and cast between it and `KeyType`
  *
  * TODO allocate _holesPtr array together with _store to reduce size of
- * `OpenHashMapOrSet` to 3 words when element type doesn't support it
+ * `OpenHashMap` to 3 words when element type doesn't support it
  *
  * TODO fix bug in `growInPlaceWithCapacity` and benchmark
  *
@@ -102,7 +103,7 @@ alias Flags = BitFlags!Flag;    ///< Use as Flags flags param to `OpenHashMapOrS
  *
  * TODO only add one extra element to capacity when `assumeNonFullHaystack` is `true`
  */
-struct OpenHashMapOrSet(K, V = void,
+struct OpenHashMap(K, V = void,
                         alias hasher = hashOf,
                         string keyEqualPred = defaultKeyEqualPredOf!(K),
                         alias Allocator = Mallocator.instance,
@@ -2298,18 +2299,7 @@ alias OpenHashSet(K,
                   bool borrowChecked = false,
                   bool useSmallLinearSearch = true,
                   bool usePrimeCapacity = false) =
-OpenHashMapOrSet!(K, void, hasher, keyEqualPred, Allocator, borrowChecked, useSmallLinearSearch, usePrimeCapacity);
-
-/** Immutable hash map storing keys of type `K` and values of type `V`.
- */
-alias OpenHashMap(K, V,
-                  alias hasher = hashOf,
-                  string keyEqualPred = defaultKeyEqualPredOf!K,
-                  alias Allocator = Mallocator.instance,
-                  bool borrowChecked = false,
-                  bool useSmallLinearSearch = true,
-                  bool usePrimeCapacity = false) =
-OpenHashMapOrSet!(K, V, hasher, keyEqualPred, Allocator, borrowChecked, useSmallLinearSearch, usePrimeCapacity);
+OpenHashMap!(K, void, hasher, keyEqualPred, Allocator, borrowChecked, useSmallLinearSearch, usePrimeCapacity);
 
 import std.traits : isInstanceOf;
 import std.functional : unaryFun;
@@ -2320,7 +2310,7 @@ import std.functional : unaryFun;
  * container_algorithm.
  */
 size_t removeAllMatching(alias pred, Table)(auto ref Table x) @trusted
-if (isInstanceOf!(OpenHashMapOrSet, Table) && // TODO generalize to `isSetOrMap`
+if (isInstanceOf!(OpenHashMap, Table) && // TODO generalize to `isSetOrMap`
     is(typeof((unaryFun!pred))))
 {
     import nxt.nullable_traits : nullify;
@@ -2346,7 +2336,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) && // TODO generalize to `isSetOrMap`
     TODO move to container_algorithm.d with more generic template restrictions
 */
 Table filtered(alias pred, Table)(Table x)
-if (isInstanceOf!(OpenHashMapOrSet, Table)) // TODO generalize to `isSetOrMap`
+if (isInstanceOf!(OpenHashMap, Table)) // TODO generalize to `isSetOrMap`
 {
     import core.lifetime : move;
     import std.functional : not;
@@ -2358,8 +2348,8 @@ if (isInstanceOf!(OpenHashMapOrSet, Table)) // TODO generalize to `isSetOrMap`
     TODO move to container_algorithm.d.
  */
 auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
-if (isInstanceOf!(OpenHashMapOrSet, C1) && // TODO generalize to `isSetOrMap`
-    isInstanceOf!(OpenHashMapOrSet, C2))   // TODO generalize to `isSetOrMap`
+if (isInstanceOf!(OpenHashMap, C1) && // TODO generalize to `isSetOrMap`
+    isInstanceOf!(OpenHashMap, C2))   // TODO generalize to `isSetOrMap`
 {
     import core.lifetime : move;
     static if (__traits(isRef, y)) // y is l-value
@@ -2782,8 +2772,8 @@ unittest
  */
 auto intersectWith(C1, C2)(ref C1 x,
                            auto ref const(C2) y)
-if (isInstanceOf!(OpenHashMapOrSet, C1) &&
-    isInstanceOf!(OpenHashMapOrSet, C2))
+if (isInstanceOf!(OpenHashMap, C1) &&
+    isInstanceOf!(OpenHashMap, C2))
 {
     return x.removeAllMatching!(_ => !y.contains(_));
 }
@@ -2869,7 +2859,7 @@ pragma(inline, true):
 /** Returns: range that iterates through the elements of `c` in undefined order.
  */
 auto byElement(Table)(auto ref return Table c) @trusted
-if (isInstanceOf!(OpenHashMapOrSet, Table) &&
+if (isInstanceOf!(OpenHashMap, Table) &&
     !Table.hasValue)
 {
     import core.internal.traits : Unqual;
@@ -2890,7 +2880,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
 alias range = byElement;        // EMSI-container naming
 
 static private struct ByKey_lvalue(Table)
-if (isInstanceOf!(OpenHashMapOrSet, Table) &&
+if (isInstanceOf!(OpenHashMap, Table) &&
     Table.hasValue)
 {
     @property const scope auto ref front() return // key access must be const, TODO auto ref => ref K
@@ -2904,7 +2894,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
 }
 
 static private struct ByKey_rvalue(Table)
-if (isInstanceOf!(OpenHashMapOrSet, Table) &&
+if (isInstanceOf!(OpenHashMap, Table) &&
     Table.hasValue)
 {
     @property const scope auto ref front() return // key access must be const, TODO auto ref => ref K
@@ -2920,7 +2910,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
 /** Returns: range that iterates through the keys of `c` in undefined order.
  */
 auto byKey(Table)(auto ref /*TODO return*/ Table c) @trusted
-if (isInstanceOf!(OpenHashMapOrSet, Table) &&
+if (isInstanceOf!(OpenHashMap, Table) &&
     Table.hasValue)
 {
     import core.internal.traits : Unqual;
@@ -2940,7 +2930,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
 }
 
 static private struct ByValue_lvalue(Table)
-if (isInstanceOf!(OpenHashMapOrSet, Table) &&
+if (isInstanceOf!(OpenHashMap, Table) &&
     Table.hasValue)
 {
     @property scope auto ref front() return @trusted // TODO auto ref => ref V
@@ -2964,7 +2954,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
 }
 
 static private struct ByValue_rvalue(Table)
-if (isInstanceOf!(OpenHashMapOrSet, Table) &&
+if (isInstanceOf!(OpenHashMap, Table) &&
     Table.hasValue)
 {
     @property scope auto ref front() return @trusted // TODO auto ref => ref V
@@ -2990,7 +2980,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
 /** Returns: range that iterates through the values of `c` in undefined order.
  */
 auto byValue(Table)(auto ref return Table c) @trusted
-if (isInstanceOf!(OpenHashMapOrSet, Table) &&
+if (isInstanceOf!(OpenHashMap, Table) &&
     Table.hasValue)
 {
     import core.internal.traits : Unqual;
@@ -3011,7 +3001,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
 }
 
 static private struct ByKeyValue_lvalue(Table)
-if (isInstanceOf!(OpenHashMapOrSet, Table) &&
+if (isInstanceOf!(OpenHashMap, Table) &&
     Table.hasValue)
 {
     @property scope auto ref front() return @trusted // TODO auto ref => ref T
@@ -3037,7 +3027,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
 /** Returns: range that iterates through the key-value-pairs of `c` in undefined order.
  */
 auto byKeyValue(Table)(auto ref return Table c) @trusted
-if (isInstanceOf!(OpenHashMapOrSet, Table) &&
+if (isInstanceOf!(OpenHashMap, Table) &&
     Table.hasValue)
 {
     import core.internal.traits : Unqual;
@@ -3144,7 +3134,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
     alias K = Nullable!(uint, uint.max);
     alias V = uint;
 
-    alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
+    alias X = OpenHashMap!(K, V, FNV!(64, true));
 
     auto s = X.withCapacity(n);
 
@@ -3198,7 +3188,7 @@ if (isInstanceOf!(OpenHashMapOrSet, Table) &&
         uint data;
     }
 
-    alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
+    alias X = OpenHashMap!(K, V, FNV!(64, true));
 
     auto s = X.withCapacity(n);
 
@@ -3256,7 +3246,7 @@ pure nothrow unittest
         uint data;
     }
 
-    alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
+    alias X = OpenHashMap!(K, V, FNV!(64, true));
     const x = X();
 
     foreach (ref e; x.byKey)
@@ -3296,7 +3286,7 @@ pure nothrow unittest
         uint data;
     }
 
-    alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
+    alias X = OpenHashMap!(K, V, FNV!(64, true));
     auto x = X();
 
     x[K(S(42))] = new V(43);
@@ -3361,7 +3351,7 @@ pure nothrow unittest
         uint data;
     }
 
-    alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
+    alias X = OpenHashMap!(K, V, FNV!(64, true));
     auto x = X();
 
     x[new K(42)] = new V(43);
@@ -3423,7 +3413,7 @@ pure nothrow unittest
         uint data;
     }
 
-    alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
+    alias X = OpenHashMap!(K, V, FNV!(64, true));
     auto x = X();
 
     scope key42 = new K(42);
@@ -3611,7 +3601,7 @@ version(unittest)
                               int,
                               void))
         {
-            alias X = OpenHashMapOrSet!(K, V, FNV!(64, true));
+            alias X = OpenHashMap!(K, V, FNV!(64, true));
 
             auto k11 = make!K(11);
             auto k12 = make!K(12);
@@ -3856,7 +3846,7 @@ version(unittest)
     import std.typecons : Nullable;
     import nxt.digestx.fnv : FNV;
 
-    alias X = OpenHashMapOrSet!(Nullable!(size_t, size_t.max), size_t, FNV!(64, true));
+    alias X = OpenHashMap!(Nullable!(size_t, size_t.max), size_t, FNV!(64, true));
     import nxt.dynamic_array : Array = DynamicArray;
     X x;
     // TODO these segfault:

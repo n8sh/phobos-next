@@ -5,29 +5,14 @@ void main()
     import std.range : iota;
     import std.array : array, Appender;
     import std.random : randomShuffle;
-    import std.container.array : StdArray = Array;
     import std.container.rbtree : RedBlackTree;
     import std.algorithm.searching : minElement, maxElement;
+    import std.typecons : Nullable;
 
-    // my containers
-    import nxt.dynamic_array : DynamicArray;
     import nxt.array_help : toUbytes;
-    import nxt.variant_arrays : VariantArrays;
-    // import nxt.sso_hashmap_or_hashset : SSOHashSet, SSOHashMap;
     import nxt.pure_mallocator : Mallocator = PureMallocator;
     import nxt.open_hashmap_or_hashset : OpenHashMap, OpenHashSet, defaultKeyEqualPredOf;
-    import nxt.sso_string : SSOString;
-    import nxt.address : Address;
-
-    import std.digest.murmurhash : MurmurHash3;
-    import nxt.xxhash64 : XXHash64;
-    import nxt.hash_functions;
-    import nxt.digestx.fnv : FNV;
-
-    import nxt.filters : DenseSetFilter;
-    import nxt.filterarray : DenseSetFilterGrowableArray;
-
-    import std.typecons : Nullable;
+    import nxt.hash_functions : lemireHash64;
     import nxt.trie : RadixTreeSet;
 
     import std.stdio : write, writeln, writef, writefln;
@@ -53,95 +38,9 @@ void main()
 
     alias Sample = ulong;
 
-    foreach (A; AliasSeq!(DynamicArray!(Sample),
-                          VariantArrays!(Sample),
-                          StdArray!(Sample),
-                          Appender!(Sample[]),
-                          Sample[]))
-    {
-        writef("- ");
-
-        A a = makeWithTriedCapacity!(A)(elementCount);
-
-        {
-            auto spans_ns = DynamicArray!(double).withLength(runCount);
-            foreach (const runIx; 0 .. runCount)
-            {
-                immutable startTime = MonoTime.currTime();
-                foreach (immutable i; testSource)
-                {
-                    a ~= i.to!Sample;     // need to cast away const here for now. TODO remove this requirement
-                }
-                spans_ns[runIx] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
-            }
-            writef("Appended: %3.1f ns/op",
-                   minElement(spans_ns[]) / elementCount);
-        }
-
-        writefln(` for %s`, A.stringof);
-
-        static if (hasMember!(A, `clear`))
-        {
-            a.clear();
-        }
-    }
-
     writefln("\nSets:\n");
 
-    foreach (A; AliasSeq!(DenseSetFilter!(uint),
-                          DenseSetFilterGrowableArray!(uint),
-
-                          // functions
-                          // SSOHashSet!(uint, null, identityHash64Of),
-                          // SSOHashSet!(uint, null, typeidHashOf),
-                          // SSOHashSet!(uint, null, hashOf),
-
-                          // SSOHashSet!(uint, null, muellerHash64),
-                          // SSOHashSet!(uint, null, wangMixHash64),
-                          // SSOHashSet!(uint, null, FNV!(64, true)),
-
-                          // std.digests
-                          // SSOHashSet!(uint, null, MurmurHash3!(128)),
-                          // SSOHashSet!(uint, null, XXHash64),
-
-                          OpenHashSet!(Nullable!(uint, uint.max), hashOf),
-                          OpenHashSet!(Nullable!(uint, uint.max), lemireHash64),
-                          OpenHashSet!(Nullable!(uint, uint.max), FNV!(64, true)),
-
-                          // TODO why are these so slow?
-                          // OpenHashSet!(Nullable!(Sample, Sample.max), hashOf),
-                          // OpenHashSet!(Nullable!(Sample, Sample.max), lemireHash64),
-                          // OpenHashSet!(Nullable!(Sample, Sample.max), FNV!(64, true)),
-
-                          RadixTreeSet!(uint),
-                          RedBlackTree!(uint),
-
-                          // SSOHashSet!(ulong, null, wangMixHash64),
-                          // SSOHashSet!(ulong, null, muellerHash64),
-                          // SSOHashSet!(ulong, null, FNV!(64, true), 2),
-                          // SSOHashSet!(ulong, null, FNV!(64, true), 3),
-                          // SSOHashSet!(ulong, null, FNV!(64, true), 4),
-
-                          OpenHashSet!(Nullable!(ulong, ulong.max), hashOf),
-                          OpenHashSet!(Nullable!(ulong, ulong.max), wangMixHash64),
-                          OpenHashSet!(Nullable!(ulong, ulong.max), lemireHash64),
-                          OpenHashSet!(Nullable!(ulong, ulong.max), FNV!(64, true)),
-                          OpenHashSet!(Nullable!(ulong, ulong.max), FNV!(64, true),
-                                       defaultKeyEqualPredOf!(Nullable!(ulong)),
-                                       Mallocator.instance,
-                                       false,
-                                       false),
-
-                          OpenHashSet!(Address, FNV!(64, true)),
-
-                          RadixTreeSet!(ulong),
-                          RedBlackTree!(ulong),
-
-                          OpenHashSet!(SSOString, hashOf),
-                          OpenHashSet!(SSOString, FNV!(64, true)),
-                          // TODO OpenHashSet!(string, FNV!(64, true)),
-                          // TODO OpenHashSet!(string, wangMixHash64),
-                 ))
+    foreach (A; AliasSeq!(OpenHashSet!(Nullable!(ulong, ulong.max), lemireHash64)))
     {
         // scope
 
@@ -164,19 +63,7 @@ void main()
                 {
                     static if (hasMember!(A, `ElementType`))
                     {
-                        static if (is(A.ElementType == Address))
-                        {
-                            const element = A.ElementType(i + 1); ///< Start at 1 instead of 0 because `Address` uses 0 for `nullValue`.
-                        }
-                        else static if (is(A.ElementType == SSOString) ||
-                                        is(A.ElementType == string))
-                        {
-                            const element = A.ElementType(to!string(i));
-                        }
-                        else
-                        {
-                            const element = A.ElementType(i);
-                        }
+                        const element = A.ElementType(i);
                     }
                     else
                     {
@@ -203,19 +90,7 @@ void main()
                 {
                     static if (hasMember!(A, `ElementType`))
                     {
-                        static if (is(A.ElementType == Address))
-                        {
-                            const element = A.ElementType(i + 1); ///< Start at 1 instead of 0 because `Address` uses 0 for `nullValue`.
-                        }
-                        else static if (is(A.ElementType == SSOString) ||
-                                        is(A.ElementType == string))
-                        {
-                            const element = A.ElementType(to!string(i));
-                        }
-                        else
-                        {
-                            const element = A.ElementType(i); // wrap in `i` in `Nullable`
-                        }
+                        const element = A.ElementType(i); // wrap in `i` in `Nullable`
                     }
                     else
                     {
@@ -265,7 +140,7 @@ void main()
         static if (hasMember!(A, `withCapacity`))
         {
             A b = A.withCapacity(elementCount);
-            auto spans_ns = DynamicArray!(double).withLength(runCount);
+            scope spans_ns = new double[runCount];
             foreach (const runIx; 0 .. runCount)
             {
                 immutable startTime = MonoTime.currTime();
@@ -280,19 +155,7 @@ void main()
                     {
                         static if (hasMember!(A, `ElementType`))
                         {
-                            static if (is(A.ElementType == Address))
-                            {
-                                const element = A.ElementType(i + 1); ///< Start at 1 instead of 0 because `Address` uses 0 for `nullValue`.
-                            }
-                            else static if (is(A.ElementType == SSOString) ||
-                                            is(A.ElementType == string))
-                            {
-                                const element = A.ElementType(to!string(i));
-                            }
-                            else
-                            {
-                                const element = A.ElementType(i); // wrap in `i` in `Nullable`
-                            }
+                            const element = A.ElementType(i); // wrap in `i` in `Nullable`
                         }
                         else
                         {
@@ -332,39 +195,7 @@ void main()
 
     writefln("\nMaps:\n");
 
-    foreach (A; AliasSeq!(
-
-                 // uint => uint
-                 // SSOHashMap!(uint, uint, null, muellerHash64),
-                 // SSOHashMap!(uint, uint, null, wangMixHash64),
-                 // SSOHashMap!(uint, uint, null, FNV!(64, true)),
-                 OpenHashMap!(Nullable!(uint, uint.max), uint, hashOf),
-                 OpenHashMap!(Nullable!(uint, uint.max), uint, FNV!(64, true)),
-
-                 // ulong => ulong
-                 // SSOHashMap!(ulong, ulong, null, muellerHash64),
-                 // SSOHashMap!(ulong, ulong, null, wangMixHash64),
-                 // SSOHashMap!(ulong, ulong, null, FNV!(64, true)),
-                 OpenHashMap!(Nullable!(ulong, ulong.max), ulong, hashOf),
-                 OpenHashMap!(Nullable!(ulong, ulong.max), ulong, FNV!(64, true)),
-                 OpenHashMap!(Nullable!(ulong, ulong.max), ulong, wangMixHash64),
-                 OpenHashMap!(Nullable!(ulong, ulong.max), ulong, lemireHash64),
-
-                 OpenHashMap!(Address, Address, hashOf),
-                 OpenHashMap!(Address, Address, FNV!(64, true)),
-                 OpenHashMap!(Address, Address, wangMixHash64),
-                 OpenHashMap!(Address, Address, lemireHash64),
-
-                 // string => string
-                 OpenHashMap!(string, string, hashOf),
-                 OpenHashMap!(string, string, XXHash64),
-                 OpenHashMap!(string, string, MurmurHash3!(128)),
-                 OpenHashMap!(string, string, FNV!(64, true)),
-
-                 // SSOString => SSOString
-                 OpenHashMap!(SSOString, SSOString, hashOf),
-                 OpenHashMap!(SSOString, SSOString, FNV!(64, true)),
-                 ))
+    foreach (A; AliasSeq!(OpenHashMap!(Nullable!(ulong, ulong.max), ulong, lemireHash64)))
     {
         A a = makeWithTriedCapacity!(A)(elementCount);
 
@@ -374,21 +205,13 @@ void main()
         const keys = iotaArrayOf!(A.KeyType)(0, elementCount);
 
         {
-            auto spans_ns = DynamicArray!(double).withLength(runCount);
+            scope spans_ns = new double[runCount];
             foreach (const runIx; 0 .. runCount)
             {
                 immutable startTime = MonoTime.currTime();
                 foreach (immutable i; testSource)
                 {
-                    static if (is(A.KeyType == Address))
-                    {
-                        const element = A.ElementType(Address(keys[i] + 1), // avoid `Address.nullValue`
-                                                      A.ValueType.init);
-                    }
-                    else
-                    {
-                        const element = A.ElementType(keys[i], A.ValueType.init);
-                    }
+                    const element = A.ElementType(keys[i], A.ValueType.init);
                     a.insert(element);
                 }
                 spans_ns[runIx] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
@@ -399,21 +222,14 @@ void main()
 
         {
             bool okAll = true;
-            auto spans_ns = DynamicArray!(double).withLength(runCount);
+            scope spans_ns = new double[runCount];
             foreach (const runIx; 0 .. runCount)
             {
                 immutable startTime = MonoTime.currTime();
                 size_t hitCount = 0;
                 foreach (immutable i; testSource)
                 {
-                    static if (is(A.KeyType == Address))
-                    {
-                        hitCount += a.contains(Address(keys[i] + 1)); // avoid `Address.nullValue`
-                    }
-                    else
-                    {
-                        hitCount += a.contains(keys[i]);
-                    }
+                    hitCount += a.contains(keys[i]);
                 }
                 const ok = hitCount == elementCount; // for side effect in output
                 if (!ok) { okAll = false; }
@@ -426,21 +242,14 @@ void main()
 
         {
             bool okAll = true;
-            auto spans_ns = DynamicArray!(double).withLength(runCount);
+            scope spans_ns = new double[runCount];
             foreach (const runIx; 0 .. runCount)
             {
                 immutable startTime = MonoTime.currTime();
                 size_t hitCount = 0;
                 foreach (immutable i; testSource)
                 {
-                    static if (is(A.KeyType == Address))
-                    {
-                        hitCount += cast(bool)(Address(keys[i] + 1) in a); // avoid `Address.nullValue`
-                    }
-                    else
-                    {
-                        hitCount += cast(bool)(keys[i] in a);
-                    }
+                    hitCount += cast(bool)(keys[i] in a);
                 }
                 const ok = hitCount == elementCount; // for side effect in output
                 if (!ok) { okAll = false; }
@@ -452,21 +261,14 @@ void main()
         }
 
         {
-            auto spans_ns = DynamicArray!(double).withLength(runCount);
+            scope spans_ns = new double[runCount];
             foreach (const runIx; 0 .. runCount)
             {
                 A b = A.withCapacity(elementCount);
                 immutable startTime = MonoTime.currTime();
                 foreach (immutable i; testSource)
                 {
-                    static if (is(A.KeyType == Address))
-                    {
-                        b.insert(A.ElementType(Address(keys[i] + 1), A.ValueType.init)); // avoid `Address.nullValue`
-                    }
-                    else
-                    {
-                        b.insert(A.ElementType(keys[i], A.ValueType.init));
-                    }
+                    b.insert(A.ElementType(keys[i], A.ValueType.init));
                 }
                 spans_ns[runIx] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
             }
@@ -491,91 +293,6 @@ void main()
         writeln();
 
         static if (hasMember!(A, `clear`)) { a.clear(); }
-    }
-
-    writefln("\nBuiltin Assocative Arrays:\n");
-
-    foreach (E; AliasSeq!(uint, ulong, string))
-    {
-        alias KeyType = E;
-        alias ValueType = E;
-        alias A = ValueType[KeyType];
-        A a = A.init;
-
-        writef("- ");
-
-        // allocate
-        const es = iotaArrayOf!E(0, elementCount);
-
-        // insert
-        {
-            auto spans_ns = DynamicArray!(double).withLength(runCount);
-            foreach (const runIx; 0 .. runCount)
-            {
-                immutable startTime = MonoTime.currTime();
-                foreach (immutable i; testSource)
-                {
-                    a[es[i]] = ValueType.init;
-                }
-                spans_ns[runIx] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
-            }
-            writef("insert (w growth): %3.1f ns/op", minElement(spans_ns[]) / elementCount);
-        }
-
-        // in
-        {
-            auto spans_ns = DynamicArray!(double).withLength(runCount);
-            bool okAll = true;
-            foreach (const runIx; 0 .. runCount)
-            {
-                immutable startTime = MonoTime.currTime();
-                size_t hitCount = 0;
-                foreach (immutable i; testSource)
-                {
-                    hitCount += cast(bool)(es[i] in a);
-                }
-                const ok = hitCount == elementCount; // for side effect in output
-                if (!ok) { okAll = false; }
-                spans_ns[runIx] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
-            }
-            writef(", contains: %3.1f ns/op (%s)", minElement(spans_ns[]) / elementCount, okAll ? "OK" : "ERR");
-        }
-
-        // rahash
-        {
-            auto spans_ns = DynamicArray!(double).withLength(runCount);
-            foreach (const runIx; 0 .. runCount)
-            {
-                immutable startTime = MonoTime.currTime();
-                a.rehash();
-                spans_ns[runIx] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
-            }
-            writef(", rehash: %3.1f ns/op", maxElement(spans_ns[]) / elementCount);
-        }
-
-        // in
-        {
-            auto spans_ns = DynamicArray!(double).withLength(runCount);
-            foreach (const runIx; 0 .. runCount)
-            {
-                immutable startTime = MonoTime.currTime();
-                foreach (immutable i; testSource)
-                {
-                    const hit = es[i] in a;
-                }
-                spans_ns[runIx] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
-            }
-            writef(", contains (after rehash): %3.1f ns/op", minElement(spans_ns[]) / elementCount);
-        }
-
-        writef(` for %s`, A.stringof);
-
-        writeln();
-
-        static if (hasMember!(A, `clear`))
-        {
-            a.clear();
-        }
     }
 }
 

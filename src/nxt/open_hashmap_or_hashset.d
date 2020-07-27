@@ -6,6 +6,15 @@ import core.internal.hash : hashOf;
 import nxt.nullable_traits : isNullable;
 import nxt.pure_mallocator : Mallocator = PureMallocator; // TODO merge into `std.experimental.allocator.mallocator`
 
+enum Flag
+{
+    borrowChecked,
+    useSmallLinearSearch,
+    usePrimeCapacity,
+}
+import std.typecons : BitFlags;
+alias Flags = BitFlags!Flag;    ///< Use as Flags flags param to `OpenHashMapOrSet`
+
 @safe:
 
 /** Hash table/map (or set) with open-addressing, storing (key) elements of type
@@ -42,7 +51,7 @@ import nxt.pure_mallocator : Mallocator = PureMallocator; // TODO merge into `st
  *
  * TODO tests fails when `useSmallLinearSearch` is set to `false`
  *
- * TODO Use bit-ored `Flags` as template params
+ * TODO Use set of `Flag`s (defined here) as template params
  *
  * TODO group nxt.probing functions in Prober struct given as type template
  * param to `OpenHashMapOrSet`

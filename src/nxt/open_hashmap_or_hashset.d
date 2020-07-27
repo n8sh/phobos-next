@@ -132,8 +132,7 @@ if (isNullable!K /*&& isHashable!K */)
     }
 
     import nxt.probing : triangularProbeFromIndex, triangularProbeFromIndexIncludingHoles, triangularProbeCountFromIndex;
-    /// Setting this `true` doesn't give measurable speedups so set it to `false` for now.
-    enum bool assumeNonFullHaystack = false;
+    enum bool assumeNonFullHaystack = false; ///< Setting this `true` doesn't give measurable speedups so set it to `false` for now.
 
     static if (is(typeof(keyEqualPred) : string))
     {

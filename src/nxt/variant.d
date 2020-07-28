@@ -1,5 +1,7 @@
 module nxt.variant;
 
+@safe pure:
+
 /** Lightweight version of $(D std.variant.Algebraic) that doesn't rely on `TypeInfo`.
  *
  * Member functions are, when possible, `@safe pure nothrow @nogc`.
@@ -579,8 +581,6 @@ private static template maxSizeOf(T...)
     }
 }
 
-@safe:
-
 unittest
 {
     // FastAlgebraic!(float, double, bool) a;
@@ -591,6 +591,7 @@ unittest
 
 pure:
 
+///
 nothrow @nogc unittest
 {
     alias C = FastAlgebraic!(float, double);

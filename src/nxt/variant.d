@@ -662,8 +662,14 @@ unittest
 {
     PackedAlgebraic!(float) a, b;
     static assert(a.hasFixedSize);
+
     a = 1.0f;
+    assert(a._tix != a.Ix.init);
+
     b = 1.0f;
+    assert(b._tix != b.Ix.init);
+
+    assert(a._tix == b._tix);
     assert(a == b);
 }
 

@@ -17,8 +17,8 @@ alias Flags = BitFlags!Flag;    ///< Use as Flags flags param to `OpenHashMap`
 
 @safe:
 
-/** Hash table/map (or set) with open-addressing, storing (key) elements of type
- * `K` and values of type `V`.
+/** Hash table/map with in-place open-addressing, storing `keys` of type `K` and
+ * values of type `V`.
  *
  * Keys are immutable except for when they are `class`es in which case they are
  * head-const (through bin reinterpretation to `KeyValueType`), This can be
@@ -2299,7 +2299,11 @@ static private struct RvalueElementRef(SomeMap)
     }
 }
 
-/** Immutable hash set storing keys of type `K`.
+/** Hash set with in-place open-addressing, storing keys (elements) of type `K`.
+ *
+ * Reuse `OpenHashMap` with its V-type set to `void`.
+ *
+ * See_Also: `OpenHashMap`.
  */
 alias OpenHashSet(K,
                   alias hasher = hashOf,

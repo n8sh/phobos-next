@@ -13,6 +13,10 @@ auto g(T)(T x) pure
 alias X(T) = T;
 alias Y = X!(int);
 
+enum name(T) = T.stringof;
+
+enum int_name = name!int;
+
 @safe pure unittest
 {
     const _ = g(42);

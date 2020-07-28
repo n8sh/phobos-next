@@ -115,13 +115,13 @@ pure:
         }
         else                    // needs large
         {
-            large = new char[charCount];
+            large = new immutable(char)[charCount];
             size_t offset = 0;
             foreach (const e; source)
             {
                 char[4] chars;
                 const count = encode(chars, e);
-                (cast(char[])(large))[offset .. offset + count] = chars[0 .. count];
+                (cast(char[])(large))[offset .. offset + count] = chars[0 .. count]; // NOTE modifies immutable data
                 offset += count;
             }
             raw.length = encodeLargeLength(charCount);

@@ -1,4 +1,4 @@
-module nxt.open_hashmap_or_hashset;
+module nxt.open_hashmap;
 
 // version = showEntries;
 

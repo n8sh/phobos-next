@@ -1,6 +1,6 @@
 module nxt.sso_open_hashset;
 
-import nxt.open_hashmap_or_hashset;
+import nxt.open_hashmap;
 
 import std.traits : isInstanceOf;
 import nxt.nullable_traits : isNullable, isAddress;

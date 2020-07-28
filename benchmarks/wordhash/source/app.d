@@ -6,8 +6,8 @@ void main()
     import nxt.digestx.fnv : FNV;
 
     import nxt.sso_string : String = SSOString;
-    import nxt.open_hashmap_or_hashset : HashSet = OpenHashSet;
-    import nxt.open_hashmap_or_hashset : HashMap = OpenHashMap;
+    import nxt.open_hashmap : HashSet = OpenHashSet;
+    import nxt.open_hashmap : HashMap = OpenHashMap;
     import nxt.dynamic_array : Array = DynamicArray;
 
     alias Strs = HashSet!(String);

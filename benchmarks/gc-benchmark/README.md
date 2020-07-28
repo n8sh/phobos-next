@@ -78,7 +78,7 @@ A single hash-table maps all base pointer(s) of pages inside all page tables
 Block instance pointer instead of a binary search to speed up page-search
 ([Olshansky again](./inside-d-gc-by-dmitry-olshansky.md)). Hash-table use open
 addressing and Fibonacci hashing, for instance, phobos-next's
-[`open_hashmap_or_hashset.c`](https://github.com/nordlow/phobos-next/blob/master/src/open_hashmap_or_hashset.d).
+[`open_hashmap.c`](https://github.com/nordlow/phobos-next/blob/master/src/open_hashmap.d).
 
 Add run-time information for implicit (by compiler) and explicit (by developer
 in library) casting from mutable to `immutable` and, in turn, `shared` for

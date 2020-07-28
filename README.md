@@ -16,7 +16,7 @@ Includes
 - `fixed_dynamic_array.d`: Dynamically allocated (heap) array with fixed length.
 - `minimal_fixed_array.d`: Minimalistic statically-sized (stack) array of length smaller
 than 255 fitting in an `ubyte` for compact packing.
-- `open_hashmap_or_hashset.d`: Combined hashset and hashmap with open addressing
+- `open_hashmap.d`: Combined hashset and hashmap with open addressing
   and support for deletion via hole handling. Pointers and classes are stored as
   is with support for vacancy and hole handling. Vacancy support for
   `std.typecons.Nullable`.

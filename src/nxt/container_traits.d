@@ -2,7 +2,7 @@
  *
  * TODO add `isUnorderedContainer` and `isUnorderedRange` traits and used to
  * forbid hash algorithms to operate on unordered containers (such as
- * `open_hashmap_or_hashset` and `open_hashmap_or_hashset`) and their ranges.
+ * `open_hashmap` and `open_hashmap`) and their ranges.
  */
 module nxt.container_traits;
 

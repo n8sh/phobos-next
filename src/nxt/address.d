@@ -67,7 +67,7 @@ alias Address = Address1;
 @safe pure unittest
 {
     import nxt.nullable_traits : hasNullValue, isNullable;
-    import nxt.open_hashmap_or_hashset : OpenHashMap;
+    import nxt.open_hashmap : OpenHashMap;
 
     static assert(hasNullValue!Address);
     static assert(isNullable!Address);

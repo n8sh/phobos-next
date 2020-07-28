@@ -15,7 +15,7 @@ void main()
     import nxt.variant_arrays : VariantArrays;
     // import nxt.sso_hashmap_or_hashset : SSOHashSet, SSOHashMap;
     import nxt.pure_mallocator : Mallocator = PureMallocator;
-    import nxt.open_hashmap_or_hashset : OpenHashMap, OpenHashSet, defaultKeyEqualPredOf;
+    import nxt.open_hashmap : OpenHashMap, OpenHashSet, defaultKeyEqualPredOf;
     import nxt.sso_string : SSOString;
     import nxt.address : Address;
 

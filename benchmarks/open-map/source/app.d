@@ -9,7 +9,7 @@ void main()
     import std.typecons : Nullable;
 
     import nxt.pure_mallocator : Mallocator = PureMallocator;
-    import nxt.open_hashmap_or_hashset : OpenHashMap, OpenHashSet, defaultKeyEqualPredOf;
+    import nxt.open_hashmap : OpenHashMap, OpenHashSet, defaultKeyEqualPredOf;
     import nxt.hash_functions : lemireHash64;
     import nxt.trie : RadixTreeSet;
 

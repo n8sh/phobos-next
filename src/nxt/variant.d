@@ -650,6 +650,26 @@ nothrow @nogc unittest
 /// equality and comparison
 unittest
 {
+    FastAlgebraic!(int) a, b;
+    static assert(a.hasFixedSize);
+    a = 1;
+    b = 1;
+    assert(a == b);
+}
+
+/// equality and comparison
+unittest
+{
+    PackedAlgebraic!(float) a, b;
+    static assert(a.hasFixedSize);
+    a = 1.0f;
+    b = 1.0f;
+    assert(a == b);
+}
+
+/// equality and comparison
+unittest
+{
     FastAlgebraic!(float) a, b;
     static assert(a.hasFixedSize);
     a = 1.0f;

@@ -32,6 +32,15 @@ alias Flags = BitFlags!Flag;    ///< Use as Flags flags param to `OpenHashMap`
  * assignment of of reserved value of `KeyType` when `KeyType` has hole-support
  * via trait `isHoleable`.
  *
+ * Element iteration via
+ * - either `byKey`, `byValue` or `byKeyValue` over `OpenHashMap` and
+ * - `byElement` over `OpenHashset`
+ * respects taking the container argument either as an l-value or r-value using
+ * detected using `auto ref`-qualified parameter introspected using `(__traits(isRef, y))`.
+ * In the r-value case no reference counting is needed.
+ * In the l-value case setting `borrowChecked` to `true` adds run-time
+ * support for dynamic Rust-style ownership and borrowing between the range and the container.
+ *
  * Params:
  *      K = key type
  *      V = value type
@@ -104,12 +113,12 @@ alias Flags = BitFlags!Flag;    ///< Use as Flags flags param to `OpenHashMap`
  * TODO only add one extra element to capacity when `assumeNonFullHaystack` is `true`
  */
 struct OpenHashMap(K, V = void,
-                        alias hasher = hashOf,
-                        string keyEqualPred = defaultKeyEqualPredOf!(K),
-                        alias Allocator = Mallocator.instance,
-                        bool borrowChecked = false,
-                        bool useSmallLinearSearch = true,
-                        bool usePrimeCapacity = false)
+                   alias hasher = hashOf,
+                   string keyEqualPred = defaultKeyEqualPredOf!(K),
+                   alias Allocator = Mallocator.instance,
+                   bool borrowChecked = false,
+                   bool useSmallLinearSearch = true,
+                   bool usePrimeCapacity = false)
 if (isNullable!K /*&& isHashable!K */)
 {
     // pragma(msg, K.stringof, " => ", V.stringof);
@@ -2156,20 +2165,20 @@ static private void duplicateEmplace(T)(const scope ref T src,
 
 /** L-value element reference (and in turn range iterator).
  */
-static private struct LvalueElementRef(Table)
+static private struct LvalueElementRef(SomeMap)
 {
     import std.traits : isMutable;
-    debug static assert(isMutable!Table, "Table type should always be mutable");
+    debug static assert(isMutable!SomeMap, "SomeMap type should always be mutable");
 
-    private Table* _table;      // scoped access
+    private SomeMap* _table;      // scoped access
     private size_t _binIndex;   // index to bin inside `table`
     private size_t _hitCounter; // counter over number of elements popped (needed for length)
 
-    this(Table* table) @trusted
+    this(SomeMap* table) @trusted
     {
         pragma(inline, true);
         this._table = table;
-        static if (Table.isBorrowChecked)
+        static if (SomeMap.isBorrowChecked)
         {
             debug
             {
@@ -2181,7 +2190,7 @@ static private struct LvalueElementRef(Table)
     ~this() @nogc @trusted
     {
         pragma(inline, true);
-        static if (Table.isBorrowChecked)
+        static if (SomeMap.isBorrowChecked)
         {
             debug
             {
@@ -2193,7 +2202,7 @@ static private struct LvalueElementRef(Table)
     this(this) @trusted
     {
         pragma(inline, true);
-        static if (Table.isBorrowChecked)
+        static if (SomeMap.isBorrowChecked)
         {
             debug
             {
@@ -2247,12 +2256,12 @@ static private struct LvalueElementRef(Table)
  *
  * Does need to do borrow-checking.
  */
-static private struct RvalueElementRef(Table)
+static private struct RvalueElementRef(SomeMap)
 {
     import std.traits : isMutable;
-    debug static assert(isMutable!Table, "Table type should always be mutable");
+    debug static assert(isMutable!SomeMap, "SomeMap type should always be mutable");
 
-    Table _table;                // owned table
+    SomeMap _table;                // owned table
     size_t _binIndex;            // index to bin inside table
     size_t _hitCounter;    // counter over number of elements popped
 
@@ -2309,8 +2318,8 @@ import std.functional : unaryFun;
  * TODO make this generic for all iterable containers and move to
  * container_algorithm.
  */
-size_t removeAllMatching(alias pred, Table)(auto ref Table x) @trusted
-if (isInstanceOf!(OpenHashMap, Table) && // TODO generalize to `isSetOrMap`
+size_t removeAllMatching(alias pred, SomeMap)(auto ref SomeMap x) @trusted
+if (isInstanceOf!(OpenHashMap, SomeMap) && // TODO generalize to `isSetOrMap`
     is(typeof((unaryFun!pred))))
 {
     import nxt.nullable_traits : nullify;
@@ -2318,9 +2327,9 @@ if (isInstanceOf!(OpenHashMap, Table) && // TODO generalize to `isSetOrMap`
     foreach (immutable index, ref bin; x._store)
     {
         // TODO:
-        // move to Table.removeRef(bin) // uses: `offset = &bin - _store.ptr`
-        // move to Table.inplaceRemove(bin) // uses: `offset = &bin - _store.ptr`
-        // or   to Table.removeAtIndex(index)
+        // move to SomeMap.removeRef(bin) // uses: `offset = &bin - _store.ptr`
+        // move to SomeMap.inplaceRemove(bin) // uses: `offset = &bin - _store.ptr`
+        // or   to SomeMap.removeAtIndex(index)
         if (x.isOccupiedAtIndex(index) &&
             unaryFun!pred(bin))
         {
@@ -2335,8 +2344,8 @@ if (isInstanceOf!(OpenHashMap, Table) && // TODO generalize to `isSetOrMap`
 /** Returns: `x` eagerly filtered on `pred`.
     TODO move to container_algorithm.d with more generic template restrictions
 */
-Table filtered(alias pred, Table)(Table x)
-if (isInstanceOf!(OpenHashMap, Table)) // TODO generalize to `isSetOrMap`
+SomeMap filtered(alias pred, SomeMap)(SomeMap x)
+if (isInstanceOf!(OpenHashMap, SomeMap)) // TODO generalize to `isSetOrMap`
 {
     import core.lifetime : move;
     import std.functional : not;
@@ -2801,15 +2810,15 @@ if (isInstanceOf!(OpenHashMap, C1) &&
 }
 
 /// Range over elements of l-value instance of this.
-static struct ByLvalueElement(Table) // public for now because this is needed in `knet.zing.Zing.EdgesOfRels`
+static struct ByLvalueElement(SomeMap) // public for now because this is needed in `knet.zing.Zing.EdgesOfRels`
 {
 pragma(inline, true):
     // TODO functionize
     import std.traits : isMutable;
-    static if (isAddress!(Table.ElementType)) // for reference types
+    static if (isAddress!(SomeMap.ElementType)) // for reference types
     {
         /// Get reference to front element.
-        @property scope Table.ElementType front()() return @trusted
+        @property scope SomeMap.ElementType front()() return @trusted
         {
             // cast to head-const for class key
             return (cast(typeof(return))_table._store[_binIndex]);
@@ -2820,24 +2829,24 @@ pragma(inline, true):
         /// Get reference to front element.
         @property scope auto ref front() return @trusted
         {
-            return *(cast(const(Table.ElementType)*)&_table._store[_binIndex]); // propagate constnes
+            return *(cast(const(SomeMap.ElementType)*)&_table._store[_binIndex]); // propagate constnes
         }
     }
     import core.internal.traits : Unqual;
     // unqual to reduce number of instantations of `LvalueElementRef`
-    public LvalueElementRef!(Unqual!Table) _elementRef;
+    public LvalueElementRef!(Unqual!SomeMap) _elementRef;
     alias _elementRef this;
 }
 
 /// Range over elements of r-value instance of this.
-static private struct ByRvalueElement(Table)
+static private struct ByRvalueElement(SomeMap)
 {
     @disable this(this);
 pragma(inline, true):
-    static if (isAddress!(Table.ElementType)) // for reference types
+    static if (isAddress!(SomeMap.ElementType)) // for reference types
     {
         /// Get reference to front element.
-        @property scope Table.ElementType front()() return @trusted
+        @property scope SomeMap.ElementType front()() return @trusted
         {
             // cast to head-const for class key
             return cast(typeof(return))_table._store[_binIndex];
@@ -2848,23 +2857,23 @@ pragma(inline, true):
         /// Get reference to front element.
         @property scope auto ref front() return
         {
-            return *(cast(const(Table.ElementType)*)&_table._store[_binIndex]); // propagate constnes
+            return *(cast(const(SomeMap.ElementType)*)&_table._store[_binIndex]); // propagate constnes
         }
     }
     import core.internal.traits : Unqual;
-    public RvalueElementRef!(Unqual!Table) _elementRef;
+    public RvalueElementRef!(Unqual!SomeMap) _elementRef;
     alias _elementRef this;
 }
 
 /** Returns: range that iterates through the elements of `c` in undefined order.
  */
-auto byElement(Table)(auto ref return Table c) @trusted
-if (isInstanceOf!(OpenHashMap, Table) &&
-    !Table.hasValue)
+auto byElement(SomeMap)(auto ref return SomeMap c) @trusted
+if (isInstanceOf!(OpenHashMap, SomeMap) &&
+    !SomeMap.hasValue)
 {
     import core.internal.traits : Unqual;
-    alias M = Unqual!Table;
-    alias C = const(Table);        // be const for now
+    alias M = Unqual!SomeMap;
+    alias C = const(SomeMap);        // be const for now
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
         auto result = ByLvalueElement!C((LvalueElementRef!(M)(cast(M*)&c)));
@@ -2879,9 +2888,9 @@ if (isInstanceOf!(OpenHashMap, Table) &&
 }
 alias range = byElement;        // EMSI-container naming
 
-static private struct ByKey_lvalue(Table)
-if (isInstanceOf!(OpenHashMap, Table) &&
-    Table.hasValue)
+static private struct ByKey_lvalue(SomeMap)
+if (isInstanceOf!(OpenHashMap, SomeMap) &&
+    SomeMap.hasValue)
 {
     @property const scope auto ref front() return // key access must be const, TODO auto ref => ref K
     {
@@ -2889,13 +2898,13 @@ if (isInstanceOf!(OpenHashMap, Table) &&
         return _table._store[_binIndex].key;
     }
     import core.internal.traits : Unqual;
-    public LvalueElementRef!(Unqual!Table) _elementRef;
+    public LvalueElementRef!(Unqual!SomeMap) _elementRef;
     alias _elementRef this;
 }
 
-static private struct ByKey_rvalue(Table)
-if (isInstanceOf!(OpenHashMap, Table) &&
-    Table.hasValue)
+static private struct ByKey_rvalue(SomeMap)
+if (isInstanceOf!(OpenHashMap, SomeMap) &&
+    SomeMap.hasValue)
 {
     @property const scope auto ref front() return // key access must be const, TODO auto ref => ref K
     {
@@ -2903,19 +2912,19 @@ if (isInstanceOf!(OpenHashMap, Table) &&
         return _table._store[_binIndex].key;
     }
     import core.internal.traits : Unqual;
-    public RvalueElementRef!(Unqual!Table) _elementRef;
+    public RvalueElementRef!(Unqual!SomeMap) _elementRef;
     alias _elementRef this;
 }
 
 /** Returns: range that iterates through the keys of `c` in undefined order.
  */
-auto byKey(Table)(auto ref /*TODO return*/ Table c) @trusted
-if (isInstanceOf!(OpenHashMap, Table) &&
-    Table.hasValue)
+auto byKey(SomeMap)(auto ref /*TODO return*/ SomeMap c) @trusted
+if (isInstanceOf!(OpenHashMap, SomeMap) &&
+    SomeMap.hasValue)
 {
     import core.internal.traits : Unqual;
-    alias M = Unqual!Table;
-    alias C = const(Table);        // be const
+    alias M = Unqual!SomeMap;
+    alias C = const(SomeMap);        // be const
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
         auto result = ByKey_lvalue!C((LvalueElementRef!(M)(cast(M*)&c)));
@@ -2929,67 +2938,67 @@ if (isInstanceOf!(OpenHashMap, Table) &&
     return result;
 }
 
-static private struct ByValue_lvalue(Table)
-if (isInstanceOf!(OpenHashMap, Table) &&
-    Table.hasValue)
+static private struct ByValue_lvalue(SomeMap)
+if (isInstanceOf!(OpenHashMap, SomeMap) &&
+    SomeMap.hasValue)
 {
     @property scope auto ref front() return @trusted // TODO auto ref => ref V
     {
         pragma(inline, true);
         // TODO functionize
         import std.traits : isMutable;
-        static if (isMutable!(Table)) // TODO can this be solved without this `static if`?
+        static if (isMutable!(SomeMap)) // TODO can this be solved without this `static if`?
         {
-            alias E = Table.ValueType;
+            alias E = SomeMap.ValueType;
         }
         else
         {
-            alias E = const(Table.ValueType);
+            alias E = const(SomeMap.ValueType);
         }
         return *(cast(E*)&_table._store[_binIndex].value);
     }
     import core.internal.traits : Unqual;
-    public LvalueElementRef!(Unqual!Table) _elementRef;
+    public LvalueElementRef!(Unqual!SomeMap) _elementRef;
     alias _elementRef this;
 }
 
-static private struct ByValue_rvalue(Table)
-if (isInstanceOf!(OpenHashMap, Table) &&
-    Table.hasValue)
+static private struct ByValue_rvalue(SomeMap)
+if (isInstanceOf!(OpenHashMap, SomeMap) &&
+    SomeMap.hasValue)
 {
     @property scope auto ref front() return @trusted // TODO auto ref => ref V
     {
         pragma(inline, true);
         // TODO functionize
         import std.traits : isMutable;
-        static if (isMutable!(Table)) // TODO can this be solved without this `static if`?
+        static if (isMutable!(SomeMap)) // TODO can this be solved without this `static if`?
         {
-            alias E = Table.ValueType;
+            alias E = SomeMap.ValueType;
         }
         else
         {
-            alias E = const(Table.ValueType);
+            alias E = const(SomeMap.ValueType);
         }
         return *(cast(E*)&_table._store[_binIndex].value);
     }
     import core.internal.traits : Unqual;
-    public RvalueElementRef!(Unqual!Table) _elementRef;
+    public RvalueElementRef!(Unqual!SomeMap) _elementRef;
     alias _elementRef this;
 }
 
 /** Returns: range that iterates through the values of `c` in undefined order.
  */
-auto byValue(Table)(auto ref return Table c) @trusted
-if (isInstanceOf!(OpenHashMap, Table) &&
-    Table.hasValue)
+auto byValue(SomeMap)(auto ref return SomeMap c) @trusted
+if (isInstanceOf!(OpenHashMap, SomeMap) &&
+    SomeMap.hasValue)
 {
     import core.internal.traits : Unqual;
     import std.traits : isMutable;
-    alias M = Unqual!Table;
-    alias C = const(Table);
+    alias M = Unqual!SomeMap;
+    alias C = const(SomeMap);
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
-        auto result = ByValue_lvalue!Table((LvalueElementRef!(M)(cast(M*)&c)));
+        auto result = ByValue_lvalue!SomeMap((LvalueElementRef!(M)(cast(M*)&c)));
     }
     else                        // `c` was is an r-value and can be moved
     {
@@ -3000,46 +3009,46 @@ if (isInstanceOf!(OpenHashMap, Table) &&
     return result;
 }
 
-static private struct ByKeyValue_lvalue(Table)
-if (isInstanceOf!(OpenHashMap, Table) &&
-    Table.hasValue)
+static private struct ByKeyValue_lvalue(SomeMap)
+if (isInstanceOf!(OpenHashMap, SomeMap) &&
+    SomeMap.hasValue)
 {
     @property scope auto ref front() return @trusted // TODO auto ref => ref T
     {
         pragma(inline, true);
         // TODO functionize
         import std.traits : isMutable;
-        static if (isMutable!(Table))
+        static if (isMutable!(SomeMap))
         {
-            alias E = Table.KeyValueType;
+            alias E = SomeMap.KeyValueType;
         }
         else
         {
-            alias E = const(Table.T);
+            alias E = const(SomeMap.T);
         }
         return *(cast(E*)&_table._store[_binIndex]);
     }
     import core.internal.traits : Unqual;
-    public LvalueElementRef!(Unqual!Table) _elementRef;
+    public LvalueElementRef!(Unqual!SomeMap) _elementRef;
     alias _elementRef this;
 }
 
 /** Returns: range that iterates through the key-value-pairs of `c` in undefined order.
  */
-auto byKeyValue(Table)(auto ref return Table c) @trusted
-if (isInstanceOf!(OpenHashMap, Table) &&
-    Table.hasValue)
+auto byKeyValue(SomeMap)(auto ref return SomeMap c) @trusted
+if (isInstanceOf!(OpenHashMap, SomeMap) &&
+    SomeMap.hasValue)
 {
     import core.internal.traits : Unqual;
-    alias M = Unqual!Table;
+    alias M = Unqual!SomeMap;
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
     {
-        auto result = ByKeyValue_lvalue!Table((LvalueElementRef!(M)(cast(M*)&c)));
+        auto result = ByKeyValue_lvalue!SomeMap((LvalueElementRef!(M)(cast(M*)&c)));
     }
     else                        // `c` was is an r-value and can be moved
     {
         import core.lifetime : move;
-        auto result = ByKeyValue_rvalue!Table((RvalueElementRef!M(move(*(cast(M*)&c))))); // reinterpret
+        auto result = ByKeyValue_rvalue!SomeMap((RvalueElementRef!M(move(*(cast(M*)&c))))); // reinterpret
     }
     result.findNextNonEmptyBin();
     return result;

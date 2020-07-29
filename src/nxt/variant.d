@@ -889,7 +889,7 @@ unittest
 }
 
 ///
-pure unittest
+nothrow @nogc unittest
 {
     import nxt.fixed_array : StringN;
     alias String15 = StringN!(15);
@@ -924,7 +924,7 @@ pure unittest
 }
 
 /// check default values
-@safe pure unittest
+nothrow @nogc unittest
 {
     import nxt.fixed_array : StringN;
     alias String15 = StringN!(15);

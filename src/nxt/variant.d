@@ -548,13 +548,13 @@ private:
     Ix _tix = 0;                // type index
 }
 
-/// Algebraic type optimized for high performance.
+/// Algebraic type speed-optimized for fast access.
 alias FastAlgebraic(Types...) = LightAlgebraic!(false, Types);
 
 /// Default Algebraic type.
 alias Algebraic = FastAlgebraic;
 
-/// Algebraic type optimized for small size.
+/// Algebraic type space-optimized for small size.
 alias PackedAlgebraic(Types...) = LightAlgebraic!(true, Types);
 
 /// Algebraic type exception.

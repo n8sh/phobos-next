@@ -591,6 +591,22 @@ unittest
 
 pure:
 
+/// equality and comparison
+nothrow @nogc unittest
+{
+    PackedAlgebraic!(float) a, b;
+    static assert(a.hasFixedSize);
+
+    a = 1.0f;
+    assert(a._tix != a.Ix.init);
+
+    b = 1.0f;
+    assert(b._tix != b.Ix.init);
+
+    assert(a._tix == b._tix);
+    assert(a == b);             // TODO this errors with dmd master
+}
+
 ///
 nothrow @nogc unittest
 {
@@ -648,7 +664,7 @@ nothrow @nogc unittest
 }
 
 /// equality and comparison
-unittest
+nothrow @nogc unittest
 {
     FastAlgebraic!(int) a, b;
     static assert(a.hasFixedSize);
@@ -658,23 +674,7 @@ unittest
 }
 
 /// equality and comparison
-unittest
-{
-    PackedAlgebraic!(float) a, b;
-    static assert(a.hasFixedSize);
-
-    a = 1.0f;
-    assert(a._tix != a.Ix.init);
-
-    b = 1.0f;
-    assert(b._tix != b.Ix.init);
-
-    assert(a._tix == b._tix);
-    assert(a == b);             // TODO this errors with dmd master
-}
-
-/// equality and comparison
-unittest
+nothrow @nogc unittest
 {
     FastAlgebraic!(float) a, b;
     static assert(a.hasFixedSize);
@@ -684,7 +684,7 @@ unittest
 }
 
 /// equality and comparison
-unittest
+/*TODO @nogc*/ unittest
 {
     FastAlgebraic!(float, double, string) a, b;
 

@@ -670,7 +670,7 @@ unittest
     assert(b._tix != b.Ix.init);
 
     assert(a._tix == b._tix);
-    assert(a == b);
+    assert(a == b);             // TODO this errors with dmd master
 }
 
 /// equality and comparison

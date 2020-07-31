@@ -31,23 +31,23 @@
     See_Also: $(HTTP en.wikipedia.org/wiki/Radix_tree)
     See_Also: $(HTTP github.com/nordlow/phobos-next/blob/master/src/test_trie_prefix.d) for a descriptive usage of prefixed access.
 
-    TODO split up file into raw_trie.d, trie.d
+    TODO: split up file into raw_trie.d, trie.d
 
-    TODO use fast bit-scanning functions in core.bitop for DenseBranch and
+    TODO: use fast bit-scanning functions in core.bitop for DenseBranch and
     DenseLeaf iterators
 
-    TODO shift addresses of class and pointers by its alignment before adding
+    TODO: shift addresses of class and pointers by its alignment before adding
     them to make top-branch as dense possible
 
-    TODO Allow slicing from non-mutable tries and add test-case at line 5300
+    TODO: Allow slicing from non-mutable tries and add test-case at line 5300
 
-    TODO 2. Make as many members as possible free functionss free-functions to
+    TODO: 2. Make as many members as possible free functionss free-functions to
     reduce compilation times. Alternative make them templates (`template-lazy` )
 
-    TODO Use scope on `Range`, `RawRange` and members that return key and value
+    TODO: Use scope on `Range`, `RawRange` and members that return key and value
     reference when DIP-1000 has been implemented
 
-    TODO Encode `string` with zero-terminating 0 byte when it's not the last
+    TODO: Encode `string` with zero-terminating 0 byte when it's not the last
     member in a key aggregate
 
     TODO
@@ -58,26 +58,26 @@
     case undefined: return curr;
 
     TODO:
-    TODO Make `Key` and Ix[]-array of `immutable Ix` like `string`
+    TODO: Make `Key` and Ix[]-array of `immutable Ix` like `string`
 
-    TODO Allow `Node`-constructors to take const and immutable prefixes and then
+    TODO: Allow `Node`-constructors to take const and immutable prefixes and then
     make `toRawKey` and `toTypedKey` accept return const-slices
 
-    TODO Remove @trusted from VLA (variable length array)-members of SparseBranch/SparseLeaf and make their callers @trusted instead.
+    TODO: Remove @trusted from VLA (variable length array)-members of SparseBranch/SparseLeaf and make their callers @trusted instead.
 
-    TODO Assure that ~this() is run for argument `nt` in `freeNode`. Can we use `postblit()` for this?
+    TODO: Assure that ~this() is run for argument `nt` in `freeNode`. Can we use `postblit()` for this?
 
-    TODO Search for "functionize this loop or reuse memmove" and use move()
+    TODO: Search for "functionize this loop or reuse memmove" and use move()
 
-    TODO Add Branch-hint allocation flag and re-benchmark construction of `radixTreeSet` with 10000000 uints
+    TODO: Add Branch-hint allocation flag and re-benchmark construction of `radixTreeSet` with 10000000 uints
 
-    TODO Add sortedness to `IxsN` and make `IxsN.contains()` use `binarySearch()`. Make use of `sortn`.
+    TODO: Add sortedness to `IxsN` and make `IxsN.contains()` use `binarySearch()`. Make use of `sortn`.
 
-    TODO Check for case when expanding to bit-branch instead of `SparseBranch` in all `expand()` overloads
+    TODO: Check for case when expanding to bit-branch instead of `SparseBranch` in all `expand()` overloads
 
-    TODO Make array indexing/slicing as @trusted and use .ptr[] instead of [] when things are stable.
+    TODO: Make array indexing/slicing as @trusted and use .ptr[] instead of [] when things are stable.
 
-    TODO Add various extra packings in MixLeaf1to4: number of
+    TODO: Add various extra packings in MixLeaf1to4: number of
     - Ix  (0,1,2,3,4,5,6): 3-bits
     - Ix2 (0,1,2,3): 2-bits
     - Ix3 (0,1,2): 2-bits
@@ -111,7 +111,7 @@
     - 1_1_1_1_1
     - 1_1_1_1_1_1
 
-    TODO Sorted Range Primitives over Keys
+    TODO: Sorted Range Primitives over Keys
 
     - Returns a range of elements which are equivalent (though not necessarily equal) to value.
       auto equalRange(this This)(inout T value)
@@ -125,9 +125,9 @@
     - Returns a range of elements which are greater than value.
       auto upperBound(this This)(inout T value)
 
-    TODO opBinaryRight shall return `_rawTree.ElementRef` instead of `bool`
+    TODO: opBinaryRight shall return `_rawTree.ElementRef` instead of `bool`
 
-    TODO Fix vla-allocations in constructVariableSizeNode according
+    TODO: Fix vla-allocations in constructVariableSizeNode according
     C11-recommendations. For reference set commit
     d2f1971dd570439da4198fa76603b53b072060f8 at
     https://github.com/emacs-mirror/emacs.git
@@ -205,21 +205,21 @@ version(unittest)
 {
     version = useModulo;
 }
-version = useModulo;            // TODO remove and activate only in version(unittest)
+version = useModulo;            // TODO: remove and activate only in version(unittest)
 
 /** Radix Modulo Index
     Restricted index type avoids range checking in array indexing below.
 */
 version(useModulo)
 {
-    import nxt.modulo : Mod, mod;   // TODO remove these if radix is `256`
+    import nxt.modulo : Mod, mod;   // TODO: remove these if radix is `256`
     alias Ix = Mod!(radix, ubyte);
     alias UIx = Mod!(radix, size_t); // `size_t` is faster than `uint` on Intel Haswell
 
     /** Mutable RawTree Key. */
-    alias Key(size_t span) = Mod!(2^^span)[]; // TODO use static_bitarray to more naturally support span != 8.
+    alias Key(size_t span) = Mod!(2^^span)[]; // TODO: use static_bitarray to more naturally support span != 8.
     /** Immutable RawTree Key. */
-    alias IKey(size_t span) = immutable(Mod!(2^^span))[]; // TODO use static_bitarray to more naturally support span != 8.
+    alias IKey(size_t span) = immutable(Mod!(2^^span))[]; // TODO: use static_bitarray to more naturally support span != 8.
     /** Fixed-Length RawTree Key. */
     alias KeyN(size_t span, size_t N) = Mod!(2^^span)[N];
 
@@ -231,9 +231,9 @@ else
     alias UIx = size_t;
 
     /** Mutable RawTree Key. */
-    alias Key(size_t span) = ubyte[]; // TODO use static_bitarray to more naturally support span != 8.
+    alias Key(size_t span) = ubyte[]; // TODO: use static_bitarray to more naturally support span != 8.
     /** Immutable RawTree Key. */
-    alias IKey(size_t span) = immutable(ubyte)[]; // TODO use static_bitarray to more naturally support span != 8.
+    alias IKey(size_t span) = immutable(ubyte)[]; // TODO: use static_bitarray to more naturally support span != 8.
     /** Fixed-Length RawTree Key. */
     alias KeyN(size_t span, size_t N) = ubyte[N];
 
@@ -447,7 +447,7 @@ struct TriLeaf2
         case 3:
             return commonPrefix(keys.at!0[],
                                 commonPrefix(keys.at!1[],
-                                             keys.at!2[])); // TODO make and reuse variadic commonPrefix
+                                             keys.at!2[])); // TODO: make and reuse variadic commonPrefix
         }
     }
 
@@ -532,7 +532,7 @@ if (!hasVariableSize!NodeType)
         // debug ++_heapAllocBalance;
         import core.lifetime : emplace;
         return emplace(cast(NodeType)malloc((*NodeType.init).sizeof), args);
-        // TODO ensure alignment of node at least that of NodeType.alignof
+        // TODO: ensure alignment of node at least that of NodeType.alignof
     }
     else
     {
@@ -558,7 +558,7 @@ if (is(NodeType == struct) &&
     // import nxt.dbgio;
     // dbg(NodeType.stringof, " paddedRequestedCapacity:", paddedRequestedCapacity, " requiredCapacity:", requiredCapacity);
 
-    // assert(paddedRequestedCapacity >= requiredCapacity); // TODO this fails for dmd but not for ldc
+    // assert(paddedRequestedCapacity >= requiredCapacity); // TODO: this fails for dmd but not for ldc
 
     import nxt.qcmeman : malloc;
     import core.lifetime : emplace;
@@ -570,7 +570,7 @@ void freeNode(NodeType)(NodeType nt) @trusted pure nothrow @nogc
 {
     static if (isPointer!NodeType)
     {
-        free(cast(void*)nt);  // TODO Allocator.free
+        free(cast(void*)nt);  // TODO: Allocator.free
         // debug --_heapAllocBalance;
     }
 }
@@ -707,7 +707,7 @@ static private struct SparseLeaf1(Value)
                 {
                     next = constructVariableSizeNode!(typeof(this))(length + 1, ixsSlots);
                 }
-                this.deinit(); free(&this); // clear `this`. TODO reuse existing helper function in Phobos?
+                this.deinit(); free(&this); // clear `this`. TODO: reuse existing helper function in Phobos?
             }
             else
             {
@@ -751,7 +751,7 @@ static private struct SparseLeaf1(Value)
         auto next = makeRoom();
         if (next is null)
         {
-            modStatus = ModStatus.maxCapacityReached; // TODO expand to `DenseLeaf1`
+            modStatus = ModStatus.maxCapacityReached; // TODO: expand to `DenseLeaf1`
             return &this;
         }
 
@@ -766,7 +766,7 @@ static private struct SparseLeaf1(Value)
     {
         assert(index <= _length);
 
-        foreach (immutable i; 0 .. _length - index) // TODO functionize this loop or reuse memmove:
+        foreach (immutable i; 0 .. _length - index) // TODO: functionize this loop or reuse memmove:
         {
             immutable iD = _length - i;
             immutable iS = iD - 1;
@@ -941,7 +941,7 @@ static private struct DenseLeaf1(Value)
         {
             assert(ixBits.length == values.length);
             _ixBits = ixBits;
-            _values[] = values[]; // TODO commenting out does not affect unittests
+            _values[] = values[]; // TODO: commenting out does not affect unittests
             static if (hasGCScannedValues)
             {
                 GC.addRange(_values.ptr, capacity * Value.size);
@@ -1050,7 +1050,7 @@ static private struct DenseLeaf1(Value)
 
     /** Try to find index to first set bit in `_ixBits` starting at bit index `ix` and put the result in `nextIx`.
         Returns: `true` upon find, `false` otherwise.
-        TODO move to StaticBitArray
+        TODO: move to StaticBitArray
      */
     bool tryFindSetBitIx(UIx ix, out UIx nextIx) const
     {
@@ -1099,7 +1099,7 @@ alias FixedKeyLeafN = WordVariant!(OneLeafMax7,
  *
  * Used by branch-leaf.
  */
-alias Leaf1(Value) = WordVariant!(HeptLeaf1, // TODO remove from case when Value is void
+alias Leaf1(Value) = WordVariant!(HeptLeaf1, // TODO: remove from case when Value is void
                                   SparseLeaf1!Value*,
                                   DenseLeaf1!Value*);
 
@@ -1293,7 +1293,7 @@ template RawRadixTree(Value = void)
             // 2.
             initialize(subCapacity);
 
-            // copy variable length part. TODO optimize:
+            // copy variable length part. TODO: optimize:
             this.subIxSlots[0 .. rhs.subCount] = rhs.subIxSlots[0 .. rhs.subCount];
             this.subNodeSlots[0 .. rhs.subCount] = rhs.subNodeSlots[0 .. rhs.subCount];
 
@@ -1356,11 +1356,11 @@ template RawRadixTree(Value = void)
                 {
                     next = constructVariableSizeNode!(typeof(this))(subCount + 1, &this);
 
-                    this.deinit(); free(&this); // clear `this`. TODO reuse existing helper function in Phobos?
+                    this.deinit(); free(&this); // clear `this`. TODO: reuse existing helper function in Phobos?
                 }
                 else
                 {
-                    modStatus = ModStatus.maxCapacityReached; // TODO expand to `DenseBranch`
+                    modStatus = ModStatus.maxCapacityReached; // TODO: expand to `DenseBranch`
                     return next;
                 }
             }
@@ -1373,7 +1373,7 @@ template RawRadixTree(Value = void)
         private void insertAt(size_t index, IxSub sub)
         {
             assert(index <= subCount);
-            foreach (immutable i; 0 .. subCount - index) // TODO functionize this loop or reuse memmove:
+            foreach (immutable i; 0 .. subCount - index) // TODO: functionize this loop or reuse memmove:
             {
                 immutable iD = subCount - i;
                 immutable iS = iD - 1;
@@ -1429,7 +1429,7 @@ template RawRadixTree(Value = void)
                 sub.calculate!(Value)(stats);
             }
             assert(count <= radix);
-            ++stats.popHist_SparseBranch[count]; // TODO type-safe indexing
+            ++stats.popHist_SparseBranch[count]; // TODO: type-safe indexing
 
             stats.sparseBranchAllocatedSizeSum += allocatedSize;
 
@@ -1511,7 +1511,7 @@ template RawRadixTree(Value = void)
             move(rhs.leaf1, this.leaf1);
             debug rhs.leaf1 = Leaf1!Value.init; // make reference unique, to be on the safe side
 
-            foreach (immutable i; 0 .. rhs.subCount) // each sub node. TODO use iota!(Mod!N)
+            foreach (immutable i; 0 .. rhs.subCount) // each sub node. TODO: use iota!(Mod!N)
             {
                 immutable iN = (cast(ubyte)i).mod!(SparseBranch.maxCapacity);
                 immutable subIx = UIx(rhs.subIxSlots[iN]);
@@ -1521,14 +1521,14 @@ template RawRadixTree(Value = void)
             }
         }
 
-        typeof(this)* dup() @trusted // TODO remove @trusted qualifier when .ptr problem has been fixed
+        typeof(this)* dup() @trusted // TODO: remove @trusted qualifier when .ptr problem has been fixed
         {
             auto copy = constructFixedSizeNode!(typeof(this)*);
             copy.leaf1 = dupAt(leaf1);
             copy.prefix = prefix;
             foreach (immutable i, subNode; subNodes)
             {
-                copy.subNodes.ptr[i] = dupAt(subNode); // TODO remove .ptr access when I inout problem is solved
+                copy.subNodes.ptr[i] = dupAt(subNode); // TODO: remove .ptr access when I inout problem is solved
             }
             return copy;
         }
@@ -1537,7 +1537,7 @@ template RawRadixTree(Value = void)
         SubCount subCount() const
         {
             typeof(return) count = 0; // number of non-zero sub-nodes
-            foreach (immutable subNode; subNodes) // TODO why can't we use std.algorithm.count here?
+            foreach (immutable subNode; subNodes) // TODO: why can't we use std.algorithm.count here?
             {
                 if (subNode) { ++count; }
             }
@@ -1572,7 +1572,7 @@ template RawRadixTree(Value = void)
                 }
             }
             assert(count <= radix);
-            ++stats.popHist_DenseBranch[count]; // TODO type-safe indexing
+            ++stats.popHist_DenseBranch[count]; // TODO: type-safe indexing
             if (leaf1) { leaf1.calculate!(Value)(stats); }
         }
 
@@ -1595,7 +1595,7 @@ template RawRadixTree(Value = void)
         // pragma(msg, "SparseBranch.subIxs.sizeof:", SparseBranch.subIxs.sizeof, " SparseBranch.subIxs.alignof:", SparseBranch.subIxs.alignof);
     }
 
-    // TODO make these run-time arguments at different key depths and map to statistics of typed-key
+    // TODO: make these run-time arguments at different key depths and map to statistics of typed-key
     alias DefaultBranch = SparseBranch; // either `SparseBranch`, `DenseBranch`
 
     /** Mutable node. */
@@ -1619,7 +1619,7 @@ template RawRadixTree(Value = void)
     static assert(Branch.typeBits <= IxsN!(7, 1).typeBits);
 
     /** Constant node. */
-    // TODO make work with indexNaming
+    // TODO: make work with indexNaming
     // import std.typecons : ConstOf;
     // alias ConstNodePtr = WordVariant!(staticMap!(ConstOf, Node));
 
@@ -1665,7 +1665,7 @@ template RawRadixTree(Value = void)
         {
             this.branch = Branch(branch);
 
-            this._subCounter = 0; // TODO needed?
+            this._subCounter = 0; // TODO: needed?
             _subsEmpty = !branch.findSubNodeAtIx(0, this._subCounter);
 
             if (branch.leaf1)
@@ -1804,7 +1804,7 @@ template RawRadixTree(Value = void)
 
         private void popBranchFront()
         {
-            // TODO move all calls to Branch-specific members popFront()
+            // TODO: move all calls to Branch-specific members popFront()
             final switch (branch.typeIx) with (Branch.Ix)
             {
             case undefined: assert(false);
@@ -1894,7 +1894,7 @@ template RawRadixTree(Value = void)
         {
             assert(!empty);
 
-            // TODO move all calls to leaf1-specific members popFront()
+            // TODO: move all calls to leaf1-specific members popFront()
             final switch (leaf1.typeIx) with (Leaf1!Value.Ix)
             {
             case undefined: assert(false);
@@ -1965,7 +1965,7 @@ template RawRadixTree(Value = void)
         }
 
     private:
-        Leaf1!Value leaf1; // TODO Use Leaf1!Value-WordVariant when it includes non-Value leaf1 types
+        Leaf1!Value leaf1; // TODO: Use Leaf1!Value-WordVariant when it includes non-Value leaf1 types
         UIx _ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
     }
 
@@ -2091,7 +2091,7 @@ template RawRadixTree(Value = void)
         void popFront()
         {
             assert(!empty);
-            // TODO move all calls to leaf-specific members popFront()
+            // TODO: move all calls to leaf-specific members popFront()
             switch (leaf.typeIx) with (Node.Ix)
             {
             case undefined: assert(false);
@@ -2137,7 +2137,7 @@ template RawRadixTree(Value = void)
         }
 
     private:
-        Node leaf;              // TODO Use Leaf-WordVariant when it includes non-Value leaf types
+        Node leaf;              // TODO: Use Leaf-WordVariant when it includes non-Value leaf types
         UIx ix; // `Node`-specific counter, typically either a sparse or dense index either a sub-branch or a `UKey`-ending `Ix`
     }
 
@@ -2232,7 +2232,7 @@ template RawRadixTree(Value = void)
             pragma(inline, true);
             // turn emptyness exception into an assert like ranges do
             // size_t suffixLength = 0;
-            // foreach (const ref branchRange; _bRanges[$ - newLength .. $]) // TODO reverse isearch
+            // foreach (const ref branchRange; _bRanges[$ - newLength .. $]) // TODO: reverse isearch
             // {
             //     suffixLength += branchRange.prefixLength + 1;
             // }
@@ -2329,7 +2329,7 @@ template RawRadixTree(Value = void)
             if (!empty) { cacheFront(); }
         }
 
-        private void popFrontInBranchLeaf1() // TODO move to member of BranchRanges
+        private void popFrontInBranchLeaf1() // TODO: move to member of BranchRanges
         {
             branchRanges.popBranch1Front();
             if (branchRanges.emptyBranch1)
@@ -2443,7 +2443,7 @@ template RawRadixTree(Value = void)
             while (next);
         }
 
-        @property typeof(this) save() @trusted // TODO remove @trusted
+        @property typeof(this) save() @trusted // TODO: remove @trusted
         {
             typeof(this) copy;
             copy.leafNRange = this.leafNRange;
@@ -2468,7 +2468,7 @@ template RawRadixTree(Value = void)
         auto frontKey() const @trusted
         {
             pragma(inline, true);
-            return _cachedFrontKey[]; // TODO replace @trusted with DIP-1000 scope
+            return _cachedFrontKey[]; // TODO: replace @trusted with DIP-1000 scope
         }
 
         static if (isValue)
@@ -2507,7 +2507,7 @@ template RawRadixTree(Value = void)
             this._rawKeyPrefix = keyPrefix;
 
             this._front = FrontRange(root);
-            // TODO this._back = FrontRange(root);
+            // TODO: this._back = FrontRange(root);
 
             if (!empty &&
                 !_front.frontKey.startsWith(_rawKeyPrefix))
@@ -2528,7 +2528,7 @@ template RawRadixTree(Value = void)
         bool empty() const
         {
             pragma(inline, true);
-            return _front.empty; // TODO _front == _back;
+            return _front.empty; // TODO: _front == _back;
         }
 
         auto lowKey() const
@@ -2667,11 +2667,11 @@ template RawRadixTree(Value = void)
         {
             static if (isValue)
             {
-                next = constructFixedSizeNode!(DenseLeaf1!Value*)(curr.ixs, curr.values); // TODO make use of sortedness of `curr.keys`?
+                next = constructFixedSizeNode!(DenseLeaf1!Value*)(curr.ixs, curr.values); // TODO: make use of sortedness of `curr.keys`?
             }
             else
             {
-                next = constructFixedSizeNode!(DenseLeaf1!Value*)(curr.ixs); // TODO make use of sortedness of `curr.keys`?
+                next = constructFixedSizeNode!(DenseLeaf1!Value*)(curr.ixs); // TODO: make use of sortedness of `curr.keys`?
             }
         }
         freeNode(curr);
@@ -2838,7 +2838,7 @@ template RawRadixTree(Value = void)
         }
 
         /// ditto
-        inout(Value*) containsAt(inout Node curr, UKey key) /* TODO make @safe */ @trusted
+        inout(Value*) containsAt(inout Node curr, UKey key) /* TODO: make @safe */ @trusted
         {
             assert(key.length);
             // debug if (willFail) { dbg("key:", key); }
@@ -2888,7 +2888,7 @@ template RawRadixTree(Value = void)
             }
         }
         /// ditto
-        bool containsAt(Node curr, UKey key) /* TODO make @safe */ @trusted
+        bool containsAt(Node curr, UKey key) /* TODO: make @safe */ @trusted
         {
             assert(key.length);
             // debug if (willFail) { dbg("key:", key); }
@@ -2920,7 +2920,7 @@ template RawRadixTree(Value = void)
         }
     }
 
-    inout(Node) prefixAt(inout Node curr, UKey keyPrefix, out UKey keyPrefixRest) /* TODO make @safe */ @trusted pure nothrow @nogc
+    inout(Node) prefixAt(inout Node curr, UKey keyPrefix, out UKey keyPrefixRest) /* TODO: make @safe */ @trusted pure nothrow @nogc
     {
         import nxt.array_algorithm : startsWith;
         final switch (curr.typeIx) with (Node.Ix)
@@ -2999,7 +2999,7 @@ template RawRadixTree(Value = void)
         return curr;
     }
 
-    inout(Node) matchCommonPrefixAt(inout Node curr, UKey key, out UKey keyRest) /* TODO make @safe */ @trusted pure nothrow @nogc
+    inout(Node) matchCommonPrefixAt(inout Node curr, UKey key, out UKey keyRest) /* TODO: make @safe */ @trusted pure nothrow @nogc
     {
         // dbg(curr.typeIx);
         import nxt.array_algorithm : startsWith;
@@ -3253,9 +3253,9 @@ template RawRadixTree(Value = void)
                     return insertAt(curr.as!(HeptLeaf1), key, elementRef);
                 }
             case ix_SparseLeaf1Ptr:
-                return insertAtLeaf(Leaf1!Value(curr.as!(SparseLeaf1!Value*)), elt, elementRef); // TODO use toLeaf(curr)
+                return insertAtLeaf(Leaf1!Value(curr.as!(SparseLeaf1!Value*)), elt, elementRef); // TODO: use toLeaf(curr)
             case ix_DenseLeaf1Ptr:
-                return insertAtLeaf(Leaf1!Value(curr.as!(DenseLeaf1!Value*)), elt, elementRef); // TODO use toLeaf(curr)
+                return insertAtLeaf(Leaf1!Value(curr.as!(DenseLeaf1!Value*)), elt, elementRef); // TODO: use toLeaf(curr)
             case ix_SparseBranchPtr:
                 // debug if (willFail) { dbg("WILL FAIL: currPrefix:", curr.as!(SparseBranch*).prefix); }
                 return Node(insertAtAbovePrefix(Branch(curr.as!(SparseBranch*)), elt, elementRef));
@@ -3521,8 +3521,8 @@ template RawRadixTree(Value = void)
             }
             else
             {
-                Ix[1] ixs = [Ix(key)]; // TODO scope
-                Value[1] values = [value]; // TODO scope
+                Ix[1] ixs = [Ix(key)]; // TODO: scope
+                Value[1] values = [value]; // TODO: scope
                 auto leaf_ = constructVariableSizeNode!(SparseLeaf1!Value)(1, ixs, values); // needed for values
                 elementRef = ElementRef(Node(leaf_), UIx(0), ModStatus.added);
                 setLeaf1(curr, Leaf1!Value(leaf_));
@@ -3595,7 +3595,7 @@ template RawRadixTree(Value = void)
                 }
                 else if (matchedKeyPrefix.length + 1 == key.length) // key and curr.key are both matchedKeyPrefix plus one extra
                 {
-                    // TODO functionize:
+                    // TODO: functionize:
                     Node next;
                     switch (matchedKeyPrefix.length)
                     {
@@ -3680,7 +3680,7 @@ template RawRadixTree(Value = void)
                 nextKeys[curr.capacity] = cast(Ix)key;
 
                 import std.algorithm.sorting : sort;
-                sort(nextKeys[]); // TODO move this sorting elsewhere
+                sort(nextKeys[]); // TODO: move this sorting elsewhere
 
                 auto next = constructVariableSizeNode!(SparseLeaf1!Value)(nextKeys.length, nextKeys[]);
                 elementRef = ElementRef(Node(next), UIx(curr.capacity), ModStatus.added);
@@ -3702,7 +3702,7 @@ template RawRadixTree(Value = void)
         }
 
         /** Split `curr` using `prefix`. */
-        Node split(OneLeafMax7 curr, UKey prefix, UKey key) // TODO key here is a bit malplaced
+        Node split(OneLeafMax7 curr, UKey prefix, UKey key) // TODO: key here is a bit malplaced
             @safe pure nothrow @nogc
         {
             assert(key.length);
@@ -3715,7 +3715,7 @@ template RawRadixTree(Value = void)
                     if (prefix.length == 0)
                     {
                         freeNode(curr);
-                        return Node(constructFixedSizeNode!(HeptLeaf1)(curr.key)); // TODO removing parameter has no effect. why?
+                        return Node(constructFixedSizeNode!(HeptLeaf1)(curr.key)); // TODO: removing parameter has no effect. why?
                     }
                     break;
                 case 2:
@@ -3773,7 +3773,7 @@ template RawRadixTree(Value = void)
             else
             {
                 next = constructVariableSizeNode!(DefaultBranch)(curr.keys.length + capacityIncrement, curr.prefix);
-                // TODO functionize and optimize to insertNewAtAbovePrefix(next, curr.keys)
+                // TODO: functionize and optimize to insertNewAtAbovePrefix(next, curr.keys)
                 foreach (key; curr.keys)
                 {
                     next = insertNewAtBelowPrefix(next, key[curr.prefix.length .. $]);
@@ -3796,7 +3796,7 @@ template RawRadixTree(Value = void)
             else
             {
                 next = constructVariableSizeNode!(DefaultBranch)(curr.keys.length + capacityIncrement, curr.prefix);
-                // TODO functionize and optimize to insertNewAtAbovePrefix(next, curr.keys)
+                // TODO: functionize and optimize to insertNewAtAbovePrefix(next, curr.keys)
                 foreach (key; curr.keys)
                 {
                     next = insertNewAtBelowPrefix(next, key[curr.prefix.length .. $]);
@@ -3835,7 +3835,7 @@ template RawRadixTree(Value = void)
 
         void release(DenseBranch* curr)
         {
-            foreach (immutable sub; curr.subNodes[].filter!(sub => sub)) // TODO use static foreach
+            foreach (immutable sub; curr.subNodes[].filter!(sub => sub)) // TODO: use static foreach
             {
                 release(sub); // recurse branch
             }
@@ -4050,7 +4050,7 @@ template RawRadixTree(Value = void)
         */
         alias hasValue = isValue;
 
-        Range opSlice() pure nothrow // TODO DIP-1000 scope
+        Range opSlice() pure nothrow // TODO: DIP-1000 scope
         {
             pragma(inline, true);
             return Range(_root, []);
@@ -4197,7 +4197,7 @@ template RawRadixTree(Value = void)
  */
 static private void calculate(Value)(RawRadixTree!(Value).NodeType curr,
                                      ref RawRadixTree!(Value).StatsType stats)
-    @safe pure nothrow /* TODO @nogc */
+    @safe pure nothrow /* TODO: @nogc */
 {
     alias RT = RawRadixTree!(Value);
     ++stats.popByNodeType[curr.typeIx];
@@ -4205,15 +4205,15 @@ static private void calculate(Value)(RawRadixTree!(Value).NodeType curr,
     final switch (curr.typeIx) with (RT.NodeType.Ix)
     {
     case undefined: break;
-    case ix_OneLeafMax7: break; // TODO calculate()
-    case ix_TwoLeaf3: break; // TODO calculate()
-    case ix_TriLeaf2: break; // TODO calculate()
-    case ix_HeptLeaf1: break; // TODO calculate()
+    case ix_OneLeafMax7: break; // TODO: calculate()
+    case ix_TwoLeaf3: break; // TODO: calculate()
+    case ix_TriLeaf2: break; // TODO: calculate()
+    case ix_HeptLeaf1: break; // TODO: calculate()
     case ix_SparseLeaf1Ptr:
         ++stats.heapNodeCount;
         const curr_ = curr.as!(SparseLeaf1!Value*);
         assert(curr_.length);
-        ++stats.popHist_SparseLeaf1[curr_.length - 1]; // TODO type-safe indexing
+        ++stats.popHist_SparseLeaf1[curr_.length - 1]; // TODO: type-safe indexing
         stats.sparseLeaf1AllocatedSizeSum += curr_.allocatedSize;
         break;
     case ix_DenseLeaf1Ptr:
@@ -4221,7 +4221,7 @@ static private void calculate(Value)(RawRadixTree!(Value).NodeType curr,
         ++stats.heapNodeCount;
         immutable count = curr_._ixBits.countOnes; // number of non-zero sub-nodes
         assert(count <= curr_.capacity);
-        ++stats.popHist_DenseLeaf1[count - 1]; // TODO type-safe indexing
+        ++stats.popHist_DenseLeaf1[count - 1]; // TODO: type-safe indexing
         break;
     case ix_SparseBranchPtr:
         ++stats.heapNodeCount;
@@ -4238,7 +4238,7 @@ static private void calculate(Value)(RawRadixTree!(Value).NodeType curr,
  */
 static private void calculate(Value)(Leaf1!Value curr,
                                      ref RawRadixTree!(Value).StatsType stats)
-    @safe pure nothrow /* TODO @nogc */
+    @safe pure nothrow /* TODO: @nogc */
 {
     alias RT = RawRadixTree!(Value);
     ++stats.popByLeaf1Type[curr.typeIx];
@@ -4246,12 +4246,12 @@ static private void calculate(Value)(Leaf1!Value curr,
     final switch (curr.typeIx) with (Leaf1!Value.Ix)
     {
     case undefined: break;
-    case ix_HeptLeaf1: break; // TODO calculate()
+    case ix_HeptLeaf1: break; // TODO: calculate()
     case ix_SparseLeaf1Ptr:
         ++stats.heapNodeCount;
         const curr_ = curr.as!(SparseLeaf1!Value*);
         assert(curr_.length);
-        ++stats.popHist_SparseLeaf1[curr_.length - 1]; // TODO type-safe indexing
+        ++stats.popHist_SparseLeaf1[curr_.length - 1]; // TODO: type-safe indexing
         break;
     case ix_DenseLeaf1Ptr:
         const curr_ = curr.as!(DenseLeaf1!Value*);
@@ -4259,13 +4259,13 @@ static private void calculate(Value)(Leaf1!Value curr,
         immutable count = curr_._ixBits.countOnes; // number of non-zero curr-nodes
         assert(count <= curr_.capacity);
         assert(count);
-        ++stats.popHist_DenseLeaf1[count - 1]; // TODO type-safe indexing
+        ++stats.popHist_DenseLeaf1[count - 1]; // TODO: type-safe indexing
         break;
     }
 }
 
 /** Remap fixed-length typed key `typedKey` to raw (untyped) key of type `UKey`.
-    TODO DIP-1000 scope
+    TODO: DIP-1000 scope
 */
 UKey toFixedRawKey(TypedKey)(const scope TypedKey typedKey, UKey preallocatedFixedUKey) @trusted
 {
@@ -4309,33 +4309,33 @@ if (isTrieableKeyType!TypedKey)
     else static if (isArray!TypedKey)
     {
         alias EType = Unqual!(typeof(TypedKey.init[0]));
-        static if (is(EType == char)) // TODO extend to support isTrieableKeyType!TypedKey
+        static if (is(EType == char)) // TODO: extend to support isTrieableKeyType!TypedKey
         {
             import std.string : representation;
             const ubyte[] ukey = typedKey.representation; // lexical byte-order
-            return cast(Ix[])ukey;                        // TODO needed?
+            return cast(Ix[])ukey;                        // TODO: needed?
         }
         else static if (is(EType == wchar))
         {
             immutable ushort[] rKey = typedKey.representation; // lexical byte-order.
-            // TODO MSByte-order of elements in rKey for ordered access and good branching performance
-            immutable ubyte[] ukey = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
+            // TODO: MSByte-order of elements in rKey for ordered access and good branching performance
+            immutable ubyte[] ukey = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO: @trusted functionize. Reuse existing Phobos function?
             return ukey;
         }
         else static if (is(EType == dchar))
         {
             immutable uint[] rKey = typedKey.representation; // lexical byte-order
-            // TODO MSByte-order of elements in rKey for ordered access and good branching performance
-            immutable ubyte[] ukey = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO @trusted functionize. Reuse existing Phobos function?
+            // TODO: MSByte-order of elements in rKey for ordered access and good branching performance
+            immutable ubyte[] ukey = (cast(const ubyte*)rKey.ptr)[0 .. rKey[0].sizeof * rKey.length]; // TODO: @trusted functionize. Reuse existing Phobos function?
             return ukey;
         }
         else static if (isFixedTrieableKeyType!E)
         {
-            static assert(false, "TODO Convert array of typed fixed keys");
+            static assert(false, "TODO: Convert array of typed fixed keys");
         }
         else
         {
-            static assert(false, "TODO Handle typed key " ~ TypedKey.stringof);
+            static assert(false, "TODO: Handle typed key " ~ TypedKey.stringof);
         }
     }
     else static if (is(TypedKey == struct))
@@ -4355,7 +4355,7 @@ if (isTrieableKeyType!TypedKey)
                 static if (i + 1 == members.length) // last member is allowed to be an array of fixed length
                 {
                     Array!Ix memberRawUKey;
-                    const memberRawKey = member.toRawKey(memberRawUKey); // TODO DIP-1000 scope
+                    const memberRawKey = member.toRawKey(memberRawUKey); // TODO: DIP-1000 scope
                     rawUKey ~= memberRawUKey;
                 }
                 else                // non-last member must be fixed
@@ -4363,16 +4363,16 @@ if (isTrieableKeyType!TypedKey)
                     static assert(isFixedTrieableKeyType!MemberType,
                                   "Non-last " ~ i.stringof ~ ":th member of type " ~ MemberType.stringof ~ " must be of fixed length");
                     Ix[MemberType.sizeof] memberRawUKey;
-                    const memberRawKey = member.toFixedRawKey(memberRawUKey); // TODO DIP-1000 scope
+                    const memberRawKey = member.toFixedRawKey(memberRawUKey); // TODO: DIP-1000 scope
                     rawUKey ~= memberRawUKey[];
                 }
             }
-            return rawUKey[]; // TODO return immutable slice
+            return rawUKey[]; // TODO: return immutable slice
         }
     }
     else
     {
-        static assert(false, "TODO Handle typed key " ~ TypedKey.stringof);
+        static assert(false, "TODO: Handle typed key " ~ TypedKey.stringof);
     }
 }
 
@@ -4392,7 +4392,7 @@ if (isTrieableKeyType!TypedKey)
         enum chunkCount = nbits/span; // number of chunks in key_
         static assert(chunkCount*span == nbits, "Bitsize of TypedKey must be a multiple of span:" ~ span.stringof);
 
-        // TODO reuse existing trait UnsignedOf!TypedKey
+        // TODO: reuse existing trait UnsignedOf!TypedKey
         static      if (TypedKey.sizeof == 1) { alias RawKey = ubyte; }
         else static if (TypedKey.sizeof == 2) { alias RawKey = ushort; }
         else static if (TypedKey.sizeof == 4) { alias RawKey = uint; }
@@ -4420,10 +4420,10 @@ if (isTrieableKeyType!TypedKey)
             static assert(char.sizeof == Ix.sizeof);
             return cast(inout(char)[])ukey;
         }
-        // TODO handle wchar and dchar
+        // TODO: handle wchar and dchar
         else
         {
-            static assert(false, "TODO Handle typed key " ~ TypedKey.stringof);
+            static assert(false, "TODO: Handle typed key " ~ TypedKey.stringof);
         }
     }
     else static if (is(TypedKey == struct))
@@ -4455,7 +4455,7 @@ if (isTrieableKeyType!TypedKey)
     }
     else
     {
-        static assert(false, "TODO Handle typed key " ~ TypedKey.stringof);
+        static assert(false, "TODO: Handle typed key " ~ TypedKey.stringof);
     }
 }
 
@@ -4494,13 +4494,13 @@ if (isTrieableKeyType!(K))
             _rawTree.ElementRefType elementRef; // reference to where element was added
 
             Array!Ix rawUKey;
-            auto rawKey = key.toRawKey(rawUKey); // TODO DIP-1000 scope
+            auto rawKey = key.toRawKey(rawUKey); // TODO: DIP-1000 scope
 
             _rawTree.insert(rawKey, value, elementRef);
 
             immutable bool added = elementRef.node && elementRef.modStatus == ModStatus.added;
             _length += added;
-            /* TODO return reference (via `auto ref` return typed) to stored
+            /* TODO: return reference (via `auto ref` return typed) to stored
                value at `elementRef` instead, unless packed static_bitarray storage is used
                when `V is bool` */
             return value;
@@ -4514,7 +4514,7 @@ if (isTrieableKeyType!(K))
             _rawTree.ElementRefType elementRef; // indicates that key was added
 
             Array!Ix rawUKey;
-            auto rawKey = key.toRawKey(rawUKey); // TODO DIP-1000 scope
+            auto rawKey = key.toRawKey(rawUKey); // TODO: DIP-1000 scope
 
             _rawTree.insert(rawKey, value, elementRef);
 
@@ -4545,7 +4545,7 @@ if (isTrieableKeyType!(K))
             }
             else
             {
-                assert(false, "TODO warning no elementRef for key:"/*, key, " rawKey:", rawKey*/);
+                assert(false, "TODO: warning no elementRef for key:"/*, key, " rawKey:", rawKey*/);
             }
         }
 
@@ -4554,12 +4554,12 @@ if (isTrieableKeyType!(K))
         {
             version(LDC) pragma(inline, true);
             Array!Ix rawUKey;
-            auto rawKey = key.toRawKey(rawUKey); // TODO DIP-1000 scope
+            auto rawKey = key.toRawKey(rawUKey); // TODO: DIP-1000 scope
             return _rawTree.contains(rawKey);
         }
 
         /** AA-style key-value range. */
-        Range byKeyValue() @nogc // TODO inout?, TODO DIP-1000 scope
+        Range byKeyValue() @nogc // TODO: inout?, TODO: DIP-1000 scope
         {
             pragma(inline, true);
             return this.opSlice;
@@ -4578,7 +4578,7 @@ if (isTrieableKeyType!(K))
             _rawTree.ElementRefType elementRef; // indicates that elt was added
 
             Array!Ix rawUKey;
-            auto rawKey = key.toRawKey(rawUKey); // TODO DIP-1000 scope
+            auto rawKey = key.toRawKey(rawUKey); // TODO: DIP-1000 scope
 
             _rawTree.insert(rawKey, elementRef);
 
@@ -4594,12 +4594,12 @@ if (isTrieableKeyType!(K))
         {
             version(LDC) pragma(inline, true);
             Array!Ix rawUKey;
-            auto rawKey = key.toRawKey(rawUKey); // TODO DIP-1000 scope
+            auto rawKey = key.toRawKey(rawUKey); // TODO: DIP-1000 scope
             return _rawTree.contains(rawKey);
         }
 
         /** AA-style key range. */
-        Range byKey() @nogc // TODO inout?. TODO DIP-1000 scope
+        Range byKey() @nogc // TODO: inout?. TODO: DIP-1000 scope
         {
             pragma(inline, true);
             return this.opSlice;
@@ -4611,10 +4611,10 @@ if (isTrieableKeyType!(K))
         if (op == "in")
     {
         pragma(inline, true);
-        return contains(key);   // TODO return `_rawTree.ElementRefType`
+        return contains(key);   // TODO: return `_rawTree.ElementRefType`
     }
 
-    Range opSlice() @system @nogc // TODO inout?
+    Range opSlice() @system @nogc // TODO: inout?
     {
         version(LDC) pragma(inline, true);
         return Range(_root, []);
@@ -4743,9 +4743,9 @@ if (isTrieableKeyType!(K))
         on which pred(value, x) is true for all x (e.g., if pred is "less than",
         returns the portion of the range with elements strictly greater than
         value).
-        TODO Add template param (SearchPolicy sp)
+        TODO: Add template param (SearchPolicy sp)
 
-        TODO replace `matchCommonPrefix` with something more clever directly
+        TODO: replace `matchCommonPrefix` with something more clever directly
         finds the next element after rawKey and returns a TreeRange at that point
     */
     auto upperBound(K key) @system
@@ -4903,7 +4903,7 @@ RadixTree!(MutableKey!Key, Value) radixTreeMap(Key, Value)()
 }
 
 /// exercise all switch-cases in `RawRadixTree.prefixAt()`
-/*TODO @safe*/ pure nothrow
+/*TODO: @safe*/ pure nothrow
 /*TODO:@nogc*/ unittest
 { version(showAssertTags) dbg();
     import std.algorithm.comparison : equal;
@@ -4992,7 +4992,7 @@ RadixTree!(MutableKey!Key, Value) radixTreeMap(Key, Value)()
 }
 
 /// test floating-point key range sortedness
-/*@ TODO safe */ pure nothrow @nogc unittest
+/*@ TODO: safe */ pure nothrow @nogc unittest
 { version(showAssertTags) dbg();
     alias T = double;
 
@@ -5057,10 +5057,10 @@ if (Keys.length != 0)
 
         import std.algorithm.comparison : equal;
         import std.algorithm.iteration : map;
-        () @trusted { assert(set[].equal(low.iota(high + 1).map!(uk => cast(Key)uk))); } (); // TODO remove @trusted when opSlice support DIP-1000
+        () @trusted { assert(set[].equal(low.iota(high + 1).map!(uk => cast(Key)uk))); } (); // TODO: remove @trusted when opSlice support DIP-1000
 
         import std.algorithm.sorting : isSorted;
-        () @trusted { assert(set[].isSorted); } (); // TODO remove @trusted when opSlice support DIP-1000
+        () @trusted { assert(set[].isSorted); } (); // TODO: remove @trusted when opSlice support DIP-1000
     }
 }
 
@@ -5124,7 +5124,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
     size_t totalBytesUsed = 0;
 
     // Node-usage
-    foreach (const index, const pop; stats.popByNodeType) // TODO use stats.byPair when added to typecons_ex.d
+    foreach (const index, const pop; stats.popByNodeType) // TODO: use stats.byPair when added to typecons_ex.d
     {
         size_t bytesUsed = 0;
         const ix = cast(RT.NodeType.Ix)index;
@@ -5161,7 +5161,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
             break;
         }
         writeln(pop, " number of ",
-                ix.to!string[3 .. $], // TODO Use RT.NodeType.indexTypeName(ix)
+                ix.to!string[3 .. $], // TODO: Use RT.NodeType.indexTypeName(ix)
                 " uses ", bytesUsed/1e6, " megabytes");
     }
 
@@ -5211,7 +5211,7 @@ void showStatistics(RT)(const ref RT tree) // why does `in`RT tree` trigger a co
         foreach (immutable keyValue; map[])
         {
             assert(keyValue.key == i);
-            assert(keyValue.value == keyToValue(cast(Key)i)); // TODO use typed key instead of cast(Key)
+            assert(keyValue.value == keyToValue(cast(Key)i)); // TODO: use typed key instead of cast(Key)
             ++i;
         }
     }
@@ -5288,7 +5288,7 @@ if (Keys.length != 0)
 }
 
 ///
-@safe /* TODO pure nothrow @nogc */
+@safe /* TODO: pure nothrow @nogc */
 unittest
 { version(showAssertTags) dbg();
     testString!(string)(512, 8);
@@ -5768,7 +5768,7 @@ private void benchmarkTimeAndSpace()
 
 /** Static Iota.
  *
- * TODO Move to Phobos std.range.
+ * TODO: Move to Phobos std.range.
  */
 template iota(size_t from, size_t to)
 if (from <= to)

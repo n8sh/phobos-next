@@ -14,7 +14,6 @@ module nxt.soa;
 struct SOA(S)
 if (is(S == struct))        // TODO extend to `isAggregate!S`?
 {
-    import core.lifetime : move, moveEmplace;
     import nxt.pure_mallocator : PureMallocator;
 
     private alias toType(string s) = typeof(__traits(getMember, S, s));
@@ -41,6 +40,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     /// Push element (struct) `value` to back of array.
     void insertBack()(S value) @trusted // template-lazy
     {
+        import core.lifetime : moveEmplace;
         reserveOneExtra();
         static foreach (const index, memberSymbol; S.tupleof)
         {
@@ -53,6 +53,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
     /// Push element (struct) `value` to back of array using its data members `members`.
     void insertBackMembers()(Types members) @trusted // template-lazy
     {
+        import core.lifetime : moveEmplace;
         reserveOneExtra();
         // move each member to its position respective array
         static foreach (const index, _; members)
@@ -66,7 +67,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
         if (op == "~")
     {
         pragma(inline, true);
-        insertBack(move(value));      // TODO remove when compiler does this for us
+        insertBack(value);
     }
 
     /// Length of this array.

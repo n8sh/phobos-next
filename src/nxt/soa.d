@@ -118,9 +118,9 @@ private:
         mixin(`return _container` ~ index.stringof ~ ";");
     }
 
-    size_t _length = 0;
-    size_t _capacity = 0;
-    short _growthFactor = 2;
+    size_t _length = 0;         ///< Current length.
+    size_t _capacity = 0;       ///< Current capacity.
+    enum _growthFactor = 2;     ///< Growth factor.
 
     void allocate(size_t newCapacity) @trusted
     {

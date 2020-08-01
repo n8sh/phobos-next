@@ -1,4 +1,7 @@
-/** Structure of arrays similar to builtin feature in the Jai programming language.
+/** Structure of arrays similar to a feature present in the Jai programming language.
+ *
+ * Initially a builtin feature in the Jai programming language that later was
+ * made into a library solution.
  *
  * See_Also: https://maikklein.github.io/post/soa-d/
  * See_Also: http://forum.dlang.org/post/wvulryummkqtskiwrusb@forum.dlang.org

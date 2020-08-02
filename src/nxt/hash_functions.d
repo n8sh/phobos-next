@@ -10,7 +10,7 @@ module nxt.hash_functions;
  */
 size_t typeidHashOf(T)(in T x) @trusted
 {
-    pragma(inline, true);
+    version(D_Coverage) {} else pragma(inline, true);
     return typeid(T).getHash(&x); // TODO why not pure @nogc?
 }
 
@@ -22,7 +22,7 @@ size_t typeidHashOf(T)(in T x) @trusted
 
 hash_t hashOfTypeInfoPtr(TypeInfo_Class typeinfo) @trusted pure nothrow @nogc
 {
-    pragma(inline, true);
+    version(D_Coverage) {} else pragma(inline, true);
     assert(typeof(typeinfo).alignof == 8);
     return (cast(hash_t)(cast(void*)typeinfo) >> 3);
 }
@@ -34,7 +34,7 @@ hash_t hashOfTypeInfoPtr(TypeInfo_Class typeinfo) @trusted pure nothrow @nogc
 hash_t hashOfPolymorphic(Class)(Class a) @trusted pure nothrow @nogc
 if (is(Class == class))
 {
-    pragma(inline, true);
+    version(D_Coverage) {} else pragma(inline, true);
     static assert(typeid(Class).alignof == 8);
     // const class_typeid_hash = (cast(hash_t)(cast(void*)typeid(Class)) >> 3)
     import core.internal.hash : hashOf;
@@ -43,7 +43,7 @@ if (is(Class == class))
 
 size_t fibonacci_hash(hash_t hash) @safe pure nothrow @nogc
 {
-    pragma(inline, true);
+    version(D_Coverage) {} else pragma(inline, true);
     return (hash * 11400714819323198485LU);
 }
 
@@ -131,7 +131,7 @@ version(unittest)
 /** Dummy-hash for benchmarking performance of HashSet. */
 ulong identityHash64Of(in ulong x)
 {
-    pragma(inline, true);
+    version(D_Coverage) {} else pragma(inline, true);
     return x;               // maps -1 to ulong.max
 }
 
@@ -150,7 +150,7 @@ ulong identityHash64Of(in ulong x)
  */
 uint muellerHash32(uint x)
 {
-    pragma(inline, true);
+    version(D_Coverage) {} else pragma(inline, true);
     x = ((x >> 16) ^ x) * 0x45d9f3b;
     x = ((x >> 16) ^ x) * 0x45d9f3b;
     x = (x >> 16) ^ x;
@@ -168,7 +168,7 @@ uint muellerHash32(uint x)
  */
 ulong muellerHash64(in ulong x)
 {
-    pragma(inline, true);
+    version(D_Coverage) {} else pragma(inline, true);
     typeof(return) y = x;
     y = (y ^ (y >> 30)) * 0xbf58476d1ce4e5b9UL;
     y = (y ^ (y >> 27)) * 0x94d049bb133111ebUL;
@@ -182,7 +182,7 @@ ulong muellerHash64(in ulong x)
  */
 public ulong wangMixHash64(ulong x)
 {
-    pragma(inline, true);
+    version(D_Coverage) {} else pragma(inline, true);
     x = (~x) + (x << 21); // x = (x << 21) - x - 1;
     x = x ^ (x >>> 24);
     x = (x + (x << 3)) + (x << 8); // x * 265
@@ -211,7 +211,7 @@ public ulong wangMixHash64(ulong x)
  */
 ulong lemireHash64(in ulong x)
 {
-    pragma(inline, true);
+    version(D_Coverage) {} else pragma(inline, true);
     import core.bitop : ror;
     const ulong h1 = x * 0xA24BAED4963EE407UL;
     const ulong h2 = ror(x, 32U) * 0x9FB21C651E98DF25UL;
@@ -238,7 +238,7 @@ ulong lemireHash64(in ulong x)
  */
 ulong lemireHash64(in double x) @trusted
 {
-    pragma(inline, true);
+    version(D_Coverage) {} else pragma(inline, true);
     import core.bitop : ror;
     const ulong h1 = *(cast(ulong*)&x) * 0xA24BAED4963EE407UL;
     const ulong h2 = ror(*(cast(ulong*)&x), 32U) * 0x9FB21C651E98DF25UL;

@@ -339,6 +339,7 @@ void main()
                  // SSOHashMap!(uint, uint, null, FNV!(64, true)),
                  OpenHashMap!(Nullable!(uint, uint.max), uint, hashOf),
                  OpenHashMap!(Nullable!(uint, uint.max), uint, FNV!(64, true)),
+                 OpenHashMap!(Nullable!(uint, uint.max), uint, lemireHash64),
 
                  // ulong => ulong
                  // SSOHashMap!(ulong, ulong, null, muellerHash64),

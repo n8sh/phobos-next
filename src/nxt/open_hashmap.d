@@ -119,7 +119,7 @@ struct OpenHashMap(K, V = void,
                    bool borrowChecked = false,
                    bool useSmallLinearSearch = true,
                    bool usePrimeCapacity = false)
-if (isNullable!K /*&& isHashable!K */)
+if (isNullable!K /*&& !hasAliasing!K */)
 {
     // pragma(msg, K.stringof, " => ", V.stringof);
     import core.exception : onOutOfMemoryError;
@@ -133,9 +133,7 @@ if (isNullable!K /*&& isHashable!K */)
     import nxt.qcmeman : gc_addRange, gc_removeRange;
 
     static if (usePrimeCapacity)
-    {
         import nxt.prime_modulo : PrimeIndex, ceilingPrime, moduloPrimeIndex;
-    }
     else
     {
         import std.math : nextPow2;
@@ -150,17 +148,13 @@ if (isNullable!K /*&& isHashable!K */)
         alias keyEqualPredFn = binaryFun!keyEqualPred;
     }
     else
-    {
         alias keyEqualPredFn = keyEqualPred;
-    }
 
     private enum isSlice(T) = is(T : const(E)[], E);
 
     static if ((is(K == class)) &&
                keyEqualPred == `a is b`) // TODO use better predicate compare?
-    {
         alias StoreK = void*;
-    }
     else
     {
         import std.traits : isPointer;
@@ -168,13 +162,9 @@ if (isNullable!K /*&& isHashable!K */)
                    // TODO use better predicate compare?
                    (keyEqualPred == `a == b` ||
                     keyEqualPred == `a is b`))
-        {
             alias StoreK = void*;
-        }
         else
-        {
             alias StoreK = K;
-        }
     }
 
     enum isBorrowChecked = borrowChecked;
@@ -223,14 +213,10 @@ if (isNullable!K /*&& isHashable!K */)
         {
             version(D_Coverage) {} else pragma(inline, true);
             static if (isSlice!K) // for slices
-            {
                 // suffice to compare pointer part
                 return (key.ptr is holeKeyAddress);
-            }
             else
-            {
                 return (cast(const(void)*)key is holeKeyAddress);
-            }
         }
 
         /** TODO make these work
@@ -250,14 +236,10 @@ if (isNullable!K /*&& isHashable!K */)
         {
             version(D_Coverage) {} else pragma(inline, true);
             static if (__traits(hasMember, K, "isHole"))
-            {
                 // typically faster by asserting value of member of aggregate `K`
                 return key.isHole;
-            }
             else
-            {
                 return key is K.holeValue;
-            }
         }
     }
     else static if (__traits(hasMember, K, "nullifier"))
@@ -342,7 +324,6 @@ if (isNullable!K /*&& isHashable!K */)
             static if (isAddress!K) // for reference types
             {
                 K _key;          // no const because
-
                 /** Key access is head-const. */
                 inout(K) key() @property inout @safe pure nothrow @nogc
                 {
@@ -350,9 +331,7 @@ if (isNullable!K /*&& isHashable!K */)
                 }
             }
             else
-            {
                 const K key;
-            }
             V value;
         }
 
@@ -393,15 +372,11 @@ if (isNullable!K /*&& isHashable!K */)
     template isScopedKeyType(SomeKey)
     {
         static if (is(SomeKey == class))
-        {
             enum isScopedKeyType = (is(const(SomeKey) : const(K)));
-        }
         else
-        {
             enum isScopedKeyType = (is(K : SomeKey) || // `K is` implicitly convertible from `SomeKey`
                                     is(SomeKey : U[], U) && // is array
                                     is(typeof(K(SomeKey.init))));
-        }
     }
 
     alias ElementType = T;
@@ -485,42 +460,35 @@ if (isNullable!K /*&& isHashable!K */)
                 enum hasNullValueKey = __traits(hasMember, K, `nullValue`);
                 static if (hasNullValueKey &&
                            !is(typeof(emplace(&keyOf(bin), K.nullValue)))) // __traits(compiles) fails here when building knet
-                {
                     pragma(msg, __FILE__, ":", __LINE__, ":warning: emplace fails for null-Value key type ", K);
-                }
 
                 // initialize key
                 static if (hasNullValueKey &&
-                           is(typeof(emplace(&keyOf(bin), K.nullValue)))) // __traits(compiles) fails here when building knet
-                {
-                    emplace(&keyOf(bin), K.nullValue);
-                }
+                           is(typeof(emplace(&keyOf(bin), K.nullValue))))
+                    emplace(&keyOf(bin), K.nullValue); // initialize in-place with explicit `K.nullValue`
                 else
                 {
-                    emplace(&keyOf(bin));
-                    keyOf(bin).nullify(); // moveEmplace doesn't init source of type Nullable
+                    emplace(&keyOf(bin)); // initialize in-place with default value
+                    keyOf(bin).nullify(); // moveEmplace doesn't init source of type `Nullable`
                 }
 
                 // initialize value
                 static if (hasValue)
                 {
-                    static if (is(V == class))
-                    {
-                        valueOf(bin) = null; // just copy class value
-                    }
+                    static if (hasElaborateDestructor!V)
+                        emplace(&valueOf(bin)); // initialize in-place
+                    else static if (mustAddGCRange!V)
+                        valueOf(bin) = V.init;
                     else
                     {
-                        // TODO only needed when `hasElaborateDestructor`
-                        emplace(&valueOf(bin)); // construct in-place
+                        // ok for this case to have uninitialized value part
                     }
                 }
             }
         }
 
         static if (mustAddGCRange!T)
-        {
             gc_addRange(store.ptr, byteCount);
-        }
 
         return store;
     }
@@ -532,13 +500,10 @@ if (isNullable!K /*&& isHashable!K */)
         immutable byteCount = T.sizeof*capacity;
         auto store = cast(typeof(return))Allocator.allocate(byteCount);
         static if (mustAddGCRange!T)
-        {
             gc_addRange(store.ptr, byteCount);
-        }
-        if (store.ptr is null && byteCount >= 1)
-        {
+        if (store.ptr is null &&
+            byteCount >= 1)
             onOutOfMemoryError();
-        }
         return store;
     }
 
@@ -554,18 +519,12 @@ if (isNullable!K /*&& isHashable!K */)
             _store = makeDefaultInitializedStoreOfCapacity(ceilingPrime(1 + 1, _primeIndex));
         }
         else
-        {
             _store = makeDefaultInitializedStoreOfCapacity(nextPow2(1));
-        }
         _count = 0;
         static if (__traits(isCopyable, T))
-        {
             insertWithoutGrowthNoStatus(element);
-        }
         else
-        {
             insertWithoutGrowthNoStatus(move(element));
-        }
     }
 
     static if (hasHoleableKey)
@@ -597,17 +556,13 @@ if (isNullable!K /*&& isHashable!K */)
         {
             typeof(this) that = withCapacity(elements.length);
             foreach (element; elements)
-            {
                 that.insertWithoutGrowthNoStatus(element);
-            }
         }
         else
         {
             typeof(this) that;
             foreach (ref element; elements)
-            {
                 that.insert(element);
-            }
         }
         return that;
     }
@@ -626,9 +581,10 @@ if (isNullable!K /*&& isHashable!K */)
     typeof(this) dup()() const @trusted // template-lazy
     {
         version(showEntries) dbg(__FUNCTION__, " length:", length);
+
         T[] storeCopy = allocateUninitializedStore(_store.length); // unsafe
+
         foreach (immutable index, ref bin; _store)
-        {
             if (isOccupiedAtIndex(index)) // normal case
             {
                 static if (hasValue) // map
@@ -637,9 +593,7 @@ if (isNullable!K /*&& isHashable!K */)
                     duplicateEmplace(bin.value, storeCopy[index].value);
                 }
                 else            // set
-                {
                     duplicateEmplace(bin, storeCopy[index]);
-                }
             }
             else
             {
@@ -647,9 +601,8 @@ if (isNullable!K /*&& isHashable!K */)
                 emplace(&storeCopy[index]); // TODO only emplace key and not value
                 keyOf(storeCopy[index]).nullify();
             }
-        }
+
         static if (!hasHoleableKey)
-        {
             if (_holesPtr)
             {
                 immutable wordCount = holesWordCount(_store.length);
@@ -659,7 +612,7 @@ if (isNullable!K /*&& isHashable!K */)
 
                 return typeof(return)(storeCopy, _count, holesPtrCopy);
             }
-        }
+
         return typeof(return)(storeCopy, _count);
     }
 
@@ -667,32 +620,24 @@ if (isNullable!K /*&& isHashable!K */)
     bool opEquals()(const scope auto ref typeof(this) rhs) const
     {
         if (_count != rhs._count) { return false; } // quick discardal
+
         foreach (immutable index, const ref bin; _store)
-        {
             if (isOccupiedAtIndex(index))
             {
                 static if (hasValue)
                 {
                     auto valuePtr = bin.key in rhs;
                     if (!valuePtr)
-                    {
                         return false;
-                    }
                     // TODO make != a parameter that can also be typically !is. TODO ask forum about this
                     if ((*valuePtr) != bin.value)
-                    {
                         return false;
-                    }
                 }
                 else
-                {
                     if (!rhs.contains(bin))
-                    {
                         return false;
-                    }
-                }
             }
-        }
+
         return true;
     }
 
@@ -708,13 +653,9 @@ if (isNullable!K /*&& isHashable!K */)
                 if (_holesPtr)
                 {
                     static if (__traits(hasMember, Allocator, "deallocatePtr"))
-                    {
                         Allocator.deallocatePtr(_holesPtr);
-                    }
                     else
-                    {
                         Allocator.deallocate(_holesPtr[0 .. holesWordCount(_store.length)]);
-                    }
                 }
             }
 
@@ -753,9 +694,7 @@ if (isNullable!K /*&& isHashable!K */)
             {
                 version(unittest) assert(index < _store.length);
                 if (_holesPtr !is null)
-                {
                     btr(_holesPtr, index);
-                }
             }
 
             static bool hasHoleAtPtrIndex(const scope size_t* holesPtr, size_t index) @trusted
@@ -769,15 +708,11 @@ if (isNullable!K /*&& isHashable!K */)
         {
             version(unittest) assert(index < _store.length);
             static if (hasHoleableKey)
-            {
                 keyOf(_store[index]) = holeKeyConstant;
-            }
             else
             {
                 if (_holesPtr is null) // lazy allocation
-                {
                     _holesPtr = makeZeroedBitArray!Allocator(_store.length);
-                }
                 bts(_holesPtr, index);
             }
         }
@@ -785,9 +720,7 @@ if (isNullable!K /*&& isHashable!K */)
     }
 
     static if (borrowChecked)
-    {
         static immutable borrowedErrorMessage = "cannot mutate this when it's borrowed";
-    }
 
     /// Empty.
     void clear()()              // template-lazy
@@ -796,13 +729,9 @@ if (isNullable!K /*&& isHashable!K */)
         release();
         _store = typeof(_store).init;
         static if (usePrimeCapacity)
-        {
             _primeIndex = 0;
-        }
         static if (!hasHoleableKey)
-        {
             _holesPtr = null;
-        }
         _count = 0;
     }
 
@@ -819,9 +748,9 @@ if (isNullable!K /*&& isHashable!K */)
         foreach (ref bin; _store)
         {
             static if (hasElaborateDestructor!T)
-            {
                 .destroy(bin);
-            }
+            else static if (mustAddGCRange!T)
+                bin = T.init;
         }
     }
 
@@ -830,9 +759,7 @@ if (isNullable!K /*&& isHashable!K */)
     {
         releaseStoreSlice(_store);
         static if (!hasHoleableKey)
-        {
             deallocateHoles();
-        }
     }
 
     static private void releaseStoreSlice(T[] store) @trusted
@@ -840,33 +767,23 @@ if (isNullable!K /*&& isHashable!K */)
         version(showEntries) dbg(__FUNCTION__, " store.ptr:", store.ptr, " store.length", store.length);
         if (store.ptr is null) { return; } // `gc_removeRange` fails for null input
         static if (mustAddGCRange!T)
-        {
             gc_removeRange(store.ptr); // `gc_removeRange` fails for null input
-        }
         static if (__traits(hasMember, Allocator, "deallocatePtr"))
-        {
             Allocator.deallocatePtr(store.ptr);
-        }
         else
-        {
             Allocator.deallocate(store);
-        }
     }
 
     private auto adjustKeyType(SomeKey)(const return scope SomeKey key) const scope @trusted
     {
         pragma(inline, true);            // must be inlined
         static if (is(SomeKey : U[], U)) // is array (slice)
-        {
             /* because return value is used only temporarily it's ok to cast to
              * `immutable` to prevent GC-allocations in types such as
              * `sso_string.SSOString` */
             return cast(immutable(typeof(key[0]))[])key;
-        }
         else
-        {
             return key;
-        }
     }
 
     /** Check if `element` is stored.
@@ -889,14 +806,7 @@ if (isNullable!K /*&& isHashable!K */)
         static if (useSmallLinearSearch)
         {
             if (_store.length * T.sizeof <= linearSearchMaxSize)
-            {
-                // dbg("using linear serach");
                 return containsUsingLinearSearch(key);
-            }
-            else
-            {
-                // dbg("using normal serach");
-            }
         }
 
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(const(K))adjustKeyType(key)); // cast scoped `key` is @trusted
@@ -945,9 +855,8 @@ if (isNullable!K /*&& isHashable!K */)
         else
         {
             foreach (const ref bin; _store)
-            {
-                if (keyEqualPredFn(keyOf(bin), key)) { return true; }
-            }
+                if (keyEqualPredFn(keyOf(bin), key))
+                    return true;
             return false;
         }
     }
@@ -985,13 +894,9 @@ if (isNullable!K /*&& isHashable!K */)
         reserveExtra(1);
         size_t hitIndex = 0;
         static if (__traits(isCopyable, T))
-        {
             return insertWithoutGrowth(element, hitIndex);
-        }
         else
-        {
             return insertWithoutGrowth(move(*cast(T*)&element), hitIndex);
-        }
     }
 
     /** Insert `element`, being either a key-value (map-case) or a just a key
@@ -1013,13 +918,9 @@ if (isNullable!K /*&& isHashable!K */)
 
         reserveExtra(1);
         static if (__traits(isCopyable, SomeElement))
-        {
             const hitIndex = insertWithoutGrowthNoStatus(element);
-        }
         else
-        {
             const hitIndex = insertWithoutGrowthNoStatus(move(element));
-        }
         return _store[hitIndex];
     }
 
@@ -1032,23 +933,15 @@ if (isNullable!K /*&& isHashable!K */)
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
         import std.range.primitives : hasLength;
         static if (hasLength!R)
-        {
             reserveExtra(elements.length); // might create unused space in `_store` store
-        }
         foreach (element; elements)
         {
             static if (!hasLength!R)
-            {
                 reserveExtra(1);
-            }
             static if (hasIndirections!T)
-            {
                 insertWithoutGrowthNoStatus(element);
-            }
             else
-            {
                 insertWithoutGrowthNoStatus(*cast(Unqual!T*)&element);
-            }
         }
     }
 
@@ -1067,9 +960,7 @@ if (isNullable!K /*&& isHashable!K */)
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
         immutable newCapacity = (_count + extraCapacity)*growScaleP/growScaleQ;
         if (newCapacity > _store.length)
-        {
             growWithNewCapacity(newCapacity);
-        }
     }
 
     /// Grow (rehash) to make for `newCapacity` number of elements.
@@ -1081,18 +972,12 @@ if (isNullable!K /*&& isHashable!K */)
         static if (__traits(hasMember, Allocator, "reallocate"))
         {
             static if (growInPlaceFlag)
-            {
                 growInPlaceWithCapacity(newCapacity);
-            }
             else
-            {
                 growStandardWithNewCapacity(newCapacity);
-            }
         }
         else
-        {
             growStandardWithNewCapacity(newCapacity);
-        }
     }
 
     private void tagAsLazilyDeletedElementAtIndex(size_t index)
@@ -1101,18 +986,14 @@ if (isNullable!K /*&& isHashable!K */)
 
         // key
         static if (useSmallLinearSearch)
-        {
             if (_store.length * T.sizeof <= linearSearchMaxSize)
             {
                 keyOf(_store[index]).nullify();
                 goto done;
             }
-        }
 
         static if (hasHoleableKey)
-        {
             keyOf(_store[index]) = holeKeyConstant;
-        }
         else
         {
             keyOf(_store[index]).nullify();
@@ -1125,13 +1006,9 @@ if (isNullable!K /*&& isHashable!K */)
         static if (hasValue)
         {
             static if (hasElaborateDestructor!V) // if we should clear all
-            {
                 .destroy(valueOf(_store[index]));
-            }
-            static if (isAddress!V) // if we should clear all
-            {
-                valueOf(_store[index]) = null; // please the GC
-            }
+            static if (mustAddGCRange!V) // if we should clear all
+                valueOf(_store[index]) = V.init; // avoid GC mark-phase dereference
         }
     }
 
@@ -1149,26 +1026,23 @@ if (isNullable!K /*&& isHashable!K */)
         else
         {
             static if (__traits(isCopyable, SomeElement))
-            {
                 _store[index] = element;
-            }
             else
             {
                 static if (__traits(isCopyable, K))
-                {
                     keyOf(_store[index]) = keyOf(element);
-                }
                 else
-                {
-                    move(keyOf(element), keyOf(_store[index]));
-                }
+                    move(keyOf(element),
+                         keyOf(_store[index]));
+
                 static if (hasValue)
                 {
                     import core.lifetime : moveEmplace;
-                    moveEmplace(valueOf(element), valueOf(_store[index]));
+                    moveEmplace(valueOf(element),
+                                valueOf(_store[index]));
                 }
             }
-            }
+        }
     }
 
     /** Rehash elements in-place. */
@@ -1192,9 +1066,7 @@ if (isNullable!K /*&& isHashable!K */)
                 // TODO functionize:
                 moveEmplace(_store[doneIndex], currentElement);
                 static if (isInstanceOf!(Nullable, K))
-                {
                     keyOf(_store[doneIndex]).nullify(); // `moveEmplace` doesn't init source of type Nullable
-                }
 
                 while (true)
                 {
@@ -1202,13 +1074,9 @@ if (isNullable!K /*&& isHashable!K */)
                                   const scope auto ref element) => (!isOccupiedAtIndex(index) || // free slot
                                                                     !bt(dones, index)); // or a not yet replaced element
                     static if (usePrimeCapacity)
-                    {
                         immutable hitIndex = xxx;
-                    }
                     else
-                    {
                         immutable hitIndex = _store[].triangularProbeFromIndex!(pred, assumeNonFullHaystack)(keyToIndex(keyOf(currentElement)));
-                    }
                     assert(hitIndex != _store.length, "no free slot");
 
                     bts(dones, hitIndex); // _store[hitIndex] will be at it's correct position
@@ -1220,9 +1088,7 @@ if (isNullable!K /*&& isHashable!K */)
                         // TODO functionize:
                         moveEmplace(_store[hitIndex], nextElement); // save non-free slot
                         static if (isInstanceOf!(Nullable, K))
-                        {
                             keyOf(_store[hitIndex]).nullify(); // `moveEmplace` doesn't init source of type Nullable
-                        }
 
                         moveEmplace(currentElement, _store[hitIndex]);
                         moveEmplace(nextElement, currentElement);
@@ -1240,9 +1106,7 @@ if (isNullable!K /*&& isHashable!K */)
         Allocator.deallocate(cast(void[])(dones[0 .. wordCountOfBitCount(_store.length)]));
 
         static if (!hasHoleableKey)
-        {
             clearHoles();
-        }
     }
 
     /** Grow (with rehash) store in-place making room for `minimumCapacity` number of elements.
@@ -1252,13 +1116,9 @@ if (isNullable!K /*&& isHashable!K */)
         assert(minimumCapacity > _store.length);
 
         static if (usePrimeCapacity)
-        {
-            immutable newCapacity = ceilingPrime(minimumCapacity, _primeIndex);
-        }
+            const newCapacity = ceilingPrime(minimumCapacity, _primeIndex);
         else
-        {
-            immutable newCapacity = nextPow2(minimumCapacity);
-        }
+            const newCapacity = nextPow2(minimumCapacity);
 
         immutable newByteCount = T.sizeof*newCapacity;
 
@@ -1272,34 +1132,24 @@ if (isNullable!K /*&& isHashable!K */)
             static if (mustAddGCRange!T)
             {
                 if (oldStorePtr !is null)
-                {
                     gc_removeRange(oldStorePtr); // `gc_removeRange` fails for null input
-                }
                 gc_addRange(_store.ptr, newByteCount);
             }
 
             static if (!hasHoleableKey)
-            {
                 if (_holesPtr)
-                {
                     _holesPtr = makeReallocatedBitArrayZeroPadded!Allocator(_holesPtr,
                                                                             oldLength,
                                                                             _store.length);
-                }
-            }
 
             // TODO make this an array operation `nullifyAll` or `nullifyN`
             foreach (ref bin; _store[oldLength .. newCapacity])
-            {
                 keyOf(bin).nullify(); // move this `init` to reallocate() above?
-            }
 
             rehashInPlace();
         }
         else
-        {
             assert(0, "couldn't reallocate bin");
-        }
     }
 
     /** Grow (rehash) store to make room for `newCapacity` number of elements.
@@ -1311,16 +1161,12 @@ if (isNullable!K /*&& isHashable!K */)
         version(unittest) assert(newCapacity > _store.length);
         auto next = typeof(this).withCapacity(newCapacity);
         foreach (immutable index, ref bin; _store)
-        {
             if (isOccupiedAtIndex(index))
             {
                 next.insertMoveWithoutGrowth(bin); // value is zeroed but
                 static if (!hasHoleableKey)
-                {
                     keyOf(bin).nullify(); // keyC must zeroed
-                }
             }
-        }
         move(next, this);
     }
 
@@ -1340,49 +1186,40 @@ if (isNullable!K /*&& isHashable!K */)
             keyOf(_store[hitIndexPrel]).isNull) // just key miss but a hole may have been found on the way
         {
             immutable hasHole = holeIndex != size_t.max; // hole was found along the way
+
             if (hasHole)
-            {
                 hitIndex = holeIndex; // pick hole instead
-            }
             else
-            {
                 hitIndex = hitIndexPrel; // normal hit
-            }
+
             version(unittest) assert(hitIndex != _store.length, "no null or hole slot");
+
             static if (__traits(isCopyable, SomeElement))
-            {
                 insertElementAtIndex(*cast(SomeElement*)&element, hitIndex);
-            }
             else
-            {
                 insertElementAtIndex(move(*cast(SomeElement*)&element), hitIndex);
-            }
+
             static if (!hasHoleableKey)
-            {
-                if (hasHole) { untagHoleAtIndex(hitIndex); }
-            }
+                if (hasHole)
+                    untagHoleAtIndex(hitIndex);
+
             _count = _count + 1;
             return InsertionStatus.added;
         }
         else
-        {
             hitIndex = hitIndexPrel;
-        }
 
         static if (hasValue)
         {
             static if (__traits(isStaticArray, V))
-            {
                 // identity comparison of static arrays implicitly coerces them
                 // to slices, which are compared by reference, so don't use !is here
                 immutable valueDiffers = (valueOf(element) !=
                                           valueOf(_store[hitIndexPrel])); // only value changed
-            }
             else
-            {
                 immutable valueDiffers = (valueOf(element) !is
                                           valueOf(_store[hitIndexPrel])); // only value changed
-            }
+
             if (valueDiffers) // only value changed
             {
                 move(valueOf(*cast(SomeElement*)&element),
@@ -1410,40 +1247,30 @@ if (isNullable!K /*&& isHashable!K */)
         {
             immutable hasHole = holeIndex != size_t.max; // hole was found along the way
             if (hasHole)
-            {
                 hitIndex = holeIndex; // pick hole instead
-            }
             else
-            {
                 hitIndex = hitIndexPrel; // normal hit
-            }
+
             version(unittest) assert(hitIndex != _store.length, "no null or hole slot");
+
             static if (__traits(isCopyable, SomeElement))
-            {
                 insertElementAtIndex(*cast(SomeElement*)&element, hitIndex);
-            }
             else
-            {
                 insertElementAtIndex(move(*cast(SomeElement*)&element), hitIndex);
-            }
+
             static if (!hasHoleableKey)
-            {
                 if (hasHole) { untagHoleAtIndex(hitIndex); }
-            }
+
             _count = _count + 1;
             return hitIndex;
         }
         else
-        {
             hitIndex = hitIndexPrel;
-        }
 
         static if (hasValue)
-        {
             // modify existing value
             move(valueOf(*cast(SomeElement*)&element),
                  valueOf(_store[hitIndexPrel])); // value is defined so overwrite it
-        }
 
         return hitIndex;
     }
@@ -1466,24 +1293,16 @@ if (isNullable!K /*&& isHashable!K */)
             static if (__traits(isCopyable, K))
             {
                 static if (__traits(isCopyable, V))
-                {
                     return insert(T(key, value));
-                }
                 else
-                {
                     return insert(T(key, move(value)));
-                }
             }
             else
             {
                 static if (__traits(isCopyable, V))
-                {
                     return insert(T(move(key), value));
-                }
                 else
-                {
                     return insert(T(move(key), move(value)));
-                }
             }
         }
     }
@@ -1502,13 +1321,9 @@ if (isNullable!K /*&& isHashable!K */)
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(adjustKeyType(key)); // cast scoped `key` is @trusted
             if (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex))
-            {
                 return &_store[hitIndex];
-            }
             else
-            {
                 return null;
-            }
         }
 
         ref typeof(this) opOpAssign(string op, SomeKey)(const scope SomeKey key) return @trusted
@@ -1538,10 +1353,10 @@ if (isNullable!K /*&& isHashable!K */)
             void[__traits(classInstanceSize, Class)] tempNode_ = void;
             scope Class temp = emplace!(Class)(tempNode_, params);
             Class* hit = cast(Class*)(temp in this);
+
             static if (__traits(hasMember, Class, "__dtor"))
-            {
                 temp.__dtor();
-            }
+
             if (hit)
             {
                 auto typedHit = cast(typeof(return))*hit;
@@ -1559,17 +1374,15 @@ if (isNullable!K /*&& isHashable!K */)
             isScopedKeyType!(SomeKey))
         {
             version(LDC) pragma(inline, true);
+
             // pragma(msg, SomeKey, " => ", K);
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(const(K))adjustKeyType(key)); // cast scoped `key` is @trusted
+
             if (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex))
-            {
                 return cast(typeof(return))&_store[hitIndex].value;
-            }
             else
-            {
                 return null;
-            }
         }
 
         /// Indexing.
@@ -1580,9 +1393,7 @@ if (isNullable!K /*&& isHashable!K */)
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(adjustKeyType(key)); // cast scoped `key` is @trusted
             if (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex))
-            {
                 return _store[hitIndex].value;
-            }
             import core.exception : RangeError;
             throw new RangeError("Key not found"); // TODO use assert instead?
         }
@@ -1599,13 +1410,9 @@ if (isNullable!K /*&& isHashable!K */)
         {
             version(LDC) pragma(inline, true);
             if (auto valuePtr = key in this)
-            {
                 return *valuePtr;
-            }
             else
-            {
                 return defaultValue;
-            }
         }
 
         /** Get reference to `key`-part of stored element at `key`, if present,
@@ -1621,13 +1428,8 @@ if (isNullable!K /*&& isHashable!K */)
             immutable hitIndex = indexOfKeyOrVacancySkippingHoles(adjustKeyType(key)); // cast scoped `key` is @trusted
             if (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex))
-            {
                 return _store[hitIndex].key;
-            }
-            else
-            {
-                return defaultKey;
-            }
+            return defaultKey;
         }
 
         /** Supports the syntax `aa[key] = value;`.
@@ -1636,31 +1438,27 @@ if (isNullable!K /*&& isHashable!K */)
         {
             version(LDC) pragma(inline, true);
             assert(!key.isNull);
+
             static if (hasHoleableKey) { debug assert(!isHoleKeyConstant(key)); }
             static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
+
             reserveExtra(1);
+
             static if (__traits(isCopyable, K))
             {
                 static if (__traits(isCopyable, V))
-                {
                     const hitIndex = insertWithoutGrowthNoStatus(T(key, value));
-                }
                 else
-                {
                     const hitIndex = insertWithoutGrowthNoStatus(T(key, move(value)));
-                }
             }
             else
             {
                 static if (__traits(isCopyable, V))
-                {
                     const hitIndex = insertWithoutGrowthNoStatus(T(move(key), value));
-                }
                 else
-                {
                     const hitIndex = insertWithoutGrowthNoStatus(T(move(key), move(value)));
-                }
             }
+
             return _store[hitIndex].value;
         }
 
@@ -1690,32 +1488,24 @@ if (isNullable!K /*&& isHashable!K */)
                                op == "+" ||
                                op == "*")
                     {
-                        static if (is(V : Rhs[]))
-                        {
+                        static if (is(V : Rhs[])) // isDynamicArray of `Rhs`
                             insertElementAtIndex(T(key, [rhs]), // TODO if `V(rhs)` is not supported use `V.init` followed by `OP= rhs`
                                                  index);
-                        }
                         else
-                        {
                             // dbg("opIndexOpAssign-new: k:", key, " rhs:", rhs);
                             insertElementAtIndex(T(key, V(rhs)), // TODO if `V(rhs)` is not supported use `V.init` followed by `OP= rhs`
                                                  index);
-                        }
                     }
                     else
-                    {
                         static assert(0, "Handel op " ~ op);
-                    }
                 }
                 else
-                {
                     static assert(0, "Handle uncopyable key " ~ K.stringof);
                     // insertElementAtIndex(move(*cast(SomeElement*)&element), index);
-                }
+
                 static if (!hasHoleableKey)
-                {
                     if (hasHole) { untagHoleAtIndex(index); }
-                }
+
                 _count = _count + 1;
                 return _store[index].value;
             }
@@ -1737,21 +1527,17 @@ if (isNullable!K /*&& isHashable!K */)
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
 
         static if (useSmallLinearSearch)
-        {
             if (_store.length * T.sizeof <= linearSearchMaxSize)
             {
                 foreach (const index, const ref element; _store) // linear search is faster for small arrays
-                {
                     if (keyEqualPredFn(keyOf(element), key))
                     {
                         tagAsLazilyDeletedElementAtIndex(index);
                         _count = _count - 1;
                         return true;
                     }
-                }
                 return false;
             }
-        }
 
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(const(K))adjustKeyType(key));
         if (hitIndex != _store.length &&
@@ -1796,38 +1582,30 @@ if (isNullable!K /*&& isHashable!K */)
     size_t totalProbeCount()() const // template-lazy
     {
         version(LDC) pragma(inline, true); // LDC needs this or to prevent 10x performance regression in contains()
+
         static if (hasValue)
-        {
             auto range = byKeyValue(this);
-        }
         else
-        {
             auto range = byElement(this);
-        }
+
         typeof(return) totalCount = 0;
+
         foreach (const ref currentElement; range)
         {
             static if (__traits(isCopyable, T))
-            {
                 /* don't use `auto ref` for copyable `T`'s to prevent
                  * massive performance drop for small elements when compiled
                  * with LDC. TODO remove when LDC is fixed. */
                 alias pred = (const scope element) => (keyEqualPredFn(keyOf(element),
                                                                       keyOf(currentElement)));
-            }
             else
-            {
                 alias pred = (const scope auto ref element) => (keyEqualPredFn(keyOf(element),
                                                                                keyOf(currentElement)));
-            }
+
             static if (usePrimeCapacity)
-            {
                 const probeCount = xxx;
-            }
             else
-            {
                 const probeCount = triangularProbeCountFromIndex!(pred)(_store[], keyToIndex(keyOf(currentElement)));
-            }
 
             totalCount += probeCount;
         }
@@ -1855,7 +1633,8 @@ if (isNullable!K /*&& isHashable!K */)
         static bool isOccupiedBin(const ref T bin)
         {
             version(D_Coverage) {} else pragma(inline, true);
-            if (keyOf(bin).isNull) { return false; }
+            if (keyOf(bin).isNull)
+                return false;
             return !isHoleKeyConstant(keyOf(bin));
         }
     }
@@ -1867,24 +1646,17 @@ private:
         @NoGc T[] _store;        // one element per bin
     }
     else
-    {
         T[] _store;              // one element per bin
-    }
+
     static if (usePrimeCapacity)
-    {
         PrimeIndex _primeIndex = PrimeIndex.init;
-    }
 
     static if (!hasHoleableKey)
     {
         static if (hasFunctionAttributes!(Allocator.allocate, "@nogc"))
-        {
             @NoGc size_t* _holesPtr; // bit array describing which bin elements that has been removed (holes)
-        }
         else
-        {
             size_t* _holesPtr; // bit array describing which bin elements that has been removed (holes)
-        }
     }
 
     static if (borrowChecked)
@@ -1973,9 +1745,7 @@ private:
         }
 
         static if (is(typeof(hasher(key)) == hash_t)) // for instance when hasher being `hashOf`
-        {
             const size_t hash = hasher(key);
-        }
         else static if (is(hasher == struct) || // such as `FNV`
                         is(hasher == class))
         {
@@ -1983,18 +1753,12 @@ private:
             const size_t hash = hashOf2!(hasher)(key);
         }
         else
-        {
             static assert(false, "Unsupported hasher of type " ~ typeof(hasher).stringof);
-        }
 
         static if (usePrimeCapacity)
-        {
             return moduloPrimeIndex(hash, _primeIndex);
-        }
         else
-        {
             return hash & powerOf2Mask(_store.length);
-        }
     }
 
     /** Find index to `key` if it exists or to first empty slot found, skipping
@@ -2011,42 +1775,28 @@ private:
         }
 
         static if (useSmallLinearSearch)
-        {
             if (_store.length * T.sizeof <= linearSearchMaxSize)
             {
                 foreach (const index, const ref element; _store) // linear search is faster for small arrays
-                {
                     if ((keyOf(element).isNull ||
                          keyEqualPredFn(keyOf(element), key)))
-                    {
                         return index;
-                    }
-                }
                 return _store.length;
             }
-        }
 
         static if (hasHoleableKey)
-        {
             alias pred = (const scope auto ref element) => (keyOf(element).isNull ||
                                                             keyEqualPredFn(keyOf(element), key));
-        }
         else
-        {
             alias pred = (const scope index,
                           const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
                                                             (keyOf(element).isNull ||
                                                              keyEqualPredFn(keyOf(element), key)));
-        }
 
         static if (usePrimeCapacity)
-        {
             return xxx;
-        }
         else
-        {
             return _store[].triangularProbeFromIndex!(pred, assumeNonFullHaystack)(keyToIndex(key));
-        }
     }
 
     private size_t indexOfKeyOrVacancyAndFirstHole(const scope K key, // `auto ref` here makes things slow
@@ -2060,21 +1810,14 @@ private:
         }
 
         static if (useSmallLinearSearch)
-        {
             if (_store.length * T.sizeof <= linearSearchMaxSize)
             {
                 foreach (const index, const ref element; _store) // linear search is faster for small arrays
-                {
                     if ((keyOf(element).isNull ||
                          keyEqualPredFn(keyOf(element), key)))
-                    {
                         return index;
-                    }
-                }
                 return _store.length;
             }
-
-        }
 
         static if (hasHoleableKey)
         {
@@ -2093,13 +1836,9 @@ private:
         }
 
         static if (usePrimeCapacity)
-        {
             return xxx;
-        }
         else
-        {
             return _store[].triangularProbeFromIndexIncludingHoles!(hitPred, holePred, assumeNonFullHaystack)(keyToIndex(key), holeIndex);
-        }
     }
 
     /** Returns: `true` iff `index` indexes a non-null element, `false`
@@ -2111,13 +1850,9 @@ private:
         version(unittest) assert(index < _store.length);
         if (keyOf(_store[index]).isNull) { return false; }
         static if (hasHoleableKey)
-        {
             return !isHoleKeyConstant(keyOf(_store[index]));
-        }
         else
-        {
             return !hasHoleAtPtrIndex(_holesPtr, index);
-        }
     }
 }
 
@@ -2135,14 +1870,10 @@ static private void duplicateEmplace(T)(const scope ref T src,
         import std.typecons : Nullable;
         static if (is(T == class) ||
                    is(T == string))
-        {
             dst = cast(T)src;
-        }
         else static if (isBasicType!T ||
                         isInstanceOf!(Nullable, T)) // `Nullable` types cannot be emplaced
-        {
             dst = src;
-        }
         else                    // TODO can this case occur?
         {
             import core.internal.traits : Unqual;
@@ -2158,9 +1889,7 @@ static private void duplicateEmplace(T)(const scope ref T src,
         dst = src.dup;
     }
     else
-    {
         debug static assert(0, "cannot duplicate a " ~ T.stringof);
-    }
 }
 
 /** L-value element reference (and in turn range iterator).
@@ -2179,37 +1908,31 @@ static private struct LvalueElementRef(SomeMap)
         version(D_Coverage) {} else pragma(inline, true);
         this._table = table;
         static if (SomeMap.isBorrowChecked)
-        {
             debug
             {
                 _table.incBorrowCount();
             }
-        }
     }
 
     ~this() @nogc @trusted
     {
         version(D_Coverage) {} else pragma(inline, true);
         static if (SomeMap.isBorrowChecked)
-        {
             debug
             {
                 _table.decBorrowCount();
             }
-        }
     }
 
     this(this) @trusted
     {
         version(D_Coverage) {} else pragma(inline, true);
         static if (SomeMap.isBorrowChecked)
-        {
             debug
             {
                 assert(_table._borrowCount != 0);
                 _table.incBorrowCount();
             }
-        }
     }
 
     /// Check if empty.
@@ -2246,9 +1969,7 @@ static private struct LvalueElementRef(SomeMap)
         version(D_Coverage) {} else pragma(inline, true);
         while (_binIndex != (*_table).binCount &&
                !(*_table).isOccupiedAtIndex(_binIndex))
-        {
             _binIndex += 1;
-        }
     }
 }
 
@@ -2293,9 +2014,7 @@ static private struct RvalueElementRef(SomeMap)
         version(D_Coverage) {} else pragma(inline, true);
         while (_binIndex != _table.binCount &&
                !_table.isOccupiedAtIndex(_binIndex))
-        {
             _binIndex += 1;
-        }
     }
 }
 
@@ -2366,23 +2085,16 @@ if (isInstanceOf!(OpenHashMap, C1) && // TODO generalize to `isSetOrMap`
 {
     import core.lifetime : move;
     static if (__traits(isRef, y)) // y is l-value
-    {
         // @("complexity", "O(x.length)")
         return move(x).filtered!(_ => y.contains(_)); // only x can be reused
-    }
     else
     {
         /* both are r-values so reuse the shortest */
         // @("complexity", "O(min(x.length), min(y.length))")
-        if (x.length <
-            y.length)
-        {
+        if (x.length < y.length)
             return move(x).filtered!(_ => y.contains(_)); // functional
-        }
         else
-        {
             return move(y).filtered!(_ => x.contains(_)); // functional
-        }
     }
 }
 

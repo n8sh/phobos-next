@@ -40,7 +40,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     import core.lifetime : emplace, move, moveEmplace;
 
     import nxt.qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
-    import nxt.container_traits : mustAddGCRange, needsMove, isAddress;
+    import nxt.container_traits : mustAddGCRange, needsMove;
 
     /// Mutable element type.
     private alias MutableE = Unqual!T;
@@ -491,7 +491,7 @@ pragma(inline):
     /// Get length.
     @property size_t length() const scope // can't be template-lazy
     {
-        pragma(inline, true)
+        version(D_Coverage) {} else pragma(inline, true);
         return _store.length;
     }
     alias opDollar = length;    /// ditto
@@ -508,9 +508,9 @@ pragma(inline):
             static if (hasElaborateDestructor!T)
                 foreach (immutable index; newLength .. _store.length)
                     .destroy(_mptr[index]);
-            else static if (isAddress!T)
+            else static if (mustAddGCRange!T)
                 foreach (immutable index; newLength .. _store.length)
-                    _mptr[index] = null; // please the GC
+                    _mptr[index] = null; // avoid GC mark-phase dereference
         }
         else
         {
@@ -768,8 +768,8 @@ pragma(inline):
         _store.length -= 1;
         static if (hasElaborateDestructor!T)
             .destroy(_mptr[_store.length]);
-        else static if (isAddress!T)
-            _mptr[_store.length] = null; // please the GC. TODO only if scanned
+        else static if (mustAddGCRange!T)
+            _mptr[_store.length] = null; // avoid GC mark-phase dereference
     }
 
     /** Rmove `n` last values from the end of the array.
@@ -783,9 +783,9 @@ pragma(inline):
         static if (hasElaborateDestructor!T)
             foreach (immutable index; 0 .. n)
                 .destroy(_mptr[_store.length + index]);
-        else static if (isAddress!T)
+        else static if (mustAddGCRange!T)
             foreach (immutable index; 0 .. n)
-                _mptr[_store.length + index] = null; // please the GC
+                _mptr[_store.length + index] = null; // avoid GC mark-phase dereference
     }
 
     /** Pop back element and return it.
@@ -812,8 +812,8 @@ pragma(inline):
         assert(index < this.length);
         static if (hasElaborateDestructor!T)
             .destroy(_mptr[index]);
-        else static if (isAddress!T)
-            _mptr[index] = null; // please the GC
+        else static if (mustAddGCRange!T)
+            _mptr[index] = null; // avoid GC mark-phase dereference
         shiftToFrontAt(index);
         _store.length -= 1;
     }
@@ -970,11 +970,11 @@ if (isInstanceOf!(DynamicArray, C) &&
         {
             count += 1;
             import core.internal.traits : hasElaborateDestructor;
-            import nxt.container_traits : isAddress;
+            import nxt.container_traits : mustAddGCRange;
             static if (hasElaborateDestructor!(typeof(c[i])))
                 .destroy(c[i]);
-            else static if (isAddress!(typeof(c[i])))
-                c[i] = null;    // please the GC
+            else static if (mustAddGCRange!(typeof(c[i])))
+                c[i] = null;    // avoid GC mark-phase dereference
         }
         else
             tmp.insertBackMove(c[i]); // TODO remove unnecessary clearing of `_mptr[i]`

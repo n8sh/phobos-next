@@ -439,14 +439,14 @@ pragma(inline):
     bool opEquals()(const scope auto ref typeof(this) rhs) const scope // template-lazy
     {
         version(D_Coverage) {} else pragma(inline, true);
-        return slice() == rhs.slice();
+        return opSlice() == rhs.opSlice();
     }
     /// ditto
     bool opEquals(U)(const scope U[] rhs) const scope
     if (is(typeof(T[].init == U[].init)))
     {
         version(D_Coverage) {} else pragma(inline, true);
-        return slice() == rhs;
+        return opSlice() == rhs;
     }
 
     /// Calculate D associative array (AA) key hash.
@@ -454,7 +454,7 @@ pragma(inline):
     {
         import core.internal.hash : hashOf;
         static if (__traits(isCopyable, T))
-            return hashOf(this.length) ^ hashOf(slice());
+            return hashOf(this.length) ^ hashOf(opSlice());
         else
         {
             typeof(return) hash = hashOf(this.length);
@@ -471,7 +471,7 @@ pragma(inline):
         void toString()(scope void delegate(scope const(char)[]) sink) const scope // template-lazy
         {
             sink("[");
-            foreach (immutable index, ref value; slice())
+            foreach (immutable index, ref value; opSlice())
             {
                 import std.conv : to;
                 sink(to!string(value));
@@ -510,7 +510,7 @@ pragma(inline):
                     .destroy(_mptr[index]);
             else static if (mustAddGCRange!T)
                 foreach (immutable index; newLength .. _store.length)
-                    _mptr[index] = null; // avoid GC mark-phase dereference
+                    _mptr[index] = T.init; // avoid GC mark-phase dereference
         }
         else
         {
@@ -597,20 +597,20 @@ pragma(inline):
     ref inout(T) opIndex()(size_t i) inout return // template-lazy
     {
         version(D_Coverage) {} else pragma(inline, true);
-        return slice()[i];
+        return opSlice()[i];
     }
 
     /// Slice support.
     inout(T)[] opSlice()(size_t i, size_t j) inout return // template-lazy
     {
         version(D_Coverage) {} else pragma(inline, true);
-        return slice()[i .. j];
+        return opSlice()[i .. j];
     }
     /// ditto
-    inout(T)[] opSlice()() inout return // template-lazy
+    inout(T)[] opSlice()() inout return @trusted // template-lazy
     {
         version(D_Coverage) {} else pragma(inline, true);
-        return slice();
+        return _store.ptr[0 .. _store.length];
     }
 
     /// Index assignment support.
@@ -619,41 +619,41 @@ pragma(inline):
         static if (hasElaborateDestructor!T)
         {
             move(*(cast(MutableE*)(&value)), _mptr[i]); // TODO is this correct?
-            return slice()[i];
+            return opSlice()[i];
         }
         else static if (hasIndirections!T && // TODO `hasAliasing` instead?
                         !isMutable!T)
             static assert("Cannot modify constant elements with indirections");
         else
-            return slice()[i] = value;
+            return opSlice()[i] = value;
     }
 
     /// Slice assignment support.
     T[] opSliceAssign(U)(scope U value) return
     {
         version(D_Coverage) {} else pragma(inline, true);
-        return slice()[] = value;
+        return opSlice()[] = value;
     }
 
     /// ditto
     T[] opSliceAssign(U)(scope U value, size_t i, size_t j) return
     {
         version(D_Coverage) {} else pragma(inline, true);
-        return slice()[i .. j] = value;
+        return opSlice()[i .. j] = value;
     }
 
     /// Get reference to front element.
     ref inout(T) front()() inout return @property // template-lazy
     {
         version(D_Coverage) {} else pragma(inline, true);
-        return slice()[0];      // range-checked by default
+        return opSlice()[0];      // range-checked by default
     }
 
     /// Get reference to back element.
     ref inout(T) back()() inout return @property // template-lazy
     {
         version(D_Coverage) {} else pragma(inline, true);
-        return slice()[_store.length - 1]; // range-checked by default
+        return opSlice()[_store.length - 1]; // range-checked by default
 
     }
 
@@ -769,7 +769,7 @@ pragma(inline):
         static if (hasElaborateDestructor!T)
             .destroy(_mptr[_store.length]);
         else static if (mustAddGCRange!T)
-            _mptr[_store.length] = null; // avoid GC mark-phase dereference
+            _mptr[_store.length] = T.init; // avoid GC mark-phase dereference
     }
 
     /** Rmove `n` last values from the end of the array.
@@ -785,7 +785,7 @@ pragma(inline):
                 .destroy(_mptr[_store.length + index]);
         else static if (mustAddGCRange!T)
             foreach (immutable index; 0 .. n)
-                _mptr[_store.length + index] = null; // avoid GC mark-phase dereference
+                _mptr[_store.length + index] = T.init; // avoid GC mark-phase dereference
     }
 
     /** Pop back element and return it.
@@ -813,7 +813,7 @@ pragma(inline):
         static if (hasElaborateDestructor!T)
             .destroy(_mptr[index]);
         else static if (mustAddGCRange!T)
-            _mptr[index] = null; // avoid GC mark-phase dereference
+            _mptr[index] = T.init; // avoid GC mark-phase dereference
         shiftToFrontAt(index);
         _store.length -= 1;
     }
@@ -904,13 +904,6 @@ pragma(inline):
     //     return result;
     // }
 
-    /// Helper slice.
-    private inout(T)[] slice() inout return @trusted
-    {
-        version(D_Coverage) {} else pragma(inline, true);
-        return _store.ptr[0 .. _store.length];
-    }
-
     /// Unsafe access to pointer.
     inout(T)* ptr()() inout return @system // template-lazy
     {
@@ -971,10 +964,11 @@ if (isInstanceOf!(DynamicArray, C) &&
             count += 1;
             import core.internal.traits : hasElaborateDestructor;
             import nxt.container_traits : mustAddGCRange;
-            static if (hasElaborateDestructor!(typeof(c[i])))
+            alias T = typeof(c[i]);
+            static if (hasElaborateDestructor!(T))
                 .destroy(c[i]);
-            else static if (mustAddGCRange!(typeof(c[i])))
-                c[i] = null;    // avoid GC mark-phase dereference
+            else static if (mustAddGCRange!(T))
+                c[i] = T.init;    // avoid GC mark-phase dereference
         }
         else
             tmp.insertBackMove(c[i]); // TODO remove unnecessary clearing of `_mptr[i]`

@@ -20,11 +20,8 @@ enum TellRangeAdded;
 template mustAddGCRange(T)
 {
     import std.traits : isPointer, isArray, isStaticArray, isScalarType;
-
-    private enum isAddress(T) = (is(T == class) || // a class is memory-wise
-                                 isPointer!T);     // just a pointer, consistent with opCmp
-
-    static if (isAddress!T)
+    static if (is(T == class) || // a class is memory-wise
+               isPointer!T)      // just a pointer, consistent with opCmp
     {
         enum mustAddGCRange = true;
     }

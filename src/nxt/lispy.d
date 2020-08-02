@@ -255,7 +255,7 @@ private:
     /// Skip over `n` bytes in input.
     Input skipOverN(size_t n) return nothrow @nogc
     {
-        pragma(inline);
+        version(D_Coverage) {} else pragma(inline);
         const part = _input[_offset .. _offset + n]; // TODO .ptr
         dropFrontN(n);
         return part;

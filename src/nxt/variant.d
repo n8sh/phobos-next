@@ -485,7 +485,7 @@ public:
 
     import std.digest : isDigest;
 
-    /// TODO use `isHashable`?
+    /// TODO use `!hasAliasing`?
     void toDigest(Digest)(scope ref Digest digest) const nothrow @nogc
         if (isDigest!Digest)
     {

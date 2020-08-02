@@ -78,7 +78,7 @@ struct SSOHashMapOrSet(K, V = void,
                        uint smallBinMinCapacity = 1,
                        uint capacityScaleNumerator = 2,
                        uint capacityScaleDenominator = 1)
-    if (// isHashable!K &&
+    if (// !hasAliasing!K &&
         smallBinMinCapacity >= 1) // no use having empty small bins
 {
     import core.lifetime : emplace, move, moveEmplace;

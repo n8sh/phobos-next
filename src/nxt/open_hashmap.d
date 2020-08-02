@@ -1842,7 +1842,7 @@ if (isNullable!K /*&& isHashable!K */)
 
     /** Unsafe access to raw store.
      *
-     * Needed by wrapper containers such as SSOOpenHashSet.
+     * Needed by wrapper containers such as `SSOOpenHashSet`.
      */
     inout(T)[] rawStore() inout @system pure nothrow @nogc
     {

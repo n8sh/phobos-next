@@ -42,7 +42,7 @@ struct S(E)
 
     @property bool isLarge() const @trusted
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return _large.length & 1; // first bit discriminates small from large
     }
 

@@ -205,7 +205,7 @@ if (isNullable!K /*&& isHashable!K */)
          */
         static K holeKeyConstant() @trusted pure nothrow @nogc
         {
-            pragma(inline, true);
+            version(D_Coverage) {} else pragma(inline, true);
             // TODO note that cast(size_t*) will give address 0x8 instead of 0x1
             static if (isSlice!K)
             {
@@ -221,7 +221,7 @@ if (isNullable!K /*&& isHashable!K */)
 
         static bool isHoleKeyConstant(const scope K key) @trusted pure nothrow @nogc
         {
-            pragma(inline, true);
+            version(D_Coverage) {} else pragma(inline, true);
             static if (isSlice!K) // for slices
             {
                 // suffice to compare pointer part
@@ -243,12 +243,12 @@ if (isNullable!K /*&& isHashable!K */)
         enum hasHoleableKey = true;
         static K holeKeyConstant() @safe pure nothrow @nogc
         {
-            pragma(inline, true);
+            version(D_Coverage) {} else pragma(inline, true);
             return K.holeValue;
         }
         static bool isHoleKeyConstant(const scope K key) @safe pure nothrow @nogc
         {
-            pragma(inline, true);
+            version(D_Coverage) {} else pragma(inline, true);
             static if (__traits(hasMember, K, "isHole"))
             {
                 // typically faster by asserting value of member of aggregate `K`
@@ -317,14 +317,14 @@ if (isNullable!K /*&& isHashable!K */)
         /// Get key part of element.
         static auto ref inout(K) keyOf(SomeElement)(auto ref return scope inout(SomeElement) element)
         {
-            pragma(inline, true);
+            version(D_Coverage) {} else pragma(inline, true);
             return element.key;
         }
 
         /// Get value part of element.
         static auto ref inout(V) valueOf()(auto ref return scope inout(T) element)
         {
-            pragma(inline, true);
+            version(D_Coverage) {} else pragma(inline, true);
             return element.value;
         }
 
@@ -359,7 +359,7 @@ if (isNullable!K /*&& isHashable!K */)
         /// Get key part.
         static auto ref inout(K) keyOf()(auto ref return scope inout(KeyValueType) element) @trusted
         {
-            pragma(inline, true);
+            version(D_Coverage) {} else pragma(inline, true);
             return cast(typeof(return))element.key; // needed for case: `inout(const(K)) => inout(K)`
         }
     }
@@ -378,7 +378,7 @@ if (isNullable!K /*&& isHashable!K */)
         /// Get key part of element.
         static auto ref inout(SomeElement) keyOf(SomeElement)(auto ref return inout(SomeElement) element)
         {
-            pragma(inline, true);
+            version(D_Coverage) {} else pragma(inline, true);
             return element;
         }
 
@@ -1494,7 +1494,7 @@ if (isNullable!K /*&& isHashable!K */)
         if (op == `in` &&
             isScopedKeyType!(typeof(key)))
         {
-            pragma(inline, true);
+            version(D_Coverage) {} else pragma(inline, true);
 
             assert(!key.isNull);
             static if (hasHoleableKey) { assert(!isHoleKeyConstant(cast(K)adjustKeyType(key))); }
@@ -1846,7 +1846,7 @@ if (isNullable!K /*&& isHashable!K */)
      */
     inout(T)[] rawStore() inout @system pure nothrow @nogc
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return _store;
     }
 
@@ -1854,7 +1854,7 @@ if (isNullable!K /*&& isHashable!K */)
     {
         static bool isOccupiedBin(const ref T bin)
         {
-            pragma(inline, true);
+            version(D_Coverage) {} else pragma(inline, true);
             if (keyOf(bin).isNull) { return false; }
             return !isHoleKeyConstant(keyOf(bin));
         }
@@ -1961,7 +1961,7 @@ private:
             version(unittest) {}
             else
             {
-                pragma(inline, true);
+                version(D_Coverage) {} else pragma(inline, true);
             }
             immutable typeof(return) mask = length - 1;
             version(unittest)
@@ -2127,7 +2127,7 @@ private:
 static private void duplicateEmplace(T)(const scope ref T src,
                                         scope ref T dst) @system
 {
-    pragma(inline, true);
+    version(D_Coverage) {} else pragma(inline, true);
     import core.internal.traits : hasElaborateCopyConstructor;
     import std.traits : isBasicType, isInstanceOf;
     static if (!hasElaborateCopyConstructor!T)
@@ -2176,7 +2176,7 @@ static private struct LvalueElementRef(SomeMap)
 
     this(SomeMap* table) @trusted
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         this._table = table;
         static if (SomeMap.isBorrowChecked)
         {
@@ -2189,7 +2189,7 @@ static private struct LvalueElementRef(SomeMap)
 
     ~this() @nogc @trusted
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         static if (SomeMap.isBorrowChecked)
         {
             debug
@@ -2201,7 +2201,7 @@ static private struct LvalueElementRef(SomeMap)
 
     this(this) @trusted
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         static if (SomeMap.isBorrowChecked)
         {
             debug
@@ -2215,20 +2215,20 @@ static private struct LvalueElementRef(SomeMap)
     /// Check if empty.
     @property bool empty() const @safe pure nothrow @nogc
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return _binIndex == _table.binCount;
     }
 
     /// Get number of element left to pop.
     @property size_t length() const @safe pure nothrow @nogc
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return _table.length - _hitCounter;
     }
 
     @property typeof(this) save() // ForwardRange
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return this;
     }
 
@@ -2243,7 +2243,7 @@ static private struct LvalueElementRef(SomeMap)
 
     private void findNextNonEmptyBin()
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         while (_binIndex != (*_table).binCount &&
                !(*_table).isOccupiedAtIndex(_binIndex))
         {
@@ -2268,14 +2268,14 @@ static private struct RvalueElementRef(SomeMap)
     /// Check if empty.
     @property bool empty() const @safe pure nothrow @nogc
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return _binIndex == _table.binCount;
     }
 
     /// Get number of element left to pop.
     @property size_t length() const @safe pure nothrow @nogc
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return _table.length - _hitCounter;
     }
 
@@ -2290,7 +2290,7 @@ static private struct RvalueElementRef(SomeMap)
 
     private void findNextNonEmptyBin()
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         while (_binIndex != _table.binCount &&
                !_table.isOccupiedAtIndex(_binIndex))
         {
@@ -2898,7 +2898,7 @@ if (isInstanceOf!(OpenHashMap, SomeMap) &&
 {
     @property const scope auto ref front() return // key access must be const, TODO auto ref => ref K
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return _table._store[_binIndex].key;
     }
     import core.internal.traits : Unqual;
@@ -2912,7 +2912,7 @@ if (isInstanceOf!(OpenHashMap, SomeMap) &&
 {
     @property const scope auto ref front() return // key access must be const, TODO auto ref => ref K
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return _table._store[_binIndex].key;
     }
     import core.internal.traits : Unqual;
@@ -2948,7 +2948,7 @@ if (isInstanceOf!(OpenHashMap, SomeMap) &&
 {
     @property scope auto ref front() return @trusted // TODO auto ref => ref V
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         // TODO functionize
         import std.traits : isMutable;
         static if (isMutable!(SomeMap)) // TODO can this be solved without this `static if`?
@@ -2972,7 +2972,7 @@ if (isInstanceOf!(OpenHashMap, SomeMap) &&
 {
     @property scope auto ref front() return @trusted // TODO auto ref => ref V
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         // TODO functionize
         import std.traits : isMutable;
         static if (isMutable!(SomeMap)) // TODO can this be solved without this `static if`?
@@ -3019,7 +3019,7 @@ if (isInstanceOf!(OpenHashMap, SomeMap) &&
 {
     @property scope auto ref front() return @trusted // TODO auto ref => ref T
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         // TODO functionize
         import std.traits : isMutable;
         static if (isMutable!(SomeMap))

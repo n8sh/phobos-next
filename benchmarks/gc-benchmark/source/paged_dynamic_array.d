@@ -53,7 +53,7 @@ struct PagedDynamicArray(T)
 
     @property size_t capacityInBytes() const
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return _capacityInPages*PAGESIZE;
     }
 

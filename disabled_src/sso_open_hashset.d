@@ -92,7 +92,7 @@ struct SSOOpenHashSet(K,
 
     @property size_t capacity() const pure nothrow @trusted @nogc
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return small._capacityDummy;
     }
 
@@ -238,7 +238,7 @@ struct SSOOpenHashSet(K,
 
     @property private scope inout(K)[] bins() inout @trusted return
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         if (isLarge)
         {
             return large.rawStore;
@@ -252,7 +252,7 @@ struct SSOOpenHashSet(K,
 private:
     bool isLarge() const pure nothrow @trusted @nogc
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return small._capacityDummy > Small.maxCapacity;
     }
 
@@ -291,7 +291,7 @@ static private struct LvalueElementRef(Table)
 
     this(Table* table) @trusted
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         this._table = table;
         // static if (Table.isBorrowChecked)
         // {
@@ -304,7 +304,7 @@ static private struct LvalueElementRef(Table)
 
     ~this() @trusted @nogc
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         // static if (Table.isBorrowChecked)
         // {
         //     debug
@@ -316,7 +316,7 @@ static private struct LvalueElementRef(Table)
 
     this(this) @trusted
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         // static if (Table.isBorrowChecked)
         // {
         //     debug
@@ -330,20 +330,20 @@ static private struct LvalueElementRef(Table)
     /// Check if empty.
     @property bool empty() const @safe pure nothrow @nogc
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return _binIndex == _table.binCount;
     }
 
     /// Get number of element left to pop.
     @property size_t length() const @safe pure nothrow @nogc
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return _table.length - _hitCounter;
     }
 
     @property typeof(this) save() // ForwardRange
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return this;
     }
 
@@ -358,7 +358,7 @@ static private struct LvalueElementRef(Table)
 
     private void findNextNonEmptyBin()
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         while (_binIndex != (*_table).binCount &&
                !Table.Large.isOccupiedBin(_table.bins[_binIndex]))
         {

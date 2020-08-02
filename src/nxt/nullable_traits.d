@@ -200,7 +200,7 @@ template defaultNullKeyConstantOf(T)
 bool isNull(T)(const scope auto ref T x) @safe pure nothrow @nogc
 if (isNullable!(T))
 {
-    pragma(inline, true);
+    version(D_Coverage) {} else pragma(inline, true);
     static if (is(T == class) ||
                is(T == typeof(null))) // fast compilation path
     {
@@ -232,7 +232,7 @@ if (isNullable!(T))
 void nullify(T)(scope ref T x) @safe pure nothrow @nogc
 if (isNullable!(T))
 {
-    pragma(inline, true);
+    version(D_Coverage) {} else pragma(inline, true);
     static if (is(T == class) ||
                is(T == typeof(null))) // fast compilation path
     {

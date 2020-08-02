@@ -360,7 +360,7 @@ bool isCaseSensitive(Lang lang) @safe pure @nogc nothrow
 /** Return true if $(D lang) is a formal (computer) language. */
 bool isFormal(Lang lang) @safe pure @nogc nothrow
 {
-    pragma(inline, true);
+    version(D_Coverage) {} else pragma(inline, true);
     return (lang >= Lang.firstFormal &&
             lang <= Lang.lastFormal);
 }

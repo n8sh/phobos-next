@@ -39,7 +39,7 @@ struct KnuthHash64()            // dummy templatized to prevent instantiation
      */
     ubyte[8] finish() @trusted
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         typeof(return) bytes = (cast(ubyte*)&_result)[0 .. typeof(return).sizeof];
         start();
         return bytes;

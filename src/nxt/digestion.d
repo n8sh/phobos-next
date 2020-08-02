@@ -258,7 +258,7 @@ if (isDigest!Digest &&
 {
     static if (!hasIndirections!T)
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         digestRaw(digest, value); // hash everything in one call for better speed
     }
     else
@@ -291,7 +291,7 @@ if (isDigest!Digest &&
                (is(T == class) &&
                 !hasMember!(T, "toDigest")))
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         digest.put((cast(ubyte*)value.ptr)[0 .. value.length * value[0].sizeof]); // faster
     }
     else

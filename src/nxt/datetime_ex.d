@@ -141,13 +141,13 @@ struct UTCOffset
     /// Cast to `bool`, meaning 'true' if defined, `false` otherwise.
     bool opCast(U : bool)() const
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return isDefined();
     }
 
     int opCmp(in typeof(this) that) const @trusted
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         immutable a = *cast(ubyte*)&this;
         immutable b = *cast(ubyte*)&that;
         return a < b ? -1 : a > b ? 1 : 0;

@@ -9,7 +9,7 @@ module nxt.bitwise_rotate;
 ulong rotateLeft(const scope ulong x,
                  const scope uint n) @safe pure nothrow @nogc
 {
-    pragma(inline, true);
+    version(D_Coverage) {} else pragma(inline, true);
     return (x << n) | (x >> (8*typeof(x).sizeof - n));
 }
 
@@ -32,7 +32,7 @@ ulong rotateLeft(const scope ulong x,
 ulong rotateRight(const scope ulong x,
                   const scope uint n) @safe pure nothrow @nogc
 {
-    pragma(inline, true);
+    version(D_Coverage) {} else pragma(inline, true);
     return (x >> n) | (x << (8*typeof(x).sizeof - n));
 }
 

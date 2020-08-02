@@ -693,7 +693,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
     /// Reallocate storage. TODO move to Large.reallocateAndSetCapacity
     private void reallocateLargeStoreAndSetCapacity(size_t newCapacity) pure @trusted
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         _large.setCapacity(newCapacity);
         static if (useGCAllocation)
         {
@@ -709,7 +709,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
     /// Destruct.
     ~this() @trusted @nogc
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         assert(!isBorrowed);
         if (isLarge)
         {
@@ -725,7 +725,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
     /// Empty.
     void clear() @nogc
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         assert(!isBorrowed);
         release();
         resetInternalData();

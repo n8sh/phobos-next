@@ -53,14 +53,14 @@ pragma(inline):
     /// Returns: an array of length `initialLength` with all elements default-initialized to `ElementType.init`.
     static typeof(this) withLength()(size_t initialLength) // template-lazy
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return withCapacityLengthZero(initialLength, initialLength, true);
     }
 
     /// Returns: an array with initial capacity `initialCapacity`.
     static typeof(this) withCapacity()(size_t initialCapacity) // template-lazy
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return withCapacityLengthZero(initialCapacity, 0, false);
     }
 
@@ -73,7 +73,7 @@ pragma(inline):
         static typeof(this) withLengthElementValue()(size_t length,
                                                      T elementValue)
         {
-            pragma(inline, true);
+            version(D_Coverage) {} else pragma(inline, true);
             assert(length <= CapacityType.max);
             return typeof(return)(Store(typeof(this).allocateWithValue(length, move(elementValue)),
                                         cast(CapacityType)length,
@@ -191,7 +191,7 @@ pragma(inline):
         /// Returns: shallow duplicate of `this`.
         @property DynamicArray!(Unqual!T, Allocator, CapacityType) dup()() const @trusted // template-lazy
         {
-            pragma(inline, true);
+            version(D_Coverage) {} else pragma(inline, true);
             return typeof(this).withElements(this[]);
         }
     }
@@ -394,7 +394,7 @@ pragma(inline):
     /// Reset internal data.
     private void resetInternalData() @nogc
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         _store.ptr = null;
         _store.capacity = 0;
         _store.length = 0;
@@ -494,14 +494,14 @@ pragma(inline):
     /** Comparison for equality. */
     bool opEquals()(const scope auto ref typeof(this) rhs) const scope // template-lazy
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return slice() == rhs.slice();
     }
     /// ditto
     bool opEquals(U)(const scope U[] rhs) const scope
     if (is(typeof(T[].init == U[].init)))
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return slice() == rhs;
     }
 
@@ -544,7 +544,7 @@ pragma(inline):
     /// Check if empty.
     @property bool empty()() const scope // template-lazy
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return _store.length == 0;
     }
 
@@ -623,7 +623,7 @@ pragma(inline):
     /// Get capacity.
     @property size_t capacity() const scope // can't be template-lazy
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return _store.capacity;
     }
 
@@ -679,20 +679,20 @@ pragma(inline):
     /// Index support.
     ref inout(T) opIndex()(size_t i) inout return // template-lazy
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return slice()[i];
     }
 
     /// Slice support.
     inout(T)[] opSlice()(size_t i, size_t j) inout return // template-lazy
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return slice()[i .. j];
     }
     /// ditto
     inout(T)[] opSlice()() inout return // template-lazy
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return slice();
     }
 
@@ -718,28 +718,28 @@ pragma(inline):
     /// Slice assignment support.
     T[] opSliceAssign(U)(scope U value) return
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return slice()[] = value;
     }
 
     /// ditto
     T[] opSliceAssign(U)(scope U value, size_t i, size_t j) return
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return slice()[i .. j] = value;
     }
 
     /// Get reference to front element.
     ref inout(T) front()() inout return @property // template-lazy
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return slice()[0];      // range-checked by default
     }
 
     /// Get reference to back element.
     ref inout(T) back()() inout return @property // template-lazy
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return slice()[_store.length - 1]; // range-checked by default
 
     }
@@ -863,7 +863,7 @@ pragma(inline):
      */
     void popBack()() @trusted   // template-lazy
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         assert(!empty);
         _store.length -= 1;
         static if (hasElaborateDestructor!T)
@@ -908,7 +908,7 @@ pragma(inline):
      */
     T backPop()() @trusted      // template-lazy
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         assert(!empty);
         _store.length -= 1;
         static if (needsMove!T)
@@ -953,7 +953,7 @@ pragma(inline):
     T frontPop()()              // template-lazy
         @("complexity", "O(length)")
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return moveAt(0);
     }
 
@@ -980,7 +980,7 @@ pragma(inline):
     void opOpAssign(string op)(T value)
     if (op == "~")
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         insertBackMove(value);
     }
 
@@ -990,7 +990,7 @@ pragma(inline):
         isElementAssignable!U &&
         __traits(isCopyable, U))       // prevent accidental move of l-value `values`
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         insertBack(values);
     }
 
@@ -1002,14 +1002,14 @@ pragma(inline):
         !isArray!R &&
         isElementAssignable!(ElementType!R))
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         insertBack(values);
     }
 
     void opOpAssign(string op)(auto ref typeof(this) values)
     if (op == "~")
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         insertBack(values[]);
     }
 
@@ -1027,21 +1027,21 @@ pragma(inline):
     /// Helper slice.
     private inout(T)[] slice() inout return @trusted
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return _store.ptr[0 .. _store.length];
     }
 
     /// Unsafe access to pointer.
     inout(T)* ptr()() inout return @system // template-lazy
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return _store.ptr;
     }
 
     /// Mutable pointer.
     private MutableE* _mptr() const return @trusted
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return cast(typeof(return))_store.ptr;
     }
 

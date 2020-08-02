@@ -238,7 +238,7 @@ struct SSOHashMapOrSet(K, V = void,
     /// Destruct.
     ~this() @nogc
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         release();
     }
 

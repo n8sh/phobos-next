@@ -671,7 +671,7 @@ private enum PowType
 
 private T powIntegralImpl(PowType type, T)(T val)
 {
-    pragma(inline, true);
+    version(D_Coverage) {} else pragma(inline, true);
     import core.bitop : bsr;
     if (val == 0 || (type == PowType.ceil && (val > T.max / 2 || val == T.min)))
     {

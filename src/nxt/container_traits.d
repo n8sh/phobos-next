@@ -159,7 +159,7 @@ T[] makeInitZeroArray(T, alias Allocator)(const size_t length) @trusted
      * https://stackoverflow.com/questions/2688466/why-mallocmemset-is-slower-than-calloc */
     static if (__traits(hasMember, Allocator, "allocateZeroed"))
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return cast(typeof(return))Allocator.allocateZeroed(byteCount);
     }
     else

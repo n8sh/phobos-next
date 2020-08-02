@@ -38,7 +38,7 @@ if (isDenseSetFilterable!E)
         /// Construct from inferred capacity and length `elementMaxCount`.
         static typeof(this) withInferredLength()
         {
-            pragma(inline, true);
+            version(D_Coverage) {} else pragma(inline, true);
             return typeof(return)(elementMaxCount);
         }
     }
@@ -62,14 +62,14 @@ if (isDenseSetFilterable!E)
 
     ~this() @nogc
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         release();
     }
 
     /// Free storage.
     private void release() @trusted @nogc
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         import nxt.qcmeman : free;
         free(_blocksPtr);
     }
@@ -77,7 +77,7 @@ if (isDenseSetFilterable!E)
     /// Clear contents.
     void clear()() @nogc
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         release();
         _blocksPtr = null;
         static if (growable == Growable.yes)
@@ -140,7 +140,7 @@ if (isDenseSetFilterable!E)
      */
     bool insert()(in E e) @trusted // template-lazy
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         const ix = cast(size_t)e;
         static if (growable == Growable.yes)
         {
@@ -161,7 +161,7 @@ if (isDenseSetFilterable!E)
      */
     bool remove()(in E e) @trusted // template-lazy
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         const ix = cast(size_t)e;
         static if (growable == Growable.yes)
         {
@@ -181,7 +181,7 @@ if (isDenseSetFilterable!E)
      */
     bool complement()(in E e) @trusted // template-laze
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         const ix = cast(size_t)e;
         static if (growable == Growable.yes)
         {
@@ -198,7 +198,7 @@ if (isDenseSetFilterable!E)
     /// Check if element `e` is stored/contained.
     bool contains()(in E e) @trusted const // template-lazy
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         const ix = cast(size_t)e;
         static if (growable == Growable.yes)
         {
@@ -213,7 +213,7 @@ if (isDenseSetFilterable!E)
     bool opBinaryRight(string op)(in E e) const
         if (op == "in")
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return contains(e);
     }
 
@@ -231,14 +231,14 @@ if (isDenseSetFilterable!E)
     */
     @property size_t capacity() const
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return _capacity;
     }
 
 private:
     @property size_t blockCount() const
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return _capacity / Block.sizeof + (_capacity % Block.sizeof ? 1 : 0);
     }
 

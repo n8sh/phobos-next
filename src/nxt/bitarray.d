@@ -117,7 +117,7 @@ struct BitArray(bool blockAlignedLength = false,
     /** Get the `i`'th bit. */
     bool opIndex(size_t i) const @trusted
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         assert(i < length);        // TODO nothrow or not?
         return cast(bool)bt(_blockPtr, i);
     }
@@ -125,7 +125,7 @@ struct BitArray(bool blockAlignedLength = false,
     /** Set the `i`'th bit to `value`. */
     bool opIndexAssign(bool value, size_t i) @trusted
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         if (value)
         {
             bts(_blockPtr, i);
@@ -292,7 +292,7 @@ private:
     {
         inout(Block)[] _fullBlocks() inout @trusted
         {
-            pragma(inline, true);
+            version(D_Coverage) {} else pragma(inline, true);
             const fullBlockCount = length / bitsPerBlock;
             return _blocks.ptr[0 .. fullBlockCount];
         }

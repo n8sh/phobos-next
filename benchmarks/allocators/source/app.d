@@ -53,7 +53,7 @@ class Graph
     Type make(Type, Args...)(Args args)
     if (is(Type == class))
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return _allocator.make!Type(args);
     }
 
@@ -71,7 +71,7 @@ void benchmarkAllocatorsRegion()
 
     Type make(Type, Args...)(Args args) // TODO @safe pure
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return allocator.make!Type(args);
     }
 
@@ -85,7 +85,7 @@ void benchmarkAllocatorsRegion()
 
     void testRegionAllocator()
     {
-        version(LDC) pragma(inline, true);
+        version(D_Coverage) {} else version(LDC) pragma(inline, true);
         auto x = make!DoubleNode(42);
         assert(x);
         latestPtr = cast(void*)x;
@@ -93,14 +93,14 @@ void benchmarkAllocatorsRegion()
 
     void testNewAllocation()
     {
-        version(LDC) pragma(inline, true);
+        version(D_Coverage) {} else version(LDC) pragma(inline, true);
         auto x = new DoubleNode(42);
         latestPtr = cast(void*)x;
     }
 
     void testGlobalAllocator()
     {
-        version(LDC) pragma(inline, true);
+        version(D_Coverage) {} else version(LDC) pragma(inline, true);
         auto x = theAllocator.make!DoubleNode(42);
         latestPtr = cast(void*)x;
     }

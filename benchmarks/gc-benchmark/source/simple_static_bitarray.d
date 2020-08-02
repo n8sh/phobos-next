@@ -26,7 +26,7 @@ struct StaticBitArray(uint capacity)
     /** Reset all bits (to zero). */
     void reset()
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         _blocks[] = 0;          // TODO is this the fastest way?
     }
 
@@ -38,7 +38,7 @@ struct StaticBitArray(uint capacity)
     }
     body
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return cast(bool)bt(_blocks.ptr, idx);
     }
 
@@ -50,7 +50,7 @@ struct StaticBitArray(uint capacity)
     }
     body
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         if (b)
         {
             bts(_blocks.ptr, cast(size_t)idx);

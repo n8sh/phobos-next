@@ -131,7 +131,7 @@ struct SExpr
  */
 bool isNullTerminated(scope const(char)[] s) @safe pure nothrow @nogc
 {
-    pragma(inline, true);
+    version(D_Coverage) {} else pragma(inline, true);
     return s.length >= 1 && s[$ - 1] == '\0';
 }
 
@@ -176,20 +176,20 @@ struct LispParser               // TODO convert to `class`
 
     @property bool empty() const nothrow scope @nogc
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return _endOfFile;
     }
 
     ref const(SExpr) front() const scope return
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         assert(!empty);
         return _topExprs.back;
     }
 
     void popFront()
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         assert(!empty);
         _topExprs.popBack();
         nextFront();
@@ -220,35 +220,35 @@ private:
     /// Get next `char` in input.
     char peekNext() const scope nothrow @nogc
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return _input[_offset];    // TODO .ptr
     }
 
     /// Get next `char` in input.
     char peekNextNth(size_t n) const nothrow @nogc
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return _input[_offset + n]; // TODO .ptr
     }
 
     /// Get next n `chars` in input.
     Input peekNextsN(size_t n) const return nothrow @nogc
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return _input[_offset .. _offset + n]; // TODO .ptr
     }
 
     /// Drop next byte in input.
     void dropFront() nothrow @nogc
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         _offset += 1;
     }
 
     /// Drop next `n` bytes in input.
     void dropFrontN(size_t n) nothrow @nogc
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         _offset += n;
     }
 
@@ -338,7 +338,7 @@ private:
 
     SExpr[] dupTopExprs(SExpr[] exprs) @safe pure nothrow
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         _subExprsCount += exprs.length; // log it for future optimizations
         return exprs.dup; // TODO use region allocator stored locally in `LispParser`
     }

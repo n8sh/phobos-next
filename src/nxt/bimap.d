@@ -17,7 +17,7 @@ struct BiMap(X, Y,
     /// Insert (`x`, `y`).
     void insert(X x, Y y)
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         _left[x] = y;
         _right[y] = x;
     }
@@ -38,7 +38,7 @@ struct BiMap(X, Y,
     /// Clear contents.
     void clear() @trusted       // TODO ok for this to be `@trusted`?
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         _left.clear();
         _right.clear();
     }
@@ -48,28 +48,28 @@ struct BiMap(X, Y,
     /// Check if empty.
     bool empty() const
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return length == 0;
     }
 
     /// Get length.
     size_t length() const
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return _left.length;
     }
 
     /// Access to left map must be non-mutating.
     ref const(LeftMap) left() const
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return _left;
     }
 
     /// Access to right map must be non-mutating.
     ref const(RightMap) right() const
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return _right;
     }
 

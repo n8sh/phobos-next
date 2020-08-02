@@ -594,7 +594,7 @@ size_t count(T)(scope const T[] haystack,
  */
 size_t count(T)(scope const T[] haystack)
 {
-    pragma(inline, true);
+    version(D_Coverage) {} else pragma(inline, true);
     return haystack.length;
 }
 

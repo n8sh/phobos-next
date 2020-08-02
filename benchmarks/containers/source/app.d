@@ -93,7 +93,6 @@ void main()
 
                           // functions
                           // SSOHashSet!(uint, null, identityHash64Of),
-                          // SSOHashSet!(uint, null, typeidHashOf),
                           // SSOHashSet!(uint, null, hashOf),
 
                           // SSOHashSet!(uint, null, muellerHash64),

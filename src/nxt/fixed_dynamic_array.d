@@ -11,7 +11,6 @@ struct FixedDynamicArray(T)
 @safe:
     import core.exception : onOutOfMemoryError;
     import nxt.qcmeman : pureMalloc = malloc, pureCalloc = calloc, pureFree = free;
-    import nxt.container_traits : mustAddGCRange;
 
 pragma(inline, true):
 
@@ -24,7 +23,8 @@ pragma(inline, true):
     static typeof(this) makeUninitializedOfLength(size_t length) @system
     {
         auto ptr = pureMalloc(length * T.sizeof);
-        if (ptr is null && length >= 1)
+        if (ptr is null &&
+            length >= 1)
         {
             onOutOfMemoryError();
         }
@@ -35,7 +35,8 @@ pragma(inline, true):
     static typeof(this) withLength(size_t length) @system
     {
         auto ptr = pureCalloc(length, T.sizeof);
-        if (ptr is null && length >= 1)
+        if (ptr is null &&
+            length >= 1)
         {
             onOutOfMemoryError();
         }
@@ -53,7 +54,8 @@ pragma(inline, true):
     {
         _store.length = length;
         auto ptr = pureMalloc(length * T.sizeof);
-        if (ptr is null && length >= 1)
+        if (ptr is null &&
+            length >= 1)
         {
             onOutOfMemoryError();
         }

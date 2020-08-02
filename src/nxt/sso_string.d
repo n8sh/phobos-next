@@ -31,6 +31,7 @@ struct SSOString
 @safe:
     @property void toString(scope void delegate(const(char)[]) @safe sink) const
     {
+        pragma(inline, true);
         sink(opSlice());
     }
 

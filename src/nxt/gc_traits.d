@@ -68,12 +68,6 @@ template mustAddGCRange(T)
     static assert(mustAddGCRange!(int[]));
 }
 
-private template mustAddGCRangeOfMember(alias member)
-{
-    import std.traits : hasUDA;
-    enum mustAddGCRangeOfMember = !hasUDA!(member, NoGc) && mustAddGCRange!(typeof(member));
-}
-
 /// Helper for `mustAddGCRange`.
 private template mustAddGCRangeOfStructOrUnion(T)
 if (is(T == struct) ||
@@ -99,6 +93,12 @@ if (is(T == struct) ||
     //     enum mustAddGCRangeOfStructOrUnion = anySatisfy!(mustAddGCRangeOfMember, T.tupleof);
     // }
     enum mustAddGCRangeOfStructOrUnion = anySatisfy!(mustAddGCRangeOfMember, T.tupleof);
+}
+
+private template mustAddGCRangeOfMember(alias member)
+{
+    import std.traits : hasUDA;
+    enum mustAddGCRangeOfMember = !hasUDA!(member, NoGc) && mustAddGCRange!(typeof(member));
 }
 
 version(unittest)

@@ -136,7 +136,7 @@ nothrow:
      */
     @property string toString() immutable @trusted pure nothrow @nogc // never allocates
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return opSlice();
     }
 
@@ -164,7 +164,7 @@ nothrow:
      */
     @property hash_t toHash() const scope @trusted
     {
-        version(LDC) pragma(inline, true);
+        version(D_Coverage) {} else version(LDC) pragma(inline, true);
         if (isLarge)
         {
             import core.internal.hash : hashOf;
@@ -181,7 +181,7 @@ nothrow:
     /** Get length. */
     @property size_t length() const scope @trusted
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         if (isLarge)
         {
             return decodeRawLength(large.length); // skip first bit
@@ -212,7 +212,7 @@ nothrow:
      */
     inout(char)[] opSlice() inout return scope @trusted @nogc
     {
-        pragma(inline, true);   // TODO: maybe remove
+        version(D_Coverage) {} else pragma(inline, true);   // TODO: maybe remove
         if (isLarge)
         {
             return opSliceLarge();
@@ -229,13 +229,13 @@ nothrow:
      */
     inout(char)[] opSlice(size_t i, size_t j) inout return @safe
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return opSlice()[i .. j];
     }
 
     private inout(char)[] opSliceLarge() inout return scope @system @nogc
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         version(unittest) assert(isLarge);
         return cast(typeof(return))raw.ptr[0 .. decodeRawLength(raw.length)]; // no allocation
         // alternative:  return large.ptr[0 .. large.length/2];
@@ -243,7 +243,7 @@ nothrow:
 
     private inout(char)[] opSliceSmall() inout return scope @trusted @nogc
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         version(unittest) assert(!isLarge);
         return cast(typeof(return))small.data.ptr[0 .. decodeRawLength(small.length)]; // scoped
     }
@@ -252,7 +252,7 @@ nothrow:
      */
     ref inout(char) opIndex(size_t index) inout return @trusted
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return opSlice()[index]; // does range check
     }
 
@@ -272,14 +272,14 @@ nothrow:
     /** Check if `this` is equal to `rhs`. */
     bool opEquals()(const scope auto ref typeof(this) rhs) const scope @trusted
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return opSlice() == rhs.opSlice();
     }
 
     /** Check if `this` is equal to `rhs`. */
     bool opEquals()(const scope const(char)[] rhs) const scope @trusted
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return opSlice() == rhs;
     }
 
@@ -289,7 +289,7 @@ nothrow:
      */
     @property int opCmp()(const scope typeof(this) that) const scope // template-lazy
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         scope const a = this.opSlice();
         scope const b = that.opSlice();
         return a < b ? -1 : (a > b);
@@ -299,7 +299,7 @@ nothrow:
 
     bool opCast(T : bool)() const scope @trusted
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         if (isLarge)
         {
             return large !is null;
@@ -340,7 +340,7 @@ nothrow:
     /** Check if `this` is a small ASCII string. */
     bool isSmallASCII() const scope @trusted
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         static assert(largeLengthTagBitOffset == 0);// bit 0 of lsbyte not set => small
         // should be fast on 64-bit platforms:
         return ((words[0] & 0x_80_80_80_80__80_80_80_01UL) == 1 && // bit 0 of lsbyte is set => small
@@ -352,7 +352,7 @@ private:
     /** Returns: `true` iff this is a large string, otherwise `false.` */
     @property bool isLarge() const scope @trusted
     {
-        pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         return !(large.length & (1 << largeLengthTagBitOffset)); // first bit discriminates small from large
     }
 

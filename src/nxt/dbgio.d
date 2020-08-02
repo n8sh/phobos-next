@@ -34,6 +34,7 @@ mixin template dumpObseleted(Names...)
 }
 
 ///
+version(show)
 @safe pure unittest
 {
     const int x = 42;
@@ -179,6 +180,7 @@ template dbgImpl(args...)
 }
 
 ///
+version(show)
 @safe pure unittest
 {
     struct Bar { auto c = 'c';}

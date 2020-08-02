@@ -15,7 +15,6 @@ public import nxt.gc_traits;
  */
 template needsMove(T)
 {
-    // TODO is this ok?
     static if (!__traits(isCopyable, T)) // needs move
     {
         enum needsMove = true;

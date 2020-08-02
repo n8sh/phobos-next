@@ -31,7 +31,6 @@ struct SSOString
 @safe:
     @property void toString(scope void delegate(const(char)[]) @safe sink) const
     {
-        pragma(inline, true);
         sink(opSlice());
     }
 
@@ -136,6 +135,7 @@ nothrow:
      */
     @property string toString() immutable @trusted pure nothrow @nogc // never allocates
     {
+        pragma(inline, true);
         return opSlice();
     }
 
@@ -211,7 +211,7 @@ nothrow:
      */
     inout(char)[] opSlice() inout return scope @trusted @nogc
     {
-        pragma(inline, true);
+        pragma(inline, true);   // TODO: maybe remove
         if (isLarge)
         {
             return opSliceLarge();

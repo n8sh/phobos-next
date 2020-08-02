@@ -107,9 +107,7 @@ pragma(inline):
         thatPtr._store.capacity = cast(CapacityType)length;
         thatPtr._store.length = cast(CapacityType)length;
         foreach (immutable i, ref e; elements[])
-        {
             moveEmplace(e, thatPtr._mptr[i]);
-        }
         return *thatPtr;
     }
 
@@ -123,10 +121,8 @@ pragma(inline):
         thatPtr._store.capacity = cast(CapacityType)length;
         thatPtr._store.length = cast(CapacityType)length;
         foreach (immutable i, ref e; elements[])
-        {
             thatPtr._mptr[i] = cast(T)e; // TODO restrict this function using a
                                          // T-trait where this cast can be @trusted
-        }
         return *thatPtr;
     }
 
@@ -169,7 +165,6 @@ pragma(inline):
             auto ptr = typeof(this).allocate(length, false);
 
             foreach (immutable i, const element; elements[])
-            {
                 // TODO: be more strict
                 // static if (hasIndirections!T)
                 // {
@@ -180,7 +175,6 @@ pragma(inline):
                 //     ptr[i] = *cast(MutableE*)&element;
                 // }
                 ptr[i] = *cast(MutableE*)&element;
-            }
 
             // ptr[0 .. length] = elements[];
             return typeof(return)(Store(ptr,
@@ -202,19 +196,16 @@ pragma(inline):
     {
         version(debugCtors) pragma(msg, __FILE_FULL_PATH__, ":", __LINE__, ": info: ", typeof(values));
         // TODO use import emplace_all instead
+
         _store.ptr = allocate(values.length, false);
         _store.capacity = values.length;
+
         foreach (index; 0 .. values.length)
-        {
             static if (needsMove!(T))
-            {
                 move(values[index], _mptr[index]);
-            }
             else
-            {
                 _mptr[index] = values[index];
-            }
-        }
+
         setLengthChecked(values.length);
     }
 
@@ -224,19 +215,16 @@ pragma(inline):
     {
         version(debugCtors) pragma(msg, __FILE_FULL_PATH__, ":", __LINE__, ": info: ", typeof(values));
         // TODO use import emplace_all instead
+
         _store.ptr = allocate(values.length, false);
         _store.capacity = values.length;
+
         static foreach (index; 0 .. values.length)
-        {
             static if (needsMove!(T))
-            {
                 move(values[index], _mptr[index]);
-            }
             else
-            {
                 _mptr[index] = values[index];
-            }
-        }
+
         setLengthChecked(values.length);
     }
 
@@ -252,18 +240,12 @@ pragma(inline):
             reserve(values.length);
             size_t index = 0;
             foreach (ref value; values)
-            {
                 _mptr[index++] = value;
-            }
             setLengthChecked(values.length);
         }
         else
-        {
             foreach (ref value; values)
-            {
                 insertBack1(value);
-            }
-        }
     }
 
     /** Is `true` iff the iterable container `C` can be insert to `this`.
@@ -280,14 +262,11 @@ pragma(inline):
         typeof(this) result;
 
         static if (hasLength!R)
-        {
             result.reserve(values.length);
-        }
 
         static if (hasLength!R &&
                    hasSlicing!R &&
-                   __traits(isCopyable, ElementType!R) &&
-                   !hasElaborateDestructor!(ElementType!R))
+                   !needsMove!(ElementType!R))
         {
             import std.algorithm.mutation : copy;
             copy(values[0 .. values.length],
@@ -300,16 +279,10 @@ pragma(inline):
             {
                 size_t i = 0;
                 foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
-                {
                     static if (needsMove!(typeof(value)))
-                    {
                         moveEmplace(value, result._mptr[i++]);
-                    }
                     else
-                    {
                         result._mptr[i++] = value;
-                    }
-                }
                 result.setLengthChecked(values.length);
             }
             else
@@ -318,16 +291,10 @@ pragma(inline):
                 /* TODO optimize with `moveEmplaceAll` that does a raw copy and
                  * zeroing of values */
                 foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
-                {
                     static if (needsMove!(ElementType!R))
-                    {
                         result.insertBackMove(value); // steal element
-                    }
                     else
-                    {
                         result.insertBack1(value);
-                    }
-                }
             }
         }
         return result;
@@ -363,9 +330,7 @@ pragma(inline):
     private void release() @nogc
     {
         static if (hasElaborateDestructor!T)
-        {
             destroyElements();
-        }
         freeStore();
     }
 
@@ -375,9 +340,7 @@ pragma(inline):
         private void destroyElements() @trusted
         {
             foreach (immutable index; 0 .. _store.length)
-            {
                 .destroy(_mptr[index]);
-            }
         }
     }
 
@@ -385,9 +348,7 @@ pragma(inline):
     private void freeStore() @trusted
     {
         static if (mustAddGCRange!T)
-        {
             gc_removeRange(_mptr);
-        }
         free(_mptr);
     }
 
@@ -411,39 +372,28 @@ pragma(inline):
         typeof(return) ptr = null;
         static if (!is(typeof(Allocator) == typeof(null)))
         {
+            import std.experimental.allocator : makeArray;
             if (zero)
-            {
-                import std.experimental.allocator : makeArray;
                 ptr = Allocator.makeArray!T(initialCapacity, 0).ptr; // TODO set length
-            }
             else
-            {
                 ptr = cast(typeof(return))Allocator.allocate(numBytes).ptr; // TODo set length
-            }
         }
         else
         {
             if (zero)
-            {
                 ptr = cast(typeof(return))calloc(initialCapacity, T.sizeof);
-            }
             else
-            {
                 ptr = cast(typeof(return))malloc(numBytes);
-            }
             assert(ptr, "Allocation failed");
         }
 
-        if (ptr is null && initialCapacity >= 1 )
-        {
-            // onOutOfMemoryError();
+        if (ptr is null &&
+            initialCapacity >= 1 )
+            // TODO onOutOfMemoryError();
             return null;
-        }
 
         static if (mustAddGCRange!T)
-        {
             gc_addRange(ptr, numBytes);
-        }
 
         return ptr;
     }
@@ -462,30 +412,24 @@ pragma(inline):
             {
                 import std.experimental.allocator : makeArray;
                 ptr = Allocator.makeArray!T(initialCapacity, elementValue).ptr; // TODO set length
-                if (ptr is null && initialCapacity >= 1)
-                {
-                    // onOutOfMemoryError();
+                if (ptr is null &&
+                    initialCapacity >= 1)
+                    // TODO onOutOfMemoryError();
                     return null;
-                }
             }
             else
             {
                 ptr = cast(typeof(return))malloc(numBytes);
-                if (ptr is null && initialCapacity >= 1)
-                {
-                    // onOutOfMemoryError();
+                if (ptr is null &&
+                    initialCapacity >= 1)
+                    // TODO onOutOfMemoryError();
                     return null;
-                }
                 foreach (immutable index; 0 .. initialCapacity)
-                {
                     emplace(&ptr[index], elementValue);
-                }
             }
 
             static if (mustAddGCRange!T)
-            {
                 gc_addRange(ptr, numBytes);
-            }
 
             return ptr;
         }
@@ -510,16 +454,12 @@ pragma(inline):
     {
         import core.internal.hash : hashOf;
         static if (__traits(isCopyable, T))
-        {
-            return this.length ^ hashOf(slice());
-        }
+            return hashOf(this.length) ^ hashOf(slice());
         else
         {
-            typeof(return) hash = this.length;
+            typeof(return) hash = hashOf(this.length);
             foreach (immutable index; 0 .. this.length)
-            {
                 hash ^= this.ptr[index].hashOf;
-            }
             return hash;
         }
     }
@@ -531,11 +471,11 @@ pragma(inline):
         void toString()(scope void delegate(scope const(char)[]) sink) const scope // template-lazy
         {
             sink("[");
-            foreach (immutable ix, ref value; slice())
+            foreach (immutable index, ref value; slice())
             {
                 import std.conv : to;
                 sink(to!string(value));
-                if (ix + 1 < length) { sink(", "); } // separator
+                if (index + 1 < length) { sink(", "); } // separator
             }
             sink("]");
         }
@@ -566,44 +506,30 @@ pragma(inline):
         if (newLength < length) // if truncatation
         {
             static if (hasElaborateDestructor!T)
-            {
                 foreach (immutable index; newLength .. _store.length)
-                {
                     .destroy(_mptr[index]);
-                }
-            }
             else static if (isAddress!T)
-            {
                 foreach (immutable index; newLength .. _store.length)
-                {
                     _mptr[index] = null; // please the GC
-                }
-            }
         }
         else
         {
             reserve(newLength);
             static if (hasElaborateDestructor!T)
-            {
                 // TODO remove when compiler does it for us
                 foreach (immutable index; _store.length .. newLength)
                 {
                     // TODO remove when compiler does it for us:
                     static if (__traits(isCopyable, T))
-                    {
                         emplace(&_mptr[index], T.init);
-                    }
                     else
                     {
                         auto _ = T.init;
                         moveEmplace(_, _mptr[index]);
                     }
                 }
-            }
             else
-            {
                 _mptr[_store.length .. newLength] = T.init;
-            }
         }
 
         setLengthChecked(newLength);
@@ -613,10 +539,8 @@ pragma(inline):
     private void setLengthChecked(size_t newLength) scope
     {
         static if (!is(CapacityType == size_t))
-        {
             assert(newLength <= CapacityType.max,
                    "New length doesn't fit in capacity type.");
-        }
         _store.length = cast(CapacityType)newLength;
     }
 
@@ -634,12 +558,11 @@ pragma(inline):
     void reserve(size_t minimumCapacity) @trusted scope pure nothrow @nogc
     {
         static if (!is(CapacityType == size_t))
-        {
             assert(minimumCapacity <= CapacityType.max,
                    "Minimum capacity doesn't fit in capacity type.");
-        }
 
-        if (minimumCapacity <= capacity) { return; }
+        if (minimumCapacity <= capacity)
+            return;
 
         // growth factor
         // Motivation: https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md#memory-handling
@@ -652,28 +575,22 @@ pragma(inline):
     private void reallocateAndSetCapacity()(size_t newCapacity) @trusted // template-lazy
     {
         static if (!is(CapacityType == size_t))
-        {
             assert(newCapacity <= CapacityType.max,
                    "New capacity doesn't fit in capacity type.");
-        }
 
         static if (mustAddGCRange!T)
-        {
             gc_removeRange(_store.ptr);
-        }
 
         _store.capacity = cast(CapacityType)newCapacity;
         _store.ptr = cast(T*)realloc(_mptr, T.sizeof * _store.capacity);
-        if (_store.ptr is null && newCapacity >= 1)
-        {
-            // onOutOfMemoryError();
+
+        if (_store.ptr is null &&
+            newCapacity >= 1)
+            // TODO onOutOfMemoryError();
             return;
-        }
 
         static if (mustAddGCRange!T)
-        {
             gc_addRange(_store.ptr, _store.capacity * T.sizeof);
-        }
     }
 
     /// Index support.
@@ -702,17 +619,13 @@ pragma(inline):
         static if (hasElaborateDestructor!T)
         {
             move(*(cast(MutableE*)(&value)), _mptr[i]); // TODO is this correct?
+            return slice()[i];
         }
         else static if (hasIndirections!T && // TODO `hasAliasing` instead?
                         !isMutable!T)
-        {
             static assert("Cannot modify constant elements with indirections");
-        }
         else
-        {
-            slice()[i] = value;
-        }
-        return slice()[i];
+            return slice()[i] = value;
     }
 
     /// Slice assignment support.
@@ -770,10 +683,9 @@ pragma(inline):
         __traits(isCopyable, U))       // prevent accidental move of l-value `values`
     {
         if (values.length == 1) // TODO branch should be detected at compile-time
-        {
             // twice as fast as array assignment below
             return insertBack1(values[0]);
-        }
+
         static if (is(T == immutable(T)))
         {
             /* An array of immutable values cannot overlap with the `this`
@@ -795,9 +707,7 @@ pragma(inline):
                 }
             }
             else if (overlaps(this[], values[]))
-            {
                 assert(0, `TODO Handle overlapping arrays`);
-            }
             else
             {
                 reserve(_store.length + values.length);
@@ -816,13 +726,9 @@ pragma(inline):
     {
         reserve(_store.length + 1);
         static if (needsMove!T)
-        {
             insertBackMove(*cast(MutableE*)(&value));
-        }
         else
-        {
             _mptr[_store.length] = value;
-        }
         _store.length += 1;
     }
 
@@ -843,16 +749,10 @@ pragma(inline):
         else
         {
             foreach (ref element; move(elements)) // TODO remove `move` when compiler does it for us
-            {
                 static if (__traits(isCopyable, ElementType!R))
-                {
                     insertBack(element);
-                }
                 else
-                {
                     insertBackMove(element);
-                }
-            }
         }
     }
 
@@ -867,13 +767,9 @@ pragma(inline):
         assert(!empty);
         _store.length -= 1;
         static if (hasElaborateDestructor!T)
-        {
             .destroy(_mptr[_store.length]);
-        }
         else static if (isAddress!T)
-        {
-            _mptr[_store.length] = null; // please the GC
-        }
+            _mptr[_store.length] = null; // please the GC. TODO only if scanned
     }
 
     /** Rmove `n` last values from the end of the array.
@@ -885,19 +781,11 @@ pragma(inline):
         assert(length >= n);
         _store.length -= n;
         static if (hasElaborateDestructor!T)
-        {
-            foreach (const index; 0 .. n)
-            {
+            foreach (immutable index; 0 .. n)
                 .destroy(_mptr[_store.length + index]);
-            }
-        }
         else static if (isAddress!T)
-        {
-            foreach (const index; 0 .. n)
-            {
+            foreach (immutable index; 0 .. n)
                 _mptr[_store.length + index] = null; // please the GC
-            }
-        }
     }
 
     /** Pop back element and return it.
@@ -912,13 +800,9 @@ pragma(inline):
         assert(!empty);
         _store.length -= 1;
         static if (needsMove!T)
-        {
             return move(_mptr[_store.length]); // move is indeed need here
-        }
         else
-        {
             return _mptr[_store.length]; // no move needed
-        }
     }
 
     /** Pop element at `index`. */
@@ -927,13 +811,9 @@ pragma(inline):
     {
         assert(index < this.length);
         static if (hasElaborateDestructor!T)
-        {
             .destroy(_mptr[index]);
-        }
         else static if (isAddress!T)
-        {
             _mptr[index] = null; // please the GC
-        }
         shiftToFrontAt(index);
         _store.length -= 1;
     }
@@ -1092,18 +972,12 @@ if (isInstanceOf!(DynamicArray, C) &&
             import core.internal.traits : hasElaborateDestructor;
             import nxt.container_traits : isAddress;
             static if (hasElaborateDestructor!(typeof(c[i])))
-            {
                 .destroy(c[i]);
-            }
             else static if (isAddress!(typeof(c[i])))
-            {
                 c[i] = null;    // please the GC
-            }
         }
         else
-        {
             tmp.insertBackMove(c[i]); // TODO remove unnecessary clearing of `_mptr[i]`
-        }
     }
 
     c.freeStore();
@@ -1120,9 +994,7 @@ if (isInstanceOf!(DynamicArray, C) &&
     alias T = int;
     alias A = DynamicArray!(T, null, uint);
     static if (size_t.sizeof == 8) // only 64-bit
-    {
         static assert(A.sizeof == 2 * size_t.sizeof); // only two words
-    }
 
     auto a = A([10, 11, 12].s);
 

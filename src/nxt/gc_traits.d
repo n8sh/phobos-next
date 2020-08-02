@@ -101,24 +101,31 @@ private template mustAddGCRangeOfMember(alias member)
     enum mustAddGCRangeOfMember = !hasUDA!(member, NoGc) && mustAddGCRange!(typeof(member));
 }
 
-version(unittest)
+/// no-GC-managed struct with a disabled postblit
+@safe pure nothrow @nogc unittest
 {
-    private static struct S
+    static struct S
     {
         @disable this(this);
         @NoGc int* _ptr;
     }
-}
-
-/// no-GC-managed struct with a disabled postblit
-@safe pure nothrow @nogc unittest
-{
     static if (__traits(hasMember, S, "__postblit"))
     {
         static assert(__traits(isDisabled, S.__postblit));
     }
     // See https://forum.dlang.org/post/dkohvpbmakbdbhnmnmbg@forum.dlang.org
     static assert(!mustAddGCRangeOfStructOrUnion!S);
+}
+
+/// GC-managed struct
+@safe pure nothrow @nogc unittest
+{
+    static struct S
+    {
+        int* _ptr;
+    }
+    // See https://forum.dlang.org/post/dkohvpbmakbdbhnmnmbg@forum.dlang.org
+    static assert(mustAddGCRangeOfStructOrUnion!S);
 }
 
 ///

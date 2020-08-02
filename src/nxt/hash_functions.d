@@ -2,7 +2,7 @@
  */
 module nxt.hash_functions;
 
-@safe pure nothrow:
+@safe nothrow:
 
 /** See_Also: http://forum.dlang.org/post/o1igoc$21ma$1@digitalmars.com
  *
@@ -11,14 +11,16 @@ module nxt.hash_functions;
 size_t typeidHashOf(T)(in T x) @trusted
 {
     version(D_Coverage) {} else pragma(inline, true);
-    return typeid(T).getHash(&x); // TODO why not pure @nogc?
+    return typeid(T).getHash(&x);
 }
 
 ///
-@safe pure nothrow unittest
+@safe nothrow unittest
 {
-    // TODO auto x = typeidHashOf(cast(int)17);
+    scope x = typeidHashOf(cast(int)17);
 }
+
+pure @nogc:
 
 hash_t hashOfTypeInfoPtr(TypeInfo_Class typeinfo) @trusted pure nothrow @nogc
 {

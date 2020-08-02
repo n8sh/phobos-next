@@ -738,18 +738,14 @@ private:
 ///
 @trusted pure unittest
 {
+    import std.exception: assertThrown;
+    import core.exception : AssertError;
     assertThrown!AssertError(BitArray!(true).withLength(1));
 }
 
 ///
 @safe pure nothrow @nogc unittest
 {
-}
-
-version(unittest)
-{
-    import std.exception: assertThrown;
-    import core.exception : AssertError;
 }
 
 // TODO use

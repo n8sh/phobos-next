@@ -18,6 +18,7 @@ module nxt.sso_string;
  *
  * See_Also: https://forum.dlang.org/post/pb87rn$2icb$1@digitalmars.com
  * See_Also: https://issues.dlang.org/show_bug.cgi?id=18792
+ * See_Also: https://forum.dlang.org/post/agzznbzkacfhyqvoezht@forum.dlang.org
  *
  * TODO Use extra bits in `Short.length` for these special text encodings:
  * - 5-bit lowercase English letter into 128/5 = 25 chars
@@ -307,18 +308,6 @@ nothrow:
         {
             return small.length != 0;
         }
-    }
-
-    /** Check if is the same as to `rhs`.
-     *
-     * See_Also: https://forum.dlang.org/post/agzznbzkacfhyqvoezht@forum.dlang.org.
-     */
-    version(none)               // `is` operator cannot be overloaded. See: https://forum.dlang.org/post/prmrli$1146$1@digitalmars.com
-    bool opBinary(string op)(const scope auto ref typeof(this) rhs) const scope @trusted
-    if (op == `is`)         // TODO has not effect
-    {
-        pragma(inline, true);
-        return opSlice() == rhs.opSlice();
     }
 
     /** Support trait `isNullable`. */

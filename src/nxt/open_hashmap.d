@@ -3610,9 +3610,7 @@ version(unittest)
     foreach (K; AliasSeq!(SomeSimpleClass,
                           NullableUlong))
     {
-        foreach (V; AliasSeq!(string,
-                              int,
-                              void))
+        foreach (V; AliasSeq!(string, int, void))
         {
             alias X = OpenHashMap!(K, V, FNV!(64, true));
 

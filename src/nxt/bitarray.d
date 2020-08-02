@@ -743,11 +743,6 @@ private:
     assertThrown!AssertError(BitArray!(true).withLength(1));
 }
 
-///
-@safe pure nothrow @nogc unittest
-{
-}
-
 // TODO use
 extern (C) private pure @system @nogc nothrow
 {

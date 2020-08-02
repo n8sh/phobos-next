@@ -10,14 +10,21 @@ public import nxt.gc_traits;
 
 @safe:
 
-/** True if a `T` needs to be passed by move instead of value.
- *
- * See_Also:
+/** True if a `T` needs to be passed by move instead of value either because it
+ * cannot be copied or because it has an elaborate destructor.
  */
 template needsMove(T)
 {
-    import core.internal.traits : hasElaborateDestructor;
-    enum needsMove = hasElaborateDestructor!T || !__traits(isCopyable, T); // TODO is this ok?
+    // TODO is this ok?
+    static if (!__traits(isCopyable, T)) // needs move
+    {
+        enum needsMove = true;
+    }
+    else                        // should be moved
+    {
+        import core.internal.traits : hasElaborateDestructor;
+        enum needsMove = hasElaborateDestructor!T;
+    }
 }
 
 // TODO this can be simplified for faster compilation

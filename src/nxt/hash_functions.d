@@ -82,17 +82,6 @@ version(unittest)
             return hashOf(data);
         }
     }
-
-    class Year : Thing
-    {
-        @safe pure nothrow @nogc:
-        alias Data = long;
-        @property override hash_t toHash() const @safe pure nothrow @nogc
-        {
-            return hashOf(data);
-        }
-        Data data;
-    }
 }
 
 ///

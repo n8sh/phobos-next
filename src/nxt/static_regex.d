@@ -1,26 +1,29 @@
 module nxt.static_regex;
 
-import std.regex : regex, Regex;
-
 /** Statically defined regular expression.
  *
  * See_Also: https://forum.dlang.org/post/mailman.4770.1596218284.31109.digitalmars-d-announce@puremagic.com
  */
-Regex!char staticRegex(string reStr)()
+auto staticRegex(string reStr)()
 {
+    import std.regex : regex, Regex;
     static struct Impl
     {
-		static typeof(return) re;
-		static this()
-		{
-		    re = regex(reStr);
-		}
+    @safe:
+        static typeof(return) re;
+        static this()
+        {
+            re = regex(reStr);
+        }
     }
     return Impl.re;
 }
 
-auto myFunc(string input)
+//
+version(none)                   // disabled for now
+@safe unittest
 {
-    scope x = staticRegex!"foo(\\w+)bar";
+    // string input;
+    scope x = staticRegex!("foo(\\w+)bar");
     // auto result = input.replaceAll(x, `blah $1 bleh`);
 }

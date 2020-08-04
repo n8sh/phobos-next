@@ -616,7 +616,7 @@ pragma(inline):
     /// Index assignment support.
     ref T opIndexAssign(U)(scope U value, size_t i) @trusted return
     {
-        static if (hasElaborateDestructor!T)
+        static if (needsMove!T)
         {
             move(*(cast(MutableE*)(&value)), _mptr[i]); // TODO is this correct?
             return opSlice()[i];

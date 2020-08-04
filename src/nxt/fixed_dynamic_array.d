@@ -25,9 +25,7 @@ pragma(inline, true):
         auto ptr = pureMalloc(length * T.sizeof);
         if (ptr is null &&
             length >= 1)
-        {
             onOutOfMemoryError();
-        }
         return typeof(return)(Store(length, cast(T*)ptr));
     }
 
@@ -37,9 +35,7 @@ pragma(inline, true):
         auto ptr = pureCalloc(length, T.sizeof);
         if (ptr is null &&
             length >= 1)
-        {
             onOutOfMemoryError();
-        }
         return typeof(return)(Store(length, cast(T*)ptr));
     }
 
@@ -56,9 +52,7 @@ pragma(inline, true):
         auto ptr = pureMalloc(length * T.sizeof);
         if (ptr is null &&
             length >= 1)
-        {
             onOutOfMemoryError();
-        }
         _store.ptr = cast(T*)ptr;
     }
 

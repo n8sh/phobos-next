@@ -497,13 +497,9 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
             {
                 // TODO functionize:
                 static if (needsMove!(typeof(value)))
-                {
                     moveEmplace(value, _mptr[i++]);
-                }
                 else
-                {
                     _mptr[i++] = value;
-                }
             }
         }
         else
@@ -518,13 +514,9 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
                 reserve(i + 1); // slower reserve
                 // TODO functionize:
                 static if (needsMove!(typeof(value)))
-                {
                     moveEmplace(value, _mptr[i++]);
-                }
                 else
-                {
                     _mptr[i++] = value;
-                }
                 setOnlyLength(i); // must be set here because correct length is needed in reserve call above in this same scope
             }
         }
@@ -532,9 +524,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         if (!assumeSortedParameter)
         {
             static if (isOrdered!ordering)
-            {
                 sortElements!comp();
-            }
             static if (ordering == Ordering.sortedUniqueSet)
             {
                 import std.algorithm.iteration : uniq;
@@ -544,9 +534,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
                     auto ePtr = &e;
                     const separate = ePtr != &_mptr[j];
                     if (separate)
-                    {
                         move(*cast(MutableE*)ePtr, _mptr[j]);
-                    }
                     ++j;
                 }
                 shrinkTo(j);
@@ -569,19 +557,16 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         pure @trusted
     {
         assert(!isBorrowed);
-        if (newCapacity <= capacity) { return; }
+        if (newCapacity <= capacity)
+            return;
         if (isLarge)
         {
             static if (shouldAddGCRange!E)
-            {
                 gc_removeRange(_mptr);
-            }
             import std.math : nextPow2;
             reallocateLargeStoreAndSetCapacity(newCapacity.nextPow2);
             static if (shouldAddGCRange!E)
-            {
                 gc_addRange(_mptr, _large.capacity * E.sizeof);
-            }
         }
         else
         {
@@ -591,15 +576,11 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
 
                 // move small to temporary large
                 foreach (immutable i; 0 .. length)
-                {
                     moveEmplace(_small._mptr[i],
                                 tempLarge._mptr[i]);
-                }
 
                 static if (hasElaborateDestructor!E)
-                {
                     destroyElements();
-                }
 
                 // TODO functionize:
                 {               // make this large
@@ -630,24 +611,17 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
 
                     // move elements to temporary small. TODO make moveEmplaceAll work on char[],char[] and use
                     foreach (immutable i; 0 .. length)
-                    {
                         moveEmplace(_large._mptr[i],
                                     tempSmall._mptr[i]);
-                    }
 
                     // free existing large data
                     static if (shouldAddGCRange!E)
-                    {
                         gc_removeRange(_mptr);
-                    }
+
                     static if (useGCAllocation)
-                    {
                         GC.free(_mptr);
-                    }
                     else
-                    {
                         free(_mptr);
-                    }
 
                     moveEmplace(tempSmall, _small);
                 }
@@ -656,14 +630,10 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
                     if (_large.capacity != this.length)
                     {
                         static if (shouldAddGCRange!E)
-                        {
                             gc_removeRange(_mptr);
-                        }
                         reallocateLargeStoreAndSetCapacity(this.length);
                         static if (shouldAddGCRange!E)
-                        {
                             gc_addRange(_mptr, _large.capacity * E.sizeof);
-                        }
                     }
                 }
             }
@@ -671,17 +641,13 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
             {
                 // free data
                 static if (shouldAddGCRange!E)
-                {
                     gc_removeRange(_mptr);
-                }
+
                 static if (useGCAllocation)
-                {
                     GC.free(_mptr);
-                }
                 else
-                {
                     free(_mptr);
-                }
+
                 _large.capacity = 0;
                 _large.ptr = null;
             }
@@ -696,9 +662,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         version(D_Coverage) {} else pragma(inline, true);
         _large.setCapacity(newCapacity);
         static if (useGCAllocation)
-        {
             _large.ptr = cast(E*)GC.realloc(_mptr, E.sizeof * _large.capacity);
-        }
         else                    // @nogc
         {
             _large.ptr = cast(E*)realloc(_mptr, E.sizeof * _large.capacity);
@@ -712,14 +676,10 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         version(D_Coverage) {} else pragma(inline, true);
         assert(!isBorrowed);
         if (isLarge)
-        {
             debug assert(_large.ptr != _ptrMagic, "Double free."); // trigger fault for double frees
-        }
         release();
         if (isLarge)
-        {
             debug _large.ptr = _ptrMagic; // tag as freed
-        }
     }
 
     /// Empty.
@@ -743,9 +703,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         private void destroyElements() @trusted
         {
             foreach (immutable i; 0 .. this.length)
-            {
                 .destroy(_mptr[i]);
-            }
         }
     }
 
@@ -753,29 +711,20 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
     private void release() @trusted @nogc
     {
         static if (hasElaborateDestructor!E)
-        {
             destroyElements();
-        }
         if (isLarge)
         {
             static if (shouldAddGCRange!E)
-            {
                 gc_removeRange(_large.ptr);
-            }
+
             static if (useGCAllocation)
-            {
                 GC.free(_large.ptr);
-            }
             else                // @nogc
             {
                 static if (!shouldAddGCRange!E)
-                {
                     free(cast(MutableE*)_large.ptr); // safe to case away constness
-                }
                 else
-                {
                     free(_large.ptr);
-                }
             }
         }
     }
@@ -791,9 +740,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
             _large.capacity = 0;
         }
         else
-        {
             _small.length = 0; // fast discardal
-        }
     }
 
     /// Is `true` if `U` can be assign to the element type `E` of `this`.
@@ -855,13 +802,9 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         decOnlyLength();
         // TODO functionize:
         static if (needsMove!E)
-        {
             return move(_mptr[this.length]); // move is indeed need here
-        }
         else
-        {
             return _mptr[this.length]; // no move needed
-        }
     }
 
     /** Pop last `count` back elements. */
@@ -888,13 +831,9 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
             {
                 // TODO functionize:
                 static if (needsMove!(typeof(value)))
-                {
                     moveEmplace(*cast(MutableE*)&value, _mptr[this.length + i]);
-                }
                 else
-                {
                     _mptr[this.length + i] = value;
-                }
             }
             setOnlyLength(this.length + values.length);
         }
@@ -917,13 +856,9 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
                 {
                     // TODO functionize:
                     static if (needsMove!(typeof(value)))
-                    {
                         moveEmplace(*cast(Mutable!E*)&value, _mptr[this.length + i]);
-                    }
                     else
-                    {
                         _mptr[this.length + i] = value;
-                    }
                     ++i;
                 }
                 setOnlyLength(nextLength);
@@ -931,9 +866,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
             else
             {
                 foreach (ref value; values) // `ref` so we can `move`
-                {
                     insertBack(value);
-                }
             }
         }
 
@@ -959,29 +892,19 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
                 {
                     reserve(2*this.length);
                     foreach (immutable i; 0 .. this.length)
-                    {
                         _mptr[this.length + i] = ptr[i]; // needs copying
-                    }
                     setOnlyLength(2 * this.length);
                 }
                 else if (overlaps(this[], values[]))
-                {
                     assert(0, `TODO Handle overlapping arrays`);
-                }
                 else
                 {
                     reserve(this.length + values.length);
                     static if (is(MutableE == Unqual!(ElementType!A))) // TODO also when `E[]` is `A[]`
-                    {
                         _mptr[this.length .. this.length + values.length] = values[];
-                    }
                     else
-                    {
                         foreach (immutable i, ref value; values)
-                        {
                             _mptr[this.length + i] = value;
-                        }
-                    }
                     setOnlyLength(this.length + values.length);
                 }
             }
@@ -1097,9 +1020,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
                 import std.traits : CommonType;
                 CommonType!Us[Us.length] valuesArray;
                 foreach (immutable i, const ref value; values)
-                {
                     valuesArray[i] = value;
-                }
                 assert(sort(valuesArray[]).findAdjacent.empty,
                        "Parameter `values` must not contain duplicate elements");
             }
@@ -1110,9 +1031,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
                     import nxt.searching_ex : containsStoreIndex;
                     size_t index;
                     if (slice.assumeSorted!comp.containsStoreIndex!sp(values, index)) // faster than `completeSort` for single value
-                    {
                         return [false];
-                    }
                     else
                     {
                         insertAtIndexHelper(index, values);
@@ -1173,9 +1092,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
                     import nxt.searching_ex : containsStoreIndex;
                     size_t index;
                     if (!slice.assumeSorted!comp.containsStoreIndex!sp(values, index)) // faster than `completeSort` for single value
-                    {
                         insertAtIndexHelper(index, values);
-                    }
                 }
                 else
                 {
@@ -1276,15 +1193,11 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         foreach (immutable i, ref value; values)
         {
             // TODO functionize:
-            static if (hasIndirections!(typeof(value)))
-            {
+            static if (needsMove!(typeof(value)))
                 moveEmplace(*cast(MutableE*)&value,
                             _mptr[this.length + i]);
-            }
             else
-            {
                 _mptr[this.length + i] = value;
-            }
         }
         setOnlyLength(newLength);
     }

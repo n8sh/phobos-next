@@ -518,12 +518,8 @@ public:
     void clear()
     {
         static if (hasElaborateDestructor!T)
-        {
             foreach (const i; 0 .. size)
-            {
                 destroy(array[(start + i) % array.length]);
-            }
-        }
         start = 0; // optimize clears
         size = 0;
     }
@@ -573,9 +569,7 @@ public:
         if (__traits(compiles, ElementType!Range) && is(ElementType!Range : T))
     {
         foreach (c; rhs)
-        {
             put(c);
-        }
     }
 
     static if (len == 0)
@@ -636,7 +630,8 @@ public:
         if (size != b.size)
             return false;
         for (int i = 0; i < size; i++)
-            if (array[(i + start) % array.length] != b.array[(i + b.start) % b.array.length])
+            if (array[(i + start) % array.length] !=
+                b.array[(i + b.start) % b.array.length])
                 return false;
         return true;
     }

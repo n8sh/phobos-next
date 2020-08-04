@@ -1,5 +1,9 @@
 module nxt.variant;
 
+version(none):                  // TODO activate
+
+import nxt.dbgio : dbg;
+
 @safe pure:
 
 /** Lightweight version of $(D std.variant.Algebraic) that doesn't rely on `TypeInfo`.
@@ -40,6 +44,7 @@ struct Algebraic(Types...)
     import std.meta : anySatisfy, allSatisfy, staticIndexOf;
     import std.traits : StdCommonType = CommonType, hasIndirections, hasAliasing;
     import nxt.traits_ex : isComparable, isEquable, sizesOf, stringsOf, allSame;
+    import nxt.container_traits : needsMove;
 
 public:
 
@@ -91,7 +96,8 @@ public:
     @property void toString()(scope void delegate(scope const(char)[]) sink) const // template-lazy. TODO pure
     {
         import std.conv : to;
-        if (!hasValue) { return sink("<Uninitialized Algebraic>"); }
+        if (!hasValue)
+            return sink("<Uninitialized Algebraic>");
         final switch (typeIndex)
         {
             foreach (const i, T; Types)
@@ -138,20 +144,21 @@ public:
     {
         pragma(inline, true);
         if (hasValue)
-        {
             release();
-        }
     }
 
     /// Construct copy from `that`.
     this(T)(T that) @trusted nothrow @nogc
-        if (allowsAssignmentFrom!T)
+    if (allowsAssignmentFrom!T)
     {
         import core.lifetime : moveEmplace;
 
         alias MT = Unqual!T;
-        moveEmplace(*cast(MT*)&that,
-                    *cast(MT*)(&_store)); // TODO ok when `that` has indirections?
+        static if (needsMove!MT)
+            moveEmplace(that,
+                        *cast(MT*)(&_store)); // TODO ok when `that` has indirections?
+        else
+            *cast(MT*)(&_store) = that;
 
         _tix = cast(Ix)(indexOf!MT + 1); // set type tag
     }
@@ -162,13 +169,21 @@ public:
         import core.lifetime : moveEmplace;
 
         if (hasValue)
-        {
             release();
-        }
 
         alias MT = Unqual!T;
-        moveEmplace(*cast(MT*)&that,
-                    *cast(MT*)(&_store)); // TODO ok when `that` has indirections?
+        static if (needsMove!MT)
+        {
+            moveEmplace(that,
+                        *cast(MT*)(&_store)); // TODO ok when `that` has indirections?
+        }
+        else
+        {
+            dbg(as!T, " = ", that);
+            *cast(MT*)(&_store) = that;
+            dbg(as!T, " = ", that);
+        }
+        dbg(as!T);
 
         _tix = cast(Ix)(indexOf!MT + 1); // set type tag
 
@@ -184,10 +199,9 @@ public:
         pragma(inline, true);
         alias MT = Unqual!T;
         static if (!is(MT == void))
-        {
             static assert(allowsAssignmentFrom!MT, "Cannot store a " ~ MT.stringof ~ " in a " ~ name);
-        }
-        if (!ofType!MT) return null;
+        if (!ofType!MT)
+            return null;
         return cast(inout MT*)&_store; // TODO alignment
     }
 
@@ -195,7 +209,8 @@ public:
     @property auto ref inout(T) get(T)() inout @trusted
     {
         version(LDC) pragma(inline, true); // DMD cannot inline
-        if (!ofType!T) throw new AlgebraicException("Algebraic doesn't contain type");
+        if (!ofType!T)
+            throw new AlgebraicException("Algebraic doesn't contain type");
         return as!T;
     }
 
@@ -214,9 +229,7 @@ public:
     private @property auto ref inout(T) as(T)() inout @system nothrow @nogc
     {
         static if (_store.alignof >= T.alignof)
-        {
             return *(cast(T*)&_store);
-        }
         else
         {
             inout(T) result;
@@ -265,9 +278,7 @@ public:
             {
             case i:
                 static if (hasElaborateDestructor!T)
-                {
                     .destroy(*cast(T*)&_store); // reinterpret
-                }
                 return;
             }
             case Ix.max:
@@ -340,15 +351,11 @@ public:
             bool opEquals()(in Algebraic that) const @trusted nothrow @nogc // template-lazy, opEquals is nothrow @nogc
             {
                 if (_tix != that._tix)
-                {
                     return (this.convertTo!CommonType ==
                             that.convertTo!CommonType);
-                }
                 if (!this.hasValue &&
                     !that.hasValue)
-                {
                     return true; // TODO same behaviour as floating point NaN?
-                }
                 final switch (typeIndex)
                 {
                     foreach (const i, T; Types)
@@ -364,15 +371,11 @@ public:
             bool opEquals()(in Algebraic that) const @trusted nothrow // template-lazy
             {
                 if (_tix != that._tix)
-                {
                     return false; // this needs to be nothrow or otherwise x in aa will throw which is not desirable
-                }
 
                 if (!this.hasValue &&
                     !that.hasValue)
-                {
                     return true; // TODO same behaviour as floating point NaN?
-                }
 
                 final switch (typeIndex)
                 {
@@ -395,7 +398,8 @@ public:
                            "Cannot equal any possible type of " ~ Algebraic.stringof ~
                            " with " ~ T.stringof);
 
-            if (!ofType!T) return false; // throw new AlgebraicException("Cannot equal Algebraic with current type " ~ "[Types][typeIndex]" ~ " with different types " ~ "T.stringof");
+            if (!ofType!T)
+                return false; // throw new AlgebraicException("Cannot equal Algebraic with current type " ~ "[Types][typeIndex]" ~ " with different types " ~ "T.stringof");
             return (this.as!T == that);
         }
     }
@@ -417,10 +421,8 @@ public:
             else
             {
                 if (_tix != that._tix)
-                {
                     throw new AlgebraicException("Cannot compare Algebraic of type " ~ typeNamesRT[typeIndex] ~
                                                       " with Algebraic of type " ~ typeNamesRT[that.typeIndex]);
-                }
             }
 
             final switch (typeIndex)
@@ -455,9 +457,7 @@ public:
                 static assert(allowsAssignmentFrom!U, // TODO relax to allowsComparisonWith!U
                               "Cannot compare " ~ Algebraic.stringof ~ " with " ~ U.stringof);
                 if (!ofType!U)
-                {
                     throw new AlgebraicException("Cannot compare " ~ Algebraic.stringof ~ " with " ~ U.stringof);
-                }
                 // TODO functionize to defaultOpCmp to avoid postblits:
                 const a = this.as!U;
                 return a < that ? -1 : a > that ? 1 : 0;
@@ -541,12 +541,10 @@ static class AlgebraicException : Exception
 }
 
 /// Copied from std.variant and adjusted to not use `std.algorithm.max`.
-private static template maxSizeOf(T...)
+private static template maxSizeOf(T...) // TODO can we prevent recursive templates here?
 {
     static if (T.length == 1)
-    {
         enum size_t maxSizeOf = T[0].sizeof;
-    }
     else
     {
         enum size_t firstSize = T[0].sizeof;
@@ -566,18 +564,23 @@ unittest
 pure:
 
 /// equality and comparison
-nothrow @nogc unittest
+@trusted nothrow @nogc unittest
 {
     Algebraic!(float) a, b;
     static assert(a.hasFixedSize);
 
+    dbg(a.as!float);
     a = 1.0f;
+    dbg(a.as!float);
     assert(a._tix != a.Ix.init);
 
+    dbg(b.as!float);
     b = 1.0f;
+    dbg(b.as!float);
     assert(b._tix != b.Ix.init);
 
     assert(a._tix == b._tix);
+    assert((cast(ubyte*)&a)[0 .. a.sizeof] == (cast(ubyte*)&b)[0 .. b.sizeof]);
     assert(a == b);             // TODO this errors with dmd master
 }
 
@@ -865,8 +868,8 @@ unittest
 ///
 nothrow @nogc unittest
 {
-    import nxt.fixed_array : StringN;
-    alias String15 = StringN!(15);
+    import nxt.fixed_array : MutableStringN;
+    alias String15 = MutableStringN!(15);
 
     String15 s;
     String15 t = s;
@@ -900,8 +903,8 @@ nothrow @nogc unittest
 /// check default values
 nothrow @nogc unittest
 {
-    import nxt.fixed_array : StringN;
-    alias String15 = StringN!(15);
+    import nxt.fixed_array : MutableStringN;
+    alias String15 = MutableStringN!(15);
 
     alias V = Algebraic!(String15, string);
     V _;

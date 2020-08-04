@@ -29,8 +29,7 @@ module nxt.variant;
  * See_Also: https://forum.dlang.org/post/tdviqyzrcpttwwnvlzpv@forum.dlang.org
  * See_Also: https://issues.dlang.org/show_bug.cgi?id=15399
  */
-private struct LightAlgebraic(bool memoryPacked = false,
-                              Types...)
+struct Algebraic(Types...)
 {
 @safe:
 
@@ -44,7 +43,7 @@ private struct LightAlgebraic(bool memoryPacked = false,
 
 public:
 
-    enum name = LightAlgebraic.stringof;
+    enum name = Algebraic.stringof;
     alias CommonType = StdCommonType!Types;
     enum hasCommonType = !is(CommonType == void);
 
@@ -57,7 +56,7 @@ public:
 
     immutable static typeNamesRT = [typeNames]; // typeNames accessible at run-time, because `[typeNames]` is not @nogc
 
-    /// Is $(D true) if all $(D Types) stored in this $(D LightAlgebraic) has the same length.
+    /// Is $(D true) if all $(D Types) stored in this $(D Algebraic) has the same length.
     enum hasFixedSize = allSame!typeSizes;
 
     private enum N = typeCount; // useful local shorthand
@@ -92,7 +91,7 @@ public:
     @property void toString()(scope void delegate(scope const(char)[]) sink) const // template-lazy. TODO pure
     {
         import std.conv : to;
-        if (!hasValue) { return sink("<Uninitialized LightAlgebraic>"); }
+        if (!hasValue) { return sink("<Uninitialized Algebraic>"); }
         final switch (typeIndex)
         {
             foreach (const i, T; Types)
@@ -127,7 +126,7 @@ public:
     }
 
     /** Copy construct from `that`. */
-    this()(in LightAlgebraic that) @safe nothrow @nogc
+    this()(in Algebraic that) @safe nothrow @nogc
     {
         _store = that._store;
         _tix = that._tix;
@@ -157,7 +156,7 @@ public:
         _tix = cast(Ix)(indexOf!MT + 1); // set type tag
     }
 
-    LightAlgebraic opAssign(T)(T that) @trusted nothrow @nogc
+    Algebraic opAssign(T)(T that) @trusted nothrow @nogc
     if (allowsAssignmentFrom!T)
     {
         import core.lifetime : moveEmplace;
@@ -176,7 +175,7 @@ public:
         return this;
     }
 
-    /** If the $(D LightAlgebraic) object holds a value of the $(I exact) type $(D T),
+    /** If the $(D Algebraic) object holds a value of the $(I exact) type $(D T),
         returns a pointer to that value. Otherwise, returns $(D null). In cases
         where $(D T) is statically disallowed, $(D peek) will not compile.
     */
@@ -196,7 +195,7 @@ public:
     @property auto ref inout(T) get(T)() inout @trusted
     {
         version(LDC) pragma(inline, true); // DMD cannot inline
-        if (!ofType!T) throw new LightAlgebraicException("LightAlgebraic doesn't contain type");
+        if (!ofType!T) throw new AlgebraicException("Algebraic doesn't contain type");
         return as!T;
     }
 
@@ -226,7 +225,7 @@ public:
         }
     }
 
-    /// Returns: $(D true) iff $(D this) $(D LightAlgebraic) can store an instance of $(D T).
+    /// Returns: $(D true) iff $(D this) $(D Algebraic) can store an instance of $(D T).
     bool ofType(T)() const @safe nothrow @nogc // TODO shorter name such `isA`, `ofType`
     {
         pragma(inline, true);
@@ -338,7 +337,7 @@ public:
     {
         static if (hasCommonType)
         {
-            bool opEquals()(in LightAlgebraic that) const @trusted nothrow @nogc // template-lazy, opEquals is nothrow @nogc
+            bool opEquals()(in Algebraic that) const @trusted nothrow @nogc // template-lazy, opEquals is nothrow @nogc
             {
                 if (_tix != that._tix)
                 {
@@ -362,7 +361,7 @@ public:
         }
         else
         {
-            bool opEquals()(in LightAlgebraic that) const @trusted nothrow // template-lazy
+            bool opEquals()(in Algebraic that) const @trusted nothrow // template-lazy
             {
                 if (_tix != that._tix)
                 {
@@ -393,17 +392,17 @@ public:
         {
             // TODO assert failure only if none of the Types isComparable to T
             static assert (allowsAssignmentFrom!T,
-                           "Cannot equal any possible type of " ~ LightAlgebraic.stringof ~
+                           "Cannot equal any possible type of " ~ Algebraic.stringof ~
                            " with " ~ T.stringof);
 
-            if (!ofType!T) return false; // throw new LightAlgebraicException("Cannot equal LightAlgebraic with current type " ~ "[Types][typeIndex]" ~ " with different types " ~ "T.stringof");
+            if (!ofType!T) return false; // throw new AlgebraicException("Cannot equal Algebraic with current type " ~ "[Types][typeIndex]" ~ " with different types " ~ "T.stringof");
             return (this.as!T == that);
         }
     }
 
     static if (allSatisfy!(isComparable, Types))
     {
-        int opCmp()(in LightAlgebraic that) const @trusted // template-lazy, TODO extend to LightAlgebraic!(ThatTypes)
+        int opCmp()(in Algebraic that) const @trusted // template-lazy, TODO extend to Algebraic!(ThatTypes)
         {
             static if (hasCommonType) // TODO extend to haveCommonType!(Types, ThatTypes)
             {
@@ -419,8 +418,8 @@ public:
             {
                 if (_tix != that._tix)
                 {
-                    throw new LightAlgebraicException("Cannot compare LightAlgebraic of type " ~ typeNamesRT[typeIndex] ~
-                                                      " with LightAlgebraic of type " ~ typeNamesRT[that.typeIndex]);
+                    throw new AlgebraicException("Cannot compare Algebraic of type " ~ typeNamesRT[typeIndex] ~
+                                                      " with Algebraic of type " ~ typeNamesRT[that.typeIndex]);
                 }
             }
 
@@ -454,10 +453,10 @@ public:
             else
             {
                 static assert(allowsAssignmentFrom!U, // TODO relax to allowsComparisonWith!U
-                              "Cannot compare " ~ LightAlgebraic.stringof ~ " with " ~ U.stringof);
+                              "Cannot compare " ~ Algebraic.stringof ~ " with " ~ U.stringof);
                 if (!ofType!U)
                 {
-                    throw new LightAlgebraicException("Cannot compare " ~ LightAlgebraic.stringof ~ " with " ~ U.stringof);
+                    throw new AlgebraicException("Cannot compare " ~ Algebraic.stringof ~ " with " ~ U.stringof);
                 }
                 // TODO functionize to defaultOpCmp to avoid postblits:
                 const a = this.as!U;
@@ -506,35 +505,19 @@ public:
     }
 
 private:
-    static if (memoryPacked)
+    // immutable to make hasAliasing!(Algebraic!(...)) false
+    union
     {
-        // immutable to make hasAliasing!(LightAlgebraic!(...)) false
         static if (mayHaveAliasing)
         {
             ubyte[dataMaxSize] _store;
+            void* alignDummy; // non-packed means good alignment. TODO check for maximum alignof of Types
         }
         else
         {
             // to please hasAliasing!(typeof(this)):
             immutable(ubyte)[dataMaxSize] _store;
-        }
-    }
-    else
-    {
-        // immutable to make hasAliasing!(LightAlgebraic!(...)) false
-        union
-        {
-            static if (mayHaveAliasing)
-            {
-                ubyte[dataMaxSize] _store;
-                void* alignDummy; // non-packed means good alignment. TODO check for maximum alignof of Types
-            }
-            else
-            {
-                // to please hasAliasing!(typeof(this)):
-                immutable(ubyte)[dataMaxSize] _store;
-                immutable(void)* alignDummy; // non-packed means good alignment. TODO check for maximum alignof of Types
-            }
+            immutable(void)* alignDummy; // non-packed means good alignment. TODO check for maximum alignof of Types
         }
     }
 
@@ -548,17 +531,8 @@ private:
     Ix _tix = 0;                // type index
 }
 
-/// Algebraic type speed-optimized for fast access.
-alias FastAlgebraic(Types...) = LightAlgebraic!(false, Types);
-
-/// Default Algebraic type.
-alias Algebraic = FastAlgebraic;
-
-/// Algebraic type space-optimized for small size.
-alias PackedAlgebraic(Types...) = LightAlgebraic!(true, Types);
-
 /// Algebraic type exception.
-static class LightAlgebraicException : Exception
+static class AlgebraicException : Exception
 {
     this(string s) pure @nogc
     {
@@ -583,7 +557,7 @@ private static template maxSizeOf(T...)
 
 unittest
 {
-    // FastAlgebraic!(float, double, bool) a;
+    // Algebraic!(float, double, bool) a;
     // a = 2.1;  assert(a.to!string == "2.1");  assert(a.toHTML == "<dlang-double>2.1</dlang-double>");
     // a = 2.1f; assert(a.to!string == "2.1");  assert(a.toHTML == "<dlang-float>2.1</dlang-float>");
     // a = true; assert(a.to!string == "true"); assert(a.toHTML == "<dlang-bool>true</dlang-bool>");
@@ -594,7 +568,7 @@ pure:
 /// equality and comparison
 nothrow @nogc unittest
 {
-    PackedAlgebraic!(float) a, b;
+    Algebraic!(float) a, b;
     static assert(a.hasFixedSize);
 
     a = 1.0f;
@@ -610,7 +584,7 @@ nothrow @nogc unittest
 ///
 nothrow @nogc unittest
 {
-    alias C = FastAlgebraic!(float, double);
+    alias C = Algebraic!(float, double);
     C a = 1.0;
     const C b = 2.0;
     const C c = 2.0f;
@@ -642,15 +616,15 @@ nothrow @nogc unittest
 nothrow @nogc unittest
 {
     import std.traits : hasAliasing;
-    static assert(!hasAliasing!(FastAlgebraic!(long, double)));
-    static assert(!hasAliasing!(FastAlgebraic!(long, string)));
-    static assert(!hasAliasing!(FastAlgebraic!(long, immutable(double)*)));
-    static assert(hasAliasing!(FastAlgebraic!(long, double*)));
+    static assert(!hasAliasing!(Algebraic!(long, double)));
+    static assert(!hasAliasing!(Algebraic!(long, string)));
+    static assert(!hasAliasing!(Algebraic!(long, immutable(double)*)));
+    static assert(hasAliasing!(Algebraic!(long, double*)));
 }
 
 nothrow @nogc unittest
 {
-    alias V = FastAlgebraic!(long, double);
+    alias V = Algebraic!(long, double);
     const a = V(1.0);
 
     static assert(a.hasFixedSize);
@@ -666,7 +640,7 @@ nothrow @nogc unittest
 /// equality and comparison
 nothrow @nogc unittest
 {
-    FastAlgebraic!(int) a, b;
+    Algebraic!(int) a, b;
     static assert(a.hasFixedSize);
     a = 1;
     b = 1;
@@ -676,7 +650,7 @@ nothrow @nogc unittest
 /// equality and comparison
 nothrow @nogc unittest
 {
-    FastAlgebraic!(float) a, b;
+    Algebraic!(float) a, b;
     static assert(a.hasFixedSize);
     a = 1.0f;
     b = 1.0f;
@@ -686,7 +660,7 @@ nothrow @nogc unittest
 /// equality and comparison
 /*TODO @nogc*/ unittest
 {
-    FastAlgebraic!(float, double, string) a, b;
+    Algebraic!(float, double, string) a, b;
 
     static assert(!a.hasFixedSize);
 
@@ -714,7 +688,7 @@ nothrow @nogc unittest
 /// AA keys
 nothrow unittest
 {
-    alias C = FastAlgebraic!(float, double);
+    alias C = Algebraic!(float, double);
     static assert(!C.hasFixedSize);
     string[C] a;
     a[C(1.0f)] = "1.0f";
@@ -726,7 +700,7 @@ nothrow unittest
 /// verify nothrow comparisons
 nothrow @nogc unittest
 {
-    alias C = FastAlgebraic!(int, float, double);
+    alias C = Algebraic!(int, float, double);
     static assert(!C.hasFixedSize);
     assert(C(1.0) < 2);
     assert(C(1.0) < 2.0);
@@ -738,8 +712,8 @@ nothrow @nogc unittest
 /// TODO
 nothrow @nogc unittest
 {
-    // alias C = FastAlgebraic!(int, float, double);
-    // alias D = FastAlgebraic!(float, double);
+    // alias C = Algebraic!(int, float, double);
+    // alias D = Algebraic!(float, double);
     // assert(C(1) < D(2.0));
     // assert(C(1) < D(1.0));
     // static assert(!__traits(compiles, { C(1.0) < "a"; })); // cannot compare with string
@@ -748,7 +722,7 @@ nothrow @nogc unittest
 /// if types have CommonType comparison is nothrow @nogc
 nothrow @nogc unittest
 {
-    alias C = FastAlgebraic!(short, int, long, float, double);
+    alias C = Algebraic!(short, int, long, float, double);
     static assert(!C.hasFixedSize);
     assert(C(1) != C(2.0));
     assert(C(1) == C(1.0));
@@ -757,7 +731,7 @@ nothrow @nogc unittest
 /// if types have `CommonType` then comparison is `nothrow @nogc`
 nothrow @nogc unittest
 {
-    alias C = FastAlgebraic!(short, int, long, float, double);
+    alias C = Algebraic!(short, int, long, float, double);
     static assert(!C.hasFixedSize);
     assert(C(1) != C(2.0));
     assert(C(1) == C(1.0));
@@ -765,7 +739,7 @@ nothrow @nogc unittest
 
 nothrow @nogc unittest
 {
-    alias C = FastAlgebraic!(int, string);
+    alias C = Algebraic!(int, string);
     static assert(!C.hasFixedSize);
     C x;
     x = 42;
@@ -773,7 +747,7 @@ nothrow @nogc unittest
 
 nothrow @nogc unittest
 {
-    alias C = FastAlgebraic!(int);
+    alias C = Algebraic!(int);
     static assert(C.hasFixedSize);
     C x;
     x = 42;
@@ -788,13 +762,13 @@ unittest
     static assert(hasElaborateCopyConstructor!(char[2]) == false);
     static assert(hasElaborateCopyConstructor!(char[]) == false);
 
-    // static assert(FastAlgebraic!(char, wchar).sizeof == 2 + 1);
-    // static assert(FastAlgebraic!(wchar, dchar).sizeof == 4 + 1);
-    // static assert(FastAlgebraic!(long, double).sizeof == 8 + 1);
-    // static assert(FastAlgebraic!(int, float).sizeof == 4 + 1);
-    // static assert(FastAlgebraic!(char[2], wchar[2]).sizeof == 2 * 2 + 1);
+    // static assert(Algebraic!(char, wchar).sizeof == 2 + 1);
+    // static assert(Algebraic!(wchar, dchar).sizeof == 4 + 1);
+    // static assert(Algebraic!(long, double).sizeof == 8 + 1);
+    // static assert(Algebraic!(int, float).sizeof == 4 + 1);
+    // static assert(Algebraic!(char[2], wchar[2]).sizeof == 2 * 2 + 1);
 
-    alias C = FastAlgebraic!(string,
+    alias C = Algebraic!(string,
                         // fixed length strings: small string optimizations (SSOs)
                         int, float,
                         long, double);
@@ -819,7 +793,7 @@ unittest
     // TODO Allow this d = cast(ubyte)255;
 
     d = 1.0f;
-    assertThrown!LightAlgebraicException(d.get!double);
+    assertThrown!AlgebraicException(d.get!double);
     assert(d.hasValue);
     assert(d.ofType!float);
     assert(d.peek!float !is null);
@@ -830,8 +804,8 @@ unittest
     assert(d != 2.0f);
     assert(d < 2.0f);
     assert(d != "2.0f");
-    assertThrown!LightAlgebraicException(d < 2.0);
-    assertThrown!LightAlgebraicException(d < "2.0");
+    assertThrown!AlgebraicException(d < 2.0);
+    assertThrown!AlgebraicException(d < "2.0");
     assert(d.currentSize == float.sizeof);
 
     d = 2;
@@ -843,8 +817,8 @@ unittest
     assert(d == 2);
     assert(d != 3);
     assert(d < 3);
-    assertThrown!LightAlgebraicException(d < 2.0f);
-    assertThrown!LightAlgebraicException(d < "2.0");
+    assertThrown!AlgebraicException(d < 2.0f);
+    assertThrown!AlgebraicException(d < "2.0");
     assert(d.currentSize == int.sizeof);
 
     d = "abc";
@@ -856,8 +830,8 @@ unittest
     assert(d == "abc");
     assert(d != "abcd");
     assert(d < "abcd");
-    assertThrown!LightAlgebraicException(d < 2.0f);
-    assertThrown!LightAlgebraicException(d < 2.0);
+    assertThrown!AlgebraicException(d < 2.0f);
+    assertThrown!AlgebraicException(d < 2.0);
     assert(d.currentSize == string.sizeof);
 
     d = 2.0;
@@ -868,8 +842,8 @@ unittest
     assert(d == 2.0);
     assert(d != 3.0);
     assert(d < 3.0);
-    assertThrown!LightAlgebraicException(d < 2.0f);
-    assertThrown!LightAlgebraicException(d < "2.0");
+    assertThrown!AlgebraicException(d < 2.0f);
+    assertThrown!AlgebraicException(d < "2.0");
     assert(d.currentSize == double.sizeof);
 
     d.clear();
@@ -884,8 +858,8 @@ unittest
     assert(C(1.0f) <  C(2.0f));
     assert(C(2.0f) >  C(1.0f));
 
-    assertThrown!LightAlgebraicException(C(1.0f) <  C(1.0));
-    // assertThrown!LightAlgebraicException(C(1.0f) == C(1.0));
+    assertThrown!AlgebraicException(C(1.0f) <  C(1.0));
+    // assertThrown!AlgebraicException(C(1.0f) == C(1.0));
 }
 
 ///
@@ -898,7 +872,7 @@ nothrow @nogc unittest
     String15 t = s;
     assert(t == s);
 
-    alias V = FastAlgebraic!(String15, string);
+    alias V = Algebraic!(String15, string);
     V v = String15("first");
     assert(v.peek!String15);
     assert(!v.peek!string);
@@ -929,7 +903,7 @@ nothrow @nogc unittest
     import nxt.fixed_array : StringN;
     alias String15 = StringN!(15);
 
-    alias V = FastAlgebraic!(String15, string);
+    alias V = Algebraic!(String15, string);
     V _;
     assert(_._tix == V.Ix.init);
     assert(V.init._tix == V.Ix.init);

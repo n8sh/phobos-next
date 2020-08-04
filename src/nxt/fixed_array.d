@@ -23,7 +23,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     import std.bitmanip : bitfields;
     import std.traits : isSomeChar, isAssignable;
     import core.internal.traits : hasElaborateDestructor;
-    import nxt.container_traits : isAddress;
+    import nxt.container_traits : mustAddGCRange;
 
     alias capacity = capacity_; // for public use
 

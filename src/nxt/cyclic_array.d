@@ -5,7 +5,7 @@ import std.algorithm : max;
 import std.container.array : Array;
 import std.range;
 import std.traits : isMutable;
-import nxt.container_traits : isAddress;
+import nxt.container_traits : mustAddGCRange;
 
 private mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast() this) copy;")
 {
@@ -78,13 +78,9 @@ private mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast()
         if (size == 0)
             throw staticError!CyclicRangeError("trying to pop an empty array", __FILE__, __LINE__);
         static if (hasElaborateDestructor!T)
-        {
             destroy(array[start]);
-        }
-        else static if (isAddress!T)
-        {
-            array[start] = null; // please the GC
-        }
+        else static if (mustAddGCRange!T)
+            array[start] = T.init; // avoid GC mark-phase dereference
         start = (start + 1) % array.length;
         size--;
     }
@@ -113,13 +109,9 @@ private mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast()
             throw staticError!CyclicRangeError("trying to pop an empty array", __FILE__, __LINE__);
         size--;
         static if (hasElaborateDestructor!T)
-        {
             destroy(array[(start + size) % array.length]);
-        }
-        else static if (isAddress!T)
-        {
-            array[(start + size) % array.length] = null; // please the GC
-        }
+        else static if (mustAddGCRange!T)
+            array[(start + size) % array.length] = T.init; // avoid GC mark-phase dereference
     }
 
     ref auto back() @property
@@ -509,26 +501,16 @@ public:
         if (val > size)
         {
             foreach (const i; size .. val)
-            {
                 array[(start + i) % array.length] = T.init;
-            }
         }
         else if (val < size)
         {
             static if (hasElaborateDestructor!T)
-            {
                 foreach (const i; val .. size)
-                {
                     destroy(array[(start + i) % array.length]);
-                }
-            }
-            else static if (isAddress!T)
-            {
+            else static if (mustAddGCRange!T)
                 foreach (const i; val .. size)
-                {
-                    array[(start + i) % array.length] = null; // please the GC
-                }
-            }
+                    array[(start + i) % array.length] = T.init; // avoid GC mark-phase dereference
         }
         return size = val;
     }

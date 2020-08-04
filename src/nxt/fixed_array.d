@@ -215,7 +215,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     }
 
     /** Pop last (back) element. */
-    void popBack()()            // template-lazy
+    void popBack()() @trusted   // template-lazy
     {
         assert(!empty);
         static if (borrowChecked) { assert(!isBorrowed); }
@@ -227,7 +227,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     }
 
     /** Pop the `n` last (back) elements. */
-    void popBackN()(size_t n)   // template-lazy
+    void popBackN()(size_t n) @trusted // template-lazy
     {
         assert(length >= n);
         static if (borrowChecked) { assert(!isBorrowed); }

@@ -13,6 +13,10 @@ public import nxt.gc_traits;
 /** True if a `T` needs to be passed by move instead of value either because it
  * cannot be copied or because it has an elaborate destructor.
  */
+enum bool needsMove(T) = (!__traits(isCopyable, T) ||
+                          !__traits(isPOD, T)); // implies `hasElaborateAssign!T || hasElaborateDestructor!T`
+
+version(none)
 template needsMove(T)
 {
     static if (!__traits(isCopyable, T)) // needs move
@@ -24,6 +28,18 @@ template needsMove(T)
         import core.internal.traits : hasElaborateDestructor;
         enum needsMove = hasElaborateDestructor!T;
     }
+}
+
+///
+@safe pure unittest
+{
+    static assert(!needsMove!char);
+    static assert(!needsMove!int);
+    static assert(!needsMove!string);
+    static assert(!needsMove!(int[]));
+
+    struct SomeUncopyable { @disable this(this); }
+    static assert(needsMove!SomeUncopyable);
 }
 
 // TODO this can be simplified for faster compilation

@@ -93,18 +93,12 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     this(Us...)(Us values) @trusted
     if (Us.length <= capacity)
     {
+        import nxt.container_traits : needsMove;
         foreach (immutable ix, ref value; values)
-        {
-            import nxt.container_traits : needsMove;
             static if (needsMove!(typeof(value)))
-            {
                 moveEmplace(value, _store[ix]);
-            }
             else
-            {
                 _store[ix] = value;
-            }
-        }
         _length = cast(Length)values.length;
         static if (borrowChecked)
         {
@@ -157,12 +151,8 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
         {
             static if (borrowChecked) { assert(!isBorrowed); }
             static if (hasElaborateDestructor!T)
-            {
                 foreach (immutable i; 0 .. length)
-                {
                     .destroy(_store.ptr[i]);
-                }
-            }
         }
     }
 
@@ -175,9 +165,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     {
         version(assert) if (_length + Es.length > capacity) onRangeError(); // `Arguments don't fit in array`
         foreach (immutable i, ref e; es)
-        {
             moveEmplace(e, _store[_length + i]); // TODO remove `move` when compiler does it for us
-        }
         _length = cast(Length)(_length + Es.length); // TODO better?
     }
     /// ditto
@@ -192,9 +180,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     {
         if (_length + Es.length > capacity) { return false; }
         foreach (immutable i, ref e; es)
-        {
             moveEmplace(e, _store[_length + i]); // TODO remove `move` when compiler does it for us
-        }
         _length = cast(Length)(_length + Es.length); // TODO better?
         return true;
     }
@@ -222,9 +208,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
             static if (borrowChecked) { assert(!isBorrowed); }
             // TODO is there a reusable Phobos function for this?
             foreach (immutable i; 0 .. _length - 1)
-            {
                 move(_store[i + 1], _store[i]); // like `_store[i] = _store[i + 1];` but more generic
-            }
             _length = cast(typeof(_length))(_length - 1); // TODO better?
             return this;
         }
@@ -237,13 +221,9 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
         static if (borrowChecked) { assert(!isBorrowed); }
         _length = cast(Length)(_length - 1); // TODO better?
         static if (hasElaborateDestructor!T)
-        {
             .destroy(_store.ptr[_length]);
-        }
-        else static if (isAddress!T)
-        {
-            _store.ptr[_length] = null; // please the GC
-        }
+        else static if (mustAddGCRange!T)
+            _store.ptr[_length] = T.init; // avoid GC mark-phase dereference
     }
 
     /** Pop the `n` last (back) elements. */
@@ -255,16 +235,12 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
         static if (hasElaborateDestructor!T)
         {
             foreach (i; 0 .. n)
-            {
                 .destroy(_store.ptr[_length + i]);
-            }
         }
-        else static if (isAddress!T) // please the GC
+        else static if (mustAddGCRange!T) // avoid GC mark-phase dereference
         {
             foreach (const i; 0 .. n)
-            {
-                _store.ptr[_length + i] = null;
-            }
+                _store.ptr[_length + i] = T.init;
         }
     }
 

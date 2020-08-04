@@ -40,6 +40,9 @@ template needsMove(T)
 
     struct SomeUncopyable { @disable this(this); }
     static assert(needsMove!SomeUncopyable);
+
+    struct WithDtor { ~this() {} }
+    static assert(needsMove!WithDtor);
 }
 
 // TODO this can be simplified for faster compilation

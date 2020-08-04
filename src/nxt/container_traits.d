@@ -53,30 +53,20 @@ template ContainerElementType(ContainerType,
             static if (isConst)
             {
                 static if (PointerIsConst)
-                {
                     alias ET = ElementType;
-                }
                 else static if (PointerIsImmutable)
-                {
                     alias ET = ElementType;
-                }
                 else
-                {
                     alias ET = const(PointerTarget!ElementType)*;
-                }
             }
             else
             {
                 static assert(DataIsImmutable,
                               "An immutable container cannot reference const or mutable data");
                 static if (PointerIsConst)
-                {
                     alias ET = immutable(PointerTarget!ElementType)*;
-                }
                 else
-                {
                     alias ET = ElementType;
-                }
             }
         }
         else
@@ -84,35 +74,23 @@ template ContainerElementType(ContainerType,
             static if (isConst)
             {
                 static if (is(ElementType == immutable))
-                {
                     alias ET = ElementType;
-                }
                 else
-                {
                     alias ET = const(Unqual!ElementType);
-                }
             }
             else
-            {
                 alias ET = immutable(Unqual!ElementType);
-            }
         }
     }
 
     static if (isMutable!ContainerType)
-    {
         alias ContainerElementType = ElementType;
-    }
     else
     {
         static if (hasIndirections!ElementType)
-        {
             alias ContainerElementType = ET!(is(ContainerType == const), ElementType);
-        }
         else
-        {
             alias ContainerElementType = ElementType;
-        }
     }
 }
 
@@ -182,9 +160,7 @@ template hasElaborateDestructorNew(S)
                is(S == class)) // check also class
     {
         static if (__traits(hasMember, S, "__dtor"))
-        {
             enum bool hasElaborateDestructorNew = true;
-        }
         else
         {
             import std.traits : FieldTypeTuple;
@@ -196,13 +172,9 @@ template hasElaborateDestructorNew(S)
     {
         import std.traits : isStaticArray;
         static if (isStaticArray!S && S.length)
-        {
             enum bool hasElaborateDestructorNew = hasElaborateDestructorNew!(typeof(S.init[0]));
-        }
         else
-        {
             enum bool hasElaborateDestructorNew = false;
-        }
     }
 }
 
@@ -210,9 +182,7 @@ template hasElaborateDestructorNew(S)
 template isAddress(T)
 {
     static if (is(T == class))
-    {
         enum isAddress = true;  // a class is memory-wise just a pointer
-    }
     else
     {
         import std.traits : isPointer;

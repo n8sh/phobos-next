@@ -233,15 +233,11 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
         static if (borrowChecked) { assert(!isBorrowed); }
         _length = cast(Length)(_length - n); // TODO better?
         static if (hasElaborateDestructor!T)
-        {
-            foreach (i; 0 .. n)
+            foreach (const i; 0 .. n)
                 .destroy(_store.ptr[_length + i]);
-        }
         else static if (mustAddGCRange!T) // avoid GC mark-phase dereference
-        {
             foreach (const i; 0 .. n)
                 _store.ptr[_length + i] = T.init;
-        }
     }
 
     /** Move element at `index` to return. */

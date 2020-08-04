@@ -12,23 +12,13 @@ public import nxt.gc_traits;
 
 /** True if a `T` needs to be passed by move instead of value either because it
  * cannot be copied or because it has an elaborate destructor.
+ *
+ * Note that `__traits(isPOD, T)` implies
+ * `core.internal.traits.hasElaborateAssign!T ||
+ *  core.internal.traits.hasElaborateDestructor!T`.
  */
 enum bool needsMove(T) = (!__traits(isCopyable, T) ||
-                          !__traits(isPOD, T)); // implies `hasElaborateAssign!T || hasElaborateDestructor!T`
-
-version(none)
-template needsMove(T)
-{
-    static if (!__traits(isCopyable, T)) // needs move
-    {
-        enum needsMove = true;
-    }
-    else                        // should be moved
-    {
-        import core.internal.traits : hasElaborateDestructor;
-        enum needsMove = hasElaborateDestructor!T;
-    }
-}
+                          !__traits(isPOD, T));
 
 ///
 @safe pure unittest

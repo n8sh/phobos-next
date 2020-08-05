@@ -18,11 +18,13 @@ C leakClass() @safe pure nothrow
     return x;                   // Error: scope variable `x` may not be returned
 }
 
+///
 @safe pure nothrow unittest
 {
     auto x = leakClass();
 }
 
+///
 @trusted unittest
 {
     C f()

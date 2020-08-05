@@ -38,6 +38,7 @@ private:
                    string) _store;
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     StringStore ss;

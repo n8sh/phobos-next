@@ -1737,6 +1737,7 @@ if (isDynamicArray!R)
     return r;
 }
 
+///
 @safe pure nothrow unittest
 {
     immutable capacity = 10;
@@ -1789,6 +1790,7 @@ alias CopyingWString(bool useGCAllocation = false) = Array!(wchar, Assignment.co
 alias UniqueDString(bool useGCAllocation = false) = Array!(dchar, Assignment.disabled, Ordering.unsorted, useGCAllocation, size_t, "a < b");
 alias CopyingDString(bool useGCAllocation = false) = Array!(dchar, Assignment.copy, Ordering.unsorted, useGCAllocation, size_t, "a < b");
 
+///
 @safe pure unittest
 {
     auto c = UniqueString!false();
@@ -1796,6 +1798,7 @@ alias CopyingDString(bool useGCAllocation = false) = Array!(dchar, Assignment.co
     auto d = UniqueDString!false();
 }
 
+///
 @safe pure unittest
 {
     auto c = CopyingString!false();
@@ -1803,6 +1806,7 @@ alias CopyingDString(bool useGCAllocation = false) = Array!(dchar, Assignment.co
     auto d = CopyingDString!false();
 }
 
+///
 @safe pure unittest
 {
     import std.conv : to;
@@ -2330,6 +2334,7 @@ pure nothrow /+TODO @nogc+/ unittest
     }
 }
 
+///
 @safe pure nothrow unittest
 {
     alias E = int;

@@ -398,6 +398,7 @@ void generate(ref FibonacciHeap!int h) @safe pure nothrow
     h.decreaseKey(h.find(23), 3);
 }
 
+///
 @safe pure nothrow unittest
 {
     FibonacciHeap!int h;
@@ -424,6 +425,7 @@ void generate(ref FibonacciHeap!int h) @safe pure nothrow
     generate(h);
 }
 
+///
 @safe unittest
 {
     FibonacciHeap!int h;

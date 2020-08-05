@@ -619,7 +619,8 @@ if (isNullable!K /*&& !hasAliasing!K */)
     /// Equality.
     bool opEquals()(const scope auto ref typeof(this) rhs) const
     {
-        if (_count != rhs._count) { return false; } // quick discardal
+        if (_count != rhs._count)
+            return false;       // quick discardal
 
         foreach (immutable index, const ref bin; _store)
             if (isOccupiedAtIndex(index))

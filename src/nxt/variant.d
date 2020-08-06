@@ -543,18 +543,24 @@ static class AlgebraicException : Exception
 
 /** Copied from std.variant and adjusted to not use `std.algorithm.max`.
  *
- * See_Also: https://forum.dlang.org/post/wbpnncxepehgcswhuazl@forum.dlang.org
+ * See_Also: https://forum.dlang.org/post/hzpuiyxrrfasfuktpgqn@forum.dlang.org
  */
 private static template maxSizeOf(T...) // TODO can we prevent recursive templates here?
 {
-    static if (T.length == 1)
-        enum size_t maxSizeOf = T[0].sizeof;
-    else
-    {
-        enum size_t firstSize = T[0].sizeof;
-        enum size_t maxSizeRest = maxSizeOf!(T[1 .. $]);
-        enum size_t maxSizeOf = firstSize >= maxSizeRest ? firstSize : maxSizeRest;
-    }
+    align(1) union Impl { T t; }
+ 	enum maxSizeOf = Impl.sizeof;
+}
+
+///
+@safe pure unittest
+{
+    static assert(maxSizeOf!(char) == 1);
+    static assert(maxSizeOf!(byte) == 1);
+    static assert(maxSizeOf!(byte, short) == 2);
+    static assert(maxSizeOf!(short, byte) == 2);
+    static assert(maxSizeOf!(byte, short, int) == 4);
+    static assert(maxSizeOf!(byte, short, int, long) == 8);
+    static assert(maxSizeOf!(byte, short, int, string) == 16);
 }
 
 unittest

@@ -9,6 +9,6 @@
         bool get() { return _x; }
         bool _x;
     }
-    Name x;
-    assert(x.get == false);
+    Name n;
+    bool x = n.get;
 }

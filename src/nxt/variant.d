@@ -545,7 +545,7 @@ static class AlgebraicException : Exception
  *
  * See_Also: https://forum.dlang.org/post/hzpuiyxrrfasfuktpgqn@forum.dlang.org
  */
-private static template maxSizeOf(T...) // TODO can we prevent recursive templates here?
+private static template maxSizeOf(T...)
 {
     align(1) union Impl { T t; }
  	enum maxSizeOf = Impl.sizeof;

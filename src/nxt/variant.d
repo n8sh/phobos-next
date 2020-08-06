@@ -1,6 +1,6 @@
 module nxt.variant;
 
-version(none):                  // TODO activate
+// version(none):                  // TODO activate
 
 import nxt.dbgio : dbg;
 
@@ -508,6 +508,7 @@ private:
     // immutable to make hasAliasing!(Algebraic!(...)) false
     union
     {
+        //align(8):
         static if (mayHaveAliasing)
         {
             ubyte[dataMaxSize] _store;
@@ -540,7 +541,10 @@ static class AlgebraicException : Exception
     }
 }
 
-/// Copied from std.variant and adjusted to not use `std.algorithm.max`.
+/** Copied from std.variant and adjusted to not use `std.algorithm.max`.
+ *
+ * See_Also: https://forum.dlang.org/post/wbpnncxepehgcswhuazl@forum.dlang.org
+ */
 private static template maxSizeOf(T...) // TODO can we prevent recursive templates here?
 {
     static if (T.length == 1)

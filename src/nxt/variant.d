@@ -541,7 +541,9 @@ static class AlgebraicException : Exception
     }
 }
 
-/** Copied from `std.variant` and adjusted to not use `std.algorithm.max`.
+/** Get maximum size of types `T`.
+ *
+ * Implementation in `std.variant` uses recursion.
  *
  * See_Also: https://forum.dlang.org/post/hzpuiyxrrfasfuktpgqn@forum.dlang.org
  */
@@ -549,6 +551,18 @@ private static template maxSizeOf(T...)
 {
     align(1) union Impl { T t; }
  	enum maxSizeOf = Impl.sizeof;
+}
+
+version(none)                 // alternative implementation that supports `void`
+private static template maxSizeOf(Ts...)
+{
+	align(1) union Impl {
+		static foreach (i, T; Ts) {
+			static if (!is(T == void))
+                mixin("T _field_" ~ i.stringof ~ ";");
+		}
+	}
+	enum maxSizeOf = Impl.sizeof;
 }
 
 ///

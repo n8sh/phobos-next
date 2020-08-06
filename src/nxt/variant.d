@@ -1,6 +1,6 @@
 module nxt.variant;
 
-// version(none):                  // TODO activate
+version(none):                  // TODO activate
 
 import nxt.dbgio : dbg;
 

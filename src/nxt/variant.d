@@ -541,7 +541,7 @@ static class AlgebraicException : Exception
     }
 }
 
-/** Copied from std.variant and adjusted to not use `std.algorithm.max`.
+/** Copied from `std.variant` and adjusted to not use `std.algorithm.max`.
  *
  * See_Also: https://forum.dlang.org/post/hzpuiyxrrfasfuktpgqn@forum.dlang.org
  */

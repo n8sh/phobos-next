@@ -40,7 +40,7 @@ struct Algebraic(Types...)
     alias Ix = ubyte; // type index type. TODO use uint or size_t when there is room (depending on `memoryPacked`)
     enum maxTypesCount = 2^^(Ix.sizeof * 8) - 1; // maximum number of allowed type parameters
 
-    import core.internal.traits : Unqual;
+    import core.internal.traits : Unqual; // TODO remove by using Andreis trick with `immutable` qualifier
     import std.meta : anySatisfy, allSatisfy, staticIndexOf;
     import std.traits : StdCommonType = CommonType, hasIndirections, hasAliasing;
     import nxt.traits_ex : isComparable, isEquable, sizesOf, stringsOf, allSame;

@@ -1,15 +1,21 @@
-class Name
+class A
 {
 @safe pure:
-    this()
-    {
-    }
+    this() {}
     bool get() { return _x; }
+    bool _x;
+}
+
+class B : A
+{
+@safe pure:
+    this() {}
+    override bool get() { return _x; }
     bool _x;
 }
 
 @safe pure unittest
 {
-    Name n;
-    bool x = n.get();           // dmd.func.resolveFuncCall
+    A a;
+    B b = a;
 }

@@ -111,7 +111,7 @@ void benchmark()
         {
             static foreach (j; 0 .. m)
             {
-                static assert(maxSizeOf!(T));
+                static assert(maxSizeOf!(T) != 0);
             }
         }
     }

@@ -79,6 +79,8 @@ public:
                                           ((!hasIndirections!U) && // no indirections and
                                            indexOf!(Unqual!U) >= 0))); // ok to remove constness of value types
 
+    import nxt.maxsize_trait : maxSizeOf;
+
     enum dataMaxSize = maxSizeOf!Types;
 
     auto ref to(U)() const // TODO pure @nogc
@@ -539,55 +541,6 @@ static class AlgebraicException : Exception
     {
         super(s);
     }
-}
-
-/** Get maximum size of types `T`.
- *
- * Implementation in `std.variant` uses recursion.
- *
- * See_Also: https://forum.dlang.org/post/hzpuiyxrrfasfuktpgqn@forum.dlang.org
- */
-private static template maxSizeOf(T...)
-{
-    align(1) union Impl { T t; }
- 	enum maxSizeOf = Impl.sizeof;
-}
-
-///
-@safe pure unittest
-{
-    static assert(maxSizeOf!(char) == 1);
-    static assert(maxSizeOf!(byte) == 1);
-    static assert(maxSizeOf!(byte, short) == 2);
-    static assert(maxSizeOf!(short, byte) == 2);
-    static assert(maxSizeOf!(byte, short, int) == 4);
-    static assert(maxSizeOf!(byte, short, int, long) == 8);
-    static assert(maxSizeOf!(byte, short, int, string) == 16);
-    // static assert(maxSizeOf!(1, void) == 2);
-}
-
-// alternative implementation that supports `void`
-private static template maxSizeOf_1(Ts...)
-{
-	align(1) union Impl {
-		static foreach (i, T; Ts) {
-			static if (!is(T == void))
-                mixin("T _field_" ~ i.stringof ~ ";");
-		}
-	}
-	enum maxSizeOf_1 = Impl.sizeof;
-}
-
-///
-@safe pure unittest
-{
-    static assert(maxSizeOf_1!(char) == 1);
-    static assert(maxSizeOf_1!(byte) == 1);
-    static assert(maxSizeOf_1!(byte, short) == 2);
-    static assert(maxSizeOf_1!(short, byte) == 2);
-    static assert(maxSizeOf_1!(byte, short, int) == 4);
-    static assert(maxSizeOf_1!(byte, short, int, long) == 8);
-    static assert(maxSizeOf_1!(byte, short, int, string) == 16);
 }
 
 unittest

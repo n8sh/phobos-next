@@ -58,13 +58,12 @@ static template maxSizeOf_1(Ts...)
 template maxSizeOf_2(T...)
 {
     enum maxSizeOf_2 = compute();
-    auto compute() {
+    auto compute()
+    {
         size_t result;
-        static foreach (t; T) {
-            if (t.sizeof > result) {
+        static foreach (t; T)
+            if (t.sizeof > result)
                 result = t.sizeof;
-            }
-        }
         return result;
     }
 }

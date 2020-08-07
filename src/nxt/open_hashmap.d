@@ -284,9 +284,9 @@ if (isNullable!K /*&& !hasAliasing!K */)
          */
         enum InsertionStatus
         {
-            added,                      // element was added
-            modified,                   // value of element was changed (map only). TODO only for Map-case
-            unmodified                  // element was left unchanged
+            added,              ///< Element was added.
+            modified,           ///< Value of element was changed (map only).
+            unmodified          ///< Element was left unchanged.
         }
 
         /// Mutable element reference with mutable constant key and value.
@@ -348,8 +348,8 @@ if (isNullable!K /*&& !hasAliasing!K */)
          */
         enum InsertionStatus
         {
-            added,                      // element was added
-            unmodified                  // element was left unchanged
+            added,              ///< Element was added.
+            unmodified          ///< Element was left unchanged.
         }
 
         alias T = K;            // short name for element type

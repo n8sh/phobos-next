@@ -1,6 +1,6 @@
 module nxt.variant;
 
-version(none):                  // TODO activate
+//version(none):                  // TODO activate
 
 import nxt.dbgio : dbg;
 
@@ -553,18 +553,6 @@ private static template maxSizeOf(T...)
  	enum maxSizeOf = Impl.sizeof;
 }
 
-version(none)                 // alternative implementation that supports `void`
-private static template maxSizeOf(Ts...)
-{
-	align(1) union Impl {
-		static foreach (i, T; Ts) {
-			static if (!is(T == void))
-                mixin("T _field_" ~ i.stringof ~ ";");
-		}
-	}
-	enum maxSizeOf = Impl.sizeof;
-}
-
 ///
 @safe pure unittest
 {
@@ -575,6 +563,31 @@ private static template maxSizeOf(Ts...)
     static assert(maxSizeOf!(byte, short, int) == 4);
     static assert(maxSizeOf!(byte, short, int, long) == 8);
     static assert(maxSizeOf!(byte, short, int, string) == 16);
+    // static assert(maxSizeOf!(1, void) == 2);
+}
+
+// alternative implementation that supports `void`
+private static template maxSizeOf_1(Ts...)
+{
+	align(1) union Impl {
+		static foreach (i, T; Ts) {
+			static if (!is(T == void))
+                mixin("T _field_" ~ i.stringof ~ ";");
+		}
+	}
+	enum maxSizeOf_1 = Impl.sizeof;
+}
+
+///
+@safe pure unittest
+{
+    static assert(maxSizeOf_1!(char) == 1);
+    static assert(maxSizeOf_1!(byte) == 1);
+    static assert(maxSizeOf_1!(byte, short) == 2);
+    static assert(maxSizeOf_1!(short, byte) == 2);
+    static assert(maxSizeOf_1!(byte, short, int) == 4);
+    static assert(maxSizeOf_1!(byte, short, int, long) == 8);
+    static assert(maxSizeOf_1!(byte, short, int, string) == 16);
 }
 
 unittest

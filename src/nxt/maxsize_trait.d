@@ -13,7 +13,7 @@ module nxt.maxsize_trait;
 static template maxSizeOf(Ts...)
 {
     align(1) union Impl { Ts t; }
- 	enum maxSizeOf = Impl.sizeof;
+    enum maxSizeOf = Impl.sizeof;
 }
 
 ///
@@ -32,13 +32,13 @@ static template maxSizeOf(Ts...)
 // alternative implementation that supports `void`
 static template maxSizeOf_1(Ts...)
 {
-	align(1) union Impl {
-		static foreach (i, T; Ts) {
-			static if (!is(T == void))
+    align(1) union Impl {
+        static foreach (i, T; Ts) {
+            static if (!is(T == void))
                 mixin("T _field_" ~ i.stringof ~ ";");
-		}
-	}
-	enum maxSizeOf_1 = Impl.sizeof;
+        }
+    }
+    enum maxSizeOf_1 = Impl.sizeof;
 }
 
 ///

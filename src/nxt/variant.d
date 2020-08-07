@@ -244,6 +244,7 @@ public:
         pragma(inline, true);
         return _tix == indexOf!T + 1;
     }
+    alias canStore = ofType;
 
     /// Force $(D this) to the null/uninitialized/unset/undefined state.
     void clear() @safe nothrow @nogc

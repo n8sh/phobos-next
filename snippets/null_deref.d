@@ -1,14 +1,15 @@
+class Name
+{
+@safe:
+    this()
+    {
+    }
+    bool get() { return _x; }
+    bool _x;
+}
+
 @safe pure unittest
 {
-    class Name
-    {
-    @safe:
-        this()
-        {
-        }
-        bool get() { return _x; }
-        bool _x;
-    }
     Name n;
-    bool x = n.get;
+    bool x = n.get(3);          // dmd.func.resolveFuncCall
 }

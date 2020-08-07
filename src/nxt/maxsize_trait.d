@@ -8,7 +8,7 @@ module nxt.maxsize_trait;
 
 /** Get maximum size of types `Ts`.
  *
- * Limitation: `Ts` cannot contain `void`.
+ * Limitation compared to `std.variant.maxSize`: `Ts` cannot contain `void`.
  */
 static template maxSizeOf(Ts...)
 {

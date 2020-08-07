@@ -1,6 +1,6 @@
 class Name
 {
-@safe:
+@safe pure:
     this()
     {
     }
@@ -11,5 +11,5 @@ class Name
 @safe pure unittest
 {
     Name n;
-    bool x = n.get(3);          // dmd.func.resolveFuncCall
+    bool x = n.get();           // dmd.func.resolveFuncCall
 }

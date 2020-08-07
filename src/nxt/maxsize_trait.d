@@ -26,7 +26,7 @@ static template maxSizeOf(Ts...)
     static assert(maxSizeOf!(byte, short, int) == 4);
     static assert(maxSizeOf!(byte, short, int, long) == 8);
     static assert(maxSizeOf!(byte, short, int, string) == 16);
-    // static assert(maxSizeOf!(1, void) == 2);
+    static assert(!__traits(compiles, { enum _ = maxSizeOf!(1, void); }));
 }
 
 // alternative implementation that supports `void`

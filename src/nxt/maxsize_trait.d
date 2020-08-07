@@ -54,3 +54,31 @@ static template maxSizeOf_1(Ts...)
     static assert(maxSizeOf_1!(byte, void) == 1);
     static assert(maxSizeOf_1!(byte, short, void) == 2);
 }
+
+template maxSizeOf_2(T...)
+{
+    enum maxSizeOf_2 = compute();
+    auto compute() {
+        size_t result;
+        static foreach (t; T) {
+            if (t.sizeof > result) {
+                result = t.sizeof;
+            }
+        }
+        return result;
+    }
+}
+
+///
+@safe pure unittest
+{
+    static assert(maxSizeOf_2!(char) == 1);
+    static assert(maxSizeOf_2!(byte) == 1);
+    static assert(maxSizeOf_2!(byte, short) == 2);
+    static assert(maxSizeOf_2!(short, byte) == 2);
+    static assert(maxSizeOf_2!(byte, short, int) == 4);
+    static assert(maxSizeOf_2!(byte, short, int, long) == 8);
+    static assert(maxSizeOf_2!(byte, short, int, string) == 16);
+    static assert(maxSizeOf_2!(byte, void) == 1);
+    static assert(maxSizeOf_2!(byte, short, void) == 2);
+}

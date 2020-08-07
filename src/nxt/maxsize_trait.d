@@ -55,15 +55,15 @@ static template maxSizeOf_1(Ts...)
     static assert(maxSizeOf_1!(byte, short, void) == 2);
 }
 
-template maxSizeOf_2(T...)
+template maxSizeOf_2(Ts...)
 {
     enum maxSizeOf_2 = compute();
     auto compute()
     {
         size_t result;
-        static foreach (t; T)
-            if (t.sizeof > result)
-                result = t.sizeof;
+        static foreach (T; Ts)
+            if (T.sizeof > result)
+                result = T.sizeof;
         return result;
     }
 }

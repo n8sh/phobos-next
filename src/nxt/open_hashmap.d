@@ -70,6 +70,9 @@ alias Flags = BitFlags!Flag;    ///< Use as Flags flags param to `OpenHashMap`
  * also type and hash-function to get memory efficiency when it matters. Similar
  * to what is recommended in https://ticki.github.io/blog/horrible/.
  *
+ * TODO For copyable types replace `auto ref` with logic that only passes by `ref`
+ * when it's faster to do so. See_Also: https://github.com/dlang/dmd/pull/11000
+ *
  * TODO remove use of `static if (__traits(isCopyable, ...))` in cases where compiler can handle more moves
  *
  * TODO use mmap allocator when `_store.sizeof` is larger than at least 8 pages

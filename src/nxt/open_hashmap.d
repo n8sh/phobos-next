@@ -823,17 +823,6 @@ if (isNullable!K /*&& !hasAliasing!K */)
 
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(const(K))adjustKeyType(key)); // cast scoped `key` is @trusted
 
-        version(none)
-        static if (SomeKey.stringof == "SSOString" ||
-                   is(SomeKey == const(char)[]))
-        {
-            dbg(SomeKey.stringof, " key:", key,
-                " store length:", _store.length,
-                " hitIndex:", hitIndex,
-                " isOcc:", isOccupiedAtIndex(hitIndex),
-                " store:", _store);
-        }
-
         return (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex));
     }

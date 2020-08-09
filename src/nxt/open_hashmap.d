@@ -63,6 +63,11 @@ alias Flags = BitFlags!Flag;    ///< Use as Flags flags param to `OpenHashMap`
  *
  * TODO Use set of `Flag`s (defined here) as template params
  *
+ * Robin-hood case introspect key type for storage of parts of hash alongside
+ * nullValue and holeValue. Typically for address-types that doesn't need
+ * scanning. Example is `Adress` for implementation of GC. This might make it
+ * possible for D to beat C++ in performance.
+ *
  * TODO group nxt.probing functions in Prober struct given as type template
  * param to `OpenHashMap`
  *

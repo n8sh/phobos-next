@@ -66,15 +66,15 @@ void scanMagicFiles(string dir)
                                     if (!rest.empty)
                                     {
                                         auto magic = rest.front;
-                                        // TODO Merge these?
+                                        // TODO: Merge these?
                                         // import std.array: replaceInPlace;
                                         /* magic = magic.replace(`\ `, ` `); */
                                         /* magic = magic.replace(`\r`, "\r"); */
                                         /* magic = magic.replace(`\n`, "\n"); */
                                         /* magic = magic.replace(`\t`, "\t"); */
-                                        // TODO Replace `\0`, `\1`
-                                        // TODO Replace `\OCTAL` with "\OCTAL"
-                                        // TODO Replace \0xa
+                                        // TODO: Replace `\0`, `\1`
+                                        // TODO: Replace `\OCTAL` with "\OCTAL"
+                                        // TODO: Replace \0xa
                                         version(show) writeln(kind, `: `, magic);
                                     }
                                     break;

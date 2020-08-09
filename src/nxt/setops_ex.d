@@ -27,12 +27,12 @@ if (isAA!T1 &&
 */
 private static auto setUnionHelper(Small, Large)(const Small small, Large large)
 {
-    Large united = large.dup;   // TODO this shallow copy prevents large from being `const`
+    Large united = large.dup;   // TODO: this shallow copy prevents large from being `const`
     foreach (const ref e; small.byKeyValue)
     {
         if (auto hitPtr = e.key in large)
         {
-            (*hitPtr) = e.value; // TODO this potentially changes the value of
+            (*hitPtr) = e.value; // TODO: this potentially changes the value of
         }
         else
         {
@@ -45,23 +45,23 @@ private static auto setUnionHelper(Small, Large)(const Small small, Large large)
 /** Is `true` iff `Set` is set-like container, that is provides membership
  * checking via the `in` operator or `contains`.
  *
- * TODO Move to Phobos std.traits
+ * TODO: Move to Phobos std.traits
  */
 template hasContains(Set)
 {
     import std.traits : hasMember;
-    enum isSetOf = hasMember!(Set, "contains"); // TODO extend to check `in` operator aswell
+    enum isSetOf = hasMember!(Set, "contains"); // TODO: extend to check `in` operator aswell
 }
 
 /** Is `true` iff `Map` is map-like container, that is provides membership
  * checking via the `in` operator or `contains`.
  *
- * TODO Move to Phobos std.traits
+ * TODO: Move to Phobos std.traits
  */
 template isAA(Map)
 {
     import std.traits : isAssociativeArray;
-    enum isAA = isAssociativeArray!Map; // TODO check if in operator returns reference to value
+    enum isAA = isAssociativeArray!Map; // TODO: check if in operator returns reference to value
 }
 
 /// union of associative array (via keys)
@@ -114,14 +114,14 @@ private:
             {
                 alias next = _inputs[(i + 1) % Rs.length]; // requires copying of range
 
-                // TODO Use upperBound only when next.length / r.length > 12
+                // TODO: Use upperBound only when next.length / r.length > 12
 
                 import std.range.primitives : isRandomAccessRange;
                 static if (allSatisfy!(isRandomAccessRange, typeof(next)))
                 {
                     import std.range : assumeSorted;
 
-                    // TODO remove need for this hack
+                    // TODO: remove need for this hack
                     static if (less == "a < b")
                     {
                         enum lessEq = "a <= b";
@@ -131,7 +131,7 @@ private:
                         enum lessEq = "a >= b";
                     }
 
-                    // TODO can we merge thsse two lines two one single assignment from nextUpperBound to next
+                    // TODO: can we merge thsse two lines two one single assignment from nextUpperBound to next
                     auto nextUpperBound = next.assumeSorted!lessEq.upperBound!preferredSearchPolicy(r.front);
                     next = next[$ - nextUpperBound.length .. $];
 
@@ -167,7 +167,7 @@ public:
     this(Rs inputs)
     {
         import std.functional : forward;
-        this._inputs = forward!inputs; // TODO remove `forward` when compiler does it for us
+        this._inputs = forward!inputs; // TODO: remove `forward` when compiler does it for us
         // position to the first element
         adjustPosition();
     }
@@ -227,7 +227,7 @@ auto assumeMoveableSorted(alias pred = "a < b", R)(R r)
 if (isInputRange!(Unqual!R))
 {
     import core.lifetime : move;
-    return MoveableSortedRange!(Unqual!R, pred)(move(r)); // TODO remove `move` when compiler does it for us
+    return MoveableSortedRange!(Unqual!R, pred)(move(r)); // TODO: remove `move` when compiler does it for us
 }
 
 /** Get intersection of `ranges`.
@@ -242,7 +242,7 @@ if (Rs.length >= 2 &&
     allSatisfy!(isInputRange, Rs) &&
     haveCommonElementType!Rs)
 {
-    // TODO Remove need for these switch cases if this can be fixed:
+    // TODO: Remove need for these switch cases if this can be fixed:
     // http://forum.dlang.org/post/pknonazfniihvpicxbld@forum.dlang.org
     import std.range : assumeSorted;
     static if (Rs.length == 2)
@@ -250,15 +250,15 @@ if (Rs.length >= 2 &&
         import core.lifetime : move;
         return assumeMoveableSorted(SetIntersectionFast!(less,
                                                          preferredSearchPolicy,
-                                                         Rs)(move(ranges[0]), // TODO remove `move` when compiler does it for us
-                                                             move(ranges[1]))); // TODO remove `move` when compiler does it for us
+                                                         Rs)(move(ranges[0]), // TODO: remove `move` when compiler does it for us
+                                                             move(ranges[1]))); // TODO: remove `move` when compiler does it for us
     }
     else
     {
         import std.functional : forward;
         return assumeMoveableSorted(SetIntersectionFast!(less,
                                                          preferredSearchPolicy,
-                                                         Rs)(forward!ranges)); // TODO remove `forward` when compiler does it for us
+                                                         Rs)(forward!ranges)); // TODO: remove `forward` when compiler does it for us
     }
 }
 
@@ -342,7 +342,7 @@ if (Rs.length >= 2 &&
     assert(si.equal([1, 2, 3]));
 }
 
-// TODO remove this `MoveableSortedRange` and replace with Phobos' `SortedRange` in this buffer
+// TODO: remove this `MoveableSortedRange` and replace with Phobos' `SortedRange` in this buffer
 struct MoveableSortedRange(Range, alias pred = "a < b")
 if (isInputRange!Range)
 {

@@ -52,7 +52,7 @@ private:
     auto tree = GrowOnlyNaryTree!X(e, 1024 * 1024);
     assert(tree.root.data == e);
 
-    // TODO this should fail to compile with -dip1000
+    // TODO: this should fail to compile with -dip1000
     Node!X* dumb()
     {
         auto tree = GrowOnlyNaryTree!X(e, 1024 * 1024);

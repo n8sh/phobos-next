@@ -1,7 +1,7 @@
 module nxt.static_iota;
 
 /** Static Iota.
-    TODO Add to Phobos.
+    TODO: Add to Phobos.
 */
 template iota(size_t from, size_t to)
     if (from <= to)

@@ -102,20 +102,20 @@ if (isBlocks!Blocks)
             if (block != block.max) // optimize for zeros-sparsity
             {
                 import core.bitop : bsf;
-                const hitIndex = blockIndex*8*block.sizeof + bsf(~block); // TODO is there a builtin for `bsf(~block)`?
+                const hitIndex = blockIndex*8*block.sizeof + bsf(~block); // TODO: is there a builtin for `bsf(~block)`?
                 return hitIndex < length ? hitIndex : length; // if hit beyond end miss
             }
         }
     }
     else
     {
-        // TODO handle blocks with garbage in the rest block
+        // TODO: handle blocks with garbage in the rest block
         foreach (const blockIndex, block; blocks)
         {
             if (block != block.max) // optimize for zeros-sparsity
             {
                 import core.bitop : bsf;
-                const hitIndex = blockIndex*8*block.sizeof + bsf(~block); // TODO is there a builtin for `bsf(~block)`?
+                const hitIndex = blockIndex*8*block.sizeof + bsf(~block); // TODO: is there a builtin for `bsf(~block)`?
                 return hitIndex < length ? hitIndex : length; // if hit beyond end miss
             }
         }
@@ -144,7 +144,7 @@ if (isBlocks!Blocks)
     }
     else
     {
-        // TODO handle blocks with garbage in the rest block
+        // TODO: handle blocks with garbage in the rest block
         foreach (const blockIndex, const block; blocks)
         {
             if (block != block.min) // optimize for ones-sparsity

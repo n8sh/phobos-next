@@ -14,7 +14,7 @@ import std.range.primitives : hasLength;
     member `.dup`.
  */
 struct UniqueRange(Source)
-    if (hasLength!Source)       // TODO use traits `isArrayContainer` checking fo
+    if (hasLength!Source)       // TODO: use traits `isArrayContainer` checking fo
 {
     import std.range.primitives : ElementType, isBidirectionalRange;
     import std.traits : isArray;
@@ -29,7 +29,7 @@ struct UniqueRange(Source)
     this(Source source)
     {
         import std.algorithm.mutation : move;
-        move(source, _source); // TODO remove `move` when compiler does it for us
+        move(source, _source); // TODO: remove `move` when compiler does it for us
         _sourceRange = _source[];
     }
 
@@ -37,7 +37,7 @@ struct UniqueRange(Source)
     private this(ref Source source)
     {
         import std.algorithm.mutation : move;
-        move(source, _source); // TODO remove `move` when compiler does it for us
+        move(source, _source); // TODO: remove `move` when compiler does it for us
         _sourceRange = _source[];
     }
 
@@ -48,7 +48,7 @@ struct UniqueRange(Source)
         {
             import std.range.primitives : empty;
         }
-        return (cast(Unqual!SourceRange)_sourceRange).empty; // TODO remove cast and @trusted when SortedRange.empty is const
+        return (cast(Unqual!SourceRange)_sourceRange).empty; // TODO: remove cast and @trusted when SortedRange.empty is const
     }
 
     /// Returns: length of `this`.
@@ -56,7 +56,7 @@ struct UniqueRange(Source)
     {
         @property size_t length() const @trusted
         {
-            return (cast(Unqual!SourceRange)_sourceRange).length; // TODO remove cast and @trusted when SortedRange.empty is const
+            return (cast(Unqual!SourceRange)_sourceRange).length; // TODO: remove cast and @trusted when SortedRange.empty is const
         }
     }
 
@@ -96,10 +96,10 @@ struct UniqueRange(Source)
         }
         else
         {
-            static assert(0, "TODO if front is an l-value move it out and return it");
+            static assert(0, "TODO: if front is an l-value move it out and return it");
             // import std.algorithm.mutation : move;
             // import core.internal.traits : Unqual;
-            // TODO reinterpret as typeof(*(cast(Unqual!E*)(&_source[_frontIx]))) iff `E` doesn't contain any immutable indirections
+            // TODO: reinterpret as typeof(*(cast(Unqual!E*)(&_source[_frontIx]))) iff `E` doesn't contain any immutable indirections
             // typeof(return) value = move(_sourceRange.front);
             // popFront();
             // return value;
@@ -145,10 +145,10 @@ struct UniqueRange(Source)
             }
             else
             {
-                static assert(0, "TODO if back is an l-value move it out and return it");
+                static assert(0, "TODO: if back is an l-value move it out and return it");
                 // import std.algorithm.mutation : move;
                 // import core.internal.traits : Unqual;
-                // TODO reinterpret as typeof(*(cast(Unqual!E*)(&_source[_backIx]))) iff `E` doesn't contain any immutable indirections
+                // TODO: reinterpret as typeof(*(cast(Unqual!E*)(&_source[_backIx]))) iff `E` doesn't contain any immutable indirections
                 // typeof(return) value = move(_sourceRange.back);
                 // popBack();
                 // return value;
@@ -308,7 +308,7 @@ private struct MapUniqueResult(alias fun, Range)
 
     this(R input)
     {
-        _input = move(input); // TODO remove `move` when compiler does it for us
+        _input = move(input); // TODO: remove `move` when compiler does it for us
     }
 
     static if (isInfinite!R)
@@ -392,7 +392,7 @@ private struct MapUniqueResult(alias fun, Range)
     }
 
     static if (isForwardRange!R &&
-               __traits(isCopyable, R))    // TODO should save be allowed for non-copyable?
+               __traits(isCopyable, R))    // TODO: should save be allowed for non-copyable?
     {
         @property auto save()
         {
@@ -401,7 +401,7 @@ private struct MapUniqueResult(alias fun, Range)
     }
 }
 
-// TODO Add duck-typed interface that shows that result is still sorted according to `predicate`
+// TODO: Add duck-typed interface that shows that result is still sorted according to `predicate`
 template filterUnique(alias predicate) if (is(typeof(unaryFun!predicate)))
 {
     import std.algorithm.mutation : move;
@@ -415,7 +415,7 @@ template filterUnique(alias predicate) if (is(typeof(unaryFun!predicate)))
     }
 }
 
-// TODO Add duck-typed interface that shows that result is still sorted according to `predicate`
+// TODO: Add duck-typed interface that shows that result is still sorted according to `predicate`
 private struct FilterUniqueResult(alias pred, Range)
 {
     import std.algorithm.mutation : move;
@@ -426,7 +426,7 @@ private struct FilterUniqueResult(alias pred, Range)
 
     this(R r)
     {
-        _input = move(r);       // TODO remove `move` when compiler does it for us
+        _input = move(r);       // TODO: remove `move` when compiler does it for us
         while (!_input.empty && !pred(_input.front))
         {
             _input.popFront();
@@ -462,7 +462,7 @@ private struct FilterUniqueResult(alias pred, Range)
     }
 
     static if (isForwardRange!R &&
-               __traits(isCopyable, R)) // TODO should save be allowed for non-copyable?
+               __traits(isCopyable, R)) // TODO: should save be allowed for non-copyable?
     {
         @property auto save()
         {
@@ -471,7 +471,7 @@ private struct FilterUniqueResult(alias pred, Range)
     }
 }
 
-// TODO move these hidden behind template defs of takeUnique
+// TODO: move these hidden behind template defs of takeUnique
 import core.internal.traits : Unqual;
 import std.range.primitives : isInputRange, isInfinite, hasSlicing;
 
@@ -481,7 +481,7 @@ UniqueTake!R takeUnique(R)(R input, size_t n)
 {
     import std.algorithm.mutation : move;
     import std.algorithm.comparison : min;
-    return R(move(input.source), // TODO remove `move` when compiler does it for us
+    return R(move(input.source), // TODO: remove `move` when compiler does it for us
              min(n, input._maxAvailable));
 }
 
@@ -493,7 +493,7 @@ UniqueTake!(R) takeUnique(R)(R input, size_t n)
          !is(R T == UniqueTake!T)))
 {
     import std.algorithm.mutation : move;
-    return UniqueTake!R(move(input), n); // TODO remove `move` when compiler does it for us
+    return UniqueTake!R(move(input), n); // TODO: remove `move` when compiler does it for us
 }
 
 struct UniqueTake(Range)

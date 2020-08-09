@@ -140,7 +140,7 @@ unittest
 
     assert(equal("utcOffset".preSlicer!isUpper, ["utc", "Offset"]));
     assert(equal("isUri".preSlicer!isUpper, ["is", "Uri"]));
-    // TODO assert(equal("baseSIUnit".preSlicer!isUpper, ["base", "SI", "Unit"]));
+    // TODO: assert(equal("baseSIUnit".preSlicer!isUpper, ["base", "SI", "Unit"]));
 
     assert(equal("SomeGreatVariableName".preSlicer!isUpper, ["Some", "Great", "Variable", "Name"]));
     assert(equal("someGGGreatVariableName".preSlicer!isUpper, ["some", "G", "G", "Great", "Variable", "Name"]));
@@ -162,12 +162,12 @@ unittest
 
     assert(equal([1, -1, 1, -1].preSlicer!(a => a > 0), [[1, -1], [1, -1]]));
 
-    /* TODO Add bidir support */
+    /* TODO: Add bidir support */
     /* import std.range : retro; */
     /* assert(equal([-1, 1, -1, 1].retro.preSlicer!(a => a > 0), [[1, -1], [1, -1]])); */
 }
 
-version(none)                   // TODO enable
+version(none)                   // TODO: enable
 auto wordByMixedCaseSubWord(Range)(Range r)
 {
     static struct Result
@@ -234,7 +234,7 @@ auto wordByMixedCaseSubWord(Range)(Range r)
     return Result(r);
 }
 
-version(none)                   // TODO enable
+version(none)                   // TODO: enable
 @safe pure unittest
 {
     assert(equal("äaÖ".wordByMixedCaseSubWord, ["äa", "Ö"]));

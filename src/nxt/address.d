@@ -7,11 +7,11 @@ module nxt.address;
  * Used as key, value or element instead of a pointer `OpenHashMap` to
  * prevent triggering of `gc_addRange` and `gc_removeRange`.
  *
- * TODO is `holeValue` suitably chosen?
+ * TODO: is `holeValue` suitably chosen?
  *
  * See_Also: https://en.wikipedia.org/wiki/Data_structure_alignment
  */
-struct ByteAlignedAddress(uint byteAlignment_) // TODO adjust alignment here
+struct ByteAlignedAddress(uint byteAlignment_) // TODO: adjust alignment here
 {
     enum byteAlignment = byteAlignment_; ///< Alignment in bytes.
 
@@ -26,7 +26,7 @@ struct ByteAlignedAddress(uint byteAlignment_) // TODO adjust alignment here
     @property hash_t toHash() const scope @trusted
     {
         version(LDC) pragma(inline, true);
-        // TODO cativate import nxt.hash_functions : lemireHash64;
+        // TODO: cativate import nxt.hash_functions : lemireHash64;
         import core.internal.hash : hashOf;
         static if (byteAlignment == 1)
         {

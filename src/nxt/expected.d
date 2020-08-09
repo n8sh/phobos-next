@@ -24,26 +24,26 @@ private struct Unexpected(E)
  * See_Also: https://doc.rust-lang.org/std/result/
  * See_Also: https://github.com/tchaloupka/expected
  *
- * TODO https://dlang.org/phobos/std_typecons.html#.apply
+ * TODO: https://dlang.org/phobos/std_typecons.html#.apply
  *
- * TODO I'm not convinced about the naming
+ * TODO: I'm not convinced about the naming
  * - `Expected`: instead call it something that tells us that it can be either expected or unexpected?
  * - `Unexpected`: if so why shouldn't we have a similar value wrapper `Expected`?
  *
- * TODO we could get around the `Unexpected` wrapper logic by instead expressing
+ * TODO: we could get around the `Unexpected` wrapper logic by instead expressing
  * construction in static constructor functions, say,:
  * - static typeof(this) fromExpectedValue(T expectedValue)
  * - static typeof(this) fromUnexpectedValue(E unexpectedValue)
  *
- * TODO swap
+ * TODO: swap
  *
- * TODO which functions should be `nothrow`?
+ * TODO: which functions should be `nothrow`?
  *
- * TODO later on: remove _ok when `_expectedValue` and ` _unexpectedValue` can store this state
+ * TODO: later on: remove _ok when `_expectedValue` and ` _unexpectedValue` can store this state
  * "collectively" for instance when both are pointers or classes (use trait
  * `isAddress`)
  *
- * TODO ok to default `E` to `Exception`?
+ * TODO: ok to default `E` to `Exception`?
  */
 struct Expected(T, E = Exception)
 if (!isInstanceOf!(Unexpected, T) && // an `Unexpected` cannot be `Expected` :)
@@ -52,14 +52,14 @@ if (!isInstanceOf!(Unexpected, T) && // an `Unexpected` cannot be `Expected` :)
     import core.lifetime : moveEmplace;
     import nxt.container_traits : isAddress;
 
-    // TODO ok for default construction to initialize
+    // TODO: ok for default construction to initialize
     // - _expectedValue = T.init (zeros)
     // - _ok = true (better to have _isError so default is zero bits here aswell?)
 
     /// Construct from expected value `expectedValue.`
     this()(auto ref T expectedValue) @trusted
     {
-        // TODO reuse opAssign?
+        // TODO: reuse opAssign?
         moveEmplace(expectedValue, _expectedValue);
         _ok = true;
     }
@@ -67,7 +67,7 @@ if (!isInstanceOf!(Unexpected, T) && // an `Unexpected` cannot be `Expected` :)
     /// Construct from unexpected value `unexpectedValue.`
     this(Unexpected!E unexpectedValue) @trusted
     {
-        // TODO reuse opAssign?
+        // TODO: reuse opAssign?
         moveEmplace(unexpectedValue, _unexpectedValue);
         _ok = false;
     }
@@ -75,7 +75,7 @@ if (!isInstanceOf!(Unexpected, T) && // an `Unexpected` cannot be `Expected` :)
     /// Assign from expected value `expectedValue.`
     void opAssign()(auto ref T expectedValue) @trusted
     {
-        // TODO is this ok?:
+        // TODO: is this ok?:
         clear();
         moveEmplace(expectedValue, _expectedValue);
         _ok = true;
@@ -124,7 +124,7 @@ if (!isInstanceOf!(Unexpected, T) && // an `Unexpected` cannot be `Expected` :)
                 }
             }
             destroy(_unexpectedValue);
-            // TODO change _ok?
+            // TODO: change _ok?
         }
     }
 
@@ -138,7 +138,7 @@ if (!isInstanceOf!(Unexpected, T) && // an `Unexpected` cannot be `Expected` :)
 
     /** Get current value if any or call function `elseWorkFun` with compatible return value.
      *
-     * TODO is this anywhere near what we want?
+     * TODO: is this anywhere near what we want?
      */
     CommonType!(T, typeof(elseWorkFun())) valueOr(alias elseWorkFun)() const
     if (is(CommonType!(T, typeof(elseWorkFun()))))
@@ -149,7 +149,7 @@ if (!isInstanceOf!(Unexpected, T) && // an `Unexpected` cannot be `Expected` :)
         }
         else
         {
-            return elseWorkFun(); // TODO is this correct
+            return elseWorkFun(); // TODO: is this correct
         }
     }
 
@@ -198,7 +198,7 @@ if (!isInstanceOf!(Unexpected, T) && // an `Unexpected` cannot be `Expected` :)
 private:
     union
     {
-        T _expectedValue;         // TODO do we need to default-initialize this somehow?
+        T _expectedValue;         // TODO: do we need to default-initialize this somehow?
         Unexpected!E _unexpectedValue;
     }
 

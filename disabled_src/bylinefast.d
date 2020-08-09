@@ -113,7 +113,7 @@ struct ByLineFast(Char, Terminator)
             }
         }
 
-        // import std.string : indexOf; // TODO array_algorithm indexOf
+        // import std.string : indexOf; // TODO: array_algorithm indexOf
         import nxt.array_algorithm : indexOf;
         const pos = strBuffer.indexOf(this.separator);
         if (pos != -1)
@@ -180,7 +180,7 @@ auto byLineFast(Terminator = char,
                 Char = char)(File f,
                              KeepTerminator keepTerminator = KeepTerminator.no,
                              string separator = "\n",
-                             uint bufferSize = 4096) @safe // TODO lookup preferred block type
+                             uint bufferSize = 4096) @safe // TODO: lookup preferred block type
 {
     return ByLineFast!(Char, Terminator)(f, keepTerminator, separator, bufferSize);
 }

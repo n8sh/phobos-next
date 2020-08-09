@@ -16,7 +16,7 @@ void main()
 
     size_t maxLength = 0;
     immutable before = MonoTime.currTime();
-    foreach (line; File("/usr/share/dict/words").byLine) // TODO make const and fix HashSet.insert
+    foreach (line; File("/usr/share/dict/words").byLine) // TODO: make const and fix HashSet.insert
     {
         import nxt.array_algorithm : endsWith;
         if (!line.endsWith(`'s`))

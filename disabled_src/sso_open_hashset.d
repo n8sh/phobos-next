@@ -8,9 +8,9 @@ import nxt.pure_mallocator : PureMallocator;
 
 /** Small-set-optimized `OpenHashSet`.
  *
- * TODO search for `nullify`, `isNull`, `nullValue` and support deleted keys (`isDull`)
+ * TODO: search for `nullify`, `isNull`, `nullValue` and support deleted keys (`isDull`)
  *
- * TODO use opMove to update `gc_addRange` and `gc_removeRange` when
+ * TODO: use opMove to update `gc_addRange` and `gc_removeRange` when
  * implemented. See: https://github.com/dlang/DIPs/pull/109
  *
  * See_Also: https://forum.dlang.org/post/pb87rn$2icb$1@digitalmars.com
@@ -37,13 +37,13 @@ struct SSOOpenHashSet(K,
                 __traits(compiles, { enum _ = isAllZeroBits!(K, K.nullValue); }) && // prevent strange error given when `K` is `knet.data.Data`
                 !isAllZeroBits!(K, K.nullValue)))
     {
-        pragma(msg, "TODO warning key type ", K, " has non-zero-bit init value, default construction should be disabled or Small._store should be set to init value");
+        pragma(msg, "TODO: warning key type ", K, " has non-zero-bit init value, default construction should be disabled or Small._store should be set to init value");
     }
-    // TODO @disable this();
+    // TODO: @disable this();
 
     static typeof(this) withCapacity()(size_t minimumCapacity) @trusted // template-lazy
     {
-        typeof(return) result;                   // TODO `result = void` for nullify case
+        typeof(return) result;                   // TODO: `result = void` for nullify case
         if (minimumCapacity > Small.maxCapacity) // will be large
         {
             result.large = Large.withCapacity(minimumCapacity);
@@ -121,7 +121,7 @@ struct SSOOpenHashSet(K,
             assert(!key.isNull);
 
             // try inserting into small
-            foreach (immutable index; 0 .. small.maxCapacity) // TODO benchmark with `static foreach`
+            foreach (immutable index; 0 .. small.maxCapacity) // TODO: benchmark with `static foreach`
             {
                 if (small._store[index].isNull) // free slot
                 {
@@ -151,7 +151,7 @@ struct SSOOpenHashSet(K,
         }
         else
         {
-            foreach (immutable index; 0 .. small.maxCapacity) // TODO benchmark with `static foreach`
+            foreach (immutable index; 0 .. small.maxCapacity) // TODO: benchmark with `static foreach`
             {
                 if (small._store[index] is key)
                 {
@@ -166,7 +166,7 @@ struct SSOOpenHashSet(K,
     private void shrinkLargeToSmall()() @trusted // template-lazy
     {
         Large largeCopy = void;
-        moveEmplace(large, largeCopy); // TODO no need to reset `large`
+        moveEmplace(large, largeCopy); // TODO: no need to reset `large`
 
         size_t count = 0;
         foreach (ref e; largeCopy.rawStore)
@@ -206,17 +206,17 @@ struct SSOOpenHashSet(K,
             {
                 assert(!Large.isHoleKeyConstant(key));
             }
-            // TODO is static foreach faster here?
+            // TODO: is static foreach faster here?
             import std.algorithm.searching : canFind;
-            alias pred = (a, b) => a is b;            // TODO add to template
+            alias pred = (a, b) => a is b;            // TODO: add to template
             return small._store[].canFind!(pred)(key);
         }
     }
 
     private void expandWithExtraCapacity(size_t extraCapacity) @trusted
     {
-        Small.Bins binsCopy = small._store; // TODO moveEmplace
-        // TODO merge these lines?
+        Small.Bins binsCopy = small._store; // TODO: moveEmplace
+        // TODO: merge these lines?
         emplace!Large(&large);
         large.reserveExtra(Small.maxCapacity + extraCapacity);
         large.insertN(binsCopy);

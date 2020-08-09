@@ -11,7 +11,7 @@ void moveEmplaceAllNoReset(T)(scope T[] src,
     static if (needsMove!T)
     {
         immutable n = src.length;
-        // TODO benchmark with `memmove` and `memset` instead
+        // TODO: benchmark with `memmove` and `memset` instead
         foreach (i; 0 .. n)
         {
             import core.lifetime : moveEmplace;

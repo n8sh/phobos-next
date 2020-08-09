@@ -9,11 +9,11 @@ module nxt.fixed_array;
  * Similar to Rust's `fixedvec`: https://docs.rs/fixedvec/0.2.3/fixedvec/
  * Similar to `mir.small_array` at http://mir-algorithm.libmir.org/mir_small_array.html.
  *
- * TODO Merge member functions with basic_*_array.d and array_ex.d
+ * TODO: Merge member functions with basic_*_array.d and array_ex.d
  *
- * TODO Add @safe nothrow @nogc ctor from static array (of known length)
+ * TODO: Add @safe nothrow @nogc ctor from static array (of known length)
  *
- * TODO use opPostMove (https://github.com/dlang/DIPs/blob/master/DIPs/accepted/DIP1014.md)
+ * TODO: use opPostMove (https://github.com/dlang/DIPs/blob/master/DIPs/accepted/DIP1014.md)
  */
 struct FixedArray(T, uint capacity_, bool borrowChecked = false)
 {
@@ -28,7 +28,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     alias capacity = capacity_; // for public use
 
     /// Store of `capacity` number of elements.
-    T[capacity] _store;         // TODO use store constructor
+    T[capacity] _store;         // TODO: use store constructor
 
     static if (borrowChecked)
     {
@@ -42,7 +42,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
         {
             private enum lengthMax = 2^^4 - 1;
             alias Length = ubyte;
-            // TODO make private:
+            // TODO: make private:
             mixin(bitfields!(Length, "_length", 4, /// number of defined elements in `_store`
                              bool, "_writeBorrowed", 1,
                              uint, "_readBorrowCount", readBorrowCountBits,
@@ -52,7 +52,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
         {
             alias Length = ushort;
             private enum lengthMax = 2^^14 - 1;
-            // TODO make private:
+            // TODO: make private:
             mixin(bitfields!(Length, "_length", 14, /// number of defined elements in `_store`
                              bool, "_writeBorrowed", 1,
                              uint, "_readBorrowCount", readBorrowCountBits,
@@ -110,7 +110,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     /// Construct from element `values`.
     this(U)(U[] values) @trusted
     if (__traits(isCopyable, U)//  &&
-        // TODO isElementAssignable!U
+        // TODO: isElementAssignable!U
         ) // prevent accidental move of l-value `values` in array calls
     {
         version(assert) if (values.length > capacity) onRangeError(); // `Arguments don't fit in array`
@@ -129,7 +129,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
         isElementAssignable!U
         ) // prevent accidental move of l-value `values` in array calls
     {
-        typeof(return) that;              // TODO use Store constructor:
+        typeof(return) that;              // TODO: use Store constructor:
 
         that._store[0 .. values.length] = values;
         that._length = cast(Length)values.length;
@@ -161,12 +161,12 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
      * NOTE doesn't invalidate any borrow
      */
     void insertBack(Es...)(Es es) @trusted
-    if (Es.length <= capacity) // TODO use `isAssignable`
+    if (Es.length <= capacity) // TODO: use `isAssignable`
     {
         version(assert) if (_length + Es.length > capacity) onRangeError(); // `Arguments don't fit in array`
         foreach (immutable i, ref e; es)
-            moveEmplace(e, _store[_length + i]); // TODO remove `move` when compiler does it for us
-        _length = cast(Length)(_length + Es.length); // TODO better?
+            moveEmplace(e, _store[_length + i]); // TODO: remove `move` when compiler does it for us
+        _length = cast(Length)(_length + Es.length); // TODO: better?
     }
     /// ditto
     alias put = insertBack;       // `OutputRange` support
@@ -180,8 +180,8 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     {
         if (_length + Es.length > capacity) { return false; }
         foreach (immutable i, ref e; es)
-            moveEmplace(e, _store[_length + i]); // TODO remove `move` when compiler does it for us
-        _length = cast(Length)(_length + Es.length); // TODO better?
+            moveEmplace(e, _store[_length + i]); // TODO: remove `move` when compiler does it for us
+        _length = cast(Length)(_length + Es.length); // TODO: better?
         return true;
     }
     /// ditto
@@ -195,7 +195,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
         values.length >= 1 &&
         allSatisfy!(isElementAssignable, Us))
     {
-        insertBack(values.move()); // TODO remove `move` when compiler does it for
+        insertBack(values.move()); // TODO: remove `move` when compiler does it for
     }
 
     import std.traits : isMutable;
@@ -206,10 +206,10 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
         {
             assert(!empty);
             static if (borrowChecked) { assert(!isBorrowed); }
-            // TODO is there a reusable Phobos function for this?
+            // TODO: is there a reusable Phobos function for this?
             foreach (immutable i; 0 .. _length - 1)
                 move(_store[i + 1], _store[i]); // like `_store[i] = _store[i + 1];` but more generic
-            _length = cast(typeof(_length))(_length - 1); // TODO better?
+            _length = cast(typeof(_length))(_length - 1); // TODO: better?
             return this;
         }
     }
@@ -219,7 +219,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     {
         assert(!empty);
         static if (borrowChecked) { assert(!isBorrowed); }
-        _length = cast(Length)(_length - 1); // TODO better?
+        _length = cast(Length)(_length - 1); // TODO: better?
         static if (hasElaborateDestructor!T)
             .destroy(_store.ptr[_length]);
         else static if (mustAddGCRange!T)
@@ -231,7 +231,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     {
         assert(length >= n);
         static if (borrowChecked) { assert(!isBorrowed); }
-        _length = cast(Length)(_length - n); // TODO better?
+        _length = cast(Length)(_length - n); // TODO: better?
         static if (hasElaborateDestructor!T)
             foreach (const i; 0 .. n)
                 .destroy(_store.ptr[_length + i]);
@@ -368,13 +368,13 @@ pragma(inline, true):
         {
             // assert(i <= j);
             // assert(j <= _length);
-            return _store[i .. j]; // TODO make .ptr work
+            return _store[i .. j]; // TODO: make .ptr work
         }
 
         /// Get full slice.
         inout(T)[] opSlice() @trusted inout return scope
         {
-            return _store[0 .. _length]; // TODO make .ptr work
+            return _store[0 .. _length]; // TODO: make .ptr work
         }
     }
 

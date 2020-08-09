@@ -18,7 +18,7 @@ bool opEqualsDerived(T)(const T lhs, const T rhs)
         {
             // If same exact type => one call to method opEquals
             if (typeid(lhs) is typeid(rhs)//  ||
-                // TODO !__ctfe && typeid(lhs).opEquals(typeid(rhs))
+                // TODO: !__ctfe && typeid(lhs).opEquals(typeid(rhs))
                 )
                 /* CTFE doesn't like typeid much. 'is' works, but opEquals doesn't
                    (issue 7147). But CTFE also guarantees that equal TypeInfos are

@@ -10,7 +10,7 @@ module nxt.owned;
     <li> `opIndex`
     </ul>
 
-    TODO Iterate and wrap all @unsafe accessors () and wrapped borrow
+    TODO: Iterate and wrap all @unsafe accessors () and wrapped borrow
     checks for all modifying members of `Container`?
 */
 struct Owned(Container)
@@ -62,11 +62,11 @@ pragma(inline):
         moveEmplace(this, dst);
     }
 
-    static if (true/*TODO hasUnsafeSlicing!Container*/)
+    static if (true/*TODO: hasUnsafeSlicing!Container*/)
     {
         import nxt.borrowed : ReadBorrowed, WriteBorrowed;
 
-        // TODO can all these definitions be reduce somehow?
+        // TODO: can all these definitions be reduce somehow?
 
         /// Get full read-only slice.
         ReadBorrowed!(Range, Owned) sliceRO() const @trusted
@@ -143,13 +143,13 @@ pragma(inline):
 
 public:
     bool _writeBorrowed = false; /// `true` iff `_container` is currently referred to
-    uint _readBorrowCount = 0; /// number of readable borrowers. TODO use `size_t` minus one bit instead in `size_t _stats`
+    uint _readBorrowCount = 0; /// number of readable borrowers. TODO: use `size_t` minus one bit instead in `size_t _stats`
     enum readBorrowCountMax = typeof(_readBorrowCount).max;
 }
 
 /** Checked overload for `std.algorithm.mutation.move`.
 
-    TODO Can we somehow prevent users of Owned from accidentally using
+    TODO: Can we somehow prevent users of Owned from accidentally using
     `std.algorithm.mutation.move` instead of this wrapper?
  */
 void move(Owner)(ref Owner src, ref Owner dst) @safe pure nothrow @nogc
@@ -160,7 +160,7 @@ void move(Owner)(ref Owner src, ref Owner dst) @safe pure nothrow @nogc
 
 /** Checked overload for `std.algorithm.mutation.moveEmplace`.
 
-    TODO Can we somehow prevent users of Owned from accidentally using
+    TODO: Can we somehow prevent users of Owned from accidentally using
     `std.algorithm.mutation.moveEmplace` instead of this wrapper?
 */
 void moveEmplace(Owner)(ref Owner src, ref Owner dst) @safe pure nothrow @nogc
@@ -172,8 +172,8 @@ void moveEmplace(Owner)(ref Owner src, ref Owner dst) @safe pure nothrow @nogc
 template needsOwnership(Container)
 {
     import std.range.primitives : hasSlicing;
-    // TODO activate when array_ex : UniqueArray
-    // enum needsOwnership = hasSlicing!Container; // TODO extend to check if it's not @safe
+    // TODO: activate when array_ex : UniqueArray
+    // enum needsOwnership = hasSlicing!Container; // TODO: extend to check if it's not @safe
     enum needsOwnership = is(Container == struct);
 }
 
@@ -193,7 +193,7 @@ pure unittest
     alias A = UniqueArray!int;
     A a = A.init;
     a = A.init;
-    // TODO a ~= A.init;
+    // TODO: a ~= A.init;
 }
 
 pure unittest
@@ -338,7 +338,7 @@ nothrow unittest
     alias E = int;
     alias A = UniqueArray!E;
     A a;
-    sort(a[]);         // TODO make this work
+    sort(a[]);         // TODO: make this work
 }
 
 // y = sort(x.move()), where x and y are instances of unsorted Array
@@ -372,8 +372,8 @@ nothrow unittest
     os.popFront();
     assert(os.empty);
 
-    // TODO scope oss = os[];            // no op
-    // TODO assert(oss.empty);
+    // TODO: scope oss = os[];            // no op
+    // TODO: assert(oss.empty);
 }
 
 // check write-borrow
@@ -390,7 +390,7 @@ nothrow unittest
     auto cos = co[0 .. 0];
     const ccos = co[0 .. 0];
 
-    // TODO const coc = co[].save();
+    // TODO: const coc = co[].save();
 
     O o;
     o ~= [42, 43];

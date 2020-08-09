@@ -12,14 +12,14 @@ import nxt.traits_ex : isSourceOfSomeChar;
 T toDefaulted(T, S, U)(const scope S value,
                        /*lazy*/ U defaultValue) nothrow
 if (!is(T == enum) &&
-    is(typeof(() { T r = defaultValue; }))) // TODO use std.traits.isAssignable!(T, U) ?
+    is(typeof(() { T r = defaultValue; }))) // TODO: use std.traits.isAssignable!(T, U) ?
 {
     try
     {
         import std.conv : to;
         return value.to!T;
     }
-    catch (Exception e) // assume `ConvException`. TODO can we capture `ConvException` instead make it inferred `nothrow`
+    catch (Exception e) // assume `ConvException`. TODO: can we capture `ConvException` instead make it inferred `nothrow`
     {
         return defaultValue;
     }
@@ -42,7 +42,7 @@ if (is(T == enum))
 }
 
 ///
-@safe pure nothrow /*TODO @nogc*/ unittest
+@safe pure nothrow /*TODO: @nogc*/ unittest
 {
     assert("42_1".toDefaulted!int(43) == 43);
     assert(42.toDefaulted!string("_43") == "42");
@@ -110,7 +110,7 @@ if (isCharArray!S)
         if (tryLevenshtein)
         {
             import std.traits: EnumMembers;
-            auto members = [EnumMembers!U]; // TODO make const
+            auto members = [EnumMembers!U]; // TODO: make const
             import std.range: empty, front;
             if (!members.empty)
             {
@@ -127,7 +127,7 @@ if (isCharArray!S)
     return U.init;
 }
 
-@safe /*pure*/ unittest  // TODO make pure when Issue 14962 is fixed
+@safe /*pure*/ unittest  // TODO: make pure when Issue 14962 is fixed
 {
     enum E { _, alpha, beta, gamma }
 
@@ -167,7 +167,7 @@ private void parseCheck(alias source)(dchar c,
  *
  * Copied this from std.conv.
  *
- * TODO Reuse std.conv.parseEscape when moved there.
+ * TODO: Reuse std.conv.parseEscape when moved there.
 */
 private dchar parseEscape(Source)(ref Source s)
 if (isSourceOfSomeChar!Source)
@@ -243,7 +243,7 @@ if (isSourceOfSomeChar!Source)
 
 /** Parse/Decode Escape Sequences in $(S s) into Unicode Characters $(D dchar).
     Returns: $(D InputRange) of $(D dchar)
-    TODO Add to Phobos
+    TODO: Add to Phobos
  */
 auto decodeEscapes(Source)(Source s)
 if (isSourceOfSomeChar!Source)
@@ -277,7 +277,7 @@ if (isSourceOfSomeChar!Source)
             import std.range.primitives : empty, front, popFront;
             if (!_remainingSource.empty)
             {
-                if (_remainingSource.front == '\\') // TODO nothrow
+                if (_remainingSource.front == '\\') // TODO: nothrow
                 {
                     _remainingSource.popFront();
                     _decodedFront = _remainingSource.parseEscape;
@@ -305,7 +305,7 @@ if (isSourceOfSomeChar!Source)
 }
 
 ///
-@safe pure /*TODO nothrow*/ unittest
+@safe pure /*TODO: nothrow*/ unittest
 {
     import std.algorithm : equal;
     assert(`\u00F6`.decodeEscapes.equal("ö"));

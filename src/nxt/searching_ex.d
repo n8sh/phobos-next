@@ -8,11 +8,11 @@ module nxt.searching_ex;
 /** This function returns the index of the `value` if it exist among `values`,
     `size_t.max` otherwise.
 
-    TODO Should we extend to isRandomAccessRange support? In that case we don't
+    TODO: Should we extend to isRandomAccessRange support? In that case we don't
     get static array support by default.
 */
 size_t binarySearch(R, E)(const R[] values, in E value)
-    if (is(typeof(values[0].init == E.init))) // TODO SortedRange support
+    if (is(typeof(values[0].init == E.init))) // TODO: SortedRange support
 {
     // value is not in the array if the array is empty
     if (values.length == 0) { return typeof(return).max; }
@@ -69,15 +69,15 @@ import std.traits: isInstanceOf;
     The elements of `range` are assumed to be sorted in default (ascending)
     order.
 
-    TODO Move to member of `SortedRange` either as a new name or as an
+    TODO: Move to member of `SortedRange` either as a new name or as an
     `contains`-overload take an extra `index` as argument.
  */
 bool containsStoreIndex(SearchPolicy sp = SearchPolicy.binarySearch, R, V)
                        (R range, V value, out size_t index)
     if (is(typeof(ElementType!R.init == V.init)) &&
-        isInstanceOf!(SortedRange, R)) // TODO check for comparsion function
+        isInstanceOf!(SortedRange, R)) // TODO: check for comparsion function
 {
-    // TODO should we optimize for this case?
+    // TODO: should we optimize for this case?
     // if (range.empty)
     // {
     //     index = 0;

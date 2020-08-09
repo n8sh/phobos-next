@@ -483,7 +483,7 @@ unittest
     assert(stemmer.stem("x") == "x");
     assert(stemmer.stem("xyz") == "xyz");
     assert(stemmer.stem("win") == "win");
-    // TODO assert(stemmer.stem("winner") == "win");
+    // TODO: assert(stemmer.stem("winner") == "win");
     assert(stemmer.stem("winning") == "win");
     assert(stemmer.stem("farted") == "fart");
     assert(stemmer.stem("caresses") == "caress");
@@ -523,7 +523,7 @@ unittest
     assert(stemmer.stem("churches") == "church");
     assert(stemmer.stem("hardrock") == "hardrock");
 
-    // TODO assert(stemmer.stem("false") == "false");
+    // TODO: assert(stemmer.stem("false") == "false");
 }
 
 import nxt.dbgio;

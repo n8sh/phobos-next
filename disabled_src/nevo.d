@@ -2,12 +2,12 @@
 
    See_Also: https://en.wikipedia.org/wiki/Neuroevolution
 
-   TODO Profile use of cellops and logops in a specific domain or pattern och
+   TODO: Profile use of cellops and logops in a specific domain or pattern och
    and use roulette wheel sampling based on these in future patterns.
 
-   TODO reuse bit_traits.packedBitSizeOf
+   TODO: reuse bit_traits.packedBitSizeOf
 
-   TODO reuse `IndexedBy` `Cells` and `CellIx`
+   TODO: reuse `IndexedBy` `Cells` and `CellIx`
 */
 module nxt.nevo;
 
@@ -205,14 +205,14 @@ enum CellOp
     seqClone,                   /// sequential clone
     parClone,                   /// parallel clone
 }
-alias CellOps = Owned!(DynamicArray!CellOp); // TODO bit-pack
+alias CellOps = Owned!(DynamicArray!CellOp); // TODO: bit-pack
 
 /**m Network (Transformation) Operation Type Code.
  *
  * Instructions for a Program that builds \em Computing Networks (for
  * example Artificial Nerual Networks ANN).
  *
- * TODO What does \em nature cell this information bearer: Closest I
+ * TODO: What does \em nature cell this information bearer: Closest I
  * have found is http://en.wikipedia.org/wiki/Allele.
  */
 enum Gop
@@ -314,7 +314,7 @@ struct Cell
         auto gen = Random();
         this.lop = lop;
 
-        // TODO use std.algorithm to fill in `inputCellRIxs`
+        // TODO: use std.algorithm to fill in `inputCellRIxs`
         inputCellRIxs.length = inputRIxsLength;
         foreach (ref rix; inputCellRIxs[])
         {
@@ -387,7 +387,7 @@ alias Cells = IndexedBy!(Owned!(DynamicArray!Cell), `Ix`);
 /// Network/Graph of `Cells`.
 struct Network
 {
-    @safe pure /*TODO nothrow @nogc*/:
+    @safe pure /*TODO: nothrow @nogc*/:
 
     this(size_t cellCount)
     {

@@ -13,17 +13,17 @@ import core.internal.traits : Unqual;
  *
  * Use `std.bitmanip.BitArray` for array container storing boolean values.
  *
- * TODO optimize by making members templates. 0.579s before, eval-dwim: 0.67s
+ * TODO: optimize by making members templates. 0.579s before, eval-dwim: 0.67s
  *
- * TODO Add OutputRange.writer support as
+ * TODO: Add OutputRange.writer support as
  * https://github.com/burner/StringBuffer/blob/master/source/stringbuffer.d#L45
  *
- * TODO Use `std.traits.areCopyCompatibleArrays`
+ * TODO: Use `std.traits.areCopyCompatibleArrays`
  *
  * See_Also: https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md
  */
 struct DynamicArray(T,
-                    alias Allocator = null, // null means means to qcmeman functions. TODO use `PureMallocator` by default
+                    alias Allocator = null, // null means means to qcmeman functions. TODO: use `PureMallocator` by default
                     CapacityType = size_t)  // see also https://github.com/izabera/s
 if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     (is(CapacityType == ulong) ||        // 3 64-bit words
@@ -121,7 +121,7 @@ pragma(inline):
         thatPtr._store.capacity = cast(CapacityType)length;
         thatPtr._store.length = cast(CapacityType)length;
         foreach (immutable i, ref e; elements[])
-            thatPtr._mptr[i] = cast(T)e; // TODO restrict this function using a
+            thatPtr._mptr[i] = cast(T)e; // TODO: restrict this function using a
                                          // T-trait where this cast can be @trusted
         return *thatPtr;
     }
@@ -140,7 +140,7 @@ pragma(inline):
         _store.ptr = typeof(this).allocate(1, false);
         _store.capacity = 1;
         _store.length = 1;
-        moveEmplace(value, _mptr[0]); // TODO remove `moveEmplace` when compiler does it for us
+        moveEmplace(value, _mptr[0]); // TODO: remove `moveEmplace` when compiler does it for us
     }
 
     /// Construct from copyable element `value`.
@@ -195,7 +195,7 @@ pragma(inline):
     if (isElementAssignable!(U))
     {
         version(debugCtors) pragma(msg, __FILE_FULL_PATH__, ":", __LINE__, ": info: ", typeof(values));
-        // TODO use import emplace_all instead
+        // TODO: use import emplace_all instead
 
         _store.ptr = allocate(values.length, false);
         _store.capacity = values.length;
@@ -214,7 +214,7 @@ pragma(inline):
     if (isElementAssignable!(U))
     {
         version(debugCtors) pragma(msg, __FILE_FULL_PATH__, ":", __LINE__, ": info: ", typeof(values));
-        // TODO use import emplace_all instead
+        // TODO: use import emplace_all instead
 
         _store.ptr = allocate(values.length, false);
         _store.capacity = values.length;
@@ -270,7 +270,7 @@ pragma(inline):
         {
             import std.algorithm.mutation : copy;
             copy(values[0 .. values.length],
-                 result._mptr[0 .. values.length]); // TODO better to use foreach instead?
+                 result._mptr[0 .. values.length]); // TODO: better to use foreach instead?
             result.setLengthChecked(values.length);
         }
         else
@@ -278,7 +278,7 @@ pragma(inline):
             static if (hasLength!R)
             {
                 size_t i = 0;
-                foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
+                foreach (ref value; move(values)) // TODO: remove `move` when compiler does it for us
                     static if (needsMove!(typeof(value)))
                         moveEmplace(value, result._mptr[i++]);
                     else
@@ -288,9 +288,9 @@ pragma(inline):
             else
             {
                 // import std.algorithm.mutation : moveEmplaceAll;
-                /* TODO optimize with `moveEmplaceAll` that does a raw copy and
+                /* TODO: optimize with `moveEmplaceAll` that does a raw copy and
                  * zeroing of values */
-                foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
+                foreach (ref value; move(values)) // TODO: remove `move` when compiler does it for us
                     static if (needsMove!(ElementType!R))
                         result.insertBackMove(value); // steal element
                     else
@@ -311,10 +311,10 @@ pragma(inline):
 
     /** Destruct.
      *
-     * TODO what effect does have here?
+     * TODO: what effect does have here?
      * See_Also: https://github.com/atilaneves/automem/blob/master/source/automem/vector.d#L92
      */
-    ~this() @nogc /*TODO scope*/
+    ~this() @nogc /*TODO: scope*/
     {
         release();
     }
@@ -374,7 +374,7 @@ pragma(inline):
         {
             import std.experimental.allocator : makeArray;
             if (zero)
-                ptr = Allocator.makeArray!T(initialCapacity, 0).ptr; // TODO set length
+                ptr = Allocator.makeArray!T(initialCapacity, 0).ptr; // TODO: set length
             else
                 ptr = cast(typeof(return))Allocator.allocate(numBytes).ptr; // TODo set length
         }
@@ -389,7 +389,7 @@ pragma(inline):
 
         if (ptr is null &&
             initialCapacity >= 1 )
-            // TODO onOutOfMemoryError();
+            // TODO: onOutOfMemoryError();
             return null;
 
         static if (mustAddGCRange!T)
@@ -411,10 +411,10 @@ pragma(inline):
             static if (!is(typeof(Allocator) == typeof(null)))
             {
                 import std.experimental.allocator : makeArray;
-                ptr = Allocator.makeArray!T(initialCapacity, elementValue).ptr; // TODO set length
+                ptr = Allocator.makeArray!T(initialCapacity, elementValue).ptr; // TODO: set length
                 if (ptr is null &&
                     initialCapacity >= 1)
-                    // TODO onOutOfMemoryError();
+                    // TODO: onOutOfMemoryError();
                     return null;
             }
             else
@@ -422,7 +422,7 @@ pragma(inline):
                 ptr = cast(typeof(return))malloc(numBytes);
                 if (ptr is null &&
                     initialCapacity >= 1)
-                    // TODO onOutOfMemoryError();
+                    // TODO: onOutOfMemoryError();
                     return null;
                 foreach (immutable index; 0 .. initialCapacity)
                     emplace(&ptr[index], elementValue);
@@ -516,10 +516,10 @@ pragma(inline):
         {
             reserve(newLength);
             static if (hasElaborateDestructor!T)
-                // TODO remove when compiler does it for us
+                // TODO: remove when compiler does it for us
                 foreach (immutable index; _store.length .. newLength)
                 {
-                    // TODO remove when compiler does it for us:
+                    // TODO: remove when compiler does it for us:
                     static if (__traits(isCopyable, T))
                         emplace(&_mptr[index], T.init);
                     else
@@ -586,7 +586,7 @@ pragma(inline):
 
         if (_store.ptr is null &&
             newCapacity >= 1)
-            // TODO onOutOfMemoryError();
+            // TODO: onOutOfMemoryError();
             return;
 
         static if (mustAddGCRange!T)
@@ -618,10 +618,10 @@ pragma(inline):
     {
         static if (needsMove!T)
         {
-            move(*(cast(MutableE*)(&value)), _mptr[i]); // TODO is this correct?
+            move(*(cast(MutableE*)(&value)), _mptr[i]); // TODO: is this correct?
             return opSlice()[i];
         }
-        else static if (hasIndirections!T && // TODO `hasAliasing` instead?
+        else static if (hasIndirections!T && // TODO: `hasAliasing` instead?
                         !isMutable!T)
             static assert("Cannot modify constant elements with indirections");
         else
@@ -682,7 +682,7 @@ pragma(inline):
     if (isElementAssignable!U &&
         __traits(isCopyable, U))       // prevent accidental move of l-value `values`
     {
-        if (values.length == 1) // TODO branch should be detected at compile-time
+        if (values.length == 1) // TODO: branch should be detected at compile-time
             // twice as fast as array assignment below
             return insertBack1(values[0]);
 
@@ -707,7 +707,7 @@ pragma(inline):
                 }
             }
             else if (overlaps(this[], values[]))
-                assert(0, `TODO Handle overlapping arrays`);
+                assert(0, `TODO: Handle overlapping arrays`);
             else
             {
                 reserve(_store.length + values.length);
@@ -719,7 +719,7 @@ pragma(inline):
 
     /** Insert `value` into the end of the array.
      *
-     * TODO rename to `insertBack` and make this steal scalar calls over
+     * TODO: rename to `insertBack` and make this steal scalar calls over
      * insertBack(U)(U[] values...) overload below
      */
     void insertBack1()(T value) @trusted // template-lazy
@@ -748,7 +748,7 @@ pragma(inline):
         }
         else
         {
-            foreach (ref element; move(elements)) // TODO remove `move` when compiler does it for us
+            foreach (ref element; move(elements)) // TODO: remove `move` when compiler does it for us
                 static if (__traits(isCopyable, ElementType!R))
                     insertBack(element);
                 else
@@ -826,7 +826,7 @@ pragma(inline):
         auto value = move(_mptr[index]);
         shiftToFrontAt(index);
         _store.length -= 1;
-        return move(value); // TODO remove `move` when compiler does it for us
+        return move(value); // TODO: remove `move` when compiler does it for us
     }
 
     /** Move element at front. */
@@ -839,7 +839,7 @@ pragma(inline):
 
     private void shiftToFrontAt()(size_t index) @trusted // template-lazy
     {
-        // TODO use this instead:
+        // TODO: use this instead:
         // immutable si = index + 1;   // source index
         // immutable ti = index;       // target index
         // immutable restLength = this.length - (index + 1);
@@ -850,7 +850,7 @@ pragma(inline):
         {
             immutable si = index + i + 1; // source index
             immutable ti = index + i; // target index
-            moveEmplace(_mptr[si], // TODO remove `move` when compiler does it for us
+            moveEmplace(_mptr[si], // TODO: remove `move` when compiler does it for us
                         _mptr[ti]);
         }
     }
@@ -947,7 +947,7 @@ import std.functional : unaryFun;
  *
  * Returns: number of elements that were removed.
  *
- * TODO implement version that doesn't use a temporary array `tmp`, which is
+ * TODO: implement version that doesn't use a temporary array `tmp`, which is
  * probably faster for small arrays.
  */
 size_t remove(alias predicate, C)(ref C c) @trusted
@@ -971,7 +971,7 @@ if (isInstanceOf!(DynamicArray, C) &&
                 c[i] = T.init;    // avoid GC mark-phase dereference
         }
         else
-            tmp.insertBackMove(c[i]); // TODO remove unnecessary clearing of `_mptr[i]`
+            tmp.insertBackMove(c[i]); // TODO: remove unnecessary clearing of `_mptr[i]`
     }
 
     c.freeStore();
@@ -1063,7 +1063,7 @@ if (isInstanceOf!(DynamicArray, C) &&
     assert(c.capacity == 3);
     assert(c[] == []);
 
-    // TODO this should fail with -dip1000
+    // TODO: this should fail with -dip1000
     auto f() @safe
     {
         A a;
@@ -1110,17 +1110,17 @@ if (isInstanceOf!(DynamicArray, C) &&
     T[] leakSlice() @safe pure nothrow @nogc
     {
         A a;
-        return a[];             // TODO shouldn't compile with -dip1000
+        return a[];             // TODO: shouldn't compile with -dip1000
     }
 
     T* leakPointer() @safe pure nothrow @nogc
     {
         A a;
-        return a._store.ptr;    // TODO shouldn't compile with -dip1000
+        return a._store.ptr;    // TODO: shouldn't compile with -dip1000
     }
 
-    auto lp = leakPointer();    // TODO shouldn't compile with -dip1000
-    auto ls = leakSlice();      // TODO shouldn't compile with -dip1000
+    auto lp = leakPointer();    // TODO: shouldn't compile with -dip1000
+    auto ls = leakSlice();      // TODO: shouldn't compile with -dip1000
 }
 
 version(unittest)
@@ -1154,7 +1154,7 @@ version(unittest)
 @safe pure nothrow @nogc unittest
 {
     alias A = DynamicArray!(SomeUncopyable);
-    // TODO can we safely support this?: A a = [SomeUncopyable(17)];
+    // TODO: can we safely support this?: A a = [SomeUncopyable(17)];
 }
 
 // construct from array with uncopyable elements
@@ -1236,7 +1236,7 @@ unittest
     alias A = DynamicArray!(T);
 
     DynamicArray!char sink;
-    // TODO make this work: A([1, 2, 3]).toString(sink.put);
+    // TODO: make this work: A([1, 2, 3]).toString(sink.put);
 }
 
 /// iteration over mutable elements
@@ -1383,8 +1383,8 @@ unittest
 }
 
 /// test `OutputRange` behaviour with std.format
-version(none)                   // TODO replace with other exercise of std.format
-@safe pure /*TODO nothrow @nogc*/ unittest
+version(none)                   // TODO: replace with other exercise of std.format
+@safe pure /*TODO: nothrow @nogc*/ unittest
 {
     import std.format : formattedWrite;
     const x = "42";
@@ -1589,12 +1589,12 @@ version(none)                   // TODO replace with other exercise of std.forma
  */
 struct BasicCopyableArray
 {
-    /** TODO implement using instructions at:
+    /** TODO: implement using instructions at:
      * http://forum.dlang.org/post/eitlbtfbavdphbvplnrk@forum.dlang.org
      */
 }
 
-/// TODO Move to Phobos.
+/// TODO: Move to Phobos.
 private enum bool isRefIterable(T) = is(typeof({ foreach (ref elem; T.init) {} }));
 
 version(unittest)

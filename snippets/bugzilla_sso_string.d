@@ -46,7 +46,7 @@ struct SSOString
     }
 
     /// ditto
-    scope inout(E)[] opSlice(size_t i, size_t j) inout return @trusted // TODO @safe for -dip1000?
+    scope inout(E)[] opSlice(size_t i, size_t j) inout return @trusted // TODO: @safe for -dip1000?
     {
         return opSlice()[i .. j]; // range-checked
     }
@@ -73,13 +73,13 @@ private:
     {
         struct Small
         {
-            ubyte length; // TODO only first 4 bits are needed to represent a length between 0-15, use other 4 bits
+            ubyte length; // TODO: only first 4 bits are needed to represent a length between 0-15, use other 4 bits
             E[smallCapacity] data;
         }
     }
     else
     {
-        static assert(0, "TODO Add BigEndian support and test");
+        static assert(0, "TODO: Add BigEndian support and test");
     }
 
     union
@@ -96,16 +96,16 @@ private:
     immutable(char)* ptrFail1() @safe pure nothrow @nogc
     {
         SSOString x;
-        return x.ptr;           // TODO should fail with -dip1000
+        return x.ptr;           // TODO: should fail with -dip1000
     }
     string opSliceFail1() @safe pure nothrow @nogc
     {
         SSOString x;
-        return x[];             // TODO should fail with -dip1000
+        return x[];             // TODO: should fail with -dip1000
     }
     string opSliceFail2() @safe pure nothrow @nogc
     {
         SSOString x;
-        return x[0 .. 0];       // TODO should fail with -dip1000
+        return x[0 .. 0];       // TODO: should fail with -dip1000
     }
 }

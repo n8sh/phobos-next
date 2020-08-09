@@ -11,112 +11,112 @@
    See_Also: http://ridiculousfish.com/blog/posts/old-age-and-treachery.html
    See_Also: http://www.olark.com/spw/2011/08/you-can-list-a-directory-with-8-million-files-but-not-with-ls/
 
-   TODO Make use parallelism_ex: pmap
+   TODO: Make use parallelism_ex: pmap
 
-   TODO Call filterUnderAnyOfPaths using std.algorithm.filter directly on AAs. Use byPair or use AA.get(key, defaultValue)
+   TODO: Call filterUnderAnyOfPaths using std.algorithm.filter directly on AAs. Use byPair or use AA.get(key, defaultValue)
          See_Also: http://forum.dlang.org/thread/mailman.75.1392335793.6445.digitalmars-d-learn@puremagic.com
          See_Also: https://github.com/D-Programming-Language/druntime/pull/574
 
-   TODO Count logical lines.
-   TODO Lexers should be loosely coupled to FKinds instead of Files
-   TODO Generic Token[] and specific CToken[], CxxToken[]
+   TODO: Count logical lines.
+   TODO: Lexers should be loosely coupled to FKinds instead of Files
+   TODO: Generic Token[] and specific CToken[], CxxToken[]
 
-   TODO Don't scan for duplicates inside vc-dirs by default
+   TODO: Don't scan for duplicates inside vc-dirs by default
 
-   TODO Assert that files along duplicates path don't include symlinks
+   TODO: Assert that files along duplicates path don't include symlinks
 
-   TODO Implement FOp.deduplicate
-   TODO Prevent rescans of duplicates
+   TODO: Implement FOp.deduplicate
+   TODO: Prevent rescans of duplicates
 
-   TODO Defined generalized_specialized_two_way_relationship(kindD, kindDi)
+   TODO: Defined generalized_specialized_two_way_relationship(kindD, kindDi)
 
-   TODO Visualize hits using existingFileHitContext.asH!1 followed by a table:
+   TODO: Visualize hits using existingFileHitContext.asH!1 followed by a table:
          ROW_NR | hit string in <code lang=LANG></code>
 
-   TODO Parse and Sort GCC/Clang Compiler Messages on WARN_TYPE FILE:LINE:COL:MSG[WARN_TYPE] and use Collapsable HTML Widgets:
+   TODO: Parse and Sort GCC/Clang Compiler Messages on WARN_TYPE FILE:LINE:COL:MSG[WARN_TYPE] and use Collapsable HTML Widgets:
          http://api.jquerymobile.com/collapsible/
          when presenting them
 
-   TODO Maybe make use of https://github.com/Abscissa/scriptlike
+   TODO: Maybe make use of https://github.com/Abscissa/scriptlike
 
-   TODO Calculate Tree grams and bist
+   TODO: Calculate Tree grams and bist
 
-   TODO Get stats of the link itself not the target in SymLink constructors
+   TODO: Get stats of the link itself not the target in SymLink constructors
 
-   TODO RegFile with FileContent.text should be decodable to Unicode using
+   TODO: RegFile with FileContent.text should be decodable to Unicode using
    either iso-latin1, utf-8, etc. Check std.uni for how to try and decode stuff.
 
-   TODO Search for subwords.
+   TODO: Search for subwords.
    For example gtk_widget should also match widget_gtk and GtkWidget etc.
 
-   TODO Support multi-line keys
+   TODO: Support multi-line keys
 
-   TODO Use hash-lookup in txtFKinds.byExt for faster guessing of source file
+   TODO: Use hash-lookup in txtFKinds.byExt for faster guessing of source file
    kind. Merge it with binary kind lookup. And check FileContent member of
    kind to instead determine if it should be scanned or not.
    Sub-Task: Case-Insensitive Matching of extensions if
    nothing else passes.
 
-   TODO Detect symlinks with duplicate targets and only follow one of them and
+   TODO: Detect symlinks with duplicate targets and only follow one of them and
    group them together in visualization
 
-   TODO Add addTag, removeTag, etc and interface to fs.d for setting tags:
+   TODO: Add addTag, removeTag, etc and interface to fs.d for setting tags:
    --add-tag=comedy, remove-tag=comedy
 
-   TODO If files ends with ~ or .backup assume its a backup file, strip it from
+   TODO: If files ends with ~ or .backup assume its a backup file, strip it from
    end match it again and set backupFlag in FileKind
 
-   TODO Acronym match can make use of normal histogram counts. Check denseness
+   TODO: Acronym match can make use of normal histogram counts. Check denseness
    of binary histogram (bist) to determine if we should use a sparse or dense
    histogram.
 
-   TODO Activate and test support for ELF and Cxx11 subkinds
+   TODO: Activate and test support for ELF and Cxx11 subkinds
 
-   TODO Call either File.checkObseleted upon inotify. checkObseleted should remove stuff from hash tables
-   TODO Integrate logic in clearCStat to RegFile.makeObselete
-   TODO Upon Dir inotify call invalidate _depth, etc.
+   TODO: Call either File.checkObseleted upon inotify. checkObseleted should remove stuff from hash tables
+   TODO: Integrate logic in clearCStat to RegFile.makeObselete
+   TODO: Upon Dir inotify call invalidate _depth, etc.
 
-   TODO Following command: fs.d --color -d ~/ware/emacs -s lispy  -k
+   TODO: Following command: fs.d --color -d ~/ware/emacs -s lispy  -k
    shows "Skipped PNG file (png) at first extension try".
    Assure that this logic reuses cache and instead prints something like "Skipped PNG file using cached FKind".
 
-   TODO Cache each Dir separately to a file named after SHA1 of its path
+   TODO: Cache each Dir separately to a file named after SHA1 of its path
 
-   TODO Add ASCII kind: Requires optional stream analyzer member of FKind in
+   TODO: Add ASCII kind: Requires optional stream analyzer member of FKind in
    replacement for magicData. ASCIIFile
 
-   TODO Defined NotAnyKind(binaryKinds) and cache it
+   TODO: Defined NotAnyKind(binaryKinds) and cache it
 
-   TODO Create PkZipFile() in Dir.load() when FKind "pkZip Archive" is found.
+   TODO: Create PkZipFile() in Dir.load() when FKind "pkZip Archive" is found.
    Use std.zip.ZipArchive(void[] from mmfile)
 
-   TODO Scan Subversion Dirs with http://pastebin.com/6ZzPvpBj
+   TODO: Scan Subversion Dirs with http://pastebin.com/6ZzPvpBj
 
-   TODO Change order (binHit || allBHist8Miss) and benchmark
+   TODO: Change order (binHit || allBHist8Miss) and benchmark
 
-   TODO Display modification/access times as:
+   TODO: Display modification/access times as:
    See: http://forum.dlang.org/thread/k7afq6$2832$1@digitalmars.com
 
-   TODO Use User Defined Attributes (UDA): http://forum.dlang.org/thread/k7afq6$2832$1@digitalmars.com
-   TODO Use msgPack @nonPacked when needed
+   TODO: Use User Defined Attributes (UDA): http://forum.dlang.org/thread/k7afq6$2832$1@digitalmars.com
+   TODO: Use msgPack @nonPacked when needed
 
-   TODO Limit lines to terminal width
+   TODO: Limit lines to terminal width
 
-   TODO Create array of (OFFSET, LENGTH) and this in FKind Pattern factory
+   TODO: Create array of (OFFSET, LENGTH) and this in FKind Pattern factory
    function.  Then for source file extra slice at (OFFSET, LENGTH) and use as
    input into hash-table from magic (if its a Lit-pattern to)
 
-   TODO Verify that "f.tar.z" gets tuple extensions tuple("tar", "z")
-   TODO Verify that "libc.so.1.2.3" gets tuple extensions tuple("so", "1", "2", "3") and "so" extensions should the be tried
-   TODO Cache Symbols larger than three characters in a global hash from symbol to path
+   TODO: Verify that "f.tar.z" gets tuple extensions tuple("tar", "z")
+   TODO: Verify that "libc.so.1.2.3" gets tuple extensions tuple("so", "1", "2", "3") and "so" extensions should the be tried
+   TODO: Cache Symbols larger than three characters in a global hash from symbol to path
 
-   TODO Benchmark horspool.d and perhaps use instead of std.find
+   TODO: Benchmark horspool.d and perhaps use instead of std.find
 
-   TODO Splitting into keys should not split arguments such as "a b"
+   TODO: Splitting into keys should not split arguments such as "a b"
 
-   TODO Perhaps use http://www.chartjs.org/ to visualize stuff
+   TODO: Perhaps use http://www.chartjs.org/ to visualize stuff
 
-   TODO Make use of @nonPacked in version(msgpack).
+   TODO: Make use of @nonPacked in version(msgpack).
 */
 module nxt.fs;
 
@@ -187,7 +187,7 @@ version(linux) import core.sys.posix.sys.stat;
 version(linux) import core.sys.posix.signal;
 //version(linux) import std.c.linux.linux;
 
-/* TODO Set global state.
+/* TODO: Set global state.
    http://forum.dlang.org/thread/cu9fgg$28mr$1@digitaldaemon.com
 */
 /** Exception Describing Process Signal. */
@@ -424,7 +424,7 @@ class FKind
         }
         else static if (isArrayOf!(T, string))
         {
-            // TODO Move to a factory function strs(x)
+            // TODO: Move to a factory function strs(x)
             auto alt_ = alt();
             foreach (ext; baseNaming_)  // add each string as an alternative
             {
@@ -532,7 +532,7 @@ class FKind
     string[] builtins; // Builtin Functions
     Op[] opers; // Language Opers
 
-    /* TODO Move this to CompLang class */
+    /* TODO: Move this to CompLang class */
     Delim[] strings; // String syntax.
     Delim[] comments; // Comment syntax.
 
@@ -577,8 +577,8 @@ class FKinds
     }
 
     /** Rehash Internal AAs.
-        TODO Change to @safe when https://github.com/D-Programming-Language/druntime/pull/942 has been merged
-        TODO Change to nothrow when uniq becomes nothrow.
+        TODO: Change to @safe when https://github.com/D-Programming-Language/druntime/pull/942 has been merged
+        TODO: Change to nothrow when uniq becomes nothrow.
     */
     FKinds rehash() @trusted pure /* nothrow */
     {
@@ -594,7 +594,7 @@ class FKinds
 
     FKind[] byIndex;
 private:
-    /* TODO These are "slaves" under byIndex and should not be modifiable outside
+    /* TODO: These are "slaves" under byIndex and should not be modifiable outside
      of this class but their FKind's can mutable.
      */
     FKind[string] byName; // Index by unique name string
@@ -946,7 +946,7 @@ class File
     }
 
     /** Returns: Path to `this` File.
-        TODO Reuse parents.
+        TODO: Reuse parents.
      */
     string path() @property @trusted pure out (result) {
         /* assert(result == pathRecursive); */
@@ -1020,8 +1020,8 @@ class File
         void fromMsgpack(Unpacker)(auto ref Unpacker unpacker)
         {
             long stdTime;
-            unpacker.unpack(stdTime); timeLastModified = SysTime(stdTime); // TODO Functionize
-            unpacker.unpack(stdTime); timeLastAccessed = SysTime(stdTime); // TODO Functionize
+            unpacker.unpack(stdTime); timeLastModified = SysTime(stdTime); // TODO: Functionize
+            unpacker.unpack(stdTime); timeLastAccessed = SysTime(stdTime); // TODO: Functionize
         }
     }
 
@@ -1184,8 +1184,8 @@ class Symlink : File
         {
             unpacker.unpack(name, size);
             long stdTime;
-            unpacker.unpack(stdTime); timeLastModified = SysTime(stdTime); // TODO Functionize
-            unpacker.unpack(stdTime); timeLastAccessed = SysTime(stdTime); // TODO Functionize
+            unpacker.unpack(stdTime); timeLastModified = SysTime(stdTime); // TODO: Functionize
+            unpacker.unpack(stdTime); timeLastAccessed = SysTime(stdTime); // TODO: Functionize
         }
     }
 
@@ -1228,8 +1228,8 @@ class SpecFile : File
         {
             unpacker.unpack(name, size);
             long stdTime;
-            unpacker.unpack(stdTime); timeLastModified = SysTime(stdTime); // TODO Functionize
-            unpacker.unpack(stdTime); timeLastAccessed = SysTime(stdTime); // TODO Functionize
+            unpacker.unpack(stdTime); timeLastModified = SysTime(stdTime); // TODO: Functionize
+            unpacker.unpack(stdTime); timeLastAccessed = SysTime(stdTime); // TODO: Functionize
         }
     }
 }
@@ -1278,7 +1278,7 @@ class RegFile : File
             calculateCStatInChunks(parent.gstats.filesByContentId,
                                    32*pageSize(),
                                    doSHA1);
-            freeContents(); // TODO Call lazily only when open count is too large
+            freeContents(); // TODO: Call lazily only when open count is too large
         }
         return _cstat._contentId;
     }
@@ -1365,7 +1365,7 @@ class RegFile : File
                 if (doBist) { _cstat.bist.put(chunk); }
                 if (doBitStatus)
                 {
-                    /* TODO This can be parallelized using 64-bit wording!
+                    /* TODO: This can be parallelized using 64-bit wording!
                      * Write automatic parallelizing library for this? */
                     foreach (elt; chunk)
                     {
@@ -1384,7 +1384,7 @@ class RegFile : File
         if (doSHA1)
         {
             _cstat._contentId = sha1.finish();
-            filesByContentId[_cstat._contentId] ~= cast(NotNull!File)assumeNotNull(this); // TODO Prettier way?
+            filesByContentId[_cstat._contentId] ~= cast(NotNull!File)assumeNotNull(this); // TODO: Prettier way?
         }
     }
 
@@ -1405,8 +1405,8 @@ class RegFile : File
     override string toString() @property @trusted
     {
         // import std.traits: fullyQualifiedName;
-        // return fullyQualifiedName!(typeof(this)) ~ `(` ~ buildPath(parent.name, name) ~ `)`; // TODO typenameof
-        return (typeof(this)).stringof ~ `(` ~ this.path ~ `)`; // TODO typenameof
+        // return fullyQualifiedName!(typeof(this)) ~ `(` ~ buildPath(parent.name, name) ~ `)`; // TODO: typenameof
+        return (typeof(this)).stringof ~ `(` ~ this.path ~ `)`; // TODO: typenameof
     }
 
     version(msgpack)
@@ -1425,7 +1425,7 @@ class RegFile : File
                         timeLastModified.stdTime,
                         timeLastAccessed.stdTime);
 
-            // CStat: TODO Group
+            // CStat: TODO: Group
             packer.pack(_cstat.kindId); // FKind
             packer.pack(_cstat._contentId); // Digest
 
@@ -1444,7 +1444,7 @@ class RegFile : File
                             _cstat._xgramDeepDenseness);
             }
 
-            /*     auto this_ = (cast(RegFile)this); // TODO Ugly! Is there another way? */
+            /*     auto this_ = (cast(RegFile)this); // TODO: Ugly! Is there another way? */
             /*     const tags = this_.parent.gstats.ftags.getTags(this_); */
             /*     immutable tagsFlag = !tags.empty; */
             /*     packer.pack(tagsFlag); */
@@ -1459,10 +1459,10 @@ class RegFile : File
 
             // Time
             long stdTime;
-            unpacker.unpack(stdTime); timeLastModified = SysTime(stdTime); // TODO Functionize
-            unpacker.unpack(stdTime); timeLastAccessed = SysTime(stdTime); // TODO Functionize
+            unpacker.unpack(stdTime); timeLastModified = SysTime(stdTime); // TODO: Functionize
+            unpacker.unpack(stdTime); timeLastAccessed = SysTime(stdTime); // TODO: Functionize
 
-            // CStat: TODO Group
+            // CStat: TODO: Group
             unpacker.unpack(_cstat.kindId); // FKind
             if (_cstat.kindId.defined &&
                 _cstat.kindId !in parent.gstats.allFKinds.byId)
@@ -1608,13 +1608,13 @@ struct CStat
     /** Boolean Single Bistogram over file contents. If
         binHist0[cast(ubyte)x] is set then this file contains byte x. Consumes
         32 bytes. */
-    Bist bist; // TODO Put in separate slice std.allocator.
+    Bist bist; // TODO: Put in separate slice std.allocator.
 
     /** Boolean Pair Bistogram (Digram) over file contents (higher-order statistics).
         If this RegFile contains a sequence of [byte0, bytes1],
         then bit at index byte0 + byte1 * 256 is set in xgram.
     */
-    XGram xgram; // TODO Use slice std.allocator
+    XGram xgram; // TODO: Use slice std.allocator
     private ulong _xgramDeepDenseness = 0;
 
     uint64_t hitCount = 0;
@@ -1687,7 +1687,7 @@ class GStats
                                defaultStringDelims,
                                FileContent.sourceCode);
 
-        txtFKinds ~= new FKind("Rake", ["Rakefile"],// TODO inherit Ruby
+        txtFKinds ~= new FKind("Rake", ["Rakefile"],// TODO: inherit Ruby
                                ["mk", "makefile", "make", "gnumakefile"], [], 0, [], [],
                                [Delim("#"), Delim("=begin", "=end")],
                                defaultStringDelims,
@@ -1700,11 +1700,11 @@ class GStats
         txtFKinds ~= new FKind("XML", [], ["xml", "dtd", "xsl", "xslt", "ent", ], [], 0, "<?xml", [],
                                [Delim("<!--", "-->")],
                                defaultStringDelims,
-                               FileContent.text, FileKindDetection.equalsContents); // TODO markup text
+                               FileContent.text, FileKindDetection.equalsContents); // TODO: markup text
         txtFKinds ~= new FKind("YAML", [], ["yaml", "yml"], [], 0, [], [],
                                defaultCommentDelims,
                                defaultStringDelims,
-                               FileContent.text); // TODO markup text
+                               FileContent.text); // TODO: markup text
         txtFKinds ~= new FKind("CSS", [], ["css"], [], 0, [], [],
                                [Delim("/*", "*/")],
                                defaultStringDelims,
@@ -1715,12 +1715,12 @@ class GStats
                                defaultStringDelims,
                                FileContent.text, FileKindDetection.equalsNameAndContents);
 
-        txtFKinds ~= new FKind("Comma-separated values", [], ["csv"], [], 0, [], [], // TODO decribe with symbolic
+        txtFKinds ~= new FKind("Comma-separated values", [], ["csv"], [], 0, [], [], // TODO: decribe with symbolic
                                defaultCommentDelims,
                                defaultStringDelims,
                                FileContent.text, FileKindDetection.equalsNameAndContents);
 
-        txtFKinds ~= new FKind("Tab-separated values", [], ["tsv"], [], 0, [], [], // TODO describe with symbolic
+        txtFKinds ~= new FKind("Tab-separated values", [], ["tsv"], [], 0, [], [], // TODO: describe with symbolic
                                defaultCommentDelims,
                                defaultStringDelims,
                                FileContent.text, FileKindDetection.equalsNameAndContents);
@@ -1774,10 +1774,10 @@ class GStats
             Op("<=", OpArity.binary, OpAssoc.LR, 8, "Less than or equal to"),
             Op(">=", OpArity.binary, OpAssoc.LR, 8, "Greater than or equal to"),
 
-            Op("&&", OpArity.binary, OpAssoc.LR, 13, "Logical AND"), // TODO Convert to math in smallcaps AND
-            Op("||", OpArity.binary, OpAssoc.LR, 14, "Logical OR"), // TODO Convert to math in smallcaps OR
+            Op("&&", OpArity.binary, OpAssoc.LR, 13, "Logical AND"), // TODO: Convert to math in smallcaps AND
+            Op("||", OpArity.binary, OpAssoc.LR, 14, "Logical OR"), // TODO: Convert to math in smallcaps OR
 
-            Op("!", OpArity.unaryPrefix, OpAssoc.LR, 3, "Logical NOT"), // TODO Convert to math in smallcaps NOT
+            Op("!", OpArity.unaryPrefix, OpAssoc.LR, 3, "Logical NOT"), // TODO: Convert to math in smallcaps NOT
 
             Op("&", OpArity.binary, OpAssoc.LR, 10, "Bitwise AND"),
             Op("^", OpArity.binary, OpAssoc.LR, 11, "Bitwise XOR (exclusive or)"),
@@ -1886,7 +1886,7 @@ class GStats
                                                         "auto",
                                                         "thread_local",
                                                         "static_assert", ];
-        // TODO Define as subkind
+        // TODO: Define as subkind
         /* txtFKinds ~= new FKind("C++11", [], ["cpp", "hpp", "cxx", "hxx", "c++", "h++", "C", "H"], [], 0, [], */
         /*                        keywordsCxx11, */
         /*                        [Delim("/\*", "*\/"), */
@@ -2101,7 +2101,7 @@ class GStats
         kindSwift.opers = opersOverflowSwift;
         txtFKinds ~= kindSwift;
 
-        static immutable keywordsCSharp = ["if"]; // TODO Add keywords
+        static immutable keywordsCSharp = ["if"]; // TODO: Add keywords
         txtFKinds ~= new FKind("C#", [], ["cs"], [], 0, [], keywordsCSharp,
                                cCommentDelims,
                                defaultStringDelims,
@@ -2128,7 +2128,7 @@ class GStats
 
         txtFKinds ~= new FKind("Parrot", [], ["pir", "pasm", "pmc", "ops", "pod", "pg", "tg", ], [], 0, [], keywordsOCaml,
                                [Delim("#"),
-                                Delim("^=", // TODO Needs beginning of line instead of ^
+                                Delim("^=", // TODO: Needs beginning of line instead of ^
                                       "=cut")],
                                defaultStringDelims,
                                FileContent.sourceCode, FileKindDetection.equalsWhatsGiven);
@@ -2160,7 +2160,7 @@ class GStats
             Op("*", OpArity.unaryPrefix, OpAssoc.RL, 12*2, "Pointer Dereference"),
             Op("+", OpArity.unaryPrefix, OpAssoc.RL, 12*2, "Unary Plus"),
             Op("-", OpArity.unaryPrefix, OpAssoc.RL, 12*2, "Unary Minus"),
-            Op("!", OpArity.unaryPrefix, OpAssoc.RL, 12*2, "Logical NOT"), // TODO Convert to math in smallcaps NOT
+            Op("!", OpArity.unaryPrefix, OpAssoc.RL, 12*2, "Logical NOT"), // TODO: Convert to math in smallcaps NOT
             Op("~", OpArity.unaryPrefix, OpAssoc.LR, 12*2, "Bitwise NOT (One's Complement)"),
 
             // Bit shift
@@ -2183,8 +2183,8 @@ class GStats
             Op("^", OpArity.binary, OpAssoc.LR, 7*2, "Bitwise XOR (exclusive or)"),
             Op("|", OpArity.binary, OpAssoc.LR, 6*2, "Bitwise OR"),
 
-            Op("&&", OpArity.binary, OpAssoc.LR, 5*2, "Logical AND"), // TODO Convert to math in smallcaps AND
-            Op("||", OpArity.binary, OpAssoc.LR, 4*2, "Logical OR"), // TODO Convert to math in smallcaps OR
+            Op("&&", OpArity.binary, OpAssoc.LR, 5*2, "Logical AND"), // TODO: Convert to math in smallcaps AND
+            Op("||", OpArity.binary, OpAssoc.LR, 4*2, "Logical OR"), // TODO: Convert to math in smallcaps OR
 
             // Assignment Arithmetic (binary)
             Op("=", OpArity.binary, OpAssoc.RL, 2*2, "Assign"),
@@ -2241,7 +2241,7 @@ class GStats
                                         FileKindDetection.equalsNameOrContents,
                                         Lang.d);
         kindDInterface.operations ~= tuple(FOp.checkSyntax, `gdc -fsyntax-only`);
-        kindDInterface.operations ~= tuple(FOp.checkSyntax, `dmd -debug -wi -c -o-`); // TODO Include paths
+        kindDInterface.operations ~= tuple(FOp.checkSyntax, `dmd -debug -wi -c -o-`); // TODO: Include paths
         txtFKinds ~= kindDInterface;
 
         auto kindDDoc = new FKind("D Documentation", [], ["dd"],
@@ -2264,7 +2264,7 @@ class GStats
                                FileKindDetection.equalsNameOrContents,
                                Lang.d);
         kindD.operations ~= tuple(FOp.checkSyntax, `gdc -fsyntax-only`);
-        kindD.operations ~= tuple(FOp.checkSyntax, `dmd -debug -wi -c -o-`); // TODO Include paths
+        kindD.operations ~= tuple(FOp.checkSyntax, `dmd -debug -wi -c -o-`); // TODO: Include paths
         txtFKinds ~= kindD;
 
         auto kindDi = new FKind("D Interface", [], ["di"],
@@ -2277,7 +2277,7 @@ class GStats
                                 FileKindDetection.equalsNameOrContents,
                                 Lang.d);
         kindDi.operations ~= tuple(FOp.checkSyntax, `gdc -fsyntax-only`);
-        kindDi.operations ~= tuple(FOp.checkSyntax, `dmd -debug -wi -c -o-`); // TODO Include paths
+        kindDi.operations ~= tuple(FOp.checkSyntax, `dmd -debug -wi -c -o-`); // TODO: Include paths
         txtFKinds ~= kindDi;
 
         static immutable keywordsRust = ["as", "box", "break", "continue", "crate",
@@ -2298,9 +2298,9 @@ class GStats
         txtFKinds ~= kindRust;
 
         static immutable keywordsFortran77 = ["if", "else"];
-        // TODO Support .h files but require it to contain some Fortran-specific or be parseable.
+        // TODO: Support .h files but require it to contain some Fortran-specific or be parseable.
         auto kindFortan = new FKind("Fortran", [], ["f", "fortran", "f77", "f90", "f95", "f03", "for", "ftn", "fpp"], [], 0, [], keywordsFortran77,
-                                    [Delim("^C")], // TODO Need beginning of line instead ^. seq(bol(), alt(lit('C'), lit('c'))); // TODO Add chars chs("cC");
+                                    [Delim("^C")], // TODO: Need beginning of line instead ^. seq(bol(), alt(lit('C'), lit('c'))); // TODO: Add chars chs("cC");
                                     defaultStringDelims,
                                     FileContent.sourceCode,
                                     FileKindDetection.equalsNameOrContents,
@@ -2339,7 +2339,7 @@ class GStats
         auto aliKind = new FKind("Ada Library File", [], ["ali"], [], 0, `V "GNAT Lib v`, [],
                                  [], // N/A
                                  defaultStringDelims,
-                                 FileContent.fingerprint); // TODO Parse version following magic tag?
+                                 FileContent.fingerprint); // TODO: Parse version following magic tag?
         aliKind.machineGenerated = true;
         txtFKinds ~= aliKind;
 
@@ -2518,7 +2518,7 @@ class GStats
         txtFKinds ~= dubFKind;
         dubFKind.operations ~= tuple(FOp.build, `dub`);
 
-        // TODO Inherit XML
+        // TODO: Inherit XML
         txtFKinds ~= new FKind("JSP", [], ["jsp", "jspx", "jhtm", "jhtml"], [], 0, [], [],
                                [Delim("<!--", "--%>"), // XML
                                 Delim("<%--", "--%>")],
@@ -2535,7 +2535,7 @@ class GStats
                                defaultStringDelims,
                                FileContent.scriptCode);
         txtFKinds ~= new FKind("Mason", [], ["mas", "mhtml", "mpl", "mtxt"], [], 0, [], [],
-                               [], // TODO Need symbolic
+                               [], // TODO: Need symbolic
                                defaultStringDelims,
                                FileContent.scriptCode);
 
@@ -2568,12 +2568,12 @@ class GStats
         // Numerical Computing
 
         txtFKinds ~= new FKind("Matlab", [], ["m"], [], 0, [], [],
-                               [Delim("%{", "}%"), // TODO Prio 1
-                                Delim("%")], // TODO Prio 2
+                               [Delim("%{", "}%"), // TODO: Prio 1
+                                Delim("%")], // TODO: Prio 2
                                defaultStringDelims,
                                FileContent.sourceCode);
         auto kindOctave = new FKind("Octave", [], ["m"], [], 0, [], [],
-                                    [Delim("%{", "}%"), // TODO Prio 1
+                                    [Delim("%{", "}%"), // TODO: Prio 1
                                      Delim("%"),
                                      Delim("#")],
                                     defaultStringDelims,
@@ -2712,7 +2712,7 @@ class GStats
         /* elfKind.subKinds ~= elfCoreKind; */
         /* elfKind.subKinds ~= elfKind; */
 
-        // TODO Specialize to not steal results from file's magics.
+        // TODO: Specialize to not steal results from file's magics.
         auto linuxFirmwareKind = new FKind("Linux Firmware",
                                  [], ["bin", "ucode", "dat", "sbcf", "fw"], [], 0, [], [],
                                  [], // N/A
@@ -2722,7 +2722,7 @@ class GStats
         linuxFirmwareKind.parentPathDirs = ["lib", "firmware"];
         binFKinds ~= linuxFirmwareKind;
 
-        // TODO Specialize to not steal results from file's magics.
+        // TODO: Specialize to not steal results from file's magics.
         auto linuxHwDbKind = new FKind("Linux Hardware Database Index",
                                        "hwdb.bin", ["bin"], "KSLPHHRH", 0, [], [],
                                        [], // N/A
@@ -2791,15 +2791,15 @@ class GStats
         binFKinds ~= new FKind("JPEG", [], extJPEG, x"FF D8", 0, [], [],
                                [], // N/A
                                [], // N/A
-                               FileContent.image); // TODO Support ends with [0xFF, 0xD9]
+                               FileContent.image); // TODO: Support ends with [0xFF, 0xD9]
         binFKinds ~= new FKind("JPEG/JFIF", [], extJPEG, x"FF D8", 0, [], [],
                                [], // N/A
                                [], // N/A
-                               FileContent.image); // TODO Support ends with ['J','F','I','F', 0x00]
+                               FileContent.image); // TODO: Support ends with ['J','F','I','F', 0x00]
         binFKinds ~= new FKind("JPEG/Exif", [], extJPEG, x"FF D8", 0, [], [],
                                [], // N/A
                                [], // N/A
-                               FileContent.image); // TODO Support contains ['E','x','i','f', 0x00] followed by metadata
+                               FileContent.image); // TODO: Support contains ['E','x','i','f', 0x00] followed by metadata
 
         binFKinds ~= new FKind("Pack200-Compressed Java Bytes Code", [], ["class"], x"CA FE BA BE", 0, [], [],
                                [], // N/A
@@ -2827,7 +2827,7 @@ class GStats
                                   FileContent.imageIcon);
         icnsKind.wikip = "https://en.wikipedia.org/wiki/Apple_Icon_Image_format";
         binFKinds ~= icnsKind;
-        // TODO read with http://icns.sourceforge.net/
+        // TODO: read with http://icns.sourceforge.net/
 
         auto kindPDF = new FKind("PDF", [], ["pdf"], "%PDF", 0, [], [],
                                  [], // N/A
@@ -2885,13 +2885,13 @@ class GStats
         auto kindWOFF = new FKind("Web Open Font", [], ["woff"], "wOFF", 0, [], [],
                                   [], // N/A
                                   defaultStringDelims,
-                                  FileContent.font); // TODO container for kindSFNT
+                                  FileContent.font); // TODO: container for kindSFNT
         binFKinds ~= kindWOFF;
 
         auto kindSFNT = new FKind("Spline Font", [], ["sfnt"], "sfnt", 0, [], [],
                                   [], // N/A
                                   defaultStringDelims,
-                                  FileContent.font); // TODO container for Sfnt
+                                  FileContent.font); // TODO: container for Sfnt
         binFKinds ~= kindSFNT;
 
         // Audio
@@ -2918,7 +2918,7 @@ class GStats
                                defaultStringDelims,
                                FileContent.media);
 
-        // TODO Support RIFF....WAVEfmt using symbolic seq(lit("RIFF"), any(4), lit("WAVEfmt"))
+        // TODO: Support RIFF....WAVEfmt using symbolic seq(lit("RIFF"), any(4), lit("WAVEfmt"))
         binFKinds ~= new FKind("WAV", [], ["wav", "wave"], "RIFF", 0, [], [],
                                [], // N/A
                                defaultStringDelims,
@@ -2936,7 +2936,7 @@ class GStats
         binFKinds ~= new FKind("GNU tar Archive", [], ["tar"], "ustar\040\040\0", 257, [], [],
                                [], // N/A
                                defaultStringDelims,
-                               FileContent.archive, FileKindDetection.equalsContents); // TODO Specialized Derivation of "POSIX tar Archive"
+                               FileContent.archive, FileKindDetection.equalsContents); // TODO: Specialized Derivation of "POSIX tar Archive"
         binFKinds ~= new FKind("POSIX tar Archive", [], ["tar"], "ustar\0", 257, [], [],
                                [], // N/A
                                defaultStringDelims,
@@ -3007,7 +3007,7 @@ class GStats
         binFKinds ~= new FKind("Python Bytes Code", [], ["pyc"], x"0D 0A", 2, [], [],
                                [], // N/A
                                defaultStringDelims,
-                               FileContent.byteCode, FileKindDetection.equalsNameAndContents); // TODO Handle versions at src[0..2]
+                               FileContent.byteCode, FileKindDetection.equalsNameAndContents); // TODO: Handle versions at src[0..2]
 
         binFKinds ~= new FKind("Zshell Wordcode", [], ["zwc"], x"07 06 05 04", 0, [], [],
                                [], // N/A
@@ -3087,7 +3087,7 @@ class GStats
         binFKinds ~= new FKind("SQLite format 3", [], extsSQLite , "SQLite format 3", 0, [], [],
                                [], // N/A
                                defaultStringDelims,
-                               FileContent.tagsDatabase, FileKindDetection.equalsContents); // TODO Why is this detected at 49:th try?
+                               FileContent.tagsDatabase, FileKindDetection.equalsContents); // TODO: Why is this detected at 49:th try?
 
         binFKinds ~= new FKind("Vim swap", [], ["swo"], [], 0, "b0VIM ", [],
                                [], // N/A
@@ -3102,7 +3102,7 @@ class GStats
         binFKinds ~= new FKind("Firmware", [], ["fw"], cast(ubyte[])[], 0, [], [],
                                [], // N/A
                                defaultStringDelims,
-                               FileContent.cache, FileKindDetection.equalsName); // TODO Add check for binary contents and that some parenting directory is named "firmware"
+                               FileContent.cache, FileKindDetection.equalsName); // TODO: Add check for binary contents and that some parenting directory is named "firmware"
 
         binFKinds ~= new FKind("LibreOffice or OpenOffice RDB", [], ["rdb"],
                                cast(ubyte[])[0x43,0x53,0x4d,0x48,
@@ -3111,7 +3111,7 @@ class GStats
                                              0x00,0x02,0x00,0x02], 0, [], [],
                                [], // N/A
                                defaultStringDelims,
-                               FileContent.database, FileKindDetection.equalsName); // TODO Add check for binary contents and that some parenting directory is named "firmware"
+                               FileContent.database, FileKindDetection.equalsName); // TODO: Add check for binary contents and that some parenting directory is named "firmware"
 
         binFKinds ~= new FKind("sconsign", [], ["sconsign", "sconsign.dblite", "dblite"], x"7d 71 01 28", 0, [], [],
                                [], // N/A
@@ -3145,7 +3145,7 @@ class GStats
          * used for digital transmission of fax data and supports 1 bit per
          * pixel
          */
-        binFKinds ~= new FKind("CCITT Group 3 compressed format", [], // TODO Altenative name: Digifax-G3, G3 Fax
+        binFKinds ~= new FKind("CCITT Group 3 compressed format", [], // TODO: Altenative name: Digifax-G3, G3 Fax
                                ["g3", "G3"],
                                "PC Research, Inc", 0, [], [],
                                [], // N/A
@@ -3399,11 +3399,11 @@ class Dir : File
     {
         if (_treeContentId.isUntouched)
         {
-            _treeContentId = subs.byValue.map!"a.treeContentId".sha1Of; // TODO join loops for calculating treeSize
+            _treeContentId = subs.byValue.map!"a.treeContentId".sha1Of; // TODO: join loops for calculating treeSize
             assert(_treeContentId, "Zero tree content digest");
             if (treeSize() != 0)
             {
-                gstats.filesByContentId[_treeContentId] ~= assumeNotNull(cast(File)this); // TODO Avoid cast when DMD and NotNull is fixed
+                gstats.filesByContentId[_treeContentId] ~= assumeNotNull(cast(File)this); // TODO: Avoid cast when DMD and NotNull is fixed
             }
         }
         return _treeContentId;
@@ -3437,7 +3437,7 @@ class Dir : File
     }
 
     /** Scan `this` recursively for a non-diretory file with basename `name`.
-        TODO Reuse range based algorithm this.tree(depthFirst|breadFirst)
+        TODO: Reuse range based algorithm this.tree(depthFirst|breadFirst)
      */
     File find(string name) @property
     {
@@ -3473,7 +3473,7 @@ class Dir : File
             /* _treeSize += subDent.size.Bytes64; */
             // dbg("Updating ", _treeSize, " of ", path);
 
-            /** TODO Move these overloads to std.datetime */
+            /** TODO: Move these overloads to std.datetime */
             auto ref min(in SysTime a, in SysTime b) @trusted pure nothrow { return (a < b ? a : b); }
             auto ref max(in SysTime a, in SysTime b) @trusted pure nothrow { return (a > b ? a : b); }
 
@@ -3526,7 +3526,7 @@ class Dir : File
         _treeSize.reset; // this.size;
         auto oldSubs = _subs;
         _subs.reset;
-        assert(_subs.length == 0); // TODO Remove when verified
+        assert(_subs.length == 0); // TODO: Remove when verified
 
         import std.file: dirEntries, SpanMode;
         auto entries = dirEntries(path, SpanMode.shallow, false); // false: skip symlinks
@@ -3551,7 +3551,7 @@ class Dir : File
                 }
                 else if (dent.isFile)
                 {
-                    // TODO Delay construction of and specific files such as
+                    // TODO: Delay construction of and specific files such as
                     // CFile, ELFFile, after FKind-recognition has been made.
                     sub = new RegFile(dent, assumeNotNull(this));
                     isRegFile = true;
@@ -3575,14 +3575,14 @@ class Dir : File
     bool reload(int depth = 0) { return load(depth, true); }
     alias sync = reload;
 
-    /* TODO Can we get make this const to the outside world perhaps using inout? */
+    /* TODO: Can we get make this const to the outside world perhaps using inout? */
     ref NotNull!File[string] subs() @property { load(); return _subs; }
 
     NotNull!File[] subsSorted(DirSorting sorted = DirSorting.onTimeLastModified) @property
     {
         load();
         auto ssubs = _subs.values;
-        /* TODO Use radix sort to speed things up. */
+        /* TODO: Use radix sort to speed things up. */
         final switch (sorted)
         {
             /* case DirSorting.onTimeCreated: */
@@ -3642,7 +3642,7 @@ class Dir : File
                         kind);
 
             // Contents
-            /* TODO serialize map of polymorphic objects using
+            /* TODO: serialize map of polymorphic objects using
              * packer.packArray(_subs) and type trait lookup up all child-classes of
              * File */
             packer.pack(_subs.length);
@@ -3688,7 +3688,7 @@ class Dir : File
                 else
                 {
                     immutable subClassName = sub.classinfo.name;
-                    assert(0, "Unknown sub File class " ~ subClassName); // TODO Exception
+                    assert(0, "Unknown sub File class " ~ subClassName); // TODO: Exception
                 }
             }
         }
@@ -3698,22 +3698,22 @@ class Dir : File
             unpacker.unpack(name, size);
 
             long stdTime;
-            unpacker.unpack(stdTime); timeLastModified = SysTime(stdTime); // TODO Functionize
-            unpacker.unpack(stdTime); timeLastAccessed = SysTime(stdTime); // TODO Functionize
+            unpacker.unpack(stdTime); timeLastModified = SysTime(stdTime); // TODO: Functionize
+            unpacker.unpack(stdTime); timeLastAccessed = SysTime(stdTime); // TODO: Functionize
 
             /* dbg("before:", path, " ", size, " ", timeLastModified, " ", timeLastAccessed); */
 
             // FKind
             if (!kind) { kind = null; }
-            unpacker.unpack(kind); /* TODO kind = new DirKind(unpacker); */
+            unpacker.unpack(kind); /* TODO: kind = new DirKind(unpacker); */
             /* dbg("after:", path); */
 
             _treeSize.reset; // this.size;
 
             // Contents
-            /* TODO unpacker.unpack(_subs); */
+            /* TODO: unpacker.unpack(_subs); */
             immutable noPreviousSubs = _subs.length == 0;
-            size_t subs_length; unpacker.unpack(subs_length); // TODO Functionize to unpacker.unpack!size_t()
+            size_t subs_length; unpacker.unpack(subs_length); // TODO: Functionize to unpacker.unpack!size_t()
 
             ForwardDifferenceCode!(long[]) diffsLastModified,
                 diffsLastAccessed;
@@ -3725,14 +3725,14 @@ class Dir : File
 
             foreach (ix; 0..subs_length) // repeat for subs_length times
             {
-                string subClassName; unpacker.unpack(subClassName); // TODO Functionize
+                string subClassName; unpacker.unpack(subClassName); // TODO: Functionize
                 File sub = null;
                 try
                 {
                     switch (subClassName)
                     {
                     default:
-                        assert(0, "Unknown File parent class " ~ subClassName); // TODO Exception
+                        assert(0, "Unknown File parent class " ~ subClassName); // TODO: Exception
                     case "Dir":
                         auto subDir = new Dir(this, gstats);
                         unpacker.unpack(subDir); sub = subDir;
@@ -3790,12 +3790,12 @@ class Dir : File
     private bool _obseleteDir = true;  // Flags that this is obselete
     GStats _gstats = null;
 
-    /* TODO Reuse Span and span in Phobos. (Span!T).init should be (T.max, T.min) */
+    /* TODO: Reuse Span and span in Phobos. (Span!T).init should be (T.max, T.min) */
     Interval!SysTime _timeModifiedInterval;
     Interval!SysTime _timeAccessedInterval;
 
     Nullable!(size_t, size_t.max) _treeSize; // Size of tree with this directory as root.
-    /* TODO Make this work instead: */
+    /* TODO: Make this work instead: */
     /* import std.typecons: Nullable; */
     /* Nullable!(Bytes64, Bytes64.max) _treeSize; // Size of tree with this directory as root. */
 
@@ -3944,7 +3944,7 @@ File getFile(NotNull!Dir rootDir, string filePath,
                 return hit;
             else
             {
-                dbg("File path " ~ filePath ~ " doesn't exist. TODO Query user to instead find it under "
+                dbg("File path " ~ filePath ~ " doesn't exist. TODO: Query user to instead find it under "
                     ~ parentDir.path);
                 parentDir.find(filePath.baseName);
             }
@@ -3959,7 +3959,7 @@ File getFile(NotNull!Dir rootDir, string filePath,
 
 /** (Cached) Lookup of Directory `dirpath`.
     Returns: Dir if present under rootDir, null otherwise.
-    TODO Make use of dent
+    TODO: Make use of dent
 */
 import std.path: isRooted;
 Dir getDir(NotNull!Dir rootDir, string dirPath, ref DirEntry dent,
@@ -3989,7 +3989,7 @@ do
                     return null;
                 }
                 followedSymlinks ~= subSymlink;
-                currDir = getDir(rootDir, subSymlink.absoluteNormalizedTargetPath, subDent, followedSymlinks); // TODO Check for infinite recursion
+                currDir = getDir(rootDir, subSymlink.absoluteNormalizedTargetPath, subDent, followedSymlinks); // TODO: Check for infinite recursion
             }
             else
             {
@@ -4081,10 +4081,10 @@ struct Op
     /** Make `this` an alias of `opOrig`. */
     Op aliasOf(string opOrig)
     {
-        // TODO set relation in map from op to opOrig
+        // TODO: set relation in map from op to opOrig
         return this;
     }
-    string op; // Operator. TODO Optimize this storage using a value type?
+    string op; // Operator. TODO: Optimize this storage using a value type?
     string desc; // Description
     OpAssoc assoc; // Associativity
     ubyte prec; // Precedence
@@ -4365,7 +4365,7 @@ class Scanner(Term)
                            gstats.useHTML ? VizForm.HTML : VizForm.textAsciiDocUTF8,
                            gstats.colorFlag,
                            !gstats.useHTML, // only use if HTML
-                           true, // TODO Only set if in debug mode
+                           true, // TODO: Only set if in debug mode
             );
 
         if (gstats.useNGrams &&
@@ -4505,7 +4505,7 @@ class Scanner(Term)
         }
         if (!gstats.rootDir) // if first time
         {
-            gstats.rootDir = new Dir("/", gstats); // filesystem root directory. TODO Make this uncopyable?
+            gstats.rootDir = new Dir("/", gstats); // filesystem root directory. TODO: Make this uncopyable?
         }
 
         // Scan for exact key match
@@ -4796,11 +4796,11 @@ class Scanner(Term)
             {
                 // Find any key
 
-                /* TODO Convert these to a range. */
+                /* TODO: Convert these to a range. */
                 ptrdiff_t offKB = -1;
                 ptrdiff_t offKE = -1;
 
-                foreach (uint ix, key; keys) // TODO Call variadic-find instead to speed things up.
+                foreach (uint ix, key; keys) // TODO: Call variadic-find instead to speed things up.
                 {
                     /* Bistogram Discardal */
                     if ((!bistHits.empty) &&
@@ -4903,7 +4903,7 @@ class Scanner(Term)
                         // show hit part
                         if (!acronymOffsets.empty)
                         {
-                            foreach (aIndex, currOff; acronymOffsets) // TODO Reuse std.algorithm: zip or lockstep? Or create a new kind say named conv.
+                            foreach (aIndex, currOff; acronymOffsets) // TODO: Reuse std.algorithm: zip or lockstep? Or create a new kind say named conv.
                             {
                                 // context before
                                 if (aIndex >= 1)
@@ -5035,7 +5035,7 @@ class Scanner(Term)
                     subIndex);
 
         // check for operations
-        // TODO Reuse isSelectedFKind instead of this
+        // TODO: Reuse isSelectedFKind instead of this
         immutable ext = theRegFile.realExtension;
         if (ext in gstats.selFKinds.byExt)
         {
@@ -5049,7 +5049,7 @@ class Scanner(Term)
                     const cmd = fOp[1]; // command string
                     import std.process: spawnProcess;
                     import std.algorithm: splitter;
-                    dbg("TODO Performing operation ", to!string(cmd),
+                    dbg("TODO: Performing operation ", to!string(cmd),
                         " on ", theRegFile.path,
                         " by calling it using ", cmd);
                     auto pid = spawnProcess(cmd.splitterASCIIAmong!(" ").array ~ [theRegFile.path]);
@@ -5065,7 +5065,7 @@ class Scanner(Term)
                      GStats gstats)
     {
         import nxt.elfdoc: sectionNameExplanations;
-        /* TODO Add mouse hovering help for sectionNameExplanations[section] */
+        /* TODO: Add mouse hovering help for sectionNameExplanations[section] */
         dbg("before: ", elfFile);
         ELF decoder = ELF.fromFile(elfFile._mmfile);
         dbg("after: ", elfFile);
@@ -5079,14 +5079,14 @@ class Scanner(Term)
         /*     } */
         /* } */
 
-        /* const sectionNames = [".symtab"/\* , ".strtab", ".dynsym" *\/];    // TODO These two other sections causes range exceptions. */
+        /* const sectionNames = [".symtab"/\* , ".strtab", ".dynsym" *\/];    // TODO: These two other sections causes range exceptions. */
         /* foreach (sectionName; sectionNames) */
         /* { */
         /*     auto sts = decoder.getSection(sectionName); */
         /*     if (!sts.isNull) */
         /*     { */
         /*         SymbolTable symtab = SymbolTable(sts); */
-        /*         // TODO Use range: auto symbolsDemangled = symtab.symbols.map!(sym => demangler(sym.name).decodeSymbol); */
+        /*         // TODO: Use range: auto symbolsDemangled = symtab.symbols.map!(sym => demangler(sym.name).decodeSymbol); */
         /*         foreach (sym; symtab.symbols) // you can add filters here */
         /*         { */
         /*             if (gstats.demangleELF) */
@@ -5159,7 +5159,7 @@ class Scanner(Term)
         {
             // immutable upTo = size_t.max;
 
-            // TODO Flag for readText
+            // TODO: Flag for readText
             try
             {
                 ++gstats.noScannedRegFiles;
@@ -5174,13 +5174,13 @@ class Scanner(Term)
 
                 // Check included kinds first because they are fast.
                 KindHit incKindHit = isSelectedFKind(theRegFile);
-                if (!gstats.selFKinds.byIndex.empty && // TODO Do we really need this one?
+                if (!gstats.selFKinds.byIndex.empty && // TODO: Do we really need this one?
                     !incKindHit)
                 {
                     return;
                 }
 
-                // Super-Fast Key-File Bistogram Discardal. TODO Trim scale factor to optimal value.
+                // Super-Fast Key-File Bistogram Discardal. TODO: Trim scale factor to optimal value.
                 enum minFileSize = 256; // minimum size of file for discardal.
                 immutable bool doBist = theRegFile.size > minFileSize;
                 immutable bool doNGram = (gstats.useNGrams &&
@@ -5188,7 +5188,7 @@ class Scanner(Term)
                                           theRegFile.size > minFileSize);
                 immutable bool doBitStatus = true;
 
-                // Chunked Calculation of CStat in one pass. TODO call async.
+                // Chunked Calculation of CStat in one pass. TODO: call async.
                 theRegFile.calculateCStatInChunks(gstats.filesByContentId,
                                                   _scanChunkSize,
                                                   gstats.showFileContentDups,
@@ -5203,7 +5203,7 @@ class Scanner(Term)
                     const theHist = theRegFile.bistogram8;
                     auto hitsHist = keysBists.map!(a =>
                                                    ((a.value & theHist.value) ==
-                                                    a.value)); // TODO Functionize to x.subsetOf(y) or reuse std.algorithm: setDifference or similar
+                                                    a.value)); // TODO: Functionize to x.subsetOf(y) or reuse std.algorithm: setDifference or similar
                     bistHits = hitsHist.map!`a == true`.array;
                     noBistMatch = hitsHist.all!`a == false`;
                 }
@@ -5257,7 +5257,7 @@ class Scanner(Term)
 
                 if (binKindHit != KindHit.none ||
                     noBistMatch ||
-                    allXGramsMiss) // or no hits possible. TODO Maybe more efficient to do histogram discardal first
+                    allXGramsMiss) // or no hits possible. TODO: Maybe more efficient to do histogram discardal first
                 {
                     results.noBytesSkipped += theRegFile.size;
                 }
@@ -5277,7 +5277,7 @@ class Scanner(Term)
                         if (!_caseFold) { // if no relaxation of search
                             if (gstats.keyAsAcronym) // if no relaxation of search
                             {
-                                /* TODO Reuse findAcronym in algorith_ex. */
+                                /* TODO: Reuse findAcronym in algorith_ex. */
                             }
                             else // if no relaxation of search
                             {
@@ -5293,7 +5293,7 @@ class Scanner(Term)
                             }
                         }
 
-                        // TODO Continue search from hit1, hit2 etc.
+                        // TODO: Continue search from hit1, hit2 etc.
 
                         if (fastOk)
                         {
@@ -5344,7 +5344,7 @@ class Scanner(Term)
             {
                 handleError(viz, theRegFile, false, subIndex);
             }
-            theRegFile.freeContents; // TODO Call lazily only when open count is too large
+            theRegFile.freeContents; // TODO: Call lazily only when open count is too large
         }
     }
 
@@ -5522,7 +5522,7 @@ class Scanner(Term)
             auto subsSorted = theDir.subsSorted(gstats.subsSorting);
             foreach (key, sub; subsSorted)
             {
-                /* TODO Functionize to scanFile */
+                /* TODO: Functionize to scanFile */
                 if (auto regFile = cast(RegFile)sub)
                 {
                     processRegFile(viz, topDir, assumeNotNull(regFile), theDir, keys, fromSymlinks, subIndex, gstats);

@@ -155,7 +155,7 @@ import std.range.primitives : isInputRange;
 
 /** All Unordered Element Pairs (2-Element Subsets) of a $(D Range).
 
-    TODO Add template parameter to decide if .array should be used internally.
+    TODO: Add template parameter to decide if .array should be used internally.
 
     See_Also: http://forum.dlang.org/thread/iqkybajwdzcvdytakgvw@forum.dlang.org#post-vhufbwsqbssyqwfxxbuu:40forum.dlang.org
     See_Also: https://issues.dlang.org/show_bug.cgi?id=6788

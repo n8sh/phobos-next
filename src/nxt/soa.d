@@ -12,7 +12,7 @@ module nxt.soa;
 /** Structure of arrays similar to members of `S`.
  */
 struct SOA(S)
-if (is(S == struct))        // TODO extend to `isAggregate!S`?
+if (is(S == struct))        // TODO: extend to `isAggregate!S`?
 {
     import nxt.pure_mallocator : PureMallocator;
 
@@ -34,7 +34,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
                 return getArray!index;
             }
         }
-        // TODO static assert(0, S.stringof ~ " has no field named " ~ name);
+        // TODO: static assert(0, S.stringof ~ " has no field named " ~ name);
     }
 
     /// Push element (struct) `value` to back of array.
@@ -45,7 +45,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
         static foreach (const index, memberSymbol; S.tupleof)
         {
             moveEmplace(__traits(getMember, value, memberSymbol.stringof),
-                        getArray!index[_length]); // TODO assert that
+                        getArray!index[_length]); // TODO: assert that
         }
         ++_length;
     }
@@ -165,7 +165,7 @@ alias StructArrays = SOA;
 
 /// Reference to element in `soaPtr` at index `elementIndex`.
 private struct SOAElementRef(S)
-if (is(S == struct))        // TODO extend to `isAggregate!S`?
+if (is(S == struct))        // TODO: extend to `isAggregate!S`?
 {
     SOA!S* soaPtr;
     size_t elementIndex;
@@ -182,7 +182,7 @@ if (is(S == struct))        // TODO extend to `isAggregate!S`?
 
 /// Reference to slice in `soaPtr`.
 private struct SOASlice(S)
-    if (is(S == struct))        // TODO extend to `isAggregate!S`?
+    if (is(S == struct))        // TODO: extend to `isAggregate!S`?
 {
     SOA!S* soaPtr;
 
@@ -234,7 +234,7 @@ private struct SOASlice(S)
     assert(x3.length == 0);
     assert(x3.capacity == 3);
 
-    // TODO make foreach work
+    // TODO: make foreach work
     // foreach (_; x[])
     // {
     // }

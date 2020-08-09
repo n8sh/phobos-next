@@ -15,7 +15,7 @@ allocation phase. During mark-phase an equally sized bitmap, `slotMarks`, is
 zero-initialized and filled in as pointers to slots are discovered to be
 referenced. When mark-phase is complete this new bitmap `slotMarks` is swapped
 with `slotUsages`. This may or may not work for pools of objects that have
-finalizers (TODO find out).
+finalizers (TODO: find out).
 
 When the allocator has grown too large it will be neccessary to indeed do
 sweeps to free pages. But such sweeps can be triggered by low memory and

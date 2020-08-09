@@ -733,7 +733,7 @@ void benchmark_findDouble(uint n)
 }
 unittest
 {
-    TODO writeln(benchmark!benchmark_findDouble(10_000).to!("msecs", uint));
+    TODO: writeln(benchmark!benchmark_findDouble(10_000).to!("msecs", uint));
 }
 ----
  */

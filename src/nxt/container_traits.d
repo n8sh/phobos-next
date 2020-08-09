@@ -1,6 +1,6 @@
 /** Traits used by containers.
  *
- * TODO add `isUnorderedContainer` and `isUnorderedRange` traits and used to
+ * TODO: add `isUnorderedContainer` and `isUnorderedRange` traits and used to
  * forbid hash algorithms to operate on unordered containers (such as
  * `open_hashmap` and `open_hashmap`) and their ranges.
  */
@@ -35,7 +35,7 @@ enum bool needsMove(T) = (!__traits(isCopyable, T) ||
     static assert(needsMove!WithDtor);
 }
 
-// TODO this can be simplified for faster compilation
+// TODO: this can be simplified for faster compilation
 template ContainerElementType(ContainerType,
                               ElementType)
 {
@@ -105,8 +105,8 @@ private template isTemplateInstance(T)
 template isSet(T)
 {
     import std.range.primitives : hasLength;
-    enum isSet = (__traits(hasMember, T, "insert") && // TODO assert O(1)
-                  __traits(hasMember, T, "remove") && // TODO assert O(1)
+    enum isSet = (__traits(hasMember, T, "insert") && // TODO: assert O(1)
+                  __traits(hasMember, T, "remove") && // TODO: assert O(1)
                   __traits(compiles, { auto _ = T.init.byElement; }));
 }
 
@@ -114,8 +114,8 @@ template isSet(T)
 template isSetOf(T, E)
 {
     import std.range.primitives : hasLength;
-    enum isSetOf = (is(typeof(T.init.insert(E.init))) && // TODO assert O(1)
-                    is(typeof(T.init.remove(E.init))) && // TODO assert O(1)
+    enum isSetOf = (is(typeof(T.init.insert(E.init))) && // TODO: assert O(1)
+                    is(typeof(T.init.remove(E.init))) && // TODO: assert O(1)
                     __traits(compiles, { auto _ = T.init.byElement; }));
 }
 
@@ -123,7 +123,7 @@ template isSetOf(T, E)
  */
 T[] makeInitZeroArray(T, alias Allocator)(const size_t length) @trusted
 {
-    version(none)               // TODO activate
+    version(none)               // TODO: activate
     {
         // See: https://github.com/dlang/phobos/pull/6411
         import std.experimental.allocator.gc_allocator : GCAllocator;

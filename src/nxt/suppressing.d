@@ -88,6 +88,6 @@ unittest
     static assert(!__traits(compiles, (Suppress!S1 a) { auto b = a; }));
     static assert(__traits(compiles, (Suppress!(S1, SuppressOptions.postblit) a) { auto b = a; }));
 
-    // TODO assertThrown({ Suppress!(S1, SuppressOptions.postblit) a; }());
+    // TODO: assertThrown({ Suppress!(S1, SuppressOptions.postblit) a; }());
     assertNotThrown({ Suppress!(S1, SuppressOptions.postblit | SuppressOptions.destructor) a; }());
 }

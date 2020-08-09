@@ -53,7 +53,7 @@ private:
     {
         struct Small
         {
-            /* TODO only first 4 bits are needed to represent a length between
+            /* TODO: only first 4 bits are needed to represent a length between
              * 0-15, use other 4 bits */
             ubyte length = 0;
             E[smallCapacity] data = [0,0,0,0,0,

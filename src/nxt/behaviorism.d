@@ -7,7 +7,7 @@
  */
 module nxt.behaviorism;
 
-/** TODO Use std.typecons.Flag
+/** TODO: Use std.typecons.Flag
  */
 enum Behaviour
 {

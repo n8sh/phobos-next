@@ -22,9 +22,9 @@ struct persistent(T, string file = __FILE__, size_t line = __LINE__)
     ~this()
     {
         import std.stdio : writeln;
-        // you should actually save it to the file. TODO Import file and
+        // you should actually save it to the file. TODO: Import file and
         // calculate its sha1 all at compile-time!
-        // TODO Save store, " as key ", file,":",line);
+        // TODO: Save store, " as key ", file,":",line);
     }
 }
 

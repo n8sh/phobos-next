@@ -69,7 +69,7 @@ void benchmarkAllocatorsRegion()
     void[] buf = PureGCAllocator.instance.allocate(nodeCount * __traits(classInstanceSize, DoubleNode));
     auto allocator = Region!(NullAllocator, platformAlignment)(cast(ubyte[])buf);
 
-    Type make(Type, Args...)(Args args) // TODO @safe pure
+    Type make(Type, Args...)(Args args) // TODO: @safe pure
     {
         version(D_Coverage) {} else pragma(inline, true);
         return allocator.make!Type(args);
@@ -189,7 +189,7 @@ void benchmarkBlizzardSafeAllocator()
                                                             1 << 21),
                                       AscendingPageAllocator*);
     SafeAllocator allocator;
-    // TODO this fails: int* i = allocator.make!int(32);
+    // TODO: this fails: int* i = allocator.make!int(32);
 }
 
 void main()

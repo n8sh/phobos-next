@@ -26,9 +26,9 @@ private struct VariantRef(DefinedTypes...)
     private enum kindBits = bitsNeeded!(Types.length);
 
     /** Get number kind of kind type `SomeKind`.
-        TODO make private?
+        TODO: make private?
      */
-    enum nrOfKind(SomeKind) = staticIndexOf!(SomeKind, Types); // TODO cast to ubyte if Types.length is <= 256
+    enum nrOfKind(SomeKind) = staticIndexOf!(SomeKind, Types); // TODO: cast to ubyte if Types.length is <= 256
 
     /// Is `true` iff an index to a `SomeKind`-kind can be stored.
     enum canReferenceType(SomeKind) = nrOfKind!SomeKind >= 0;
@@ -62,7 +62,7 @@ private struct VariantRef(DefinedTypes...)
     }
 
     /// Construct.
-    this(Kind kind, Size index) // TODO can ctor inferred by bitfields?
+    this(Kind kind, Size index) // TODO: can ctor inferred by bitfields?
     {
         _kindNr = kind;
         _index = index;
@@ -132,7 +132,7 @@ private struct VariantRef(DefinedTypes...)
     import std.bitmanip : bitfields;
     union
     {
-        // TODO big-endian machine
+        // TODO: big-endian machine
         mixin(bitfields!(Kind, "_kindNr", kindBits,
                          Size, "_index", 8*Size.sizeof - kindBits));
         Size rawWord;           // for comparsion
@@ -153,10 +153,10 @@ private struct VariantRef(DefinedTypes...)
     const R x;
     R mx = x;
 
-    // TODO app ~= x;
+    // TODO: app ~= x;
 
     const y = [R.init, R.init];
-    // TODO app ~= y;
+    // TODO: app ~= y;
 }
 
 unittest
@@ -195,7 +195,7 @@ struct VariantArrays(Types...)
     }
 
     /** Returns: array instance (as a strinng) storing `SomeKind`.
-     * TODO make this a template mixin
+     * TODO: make this a template mixin
      */
     private static immutable(string) arrayInstanceString(SomeKind)()
     if (Ref.canReferenceType!SomeKind)
@@ -214,7 +214,7 @@ struct VariantArrays(Types...)
 
     /** Insert `value` at back.
      */
-    Ref insertBack(SomeKind)(SomeKind value) // TODO add array type overload
+    Ref insertBack(SomeKind)(SomeKind value) // TODO: add array type overload
     if (Ref.canReferenceType!SomeKind)
     {
         mixin(`alias arrayInstance = ` ~ arrayInstanceString!SomeKind ~ `;`);
@@ -227,7 +227,7 @@ struct VariantArrays(Types...)
 
     /** Move (emplace) `value` into back.
      */
-    Ref insertBackMove(SomeKind)(ref SomeKind value) // TODO add array type overload
+    Ref insertBackMove(SomeKind)(ref SomeKind value) // TODO: add array type overload
     if (Ref.canReferenceType!SomeKind)
     {
         version(DigitalMars) pragma(inline, false); // DMD cannot inline
@@ -239,7 +239,7 @@ struct VariantArrays(Types...)
     }
 
     /// ditto
-    void opOpAssign(string op, SomeKind)(SomeKind value) // TODO add array type overload
+    void opOpAssign(string op, SomeKind)(SomeKind value) // TODO: add array type overload
     if (op == "~" &&
         Ref.canReferenceType!SomeKind)
     {
@@ -321,7 +321,7 @@ private:
     {
         // static foreach (const typeIndex, Type; Types)
         // {
-        //     // TODO is it better to use?: mixin VariantArrayOf!(Type);
+        //     // TODO: is it better to use?: mixin VariantArrayOf!(Type);
         //     mixin(arrayTypeStringOfIndex!typeIndex ~ ` ` ~ arrayInstanceString!Type ~ `;`);
         // }
     }
@@ -383,7 +383,7 @@ private:
 
     assert(i2.isA!(Chars15));
     assert(data.at!(Chars15)(0) == Chars15(`123`));
-    // TODO assert(data.allOf!(Chars15) == [Chars15(`123`)].s);
+    // TODO: assert(data.allOf!(Chars15) == [Chars15(`123`)].s);
     assert(data.length == 3);
 
     const i3 = data.put(Chars15(`1234`));

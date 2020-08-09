@@ -14,9 +14,9 @@ import std.traits : isUnsigned;
 
 /** A statically sized `std.bitmanip.BitArray`.
  *
- * TODO Infer `Block` from `len` as is done for `Bound` and `Mod`.
+ * TODO: Infer `Block` from `len` as is done for `Bound` and `Mod`.
  *
- * TODO Optimize `allOne`, `allZero` using intrinsic?
+ * TODO: Optimize `allOne`, `allZero` using intrinsic?
  */
 struct StaticBitArray(uint capacity, Block = DefaultBlock)
 if (isUnsigned!DefaultBlock)
@@ -72,7 +72,7 @@ if (isUnsigned!DefaultBlock)
     void reset()()
     {
         pragma(inline, true);
-        _blocks[] = 0;          // TODO is this fastest way?
+        _blocks[] = 0;          // TODO: is this fastest way?
     }
     alias clear = reset;
 
@@ -85,10 +85,10 @@ if (isUnsigned!DefaultBlock)
 
     /** Bidirectional range into `BitArray`.
      *
-     * TODO Provide opSliceAssign for interopability with range algorithms via
+     * TODO: Provide opSliceAssign for interopability with range algorithms via
      * private static struct member `Range`.
      *
-     * TODO Look at how std.container.array implements this.
+     * TODO: Look at how std.container.array implements this.
      *
      * See_Also: https://dlang.org/phobos/std_bitmanip.html#bitsSet
     */
@@ -201,7 +201,7 @@ if (isUnsigned!DefaultBlock)
     bool opIndex(size_t i) const @trusted
     in
     {
-        assert(i < capacity);        // TODO nothrow or not?
+        assert(i < capacity);        // TODO: nothrow or not?
     }
     do
     {
@@ -318,7 +318,7 @@ if (isUnsigned!DefaultBlock)
     }
 
     /** Duplicate. */
-    @property typeof(this) dup() const // TODO is this needed for value types?
+    @property typeof(this) dup() const // TODO: is this needed for value types?
     {
         return this;
     }
@@ -383,7 +383,7 @@ if (isUnsigned!DefaultBlock)
         static bool[] ba = [1,0,1];
         auto a = StaticBitArray!3(ba);
         size_t i;
-        foreach (immutable b; a[]) // TODO is `opSlice` the right thing?
+        foreach (immutable b; a[]) // TODO: is `opSlice` the right thing?
         {
             switch (i)
             {
@@ -394,7 +394,7 @@ if (isUnsigned!DefaultBlock)
             }
             i++;
         }
-        foreach (j, b; a)       // TODO is `opSlice` the right thing?
+        foreach (j, b; a)       // TODO: is `opSlice` the right thing?
         {
             switch (j)
             {
@@ -740,7 +740,7 @@ if (isUnsigned!DefaultBlock)
             See_Also: https://dlang.org/phobos/std_bitmanip.html#bitsSet
          */
         struct OneIndexes(Store)
-            // TODO if (isInstanceOf!(StaticBitArray, Store))
+            // TODO: if (isInstanceOf!(StaticBitArray, Store))
         {
             @safe pure nothrow @nogc:
 
@@ -748,13 +748,13 @@ if (isUnsigned!DefaultBlock)
             {
                 this._store = store;
 
-                // pre-adjust front index. TODO make lazy and move to front
+                // pre-adjust front index. TODO: make lazy and move to front
                 while (_i < length && !(*_store)[_i])
                 {
                     ++_i;
                 }
 
-                // pre-adjust back index. TODO make lazy and move to front
+                // pre-adjust back index. TODO: make lazy and move to front
                 while (_j > 1 && !(*_store)[_j])
                 {
                     --_j;
@@ -777,7 +777,7 @@ if (isUnsigned!DefaultBlock)
             Mod!capacity front() const
             {
                 pragma(inline, true);
-                assert(!empty); // TODO use enforce when it's @nogc
+                assert(!empty); // TODO: use enforce when it's @nogc
                 return typeof(return)(_i);
             }
 
@@ -785,7 +785,7 @@ if (isUnsigned!DefaultBlock)
             Mod!capacity back() const
             {
                 pragma(inline, true);
-                assert(!empty); // TODO use enforce when it's @nogc
+                assert(!empty); // TODO: use enforce when it's @nogc
                 return typeof(return)(_j);
             }
 
@@ -849,7 +849,7 @@ if (isUnsigned!DefaultBlock)
         }
 
         /** Get number of bits set. */
-        Mod!(capacity + 1) countOnes()() const    // template-lazy. TODO unite with other definitions
+        Mod!(capacity + 1) countOnes()() const    // template-lazy. TODO: unite with other definitions
         {
             import nxt.bitarray_algorithm;
             enum bool blockAlignedLength = capacity % (8*Block.sizeof) == 0;
@@ -927,7 +927,7 @@ if (isUnsigned!DefaultBlock)
          *
          * Returns: `true` if index was found (hit index is put into `nextIx`), `false` otherwise.
          *
-         * TODO block-optimize for large BitSets
+         * TODO: block-optimize for large BitSets
          */
         bool canFindIndexOf(ModUInt)(bool value,
                                      Mod!(capacity, ModUInt) currIx,
@@ -1459,7 +1459,7 @@ private:
         assert(bs[].equal([0, 1, 0, 1, 1, 0].s[]));
         assert(bs[1 .. 4].equal([1, 0, 1].s[]));
 
-        auto rs = bs[1 .. 6 - 1]; // TODO Use opDollar
+        auto rs = bs[1 .. 6 - 1]; // TODO: Use opDollar
         assert(rs.length == 4);
         assert(rs.front == 1);
         assert(rs.back == 1);

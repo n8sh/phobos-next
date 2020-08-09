@@ -2,7 +2,7 @@
 
 /** Extensions to getopt
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
-    TODO Merge with getoptx.d
+    TODO: Merge with getoptx.d
 */
 module nxt.getopt_ex;
 

@@ -39,7 +39,7 @@ string toStringFaster(T)(const scope T value) @safe pure nothrow @nogc
 if (is(T == enum))
 {
     import std.meta : AliasSeq;
-    /* TODO skip wrapping in `AliasSeq` when `allMembers` can be iterated
+    /* TODO: skip wrapping in `AliasSeq` when `allMembers` can be iterated
      * directly when a bug in compiler has been fixed */
     alias members = AliasSeq!(__traits(allMembers, T));
     final switch (value)
@@ -69,7 +69,7 @@ if (is(T == enum))
 /** Faster implementation of `std.conv.to` for enumerations with no aliases.
  */
 string toStringNonAliases(T)(const scope T value) @safe pure nothrow @nogc
-if (is(T == enum))              // TODO check for no aliases
+if (is(T == enum))              // TODO: check for no aliases
 {
     final switch (value)
     {

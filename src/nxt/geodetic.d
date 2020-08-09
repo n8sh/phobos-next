@@ -8,7 +8,7 @@ import std.traits : isFloatingPoint, isSomeString;
 struct WGS84Coordinate(T = double)
 if (isFloatingPoint!T)
 {
-    @safe: // TODO nothrow @nogc
+    @safe: // TODO: nothrow @nogc
 
     /// Construct from `latitude` and `longitude`.
     this(T latitude,
@@ -61,7 +61,7 @@ if (isSomeString!S &&
     return WGS84Coordinate!T(s, separator);
 }
 
-@safe // TODO pure/ nothrow
+@safe // TODO: pure/ nothrow
 unittest
 {
     alias T = float;

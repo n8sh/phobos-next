@@ -7,7 +7,7 @@ module nxt.mathml;
 
 import std.traits : isScalarType, isFloatingPoint;
 
-import nxt.rational : Rational; // TODO Can we turn this dep into a duck type dep?
+import nxt.rational : Rational; // TODO: Can we turn this dep into a duck type dep?
 import nxt.languages : MarkupLang;
 
 /** Horizontal Alignment. */
@@ -49,13 +49,13 @@ if (isFloatingPoint!T)
 {
     import std.conv : to;
     import nxt.find_split_ex : findSplitAmong;
-    const parts = to!string(x).findSplitAmong!('e'); // TODO Use std.bitmanip.FloatRep instead
+    const parts = to!string(x).findSplitAmong!('e'); // TODO: Use std.bitmanip.FloatRep instead
     if (parts[2].length >= 1)
     {
         // mantissa
         const mant = parts[0];
 
-        // TODO These format fixes for the exponent are not needed if we use
+        // TODO: These format fixes for the exponent are not needed if we use
         // std.bitmanip.FloatRep instead
 
         // exponent

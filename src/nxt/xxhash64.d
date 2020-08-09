@@ -1,8 +1,8 @@
 /** xxHash is an extremely fast non-cryptographic hash algorithm, working at
     speeds close to RAM limits. It is proposed in two flavors, 32 and 64 bits.
 
-    TODO merge into xxhash-d
-    TODO make endian-aware
+    TODO: merge into xxhash-d
+    TODO: make endian-aware
 */
 module nxt.xxhash64;
 
@@ -28,7 +28,7 @@ module nxt.xxhash64;
     See_Also: http://cyan4973.github.io/xxHash/
     See_Also: http://create.stephan-brumme.com/xxhash/
 
-    TODO make endian-aware
+    TODO: make endian-aware
 **/
 struct XXHash64
 {

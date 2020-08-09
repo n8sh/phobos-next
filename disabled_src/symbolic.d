@@ -12,7 +12,7 @@
    TODO
    Overload operators & (and), ! (not),
 
-   TODO Add pattern for expressing inference with `infer`
+   TODO: Add pattern for expressing inference with `infer`
    (infer
     ((x instanceOf X) &
      (X subClassOf Y))
@@ -29,15 +29,15 @@
          rel!`madeOf`(_!`z`, _!`y`),
          rel!`desire`(_!`x`, _!`z`))
 
-   TODO Support variables of specific types and inference using predicate logic:
+   TODO: Support variables of specific types and inference using predicate logic:
         infer(and(fact(var!'x', rel'desire', var!'y'),
                   fact(var!'z', opt(rel'madeOf',
                               rel'instanceOf'), var!'y'))),
               pred(var!'x', rel'desire', var!'z'
               ))
 
-   TODO Make returns from factory functions immutable.
-   TODO Reuse return patterns from Lit
+   TODO: Make returns from factory functions immutable.
+   TODO: Reuse return patterns from Lit
 
    TODO
    const s = seq(`al.`.lit,`pha`.lit);
@@ -87,17 +87,17 @@ class Patt
 
     Seq opCatImpl(Patt rhs)     // can be overridden
     {
-        return seq(this, rhs); // TODO check if this and rhs is Seq
+        return seq(this, rhs); // TODO: check if this and rhs is Seq
     }
     Alt opAltImpl(Patt rhs)     // can be overridden
     {
-        return alt(this, rhs);  // TODO check if this and rhs is Alt
+        return alt(this, rhs);  // TODO: check if this and rhs is Alt
     }
 
     final size_t at(const scope string haystack, size_t soff = 0) const
-    // TODO Activate this
+    // TODO: Activate this
     /* out (hit) { */
-    /*     assert((!hit) || hit >= minLength); // TODO Is this needed? */
+    /*     assert((!hit) || hit >= minLength); // TODO: Is this needed? */
     /* } */
     /* do */
     {
@@ -112,7 +112,7 @@ class Patt
     /** Find $(D this) in String $(D haystack) at Offset $(D soff). */
     final const(ubyte[]) findAt(const scope string haystack, size_t soff = 0) const
     {
-        return findRawAt(haystack.representation, soff, []); // TODO this is ugly
+        return findRawAt(haystack.representation, soff, []); // TODO: this is ugly
     }
 
     /** Find $(D this) in Raw Bytes $(D haystack) at Offset $(D soff). */
@@ -389,7 +389,7 @@ abstract class SPatt : Patt
         {
             alias Sub = typeof(sub);
 
-            // TODO functionize to patternFromBuiltinType() or to!Patt
+            // TODO: functionize to patternFromBuiltinType() or to!Patt
             static if (is(Sub == string) ||
                        is(Sub == char))
             {
@@ -419,7 +419,7 @@ class Seq : SPatt
 
     override size_t atU(in ubyte[] haystack, size_t soff = 0) const
     {
-        assert(!elms.empty); // TODO Move to in contract?
+        assert(!elms.empty); // TODO: Move to in contract?
         const c = getConstant;
         if (!c.empty)
         {
@@ -428,7 +428,7 @@ class Seq : SPatt
         }
         size_t sum = 0;
         size_t off = soff;
-        foreach (ix, sub; elms) // TODO Reuse std.algorithm instead?
+        foreach (ix, sub; elms) // TODO: Reuse std.algorithm instead?
         {
             size_t hit = sub.atU(haystack, off);
             if (hit == size_t.max) { sum = hit; break; } // if any miss skip
@@ -512,10 +512,10 @@ class Alt : SPatt
      */
     size_t atU(in ubyte[] haystack, size_t soff, out size_t alt_hix) const
     {
-        assert(!alts.empty);    // TODO Move to in contract?
+        assert(!alts.empty);    // TODO: Move to in contract?
         size_t hit = 0;
         size_t off = soff;
-        foreach (ix, sub; alts)  // TODO Reuse std.algorithm instead?
+        foreach (ix, sub; alts)  // TODO: Reuse std.algorithm instead?
         {
             hit = sub.atU(haystack[off..$]);                     // match alternative
             if (hit != size_t.max) { alt_hix = ix; break; } // if any hit were done
@@ -534,7 +534,7 @@ class Alt : SPatt
     override const(ubyte[]) findRawAt(in ubyte[] haystack, size_t soff = 0,
                                       in Patt[] enders = []) const
     {
-        assert(!alts.empty);    // TODO Move to in contract?
+        assert(!alts.empty);    // TODO: Move to in contract?
 
         import nxt.dbgio;
 
@@ -617,7 +617,7 @@ class Alt : SPatt
                                                           _subs.map!(a => a.maxLength)); }
     override bool isFixed() const
     {
-        // TODO Merge these loops using tuple algorithm.
+        // TODO: Merge these loops using tuple algorithm.
         auto mins = _subs.map!(a => a.minLength);
         auto maxs = _subs.map!(a => a.maxLength);
         import nxt.predicates: allEqual;
@@ -637,7 +637,7 @@ class Alt : SPatt
         }
         else
         {
-            return false;       // TODO Maybe handle case when _subs are different.
+            return false;       // TODO: Maybe handle case when _subs are different.
         }
     }
 }
@@ -819,7 +819,7 @@ class Rep : SPatt1
         size_t sum = 0;
         size_t off = soff;
         /* mandatory */
-        foreach (ix; 0..countReq)  // TODO Reuse std.algorithm instead?
+        foreach (ix; 0..countReq)  // TODO: Reuse std.algorithm instead?
         {
             size_t hit = sub.atU(haystack[off..$]);
             if (hit == size_t.max) { return hit; } // if any miss skip
@@ -827,7 +827,7 @@ class Rep : SPatt1
             sum += hit;
         }
         /* optional part */
-        foreach (ix; countReq..countReq + countOpt) // TODO Reuse std.algorithm instead?
+        foreach (ix; countReq..countReq + countOpt) // TODO: Reuse std.algorithm instead?
         {
             size_t hit = sub.atU(haystack[off..$]);
             if (hit == size_t.max) { break; } // if any miss just break
@@ -931,10 +931,10 @@ class Ctx : Patt
 
             /* symbol */
         case Type.bos: ok = ((soff == 0         || (!haystack[soff - 1].isAlphaNum &&
-                                                    haystack[soff - 1] != '_')) && // TODO Make '_' language-dependent
+                                                    haystack[soff - 1] != '_')) && // TODO: Make '_' language-dependent
                              (soff < haystack.length &&  haystack[soff].isAlphaNum)) ; break;
         case Type.eos: ok = ((soff == haystack.length || (!haystack[soff].isAlphaNum &&
-                                                          haystack[soff] != '_')) && // TODO Make '_' language-dependent
+                                                          haystack[soff] != '_')) && // TODO: Make '_' language-dependent
                              (soff >= 1          &&  haystack[soff - 1].isAlphaNum)) ; break;
 
             /* word */
@@ -1031,7 +1031,7 @@ Seq word(Args...)(Args args) { return seq(bow, args, eow); }
     assert(bos_.findAt(`a`) == []);
     assert(bos_.findAt(`a`).ptr != null);
     assert(eos_.findAt(`a`) == []);
-    // TODO This fails assert(eos_.findAt(`a`).ptr != null);
+    // TODO: This fails assert(eos_.findAt(`a`).ptr != null);
 }
 
 /** Keyword $(D arg). */
@@ -1043,10 +1043,10 @@ Seq kwd(Arg)(Arg arg) { return seq(bow, arg, eow); }
     auto x = str.lit.kwd;
 
     assert(x.at(str, 0));
-    /* TODO assert(!x.at(str, 1)); */
+    /* TODO: assert(!x.at(str, 1)); */
 
     assert(x.at(` ` ~ str, 1));
-    /* TODO assert(!x.at(` int`, 0)); */
+    /* TODO: assert(!x.at(` int`, 0)); */
 }
 
 /** Pattern Paired with Prefix and Suffix.

@@ -348,7 +348,7 @@ $(LI See $(LREF parseDelimited) for details about parsing the delimited lines of
 $(LO
 )
 
-TODO Make this an InputRange
+TODO: Make this an InputRange
 
 */
 void tabular(Members, alias storeFunction, char delimiter='\t')(const string filename)

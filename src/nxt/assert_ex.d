@@ -6,7 +6,7 @@
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
     Authors: $(WEB Per Nordlöw)
 
-    TODO make these @safe pure nothrow @nogc by utilizing dynamic_array and printf
+    TODO: make these @safe pure nothrow @nogc by utilizing dynamic_array and printf
 
     extend to something like:
 
@@ -46,8 +46,8 @@ nothrow:
 
 /** A Better assert.
     See_Also: http://poita.org/2012/09/02/a-better-assert-for-d.html?utm_source=feedburner&utm_medium=feed&utm_campaign=Feed%3A+poita+%28poita.org%29
-    TODO Can we convert args to strings like GCC's __STRING(expression)?
-    TODO Make these be able to be called in unittest placed in struct scopes
+    TODO: Can we convert args to strings like GCC's __STRING(expression)?
+    TODO: Make these be able to be called in unittest placed in struct scopes
 */
 void assertTrue(T,
                 string file = __FILE__, uint line = __LINE__,
@@ -63,7 +63,7 @@ alias assertT = assertTrue;
 void assertEqual(T, U,
                  string file = __FILE__, uint line = __LINE__,
                  Args...)(T lhs, U rhs,
-                          lazy Args args) // TODO use args
+                          lazy Args args) // TODO: use args
 {
     version(assert) if (lhs != rhs)
     {
@@ -81,7 +81,7 @@ void assertLessThanOrEqual(T, U,
                            string file = __FILE__,
                            uint line = __LINE__,
                            Args...) (T lhs, U rhs,
-                                     lazy Args args) // TODO use args
+                                     lazy Args args) // TODO: use args
 {
     version(assert) if (lhs > rhs)
     {
@@ -93,7 +93,7 @@ alias assertLTE = assertLessThanOrEqual;
 void assertLessThan(T, U,
                     string file = __FILE__, uint line = __LINE__,
                     Args...) (T lhs, U rhs,
-                              lazy Args args) // TODO use args
+                              lazy Args args) // TODO: use args
 {
     version(assert) if (lhs >= rhs)
     {
@@ -105,7 +105,7 @@ alias assertLT = assertLessThan;
 void assertNotEqual(T, U,
                     string file = __FILE__, uint line = __LINE__,
                     Args...) (T lhs, U rhs,
-                              lazy Args args) // TODO use args
+                              lazy Args args) // TODO: use args
 {
     version(assert) if (lhs == rhs)
     {

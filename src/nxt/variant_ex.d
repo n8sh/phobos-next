@@ -8,17 +8,17 @@
 
     See_Also: http://forum.dlang.org/post/sybuoliqhhefcovxjfjv@forum.dlang.org
 
-    TODO Ask forum.dlang.org: Is it safe to assume that `typeBits` most significant bits of a
+    TODO: Ask forum.dlang.org: Is it safe to assume that `typeBits` most significant bits of a
     pointer are zero? If not put them in least significant part.
 
-    TODO What todo with the fact that the GC will fail to scan WordVariant?
+    TODO: What todo with the fact that the GC will fail to scan WordVariant?
     Can the GC be tweaked to mask out the type bits before scanning?
 
-    TODO Enable support for `is null` instead of `isNull`?
+    TODO: Enable support for `is null` instead of `isNull`?
 
-    TODO Use `enforce()` instead of `assert()` in WordVariant:initialize()
+    TODO: Use `enforce()` instead of `assert()` in WordVariant:initialize()
 
-    TODO Move to Phobos std.variant
+    TODO: Move to Phobos std.variant
 */
 module nxt.variant_ex;
 
@@ -34,7 +34,7 @@ struct WordVariant(Types...)
     static assert(allSame!(sizesOf!(Types)), "Types must have equal size");
     static assert(this.sizeof == (void*).sizeof, "Size must be same as word (pointer)");
 
-    alias S = size_t; // TODO templatize?
+    alias S = size_t; // TODO: templatize?
 
     import nxt.typecons_ex : makeEnumFromSymbolNames;
     alias Ix = makeEnumFromSymbolNames!(`ix_`, ``, true, false, Types);
@@ -46,14 +46,14 @@ struct WordVariant(Types...)
     enum typeMask = cast(S)(2^^typeBits - 1) << typeShift;
 
     import std.meta : staticIndexOf;
-    enum indexOf(T) = staticIndexOf!(T, Types); // TODO cast to ubyte if Types.length is <= 256
+    enum indexOf(T) = staticIndexOf!(T, Types); // TODO: cast to ubyte if Types.length is <= 256
 
     /// Is `true` iff a `T` can be stored.
     enum canStore(T) = indexOf!T >= 0;
 
     pure:
 
-    @property string toString() const @trusted // TODO pure nothrow
+    @property string toString() const @trusted // TODO: pure nothrow
     {
         import std.traits : isPointer;
         import std.conv : to;
@@ -63,10 +63,10 @@ struct WordVariant(Types...)
             foreach (const i, T; Types)
             {
             case i + 1:
-                // TODO improve this to look more like D-code:
+                // TODO: improve this to look more like D-code:
                 static if (isPointer!T)
                 {
-                    return T.stringof ~ `@` ~ as!T.to!string; // TODO ~ `:` ~ (*as!T).to!string;
+                    return T.stringof ~ `@` ~ as!T.to!string; // TODO: ~ `:` ~ (*as!T).to!string;
                 }
                 else
                 {
@@ -142,7 +142,7 @@ pragma(inline):
     private void initialize(T)(T that) @trusted
     {
         const thatRaw = (*(cast(S*)(&that)));
-        assert(!(thatRaw & typeMask), `Top-most bits of parameter is already occupied`); // TODO use enforce instead?
+        assert(!(thatRaw & typeMask), `Top-most bits of parameter is already occupied`); // TODO: use enforce instead?
         _raw = (thatRaw | // data in lower part
                 (cast(S)(indexOf!T + 1) << typeShift)); // use higher bits for type information
     }
@@ -319,7 +319,7 @@ struct VariantPointerTo(Types...)
 {
     static assert(this.sizeof == (void*).sizeof, "Size must be same as word (pointer)");
 
-    alias S = size_t; // TODO templatize?
+    alias S = size_t; // TODO: templatize?
 
     import nxt.bit_traits : bitsNeeded;
     enum typeBits = bitsNeeded!(Types.length); // number of bits needed to represent variant type
@@ -327,14 +327,14 @@ struct VariantPointerTo(Types...)
     enum typeMask = cast(S)(2^^typeBits - 1) << typeShift;
 
     import std.meta : staticIndexOf;
-    enum indexOf(T) = staticIndexOf!(T, Types); // TODO cast to ubyte if Types.length is <= 256
+    enum indexOf(T) = staticIndexOf!(T, Types); // TODO: cast to ubyte if Types.length is <= 256
 
     /// Is `true` iff a pointer to a `T` can be stored.
     enum canStorePointerTo(T) = indexOf!T >= 0;
 
     pure:
 
-    @property string toString() const @trusted // TODO pure
+    @property string toString() const @trusted // TODO: pure
     {
         import std.conv : to;
         final switch (typeIndex)
@@ -388,7 +388,7 @@ struct VariantPointerTo(Types...)
     private void init(T)(T* that)
     {
         const thatRaw = cast(S)that;
-        assert(!(thatRaw & typeMask), `Top-most bits of pointer are already occupied`); // TODO use enforce instead?
+        assert(!(thatRaw & typeMask), `Top-most bits of pointer are already occupied`); // TODO: use enforce instead?
         _raw = (thatRaw | // pointer in lower part
                 (cast(S)(indexOf!T) << typeShift)); // use higher bits for type information
     }

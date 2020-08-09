@@ -4,24 +4,24 @@
  * License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
  * Authors: $(WEB Per Nordlöw)
  *
- * TODO Convert `Viz` param to delegate like for
+ * TODO: Convert `Viz` param to delegate like for
  * `void toString(scope void delegate(scope const(char)[]) @safe sink)`
  * for independency on arsd.
  *
  * Rename `pp1` to `ppL` and `pp` to `pp1` where relevant to reduce number of
  * template instantiations. And replace multi-calls to viz.pp() to viz.pp1()
  *
- * TODO Add tester that prints types from `nxt.geometry`
+ * TODO: Add tester that prints types from `nxt.geometry`
  *
- * TODO Remove all restrictions on pp.*Raw.* and call them using ranges such as repeat
+ * TODO: Remove all restrictions on pp.*Raw.* and call them using ranges such as repeat
  *
- * TODO Use "alias this" on wrapper structures and test!
+ * TODO: Use "alias this" on wrapper structures and test!
  *
- * TODO How should std.typecons.Tuple be pretty printed?
+ * TODO: How should std.typecons.Tuple be pretty printed?
  *
- * TODO Add visited member to keeps track of what objects that have been visited
+ * TODO: Add visited member to keeps track of what objects that have been visited
  *
- * TODO Add asGCCMessage pretty prints
+ * TODO: Add asGCCMessage pretty prints
  * seq $PATH, ':', $ROW, ':', $COL, ':', message, '[', $TYPE, ']'
  */
 module nxt.pretty;
@@ -34,7 +34,7 @@ import std.range.primitives : isInputRange;
 import std.traits : isInstanceOf, isSomeString, Unqual, isArray, isIterable;
 import std.stdio : stdout;
 
-/* TODO Move logic (toHTML) to these deps and remove these imports */
+/* TODO: Move logic (toHTML) to these deps and remove these imports */
 import nxt.color : Color;
 import nxt.mathml;
 import nxt.lingua;
@@ -55,7 +55,7 @@ template Concise(Tuple)
             // should use a better overload
             string toString() const
             {
-                auto app = appender!string(); // TODO use array_ex.Array instead
+                auto app = appender!string(); // TODO: use array_ex.Array instead
                 app.put(`(`);
                 app.put(to!string(concise(tuple[0])));
                 foreach (t; tuple.expand[1 .. $])
@@ -123,7 +123,7 @@ enum VizForm
  *
  * Each enumerator is an RGB hex string.
  *
- * TODO use RGB-type as enumerator instead
+ * TODO: use RGB-type as enumerator instead
  *
  * See_Also: http://ethanschoonover.com/solarized
  */
@@ -417,7 +417,7 @@ class Viz
             pplnRaw(``);
     }
 
-    // TODO Check for MathML support on backend
+    // TODO: Check for MathML support on backend
     @property void ppMathML(SomeIntegral)(Rational!SomeIntegral arg)
     {
         ppTagOpen(`math`);
@@ -449,7 +449,7 @@ class Viz
         {
             if (form == VizForm.HTML)
             {
-                // TODO Check for MathML support on backend
+                // TODO: Check for MathML support on backend
                 return ppRaw(arg.toMathML);
             }
         }
@@ -468,7 +468,7 @@ class Viz
             }
         }
 
-        /* TODO Check if any member has mmber toMathML if so call it otherwise call
+        /* TODO: Check if any member has mmber toMathML if so call it otherwise call
          * toString. */
 
         static if (isInstanceOf!(AsWords, Arg))
@@ -546,7 +546,7 @@ class Viz
         {
             if      (form == VizForm.HTML)
             {
-                /* TODO Use arg.language member to highlight using fs tokenizers
+                /* TODO: Use arg.language member to highlight using fs tokenizers
                  * which must be moved out of fs. */
                 ppTaggedN(`code`, arg.args);
             }
@@ -744,7 +744,7 @@ class Viz
             {
                 foreach (subArg; arg.args)
                 {
-                    pplnRaw(`> `, subArg); // TODO Iterate for each line in subArg
+                    pplnRaw(`> `, subArg); // TODO: Iterate for each line in subArg
                 }
             }
         }
@@ -799,8 +799,8 @@ class Viz
         }
         else static if (isInstanceOf!(AsDescription, Arg)) // if args .length == 1 && an InputRange of 2-tuples pairs
         {
-            if (form == VizForm.HTML) { pplnTagOpen(`dl`); } // TODO TERM <dt>, DEFINITION <dd>
-            else if (form == VizForm.LaTeX) { pplnRaw(`\begin{description}`); } // TODO \item[TERM] DEFINITION
+            if (form == VizForm.HTML) { pplnTagOpen(`dl`); } // TODO: TERM <dt>, DEFINITION <dd>
+            else if (form == VizForm.LaTeX) { pplnRaw(`\begin{description}`); } // TODO: \item[TERM] DEFINITION
             ppN(arg.args);
             if (form == VizForm.HTML) { pplnTagClose(`dl`); }
             else if (form == VizForm.LaTeX) { pplnRaw(`\end{description}`); }
@@ -855,22 +855,22 @@ class Viz
                        is(Front == class) ||
                        is(Front == interface)) // isAggregateType
             {
-                /* TODO When __traits(documentation,x)
+                /* TODO: When __traits(documentation,x)
                    here https://github.com/D-Programming-Language/dmd/pull/3531
                    get merged use it! */
-                // pplnTaggedN(`tr`, subArg.asCols); // TODO asItalic
+                // pplnTaggedN(`tr`, subArg.asCols); // TODO: asItalic
                 // Use __traits(allMembers, T) instead
                 // Can we lookup file and line of user defined types aswell?
 
                 // member names header.
-                if (form == VizForm.HTML) { pplnTagOpen(`tr`); } // TODO Functionize
+                if (form == VizForm.HTML) { pplnTagOpen(`tr`); } // TODO: Functionize
 
                 // index column
                 if      (arg.rowNr == RowNr.offsetZero) pplnTaggedN(`td`, `0-Offset`);
                 else if (arg.rowNr == RowNr.offsetOne)  pplnTaggedN(`td`, `1-Offset`);
                 foreach (const ix, Member; typeof(Front.tupleof))
                 {
-                    import std.ascii : isUpper; // TODO support ASCII in fast path and Unicode in slow path
+                    import std.ascii : isUpper; // TODO: support ASCII in fast path and Unicode in slow path
                     import std.string : capitalize;
                     import std.algorithm.iteration : joiner;
 
@@ -878,11 +878,11 @@ class Viz
                     else static if (is(Memb == class))     immutable qual = `class `;
                     else static if (is(Memb == enum))      immutable qual = `enum `;
                     else static if (is(Memb == interface)) immutable qual = `interface `;
-                    else                                   immutable qual = ``; // TODO Are there more qualifiers
+                    else                                   immutable qual = ``; // TODO: Are there more qualifiers
 
                     import std.algorithm.iteration : map;
                     import nxt.slicing : preSlicer;
-                    immutable idName = __traits(identifier, Front.tupleof[ix]).preSlicer!isUpper.map!capitalize.joiner(` `); // TODO reuse `nxt.casing.camelCasedToLowerSpaced`
+                    immutable idName = __traits(identifier, Front.tupleof[ix]).preSlicer!isUpper.map!capitalize.joiner(` `); // TODO: reuse `nxt.casing.camelCasedToLowerSpaced`
                     immutable typeName = Unqual!(Member).stringof; // constness of no interest here
 
                     pplnTaggedN(`td`,
@@ -995,7 +995,7 @@ class Viz
             else if (form == VizForm.textAsciiDoc) { ppRaw(` - `); } // if inside ordered list use . instead of -
             else if (form == VizForm.LaTeX) { ppRaw(`\item `); }
             else if (form == VizForm.textAsciiDocUTF8) { ppRaw(` • `); }
-            else if (form == VizForm.Markdown) { ppRaw(`* `); } // TODO Alternatively +,-,*, or 1. TODO Need counter for ordered lists
+            else if (form == VizForm.Markdown) { ppRaw(`* `); } // TODO: Alternatively +,-,*, or 1. TODO: Need counter for ordered lists
             ppN(arg.args);
             if (form == VizForm.HTML) { pplnTagClose(`li`); }
             else if (form == VizForm.LaTeX) { pplnRaw(``); }
@@ -1074,7 +1074,7 @@ class Viz
                 pp1(depth + 1, subArg);
             }
         }
-        else static if (__traits(hasMember, arg, `parent`)) // TODO Use isFile = File or NonNull!File
+        else static if (__traits(hasMember, arg, `parent`)) // TODO: Use isFile = File or NonNull!File
         {
             import std.path: dirSeparator;
             if (form == VizForm.HTML)
@@ -1098,7 +1098,7 @@ class Viz
             }
 
             // write name
-            static if (__traits(hasMember, arg, `isRoot`)) // TODO Use isDir = Dir or NonNull!Dir
+            static if (__traits(hasMember, arg, `isRoot`)) // TODO: Use isDir = Dir or NonNull!Dir
             {
                 immutable name = arg.isRoot ? dirSeparator : arg.name ~ dirSeparator;
             }
@@ -1284,7 +1284,7 @@ enum ctxFaces = [Face(Color.red, Color.black),
 import std.algorithm.iteration : map;
 
 /** Key (Hit) Faces. */
-enum keyFaces = ctxFaces.map!(a => Face(a.foregroundColor, a.backgroundColor, true)); // TODO avoid map
+enum keyFaces = ctxFaces.map!(a => Face(a.foregroundColor, a.backgroundColor, true)); // TODO: avoid map
 
 void setFace(Term, Face)(ref Term term,
                          Face face,
@@ -1353,7 +1353,7 @@ void show(Viz viz)
 
 version(unittest)
 {
-    // TODO hide these stuff in constructor for Viz
+    // TODO: hide these stuff in constructor for Viz
     import std.uuid : randomUUID;
     import std.stdio : File;
     import nxt.rational : rational;

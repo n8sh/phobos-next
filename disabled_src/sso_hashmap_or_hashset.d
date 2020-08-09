@@ -15,7 +15,7 @@ enum SetInsertionStatus
 enum MapInsertionStatus
 {
     added,                      // element was added
-    modified,                   // value of element was changed (map only). TODO only for Map-case
+    modified,                   // value of element was changed (map only). TODO: only for Map-case
     unmodified                  // element was left unchanged
 }
 
@@ -33,44 +33,44 @@ enum MapInsertionStatus
  *
  * See_Also: https://probablydance.com/2017/02/26/i-wrote-the-fastest-hashtable/
  *
- * TODO support HashSet-in operator: assert(*("a" in s) == "a");
+ * TODO: support HashSet-in operator: assert(*("a" in s) == "a");
  *
- * TODO in non-sso optimized store add flag similar to Nullable that reserves a
+ * TODO: in non-sso optimized store add flag similar to Nullable that reserves a
  * specific value for key that indicates that slot is unused. Use this when
  * storing indexes in knet.storage
  *
- * TODO add extractElement that moves it out similar to
+ * TODO: add extractElement that moves it out similar to
  * http://en.cppreference.com/w/cpp/container/unordered_set/extract
  *
- * TODO add merge or union algorithm here or into container_algorithm.d. See
+ * TODO: add merge or union algorithm here or into container_algorithm.d. See
  * also: http://en.cppreference.com/w/cpp/container/unordered_set/merge. this
  * algorithm moves elements from source if they are not already in `this`
  *
- * TODO adjust rehashing to occur when relative number of LargeBuckets is
+ * TODO: adjust rehashing to occur when relative number of LargeBuckets is
  * larger than, say, 1/10. Experiment with different ratios.
  *
- * TODO add template parameter `alias nullKeyValue` that avoids having to store
+ * TODO: add template parameter `alias nullKeyValue` that avoids having to store
  * `bstates` when smallBinCapacity == 1, similar to:
  *     std.typecons.nullable(alias nullValue, T)( T t )
  *
- * TODO add flag for use of growth factor smaller than powers of two. use prime_modulo.d
+ * TODO: add flag for use of growth factor smaller than powers of two. use prime_modulo.d
  *
- * TODO use core.bitop : bsr, bsl to find first empty element in bin. if as fast
+ * TODO: use core.bitop : bsr, bsl to find first empty element in bin. if as fast
  * as current find use it to optimize remove()
  *
- * TODO Avoid extra length and capacity in _statuses (length or large) by making
+ * TODO: Avoid extra length and capacity in _statuses (length or large) by making
  * it allocate in sync with bins (using soa.d).
  *
- * TODO also try allocating values in a separate array using soa.d and see if
+ * TODO: also try allocating values in a separate array using soa.d and see if
  * benchmarks become better
  *
- * TODO growWithExtraCapacity(): if allocator has realloc we can do rehashing in-place similar to
+ * TODO: growWithExtraCapacity(): if allocator has realloc we can do rehashing in-place similar to
  * reordering in in-place radix (integer_sorting.d), otherwise rehash into new
  * copy of bins and free old bins when done. If bin element count is >
  * 1 this is more complicated since each bin contains a set of elements to
  * swap out and must be put in a queue.
  *
- * TODO benchmark against https://github.com/greg7mdp/sparsepp
+ * TODO: benchmark against https://github.com/greg7mdp/sparsepp
  */
 struct SSOHashMapOrSet(K, V = void,
                        alias Allocator = null,
@@ -86,7 +86,7 @@ struct SSOHashMapOrSet(K, V = void,
     import nxt.emplace_all : moveEmplaceAllNoReset;
     import std.traits : isMutable, hasIndirections;
     import std.algorithm.comparison : max;
-    // TODO activate and use import nxt.prime_modulo;
+    // TODO: activate and use import nxt.prime_modulo;
 
     /** In the hash map case, `V` is non-void, and a value is stored alongside
      * the key of type `K`.
@@ -192,7 +192,7 @@ struct SSOHashMapOrSet(K, V = void,
         }
         else
         {
-            typeof(this) that;  // TODO if `isForwardRange` count elements
+            typeof(this) that;  // TODO: if `isForwardRange` count elements
         }
         foreach (ref element; elements)
         {
@@ -204,7 +204,7 @@ struct SSOHashMapOrSet(K, V = void,
     private static typeof(this) withBinCount()(size_t binCount) // template-lazy
     {
         version(LDC) pragma(inline, true);
-        typeof(return) that;    // TODO return direct call to store constructor
+        typeof(return) that;    // TODO: return direct call to store constructor
         that._bins = Bins.withLength(binCount);
         that._bstates = Bstates.withLength(binCount);
         that._length = 0;
@@ -253,8 +253,8 @@ struct SSOHashMapOrSet(K, V = void,
             typeof(return) that;
 
             that._bins.reserve(_bins.length);
-            // TODO merge these
-            that._bins.length = _bins.length; // TODO this zero-initializes before initialization below, use unsafe setLengthOnlyUNSAFE
+            // TODO: merge these
+            that._bins.length = _bins.length; // TODO: this zero-initializes before initialization below, use unsafe setLengthOnlyUNSAFE
 
             that._bstates = _bstates.dup;
             assert(that._bstates[] == _bstates[]);
@@ -271,7 +271,7 @@ struct SSOHashMapOrSet(K, V = void,
                 else
                 {
                     auto elements = smallBinElementsAt(binIx);
-                    /** TODO functionize to `emplaceAll` in emplace_all.d. See_Also:
+                    /** TODO: functionize to `emplaceAll` in emplace_all.d. See_Also:
                      * http://forum.dlang.org/post/xxigbqqflzwfgycrclyq@forum.dlang.org
                      */
                     static if (hasElaborateCopyConstructor!T)
@@ -385,7 +385,7 @@ struct SSOHashMapOrSet(K, V = void,
             {
                 static if (hasElaborateDestructor!T)
                 {
-                    // TODO use emplace_all : destroyAll(smallBinElementsAt(binIx))
+                    // TODO: use emplace_all : destroyAll(smallBinElementsAt(binIx))
                     foreach (ref element; smallBinElementsAt(binIx))
                     {
                         .destroy(element);
@@ -407,10 +407,10 @@ struct SSOHashMapOrSet(K, V = void,
     /** Check if `element` is stored.
         Returns: `true` if element was already present, `false` otherwise.
      */
-    bool contains()(in K key) const // template-lazy. TODO make `auto ref K` work
+    bool contains()(in K key) const // template-lazy. TODO: make `auto ref K` work
     {
         version(LDC) pragma(inline, true);
-        if (empty)              // TODO can this check be avoided?
+        if (empty)              // TODO: can this check be avoided?
         {
             return false; // prevent `RangeError` in `binElementsAt` when empty
         }
@@ -421,7 +421,7 @@ struct SSOHashMapOrSet(K, V = void,
     bool contains()(in ref K key) const // template-lazy
     {
         version(LDC) pragma(inline, true);
-        if (empty)              // TODO can this check be avoided?
+        if (empty)              // TODO: can this check be avoided?
         {
             return false; // prevent `RangeError` in `binElementsAt` when empty
         }
@@ -447,11 +447,11 @@ struct SSOHashMapOrSet(K, V = void,
         import std.range.primitives : hasLength;
         static if (hasLength!R)
         {
-            // reserveExtra(elements.length); // TODO this fails when starting knet
+            // reserveExtra(elements.length); // TODO: this fails when starting knet
         }
         foreach (element; elements)
         {
-            // TODO use `insertMoveWithoutBinCountGrowth` when call to `reserveExtra` works
+            // TODO: use `insertMoveWithoutBinCountGrowth` when call to `reserveExtra` works
             static if (hasIndirections!T)
             {
                 insert(element);
@@ -521,7 +521,7 @@ struct SSOHashMapOrSet(K, V = void,
         {
             static if (hasValue)
             {
-                /* TODO Rust does the same in its `insert()` at
+                /* TODO: Rust does the same in its `insert()` at
                  * https://doc.rust-lang.org/std/collections/struct.HashMap.html
                  */
                 if (elements[elementOffset].value !is valueOf(element)) // if different value (or identity for classes)
@@ -553,7 +553,7 @@ struct SSOHashMapOrSet(K, V = void,
                 {
                     static if (needsMove!T)
                     {
-                        // TODO functionize to concatenation:moveConcatenate()
+                        // TODO: functionize to concatenation:moveConcatenate()
                         T[smallBinCapacity + 1] smallCopy = void;
                         moveEmplaceAllNoReset(_bins[binIx].small[],
                                               smallCopy[0 .. smallBinCapacity]);
@@ -819,9 +819,9 @@ struct SSOHashMapOrSet(K, V = void,
         {
             pragma(inline, true):
             /// Get reference to value of front element.
-            @property scope auto ref front()() return @trusted // template-lazy property. TODO remove @trusted
+            @property scope auto ref front()() return @trusted // template-lazy property. TODO: remove @trusted
             {
-                return *(cast(ValueType*)(&table.binElementsAt(binIx)[elementOffset].value)); // TODO remove reinterpret cast
+                return *(cast(ValueType*)(&table.binElementsAt(binIx)[elementOffset].value)); // TODO: remove reinterpret cast
             }
             public LvalueElementRef!SomeHashMapOrSet _elementRef;
             alias _elementRef this;
@@ -850,7 +850,7 @@ struct SSOHashMapOrSet(K, V = void,
                 {
                     alias E = const(T);
                 }
-                return *(cast(E*)&table.binElementsAt(binIx)[elementOffset]); // TODO remove cast
+                return *(cast(E*)&table.binElementsAt(binIx)[elementOffset]); // TODO: remove cast
             }
             public LvalueElementRef!SomeHashMapOrSet _elementRef;
             alias _elementRef this;
@@ -905,13 +905,13 @@ struct SSOHashMapOrSet(K, V = void,
          *
          * Returns: value reference iff `defaultValue` is an l-value.
          *
-         * TODO make `defaultValue` `lazy` when that can be `nothrow`
+         * TODO: make `defaultValue` `lazy` when that can be `nothrow`
          */
         auto ref V get()(in K key, in V defaultValue) @trusted // auto ref here makes things slow
         {
             import std.algorithm.searching : countUntil;
             immutable binIx = keyToBinIx(key);
-            immutable ptrdiff_t elementOffset = binElementsAt(binIx).countUntil!(_ => _.key is key); // TODO functionize
+            immutable ptrdiff_t elementOffset = binElementsAt(binIx).countUntil!(_ => _.key is key); // TODO: functionize
             if (elementOffset != -1) // elementFound
             {
                 return binElementsAt(binIx)[elementOffset].value;
@@ -929,7 +929,7 @@ struct SSOHashMapOrSet(K, V = void,
             version(LDC) pragma(inline, true);
             insert(T(move(key),
                      move(value)));
-            // TODO return reference to value
+            // TODO: return reference to value
 	}
 
         static if (__traits(compiles, { V _; _ += 1; })) // if we can increase the key
@@ -997,7 +997,7 @@ struct SSOHashMapOrSet(K, V = void,
         _bstates[binIx].decSmallCount();
         static if (hasElaborateDestructor!T)
         {
-            .destroy(_bins[binIx].small[_bstates[binIx].smallCount]); // TODO this is incorrect
+            .destroy(_bins[binIx].small[_bstates[binIx].smallCount]); // TODO: this is incorrect
         }
     }
 
@@ -1027,7 +1027,7 @@ struct SSOHashMapOrSet(K, V = void,
      */
     ref typeof(this) rehash()() @trusted // template-lazy
     {
-        static assert(0, "TODO remove template parens of this functions and implement");
+        static assert(0, "TODO: remove template parens of this functions and implement");
         // return this;
     }
 
@@ -1193,7 +1193,7 @@ private:
     /// Bin states.
     alias Bstates = Array!(Bstate, Allocator);
 
-    // TODO merge these into an instance of soa.d and remove invariant
+    // TODO: merge these into an instance of soa.d and remove invariant
     Bins _bins;                 // bin elements
     Bstates _bstates;           // bin states
     invariant
@@ -1253,7 +1253,7 @@ import std.traits : isInstanceOf;
 import std.functional : unaryFun;
 
 /** Remove all elements in `x` matching `predicate`.
-    TODO move to container_algorithm.d.
+    TODO: move to container_algorithm.d.
 */
 void removeAllMatching(alias predicate, SomeHashMapOrSet)(auto ref SomeHashMapOrSet x)
     @trusted
@@ -1299,7 +1299,7 @@ void removeAllMatching(alias predicate, SomeHashMapOrSet)(auto ref SomeHashMapOr
 }
 
 /** Returns: `x` eagerly filtered on `predicate`.
-    TODO move to container_algorithm.d.
+    TODO: move to container_algorithm.d.
 */
 SomeHashMapOrSet filtered(alias predicate, SomeHashMapOrSet)(SomeHashMapOrSet x)
     @trusted
@@ -1313,7 +1313,7 @@ SomeHashMapOrSet filtered(alias predicate, SomeHashMapOrSet)(SomeHashMapOrSet x)
 }
 
 /** Returns: `x` eagerly intersected with `y`.
-    TODO move to container_algorithm.d.
+    TODO: move to container_algorithm.d.
  */
 auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
     if (isInstanceOf!(SSOHashMapOrSet, C1) &&
@@ -1367,7 +1367,7 @@ auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 }
 
 /** Returns: `x` eagerly intersected with `y`.
-    TODO move to container_algorithm.d.
+    TODO: move to container_algorithm.d.
  */
 auto intersectWith(C1, C2)(ref C1 x,
                            auto ref const(C2) y)
@@ -1497,7 +1497,7 @@ pure nothrow @nogc unittest
                 assert(xc.length == 3);
                 assert(xc.contains(11));
 
-                // TODO http://forum.dlang.org/post/kvwrktmameivubnaifdx@forum.dlang.org
+                // TODO: http://forum.dlang.org/post/kvwrktmameivubnaifdx@forum.dlang.org
                 xc.removeAllMatching!(_ => _ == 11);
 
                 assert(xc.length == 2);
@@ -1853,7 +1853,7 @@ pure nothrow unittest
 
     foreach (e; x.byValue)
     {
-        static assert(is(typeof(e) == X.ValueType)); // TODO should be const(X.ValueType)
+        static assert(is(typeof(e) == X.ValueType)); // TODO: should be const(X.ValueType)
     }
 
     foreach (e; x.byKeyValue)

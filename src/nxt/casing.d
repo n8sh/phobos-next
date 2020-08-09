@@ -29,7 +29,7 @@ if (isSomeString!S)
 }
 
 ///
-@safe pure /*TODO nothrow @nogc*/ unittest
+@safe pure /*TODO: nothrow @nogc*/ unittest
 {
     assert("Lasse".toLowerASCII.equal("lasse"));
     assert("Åberg".toLowerASCII.equal("Åberg")); // ignores unicode letters
@@ -47,7 +47,7 @@ if (isSomeString!S)
     import std.traits : isNarrowString;
     import std.utf : byUTF;
 
-    // TODO functionize
+    // TODO: functionize
     static if (isNarrowString!S)
     {
         return s.byUTF!dchar.map!(ch => ch.toLower);
@@ -59,7 +59,7 @@ if (isSomeString!S)
 }
 
 ///
-@safe pure /*TODO nothrow @nogc*/ unittest
+@safe pure /*TODO: nothrow @nogc*/ unittest
 {
     assert("Lasse".toLowerUnicode.equal("lasse"));
     assert("Åberg".toLowerUnicode.equal("åberg"));
@@ -72,7 +72,7 @@ if (isSomeString!S)
 {
     import std.algorithm.iteration : map;
     import std.ascii : isUpper; // D symbol names can only be in ASCII
-    // TODO Instead of this add std.ascii.as[Lower|Upper]Case and import std.ascii.asLowerCase
+    // TODO: Instead of this add std.ascii.as[Lower|Upper]Case and import std.ascii.asLowerCase
     import std.uni : asLowerCase;
     import nxt.slicing : preSlicer;
     return s.preSlicer!isUpper.map!asLowerCase;

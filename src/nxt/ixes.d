@@ -20,8 +20,8 @@ auto commonPrefixLength(alias pred = "a == b", Rs...)(Rs rs)
         static assert("TODO");
         import std.range : zip, StoppingPolicy;
         import std.algorithm : countUntil, count;
-        const hit = zip(a, b).countUntil!(ab => ab[0] != ab[1]); // TODO if countUntil return zip(a, b).count upon failre...
-        return hit == -1 ? zip(a, b).count!pred : hit; // TODO ..then this would not have been needed
+        const hit = zip(a, b).countUntil!(ab => ab[0] != ab[1]); // TODO: if countUntil return zip(a, b).count upon failre...
+        return hit == -1 ? zip(a, b).count!pred : hit; // TODO: ..then this would not have been needed
     }
 }
 
@@ -119,7 +119,7 @@ auto commonPrefixCount(alias pred = "a == b", Rs...)(Rs rs)
 }
 
 /** Get Common Suffix of $(D a) and $(D b).
-    TODO Copy implementation of commonPrefix into commonSuffix to splitter
+    TODO: Copy implementation of commonPrefix into commonSuffix to splitter
 */
 auto commonSuffix(Rs...)(Rs rs)
     if (rs.length == 2 &&
@@ -147,7 +147,7 @@ auto commonSuffix(Rs...)(Rs rs)
 //     import std.range.primitives : ElementType;
 //     import std.array : array;
 //     assert(equal(commonSuffix(`_å-ä-ö`,
-//                               `-å-ä-ö`).retro.splitterASCIIAmong!('-').array, // TODO how should this be solved?
+//                               `-å-ä-ö`).retro.splitterASCIIAmong!('-').array, // TODO: how should this be solved?
 //                  [`ö`, `ä`, `å`]));
 // }
 

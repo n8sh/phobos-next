@@ -7,11 +7,11 @@ import nxt.typecons_ex : hasIndexing;
 
 /** Returns: `r` eagerly in-place filtered on `predicate`.
  *
- * TODO Move to free function in array_ex.d to get @trusted access to private Array._mptr
+ * TODO: Move to free function in array_ex.d to get @trusted access to private Array._mptr
  */
-C filteredInplace(alias predicate, C)(C r) @trusted // TODO remove @trusted
+C filteredInplace(alias predicate, C)(C r) @trusted // TODO: remove @trusted
 if (is(typeof(unaryFun!predicate)) &&
-    hasIndexing!C)          // TODO extend to `isArrayContainer`!C eller `isRandomAccessContainer!C`
+    hasIndexing!C)          // TODO: extend to `isArrayContainer`!C eller `isRandomAccessContainer!C`
 {
     import core.internal.traits : hasElaborateDestructor, Unqual;
     import std.traits : isMutable, hasIndirections;
@@ -28,7 +28,7 @@ if (is(typeof(unaryFun!predicate)) &&
         size_t dstIx = 0;           // destination index
 
         // skip leading passing elements
-        // TODO reuse .indexOf!(_ => !pred(_)) algorithm in `Array`
+        // TODO: reuse .indexOf!(_ => !pred(_)) algorithm in `Array`
         while (dstIx < r.length && pred(r.ptr[dstIx]))
         {
             dstIx += 1;
@@ -37,17 +37,17 @@ if (is(typeof(unaryFun!predicate)) &&
         // inline filtering
         foreach (immutable srcIx; dstIx + 1 .. r.length)
         {
-            // TODO move this into @trusted member of Array
+            // TODO: move this into @trusted member of Array
             if (pred(r.ptr[srcIx]))
             {
                 static if (isMutable!E &&
                            !hasIndirections!E)
                 {
-                    move(r.ptr[srcIx], r.ptr[dstIx]); // TODO reuse function in array
+                    move(r.ptr[srcIx], r.ptr[dstIx]); // TODO: reuse function in array
                 }
                 else static if (ownsItsElements!C)
                 {
-                    move(r.ptr[srcIx], r.ptr[dstIx]); // TODO reuse function in array
+                    move(r.ptr[srcIx], r.ptr[dstIx]); // TODO: reuse function in array
                 }
                 else
                 {
@@ -74,7 +74,7 @@ if (is(typeof(unaryFun!predicate)) &&
         }
     }
 
-    return move(r);             // TODO remove move when compiler does it for us
+    return move(r);             // TODO: remove move when compiler does it for us
 }
 
 /** Returns: `r` eagerly in-place filtered on `predicate`.
@@ -88,7 +88,7 @@ if (isSet!C &&
     {
         import std.functional : not;
         import nxt.sso_hashmap_or_hashset : filtered;
-        return move(r).filtered!predicate(); // TODO remove move when compiler does it for us
+        return move(r).filtered!predicate(); // TODO: remove move when compiler does it for us
     }
     else
     {
@@ -98,12 +98,12 @@ if (isSet!C &&
         {
             s.insert(e);
         }
-        return move(s);             // TODO remove move when compiler does it for us
+        return move(s);             // TODO: remove move when compiler does it for us
     }
 }
 
 /// inplace filtering on hashset
-version(none)                   // TODO activate or remove SSOHashSet
+version(none)                   // TODO: activate or remove SSOHashSet
 @safe pure nothrow @nogc unittest
 {
     import std.algorithm.iteration : filter;
@@ -114,7 +114,7 @@ version(none)                   // TODO activate or remove SSOHashSet
     enum pred = "a != 11";
     // alias pred = (_) => _ != 1;
 
-    // TODO activate
+    // TODO: activate
     // auto x = X.withElements([11, 12].s).filteredInplace!pred.byElement;
     // assert(x.front == 12);
 
@@ -123,12 +123,12 @@ version(none)                   // TODO activate or remove SSOHashSet
 }
 
 /** Fyilter `r` eagerly in-place using `predicate`. */
-void filterInplace(alias predicate, C)(ref C r) @trusted // TODO remove @trusted
-if (hasIndexing!C && // TODO extend to `isArrayContainer`!C eller `isRandomAccessContainer!C`
+void filterInplace(alias predicate, C)(ref C r) @trusted // TODO: remove @trusted
+if (hasIndexing!C && // TODO: extend to `isArrayContainer`!C eller `isRandomAccessContainer!C`
     is(typeof(unaryFun!predicate)))
 {
     import std.algorithm.mutation : move;
-    r = move(r).filteredInplace!predicate(); // TODO remove move when compiler does it for us
+    r = move(r).filteredInplace!predicate(); // TODO: remove move when compiler does it for us
 }
 
 @safe pure nothrow @nogc unittest
@@ -141,7 +141,7 @@ if (hasIndexing!C && // TODO extend to `isArrayContainer`!C eller `isRandomAcces
 
     alias E = int;
     foreach (C; AliasSeq!(DynamicArray// ,
-                          // TODO SortedSetUniqueArray
+                          // TODO: SortedSetUniqueArray
                  ))
     {
         alias A = C!E;

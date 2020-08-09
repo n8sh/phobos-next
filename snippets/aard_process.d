@@ -24,7 +24,7 @@ void main(string[] args)
     writeln(`child (pid=`, thisPID, `): awoke (continued) at `, wakeupTime - MonoTime.zero);
 
     // See_Also: http://forum.dlang.org/post/pziiwlhoyyolgvvljgcg@forum.dlang.org
-    // TODO Use kill instead when thisProcessPid has been added
+    // TODO: Use kill instead when thisProcessPid has been added
     // kill(new Pid(thisPID), SIGTSTP);
     writeln(`child (pid=`, thisPID, `): is exiting`);
 

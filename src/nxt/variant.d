@@ -10,13 +10,13 @@ import nxt.dbgio : dbg;
  *
  * Storage (packing) is more space-efficient.
  *
- * TODO support implicit conversions of (un)signed integer type to larger type
+ * TODO: support implicit conversions of (un)signed integer type to larger type
  * See_Also: https://forum.dlang.org/post/jfasmgwoffmbtuvrtxey@forum.dlang.org
  *
- * TODO add warnings about combining byte, short, int, long, etc.
- * TODO add warnings about combining ubyte, ushort, uint, ulong, etc.
+ * TODO: add warnings about combining byte, short, int, long, etc.
+ * TODO: add warnings about combining ubyte, ushort, uint, ulong, etc.
  *
- * TODO Use
+ * TODO: Use
  *
  * align(1)
  * struct Unaligned
@@ -35,10 +35,10 @@ struct Algebraic(Types...)
 {
 @safe:
 
-    alias Ix = ubyte; // type index type. TODO use uint or size_t when there is room (depending on `memoryPacked`)
+    alias Ix = ubyte; // type index type. TODO: use uint or size_t when there is room (depending on `memoryPacked`)
     enum maxTypesCount = 2^^(Ix.sizeof * 8) - 1; // maximum number of allowed type parameters
 
-    import core.internal.traits : Unqual; // TODO remove by using Andreis trick with `immutable` qualifier
+    import core.internal.traits : Unqual; // TODO: remove by using Andreis trick with `immutable` qualifier
     import std.meta : anySatisfy, allSatisfy, staticIndexOf;
     import std.traits : StdCommonType = CommonType, hasIndirections, hasAliasing;
     import nxt.traits_ex : isComparable, isEquable, sizesOf, stringsOf, allSame;
@@ -64,7 +64,7 @@ public:
 
     private enum N = typeCount; // useful local shorthand
 
-    private enum indexOf(T) = staticIndexOf!(T, Types); // TODO cast to ubyte if N is <= 256
+    private enum indexOf(T) = staticIndexOf!(T, Types); // TODO: cast to ubyte if N is <= 256
 
     // static checking
     static assert(N >= 1, "No use storing zero types in a " ~ name);
@@ -81,7 +81,7 @@ public:
 
     enum dataMaxSize = maxSizeOf!Types;
 
-    auto ref to(U)() const // TODO pure @nogc
+    auto ref to(U)() const // TODO: pure @nogc
     {
         import std.conv : to;
         final switch (typeIndex)
@@ -93,7 +93,7 @@ public:
         }
     }
 
-    @property void toString()(scope void delegate(scope const(char)[]) sink) const // template-lazy. TODO pure
+    @property void toString()(scope void delegate(scope const(char)[]) sink) const // template-lazy. TODO: pure
     {
         import std.conv : to;
         if (!hasValue)
@@ -103,7 +103,7 @@ public:
             foreach (const i, T; Types)
             {
             case i:
-                // TODO use instead to avoid allocations
+                // TODO: use instead to avoid allocations
                 // import std.format : formatValue;
                 // formatValue(sink, as!T);
                 sink(to!string(as!T));
@@ -113,7 +113,7 @@ public:
     }
 
     /** Returns: $(D this) as a HTML-tagged $(D string). */
-    @property void toHTML()(scope void delegate(scope const(char)[]) sink) const // template-lazy. TODO pure
+    @property void toHTML()(scope void delegate(scope const(char)[]) sink) const // template-lazy. TODO: pure
     {
         // wrap information in HTML tags with CSS propertie
         immutable tag = `dlang-` ~ typeName;
@@ -156,7 +156,7 @@ public:
         alias MT = Unqual!T;
         static if (needsMove!MT)
             moveEmplace(that,
-                        *cast(MT*)(&_store)); // TODO ok when `that` has indirections?
+                        *cast(MT*)(&_store)); // TODO: ok when `that` has indirections?
         else
             *cast(MT*)(&_store) = that;
 
@@ -175,7 +175,7 @@ public:
         static if (needsMove!MT)
         {
             moveEmplace(that,
-                        *cast(MT*)(&_store)); // TODO ok when `that` has indirections?
+                        *cast(MT*)(&_store)); // TODO: ok when `that` has indirections?
         }
         else
         {
@@ -202,7 +202,7 @@ public:
             static assert(allowsAssignmentFrom!MT, "Cannot store a " ~ MT.stringof ~ " in a " ~ name);
         if (!ofType!MT)
             return null;
-        return cast(inout MT*)&_store; // TODO alignment
+        return cast(inout MT*)&_store; // TODO: alignment
     }
 
     /// Get Value of type $(D T).
@@ -239,7 +239,7 @@ public:
     }
 
     /// Returns: $(D true) iff $(D this) $(D Algebraic) can store an instance of $(D T).
-    bool ofType(T)() const @safe nothrow @nogc // TODO shorter name such `isA`, `ofType`
+    bool ofType(T)() const @safe nothrow @nogc // TODO: shorter name such `isA`, `ofType`
     {
         pragma(inline, true);
         return _tix == indexOf!T + 1;
@@ -285,7 +285,7 @@ public:
             case Ix.max:
                 return;
         }
-        // TODO don't call if all types satisfy traits_ex.isValueType
+        // TODO: don't call if all types satisfy traits_ex.isValueType
         // _store[] = 0; // slightly faster than: memset(&_store, 0, _store.sizeof);
     }
 
@@ -356,7 +356,7 @@ public:
                             that.convertTo!CommonType);
                 if (!this.hasValue &&
                     !that.hasValue)
-                    return true; // TODO same behaviour as floating point NaN?
+                    return true; // TODO: same behaviour as floating point NaN?
                 final switch (typeIndex)
                 {
                     foreach (const i, T; Types)
@@ -376,7 +376,7 @@ public:
 
                 if (!this.hasValue &&
                     !that.hasValue)
-                    return true; // TODO same behaviour as floating point NaN?
+                    return true; // TODO: same behaviour as floating point NaN?
 
                 final switch (typeIndex)
                 {
@@ -388,13 +388,13 @@ public:
                     }
                 }
 
-                assert(false); // this is for knet to compile but not in this module. TODO remove when compiler is fixed
+                assert(false); // this is for knet to compile but not in this module. TODO: remove when compiler is fixed
             }
         }
 
         bool opEquals(T)(in T that) const @trusted nothrow
         {
-            // TODO assert failure only if none of the Types isComparable to T
+            // TODO: assert failure only if none of the Types isComparable to T
             static assert (allowsAssignmentFrom!T,
                            "Cannot equal any possible type of " ~ Algebraic.stringof ~
                            " with " ~ T.stringof);
@@ -407,13 +407,13 @@ public:
 
     static if (allSatisfy!(isComparable, Types))
     {
-        int opCmp()(in Algebraic that) const @trusted // template-lazy, TODO extend to Algebraic!(ThatTypes)
+        int opCmp()(in Algebraic that) const @trusted // template-lazy, TODO: extend to Algebraic!(ThatTypes)
         {
-            static if (hasCommonType) // TODO extend to haveCommonType!(Types, ThatTypes)
+            static if (hasCommonType) // TODO: extend to haveCommonType!(Types, ThatTypes)
             {
                 if (_tix != that._tix)
                 {
-                    // TODO functionize to defaultOpCmp to avoid postblits:
+                    // TODO: functionize to defaultOpCmp to avoid postblits:
                     const a = this.convertTo!CommonType;
                     const b = that.convertTo!CommonType;
                     return a < b ? -1 : a > b ? 1 : 0;
@@ -431,7 +431,7 @@ public:
                 foreach (const i, T; Types)
                 {
                 case i:
-                    // TODO functionize to defaultOpCmp to avoid postblits:
+                    // TODO: functionize to defaultOpCmp to avoid postblits:
                     const a = this.as!T;
                     const b = that.as!T;
                     return a < b ? -1 : a > b ? 1 : 0;
@@ -441,7 +441,7 @@ public:
 
         int opCmp(U)(in U that) const @trusted
         {
-            static if (!is(StdCommonType!(Types, U) == void)) // TODO is CommonType or isComparable the correct way of checking this?
+            static if (!is(StdCommonType!(Types, U) == void)) // TODO: is CommonType or isComparable the correct way of checking this?
             {
                 final switch (typeIndex)
                 {
@@ -449,17 +449,17 @@ public:
                     {
                     case i:
                         const a = this.as!T;
-                        return a < that ? -1 : a > that ? 1 : 0; // TODO functionize to defaultOpCmp
+                        return a < that ? -1 : a > that ? 1 : 0; // TODO: functionize to defaultOpCmp
                     }
                 }
             }
             else
             {
-                static assert(allowsAssignmentFrom!U, // TODO relax to allowsComparisonWith!U
+                static assert(allowsAssignmentFrom!U, // TODO: relax to allowsComparisonWith!U
                               "Cannot compare " ~ Algebraic.stringof ~ " with " ~ U.stringof);
                 if (!ofType!U)
                     throw new AlgebraicException("Cannot compare " ~ Algebraic.stringof ~ " with " ~ U.stringof);
-                // TODO functionize to defaultOpCmp to avoid postblits:
+                // TODO: functionize to defaultOpCmp to avoid postblits:
                 const a = this.as!U;
                 return a < that ? -1 : a > that ? 1 : 0;
             }
@@ -485,7 +485,7 @@ public:
 
     import std.digest : isDigest;
 
-    /// TODO use `!hasAliasing`?
+    /// TODO: use `!hasAliasing`?
     void toDigest(Digest)(scope ref Digest digest) const nothrow @nogc
         if (isDigest!Digest)
     {
@@ -513,13 +513,13 @@ private:
         static if (mayHaveAliasing)
         {
             ubyte[dataMaxSize] _store;
-            void* alignDummy; // non-packed means good alignment. TODO check for maximum alignof of Types
+            void* alignDummy; // non-packed means good alignment. TODO: check for maximum alignof of Types
         }
         else
         {
             // to please hasAliasing!(typeof(this)):
             immutable(ubyte)[dataMaxSize] _store;
-            immutable(void)* alignDummy; // non-packed means good alignment. TODO check for maximum alignof of Types
+            immutable(void)* alignDummy; // non-packed means good alignment. TODO: check for maximum alignof of Types
         }
     }
 
@@ -570,7 +570,7 @@ pure:
 
     assert(a._tix == b._tix);
     assert((cast(ubyte*)&a)[0 .. a.sizeof] == (cast(ubyte*)&b)[0 .. b.sizeof]);
-    assert(a == b);             // TODO this errors with dmd master
+    assert(a == b);             // TODO: this errors with dmd master
 }
 
 ///
@@ -650,7 +650,7 @@ nothrow @nogc unittest
 }
 
 /// equality and comparison
-/*TODO @nogc*/ unittest
+/*TODO: @nogc*/ unittest
 {
     Algebraic!(float, double, string) a, b;
 
@@ -782,7 +782,7 @@ unittest
     d = 11;
     assert(d != e);
 
-    // TODO Allow this d = cast(ubyte)255;
+    // TODO: Allow this d = cast(ubyte)255;
 
     d = 1.0f;
     assertThrown!AlgebraicException(d.get!double);
@@ -900,6 +900,6 @@ nothrow @nogc unittest
     assert(_._tix == V.Ix.init);
     assert(V.init._tix == V.Ix.init);
 
-    // TODO import nxt.bit_traits : isInitAllZeroBits;
-    // TODO static assert(isInitAllZeroBits!(V));
+    // TODO: import nxt.bit_traits : isInitAllZeroBits;
+    // TODO: static assert(isInitAllZeroBits!(V));
 }

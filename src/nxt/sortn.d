@@ -6,22 +6,22 @@
 
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
 
-    TODO see some sizes are not supported, we should not have holes.
+    TODO: see some sizes are not supported, we should not have holes.
     Use http://www.angelfire.com/blog/ronz/Articles/999SortingNetworksReferen.html
 
-    TODO Sometimes the sort routine gets too bulky. Suggestion: also define
+    TODO: Sometimes the sort routine gets too bulky. Suggestion: also define
     networks for `medianOfUpTo` and `medianExactly`, then use them in a
     quicksort manner - first compute the median to segregate values in
     below/over the median, then make two calls to `sortExactly!(n / 2)`. That
     way you get to sort n values with median of n values (smaller and simpler)
     and two sorts of n / 2 values.
 
-    TODO Stability of equal elements: Need template parameter `equalityStability`? Scalar builtin values are always stable.
+    TODO: Stability of equal elements: Need template parameter `equalityStability`? Scalar builtin values are always stable.
 
-    TODO There should be a notion of at what point the networks become too bulky
+    TODO: There should be a notion of at what point the networks become too bulky
     to be fast - 6-16 may be the limit.
 
-    TODO There is a nice peephole optimization you could make. Consider:
+    TODO: There is a nice peephole optimization you could make. Consider:
 
     r.conditionalSwap!("a < b", less, 0, 1, 1, 2)(r);
 
@@ -54,7 +54,7 @@ import std.traits : isIntegral;
 import std.range.primitives : isRandomAccessRange;
 
 /** Static Iota.
-    TODO Move to Phobos std.range.
+    TODO: Move to Phobos std.range.
 */
 template iota(size_t from, size_t to)
 if (from <= to)
@@ -71,7 +71,7 @@ private template iotaImpl(size_t to, size_t now)
 /** Conditionally pairwise sort elements of `Range` `r` at `indexes` using
     comparison predicate `less`.
 
-    TODO Perhaps defines as
+    TODO: Perhaps defines as
 
     template conditionalSwap(indexes...)
     {
@@ -286,7 +286,7 @@ do
                            3,4, 5,6, 7,8, 9,10, 11,12,
                            6,7, 8,9);
     }
-    else static if (n == 16) // Green's construction. TODO Use 10-step Bitonic sorter instead?
+    else static if (n == 16) // Green's construction. TODO: Use 10-step Bitonic sorter instead?
     {
         s.conditionalSwap!(less, Range,
                            0,1, 2,3, 4,5, 6,7, 8,9, 10,11, 12,13, 14,15,

@@ -217,7 +217,7 @@ class Sl_AliasType : BaseType
     this(string name, string baseType)
     {
         this.name = name;
-        this.baseType = baseType; // TODO convert to enum
+        this.baseType = baseType; // TODO: convert to enum
     }
     string baseType;
 }
@@ -299,12 +299,12 @@ Sl_BusType parseMatlabBusDefinitions(R)(R lines, string path)
                         elements[index].name = propertyValue.to!string;
                         break;
                     case "Dimensions":
-                        elements[index].dimensions = propertyValue.to!(typeof(elements[index].dimensions)); // TODO functionize to decode
+                        elements[index].dimensions = propertyValue.to!(typeof(elements[index].dimensions)); // TODO: functionize to decode
                         break;
                     case "DataType":
                         TypeCategory typeCategory;
 
-                        // TODO Add and use variadic skipOver as: propertyValue.skipOver("Bus: ", "Enum: ")
+                        // TODO: Add and use variadic skipOver as: propertyValue.skipOver("Bus: ", "Enum: ")
                         if (propertyValue.skipOver("Bus: "))
                         {
                             typeCategory = TypeCategory.bus;
@@ -332,7 +332,7 @@ Sl_BusType parseMatlabBusDefinitions(R)(R lines, string path)
                             case "uint32": typeCategory = TypeCategory.uint32; break;
                             case "uint64": typeCategory = TypeCategory.uint64; break;
 
-                            // TODO how do these differ from boolean, single and double?
+                            // TODO: how do these differ from boolean, single and double?
                             case "Bool": typeCategory = TypeCategory.boolean; break;
                             case "Real32_Type": typeCategory = TypeCategory.singleFloat; break;
                             case "Real64_Type": typeCategory = TypeCategory.doubleFloat; break;
@@ -649,7 +649,7 @@ void main(string[] args)
             painter.outlineColor = Color.black;
             painter.fillColor = Color.red;
 
-            // TODO use my randomize
+            // TODO: use my randomize
             painter.drawLine(Point(uniform(0, wW),
                                    uniform(0, wH)),
                              Point(uniform(0, wW),

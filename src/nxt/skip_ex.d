@@ -46,7 +46,7 @@ bool skipOverBack(alias pred, Haystack, Needle)(scope ref Haystack haystack,
                                                 scope Needle needle) // non`const` because may be range with mutable range primitives
 if (isBidirectionalRange!Haystack &&
     isBidirectionalRange!Needle &&
-    is(typeof(binaryFun!pred(haystack.back, needle.back)))) // TODO Needle doesn't have to bi-directional if Haystack is RandomAccess and Needle.hasLength
+    is(typeof(binaryFun!pred(haystack.back, needle.back)))) // TODO: Needle doesn't have to bi-directional if Haystack is RandomAccess and Needle.hasLength
 {
     import std.range.primitives : hasLength;
     static if (hasLength!Haystack && hasLength!Needle)
@@ -94,7 +94,7 @@ if (isBidirectionalRange!Haystack &&
  *
  * Returns: index + 1 into matching $(D needles), 0 otherwise.
  *
- * TODO Reuse `skipOver with many needles` or write own array-version of `skipOver` that's faster.
+ * TODO: Reuse `skipOver with many needles` or write own array-version of `skipOver` that's faster.
  */
 size_t skipOverEither(alias pred = "a == b", Range, Ranges...)(scope ref Range haystack,
                                                                scope Ranges needles)
@@ -108,16 +108,16 @@ if (Ranges.length >= 2)
         {
             // `nothrow` char[] fast path
             if (haystack.length >= needle.length &&
-                haystack[0 .. needle.length] == needle) // TODO `haystack.ptr`
+                haystack[0 .. needle.length] == needle) // TODO: `haystack.ptr`
             {
-                haystack = haystack[needle.length .. haystack.length]; // TODO `haystack.ptr`
+                haystack = haystack[needle.length .. haystack.length]; // TODO: `haystack.ptr`
                 return index + 1;
             }
         }
         else
         {
             import std.algorithm.searching : skipOver;
-            if (haystack.skipOver(needle)) // TODO nothrow
+            if (haystack.skipOver(needle)) // TODO: nothrow
             {
                 return index + 1;
             }
@@ -126,14 +126,14 @@ if (Ranges.length >= 2)
     return 0;
 }
 
-@safe pure nothrow /* TODO nothrow @nogc */ unittest
+@safe pure nothrow /* TODO: nothrow @nogc */ unittest
 {
     import std.algorithm.searching : startsWith;
     auto x = "beta version";
     assert(x.startsWith("beta"));
 }
 
-@safe pure /* TODO nothrow @nogc */ unittest
+@safe pure /* TODO: nothrow @nogc */ unittest
 {
     import std.algorithm.searching : skipOver;
     auto x = "beta version";
@@ -169,7 +169,7 @@ if (Ranges.length >= 2)
 
 /** Skip Over Shortest Matching prefix in $(D needles) that prefixes $(D haystack).
  *
- * TODO Make return value a specific type that has bool conversion so we can
+ * TODO: Make return value a specific type that has bool conversion so we can
  * call it as
  * if (auto hit = r.skipOverShortestOf(...)) { ... }
  */
@@ -260,15 +260,15 @@ if (Ranges.length >= 2)
 SkipOverLongest skipOverLongestOf(alias pred = "a == b", Range, Ranges...)(scope ref Range haystack,
                                                                            scope Ranges needles)
 {
-    // TODO figure out which needles that are prefixes of other needles by first
+    // TODO: figure out which needles that are prefixes of other needles by first
     // sorting them and then use some adjacent filtering algorithm
-    static assert(0, "TODO implement");
+    static assert(0, "TODO: implement");
 }
 
 /** Skip Over Back Shortest Match of `needles` in `haystack`. */
 size_t skipOverBackShortestOf(alias pred = "a == b", Range, Ranges...)(scope ref Range haystack,
                                                                        scope Ranges needles) @trusted
-// TODO We cannot prove that cast(ubyte[]) of a type that have no directions is safe
+// TODO: We cannot prove that cast(ubyte[]) of a type that have no directions is safe
 if (Ranges.length >= 2)
 {
     import std.range: retro, ElementType;
@@ -317,7 +317,7 @@ if (Ranges.length >= 2)
 
 /** Drop $(D prefixes) in $(D s).
  *
- * TODO Use multi-argument skipOver when it becomes available
+ * TODO: Use multi-argument skipOver when it becomes available
  * http://forum.dlang.org/thread/bug-12335-3@https.d.puremagic.com%2Fissues%2F
 */
 void skipOverPrefixes(R, A)(scope ref R s,
@@ -344,7 +344,7 @@ void skipOverSuffixes(R, A)(scope ref R s,
         if (s.length > suffix.length &&
             s.endsWith(suffix))
         {
-            s = s[0 .. $ - suffix.length]; // TODO .ptr
+            s = s[0 .. $ - suffix.length]; // TODO: .ptr
             break;
         }
     }
@@ -376,7 +376,7 @@ if (isBidirectionalRange!R &&
     }
     else
     {
-        if (r.length >= 2 && // TODO express this requirement in `r` as `hasLength`
+        if (r.length >= 2 && // TODO: express this requirement in `r` as `hasLength`
             binaryFun!pred(r.front, frontPrefix) &&
             binaryFun!pred(r.back, backSuffix))
         {

@@ -71,14 +71,14 @@ do
 // Parameterize on isAlpha and isSymbol.
 
 /** Find $(D needle) as Word or Symbol Acronym at $(D haystackOffset) in $(D haystack).
-    TODO Make it compatible (specialized) for InputRange or BidirectionalRange.
+    TODO: Make it compatible (specialized) for InputRange or BidirectionalRange.
 */
 Tuple!(R, ptrdiff_t[]) findAcronymAt(alias pred = "a == b",
                                      R,
                                      E)(R haystack,
                                         E needle,
                                         FindContext ctx = FindContext.inWord,
-                                        CaseSensitive cs = CaseSensitive.yes, // TODO Use this
+                                        CaseSensitive cs = CaseSensitive.yes, // TODO: Use this
                                         size_t haystackOffset = 0) @safe pure
 {
     import std.ascii: isAlpha;
@@ -103,8 +103,8 @@ Tuple!(R, ptrdiff_t[]) findAcronymAt(alias pred = "a == b",
         // check context before point
         final switch (ctx)
         {
-            case FindContext.inWord:   break; // TODO find word characters before point and set start offset
-            case FindContext.inSymbol: break; // TODO find symbol characters before point and set start offset
+            case FindContext.inWord:   break; // TODO: find word characters before point and set start offset
+            case FindContext.inSymbol: break; // TODO: find symbol characters before point and set start offset
             case FindContext.asWord:
                 if (ix0 >= 1 && haystack[ix0-1].isAlpha) { goto miss; } // quit if not word start
                 break;

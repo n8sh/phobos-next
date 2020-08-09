@@ -6,7 +6,7 @@ import std.algorithm: reduce;
 
 /* import std.numeric: sum; */
 
-/** TODO Issue 4725: Remove when sum is standard in Phobos.
+/** TODO: Issue 4725: Remove when sum is standard in Phobos.
     See_Also: http://d.puremagic.com/issues/show_bug.cgi?id=4725
     See_Also: https://github.com/D-Programming-Language/phobos/pull/1205
     See_Also: http://forum.dlang.org/thread/bug-4725-3@http.d.puremagic.com%2Fissues%2F
@@ -20,7 +20,7 @@ auto sum(Range, SumType = ElementType!Range)(Range range)
 ///
 unittest { assert([1, 2, 3, 4].sum == 10); }
 
-/** TODO Remove when product is standard in Phobos. */
+/** TODO: Remove when product is standard in Phobos. */
 auto product(Range)(Range range)
     @safe pure nothrow if (isInputRange!Range)
 {

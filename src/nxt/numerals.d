@@ -252,9 +252,9 @@ version = show;
 
 /** Convert the number $(D number) to its English textual representation.
     Opposite: toNumeral.
-    TODO Throw if number doesn't fit in long.
-    TODO Add variant to toTextualBigIntegerMaybe.
-    TODO Could this be merged with to!(T)(string) if (isInteger!T) ?
+    TODO: Throw if number doesn't fit in long.
+    TODO: Add variant to toTextualBigIntegerMaybe.
+    TODO: Could this be merged with to!(T)(string) if (isInteger!T) ?
 */
 Nullable!long fromNumeral(T = long, S)(S x) @safe pure
 if (isSomeString!S)

@@ -11,11 +11,11 @@ import std.traits: hasUnsharedAliasing, isScalarType;
 
 public import nxt.slicing;
 
-enum hasPureCopy(T) = (isScalarType!T || // TODO remove?
+enum hasPureCopy(T) = (isScalarType!T || // TODO: remove?
                        (!hasUnsharedAliasing!T &&
                         !hasElaborateDestructor!T));
 
-enum hasStealableElements(R) = (hasPureCopy!(ElementType!R)); // TODO recurse
+enum hasStealableElements(R) = (hasPureCopy!(ElementType!R)); // TODO: recurse
 
 /* template hasStealableElements(T...) */
 /* { */
@@ -66,7 +66,7 @@ if (isInputRange!R &&
     r.popFront();
 
     import std.traits : hasIndirections;
-    static if (hasIndirections!(typeof(return))) // TODO better trait?
+    static if (hasIndirections!(typeof(return))) // TODO: better trait?
     {
         import core.lifetime : move;
         return move(e);
@@ -123,7 +123,7 @@ if (isInputRange!R &&
     r.popBack();
 
     import std.traits : hasIndirections;
-    static if (hasIndirections!(typeof(return))) // TODO better trait?
+    static if (hasIndirections!(typeof(return))) // TODO: better trait?
     {
         import core.lifetime : move;
         return move(e);
@@ -164,13 +164,13 @@ alias takeBack = backPop;
  * See_Also: http://forum.dlang.org/thread/dndicafxfubzmndehzux@forum.dlang.org
  * See_Also: http://forum.dlang.org/thread/uzrbmjonrkixojzflbig@forum.dlang.org#epost-viwkavbmwouiquoqwntm:40forum.dlang.org
  *
- * TODO Use size_t for _lower and _upper instead and reserve _upper = size_t.max
+ * TODO: Use size_t for _lower and _upper instead and reserve _upper = size_t.max
  * for emptyness?
  *
- * TODO Should lower and upper operate on code units instead of code point if
+ * TODO: Should lower and upper operate on code units instead of code point if
  * isNarrowString!Range. ?
  *
- * TODO generalize with stride
+ * TODO: generalize with stride
  */
 struct SlidingSplitter(Range)
 if (isSomeString!Range ||
@@ -187,7 +187,7 @@ if (isSomeString!Range ||
     do
     {
         _data = data;
-        static if (hasSlicing!Range) // TODO should we use isSomeString here instead?
+        static if (hasSlicing!Range) // TODO: should we use isSomeString here instead?
         {
             _lower = lower;
             _upper = data.length;
@@ -315,7 +315,7 @@ if (isSomeString!Range ||
             }
         }
 
-        // TODO Should length be provided if isNarrowString!Range?
+        // TODO: Should length be provided if isNarrowString!Range?
         @property size_t length() const
         {
             return _upper - _lower + 1;
@@ -444,7 +444,7 @@ auto slidingSplitter(R)(R data, size_t lower, size_t upper)
 /** Ring Buffer.
  *
  * See_Also: http://forum.dlang.org/thread/ltpaqk$2dav$1@digitalmars.com
- * TODO inout
+ * TODO: inout
  */
 struct RingBuffer(T)
 {
@@ -533,7 +533,7 @@ auto pairs(Key, Value)(Value[Key] aa)
     }
     return arr;
 }
-alias items = pairs; // TODO Is this Python-style naming better?
+alias items = pairs; // TODO: Is this Python-style naming better?
 
 unittest
 {
@@ -570,7 +570,7 @@ enum bool haveCommonElementType(Types...) = !is(CommonElementType!Types == void)
     static assert(!haveCommonElementType!(bool[], int[], string[]));
 }
 
-alias isSortedRange(R) = isInstanceOf!(SortedRange, R); // TODO Or use: __traits(isSame, TemplateOf!R, SortedRange)
+alias isSortedRange(R) = isInstanceOf!(SortedRange, R); // TODO: Or use: __traits(isSame, TemplateOf!R, SortedRange)
 
 /** True if R is a `SortedRange`
  *
@@ -618,8 +618,8 @@ auto asTuple(T, size_t n)(ref T[n] arr)
 /** Return: Adjacent $(D N)-Tuples of $(D r).
  *
  * TODO: Support ref return via $(D zip) for non-const case.
- * TODO Use a ring buffer instead of copy?
- * TODO Add a variant of adjacentTuples that return a static array instead?
+ * TODO: Use a ring buffer instead of copy?
+ * TODO: Add a variant of adjacentTuples that return a static array instead?
  * See_Also: http://forum.dlang.org/post/gkdqakdogqevwzntpgtu@forum.dlang.org
  */
 auto adjacentTuples(size_t N, R)(R r)
@@ -633,7 +633,7 @@ auto adjacentTuples(size_t N, R)(R r)
         alias E = Unqual!(ElementType!R);
         enum M = N - 1;  // temporary order
         alias P = E[M];
-        alias T = Tuple!(genTypeList!(E, N)); // TODO functionize
+        alias T = Tuple!(genTypeList!(E, N)); // TODO: functionize
 
         this(R r)
         {
@@ -651,7 +651,7 @@ auto adjacentTuples(size_t N, R)(R r)
         }
         else
         {
-            bool empty() @property // TODO can't empty be const when R is a MapResult?
+            bool empty() @property // TODO: can't empty be const when R is a MapResult?
             {
                 import std.range.primitives : empty;
                 return _source.empty;
@@ -671,7 +671,7 @@ auto adjacentTuples(size_t N, R)(R r)
         {
             static if (N >= 3)
             {
-                // TODO use static foreach to do left-shifting
+                // TODO: use static foreach to do left-shifting
 
                 // Need $(D copy) because $(D source) and $(D dest) may overlap.
                 // See_Also: http://dlang.org/arrays.html#overlapping-copying
@@ -783,7 +783,7 @@ unittest
  */
 auto staticLengthRange(T, size_t n)(ref T[n] arr)
 {
-    return .staticLengthRange!(n, T[])(arr[]); // TODO DIP-1000 scope
+    return .staticLengthRange!(n, T[])(arr[]); // TODO: DIP-1000 scope
 }
 
 import std.range.primitives : hasLength, isInputRange;

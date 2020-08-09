@@ -6,21 +6,21 @@ import std.datetime.stopwatch : benchmark;
 
 /// Small slot sizes classes (in bytes).
 static immutable smallSizeClasses = [8,
-                                     16, // TODO 16 + 8,
-                                     32, // TODO 32 + 16,
-                                     64, // TODO 64 + 32,
-                                     128, // TODO 128 +64,
-                                     256, // TODO 256 + 128,
-                                     512, // TODO 512 + 256,
-                                     1024, // TODO 1024 + 512,
-                                     2048, // TODO 2048 + 1024,
+                                     16, // TODO: 16 + 8,
+                                     32, // TODO: 32 + 16,
+                                     64, // TODO: 64 + 32,
+                                     128, // TODO: 128 +64,
+                                     256, // TODO: 256 + 128,
+                                     512, // TODO: 512 + 256,
+                                     1024, // TODO: 1024 + 512,
+                                     2048, // TODO: 2048 + 1024,
     ];
 
 extern (C) @safe pure nothrow
 {
     static foreach (sizeClass; smallSizeClasses)
     {
-        /* TODO Since https://github.com/dlang/dmd/pull/8813 we can now use:
+        /* TODO: Since https://github.com/dlang/dmd/pull/8813 we can now use:
          * `mixin("gc_tlmalloc_", sizeClass);` for symbol generation.
          */
         mixin("void* gc_tlmalloc_" ~ sizeClass.stringof ~ "(uint ba = 0);");
@@ -63,7 +63,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
 
     size_t ptrSum;
 
-    void doNewClass() @trusted pure nothrow // TODO this crashes
+    void doNewClass() @trusted pure nothrow // TODO: this crashes
     {
         foreach (const i; 0 .. iterationCount)
         {
@@ -95,7 +95,7 @@ size_t benchmarkAllocation(E, uint n)() @trusted
     {
         foreach (const i; 0 .. iterationCount)
         {
-            /* TODO Since https://github.com/dlang/dmd/pull/8813 we can now use:
+            /* TODO: Since https://github.com/dlang/dmd/pull/8813 we can now use:
              * `mixin("gc_tlmalloc_", sizeClass);` for symbol generation.
              */
             mixin(`T* x = cast(T*)gc_tlmalloc_` ~ n.stringof ~ `(ba);`);

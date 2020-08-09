@@ -9,7 +9,7 @@ bool popFirstMaybe(alias pred = "a == b", C, E)(ref C haystack,
                                                 in E needle)
 if (hasMember!(C, "length") &&
         hasMember!(C, "popAt"))
-    // TODO activate this restriction
+    // TODO: activate this restriction
     // if (hasSlicing!C &&
     //     is(ElementType!C == E.init))
 {
@@ -31,14 +31,14 @@ if (hasMember!(C, "length") &&
 
 /** Remove element at index `index` in `r`.
  *
- * TODO reuse in array*.d
- * TODO better name removeAt
+ * TODO: reuse in array*.d
+ * TODO: better name removeAt
  */
 void shiftToFrontAt(T)(T[] r, size_t index) @trusted
 {
     assert(index + 1 <= r.length);
 
-    // TODO use this instead:
+    // TODO: use this instead:
     // immutable si = index + 1;   // source index
     // immutable ti = index;       // target index
     // immutable restLength = this.length - (index + 1);
@@ -51,7 +51,7 @@ void shiftToFrontAt(T)(T[] r, size_t index) @trusted
         immutable si = index + i + 1; // source index
         immutable ti = index + i;     // target index
         import core.lifetime : moveEmplace;
-        moveEmplace(r.ptr[si], // TODO remove `move` when compiler does it for us
+        moveEmplace(r.ptr[si], // TODO: remove `move` when compiler does it for us
                     r.ptr[ti]);
     }
 }

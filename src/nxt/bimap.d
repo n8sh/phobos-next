@@ -27,7 +27,7 @@ struct BiMap(X, Y,
                   scope const Y y) const
     {
         version(LDC) pragma(inline, true);
-        // TODO do this symmetric?
+        // TODO: do this symmetric?
         if (const hitPtr = x in _left)
         {
             return *hitPtr == y;
@@ -36,7 +36,7 @@ struct BiMap(X, Y,
     }
 
     /// Clear contents.
-    void clear() @trusted       // TODO ok for this to be `@trusted`?
+    void clear() @trusted       // TODO: ok for this to be `@trusted`?
     {
         version(D_Coverage) {} else pragma(inline, true);
         _left.clear();

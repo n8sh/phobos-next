@@ -70,7 +70,7 @@ void main()
                 immutable startTime = MonoTime.currTime();
                 foreach (immutable i; testSource)
                 {
-                    a ~= i.to!Sample;     // need to cast away const here for now. TODO remove this requirement
+                    a ~= i.to!Sample;     // need to cast away const here for now. TODO: remove this requirement
                 }
                 spans_ns[runIx] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
             }
@@ -107,7 +107,7 @@ void main()
                           OpenHashSet!(Nullable!(uint, uint.max), lemireHash64),
                           OpenHashSet!(Nullable!(uint, uint.max), FNV!(64, true)),
 
-                          // TODO why are these so slow?
+                          // TODO: why are these so slow?
                           // OpenHashSet!(Nullable!(Sample, Sample.max), hashOf),
                           // OpenHashSet!(Nullable!(Sample, Sample.max), lemireHash64),
                           // OpenHashSet!(Nullable!(Sample, Sample.max), FNV!(64, true)),
@@ -138,15 +138,15 @@ void main()
 
                           OpenHashSet!(SSOString, hashOf),
                           OpenHashSet!(SSOString, FNV!(64, true)),
-                          // TODO OpenHashSet!(string, FNV!(64, true)),
-                          // TODO OpenHashSet!(string, wangMixHash64),
+                          // TODO: OpenHashSet!(string, FNV!(64, true)),
+                          // TODO: OpenHashSet!(string, wangMixHash64),
                  ))
     {
         // scope
 
         A a = makeWithTriedCapacity!(A)(elementCount);
 
-        // TODO const testSource = iotaArrayOf!(0, A.ElementType)(elementCount);
+        // TODO: const testSource = iotaArrayOf!(0, A.ElementType)(elementCount);
 
         writef("- ");
 

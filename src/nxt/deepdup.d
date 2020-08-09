@@ -4,7 +4,7 @@
 
     Add to Phobos somewhere.
 
-    TODO Support inout relevant for const?
+    TODO: Support inout relevant for const?
     See: http://forum.dlang.org/thread/hojk95$4mk$1@digitalmars.com
  */
 module nxt.deepdup;

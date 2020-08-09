@@ -4,10 +4,10 @@
  *
  * Planned support for RDF Turtle (.ttl) statements (either single-line or multi-line).
  *
- * TODO can we make inout operator only on the members of the returned `NTriple` in `parseNTriple`?
- * TODO parse Turtle .ttl-files (https://en.wikipedia.org/wiki/Turtle_(syntax))
- * TODO parse N-Quads for use in Wikidata
- * TODO parse RDF/XML
+ * TODO: can we make inout operator only on the members of the returned `NTriple` in `parseNTriple`?
+ * TODO: parse Turtle .ttl-files (https://en.wikipedia.org/wiki/Turtle_(syntax))
+ * TODO: parse N-Quads for use in Wikidata
+ * TODO: parse RDF/XML
  *
  * See_Also: https://en.wikipedia.org/wiki/Resource_Description_Framework
  * See_Also: https://en.wikipedia.org/wiki/Turtle_(syntax)
@@ -15,7 +15,7 @@
  *
  * See_Also: https://www.ida.liu.se/~robke04/include/publications.shtml
  *
- * TODO decode `subject` and `object` (in `Db.exprURI`) only when their types are IRIs?
+ * TODO: decode `subject` and `object` (in `Db.exprURI`) only when their types are IRIs?
  */
 module nxt.rdf;
 
@@ -144,13 +144,13 @@ auto parseNTriple(scope return inout(char)[] line)
     line.skipOverBack(' ');
 
     // subject IRI
-    const ix0 = line.indexOf(' '); // TODO use array_algorithm.findSplit(' ')
+    const ix0 = line.indexOf(' '); // TODO: use array_algorithm.findSplit(' ')
     debug assert(ix0 != -1, `Failed to parse: "` ~ originalLine ~ `"`);
     const subject = line[0 .. ix0];
     line = line[ix0 + 1 .. $];
 
     // predicate IRI
-    const ix1 = line.indexOf(' '); // TODO use array_algorithm.findSplit(' ')
+    const ix1 = line.indexOf(' '); // TODO: use array_algorithm.findSplit(' ')
     debug assert(ix1 != -1, `Failed to parse: "` ~ originalLine ~ `"`);
     const predicate = line[0 .. ix1];
     line = line[ix1 + 1 .. $];
@@ -165,9 +165,9 @@ auto parseNTriple(scope return inout(char)[] line)
 {
     const x = `<http://dbpedia.org/resource/180%C2%B0_(Gerardo_album)> <http://dbpedia.org/ontology/artist> <http://dbpedia.org/resource/Gerardo_Mej%C3%ADa> .`;
     auto nt = x.parseNTriple;
-    static assert(is(typeof(nt.subject) == immutable(string))); // TODO should be `string` or `const(char)[]`
-    static assert(is(typeof(nt.predicate) == immutable(string))); // TODO should be `string` or `const(char)[]`
-    static assert(is(typeof(nt.object) == immutable(string))); // TODO should be `string` or `const(char)[]`
+    static assert(is(typeof(nt.subject) == immutable(string))); // TODO: should be `string` or `const(char)[]`
+    static assert(is(typeof(nt.predicate) == immutable(string))); // TODO: should be `string` or `const(char)[]`
+    static assert(is(typeof(nt.object) == immutable(string))); // TODO: should be `string` or `const(char)[]`
     assert(nt.subject == `http://dbpedia.org/resource/180%C2%B0_(Gerardo_album)`);
     assert(nt.subjectFormat == SubjectFormat.IRI);
     assert(nt.predicate == `http://dbpedia.org/ontology/artist`);

@@ -43,7 +43,7 @@ struct UTCOffset
     @property string toString() const @trusted pure
     {
         import nxt.assuming : assumePure;
-        return assumePure(&toStringUnpure)(); // TODO can we avoid this?
+        return assumePure(&toStringUnpure)(); // TODO: can we avoid this?
     }
 
     string toStringUnpure() const @safe
@@ -61,7 +61,7 @@ struct UTCOffset
         import nxt.skip_ex : skipOverEither;
         import nxt.array_algorithm : startsWith, skipOver;
 
-        // TODO support and use CT-arguments in skipOverEither()
+        // TODO: support and use CT-arguments in skipOverEither()
         if (strictFormat && !code.startsWith("UTC"))
         {
             this(0, 0);
@@ -278,7 +278,7 @@ struct YearMonth
     this(scope const(char)[] s)
     {
         import std.algorithm.searching : findSplit;
-        auto parts = s.findSplit(` `); // TODO s.findSplitAtElement(' ')
+        auto parts = s.findSplit(` `); // TODO: s.findSplitAtElement(' ')
         if (parts &&
             parts[0].length >= 3) // at least three letters in month
         {
@@ -286,7 +286,7 @@ struct YearMonth
 
             // decode month
             import core.internal.traits : Unqual;
-            Unqual!(typeof(s[0])[3]) tmp = parts[0][0 .. 3]; // TODO functionize to parts[0].staticSubArray!(0, 3)
+            Unqual!(typeof(s[0])[3]) tmp = parts[0][0 .. 3]; // TODO: functionize to parts[0].staticSubArray!(0, 3)
             import std.ascii : toLower;
             tmp[0] = tmp[0].toLower;
             month = tmp.to!Month;
@@ -304,7 +304,7 @@ struct YearMonth
     @property string toString() const
     {
         import std.conv : to;
-        return year.to!string ~ `-` ~ (cast(ubyte)month).to!string; // TODO avoid GC allocation
+        return year.to!string ~ `-` ~ (cast(ubyte)month).to!string; // TODO: avoid GC allocation
     }
 
     hash_t toHash() const @trusted nothrow @nogc
@@ -344,7 +344,7 @@ pragma(inline):
     }
 }
 
-@safe pure /*TODO @nogc*/ unittest
+@safe pure /*TODO: @nogc*/ unittest
 {
     import std.datetime : Month;
     Month month;

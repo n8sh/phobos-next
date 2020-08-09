@@ -59,6 +59,6 @@ if (isCharArray!Chars)
     const x = t.quotedWords;
     const xs = [`verb:is`, `noun:"New York"`, `a`, `noun:"big  city"@en`];
     assert(equal(x, xs));
-    // TODO assert(equal(` verb:is   name:"New York"@en article:a noun:"big  city"@en `.quotedWords,
+    // TODO: assert(equal(` verb:is   name:"New York"@en article:a noun:"big  city"@en `.quotedWords,
     //              [`verb:is`, `name:"New York"@en`, `article:a`, `noun:"big  city"@en`]));
 }

@@ -6,12 +6,12 @@ import std.range.primitives : isInputRange, ElementType;
 /** Upcast all elements in `x` of type `T` to the type `U`, where `U` is a
  * superclass of `T`.
  *
- * TODO move to phobos-next
+ * TODO: move to phobos-next
  */
 inout(U)[] upcastElementsTo(U, T)(scope inout(T)[] x) @trusted
 if (is(T == class) &&
     is(U == class)
-    // TODO also check that `T` is a subclass of `U`
+    // TODO: also check that `T` is a subclass of `U`
     )
 {
     return cast(typeof(return))x;
@@ -23,7 +23,7 @@ auto upcastElementsTo(U, R)(inout(R) x)
 if (!isArray!R &&
     is(U == class) &&
     isInputRange!R && is(ElementType!R == class)
-    // TODO also check that `ElementType!R` is a subclass of `U`
+    // TODO: also check that `ElementType!R` is a subclass of `U`
     )
 {
     import std.algorithm.iteration : map;

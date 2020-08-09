@@ -17,7 +17,7 @@ struct Digest(size_t numBytes = 20, string name = "SHA-1")
                   hash_t.sizeof == 8,
                   ("Unsupported size of hash_t " ~ to!string(hash_t.sizeof)));
 
-    //enum numBytes = 20;         // TODO templatize
+    //enum numBytes = 20;         // TODO: templatize
     enum numInts = numBytes / 4;
     static assert(numBytes % 4 == 0, "numBytes must be a multiple of 4");
 
@@ -55,7 +55,7 @@ struct Digest(size_t numBytes = 20, string name = "SHA-1")
     /** Check if digest is undefined. */
     bool empty() @property @safe const pure nothrow
     {
-        /* TODO Is this unrolled to uint/ulong compares? */
+        /* TODO: Is this unrolled to uint/ulong compares? */
         import nxt.predicates: allZero;
         return (cast(uint[numInts])_bytes)[].allZero; // Note: D understands that this is @safe! :)
     }

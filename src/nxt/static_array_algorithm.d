@@ -4,8 +4,8 @@ import std.range.primitives : ElementType;
 
 /** Overload of `std.array.array` that creates a static array of length `n`.
  *
- * TODO Better name: {make,array}{N,Exactly}
- * TODO could we find a way to propagate length at compile-time?
+ * TODO: Better name: {make,array}{N,Exactly}
+ * TODO: could we find a way to propagate length at compile-time?
  */
 ElementType!R[n] toStaticArray(size_t n, R)(R r)
 {
@@ -19,7 +19,7 @@ ElementType!R[n] toStaticArray(size_t n, R)(R r)
 /** Static array overload for `std.algorithm.iteration.map`.
  *
  * See_Also: http://forum.dlang.org/thread/rqlittlysttwxwphlnmh@forum.dlang.org
- * TODO Add to Phobos
+ * TODO: Add to Phobos
  */
 typeof(fun(E.init))[n] map(alias fun, E, size_t n)(const E[n] src)
 {

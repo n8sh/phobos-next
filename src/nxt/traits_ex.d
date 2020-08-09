@@ -104,7 +104,7 @@ enum isHomogeneousTupleOf(T, E) = (isHomogeneousType!(T) &&
 enum isHeterogeneous(T) = !isHomogeneousType!T;
 
 template allSameTypeIterative(V...)
-// TODO restrict `V` to types only
+// TODO: restrict `V` to types only
 {
     static if (V.length >= 2)
     {
@@ -179,7 +179,7 @@ if (isExpressions!V)
 }
 
 template allSameTypeHybrid(V...)
-// TODO restrict `V` to types only
+// TODO: restrict `V` to types only
 {
     static if (V.length >= 8)
     {
@@ -251,7 +251,7 @@ template allSameTypeRecursive2(V...)
 /** Returns: `true` iff all types `T` are the same.
  */
 template allSameTypeRecursive(V...)
-// TODO restrict `V` to types only
+// TODO: restrict `V` to types only
 {
     static if (V.length <= 1)
     {
@@ -364,7 +364,7 @@ pure nothrow unittest
  *
  * Typically used to iterate over ranges with uncopyable elements.
  *
- * TODO Add to Phobos.
+ * TODO: Add to Phobos.
  */
 enum bool isRefIterable(T) = is(typeof({ foreach (ref elem; T.init) {} }));
 
@@ -385,7 +385,7 @@ enum isIterableOfSomeString(R) = (isIterable!R && isSomeString!(ElementType!R));
     static assert(!isIterableOf!(R, I));
 }
 
-// TODO use this instead?
+// TODO: use this instead?
 version(none) private template isInputRangeOf(R, E)
 {
     import std.range.primitives: isInputRange, ElementType;
@@ -454,7 +454,7 @@ alias isSomeStringSource = isSourceOfSomeString;
 
 import std.functional: unaryFun, binaryFun;
 
-/* TODO Do we need use of unaryFun and binaryFun here? */
+/* TODO: Do we need use of unaryFun and binaryFun here? */
 alias isEven = unaryFun!(a => (a & 1) == 0); // Limit to Integers?
 alias isOdd = unaryFun!(a => (a & 1) == 1); // Limit to Integers?
 alias lessThan = binaryFun!((a, b) => a < b);
@@ -611,9 +611,9 @@ template isA(alias S, T)
     See_Also: http://forum.dlang.org/thread/jrqiiicmtpenzokfxvlz@forum.dlang.org */
 enum isOpBinary(T, string op, U) = is(typeof(mixin("T.init" ~ op ~ "U.init")));
 
-enum isComparable(T) = is(typeof({ return T.init <  T.init; })); /// TODO Move to Phobos' std.traits
-enum isEquable   (T) = is(typeof({ return T.init == T.init; })); /// TODO Move to Phobos' std.traits
-enum isNotEquable(T) = is(typeof({ return T.init != T.init; })); /// TODO Move to Phobos' std.traits
+enum isComparable(T) = is(typeof({ return T.init <  T.init; })); /// TODO: Move to Phobos' std.traits
+enum isEquable   (T) = is(typeof({ return T.init == T.init; })); /// TODO: Move to Phobos' std.traits
+enum isNotEquable(T) = is(typeof({ return T.init != T.init; })); /// TODO: Move to Phobos' std.traits
 
 @safe pure nothrow @nogc unittest
 {
@@ -626,10 +626,10 @@ enum isNotEquable(T) = is(typeof({ return T.init != T.init; })); /// TODO Move t
     static assert(isComparable!Bar);
 }
 
-// TODO  variadic
-enum areComparable(T, U) = is(typeof({ return T.init <  U.init; })); /// TODO Move to Phobos' std.traits
-enum areEquable   (T, U) = is(typeof({ return T.init == U.init; })); /// TODO Move to Phobos' std.traits
-enum areNotEquable(T, U) = is(typeof({ return T.init != U.init; })); /// TODO Move to Phobos' std.traits
+// TODO:  variadic
+enum areComparable(T, U) = is(typeof({ return T.init <  U.init; })); /// TODO: Move to Phobos' std.traits
+enum areEquable   (T, U) = is(typeof({ return T.init == U.init; })); /// TODO: Move to Phobos' std.traits
+enum areNotEquable(T, U) = is(typeof({ return T.init != U.init; })); /// TODO: Move to Phobos' std.traits
 
 @safe pure nothrow @nogc unittest
 {
@@ -644,17 +644,17 @@ enum areNotEquable(T, U) = is(typeof({ return T.init != U.init; })); /// TODO Mo
 
 enum isValueType(T) = !hasIndirections!T;
 // enum isValueType(T) = isScalarType!T || isStaticArray!T || isStruct!T;
-enum hasValueSemantics(T) = !hasIndirections!T; // TODO merge with isValueType
+enum hasValueSemantics(T) = !hasIndirections!T; // TODO: merge with isValueType
 
 enum isReferenceType(T) = hasIndirections!T;
 
 enum arityMin0(alias fun) = __traits(compiles, fun());
 
-/** TODO Unite into a variadic.
+/** TODO: Unite into a variadic.
     See_Also: http://forum.dlang.org/thread/bfjwbhkyehcloqcjzxck@forum.dlang.org#post-atjmewbffdzeixrviyoa:40forum.dlang.org
 */
 enum isCallableWith(alias fun, T) = (is(typeof(fun(T.init))) ||
-                                     is(typeof(T.init.fun))); // TODO Are both these needed?
+                                     is(typeof(T.init.fun))); // TODO: Are both these needed?
 @safe pure nothrow @nogc unittest
 {
     auto sqr(T)(T x) { return x*x; }
@@ -662,12 +662,12 @@ enum isCallableWith(alias fun, T) = (is(typeof(fun(T.init))) ||
     assert(!isCallableWith!(sqr, string));
 }
 
-/* TODO Unite into a variadic.
+/* TODO: Unite into a variadic.
    See_Also: http://forum.dlang.org/thread/bfjwbhkyehcloqcjzxck@forum.dlang.org#post-atjmewbffdzeixrviyoa:40forum.dlang.org
  */
 enum isCallableWith(alias fun, T, U) = (is(typeof(fun(T.init,
                                                       U.init))) ||
-                                        is(typeof(T.init.fun(U)))); // TODO Are both these needed?
+                                        is(typeof(T.init.fun(U)))); // TODO: Are both these needed?
 @safe pure nothrow @nogc unittest
 {
     auto sqr2(T)(T x, T y) { return x*x + y*y; }
@@ -682,7 +682,7 @@ template isSortedRange(T)
 {
     import std.traits : isInstanceOf;
     import std.range: SortedRange;
-    enum isSortedRange = isInstanceOf!(SortedRange, T); // TODO Or use: __traits(isSame, TemplateOf!R, SortedRange)
+    enum isSortedRange = isInstanceOf!(SortedRange, T); // TODO: Or use: __traits(isSame, TemplateOf!R, SortedRange)
 }
 
 /** Check if Function $(D expr) is callable at compile-time.
@@ -828,13 +828,13 @@ auto persistentlyMemoizedCall(alias fun, T...)(T args)
 }
 
 /** Move std.uni.newLine?
-    TODO What to do with Windows style endings?
+    TODO: What to do with Windows style endings?
     See_Also: https://en.wikipedia.org/wiki/Newline
 */
 bool isNewline(C)(C c) @safe pure nothrow @nogc
     if (isSomeChar!C)
 {
-    import std.ascii: newline; // TODO Probably not useful.
+    import std.ascii: newline; // TODO: Probably not useful.
     static if (newline == "\n")
     {
         return (c == '\n' || c == '\r'); // optimized for systems with \n as default
@@ -852,7 +852,7 @@ bool isNewline(C)(C c) @safe pure nothrow @nogc
 bool isNewline(S)(S s) @safe pure nothrow @nogc
     if (isSomeString!S)
 {
-    import std.ascii: newline; // TODO Probably not useful.
+    import std.ascii: newline; // TODO: Probably not useful.
     static if (newline == "\n")
     {
         return (s == '\n' || s == '\r'); // optimized for systems with \n as default
@@ -884,7 +884,7 @@ T[] enumMembersAsEnumerators(T)()
 if (is(T == enum))
 {
     import std.array : Appender;
-    Appender!(T[]) members; // TODO use static array instead
+    Appender!(T[]) members; // TODO: use static array instead
     enum maxLength = T.max - T.min + 1; // possibly overestimate of final length needed
     members.reserve(maxLength);
     foreach (const member; __traits(allMembers, T))
@@ -940,8 +940,8 @@ if (is(T == enum))
     static assert(E.Y == E.y);
 }
 
-enum sizeOf(T) = T.sizeof;      // TODO Add to Phobos
-template sizesOf(T...)          // TODO Add to Phobos
+enum sizeOf(T) = T.sizeof;      // TODO: Add to Phobos
+template sizesOf(T...)          // TODO: Add to Phobos
 {
     import std.meta : staticMap;
     enum sizesOf = staticMap!(sizeOf, T);
@@ -963,8 +963,8 @@ template sizesOf(T...)          // TODO Add to Phobos
     assert([sizes][i] == 1);
 }
 
-enum stringOf(T) = T.stringof;  // TODO Add to Phobos
-template stringsOf(T...)        // TODO Add to Phobos
+enum stringOf(T) = T.stringof;  // TODO: Add to Phobos
+template stringsOf(T...)        // TODO: Add to Phobos
 {
     import std.meta : staticMap;
     enum stringsOf = staticMap!(stringOf, T);
@@ -1098,7 +1098,7 @@ template EntropyBitsOf(T)
 
 /** Is `true` if `sym` is an l-value, `false` otherwise.
     See_Also: https://forum.dlang.org/post/mailman.4192.1454351296.22025.digitalmars-d-learn@puremagic.com
-    TODO Add to Phobos
+    TODO: Add to Phobos
 */
 enum isLvalue(alias sym) = is(typeof((ref _){}(sym)));
 

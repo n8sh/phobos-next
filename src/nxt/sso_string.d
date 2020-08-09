@@ -20,12 +20,12 @@ module nxt.sso_string;
  * See_Also: https://issues.dlang.org/show_bug.cgi?id=18792
  * See_Also: https://forum.dlang.org/post/agzznbzkacfhyqvoezht@forum.dlang.org
  *
- * TODO Use extra bits in `Short.length` for these special text encodings:
+ * TODO: Use extra bits in `Short.length` for these special text encodings:
  * - 5-bit lowercase English letter into 128/5 = 25 chars
  * - 5-bit uppercase English letter into 120/5 = 25 chars
  * - 6-bit mixedcase English letter into 120/6 = 20 chars
  *
- * TODO Add to Phobos' std.typecons or std.array or std.string
+ * TODO: Add to Phobos' std.typecons or std.array or std.string
  */
 struct SSOString
 {
@@ -88,7 +88,7 @@ pure:
     /** Construct from `source` of `dchar`
      */
     this(Source)(scope Source source) @trusted
-    if (is(typeof({ foreach (const dchar elem; Source.init) {} })) && // TODO `isConstRefIterable`
+    if (is(typeof({ foreach (const dchar elem; Source.init) {} })) && // TODO: `isConstRefIterable`
         is(typeof(Source.init.front) == dchar))
     {
         import std.utf : encode;
@@ -97,7 +97,7 @@ pure:
         size_t charCount = 0;
         foreach (const e; source)
         {
-            char[4] chars;      // TODO `= void`
+            char[4] chars;      // TODO: `= void`
             charCount += encode(chars, e);
         }
 
@@ -413,7 +413,7 @@ private:
     {
         struct Small
         {
-            /* TODO only first 4 bits are needed to represent a length between
+            /* TODO: only first 4 bits are needed to represent a length between
              * 0-15, use other 4 bits.
              */
             ubyte length = 0;
@@ -429,12 +429,12 @@ private:
             immutable(char)[smallCapacity] data = [0,0,0,0,0,
                                                    0,0,0,0,0,
                                                    0,0,0,0,0]; // explicit init needed for `__traits(isZeroInit)` to be true.
-            /* TODO only first 4 bits are needed to represent a length between
+            /* TODO: only first 4 bits are needed to represent a length between
              * 0-15, use other 4 bits.
              */
             ubyte length;
         }
-        static assert(0, "TODO add BigEndian support and test");
+        static assert(0, "TODO: add BigEndian support and test");
     }
 
     struct Raw                  // same memory layout as `immutable(char)[]`
@@ -471,7 +471,7 @@ SSOString toLower()(const SSOString x) @trusted // template-lazy
     {
         import std.uni : asLowerCase;
         import std.conv : to;
-        return typeof(return)(x.opSlice().asLowerCase.to!string); // TODO make .to!string nothrow
+        return typeof(return)(x.opSlice().asLowerCase.to!string); // TODO: make .to!string nothrow
     }
     else                   // small non-ASCII path usually without GC-allocation
     {
@@ -517,7 +517,7 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
     {
         import std.uni : asUpperCase;
         import std.conv : to;
-        return typeof(return)(x.opSlice().asUpperCase.to!string); // TODO make .to!string nothrow
+        return typeof(return)(x.opSlice().asUpperCase.to!string); // TODO: make .to!string nothrow
     }
     else                   // small non-ASCII path usually without GC-allocation
     {
@@ -561,7 +561,7 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
 @safe pure nothrow @nogc unittest
 {
     scope const char[] s;
-    // TODO why does this fail? static assert(!__traits(compiles, { const _ = SSOString(s); }));
+    // TODO: why does this fail? static assert(!__traits(compiles, { const _ = SSOString(s); }));
 }
 
 /// verify `isNull` when @nogc constructing from small static array of `char`s
@@ -636,7 +636,7 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
     static assert(mustAddGCRange!SSOString); // `Large large.ptr` must be scanned
 
     static assert(__traits(isZeroInit, SSOString));
-    // TODO assert(SSOString.init == SSOString.nullValue);
+    // TODO: assert(SSOString.init == SSOString.nullValue);
 
     auto s0 = SSOString.init;
     assert(s0.isNull);
@@ -924,7 +924,7 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
         immutable SSOString s = SSOString("123456789_12345");
         assert(s.ptr is &s.opSlice()[0]);
         assert(s.ptr is &s.toString()[0]);
-        // TODO check return via -dip1000
+        // TODO: check return via -dip1000
     }
 
     /* Forbid return of possibly locally scoped `Smll` small stack object
@@ -936,7 +936,7 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
         static assert(!__traits(compiles, { immutable(char)* f1() @safe pure nothrow { const SSOString x; return x.ptr; } }));
         static assert(!__traits(compiles, { immutable(char)* f1() @safe pure nothrow { immutable SSOString x; return x.ptr; } }));
 
-        /** TODO Enable the following line when DIP-1000 works for opSlice()
+        /** TODO: Enable the following line when DIP-1000 works for opSlice()
          *
          * See_Also: https://issues.dlang.org/show_bug.cgi?id=18792
          */

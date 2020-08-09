@@ -18,7 +18,7 @@ enum isDenseSetFilterable(E) = (is(typeof(cast(size_t)E.init)) // is castable to
  * node (integer) ids that checks if a node has been previously visisted or not.
  */
 struct DenseSetFilter(E,
-                      // TODO make these use the Flags template
+                      // TODO: make these use the Flags template
                       Growable growable = Growable.yes,
                       Copyable copyable = Copyable.no)
 if (isDenseSetFilterable!E)
@@ -344,7 +344,7 @@ private:
 }
 
 /// test `RefCounted` storage
-nothrow @nogc unittest          // TODO pure when https://github.com/dlang/phobos/pull/4692/files has been merged
+nothrow @nogc unittest          // TODO: pure when https://github.com/dlang/phobos/pull/4692/files has been merged
 {
     import std.typecons : RefCounted;
     alias E = int;
@@ -399,7 +399,7 @@ nothrow @nogc unittest          // TODO pure when https://github.com/dlang/phobo
 {
     enum E : ubyte { a, b, c, d, dAlias = d }
 
-    auto set = DenseSetFilter!(E, Growable.no).withInferredLength(); // TODO use instantiator function here
+    auto set = DenseSetFilter!(E, Growable.no).withInferredLength(); // TODO: use instantiator function here
     assert(set.capacity == typeof(set).elementMaxCount);
 
     static assert(!__traits(compiles, { assert(set.contains(0)); }));
@@ -463,7 +463,7 @@ template isStaticDenseFilterableType(E)
     Typically used to implement very fast membership checking in sets of
     enumerators.
 
-    TODO Add operators for bitwise `and` and `or` operations similar to
+    TODO: Add operators for bitwise `and` and `or` operations similar to
     https://dlang.org/library/std/typecons/bit_flags.html
  */
 struct StaticDenseSetFilter(E,

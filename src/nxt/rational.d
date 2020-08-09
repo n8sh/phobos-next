@@ -116,7 +116,7 @@ template isIntegerLike(T)
                 n -= 2;
                 n %= 2;
                 n %= n;
-                // TODO what about ^^= ?
+                // TODO: what about ^^= ?
                 bool lt = n < 2; // less than
                 bool eq = n == 2; // equal to literal
                 bool ltg = n < n + 1;
@@ -157,8 +157,8 @@ template isIntegerLike(T)
 /** Checks if $(D T) has the basic properties of a rational type, i.e.  it has a
  * numerator and a denominator.
  */
-enum isRational(T) = (is(typeof(T.init.numerator)) && // TODO faster to use hasMember? TODO check that member `isIntegerLike`?
-                      is(typeof(T.init.denominator))); // TODO faster to use hasMember? TODO check that member `isIntegerLike`?
+enum isRational(T) = (is(typeof(T.init.numerator)) && // TODO: faster to use hasMember? TODO: check that member `isIntegerLike`?
+                      is(typeof(T.init.denominator))); // TODO: faster to use hasMember? TODO: check that member `isIntegerLike`?
 
 /** Returns a Common Integral Type between $(D I1) and $(D I2).  This is defined
  * as the type returned by I1.init * I2.init.
@@ -184,15 +184,15 @@ if (isIntegerLike!I1 &&
  * just on the CommonInteger of ($D R1) and $(D R2), if they themselves are
  * integers).
  */
-private template CommonRational(R1, R2) // TODO avoid recursions below
+private template CommonRational(R1, R2) // TODO: avoid recursions below
 {
     static if (isRational!R1)
     {
-        alias CommonRational = CommonRational!(typeof(R1.numerator), R2); // recurse. TODO avoid
+        alias CommonRational = CommonRational!(typeof(R1.numerator), R2); // recurse. TODO: avoid
     }
     else static if (isRational!R2)
     {
-        alias CommonRational = CommonRational!(R1, typeof(R2.numerator)); // recurse. TODO avoid
+        alias CommonRational = CommonRational!(R1, typeof(R2.numerator)); // recurse. TODO: avoid
     }
     else static if (is(CommonInteger!(R1, R2)))
     {

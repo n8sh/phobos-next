@@ -115,7 +115,7 @@ private static template xtorFun(alias xtor)
 /** Returns: $(D r) sorted.
     If needed a GC-copy of $(D r) is allocated, sorted and returned.
     See_Also: http://forum.dlang.org/thread/tnrvudehinmkvbifovwo@forum.dlang.org#post-tnrvudehinmkvbifovwo:40forum.dlang.org
-    TODO Add to Phobos
+    TODO: Add to Phobos
 */
 auto sorted(R, E = ElementType!R)(R r)
 {
@@ -131,7 +131,7 @@ auto sorted(R, E = ElementType!R)(R r)
     {
         static if (isRandomAccessRange!R)
         {
-            auto s = r.dup;     // TODO remove this
+            auto s = r.dup;     // TODO: remove this
         }
         else static if (isNarrowString!R)
         {
@@ -142,7 +142,7 @@ auto sorted(R, E = ElementType!R)(R r)
         {
             import std.algorithm: copy;
             auto s = new E[r.length];
-            static if (is(typeof(r[]))) // TODO unpretty
+            static if (is(typeof(r[]))) // TODO: unpretty
             {
                 r[].copy(s);
             }
@@ -153,10 +153,10 @@ auto sorted(R, E = ElementType!R)(R r)
         }
         else
         {
-            E[] s; // TODO use Appender?
+            E[] s; // TODO: use Appender?
             foreach (const ref e; r[])
             {
-                s ~= e;             // TODO optimize?
+                s ~= e;             // TODO: optimize?
             }
         }
 
@@ -222,7 +222,7 @@ auto randomlyShuffled(Range, RandomGen)(Range r, ref RandomGen gen)
 {
     import std.random : randomShuffle;
     r.randomShuffle(gen);
-    // TODO reuse copying logic in `sorted`
+    // TODO: reuse copying logic in `sorted`
     return r;
 }
 
@@ -231,7 +231,7 @@ auto randomlyShuffled(Range)(Range r)
 {
     import std.random : randomShuffle;
     r.randomShuffle();
-    // TODO reuse copying logic in `sorted`
+    // TODO: reuse copying logic in `sorted`
     return r;
 }
 
@@ -255,7 +255,7 @@ if (isRandomAccessRange!R)
     size_t start = i;
     if (i != 0)
     {
-        topN(range, i);         // TODO `assumePure`
+        topN(range, i);         // TODO: `assumePure`
         start++;
     }
     partialSort(range[start .. $], j-start);

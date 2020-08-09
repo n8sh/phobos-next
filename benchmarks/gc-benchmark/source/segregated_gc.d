@@ -58,24 +58,24 @@ enum PAGESIZE = 4096;           ///< Page size in bytes. Linux $(shell getconf P
 /// Small slot sizes classes (in bytes).
 static immutable smallSizeClasses = [8,
                                      16,
-                                     24, // TODO move
+                                     24, // TODO: move
                                      32,
-                                     40, // TODO move
-                                     48, // TODO move
-                                     56, // TODO move
+                                     40, // TODO: move
+                                     48, // TODO: move
+                                     56, // TODO: move
                                      64,
                                      72,
                                      80,
                                      88,
-                                     96, // TODO move
-                                     104, // TODO move
-                                     112, // TODO move
-                                     120, // TODO move
-                                     128, // TODO 128 +64,
-                                     256, // TODO 256 + 128,
-                                     512, // TODO 512 + 256,
-                                     1024, // TODO 1024 + 512,
-                                     2048, // TODO 2048 + 1024,
+                                     96, // TODO: move
+                                     104, // TODO: move
+                                     112, // TODO: move
+                                     120, // TODO: move
+                                     128, // TODO: 128 +64,
+                                     256, // TODO: 256 + 128,
+                                     512, // TODO: 512 + 256,
+                                     1024, // TODO: 1024 + 512,
+                                     2048, // TODO: 2048 + 1024,
     ];
 
 /// Medium slot sizes classes (in bytes).
@@ -95,7 +95,7 @@ size_t ceilPow2(size_t sz) @safe pure nothrow @nogc
 
 @safe pure nothrow @nogc unittest
 {
-    // TODO assert(ceilPow2(1) == 1);
+    // TODO: assert(ceilPow2(1) == 1);
     assert(ceilPow2(2) == 2);
     assert(ceilPow2(3) == 4);
     assert(ceilPow2(4) == 4);
@@ -130,9 +130,9 @@ if (sizeClass >= smallSizeClasses[0])
 
     Slot[slotCount] slots;
     byte[PAGESIZE-slots.sizeof] __padding;
-    static assert(this.sizeof == PAGESIZE); // TODO adjust if pages of different byte sizes are preferred
+    static assert(this.sizeof == PAGESIZE); // TODO: adjust if pages of different byte sizes are preferred
 }
-enum minimumSmallPageWordCount = PAGESIZE/WORDSIZE; // TODO may be computed
+enum minimumSmallPageWordCount = PAGESIZE/WORDSIZE; // TODO: may be computed
 
 struct SmallPageTable(uint sizeClass)
 {
@@ -141,7 +141,7 @@ struct SmallPageTable(uint sizeClass)
     enum slotCount = PAGESIZE/sizeClass;
 
     // bit `i` indicates if slot `i` in `*pagePtr` currently contains an initialized value
-    StaticBitArray!(slotCount) slotUsages; // TODO benchmark with a byte-array instead for comparison
+    StaticBitArray!(slotCount) slotUsages; // TODO: benchmark with a byte-array instead for comparison
 
     // bit `i` indicates if slot `i` in `*pagePtr` has been marked
     StaticBitArray!(slotCount) slotMarks;
@@ -162,11 +162,11 @@ if (sizeClass >= smallSizeClasses[0])
     {
         version(LDC) pragma(inline, true);
 
-        // TODO scan `slotUsages` at slotIndex using core.bitop.bsf to find
+        // TODO: scan `slotUsages` at slotIndex using core.bitop.bsf to find
         // first free page if any. Use modification of `indexOfFirstOne` that
         // takes startIndex being `slotIndex` If no hit set `slotIndex` to
         // `Page.slotCount`
-        // TODO instead of this find next set bit at `slotIndex` in
+        // TODO: instead of this find next set bit at `slotIndex` in
         // `slotUsages` unless whole current `slotUsages`-word is all zero.
 
         immutable pageIndex = slotIndex / Page.slotCount;
@@ -198,7 +198,7 @@ if (sizeClass >= smallSizeClasses[0])
     size_t slotIndex = 0;       // index to first free slot in pool across multiple page
 }
 
-// TODO @safe pure nothrow @nogc
+// TODO: @safe pure nothrow @nogc
 unittest
 {
     static foreach (sizeClass; smallSizeClasses)
@@ -229,7 +229,7 @@ struct SmallPools
         BlkInfo blkinfo = void;
         blkinfo.attr = bits;
 
-        // TODO optimize this:
+        // TODO: optimize this:
         blkinfo.size = ceilPow2(size);
         if (blkinfo.size < smallSizeClasses[0])
         {
@@ -255,7 +255,7 @@ struct SmallPools
         default:
             blkinfo.base = null;
             printf("### %s(size:%lu, bits:%u) Cannot handle blkinfo.size:%lu\n", __FUNCTION__.ptr, size, bits, blkinfo.size);
-            // TODO find closest match of blkinfo.size <= smallSizeClasses
+            // TODO: find closest match of blkinfo.size <= smallSizeClasses
             onOutOfMemoryError();
             assert(0, "Handle other blkinfo.size");
         }
@@ -298,11 +298,11 @@ extern (C)
 {
     static foreach (sizeClass; smallSizeClasses)
     {
-        /* TODO use template `mixin` containing, in turn, a `mixin` for generating
+        /* TODO: use template `mixin` containing, in turn, a `mixin` for generating
          * the symbol names `gc_tlmalloc_32`, `unscannedPool32` and
          * `scannedPool32` for sizeClass `32`.
          *
-         * TODO Since https://github.com/dlang/dmd/pull/8813 we can now use:
+         * TODO: Since https://github.com/dlang/dmd/pull/8813 we can now use:
          * `mixin("gc_tlmalloc_", sizeClass);` for symbol generation
          */
         mixin(`
@@ -436,7 +436,7 @@ class SegregatedGC : GC
     {
         debug(PRINTF) printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
         lockNR();
-        scope (failure) gcLock.unlock(); // TODO why needed?
+        scope (failure) gcLock.unlock(); // TODO: why needed?
         void* p = gGcx.smallPools.qalloc(size, bits).base;
         gcLock.unlock();
         if (size && p is null)
@@ -448,7 +448,7 @@ class SegregatedGC : GC
     {
         debug(PRINTF) printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
         lockNR();
-        scope (failure) gcLock.unlock(); // TODO why needed?
+        scope (failure) gcLock.unlock(); // TODO: why needed?
         BlkInfo blkinfo = gGcx.smallPools.qalloc(size, bits);
         gcLock.unlock();
         if (size && blkinfo.base is null)
@@ -633,7 +633,7 @@ class SegregatedGC : GC
         debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
     }
 
-    // TODO what is this?
+    // TODO: what is this?
     bool inFinalizer() nothrow
     {
         return false;
@@ -646,7 +646,7 @@ class SegregatedGC : GC
     core.memory.GC.Stats stats() nothrow
     {
         debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
-        // TODO fill in
+        // TODO: fill in
         return typeof(return)();
     }
 
@@ -657,7 +657,7 @@ class SegregatedGC : GC
     core.memory.GC.ProfileStats profileStats() nothrow
     {
         debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
-        // TODO fill in
+        // TODO: fill in
         return typeof(return)();
     }
 

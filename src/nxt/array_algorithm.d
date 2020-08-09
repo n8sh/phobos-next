@@ -9,7 +9,7 @@
  * See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
  * See_Also: https://forum.dlang.org/thread/ybamybeakxwxwleebnwb@forum.dlang.org?page=1
  *
- * TODO Merge into separate array-specializations of Phobos algorithms for less template bloat in Phobos.
+ * TODO: Merge into separate array-specializations of Phobos algorithms for less template bloat in Phobos.
  */
 module nxt.array_algorithm;
 
@@ -361,7 +361,7 @@ inout(T)[] stripLeft(T)(scope return inout(T)[] haystack,
     static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
     size_t offset = 0;
     while (offset != haystack.length &&
-           haystack.ptr[offset] == needle) // TODO elide range-check
+           haystack.ptr[offset] == needle) // TODO: elide range-check
     {
         offset += 1;
     }
@@ -398,7 +398,7 @@ inout(T)[] stripRight(T)(scope return inout(T)[] haystack,
     static if (is(T == char)) { assert(needle < 128); } // See_Also: https://forum.dlang.org/post/sjirukypxmmcgdmqbcpe@forum.dlang.org
     size_t offset = haystack.length;
     while (offset != 0 &&
-           haystack.ptr[offset - 1] == needle) // TODO elide range-check
+           haystack.ptr[offset - 1] == needle) // TODO: elide range-check
     {
         offset -= 1;
     }
@@ -436,14 +436,14 @@ inout(T)[] strip(T)(scope return inout(T)[] haystack,
 
     size_t leftOffset = 0;
     while (leftOffset != haystack.length &&
-           haystack.ptr[leftOffset] == needle) // TODO elide range-check
+           haystack.ptr[leftOffset] == needle) // TODO: elide range-check
     {
         leftOffset += 1;
     }
 
     size_t rightOffset = haystack.length;
     while (rightOffset != leftOffset &&
-           haystack.ptr[rightOffset - 1] == needle) // TODO elide range-check
+           haystack.ptr[rightOffset - 1] == needle) // TODO: elide range-check
     {
         rightOffset -= 1;
     }
@@ -479,10 +479,10 @@ inout(char)[] strip()(scope return inout(char)[] haystack) @safe pure nothrow @n
 
 /** Array-specialization of `count` with default predicate.
  *
- * TODO Add optimized implementation for needles with length >=
+ * TODO: Add optimized implementation for needles with length >=
  * `largeNeedleLength` with no repeat of elements.
  *
- * TODO reuse `return haystack.indexOf(needle) != -1` in both overloads
+ * TODO: reuse `return haystack.indexOf(needle) != -1` in both overloads
  */
 bool canFind(T)(scope const T[] haystack,
                 scope const T[] needle) @trusted
@@ -606,7 +606,7 @@ size_t count(T)(scope const T[] haystack)
 
 /** Array-specialization of `indexOf` with default predicate.
  *
- * TODO Add optimized implementation for needles with length >=
+ * TODO: Add optimized implementation for needles with length >=
  * `largeNeedleLength` with no repeat of elements.
  */
 ptrdiff_t indexOf(T)(scope inout(T)[] haystack,
@@ -863,7 +863,7 @@ version(none)
         char[3] haystack = "a*b";
         auto r = haystack[].findSplit('*');
         static assert(is(typeof(r.pre()) == char[]));
-        return r.pre();         // TODO this should fail
+        return r.pre();         // TODO: this should fail
     }
 }
 
@@ -1001,7 +1001,7 @@ auto findLastSplit(T)(scope return inout(T)[] haystack,
         char[3] haystack = "a*b";
         auto r = haystack[].findLastSplit('*');
         static assert(is(typeof(r.pre()) == char[]));
-        return r.pre();         // TODO this should fail
+        return r.pre();         // TODO: this should fail
     }
 }
 

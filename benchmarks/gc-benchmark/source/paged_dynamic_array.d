@@ -125,7 +125,7 @@ struct PagedDynamicArray(T)
             import core.stdc.string : memcpy;
             if (_ptr !is null)
             {
-                memcpy(newPtr, _ptr, capacityInBytes); // TODO can we copy pages faster than this?
+                memcpy(newPtr, _ptr, capacityInBytes); // TODO: can we copy pages faster than this?
                 os_mem_unmap(_ptr, capacityInBytes);
             }
             _ptr = newPtr;
@@ -220,13 +220,13 @@ struct PagedDynamicArray(T)
             // destroy `idx`:th element
         }
         foreach (i; idx .. length - 1)
-            _ptr[i] = _ptr[i+1]; // TODO move if hasElaborateDestructor!T
+            _ptr[i] = _ptr[i+1]; // TODO: move if hasElaborateDestructor!T
         popBack();
     }
 
     invariant
     {
-        // TODO assert(!_ptr == !_length);
+        // TODO: assert(!_ptr == !_length);
     }
 
 private:

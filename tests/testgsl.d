@@ -154,7 +154,7 @@ IntegrationResult monteMISERIntegrate(const scope ref gsl_monte_function fn,
 /** High-level wrapper of `gsl_monte_vegas_integrate`.
  *
  */
-version(none)                   // TODO add wrappers missing in gsl bindings
+version(none)                   // TODO: add wrappers missing in gsl bindings
 IntegrationResult monteVEGASIntegrate(const scope ref gsl_monte_function fn,
                                       const scope double[] lowerLimit, // lower limit of hypercubic region
                                       const scope double[] upperLimit, // upper limit of hypercubic region
@@ -256,7 +256,7 @@ void test_2D()
     }
 
     // VEGAS
-    version(none)               // TODO activate
+    version(none)               // TODO: activate
     {
         sw.reset();
         const ir = monteVEGASIntegrate(fn, lowerLimit[], upperLimit, calls);

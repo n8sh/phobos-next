@@ -12,12 +12,12 @@ import core.internal.traits : Unqual;
  *
  * const x = [1, 2, 3].s;
  *
- * TODO Replace with Phobos `staticArray` when dmd automatically does move for uncopyable `T`.
+ * TODO: Replace with Phobos `staticArray` when dmd automatically does move for uncopyable `T`.
  *
- * TODO Fix problems discussed here: http://forum.dlang.org/post/otrsanpgmokzpzqmfyvx@forum.dlang.org
- * TODO File a bug report: http://forum.dlang.org/post/otrsanpgmokzpzqmfyvx@forum.dlang.org
+ * TODO: Fix problems discussed here: http://forum.dlang.org/post/otrsanpgmokzpzqmfyvx@forum.dlang.org
+ * TODO: File a bug report: http://forum.dlang.org/post/otrsanpgmokzpzqmfyvx@forum.dlang.org
  *
- * TODO fix compiler so that move kicks in here automatically and remove
+ * TODO: fix compiler so that move kicks in here automatically and remove
  * special case on `isCopyable`
  *
  * See_Also: http://dpaste.dzfl.pl/d0059e6e6c09
@@ -25,13 +25,13 @@ import core.internal.traits : Unqual;
  */
 Unqual!T[n] staticArray(T, size_t n)(T[n] x...) @trusted
 {
-    static if (__traits(isCopyable, T))  // TODO remove `move` when compiler does it for us
+    static if (__traits(isCopyable, T))  // TODO: remove `move` when compiler does it for us
     {
         return x[];
     }
-    else                      // TODO remove `move` when compiler does it for us
+    else                      // TODO: remove `move` when compiler does it for us
     {
-        // TODO remove `move` when compiler does it for us:
+        // TODO: remove `move` when compiler does it for us:
         T[n] y = void;        // initialized below
         import core.internal.traits : hasElaborateDestructor;
         static if (hasElaborateDestructor!T)
@@ -136,7 +136,7 @@ version(unittest)
 
 /** Returns: `x` as a static array of unsigned bytes. */
 @property ubyte[T.sizeof] toUbytes(T)(in T x)
-    @trusted pure nothrow @nogc // TODO endian-dependent
+    @trusted pure nothrow @nogc // TODO: endian-dependent
 {
     version(D_Coverage) {} else pragma(inline, true);
     return (cast(ubyte*)(&x))[0 .. x.sizeof];
@@ -144,7 +144,7 @@ version(unittest)
 
 /** Returns: `x` as a static array with elements of type `E`. */
 @property ref E[T.sizeof] asN(E, T)(in ref T x)
-    @trusted pure nothrow @nogc // TODO endian-dependent
+    @trusted pure nothrow @nogc // TODO: endian-dependent
 if (T.sizeof % E.sizeof == 0)
 {
     version(D_Coverage) {} else pragma(inline, true);

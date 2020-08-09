@@ -1,6 +1,6 @@
 /** Hash digestion of standard types.
  *
- * TODO use:
+ * TODO: use:
  *
  *  static if (hasMember!(hasher, "putStaticArray"))
  *  {
@@ -59,7 +59,7 @@ hash_t hashOf2(alias hasher, T)(const scope auto ref T value)
     else static if (__traits(compiles, { auto _ = hasher((ubyte[]).init); }))
     {
         // cast input `value` to `ubyte[]` and use std.digest API
-        immutable digest = hasher((cast(ubyte*)&value)[0 .. value.sizeof]); // TODO ask forums when this isn't correct
+        immutable digest = hasher((cast(ubyte*)&value)[0 .. value.sizeof]); // TODO: ask forums when this isn't correct
 
         static assert(digest.sizeof >=
                       typeof(return).sizeof,
@@ -121,11 +121,11 @@ if (isDigest!Digest)
     {
         digestAddress(digest, value);
     }
-    else static if (!hasIndirections!T) // no pointers left in `T`. TODO make this the default in-place of `isScalarType`
+    else static if (!hasIndirections!T) // no pointers left in `T`. TODO: make this the default in-place of `isScalarType`
     {
         version(LDC)            // LDC doesn't zero pad `real`s
         {
-            // TODO needed to improve this with a trait
+            // TODO: needed to improve this with a trait
             import std.traits : isStaticArray, isInstanceOf;
             static if (isStaticArray!T)
             {
@@ -176,7 +176,7 @@ if (isDigest!Digest)
     }
     else static if (is(T == struct))
     {
-        static if (is(typeof(T.init[])) && isArray!(typeof(T.init[]))) // TODO trait: `isArrayLike`
+        static if (is(typeof(T.init[])) && isArray!(typeof(T.init[]))) // TODO: trait: `isArrayLike`
         {
             digestAnyWithTrustedSystemSlicing(digest, value);
         }
@@ -191,7 +191,7 @@ if (isDigest!Digest)
     }
 }
 
-// TODO remove when `SSOString` gets scope-checked opSlice
+// TODO: remove when `SSOString` gets scope-checked opSlice
 private
 void digestAnyWithTrustedSystemSlicing(Digest, T)(ref Digest digest,
                                                   const scope ref T value) @trusted
@@ -311,7 +311,7 @@ if (isDigest!Digest &&
     isScalarType!T)             // scalar type `T`
 {
     version(LDC) pragma(inline, true);
-    // TODO optimize when value is size_t, ulong and digest supports it
+    // TODO: optimize when value is size_t, ulong and digest supports it
     digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
 }
 
@@ -321,7 +321,7 @@ if (isDigest!Digest &&
     !isScalarType!T)            // non-scalar type `T`
 {
     version(LDC) pragma(inline, true);
-    // TODO optimize when value is size_t, ulong and digest supports it
+    // TODO: optimize when value is size_t, ulong and digest supports it
     digest.put((cast(ubyte*)&value)[0 .. value.sizeof]);
 }
 

@@ -365,9 +365,9 @@ bool isFormal(Lang lang) @safe pure @nogc nothrow
             lang <= Lang.lastFormal);
 }
 
-/** TODO Remove when `__traits(documentation)` is merged
+/** TODO: Remove when `__traits(documentation)` is merged
  */
-string toSpoken(Lang lang, Lang spokenLang = Lang.init) @safe pure nothrow // TODO @nogc
+string toSpoken(Lang lang, Lang spokenLang = Lang.init) @safe pure nothrow // TODO: @nogc
 {
     with (Lang)
     {
@@ -558,7 +558,7 @@ Lang decodeLangDefaulted(const scope const(char)[] lang,
 }
 
 ///
-@safe pure nothrow /*TODO @nogc*/ unittest
+@safe pure nothrow /*TODO: @nogc*/ unittest
 {
     assert(Lang.unknown.toSpoken == `??`);
     assert(Lang.c.toSpoken == `C`);
@@ -567,13 +567,13 @@ Lang decodeLangDefaulted(const scope const(char)[] lang,
     assert(Lang.java.toSpoken == `Java`);
 }
 
-string toHTML(Lang lang) @safe pure nothrow /*TODO @nogc*/
+string toHTML(Lang lang) @safe pure nothrow /*TODO: @nogc*/
 {
     return lang.toSpoken;
 }
 
 ///
-string toMathML(Lang lang) @safe pure nothrow /*TODO @nogc*/
+string toMathML(Lang lang) @safe pure nothrow /*TODO: @nogc*/
 {
     return lang.toHTML;
 }

@@ -28,12 +28,12 @@ LineColumn offsetLineColumn(scope const char[] haystack,
 {
     // find 0-based column offset
     size_t cursor = offset;      // cursor
-    while (cursor != 0) // TODO extend to support UTF-8
+    while (cursor != 0) // TODO: extend to support UTF-8
     {
         if (cursor >= 1)
         {
-            if (haystack[cursor - 1] == '\n' || // TODO extend to support UTF-8
-                haystack[cursor - 1] == '\r')   // TODO extend to support UTF-8
+            if (haystack[cursor - 1] == '\n' || // TODO: extend to support UTF-8
+                haystack[cursor - 1] == '\r')   // TODO: extend to support UTF-8
             {
                 break;
             }

@@ -27,7 +27,7 @@ int tempfile(string namePrefix = null) @trusted
     }
 }
 
-/** TODO Scoped variant of tempfile.
+/** TODO: Scoped variant of tempfile.
  *
  * Search http://forum.dlang.org/thread/mailman.262.1386205638.3242.digitalmars-d-learn@puremagic.com
  */
@@ -53,5 +53,5 @@ string tempFilePath(const scope string prefix,
     import std.uuid : randomUUID;
     import std.file : tempDir;
     import std.path : buildPath;
-    return buildPath(tempDir(), prefix ~ "_" ~ randomUUID.toString() ~ extension); // TODO use nxt.appending.append()
+    return buildPath(tempDir(), prefix ~ "_" ~ randomUUID.toString() ~ extension); // TODO: use nxt.appending.append()
 }

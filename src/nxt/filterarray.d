@@ -10,7 +10,7 @@ import nxt.filters : isDenseSetFilterable;
 
     For use in graph algorithms with limited index ranges.
 
-    TODO better name?
+    TODO: better name?
  */
 struct DenseSetFilterGrowableArray(E,
                                    alias Allocator = null)
@@ -77,7 +77,7 @@ if (isDenseSetFilterable!E)
     }
 
 private:
-    // TODO merge into store with only one length and capcity
+    // TODO: merge into store with only one length and capcity
     DenseSetFilter!(E, Growable.yes, Copyable.no) _set;
     DynamicArray!(E, Allocator) _array;
 }

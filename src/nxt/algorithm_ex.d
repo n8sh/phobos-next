@@ -3,7 +3,7 @@
     License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
     Authors: $(WEB Per Nordlöw)
 
-    TODO merge stuff from algorithm_ex_2.d
+    TODO: merge stuff from algorithm_ex_2.d
 */
 module nxt.algorithm_ex;
 
@@ -31,7 +31,7 @@ alias tail = dropOne;
  */
 ref Ts[0] eitherRef(Ts...)(ref Ts a)
 if (a.length != 0 &&
-    allSame!Ts)         // TODO better trait for this?
+    allSame!Ts)         // TODO: better trait for this?
 {
     static if (Ts.length == 1)
     {
@@ -44,7 +44,7 @@ if (a.length != 0 &&
 }
 
 ///
-@safe pure /*TODO nothrow*/ unittest
+@safe pure /*TODO: nothrow*/ unittest
 {
     int x = 1, y = 2;
     eitherRef(x, y) = 3;
@@ -58,7 +58,7 @@ if (a.length != 0 &&
  * Similar to behaviour of `and` operator in dynamic languages such as of Lisp's
  * `(and a...)` and Python's `a and ....`.
  *
- * TODO Is inout Conversion!T the correct return value?
+ * TODO: Is inout Conversion!T the correct return value?
 */
 CommonType!T every(T...)(lazy T a)
 if (T.length != 0)
@@ -75,7 +75,7 @@ if (T.length != 0)
 }
 
 ///
-@safe pure /*TODO nothrow*/ unittest
+@safe pure /*TODO: nothrow*/ unittest
 {
     assert(every(3) == 3);
     assert(every(3, 4) == 4);
@@ -279,7 +279,7 @@ auto findInOrder(alias pred = `a == b`,
  * See_Also: https://stackoverflow.com/questions/21849580/equality-operator-in-favour-of-std-range-equal
  *
  * TODO: Test graphemes in `string` and `wstring`.
- * TODO Move to Phobos
+ * TODO: Move to Phobos
 */
 bool isSymmetric(R)(R range)
 if (isBidirectionalRange!(R))
@@ -313,7 +313,7 @@ if (isBidirectionalRange!(R))
 /** Returns: If `range` is a palindrome larger than `minLength`.
  */
 bool isPalindrome(R)(R range,
-                     size_t minLength = 0) // TODO good value for minLength?
+                     size_t minLength = 0) // TODO: good value for minLength?
 if (isBidirectionalRange!(R))
 {
     static if (isRandomAccessRange!R) // arrays excluding `char[]` and `wchar[]`
@@ -321,7 +321,7 @@ if (isBidirectionalRange!(R))
         if (range.length < minLength) { return false; }
     }
     size_t i = 0;
-    // TODO reuse `isSymmetric`
+    // TODO: reuse `isSymmetric`
     import std.range.primitives : empty;
     while (!range.empty)
     {
@@ -353,15 +353,15 @@ import nxt.traits_ex : areEquable;
  *
  * Equal arguments are not considered to be an anagrams of each other.
  *
- * TODO Is there a faster way of calculating anagrams?
- * TODO Allow const input
- * TODO Move to Phobos std.algorithm.sorting.
- * TODO Should requirement isInputRange be relaxed?
+ * TODO: Is there a faster way of calculating anagrams?
+ * TODO: Allow const input
+ * TODO: Move to Phobos std.algorithm.sorting.
+ * TODO: Should requirement isInputRange be relaxed?
  *
  * Note that implementations in http://rosettacode.org/wiki/Anagrams#D doesn't
  * correctly handle multi-byte encoded characters in string and wstring.
  */
-auto isAnagramOf(R1, R2)(R1 r1, R2 r2) // TODO nothrow
+auto isAnagramOf(R1, R2)(R1 r1, R2 r2) // TODO: nothrow
 if (isInputRange!R1 &&
     isInputRange!R2 &&
     areEquable!(ElementType!R1,
@@ -389,20 +389,20 @@ if (isInputRange!R1 &&
         import std.traits : isNarrowString;
         import std.utf : byUTF;
 
-        // TODO functionize
+        // TODO: functionize
         static if (isNarrowString!R1) auto s1 = r1.byUTF!dchar;
-        else                          auto s1 = r1; // TODO avoid copying
+        else                          auto s1 = r1; // TODO: avoid copying
 
         static if (isNarrowString!R2) auto s2 = r2.byUTF!dchar;
-        else                          auto s2 = r2; // TODO avoid copying
+        else                          auto s2 = r2; // TODO: avoid copying
 
         // histogram
-        T[C] hist;              // TODO use non-GC-allocating AA
+        T[C] hist;              // TODO: use non-GC-allocating AA
 
         // create histograms
         foreach (const ref e1; s1)
         {
-            // TODO functionize to hist.initOrUpdate(e1, T(0,1), (ref AA aa){ aa[0] += 1; })
+            // TODO: functionize to hist.initOrUpdate(e1, T(0,1), (ref AA aa){ aa[0] += 1; })
             if (auto hit = e1 in hist)
                 (*hit)[0] += 1;
             else
@@ -410,7 +410,7 @@ if (isInputRange!R1 &&
         }
         foreach (const ref e2; s2)
         {
-            // TODO functionize to hist.initOrUpdate(e2, T(0,1), (ref AA aa){ aa[1] += 1; })
+            // TODO: functionize to hist.initOrUpdate(e2, T(0,1), (ref AA aa){ aa[1] += 1; })
             if (auto hit = e2 in hist)
                 (*hit)[1] += 1;
             else
@@ -418,7 +418,7 @@ if (isInputRange!R1 &&
         }
 
         // check histograms
-        foreach (const ref e; hist) // TODO nothrow
+        foreach (const ref e; hist) // TODO: nothrow
         {
             if (e[0] != e[1])
             {
@@ -428,7 +428,7 @@ if (isInputRange!R1 &&
         return true;
     }
 }
-alias isPermutationOf = isAnagramOf; // TODO Only define isAnagramOf for strings?
+alias isPermutationOf = isAnagramOf; // TODO: Only define isAnagramOf for strings?
 
 ///
 @safe pure unittest
@@ -507,7 +507,7 @@ if (isInputRange!R)
     import std.range: zip, dropOne;
     auto ref op(T)(T a, T b) @safe pure nothrow
     {
-        static      if (reduction == Reduction.forwardDifference)  return b - a; // TODO final static switch
+        static      if (reduction == Reduction.forwardDifference)  return b - a; // TODO: final static switch
         else static if (reduction == Reduction.backwardDifference) return a - b;
         else static if (reduction == Reduction.sum)                return a + b;
     }
@@ -570,7 +570,7 @@ unittest
     version(print) dbg(i.windowedReduce!(Reduction.sum));
 }
 
-/* TODO Assert that ElementType!R only value semantics.  */
+/* TODO: Assert that ElementType!R only value semantics.  */
 auto ref packBitParallelRunLengths(R)(in R x)
 if (isInputRange!R)
 {
@@ -625,10 +625,10 @@ pure unittest
 
 /** Compute Forward Difference of `range`.
  *
- * TODO Is there a difference between whether `R r` is immutable, const or
+ * TODO: Is there a difference between whether `R r` is immutable, const or
  * mutable?
  *
- * TODO If `r` contains only one element return empty range.
+ * TODO: If `r` contains only one element return empty range.
  *
  * See_Also: https://stackoverflow.com/questions/21004944/forward-difference-algorithm
  * See_Also: http://forum.dlang.org/thread/ujouqtqeehkegmtaxebg@forum.dlang.org#post-lczzsypupcfigttghkwx:40forum.dlang.org
@@ -643,7 +643,7 @@ if (isInputRange!R)
     {
         R _range;
         alias E = ElementType!R;                       // Input ElementType
-        alias D = typeof(_range.front - _range.front); // Element Difference Type. TODO Use this as ElementType of range
+        alias D = typeof(_range.front - _range.front); // Element Difference Type. TODO: Use this as ElementType of range
         D _front;
         bool _initialized = false;
 
@@ -651,7 +651,7 @@ if (isInputRange!R)
         do
         {
             auto tmp = range;
-            if (tmp.dropOne.empty) // TODO This may be an unneccesary cost but is practical to remove extra logic
+            if (tmp.dropOne.empty) // TODO: This may be an unneccesary cost but is practical to remove extra logic
                 _range = R.init; // return empty range
             else
                 _range = range; // store range internally (by reference)
@@ -712,10 +712,10 @@ import nxt.traits_ex: arityMin0;
  *
  * Use for example to generate random instances of return value of fun.
  *
- * TODO I believe we need arityMin, arityMax trait here
+ * TODO: I believe we need arityMin, arityMax trait here
  */
 auto apply(alias fun, N)(N n)
-if (// TODO isCallable!fun &&
+if (// TODO: isCallable!fun &&
         arityMin0!fun &&
         !is(ReturnType!fun == void) &&
         isIntegral!N)
@@ -935,7 +935,7 @@ import std.meta : allSatisfy;
 
 /** Zip `ranges` together with operation `fun`.
  *
- * TODO Remove when Issue 8715 is fixed providing zipWith
+ * TODO: Remove when Issue 8715 is fixed providing zipWith
  */
 auto zipWith(alias fun, Ranges...)(Ranges ranges)
 if (Ranges.length >= 2 &&
@@ -972,17 +972,17 @@ if (Ranges.length != 0 &&
     return zip(sp, ranges).map!fun;
 }
 
-/** Pair. TODO std.typecons */
+/** Pair. TODO: std.typecons */
 alias Pair(T, U) = Tuple!(T, U);
 /** Instantiator for `Pair`. */
 auto pair(T, U)(T t, U u) { return Pair!(T, U)(t, u); }
 
-/** Triple. TODO std.typecons */
+/** Triple. TODO: std.typecons */
 alias Triple(T, U, V) = Tuple!(T, U, V);
 /** Instantiator for `Triple`. */
 auto triple(T, U, V)(T t, U u, V v) { return Triple!(T, U, V)(t, u, v); }
 
-/** Quadruple. TODO std.typecons */
+/** Quadruple. TODO: std.typecons */
 alias Quadruple(T, U, V, W) = Tuple!(T, U, V, W);
 /** Instantiator for `Quadruple`. */
 auto quadruple(T, U, V, W)(T t, U u, V v, W w) { return Quadruple!(T, U, V, W)(t, u, v, w); }
@@ -1063,7 +1063,7 @@ bool areColinear(T)(T a, T b)
     return a.x * b.y == a.y * b.x;
 }
 
-/* /\** TODO Remove when each is standard in Phobos. *\/ */
+/* /\** TODO: Remove when each is standard in Phobos. *\/ */
 /* void each(R)(R range, delegate x) @safe pure /\* nothrow *\/ if (isInputRange!R) { */
 /*     foreach (ref elt; range) { */
 /*         x(elt); */
@@ -1190,7 +1190,7 @@ unittest
 
 /* Check if `part` is part of `whole`.
    See_Also: http://forum.dlang.org/thread/ls9dbk$jkq$1@digitalmars.com
-   TODO Standardize name and remove alises.
+   TODO: Standardize name and remove alises.
  */
 bool isSliceOf(T)(in T[] part,
                   in T[] whole)
@@ -1223,7 +1223,7 @@ unittest
     assert([1, 2, 3].dropWhile(1) == [2, 3]);
     assert([1, 1, 1, 2, 3].dropWhile(1) == [2, 3]);
     assert([1, 2, 3].dropWhile(2) == [1, 2, 3]);
-    assert(`aabc`.dropWhile('a') == `bc`); // TODO Remove restriction on cast to dchar
+    assert(`aabc`.dropWhile('a') == `bc`); // TODO: Remove restriction on cast to dchar
 }
 
 /* See_Also: http://forum.dlang.org/thread/cjpplpzdzebfxhyqtskw@forum.dlang.org#post-cjpplpzdzebfxhyqtskw:40forum.dlang.org */
@@ -1278,7 +1278,7 @@ if (isForwardRange!R)
                 pos2 = ++pos1;
             }
         }
-        // TODO use Voldemort struct instead of tuple
+        // TODO: use Voldemort struct instead of tuple
         return tuple(takeExactly(original, pos1),
                      takeExactly(haystack, pos2 - pos1),
                      h);
@@ -1325,7 +1325,7 @@ if (isForwardRange!R)
                 ++pos;
             }
         }
-        // TODO use Voldemort struct instead of tuple
+        // TODO: use Voldemort struct instead of tuple
         return tuple(takeExactly(original, pos),
                      haystack);
     }
@@ -1348,7 +1348,7 @@ if (isForwardRange!R)
         import std.range.primitives : empty;
         auto balance = find!pred(haystack);
         immutable pos = balance.empty ? 0 : haystack.length - balance.length + 1;
-        // TODO use Voldemort struct instead of tuple
+        // TODO: use Voldemort struct instead of tuple
         return tuple(haystack[0 .. pos], haystack[pos .. haystack.length]);
     }
     else
@@ -1436,14 +1436,14 @@ if (isForwardRange!R1 &&
     if (haystack.empty) { return R1.init; }
 
     import std.algorithm.searching : findSplitBefore;
-    if (auto split = findSplitBefore!pred(haystack, needle)) // TODO If which case are empty and what return value should they lead to?
+    if (auto split = findSplitBefore!pred(haystack, needle)) // TODO: If which case are empty and what return value should they lead to?
     {
         haystack = split[1];
         return split[0];
     }
     else
     {
-        return R1.init; // TODO correct?
+        return R1.init; // TODO: correct?
     }
 }
 
@@ -1480,10 +1480,10 @@ if (isForwardRange!R1 &&
     if (haystack.empty) { return R1.init; }
 
     import std.algorithm.searching : findSplitAfter;
-    auto split = findSplitAfter!pred(haystack, needle);// TODO use new interface to findSplitAfter
+    auto split = findSplitAfter!pred(haystack, needle);// TODO: use new interface to findSplitAfter
     if (split[0].empty)
     {
-        return R1.init; // TODO correct?
+        return R1.init; // TODO: correct?
     }
     else
     {
@@ -1591,7 +1591,7 @@ Tuple!(R, size_t) findFirstOfAnyInOrder(alias pred = `a == b`, R)(R haystack, co
 
 Tuple!(R, size_t)[] findAllOfAnyInOrder(alias pred = `a == b`, R)(R haystack, R[] needles)
 {
-    // TODO Return some clever lazy range that calls each possible haystack.findFirstOfAnyInOrder(needles);
+    // TODO: Return some clever lazy range that calls each possible haystack.findFirstOfAnyInOrder(needles);
     return typeof(return).init;
 }
 
@@ -1661,7 +1661,7 @@ auto distinct(R)(R r)
 if (isInputRange!(Unqual!R))
 {
     import std.traits: ForeachType;
-    bool[ForeachType!R] seen; // TODO Use containers.hashset.HashSet
+    bool[ForeachType!R] seen; // TODO: Use containers.hashset.HashSet
     import std.algorithm.iteration: filter;
     return r.filter!((k)
                      {
@@ -1947,11 +1947,11 @@ if (Ss.length != 0 &&
 
 /** Collect/Gather the elements of `r` into a `Container` and return it.
  *
- * TODO Use std.container.util.make instead?: https://dlang.org/phobos/std_container_util.html#.make
- * TODO Rename `container` to `output`?
- * TODO Support Set-containers via `insert` aswell, or add `alias put = insert` to them?
- * TODO What about `Appender`?
- * TODO Rename from `collect` to `gather`.
+ * TODO: Use std.container.util.make instead?: https://dlang.org/phobos/std_container_util.html#.make
+ * TODO: Rename `container` to `output`?
+ * TODO: Support Set-containers via `insert` aswell, or add `alias put = insert` to them?
+ * TODO: What about `Appender`?
+ * TODO: Rename from `collect` to `gather`.
  */
 Container collect(Container, Range) (Range r)
     // if (isInputRange!Range &&
@@ -1979,7 +1979,7 @@ Container collect(Container, Range) (Range r)
         {
             import std.array : Appender;
             Appender!Container output;
-            foreach (ref e; r)  // TODO make const when this works with array_ex
+            foreach (ref e; r)  // TODO: make const when this works with array_ex
             {
                 output.put(e);
             }
@@ -1988,9 +1988,9 @@ Container collect(Container, Range) (Range r)
         else
         {
             Container output;
-            foreach (ref e; r)  // TODO make const when this works with array_ex
+            foreach (ref e; r)  // TODO: make const when this works with array_ex
             {
-                output ~= e; // TODO use Appender or remove because too GC.intensive inefficient, or reuse `.array`?
+                output ~= e; // TODO: use Appender or remove because too GC.intensive inefficient, or reuse `.array`?
             }
             return output;
         }
@@ -2279,7 +2279,7 @@ if (isExpressionTuple!needles &&
     {
         if (haystack.length == 0) { return 0; }
         static if (isArray!Haystack &&
-                   is(Unqual!(typeof(Haystack.init[0])) == char) && // TODO reuse existing trait
+                   is(Unqual!(typeof(Haystack.init[0])) == char) && // TODO: reuse existing trait
                    allSatisfy!(isASCII, needles))
         {
             // no back decoding needed

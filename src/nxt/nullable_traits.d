@@ -76,7 +76,7 @@ enum hasNullValue(T) = (hasStandardNullValue!T ||
  */
 template isNullable(T)
 {
-    /* TODO remove this two first cases and rely solely on
+    /* TODO: remove this two first cases and rely solely on
      * is(typeof(T.init.nullify()) == void) and
      * is(typeof(T.init.isNull()) == bool)
      */
@@ -98,7 +98,7 @@ template isNullable(T)
     }
     else static if (__traits(hasMember, T, "nullifier"))
     {
-        enum isNullable = isNullable!(typeof(T.nullifier)); // TODO require it to be an alias?
+        enum isNullable = isNullable!(typeof(T.nullifier)); // TODO: require it to be an alias?
     }
     else static if ((__traits(hasMember, T, "isNull") && // fast
                      __traits(hasMember, T, "nullify"))) // fast
@@ -109,7 +109,7 @@ template isNullable(T)
     }
     else
     {
-        // TODO remove this later on
+        // TODO: remove this later on
         // importf std.meta : anySatisfy;
         // static if ((is(T == struct) && // unions excluded for now
         //             anySatisfy!(isNullable, typeof(T.init.tupleof))))

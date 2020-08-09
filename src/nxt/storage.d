@@ -168,7 +168,7 @@ private:
         Small!(E, smallLength) small; // small variant
         Large!(E, useGCallocation) large;          // large variant
     }
-    bool isLarge;               // TODO make part of union as in rcstring.d
+    bool isLarge;               // TODO: make part of union as in rcstring.d
 }
 
 /// Test `Store`.

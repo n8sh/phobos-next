@@ -27,7 +27,7 @@ struct S(T)
         return x[0];
     }
 
-    scope inout(T)* pointer() inout return // TODO should this be marked @system?
+    scope inout(T)* pointer() inout return // TODO: should this be marked @system?
     {
         return &x[0];
     }
@@ -56,14 +56,14 @@ auto testRange()
     return s.range;             // errors with -dip1000
 }
 
-/// TODO this should fail
+/// TODO: this should fail
 ref int testFront()
 {
     S!int s;
     return s.front;             // should error with -dip1000
 }
 
-/// TODO this should fail
+/// TODO: this should fail
 int* testPointer()
 {
     S!int s;

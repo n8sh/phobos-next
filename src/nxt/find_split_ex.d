@@ -5,12 +5,12 @@ import std.traits : isExpressions;
 /** Like `findSplit` but with multiple separator `needles` known at compile-time
  * to prevent `NarrowString` decoding.
  *
- * TODO Do sentinel-based search when `haystack` is mutable and larger than a
+ * TODO: Do sentinel-based search when `haystack` is mutable and larger than a
  * certain value.
  *
- * TODO Add to Phobos.
+ * TODO: Add to Phobos.
  *
- * TODO Resort to `memchr` for some case `if (!__ctfe)`.
+ * TODO: Resort to `memchr` for some case `if (!__ctfe)`.
  * See_Also: https://forum.dlang.org/post/efpbmtyisamwwqgpxnbq@forum.dlang.org
  *
  * See_Also: https://forum.dlang.org/post/ycotlbfsqoupogaplkvf@forum.dlang.org
@@ -22,7 +22,7 @@ if (needles.length != 0 &&
     import std.meta : allSatisfy;
     import nxt.char_traits : isASCII;
 
-    auto findSplitAmong(Haystack)(const scope return Haystack haystack) @trusted // TODO qualify with `inout` to reduce template bloat
+    auto findSplitAmong(Haystack)(const scope return Haystack haystack) @trusted // TODO: qualify with `inout` to reduce template bloat
     if (is(typeof(Haystack.init[0 .. 0])) && // can be sliced
         is(typeof(Haystack.init[0]) : char) &&
         allSatisfy!(isASCII, needles))
@@ -119,7 +119,7 @@ if (needles.length == 1 &&
     import std.meta : allSatisfy;
     import nxt.char_traits : isASCII;
 
-    auto findSplit(Haystack)(const scope return Haystack haystack) @trusted // TODO qualify with `inout` to reduce template bloat
+    auto findSplit(Haystack)(const scope return Haystack haystack) @trusted // TODO: qualify with `inout` to reduce template bloat
     if (is(typeof(Haystack.init[0 .. 0])) && // can be sliced
         is(typeof(Haystack.init[0]) : char) &&
         isASCII!(needles[0]))

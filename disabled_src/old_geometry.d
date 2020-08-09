@@ -11,30 +11,30 @@
    Note: All methods marked with pure are weakly pure since, they all access an
    instance member.  All static methods are strongly pure.
 
-   TODO Support radian and degree types (from units-d package)
+   TODO: Support radian and degree types (from units-d package)
 
-   TODO Use `sink` as param in `toMathML` and `toLaTeX`
+   TODO: Use `sink` as param in `toMathML` and `toLaTeX`
 
-   TODO Replace toMathML() with fmt argument %M to toString functions
-   TODO Replace toLaTeX() with fmt argument %L to toString functions
+   TODO: Replace toMathML() with fmt argument %M to toString functions
+   TODO: Replace toLaTeX() with fmt argument %L to toString functions
 
-   TODO Optimize using core.simd or std.simd
-   TODO Merge with analyticgeometry
-   TODO Merge with https://github.com/CyberShadow/ae/blob/master/utils/geometry.d
-   TODO Integrate with http://code.dlang.org/packages/blazed2
-   TODO logln, log.warn, log.error, log.info, log.debug
-   TODO Make use of staticReduce etc when they become available in Phobos.
-   TODO Go through all usages of real and use CommonType!(real, E) to make it work when E is a bignum.
-   TODO ead and perhaps make use of http://stackoverflow.com/questions/3098242/fast-vector-struct-that-allows-i-and-xyz-operations-in-d?rq=1
-   TODO Tag member functions in t_geom.d as pure as is done https://github.com/D-Programming-Language/phobos/blob/master/std/bigint.d
-   TODO Remove need to use [] in x[] == y[]
+   TODO: Optimize using core.simd or std.simd
+   TODO: Merge with analyticgeometry
+   TODO: Merge with https://github.com/CyberShadow/ae/blob/master/utils/geometry.d
+   TODO: Integrate with http://code.dlang.org/packages/blazed2
+   TODO: logln, log.warn, log.error, log.info, log.debug
+   TODO: Make use of staticReduce etc when they become available in Phobos.
+   TODO: Go through all usages of real and use CommonType!(real, E) to make it work when E is a bignum.
+   TODO: ead and perhaps make use of http://stackoverflow.com/questions/3098242/fast-vector-struct-that-allows-i-and-xyz-operations-in-d?rq=1
+   TODO: Tag member functions in t_geom.d as pure as is done https://github.com/D-Programming-Language/phobos/blob/master/std/bigint.d
+   TODO: Remove need to use [] in x[] == y[]
 
    See: https://www.google.se/search?q=point+plus+vector
    See: http://mosra.cz/blog/article.php?a=22-introducing-magnum-a-multiplatform-2d-3d-graphics-engine
 */
 module old_geometry;
 
-// TODO use import core.simd;
+// TODO: use import core.simd;
 import std.math: sqrt, PI, sin, cos, acos;
 import std.traits: isFloatingPoint, isNumeric, isSigned, isDynamicArray, isAssignable, isArray, CommonType, isInstanceOf;
 import std.string: format, rightJustify;
@@ -262,7 +262,7 @@ if ((isInstanceOf!(Vector, T) && // either both vectors
      isInstanceOf!(Vector, U) &&
      T.dimension == U.dimension) ||
     (isPoint!T && // or both points
-     isPoint!U))  // TODO support distance between vector and point
+     isPoint!U))  // TODO: support distance between vector and point
 {
     return (a - b).magnitude;
 }
@@ -754,7 +754,7 @@ if (D >= 1)
     }
 
     /// Get Box Center.
-    // TODO @property Vector!(E,D) center() { return (min + max) / 2;}
+    // TODO: @property Vector!(E,D) center() { return (min + max) / 2;}
 
     /// Constructs a Box enclosing `points`.
     static Box fromPoints(in Vector!(E,D)[] points)
@@ -1035,7 +1035,7 @@ auto sphere(C, R)(C center, R radius)
 {
     return Sphere!(C.ElementType, C.dimension)(center, radius);
 }
-// TODO Use this instead:
+// TODO: Use this instead:
 // auto sphere(R, C...)(Point!(CommonType!C, C.length) center, R radius) {
 // return Sphere!(CommonType!C, C.length)(center, radius);
 // }

@@ -87,7 +87,7 @@ unittest
 class FunFiber(Args...) : Fiber
 if (allSatisfy!(isFiberParameter, Args))
 {
-    this(Args args)             // TODO make args const?
+    this(Args args)             // TODO: make args const?
     {
         _args = args;
         super(&run);

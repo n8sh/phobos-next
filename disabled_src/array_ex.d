@@ -1,37 +1,37 @@
 /** Array container(s) with optional sortedness via template-parameter
  * `Ordering` and optional use of GC via `useGCAllocation`.
  *
- * TODO UniqueArray!(const(E)) where E has indirections
+ * TODO: UniqueArray!(const(E)) where E has indirections
  *
- * TODO Support for constructing from r-value range (container) of non-copyable
+ * TODO: Support for constructing from r-value range (container) of non-copyable
  * elements.
  *
- * TODO Add some way to implement lazy sorting either for the whole array (via
+ * TODO: Add some way to implement lazy sorting either for the whole array (via
  * bool flag) or completeSort at a certain offset (extra member).
  *
- * TODO Replace ` = void` with construction or emplace
+ * TODO: Replace ` = void` with construction or emplace
  *
- * TODO Break out common logic into private `DynamicArray` and reuse with `alias
+ * TODO: Break out common logic into private `DynamicArray` and reuse with `alias
  * this` to express StandardArray, SortedArray, SortedSetArray
  *
- * TODO Use std.array.insertInPlace in insert()?
- * TODO Use std.array.replaceInPlace?
+ * TODO: Use std.array.insertInPlace in insert()?
+ * TODO: Use std.array.replaceInPlace?
  *
- * TODO Use `std.algorithm.mutation.move` and `std.range.primitives.moveAt`
+ * TODO: Use `std.algorithm.mutation.move` and `std.range.primitives.moveAt`
  * when moving internal sub-slices
  *
- * TODO Add `c.insertAfter(r, x)` where `c` is a collection, `r` is a range
+ * TODO: Add `c.insertAfter(r, x)` where `c` is a collection, `r` is a range
  * previously extracted from `c`, and `x` is a value convertible to
  * collection's element type. See_Also:
  * https://forum.dlang.org/post/n3qq6e$2bis$1@digitalmars.com
  *
- * TODO replace qcmeman with std.experimental.allocator parameter defaulting to
+ * TODO: replace qcmeman with std.experimental.allocator parameter defaulting to
  * `Mallocator`
  *
- * TODO use `integer_sorting.radixSort` when element type `isSigned` or `isUnsigned` and
+ * TODO: use `integer_sorting.radixSort` when element type `isSigned` or `isUnsigned` and
  * above or below a certain threshold calculated by my benchmarks
  *
- * TODO Remove explicit moves when DMD std.algorithm.mutation.move calls these
+ * TODO: Remove explicit moves when DMD std.algorithm.mutation.move calls these
  * members for us (if they exist)
  */
 module nxt.array_ex;
@@ -89,12 +89,12 @@ enum Assignment
  * otherwise C's `{m,ce,re}alloc()` is used.
  */
 private struct Array(E,
-                     // TODO merge these flags into one to reduce template bloat
+                     // TODO: merge these flags into one to reduce template bloat
                      Assignment assignment = Assignment.disabled,
                      Ordering ordering = Ordering.unsorted,
                      bool useGCAllocation = false,
                      CapacityType = size_t, // see also https://github.com/izabera/s
-                     alias less = "a < b") // TODO move out of this definition and support only for the case when `ordering` is not `Ordering.unsorted`
+                     alias less = "a < b") // TODO: move out of this definition and support only for the case when `ordering` is not `Ordering.unsorted`
 if (is(CapacityType == ulong) ||           // 3 64-bit words
     is(CapacityType == uint))              // 2 64-bit words
 {
@@ -111,7 +111,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
     private template shouldAddGCRange(T)
     {
         import std.traits : hasIndirections, isInstanceOf;
-        enum shouldAddGCRange = hasIndirections!T && !isInstanceOf!(Array, T); // TODO unify to container_traits.shouldAddGCRange
+        enum shouldAddGCRange = hasIndirections!T && !isInstanceOf!(Array, T); // TODO: unify to container_traits.shouldAddGCRange
     }
 
     /// Mutable element type.
@@ -156,7 +156,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         debug { typeof(return) that; }
         else { typeof(return) that = void; }
 
-        // TODO functionize:
+        // TODO: functionize:
         if (initialLength > smallCapacity)
         {
             emplace!Large(&that._large, initialLength, initialLength, true); // no elements so we need to zero
@@ -201,7 +201,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         debug { typeof(return) that; }
         else { typeof(return) that = void; }
 
-        // TODO functionize:
+        // TODO: functionize:
         enum initialLength = 1;
         if (initialLength > smallCapacity)
         {
@@ -219,12 +219,12 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         }
         else static if (!shouldAddGCRange!E)
         {
-            moveEmplace(*cast(MutableE*)&element, // TODO can we prevent this cast?
+            moveEmplace(*cast(MutableE*)&element, // TODO: can we prevent this cast?
                         that._mptr[0]); // safe to cast away constness when no indirections
         }
         else
         {
-            moveEmplace(element, that._mptr[0]); // TODO remove `move` when compiler does it for us
+            moveEmplace(element, that._mptr[0]); // TODO: remove `move` when compiler does it for us
         }
 
         return that;
@@ -239,7 +239,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         debug { typeof(return) that; }
         else { typeof(return) that = void; }
 
-        // TODO functionize:
+        // TODO: functionize:
         enum initialLength = Us.length;
         if (initialLength > smallCapacity)
         {
@@ -260,7 +260,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
             }
             else
             {
-                moveEmplace(element, that._mptr[i]); // TODO remove `move` when compiler does it for us
+                moveEmplace(element, that._mptr[i]); // TODO: remove `move` when compiler does it for us
             }
         }
 
@@ -300,7 +300,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
             {
                 if (rhs.isLarge) // large = large
                 {
-                    // TODO functionize to Large.opAssign(Large rhs):
+                    // TODO: functionize to Large.opAssign(Large rhs):
                     if (_large.ptr != rhs._large.ptr) // if not self assignment
                     {
                         _large.length = rhs._large.length;
@@ -315,7 +315,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
                 {
                     {            // make it small
                         clear(); // clear large storage
-                        _large.isLarge = false; // TODO needed?
+                        _large.isLarge = false; // TODO: needed?
                     }
                     _small = rhs._small; // small
                 }
@@ -326,9 +326,9 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
                 {
                     {            // make it large
                         clear(); // clear small storage
-                        _large.isLarge = true; // TODO needed?
+                        _large.isLarge = true; // TODO: needed?
                     }
-                    // TODO functionize to Large.opAssign(Large rhs):
+                    // TODO: functionize to Large.opAssign(Large rhs):
                     if (_large.ptr != rhs._large.ptr) // if not self assignment
                     {
                         _large.length = rhs._large.length;
@@ -357,7 +357,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         {
             version(showCtors) dbg("Copying: ", typeof(this).stringof);
             assert(!isBorrowed);
-            moveEmplace(rhs, this); // TODO remove `move` when compiler does it for us
+            moveEmplace(rhs, this); // TODO: remove `move` when compiler does it for us
         }
 
         /// Assignment moves.
@@ -365,7 +365,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         {
             assert(!isBorrowed);
             import std.algorith.mutation : move;
-            move(rhs, this);  // TODO remove `move` when compiler does it for us
+            move(rhs, this);  // TODO: remove `move` when compiler does it for us
         }
     }
 
@@ -382,14 +382,14 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
                 emplace!(that.Large)(&that._large, _large.length, _large.length, false);
                 foreach (immutable i; 0 .. _large.length)
                 {
-                    // TODO is there a more standardized way of solving this other than this hacky cast?
+                    // TODO: is there a more standardized way of solving this other than this hacky cast?
                     that._large.ptr[i] = (cast(E*)_large.ptr)[i];
                 }
             }
             else
             {
                 emplace!(that.Small)(&that._small, _small.length, false);
-                // TODO is there a more standardized way of solving this other than this hacky cast?
+                // TODO: is there a more standardized way of solving this other than this hacky cast?
                 that._small.elms[0 .. _small.length] = (cast(E[_small.elms.length])_small.elms)[0 .. _small.length]; // copy elements
             }
             return that;
@@ -401,7 +401,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
     {
         static if (__traits(isCopyable, E))
         {
-            return this[] == rhs[]; // TODO fix DMD to make this work for non-copyable aswell
+            return this[] == rhs[]; // TODO: fix DMD to make this work for non-copyable aswell
         }
         else
         {
@@ -418,7 +418,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
     {
         static if (__traits(isCopyable, E))
         {
-            return this[] == rhs[]; // TODO fix DMD to make this work for non-copyable aswell
+            return this[] == rhs[]; // TODO: fix DMD to make this work for non-copyable aswell
         }
         else
         {
@@ -463,7 +463,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
     /** Construct from InputRange `values`.
         If `values` are sorted `assumeSortedParameter` is `true`.
 
-        TODO Have `assumeSortedParameter` only when `isOrdered!ordering` is true
+        TODO: Have `assumeSortedParameter` only when `isOrdered!ordering` is true
      */
     this(R)(R values, bool assumeSortedParameter = false)
         @trusted
@@ -476,7 +476,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         import std.range.primitives : hasLength;
         static if (hasLength!R)
         {
-            // TODO choose large or small depending on values.length
+            // TODO: choose large or small depending on values.length
             _small.isLarge = false;
             _small.length = 0;
 
@@ -485,17 +485,17 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
 
             // static if (__traits(isRef))
             // {
-            //     // TODO dup elements
+            //     // TODO: dup elements
             // }
             // else
             // {
-            //     // TODO move elements
+            //     // TODO: move elements
             // }
 
             size_t i = 0;
-            foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
+            foreach (ref value; move(values)) // TODO: remove `move` when compiler does it for us
             {
-                // TODO functionize:
+                // TODO: functionize:
                 static if (needsMove!(typeof(value)))
                     moveEmplace(value, _mptr[i++]);
                 else
@@ -509,10 +509,10 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
             _small.length = 0;
 
             size_t i = 0;
-            foreach (ref value; move(values)) // TODO remove `move` when compiler does it for us
+            foreach (ref value; move(values)) // TODO: remove `move` when compiler does it for us
             {
                 reserve(i + 1); // slower reserve
-                // TODO functionize:
+                // TODO: functionize:
                 static if (needsMove!(typeof(value)))
                     moveEmplace(value, _mptr[i++]);
                 else
@@ -582,7 +582,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
                 static if (hasElaborateDestructor!E)
                     destroyElements();
 
-                // TODO functionize:
+                // TODO: functionize:
                 {               // make this large
                     moveEmplace(tempLarge, _large);
                 }
@@ -609,7 +609,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
                 {
                     Small tempSmall = Small(length, false);
 
-                    // move elements to temporary small. TODO make moveEmplaceAll work on char[],char[] and use
+                    // move elements to temporary small. TODO: make moveEmplaceAll work on char[],char[] and use
                     foreach (immutable i; 0 .. length)
                         moveEmplace(_large._mptr[i],
                                     tempSmall._mptr[i]);
@@ -656,7 +656,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
     /// ditto
     alias pack = compress;
 
-    /// Reallocate storage. TODO move to Large.reallocateAndSetCapacity
+    /// Reallocate storage. TODO: move to Large.reallocateAndSetCapacity
     private void reallocateLargeStoreAndSetCapacity(size_t newCapacity) pure @trusted
     {
         version(D_Coverage) {} else pragma(inline, true);
@@ -755,7 +755,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         assert(index < this.length);
         auto value = move(_mptr[index]);
 
-        // TODO use this instead:
+        // TODO: use this instead:
         // immutable si = index + 1;   // source index
         // immutable ti = index;       // target index
         // immutable restLength = this.length - (index + 1);
@@ -766,12 +766,12 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         {
             immutable si = index + i + 1; // source index
             immutable ti = index + i; // target index
-            moveEmplace(_mptr[si], // TODO remove `move` when compiler does it for us
+            moveEmplace(_mptr[si], // TODO: remove `move` when compiler does it for us
                         _mptr[ti]);
         }
 
         decOnlyLength();
-        return move(value); // TODO remove `move` when compiler does it for us
+        return move(value); // TODO: remove `move` when compiler does it for us
     }
 
     /** Removal doesn't need to care about ordering. */
@@ -800,7 +800,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         assert(!isBorrowed);
         assert(!empty);
         decOnlyLength();
-        // TODO functionize:
+        // TODO: functionize:
         static if (needsMove!E)
             return move(_mptr[this.length]); // move is indeed need here
         else
@@ -829,7 +829,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
             reserve(newLength);
             foreach (immutable i, ref value; values) // `ref` so we can `move`
             {
-                // TODO functionize:
+                // TODO: functionize:
                 static if (needsMove!(typeof(value)))
                     moveEmplace(*cast(MutableE*)&value, _mptr[this.length + i]);
                 else
@@ -854,7 +854,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
                 size_t i = 0;
                 foreach (ref value; values) // `ref` so we can `move`
                 {
-                    // TODO functionize:
+                    // TODO: functionize:
                     static if (needsMove!(typeof(value)))
                         moveEmplace(*cast(Mutable!E*)&value, _mptr[this.length + i]);
                     else
@@ -896,11 +896,11 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
                     setOnlyLength(2 * this.length);
                 }
                 else if (overlaps(this[], values[]))
-                    assert(0, `TODO Handle overlapping arrays`);
+                    assert(0, `TODO: Handle overlapping arrays`);
                 else
                 {
                     reserve(this.length + values.length);
-                    static if (is(MutableE == Unqual!(ElementType!A))) // TODO also when `E[]` is `A[]`
+                    static if (is(MutableE == Unqual!(ElementType!A))) // TODO: also when `E[]` is `A[]`
                         _mptr[this.length .. this.length + values.length] = values[];
                     else
                         foreach (immutable i, ref value; values)
@@ -911,7 +911,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         }
 
         /// ditto.
-        void insertBack(A)(in ref A values) @trusted @("complexity", "O(values.length)") // TODO `in` parameter qualifier doesn't work here. Compiler bug?
+        void insertBack(A)(in ref A values) @trusted @("complexity", "O(values.length)") // TODO: `in` parameter qualifier doesn't work here. Compiler bug?
             if (isArrayContainer!A &&
                 (is(MutableE == Unqual!(typeof(A.init[0]))) || // for narrow strings
                  isElementAssignable!(ElementType!A)))
@@ -931,22 +931,22 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
                 allSatisfy!(isElementAssignable, Us))
         {
             assert(!isBorrowed);
-            insertBack(move(values)); // TODO remove `move` when compiler does it for us
+            insertBack(move(values)); // TODO: remove `move` when compiler does it for us
             // static if (values.length == 1)
             // {
             //     import std.traits : hasIndirections;
             //     static if (hasIndirections!(Us[0]))
             //     {
-            //         insertBack(move(values)); // TODO remove `move` when compiler does it for us
+            //         insertBack(move(values)); // TODO: remove `move` when compiler does it for us
             //     }
             //     else
             //     {
-            //         insertBack(move(cast(Unqual!(Us[0]))values[0])); // TODO remove `move` when compiler does it for us
+            //         insertBack(move(cast(Unqual!(Us[0]))values[0])); // TODO: remove `move` when compiler does it for us
             //     }
             // }
             // else
             // {
-            //     insertBack(move(values)); // TODO remove `move` when compiler does it for us
+            //     insertBack(move(values)); // TODO: remove `move` when compiler does it for us
             // }
         }
 
@@ -958,8 +958,8 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
                 allSatisfy!(isElementAssignable, ElementType!R))
         {
             assert(!isBorrowed);
-            // TODO use move(values)
-            insertBack(values); // TODO remove `move` when compiler does it for us
+            // TODO: use move(values)
+            insertBack(values); // TODO: remove `move` when compiler does it for us
         }
 
         pragma(inline, true)
@@ -973,7 +973,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         }
     }
 
-    import searching_ex : containsStoreIndex; // TODO this is redundant but elides rdmd dependency error for array_ex.d
+    import searching_ex : containsStoreIndex; // TODO: this is redundant but elides rdmd dependency error for array_ex.d
 
     static if (isOrdered!ordering)
     {
@@ -1016,7 +1016,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
                 import std.algorithm.searching : findAdjacent;
                 import std.algorithm.sorting : sort;
 
-                // TODO functionize or use other interface in pushing `values`
+                // TODO: functionize or use other interface in pushing `values`
                 import std.traits : CommonType;
                 CommonType!Us[Us.length] valuesArray;
                 foreach (immutable i, const ref value; values)
@@ -1049,14 +1049,14 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
                     immutable initialLength = this.length;
                     foreach (immutable i, ref value; values)
                     {
-                        // TODO reuse completeSort with uniqueness handling?
+                        // TODO: reuse completeSort with uniqueness handling?
                         static if (values.length == 1)
                         {
-                            // TODO reuse single parameter overload linearUniqueInsert() and return
+                            // TODO: reuse single parameter overload linearUniqueInsert() and return
                         }
                         else
                         {
-                            // TODO reuse completeSort with uniqueness handling?
+                            // TODO: reuse completeSort with uniqueness handling?
                         }
                         hits[i] = !this[0 .. initialLength].contains(value);
                         if (hits[i])
@@ -1069,7 +1069,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
                     if (expandedLength != 0)
                     {
                         immutable ix = this.length - expandedLength;
-                        // TODO use `_mptr` here instead and functionize to @trusted helper function
+                        // TODO: use `_mptr` here instead and functionize to @trusted helper function
                         completeSort!comp(slice[0 .. ix].assumeSorted!comp,
                                           slice[ix .. this.length]);
                     }
@@ -1086,7 +1086,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
             {
                 assert(!isBorrowed);
 
-                // TODO add optimization for values.length == 2
+                // TODO: add optimization for values.length == 2
                 static if (values.length == 1)
                 {
                     import nxt.searching_ex : containsStoreIndex;
@@ -1152,11 +1152,11 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
     {
         reserve(this.length + values.length);
 
-        // TODO factor this to robustCopy. It uses copy when no overlaps (my algorithm_em), iteration otherwise
+        // TODO: factor this to robustCopy. It uses copy when no overlaps (my algorithm_em), iteration otherwise
         enum usePhobosCopy = false;
         static if (usePhobosCopy)
         {
-            // TODO why does this fail?
+            // TODO: why does this fail?
             import std.algorithm.mutation : copy;
             copy(ptr[index ..
                      this.length],        // source
@@ -1166,19 +1166,19 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         else
         {
             // move second part in reverse
-            // TODO functionize move
+            // TODO: functionize move
             foreach (immutable i; 0 .. this.length - index) // each element index that needs to be moved
             {
                 immutable si = this.length - 1 - i; // source index
                 immutable ti = si + values.length; // target index
-                _mptr[ti] = ptr[si]; // TODO move construct?
+                _mptr[ti] = ptr[si]; // TODO: move construct?
             }
         }
 
         // set new values
         foreach (immutable i, ref value; values)
         {
-            ptr[index + i] = value; // TODO use range algorithm instead?
+            ptr[index + i] = value; // TODO: use range algorithm instead?
         }
 
         setOnlyLength(this.length + values.length);
@@ -1192,7 +1192,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         reserve(newLength);
         foreach (immutable i, ref value; values)
         {
-            // TODO functionize:
+            // TODO: functionize:
             static if (needsMove!(typeof(value)))
                 moveEmplace(*cast(MutableE*)&value,
                             _mptr[this.length + i]);
@@ -1211,11 +1211,11 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         const pure: // indexing and slicing must be `const` when ordered
 
         /// Slice operator must be const when ordered.
-        auto opSlice() return scope @trusted  // TODO remove @trusted?
+        auto opSlice() return scope @trusted  // TODO: remove @trusted?
         {
             static if (is(E == class))
             {
-                // TODO remove this workaround when else branch works for classes
+                // TODO: remove this workaround when else branch works for classes
                 return (cast(E[])slice).assumeSorted!comp;
             }
             else
@@ -1224,7 +1224,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
             }
         }
         /// ditto
-        auto opSlice(this This)(size_t i, size_t j) return scope @trusted // TODO remove @trusted?
+        auto opSlice(this This)(size_t i, size_t j) return scope @trusted // TODO: remove @trusted?
         {
             import std.range : assumeSorted;
             return (cast(const(E)[])slice[i .. j]).assumeSorted!comp;
@@ -1279,7 +1279,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
             static if (isScalarType!E)
                 ptr[i] = value;
             else
-                move(*(cast(MutableE*)(&value)), _mptr[i]); // TODO is this correct?
+                move(*(cast(MutableE*)(&value)), _mptr[i]); // TODO: is this correct?
             return ptr[i];
         }
 
@@ -1427,7 +1427,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
     {
         if (isLarge)
         {
-            _large.length = newLength; // TODO compress?
+            _large.length = newLength; // TODO: compress?
         }
         else
         {
@@ -1478,7 +1478,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
         inout
         @trusted return scope // array access is @trusted
     {
-        // TODO Use cast(ET[])?: alias ET = ContainerElementType!(typeof(this), E);
+        // TODO: Use cast(ET[])?: alias ET = ContainerElementType!(typeof(this), E);
         if (isLarge)
         {
             return _large.ptr;
@@ -1566,7 +1566,7 @@ if (is(CapacityType == ulong) ||           // 3 64-bit words
     }
 
 private:                        // data
-    enum useAlignedTaggedPointer = false; // TODO make this work when true
+    enum useAlignedTaggedPointer = false; // TODO: make this work when true
     static struct Large
     {
         static if (useAlignedTaggedPointer)
@@ -1616,7 +1616,7 @@ private:                        // data
 
             CapacityType capacity;  // store capacity
 
-            import std.bitmanip : bitfields; // TODO replace with own logic cause this mixin costs compilation speed
+            import std.bitmanip : bitfields; // TODO: replace with own logic cause this mixin costs compilation speed
             mixin(bitfields!(CapacityType, "length", lengthBits,
                              bool, "isBorrowed", 1,
                              bool, "isLarge", 1,
@@ -1659,7 +1659,7 @@ private:                        // data
         private enum lengthBits = 8*SmallLengthType.sizeof - 2;
         private enum lengthMax = 2^^lengthBits - 1;
 
-        import std.bitmanip : bitfields; // TODO replace with own logic cause this mixin costs compilation speed
+        import std.bitmanip : bitfields; // TODO: replace with own logic cause this mixin costs compilation speed
         static if (useAlignedTaggedPointer)
         {
             mixin(bitfields!(bool, "isLarge", 1, // defaults to false
@@ -1863,7 +1863,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
                 immutable x = Str.withElements('a', 'b', 'c');
                 static if (!isOrdered!ordering)
                 {
-                    xs = x[];       // TODO should fail with DIP-1000 scope
+                    xs = x[];       // TODO: should fail with DIP-1000 scope
                 }
             }
         }
@@ -1883,7 +1883,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
             else
             {
                 static assert(is(ElementType!Str == Ch));
-                assert(str[] == `abc`); // TODO this fails for wchar and dchar
+                assert(str[] == `abc`); // TODO: this fails for wchar and dchar
             }
         }
     }
@@ -2277,7 +2277,7 @@ static void tester(Ordering ordering, bool supportGC, alias less)()
     static assert(isAssignable!(A));
 
     // import std.range.primitives : hasSlicing;
-    // TODO make this evaluate to `true`
+    // TODO: make this evaluate to `true`
     // static assert(hasSlicing!A);
 
     alias AA = Array!A;
@@ -2325,7 +2325,7 @@ pure nothrow unittest
 }
 
 /// don't use GC
-pure nothrow /+TODO @nogc+/ unittest
+pure nothrow /+TODO: @nogc+/ unittest
 {
     foreach (ordering; EnumMembers!Ordering)
     {
@@ -2419,7 +2419,7 @@ pure nothrow /+TODO @nogc+/ unittest
         static if (!hasIndirections!E)
         {
             const(E)[2] x = [E.init, E.init];
-            // TODO caCopy ~= E.init;
+            // TODO: caCopy ~= E.init;
             caCopy ~= x[];
             assert(caCopy.length == 3);
             assert(caCopy[1 .. $] == x[]);
@@ -2451,7 +2451,7 @@ pure nothrow /+TODO @nogc+/ unittest
             import std.traits : isCopyable;
             static if (__traits(isCopyable, A))
             {
-                // TODO why do these fail when `A` is uncopyable?
+                // TODO: why do these fail when `A` is uncopyable?
                 assert(a in x);
                 assert(A.withElement(E(i, 2*i)) in x);
                 assert(x[A.withElement(E(i, 2*i))] == 42);
@@ -2541,7 +2541,7 @@ pure nothrow /+TODO @nogc+/ unittest
     alias A = Array!int;
 
     A[Key] x;
-    // assertThrown!RangeError({ x["a"] ~= 42; }); // TODO make this work
+    // assertThrown!RangeError({ x["a"] ~= 42; }); // TODO: make this work
 }
 
 /// map array of uncopyable
@@ -2581,7 +2581,7 @@ version(none)
 }
 
 /// collection
-/*@safe*/ pure nothrow @nogc unittest // TODO make @safe when collect has been made safe
+/*@safe*/ pure nothrow @nogc unittest // TODO: make @safe when collect has been made safe
 {
     import std.range : iota, isOutputRange;
     import nxt.algorithm_ex : collect;
@@ -2628,7 +2628,7 @@ version(none)
  */
 C append(C, Args...)(auto ref C data,
                      auto ref Args args)
-if (args.length >= 1)    // TODO trait: when `C` is a container supporting `insertBack`
+if (args.length >= 1)    // TODO: trait: when `C` is a container supporting `insertBack`
 {
     static if (__traits(isRef, data)) // `data` is an r-value
     {
@@ -2638,7 +2638,7 @@ if (args.length >= 1)    // TODO trait: when `C` is a container supporting `inse
     {
         alias mutableData = data;
     }
-    // TODO use `mutableData.insertBack(args);` instead
+    // TODO: use `mutableData.insertBack(args);` instead
     foreach (ref arg; args)
     {
         mutableData.insertBack(arg);
@@ -2679,10 +2679,10 @@ version(unittest)
     alias A = UniqueArray!SS;
     A x;
     x ~= SS.init;
-    // TODO x.insertBack(A.init);
+    // TODO: x.insertBack(A.init);
 }
 
-// TODO implement?
+// TODO: implement?
 // T opBinary(string op, R, Args...)(R lhs,
 //                                   auto ref Args args)
 // {
@@ -2716,7 +2716,7 @@ version(none)
     }
 
     static assert(is(ElementType!(S[]) == S));
-    static assert(is(ElementType!(T[]) == void)); // TODO forward-reference bug: should be `T`
+    static assert(is(ElementType!(T[]) == void)); // TODO: forward-reference bug: should be `T`
 
     S s;
     s.subs ~= S.init;

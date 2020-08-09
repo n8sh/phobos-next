@@ -27,14 +27,14 @@ struct StaticBitArray(uint capacity)
     void reset()
     {
         version(D_Coverage) {} else pragma(inline, true);
-        _blocks[] = 0;          // TODO is this the fastest way?
+        _blocks[] = 0;          // TODO: is this the fastest way?
     }
 
     /** Gets the $(D idx)'th bit. */
     bool opIndex(size_t idx) const @trusted
     in
     {
-        assert(idx < length);     // TODO nothrow or not?
+        assert(idx < length);     // TODO: nothrow or not?
     }
     body
     {
@@ -46,7 +46,7 @@ struct StaticBitArray(uint capacity)
     bool opIndexAssign(bool b, size_t idx) @trusted
     in
     {
-        assert(idx < length);     // TODO nothrow or not?
+        assert(idx < length);     // TODO: nothrow or not?
     }
     body
     {

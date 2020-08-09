@@ -9,9 +9,9 @@ import std.traits : isIntegral, isSigned;
     See_Also: https://forum.dlang.org/post/hmrpwyqfoxwtywbznbrr@forum.dlang.org
     See_Also: http://codeforces.com/contest/628/submission/16212299
 
-    TODO reuse ideas from bound.d
+    TODO: reuse ideas from bound.d
 
-    TODO Add function limit()
+    TODO: Add function limit()
     static if (isPowerOf2!m)
     {
     return x & 2^^m - 1;
@@ -29,7 +29,7 @@ import std.traits : isIntegral, isSigned;
     called after opBinary opUnary etc similar to what is done
     http://codeforces.com/contest/628/submission/16212299
 
-    TODO Move to Phobos std.typecons
+    TODO: Move to Phobos std.typecons
  */
 template Mod(size_t m, T = UnsignedOfModulo!m)
 if (m >= 1 &&
@@ -164,7 +164,7 @@ if (m >= 1)
 
 /** Lookup type representing an unsigned integer in inclusive range (0 .. m - 1).
  *
- * TODO Merge with similar logic in bound.d
+ * TODO: Merge with similar logic in bound.d
  */
 private template UnsignedOfModulo(size_t m)
 {
@@ -184,7 +184,7 @@ private template UnsignedOfModulo(size_t m)
     {
         alias UnsignedOfModulo = ulong;
     }
-    // TODO ucent?
+    // TODO: ucent?
 }
 
 ///

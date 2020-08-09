@@ -1,7 +1,7 @@
 module nxt.typecons_ex;
 
-// TODO Add to Phobos and refer to http://forum.dlang.org/thread/lzyqywovlmdseqgqfvun@forum.dlang.org#post-ibvkvjwexdafpgtsamut:40forum.dlang.org
-// TODO Better with?:
+// TODO: Add to Phobos and refer to http://forum.dlang.org/thread/lzyqywovlmdseqgqfvun@forum.dlang.org#post-ibvkvjwexdafpgtsamut:40forum.dlang.org
+// TODO: Better with?:
 /* inout(Nullable!T) nullable(T)(inout T a) */
 /* { */
 /*     return typeof(return)(a); */
@@ -51,7 +51,7 @@ auto nullableRef(T)(T* a) @safe pure nothrow
 }
 
 ///
-/*TODO @safe*/ pure nothrow @nogc unittest
+/*TODO: @safe*/ pure nothrow @nogc unittest
 {
     auto x = 42.5;
     auto xr = nullableRef(&x);
@@ -79,21 +79,21 @@ import std.range.primitives : hasSlicing;
 enum isCastableTo(T, U) = __traits(compiles, { cast(U)(T.init); });
 
 enum isIndex(I) = (is(I == enum) ||
-                   isUnsigned!I || // TODO should we allow isUnsigned here?
+                   isUnsigned!I || // TODO: should we allow isUnsigned here?
                    isCastableTo!(I, size_t));
 
 /** Check if `T` can be indexed by an instance of `I`.
  *
  * See_Also: http://forum.dlang.org/post/ajxtksnsxqmeulsedmae@forum.dlang.org
  *
- * TODO move to traits_ex.d
- * TODO Add to Phobos
+ * TODO: move to traits_ex.d
+ * TODO: Add to Phobos
  */
 enum hasIndexing(T, I = size_t) = __traits(compiles,
                                            {
                                                void f(E)(ref E t) {}
                                                f(T.init[I.init]);
-                                           }); // TODO better to use `auto _ = (T.init[I.init]);`
+                                           }); // TODO: better to use `auto _ = (T.init[I.init]);`
 
 ///
 @safe pure nothrow @nogc unittest
@@ -113,7 +113,7 @@ enum isIndexableBy(R, I) = (hasIndexing!R && isIndex!I);
 
 /** Check if `R` is indexable by a automatically `R`-local defined integer type named `I`.
  */
-enum isIndexableBy(R, alias I) = (hasIndexing!R && is(string == typeof(I))); // TODO extend to isSomeString?
+enum isIndexableBy(R, alias I) = (hasIndexing!R && is(string == typeof(I))); // TODO: extend to isSomeString?
 
 ///
 @safe pure nothrow @nogc unittest
@@ -164,7 +164,7 @@ mixin template _genIndexAndSliceOps(I)
         }
         auto ref opSliceAssign(V)(V value, I i, I j)
         {
-            return _r[cast(size_t)i .. cast(size_t)j] = value; // TODO use `move()`
+            return _r[cast(size_t)i .. cast(size_t)j] = value; // TODO: use `move()`
         }
     }
 }
@@ -210,14 +210,14 @@ mixin template _genIndexAndSliceOps_unchecked(I)
 /** Wrapper for `R` with Type-Safe `I`-Indexing.
     See_Also: http://forum.dlang.org/thread/gayfjaslyairnzrygbvh@forum.dlang.org#post-gayfjaslyairnzrygbvh:40forum.dlang.org
 
-    TODO Merge with https://github.com/rcorre/enumap
+    TODO: Merge with https://github.com/rcorre/enumap
 
-    TODO Use std.range.indexed when I is an enum with non-contigious
+    TODO: Use std.range.indexed when I is an enum with non-contigious
     enumerators. Perhaps use among aswell.
 
-    TODO Rename to something more concise such as [Bb]y.
+    TODO: Rename to something more concise such as [Bb]y.
 
-    TODO Allow `I` to be a string and if so derive `Index` to be that string.
+    TODO: Allow `I` to be a string and if so derive `Index` to be that string.
    */
 struct IndexedBy(R, I)
 if (isIndexableBy!(R, I))
@@ -225,11 +225,11 @@ if (isIndexableBy!(R, I))
     alias Index = I;        /// indexing type
     mixin _genIndexAndSliceOps!I;
     R _r;
-    alias _r this; // TODO Use opDispatch instead; to override only opSlice and opIndex
+    alias _r this; // TODO: Use opDispatch instead; to override only opSlice and opIndex
 }
 
 /** Statically-Sized Array of ElementType `E` indexed by `I`.
-    TODO assert that `I` is continuous if it is a `enum`.
+    TODO: assert that `I` is continuous if it is a `enum`.
 */
 struct IndexedArray(E, I)
 if (isIndex!I)
@@ -239,7 +239,7 @@ if (isIndex!I)
     mixin _genIndexAndSliceOps!I;
     alias R = E[I.max + 1];     // needed by mixins
     R _r;                       // static array
-    alias _r this; // TODO Use opDispatch instead; to override only opSlice and opIndex
+    alias _r this; // TODO: Use opDispatch instead; to override only opSlice and opIndex
 }
 
 ///
@@ -272,7 +272,7 @@ if (hasIndexing!R &&
     static if (__traits(isStaticArray, R)) // if length is known at compile-time
     {
         import nxt.modulo : Mod;
-        mixin(`alias ` ~ IndexTypeName ~ ` = Mod!(R.length);`); // TODO relax integer precision argument of `Mod`
+        mixin(`alias ` ~ IndexTypeName ~ ` = Mod!(R.length);`); // TODO: relax integer precision argument of `Mod`
 
         // dummy variable needed for symbol argument to `_genIndexAndSliceOps_unchecked`
         mixin(`private static alias I__ = ` ~ IndexTypeName ~ `;`);
@@ -310,7 +310,7 @@ if (hasIndexing!R &&
         mixin _genIndexAndSliceOps!(mixin(IndexTypeName));
     }
     R _r;
-    alias _r this; // TODO Use opDispatch instead; to override only opSlice and opIndex
+    alias _r this; // TODO: Use opDispatch instead; to override only opSlice and opIndex
 }
 
 /* Wrapper type for `R' indexable/sliceable only with type `R.Index`. */
@@ -577,7 +577,7 @@ version(none)
     with enumerator names given by `Es`, optionally prepended with `prefix` and
     appended with `suffix`.
 
-    TODO Move to Phobos std.typecons
+    TODO: Move to Phobos std.typecons
 */
 template makeEnumFromSymbolNames(string prefix = `__`,
                                  string suffix = ``,

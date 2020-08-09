@@ -3,9 +3,9 @@
 
     Note that ! and ? are more definite sentence enders than .
 
-    TODO `isSomeString` => `isStringLike`
+    TODO: `isSomeString` => `isStringLike`
 
-    TODO Use static foreach to add declarations for all isX, for each X
+    TODO: Use static foreach to add declarations for all isX, for each X
 
     See_Also: http://forum.dlang.org/thread/mgdtuxkuswfxxoithwxh@forum.dlang.org
 */
@@ -17,7 +17,7 @@ import std.algorithm.iteration : uniq;
 import std.array : array;
 import std.conv;
 
-// TODO add overload to std.algorithm.among that takes an immutable array as
+// TODO: add overload to std.algorithm.among that takes an immutable array as
 // argument to prevent calls to aliasSeqOf
 import std.meta : aliasSeqOf;
 
@@ -682,7 +682,7 @@ if (isSomeString!S)
 }
 
 /**
-   TODO Reuse knet translation query instead.
+   TODO: Reuse knet translation query instead.
  */
 string negationIn(Lang lang) nothrow @nogc
 {
@@ -697,7 +697,7 @@ string negationIn(Lang lang) nothrow @nogc
 
 enum Manner
 {
-    // TODO add unknown
+    // TODO: add unknown
     formal,
     informal,
     slang,

@@ -139,7 +139,7 @@ bool isNullTerminated(scope const(char)[] s) @safe pure nothrow @nogc
  *
  * See_Also: https://forum.dlang.org/post/okqdldjnoyrtuizevqeo@forum.dlang.org
  */
-struct LispParser               // TODO convert to `class`
+struct LispParser               // TODO: convert to `class`
 {
     import std.algorithm.comparison : among;
 
@@ -221,21 +221,21 @@ private:
     char peekNext() const scope nothrow @nogc
     {
         version(D_Coverage) {} else pragma(inline, true);
-        return _input[_offset];    // TODO .ptr
+        return _input[_offset];    // TODO: .ptr
     }
 
     /// Get next `char` in input.
     char peekNextNth(size_t n) const nothrow @nogc
     {
         version(D_Coverage) {} else pragma(inline, true);
-        return _input[_offset + n]; // TODO .ptr
+        return _input[_offset + n]; // TODO: .ptr
     }
 
     /// Get next n `chars` in input.
     Input peekNextsN(size_t n) const return nothrow @nogc
     {
         version(D_Coverage) {} else pragma(inline, true);
-        return _input[_offset .. _offset + n]; // TODO .ptr
+        return _input[_offset .. _offset + n]; // TODO: .ptr
     }
 
     /// Drop next byte in input.
@@ -256,7 +256,7 @@ private:
     Input skipOverN(size_t n) return nothrow @nogc
     {
         version(D_Coverage) {} else pragma(inline);
-        const part = _input[_offset .. _offset + n]; // TODO .ptr
+        const part = _input[_offset .. _offset + n]; // TODO: .ptr
         dropFrontN(n);
         return part;
     }
@@ -340,7 +340,7 @@ private:
     {
         version(D_Coverage) {} else pragma(inline, true);
         _subExprsCount += exprs.length; // log it for future optimizations
-        return exprs.dup; // TODO use region allocator stored locally in `LispParser`
+        return exprs.dup; // TODO: use region allocator stored locally in `LispParser`
     }
 
     void nextFront()
@@ -351,12 +351,12 @@ private:
 
         while (true)
         {
-            switch (_input[_offset]) // TODO .ptr
+            switch (_input[_offset]) // TODO: .ptr
             {
             case ';':
                 if (_includeComments)
                 {
-                    assert(0, "TODO don't use skipLineComment");
+                    assert(0, "TODO: don't use skipLineComment");
                     // _topExprs.insertBack(SExpr(Token(TOK.comment, src[0 .. 1])));
                 }
                 else
@@ -377,7 +377,7 @@ private:
 
                 assert(!_topExprs.empty);
 
-                // TODO retroIndexOf
+                // TODO: retroIndexOf
                 size_t count; // number of elements between parens
                 while (_topExprs[$ - 1 - count].token.tok != TOK.leftParen)
                 {
@@ -404,7 +404,7 @@ private:
 
                 break;
             case '"':
-                const stringLiteral = getStringLiteral(); // TODO tokenize
+                const stringLiteral = getStringLiteral(); // TODO: tokenize
                 _topExprs.insertBack(SExpr(Token(TOK.stringLiteral, stringLiteral)));
                 break;
             case ',':
@@ -447,7 +447,7 @@ private:
                 const numberOrSymbol = getNumberOrSymbol(gotSymbol);
                 if (gotSymbol)
                 {
-                    // debug writeln("TODO handle floating point: ", numberOrSymbol);
+                    // debug writeln("TODO: handle floating point: ", numberOrSymbol);
                     _topExprs.insertBack(SExpr(Token(TOK.symbol, numberOrSymbol)));
                 }
                 else
@@ -478,7 +478,7 @@ private:
                 if (true// src.front.isAlpha
                     )
                 {
-                    const symbol = getSymbol(); // TODO tokenize
+                    const symbol = getSymbol(); // TODO: tokenize
                     import nxt.array_algorithm : endsWith;
                     if (symbol.endsWith(`Fn`))
                     {
@@ -547,7 +547,7 @@ private:
  *
  * See_Also: https://forum.dlang.org/post/okqdldjnoyrtuizevqeo@forum.dlang.org
  */
-struct LispFileParser           // TODO convert to `class`
+struct LispFileParser           // TODO: convert to `class`
 {
 @safe:
     this(const string filePath)
@@ -555,13 +555,13 @@ struct LispFileParser           // TODO convert to `class`
         import std.path : expandTilde;
         import nxt.file_ex : rawReadPath;
         size_t subExprsCount = 0;
-        // TODO lookup `subExprsCount` using `filePath` extended attr or hash and pass to constructor
+        // TODO: lookup `subExprsCount` using `filePath` extended attr or hash and pass to constructor
         parser = LispParser(cast(LispParser.Input)filePath.expandTilde.rawReadPath(),
                             false, false, false, subExprsCount);
     }
     ~this() @nogc
     {
-        // TODO write parser.subExprsCount
+        // TODO: write parser.subExprsCount
     }
     LispParser parser;
     ptrdiff_t offsetTo(scope const char[] expr) const @safe pure nothrow @nogc

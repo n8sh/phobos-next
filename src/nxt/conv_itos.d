@@ -69,7 +69,7 @@ uint fastLog10(const ulong val) @safe pure nothrow @nogc
     assert(fastLog10(9UL) == 0);
     assert(fastLog10(11UL) == 1);
     assert(fastLog10(99UL) == 1);
-    // TODO assert(fastLog10(111UL) == 2);
+    // TODO: assert(fastLog10(111UL) == 2);
     assert(fastLog10(999UL) == 2);
     assert(fastLog10(1_111UL) == 3);
     assert(fastLog10(9_999UL) == 3);

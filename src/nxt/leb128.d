@@ -3,7 +3,7 @@
     See_Also: https://en.wikipedia.org/wiki/LEB128
     See_Also: http://forum.dlang.org/post/ykskvwqdsxlyjispappj@forum.dlang.org
 
-    TODO Move to Phobos at std/experimental/codings/leb128.d
+    TODO: Move to Phobos at std/experimental/codings/leb128.d
 */
 module nxt.leb128;
 
@@ -46,7 +46,7 @@ SInt decodeLEB128(SInt)(ubyte *p, uint *n = null)
     } while (byte_ >= 128);
     // sign extend negative numbers
     if (byte_ & 0x40)
-        // TODO Unsigned!SInt
+        // TODO: Unsigned!SInt
         value |= (cast(ulong)-1) << shift; // value |= (-1ULL) << shift;
     if (n)
         *n = cast(uint)(p - orig_p);

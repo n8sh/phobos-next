@@ -7,7 +7,7 @@ void main()
 
     immutable before = MonoTime.currTime();
 
-    foreach (line; File("/usr/share/dict/words").byLine) // TODO make const and fix HashSet.insert
+    foreach (line; File("/usr/share/dict/words").byLine) // TODO: make const and fix HashSet.insert
     {
         count += 1;
     }

@@ -79,7 +79,7 @@ void main(string[] args)
         writeln(`sched (pid=`, thisProcessID, `): killed (SIGTERM) child (pid=`, child.processID, `)`);
     }
     sw.stop;
-    auto killallPid = spawnProcess([`killall`, `-9`, `aard_process`]); // TODO remove the need for this
+    auto killallPid = spawnProcess([`killall`, `-9`, `aard_process`]); // TODO: remove the need for this
     killallPid.wait;
     writeln(`sched (pid=`, thisProcessID, `): killed `, n, ` processes in `, sw.peek.msecs, ` `, ms);
 

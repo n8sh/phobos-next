@@ -5,7 +5,7 @@ module nxt.file_ex;
  * This extra terminating zero (`null`) byte at the end is typically used as a
  * sentinel value to speed up textual parsers.
  *
- * TODO add or merge to Phobos?
+ * TODO: add or merge to Phobos?
  *
  * See_Also: https://en.wikipedia.org/wiki/Sentinel_value
  * See_Also: http://forum.dlang.org/post/pdzxpkusvifelumkrtdb@forum.dlang.org

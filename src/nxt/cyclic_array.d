@@ -391,7 +391,7 @@ public:
             assert(array.length > 0);
         }
 
-        // @disable this(); // TODO this triggers bug in dmd: https://issues.dlang.org/show_bug.cgi?id=20934
+        // @disable this(); // TODO: this triggers bug in dmd: https://issues.dlang.org/show_bug.cgi?id=20934
 
         this(Array!T array) @nogc
         {

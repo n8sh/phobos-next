@@ -97,7 +97,7 @@ shared static this()
                     static if (__traits(compiles, __traits(parent, member)))
                     {
                         alias parent = __traits(parent, member);
-                        // TODO fails: !__traits(isTemplate,  __traits(getMember, module_, memberName)) &&
+                        // TODO: fails: !__traits(isTemplate,  __traits(getMember, module_, memberName)) &&
                         static if (__traits(isSame, parent, module_)
                                 && __traits(compiles, __traits(getUnitTests, member)))
                         {

@@ -21,7 +21,7 @@ import nxt.lingua: TokenId, Usage;
     /** Printed as URL. */
     struct AsURL(T) { T arg; alias arg this; } auto ref asURL(T)(T arg) { return AsURL!T(arg); }
 
-    /* TODO Turn these into an enum for more efficient parsing. */
+    /* TODO: Turn these into an enum for more efficient parsing. */
     /** Printed as Italic/Slanted. */
     struct AsItalic(T...) { T args; } auto asItalic(T...)(T args) { return AsItalic!T(args); }
     /** Bold. */
@@ -112,7 +112,7 @@ import nxt.lingua: TokenId, Usage;
     struct AsBlockquoteSP(T...) { T args; } auto ref asBlockquoteSP(T...)(T args) { return AsBlockquoteSP!T(args); }
 
     /** Unordered List.
-        TODO Should asUList, asOList autowrap args as AsItems when needed?
+        TODO: Should asUList, asOList autowrap args as AsItems when needed?
     */
     struct AsUList(T...) { T args; } auto ref asUList(T...)(T args) { return AsUList!T(args); }
     /** Ordered List. */
@@ -130,7 +130,7 @@ import nxt.lingua: TokenId, Usage;
     enum RowNr { none, offsetZero, offsetOne }
 
     /** Table.
-        TODO Should asTable autowrap args AsRows when needed?
+        TODO: Should asTable autowrap args AsRows when needed?
     */
     struct AsTable(T...)
     {

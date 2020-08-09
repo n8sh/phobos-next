@@ -211,7 +211,7 @@ if (is(typeof(unaryFun!pred(T.init))))
     C y = cast(C)((cast(size_t*)null) + 1); // indicates a lazily deleted key
     struct S
     {
-        // TODO make these work:
+        // TODO: make these work:
         // enum C hole1 = cast(C)((cast(size_t*)null) + 1);
         // static immutable C hole2 = cast(C)((cast(size_t*)null) + 1);
     }

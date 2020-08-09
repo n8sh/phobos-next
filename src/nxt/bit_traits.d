@@ -10,7 +10,7 @@ static if (__VERSION__ >= 2083)
  */
 template bitsNeeded(size_t length)
 {
-    // TODO optimize by removing need for a linear search
+    // TODO: optimize by removing need for a linear search
     static      if (length <= 2)   { enum bitsNeeded = 1; }
     else static if (length <= 4)   { enum bitsNeeded = 2; }
     else static if (length <= 8)   { enum bitsNeeded = 3; }
@@ -26,12 +26,12 @@ template bitsNeeded(size_t length)
 /** Number of bits required to store a packed instance of `T`.
     See_Also: http://forum.dlang.org/thread/okonqhnxzqlqtxijxsfg@forum.dlang.org
 
-    TODO Extend to continuous version; use std.numeric.sumOfLog2s. Ask on
+    TODO: Extend to continuous version; use std.numeric.sumOfLog2s. Ask on
     StackExchange Computer Science for the correct terminology.
 
     See: http://dlang.org/phobos/std_numeric.html#.sumOfLog2s
 
-    TODO merge with `UsageOf`
+    TODO: merge with `UsageOf`
    */
 template packedBitSizeOf(T)
 {
@@ -39,7 +39,7 @@ template packedBitSizeOf(T)
     {
         static assert(T.min != T.max, "enum T must have at least two enumerators");
         import core.bitop : bsr;
-        enum range = T.max - T.min; // TODO use uniqueEnumMembers.length instead?
+        enum range = T.max - T.min; // TODO: use uniqueEnumMembers.length instead?
         enum packedBitSizeOf = range.bsr + 1;
     }
     // TODO
@@ -172,7 +172,7 @@ template isInitAllZeroBits(T)
     {
         float[0] a;
     }
-    // TODO static assert(isInitAllZeroBits!S7);
+    // TODO: static assert(isInitAllZeroBits!S7);
 
     static class C1
     {

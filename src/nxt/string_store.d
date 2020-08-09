@@ -13,7 +13,7 @@ struct StringStore
     {
         switch (value.length)
         {
-            // TODO static foreach
+            // TODO: static foreach
         case 1: _store.insertBack(cast(char[1])value[0 .. 1]); break;
         case 2: _store.insertBack(cast(char[2])value[0 .. 2]); break;
         case 3: _store.insertBack(cast(char[3])value[0 .. 3]); break;

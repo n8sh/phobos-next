@@ -447,7 +447,7 @@ struct Region(ParentAllocator = NullAllocator,
     // Destructor will free the memory
 }
 
-// TODO activate
+// TODO: activate
 // @system nothrow @nogc unittest
 // {
 //     import std.experimental.allocator.mallocator : Mallocator;
@@ -489,7 +489,7 @@ struct Region(ParentAllocator = NullAllocator,
     assert(!reg.available);
 }
 
-// TODO activate
+// TODO: activate
 // @system nothrow @nogc unittest
 // {
 //     // test 'this(ubyte[] store)' constructed regions properly clean up
@@ -1280,7 +1280,7 @@ shared struct SharedRegion(ParentAllocator = NullAllocator,
         }
 }
 
-// TODO activate
+// TODO: activate
 // @system unittest
 // {
 //     import std.experimental.allocator.mallocator : Mallocator;
@@ -1341,7 +1341,7 @@ shared struct SharedRegion(ParentAllocator = NullAllocator,
 //     testAlloc(a2, false);
 // }
 
-// TODO activate
+// TODO: activate
 // @system unittest
 // {
 //     import std.experimental.allocator.mallocator : Mallocator;

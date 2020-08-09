@@ -63,7 +63,7 @@ if (isSomeString!S)
     import std.algorithm.searching : all;
     import std.traits : isNarrowString;
     import std.utf : byUTF;
-    // TODO functionize
+    // TODO: functionize
     static if (isNarrowString!S)
     {
         return s.byUTF!dchar.all!(ch => pred(ch));
@@ -92,7 +92,7 @@ if (isSomeString!S)
     import std.algorithm.searching : all;
     import std.traits : isNarrowString;
     import std.utf : byUTF;
-    // TODO functionize
+    // TODO: functionize
     static if (isNarrowString!S)
     {
         return s.byUTF!dchar.all!(ch => pred(ch));

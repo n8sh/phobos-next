@@ -1,13 +1,13 @@
 module nxt.pure_gc_allocator;
 
-// TODO Use std.experimental.allocator.building_blocks.gc_allocator.d instead of this module
+// TODO: Use std.experimental.allocator.building_blocks.gc_allocator.d instead of this module
 
 import std.experimental.allocator.common;
 
 /**
  * D's built-in garbage-collected allocator purified.
  *
- * TODO remove and place with GCAllocator when https://github.com/dlang/phobos/pull/6432 has been merged.
+ * TODO: remove and place with GCAllocator when https://github.com/dlang/phobos/pull/6432 has been merged.
  */
 struct PureGCAllocator
 {

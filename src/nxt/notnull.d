@@ -32,7 +32,7 @@ template isNullAssignable(T)
    Condition: T must be a reference type.
    Instead of: __traits(compiles, { T t; assert(t is null); } ).
 
-   TODO Merge with http://arsdnet.net/dcode/notnullsimplified.d
+   TODO: Merge with http://arsdnet.net/dcode/notnullsimplified.d
 
    Examples:
    ---
@@ -221,7 +221,7 @@ unittest
     class B : A {}
     void f(NotNull!A a) {}
     NotNull!B b = assumeNotNull(new B);
-    static assert(!__traits(compiles, { f(b); })); // TODO I don't want this to fail.
+    static assert(!__traits(compiles, { f(b); })); // TODO: I don't want this to fail.
 }
 
 /** by Andrej Mitrovic

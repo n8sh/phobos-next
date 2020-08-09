@@ -23,14 +23,14 @@ import nxt.bijections;
 
     `radixBitCount` is the number of bits in radix (digit)
 
-    TODO make `radixBitCount` a template parameter either 8 or 16,
+    TODO: make `radixBitCount` a template parameter either 8 or 16,
     ElementType.sizeof must be a multiple of radixBitCount
 
-    TODO input[] = y[] not needed when input is mutable
+    TODO: input[] = y[] not needed when input is mutable
 
-    TODO Restrict fun.
+    TODO: Restrict fun.
 
-    TODO Choose fastDigitDiscardal based on elementMin and elementMax (if they
+    TODO: Choose fastDigitDiscardal based on elementMin and elementMax (if they
     are given)
 
     See_Also: https://probablydance.com/2016/12/27/i-wrote-a-faster-sorting-algorithm/
@@ -50,7 +50,7 @@ if (isRandomAccessRange!R &&
     (isNumeric!(ElementType!R)))
 {
     import std.range : assumeSorted;
-    import std.algorithm.sorting : isSorted; // TODO move this to radixSort when know how map less to descending
+    import std.algorithm.sorting : isSorted; // TODO: move this to radixSort when know how map less to descending
     import std.algorithm.comparison : min, max;
     import std.range.primitives : front;
 
@@ -74,10 +74,10 @@ if (isRandomAccessRange!R &&
     }
     else
     {
-        static assert(0, "TODO handle element type " ~ e.stringof);
+        static assert(0, "TODO: handle element type " ~ e.stringof);
     }
 
-    // TODO activate this: subtract min from all values and then immutable uint elementBitCount = is_min(a_max) ? 8*sizeof(E) : binlog(a_max); and add it back.
+    // TODO: activate this: subtract min from all values and then immutable uint elementBitCount = is_min(a_max) ? 8*sizeof(E) : binlog(a_max); and add it back.
     enum digitCount = elementBitCount / radixBitCount;         // number of `digitCount` in radix `radixBitCount`
     static assert(elementBitCount % radixBitCount == 0,
                   "Precision of ElementType must be evenly divisble by bit-precision of Radix.");
@@ -93,7 +93,7 @@ if (isRandomAccessRange!R &&
 
     static if (inPlace) // most-significant digit (MSD) first in-place radix sort
     {
-        static assert(!descending, "TODO Implement descending version");
+        static assert(!descending, "TODO: Implement descending version");
 
         foreach (immutable digitOffsetReversed; 0 .. digitCount) // for each `digitOffset` (in base `radix`) starting with least significant (LSD-first)
         {
@@ -144,14 +144,14 @@ if (isRandomAccessRange!R &&
         //     }
         // }
 
-        // TODO copy reorder algorithm into local function that calls itself in the recursion step
-        // TODO call this local function
+        // TODO: copy reorder algorithm into local function that calls itself in the recursion step
+        // TODO: call this local function
 
         assert(input.isSorted!"a < b");
     }
     else                        // standard radix sort
     {
-        // non-in-place requires temporary `y`. TODO we could allocate these as
+        // non-in-place requires temporary `y`. TODO: we could allocate these as
         // a stack-allocated array for small arrays and gain extra speed.
         auto tempStorage = FixedDynamicArray!E.makeUninitializedOfLength(n);
         auto tempSlice = tempStorage[];
@@ -216,7 +216,7 @@ if (isRandomAccessRange!R &&
             // reorder. access `input`'s elements in \em reverse to \em reuse filled caches from previous forward iteration.
             // \em stable reorder from `input` to `tempSlice` using normal counting sort (see `counting_sort` above).
             enum unrollFactor = 1;
-            assert((n % unrollFactor) == 0, "TODO Add reordering for remainder"); // is evenly divisible by unroll factor
+            assert((n % unrollFactor) == 0, "TODO: Add reordering for remainder"); // is evenly divisible by unroll factor
             for (size_t j = n - 1; j < n; j -= unrollFactor) // for each element `j` in reverse order. when `j` wraps around `j` < `n` is no longer true
             {
                 static foreach (k; 0 .. unrollFactor) // inlined (unrolled) loop
@@ -236,7 +236,7 @@ if (isRandomAccessRange!R &&
                 else
                 {
                     import std.algorithm.mutation : copy;
-                    copy(tempSlice[], input[]); // TODO use memcpy
+                    copy(tempSlice[], input[]); // TODO: use memcpy
                 }
             }
             else

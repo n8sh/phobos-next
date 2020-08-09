@@ -11,13 +11,13 @@ module nxt.bitarray;
  * Set `blockAlignedLength` to true if `this.length` is always a multiple of
  * `Block.size`.
  *
- * TODO use `Flag` instead, or wrap in `BlockAlignedBitArray` where this class
+ * TODO: use `Flag` instead, or wrap in `BlockAlignedBitArray` where this class
  * is made private _BitArray and alias BitArray = _BitArray!(true).
  *
- * TODO support append bit via `pushBack(bool)`.
+ * TODO: support append bit via `pushBack(bool)`.
  */
 struct BitArray(bool blockAlignedLength = false,
-                alias Allocator = null) // TODO use Allocator
+                alias Allocator = null) // TODO: use Allocator
 {
     import core.bitop : bt, bts, btr;
     import nxt.bitarray_algorithm;
@@ -51,7 +51,7 @@ struct BitArray(bool blockAlignedLength = false,
             _blockCount = (length + bitsPerBlock-1) / bitsPerBlock;
             _length = length;
         }
-        _blockPtr = cast(Block*)fakePureCalloc(bitsPerBlock, _blockCount); // TODO use `Allocator`
+        _blockPtr = cast(Block*)fakePureCalloc(bitsPerBlock, _blockCount); // TODO: use `Allocator`
     }
 
     /** Helper constructor. */
@@ -59,7 +59,7 @@ struct BitArray(bool blockAlignedLength = false,
                  const scope Block[] blocks) @trusted
     {
         _blockCount = blocks.length;
-        _blockPtr = cast(Block*)fakePureMalloc(bitsPerBlock * _blockCount); // TODO use `Allocator`
+        _blockPtr = cast(Block*)fakePureMalloc(bitsPerBlock * _blockCount); // TODO: use `Allocator`
         _blocks[] = blocks; // copy block array
         static if (!blockAlignedLength)
         {
@@ -118,7 +118,7 @@ struct BitArray(bool blockAlignedLength = false,
     bool opIndex(size_t i) const @trusted
     {
         version(D_Coverage) {} else pragma(inline, true);
-        assert(i < length);        // TODO nothrow or not?
+        assert(i < length);        // TODO: nothrow or not?
         return cast(bool)bt(_blockPtr, i);
     }
 
@@ -169,7 +169,7 @@ struct BitArray(bool blockAlignedLength = false,
         }
     }
 
-    version(none)               // TODO activate?
+    version(none)               // TODO: activate?
     bool opCast(T : bool)() const
     {
         return !this.allZero;
@@ -743,7 +743,7 @@ private:
     assertThrown!AssertError(BitArray!(true).withLength(1));
 }
 
-// TODO use
+// TODO: use
 extern (C) private pure @system @nogc nothrow
 {
     pragma(mangle, "malloc") void* fakePureMalloc(size_t);

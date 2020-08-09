@@ -13,7 +13,7 @@ struct GzipFileInputRange
     import std.stdio : File;
     import std.traits : ReturnType;
 
-    enum chunkSize = 0x4000;    // TODO find optimal value via benchmark
+    enum chunkSize = 0x4000;    // TODO: find optimal value via benchmark
 
     enum defaultExtension = `.gz`;
 
@@ -80,14 +80,14 @@ private:
 }
 
 /** Is `true` iff `R` is a block input range.
-    TODO Move to std.range
+    TODO: Move to std.range
  */
 private template isBlockInputRange(R)
 {
     import std.range.primitives : isInputRange;
     enum isBlockInputRange = (isInputRange!R &&
-                              __traits(hasMember, R, `bufferFrontChunk`) && // TODO ask dlang for better naming
-                              __traits(hasMember, R, `loadNextChunk`));     // TODO ask dlang for better naming
+                              __traits(hasMember, R, `bufferFrontChunk`) && // TODO: ask dlang for better naming
+                              __traits(hasMember, R, `loadNextChunk`));     // TODO: ask dlang for better naming
 }
 
 /** Decompress `BlockInputRange` linewise.
@@ -118,7 +118,7 @@ class DecompressByLine(BlockInputRange)
 
         static if (isBlockInputRange!(typeof(_range)))
         {
-            // TODO functionize
+            // TODO: functionize
             while (!_range.empty)
             {
                 ubyte[] currentFronts = _range.bufferFrontChunk;
@@ -156,7 +156,7 @@ class DecompressByLine(BlockInputRange)
         }
         else
         {
-            // TODO sentinel-based search for `_separator` in `_range`
+            // TODO: sentinel-based search for `_separator` in `_range`
             while (!_range.empty &&
                    _range.front != _separator)
             {
@@ -245,7 +245,7 @@ struct ZlibFileInputRange
 
     this(in char[] path) @trusted
     {
-        import std.string : toStringz; // TODO avoid GC allocation by looking at how gmp-d z.d solves it
+        import std.string : toStringz; // TODO: avoid GC allocation by looking at how gmp-d z.d solves it
         _f = gzopen(path.toStringz, `rb`);
         if (!_f)
         {
@@ -260,7 +260,7 @@ struct ZlibFileInputRange
         const int ret = gzclose(_f);
         if (ret < 0)
         {
-            assert(`Couldn't close file`); // TODO replace with non-GC-allocated exception
+            assert(`Couldn't close file`); // TODO: replace with non-GC-allocated exception
         }
     }
 
@@ -303,7 +303,7 @@ pure nothrow @nogc:
     }
 
     /** Get current bufferFrontChunk.
-        TODO need better name for this
+        TODO: need better name for this
      */
     inout(ubyte)[] bufferFrontChunk() inout @trusted
     {
@@ -323,7 +323,7 @@ private:
 
     size_t _bufIx;              // current stream read index in `_buf`
 
-    // TODO make this work:
+    // TODO: make this work:
     // extern (C) nothrow @nogc:
     // pragma(mangle, `gzopen`) gzFile gzopen(const(char)* path, const(char)* mode);
     // pragma(mangle, `gzclose`) int gzclose(gzFile file);
@@ -334,15 +334,15 @@ struct Bz2libFileInputRange
 {
     import std.file : FileException;
 
-    enum chunkSize = 128 * 1024; // 128K. TODO find optimal value via benchmark
+    enum chunkSize = 128 * 1024; // 128K. TODO: find optimal value via benchmark
     enum defaultExtension = `.bz2`;
-    enum useGC = false;         // TODO generalize to allocator parameter
+    enum useGC = false;         // TODO: generalize to allocator parameter
 
 @safe:
 
     this(in char[] path) @trusted
     {
-        import std.string : toStringz; // TODO avoid GC allocation by looking at how gmp-d z.d solves it
+        import std.string : toStringz; // TODO: avoid GC allocation by looking at how gmp-d z.d solves it
         _f = BZ2_bzopen(path.toStringz, `rb`);
         if (!_f)
         {
@@ -364,7 +364,7 @@ struct Bz2libFileInputRange
 
     ~this() @trusted @nogc
     {
-        BZ2_bzclose(_f);       // TODO error handling?
+        BZ2_bzclose(_f);       // TODO: error handling?
 
         static if (!useGC)
         {
@@ -412,7 +412,7 @@ struct Bz2libFileInputRange
     }
 
     /** Get current bufferFrontChunk.
-        TODO need better name for this
+        TODO: need better name for this
      */
     inout(ubyte)[] bufferFrontChunk() inout @trusted
     {
@@ -443,12 +443,12 @@ if (isInputRange!FileInputRange)
 
     const wholeSource = "abc\ndef\nghi"; // contents of source
 
-    foreach (const n; wholeSource.length .. wholeSource.length) // TODO from 0
+    foreach (const n; wholeSource.length .. wholeSource.length) // TODO: from 0
     {
         const source = wholeSource[0 .. n]; // slice from the beginning
 
-        File file = File(path, `w`); // TODO `scope`
-        auto of = new GzipOut(file); // TODO `scope`
+        File file = File(path, `w`); // TODO: `scope`
+        auto of = new GzipOut(file); // TODO: `scope`
         of.compress(source);
         of.finish();
 

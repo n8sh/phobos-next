@@ -4,9 +4,9 @@
  * License: $(WEB boost.org/LICENSE_1_0.txt, Boost License 1.0).
  * Authors: $(WEB Per Nordlöw)
  *
- * TODO Add range checking of bit indexes.
+ * TODO: Add range checking of bit indexes.
  *
- * TODO Make use of TZCNT and LZCNT either as inline assembly or as builtins: https://github.com/dlang/dmd/pull/6364
+ * TODO: Make use of TZCNT and LZCNT either as inline assembly or as builtins: https://github.com/dlang/dmd/pull/6364
  */
 module nxt.bitop_ex;
 
@@ -185,7 +185,7 @@ pragma(inline, true)
 bool getHighestBit(T)(in T a) @safe
 if (isIntegral!T)
 {
-    // TODO use core.bitop.bt when T is a size_t
+    // TODO: use core.bitop.bt when T is a size_t
     return (a & (cast(T)1 << 8*T.sizeof - 1)) != 0;
 }
 alias getTopBit = getHighestBit;

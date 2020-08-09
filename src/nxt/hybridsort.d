@@ -8,7 +8,7 @@ shared static this()
 {
     foreach (i, E; IntegralBijectableTypes)
     {
-        // TODO Calculate radixSortMinLength for E
+        // TODO: Calculate radixSortMinLength for E
         radixSortMinLength[i] = 0; // calulate limit
     }
 }

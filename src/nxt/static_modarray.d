@@ -138,7 +138,7 @@ if (capacity*elementLength >= 2) // no use storing less than 2 bytes
     auto ref popFront()
     {
         assert(!empty);
-        // TODO is there a reusable Phobos function for this?
+        // TODO: is there a reusable Phobos function for this?
         foreach (immutable i; 0 .. _length - 1)
         {
             _store[i] = _store[i + 1]; // like `_store[i] = _store[i + 1];` but more generic
@@ -151,7 +151,7 @@ if (capacity*elementLength >= 2) // no use storing less than 2 bytes
     auto ref popFrontN(size_t n)
     {
         assert(length >= n);
-        // TODO is there a reusable Phobos function for this?
+        // TODO: is there a reusable Phobos function for this?
         foreach (immutable i; 0 .. _length - n)
         {
             _store[i] = _store[i + n];
@@ -165,7 +165,7 @@ if (capacity*elementLength >= 2) // no use storing less than 2 bytes
     {
         version(LDC) pragma(inline, true);
         assert(!empty);
-        _length = cast(typeof(_length))(_length - 1); // TODO better?
+        _length = cast(typeof(_length))(_length - 1); // TODO: better?
         return this;
     }
 
@@ -188,7 +188,7 @@ if (capacity*elementLength >= 2) // no use storing less than 2 bytes
     bool contains(in Ix[] key) const @nogc
     {
         pragma(inline, true);
-        // TODO use binarySearch instead of canFind
+        // TODO: use binarySearch instead of canFind
         import std.algorithm.searching : canFind;
         if (key.length != L) { return false; }
         return (chunks.canFind(key));
@@ -205,7 +205,7 @@ if (capacity*elementLength >= 2) // no use storing less than 2 bytes
             if (isUnsigned!ModUInt)
             {
                 pragma(inline, true);
-                // TODO use binarySearch instead of canFind
+                // TODO: use binarySearch instead of canFind
                 import std.algorithm.searching : canFind;
                 return (chunks.canFind(ix));
             }
@@ -216,7 +216,7 @@ if (capacity*elementLength >= 2) // no use storing less than 2 bytes
             if (isUnsigned!UInt)
             {
                 pragma(inline, true);
-                // TODO use binarySearch instead of canFind
+                // TODO: use binarySearch instead of canFind
                 import std.algorithm.searching : canFind;
                 return (chunks.canFind(cast(T)ix));
             }

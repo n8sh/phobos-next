@@ -19,7 +19,7 @@ enum Orient { column, row } // Vector Orientation.
 /** `D`-Dimensional Cartesian Point with Coordinate Type (Precision) `E`.
  */
 struct Point(E, uint D)
-if (D >= 1 /* && TODO extend trait : isNumeric!E */)
+if (D >= 1 /* && TODO: extend trait : isNumeric!E */)
 {
     alias ElementType = E;
 
@@ -159,7 +159,7 @@ if (D >= 1 &&
         static if (normalizedFlag)
         {
             import std.math : sqrt;
-            clear(1/sqrt(cast(E)D)); // TODO costly
+            clear(1/sqrt(cast(E)D)); // TODO: costly
         }
         else
         {
@@ -281,7 +281,7 @@ if (D >= 1 &&
             else
             {
                 _vector.randInPlace();
-                normalize(); // TODO Turn this into D data restriction instead?
+                normalize(); // TODO: Turn this into D data restriction instead?
             }
         }
         else
@@ -342,7 +342,7 @@ if (D >= 1 &&
     }
 
     bool opEquals(S)(in S scalar) const
-    if (isAssignable!(E, S)) // TODO is(typeof(E.init != S.init))
+    if (isAssignable!(E, S)) // TODO: is(typeof(E.init != S.init))
     {
         static foreach (i; 0 .. D)
         {
@@ -512,7 +512,7 @@ if (D >= 1 &&
     }
 
     /** Multiply with left-hand-side `lhs`. */
-    version(none)               // TODO activate
+    version(none)               // TODO: activate
     auto opBinaryRight(string op, T)(in T lhs) const
     if (!isInstanceOf!(Vector, T) &&
         !isMatrix!T &&
@@ -521,7 +521,7 @@ if (D >= 1 &&
         return this.opBinary!(op)(lhs);
     }
 
-    /** TODO Suitable Restrictions on F. */
+    /** TODO: Suitable Restrictions on F. */
     void opOpAssign(string op, F)(in F r)
         /* if ((op == "+") || (op == "-") || (op == "*") || (op == "%") || (op == "/") || (op == "^^")) */
     {
@@ -759,7 +759,7 @@ if (!is(CommonType!Ts == void))
 {
     return Vector!(CommonType!Ts, args.length)(args);
 }
-alias vector = rowVector; // TODO Should rowVector or columnVector be default?
+alias vector = rowVector; // TODO: Should rowVector or columnVector be default?
 
 auto columnVector(Ts...)(Ts args)
 if (!is(CommonType!Ts == void))

@@ -74,11 +74,11 @@ void dbg(string file = __FILE__,
  *
  * See_Also: http://forum.dlang.org/thread/yczwqrbkxdiqijtiynrh@forum.dlang.org?page=1
  *
- * TODO use https://forum.dlang.org/post/ypxsqtddxvdxunsoluas@forum.dlang.org
+ * TODO: use https://forum.dlang.org/post/ypxsqtddxvdxunsoluas@forum.dlang.org
  *
- * TODO is using this https://dlang.org/changelog/2.079.0.html#default_after_variadic preferred?
+ * TODO: is using this https://dlang.org/changelog/2.079.0.html#default_after_variadic preferred?
  *
- * TODO instead use
+ * TODO: instead use
  *
  * void show_(Args...)(Args args,
  * string file = __FILE__,

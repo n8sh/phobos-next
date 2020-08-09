@@ -59,6 +59,8 @@ alias Flags = BitFlags!Flag;    ///< Use as Flags flags param to `OpenHashMap`
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  * See_Also: https://gankro.github.io/blah/hashbrown-insert/
  *
+ * TODO: Disable pragma(inline, true) and rebenchmark
+ *
  * TODO: tests fails when `useSmallLinearSearch` is set to `false`
  *
  * TODO: Use set of `Flag`s (defined here) as template params
@@ -503,7 +505,6 @@ if (isNullable!K /*&& !hasAliasing!K */)
 
     static private T[] allocateUninitializedStore()(size_t capacity) @trusted pure nothrow @nogc // template-lazy
     {
-        version(LDC) pragma(inline, true);
         version(showEntries) dbg(__FUNCTION__, " newCapacity:", capacity);
         immutable byteCount = T.sizeof*capacity;
         auto store = cast(typeof(return))Allocator.allocate(byteCount);
@@ -578,7 +579,6 @@ if (isNullable!K /*&& !hasAliasing!K */)
     /// Destruct.
     ~this() @nogc
     {
-        version(LDC) pragma(inline, true);
         release();
     }
 
@@ -652,7 +652,6 @@ if (isNullable!K /*&& !hasAliasing!K */)
 
     static if (true)
     {
-    pragma(inline, true):
     private:
 
         static if (!hasHoleableKey)
@@ -690,17 +689,20 @@ if (isNullable!K /*&& !hasAliasing!K */)
              */
             static size_t holesWordCount(size_t binCount)
             {
+                pragma(inline, true);
                 return (binCount / wordBits +
                         (binCount % wordBits ? 1 : 0));
             }
 
             static size_t binBlockBytes(size_t binCount)
             {
+                pragma(inline, true);
                 return wordBytes*holesWordCount(binCount);
             }
 
             void untagHoleAtIndex(size_t index) @trusted
             {
+                pragma(inline, true);
                 version(unittest) assert(index < _store.length);
                 if (_holesPtr !is null)
                     btr(_holesPtr, index);
@@ -708,6 +710,7 @@ if (isNullable!K /*&& !hasAliasing!K */)
 
             static bool hasHoleAtPtrIndex(const scope size_t* holesPtr, size_t index) @trusted
             {
+                pragma(inline, true);
                 return (holesPtr &&
                         bt(holesPtr, index) != 0);
             }
@@ -715,6 +718,7 @@ if (isNullable!K /*&& !hasAliasing!K */)
 
         void tagHoleAtIndex(size_t index) @trusted
         {
+            pragma(inline, true);
             version(unittest) assert(index < _store.length);
             static if (hasHoleableKey)
                 keyOf(_store[index]) = holeKeyConstant;
@@ -725,7 +729,6 @@ if (isNullable!K /*&& !hasAliasing!K */)
                 bts(_holesPtr, index);
             }
         }
-
     }
 
     static if (borrowChecked)

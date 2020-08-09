@@ -822,7 +822,6 @@ if (isNullable!K /*&& !hasAliasing!K */)
         }
 
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(cast(const(K))adjustKeyType(key)); // cast scoped `key` is @trusted
-
         return (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex));
     }
@@ -842,7 +841,6 @@ if (isNullable!K /*&& !hasAliasing!K */)
     {
         assert(!key.isNull);
         static if (hasHoleableKey) { assert(!isHoleKeyConstant(cast(const(K))adjustKeyType(key))); }
-
         static if (isInstanceOf!(Nullable, SomeKey))
         {
             import std.algorithm.searching : canFind;

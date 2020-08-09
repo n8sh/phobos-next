@@ -4,7 +4,7 @@ module nxt.open_hashmap;
 
 import core.internal.hash : hashOf;
 import nxt.nullable_traits : isNullable;
-import nxt.pure_mallocator : Mallocator = PureMallocator; // TODO merge into `std.experimental.allocator.mallocator`
+import nxt.pure_mallocator : Mallocator = PureMallocator; // TODO: merge into `std.experimental.allocator.mallocator`
 
 enum Flag
 {
@@ -59,66 +59,66 @@ alias Flags = BitFlags!Flag;    ///< Use as Flags flags param to `OpenHashMap`
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  * See_Also: https://gankro.github.io/blah/hashbrown-insert/
  *
- * TODO tests fails when `useSmallLinearSearch` is set to `false`
+ * TODO: tests fails when `useSmallLinearSearch` is set to `false`
  *
- * TODO Use set of `Flag`s (defined here) as template params
+ * TODO: Use set of `Flag`s (defined here) as template params
  *
  * Robin-hood case introspect key type for storage of parts of hash alongside
  * nullValue and holeValue. Typically for address-types that doesn't need
  * scanning. Example is `Address` for implementation of GC. This is a D showcase
  * for code that is difficult to write in C++.
  *
- * TODO group nxt.probing functions in Prober struct given as type template
+ * TODO: group `nxt.probing` functions in `Prober` struct given as type template
  * param to `OpenHashMap`
  *
- * TODO Make load factor dependent on current capacity or length and perhaps
+ * TODO: Make load factor dependent on current capacity or length and perhaps
  * also type and hash-function to get memory efficiency when it matters. Similar
  * to what is recommended in https://ticki.github.io/blog/horrible/.
  *
- * TODO For copyable types replace `auto ref` with logic that only passes by `ref`
+ * TODO: For copyable types replace `auto ref` with logic that only passes by `ref`
  * when it's faster to do so. See_Also: https://github.com/dlang/dmd/pull/11000
  *
- * TODO remove use of `static if (__traits(isCopyable, ...))` in cases where compiler can handle more moves
+ * TODO: remove use of `static if (__traits(isCopyable, ...))` in cases where compiler can handle more moves
  *
- * TODO use mmap allocator when `_store.sizeof` is larger than at least 8 pages
+ * TODO: use mmap allocator when `_store.sizeof` is larger than at least 8 pages
  *
- * TODO use `StoreK` in store and cast between it and `KeyType`
+ * TODO: use `StoreK` in store and cast between it and `KeyType`
  *
- * TODO allocate _holesPtr array together with _store to reduce size of
+ * TODO: allocate _holesPtr array together with _store to reduce size of
  * `OpenHashMap` to 3 words when element type doesn't support it
  *
- * TODO fix bug in `growInPlaceWithCapacity` and benchmark
+ * TODO: fix bug in `growInPlaceWithCapacity` and benchmark
  *
- * TODO modify existing unittest for `struct Rel { const string name; }`
+ * TODO: modify existing unittest for `struct Rel { const string name; }`
  *
- * TODO use allocator.dispose() instead of allocator.deallocate() as in
+ * TODO: use allocator.dispose() instead of allocator.deallocate() as in
  * https://github.com/dlang-community/containers
  *
- * TODO if hash-function is cast(size_t)(classInstance) always use prime length
+ * TODO: if hash-function is cast(size_t)(classInstance) always use prime length
  * and shift pointer before hash based on alignof (might not be needed when
  * module prime) to maximize memory locality when adding successively allocated
  * pointers
  *
- * TODO add extractElement that moves it out similar to
+ * TODO: add extractElement that moves it out similar to
  * http://en.cppreference.com/w/cpp/container/unordered_set/extract
  *
- * TODO add merge or union algorithm here or into container_algorithm.d. See
+ * TODO: add merge or union algorithm here or into container_algorithm.d. See
  * also: http://en.cppreference.com/w/cpp/container/unordered_set/merge. this
  * algorithm moves elements from source if they are not already in `this`
  *
- * TODO Robin-Hood-hashing
+ * TODO: Robin-Hood-hashing
  *
- * TODO enable `borrowChecked` unconditionally in version(debug) if and when
+ * TODO: enable `borrowChecked` unconditionally in version(debug) if and when
  * `opMove` is implemented, in which case opMove() should assert false if this
  * is borrowed. See: https://github.com/dlang/DIPs/pull/109
  *
- * TODO keep only predicates with ref arguments (`const scope auto ref`) when
+ * TODO: keep only predicates with ref arguments (`const scope auto ref`) when
  * LDC can optimize those as fast as value passing. add LDC issue for this
  *
- * TODO save one word by making `_store.length` be inferred by
+ * TODO: save one word by making `_store.length` be inferred by
  * `primeConstants[_primeIndex]` if this is not too costly
  *
- * TODO only add one extra element to capacity when `assumeNonFullHaystack` is `true`
+ * TODO: only add one extra element to capacity when `assumeNonFullHaystack` is `true`
  */
 struct OpenHashMap(K, V = void,
                    alias hasher = hashOf,
@@ -161,13 +161,13 @@ if (isNullable!K /*&& !hasAliasing!K */)
     private enum isSlice(T) = is(T : const(E)[], E);
 
     static if ((is(K == class)) &&
-               keyEqualPred == `a is b`) // TODO use better predicate compare?
+               keyEqualPred == `a is b`) // TODO: use better predicate compare?
         alias StoreK = void*;
     else
     {
         import std.traits : isPointer;
         static if (isPointer!K &&
-                   // TODO use better predicate compare?
+                   // TODO: use better predicate compare?
                    (keyEqualPred == `a == b` ||
                     keyEqualPred == `a is b`))
             alias StoreK = void*;
@@ -194,17 +194,17 @@ if (isNullable!K /*&& !hasAliasing!K */)
     static if (hasAddressLikeKey)
     {
         enum hasHoleableKey = true;
-        enum holeKeyOffset = 0x1; // TODO is this a good value? Or is 0xffff_ffff_ffff_ffff better?
+        enum holeKeyOffset = 0x1; // TODO: is this a good value? Or is 0xffff_ffff_ffff_ffff better?
         @trusted enum holeKeyAddress = cast(void*)holeKeyOffset;
 
         /**
          * See_Also: https://forum.dlang.org/post/p7726n$2apd$1@digitalmars.com
-         * TODO test if ulong.max gives better performance
+         * TODO: test if ulong.max gives better performance
          */
         static K holeKeyConstant() @trusted pure nothrow @nogc
         {
             version(D_Coverage) {} else pragma(inline, true);
-            // TODO note that cast(size_t*) will give address 0x8 instead of 0x1
+            // TODO: note that cast(size_t*) will give address 0x8 instead of 0x1
             static if (isSlice!K)
             {
                 alias E = typeof(K.init[0])*; // array element type
@@ -227,7 +227,7 @@ if (isNullable!K /*&& !hasAliasing!K */)
                 return (cast(const(void)*)key is holeKeyAddress);
         }
 
-        /** TODO make these work
+        /** TODO: make these work
          */
         // enum K holeKey_1 = cast(K)((cast(size_t*)null));
         // static immutable K holeKey_2 = cast(K)((cast(size_t*)null));
@@ -253,10 +253,10 @@ if (isNullable!K /*&& !hasAliasing!K */)
     else static if (__traits(hasMember, K, "nullifier"))
     {
         alias Nullifier = typeof(K.init.nullifier);
-        // TODO pragma(msg, K, " has nullifier ", Nullifier);
+        // TODO: pragma(msg, K, " has nullifier ", Nullifier);
         static if (isHoleable!Nullifier)
         {
-            // TODO pragma(msg, K, " has holeable nullifier ", Nullifier);
+            // TODO: pragma(msg, K, " has holeable nullifier ", Nullifier);
             enum hasHoleableKey = true;
             static K holeKeyConstant() @trusted pure nothrow @nogc
             {
@@ -418,7 +418,7 @@ if (isNullable!K /*&& !hasAliasing!K */)
     {
         static if (usePrimeCapacity)
         {
-            // TODO check that capacity is prime?
+            // TODO: check that capacity is prime?
         }
         else
         {
@@ -429,7 +429,7 @@ if (isNullable!K /*&& !hasAliasing!K */)
                                  minimumCapacity,
                                  " capacity:", capacity);
 
-        // TODO cannot use makeArray here because it cannot handle uncopyable types
+        // TODO: cannot use makeArray here because it cannot handle uncopyable types
         // import std.experimental.allocator : makeArray;
         // auto store = Allocator.makeArray!T(capacity, nullKeyElement);
 
@@ -440,13 +440,13 @@ if (isNullable!K /*&& !hasAliasing!K */)
         static if (hasAddressLikeKey ||
                    (__traits(isZeroInit, K)  &&
                     __traits(hasMember, K, "nullifier")) ||
-                   // TODO add check for __traits(isZeroInit, K) and member `K.nullValue` == `K.init`
+                   // TODO: add check for __traits(isZeroInit, K) and member `K.nullValue` == `K.init`
                    (__traits(hasMember, K, `nullValue`) && // if key has a null value
                     __traits(compiles, { enum _ = isAllZeroBits!(K, K.nullValue); }) && // prevent strange error given when `K` is `knet.data.Data`
                     isAllZeroBits!(K, K.nullValue))) // check that it's zero bits only
         {
             // pragma(msg, "zero-allocate:", "K:", K, " V:", V);
-            // TODO use std.experimental.allocator.makeArray instead of this which handles clever checking for isZeroInit
+            // TODO: use std.experimental.allocator.makeArray instead of this which handles clever checking for isZeroInit
             import nxt.container_traits : makeInitZeroArray;
             auto store = makeInitZeroArray!(T, Allocator)(capacity);
             if (store.ptr is null && capacity >= 1)
@@ -606,7 +606,7 @@ if (isNullable!K /*&& !hasAliasing!K */)
             else
             {
                 import core.lifetime : emplace;
-                emplace(&storeCopy[index]); // TODO only emplace key and not value
+                emplace(&storeCopy[index]); // TODO: only emplace key and not value
                 keyOf(storeCopy[index]).nullify();
             }
 
@@ -616,7 +616,7 @@ if (isNullable!K /*&& !hasAliasing!K */)
                 immutable wordCount = holesWordCount(_store.length);
 
                 auto holesPtrCopy = makeUninitializedBitArray!Allocator(_store.length);
-                holesPtrCopy[0 .. wordCount] = _holesPtr[0 .. wordCount]; // TODO use memcpy instead?
+                holesPtrCopy[0 .. wordCount] = _holesPtr[0 .. wordCount]; // TODO: use memcpy instead?
 
                 return typeof(return)(storeCopy, _count, holesPtrCopy);
             }
@@ -638,7 +638,7 @@ if (isNullable!K /*&& !hasAliasing!K */)
                     auto valuePtr = bin.key in rhs;
                     if (!valuePtr)
                         return false;
-                    // TODO make != a parameter that can also be typically !is. TODO ask forum about this
+                    // TODO: make != a parameter that can also be typically !is. TODO: ask forum about this
                     if ((*valuePtr) != bin.value)
                         return false;
                 }
@@ -882,7 +882,7 @@ if (isNullable!K /*&& !hasAliasing!K */)
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
 
         immutable hitIndex = indexOfKeyOrVacancySkippingHoles(adjustKeyType(key));
-        // TODO update holes
+        // TODO: update holes
         return (hitIndex != _store.length &&
                 isOccupiedAtIndex(hitIndex));
     }
@@ -937,7 +937,7 @@ if (isNullable!K /*&& !hasAliasing!K */)
      */
     void insertN(R)(R elements) @trusted
     if (isIterable!R &&
-        __traits(isCopyable, T))           // TODO support uncopyable T?
+        __traits(isCopyable, T))           // TODO: support uncopyable T?
     {
         static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
         import std.range.primitives : hasLength;
@@ -955,7 +955,7 @@ if (isNullable!K /*&& !hasAliasing!K */)
     }
 
     /// Is `true` iff in-place rehashing during growth should be performed.
-    enum bool growInPlaceFlag = false; // TODO warning growInPlaceWithCapacity is buggy
+    enum bool growInPlaceFlag = false; // TODO: warning growInPlaceWithCapacity is buggy
 
     /// Numerator for grow scale.
     enum growScaleP = 3;
@@ -1072,7 +1072,7 @@ if (isNullable!K /*&& !hasAliasing!K */)
                 import core.lifetime : moveEmplace;
                 T currentElement = void;
 
-                // TODO functionize:
+                // TODO: functionize:
                 moveEmplace(_store[doneIndex], currentElement);
                 static if (isInstanceOf!(Nullable, K))
                     keyOf(_store[doneIndex]).nullify(); // `moveEmplace` doesn't init source of type Nullable
@@ -1094,7 +1094,7 @@ if (isNullable!K /*&& !hasAliasing!K */)
                     {
                         T nextElement = void;
 
-                        // TODO functionize:
+                        // TODO: functionize:
                         moveEmplace(_store[hitIndex], nextElement); // save non-free slot
                         static if (isInstanceOf!(Nullable, K))
                             keyOf(_store[hitIndex]).nullify(); // `moveEmplace` doesn't init source of type Nullable
@@ -1151,7 +1151,7 @@ if (isNullable!K /*&& !hasAliasing!K */)
                                                                             oldLength,
                                                                             _store.length);
 
-            // TODO make this an array operation `nullifyAll` or `nullifyN`
+            // TODO: make this an array operation `nullifyAll` or `nullifyN`
             foreach (ref bin; _store[oldLength .. newCapacity])
                 keyOf(bin).nullify(); // move this `init` to reallocate() above?
 
@@ -1369,7 +1369,7 @@ if (isNullable!K /*&& !hasAliasing!K */)
             if (hit)
             {
                 auto typedHit = cast(typeof(return))*hit;
-                assert(typedHit, "Expected class " ~ Class.stringof ~ " but got hit was of other type"); // TODO give warning or throw
+                assert(typedHit, "Expected class " ~ Class.stringof ~ " but got hit was of other type"); // TODO: give warning or throw
                 return typedHit;
             }
             return null;
@@ -1395,7 +1395,7 @@ if (isNullable!K /*&& !hasAliasing!K */)
         }
 
         /// Indexing.
-        scope ref inout(V) opIndex(SomeKey)(const scope SomeKey key) inout return @trusted // `auto ref` here makes things slow. TODO @nogc
+        scope ref inout(V) opIndex(SomeKey)(const scope SomeKey key) inout return @trusted // `auto ref` here makes things slow. TODO: @nogc
         if (isScopedKeyType!(typeof(key)))
         {
             version(LDC) pragma(inline, true);
@@ -1404,7 +1404,7 @@ if (isNullable!K /*&& !hasAliasing!K */)
                 isOccupiedAtIndex(hitIndex))
                 return _store[hitIndex].value;
             import core.exception : RangeError;
-            throw new RangeError("Key not found"); // TODO use assert instead?
+            throw new RangeError("Key not found"); // TODO: use assert instead?
         }
 
         /** Get value of `key` or `defaultValue` if `key` not present (and
@@ -1412,7 +1412,7 @@ if (isNullable!K /*&& !hasAliasing!K */)
          *
          * Returns: value reference iff `defaultValue` is an l-value.
          *
-         * TODO make `defaultValue` `lazy` when that can be `nothrow`
+         * TODO: make `defaultValue` `lazy` when that can be `nothrow`
          */
         auto ref inout(V) get()(const scope K key, // template-lazy
                                 auto ref inout(V) defaultValue) inout
@@ -1443,7 +1443,7 @@ if (isNullable!K /*&& !hasAliasing!K */)
 
         /** Supports the syntax `aa[key] = value;`.
          */
-        ref V opIndexAssign()(V value, K key) // template-lazy. TODO return scope
+        ref V opIndexAssign()(V value, K key) // template-lazy. TODO: return scope
         {
             version(LDC) pragma(inline, true);
             assert(!key.isNull);
@@ -1471,8 +1471,8 @@ if (isNullable!K /*&& !hasAliasing!K */)
             return _store[hitIndex].value;
         }
 
-        ref V opIndexOpAssign(string op, Rhs)(Rhs rhs, K key) // TODO return scope
-        // if (true)               // TODO pre-check that mixin will work
+        ref V opIndexOpAssign(string op, Rhs)(Rhs rhs, K key) // TODO: return scope
+        // if (true)               // TODO: pre-check that mixin will work
         {
             // pragma(msg, "opIndexOpAssign: Key:", K, " Value:", V, " Rhs:", Rhs, " op:", op);
             assert(!key.isNull);
@@ -1498,11 +1498,11 @@ if (isNullable!K /*&& !hasAliasing!K */)
                                op == "*")
                     {
                         static if (is(V : Rhs[])) // isDynamicArray of `Rhs`
-                            insertElementAtIndex(T(key, [rhs]), // TODO if `V(rhs)` is not supported use `V.init` followed by `OP= rhs`
+                            insertElementAtIndex(T(key, [rhs]), // TODO: if `V(rhs)` is not supported use `V.init` followed by `OP= rhs`
                                                  index);
                         else
                             // dbg("opIndexOpAssign-new: k:", key, " rhs:", rhs);
-                            insertElementAtIndex(T(key, V(rhs)), // TODO if `V(rhs)` is not supported use `V.init` followed by `OP= rhs`
+                            insertElementAtIndex(T(key, V(rhs)), // TODO: if `V(rhs)` is not supported use `V.init` followed by `OP= rhs`
                                                  index);
                     }
                     else
@@ -1573,7 +1573,7 @@ if (isNullable!K /*&& !hasAliasing!K */)
             is(typeof(Keys.front == K.init)))
         {
             static if (borrowChecked) { debug assert(!isBorrowed, borrowedErrorMessage); }
-            rehash!("!a.isNull && keys.canFind(a)")(); // TODO make this work
+            rehash!("!a.isNull && keys.canFind(a)")(); // TODO: make this work
             return 0;
         }
     }
@@ -1604,7 +1604,7 @@ if (isNullable!K /*&& !hasAliasing!K */)
             static if (__traits(isCopyable, T))
                 /* don't use `auto ref` for copyable `T`'s to prevent
                  * massive performance drop for small elements when compiled
-                 * with LDC. TODO remove when LDC is fixed. */
+                 * with LDC. TODO: remove when LDC is fixed. */
                 alias pred = (const scope element) => (keyEqualPredFn(keyOf(element),
                                                                       keyOf(currentElement)));
             else
@@ -1774,7 +1774,7 @@ private:
      * (ignoring) lazily deleted slots.
      */
     private size_t indexOfKeyOrVacancySkippingHoles(const scope K key) const @trusted scope // `auto ref` here makes things slow
-    // TODO if (...)
+    // TODO: if (...)
     {
         version(LDC) pragma(inline, true);
         version(unittest)
@@ -1840,7 +1840,7 @@ private:
                              const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
                                                                (keyOf(element).isNull ||
                                                                 keyEqualPredFn(keyOf(element), key)));
-            alias holePred = (const scope index, // TODO use only index
+            alias holePred = (const scope index, // TODO: use only index
                               const scope auto ref element) => (hasHoleAtPtrIndex(_holesPtr, index));
         }
 
@@ -1866,7 +1866,7 @@ private:
 }
 
 /** Duplicate `src` into uninitialized `dst` ignoring prior destruction of `dst`.
- * TODO move to more generic place
+ * TODO: move to more generic place
  */
 static private void duplicateEmplace(T)(const scope ref T src,
                                         scope ref T dst) @system
@@ -1883,7 +1883,7 @@ static private void duplicateEmplace(T)(const scope ref T src,
         else static if (isBasicType!T ||
                         isInstanceOf!(Nullable, T)) // `Nullable` types cannot be emplaced
             dst = src;
-        else                    // TODO can this case occur?
+        else                    // TODO: can this case occur?
         {
             import core.internal.traits : Unqual;
             import core.lifetime : emplace;
@@ -1893,7 +1893,7 @@ static private void duplicateEmplace(T)(const scope ref T src,
     else static if (__traits(hasMember, T, "dup"))
     {
         import core.lifetime : emplace;
-        // TODO when `emplace` can handle src being an r-value of uncopyable types replace with: `emplace(&dst, src.dup);`
+        // TODO: when `emplace` can handle src being an r-value of uncopyable types replace with: `emplace(&dst, src.dup);`
         emplace(&dst);
         dst = src.dup;
     }
@@ -2047,11 +2047,11 @@ import std.functional : unaryFun;
 
 /** Remove all elements in `x` matching `pred`.
  *
- * TODO make this generic for all iterable containers and move to
+ * TODO: make this generic for all iterable containers and move to
  * container_algorithm.
  */
 size_t removeAllMatching(alias pred, SomeMap)(auto ref SomeMap x) @trusted
-if (isInstanceOf!(OpenHashMap, SomeMap) && // TODO generalize to `isSetOrMap`
+if (isInstanceOf!(OpenHashMap, SomeMap) && // TODO: generalize to `isSetOrMap`
     is(typeof((unaryFun!pred))))
 {
     import nxt.nullable_traits : nullify;
@@ -2070,14 +2070,14 @@ if (isInstanceOf!(OpenHashMap, SomeMap) && // TODO generalize to `isSetOrMap`
         }
     }
     x._count = x._count - removalCount;
-    return removalCount;        // TODO remove this return value
+    return removalCount;        // TODO: remove this return value
 }
 
 /** Returns: `x` eagerly filtered on `pred`.
-    TODO move to container_algorithm.d with more generic template restrictions
+    TODO: move to container_algorithm.d with more generic template restrictions
 */
 SomeMap filtered(alias pred, SomeMap)(SomeMap x)
-if (isInstanceOf!(OpenHashMap, SomeMap)) // TODO generalize to `isSetOrMap`
+if (isInstanceOf!(OpenHashMap, SomeMap)) // TODO: generalize to `isSetOrMap`
 {
     import core.lifetime : move;
     import std.functional : not;
@@ -2086,11 +2086,11 @@ if (isInstanceOf!(OpenHashMap, SomeMap)) // TODO generalize to `isSetOrMap`
 }
 
 /** Returns: `x` eagerly intersected with `y`.
-    TODO move to container_algorithm.d.
+    TODO: move to container_algorithm.d.
  */
 auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
-if (isInstanceOf!(OpenHashMap, C1) && // TODO generalize to `isSetOrMap`
-    isInstanceOf!(OpenHashMap, C2))   // TODO generalize to `isSetOrMap`
+if (isInstanceOf!(OpenHashMap, C1) && // TODO: generalize to `isSetOrMap`
+    isInstanceOf!(OpenHashMap, C2))   // TODO: generalize to `isSetOrMap`
 {
     import core.lifetime : move;
     static if (__traits(isRef, y)) // y is l-value
@@ -2260,8 +2260,8 @@ unittest
     assert(x.containsUsingLinearSearch("b"));
 
     debug static assert(!__traits(compiles, { testEscapeShouldFail(); } ));
-    // TODO this should fail:
-    // TODO debug static assert(!__traits(compiles, { testEscapeShouldFailFront(); } ));
+    // TODO: this should fail:
+    // TODO: debug static assert(!__traits(compiles, { testEscapeShouldFailFront(); } ));
 }
 
 /// `string` as key
@@ -2329,7 +2329,7 @@ unittest
             x[key] = value.dup;
             assert(x.length == i + 1);
             assert(x.contains(key));
-            // TODO assert(x.containsUsingLinearSearch(key));
+            // TODO: assert(x.containsUsingLinearSearch(key));
             {
                 auto valuePtr = key in x;
                 assert(valuePtr && *valuePtr == value);
@@ -2502,7 +2502,7 @@ unittest
 }
 
 /** Returns: `x` eagerly intersected with `y`.
-    TODO move to container_algorithm.d.
+    TODO: move to container_algorithm.d.
  */
 auto intersectWith(C1, C2)(ref C1 x,
                            auto ref const(C2) y)
@@ -2538,7 +2538,7 @@ if (isInstanceOf!(OpenHashMap, C1) &&
 static struct ByLvalueElement(SomeMap) // public for now because this is needed in `knet.zing.Zing.EdgesOfRels`
 {
 pragma(inline, true):
-    // TODO functionize
+    // TODO: functionize
     import std.traits : isMutable;
     static if (isAddress!(SomeMap.ElementType)) // for reference types
     {
@@ -2617,7 +2617,7 @@ static private struct ByKey_lvalue(SomeMap)
 if (isInstanceOf!(OpenHashMap, SomeMap) &&
     SomeMap.hasValue)
 {
-    @property const scope auto ref front() return // key access must be const, TODO auto ref => ref K
+    @property const scope auto ref front() return // key access must be const, TODO: auto ref => ref K
     {
         version(D_Coverage) {} else pragma(inline, true);
         return _table._store[_binIndex].key;
@@ -2631,7 +2631,7 @@ static private struct ByKey_rvalue(SomeMap)
 if (isInstanceOf!(OpenHashMap, SomeMap) &&
     SomeMap.hasValue)
 {
-    @property const scope auto ref front() return // key access must be const, TODO auto ref => ref K
+    @property const scope auto ref front() return // key access must be const, TODO: auto ref => ref K
     {
         version(D_Coverage) {} else pragma(inline, true);
         return _table._store[_binIndex].key;
@@ -2643,7 +2643,7 @@ if (isInstanceOf!(OpenHashMap, SomeMap) &&
 
 /** Returns: range that iterates through the keys of `c` in undefined order.
  */
-auto byKey(SomeMap)(auto ref /*TODO return*/ SomeMap c) @trusted
+auto byKey(SomeMap)(auto ref /*TODO: return*/ SomeMap c) @trusted
 if (isInstanceOf!(OpenHashMap, SomeMap) &&
     SomeMap.hasValue)
 {
@@ -2667,12 +2667,12 @@ static private struct ByValue_lvalue(SomeMap)
 if (isInstanceOf!(OpenHashMap, SomeMap) &&
     SomeMap.hasValue)
 {
-    @property scope auto ref front() return @trusted // TODO auto ref => ref V
+    @property scope auto ref front() return @trusted // TODO: auto ref => ref V
     {
         version(D_Coverage) {} else pragma(inline, true);
-        // TODO functionize
+        // TODO: functionize
         import std.traits : isMutable;
-        static if (isMutable!(SomeMap)) // TODO can this be solved without this `static if`?
+        static if (isMutable!(SomeMap)) // TODO: can this be solved without this `static if`?
         {
             alias E = SomeMap.ValueType;
         }
@@ -2691,12 +2691,12 @@ static private struct ByValue_rvalue(SomeMap)
 if (isInstanceOf!(OpenHashMap, SomeMap) &&
     SomeMap.hasValue)
 {
-    @property scope auto ref front() return @trusted // TODO auto ref => ref V
+    @property scope auto ref front() return @trusted // TODO: auto ref => ref V
     {
         version(D_Coverage) {} else pragma(inline, true);
-        // TODO functionize
+        // TODO: functionize
         import std.traits : isMutable;
-        static if (isMutable!(SomeMap)) // TODO can this be solved without this `static if`?
+        static if (isMutable!(SomeMap)) // TODO: can this be solved without this `static if`?
         {
             alias E = SomeMap.ValueType;
         }
@@ -2738,10 +2738,10 @@ static private struct ByKeyValue_lvalue(SomeMap)
 if (isInstanceOf!(OpenHashMap, SomeMap) &&
     SomeMap.hasValue)
 {
-    @property scope auto ref front() return @trusted // TODO auto ref => ref T
+    @property scope auto ref front() return @trusted // TODO: auto ref => ref T
     {
         version(D_Coverage) {} else pragma(inline, true);
-        // TODO functionize
+        // TODO: functionize
         import std.traits : isMutable;
         static if (isMutable!(SomeMap))
         {
@@ -3409,7 +3409,7 @@ version(unittest)
                     assert(xc.contains(k11));
                     assert(xc.containsUsingLinearSearch(k11));
 
-                    // TODO http://forum.dlang.org/post/kvwrktmameivubnaifdx@forum.dlang.org
+                    // TODO: http://forum.dlang.org/post/kvwrktmameivubnaifdx@forum.dlang.org
                     xc.removeAllMatching!(_ => _ == k11);
 
                     assert(xc.length == 2);
@@ -3581,9 +3581,9 @@ version(unittest)
     alias X = OpenHashMap!(Nullable!(size_t, size_t.max), size_t, FNV!(64, true));
     import nxt.dynamic_array : Array = DynamicArray;
     X x;
-    // TODO these segfault:
-    // TODO auto a = Array!(X.KeyType).withElementsOfRange_untested(x.byKey); // l-value byKey
-    // TODO auto b = Array!(X.KeyType).withElementsOfRange_untested(X().byKey); // r-value byKey
+    // TODO: these segfault:
+    // TODO: auto a = Array!(X.KeyType).withElementsOfRange_untested(x.byKey); // l-value byKey
+    // TODO: auto b = Array!(X.KeyType).withElementsOfRange_untested(X().byKey); // r-value byKey
 }
 
 /// manual Nullable type
@@ -3625,7 +3625,7 @@ version(unittest)
     debug static assert(isNullable!ZingRelation);
 
     alias X = OpenHashSet!(ZingRelation, FNV!(64, true));
-    debug static assert(X.sizeof == 32); // TODO fix hole handling and change to 24
+    debug static assert(X.sizeof == 32); // TODO: fix hole handling and change to 24
     X x;
 
     scope e = ZingRelation(new Zing(42), Alt.init);
@@ -3801,7 +3801,7 @@ unittest
         assert(!x.containsUsingLinearSearch(Rel(ch.idup)));
         x.insert(Rel(ch.idup));
         assert(x.contains(Rel(ch.idup)));
-        /* TODO assert(x.containsUsingLinearSearch(Rel(ch.idup))); */
+        /* TODO: assert(x.containsUsingLinearSearch(Rel(ch.idup))); */
     }
 }
 
@@ -3827,7 +3827,7 @@ unittest
         assert(!a.containsUsingLinearSearch(k));
 
         assert(a.insert(K(ch)) == X.InsertionStatus.added);
-        // TODO assert(a.insertAndReturnElement(K(ch)) == k);
+        // TODO: assert(a.insertAndReturnElement(K(ch)) == k);
         assert(a.contains(k));
         assert(a.containsUsingLinearSearch(k));
 
@@ -3850,7 +3850,7 @@ unittest
         assert(!b.containsUsingLinearSearch(k));
 
         assert(b.insert(K(ch)) == X.InsertionStatus.added);
-        // TODO assert(b.insertAndReturnElement(K(ch)) == k);
+        // TODO: assert(b.insertAndReturnElement(K(ch)) == k);
 
         assert(b.contains(k));
         assert(b.containsUsingLinearSearch(k));
@@ -3922,7 +3922,7 @@ unittest
     import nxt.address : Address;
     alias K = Address;
     alias V = size_t;
-    enum bool usePrimeCapacity = false; // TODO enable
+    enum bool usePrimeCapacity = false; // TODO: enable
     alias M = OpenHashMap!(Address, V,
                            hashOf,
                            defaultKeyEqualPredOf!K,
@@ -3958,7 +3958,7 @@ unittest
         assert(!a.contains(k));
         assert(!a.contains(ch[]));                          // @nogc
         assert(a.getKeyRef(k, default_k)[] is default_k[]); // on miss use `default_k`
-        // TODO assert(a.getKeyRef(ch, default_k)[] is default_k[]); // on miss use `default_k`
+        // TODO: assert(a.getKeyRef(ch, default_k)[] is default_k[]); // on miss use `default_k`
 
         a[k] = V.init;
 
@@ -3966,7 +3966,7 @@ unittest
         assert(a.contains(ch[]));                    // @nogc
         assert(a.getKeyRef(k, default_k)[] !is k[]); // on hit doesn't use `default_k`
         assert(a.getKeyRef(k, default_k)[] == ch);
-        // TODO assert(a.getKeyRef(ch, default_k)[] !is k[]); // on hit doesn't use `default_k`
+        // TODO: assert(a.getKeyRef(ch, default_k)[] !is k[]); // on hit doesn't use `default_k`
         // assert(a.getKeyRef(ch, default_k)[] == ch);
     }
     assert(a.length == n);
@@ -3992,7 +3992,7 @@ unittest
         assert(!a.contains(k));
         assert(!a.contains(ch[]));                          // @nogc
         assert(a.getKeyRef(k, default_k)[] is default_k[]); // on miss use `default_k`
-        // TODO assert(a.getKeyRef(ch, default_k)[] is default_k[]); // on miss use `default_k`
+        // TODO: assert(a.getKeyRef(ch, default_k)[] is default_k[]); // on miss use `default_k`
 
         a[k] = V.init;
     }

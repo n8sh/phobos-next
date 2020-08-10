@@ -6,8 +6,8 @@ enum Growable { no, yes }
 /// Copyable flag.
 enum Copyable { no, yes }
 
-enum isDenseSetFilterable(E) = (__traits(isUnsigned, E)
-                                /* && cast(size_t)E.max <= uint.max */ );      // and small enough
+enum isDynamicDenseSetFilterable(E) = (__traits(isUnsigned, E)
+                                       /* && cast(size_t)E.max <= uint.max */ );      // and small enough
 
 /** Store presence of elements of type `E` in a set in the range `0 .. length`.
  *
@@ -21,7 +21,7 @@ struct DenseSetFilter(E,
                       // TODO: make these use the Flags template
                       Growable growable = Growable.yes,
                       Copyable copyable = Copyable.no)
-if (isDenseSetFilterable!E)
+if (isDynamicDenseSetFilterable!E)
 {
     import core.memory : malloc = pureMalloc, calloc = pureCalloc, realloc = pureRealloc;
     import core.bitop : bts, btr, btc, bt;

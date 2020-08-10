@@ -6,7 +6,7 @@ enum Growable { no, yes }
 /// Copyable flag.
 enum Copyable { no, yes }
 
-enum isDenseSetFilterable(E) = (is(typeof(cast(size_t)E.init)) // is castable to size_t
+enum isDenseSetFilterable(E) = (__traits(isUnsigned, E)
                                 /* && cast(size_t)E.max <= uint.max */ );      // and small enough
 
 /** Store presence of elements of type `E` in a set in the range `0 .. length`.
@@ -326,7 +326,7 @@ private:
 nothrow @nogc unittest          // TODO: pure when https://github.com/dlang/phobos/pull/4692/files has been merged
 {
     import std.typecons : RefCounted;
-    alias E = int;
+    alias E = uint;
 
     RefCounted!(DenseSetFilter!(E, Growable.yes)) set;
 

@@ -9,7 +9,7 @@ enum Copyable { no, yes }
 enum isDynamicDenseSetFilterable(E) = (__traits(isUnsigned, E)
                                        /* && cast(size_t)E.max <= uint.max */ );      // and small enough
 
-/** Store presence of elements of type `E` in a set in the range `0 .. length`.
+/** Store elements of type `E` in a set in the range `0 .. length`.
  *
  * Can be seen as a generalization of `std.typecons.BitFlags` to integer types.
  *
@@ -17,10 +17,10 @@ enum isDynamicDenseSetFilterable(E) = (__traits(isUnsigned, E)
  * graph traversal algorithms, this filter is typically used as a temporary set
  * node (integer) ids that checks if a node has been previously visisted or not.
  */
-struct DenseSetFilter(E,
-                      // TODO: make these use the Flags template
-                      Growable growable = Growable.yes,
-                      Copyable copyable = Copyable.no)
+struct DynamicDenseSetFilter(E,
+                             // TODO: make these use the Flags template
+                             Growable growable = Growable.yes,
+                             Copyable copyable = Copyable.no)
 if (isDynamicDenseSetFilterable!E)
 {
     import core.memory : malloc = pureMalloc, calloc = pureCalloc, realloc = pureRealloc;
@@ -240,14 +240,14 @@ private:
     alias E = uint;
 
     import std.range.primitives : isOutputRange;
-    alias Set = DenseSetFilter!(E, Growable.no);
+    alias Set = DynamicDenseSetFilter!(E, Growable.no);
     static assert(isOutputRange!(Set, E));
 
     const set0 = Set();
     assert(set0.capacity == 0);
 
     const length = 2^^6;
-    auto set = DenseSetFilter!(E, Growable.no)(2*length);
+    auto set = DynamicDenseSetFilter!(E, Growable.no)(2*length);
     const y = set.dup;
     assert(y.capacity == 2*length);
 
@@ -297,7 +297,7 @@ private:
 {
     alias E = uint;
 
-    auto set = DenseSetFilter!(E, Growable.yes)();
+    auto set = DynamicDenseSetFilter!(E, Growable.yes)();
     assert(set._length == 0);
 
     const length = 2^^16;
@@ -328,7 +328,7 @@ nothrow @nogc unittest          // TODO: pure when https://github.com/dlang/phob
     import std.typecons : RefCounted;
     alias E = uint;
 
-    RefCounted!(DenseSetFilter!(E, Growable.yes)) set;
+    RefCounted!(DynamicDenseSetFilter!(E, Growable.yes)) set;
 
     assert(set._length == 0);
     assert(set.capacity == 0);
@@ -346,7 +346,7 @@ nothrow @nogc unittest          // TODO: pure when https://github.com/dlang/phob
         assert(y._length == e + 1);
     }
 
-    const set1 = RefCounted!(DenseSetFilter!(E, Growable.yes))(42);
+    const set1 = RefCounted!(DynamicDenseSetFilter!(E, Growable.yes))(42);
     assert(set1._length == 42);
     assert(set1.capacity == 64);
 }
@@ -356,7 +356,7 @@ nothrow @nogc unittest          // TODO: pure when https://github.com/dlang/phob
 {
     enum E : ubyte { a, b, c, d, dAlias = d }
 
-    auto set = DenseSetFilter!(E, Growable.yes)();
+    auto set = DynamicDenseSetFilter!(E, Growable.yes)();
 
     assert(set._length == 0);
 
@@ -376,7 +376,7 @@ nothrow @nogc unittest          // TODO: pure when https://github.com/dlang/phob
 {
     enum E : ubyte { a, b, c, d, dAlias = d }
 
-    auto set = DenseSetFilter!(E, Growable.no).withInferredLength(); // TODO: use instantiator function here
+    auto set = DynamicDenseSetFilter!(E, Growable.no).withInferredLength(); // TODO: use instantiator function here
     assert(set.capacity == typeof(set).elementMaxCount);
 
     static assert(!__traits(compiles, { assert(set.contains(0)); }));

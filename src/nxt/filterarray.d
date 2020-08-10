@@ -4,7 +4,7 @@ import std.traits : isIntegral;
 
 import nxt.filters : isDenseSetFilterable;
 
-/** Container combining `DenseSetFilter` with growable array store.
+/** Container combining `DynamicDenseSetFilter` with growable array store.
  *
  * Has O(1) unordered element access via slicing.
  *
@@ -12,10 +12,10 @@ import nxt.filters : isDenseSetFilterable;
  *
  * TODO: better name?
  */
-struct DenseSetFilterGrowableArray(E, alias Allocator = null)
+struct DynamicDenseSetFilterGrowableArray(E, alias Allocator = null)
 if (isDenseSetFilterable!E)
 {
-    import nxt.filters : DenseSetFilter, Growable, Copyable;
+    import nxt.filters : DynamicDenseSetFilter, Growable, Copyable;
     import nxt.dynamic_array : DynamicArray;
 
     alias ElementType = E;
@@ -77,7 +77,7 @@ if (isDenseSetFilterable!E)
 
 private:
     // TODO: merge into store with only one length and capcity
-    DenseSetFilter!(E, Growable.yes, Copyable.no) _set;
+    DynamicDenseSetFilter!(E, Growable.yes, Copyable.no) _set;
     DynamicArray!(E, Allocator) _array;
 }
 
@@ -85,7 +85,7 @@ private:
 
 unittest
 {
-    DenseSetFilterGrowableArray!uint x;
+    DynamicDenseSetFilterGrowableArray!uint x;
 
     assert(!x.insert(42));
     assert(x.contains(42));

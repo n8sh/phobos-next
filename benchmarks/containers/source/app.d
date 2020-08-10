@@ -24,8 +24,8 @@ void main()
     import nxt.hash_functions;
     import nxt.digestx.fnv : FNV;
 
-    import nxt.filters : DenseSetFilter;
-    import nxt.filterarray : DenseSetFilterGrowableArray;
+    import nxt.filters : DynamicDenseSetFilter;
+    import nxt.filterarray : DynamicDenseSetFilterGrowableArray;
 
     import std.typecons : Nullable;
     import nxt.trie : RadixTreeSet;
@@ -88,8 +88,8 @@ void main()
 
     writefln("\nSets:\n");
 
-    foreach (A; AliasSeq!(DenseSetFilter!(uint),
-                          DenseSetFilterGrowableArray!(uint),
+    foreach (A; AliasSeq!(DynamicDenseSetFilter!(uint),
+                          DynamicDenseSetFilterGrowableArray!(uint),
 
                           // functions
                           // SSOHashSet!(uint, null, identityHash64Of),

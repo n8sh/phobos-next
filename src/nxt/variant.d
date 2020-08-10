@@ -1,5 +1,7 @@
 module nxt.variant;
 
+version(none):
+
 import nxt.dbgio : dbg;
 
 @safe pure:

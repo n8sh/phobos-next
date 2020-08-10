@@ -8,21 +8,15 @@ template hasStandardNullValue(T)
 {
     static if (is(T == class) ||
                is(T == typeof(null))) // fast compilation path
-    {
         enum hasStandardNullValue = true; // fast path first
-    }
     else static if (is(T == struct) ||
                     is(T == interface) ||
                     is(T == union))
-    {
         enum hasStandardNullValue = false;
-    }
     else                        // slow compilation path
-    {
         enum hasStandardNullValue = (is(T == U*, U) ||
                                      (is(T : const(E)[], E) &&
                                       !__traits(isStaticArray, T))); // `isDynamicArrayFast`
-    }
 }
 
 ///
@@ -85,30 +79,19 @@ template isNullable(T)
                is(T == typeof(null)) ||
                (is(T : const(E)[], E) &&
                 !__traits(isStaticArray, T))) // `isDynamicArrayFast`
-    {
         enum isNullable = true; // fast path first, prevent instantiation of `hasStandardNullValue`
-    }
     else static if (hasStandardNullValue!T)
-    {
         enum isNullable = true;
-    }
     else static if (hasMemberNullValue!T)
-    {
         enum isNullable = true;
-    }
     else static if (__traits(hasMember, T, "nullifier"))
-    {
         enum isNullable = isNullable!(typeof(T.nullifier)); // TODO: require it to be an alias?
-    }
     else static if ((__traits(hasMember, T, "isNull") && // fast
                      __traits(hasMember, T, "nullify"))) // fast
-    {
         // lazy: only try semantic analysis when members exists
         enum isNullable = (is(typeof(T.init.isNull()) == bool)  &&
                            is(typeof(T.init.nullify()) == void));
-    }
     else
-    {
         // TODO: remove this later on
         // importf std.meta : anySatisfy;
         // static if ((is(T == struct) && // unions excluded for now
@@ -120,7 +103,6 @@ template isNullable(T)
         // {
             enum isNullable = false;
         // }
-    }
 }
 
 ///
@@ -160,13 +142,9 @@ template isNullable(T)
 template defaultNullKeyConstantOf(T)
 {
     static if (isNullable!T)
-    {
         enum defaultNullKeyConstantOf = T.init;
-    }
     else
-    {
         static assert(0, "Unsupported type " ~ T.stringof);
-    }
 }
 
 ///
@@ -203,30 +181,18 @@ if (isNullable!(T))
     version(D_Coverage) {} else pragma(inline, true);
     static if (is(T == class) ||
                is(T == typeof(null))) // fast compilation path
-    {
         return x is null;
-    }
     else static if (is(T : const(E)[], E) &&
                     !__traits(isStaticArray, T)) // `isDynamicArrayFast`
-    {
         return x.ptr is null;   // no need to check `length`, as in `x.ptr == T.init`
-    }
     else static if (hasStandardNullValue!T)
-    {
         return x is T.init;
-    }
     else static if (hasMemberNullValue!T)
-    {
         return x is T.nullValue;
-    }
     else static if (__traits(hasMember, T, "nullifier"))
-    {
         return x.nullifier.isNull;
-    }
     else
-    {
         static assert(0, "Unsupported type " ~ T.stringof);
-    }
 }
 
 void nullify(T)(scope ref T x) @safe pure nothrow @nogc
@@ -235,25 +201,15 @@ if (isNullable!(T))
     version(D_Coverage) {} else pragma(inline, true);
     static if (is(T == class) ||
                is(T == typeof(null))) // fast compilation path
-    {
         x = null;
-    }
     else static if (hasStandardNullValue!T)
-    {
         x = T.init;
-    }
     else static if (hasMemberNullValue!T)
-    {
         x = T.nullValue;
-    }
     else static if (__traits(hasMember, T, "nullifier"))
-    {
         x.nullifier.nullify();
-    }
     else
-    {
         static assert(0, "Unsupported type " ~ T.stringof);
-    }
 }
 
 ///

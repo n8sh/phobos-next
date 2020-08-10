@@ -49,10 +49,10 @@ version(show)
  * See_Also: https://blog.rust-lang.org/2019/01/17/Rust-1.32.0.html#the-dbg-macro
  * See_Also: https://forum.dlang.org/post/svjjawiezudnugdyriig@forum.dlang.org
  */
-void dbg(string file = __FILE__,
-         uint line = __LINE__,
-         string fun = __FUNCTION__,
-         Args...)(Args args) @safe pure nothrow @nogc
+void dbg(Args...)(Args args,
+                  const string file = __FILE__,
+                  const uint line = __LINE__,
+                  const string fun = __FUNCTION__) @safe pure nothrow @nogc
 {
     try
     {
@@ -65,8 +65,8 @@ void dbg(string file = __FILE__,
 ///
 @safe pure nothrow @nogc unittest
 {
-    // int x = 42;
-    // dbg("x: ", x);
+    int x = 42;
+    dbg("x: ", x);
     static assert(__traits(compiles, { dbg(); })); // ok for dln to discard function qualifiers
 }
 

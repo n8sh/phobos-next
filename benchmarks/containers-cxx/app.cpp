@@ -33,7 +33,7 @@ std::string& inplace_replace_all(std::string& s, const std::string& from, const 
     return s;
 }
 
-using Sample = double;                ///< Sample.
+using Sample = long;                ///< Sample.
 using Samples = std::vector<Sample>; ///< Samples.
 using Clock = cr::high_resolution_clock;
 using Dur = decltype(Clock::now() - Clock::now()); ///< Duration.

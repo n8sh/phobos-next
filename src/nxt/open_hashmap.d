@@ -1606,7 +1606,7 @@ if (isNullable!K /*&& !hasAliasing!K */)
 
         foreach (const ref currentElement; range)
         {
-            static if (passElementByValue)
+            static if (__traits(isCopyable, T)) // TODO why does using `passElementByValue` fail as an expression here?
                 /* don't use `auto ref` for copyable `T`'s to prevent
                  * massive performance drop for small elements when compiled
                  * with LDC. TODO: remove when LDC is fixed. */

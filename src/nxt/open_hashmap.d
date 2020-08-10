@@ -59,6 +59,8 @@ alias Flags = BitFlags!Flag;    ///< Use as Flags flags param to `OpenHashMap`
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  * See_Also: https://gankro.github.io/blah/hashbrown-insert/
  *
+ * TODO remove branching on `passByValueMaxSize` when https://github.com/dlang/dmd/pull/11000 has been merged
+ *
  * TODO: Disable pragma(inline, true) and rebenchmark
  *
  * TODO: tests fails when `useSmallLinearSearch` is set to `false`
@@ -159,6 +161,7 @@ if (isNullable!K /*&& !hasAliasing!K */)
     }
     else
         alias keyEqualPredFn = keyEqualPred;
+
 
     private enum isSlice(T) = is(T : const(E)[], E);
 
@@ -373,6 +376,10 @@ if (isNullable!K /*&& !hasAliasing!K */)
 
         enum nullKeyElement = defaultNullKeyConstantOf!K;
     }
+
+    // TODO remove when https://github.com/dlang/dmd/pull/11000 has been merged
+    static if (__traits(isCopyable, T))
+        enum passByValueMaxSize = 8;
 
     /** Is `true` if an instance of `SomeKey` that can be implictly cast to `K`.
      *
@@ -1783,14 +1790,28 @@ private:
                 return _store.length;
             }
 
-        static if (hasHoleableKey)
-            alias pred = (const scope auto ref element) => (keyOf(element).isNull ||
-                                                            keyEqualPredFn(keyOf(element), key));
+        static if (__traits(isCopyable, T) && T.sizeof <= passByValueMaxSize) // Ref: https://github.com/dlang/dmd/pull/11000#issuecomment-671103778
+        {
+            static if (hasHoleableKey)
+                alias pred = (const scope element) => (keyOf(element).isNull ||
+                                                       keyEqualPredFn(keyOf(element), key));
+            else
+                alias pred = (const scope index,
+                              const scope element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
+                                                       (keyOf(element).isNull ||
+                                                        keyEqualPredFn(keyOf(element), key)));
+        }
         else
-            alias pred = (const scope index,
-                          const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
-                                                            (keyOf(element).isNull ||
-                                                             keyEqualPredFn(keyOf(element), key)));
+        {
+            static if (hasHoleableKey)
+                alias pred = (const scope auto ref element) => (keyOf(element).isNull ||
+                                                                keyEqualPredFn(keyOf(element), key));
+            else
+                alias pred = (const scope index,
+                              const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
+                                                                (keyOf(element).isNull ||
+                                                                 keyEqualPredFn(keyOf(element), key)));
+        }
 
         static if (usePrimeCapacity)
             return xxx;
@@ -1818,20 +1839,41 @@ private:
                 return _store.length;
             }
 
-        static if (hasHoleableKey)
+        static if (__traits(isCopyable, T) && T.sizeof <= passByValueMaxSize) // Ref: https://github.com/dlang/dmd/pull/11000#issuecomment-671103778
         {
-            alias hitPred = (const scope auto ref element) => (keyOf(element).isNull ||
-                                                               keyEqualPredFn(keyOf(element), key));
-            alias holePred = (const scope auto ref element) => (isHoleKeyConstant(keyOf(element)));
+            static if (hasHoleableKey)
+            {
+                alias hitPred = (const scope element) => (keyOf(element).isNull ||
+                                                          keyEqualPredFn(keyOf(element), key));
+                alias holePred = (const scope element) => (isHoleKeyConstant(keyOf(element)));
+            }
+            else
+            {
+                alias hitPred = (const scope index,
+                                 const scope element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
+                                                          (keyOf(element).isNull ||
+                                                           keyEqualPredFn(keyOf(element), key)));
+                alias holePred = (const scope index, // TODO: use only index
+                                  const scope element) => (hasHoleAtPtrIndex(_holesPtr, index));
+            }
         }
         else
         {
-            alias hitPred = (const scope index,
-                             const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
-                                                               (keyOf(element).isNull ||
-                                                                keyEqualPredFn(keyOf(element), key)));
-            alias holePred = (const scope index, // TODO: use only index
-                              const scope auto ref element) => (hasHoleAtPtrIndex(_holesPtr, index));
+            static if (hasHoleableKey)
+            {
+                alias hitPred = (const scope auto ref element) => (keyOf(element).isNull ||
+                                                                   keyEqualPredFn(keyOf(element), key));
+                alias holePred = (const scope auto ref element) => (isHoleKeyConstant(keyOf(element)));
+            }
+            else
+            {
+                alias hitPred = (const scope index,
+                                 const scope auto ref element) => (!hasHoleAtPtrIndex(_holesPtr, index) &&
+                                                                   (keyOf(element).isNull ||
+                                                                    keyEqualPredFn(keyOf(element), key)));
+                alias holePred = (const scope index, // TODO: use only index
+                                  const scope auto ref element) => (hasHoleAtPtrIndex(_holesPtr, index));
+            }
         }
 
         static if (usePrimeCapacity)

@@ -5,15 +5,14 @@ import std.traits : isIntegral;
 import nxt.filters : isDenseSetFilterable;
 
 /** Container combining `DenseSetFilter` with growable array store.
-
-    Has O(1) unordered element access via slicing.
-
-    For use in graph algorithms with limited index ranges.
-
-    TODO: better name?
+ *
+ * Has O(1) unordered element access via slicing.
+ *
+ * For use in graph algorithms with limited index ranges.
+ *
+ * TODO: better name?
  */
-struct DenseSetFilterGrowableArray(E,
-                                   alias Allocator = null)
+struct DenseSetFilterGrowableArray(E, alias Allocator = null)
 if (isDenseSetFilterable!E)
 {
     import nxt.filters : DenseSetFilter, Growable, Copyable;

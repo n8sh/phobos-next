@@ -467,8 +467,7 @@ template isStaticDenseFilterableType(E)
  * TODO: Add operators for bitwise `and` and `or` operations similar to
  * https://dlang.org/library/std/typecons/bit_flags.html
  */
-struct StaticDenseSetFilter(E,
-                            bool requestPacked = true)
+struct StaticDenseSetFilter(E, bool requestPacked = true)
 if (isStaticDenseFilterableType!E)
 {
     import std.range.primitives : ElementType;

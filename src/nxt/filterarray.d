@@ -31,9 +31,7 @@ if (isDynamicDenseSetFilterable!E)
     {
         const hit = _set.insert(e);
         if (!hit)
-        {
             _array.insertBack(e);
-        }
         return hit;
     }
     alias put = insert;         // OutputRange compatibility

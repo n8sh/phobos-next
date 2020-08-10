@@ -426,23 +426,23 @@ nothrow @nogc unittest          // TODO: pure when https://github.com/dlang/phob
 */
 template isStaticDenseFilterableType(E)
 {
-    import std.traits : hasIndirections, isUnsigned, isSomeChar;
-    static if (is(E == enum) ||
-               isUnsigned!E ||
-               isSomeChar!E)
-    {
+    static if (is(E == enum))
         enum isStaticDenseFilterableType = true;
-    }
-    else static if (is(typeof(E.init.toUnsigned)))
-    {
-        alias UnsignedType = typeof(E.init.toUnsigned());
-        enum isStaticDenseFilterableType = (isUnsigned!UnsignedType &&
-                                            is(typeof(E.fromUnsigned(UnsignedType.init))) &&
-                                            !hasIndirections!E);
-    }
     else
     {
-        enum isStaticDenseFilterableType = false;
+        import std.traits : hasIndirections, isUnsigned, isSomeChar;
+        static if (isUnsigned!E ||
+                   isSomeChar!E)
+            enum isStaticDenseFilterableType = true;
+        else static if (is(typeof(E.init.toUnsigned)))
+        {
+            alias UnsignedType = typeof(E.init.toUnsigned());
+            enum isStaticDenseFilterableType = (isUnsigned!UnsignedType &&
+                                                is(typeof(E.fromUnsigned(UnsignedType.init))) &&
+                                                !hasIndirections!E);
+        }
+        else
+            enum isStaticDenseFilterableType = false;
     }
 }
 

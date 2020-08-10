@@ -43,7 +43,7 @@ if (isDenseSetFilterable!E)
         }
     }
 
-    /// Construct set to store at most `length` number of bits.
+    /// Construct set to store E-values in the range `[0 .. length[`.
     this(size_t length) @trusted
     {
         _blocksPtr = null;

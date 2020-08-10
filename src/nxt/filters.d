@@ -458,13 +458,14 @@ template isStaticDenseFilterableType(E)
 }
 
 /** Store presence of elements of type `E` in a set in the range `0 .. length`.
-    Can be seen as a generalization of `std.typecons.BitFlags` to integer types.
-
-    Typically used to implement very fast membership checking in sets of
-    enumerators.
-
-    TODO: Add operators for bitwise `and` and `or` operations similar to
-    https://dlang.org/library/std/typecons/bit_flags.html
+ *
+ * Can be seen as a generalization of `std.typecons.BitFlags` to integer types.
+ *
+ * Typically used to implement very fast membership checking in sets of
+ * enumerators.
+ *
+ * TODO: Add operators for bitwise `and` and `or` operations similar to
+ * https://dlang.org/library/std/typecons/bit_flags.html
  */
 struct StaticDenseSetFilter(E,
                             bool requestPacked = true)

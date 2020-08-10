@@ -122,11 +122,16 @@ if (isDenseSetFilterable!E)
             {
                 const oldBlockCount = blockCount;
                 import std.math : nextPow2;
-                this._capacity = newLength.nextPow2;
+                _capacity = newLength.nextPow2;
                 _blocksPtr = cast(Block*)realloc(_blocksPtr,
                                                  blockCount * Block.sizeof);
                 _blocksPtr[oldBlockCount .. blockCount] = 0;
             }
+        }
+        private void assureLength(size_t newLength) @trusted // template-lazy
+        {
+            if (_length < newLength)
+                _length = newLength;
         }
     }
 
@@ -141,7 +146,7 @@ if (isDenseSetFilterable!E)
         static if (growable == Growable.yes)
         {
             assureCapacity(ix + 1);
-            _length = ix + 1;
+            assureLength(ix + 1);
         }
         else
             assert(ix < _capacity);
@@ -160,7 +165,7 @@ if (isDenseSetFilterable!E)
         static if (growable == Growable.yes)
         {
             assureCapacity(ix + 1);
-            _length = ix + 1;
+            assureLength(ix + 1);
         }
         else
             assert(ix < _capacity);
@@ -178,7 +183,7 @@ if (isDenseSetFilterable!E)
         static if (growable == Growable.yes)
         {
             assureCapacity(ix + 1);
-            _length = ix + 1;
+            assureLength(ix + 1);
         }
         else
             assert(ix < _capacity);

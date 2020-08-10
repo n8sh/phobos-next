@@ -38,7 +38,7 @@ if (isDenseSetFilterable!E)
         /// Construct from inferred capacity and length `elementMaxCount`.
         static typeof(this) withInferredLength()
         {
-            version(D_Coverage) {} else pragma(inline, true);
+            version(D_Coverage) {} else version(LDC) pragma(inline, true);
             return typeof(return)(elementMaxCount);
         }
     }
@@ -81,9 +81,7 @@ if (isDenseSetFilterable!E)
         release();
         _blocksPtr = null;
         static if (growable == Growable.yes)
-        {
             _length = 0;
-        }
         _capacity = 0;
     }
 
@@ -105,9 +103,7 @@ if (isDenseSetFilterable!E)
         {
             typeof(return) copy;
             static if (growable == Growable.yes)
-            {
                 copy._length = this._length;
-            }
             copy._capacity = this._capacity;
             copy._blocksPtr = cast(Block*)malloc(blockCount * Block.sizeof);
             copy._blocksPtr[0 .. blockCount] = this._blocksPtr[0 .. blockCount];
@@ -148,9 +144,7 @@ if (isDenseSetFilterable!E)
             _length = ix + 1;
         }
         else
-        {
             assert(ix < _capacity);
-        }
         return bts(_blocksPtr, ix) != 0;
     }
     alias put = insert;         // OutputRange compatibility
@@ -169,9 +163,7 @@ if (isDenseSetFilterable!E)
             _length = ix + 1;
         }
         else
-        {
             assert(ix < _capacity);
-        }
         return btr(_blocksPtr, ix) != 0;
     }
 
@@ -189,9 +181,7 @@ if (isDenseSetFilterable!E)
             _length = ix + 1;
         }
         else
-        {
             assert(ix < _capacity);
-        }
         return btc(_blocksPtr, ix) != 0;
     }
 
@@ -201,13 +191,9 @@ if (isDenseSetFilterable!E)
         version(D_Coverage) {} else pragma(inline, true);
         const ix = cast(size_t)e;
         static if (growable == Growable.yes)
-        {
             return ix < _length && bt(_blocksPtr, ix) != 0;
-        }
         else
-        {
             return ix < _capacity && bt(_blocksPtr, ix) != 0;
-        }
     }
     /// ditto
     bool opBinaryRight(string op)(in E e) const
@@ -245,14 +231,8 @@ private:
     alias Block = size_t;       /// Allocated block type.
     Block* _blocksPtr;          /// Pointer to blocks of bits.
     static if (growable == Growable.yes)
-    {
         size_t _length;         /// Offset + 1 of highest set bit.
-        size_t _capacity;       /// Number of bits allocated.
-    }
-    else
-    {
-        size_t _capacity;       /// Number of bits allocated.
-    }
+    size_t _capacity;       /// Number of bits allocated.
 }
 
 ///
@@ -631,6 +611,7 @@ if (isStaticDenseFilterableType!E)
     typeof(this) opOpAssign(string op)(auto ref in typeof(this) e)
         if (op == "|" || op == "&" || op == "^")
     {
+        version(DigitalMars) pragma(inline, false);
         mixin(`_blocks[] ` ~ op ~ `= e._blocks[];`);
         return this;
     }

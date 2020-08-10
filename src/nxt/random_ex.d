@@ -365,9 +365,9 @@ alias randomized = randomInstanceOf;
 
 /** Random number generator xoroshiro128+
 
-   See_Also: http://xoroshiro.di.unimi.it/
-   See_Also: http://forum.dlang.org/post/kdobdorqztlsomweftmi@forum.dlang.org
-   See_Also: https://www.reddit.com/r/programming/comments/4gtlfz/xoroshiro128_the_fastest_fullperiod_pseudorandom/
+    See_Also: http://xoroshiro.di.unimi.it/
+    See_Also: http://forum.dlang.org/post/kdobdorqztlsomweftmi@forum.dlang.org
+    See_Also: https://www.reddit.com/r/programming/comments/4gtlfz/xoroshiro128_the_fastest_fullperiod_pseudorandom/
  */
 struct Xoroshiro128plus
 {

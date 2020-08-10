@@ -28,36 +28,30 @@ if (is(typeof(unaryFun!pred(T.init))) ||
     assert((~mask ^ mask) == typeof(return).max); // std.math.isPowerOf2(haystack.length)
 
     static if (assumeNonFullHaystack)
-    {
         assert(haystack.length != 0, "haystack cannot be empty");
-    }
 
     // search using triangular numbers as increments
     size_t indexIncrement = 0;
     while (true)
     {
         static if (assumeNonFullHaystack)
-        {
             assert(indexIncrement != haystack.length,
                    "no element in `haystack` matches `pred`, cannot used sentinel-based probing");
-        }
         else
-        {
             if (indexIncrement == haystack.length) { return haystack.length; }
-        }
 
         static if (is(typeof(unaryFun!pred(T.init))))
         {
-            if (unaryFun!pred(haystack[index])) { return index; }
+            if (unaryFun!pred(haystack[index]))
+                return index;
         }
         else static if (is(typeof(binaryFun!pred(size_t.min, T.init))))
         {
-            if (binaryFun!pred(index, haystack[index])) { return index; }
+            if (binaryFun!pred(index, haystack[index]))
+                return index;
         }
         else
-        {
             static assert(0, "Unsupported predicate of type " ~ typeof(pred).stringof);
-        }
 
         indexIncrement += 1;
         index = (index + indexIncrement) & mask; // next triangular number modulo length
@@ -94,46 +88,43 @@ if ((is(typeof(unaryFun!hitPred(T.init))) ||
     assert((~mask ^ mask) == typeof(return).max); // std.math.isPowerOf2(haystack.length)
 
     static if (assumeNonFullHaystack)
-    {
         assert(haystack.length != 0, "haystack cannot be empty");
-    }
 
     // search using triangular numbers as increments
     size_t indexIncrement = 0;
     while (true)
     {
         static if (assumeNonFullHaystack)
-        {
             assert(indexIncrement != haystack.length,
                    "no element in `haystack` matches `hitPred`, cannot used sentinel-based probing");
-        }
         else
-        {
-            if (indexIncrement == haystack.length) { return haystack.length; }
-        }
+            if (indexIncrement == haystack.length)
+                return haystack.length;
 
         static if (is(typeof(unaryFun!hitPred(T.init))))
         {
-            if (unaryFun!hitPred(haystack[index])) { return index; }
+            if (unaryFun!hitPred(haystack[index]))
+                return index;
         }
         else static if (is(typeof(binaryFun!hitPred(size_t.min, T.init))))
         {
-            if (binaryFun!hitPred(index, haystack[index])) { return index; }
+            if (binaryFun!hitPred(index, haystack[index]))
+                return index;
         }
         else
-        {
             static assert(0, "Unsupported hit predicate of type " ~ typeof(hitPred).stringof);
-        }
 
         if (holeIndex == size_t.max) // if not yet initialized
         {
             static if (is(typeof(unaryFun!holePred(T.init))))
             {
-                if (unaryFun!holePred(haystack[index])) { holeIndex = index; }
+                if (unaryFun!holePred(haystack[index]))
+                    holeIndex = index;
             }
             else static if (is(typeof(binaryFun!holePred(size_t.min, T.init))))
             {
-                if (binaryFun!holePred(index, haystack[index])) { holeIndex = index; }
+                if (binaryFun!holePred(index, haystack[index]))
+                    holeIndex = index;
             }
         }
 
@@ -153,8 +144,10 @@ if (is(typeof(unaryFun!pred(T.init))))
     size_t indexIncrement = 0;
     while (true)
     {
-        if (indexIncrement == haystack.length) { return indexIncrement + 1; }
-        if (unaryFun!pred(haystack[index])) { return indexIncrement + 1; }
+        if (indexIncrement == haystack.length)
+            return indexIncrement + 1;
+        if (unaryFun!pred(haystack[index]))
+            return indexIncrement + 1;
         indexIncrement += 1;
         index = (index + indexIncrement) & mask; // next triangular number modulo length
     }

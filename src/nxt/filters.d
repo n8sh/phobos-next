@@ -115,21 +115,24 @@ if (isDenseSetFilterable!E)
 
     static if (growable == Growable.yes)
     {
-        /// Expand to capacity to make room for at least `newLength`.
-        private void assureCapacity()(size_t newLength) @trusted // template-lazy
+        /// Assure capacity is at least `newLength`.
+        private void assureCapacity()(size_t newCapacity) @trusted // template-lazy
         {
-            if (_capacity < newLength)
+            if (_capacity < newCapacity)
             {
                 const oldBlockCount = blockCount;
                 import std.math : nextPow2;
-                _capacity = newLength.nextPow2;
+                _capacity = newCapacity.nextPow2;
                 _blocksPtr = cast(Block*)realloc(_blocksPtr,
                                                  blockCount * Block.sizeof);
                 _blocksPtr[oldBlockCount .. blockCount] = 0;
             }
         }
+
+        /// Assure length (and capacity) is at least `newLength`.
         private void assureLength(size_t newLength) @trusted // template-lazy
         {
+            assureCapacity(newLength);
             if (_length < newLength)
                 _length = newLength;
         }
@@ -144,10 +147,7 @@ if (isDenseSetFilterable!E)
         version(D_Coverage) {} else pragma(inline, true);
         const ix = cast(size_t)e;
         static if (growable == Growable.yes)
-        {
-            assureCapacity(ix + 1);
             assureLength(ix + 1);
-        }
         else
             assert(ix < _capacity);
         return bts(_blocksPtr, ix) != 0;
@@ -163,10 +163,7 @@ if (isDenseSetFilterable!E)
         version(D_Coverage) {} else pragma(inline, true);
         const ix = cast(size_t)e;
         static if (growable == Growable.yes)
-        {
-            assureCapacity(ix + 1);
             assureLength(ix + 1);
-        }
         else
             assert(ix < _capacity);
         return btr(_blocksPtr, ix) != 0;
@@ -181,10 +178,7 @@ if (isDenseSetFilterable!E)
         version(D_Coverage) {} else pragma(inline, true);
         const ix = cast(size_t)e;
         static if (growable == Growable.yes)
-        {
-            assureCapacity(ix + 1);
             assureLength(ix + 1);
-        }
         else
             assert(ix < _capacity);
         return btc(_blocksPtr, ix) != 0;

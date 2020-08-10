@@ -7,10 +7,13 @@
     See_Also: http://forum.dlang.org/thread/byonwfghdqgcirdjyboh@forum.dlang.org
 
     TODO: Can these be tagged with @nogc? Currently std.random.uniform may allocate.
+
     TODO: Tags as nothrow when std.random gets there.
+
     TODO: How to handle possibly null reference (class, dynamic types) types?
     Answer relates to how to randomize empty/null variable length structures
     (arrays, strings, etc).
+
     - Maybe some kind of length randomization?
  */
 module nxt.random_ex;

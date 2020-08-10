@@ -363,9 +363,7 @@ nothrow @nogc unittest          // TODO: pure when https://github.com/dlang/phob
 
     import std.traits : EnumMembers;
     foreach (const lang; [EnumMembers!E])
-    {
         assert(!set.contains(lang));
-    }
     foreach (const lang; [EnumMembers!E])
     {
         set.insert(lang);
@@ -473,13 +471,9 @@ if (isStaticDenseFilterableType!E)
             if (contains(e))
             {
                 if (other)
-                {
                     str.put(", ");
-                }
                 else
-                {
                     other = true;
-                }
                 str.put(e.to!string);
             }
         }
@@ -488,16 +482,12 @@ if (isStaticDenseFilterableType!E)
         {
             import std.traits : EnumMembers;
             foreach (const e; [EnumMembers!E])
-            {
                 putElement(e);
-            }
         }
         else
         {
             foreach (const i; E.unsignedMin .. E.unsignedMax + 1)
-            {
                 putElement(E.fromUnsigned(i));
-            }
         }
 
         str.put("])");
@@ -513,9 +503,7 @@ if (isStaticDenseFilterableType!E)
             isAssignable!(E, ElementType!R))
     {
         foreach (const ref e; r)
-        {
             insert(e);
-        }
     }
 
     /** Construct from `r` if `r` is non-empty, otherwise construct a full set.
@@ -526,9 +514,7 @@ if (isStaticDenseFilterableType!E)
     {
         import std.range.primitives : empty;
         if (r.empty)
-        {
             return asFull();
-        }
         return typeof(return)(r);
     }
 
@@ -548,13 +534,9 @@ if (isStaticDenseFilterableType!E)
     {
         import nxt.bitop_ex : setBit;
         static if (isPackedInScalar)
-        {
             _blocks[0].setBit(cast(size_t)e);
-        }
         else
-        {
             bts(_blocksPtr, cast(size_t)e);
-        }
     }
     alias put = insert;         // OutputRange compatibility
 
@@ -564,13 +546,9 @@ if (isStaticDenseFilterableType!E)
     {
         import nxt.bitop_ex : resetBit;
         static if (isPackedInScalar)
-        {
             _blocks[0].resetBit(cast(size_t)e);
-        }
         else
-        {
             btr(_blocksPtr, cast(size_t)e);
-        }
     }
 
     @property:
@@ -581,14 +559,9 @@ if (isStaticDenseFilterableType!E)
     {
         import nxt.bitop_ex : testBit;
         static if (isPackedInScalar)
-        {
-            auto y = _blocks[0].testBit(cast(size_t)e);
-            return y;
-        }
+            return _blocks[0].testBit(cast(size_t)e);
         else
-        {
             return bt(_blocksPtr, cast(size_t)e) != 0;
-        }
     }
 
     /// ditto

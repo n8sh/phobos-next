@@ -59,7 +59,8 @@ alias Flags = BitFlags!Flag;    ///< Use as Flags flags param to `OpenHashMap`
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  * See_Also: https://gankro.github.io/blah/hashbrown-insert/
  *
- * TODO replace remove branching on `passElementByValue` when https://github.com/dlang/dmd/pull/11000 has been merged and use `in` instead
+ * TODO replace remove branching on `passElementByValue` when
+ * https://github.com/dlang/dmd/pull/11000 has been merged and use `in` instead
  *
  * TODO: Disable pragma(inline, true) and rebenchmark
  *

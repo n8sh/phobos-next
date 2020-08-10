@@ -44,7 +44,7 @@ if (isDenseSetFilterable!E)
     }
 
     /// Construct set to store E-values in the range `[0 .. length[`.
-    this(size_t length) @trusted
+    this(in size_t length) @trusted
     {
         _blocksPtr = null;
         static if (growable == Growable.yes)

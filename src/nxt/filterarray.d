@@ -2,7 +2,7 @@ module nxt.filterarray;
 
 import std.traits : isIntegral;
 
-import nxt.filters : isDenseSetFilterable;
+import nxt.filters : isDynamicDenseSetFilterable;
 
 /** Container combining `DynamicDenseSetFilter` with growable array store.
  *
@@ -13,7 +13,7 @@ import nxt.filters : isDenseSetFilterable;
  * TODO: better name?
  */
 struct DynamicDenseSetFilterGrowableArray(E, alias Allocator = null)
-if (isDenseSetFilterable!E)
+if (isDynamicDenseSetFilterable!E)
 {
     import nxt.filters : DynamicDenseSetFilter, Growable, Copyable;
     import nxt.dynamic_array : DynamicArray;

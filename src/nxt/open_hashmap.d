@@ -2064,8 +2064,9 @@ if (isInstanceOf!(OpenHashMap, SomeMap) && // TODO: generalize to `isSetOrMap`
 }
 
 /** Returns: `x` eagerly filtered on `pred`.
-    TODO: move to container_algorithm.d with more generic template restrictions
-*/
+ *
+ * TODO: move to container_algorithm.d with more generic template restrictions
+ */
 SomeMap filtered(alias pred, SomeMap)(SomeMap x)
 if (isInstanceOf!(OpenHashMap, SomeMap)) // TODO: generalize to `isSetOrMap`
 {
@@ -2076,7 +2077,9 @@ if (isInstanceOf!(OpenHashMap, SomeMap)) // TODO: generalize to `isSetOrMap`
 }
 
 /** Returns: `x` eagerly intersected with `y`.
-    TODO: move to container_algorithm.d.
+ *
+ * TODO: move to container_algorithm.d.
+ * TODO: Check that `ElementType`'s of `C1` and `C2` match. Look at std.algorithm.intersection for hints.
  */
 auto intersectedWith(C1, C2)(C1 x, auto ref C2 y)
 if (isInstanceOf!(OpenHashMap, C1) && // TODO: generalize to `isSetOrMap`
@@ -2590,9 +2593,7 @@ if (isInstanceOf!(OpenHashMap, SomeMap) &&
     alias M = Unqual!SomeMap;
     alias C = const(SomeMap);        // be const for now
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
-    {
         auto result = ByLvalueElement!C((LvalueElementRef!(M)(cast(M*)&c)));
-    }
     else                        // `c` was is an r-value and can be moved
     {
         import core.lifetime : move;
@@ -2641,9 +2642,7 @@ if (isInstanceOf!(OpenHashMap, SomeMap) &&
     alias M = Unqual!SomeMap;
     alias C = const(SomeMap);        // be const
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
-    {
         auto result = ByKey_lvalue!C((LvalueElementRef!(M)(cast(M*)&c)));
-    }
     else                        // `c` was is an r-value and can be moved
     {
         import core.lifetime : move;
@@ -2663,13 +2662,9 @@ if (isInstanceOf!(OpenHashMap, SomeMap) &&
         // TODO: functionize
         import std.traits : isMutable;
         static if (isMutable!(SomeMap)) // TODO: can this be solved without this `static if`?
-        {
             alias E = SomeMap.ValueType;
-        }
         else
-        {
             alias E = const(SomeMap.ValueType);
-        }
         return *(cast(E*)&_table._store[_binIndex].value);
     }
     import core.internal.traits : Unqual;
@@ -2687,13 +2682,9 @@ if (isInstanceOf!(OpenHashMap, SomeMap) &&
         // TODO: functionize
         import std.traits : isMutable;
         static if (isMutable!(SomeMap)) // TODO: can this be solved without this `static if`?
-        {
             alias E = SomeMap.ValueType;
-        }
         else
-        {
             alias E = const(SomeMap.ValueType);
-        }
         return *(cast(E*)&_table._store[_binIndex].value);
     }
     import core.internal.traits : Unqual;
@@ -2712,9 +2703,7 @@ if (isInstanceOf!(OpenHashMap, SomeMap) &&
     alias M = Unqual!SomeMap;
     alias C = const(SomeMap);
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
-    {
         auto result = ByValue_lvalue!SomeMap((LvalueElementRef!(M)(cast(M*)&c)));
-    }
     else                        // `c` was is an r-value and can be moved
     {
         import core.lifetime : move;
@@ -2734,13 +2723,9 @@ if (isInstanceOf!(OpenHashMap, SomeMap) &&
         // TODO: functionize
         import std.traits : isMutable;
         static if (isMutable!(SomeMap))
-        {
             alias E = SomeMap.KeyValueType;
-        }
         else
-        {
             alias E = const(SomeMap.T);
-        }
         return *(cast(E*)&_table._store[_binIndex]);
     }
     import core.internal.traits : Unqual;
@@ -2757,9 +2742,7 @@ if (isInstanceOf!(OpenHashMap, SomeMap) &&
     import core.internal.traits : Unqual;
     alias M = Unqual!SomeMap;
     static if (__traits(isRef, c)) // `c` is an l-value and must be borrowed
-    {
         auto result = ByKeyValue_lvalue!SomeMap((LvalueElementRef!(M)(cast(M*)&c)));
-    }
     else                        // `c` was is an r-value and can be moved
     {
         import core.lifetime : move;
@@ -3186,13 +3169,9 @@ version(unittest)
     T make(T)(ulong value)
     {
         static if (is(T == class))
-        {
             return new T(value);
-        }
         else
-        {
             return T(value);
-        }
     }
 }
 
@@ -3216,25 +3195,17 @@ version(unittest)
         foreach (key; keys)
         {
             static if (X.hasValue)
-            {
                 const element = X.ElementType(key, V.init);
-            }
             else
-            {
                 alias element = key;
-            }
 
             assert(x.length == n - key.get);
 
             const hitPtr = key in x;
             static if (X.hasValue)
-            {
                 assert(hitPtr && *hitPtr is element.value);
-            }
             else
-            {
                 assert(hitPtr && *hitPtr is element);
-            }
 
             assert(x.remove(key));
             assert(x.length == n - key.get - 1);
@@ -3276,10 +3247,8 @@ version(unittest)
                          y.byKeyValue));
         }
         else
-        {
             assert(equal(x.byElement,
                          y.byElement));
-        }
 
         debug static assert(!__traits(compiles, { const _ = x < y; })); // no ordering
 
@@ -3372,13 +3341,9 @@ version(unittest)
                     assert(!y.contains(e));
                     assert(!y.containsUsingLinearSearch(e));
                     static if (is(K == class))
-                    {
                         y.insert(cast(K)e); // ugly but ok in tests
-                    }
                     else
-                    {
                         y.insert(e);
-                    }
                     assert(y.contains(e));
                     assert(y.containsUsingLinearSearch(e));
                     ix++;
@@ -3479,10 +3444,8 @@ version(unittest)
                     auto element = X.ElementType(key, value);
                 }
                 else
-                {
                     // no assignment because Nullable.opAssign may leave rhs in null state
                     auto element = key;
-                }
 
                 assert(key !in x1);
 
@@ -3509,20 +3472,14 @@ version(unittest)
 
                 const hitPtr = key in x1;
                 static if (X.hasValue)
-                {
                     assert(hitPtr && *hitPtr == value);
-                }
                 else
-                {
                     assert(hitPtr && *hitPtr is key);
-                }
 
                 auto status = x1.insert(element);
                 assert(status == X.InsertionStatus.unmodified);
                 static if (X.hasValue)
-                {
                     assert(x1.insert(key, value) == X.InsertionStatus.unmodified);
-                }
                 assert(x1.length == key.get + 1);
 
                 assert(key in x1);
@@ -4024,17 +3981,13 @@ enum isHoleable(T) = (// __traits(hasMember, T, "isHole") &&
 template defaultKeyEqualPredOf(T)
 {
     static if (is(T == class))
-    {
         // static assert(__traits(hasMember, T, "opEquals"),
         //               "Type" ~ T.stringof ~ " doesn't have local opEquals() defined");
         // enum defaultKeyEqualPredOf = "a && b && a.opEquals(b)";
         enum defaultKeyEqualPredOf = "a is b";
         // (const T a, const T b) => ((a !is null) && (b !is null) && a.opEquals(b));
-    }
     else
-    {
         enum defaultKeyEqualPredOf = "a == b";
-    }
 }
 
 ///

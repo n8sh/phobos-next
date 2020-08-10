@@ -59,7 +59,7 @@ alias Flags = BitFlags!Flag;    ///< Use as Flags flags param to `OpenHashMap`
  * See_Also: https://forum.dlang.org/post/ejqhcsvdyyqtntkgzgae@forum.dlang.org
  * See_Also: https://gankro.github.io/blah/hashbrown-insert/
  *
- * TODO remove branching on `passByValueMaxSize` when https://github.com/dlang/dmd/pull/11000 has been merged
+ * TODO replace remove branching on `passByValue` when https://github.com/dlang/dmd/pull/11000 has been merged and use `in` instead
  *
  * TODO: Disable pragma(inline, true) and rebenchmark
  *
@@ -378,8 +378,9 @@ if (isNullable!K /*&& !hasAliasing!K */)
     }
 
     // TODO remove when https://github.com/dlang/dmd/pull/11000 has been merged
-    static if (__traits(isCopyable, T))
-        enum passByValueMaxSize = 8;
+    enum passElementByValue = (__traits(isCopyable, T) &&
+                               is(T U == __argTypes) &&
+                               U.length >= 1);
 
     /** Is `true` if an instance of `SomeKey` that can be implictly cast to `K`.
      *
@@ -1076,9 +1077,15 @@ if (isNullable!K /*&& !hasAliasing!K */)
 
                 while (true)
                 {
-                    alias pred = (const scope index,
-                                  const scope auto ref element) => (!isOccupiedAtIndex(index) || // free slot
-                                                                    !bt(dones, index)); // or a not yet replaced element
+                    // TODO remove param `element`
+                    static if (passElementByValue)
+                        alias pred = (const scope index,
+                                      const scope element) => (!isOccupiedAtIndex(index) || // free slot
+                                                               !bt(dones, index)); // or a not yet replaced element
+                    else
+                        alias pred = (const scope index,
+                                      const scope ref element) => (!isOccupiedAtIndex(index) || // free slot
+                                                                   !bt(dones, index)); // or a not yet replaced element
                     static if (usePrimeCapacity)
                         immutable hitIndex = xxx;
                     else
@@ -1598,15 +1605,15 @@ if (isNullable!K /*&& !hasAliasing!K */)
 
         foreach (const ref currentElement; range)
         {
-            static if (__traits(isCopyable, T))
+            static if (passElementByValue)
                 /* don't use `auto ref` for copyable `T`'s to prevent
                  * massive performance drop for small elements when compiled
                  * with LDC. TODO: remove when LDC is fixed. */
                 alias pred = (const scope element) => (keyEqualPredFn(keyOf(element),
                                                                       keyOf(currentElement)));
             else
-                alias pred = (const scope auto ref element) => (keyEqualPredFn(keyOf(element),
-                                                                               keyOf(currentElement)));
+                alias pred = (const scope ref element) => (keyEqualPredFn(keyOf(element),
+                                                                          keyOf(currentElement)));
 
             static if (usePrimeCapacity)
                 const probeCount = xxx;
@@ -1790,7 +1797,7 @@ private:
                 return _store.length;
             }
 
-        static if (__traits(isCopyable, T) && T.sizeof <= passByValueMaxSize) // Ref: https://github.com/dlang/dmd/pull/11000#issuecomment-671103778
+        static if (passElementByValue) // Ref: https://github.com/dlang/dmd/pull/11000#issuecomment-671103778
         {
             static if (hasHoleableKey)
                 alias pred = (const scope element) => (keyOf(element).isNull ||
@@ -1839,7 +1846,7 @@ private:
                 return _store.length;
             }
 
-        static if (__traits(isCopyable, T) && T.sizeof <= passByValueMaxSize) // Ref: https://github.com/dlang/dmd/pull/11000#issuecomment-671103778
+        static if (passElementByValue) // Ref: https://github.com/dlang/dmd/pull/11000#issuecomment-671103778
         {
             static if (hasHoleableKey)
             {

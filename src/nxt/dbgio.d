@@ -54,11 +54,9 @@ void dbg(Args...)(Args args,
                   const uint line = __LINE__,
                   const string fun = __FUNCTION__) @safe pure nothrow @nogc
 {
+    import std.stdio : stderr, writeln;
     try
-    {
-        import std.stdio : stderr, writeln;
         debug stderr.writeln(file, ":", line, ":", " Info: ", args);
-    }
     catch (Exception) { }
 }
 
@@ -96,13 +94,17 @@ if (Args.length >= 1)
         import std.stdio: write, writeln;
         try
         {
-            debug write(file, ":",line, ":" /* , ": in ",fun */, " debug: ");
-            foreach (const i, Arg; Args)
+            debug
             {
-                if (i) debug write(", "); // separator
-                debug write(Args[i].stringof, ":", Arg);
+                write(file, ":",line, ":" /* , ": in ",fun */, " debug: ");
+                foreach (const i, Arg; Args)
+                {
+                    if (i)
+                        write(", "); // separator
+                    write(Args[i].stringof, ":", Arg);
+                }
+                writeln();
             }
-            debug writeln();
         }
         catch (Exception) { }
     }
@@ -167,13 +169,9 @@ template dbgImpl(args...)
         static foreach(f; FieldNameTuple!(typeof(o)))
         {
             static if (isBuiltinType!(typeof(__traits(getMember, o, f))))
-            {
                 dbgstr ~= format("%s:%s, ", f, __traits(getMember, o, f));
-            }
             else static if (isAggregateType!(typeof(__traits(getMember, o, f))))
-            {
                 dbgstr ~= format("%s = %s, ", f, toDbgString(__traits(getMember, o, f)));
-            }
         }
         return dbgstr[0..$-2] ~ ")";
     }

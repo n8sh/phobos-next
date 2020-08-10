@@ -4,7 +4,7 @@ import std.traits : isIntegral;
 
 import nxt.filters : isDynamicDenseSetFilterable;
 
-/** Container combining `DynamicDenseSetFilter` with growable array store.
+/** Hybrid container combining `DynamicDenseSetFilter` growable into `DynamicArray`.
  *
  * Has O(1) unordered element access via slicing.
  *

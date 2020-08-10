@@ -371,7 +371,7 @@ alias randomized = randomInstanceOf;
  */
 struct Xoroshiro128plus
 {
-    @safe pure nothrow @nogc:
+@safe pure nothrow @nogc:
     public:
 
     enum ulong min = ulong.min;

@@ -81,9 +81,7 @@ void main()
         writefln(` for %s`, A.stringof);
 
         static if (hasMember!(A, `clear`))
-        {
             a.clear();
-        }
     }
 
     writefln("\nSets:\n");
@@ -156,31 +154,21 @@ void main()
             {
                 static if (hasMember!(A, `ElementType`) &&
                            is(A.ElementType == ubyte[]))
-                {
                     a.insert(i.toUbytes);
-                }
                 else
                 {
                     static if (hasMember!(A, `ElementType`))
                     {
                         static if (is(A.ElementType == Address))
-                        {
                             const element = A.ElementType(i + 1); ///< Start at 1 instead of 0 because `Address` uses 0 for `nullValue`.
-                        }
                         else static if (is(A.ElementType == SSOString) ||
                                         is(A.ElementType == string))
-                        {
                             const element = A.ElementType(to!string(i));
-                        }
                         else
-                        {
                             const element = A.ElementType(i);
-                        }
                     }
                     else
-                    {
                         const element = i;
-                    }
                     a.insert(element);
                 }
             }
@@ -195,39 +183,25 @@ void main()
             {
                 static if (hasMember!(A, `ElementType`) &&
                            is(A.ElementType == ubyte[]))
-                {
                     hitCount += a.contains(i.toUbytes);
-                }
                 else
                 {
                     static if (hasMember!(A, `ElementType`))
                     {
                         static if (is(A.ElementType == Address))
-                        {
                             const element = A.ElementType(i + 1); ///< Start at 1 instead of 0 because `Address` uses 0 for `nullValue`.
-                        }
                         else static if (is(A.ElementType == SSOString) ||
                                         is(A.ElementType == string))
-                        {
                             const element = A.ElementType(to!string(i));
-                        }
                         else
-                        {
                             const element = A.ElementType(i); // wrap in `i` in `Nullable`
-                        }
                     }
                     else
-                    {
                         const element = i;
-                    }
                     static if (hasMember!(A, "contains"))
-                    {
                         hitCount += a.contains(element);
-                    }
                     else
-                    {
                         hitCount += element in a;
-                    }
                 }
             }
             const ok = hitCount == elementCount; // for side effect in output
@@ -272,31 +246,21 @@ void main()
                 {
                     static if (hasMember!(A, `ElementType`) &&
                                is(A.ElementType == ubyte[]))
-                    {
                         b.insert(i.toUbytes);
-                    }
                     else
                     {
                         static if (hasMember!(A, `ElementType`))
                         {
                             static if (is(A.ElementType == Address))
-                            {
                                 const element = A.ElementType(i + 1); ///< Start at 1 instead of 0 because `Address` uses 0 for `nullValue`.
-                            }
                             else static if (is(A.ElementType == SSOString) ||
                                             is(A.ElementType == string))
-                            {
                                 const element = A.ElementType(to!string(i));
-                            }
                             else
-                            {
                                 const element = A.ElementType(i); // wrap in `i` in `Nullable`
-                            }
                         }
                         else
-                        {
                             const element = i;
-                        }
                         b.insert(element);
                     }
                 }
@@ -309,24 +273,16 @@ void main()
         writef(` for %s`, A.stringof);
 
         static if (hasMember!(A, `binCounts`))
-        {
             writef(" %s", a.binCounts());
-        }
         static if (hasMember!(A, `smallBinCapacity`))
-        {
             writef(" smallBinCapacity:%s", A.smallBinCapacity);
-        }
         static if (hasMember!(A, `averageProbeCount`))
-        {
             writef(" averageProbeCount:%s", a.averageProbeCount);
-        }
 
         writeln();
 
         static if (hasMember!(A, `clear`))
-        {
             a.clear();
-        }
     }
 
     writefln("\nMaps:\n");
@@ -381,14 +337,10 @@ void main()
                 foreach (immutable i; testSource)
                 {
                     static if (is(A.KeyType == Address))
-                    {
                         const element = A.ElementType(Address(keys[i] + 1), // avoid `Address.nullValue`
                                                       A.ValueType.init);
-                    }
                     else
-                    {
                         const element = A.ElementType(keys[i], A.ValueType.init);
-                    }
                     a.insert(element);
                 }
                 spans_ns[runIx] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
@@ -407,16 +359,13 @@ void main()
                 foreach (immutable i; testSource)
                 {
                     static if (is(A.KeyType == Address))
-                    {
                         hitCount += a.contains(Address(keys[i] + 1)); // avoid `Address.nullValue`
-                    }
                     else
-                    {
                         hitCount += a.contains(keys[i]);
-                    }
                 }
                 const ok = hitCount == elementCount; // for side effect in output
-                if (!ok) { okAll = false; }
+                if (!ok)
+                    okAll = false;
                 spans_ns[runIx] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
             }
             writef(", contains: %3.1f ns/op (%s)",
@@ -434,16 +383,13 @@ void main()
                 foreach (immutable i; testSource)
                 {
                     static if (is(A.KeyType == Address))
-                    {
                         hitCount += cast(bool)(Address(keys[i] + 1) in a); // avoid `Address.nullValue`
-                    }
                     else
-                    {
                         hitCount += cast(bool)(keys[i] in a);
-                    }
                 }
                 const ok = hitCount == elementCount; // for side effect in output
-                if (!ok) { okAll = false; }
+                if (!ok)
+                    okAll = false;
                 spans_ns[runIx] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
             }
             writef(", in: %3.1f ns/op (%s)",
@@ -460,13 +406,9 @@ void main()
                 foreach (immutable i; testSource)
                 {
                     static if (is(A.KeyType == Address))
-                    {
                         b.insert(A.ElementType(Address(keys[i] + 1), A.ValueType.init)); // avoid `Address.nullValue`
-                    }
                     else
-                    {
                         b.insert(A.ElementType(keys[i], A.ValueType.init));
-                    }
                 }
                 spans_ns[runIx] = cast(double)(MonoTime.currTime() - startTime).total!"nsecs";
             }
@@ -476,21 +418,16 @@ void main()
         writef(` for %s`, A.stringof);
 
         static if (hasMember!(A, `binCounts`))
-        {
             writef(" %s", a.binCounts());
-        }
         static if (hasMember!(A, `smallBinCapacity`))
-        {
             writef(" smallBinCapacity:%s", A.smallBinCapacity);
-        }
         static if (hasMember!(A, `totalProbeCount`))
-        {
             writef(" averageProbeCount:%s", cast(double)a.totalProbeCount/a.length);
-        }
 
         writeln();
 
-        static if (hasMember!(A, `clear`)) { a.clear(); }
+        static if (hasMember!(A, `clear`))
+            a.clear();
     }
 
     writefln("\nBuiltin Assocative Arrays:\n");
@@ -573,9 +510,7 @@ void main()
         writeln();
 
         static if (hasMember!(A, `clear`))
-        {
             a.clear();
-        }
     }
 }
 
@@ -588,48 +523,32 @@ if (is(A == class) ||
 {
     import std.traits : hasMember;
     static if (hasMember!(A, `withCapacity`))
-    {
         return A.withCapacity(elementCount);
-    }
     else static if (hasMember!(A, `reserve`))
     {
         static if (is(A == class))
-        {
             A a = new A();
-        }
         else
-        {
             A a;
-        }
         static if (hasMember!(A, `reserve`) &&
                    __traits(compiles, { a.reserve(elementCount); }))
-        {
             a.reserve(elementCount);
-        }
         else static if (hasMember!(A, `reserve`) &&
                         __traits(compiles, { a.reserve!uint(elementCount); }))
-        {
             a.reserve!uint(elementCount);
-        }
         return a;
     }
     else static if (is(A == class))
-    {
         return new A();
-    }
     else static if (isDynamicArray!A)
     {
         import std.range.primitives : ElementType;
         return new ElementType!A[elementCount];
     }
     else static if (is(A == struct))
-    {
         return A();
-    }
     else
-    {
         static assert(false, "Unsupported type `" ~ A.stringof ~ "`");
-    }
 }
 
 private T[] iotaArrayOf(T, U)(U begin, U end)
@@ -638,21 +557,15 @@ private T[] iotaArrayOf(T, U)(U begin, U end)
     foreach (immutable i; begin .. end)
     {
         static if (is(typeof(T(i)))) // if possible
-        {
             es[i] = T(i);       // try normal construction
-        }
         else
         {
             import nxt.sso_string : SSOString;
             import std.conv : to;
             static if (is(T == SSOString))
-            {
                 es[i] = T(i.to!string);     // otherwise conv which may allocate
-            }
             else
-            {
                 es[i] = i.to!T;     // otherwise conv which may allocate
-            }
         }
     }
     return es;

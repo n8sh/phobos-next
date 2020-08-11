@@ -50,13 +50,13 @@ version(show)
  * See_Also: https://forum.dlang.org/post/svjjawiezudnugdyriig@forum.dlang.org
  */
 void dbg(Args...)(Args args,
-                  const string file = __FILE__,
+                  const string file = __FILE_FULL_PATH__,
                   const uint line = __LINE__,
                   const string fun = __FUNCTION__) @safe pure nothrow @nogc
 {
     import std.stdio : stderr, writeln;
     try
-        debug stderr.writeln(file, ":", line, ":", " Debug: ", args);
+        debug stderr.writeln(file, "(", line, "):", " Debug: ", args);
     catch (Exception) { }
 }
 

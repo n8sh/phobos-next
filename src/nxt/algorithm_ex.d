@@ -34,13 +34,9 @@ if (a.length != 0 &&
     allSame!Ts)         // TODO: better trait for this?
 {
     static if (Ts.length == 1)
-    {
         return a[0];
-    }
     else
-    {
         return a[0] ? a[0] : eitherRef(a[1 .. $]); // recurse
-    }
 }
 
 ///
@@ -65,13 +61,9 @@ if (T.length != 0)
 {
     auto a0 = a[0]();           // evaluate only once
     static if (T.length == 1)
-    {
         return a0;
-    }
     else
-    {
         return a0 ? every(a[1 .. $]) : CommonType!T.init; // recurse
-    }
 }
 
 ///
@@ -96,13 +88,9 @@ version(none) // WARNING disabled because I don't see any use of this for.
     if (T.length != 0 && allSame!T)
     {
         static if (T.length == 1)
-        {
             return a[0];
-        }
         else
-        {
             return a[0] ? every(a[1 .. $]) : a[0]; // recurse
-        }
     }
 
     ///
@@ -182,18 +170,12 @@ import std.typecons : Nullable;
 bool hasContents(T)(in T a)
 {
     static if (isInstanceOf!(Nullable, T))
-    {
         return !a.isNull;
-    }
     else static if (isArray!T ||
                     isSomeString!T)
-    {
         return cast(bool)a.length; // see: http://stackoverflow.com/questions/18563414/empty-string-should-implicit-convert-to-bool-true/18566334?noredirect=1#18566334
-    }
     else
-    {
         return cast(bool)a;
-    }
 }
 
 /** Reset `a` to its default value.
@@ -207,13 +189,9 @@ bool hasContents(T)(in T a)
 auto ref reset(T)(ref T a) @trusted // pure nothrow
 {
     static if (isInstanceOf!(Nullable, T))
-    {
         a.nullify();
-    }
     else
-    {
         return a = T.init;
-    }
 }
 
 ///
@@ -258,9 +236,7 @@ auto findInOrder(alias pred = `a == b`,
     {
         hit = finder!pred(hit, needle);
         if (hit.empty)
-        {
             break;
-        }
     }
     return hit;
 }
@@ -289,9 +265,11 @@ if (isBidirectionalRange!(R))
     while (!range.empty)
     {
         import std.range.primitives : front, back, popFront, popBack;
-        if (range.front != range.back) { return false; }
+        if (range.front != range.back)
+            return false;
         range.popFront(); ++i;
-        if (range.empty) { break; }
+        if (range.empty)
+            break;
         range.popBack(); ++i;
     }
     return true;
@@ -318,7 +296,8 @@ if (isBidirectionalRange!(R))
 {
     static if (isRandomAccessRange!R) // arrays excluding `char[]` and `wchar[]`
     {
-        if (range.length < minLength) { return false; }
+        if (range.length < minLength)
+            return false;
     }
     size_t i = 0;
     // TODO: reuse `isSymmetric`
@@ -326,9 +305,11 @@ if (isBidirectionalRange!(R))
     while (!range.empty)
     {
         import std.range.primitives : front, back, popFront, popBack;
-        if (range.front != range.back) return false;
+        if (range.front != range.back)
+            return false;
         range.popFront(); ++i;
-        if (range.empty) break;
+        if (range.empty)
+            break;
         range.popBack(); ++i;
     }
     return i >= minLength;
@@ -369,7 +350,8 @@ if (isInputRange!R1 &&
 {
     immutable sortLimit = 0;
     import std.range.primitives : empty;
-    if (r1.empty || r2.empty) { return false; }
+    if (r1.empty || r2.empty)
+        return false;
     if (r1.length + r2.length < sortLimit)
     {
         import std.algorithm.comparison : equal;
@@ -390,11 +372,15 @@ if (isInputRange!R1 &&
         import std.utf : byUTF;
 
         // TODO: functionize
-        static if (isNarrowString!R1) auto s1 = r1.byUTF!dchar;
-        else                          auto s1 = r1; // TODO: avoid copying
+        static if (isNarrowString!R1)
+            auto s1 = r1.byUTF!dchar;
+        else
+            auto s1 = r1; // TODO: avoid copying
 
-        static if (isNarrowString!R2) auto s2 = r2.byUTF!dchar;
-        else                          auto s2 = r2; // TODO: avoid copying
+        static if (isNarrowString!R2)
+            auto s2 = r2.byUTF!dchar;
+        else
+            auto s2 = r2; // TODO: avoid copying
 
         // histogram
         T[C] hist;              // TODO: use non-GC-allocating AA
@@ -421,9 +407,7 @@ if (isInputRange!R1 &&
         foreach (const ref e; hist) // TODO: nothrow
         {
             if (e[0] != e[1])
-            {
                 return false;
-            }
         }
         return true;
     }
@@ -507,9 +491,12 @@ if (isInputRange!R)
     import std.range: zip, dropOne;
     auto ref op(T)(T a, T b) @safe pure nothrow
     {
-        static      if (reduction == Reduction.forwardDifference)  return b - a; // TODO: final static switch
-        else static if (reduction == Reduction.backwardDifference) return a - b;
-        else static if (reduction == Reduction.sum)                return a + b;
+        static      if (reduction == Reduction.forwardDifference)
+            return b - a; // TODO: final static switch
+        else static if (reduction == Reduction.backwardDifference)
+            return a - b;
+        else static if (reduction == Reduction.sum)
+            return a + b;
     }
     return range.zip(range.dropOne).map!(a => op(a[0], a[1])); // a is a tuple here
 }
@@ -660,7 +647,8 @@ if (isInputRange!R)
         @property:
         auto ref front()
         {
-            if (!_initialized) { popFront(); }
+            if (!_initialized)
+                popFront();
             return _front;
         }
         auto ref moveFront()
@@ -676,9 +664,7 @@ if (isInputRange!R)
                 E rf = _range.front;
                 _range.popFront();
                 if (_range.empty is false)
-                {
                     _front = _range.front - rf;
-                }
             }
         }
         bool empty()
@@ -749,9 +735,7 @@ void orderInPlace(T...)(ref T t) @trusted
     static if (t.length == 2)
     {
         if (t[0] > t[1])
-        {
             swap(t[0], t[1]);
-        }
     }
     else
     {                           // generic version
@@ -885,15 +869,11 @@ if (isCallable!action &&
     import std.traits: ParameterTypeTuple;
     static if (arity!action == 1 && // if one argument and
                isIntegral!(ParameterTypeTuple!action[0])) // its an integer
-    {
         foreach (i; 0 .. n)
             action(i); // use it as action input
-    }
     else
-    {
         foreach (i; 0 .. n)
             action();
-    }
 }
 
 ///
@@ -1119,9 +1099,7 @@ if (__traits(isStaticArray, typeof(array)))
         alias expand = AliasSeq!(delay, expand!(array, idx + 1));
     }
     else
-    {
         alias expand = delay;
-    }
 }
 
 ///
@@ -1313,18 +1291,14 @@ if (isForwardRange!R)
         size_t pos;
         import std.range.primitives : empty;
         while (!h.empty)
-        {
             if (unaryFun!pred(h.front))
-            {
                 h.popFront();
-            }
             else
             {
                 haystack.popFront();
                 h = haystack.save;
                 ++pos;
             }
-        }
         // TODO: use Voldemort struct instead of tuple
         return tuple(takeExactly(original, pos),
                      haystack);
@@ -1442,9 +1416,7 @@ if (isForwardRange!R1 &&
         return split[0];
     }
     else
-    {
         return R1.init; // TODO: correct?
-    }
 }
 
 ///
@@ -1482,9 +1454,7 @@ if (isForwardRange!R1 &&
     import std.algorithm.searching : findSplitAfter;
     auto split = findSplitAfter!pred(haystack, needle);// TODO: use new interface to findSplitAfter
     if (split[0].empty)
-    {
         return R1.init; // TODO: correct?
-    }
     else
     {
         haystack = split[1];
@@ -1606,7 +1576,8 @@ if (args.length >= 2 &&
     haveCommonType!Ts)
 {
     foreach (i, arg; args[1..$])
-        if (args[i] >= arg) return false;
+        if (args[i] >= arg)
+            return false;
     return true;
 }
 
@@ -1632,7 +1603,8 @@ if (args.length >= 2 &&
     haveCommonType!Ts)
 {
     foreach (i, arg; args[1..$])
-        if (args[i] > arg) return false;
+        if (args[i] > arg)
+            return false;
     return true;
 }
 
@@ -1746,9 +1718,7 @@ if (is(T == class))
         import std.traits : isMutable;
         alias M = typeof(m);
         static if (isMutable!M)
-        {
             m = M.init;
-        }
     }
 }
 
@@ -1817,9 +1787,7 @@ if (isInputRange!R)
 {
     import std.range.primitives : hasLength;
     static if (hasLength!R)
-    {
         return r.length == exactCount;
-    }
     else
     {
         size_t n = 0;
@@ -1827,7 +1795,8 @@ if (isInputRange!R)
         while (!r.empty)
         {
             r.popFront();
-            if (++n > exactCount) { return false; }
+            if (++n > exactCount)
+                return false;
         }
         return n == exactCount;
     }
@@ -1840,9 +1809,7 @@ if (isInputRange!R)
 {
     import std.range.primitives : hasLength;
     static if (hasLength!R)
-    {
         return r.length >= minCount;
-    }
     else
     {
         size_t n;
@@ -1850,7 +1817,8 @@ if (isInputRange!R)
         while (!r.empty)
         {
             r.popFront();
-            if (++n >= minCount) { return true; }
+            if (++n >= minCount)
+                return true;
         }
         return false;
     }
@@ -1863,9 +1831,7 @@ if (isInputRange!R)
 {
     import std.range.primitives : hasLength;
     static if (hasLength!R)
-    {
         return r.length <= maxCount;
-    }
     else
     {
         size_t n;
@@ -1873,7 +1839,8 @@ if (isInputRange!R)
         while (!r.empty)
         {
             r.popFront();
-            if (++n > maxCount) { return false; }
+            if (++n > maxCount)
+                return false;
         }
         return true;
     }
@@ -1930,9 +1897,8 @@ if (Ss.length != 0 &&
     allSatisfy!(hasLength, R, Ss))
 {
     foreach (const ref s; ss)
-    {
-        if (r.length != s.length) { return false; }
-    }
+        if (r.length != s.length)
+            return false;
     return true;
 }
 
@@ -1980,18 +1946,14 @@ Container collect(Container, Range) (Range r)
             import std.array : Appender;
             Appender!Container output;
             foreach (ref e; r)  // TODO: make const when this works with array_ex
-            {
                 output.put(e);
-            }
             return output.data;
         }
         else
         {
             Container output;
             foreach (ref e; r)  // TODO: make const when this works with array_ex
-            {
                 output ~= e; // TODO: use Appender or remove because too GC.intensive inefficient, or reuse `.array`?
-            }
             return output;
         }
     }
@@ -2134,13 +2096,9 @@ auto splicer2(T)(T[] x) @trusted
         {
             static assert(i < count, "Index " ~ i ~ " to large");
             static      if (i == 0)
-            {
                 return first;
-            }
             else static if (i == 1)
-            {
                 return second;
-            }
         }
 
         private T[] _;
@@ -2203,12 +2161,8 @@ if (is(typeof(F(T.init))))  // is callable
 @safe pure nothrow @nogc unittest
 {
     foreach (const i; 1 .. 11)
-    {
         foreach (const j; 1 .. 11)
-        {
             immutable result = (i * j).use!(x => x*x);
-        }
-    }
 }
 
 import nxt.char_traits : isASCII;
@@ -2221,16 +2175,15 @@ if (isExpressionTuple!needles &&
     uint startsWith(Haystack)(Haystack haystack) @trusted
         if (!is(CommonType!(typeof(Haystack.front), needles) == void))
     {
-        if (haystack.length == 0) { return 0; }
+        if (haystack.length == 0)
+            return 0;
         static if (isArray!Haystack &&
                    is(typeof(Haystack.init[0]) : char) &&
                    allSatisfy!(isASCII, needles))
         {
             // no front decoding needed
             static if (needles.length == 1)
-            {
                 return haystack.ptr[0] == needles[0] ? 1 : 0;
-            }
             else
             {
                 import std.algorithm.comparison : among;
@@ -2277,16 +2230,15 @@ if (isExpressionTuple!needles &&
         @trusted
     if (!is(CommonType!(typeof(Haystack.back), needles) == void))
     {
-        if (haystack.length == 0) { return 0; }
+        if (haystack.length == 0)
+            return 0;
         static if (isArray!Haystack &&
                    is(Unqual!(typeof(Haystack.init[0])) == char) && // TODO: reuse existing trait
                    allSatisfy!(isASCII, needles))
         {
             // no back decoding needed
             static if (needles.length == 1)
-            {
                 return haystack.ptr[haystack.length - 1] == needles[0] ? 1 : 0;
-            }
             else
             {
                 import std.algorithm.comparison : among;

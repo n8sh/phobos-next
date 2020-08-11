@@ -56,7 +56,7 @@ void dbg(Args...)(Args args,
 {
     import std.stdio : stderr, writeln;
     try
-        debug stderr.writeln(file, "(", line, "):", " Debug: ", args);
+        debug stderr.writeln(file, "(", line, ",1):", " Info: Debug: \"", args, "\"");
     catch (Exception) { }
 }
 

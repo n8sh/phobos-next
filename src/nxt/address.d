@@ -13,6 +13,7 @@ module nxt.address;
  */
 struct ByteAlignedAddress(uint byteAlignment_) // TODO: adjust alignment here
 {
+@safe pure nothrow @nogc:
     enum byteAlignment = byteAlignment_; ///< Alignment in bytes.
 
     /// Null value.
@@ -26,30 +27,26 @@ struct ByteAlignedAddress(uint byteAlignment_) // TODO: adjust alignment here
     @property hash_t toHash() const scope @trusted
     {
         version(LDC) pragma(inline, true);
+        debug checkAlignment();
         static if (byteAlignment == 1)
-        {
             const hash = _ptrValue; // as is
-        }
         else static if (byteAlignment == 2)
-        {
-            assert((_ptrValue & 0x1) == 0); // 1 least significant bit cleared
             const hash = _ptrValue >> 1;
-        }
         else static if (byteAlignment == 4)
-        {
-            assert((_ptrValue & 0x3) == 0); // 2 least significant bits cleared
             const hash = _ptrValue >> 2;
-        }
         else static if (byteAlignment == 8)
-        {
-            assert((_ptrValue & 0x7) == 0); // 3 least significant bits cleared
             const hash = _ptrValue >> 3;
-        }
         else
             static assert(0, "Unsupported byteAlignment");
         // TODO: activate import nxt.hash_functions : lemireHash64;
         import core.internal.hash : hashOf;
         return hashOf(cast(void*)hash); // TODO: is `cast(void*)` preferred here?
+    }
+
+    private debug void checkAlignment() const scope
+    {
+        assert((_ptrValue & (byteAlignment-1)) == 0,
+               "Address is not aligned to " ~ byteAlignment.stringof);
     }
 
     size_t _ptrValue;           ///< Actual pointer value.

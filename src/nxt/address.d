@@ -26,7 +26,7 @@ struct ByteAlignedAddress(uint byteAlignment_) // TODO: adjust alignment here
      */
     @property hash_t toHash() const scope @trusted
     {
-        version(LDC) pragma(inline, true);
+        pragma(inline, true);
         debug checkAlignment();
         static if (byteAlignment == 1)
             const hash = _ptrValue; // as is

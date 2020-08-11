@@ -26,8 +26,6 @@ struct ByteAlignedAddress(uint byteAlignment_) // TODO: adjust alignment here
     @property hash_t toHash() const scope @trusted
     {
         version(LDC) pragma(inline, true);
-        // TODO: activate import nxt.hash_functions : lemireHash64;
-        // TODO: import core.internal.hash : hashOf;
         static if (byteAlignment == 1)
         {
             const hash = _ptrValue; // as is
@@ -49,7 +47,9 @@ struct ByteAlignedAddress(uint byteAlignment_) // TODO: adjust alignment here
         }
         else
             static assert(0, "Unsupported byteAlignment");
-        return hash;
+        // TODO: activate import nxt.hash_functions : lemireHash64;
+        import core.internal.hash : hashOf;
+        return hashOf(cast(void*)hash); // TODO: is `cast(void*)` preferred here?
     }
 
     size_t _ptrValue;           ///< Actual pointer value.

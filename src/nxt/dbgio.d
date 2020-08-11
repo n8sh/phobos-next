@@ -61,6 +61,7 @@ void dbg(Args...)(Args args,
 }
 
 ///
+version(show)
 @safe pure nothrow @nogc unittest
 {
     int x = 42;

@@ -53,13 +53,9 @@ pure:
             else
             {
                 static if (is(typeof(source[0]) == immutable(char)))
-                {
                     raw.ptr[0 .. source.length] = source; // copy elements
-                }
                 else
-                {
                     raw.ptr = source.idup.ptr; // GC-allocate
-                }
                 raw.length = encodeLargeLength(source.length);
             }
         }
@@ -73,13 +69,9 @@ pure:
             else
             {
                 static if (is(typeof(source[0]) == immutable(char)))
-                {
                     raw.ptr = source.ptr; // already immutable so no duplication needed
-                }
                 else
-                {
                     raw.ptr = source.idup.ptr; // GC-allocate
-                }
                 raw.length = encodeLargeLength(source.length);
             }
         }
@@ -148,14 +140,10 @@ nothrow:
     @property string toString() const return @trusted pure nothrow // may GC-allocate
     {
         if (isLarge)
-        {
             // GC-allocated slice has immutable members so ok to cast
             return cast(typeof(return))raw.ptr[0 .. decodeRawLength(raw.length)]; // no allocation
-        }
         else
-        {
             return small.data.ptr[0 .. decodeRawLength(small.length)].idup; // need duplicate to make `immutable`
-        }
     }
 
     @nogc:
@@ -165,17 +153,13 @@ nothrow:
     @property hash_t toHash() const scope @trusted
     {
         version(D_Coverage) {} else version(LDC) pragma(inline, true);
+        import core.internal.hash : hashOf;
+        import nxt.hash_functions : lemireHash64;
         if (isLarge)
-        {
-            import core.internal.hash : hashOf;
             return hashOf(opSliceLarge()); // use default
-        }
         else                    // fast path for small string
-        {
-            import nxt.hash_functions : lemireHash64;
             return (lemireHash64(words[0] >> 1) ^ // shift away LS-bit being a constant for a small string
                     lemireHash64(words[1]));
-        }
     }
 
     /** Get length. */
@@ -183,13 +167,9 @@ nothrow:
     {
         version(D_Coverage) {} else pragma(inline, true);
         if (isLarge)
-        {
             return decodeRawLength(large.length); // skip first bit
-        }
         else
-        {
             return decodeRawLength(small.length); // skip fist bit
-        }
     }
     /// ditto
     alias opDollar = length;
@@ -214,13 +194,9 @@ nothrow:
     {
         version(D_Coverage) {} else pragma(inline, true);   // TODO: maybe remove
         if (isLarge)
-        {
             return opSliceLarge();
-        }
         else
-        {
             return opSliceSmall();
-        }
     }
 
     /** Return a slice at `[i .. j]` to either the internally stored large or small `string`.
@@ -260,13 +236,9 @@ nothrow:
     @property private immutable(char)* ptr() const return @trusted
     {
         if (isLarge)
-        {
             return large.ptr;   // GC-heap pointer
-        }
         else
-        {
             return small.data.ptr; // stack pointer
-        }
     }
 
     /** Check if `this` is equal to `rhs`. */
@@ -301,13 +273,9 @@ nothrow:
     {
         version(D_Coverage) {} else pragma(inline, true);
         if (isLarge)
-        {
             return large !is null;
-        }
         else
-        {
             return small.length != 0;
-        }
     }
 
     /** Support trait `isNullable`. */
@@ -381,13 +349,9 @@ private:
     {
         assert(data < (1 << metaBits));
         if (isLarge)
-        {
             raw.length = encodeLargeLength(length) | ((data & metaMask) << (largeLengthTagBitOffset + 1));
-        }
         else
-        {
             small.length = cast(ubyte)encodeSmallLength(length) | ((data & metaMask) << (largeLengthTagBitOffset + 1));
-        }
     }
 
     /// Decode raw length `rawLength` by shifting away tag bits.
@@ -460,11 +424,9 @@ SSOString toLower()(const SSOString x) @trusted // template-lazy
     {
         typeof(return) result = void;
         result.small.length = x.small.length;
+        import std.ascii : toLower;
         foreach (const index; 0 .. x.smallCapacity)
-        {
-            import std.ascii : toLower;
             (cast(char[])(result.small.data))[index] = toLower(x.small.data[index]);
-        }
         return result;
     }
     else if (x.isLarge)
@@ -481,21 +443,17 @@ SSOString toLower()(const SSOString x) @trusted // template-lazy
         toLowerInPlace(slice);
         if (slice is result.opSlice() || // no reallocation
             slice.length == result.length) // or same length (happens for German double-s)
-        {
             return result;
-        }
         else
-        {
-            version(none)
-            {
-                import nxt.dbgio;
-                dbg(`toLowerInPlace reallocated from "`,
-                    result.opSlice(), `" of length `, result.opSlice().length,
-                    ` to "`
-                    , slice, `" of length `, slice.length);
-            }
+            // version(none)
+            // {
+            //     import nxt.dbgio;
+            //     dbg(`toLowerInPlace reallocated from "`,
+            //         result.opSlice(), `" of length `, result.opSlice().length,
+            //         ` to "`
+            //         , slice, `" of length `, slice.length);
+            // }
             return typeof(return)(slice); // reallocation occurred
-        }
     }
 }
 
@@ -506,11 +464,9 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
     {
         typeof(return) result = void;
         result.small.length = x.small.length;
+        import std.ascii : toUpper;
         foreach (const index; 0 .. x.smallCapacity)
-        {
-            import std.ascii : toUpper;
             (cast(char[])(result.small.data))[index] = toUpper(x.small.data[index]);
-        }
         return result;
     }
     else if (x.isLarge)
@@ -527,21 +483,17 @@ SSOString toUpper()(const SSOString x) @trusted // template-lazy
         toUpperInPlace(slice);
         if (slice is result.opSlice() || // no reallocation
             slice.length == result.length) // or same length (happens for German double-s)
-        {
             return result;
-        }
         else
-        {
-            version(none)
-            {
-                import nxt.dbgio;
-                dbg(`toUpperInPlace reallocated from "`,
-                    result.opSlice(), `" of length `, result.opSlice().length,
-                    ` to "`
-                    , slice, `" of length `, slice.length);
-            }
+            // version(none)
+            // {
+            //     import nxt.dbgio;
+            //     dbg(`toUpperInPlace reallocated from "`,
+            //         result.opSlice(), `" of length `, result.opSlice().length,
+            //         ` to "`
+            //         , slice, `" of length `, slice.length);
+            // }
             return typeof(return)(slice); // reallocation occurred
-        }
     }
 }
 

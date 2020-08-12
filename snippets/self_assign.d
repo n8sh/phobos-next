@@ -1,4 +1,6 @@
-@trusted pure unittest
+@trusted pure:
+
+unittest
 {
     int x;
     x = x;                      // diagnose
@@ -17,5 +19,5 @@
 int x;
 void test()
 {
-    int x = x;
+    int x = x;                  // shouldn't this give a shadowing warning?
 }

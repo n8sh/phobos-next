@@ -1,8 +1,10 @@
 @safe pure unittest
 {
     int x;
-    x = x;
+    x = x;                      // warn
+
     int y;
-    y = x;
-    y = 32;
+    y = x;                      // no warn
+
+    y = 32;                     // no warn
 }

@@ -1,6 +1,6 @@
 module nxt.address;
 
-@safe pure nothrow @nogc:
+@safe pure:
 
 /** Address as an unsigned integer.
  *
@@ -60,7 +60,7 @@ alias Address8 = ByteAlignedAddress!(8);
 alias Address = Address1;
 
 ///
-@safe pure unittest
+@safe pure unittest             // cannot be @nogc when `opIndex` may throw
 {
     import nxt.nullable_traits : hasNullValue, isNullable;
     import nxt.open_hashmap : OpenHashMap;

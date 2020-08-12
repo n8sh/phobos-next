@@ -10,7 +10,7 @@ pure unittest
     xp = xp;                    // diagnose
     static assert(__traits(isSame, xp, xp));
 
-    *xp = *xp;                  // should diagnose
+    *xp = *xp;                  // diagnose
 
     *(&x) = *(&x);              // should diagnose
 

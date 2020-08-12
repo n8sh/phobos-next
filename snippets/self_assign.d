@@ -10,6 +10,8 @@ pure unittest
     xp = xp;                    // diagnose
 
     *(&x) = *(&x);              // should diagnose
+
+    static assert(__traits(compiles, { int t; t = t; }));
 }
 
 int x;

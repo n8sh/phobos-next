@@ -1,17 +1,17 @@
 @trusted pure unittest
 {
     int x;
-    x = x;                      // warn
+    x = x;                      // diagnostics
 
     int y;
-    y = x;                      // no warn
+    y = x;                      // no diagnostics
 
-    y = 32;                     // no warn
+    y = 32;                     // no diagnostics
 
-    *(&x) = *(&x);              // should warn
+    *(&x) = *(&x);              // should diagnostics
 
     int* xp;
-    xp = xp;
+    xp = xp;                    // diagnostics
 }
 
 int x;

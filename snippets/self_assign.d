@@ -1,17 +1,17 @@
 @trusted pure unittest
 {
     int x;
-    x = x;                      // diagnostics
+    x = x;                      // diagnose
 
     int y;
-    y = x;                      // no diagnostics
+    y = x;                      // no diagnose
 
-    y = 32;                     // no diagnostics
-
-    *(&x) = *(&x);              // should diagnostics
+    y = 32;                     // no diagnose
 
     int* xp;
-    xp = xp;                    // diagnostics
+    xp = xp;                    // diagnose
+
+    *(&x) = *(&x);              // should diagnose
 }
 
 int x;

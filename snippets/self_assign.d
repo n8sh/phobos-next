@@ -4,7 +4,7 @@ pure unittest
     x = x;                      // diagnose
 
     int y;
-    y = x;                      // no diagnose
+    y = x;
 
     int* xp;
     xp = xp;                    // diagnose

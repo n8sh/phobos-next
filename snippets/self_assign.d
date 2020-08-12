@@ -8,6 +8,7 @@ pure unittest
 
     int* xp;
     xp = xp;                    // diagnose
+    static assert(__traits(isSame, xp, xp));
 
     *xp = *xp;                  // should diagnose
 

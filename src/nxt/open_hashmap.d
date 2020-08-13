@@ -382,6 +382,8 @@ if (isNullable!K /*&& !hasAliasing!K */)
      *
      * The builtin `__argTypes` is (currently) only used/populated for Posix x64
      * (and AArch64 for LDC), and not used by GDC at all AFAIK. /kinke
+     *
+     * See_Also: https://github.com/dlang/dmd/pull/11000#issuecomment-671103778
      */
     enum passElementByValue = (__traits(isCopyable, T) &&
                                is(T U == __argTypes) &&

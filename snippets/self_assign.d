@@ -21,9 +21,9 @@ pure nothrow unittest
 
     *xp = *xp;                  // diagnose
 
-    *&x = *&x;                  // diagnose
+    (*&x) = (*&x);              // diagnose
 
-    *&*&x = *&*&x;              // diagnose
+    (*&*&x) = (*&*&x);              // diagnose
 
     static assert(__traits(compiles, { int t; t = t; }));
 }

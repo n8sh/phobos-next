@@ -1,15 +1,14 @@
 struct S
 {
-pure nothrow:
+@safe pure nothrow @nogc:
     this(this) { count += 1;}   // posblit
     int count;
 }
-pure unittest
+
+pure nothrow unittest
 {
     S s;
-    assert(s.count == 0);
     s = s;
-    assert(s.count == 1);
 
     int x;
     x = x;                      // diagnose
@@ -22,7 +21,7 @@ pure unittest
 
     *xp = *xp;                  // diagnose
 
-    *(&x) = *(&x);              // should diagnose
+    *&x = *&x;                  // diagnose
 
     static assert(__traits(compiles, { int t; t = t; }));
 }

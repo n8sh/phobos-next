@@ -378,7 +378,11 @@ if (isNullable!K /*&& !hasAliasing!K */)
         enum nullKeyElement = defaultNullKeyConstantOf!K;
     }
 
-    // TODO remove when https://github.com/dlang/dmd/pull/11000 has been merged
+    /** TODO remove when https://github.com/dlang/dmd/pull/11000 has been merged
+     *
+     * The builtin `__argTypes` is (currently) only used/populated for Posix x64
+     * (and AArch64 for LDC), and not used by GDC at all AFAIK. /kinke
+     */
     enum passElementByValue = (__traits(isCopyable, T) &&
                                is(T U == __argTypes) &&
                                U.length >= 1);

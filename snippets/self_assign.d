@@ -1,5 +1,16 @@
+struct S
+{
+pure nothrow:
+    this(this) { count += 1;}   // posblit
+    int count;
+}
 pure unittest
 {
+    S s;
+    assert(s.count == 0);
+    s = s;
+    assert(s.count == 1);
+
     int x;
     x = x;                      // diagnose
 

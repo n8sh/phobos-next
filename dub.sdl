@@ -13,7 +13,7 @@ dependency "arsd-official:terminal" version="~>8.2.0"
 dependency "silly" version="~>1.0.2"
 
 dflags "-vcolumns" "-dip25" "-dip1008" # "-dip1000"
-dflags "-preview=intpromote" "-preview=dtorfields" "-preview=markdown"
+dflags "-preview=intpromote" "-preview=dtorfields" "-preview=markdown" # TODO "-preview=nosharedaccess"
 # TODO: fails linking: dflags "-preview=in"
 # TODO: fails linking of benchmark: dflags "-checkaction=context"
 dflags "-verrors=context" platform="dmd" # dmd only, fails with ldc

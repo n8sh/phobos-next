@@ -23,6 +23,8 @@ pure nothrow unittest
 
     *&x = *&x;                  // diagnose
 
+    *&*&x = *&*&x;              // diagnose
+
     static assert(__traits(compiles, { int t; t = t; }));
 }
 

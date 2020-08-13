@@ -380,8 +380,8 @@ if (isNullable!K /*&& !hasAliasing!K */)
 
     /** TODO remove when https://github.com/dlang/dmd/pull/11000 has been merged
      *
-     * The builtin `__argTypes` is (currently) only used/populated for Posix x64
-     * (and AArch64 for LDC), and not used by GDC at all AFAIK. /kinke
+     * @kinke: "The builtin `__argTypes` is (currently) only used/populated for Posix x64
+     * (and AArch64 for LDC), and not used by GDC at all AFAIK".
      *
      * See_Also: https://github.com/dlang/dmd/pull/11000#issuecomment-671103778
      */

@@ -1,4 +1,4 @@
-module nxt.cyclic;
+module nxt.cyclic_array;
 
 import core.internal.traits : hasElaborateDestructor;
 import std.algorithm : max;

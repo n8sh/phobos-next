@@ -46,6 +46,9 @@ pure nothrow @nogc unittest
 
 int x;                          // global?
 
+/**
+ * See_Also: https://forum.dlang.org/post/cjccfvhbtbgnajplrvbd@forum.dlang.org
+ */
 void test() @safe nothrow @nogc
 {
     int x = x;                  // shouldn't this give a shadowing warning?

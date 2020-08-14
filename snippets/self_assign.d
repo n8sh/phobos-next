@@ -12,7 +12,7 @@ struct S
 
         _x = _y;
 
-        _xp = _xp;              // warn
+        _xp = _xp;              // error
         _xp = _yp;
     }
 

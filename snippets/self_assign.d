@@ -51,5 +51,5 @@ int x;                          // global?
  */
 void test() @safe nothrow @nogc
 {
-    int x = x;                  // shouldn't this give a shadowing warning?
+    int x = x;          // x is in another scope so this doesn't cause shadowing
 }

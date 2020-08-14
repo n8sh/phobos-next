@@ -17,10 +17,14 @@ struct S
     float _y;
 }
 
-pure nothrow unittest
+pure nothrow @nogc unittest
 {
     S s;
     s = s;
+
+    S t;
+    s._x = s._x;                // warn
+    s._x = t._x;                // TODO no warn
 
     int x;
     x = x;                      // warn
@@ -40,7 +44,8 @@ pure nothrow unittest
     static assert(__traits(compiles, { int t; t = t; }));
 }
 
-int x;
+int x;                          // global?
+
 void test() @safe nothrow @nogc
 {
     int x = x;                  // shouldn't this give a shadowing warning?

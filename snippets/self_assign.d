@@ -1,6 +1,7 @@
 struct S
 {
 @safe pure nothrow @nogc:
+
     this(float x)
     {
         x = x;                  // TODO warn, not error

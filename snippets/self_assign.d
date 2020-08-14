@@ -2,9 +2,15 @@ struct S
 {
 @safe pure nothrow @nogc:
 
-    this(float x)
+    struct T
+    {
+        int _z;
+    }
+
+    this(float x, T t)
     {
         x = x;                  // warn
+        t = t;                  // warn
 
         _x = _x;                // error
         this._x = _x;           // error
@@ -14,6 +20,9 @@ struct S
 
         _xp = _xp;              // error
         _xp = _yp;
+
+        _t = _t;                // error
+        _t._z = _t._z;          // error (transitive)
     }
 
     void foo()
@@ -32,6 +41,8 @@ struct S
 
     float* _xp;
     float* _yp;
+
+    T _t;
 }
 
 pure nothrow @nogc unittest

@@ -7,6 +7,303 @@ import std.range;
 import std.traits : isMutable;
 import nxt.container_traits : mustAddGCRange;
 
+struct CyclicArray(T, size_t len = max(8, 4096 / T.sizeof))
+{
+    static if (len == 0)
+    {
+        private void reserve(size_t length) @nogc @system nothrow
+        {
+            assert(length > 0);
+            array.length = length;
+        }
+    }
+
+private:
+    static if (len == 0)
+        Array!T array;
+    else
+        T[len] array;
+    size_t start;
+    size_t size;
+
+public:
+    static if (len == 0)
+    {
+        invariant
+        {
+            assert(array.length > 0);
+        }
+
+        // @disable this(); // TODO: this triggers bug in dmd: https://issues.dlang.org/show_bug.cgi?id=20934
+
+        this(Array!T array) @nogc
+        {
+            assert(array.length > 0);
+            this.array = array;
+        }
+
+        this(size_t length) @nogc
+        {
+            assert(length > 0);
+            array = Array!T();
+            reserve(length);
+        }
+
+        this(size_t n)(T[n] val)
+        {
+            array = Array!T();
+            reserve(max(8, 4096 / T.sizeof));
+            static if (len != 0)
+                static assert(n <= len);
+            foreach (ref v; val)
+            {
+                put(v);
+            }
+        }
+
+        this(Range)(Range val)
+        if (__traits(compiles, ElementType!Range) && is(ElementType!Range : T))
+        {
+            array = Array!T();
+            reserve(max(8, 4096 / T.sizeof));
+            foreach (ref v; val)
+            {
+                put(v);
+            }
+        }
+
+        this(Args...)(Args val)
+        {
+            array = Array!T();
+            reserve(max(8, 4096 / T.sizeof));
+            foreach (ref v; val)
+            {
+                put(v);
+            }
+        }
+    }
+    else
+    {
+        this(size_t n)(T[n] val)
+        {
+            static if (len != 0)
+            {
+                static assert(n <= len);
+            }
+            foreach (ref v; val)
+            {
+                put(v);
+            }
+        }
+
+        this(Range)(Range val)
+            if (__traits(compiles, ElementType!Range) && is(ElementType!Range : T))
+        {
+            foreach (ref v; val)
+            {
+                put(v);
+            }
+        }
+
+        this(Args...)(Args val)
+        {
+            foreach (ref v; val)
+            {
+                put(v);
+            }
+        }
+    }
+
+    mixin CyclicRangePrimitives!(T, q{
+            static if (len == 0)
+                auto copy = typeof(cast() this)(array.length);
+            else
+                typeof(cast() this) copy;
+	});
+
+    static if (len != 0)
+        CyclicRange!T byRef() @property @nogc @safe
+        {
+            return CyclicRange!T(array[], start, size);
+        }
+
+    size_t length() const @property @nogc @safe
+    {
+        return size;
+    }
+
+    size_t length(size_t val) @property
+    {
+        if (size > array.length)
+            assert(false);
+        if (val == 0)
+        {
+            clear();
+            return size;
+        }
+        if (val > size)
+        {
+            foreach (const i; size .. val)
+                array[(start + i) % array.length] = T.init;
+        }
+        else if (val < size)
+        {
+            static if (hasElaborateDestructor!T)
+                foreach (const i; val .. size)
+                    destroy(array[(start + i) % array.length]);
+            else static if (mustAddGCRange!T)
+                foreach (const i; val .. size)
+                    array[(start + i) % array.length] = T.init; // avoid GC mark-phase dereference
+        }
+        return size = val;
+    }
+
+    void clear()
+    {
+        static if (hasElaborateDestructor!T)
+            foreach (const i; 0 .. size)
+                destroy(array[(start + i) % array.length]);
+        start = 0; // optimize clears
+        size = 0;
+    }
+
+    auto opBinary(string op : "~")(T rhs) const
+    {
+        auto copy = this.dup;
+        copy.put(rhs);
+        return copy;
+    }
+
+    auto opBinary(string op : "~", size_t n)(T[n] rhs) const
+    {
+        auto copy = this.dup;
+        copy ~= rhs;
+        return copy;
+    }
+
+    auto opBinary(string op : "~", Range)(Range rhs) const
+        if (isInputRange!Range && is(ElementType!Range : T))
+        {
+            auto copy = this.dup;
+            copy ~= rhs;
+            return copy;
+        }
+
+    void opOpAssign(string op : "~")(T rhs)
+    {
+        put(rhs);
+    }
+
+    void opOpAssign(string op : "~", size_t n)(T[n] rhs)
+    {
+        foreach (c; rhs)
+        {
+            put(c);
+        }
+    }
+
+    void opOpAssign(string op : "~", size_t n)(CyclicArray!(T, n) rhs)
+    {
+        for (int i = 0; i < rhs.size; i++)
+            put(rhs.array[(rhs.start + i) % rhs.array.length]);
+    }
+
+    void opOpAssign(string op : "~", Range)(Range rhs)
+        if (__traits(compiles, ElementType!Range) && is(ElementType!Range : T))
+    {
+        foreach (c; rhs)
+            put(c);
+    }
+
+    static if (len == 0)
+    {
+        CyclicArray!(T, len) dup() const
+        {
+            auto ret = CyclicArray!(T, len)(array);
+            ret.start = start;
+            ret.size = size;
+            return ret;
+        }
+    }
+    else
+    {
+        CyclicArray!(T, len) dup() const
+        {
+            CyclicArray!(T, len) ret;
+            ret.array = cast(typeof(ret.array)) array;
+            ret.start = start;
+            ret.size = size;
+            return ret;
+        }
+    }
+
+    static if (len != 0)
+    {
+        int opApply(int delegate(ref T) @nogc dg) @nogc
+        {
+            int result = 0;
+
+            for (size_t i = 0; i < size; i++)
+            {
+                result = dg(array[(i + start) % array.length]);
+                if (result)
+                    break;
+            }
+
+            return result;
+        }
+
+        int opApply(int delegate(size_t, ref T) @nogc dg) @nogc
+        {
+            int result = 0;
+
+            for (size_t i = 0; i < size; i++)
+            {
+                result = dg(i, array[(i + start) % array.length]);
+                if (result)
+                    break;
+            }
+
+            return result;
+        }
+    }
+
+    bool opEquals(in CyclicArray!(T, len) b)
+    {
+        if (size != b.size)
+            return false;
+        for (int i = 0; i < size; i++)
+            if (array[(i + start) % array.length] !=
+                b.array[(i + b.start) % b.array.length])
+                return false;
+        return true;
+    }
+
+    bool opEquals(size_t n)(T[n] b)
+    {
+        if (size != n)
+            return false;
+        for (int i = 0; i < size; i++)
+            if (array[(i + start) % array.length] != b[i])
+                return false;
+        return true;
+    }
+
+    bool opEquals(Range)(Range b) if (hasLength!Range && is(ElementType!Range : T))
+    {
+        if (size != b.length)
+            return false;
+        auto r = b.save;
+        for (int i = 0; i < size; i++)
+        {
+            if (array[(i + start) % array.length] != r.front)
+                return false;
+            r.popFront;
+        }
+        return true;
+    }
+}
+
 struct CyclicRange(T)
 {
     T[] array;
@@ -364,303 +661,6 @@ private mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast()
 /// The maximum capacity is static and by default so many elements that it fills at most 4KiB, but at least 8 elements (even if that is more than 4KiB).
 /// Set length to 0 to make it a std.container.Array based array
 /// Bugs: foreach with ref value requires @nogc body to make this @nogc compatible
-struct CyclicArray(T, size_t len = max(8, 4096 / T.sizeof))
-{
-    static if (len == 0)
-    {
-        private void reserve(size_t length) @nogc @system nothrow
-        {
-            assert(length > 0);
-            array.length = length;
-        }
-    }
-
-private:
-    static if (len == 0)
-        Array!T array;
-    else
-        T[len] array;
-    size_t start;
-    size_t size;
-
-public:
-    static if (len == 0)
-    {
-        invariant
-        {
-            assert(array.length > 0);
-        }
-
-        // @disable this(); // TODO: this triggers bug in dmd: https://issues.dlang.org/show_bug.cgi?id=20934
-
-        this(Array!T array) @nogc
-        {
-            assert(array.length > 0);
-            this.array = array;
-        }
-
-        this(size_t length) @nogc
-        {
-            assert(length > 0);
-            array = Array!T();
-            reserve(length);
-        }
-
-        this(size_t n)(T[n] val)
-        {
-            array = Array!T();
-            reserve(max(8, 4096 / T.sizeof));
-            static if (len != 0)
-                static assert(n <= len);
-            foreach (ref v; val)
-            {
-                put(v);
-            }
-        }
-
-        this(Range)(Range val)
-        if (__traits(compiles, ElementType!Range) && is(ElementType!Range : T))
-        {
-            array = Array!T();
-            reserve(max(8, 4096 / T.sizeof));
-            foreach (ref v; val)
-            {
-                put(v);
-            }
-        }
-
-        this(Args...)(Args val)
-        {
-            array = Array!T();
-            reserve(max(8, 4096 / T.sizeof));
-            foreach (ref v; val)
-            {
-                put(v);
-            }
-        }
-    }
-    else
-    {
-        this(size_t n)(T[n] val)
-        {
-            static if (len != 0)
-            {
-                static assert(n <= len);
-            }
-            foreach (ref v; val)
-            {
-                put(v);
-            }
-        }
-
-        this(Range)(Range val)
-            if (__traits(compiles, ElementType!Range) && is(ElementType!Range : T))
-        {
-            foreach (ref v; val)
-            {
-                put(v);
-            }
-        }
-
-        this(Args...)(Args val)
-        {
-            foreach (ref v; val)
-            {
-                put(v);
-            }
-        }
-    }
-
-    mixin CyclicRangePrimitives!(T, q{
-            static if (len == 0)
-                auto copy = typeof(cast() this)(array.length);
-            else
-                typeof(cast() this) copy;
-	});
-
-    static if (len != 0)
-        CyclicRange!T byRef() @property @nogc @safe
-        {
-            return CyclicRange!T(array[], start, size);
-        }
-
-    size_t length() const @property @nogc @safe
-    {
-        return size;
-    }
-
-    size_t length(size_t val) @property
-    {
-        if (size > array.length)
-            assert(false);
-        if (val == 0)
-        {
-            clear();
-            return size;
-        }
-        if (val > size)
-        {
-            foreach (const i; size .. val)
-                array[(start + i) % array.length] = T.init;
-        }
-        else if (val < size)
-        {
-            static if (hasElaborateDestructor!T)
-                foreach (const i; val .. size)
-                    destroy(array[(start + i) % array.length]);
-            else static if (mustAddGCRange!T)
-                foreach (const i; val .. size)
-                    array[(start + i) % array.length] = T.init; // avoid GC mark-phase dereference
-        }
-        return size = val;
-    }
-
-    void clear()
-    {
-        static if (hasElaborateDestructor!T)
-            foreach (const i; 0 .. size)
-                destroy(array[(start + i) % array.length]);
-        start = 0; // optimize clears
-        size = 0;
-    }
-
-    auto opBinary(string op : "~")(T rhs) const
-    {
-        auto copy = this.dup;
-        copy.put(rhs);
-        return copy;
-    }
-
-    auto opBinary(string op : "~", size_t n)(T[n] rhs) const
-    {
-        auto copy = this.dup;
-        copy ~= rhs;
-        return copy;
-    }
-
-    auto opBinary(string op : "~", Range)(Range rhs) const
-        if (isInputRange!Range && is(ElementType!Range : T))
-        {
-            auto copy = this.dup;
-            copy ~= rhs;
-            return copy;
-        }
-
-    void opOpAssign(string op : "~")(T rhs)
-    {
-        put(rhs);
-    }
-
-    void opOpAssign(string op : "~", size_t n)(T[n] rhs)
-    {
-        foreach (c; rhs)
-        {
-            put(c);
-        }
-    }
-
-    void opOpAssign(string op : "~", size_t n)(CyclicArray!(T, n) rhs)
-    {
-        for (int i = 0; i < rhs.size; i++)
-            put(rhs.array[(rhs.start + i) % rhs.array.length]);
-    }
-
-    void opOpAssign(string op : "~", Range)(Range rhs)
-        if (__traits(compiles, ElementType!Range) && is(ElementType!Range : T))
-    {
-        foreach (c; rhs)
-            put(c);
-    }
-
-    static if (len == 0)
-    {
-        CyclicArray!(T, len) dup() const
-        {
-            auto ret = CyclicArray!(T, len)(array);
-            ret.start = start;
-            ret.size = size;
-            return ret;
-        }
-    }
-    else
-    {
-        CyclicArray!(T, len) dup() const
-        {
-            CyclicArray!(T, len) ret;
-            ret.array = cast(typeof(ret.array)) array;
-            ret.start = start;
-            ret.size = size;
-            return ret;
-        }
-    }
-
-    static if (len != 0)
-    {
-        int opApply(int delegate(ref T) @nogc dg) @nogc
-        {
-            int result = 0;
-
-            for (size_t i = 0; i < size; i++)
-            {
-                result = dg(array[(i + start) % array.length]);
-                if (result)
-                    break;
-            }
-
-            return result;
-        }
-
-        int opApply(int delegate(size_t, ref T) @nogc dg) @nogc
-        {
-            int result = 0;
-
-            for (size_t i = 0; i < size; i++)
-            {
-                result = dg(i, array[(i + start) % array.length]);
-                if (result)
-                    break;
-            }
-
-            return result;
-        }
-    }
-
-    bool opEquals(in CyclicArray!(T, len) b)
-    {
-        if (size != b.size)
-            return false;
-        for (int i = 0; i < size; i++)
-            if (array[(i + start) % array.length] !=
-                b.array[(i + b.start) % b.array.length])
-                return false;
-        return true;
-    }
-
-    bool opEquals(size_t n)(T[n] b)
-    {
-        if (size != n)
-            return false;
-        for (int i = 0; i < size; i++)
-            if (array[(i + start) % array.length] != b[i])
-                return false;
-        return true;
-    }
-
-    bool opEquals(Range)(Range b) if (hasLength!Range && is(ElementType!Range : T))
-    {
-        if (size != b.length)
-            return false;
-        auto r = b.save;
-        for (int i = 0; i < size; i++)
-        {
-            if (array[(i + start) % array.length] != r.front)
-                return false;
-            r.popFront;
-        }
-        return true;
-    }
-}
-
 ///
 @nogc @safe unittest
 {

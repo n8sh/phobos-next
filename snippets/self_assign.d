@@ -3,7 +3,7 @@ struct S
 @safe pure nothrow @nogc:
     this(float x)
     {
-        x = x;                  // warn
+        x = x;                  // TODO warn, not error
 
         _x = _x;                // error
         this._x = _x;           // error

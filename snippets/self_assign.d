@@ -14,7 +14,16 @@ struct S
         _xp = _xp;              // warn
         _xp = _yp;
     }
+
+    void foo()
+    {
+        _x = _x;                // error
+        this._x = _x;           // error
+        _x = this._x;           // error
+    }
+
     this(this) { count += 1;}   // posblit
+
     int count;
 
     float _x;

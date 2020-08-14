@@ -10,11 +10,18 @@ struct S
         _x = this._x;           // error
 
         _x = _y;
+
+        _xp = _xp;              // warn
+        _xp = _yp;
     }
     this(this) { count += 1;}   // posblit
     int count;
+
     float _x;
     float _y;
+
+    float* _xp;
+    float* _yp;
 }
 
 pure nothrow @nogc unittest
@@ -24,7 +31,7 @@ pure nothrow @nogc unittest
 
     S t;
     s._x = s._x;                // warn
-    s._x = t._x;                // TODO no warn
+    s._x = t._x;
 
     int x;
     x = x;                      // warn

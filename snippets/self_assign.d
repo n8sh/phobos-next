@@ -4,11 +4,17 @@ struct S
     this(float x)
     {
         x = x;                  // warning
+
         _x = _x;                // error
+        this._x = _x;           // error
+        _x = this._x;           // error
+
+        _x = _y;
     }
     this(this) { count += 1;}   // posblit
     int count;
     float _x;
+    float _y;
 }
 
 pure nothrow unittest

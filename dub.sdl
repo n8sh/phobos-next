@@ -17,7 +17,6 @@ dflags "-preview=intpromote" "-preview=dtorfields" "-preview=markdown"
 # TODO: fails linking: dflags "-preview=in"
 # TODO: fails linking of benchmark: dflags "-checkaction=context"
 # TODO: fails build: dflags "-preview=nosharedaccess"
-dflags "-verrors=context" platform="dmd" # dmd only, fails with ldc
 
 libs "z" "bz2" "zstd"
 

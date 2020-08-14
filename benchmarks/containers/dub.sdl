@@ -10,7 +10,6 @@ dflags "-vcolumns" "-dip25" "-dip1008" # "-dip1000"
 dflags "-preview=intpromote" "-preview=dtorfields" "-preview=markdown"
 # TODO: fails linking: dflags "-preview=in"
 # TODO: fails linking: dflags "-checkaction=context"
-dflags "-verrors=context" platform="dmd" # dmd only, fails with ldc
 
 # TODO: lflags "-ltcmalloc"
 

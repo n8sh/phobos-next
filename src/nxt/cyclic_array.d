@@ -2,7 +2,7 @@ module nxt.cyclic_array;
 
 import core.internal.traits : hasElaborateDestructor;
 import std.algorithm : max;
-import std.container.array : Array;
+import std.container.array : Array; // TODO: Use nxt.dynamic_array
 import std.range;
 import std.traits : isMutable;
 import nxt.container_traits : mustAddGCRange;

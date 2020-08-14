@@ -1,4 +1,7 @@
-/** Traits for introspection nullability (undefinedness) of a type.
+/** Traits for introspection the nullability (undefinedness) of a type.
+ *
+ * If a type is nullable it has a special value reserved in its set of possible
+ * which is to indicated that the value is undefined.
  */
 module nxt.nullable_traits;
 

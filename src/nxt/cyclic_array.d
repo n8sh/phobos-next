@@ -7,6 +7,19 @@ import std.range;
 import std.traits : isMutable;
 import nxt.container_traits : mustAddGCRange;
 
+struct CyclicRange(T)
+{
+    T[] array;
+    size_t start, size;
+
+    mixin CyclicRangePrimitives!T;
+
+    CyclicRange!T dup() const
+    {
+        return cast(CyclicRange!T) this;
+    }
+}
+
 private mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast() this) copy;")
 {
     size_t capacity() const @property @nogc @safe
@@ -343,19 +356,6 @@ private mixin template CyclicRangePrimitives(T, string makeCopy = "typeof(cast()
         {
             popBack();
         }
-    }
-}
-
-struct CyclicRange(T)
-{
-    T[] array;
-    size_t start, size;
-
-    mixin CyclicRangePrimitives!T;
-
-    CyclicRange!T dup() const
-    {
-        return cast(CyclicRange!T) this;
     }
 }
 

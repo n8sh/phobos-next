@@ -4,7 +4,7 @@ struct S
 
     this(float x)
     {
-        x = x;                  // TODO warn, not error
+        x = x;                  // warn
 
         _x = _x;                // error
         this._x = _x;           // error

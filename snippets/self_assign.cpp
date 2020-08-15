@@ -1,5 +1,10 @@
 /*! \file f.cpp
- * \brief
+ *
+ * \brief Clang can detect self-assignment of variables. My solution is more
+ * sensitive and specialize diagnostics on presence of postblit or/and copy
+ * constructor.
+ *
+ * \see https://github.com/dlang/dmd/pull/11553
  */
 
 #include <iostream>
@@ -23,7 +28,7 @@ class C
 int f(int x)
 {
     return f(x);
-}    
+}
 
 int g(int x)
 {
@@ -31,7 +36,7 @@ int g(int x)
         return f(x) * f(x + 1);
     else
         return 42;
-}    
+}
 
 int a(int x);
 int b(int x);
@@ -39,12 +44,12 @@ int b(int x);
 int a(int x)
 {
     return b(x);
-}    
+}
 
 int b(int x)
 {
     return a(x);
-}    
+}
 
 int main(__attribute__((unused)) int argc,
          __attribute__((unused)) const char * argv[],

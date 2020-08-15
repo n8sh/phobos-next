@@ -1,11 +1,13 @@
-@safe:
-
-class C
+class Base
 {
     abstract void f();
 }
-
-@safe pure unittest
+class Derived : Base
 {
-    scope c = new C();
+}
+
+unittest
+{
+    scope b = new Base();
+    scope d = new Derived();
 }

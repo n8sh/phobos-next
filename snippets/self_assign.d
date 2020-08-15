@@ -45,7 +45,7 @@ struct S
     T _t;
 }
 
-pure nothrow @nogc unittest
+pure nothrow @nogc void test1()
 {
     S s;
     s = s;
@@ -72,12 +72,14 @@ pure nothrow @nogc unittest
     static assert(__traits(compiles, { int t; t = t; }));
 }
 
-int x;                          // global?
+int g_x;
 
 /**
  * See_Also: https://forum.dlang.org/post/cjccfvhbtbgnajplrvbd@forum.dlang.org
  */
-void test() @safe nothrow @nogc
+@safe nothrow @nogc void test2()
 {
-    int x = x;          // x is in another scope so this doesn't cause shadowing
+    int x;
+    x = g_x;          // x is in another scope so this doesn't cause shadowing
+    g_x = g_x;        // warn
 }

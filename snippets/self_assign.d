@@ -65,6 +65,8 @@ pure nothrow @nogc void test1()
 
     *xp = *xp;                  // warn
 
+    (&*xp) = (&*xp);            // warn
+
     (*&x) = (*&x);              // warn
 
     (*&*&x) = (*&*&x);          // warn

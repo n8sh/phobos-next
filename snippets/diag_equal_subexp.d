@@ -2,8 +2,16 @@
 void check_equal_lhs_and_rhs(int x)
 {
     bool b;
-    if (b && b)
+
+    if (b & b)                  // `AndExp`
         x = 42;
-    if (b || b)
+
+    if (b | b)                  // `OrExp`
+        x = 42;
+
+    if (b && b)                 // `LogicalExp`
+        x = 42;
+
+    if (b || b)                 // `LogicalExp`
         x = 42;
 }

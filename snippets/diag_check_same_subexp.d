@@ -7,7 +7,10 @@ void check_equal_lhs_and_rhs(int i)
     if (x & x)
         i = 42;
 
-    if (x & xa)                 // TODO warn
+    i = x + x;
+    i = x - x;
+
+    if (x & xa)
         i = 42;
 
     if (x & y)
@@ -16,9 +19,17 @@ void check_equal_lhs_and_rhs(int i)
     if (x | x)
         i = 42;
 
+    if (x & x |
+        x & x)
+        i = 42;
+
     if (x && x)
         i = 42;
 
     if (x || x)
+        i = 42;
+
+    if ((x && x) ||
+        (x && x))
         i = 42;
 }

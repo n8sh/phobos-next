@@ -9,6 +9,7 @@ void check_equal_lhs_and_rhs(int i)
 
     i = x + x;
     i = x - x;
+    i = x * x;
 
     if (x & xa)
         i = 42;

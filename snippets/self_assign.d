@@ -76,6 +76,8 @@ pure nothrow @nogc void test1()
 
 int g_x;
 
+alias g_y = g_x;
+
 /**
  * See_Also: https://forum.dlang.org/post/cjccfvhbtbgnajplrvbd@forum.dlang.org
  */
@@ -84,4 +86,5 @@ int g_x;
     int x;
     x = g_x;          // x is in another scope so this doesn't cause shadowing
     g_x = g_x;        // warn
+    g_y = g_y;        // warn
 }

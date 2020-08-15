@@ -43,6 +43,16 @@ int b(int x);
 int a(int x) { return b(x); }  // mutual unconditional recursion is not detected
 int b(int x) { return a(x); }  // mutual unconditional recursion is not detected
 
+int check_equal_lhs_and_rhs(int x)
+{
+    return f(x);
+    bool b;
+    if (b && b)
+        x = 42;
+    if (b || b)
+        x = 42;
+}
+
 int main(__attribute__((unused)) int argc,
          __attribute__((unused)) const char * argv[],
          __attribute__((unused)) const char * envp[])

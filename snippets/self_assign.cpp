@@ -40,16 +40,8 @@ int g(int x)
 
 int a(int x);
 int b(int x);
-
-int a(int x)
-{
-    return b(x);
-}
-
-int b(int x)
-{
-    return a(x);
-}
+int a(int x) { return b(x); }  // mutual unconditional recursion is not detected
+int b(int x) { return a(x); }  // mutual unconditional recursion is not detected
 
 int main(__attribute__((unused)) int argc,
          __attribute__((unused)) const char * argv[],

@@ -43,7 +43,7 @@ int b(int x);
 int a(int x) { return b(x); }  // mutual unconditional recursion is not detected
 int b(int x) { return a(x); }  // mutual unconditional recursion is not detected
 
-/// Note: clang-10 doesn't warn here.
+/// Neither gcc-10 nor clang-10 warn here.
 int check_equal_lhs_and_rhs(int x)
 {
     return f(x);

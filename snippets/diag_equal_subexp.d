@@ -1,17 +1,24 @@
 /// Neither GCC 10` nor Clang 10 warn here.
-void check_equal_lhs_and_rhs(int x)
+void check_equal_lhs_and_rhs(int i)
 {
-    bool b;
+    bool x, y;
+    alias xa = x;
 
-    if (b & b)                  // `AndExp`
-        x = 42;
+    if (x & x)
+        i = 42;
 
-    if (b | b)                  // `OrExp`
-        x = 42;
+    if (x & xa)                 // TODO warn
+        i = 42;
 
-    if (b && b)                 // `LogicalExp`
-        x = 42;
+    if (x & y)
+        i = 42;
 
-    if (b || b)                 // `LogicalExp`
-        x = 42;
+    if (x | x)
+        i = 42;
+
+    if (x && x)
+        i = 42;
+
+    if (x || x)
+        i = 42;
 }

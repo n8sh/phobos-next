@@ -4,8 +4,8 @@
 int main(void) {
   int a = 5;
   if (a == 5) {
-    printf("First condition is True, a: %d\n", a);
+    printf("First condition is true, a: %d\n", a);
   } else if (a == 5) {
-    printf("Second condition is True, a: %d\n", a);
+    printf("Second condition is true, a: %d\n", a);
   }
 }

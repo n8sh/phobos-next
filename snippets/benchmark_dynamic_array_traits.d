@@ -16,7 +16,7 @@ private static alias ScalarTypes = AliasSeq!(bool,
                                              ifloat, idouble, ireal,
                                              string, wstring, dstring);
 
-private static enum qualifiers = AliasSeq!("", "const", "inout", "immutable");
+private static enum qualifiers = AliasSeq!("", "const", "inout", "immutable", "shared", "shared const");
 
 // TODO try to extract this into a generic function `ctBenchmark`
 static foreach (T; ScalarTypes)

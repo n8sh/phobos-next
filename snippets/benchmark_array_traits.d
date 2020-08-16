@@ -24,7 +24,8 @@ static assert(!is(D == T[], T));
 
 import std.meta : AliasSeq;
 
-static foreach (T; AliasSeq!(byte, ubyte,
+static foreach (T; AliasSeq!(char, wchar, dchar,
+                             byte, ubyte,
                              short, ushort,
                              int, uint,
                              long, ulong,
@@ -32,5 +33,6 @@ static foreach (T; AliasSeq!(byte, ubyte,
 {
     static assert(__traits(isDynamicArray, T[]));
     static assert(__traits(isDynamicArray, const(T)[]));
+    static assert(__traits(isDynamicArray, inout(T)[]));
     static assert(__traits(isDynamicArray, immutable(T)[]));
 }

@@ -34,9 +34,9 @@ static foreach (T; ScalarTypes)
             static foreach (qualifier; qualifiers)
             {
                 version(useBuiltin)
-                    static assert(__traits(isDynamicArray, mixin(qualifier, "(", T, "_", U, "_", V, ")")[])); // min over 10 runs: 1.38 s. 1.46 lowest with dmd branch `traits-switch-opt`
+                    static assert(__traits(isDynamicArray, mixin(qualifier, "(", T, "_", U, "_", V, ")")[])); // min over 10 runs: 1.38s. 1.46s lowest with dmd branch `traits-switch-opt`
                 else
-                    static assert(is(mixin(qualifier, "(", T, "_", U, "_", V, ")")[] == X[], X)); // min over 10 runs: 1.42 s
+                    static assert(is(mixin(qualifier, "(", T, "_", U, "_", V, ")")[] == X[], X)); // min over 10 runs: 1.42s
             }
         }
 

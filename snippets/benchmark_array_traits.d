@@ -1,4 +1,5 @@
-//// See_Also: https://github.com/dlang/phobos/pull/7574
+/// See_Also: https://github.com/dlang/dmd/pull/9014#issuecomment-674451700
+/// See_Also: https://github.com/dlang/phobos/pull/7574
 
 import std.traits : isStaticArray, isDynamicArray;
 

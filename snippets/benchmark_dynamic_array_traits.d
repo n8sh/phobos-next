@@ -13,7 +13,8 @@ private static alias ScalarTypes = AliasSeq!(bool,
                                              long, ulong,
                                              float, double, real,
                                              cfloat, cdouble, creal,
-                                             ifloat, idouble, ireal);
+                                             ifloat, idouble, ireal,
+                                             string, wstring, dstring);
 
 private static enum qualifiers = AliasSeq!("", "const", "inout", "immutable");
 

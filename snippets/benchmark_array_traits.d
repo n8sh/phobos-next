@@ -29,7 +29,9 @@ static foreach (T; AliasSeq!(char, wchar, dchar,
                              short, ushort,
                              int, uint,
                              long, ulong,
-                             float, double, real))
+                             float, double, real,
+                             cfloat, cdouble, creal,
+                             ifloat, idouble, ireal))
 {
     static assert(__traits(isDynamicArray, T[]));
     static assert(__traits(isDynamicArray, const(T)[]));

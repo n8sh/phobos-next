@@ -40,7 +40,6 @@ static foreach (T; ScalarTypes)
                     static assert(is(mixin(qualifier, "(", T, "_", U, "_", V, ")")[] == X[], X)); // min over 10 runs: 2.75s
             }
         }
-
     }
 }
 

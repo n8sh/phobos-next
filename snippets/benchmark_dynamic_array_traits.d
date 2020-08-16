@@ -3,6 +3,8 @@
 
 import std.meta : AliasSeq;
 
+version = useBuiltin;
+
 private static alias ScalarTypes = AliasSeq!(bool,
                                              char, wchar, dchar,
                                              byte, ubyte,
@@ -30,8 +32,10 @@ static foreach (T; ScalarTypes)
                   "}");
             static foreach (qualifier; qualifiers)
             {
-                // static assert(__traits(isDynamicArray, mixin(qualifier, "(", T, "_", U, "_", V, ")")[])); // min over 10 runs: 1.38 s
-                // static assert(is(mixin(qualifier, "(", T, "_", U, "_", V, ")")[] == X[], X)); // min over 10 runs: 1.42 s
+                version(useBuiltin)
+                    static assert(__traits(isDynamicArray, mixin(qualifier, "(", T, "_", U, "_", V, ")")[])); // min over 10 runs: 1.38 s
+                else
+                    static assert(is(mixin(qualifier, "(", T, "_", U, "_", V, ")")[] == X[], X)); // min over 10 runs: 1.42 s
             }
         }
 

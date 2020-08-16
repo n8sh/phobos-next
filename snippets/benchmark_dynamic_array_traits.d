@@ -19,15 +19,20 @@ static foreach (T; ScalarTypes)
 {
     static foreach (U; ScalarTypes)
     {
-        mixin("struct ",
-              T, "_" ,U,
-              " {",
-              T, " t; ",
-              U, " u; ",
-              "}");
-        static foreach (qualifier; qualifiers)
+        static foreach (V; ScalarTypes)
         {
-            static assert(__traits(isDynamicArray, mixin(qualifier, "(", T, "_", U, ")")[]));
+            mixin("struct ",
+                  T, "_" ,U, "_" ,V,
+                  " {",
+                  T, " t; ",
+                  U, " u; ",
+                  V, " v; ",
+                  "}");
+            static foreach (qualifier; qualifiers)
+            {
+                static assert(__traits(isDynamicArray, mixin(qualifier, "(", T, "_", U, "_", V, ")")[]));
+            }
         }
+
     }
 }

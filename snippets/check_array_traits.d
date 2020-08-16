@@ -21,3 +21,4 @@ enum D : string
 
 static assert(isDynamicArray!D);
 static assert(!is(D == T[], T));
+static assert(__traits(isDynamicArray, D));

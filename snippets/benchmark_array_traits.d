@@ -10,6 +10,7 @@ enum C : char[1]
 
 static assert(isStaticArray!C);
 static assert(!is(D == T[1], T));
+static assert(__traits(isStaticArray, C));
 
 enum D : string
 {

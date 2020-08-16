@@ -13,6 +13,8 @@ private static alias ScalarTypes = AliasSeq!(bool,
                                              cfloat, cdouble, creal,
                                              ifloat, idouble, ireal);
 
+private static enum qualifiers = AliasSeq!("", "const", "inout", "immutable");
+
 static foreach (T; ScalarTypes)
 {
     static foreach (U; ScalarTypes)
@@ -23,9 +25,9 @@ static foreach (T; ScalarTypes)
               T, " t; ",
               U, " u; ",
               "}");
-        static assert(__traits(isDynamicArray, mixin(T,"_",U)[]));
-        // static assert(__traits(isDynamicArray, const(T)[]));
-        // static assert(__traits(isDynamicArray, inout(T)[]));
-        // static assert(__traits(isDynamicArray, immutable(T)[]));
+        static foreach (qualifier; qualifiers)
+        {
+            static assert(__traits(isDynamicArray, mixin(qualifier, "(", T, "_", U, ")")[]));
+        }
     }
 }

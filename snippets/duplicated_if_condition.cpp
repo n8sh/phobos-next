@@ -1,21 +1,10 @@
-/*! \file duplicated_if_condition.cpp
- * \brief
- */
+#include <stdio.h>
 
-#include <iostream>
-#include <string>
-
-using std::cout;
-using std::endl;
-using std::hex;
-using std::dec;
-
-int main(int argc,
-         __attribute__((unused)) const char * argv[],
-         __attribute__((unused)) const char * envp[])
-{
-    if (argc > 3)
-        return 0;
-    if (argc > 3)
-        return 0;
+int main(void) {
+  int a = 5;
+  if (a == 5) {
+    printf("First  condition is True, A = %d\n", a);
+  } else if (a == 5) {
+    printf("Second condition is True, A = %d\n", a);
+  }
 }

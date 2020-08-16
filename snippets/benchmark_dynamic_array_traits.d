@@ -3,7 +3,7 @@
 
 import std.meta : AliasSeq;
 
-static foreach (T; AliasSeq!(bool,
+alias ScalarTypes = AliasSeq!(bool,
                              char, wchar, dchar,
                              byte, ubyte,
                              short, ushort,
@@ -11,17 +11,11 @@ static foreach (T; AliasSeq!(bool,
                              long, ulong,
                              float, double, real,
                              cfloat, cdouble, creal,
-                             ifloat, idouble, ireal))
+                             ifloat, idouble, ireal);
+
+static foreach (T; ScalarTypes)
 {
-    static foreach (U; AliasSeq!(bool,
-                                 char, wchar, dchar,
-                                 byte, ubyte,
-                                 short, ushort,
-                                 int, uint,
-                                 long, ulong,
-                                 float, double, real,
-                                 cfloat, cdouble, creal,
-                                 ifloat, idouble, ireal))
+    static foreach (U; ScalarTypes)
     {
         mixin("struct ",
               T, "_" ,U,

@@ -2,6 +2,7 @@ class Base
 {
     abstract void f();
 }
+
 class Derived : Base
 {
 }

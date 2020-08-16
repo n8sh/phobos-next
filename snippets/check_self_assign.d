@@ -88,3 +88,15 @@ alias g_y = g_x;
     g_x = g_x;        // warn
     g_y = g_y;        // warn
 }
+
+struct U
+{
+@safe pure nothrow @nogc:
+    void opAssign(U) {}
+}
+
+@safe pure nothrow @nogc void test2()
+{
+    U u;
+    u = u;
+}

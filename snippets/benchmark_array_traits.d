@@ -21,4 +21,16 @@ enum D : string
 
 static assert(isDynamicArray!D);
 static assert(!is(D == T[], T));
-static assert(__traits(isDynamicArray, D));
+
+import std.meta : AliasSeq;
+
+static foreach (T; AliasSeq!(byte, ubyte,
+                             short, ushort,
+                             int, uint,
+                             long, ulong,
+                             float, double, real))
+{
+    static assert(__traits(isDynamicArray, T[]));
+    static assert(__traits(isDynamicArray, const(T)[]));
+    static assert(__traits(isDynamicArray, immutable(T)[]));
+}

@@ -44,8 +44,13 @@ static foreach (T; AliasSeq!(bool,
                                  cfloat, cdouble, creal,
                                  ifloat, idouble, ireal))
     {
-        mixin("struct ", T, "_", U, " {", T, " t; ", U, " u; }");
-        // static assert(__traits(isDynamicArray, T[]));
+        mixin("struct ",
+              T,"_",U,
+              " {",
+              T, " t; ",
+              U, " u; ",
+              "}");
+        static assert(__traits(isDynamicArray, mixin(T,"_",U)[]));
         // static assert(__traits(isDynamicArray, const(T)[]));
         // static assert(__traits(isDynamicArray, inout(T)[]));
         // static assert(__traits(isDynamicArray, immutable(T)[]));

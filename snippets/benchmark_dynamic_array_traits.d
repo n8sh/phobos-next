@@ -3,7 +3,7 @@
 
 import std.meta : AliasSeq;
 
-version = useBuiltin;
+version = useBuiltin;           ///< Use new builtin trait __traits(isDynamicArray, ...)
 
 private static alias ScalarTypes = AliasSeq!(bool,
                                              char, wchar, dchar,

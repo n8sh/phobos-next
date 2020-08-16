@@ -17,6 +17,7 @@ private static alias ScalarTypes = AliasSeq!(bool,
 
 private static enum qualifiers = AliasSeq!("", "const", "inout", "immutable");
 
+// TODO try to extract this into a generic function `ctBenchmark`
 static foreach (T; ScalarTypes)
 {
     static foreach (U; ScalarTypes)

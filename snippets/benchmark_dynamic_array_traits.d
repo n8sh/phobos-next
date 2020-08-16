@@ -30,8 +30,8 @@ static foreach (T; ScalarTypes)
                   "}");
             static foreach (qualifier; qualifiers)
             {
-                // static assert(__traits(isDynamicArray, mixin(qualifier, "(", T, "_", U, "_", V, ")")[]));
-                static assert(is(mixin(qualifier, "(", T, "_", U, "_", V, ")")[] == X[], X));
+                // static assert(__traits(isDynamicArray, mixin(qualifier, "(", T, "_", U, "_", V, ")")[])); // min over 10 runs: 1.38 s
+                // static assert(is(mixin(qualifier, "(", T, "_", U, "_", V, ")")[] == X[], X)); // min over 10 runs: 1.42 s
             }
         }
 

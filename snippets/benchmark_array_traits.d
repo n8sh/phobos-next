@@ -45,7 +45,7 @@ static foreach (T; AliasSeq!(bool,
                                  ifloat, idouble, ireal))
     {
         mixin("struct ",
-              T,"_",U,
+              T, "_" ,U,
               " {",
               T, " t; ",
               U, " u; ",

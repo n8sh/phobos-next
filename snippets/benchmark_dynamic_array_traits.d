@@ -3,15 +3,15 @@
 
 import std.meta : AliasSeq;
 
-alias ScalarTypes = AliasSeq!(bool,
-                             char, wchar, dchar,
-                             byte, ubyte,
-                             short, ushort,
-                             int, uint,
-                             long, ulong,
-                             float, double, real,
-                             cfloat, cdouble, creal,
-                             ifloat, idouble, ireal);
+private static alias ScalarTypes = AliasSeq!(bool,
+                                             char, wchar, dchar,
+                                             byte, ubyte,
+                                             short, ushort,
+                                             int, uint,
+                                             long, ulong,
+                                             float, double, real,
+                                             cfloat, cdouble, creal,
+                                             ifloat, idouble, ireal);
 
 static foreach (T; ScalarTypes)
 {

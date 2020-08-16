@@ -43,7 +43,7 @@ static foreach (T; ScalarTypes)
     }
 }
 
-version(none)
+version(none)                   // this is slower than above
 template ctBenchmark(Types = ScalarTypes)
 {
     void ctBenchmark()

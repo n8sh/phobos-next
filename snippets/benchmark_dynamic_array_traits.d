@@ -42,3 +42,44 @@ static foreach (T; ScalarTypes)
 
     }
 }
+
+version(none)
+template ctBenchmark(Types = ScalarTypes)
+{
+    void ctBenchmark()
+    {
+        static foreach (T; Types)
+        {
+            static foreach (U; Types)
+            {
+                static foreach (V; Types)
+                {
+                    mixin("struct ",
+                          T, "_" ,U, "_" ,V,
+                          " {",
+                          T, " t; ",
+                          U, " u; ",
+                          V, " v; ",
+                          "}");
+                    static foreach (qualifier; qualifiers)
+                    {
+                        {
+                            alias OuterType = mixin(qualifier, "(", T, "_", U, "_", V, ")");
+                            version(useBuiltin)
+                                static assert(__traits(isDynamicArray, OuterType[])); // min over 10 runs: 1.38 s
+                            else
+                                static assert(is(OuterType[] == X[], X)); // min over 10 runs: 1.42 s
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+}
+
+version(none)
+@safe pure unittest
+{
+    ctBenchmark!()();
+}

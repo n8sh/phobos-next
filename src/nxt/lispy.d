@@ -5,6 +5,8 @@
  * See_Also: http://sigmakee.cvs.sourceforge.net/viewvc/sigmakee/sigma/suo-kif.pdf
  * See_Also: http://forum.dlang.org/post/prsxfcmkngfwomygmthi@forum.dlang.org
  *
+ * TODO: Break out lexer and parser parts to to `nxt.`lexing and `nxt.parsing`
+ *
  * TODO: Try infinite loops with break or goto instead of for loops.
  *
  * TODO: Should we add `LispFile.bySExpr` to allow use of `offsetTo` inside

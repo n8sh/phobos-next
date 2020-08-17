@@ -1,3 +1,5 @@
+/** Reorder aggregate tupleof by descending alignment.
+ */
 module nxt.align_reorder;
 
 struct S

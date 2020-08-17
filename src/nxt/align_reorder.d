@@ -10,12 +10,7 @@ struct S
     bool z;
 }
 
-template realigned(T)
-{
-    alias realigned = typeof(T.tupleof);
-}
-
-enum alignOf(T) = T.alignof;
+private static enum alignOf(T) = T.alignof;
 
 template sortBy(alias pred, Ts...)
 {
@@ -35,6 +30,6 @@ template sortBy(alias pred, Ts...)
 @safe pure unittest
 {
     pragma(msg, __FILE__, "(", __LINE__, ",1): Debug: ", S.sizeof);
-    pragma(msg, __FILE__, "(", __LINE__, ",1): Debug: ", realigned!(S));
-    pragma(msg, __FILE__, "(", __LINE__, ",1): Debug: ", sortBy!(alignOf, typeof(S.tupleof)));
+    pragma(msg, __FILE__, "(", __LINE__, ",1): Debug: ", sortBy!(alignOf,
+                                                                 typeof(S.tupleof)));
 }

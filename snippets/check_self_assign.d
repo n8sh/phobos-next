@@ -100,3 +100,28 @@ struct U
     U u;
     u = u;
 }
+
+@system unittest
+{
+    import std.exception : assertThrown;
+    import std.typecons : Nullable;
+    Nullable!int a;
+    assert(a.isNull);
+    assertThrown!Throwable(a.get);
+    a = 5;
+    assert(!a.isNull);
+    assert(a == 5);
+    assert(a != 3);
+    assert(a.get != 3);
+    a.nullify();
+    assert(a.isNull);
+    a = 3;
+    assert(a == 3);
+    a *= 6;
+    assert(a == 18);
+    auto b = a;
+    a = b;
+    assert(a == 18);
+    a.nullify();
+    assertThrown!Throwable(a += 2);
+}

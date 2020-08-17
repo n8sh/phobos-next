@@ -30,6 +30,5 @@ template sortBy(alias pred, Ts...)
 @safe pure unittest
 {
     pragma(msg, __FILE__, "(", __LINE__, ",1): Debug: ", S.sizeof);
-    pragma(msg, __FILE__, "(", __LINE__, ",1): Debug: ", sortBy!(alignOf,
-                                                                 typeof(S.tupleof)));
+    pragma(msg, __FILE__, "(", __LINE__, ",1): Debug: ", sortBy!(alignOf, typeof(S.tupleof)));
 }

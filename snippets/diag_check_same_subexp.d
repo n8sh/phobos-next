@@ -6,10 +6,10 @@ void check_equal_lhs_and_rhs(int i)
 
     enum { a = 0, b = 1 }
 
-    if (a & a)                  // TODO no warn for enumerators
+    if (a & a)                  // TODO: no warn for enumerators
         i = 42;
 
-    if (b & b)                  // TODO no warn for enumerators
+    if (b & b)                  // TODO: no warn for enumerators
         i = 42;
 
     if (a & b)
@@ -43,16 +43,16 @@ void check_equal_lhs_and_rhs(int i)
         x & x)
         i = 42;
 
-    if (x && x)
+    if (x && x)                 // TODO: warn
         i = 42;
 
-    if (x || x)
+    if (x || x)                 // TODO: warn
         i = 42;
 
-    if ((x && x) ||
-        (x && x))
+    if ((x && x) ||             // TODO: warn
+        (x && x))               // TODO: warn
         i = 42;
 
-    const i1 = true ? 41 : 42;
-    const i2 = true ? 42 : 42;
+    const i1 = true ? 41 : 42;  // TODO: warn
+    const i2 = true ? 42 : 42;  // TODO: warn
 }

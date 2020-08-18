@@ -28,40 +28,40 @@ static private template isDynamicArray(T)
         enum bool isDynamicArray = false;
 }
 
-@safe pure unittest
+static foreach (T; ScalarTypes)
 {
-    static foreach (T; ScalarTypes)
+    static foreach (U; ScalarTypes)
     {
-        static foreach (U; ScalarTypes)
+        static foreach (V; ScalarTypes)
         {
-            static foreach (V; ScalarTypes)
+            mixin("struct ",
+                  T, "_" ,U, "_" ,V,
+                  " {",
+                  T, " t; ",
+                  U, " u; ",
+                  V, " v; ",
+                  "}");
+            static foreach (qualifier; qualifiers)
             {
-                mixin("struct ",
-                      T, "_" ,U, "_" ,V,
-                      " {",
-                      T, " t; ",
-                      U, " u; ",
-                      V, " v; ",
-                      "}");
-                mixin("enum ",
-                      T, "_", U, "_", V, // type
-                      " ",
-                      "e_", "_", T, "_", U, "_", V, // name
-                      " = ",
-                      T, "_", U, "_", V, ".init",
-                      ";");
+                // mixin("enum ",
+                //       T, "_", U, "_", V, // type
+                //       " ",
+                //       "e_", qualifier, "_", T, "_", U, "_", V, // name
+                //       " = ",
+                //       T, "_", U, "_", V, ".init",
+                //       ";");
                 version(useBuiltin)
-                    static assert(__traits(isDynamicArray, mixin(T, "_", U, "_", V)[])); // min over 10 runs: 2.62s.
+                static assert(__traits(isDynamicArray, mixin(qualifier, "(", T, "_", U, "_", V, ")")[])); // min over 10 runs: 2.62s.
                 else
                 {
                     // static assert(is(mixin(qualifier, "(", T, "_", U, "_", V, ")")[] == X[], X)); // min over 10 runs: 2.75s
-                    static assert(isDynamicArray!(mixin(T, "_", U, "_", V)[])); // min over 10 runs: 3.19s
+                    static assert(isDynamicArray!(mixin(qualifier, "(", T, "_", U, "_", V, ")")[])); // min over 10 runs: 3.19s
                 }
             }
         }
     }
-
 }
+
 version(none)                   // this is slower than above
 template ctBenchmark(Types = ScalarTypes)
 {

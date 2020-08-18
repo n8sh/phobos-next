@@ -28,7 +28,6 @@ static private template isDynamicArray(T)
         enum bool isDynamicArray = false;
 }
 
-// TODO try to extract this into a generic function `ctBenchmark`
 static foreach (T; ScalarTypes)
 {
     static foreach (U; ScalarTypes)

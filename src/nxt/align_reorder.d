@@ -28,7 +28,7 @@ mixin template ctLog(string msg,
     pragma(msg, file, "(", line, "): ", msg);
 }
 
-version = show;
+// version = show;
 
 @safe pure unittest
 {

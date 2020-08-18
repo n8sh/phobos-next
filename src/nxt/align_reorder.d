@@ -24,7 +24,3 @@ template staticSortByDescendingAlignment(Ts...)
     alias T = AliasSeq!(staticSortByDescendingAlignment!(typeof(S.tupleof)));
     pragma(msg, __FILE__, "(", __LINE__, ",1): Debug: ", T, " of size ", T.sizeof);
 }
-
-unittest {
-
-}

@@ -5,7 +5,7 @@ import std.meta : AliasSeq;
 
 // version = useBuiltin;           ///< Use new builtin trait __traits(isDynamicArray, ...)
 
-private static alias ScalarTypes = AliasSeq!(bool,
+private static alias SampleTypes = AliasSeq!(bool,
                                              char, wchar, dchar,
                                              byte, ubyte,
                                              short, ushort,
@@ -28,11 +28,11 @@ static private template isDynamicArray(T)
         enum bool isDynamicArray = false;
 }
 
-static foreach (T; ScalarTypes)
+static foreach (T; SampleTypes)
 {
-    static foreach (U; ScalarTypes)
+    static foreach (U; SampleTypes)
     {
-        static foreach (V; ScalarTypes)
+        static foreach (V; SampleTypes)
         {
             mixin("struct ",
                   T, "_" ,U, "_" ,V,
@@ -63,7 +63,7 @@ static foreach (T; ScalarTypes)
 }
 
 version(none)                   // this is slower than above
-template ctBenchmark(Types = ScalarTypes)
+template ctBenchmark(Types = SampleTypes)
 {
     void ctBenchmark()
     {

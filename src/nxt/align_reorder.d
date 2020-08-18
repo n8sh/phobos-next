@@ -16,7 +16,9 @@ template sortBy(alias pred, Ts...)
 {
     import std.meta : AliasSeq;
     static if (Ts.length <= 1)
+    {
         alias sortBy = Ts;
+    }
     else
     {
         static if (pred!(Ts[0]) <
@@ -30,5 +32,6 @@ template sortBy(alias pred, Ts...)
 @safe pure unittest
 {
     pragma(msg, __FILE__, "(", __LINE__, ",1): Debug: ", S.sizeof);
-    pragma(msg, __FILE__, "(", __LINE__, ",1): Debug: ", sortBy!(alignOf, typeof(S.tupleof)));
+    alias T = sortBy!(alignOf, typeof(S.tupleof));
+    pragma(msg, __FILE__, "(", __LINE__, ",1): Debug: ", T, " of size ");
 }

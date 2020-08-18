@@ -28,11 +28,12 @@ mixin template ctLog(string msg,
     pragma(msg, file, "(", line, "): ", msg);
 }
 
+version = show;
+
 @safe pure unittest
 {
     import std.meta : AliasSeq;
-    pragma(msg, __FILE__, "(", __LINE__, ",1): Debug: ", S.sizeof);
+    version(show) pragma(msg, __FILE__, "(", __LINE__, ",1): Debug: ", S.sizeof);
     alias T = AliasSeq!(staticSortByDescendingAlignment!(typeof(S.tupleof)));
-    pragma(msg, __FILE__, "(", __LINE__, ",1): Debug: ", T, " of size "// , T.sizeof
-        );
+    version(show) pragma(msg, __FILE__, "(", __LINE__, ",1): Debug: ", T, " of size ");
 }

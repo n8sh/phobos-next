@@ -10,28 +10,21 @@ struct S
     bool z;
 }
 
-private static enum alignOf(T) = T.alignof;
-
-template sortBy(alias pred, Ts...)
+template staticSortByDescendingAlignment(Ts...)
 {
-    import std.meta : AliasSeq;
-    static if (Ts.length <= 1)
-    {
-        alias sortBy = Ts;
-    }
-    else
-    {
-        static if (pred!(Ts[0]) <
-                   pred!(Ts[1]))
-            alias sortBy = AliasSeq!(Ts[0], Ts[1], sortBy!(Ts[2 .. $]));
-        else
-            alias sortBy = AliasSeq!(Ts[1], Ts[0], sortBy!(Ts[2 .. $]));
-    }
+    import std.meta : staticSort;
+    alias staticSortByDescendingAlignment = staticSort!(alignofComp, Ts);
+    enum alignofComp(alias A, alias B) = A.alignof > B.alignof;
 }
 
 @safe pure unittest
 {
+    import std.meta : AliasSeq;
     pragma(msg, __FILE__, "(", __LINE__, ",1): Debug: ", S.sizeof);
-    alias T = sortBy!(alignOf, typeof(S.tupleof));
-    pragma(msg, __FILE__, "(", __LINE__, ",1): Debug: ", T, " of size ");
+    alias T = AliasSeq!(staticSortByDescendingAlignment!(typeof(S.tupleof)));
+    pragma(msg, __FILE__, "(", __LINE__, ",1): Debug: ", T, " of size ", T.sizeof);
+}
+
+unittest {
+
 }

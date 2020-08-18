@@ -19,10 +19,10 @@ void check_equal_lhs_and_rhs(int i)
     if (1 & 2)
         i = 42;
 
-    if (false & false)          // no warn
+    if (false & false)
         i = 42;
 
-    if (true & true)            // no warn
+    if (true & true)
         i = 42;
 
     if (x1 & x1)                // warn

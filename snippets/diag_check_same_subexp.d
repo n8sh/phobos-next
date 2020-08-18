@@ -19,37 +19,43 @@ void check_equal_lhs_and_rhs(int i)
     if (1 & 2)
         i = 42;
 
-    if (x1 & x1)
+    if (false & false)          // no warn
         i = 42;
 
-    if (x & x)
+    if (true & true)            // no warn
+        i = 42;
+
+    if (x1 & x1)                // warn
+        i = 42;
+
+    if (x & x)                  // warn
         i = 42;
 
     i = x + x;
     i = x - x;
     i = x * x;
 
-    if (x & xa)
+    if (x & xa)                 // warn
         i = 42;
 
     if (x & y)
         i = 42;
 
-    if (x | x)
+    if (x | x)                  // warn
         i = 42;
 
-    if (x & x |
-        x & x)
+    if (x & x |                 // warn
+        x & x)                  // warn
         i = 42;
 
-    if (x && x)
+    if (x && x)                 // warn
         i = 42;
 
-    if (x || x)
+    if (x || x)                 // warn
         i = 42;
 
-    if ((x && x) ||
-        (x && x))
+    if ((x && x) ||             // warn
+        (x && x))               // warn
         i = 42;
 
     const i1 = true ? 41 : 42;  // no warn for constants

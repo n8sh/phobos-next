@@ -53,6 +53,6 @@ void check_equal_lhs_and_rhs(int i)
         (x && x))               // TODO: warn
         i = 42;
 
-    const i1 = true ? 41 : 42;  // TODO: warn
+    const i1 = true ? 41 : 42;
     const i2 = true ? 42 : 42;  // TODO: warn
 }

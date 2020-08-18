@@ -2,6 +2,8 @@
  */
 module nxt.align_reorder;
 
+// version = show;
+
 struct S
 {
     bool x;
@@ -27,8 +29,6 @@ mixin template ctLog(string msg,
 {
     pragma(msg, file, "(", line, "): ", msg);
 }
-
-// version = show;
 
 @safe pure unittest
 {

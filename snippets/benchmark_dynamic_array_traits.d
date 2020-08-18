@@ -18,6 +18,16 @@ private static alias ScalarTypes = AliasSeq!(bool,
 
 private static enum qualifiers = AliasSeq!("", "const", "inout", "immutable", "shared", "shared const");
 
+static private template isDynamicArray(T)
+{
+    static if (is(T == U[], U))
+        enum bool isDynamicArray = true;
+    else static if (is(T U == enum))
+        enum bool isDynamicArray = isDynamicArray!U;
+    else
+        enum bool isDynamicArray = false;
+}
+
 // TODO try to extract this into a generic function `ctBenchmark`
 static foreach (T; ScalarTypes)
 {
@@ -37,7 +47,8 @@ static foreach (T; ScalarTypes)
                 version(useBuiltin)
                     static assert(__traits(isDynamicArray, mixin(qualifier, "(", T, "_", U, "_", V, ")")[])); // min over 10 runs: 2.62s.
                 else
-                    static assert(is(mixin(qualifier, "(", T, "_", U, "_", V, ")")[] == X[], X)); // min over 10 runs: 2.75s
+                    // static assert(is(mixin(qualifier, "(", T, "_", U, "_", V, ")")[] == X[], X)); // min over 10 runs: 2.75s
+                    static assert(is(mixin(qualifier, isDynamicArray"(", T, "_", U, "_", V, ")")[] == X[], X)); // min over 10 runs: 2.75s
             }
         }
     }

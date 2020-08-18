@@ -17,6 +17,17 @@ template staticSortByDescendingAlignment(Ts...)
     enum alignofComp(alias A, alias B) = A.alignof > B.alignof;
 }
 
+/** Compile-time logging in format similar to compiler diagnotics messages.
+ *
+ * See_Also: https://forum.dlang.org/post/nvffhcuxicmtgsxbketg@forum.dlang.org
+ */
+mixin template ctLog(string msg,
+                     string file = __FILE__,
+                     size_t line = __LINE__)
+{
+    pragma(msg, file, "(", line, "): ", msg);
+}
+
 @safe pure unittest
 {
     import std.meta : AliasSeq;

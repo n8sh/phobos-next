@@ -52,4 +52,7 @@ void check_equal_lhs_and_rhs(int i)
     if ((x && x) ||
         (x && x))
         i = 42;
+
+    const i1 = true ? 41 : 42;
+    const i2 = true ? 42 : 42;
 }

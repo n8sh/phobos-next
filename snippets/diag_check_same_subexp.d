@@ -59,6 +59,6 @@ void check_equal_lhs_and_rhs(int i)
         i = 42;
 
     const i1 = true ? 41 : 42;  // no warn for constants
-    const i2 = true ? a : a;    // no warn for enumerators
-    const i3 = true ? x : x;    // TODO: warn for variables
+    const i2 = true ? a : a;    // TODO: no warn for enumerators
+    const i3 = true ? x : x;    // warn for variables
 }

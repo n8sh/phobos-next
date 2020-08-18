@@ -51,7 +51,7 @@ static private template isDynamicArray(T)
                       T, "_", U, "_", V, ".init",
                       ";");
                 version(useBuiltin)
-                static assert(__traits(isDynamicArray, mixin(T, "_", U, "_", V)[])); // min over 10 runs: 2.62s.
+                    static assert(__traits(isDynamicArray, mixin(T, "_", U, "_", V)[])); // min over 10 runs: 2.62s.
                 else
                 {
                     // static assert(is(mixin(qualifier, "(", T, "_", U, "_", V, ")")[] == X[], X)); // min over 10 runs: 2.75s

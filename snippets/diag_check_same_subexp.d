@@ -4,6 +4,17 @@ void check_equal_lhs_and_rhs(int i)
     bool x, y;
     alias xa = x;
 
+    enum { a = 0, b = 1 }
+
+    if (a & a)                  // TODO no warn for enumerators
+        i = 42;
+
+    if (b & b)                  // TODO no warn for enumerators
+        i = 42;
+
+    if (a & b)
+        i = 42;
+
     enum { x1 = (0 | 1), x2 }
 
     if (1 & 2)

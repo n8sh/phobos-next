@@ -7,10 +7,10 @@ void check_equal_lhs_and_rhs(int i)
     enum { a = 0, b = 1 }
     enum { x1 = (0 | 1), x2 }
 
-    if (a & a)                  // TODO: no warn for enumerators
+    if (a & a)
         i = 42;
 
-    if (b & b)                  // TODO: no warn for enumerators
+    if (b & b)
         i = 42;
 
     if (a & b)
@@ -25,7 +25,7 @@ void check_equal_lhs_and_rhs(int i)
     if (true & true)
         i = 42;
 
-    if (x1 & x1)                // warn
+    if (x1 & x1)
         i = 42;
 
     if (x & x)                  // warn

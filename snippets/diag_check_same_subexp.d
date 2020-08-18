@@ -5,6 +5,7 @@ void check_equal_lhs_and_rhs(int i)
     alias xa = x;
 
     enum { a = 0, b = 1 }
+    enum { x1 = (0 | 1), x2 }
 
     if (a & a)                  // TODO: no warn for enumerators
         i = 42;
@@ -14,8 +15,6 @@ void check_equal_lhs_and_rhs(int i)
 
     if (a & b)
         i = 42;
-
-    enum { x1 = (0 | 1), x2 }
 
     if (1 & 2)
         i = 42;
@@ -53,6 +52,7 @@ void check_equal_lhs_and_rhs(int i)
         (x && x))               // TODO: warn
         i = 42;
 
-    const i1 = true ? 41 : 42;
-    const i2 = true ? 42 : 42;  // TODO: warn
+    const i1 = true ? 41 : 42;  // no warn for constants
+    const i2 = true ? a : a;    // no warn for enumerators
+    const i3 = true ? x : x;    // TODO: warn for variables
 }

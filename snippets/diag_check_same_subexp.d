@@ -42,14 +42,14 @@ void check_equal_lhs_and_rhs(int i)
         x & x)
         i = 42;
 
-    if (x && x)                 // TODO: warn
+    if (x && x)
         i = 42;
 
-    if (x || x)                 // TODO: warn
+    if (x || x)
         i = 42;
 
-    if ((x && x) ||             // TODO: warn
-        (x && x))               // TODO: warn
+    if ((x && x) ||
+        (x && x))
         i = 42;
 
     const i1 = true ? 41 : 42;  // no warn for constants

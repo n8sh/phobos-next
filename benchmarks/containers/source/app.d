@@ -530,11 +530,9 @@ if (is(A == class) ||
             A a = new A();
         else
             A a;
-        static if (hasMember!(A, `reserve`) &&
-                   __traits(compiles, { a.reserve(elementCount); }))
+        static if (__traits(compiles, { a.reserve(elementCount); }))
             a.reserve(elementCount);
-        else static if (hasMember!(A, `reserve`) &&
-                        __traits(compiles, { a.reserve!uint(elementCount); }))
+        else static if (__traits(compiles, { a.reserve!uint(elementCount); }))
             a.reserve!uint(elementCount);
         return a;
     }
@@ -543,7 +541,9 @@ if (is(A == class) ||
     else static if (isDynamicArray!A)
     {
         import std.range.primitives : ElementType;
-        return new ElementType!A[elementCount];
+        A a;
+        a.reserve(elementCount); // See_Also: https://dlang.org/library/object/reserve.html
+        return a;
     }
     else static if (is(A == struct))
         return A();

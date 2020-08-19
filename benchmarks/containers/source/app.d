@@ -63,7 +63,7 @@ void main()
 
         A a = makeWithTriedCapacity!(A)(elementCount);
 
-        {
+        {                       // need scope
             auto spans_ns = DynamicArray!(double).withLength(runCount);
             foreach (const runIx; 0 .. runCount)
             {
@@ -142,13 +142,13 @@ void main()
     {
         // scope
 
-        A a = makeWithTriedCapacity!(A)(elementCount);
-
         // TODO: const testSource = iotaArrayOf!(0, A.ElementType)(elementCount);
 
         writef("- ");
 
-        {
+        A a = makeWithTriedCapacity!(A)(elementCount);
+
+        {                       // need scope
             immutable startTime = MonoTime.currTime();
             foreach (immutable i; testSource)
             {
@@ -176,7 +176,7 @@ void main()
             writef("insert (w growth): %3.1f ns/op", cast(double)(after - startTime).total!"nsecs" / elementCount);
         }
 
-        {
+        {                       // need scope
             immutable startTime = MonoTime.currTime();
             size_t hitCount = 0;
             foreach (immutable i; testSource)

@@ -540,7 +540,6 @@ if (is(A == class) ||
         return new A();
     else static if (isDynamicArray!A)
     {
-        import std.range.primitives : ElementType;
         A a;
         a.reserve(elementCount); // See_Also: https://dlang.org/library/object/reserve.html
         return a;

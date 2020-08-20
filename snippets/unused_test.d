@@ -1,9 +1,23 @@
 module unused_test;
 
-void foo() {}
+import std.algorithm.iteration : mapx = map;
 
-@safe pure unittest
+alias UsedInt = int;
+alias UnusedInt = int;
+
+import std.traits : isDynamicArray;
+
+void unusedFun()
 {
-    alias Int = int;
-    Int x;
+    UsedInt x;
+}
+
+void usedFun()
+{
+}
+
+unittest
+{
+    usedFun();
+    pragma(msg, isDynamicArray!(int));
 }

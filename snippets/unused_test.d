@@ -1,8 +1,6 @@
 module unused_test;
 
-void foo()
-{
-}
+void foo() {}
 
 @safe pure unittest
 {

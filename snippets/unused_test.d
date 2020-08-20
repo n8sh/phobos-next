@@ -23,8 +23,13 @@ void usedFun()
 {
 }
 
+static void usedFunStatic()
+{
+}
+
 unittest
 {
     usedFun();
+    usedFunStatic();
     pragma(msg, isDynamicArray!(int));
 }

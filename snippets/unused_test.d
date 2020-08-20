@@ -3,6 +3,7 @@ module unused_test;
 import std.range;
 import std.algorithm.iteration : map2 = map;
 import std.algorithm.iteration : filter;
+import io = std.stdio;
 
 alias UsedInt = int;
 alias UnusedInt = int;

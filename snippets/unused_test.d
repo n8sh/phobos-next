@@ -34,6 +34,6 @@ void main()
 {
     usedFun();
     usedFunStatic();
-    pragma(msg, isDynamicArray!(int));
-    // auto _ = isDynamicArray!(int);
+    enum e = isDynamicArray!(int);
+    // auto i = isDynamicArray!(int);
 }

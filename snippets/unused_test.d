@@ -13,7 +13,7 @@ private alias PrivateUnusedInt = int;
 int x = 42;
 private int px = 42;
 
-import std.traits : isDynamicArray;
+import std.traits : isDynamicArray, isStaticArray;
 
 void unusedFun()
 {

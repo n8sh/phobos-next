@@ -23,13 +23,17 @@ void unusedFun()
     PrivateUsedInt y;
 }
 
+void usedFun()
+{
+}
+
 private void privateUnusedFun()
 {
     PublicUsedInt x;
     PrivateUsedInt y;
 }
 
-void usedFun()
+private void privateUsedFun()
 {
 }
 
@@ -40,6 +44,7 @@ static void usedFunStatic()
 void main()
 {
     usedFun();
+    privateUsedFun();
     usedFunStatic();
     enum e = isDynamicArray!(int);
     // auto i = isDynamicArray!(int);

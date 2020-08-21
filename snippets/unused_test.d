@@ -6,8 +6,10 @@ import std.algorithm.iteration : filter;
 import std.stdio : writeln;
 import io = std.stdio;
 
-alias UsedInt = int;
+alias PublicUsedInt = int;
 alias PublicUnusedInt = int;
+
+private alias PrivateUsedInt = int;
 private alias PrivateUnusedInt = int;
 
 int x = 42;
@@ -17,12 +19,14 @@ import std.traits : isDynamicArray, isStaticArray;
 
 void unusedFun()
 {
-    UsedInt x;
+    PublicUsedInt x;
+    PrivateUsedInt y;
 }
 
 private void privateUnusedFun()
 {
-    UsedInt x;
+    PublicUsedInt x;
+    PrivateUsedInt y;
 }
 
 void usedFun()

@@ -12,13 +12,13 @@ authors "Per Nordlöw <per.nordlow@gmail.com>"
 dependency "arsd-official:terminal" version="~>8.2.0"
 dependency "silly" version="~>1.0.2"
 
+buildRequirements "allowWarnings"
+
 dflags "-vcolumns" "-dip25" "-dip1008" # "-dip1000"
 dflags "-preview=intpromote" "-preview=dtorfields" "-preview=markdown"
 # TODO: fails linking: dflags "-preview=in"
 # TODO: fails linking of benchmark: dflags "-checkaction=context"
 # TODO: fails build: dflags "-preview=nosharedaccess"
-
-buildRequirements "allowWarnings"
 
 libs "z" "bz2" "zstd"
 

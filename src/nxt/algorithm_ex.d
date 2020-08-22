@@ -9,11 +9,10 @@ module nxt.algorithm_ex;
 
 /* version = print; */
 
-import std.algorithm.comparison : min, max;
-import std.traits : isArray, Unqual, isIntegral, CommonType, isIterable, isFloatingPoint, arity, isSomeString, isSomeChar, isExpressionTuple, isExpressions;
-import std.range.primitives : ElementType, isInputRange, isForwardRange, isBidirectionalRange, isRandomAccessRange, isOutputRange, front, back;
+import std.traits : isArray, Unqual, isIntegral, CommonType, arity, isSomeString, isExpressionTuple;
+import std.range.primitives : ElementType, isInputRange, isForwardRange, isBidirectionalRange, isRandomAccessRange, front;
 import nxt.traits_ex : allSame;
-import std.functional : unaryFun, binaryFun;
+import std.functional : binaryFun;
 import std.algorithm.searching : find;
 
 version(print)
@@ -1239,6 +1238,7 @@ if (isForwardRange!R)
     }
     else
     {
+        import std.functional : unaryFun;
         auto original = haystack.save;
         auto h = haystack.save;
         size_t pos1, pos2;
@@ -1286,6 +1286,7 @@ if (isForwardRange!R)
     }
     else
     {
+        import std.functional : unaryFun;
         auto original = haystack.save;
         auto h = haystack.save;
         size_t pos;

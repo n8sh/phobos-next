@@ -7,7 +7,7 @@
 module nxt.bijections;
 
 import std.meta : AliasSeq, staticIndexOf;
-import std.traits : Unqual, isUnsigned, isSigned, isIntegral, Unsigned, Signed, isNumeric, isSomeChar;
+import std.traits : Unqual, isUnsigned, isSigned, isIntegral, Unsigned;
 
 /** List of types that are bijectable to builtin integral types. */
 alias IntegralBijectableTypes = AliasSeq!(bool, char, wchar, dchar,

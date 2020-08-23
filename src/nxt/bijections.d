@@ -121,8 +121,8 @@ if (isUnsigned!U)
 /// ditto
 void bijectFromUnsigned(U, V)(U a, ref V b)
 if (isUnsigned!U &&
-        isIntegral!V && isSigned!V &&
-        is(U == Unsigned!V))
+    isIntegral!V && isSigned!V &&
+    is(U == Unsigned!V))
 {
     b = a - (cast(Unsigned!U)1 << (8*U.sizeof - 1)); // "add down""
 }

@@ -40,9 +40,19 @@ if (!isArray!R &&
     class Y : X
     {
         this(int x) { super(x); }
+        int x;
     }
-    auto xy = [new X(42), new Y(43)];
-    static assert(is(typeof(xy) == X[]));
+    class Z : Y
+    {
+        this(int x) { super(x); }
+    }
+
+    void f(const(X)[] xs) {}
+
+    auto xy = [new Y(42), new Z(43)];
+    static assert(is(typeof(xy) == Y[]));
+
+    f([new const(Y)(42), new Z(43)]);
 }
 
 private struct DowncastingFilterResult(Subclass, Range)

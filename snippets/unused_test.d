@@ -30,7 +30,6 @@ void usedFun()
     {
         void g()
         {
-            writeln("");
         }
     }
 }

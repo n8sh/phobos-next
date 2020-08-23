@@ -126,21 +126,13 @@ template castFilter(Subclass)
 {
     class X
     {
-        this(int x)
-        {
-            this.x = x;
-        }
+        this(int x) { this.x = x; }
         int x;
     }
-
     class Y : X
     {
-        this(int x)
-        {
-            super(x);
-        }
+        this(int x) { super(x); }
     }
-
     auto y = castFilter!Y([new X(42), new Y(43)]);
     auto yf = y.front;
     static assert(is(typeof(yf) == Y));

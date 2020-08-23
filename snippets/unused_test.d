@@ -6,11 +6,11 @@ import std.algorithm.iteration : filter;
 import std.stdio : writeln;
 import io = std.stdio;
 
-alias PublicUsedInt = int;
 alias PublicUnusedInt = int;
-
-private alias PrivateUsedInt = int;
 private alias PrivateUnusedInt = int;
+
+alias PublicUsedInt = int;
+private alias PrivateUsedInt = int;
 
 int x = 42;
 private int px = 42;
@@ -30,6 +30,7 @@ void usedFun()
     {
         void g()
         {
+            writeln("");
         }
     }
 }
@@ -50,6 +51,9 @@ static void usedFunStatic()
 
 void main()
 {
+    int x;
+    x = 32;
+    // int y = xx;
     usedFun();
     privateUsedFun();
     usedFunStatic();

@@ -18,8 +18,7 @@ if (is(T == class) &&
 }
 
 /// ditto
-auto upcastElementsTo(U, R)(inout(R) x)
-    @trusted
+auto upcastElementsTo(U, R)(inout(R) x) @trusted
 if (!isArray!R &&
     is(U == class) &&
     isInputRange!R && is(ElementType!R == class)

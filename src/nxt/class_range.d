@@ -29,6 +29,22 @@ if (!isArray!R &&
     return x.map!(_ => cast(U)_);
 }
 
+///
+@safe pure unittest
+{
+    class X
+    {
+        this(int x) { this.x = x; }
+        int x;
+    }
+    class Y : X
+    {
+        this(int x) { super(x); }
+    }
+    auto xy = [new X(42), new Y(43)];
+    static assert(is(typeof(xy) == X[]));
+}
+
 private struct DowncastingFilterResult(Subclass, Range)
 {
     import core.internal.traits : Unqual;

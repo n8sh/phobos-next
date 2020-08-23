@@ -19,12 +19,19 @@ import std.traits : isDynamicArray, isStaticArray;
 
 void unusedFun()
 {
+labelA:
     PublicUsedInt x;
     PrivateUsedInt y;
 }
 
 void usedFun()
 {
+    void f()
+    {
+        void g()
+        {
+        }
+    }
 }
 
 private void privateUnusedFun()

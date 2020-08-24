@@ -3582,8 +3582,8 @@ version(unittest)
     import nxt.digestx.fnv : FNV;
 
     alias X = OpenHashMap!(Nullable!(size_t, size_t.max), size_t, FNV!(64, true));
-    // import nxt.dynamic_array : Array = DynamicArray;
     X x;
+    // import nxt.dynamic_array : Array = DynamicArray;
     // TODO: these segfault:
     // TODO: auto a = Array!(X.KeyType).withElementsOfRange_untested(x.byKey); // l-value byKey
     // TODO: auto b = Array!(X.KeyType).withElementsOfRange_untested(X().byKey); // r-value byKey

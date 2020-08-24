@@ -1,10 +1,10 @@
 module unused_test;
 
 import std.range.primitives;
-import std.algorithm.iteration : map2 = map;
-import std.algorithm.iteration : filter;
+import std.algorithm.iteration : map2 = map; // warn
+import std.algorithm.iteration : filter;     // warn
 
-import std.stdio : writeln;
+import std.stdio : writeln;     // warn
 public import std.stdio : write;
 
 import io = std.stdio;
@@ -12,14 +12,14 @@ import io = std.stdio;
 alias X = ElementType;
 
 alias PublicUnusedInt = int;
-private alias PrivateUnusedInt = int;
+private alias PrivateUnusedInt = int; // warn
 
 alias PublicUsedInt = int;
 private alias PrivateUsedInt = int;
 
 version (D_LP64)
 {
-    private alias PrivateUInt = uint;
+    private alias PrivateUInt = uint; // warn
     alias UInt = int;
 }
 else
@@ -29,32 +29,32 @@ else
 }
 
 int x = 42;
-private int px = 42;
+private int px = 42;            // warn
 
-import std.traits : isDynamicArray, isStaticArray;
+import std.traits : isDynamicArray, isStaticArray; // warn
 
 void unusedFun()
 {
-labelA:
-    PublicUsedInt x;
-    PrivateUsedInt y;
+labelA:                         // warn
+    PublicUsedInt x;            // warn
+    PrivateUsedInt y;           // warn
 }
 
 void usedFun()
 {
     void usedNestedFun()
     {
-        void unusedNestedFun()
+        void unusedNestedFun()  // warn
         {
         }
     }
     usedNestedFun();
 }
 
-private void privateUnusedFun()
+private void privateUnusedFun() // unused
 {
     PublicUsedInt x;
-    PrivateUsedInt y;
+    PrivateUsedInt y;           // unused
     x = x.init;
 }
 
@@ -68,38 +68,43 @@ static void usedFunStatic()
 
 void main()
 {
-    int x;
+    int x;                      // unused
     // int y = xx;
     usedFun();
     privateUsedFun();
     usedFunStatic();
     enum e = isDynamicArray!(int);
     // auto i = isDynamicArray!(int);
-    enum f = e;
+    enum f = e;                 // unused
 }
 
 enum e = isDynamicArray!(int);
-private enum f = isDynamicArray!(int);
+private enum f = isDynamicArray!(int); // unused
 
-private struct S
+private struct S                // unused
 {
 }
-private class C
+private class C                 // unused
 {
 }
-private interface I
+private interface IP            // unused
 {
+    void f();
+}
+interface I             // unused
+{
+    void f();
 }
 
-private struct TS(uint n_)
+private struct TS(uint n_)      // unused
 {
     alias n = n_;
 }
-private class TC(uint n_)
+private class TC(uint n_)       // unused
 {
     alias n = n_;
 }
-private template T(uint n)
+private template T(uint n)      // unused
 {
     alias N = n;
 }

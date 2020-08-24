@@ -115,6 +115,19 @@ interface I
     public void publicMember();
 }
 
+private class Base
+{
+    void member();
+}
+
+private class Derived : Base    // unused
+{
+    override void member() // unused
+    {
+        super.member();
+    }
+}
+
 private struct TS(uint n_)      // unused
 {
     alias n = n_;

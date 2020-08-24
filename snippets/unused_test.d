@@ -129,3 +129,60 @@ private template T(uint n)      // unused
 {
     alias N = n;
 }
+
+void fun() @safe pure
+{
+    if (const x = 3)            // TODO: unused
+    {
+    }
+}
+
+void fun() @safe pure
+{
+    foreach (const n; 0 .. 10)  // unused
+    {
+    }
+}
+
+/***********************************
+ * Create a new associative array of the same size and copy the contents of the
+ * associative array into it.
+ * Params:
+ *      aa =     The associative array.
+ */
+V[K] dup(T : V[K], K, V)(T aa)
+{
+    //pragma(msg, "K = ", K, ", V = ", V);
+
+    // Bug10720 - check whether V is copyable
+    static assert(is(typeof({ V v = aa[K.init]; })),
+        "cannot call " ~ T.stringof ~ ".dup because " ~ V.stringof ~ " is not copyable");
+
+    V[K] result;
+
+    //foreach (k, ref v; aa)
+    //    result[k] = v;  // Bug13701 - won't work if V is not mutable
+
+    ref V duplicateElem(ref K k, ref const V v) @trusted pure nothrow
+    {
+        import core.stdc.string : memcpy;
+
+        void* pv = _aaGetY(cast(AA*)&result, typeid(V[K]), V.sizeof, &k);
+        memcpy(pv, &v, V.sizeof);
+        return *cast(V*)pv;
+    }
+
+    static if (__traits(hasPostblit, V))
+    {
+        auto postblit = _getPostblit!V();
+        foreach (k, ref v; aa)
+            postblit(duplicateElem(k, v));
+    }
+    else
+    {
+        foreach (k, ref v; aa)
+            duplicateElem(k, v);
+    }
+
+    return result;
+}

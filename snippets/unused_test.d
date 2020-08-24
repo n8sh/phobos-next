@@ -117,12 +117,11 @@ interface I
 
 private class Base
 {
-    void member();
+    void member();              // used by `Derived.member()`
 }
-
 private class Derived : Base    // unused
 {
-    override void member() // unused
+    override void member()      // unused
     {
         super.member();
     }

@@ -1,10 +1,12 @@
 module unused_test;
 
-import std.range;
+import std.range.primitives;
 import std.algorithm.iteration : map2 = map;
 import std.algorithm.iteration : filter;
 import std.stdio : writeln;
 import io = std.stdio;
+
+alias X = ElementType;
 
 alias PublicUnusedInt = int;
 private alias PrivateUnusedInt = int;
@@ -75,12 +77,17 @@ void main()
 enum e = isDynamicArray!(int);
 private enum f = isDynamicArray!(int);
 
-struct A(uint n_)
+private struct A(uint n_)
 {
     alias n = n_;
 }
 
-template N(uint n)
+private class C(uint n_)
+{
+    alias n = n_;
+}
+
+private template N(uint n)
 {
     alias N = n;
 }

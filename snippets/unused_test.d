@@ -1,5 +1,3 @@
-module unused_test;
-
 import std.range.primitives;
 import std.algorithm.iteration : map2 = map; // warn
 import std.algorithm.iteration : filter;     // warn
@@ -132,7 +130,13 @@ private template T(uint n)      // unused
 
 void fun() @safe pure
 {
+    if (auto x = 3)             // TODO: unused
+    {
+    }
     if (const x = 3)            // TODO: unused
+    {
+    }
+    if (immutable x = 3)        // TODO: unused
     {
     }
 }

@@ -12,6 +12,15 @@ private alias PrivateUnusedInt = int;
 alias PublicUsedInt = int;
 private alias PrivateUsedInt = int;
 
+version (D_LP64)
+{
+}
+else
+{
+    private alias PrivateUInt = uint;
+    alias UInt = int;
+}
+
 int x = 42;
 private int px = 42;
 
@@ -63,3 +72,8 @@ void main()
 
 enum e = isDynamicArray!(int);
 private enum f = isDynamicArray!(int);
+
+struct FixedArray(uint capacity_)
+{
+    alias capacity = capacity_;
+}

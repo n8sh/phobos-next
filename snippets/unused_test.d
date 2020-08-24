@@ -142,13 +142,13 @@ private template T(uint n)      // unused
 
 void fun() @safe pure
 {
-    if (const x = 3)            // TODO: unused
+    if (const x = 3)            // unused
     {
     }
-    if (const x = 3)            // TODO: unused
+    if (const x = 3)            // unused
     {
     }
-    if (immutable x = 3)        // TODO: unused
+    if (immutable x = 3)        // unused
     {
     }
 }

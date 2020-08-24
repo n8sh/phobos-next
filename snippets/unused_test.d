@@ -77,17 +77,17 @@ void main()
 enum e = isDynamicArray!(int);
 private enum f = isDynamicArray!(int);
 
-private struct A(uint n_)
+private struct TA(uint n_)
 {
     alias n = n_;
 }
 
-private class C(uint n_)
+private class TC(uint n_)
 {
     alias n = n_;
 }
 
-private template N(uint n)
+private template T(uint n)
 {
     alias N = n;
 }

@@ -14,6 +14,8 @@ private alias PrivateUsedInt = int;
 
 version (D_LP64)
 {
+    private alias PrivateUInt = uint;
+    alias UInt = int;
 }
 else
 {
@@ -73,7 +75,12 @@ void main()
 enum e = isDynamicArray!(int);
 private enum f = isDynamicArray!(int);
 
-struct FixedArray(uint capacity_)
+struct A(uint n_)
 {
-    alias capacity = capacity_;
+    alias n = n_;
+}
+
+template N(uint n)
+{
+    alias N = n;
 }

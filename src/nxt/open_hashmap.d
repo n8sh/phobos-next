@@ -2817,7 +2817,7 @@ if (isInstanceOf!(OpenHashMap, SomeMap) &&
     import std.typecons : Nullable;
     import nxt.digestx.fnv : FNV;
     import nxt.array_help : s;
-    debug import std.exception : assertThrown, assertNotThrown;
+    debug import std.exception : assertThrown;
 
     import std.algorithm.searching : count;
     alias K = Nullable!(uint, uint.max);

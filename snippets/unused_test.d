@@ -39,12 +39,13 @@ labelA:
 
 void usedFun()
 {
-    void f()
+    void usedNestedFun()
     {
-        void g()
+        void unusedNestedFun()
         {
         }
     }
+    usedNestedFun();
 }
 
 private void privateUnusedFun()

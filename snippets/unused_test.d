@@ -4,6 +4,7 @@ import std.range.primitives;
 import std.algorithm.iteration : map2 = map;
 import std.algorithm.iteration : filter;
 import std.stdio : writeln;
+public import std.stdio : write;
 import io = std.stdio;
 
 alias X = ElementType;

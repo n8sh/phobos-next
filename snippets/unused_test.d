@@ -38,6 +38,7 @@ private void privateUnusedFun()
 {
     PublicUsedInt x;
     PrivateUsedInt y;
+    x = x.init;
 }
 
 private void privateUsedFun()
@@ -51,11 +52,14 @@ static void usedFunStatic()
 void main()
 {
     int x;
-    x = 32;
     // int y = xx;
     usedFun();
     privateUsedFun();
     usedFunStatic();
     enum e = isDynamicArray!(int);
     // auto i = isDynamicArray!(int);
+    enum f = e;
 }
+
+enum e = isDynamicArray!(int);
+private enum f = isDynamicArray!(int);

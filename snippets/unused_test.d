@@ -83,37 +83,37 @@ private enum f = isDynamicArray!(int); // unused
 
 private struct S                // unused
 {
-    private void privateMember();
-    public void publicMember();
+    private void privateMember(); // unused
+    public void publicMember(); // unused
 }
-public struct SP                // unused
+public struct SP
 {
-    private void privateMember();
+    private void privateMember(); // unused
     public void publicMember();
 }
 private class C                 // unused
 {
-    private void privateMember();
-    public void publicMember();
+    private void privateMember(); // unused
+    public void publicMember();   // unused
 }
 public class CP
 {
-    private void privateMember();
+    private void privateMember(); // unused
     public void publicMember();
 }
 private interface PIP            // unused
 {
-    private void privateMember();
-    public void publicMember();
+    private void privateMember(); // unused
+    public void publicMember(); // unused
 }
 public interface IP
 {
-    private void privateMember();
+    private void privateMember(); // unused
     public void publicMember();
 }
-interface I             // unused
+interface I
 {
-    private void privateMember();
+    private void privateMember(); // unused
     public void publicMember();
 }
 

@@ -1,8 +1,8 @@
 import std.range.primitives;
-import std.algorithm.iteration : map2 = map; // warn
-import std.algorithm.iteration : filter;     // warn
+import std.algorithm.iteration : map2 = map; // unused
+import std.algorithm.iteration : filter;     // unused
 
-import std.stdio : writeln;     // warn
+import std.stdio : writeln;     // unused
 public import std.stdio : write;
 
 import io = std.stdio;
@@ -10,14 +10,14 @@ import io = std.stdio;
 alias X = ElementType;
 
 alias PublicUnusedInt = int;
-private alias PrivateUnusedInt = int; // warn
+private alias PrivateUnusedInt = int; // unused
 
 alias PublicUsedInt = int;
 private alias PrivateUsedInt = int;
 
 version (D_LP64)
 {
-    private alias PrivateUInt = uint; // warn
+    private alias PrivateUInt = uint; // unused
     alias UInt = int;
 }
 else
@@ -27,22 +27,22 @@ else
 }
 
 int x = 42;
-private int px = 42;            // warn
+private int px = 42;            // unused
 
-import std.traits : isDynamicArray, isStaticArray; // warn
+import std.traits : isDynamicArray, isStaticArray; // unused
 
 void unusedFun()
 {
-labelA:                         // warn
-    PublicUsedInt x;            // warn
-    PrivateUsedInt y;           // warn
+labelA:                         // TODO: warn
+    PublicUsedInt x;            // unused
+    PrivateUsedInt y;           // unused
 }
 
 void usedFun()
 {
     void usedNestedFun()
     {
-        void unusedNestedFun()  // warn
+        void unusedNestedFun()  // unused
         {
         }
     }

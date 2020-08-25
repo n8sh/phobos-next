@@ -7,7 +7,7 @@
 */
 module nxt.algorithm_ex;
 
-/* version = print; */
+/* version = show; */
 
 import std.traits : isArray, Unqual, isIntegral, CommonType, arity, isSomeString, isExpressionTuple;
 import std.range.primitives : ElementType, isInputRange, isForwardRange, isBidirectionalRange, isRandomAccessRange, front;
@@ -15,7 +15,7 @@ import nxt.traits_ex : allSame;
 import std.functional : binaryFun;
 import std.algorithm.searching : find;
 
-version(print)
+version(show)
 {
     import nxt.dbgio : dbg;
 }
@@ -532,17 +532,17 @@ if (isInputRange!R)
 ///
 unittest
 {
-    import std.datetime : Clock, SysTime, Duration;
-    import std.algorithm.iteration: map;
+    import std.datetime : Clock, SysTime;
     SysTime[] times;
     immutable n = 4;
-    foreach (i; 0..n)
+    foreach (_; 0 .. n)
         times ~= Clock.currTime;
-    version(print) dbg(times);
+    version(show) dbg(times);
     auto spans = times.windowedReduce!(Reduction.forwardDifference);
-    version(print) dbg(spans);
+    version(show) dbg(spans);
     // dbg(*(cast(ulong*)&(spans.front)));
-    version(print) dbg(Duration.sizeof);
+    version(show) import std.datetime : Duration;
+    version(show) dbg(Duration.sizeof);
 }
 
 ///
@@ -553,7 +553,7 @@ unittest
     assert(i.windowedReduce!(Reduction.backwardDifference).equal([-3, -5, -8]));
     assert(i.windowedReduce!(Reduction.sum).equal ([+5, +13, +26]));
     assert([1].windowedReduce.empty);
-    version(print) dbg(i.windowedReduce!(Reduction.sum));
+    version(show) dbg(i.windowedReduce!(Reduction.sum));
 }
 
 /* TODO: Assert that ElementType!R only value semantics.  */
@@ -606,7 +606,7 @@ pure unittest
     /* backtrace.backtrace.install(stderr); */
     immutable x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     immutable xPacked = x.packBitParallelRunLengths;
-    version(print) dbg(xPacked);
+    version(show) dbg(xPacked);
 }
 
 /** Compute Forward Difference of `range`.
@@ -683,11 +683,11 @@ unittest
     auto x = [long.max, 0, 1];
     auto y = x.forwardDifference;
 
-    version(print) dbg(y);
+    version(show) dbg(y);
 
     // import msgpack;
-    // version(print) dbg(y.pack);
-    // version(print) dbg(y.array.pack);
+    // version(show) dbg(y.pack);
+    // version(show) dbg(y.array.pack);
 }
 
 import std.traits: isCallable, ReturnType, arity;
@@ -713,14 +713,13 @@ if (// TODO: isCallable!fun &&
 ///
 unittest
 {
-    import std.datetime: Clock, SysTime, Duration;
-    import std.algorithm.iteration: map;
+    import std.datetime: Clock;
     import std.array: array;
     immutable n = 3;
     auto times = n.apply!(Clock.currTime).array;
-    version(print) dbg(times);
+    version(show) dbg(times);
     auto spans = times.forwardDifference;
-    version(print) dbg(spans);
+    version(show) dbg(spans);
 }
 
 /** In Place Ordering (in Sorted Order) of all Elements `t`.
@@ -1017,7 +1016,7 @@ unittest
     x.expand(10);
     assert(x[0] == -10);
     assert(x[1] == +10);
-    version(print) dbg(x);
+    version(show) dbg(x);
 }
 
 /* import rational: Rational; */
@@ -1050,7 +1049,7 @@ bool areColinear(T)(T a, T b)
 /* } */
 /* /// */
 /* unittest { */
-/*     version(print) [1, 2, 3, 4].each(a => dbg(a)); */
+/*     version(show) [1, 2, 3, 4].each(a => dbg(a)); */
 /* } */
 
 enum isIntLike(T) = is(typeof({T t = 0; t = t+t;})); // More if needed
@@ -1106,8 +1105,11 @@ unittest
 {
     static void foo(int a, int b, int c)
     {
-        import std.stdio: writefln;
-        version(print) writefln("a: %s, b: %s, c: %s", a, b, c);
+        version(show)
+        {
+            import std.stdio: writefln;
+            writefln("a: %s, b: %s, c: %s", a, b, c);
+        }
     }
     int[3] arr = [1, 2, 3];
     foo(expand!arr);
@@ -1309,7 +1311,6 @@ if (isForwardRange!R)
 ///
 unittest
 {
-    import std.algorithm.comparison : equal;
     import std.ascii: isDigit;
     assert(`11ab`.splitBefore!(a => !a.isDigit) == tuple(`11`, `ab`));
     assert(`ab`.splitBefore!(a => !a.isDigit) == tuple(``, `ab`));

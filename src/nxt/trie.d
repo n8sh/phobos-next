@@ -137,7 +137,7 @@ module nxt.trie;
 import std.algorithm.mutation : move;
 import std.algorithm.comparison : min, max;
 import std.traits : isSomeString, isArray, isPointer, Unqual;
-import std.range.primitives : isInputRange, ElementType, hasLength;
+import std.range.primitives : isInputRange, ElementType;
 
 import nxt.bijections : isIntegralBijectableType, bijectToUnsigned, bijectFromUnsigned;
 import nxt.variant_ex : WordVariant;
@@ -5443,6 +5443,7 @@ if (Keys.length != 0)
 }
 
 /** Benchmark performance and memory usage when span is `span`. */
+version(benchmark)
 private void benchmarkTimeAndSpace()
 {
     version(show) import std.stdio : writeln;
@@ -5458,7 +5459,7 @@ private void benchmarkTimeAndSpace()
 
         static assert(!set.hasValue);
 
-        import std.datetime.stopwatch : StopWatch, AutoStart;
+        version(show) import std.datetime.stopwatch : StopWatch, AutoStart;
 
         enum n = 1_000_000;
 
@@ -5469,7 +5470,7 @@ private void benchmarkTimeAndSpace()
         auto randomSamples = generate!(() => uniform!Key).take(n);
 
         {
-            auto sw = StopWatch(AutoStart.yes);
+            version(show) auto sw = StopWatch(AutoStart.yes);
 
             foreach (immutable Key k; randomSamples)
             {
@@ -5488,7 +5489,7 @@ private void benchmarkTimeAndSpace()
         }
 
         {
-            auto sw = StopWatch(AutoStart.yes);
+            version(show) auto sw = StopWatch(AutoStart.yes);
             bool[int] aa;
 
             foreach (Key k; randomSamples) { aa[k] = true; }
@@ -5544,7 +5545,8 @@ private template iotaImpl(size_t to, size_t now)
 }
 
 unittest
-{ version(showAssertTags) dbg();
+{
+    version(showAssertTags) dbg();
     version(benchmark) benchmarkTimeAndSpace();
 }
 
@@ -5552,6 +5554,5 @@ import nxt.qcmeman;
 
 version(unittest)
 {
-    import nxt.array_help : s;
     version(showAssertTags) import nxt.dbgio : dbg;
 }

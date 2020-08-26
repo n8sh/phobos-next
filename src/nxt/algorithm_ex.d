@@ -678,16 +678,9 @@ if (isInputRange!R)
 ///
 unittest
 {
-    import std.array: array;
-
     auto x = [long.max, 0, 1];
     auto y = x.forwardDifference;
-
     version(show) dbg(y);
-
-    // import msgpack;
-    // version(show) dbg(y.pack);
-    // version(show) dbg(y.array.pack);
 }
 
 import std.traits: isCallable, ReturnType, arity;

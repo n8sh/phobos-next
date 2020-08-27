@@ -1,3 +1,4 @@
-import std.algorithm.iteration; // TODO: unused
-import std.algorithm.mutation;  // used
-alias cp = copy;
+import minimal;
+
+alias I = Int;
+alias S = Short;

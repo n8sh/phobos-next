@@ -2338,8 +2338,6 @@ unittest
     import nxt.array_help : s;
     version(showEntries) dbg();
 
-    import nxt.dynamic_array : Array = DynamicArray;
-
     alias K = Nullable!(uint, uint.max);
 
     alias VE = Nullable!(uint, uint.max);
@@ -2492,7 +2490,7 @@ unittest
     auto x = X();
 
     {                           // scoped range
-        foreach (ref xe; x.byElement) { assert(0); }
+        foreach (ref _; x.byElement) { assert(0); }
     }
 
     auto x0 = X.init;
@@ -2813,7 +2811,7 @@ if (isInstanceOf!(OpenHashMap, SomeMap) &&
 {
     version(showEntries) dbg();
 
-    import core.exception : RangeError, AssertError;
+    import core.exception : AssertError;
     import std.typecons : Nullable;
     import nxt.digestx.fnv : FNV;
     import nxt.array_help : s;
@@ -2863,6 +2861,7 @@ if (isInstanceOf!(OpenHashMap, SomeMap) &&
         assert(*eHit is e);     // and the value equals what we searched for
 
         const eDup = x.dup;     // duplication is `const` and allowed
+        assert(eDup == x);
     }
 
     // const
@@ -2871,7 +2870,7 @@ if (isInstanceOf!(OpenHashMap, SomeMap) &&
     assert(!x.containsUsingLinearSearch(k44));
     foreach (e; y.byElement)    // from l-value
     {
-        auto z = y.byElement;   // ok to read-borrow again
+        auto _ = y.byElement;   // ok to read-borrow again
         assert(y.contains(e));
         assert(y.containsUsingLinearSearch(e));
         debug static assert(is(typeof(e) == const(K)));

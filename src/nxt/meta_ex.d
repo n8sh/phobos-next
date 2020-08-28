@@ -2,13 +2,12 @@ module nxt.meta_ex;
 
 @safe:
 
-import std.range.primitives : isInputRange;
 import std.meta : AliasSeq, aliasSeqOf;
 
 @safe pure nothrow @nogc unittest
 {
     import std.range : iota;
-    foreach(i; aliasSeqOf!(iota(10)))
+    foreach (_; aliasSeqOf!(iota(10)))
     {
         // pragma(msg, i);
     }
@@ -261,7 +260,7 @@ template typeOf(T)
 ///
 @safe pure nothrow @nogc unittest
 {
-    import std.meta : allSatisfy, AliasSeq;
+    import std.meta : allSatisfy;
     static assert(typeOf!int(3));
     static assert(allSatisfy!(typeOf!int, 3));
 }

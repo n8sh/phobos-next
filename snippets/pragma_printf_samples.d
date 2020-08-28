@@ -2,6 +2,7 @@ import core.stdc.stdarg;
 
 struct Loc { int x; }
 
+//pragma(printf) extern (D) int warningD(in Loc, const(char)*, ...) { return 0; }
 pragma(printf) extern (C) int warningC(in Loc, const(char)*, ...) { return 0; }
 pragma(printf) extern (C++) int warningCxx(in Loc, const(char)*, ...) { return 0; }
 

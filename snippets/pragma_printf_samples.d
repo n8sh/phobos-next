@@ -2,8 +2,7 @@ import core.stdc.stdarg;
 
 struct Loc { int x; }
 
-pragma(printf) extern (C) int warning(in Loc,
-                                      const(char)*, ...) { return 0; }
+pragma(printf) extern (C++) int warning(in Loc, const(char)*, ...) { return 0; }
 
 unittest
 {

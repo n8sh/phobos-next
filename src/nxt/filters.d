@@ -203,8 +203,8 @@ if (isDynamicDenseSetFilterable!E)
     }
 
     /// ditto
-    typeof(this) opBinary(string op)(auto ref in typeof(this) e) const
-        if (op == "|" || op == "&" || op == "^")
+    typeof(this) opBinary(string op)(in typeof(this) e) const
+    if (op == "|" || op == "&" || op == "^")
     {
         typeof(return) result;
         mixin(`result._blocks[] = _blocks[] ` ~ op ~ ` e._blocks[];`);
@@ -565,14 +565,14 @@ if (isStaticDenseFilterableType!E)
 
     /// ditto
     bool opBinaryRight(string op)(in E e) const
-        if (op == "in")
+    if (op == "in")
     {
         return contains(e);
     }
 
     /// ditto
-    typeof(this) opBinary(string op)(auto ref in typeof(this) e) const
-        if (op == "|" || op == "&" || op == "^")
+    typeof(this) opBinary(string op)(in typeof(this) e) const
+    if (op == "|" || op == "&" || op == "^")
     {
         typeof(return) result;
         mixin(`result._blocks[] = _blocks[] ` ~ op ~ ` e._blocks[];`);
@@ -580,8 +580,8 @@ if (isStaticDenseFilterableType!E)
     }
 
     /// ditto
-    typeof(this) opOpAssign(string op)(auto ref in typeof(this) e)
-        if (op == "|" || op == "&" || op == "^")
+    typeof(this) opOpAssign(string op)(in typeof(this) e)
+    if (op == "|" || op == "&" || op == "^")
     {
         version(DigitalMars) pragma(inline, false);
         mixin(`_blocks[] ` ~ op ~ `= e._blocks[];`);

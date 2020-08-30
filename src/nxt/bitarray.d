@@ -99,9 +99,7 @@ struct BitArray(bool blockAlignedLength = false,
         _blockPtr = null;
         _blockCount = 0;
         static if (!blockAlignedLength)
-        {
             _length = 0;
-        }
     }
 
     /// Check if empty.
@@ -127,13 +125,9 @@ struct BitArray(bool blockAlignedLength = false,
     {
         version(D_Coverage) {} else pragma(inline, true);
         if (value)
-        {
             bts(_blockPtr, i);
-        }
         else
-        {
             btr(_blockPtr, i);
-        }
         return value;
     }
 
@@ -141,13 +135,9 @@ struct BitArray(bool blockAlignedLength = false,
     ref typeof(this) opSliceAssign(bool value)
     {
         if (value)
-        {
             one();
-        }
         else
-        {
             zero();
-        }
         return this;
     }
 
@@ -155,18 +145,14 @@ struct BitArray(bool blockAlignedLength = false,
     private void zero()
     {
         foreach (ref block; _blocks)
-        {
             block = Block.min;
-        }
     }
 
     /** Set all bits (to one). */
     private void one()
     {
         foreach (ref block; _blocks)
-        {
             block = Block.max;
-        }
     }
 
     version(none)               // TODO: activate?
@@ -179,19 +165,11 @@ struct BitArray(bool blockAlignedLength = false,
     bool allZero()() const @safe pure nothrow @nogc
     {
         foreach (const block; _fullBlocks)
-        {
             if (block != Block.min)
-            {
                 return false;
-            }
-        }
         static if (!blockAlignedLength)
-        {
             if (_restBlockZeroPadded != Block.min)
-            {
                 return false;
-            }
-        }
         return true;
     }
 
@@ -199,19 +177,11 @@ struct BitArray(bool blockAlignedLength = false,
     bool allOne()() const @safe pure nothrow @nogc
     {
         foreach (const block; _fullBlocks)
-        {
             if (block != Block.max)
-            {
                 return false;
-            }
-        }
         static if (!blockAlignedLength)
-        {
             if (_restBlockOnePadded != Block.max)
-            {
                 return false;
-            }
-        }
         return true;
     }
 
@@ -249,23 +219,15 @@ struct BitArray(bool blockAlignedLength = false,
     bool opEquals(in ref typeof(this) rhs) const @trusted
     {
         static if (!blockAlignedLength)
-        {
             if (length != rhs.length)
-            {
                 return false;
-            }
-        }
         if (_fullBlocks != rhs._fullBlocks)
-        {
             return false;
-        }
         static if (!blockAlignedLength)
         {
             const restBitCount = length % bitsPerBlock;
             if (restBitCount)
-            {
                 return _restBlockZeroPadded == rhs._restBlockZeroPadded;
-            }
         }
         return true;
     }
@@ -394,16 +356,12 @@ private:
 
         assert(a.length == length);
         foreach (const i; 0 .. length)
-        {
             assert(!a[i]);
-        }
 
         a[0] = true;
         assert(a[0]);
         foreach (const i; 1 .. length)
-        {
             assert(!a[i]);
-        }
 
         assert(!a[1]);
         a[1] = true;
@@ -425,12 +383,8 @@ private:
         foreach (const n; 1 .. 5*BA.bitsPerBlock)
         {
             static if (blockAlignedLength)
-            {
                 if (n % BA.bitsPerBlock != 0) // if block aligned length
-                {
                     continue;
-                }
-            }
 
             auto a = BA.withLength(n);
 
@@ -490,13 +444,9 @@ private:
         alias BA = BitArray!(blockAlignedLength);
 
         static if (blockAlignedLength)
-        {
             const n = 5 * BA.bitsPerBlock;
-        }
         else
-        {
             const n = 5 * BA.bitsPerBlock + 1;
-        }
         auto a = BA.withLength(n);
 
         assert(a.length == n);
@@ -525,13 +475,9 @@ private:
         alias BA = BitArray!(blockAlignedLength);
 
         static if (blockAlignedLength)
-        {
             const n = 2 * BA.bitsPerBlock;
-        }
         else
-        {
             const n = 2 * BA.bitsPerBlock + 1;
-        }
         auto a = BA.withLength(n);
 
         assert(a.length == n);
@@ -575,13 +521,9 @@ private:
         alias BA = BitArray!(blockAlignedLength);
 
         static if (blockAlignedLength)
-        {
             const n = 2 * BA.bitsPerBlock;
-        }
         else
-        {
             const n = 2 * BA.bitsPerBlock + 1;
-        }
         auto a = BA.withLength(n);
 
         a[0] = true;
@@ -601,13 +543,9 @@ private:
         alias BA = BitArray!(blockAlignedLength);
 
         static if (blockAlignedLength)
-        {
             const n = 2 * BA.bitsPerBlock;
-        }
         else
-        {
             const n = 2 * BA.bitsPerBlock + 1;
-        }
         auto a = BA.withLength(n);
 
         a[] = true;
@@ -660,13 +598,9 @@ private:
         alias BA = BitArray!(blockAlignedLength);
 
         static if (blockAlignedLength)
-        {
             const n = 2 * BA.bitsPerBlock;
-        }
         else
-        {
             const n = 2 * BA.bitsPerBlock + 1;
-        }
         auto a = BA.withLength(n);
 
         a[] = true;
@@ -688,13 +622,9 @@ private:
         alias BA = BitArray!(blockAlignedLength);
 
         static if (blockAlignedLength)
-        {
             const n = 2 * BA.bitsPerBlock;
-        }
         else
-        {
             const n = 2 * BA.bitsPerBlock + 1;
-        }
         auto a = BA.withLength(n);
 
         a[] = false;
@@ -716,13 +646,9 @@ private:
         alias BA = BitArray!(blockAlignedLength);
 
         static if (blockAlignedLength)
-        {
             const n = 2 * BA.bitsPerBlock;
-        }
         else
-        {
             const n = 2 * BA.bitsPerBlock + 1;
-        }
         auto a = BA.withLength(n);
 
         assert(a.allZero);

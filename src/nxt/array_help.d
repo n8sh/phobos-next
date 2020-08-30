@@ -135,22 +135,21 @@ version(unittest)
 }
 
 /** Returns: `x` as a static array of unsigned bytes. */
-@property ubyte[T.sizeof] toUbytes(T)(in T x)
-    @trusted pure nothrow @nogc // TODO: endian-dependent
+@property ubyte[T.sizeof] toUbytes(T)(in T x) @trusted pure nothrow @nogc // TODO: endian-dependent
 {
     version(D_Coverage) {} else pragma(inline, true);
     return (cast(ubyte*)(&x))[0 .. x.sizeof];
 }
 
 /** Returns: `x` as a static array with elements of type `E`. */
-@property ref inout(E)[T.sizeof] asN(E, T)(inout ref T x)
-    @trusted pure nothrow @nogc // TODO: endian-dependent
+@property ref inout(E)[T.sizeof] asN(E, T)(inout ref T x) @trusted pure nothrow @nogc // TODO: endian-dependent
 if (T.sizeof % E.sizeof == 0)
 {
     version(D_Coverage) {} else pragma(inline, true);
     return (cast(E*)(&x))[0 .. x.sizeof];
 }
 
+///
 @safe pure nothrow @nogc unittest
 {
     immutable ushort x = 17;
@@ -167,24 +166,21 @@ private enum wordBits = 8*wordBytes;
 /** Returns: number of words (`size_t`) needed to represent
  * `bitCount` bits.
  */
-static size_t wordCountOfBitCount(size_t bitCount)
-    @safe pure nothrow @nogc
+static size_t wordCountOfBitCount(size_t bitCount) @safe pure nothrow @nogc
 {
     version(D_Coverage) {} else pragma(inline, true);
     return ((bitCount / wordBits) +
             (bitCount % wordBits != 0 ? 1 : 0));
 }
 
-static size_t binBlockBytes(size_t bitCount)
-    @safe pure nothrow @nogc
+static size_t binBlockBytes(size_t bitCount) @safe pure nothrow @nogc
 {
     version(D_Coverage) {} else pragma(inline, true);
     return wordBytes*wordCountOfBitCount(bitCount);
 }
 
 /** Returns: an uninitialized bit-array containing `bitCount` number of bits. */
-size_t* makeUninitializedBitArray(alias Allocator)(size_t bitCount)
-    @trusted pure nothrow @nogc
+size_t* makeUninitializedBitArray(alias Allocator)(size_t bitCount) @trusted pure nothrow @nogc
 {
     version(D_Coverage) {} else pragma(inline, true);
     immutable byteCount = binBlockBytes(bitCount);
@@ -192,8 +188,7 @@ size_t* makeUninitializedBitArray(alias Allocator)(size_t bitCount)
 }
 
 /** Returns: an zero-initialized bit-array containing `bitCount` number of bits. */
-size_t* makeZeroedBitArray(alias Allocator)(size_t bitCount)
-    @trusted pure nothrow @nogc
+size_t* makeZeroedBitArray(alias Allocator)(size_t bitCount) @trusted pure nothrow @nogc
 {
     version(D_Coverage) {} else pragma(inline, true);
     static if (__traits(hasMember, Allocator, "allocateZeroed"))
@@ -212,8 +207,7 @@ size_t* makeZeroedBitArray(alias Allocator)(size_t bitCount)
  */
 size_t* makeReallocatedBitArrayZeroPadded(alias Allocator)(size_t* input,
                                                            const size_t currentBitCount,
-                                                           const size_t newBitCount)
-    @system
+                                                           const size_t newBitCount) @system
 if (__traits(hasMember, Allocator, "reallocate"))
 {
     assert(currentBitCount < newBitCount, "no use reallocate to same size");
@@ -233,6 +227,7 @@ if (__traits(hasMember, Allocator, "reallocate"))
     return input;
 }
 
+///
 @trusted pure nothrow @nogc unittest
 {
     enum bitCount = 8*size_t.sizeof + 1;
@@ -241,6 +236,7 @@ if (__traits(hasMember, Allocator, "reallocate"))
     Allocator.instance.deallocate(cast(void[])(x[0 .. wordCountOfBitCount(bitCount)]));
 }
 
+///
 @trusted pure nothrow @nogc unittest
 {
     size_t bitCount = 1;

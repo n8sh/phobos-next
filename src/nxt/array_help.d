@@ -143,7 +143,7 @@ version(unittest)
 }
 
 /** Returns: `x` as a static array with elements of type `E`. */
-@property ref E[T.sizeof] asN(E, T)(in ref T x)
+@property ref inout(E)[T.sizeof] asN(E, T)(inout ref T x)
     @trusted pure nothrow @nogc // TODO: endian-dependent
 if (T.sizeof % E.sizeof == 0)
 {

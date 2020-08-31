@@ -167,11 +167,11 @@ unittest
     assert(r.to!string == `VariantRef!(int, float)(null)`);
 }
 
-private mixin template VariantArrayOf(Type)
-{
-    import nxt.dynamic_array : DynamicArray;
-    DynamicArray!Type store;
-}
+// private mixin template VariantArrayOf(Type)
+// {
+//     import nxt.dynamic_array : DynamicArray;
+//     DynamicArray!Type store;
+// }
 
 /** Stores set of variants.
 

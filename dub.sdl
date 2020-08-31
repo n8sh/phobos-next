@@ -17,7 +17,7 @@ buildRequirements "allowWarnings"
 dflags "-vcolumns" "-dip25" "-dip1008" # "-dip1000"
 dflags "-preview=intpromote" "-preview=dtorfields" "-preview=markdown"
 # dflags "-diagnose=unused"
-# TODO: fails linking: dflags "-preview=in"
+# TODO: dflags "-preview=in"
 # TODO: fails linking of benchmark: dflags "-checkaction=context"
 # TODO: fails build: dflags "-preview=nosharedaccess"
 

@@ -1269,9 +1269,7 @@ private:
 @safe pure nothrow @nogc unittest
 {
     import std.algorithm : equal;
-    import nxt.rational : Rational;
 
-    alias Q = Rational!ulong;
     enum m = 256;
 
     StaticBitArray!m b0;
@@ -1302,9 +1300,7 @@ private:
 @safe pure nothrow @nogc unittest
 {
     import std.algorithm : equal;
-    import nxt.rational : Rational;
 
-    alias Q = Rational!ulong;
     enum m = 256;
 
     StaticBitArray!m b0;

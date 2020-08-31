@@ -146,16 +146,21 @@ private struct VariantRef(DefinedTypes...)
 {
     alias R = VariantRef!(int, float);
     R r;
+    static assert(r.canReferenceType!(int));
+    static assert(r.canReferenceType!(float));
+    static assert(!r.canReferenceType!(short));
 
     import std.array : Appender;
     Appender!(const(R)[]) app;
+    assert(app.data.length == 0);
 
     const R x;
     R mx = x;
+    assert(x == mx);
 
     // TODO: app ~= x;
 
-    const y = [R.init, R.init];
+    // const y = [R.init, R.init];
     // TODO: app ~= y;
 }
 
@@ -425,6 +430,7 @@ version(extraTests)
 
     const S.Ref top = s.put(Rel1(s.put(Rel1(s.put(Rel2([s.put(Int(42)),
                                                         s.put(Int(43))]))))));
+    assert(top);
     assert(s.allOf!Rel1.length == 2);
     assert(s.allOf!Rel2.length == 1);
     assert(s.allOf!Int.length == 2);

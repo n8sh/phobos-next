@@ -216,7 +216,7 @@ struct BitArray(bool blockAlignedLength = false,
     }
 
     /** Equality, operators == and !=. */
-    bool opEquals(in ref typeof(this) rhs) const @trusted
+    bool opEquals(const scope ref typeof(this) rhs) const @trusted // TODO: use `in ref` when it compiles
     {
         static if (!blockAlignedLength)
             if (length != rhs.length)

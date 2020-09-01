@@ -2887,7 +2887,7 @@ if (isInstanceOf!(OpenHashMap, SomeMap) &&
 @safe pure unittest
 {
     version(showEntries) dbg();
-    import core.exception : RangeError, AssertError;
+    import core.exception : RangeError;
     import std.typecons : Nullable;
     import nxt.digestx.fnv : FNV;
     debug import std.exception : assertThrown, assertNotThrown;
@@ -2936,7 +2936,7 @@ if (isInstanceOf!(OpenHashMap, SomeMap) &&
 @safe pure unittest
 {
     version(showEntries) dbg();
-    import core.exception : RangeError, AssertError;
+    import core.exception : RangeError;
     import std.typecons : Nullable;
     debug import std.exception : assertThrown, assertNotThrown;
     import nxt.digestx.fnv : FNV;
@@ -3437,7 +3437,7 @@ version(unittest)
                     assert(xc.length == 0);
 
                     // this is ok
-                    foreach (e; xc.byElement) {}
+                    foreach (_; xc.byElement) {}
                 }
 
                 {               // ByRvalueElement
@@ -3582,6 +3582,7 @@ version(unittest)
 
     alias X = OpenHashMap!(Nullable!(size_t, size_t.max), size_t, FNV!(64, true));
     X x;
+    assert(x.empty);
     // import nxt.dynamic_array : Array = DynamicArray;
     // TODO: these segfault:
     // TODO: auto a = Array!(X.KeyType).withElementsOfRange_untested(x.byKey); // l-value byKey

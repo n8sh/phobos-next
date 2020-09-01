@@ -865,6 +865,7 @@ version(none)
         static assert(is(typeof(r.pre()) == char[]));
         return r.pre();         // TODO: this should fail
     }
+    f();
 }
 
 /** Array-specialization of `findLastSplit` with default predicate.
@@ -1003,6 +1004,7 @@ auto findLastSplit(T)(scope return inout(T)[] haystack,
         static assert(is(typeof(r.pre()) == char[]));
         return r.pre();         // TODO: this should fail
     }
+    f();
 }
 
 /** Array-specialization of `findSplitBefore` with default predicate.

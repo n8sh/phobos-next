@@ -92,10 +92,11 @@ auto staticArrayAlternative() @property @safe
 
 version(unittest)
 {
-    private static struct US
+    static struct US
     {
         @disable this(this);
         int x;
+        void f() { x = 42; }
     }
 }
 
@@ -117,6 +118,7 @@ version(unittest)
 @safe pure nothrow @nogc unittest
 {
     auto b = [US(42)].s;
+    static assert(b.length == 1);
 }
 
 ///
@@ -260,5 +262,4 @@ version(unittest)
 {
     import core.bitop : bt;
     import nxt.pure_mallocator : Allocator = PureMallocator;
-    import nxt.dbgio;
 }

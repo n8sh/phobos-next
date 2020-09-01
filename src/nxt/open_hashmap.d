@@ -3011,17 +3011,22 @@ pure nothrow unittest
     alias X = OpenHashMap!(K, V, FNV!(64, true));
     const x = X();
 
-    foreach (ref e; x.byKey)
+    foreach (const e; x.byKey)
     {
         debug static assert(is(typeof(e) == const(X.KeyType)));
     }
 
-    foreach (ref e; x.byValue)
+    foreach (const e; x.byValue)
     {
         debug static assert(is(typeof(e) == const(X.ValueType)));
     }
 
-    foreach (e; x.byKeyValue)
+    foreach (const e; X.init.byValue)
+    {
+        debug static assert(is(typeof(e) == const(X.ValueType)));
+    }
+
+    foreach (const e; x.byKeyValue)
     {
         debug static assert(is(typeof(e.key) == const(X.KeyType)));
         debug static assert(is(typeof(e.value) == const(X.ValueType)));

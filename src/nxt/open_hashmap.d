@@ -3349,12 +3349,12 @@ version(unittest)
         {
             alias X = OpenHashMap!(K, V, FNV!(64, true));
 
-            auto k11 = make!K(11);
-            auto k12 = make!K(12);
-            auto k13 = make!K(13);
-
             static if (!X.hasValue)
             {
+                auto k11 = make!K(11);
+                auto k12 = make!K(12);
+                auto k13 = make!K(13);
+
                 auto x = X.withElements([k11, k12, k13].s);
 
                 import std.algorithm : count;

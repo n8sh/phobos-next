@@ -482,6 +482,7 @@ alias MutableDStringN(uint capacity, bool borrowChecked = false) = FixedArray!(c
         alias String15 = StrN!(capacity);
 
         typeof(String15.init[0])[] xs;
+        assert(xs.length == 0);
         auto x = String15("alphas");
 
         assert(x[0] == 'a');
@@ -491,6 +492,7 @@ alias MutableDStringN(uint capacity, bool borrowChecked = false) = FixedArray!(c
         assert(x[] == "alphas");
 
         const y = String15("åäö_åäöå"); // fits in 15 chars
+        assert(y.length == capacity);
     }
 }
 

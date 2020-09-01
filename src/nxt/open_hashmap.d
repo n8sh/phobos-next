@@ -3934,6 +3934,7 @@ unittest
                            true,
                            usePrimeCapacity);
     M x;
+    assert(x.empty);
 }
 
 /// `SSOString` as map key type

@@ -7,8 +7,7 @@ module nxt.minimal_fixed_array;
  */
 struct MinimalFixedArray(E, ubyte capacity)
 {
-    @safe:
-
+@safe:
     this(in E[] es)
     {
         assert(es.length <= capacity,

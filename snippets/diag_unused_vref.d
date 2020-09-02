@@ -9,27 +9,27 @@ fail_compilation/diag_unused_extern.d(18,13): Warning: unused private variable `
 
 struct E
 {
-    @disable this(this);
+    this(this)
+    {
+        copyCount += 1;
+    }
     int x;
     alias x this;
+    uint copyCount;
 }
 
 struct S
 {
     this(E e)
     {
-        this.e = e;             // TODO: last ref of `e` is moved
-    }
-
-    this(E e)
-    {
-        this.e = e;             // TODO: last ref of `e` is moved
+        this.e = e;               // TODO: last ref of `e` is moved
+        assert(e.copyCount == 0); // TODO: no move
     }
 
     E I1(E e)
     {
         import core.lifetime : move;
-        return move(e);
+        return move(e);         // already move
     }
 
     E I2(E e)

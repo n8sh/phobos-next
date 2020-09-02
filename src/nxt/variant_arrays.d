@@ -38,13 +38,9 @@ private struct VariantRef(DefinedTypes...)
     {
         version(LDC) pragma(inline, true);
         if (this.rawWord < rhs.rawWord)
-        {
             return -1;
-        }
         if (this.rawWord > rhs.rawWord)
-        {
             return +1;
-        }
         return 0;
     }
 
@@ -120,13 +116,9 @@ private struct VariantRef(DefinedTypes...)
     {
         import std.format : formattedWrite;
         if (isDefined)
-        {
             sink.formattedWrite!`%s(%s@%s)`(Unqual!(typeof(this)).stringof, _index, _kindNr);
-        }
         else
-        {
             sink.formattedWrite!`%s(null)`(Unqual!(typeof(this)).stringof);
-        }
     }
 
     import std.bitmanip : bitfields;
@@ -276,13 +268,9 @@ struct VariantArrays(Types...)
     {
         pragma(inline, true);
         if (Ref.nrOfKind!SomeKind == ref_._kindNr)
-        {
             return &at!SomeKind(ref_._index);
-        }
         else
-        {
             return null;
-        }
     }
 
     /// Constant access to all elements of type `SomeKind`.
@@ -308,9 +296,7 @@ struct VariantArrays(Types...)
         pragma(inline, true);
         typeof(return) lengthSum = 0;
         foreach (Type; Types)
-        {
             mixin(`lengthSum += ` ~ arrayInstanceString!Type ~ `.length;`);
-        }
         return lengthSum;
     }
 
@@ -335,9 +321,7 @@ private:
         mixin({
                 string s = "";
                 foreach (const typeIndex, Type; Types)
-                {
                     s ~= arrayTypeStringOfIndex!typeIndex ~ ` ` ~ arrayInstanceString!Type ~ `;`;
-                }
                 return s;
             }());
     }
@@ -442,7 +426,6 @@ version(extraTests)
 @system pure nothrow @nogc unittest
 {
     S s;
-
     const n = 10;
     foreach (const i; 0 .. n)
     {
@@ -477,9 +460,7 @@ unittest
         immutable before = MonoTime.currTime();
 
         foreach (uint i; 0 .. n)
-        {
             a ~= i;
-        }
 
         immutable after = MonoTime.currTime();
 

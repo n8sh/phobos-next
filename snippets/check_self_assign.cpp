@@ -25,15 +25,22 @@ class C
     int _x;
 };
 
-int f(int x)
+int f1(int x)
 {
-    return f(x);
+    return f1(x);
+}
+
+int f2(int x)
+{
+    if (x == 0)
+        return f2(x);
+    return 1;
 }
 
 int g(int x)
 {
     if (x)
-        return f(x) * f(x + 1);
+        return f1(x) * f1(x + 1);
     else
         return 42;
 }

@@ -278,27 +278,25 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
         }
     }
 
-pragma(inline, true):
-
     /** Index operator. */
-    ref inout(T) opIndex(size_t i) inout @trusted return
+    ref inout(T) opIndex(size_t i) inout return
     {
-        assert(i < _length);
-        return _store.ptr[i];
+        pragma(inline, true);
+        return _store[i];
     }
 
     /** First (front) element. */
-    ref inout(T) front() inout @trusted return
+    ref inout(T) front() inout return
     {
-        assert(!empty);
-        return _store.ptr[0];
+        pragma(inline, true);
+        return _store[0];
     }
 
     /** Last (back) element. */
-    ref inout(T) back() inout @trusted return
+    ref inout(T) back() inout return
     {
-        assert(!empty);
-        return _store.ptr[_length - 1];
+        pragma(inline, true);
+        return _store[_length - 1];
     }
 
     static if (borrowChecked)
@@ -306,21 +304,37 @@ pragma(inline, true):
         import nxt.borrowed : ReadBorrowed, WriteBorrowed;
 
         /// Get read-only slice in range `i` .. `j`.
-        auto opSlice(size_t i, size_t j) const return scope { return sliceRO(i, j); }
+        auto opSlice(size_t i, size_t j) const return scope
+        {
+            pragma(inline, true);
+            return sliceRO(i, j);
+        }
         /// Get read-write slice in range `i` .. `j`.
-        auto opSlice(size_t i, size_t j) return scope { return sliceRW(i, j); }
+        auto opSlice(size_t i, size_t j) return scope
+        {
+            pragma(inline, true);
+            return sliceRW(i, j);
+        }
 
         /// Get read-only full slice.
-        auto opSlice() const return scope { return sliceRO(); }
+        auto opSlice() const return scope
+        {
+            pragma(inline, true);
+            return sliceRO();
+        }
         /// Get read-write full slice.
-        auto opSlice() return scope { return sliceRW(); }
+        auto opSlice() return scope
+        {
+            pragma(inline, true);
+            return sliceRW();
+        }
 
         /// Get full read-only slice.
         ReadBorrowed!(T[], typeof(this)) sliceRO() const @trusted return scope
         {
             import core.internal.traits : Unqual;
             assert(!_writeBorrowed, "Already write-borrowed");
-            return typeof(return)(_store.ptr[0 .. _length],
+            return typeof(return)(_store[0 .. _length],
                                   cast(Unqual!(typeof(this))*)(&this)); // trusted unconst casta
         }
 
@@ -329,27 +343,27 @@ pragma(inline, true):
         {
             import core.internal.traits : Unqual;
             assert(!_writeBorrowed, "Already write-borrowed");
-            return typeof(return)(_store.ptr[i .. j],
+            return typeof(return)(_store[i .. j],
                                   cast(Unqual!(typeof(this))*)(&this)); // trusted unconst cast
         }
 
         /// Get full read-write slice.
-        WriteBorrowed!(T[], typeof(this)) sliceRW() @trusted return scope
+        WriteBorrowed!(T[], typeof(this)) sliceRW() return scope
         {
             assert(!_writeBorrowed, "Already write-borrowed");
             assert(_readBorrowCount == 0, "Already read-borrowed");
-            return typeof(return)(_store.ptr[0 .. _length], &this);
+            return typeof(return)(_store[0 .. _length], &this);
         }
 
         /// Get read-write slice in range `i` .. `j`.
-        WriteBorrowed!(T[], typeof(this)) sliceRW(size_t i, size_t j) @trusted return scope
+        WriteBorrowed!(T[], typeof(this)) sliceRW(size_t i, size_t j) return scope
         {
             assert(!_writeBorrowed, "Already write-borrowed");
             assert(_readBorrowCount == 0, "Already read-borrowed");
-            return typeof(return)(_store.ptr[0 .. j], &this);
+            return typeof(return)(_store[0 .. j], &this);
         }
 
-        @property
+        @property pragma(inline, true)
         {
             /// Returns: `true` iff `this` is either write or read borrowed.
             bool isBorrowed() const { return _writeBorrowed || _readBorrowCount >= 1; }
@@ -364,21 +378,23 @@ pragma(inline, true):
     else
     {
         /// Get slice in range `i` .. `j`.
-        inout(T)[] opSlice(size_t i, size_t j) @trusted inout return scope
+        inout(T)[] opSlice(size_t i, size_t j) inout return scope
         {
+            pragma(inline, true);
             // assert(i <= j);
             // assert(j <= _length);
             return _store[i .. j]; // TODO: make .ptr work
         }
 
         /// Get full slice.
-        inout(T)[] opSlice() @trusted inout return scope
+        inout(T)[] opSlice() inout return scope
         {
+            pragma(inline, true);
             return _store[0 .. _length]; // TODO: make .ptr work
         }
     }
 
-    @property
+    @property pragma(inline, true)
     {
         /** Returns: `true` iff `this` is empty, `false` otherwise. */
         bool empty() const { return _length == 0; }
@@ -395,6 +411,7 @@ pragma(inline, true):
             /** Get as `string`. */
             scope const(T)[] toString() const return
             {
+                version(DigitalMars) pragma(inline, false);
                 return opSlice();
             }
         }

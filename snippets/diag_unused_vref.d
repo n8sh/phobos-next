@@ -18,34 +18,37 @@ struct E
     uint copyCount;
 }
 
+// Can move e because all refs to `e` are direct returns.
+E yes_move_return_e(E e)
+{
+    if (true)
+        return e;               // TODO: last ref of `e` is moved
+    else
+        return e;               // TODO: last ref of `e` is moved
+}
+
+E no_move_return_e_yes_move_return_f(E e)
+{
+    auto f = e;                 // can't move `e`
+    if (e.x == 0)
+        return e;               // can't move `e`
+    else if (e.x == 1)
+        return e;               // can't move `e`
+    else
+        return f;               // can move `f`
+}
+
+E can_move_assign_from_e_and_return_f(E e)
+{
+    auto f = e;                 // can move `e`
+    return f;                   // can move `f`
+}
+
 struct S
 {
     this(E e)
     {
-        this.e = e;               // TODO: last ref of `e` is moved
-        assert(e.copyCount == 0); // TODO: no move
+        this.e = e; // last ref so `e` can be moved
     }
-
-    E I1(E e)
-    {
-        import core.lifetime : move;
-        return move(e);         // already move
-    }
-
-    E I2(E e)
-    {
-        return e;               // TODO: last ref of `e` is moved
-    }
-
-    E identity(const E e)
-    {
-        return e;               // TODO: last ref of `e` is moved
-    }
-
-    E f(E e)
-    {
-        return identity(e);     // TODO: last ref of `e` is moved
-    }
-
     E e;
 }

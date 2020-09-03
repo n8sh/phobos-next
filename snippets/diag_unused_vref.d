@@ -19,12 +19,18 @@ struct E
 }
 
 // Can move e because all refs to `e` are direct returns.
-E yes_move_return_e(E e)
+E yes_move_one_return_e(E e)
+{
+    return e;                   // single ref of `e` is moved
+}
+
+// Can move e because all refs to `e` are direct returns.
+E yes_move_two_return_e(E e)
 {
     if (true)
-        return e;               // TODO: last ref of `e` is moved
+        return e;               // first ref of `e` is moved
     else
-        return e;               // TODO: last ref of `e` is moved
+        return e;               // second ref of `e` is moved
 }
 
 E no_move_return_e_yes_move_return_f(E e)

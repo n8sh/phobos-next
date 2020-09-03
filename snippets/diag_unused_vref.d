@@ -9,10 +9,8 @@ fail_compilation/diag_unused_extern.d(18,13): Warning: unused private variable `
 
 struct E
 {
-    this(this)
-    {
-        copyCount += 1;
-    }
+    @disable this(this);
+    // this(this) { copyCount += 1; }
     int x;
     alias x this;
     uint copyCount;

@@ -13,8 +13,8 @@ uint postblit;                  // number of calls made to `S.this(this)`
 
 struct S
 {
-    @disable this(this);
-    // this(this) { postblit += 1; }
+    // @disable this(this);
+    this(this) { postblit += 1; }
     // TODO include copy constructor
     int x;
     alias x this;
@@ -27,6 +27,9 @@ struct S
     testA(S.init, 1);
     assert(postblit == 0);
 
+    testC(S.init);
+    assert(postblit == 0);
+
     testAA(S.init);
     assert(postblit == 0);
 }
@@ -34,6 +37,34 @@ struct S
 S testA(S e, int x)
 {
     return e;                   // moved
+}
+
+S testMM(S e, int x)
+{
+    if (x == 1)
+        return e;               // moved
+    else
+        return e;               // moved
+}
+
+S testME(S e, int x)
+{
+    if (x == 1)
+        return e;               // moved
+    return e;                   // moved
+}
+
+S testV(S e)
+{
+    S f;
+    f = e;                      // single ref of `e` can be moved to `f`
+    return f;                   // single ref of `f` can be moved
+}
+
+S testC(S e)
+{
+    auto f = e;                 // single ref of `e` can be moved to `f`
+    return f;                   // single ref of `f` can be moved
 }
 
 S testAA(S e)
@@ -58,12 +89,6 @@ S testB(S e)
     if (e.x == 0)               // member read ok
         return testA(e, 1);     // parameter can be passed by move
     return testA(e, 1);         // parameter can be passed by move
-}
-
-S testC(S e)
-{
-    auto f = e;                 // single ref of `e` can be moved to `f`
-    return f;                   // single ref of `f` can be moved
 }
 
 version(none):

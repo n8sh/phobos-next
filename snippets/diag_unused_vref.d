@@ -37,7 +37,7 @@ S testA(S e, int x)
 
 S testB(S e)
 {
-    return testA(e);            // TODO: moved
+    return testA(e, 1);         // TODO: moved
 }
 
 // TODO: Detect cases:
@@ -48,8 +48,8 @@ S testB(S e)
 S testB(S e)
 {
     if (e.x == 0)               // member read ok
-        return testA(e);        // parameter can be passed by move
-    return testA(e);            // parameter can be passed by move
+        return testA(e, 1);     // parameter can be passed by move
+    return testA(e, 1);         // parameter can be passed by move
 }
 
 S testC(S e)

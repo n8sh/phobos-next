@@ -20,22 +20,23 @@ struct S
     alias x this;
 }
 
-void testAll()
+@safe unittest
 {
     assert(postblit == 0);
 
     testA(S.init, 1);
     assert(postblit == 0);
+
+    testAA(S.init);
+    assert(postblit == 0);
 }
 
 S testA(S e, int x)
 {
-    if (x == 1)
-        return e;               // moved
-    return S.init;
+    return e;                   // moved
 }
 
-S testB(S e)
+S testAA(S e)
 {
     return testA(e, 1);         // TODO: moved
 }

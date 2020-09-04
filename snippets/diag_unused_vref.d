@@ -7,38 +7,77 @@ fail_compilation/diag_unused_extern.d(18,13): Warning: unused private variable `
 ---
 */
 
-@safe pure:
+@safe:
 
-struct E
+uint postblit;                  // number of calls made to `S.this(this)`
+
+struct S
 {
-    @disable this(this);
-    // this(this) { copyCount += 1; }
+    // @disable this(this);
+    this(this) { postblit += 1; }
+    // TODO include copy constructor
     int x;
     alias x this;
-    uint copyCount;
 }
 
-// Can move e because all refs to `e` are direct returns.
-E test1(E e)
+void testAll()
 {
-    return e;                   // single ref of `e` is moved
+    assert(postblit == 0);
+
+    testA(S.init, 1);
+    assert(postblit == 0);
 }
 
-E test2(E e)
+S testA(S e, int x)
 {
-    auto f = e;                 // can move `e`
+    if (x == 1)
+        return e;               // moved
+    return S.init;
+}
+
+S testB(S e)
+{
+    return testA(e);            // TODO: moved
+}
+
+// TODO: Detect cases:
+// each VarExp of `e` must be either
+// - reads of members (`DotVarExp` where e1 is `e`)
+// - pass by move in return statement
+// - final assignment
+S testB(S e)
+{
+    if (e.x == 0)               // member read ok
+        return testA(e);        // parameter can be passed by move
+    return testA(e);            // parameter can be passed by move
+}
+
+S testC(S e)
+{
+    auto f = e;                 // single ref of `e` can be moved to `f`
+    return f;                   // single ref of `f` can be moved
+}
+
+version(none):
+
+struct A
+{
+    this(S e)
+    {
+        this.e = e; // last ref so `e` can be moved
+    }
+    S e;
+}
+
+S testD(S e)
+{
+    auto f = e;                 // can't move `e`
+    auto g = e;                 // can't move `e`
     return f;                   // can move `f`
 }
 
-E test3(E e)
-{
-    auto f = e;                 // can move `e`
-    auto g = e;                 // can move `e`
-    return f;                   // can move `f`
-}
-
 // Can move e because all refs to `e` are direct returns.
-E test4(E e)
+S testE(S e)
 {
     if (true)
         return e;               // first ref of `e` is moved
@@ -46,7 +85,7 @@ E test4(E e)
         return e;               // second ref of `e` is moved
 }
 
-E test5(E e)
+S testF(S e)
 {
     auto f = e;                 // can't move `e`
     if (e.x == 0)
@@ -55,13 +94,4 @@ E test5(E e)
         return e;               // can't move `e`
     else
         return f;               // can move `f`
-}
-
-struct S
-{
-    this(E e)
-    {
-        this.e = e; // last ref so `e` can be moved
-    }
-    E e;
 }

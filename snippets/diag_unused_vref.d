@@ -13,8 +13,8 @@ uint postblit;                  // number of calls made to `S.this(this)`
 
 struct S
 {
-    // @disable this(this);
-    this(this) { postblit += 1; }
+    @disable this(this);
+    // this(this) { postblit += 1; }
     // TODO include copy constructor
     int x;
     alias x this;
@@ -39,6 +39,13 @@ S testA(S e, int x)
 S testAA(S e)
 {
     return testA(e, 1);         // TODO: moved
+}
+
+S testAAA(S e)
+{
+    return (e.x == 0 ?
+            testA(e, 1) :       // TODO: moved
+            testA(e, 1));       // TODO: moved
 }
 
 // TODO: Detect cases:

@@ -1069,7 +1069,7 @@ if (isInstanceOf!(DynamicArray, C) &&
         A a;
         return a[];
     }
-    auto d = f();
+    auto _d = f();
 
     const e = DynamicArray!int([1, 2, 3, 4].s);
     assert(e.length == 4);
@@ -1098,7 +1098,7 @@ if (isInstanceOf!(DynamicArray, C) &&
     b.clear();
     assert(a == b);
 
-    auto c = A([1, 2, 3].s);
+    auto _c = A([1, 2, 3].s);
 }
 
 /// DIP-1000 return ref escape analysis
@@ -1119,8 +1119,8 @@ if (isInstanceOf!(DynamicArray, C) &&
         return a._store.ptr;    // TODO: shouldn't compile with -dip1000
     }
 
-    auto lp = leakPointer();    // TODO: shouldn't compile with -dip1000
-    auto ls = leakSlice();      // TODO: shouldn't compile with -dip1000
+    auto _lp = leakPointer();    // TODO: shouldn't compile with -dip1000
+    auto _ls = leakSlice();      // TODO: shouldn't compile with -dip1000
 }
 
 version(unittest)
@@ -1128,7 +1128,7 @@ version(unittest)
     private static struct SomeUncopyable
     {
         @disable this(this);
-        int x;
+        int _x;
     }
 }
 
@@ -1153,7 +1153,7 @@ version(unittest)
 /// construct from slice of uncopyable type
 @safe pure nothrow @nogc unittest
 {
-    alias A = DynamicArray!(SomeUncopyable);
+    alias _A = DynamicArray!(SomeUncopyable);
     // TODO: can we safely support this?: A a = [SomeUncopyable(17)];
 }
 

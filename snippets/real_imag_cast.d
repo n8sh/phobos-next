@@ -3,13 +3,13 @@
 @safe pure test1()
 {
     idouble x = 2.0i;
-    double y = cast(double)x; // TODO: should warn
+    const double y = cast(double)x; // TODO: should warn
     assert(y == 0);
 }
 
 @safe pure test2()
 {
     double x = 2.0;
-    idouble y = cast(idouble)x; // TODO: should warn
+    const idouble y = cast(idouble)x; // TODO: should warn
     assert(y == 0);
 }

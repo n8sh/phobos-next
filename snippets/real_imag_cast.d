@@ -1,4 +1,4 @@
-// Compile with: gdc-10 -Wcast-result real_imag_cast.d
+// Compile with: `gdc-10 -Wcast-result real_imag_cast.d`
 
 @safe pure test1()
 {

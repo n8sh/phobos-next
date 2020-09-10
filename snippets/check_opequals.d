@@ -12,9 +12,8 @@ struct T
     int x;
 }
 
-int main(string[])
+@safe pure unittest
 {
     static assert(__traits(hasMember, S, "opEquals"));
     static assert(!__traits(hasMember, T, "opEquals"));
-    return 0;
 }

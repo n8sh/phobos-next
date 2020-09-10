@@ -9,7 +9,6 @@ struct S
 
 struct T
 {
-    int x;
 }
 
 @safe pure unittest

@@ -1097,14 +1097,12 @@ template EntropyBitsOf(T)
 }
 
 /** Is `true` if `sym` is an l-value, `false` otherwise.
-    See_Also: https://forum.dlang.org/post/mailman.4192.1454351296.22025.digitalmars-d-learn@puremagic.com
-    TODO: Add to Phobos
-*/
-enum isLvalue(alias sym) = is(typeof((ref _){}(sym)));
-
-/** Is `true` if `sym` is an l-value, `false` otherwise.
+ *
+ * See_Also: https://forum.dlang.org/post/mailman.4192.1454351296.22025.digitalmars-d-learn@puremagic.com
+ *
+ * TODO: Add to Phobos
  */
-enum isRvalue(alias sym) = !isLvalue!sym;
+enum isLvalue(alias sym) = is(typeof((ref _){}(sym)));
 
 ///
 @safe pure nothrow @nogc unittest
@@ -1113,8 +1111,8 @@ enum isRvalue(alias sym) = !isLvalue!sym;
     string s;
     static assert(isLvalue!i);
     static assert(isLvalue!s);
-    static assert(!isLvalue!13);
-    static assert(!isLvalue!"a");
+    // static assert(!isLvalue!13);
+    // static assert(!isLvalue!"a");
 }
 
 template ownsItsElements(C)

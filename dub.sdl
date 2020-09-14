@@ -15,7 +15,7 @@ dependency "silly" version="~>1.0.2"
 buildRequirements "allowWarnings"
 
 dflags "-vcolumns" "-dip25" "-dip1008" # "-dip1000"
-dflags "-preview=intpromote" "-preview=dtorfields" "-preview=markdown"
+dflags "-preview=intpromote" "-preview=dtorfields" "-preview=markdown" "-preview=rvaluerefparam"
 # dflags "-diagnose=unused"
 # TODO: dflags "-preview=in"
 # TODO: fails linking of benchmark: dflags "-checkaction=context"

@@ -69,22 +69,24 @@ enum STC : StorageClass
                 STC.safeGroup),
 }
 
+/// Print STC-bits set in `storage_class`.
 string toStringOfSTCs(StorageClass storage_class) pure nothrow @safe
 {
-    string result;
+    typeof(return) result;
     static foreach (element; __traits(allMembers, STC))
     {
-        if (element != "safeGroup" && element != "IOR" && element != "TYPECTOR" && element != "FUNCATTR")
+        if (element != "safeGroup" &&
+            element != "IOR" &&
+            element != "TYPECTOR" &&
+            element != "FUNCATTR" &&
+            storage_class & mixin("STC.", element))
         {
-            if (storage_class & mixin("STC.", element))
-            {
-                if (result)
-                    result ~= ",";
-                if (element.length && element[$ - 1] == '_') // endsWith('_')
-                    result ~= element[0 .. $ - 1];           // skip it
-                else
-                    result ~= element;
-            }
+            if (result)
+                result ~= ",";
+            if (element.length && element[$ - 1] == '_') // endsWith('_')
+                result ~= element[0 .. $ - 1];           // skip it
+            else
+                result ~= element;
         }
     }
     return result;

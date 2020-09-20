@@ -57,6 +57,16 @@ enum STC : StorageClass
     local               = (1L << 51),   // do not forward (see dmd.dsymbol.ForwardingScopeDsymbol).
     returninferred      = (1L << 52),   // 'return' has been inferred and should not be part of mangling
     live                = (1L << 53),   // function @live attribute
+
+    // Group members are mutually exclusive (there can be only one)
+    safeGroup = STC.safe | STC.trusted | STC.system,
+
+    /// Group for `in` / `out` / `ref` storage classes on parameter
+    IOR  = STC.in_ | STC.ref_ | STC.out_,
+
+    TYPECTOR = (STC.const_ | STC.immutable_ | STC.shared_ | STC.wild),
+    FUNCATTR = (STC.ref_ | STC.nothrow_ | STC.nogc | STC.pure_ | STC.property | STC.live |
+                STC.safeGroup),
 }
 
 string toStringOfSTCs(StorageClass storage_class) pure nothrow @safe
@@ -64,6 +74,10 @@ string toStringOfSTCs(StorageClass storage_class) pure nothrow @safe
     string result;
     static foreach (i, element; __traits(allMembers, STC))
     {
+        if (element != "safeGroup" &&
+            element != "IOR" &&
+            element != "TYPECTOR" &&
+            element != "FUNCATTR")
         {
             enum stc = mixin("STC.", element);
             if (storage_class & stc)

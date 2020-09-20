@@ -75,11 +75,11 @@ string toStringOfSTCs(StorageClass storage_class) pure nothrow @safe
     typeof(return) result;
     static foreach (element; __traits(allMembers, STC))
     {
-        if (element != "safeGroup" &&
+        if (storage_class & mixin("STC.", element) &&
+            element != "safeGroup" &&
             element != "IOR" &&
             element != "TYPECTOR" &&
-            element != "FUNCATTR" &&
-            storage_class & mixin("STC.", element))
+            element != "FUNCATTR")
         {
             if (result)
                 result ~= ",";

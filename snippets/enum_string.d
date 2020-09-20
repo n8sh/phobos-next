@@ -72,27 +72,21 @@ enum STC : StorageClass
 string toStringOfSTCs(StorageClass storage_class) pure nothrow @safe
 {
     string result;
-    static foreach (i, element; __traits(allMembers, STC))
+    static foreach (element; __traits(allMembers, STC))
     {
-        if (element != "safeGroup" &&
-            element != "IOR" &&
-            element != "TYPECTOR" &&
-            element != "FUNCATTR")
+        if (element != "safeGroup" && element != "IOR" && element != "TYPECTOR" && element != "FUNCATTR")
         {
             enum stc = mixin("STC.", element);
             if (storage_class & stc)
             {
                 if (result)
                     result ~= ",";
-
                 if (element.length && element[$ - 1] == '_') // endsWith('_')
                     result ~= element[0 .. $ - 1];           // skip it
                 else
                     result ~= element;
             }
-            pragma(msg, stc);
         }
-
     }
     return result;
 }

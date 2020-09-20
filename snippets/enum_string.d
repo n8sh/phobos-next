@@ -76,8 +76,7 @@ string toStringOfSTCs(StorageClass storage_class) pure nothrow @safe
     {
         if (element != "safeGroup" && element != "IOR" && element != "TYPECTOR" && element != "FUNCATTR")
         {
-            enum stc = mixin("STC.", element);
-            if (storage_class & stc)
+            if (storage_class & mixin("STC.", element))
             {
                 if (result)
                     result ~= ",";

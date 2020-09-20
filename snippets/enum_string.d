@@ -84,7 +84,11 @@ string toStringOfSTCs(StorageClass storage_class) pure nothrow @safe
             {
                 if (result)
                     result ~= ",";
-                result ~= element;
+
+                if (element.length && element[$ - 1] == '_') // endsWith('_')
+                    result ~= element[0 .. $ - 1];           // skip it
+                else
+                    result ~= element;
             }
             pragma(msg, stc);
         }
@@ -95,6 +99,6 @@ string toStringOfSTCs(StorageClass storage_class) pure nothrow @safe
 
 @safe pure unittest
 {
-    const StorageClass storage_class = STC.future | STC.live;
-    assert(toStringOfSTCs(storage_class) == "future,live");
+    const StorageClass storage_class = STC.future | STC.live | STC.in_ | STC.gshared;
+    assert(toStringOfSTCs(storage_class) == "in,gshared,future,live");
 }

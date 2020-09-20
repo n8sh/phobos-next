@@ -1,3 +1,5 @@
+// https://dlang.slack.com/archives/C7FT6TPFG/p1600605823003100
+
 extern(C++) class C
 {
     auto typename()

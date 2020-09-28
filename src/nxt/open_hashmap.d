@@ -13,7 +13,7 @@ enum Flag
     usePrimeCapacity,
 }
 import std.typecons : BitFlags;
-alias Flags = BitFlags!Flag;    ///< Use as Flags flags param to `OpenHashMap`
+alias Flags = BitFlags!Flag;    ///< Used as Flags flags param to `OpenHashMap`.
 
 @safe:
 

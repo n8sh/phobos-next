@@ -124,19 +124,6 @@ struct SExpr
     SExpr[] subs;
 }
 
-/** Returns: true if `s` is null-terminated (ending with `'\0'`).
- *
- * Prior to parsing used to verify input to parsers that make use of
- * sentinel-based search.
- *
- * See_Also: https://en.wikipedia.org/wiki/Sentinel_value
- */
-bool isNullTerminated(scope const(char)[] s) @safe pure nothrow @nogc
-{
-    version(D_Coverage) {} else pragma(inline, true);
-    return s.length >= 1 && s[$ - 1] == '\0';
-}
-
 /** Parse from `input` into lazy range over top-level expressions (`SExpr`).
  *
  * See_Also: https://forum.dlang.org/post/okqdldjnoyrtuizevqeo@forum.dlang.org
@@ -165,6 +152,7 @@ struct LispParser               // TODO: convert to `class`
         // }
 
         import std.exception : enforce;
+        import nxt.parsing : isNullTerminated;
         enforce(_input.isNullTerminated, "Input isn't null-terminated"); // input cannot be trusted
 
         _includeComments = includeComments;
@@ -197,7 +185,7 @@ struct LispParser               // TODO: convert to `class`
         nextFront();
     }
 
-    @property size_t subExprsCount() @safe pure nothrow @nogc
+    @property size_t subExprsCount() const @safe pure nothrow @nogc
     {
         return _subExprsCount;
     }

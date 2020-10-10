@@ -207,18 +207,18 @@ struct LispParser               // TODO: convert to `class`
 
 private:
 
-    /// Get next `char` in input.
-    char peekNext() const scope nothrow @nogc
+    /// Get next `dchar` in input.
+    dchar peekNext() const scope nothrow @nogc
     {
         version(D_Coverage) {} else pragma(inline, true);
-        return _input[_offset];    // TODO: .ptr
+        return _input[_offset];    // TODO: .ptr. TODO: decode `dchar`
     }
 
-    /// Get next `char` in input.
-    char peekNextNth(size_t n) const nothrow @nogc
+    /// Get next `dchar` in input.
+    dchar peekNextNth(size_t n) const nothrow @nogc
     {
         version(D_Coverage) {} else pragma(inline, true);
-        return _input[_offset + n]; // TODO: .ptr
+        return _input[_offset + n]; // TODO: .ptr. TODO: decode `dchar`
     }
 
     /// Get next n `chars` in input.

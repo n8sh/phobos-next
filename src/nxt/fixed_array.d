@@ -348,7 +348,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
         }
 
         /// Get full read-write slice.
-        WriteBorrowed!(T[], typeof(this)) sliceRW() return scope
+        WriteBorrowed!(T[], typeof(this)) sliceRW() @trusted return scope // TODO: remove @trusted?
         {
             assert(!_writeBorrowed, "Already write-borrowed");
             assert(_readBorrowCount == 0, "Already read-borrowed");
@@ -356,7 +356,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
         }
 
         /// Get read-write slice in range `i` .. `j`.
-        WriteBorrowed!(T[], typeof(this)) sliceRW(size_t i, size_t j) return scope
+        WriteBorrowed!(T[], typeof(this)) sliceRW(size_t i, size_t j) @trusted return scope // TODO: remove @trusted?
         {
             assert(!_writeBorrowed, "Already write-borrowed");
             assert(_readBorrowCount == 0, "Already read-borrowed");
@@ -378,19 +378,19 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     else
     {
         /// Get slice in range `i` .. `j`.
-        inout(T)[] opSlice(size_t i, size_t j) inout return scope
+        inout(T)[] opSlice(size_t i, size_t j) inout @trusted return scope // TODO: remove @trusted?
         {
             pragma(inline, true);
             // assert(i <= j);
             // assert(j <= _length);
-            return _store[i .. j]; // TODO: make .ptr work
+            return _store[i .. j];
         }
 
         /// Get full slice.
-        inout(T)[] opSlice() inout return scope
+        inout(T)[] opSlice() inout @trusted return scope // TODO: remove @trusted?
         {
             pragma(inline, true);
-            return _store[0 .. _length]; // TODO: make .ptr work
+            return _store[0 .. _length];
         }
     }
 

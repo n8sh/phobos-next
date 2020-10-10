@@ -335,7 +335,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
             import core.internal.traits : Unqual;
             assert(!_writeBorrowed, "Already write-borrowed");
             return typeof(return)(_store[0 .. _length],
-                                  cast(Unqual!(typeof(this))*)(&this)); // trusted unconst casta
+                                  cast(Unqual!(typeof(this))*)(&this)); // trusted unconst cast
         }
 
         /// Get read-only slice in range `i` .. `j`.

@@ -1,4 +1,4 @@
-/** Lexer and parser for G4 grammars.
+/** Lexer and parser for ANTLR (G,G2,G4) grammars.
  *
  * See_Also: https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form
  * See_Also: https://github.com/antlr/grammars-v4

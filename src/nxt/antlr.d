@@ -16,7 +16,7 @@ import std.stdio : writeln;
 import nxt.line_column : LineColumn, offsetLineColumn;
 import nxt.file_ex : rawReadPath;
 
-///< Token kind.
+///< Token kind. TODO: make this a string type like with std.experimental.lexer
 enum TOK
 {
     unknown,                    ///< Unknown.
@@ -32,8 +32,7 @@ enum TOK
     leftParen,                  ///< Left parenthesis.
     rightParen,                 ///< Right parenthesis.
 
-    leftBrace,                  ///< Left curly brace.
-    rightBrace,                 ///< Right curly brace.
+    codeBlock,                  ///< Code block.
 
     alts,                       ///< Alternatives within '[' ... ']'
 
@@ -191,6 +190,17 @@ private:
         }
     }
 
+    /// Skip line comment.
+    Input getLineComment() return nothrow @nogc
+    {
+        size_t i;
+        while (!peekCharNth(i).among!('\0', endOfLineChars))
+        {
+            ++i;
+        }
+        return skipOverN(i);
+    }
+
     /// Skip block comment.
     void skipBlockComment() scope nothrow @nogc
     {
@@ -210,7 +220,7 @@ private:
     /// Get symbol.
     Input getSymbol() return nothrow @nogc
     {
-        size_t i = 0;
+        size_t i;
         import std.uni : isAlpha, isAlphaNum;
         if (peekChar.isAlpha ||
             peekChar == '_' ||
@@ -224,7 +234,7 @@ private:
 
     Input getWhitespace() return nothrow @nogc
     {
-        size_t i = 0;
+        size_t i;
         while (peekCharNth(i).among!(whiteChars)) // NOTE this is faster than `src[i].isWhite`
             ++i;
         return skipOverN(i);
@@ -276,7 +286,7 @@ private:
     Input getTextLiteralDoubleQuoted() return nothrow @nogc
     {
         dropFront();
-        size_t i = 0;
+        size_t i;
         while (!peekCharNth(i).among!('\0', '"'))
         {
             if (!skipOverEsc(i))
@@ -292,7 +302,7 @@ private:
     Input getTextLiteralSingleQuoted() return nothrow @nogc
     {
         dropFront();
-        size_t i = 0;
+        size_t i;
         while (!peekCharNth(i).among!('\0', '\''))
         {
             if (!skipOverEsc(i))
@@ -307,16 +317,158 @@ private:
 
     Input getAlts() return nothrow @nogc
     {
-        size_t i = 0;
+        size_t i;
         while (!peekCharNth(i).among!('\0', ']'))
         {
             if (!skipOverEsc(i))
                 ++i;
         }
         if (peekCharNth(i + 1))
-        {
             ++i;
+        return skipOverN(i);
+    }
+
+    Input getJavaCodeBlock() return nothrow @nogc
+    {
+        size_t i;
+
+        import nxt.dynamic_array : DynamicArray;
+        DynamicArray!char ds;   // delimiter stack
+
+        bool inBlockComment;
+        bool inLineComment;
+        bool inString;
+        bool inChar;
+
+        while (!peekCharNth(i).among!('\0'))
+        {
+            if (!inBlockComment &&
+                !inLineComment &&
+                !inChar &&
+                !inString)
+            {
+                if (peekCharNth(i) == '/' &&
+                    peekCharNth(i + 1) == '/')
+                {
+                    info("line comment start", i);
+                    inLineComment = true;
+                    i += 2;
+                    continue;
+                }
+                else if (peekCharNth(i) == '/' &&
+                         peekCharNth(i + 1) == '*')
+                {
+                    info("block comment start", i);
+                    inBlockComment = true;
+                    i += 2;
+                    continue;
+                }
+                else if (peekCharNth(i) == '{')
+                {
+                    info("brace open", i);
+                    ds.insertBack('{');
+                }
+                else if (peekCharNth(i) == '}')
+                {
+                    info("brace close", i);
+                    if (!ds.empty &&
+                        ds.back != '{')
+                        error("unmatched", i);
+                    ds.popBack();
+                }
+                else if (peekCharNth(i) == '[')
+                {
+                    info("hook open", i);
+                    ds.insertBack('[');
+                }
+                else if (peekCharNth(i) == ']')
+                {
+                    info("hook close", i);
+                    if (!ds.empty &&
+                        ds.back != '[')
+                        error("unmatched", i);
+                    ds.popBack();
+                }
+                else if (peekCharNth(i) == '(')
+                {
+                    info("paren open", i);
+                    ds.insertBack('(');
+                }
+                else if (peekCharNth(i) == ')')
+                {
+                    info("paren close", i);
+                    if (!ds.empty &&
+                        ds.back != '(')
+                        error("unmatched", i);
+                    ds.popBack();
+                }
+            }
+            else if (inBlockComment &&
+                     peekCharNth(i) == '*' &&
+                     peekCharNth(i + 1) == '/')
+            {
+                info("block comment close", i);
+                inBlockComment = false;
+                i += 2;
+                continue;
+            }
+            else if (inLineComment &&
+                     (peekCharNth(i) == '\n' ||
+                      peekCharNth(i) == '\r'))
+            {
+                info("line comment close", i);
+                inLineComment = false;
+            }
+            else if (!inBlockComment &&
+                     !inLineComment &&
+                     !inString &&
+                     peekCharNth(i) == '\'')
+            {
+                if (!ds.empty &&
+                    ds.back == '\'')
+                {
+                    info("char close", i);
+                    ds.popBack();
+                    inChar = false;
+                }
+                else
+                {
+                    info("char open", i);
+                    ds.insertBack('\'');
+                    inChar = true;
+                }
+            }
+            else if (!inBlockComment &&
+                     !inLineComment &&
+                     !inChar &&
+                     peekCharNth(i) == '"')
+            {
+                if (!ds.empty &&
+                    ds.back == '"')
+                {
+                    info("string close", i);
+                    ds.popBack();
+                    inString = false;
+                }
+                else
+                {
+                    info("string open", i);
+                    ds.insertBack('"');
+                    inString = true;
+                }
+            }
+
+            i += 1;
+
+            if (ds.length == 0)
+                break;
         }
+
+        if (inBlockComment)
+            error("unterminated block comment", i);
+        if (ds.length != 0)
+            error("unbalanced code block", i);
+
         return skipOverN(i);
     }
 
@@ -359,24 +511,18 @@ private:
                 _offset += 1;
                 break;
             case '{':
-                _token = Token(TOK.leftBrace, _input[_offset .. _offset + 1]);
-                _offset += 1;
-                break;
-            case '}':
-                _token = Token(TOK.rightBrace, _input[_offset .. _offset + 1]);
-                _offset += 1;
+                _token = Token(TOK.codeBlock, getJavaCodeBlock());
                 break;
             case '[':
-                const alts = getAlts();
-                _token = Token(TOK.alts, alts);
+                _token = Token(TOK.alts, getAlts());
                 break;
             case '"':
-                const literal = getTextLiteralDoubleQuoted();
-                _token = Token(TOK.textLiteralDoubleQuoted, literal);
+                _token = Token(TOK.textLiteralDoubleQuoted,
+                               getTextLiteralDoubleQuoted());
                 break;
             case '\'':
-                const literal = getTextLiteralSingleQuoted();
-                _token = Token(TOK.textLiteralSingleQuoted, literal);
+                _token = Token(TOK.textLiteralSingleQuoted,
+                               getTextLiteralSingleQuoted());
                 break;
             case ':':
                 _token = Token(TOK.colon, _input[_offset .. _offset + 1]);
@@ -475,16 +621,33 @@ private:
     }
 
     // TODO: into warning(const char* format...) like in `dmd` and put in `nxt.parsing` and reuse here and in lispy.d
-    void error(const string msg) const @trusted nothrow @nogc scope
+    void error(const string msg, size_t i = 0) const @trusted nothrow @nogc scope
     {
-        const lc = offsetToLineColumn();
-        debug printf("%.*s(%u,%u): Error: %.*s at offset %llu being char `%c`\n",
+        message("Error", msg, i);
+        assert(false);          ///< TODO: propagate error instead of assert
+    }
+
+    void warning(const string msg, size_t i = 0) const @trusted nothrow @nogc scope
+    {
+        message("Warning", msg, i);
+    }
+
+    void info(const string msg, size_t i = 0) const @trusted nothrow @nogc scope
+    {
+        message("Info", msg, i);
+    }
+
+    void message(const string tag,
+                 const string msg, size_t i = 0) const @trusted nothrow @nogc scope
+    {
+        const lc = offsetLineColumn(_input, _offset + i);
+        debug printf("%.*s(%u,%u): %s: %.*s at offset %llu being char `%c`\n",
                      cast(int)_path.length, _path.ptr,
                      lc.line + 1, lc.column + 1,
+                     tag.ptr,
                      cast(int)msg.length, msg.ptr,
-                     _offset,
-                     peekChar);
-        assert(false);          ///< TODO: propagate error instead of assert
+                     _offset + i,
+                     peekCharNth(i));
     }
 
     public ptrdiff_t offsetTo(scope const char[] expr) const @trusted nothrow @nogc
@@ -563,6 +726,7 @@ unittest
         const filePath = dirEntry.name;
 
         // skip grammars with inline code. TODO: handle these by skipping over matching braces
+        version(none)
         if (filePath.endsWith(`RexxLexer.g4`) ||
             filePath.endsWith(`V.g4`) ||
             filePath.endsWith(`PGN.g4`) ||

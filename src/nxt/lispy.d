@@ -546,8 +546,9 @@ struct LispFileParser           // TODO: convert to `class`
         import nxt.file_ex : rawReadPath;
         const size_t subExprsCount = 0;
         // TODO: lookup `subExprsCount` using `filePath` extended attr or hash and pass to constructor
-        parser = LispParser(cast(LispParser.Input)filePath.expandTilde.rawReadPath(),
-                            false, false, false, subExprsCount);
+        const path = filePath.expandTilde;
+        const data = cast(LispParser.Input)rawReadPath(path); // cast to Input because we don't want to keep all file around:
+        parser = LispParser(data, false, false, false, subExprsCount);
     }
     ~this() @nogc
     {

@@ -23,6 +23,8 @@ enum TOK
 {
     unknown,                    ///< Unknown.
 
+    whitespace,
+
     // Keywords:
     SCOPE,          ///< Dynamically scoped attribute.
     FRAGMENT,       ///< Lexer rule is a helper rule, not real token for parser.
@@ -87,7 +89,7 @@ enum TOK
 struct Token
 {
 @safe pure nothrow @nogc:
-    this(TOK tt, const(char)[] input)
+    this(TOK tt, const(char)[] input = null)
     {
         this.tt = tt;
         this.input = input;
@@ -544,6 +546,7 @@ private:
                 {
                     // TODO: store comment
                 }
+                _token = Token(TOK.lineComment);
             }
             else if (peekCharNth(1) == '*') // `/*`
             {
@@ -553,6 +556,7 @@ private:
                 {
                     // TODO: store comment
                 }
+                _token = Token(TOK.blockComment);
             }
             else
                 error("unexpected character");
@@ -686,8 +690,10 @@ private:
         case '\f':
             assert(peekChar.isWhite);
             getWhitespace();
+            _token = Token(TOK.whitespace);
             break;
         case '\0':
+            _token = Token.init;
             _endOfFile = true;
             return;
         default:
@@ -731,7 +737,10 @@ private:
                 }
             }
             else
+            {
+                _token = Token(TOK._error);
                 error("unexpected character");
+            }
         }
     }
 
@@ -805,28 +814,18 @@ struct G4Parser
         return _lexer.empty;
     }
 
-    Node front() scope return
+    Node front() scope return @trusted
     {
         version(D_Coverage) {} else pragma(inline, true);
         assert(!empty);
-        return _top;
+        return _top;            // TODO: use _lexer.front to build stuff
     }
 
     void popFront()
     {
         version(D_Coverage) {} else pragma(inline, true);
         assert(!empty);
-        nextFront();
-    }
-
-    void nextFront()
-    {
-        Token token = _lexer.front;
-        switch (token.tt)
-        {
-        default:
-            break;
-        }
+        _lexer.popFront();
     }
 
 private:
@@ -844,12 +843,10 @@ struct G4FileParser           // TODO: convert to `class`
         const path = filePath.expandTilde;
         const data = cast(G4Parser.Input)rawReadPath(path); // cast to Input because we don't want to keep all file around:
         parser = G4Parser(data, filePath, false);
-        lexer = G4Lexer(data, filePath, false);
     }
     ~this() @nogc
     {
     }
-    G4Lexer lexer;
     G4Parser parser;
     alias parser this;
 }
@@ -857,30 +854,48 @@ struct G4FileParser           // TODO: convert to `class`
 ///
 unittest
 {
+    const testLexer = true;
+    const testParser = true;
     import std.file : dirEntries, SpanMode;
     import std.path : expandTilde;
     foreach (dirEntry; dirEntries("~/Work/grammars-v4/".expandTilde, SpanMode.breadth))
     {
         import nxt.array_algorithm : endsWith;
-        const filePath = dirEntry.name;
+        const fpath = dirEntry.name;
 
         // skip grammars with inline code. TODO: handle these by skipping over matching braces
-        // if (!filePath.endsWith(`links.g2`))
+        // if (!fpath.endsWith(`links.g2`))
         //     continue;
 
-        if (filePath.endsWith(`.g`) ||
-            filePath.endsWith(`.g2`) ||
-            filePath.endsWith(`.g4`))
+        if (fpath.endsWith(`.g`) ||
+            fpath.endsWith(`.g2`) ||
+            fpath.endsWith(`.g4`))
         {
-            // if (!filePath.endsWith(`pascal.g4`)) // only pas
-            //     continue;
-            debug writeln("Scanning ", filePath);
+            if (!fpath.endsWith(`pascal.g4`)) // only pascal
+                continue;
 
-            auto parser = G4FileParser(filePath);
-            while (!parser.lexer.empty)
+            // test lexer
+            if (testLexer)
             {
-                // writeln(parser.lexer.front);
-                parser.lexer.popFront();
+                debug writeln("Lexing ", fpath);
+                const data = cast(G4Parser.Input)rawReadPath(fpath); // cast to Input because we don't want to keep all file around:
+                auto lexer = G4Lexer(data, fpath, false);
+                while (!lexer.empty)
+                {
+                    // debug writeln(lexer.front);
+                    lexer.popFront();
+                }
+            }
+
+            if (testParser)
+            {
+                debug writeln("Parsing ", fpath);
+                auto fparser = G4FileParser(fpath);
+                while (!fparser.empty)
+                {
+                    // debug writeln(fparser._lexer.front);
+                    fparser.popFront();
+                }
             }
         }
     }

@@ -17,13 +17,27 @@ import std.stdio : writeln;
 import nxt.line_column : LineColumn, offsetLineColumn;
 import nxt.file_ex : rawReadPath;
 
+enum useKeywords = true;
+
 ///< Token kind. TODO: make this a string type like with std.experimental.lexer
 enum TOK
 {
     unknown,                    ///< Unknown.
 
-    GRAMMAR,                    ///< Keyword `grammar`.
-    IMPORT,                     ///< Keyword `import`.
+    // Keywords:
+    SCOPE,          ///< Dynamically scoped attribute.
+    FRAGMENT,       ///< Lexer rule is a helper rule, not real token for parser.
+    LEXER,          ///< Grammar type.
+    TREE,           ///< Grammar type.
+    PARSER,         ///< Grammar type
+    GRAMMAR,        ///< Grammar header.
+    RETURNS,        ///< Rule return value(s).
+    THROWS,         ///< Rule throws exceptions(s).
+    CATCH,          ///< Catch rule exceptions(s).
+    FINALLY,        ///< Do this no matter what.
+    OPTIONS,        ///< Grammar or rule options.
+    TOKENS,         ///< Can add tokens with this; usually imaginary tokens.
+    IMPORT,         ///< Import grammar(s).
 
     symbol,                     ///< Symbol.
     attributeSymbol,            ///< Attribute Symbol (starting with `$`).
@@ -700,7 +714,30 @@ private:
                         _token = Token(TOK.actionSymbol, symbol);
                         break;
                     default:
-                        _token = Token(TOK.symbol, symbol);
+                        static if (useKeywords)
+                        {
+                            switch (symbol)
+                            {
+                            case "scope": _token = Token(TOK.SCOPE, symbol); break;
+                            case "fragment": _token = Token(TOK.FRAGMENT, symbol); break;
+                            case "lexer": _token = Token(TOK.LEXER, symbol); break;
+                            case "tree": _token = Token(TOK.TREE, symbol); break;
+                            case "parser": _token = Token(TOK.PARSER, symbol); break;
+                            case "grammar": _token = Token(TOK.GRAMMAR, symbol); break;
+                            case "returns": _token = Token(TOK.RETURNS, symbol); break;
+                            case "throws": _token = Token(TOK.THROWS, symbol); break;
+                            case "catch": _token = Token(TOK.CATCH, symbol); break;
+                            case "finally": _token = Token(TOK.FINALLY, symbol); break;
+                            case "options": _token = Token(TOK.OPTIONS, symbol); break;
+                            case "tokens": _token = Token(TOK.TOKENS, symbol); break;
+                            case "import": _token = Token(TOK.IMPORT, symbol); break;
+                            default: _token = Token(TOK.symbol, symbol); break;
+                            }
+                        }
+                        else
+                        {
+                            _token = Token(TOK.symbol, symbol);
+                        }
                         break;
                     }
                 }

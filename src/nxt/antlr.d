@@ -533,209 +533,205 @@ private:
     void nextFront() nothrow @nogc
     {
         import std.uni : isWhite;
-
-        while (true)
+        switch (peekChar)
         {
-            switch (peekChar)
+        case '/':
+            if (peekCharNth(1) == '/') // `//`
             {
-            case '/':
-                if (peekCharNth(1) == '/') // `//`
+                _offset += 2;
+                skipLineComment();
+                if (_includeComments)
                 {
-                    _offset += 2;
-                    skipLineComment();
-                    if (_includeComments)
-                    {
-                        // TODO: store comment
-                    }
+                    // TODO: store comment
                 }
-                else if (peekCharNth(1) == '*') // `/*`
-                {
-                    _offset += 2;
-                    skipBlockComment();
-                    if (_includeComments)
-                    {
-                        // TODO: store comment
-                    }
-                }
-                else
-                    error("unexpected character");
-                break;
-            case '(':
-                _token = Token(TOK.leftParen, _input[_offset .. _offset + 1]);
-                _offset += 1;
-                break;
-            case ')':
-                _token = Token(TOK.rightParen, _input[_offset .. _offset + 1]);
-                _offset += 1;
-                break;
-            case '{':
-                _token = Token(TOK.action, getAction());
-                break;
-            case '[':
-                _token = Token(TOK.alts, getAlts());
-                break;
-            case '"':
-                _token = Token(TOK.textLiteralDoubleQuoted,
-                               getTextLiteralDoubleQuoted());
-                break;
-            case '\'':
-                _token = Token(TOK.textLiteralSingleQuoted,
-                               getTextLiteralSingleQuoted());
-                break;
-            case ':':
-                _token = Token(TOK.colon, _input[_offset .. _offset + 1]);
-                _offset += 1;
-                break;
-            case ';':
-                _token = Token(TOK.semicolon, _input[_offset .. _offset + 1]);
-                _offset += 1;
-                break;
-            case '#':
-                _token = Token(TOK.hash, _input[_offset .. _offset + 1]);
-                _offset += 1;
-                break;
-            case '=':
-                if (peekCharNth(1) == '>')
-                {
-                    _token = Token(TOK.alwaysIncludePredicate, _input[_offset .. _offset + 2]);
-                    _offset += 2;
-                }
-                else
-                {
-                    _token = Token(TOK.labelAssignment, _input[_offset .. _offset + 1]);
-                    _offset += 1;
-                }
-                break;
-            case '*':
-                _token = Token(TOK.zeroOrMore, _input[_offset .. _offset + 1]);
-                _offset += 1;
-                break;
-            case '+':
-                if (peekCharNth(1) == '=')
-                {
-                    _token = Token(TOK.listLabelAssignment, _input[_offset .. _offset + 2]);
-                    _offset += 2;
-                }
-                else
-                {
-                    _token = Token(TOK.oneOrMore, _input[_offset .. _offset + 1]);
-                    _offset += 1;
-                }
-                break;
-            case '|':
-                _token = Token(TOK.alternative, _input[_offset .. _offset + 1]);
-                _offset += 1;
-                break;
-            case '~':
-                _token = Token(TOK.negation, _input[_offset .. _offset + 1]);
-                _offset += 1;
-                break;
-            case '?':
-                _token = Token(TOK.optOrSemPred, _input[_offset .. _offset + 1]);
-                _offset += 1;
-                break;
-            case '<':
-                _token = Token(TOK.lt, _input[_offset .. _offset + 1]);
-                _offset += 1;
-                break;
-            case '>':
-                _token = Token(TOK.gt, _input[_offset .. _offset + 1]);
-                _offset += 1;
-                break;
-            case ',':
-                _token = Token(TOK.comma, _input[_offset .. _offset + 1]);
-                _offset += 1;
-                break;
-            case '!':
-                _token = Token(TOK.exclude, _input[_offset .. _offset + 1]);
-                _offset += 1;
-                break;
-            case '^':
-                _token = Token(TOK.rootNode, _input[_offset .. _offset + 1]);
-                _offset += 1;
-                break;
-            case '.':
-                if (peekCharNth(1) == '.') // `..`
-                {
-                    _token = Token(TOK.dotdot, _input[_offset .. _offset + 2]);
-                    _offset += 2;
-                }
-                else
-                {
-                    _token = Token(TOK.wildcard, _input[_offset .. _offset + 1]);
-                    _offset += 1;
-                }
-                break;
-            case '-':
-                if (peekCharNth(1) == '>') // `->`
-                {
-                    _token = Token(TOK.rewrite, _input[_offset .. _offset + 2]);
-                    _offset += 2;
-                }
-                else
-                    error("unexpected character");
-                break;
-            case '0':
-                ..
-            case '9':
-                _token = Token(TOK.number, getNumber());
-                break;
-                // from std.ascii.isWhite
-            case ' ':
-            case '\t':
-            case '\n':
-            case '\v':
-            case '\r':
-            case '\f':
-                assert(peekChar.isWhite);
-                getWhitespace();
-                break;
-            case '\0':
-                _endOfFile = true;
-                return;
-            default:
-                if (peekChar.isSymbolStart)
-                {
-                    const symbol = getSymbol();
-                    switch (symbol[0])
-                    {
-                    case '$':
-                        _token = Token(TOK.attributeSymbol, symbol);
-                        break;
-                    case '@':
-                        _token = Token(TOK.actionSymbol, symbol);
-                        break;
-                    default:
-                        static if (useKeywords)
-                        {
-                            switch (symbol)
-                            {
-                            case "scope": _token = Token(TOK.SCOPE, symbol); break;
-                            case "fragment": _token = Token(TOK.FRAGMENT, symbol); break;
-                            case "lexer": _token = Token(TOK.LEXER, symbol); break;
-                            case "tree": _token = Token(TOK.TREE, symbol); break;
-                            case "parser": _token = Token(TOK.PARSER, symbol); break;
-                            case "grammar": _token = Token(TOK.GRAMMAR, symbol); break;
-                            case "returns": _token = Token(TOK.RETURNS, symbol); break;
-                            case "throws": _token = Token(TOK.THROWS, symbol); break;
-                            case "catch": _token = Token(TOK.CATCH, symbol); break;
-                            case "finally": _token = Token(TOK.FINALLY, symbol); break;
-                            case "options": _token = Token(TOK.OPTIONS, symbol); break;
-                            case "tokens": _token = Token(TOK.TOKENS, symbol); break;
-                            case "import": _token = Token(TOK.IMPORT, symbol); break;
-                            default: _token = Token(TOK.symbol, symbol); break;
-                            }
-                        }
-                        else
-                        {
-                            _token = Token(TOK.symbol, symbol);
-                        }
-                        break;
-                    }
-                }
-                else
-                    error("unexpected character");
             }
+            else if (peekCharNth(1) == '*') // `/*`
+            {
+                _offset += 2;
+                skipBlockComment();
+                if (_includeComments)
+                {
+                    // TODO: store comment
+                }
+            }
+            else
+                error("unexpected character");
+            break;
+        case '(':
+            _token = Token(TOK.leftParen, _input[_offset .. _offset + 1]);
+            _offset += 1;
+            break;
+        case ')':
+            _token = Token(TOK.rightParen, _input[_offset .. _offset + 1]);
+            _offset += 1;
+            break;
+        case '{':
+            _token = Token(TOK.action, getAction());
+            break;
+        case '[':
+            _token = Token(TOK.alts, getAlts());
+            break;
+        case '"':
+            _token = Token(TOK.textLiteralDoubleQuoted,
+                           getTextLiteralDoubleQuoted());
+            break;
+        case '\'':
+            _token = Token(TOK.textLiteralSingleQuoted,
+                           getTextLiteralSingleQuoted());
+            break;
+        case ':':
+            _token = Token(TOK.colon, _input[_offset .. _offset + 1]);
+            _offset += 1;
+            break;
+        case ';':
+            _token = Token(TOK.semicolon, _input[_offset .. _offset + 1]);
+            _offset += 1;
+            break;
+        case '#':
+            _token = Token(TOK.hash, _input[_offset .. _offset + 1]);
+            _offset += 1;
+            break;
+        case '=':
+            if (peekCharNth(1) == '>')
+            {
+                _token = Token(TOK.alwaysIncludePredicate, _input[_offset .. _offset + 2]);
+                _offset += 2;
+            }
+            else
+            {
+                _token = Token(TOK.labelAssignment, _input[_offset .. _offset + 1]);
+                _offset += 1;
+            }
+            break;
+        case '*':
+            _token = Token(TOK.zeroOrMore, _input[_offset .. _offset + 1]);
+            _offset += 1;
+            break;
+        case '+':
+            if (peekCharNth(1) == '=')
+            {
+                _token = Token(TOK.listLabelAssignment, _input[_offset .. _offset + 2]);
+                _offset += 2;
+            }
+            else
+            {
+                _token = Token(TOK.oneOrMore, _input[_offset .. _offset + 1]);
+                _offset += 1;
+            }
+            break;
+        case '|':
+            _token = Token(TOK.alternative, _input[_offset .. _offset + 1]);
+            _offset += 1;
+            break;
+        case '~':
+            _token = Token(TOK.negation, _input[_offset .. _offset + 1]);
+            _offset += 1;
+            break;
+        case '?':
+            _token = Token(TOK.optOrSemPred, _input[_offset .. _offset + 1]);
+            _offset += 1;
+            break;
+        case '<':
+            _token = Token(TOK.lt, _input[_offset .. _offset + 1]);
+            _offset += 1;
+            break;
+        case '>':
+            _token = Token(TOK.gt, _input[_offset .. _offset + 1]);
+            _offset += 1;
+            break;
+        case ',':
+            _token = Token(TOK.comma, _input[_offset .. _offset + 1]);
+            _offset += 1;
+            break;
+        case '!':
+            _token = Token(TOK.exclude, _input[_offset .. _offset + 1]);
+            _offset += 1;
+            break;
+        case '^':
+            _token = Token(TOK.rootNode, _input[_offset .. _offset + 1]);
+            _offset += 1;
+            break;
+        case '.':
+            if (peekCharNth(1) == '.') // `..`
+            {
+                _token = Token(TOK.dotdot, _input[_offset .. _offset + 2]);
+                _offset += 2;
+            }
+            else
+            {
+                _token = Token(TOK.wildcard, _input[_offset .. _offset + 1]);
+                _offset += 1;
+            }
+            break;
+        case '-':
+            if (peekCharNth(1) == '>') // `->`
+            {
+                _token = Token(TOK.rewrite, _input[_offset .. _offset + 2]);
+                _offset += 2;
+            }
+            else
+                error("unexpected character");
+            break;
+        case '0':
+            ..
+        case '9':
+            _token = Token(TOK.number, getNumber());
+            break;
+            // from std.ascii.isWhite
+        case ' ':
+        case '\t':
+        case '\n':
+        case '\v':
+        case '\r':
+        case '\f':
+            assert(peekChar.isWhite);
+            getWhitespace();
+            break;
+        case '\0':
+            _endOfFile = true;
+            return;
+        default:
+            if (peekChar.isSymbolStart)
+            {
+                const symbol = getSymbol();
+                switch (symbol[0])
+                {
+                case '$':
+                    _token = Token(TOK.attributeSymbol, symbol);
+                    break;
+                case '@':
+                    _token = Token(TOK.actionSymbol, symbol);
+                    break;
+                default:
+                    static if (useKeywords)
+                    {
+                        switch (symbol)
+                        {
+                        case "scope": _token = Token(TOK.SCOPE, symbol); break;
+                        case "fragment": _token = Token(TOK.FRAGMENT, symbol); break;
+                        case "lexer": _token = Token(TOK.LEXER, symbol); break;
+                        case "tree": _token = Token(TOK.TREE, symbol); break;
+                        case "parser": _token = Token(TOK.PARSER, symbol); break;
+                        case "grammar": _token = Token(TOK.GRAMMAR, symbol); break;
+                        case "returns": _token = Token(TOK.RETURNS, symbol); break;
+                        case "throws": _token = Token(TOK.THROWS, symbol); break;
+                        case "catch": _token = Token(TOK.CATCH, symbol); break;
+                        case "finally": _token = Token(TOK.FINALLY, symbol); break;
+                        case "options": _token = Token(TOK.OPTIONS, symbol); break;
+                        case "tokens": _token = Token(TOK.TOKENS, symbol); break;
+                        case "import": _token = Token(TOK.IMPORT, symbol); break;
+                        default: _token = Token(TOK.symbol, symbol); break;
+                        }
+                    }
+                    else
+                    {
+                        _token = Token(TOK.symbol, symbol);
+                    }
+                    break;
+                }
+            }
+            else
+                error("unexpected character");
         }
     }
 
@@ -883,7 +879,7 @@ unittest
             auto parser = G4FileParser(filePath);
             while (!parser.lexer.empty)
             {
-                writeln(parser.lexer.front);
+                // writeln(parser.lexer.front);
                 parser.lexer.popFront();
             }
         }

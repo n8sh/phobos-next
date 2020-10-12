@@ -1,5 +1,6 @@
 /** Lexer and parser for ANTLR (G,G2,G4) grammars.
  *
+ * See_Also: https://theantlrguy.atlassian.net/wiki/spaces/ANTLR3/pages/2687036/ANTLR+Cheat+Sheet
  * See_Also: https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form
  * See_Also: https://github.com/antlr/grammars-v4
  * See_Also: https://github.com/antlr/grammars-v4/blob/master/bnf/bnf.g4
@@ -25,9 +26,13 @@ enum TOK
     IMPORT,                     ///< Keyword `import`.
 
     symbol,                     ///< Symbol.
+    attributeSymbol,            ///< Attribute Symbol (starting with `$`).
+    actionSymbol,               ///< Action Symbol (starting with `@`).
 
-    blockComment,               ///< Block comment.
-    lineComment,                ///< Line comment.
+    number,                     ///< Number.
+
+    lineComment,                ///< Single line comment.
+    blockComment,               ///< Multi-line (block) comment.
 
     leftParen,                  ///< Left parenthesis.
     rightParen,                 ///< Right parenthesis.
@@ -42,19 +47,23 @@ enum TOK
     colon,                      ///< Colon `:`.
     semicolon,                  ///< Semicolon `;`.
     hash,                       ///< Hash `#`
-    equal,                      ///< Hash `=`
+    labelAssignment,            ///< Label assignment `=`
+    listLabelAssignment,        ///< List label assignment `+=`
 
-    star,                       ///< `*`
-    plus,                       ///< `+`
-    pipe,                       ///< `|`
-    tilde,                      ///< `~`
-    qmark,                      ///< `?`
+    zeroOrMore,                 ///< Zero or more (`*`)
+    oneOrMore,                  ///< One or more (`+`)
+    alternative,                ///< Alternative (`|`)
+    negation,                   ///< Match negation (`~`)
+    optOrSemPred,               ///< Optional or semantic predicate (`?`)
     lt,                         ///< `<`
     gt,                         ///< `>`
     comma,                      ///< `.`
-    dot,                        ///< `.`
+    exclude,                    ///< Exclude from AST (`!`)
+    rootNode,                   ///< Root node (`^`)
+    wildcard,                   ///< `.`
     dotdot,                     ///< `..`
-    arrow,                      ///< `->`
+    rewrite,                    ///< Rewrite rule (`->`)
+    alwaysIncludePredicate,     ///< Rewrite rule (`=>`)
 
     _error,                     ///< Error token.
 }
@@ -71,6 +80,15 @@ struct Token
     }
     TOK tt;
     const(char)[] input;
+}
+
+static bool isSymbolStart(in dchar ch) pure nothrow @safe @nogc
+{
+    import std.uni : isAlpha;
+    return (ch.isAlpha ||
+            ch == '_' ||
+            ch == '$' ||
+            ch == '@');
 }
 
 /// G4 lexer.
@@ -220,14 +238,22 @@ private:
     /// Get symbol.
     Input getSymbol() return nothrow @nogc
     {
+        import std.uni : isAlphaNum;
         size_t i;
-        import std.uni : isAlpha, isAlphaNum;
-        if (peekChar.isAlpha ||
-            peekChar == '_' ||
-            peekChar == '@')
+        if (peekChar.isSymbolStart)
             ++i;
         while (peekCharNth(i).isAlphaNum ||
                peekCharNth(i) == '_')
+            ++i;
+        return skipOverN(i);
+    }
+
+    /// Get number.
+    Input getNumber() return nothrow @nogc
+    {
+        import std.ascii : isDigit;
+        size_t i;
+        while (peekCharNth(i).isDigit)
             ++i;
         return skipOverN(i);
     }
@@ -337,11 +363,22 @@ private:
 
         bool inBlockComment;
         bool inLineComment;
-        bool inString;
         bool inChar;
+        bool inString;
+
+        const infoFlag = false;
 
         while (!peekCharNth(i).among!('\0'))
         {
+            // skip over all escape sequences in quoted
+            if (inChar ||
+                inString)
+            {
+                while (skipOverEsc(i))
+                {
+                }
+            }
+
             if (!inBlockComment &&
                 !inLineComment &&
                 !inChar &&
@@ -350,7 +387,7 @@ private:
                 if (peekCharNth(i) == '/' &&
                     peekCharNth(i + 1) == '/')
                 {
-                    info("line comment start", i);
+                    if (infoFlag) info("line comment start", i, ds[]);
                     inLineComment = true;
                     i += 2;
                     continue;
@@ -358,19 +395,19 @@ private:
                 else if (peekCharNth(i) == '/' &&
                          peekCharNth(i + 1) == '*')
                 {
-                    info("block comment start", i);
+                    if (infoFlag) info("block comment start", i, ds[]);
                     inBlockComment = true;
                     i += 2;
                     continue;
                 }
                 else if (peekCharNth(i) == '{')
                 {
-                    info("brace open", i);
+                    if (infoFlag) info("brace open", i, ds[]);
                     ds.insertBack('{');
                 }
                 else if (peekCharNth(i) == '}')
                 {
-                    info("brace close", i);
+                    if (infoFlag) info("brace close", i, ds[]);
                     if (!ds.empty &&
                         ds.back != '{')
                         error("unmatched", i);
@@ -378,12 +415,12 @@ private:
                 }
                 else if (peekCharNth(i) == '[')
                 {
-                    info("hook open", i);
+                    if (infoFlag) info("hook open", i, ds[]);
                     ds.insertBack('[');
                 }
                 else if (peekCharNth(i) == ']')
                 {
-                    info("hook close", i);
+                    if (infoFlag) info("hook close", i, ds[]);
                     if (!ds.empty &&
                         ds.back != '[')
                         error("unmatched", i);
@@ -391,68 +428,76 @@ private:
                 }
                 else if (peekCharNth(i) == '(')
                 {
-                    info("paren open", i);
+                    if (infoFlag) info("paren open", i, ds[]);
                     ds.insertBack('(');
                 }
                 else if (peekCharNth(i) == ')')
                 {
-                    info("paren close", i);
+                    if (infoFlag) info("paren close", i, ds[]);
                     if (!ds.empty &&
                         ds.back != '(')
                         error("unmatched", i);
                     ds.popBack();
                 }
             }
-            else if (inBlockComment &&
-                     peekCharNth(i) == '*' &&
-                     peekCharNth(i + 1) == '/')
+
+            // block comment close
+            if (inBlockComment &&
+                peekCharNth(i) == '*' &&
+                peekCharNth(i + 1) == '/')
             {
-                info("block comment close", i);
+                if (infoFlag) info("block comment close", i, ds[]);
                 inBlockComment = false;
                 i += 2;
                 continue;
             }
-            else if (inLineComment &&
-                     (peekCharNth(i) == '\n' ||
-                      peekCharNth(i) == '\r'))
+
+            // line comment close
+            if (inLineComment &&
+                (peekCharNth(i) == '\n' ||
+                 peekCharNth(i) == '\r'))
             {
-                info("line comment close", i);
+                if (infoFlag) info("line comment close", i, ds[]);
                 inLineComment = false;
             }
-            else if (!inBlockComment &&
-                     !inLineComment &&
-                     !inString &&
-                     peekCharNth(i) == '\'')
+
+            // single-quote open/close
+            if (!inBlockComment &&
+                !inLineComment &&
+                !inString &&
+                peekCharNth(i) == '\'')
             {
                 if (!ds.empty &&
                     ds.back == '\'')
                 {
-                    info("char close", i);
+                    if (infoFlag) info("single-quote close", i, ds[]);
                     ds.popBack();
                     inChar = false;
                 }
                 else
                 {
-                    info("char open", i);
+                    if (infoFlag) info("single-quote open", i, ds[]);
                     ds.insertBack('\'');
                     inChar = true;
                 }
             }
-            else if (!inBlockComment &&
-                     !inLineComment &&
-                     !inChar &&
-                     peekCharNth(i) == '"')
+
+            // double-quote open/close
+            if (!inBlockComment &&
+                !inLineComment &&
+                !inChar &&
+                peekCharNth(i) == '"')
             {
                 if (!ds.empty &&
                     ds.back == '"')
                 {
-                    info("string close", i);
+                    if (infoFlag) info("double-quote close", i, ds[]);
                     ds.popBack();
                     inString = false;
                 }
                 else
                 {
-                    info("string open", i);
+                    if (infoFlag) info("doubl-quote open", i, ds[]);
                     ds.insertBack('"');
                     inString = true;
                 }
@@ -537,27 +582,43 @@ private:
                 _offset += 1;
                 break;
             case '=':
-                _token = Token(TOK.equal, _input[_offset .. _offset + 1]);
-                _offset += 1;
+                if (peekCharNth(1) == '>')
+                {
+                    _token = Token(TOK.alwaysIncludePredicate, _input[_offset .. _offset + 2]);
+                    _offset += 2;
+                }
+                else
+                {
+                    _token = Token(TOK.labelAssignment, _input[_offset .. _offset + 1]);
+                    _offset += 1;
+                }
                 break;
             case '*':
-                _token = Token(TOK.star, _input[_offset .. _offset + 1]);
+                _token = Token(TOK.zeroOrMore, _input[_offset .. _offset + 1]);
                 _offset += 1;
                 break;
             case '+':
-                _token = Token(TOK.plus, _input[_offset .. _offset + 1]);
-                _offset += 1;
+                if (peekCharNth(1) == '=')
+                {
+                    _token = Token(TOK.listLabelAssignment, _input[_offset .. _offset + 2]);
+                    _offset += 2;
+                }
+                else
+                {
+                    _token = Token(TOK.oneOrMore, _input[_offset .. _offset + 1]);
+                    _offset += 1;
+                }
                 break;
             case '|':
-                _token = Token(TOK.pipe, _input[_offset .. _offset + 1]);
+                _token = Token(TOK.alternative, _input[_offset .. _offset + 1]);
                 _offset += 1;
                 break;
             case '~':
-                _token = Token(TOK.tilde, _input[_offset .. _offset + 1]);
+                _token = Token(TOK.negation, _input[_offset .. _offset + 1]);
                 _offset += 1;
                 break;
             case '?':
-                _token = Token(TOK.qmark, _input[_offset .. _offset + 1]);
+                _token = Token(TOK.optOrSemPred, _input[_offset .. _offset + 1]);
                 _offset += 1;
                 break;
             case '<':
@@ -572,6 +633,14 @@ private:
                 _token = Token(TOK.comma, _input[_offset .. _offset + 1]);
                 _offset += 1;
                 break;
+            case '!':
+                _token = Token(TOK.exclude, _input[_offset .. _offset + 1]);
+                _offset += 1;
+                break;
+            case '^':
+                _token = Token(TOK.rootNode, _input[_offset .. _offset + 1]);
+                _offset += 1;
+                break;
             case '.':
                 if (peekCharNth(1) == '.') // `..`
                 {
@@ -580,19 +649,32 @@ private:
                 }
                 else
                 {
-                    _token = Token(TOK.dot, _input[_offset .. _offset + 1]);
+                    _token = Token(TOK.wildcard, _input[_offset .. _offset + 1]);
                     _offset += 1;
                 }
                 break;
             case '-':
                 if (peekCharNth(1) == '>') // `->`
                 {
-                    _token = Token(TOK.arrow, _input[_offset .. _offset + 1]);
+                    _token = Token(TOK.rewrite, _input[_offset .. _offset + 2]);
                     _offset += 2;
                 }
                 else
                     error("unexpected character");
                 break;
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                _token = Token(TOK.number, getNumber());
+                break;
+                // from std.ascii.isWhite
             case ' ':
             case '\t':
             case '\n':
@@ -606,13 +688,21 @@ private:
                 _endOfFile = true;
                 return;
             default:
-                import std.uni : isAlpha;
-                if (peekChar.isAlpha ||
-                    peekChar == '_' ||
-                    peekChar == '@')
+                if (peekChar.isSymbolStart)
                 {
                     const symbol = getSymbol();
-                    _token = Token(TOK.textLiteralSingleQuoted, symbol);
+                    switch (symbol[0])
+                    {
+                    case '$':
+                        _token = Token(TOK.attributeSymbol, symbol);
+                        break;
+                    case '@':
+                        _token = Token(TOK.actionSymbol, symbol);
+                        break;
+                    default:
+                        _token = Token(TOK.symbol, symbol);
+                        break;
+                    }
                 }
                 else
                     error("unexpected character");
@@ -632,22 +722,25 @@ private:
         message("Warning", msg, i);
     }
 
-    void info(const string msg, size_t i = 0) const @trusted nothrow @nogc scope
+    void info(const string msg, size_t i = 0, const(char)[] ds = null) const @trusted nothrow @nogc scope
     {
-        message("Info", msg, i);
+        message("Info", msg, i, ds);
     }
 
     void message(const string tag,
-                 const string msg, size_t i = 0) const @trusted nothrow @nogc scope
+                 const string msg,
+                 size_t i = 0,
+                 const(char)[] ds = null) const @trusted nothrow @nogc scope
     {
         const lc = offsetLineColumn(_input, _offset + i);
-        debug printf("%.*s(%u,%u): %s: %.*s at offset %llu being char `%c`\n",
+        debug printf("%.*s(%u,%u): %s: %.*s at offset %llu being char `%c` ds:`%.*s`\n",
                      cast(int)_path.length, _path.ptr,
                      lc.line + 1, lc.column + 1,
                      tag.ptr,
                      cast(int)msg.length, msg.ptr,
                      _offset + i,
-                     peekCharNth(i));
+                     peekCharNth(i),
+                     cast(int)ds.length, ds.ptr);
     }
 
     public ptrdiff_t offsetTo(scope const char[] expr) const @trusted nothrow @nogc
@@ -726,35 +819,8 @@ unittest
         const filePath = dirEntry.name;
 
         // skip grammars with inline code. TODO: handle these by skipping over matching braces
-        version(none)
-        if (filePath.endsWith(`RexxLexer.g4`) ||
-            filePath.endsWith(`V.g4`) ||
-            filePath.endsWith(`PGN.g4`) ||
-            filePath.endsWith(`ASN_3gpp.g4`) ||
-            filePath.endsWith(`PlSqlLexer.g4`) ||
-            filePath.endsWith(`PlSqlParser.g4`) ||
-            filePath.endsWith(`SQLiteParser.g4`) ||
-            filePath.endsWith(`Java6Lex.g`) ||
-            filePath.endsWith(`WavefrontOBJ.g`) ||
-            filePath.endsWith(`Sexpr.g`) ||
-            filePath.endsWith(`simplecalc.g`) ||
-            filePath.endsWith(`krl.g`) ||
-            filePath.endsWith(`ASN.g`) ||
-            filePath.endsWith(`FreeMPS.g`) ||
-            filePath.endsWith(`C.g`) ||
-            filePath.endsWith(`Antlr3.g`) ||
-            filePath.endsWith(`Java9.g4`) ||
-            filePath.endsWith(`JavadocLexer.g4`) ||
-            filePath.endsWith(`LPC.g4`) ||
-            filePath.endsWith(`XPath2.g`) ||
-            filePath.endsWith(`XPath2.g`) ||
-            filePath.endsWith(`ObjectiveC2ansi.g`) ||
-            filePath.endsWith(`CPP14.g4`) ||
-            filePath.endsWith(`Issue1567.g4`) ||
-            filePath.endsWith(`Python2.g4`) ||
-            filePath.endsWith(`PythonParser.g4`) ||
-            filePath.endsWith(`Python3.g4`))
-            continue; // so skip. TODO: replace with exception or error return `TOK._error` in iteration below
+        // if (!filePath.endsWith(`links.g2`))
+        //     continue;
 
         if (filePath.endsWith(`.g`) ||
             filePath.endsWith(`.g2`) ||

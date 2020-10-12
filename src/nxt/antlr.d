@@ -18,6 +18,8 @@ import nxt.file_ex : rawReadPath;
 
 enum useKeywords = true;
 
+alias Input = const(char)[];
+
 ///< Token kind. TODO: make this a string type like with std.experimental.lexer
 enum TOK
 {
@@ -112,8 +114,6 @@ static bool isSymbolStart(in dchar ch) pure nothrow @safe @nogc
 struct G4Lexer
 {
     import std.algorithm.comparison : among;
-
-    alias Input = const(char)[];
 
 @safe pure:
 
@@ -800,7 +800,6 @@ extern(C++) class Node          // extern(C++) saves memory
 struct G4Parser
 {
 @safe pure:
-    alias Input = const(char)[];
     this(Input input,
          string path = null,
          bool includeComments = false) @trusted
@@ -841,7 +840,7 @@ struct G4FileParser           // TODO: convert to `class`
     {
         import std.path : expandTilde;
         const path = filePath.expandTilde;
-        const data = cast(G4Parser.Input)rawReadPath(path); // cast to Input because we don't want to keep all file around:
+        const data = cast(Input)rawReadPath(path); // cast to Input because we don't want to keep all file around:
         parser = G4Parser(data, filePath, false);
     }
     ~this() @nogc
@@ -878,7 +877,7 @@ unittest
             if (testLexer)
             {
                 debug writeln("Lexing ", fpath);
-                const data = cast(G4Parser.Input)rawReadPath(fpath); // cast to Input because we don't want to keep all file around:
+                const data = cast(Input)rawReadPath(fpath); // cast to Input because we don't want to keep all file around:
                 auto lexer = G4Lexer(data, fpath, false);
                 while (!lexer.empty)
                 {

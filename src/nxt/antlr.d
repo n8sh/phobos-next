@@ -13,7 +13,7 @@ import std.conv : to;
 import std.stdio : writeln;
 
 // `d-deps.el` requires these to be at the top:
-import nxt.line_column : LineColumn, offsetLineColumn;
+import nxt.line_column : offsetLineColumn;
 import nxt.file_ex : rawReadPath;
 
 enum useKeywords = true;
@@ -39,6 +39,8 @@ enum TOK
     IMPORT,         ///< Import grammar(s).
 
     symbol,                     ///< Symbol.
+    lexerRuleName,              ///< TODO: use instead of `symbol`
+    parserRuleName,             ///< TODO: use instead of `symbol`
     attributeSymbol,            ///< Attribute Symbol (starting with `$`).
     actionSymbol,               ///< Action Symbol (starting with `@`).
 
@@ -63,12 +65,12 @@ enum TOK
     labelAssignment,            ///< Label assignment `=`
     listLabelAssignment,        ///< List label assignment `+=`
 
+    optOrSemPred,               ///< Optional or semantic predicate (`?`)
     zeroOrMore,                 ///< Zero or more (`*`)
     oneOrMore,                  ///< One or more (`+`)
     alternative,                ///< Alternative (`|`)
     negation,                   ///< Match negation (`~`)
-    optOrSemPred,               ///< Optional or semantic predicate (`?`)
-    lt,                         ///< `<`
+    lt,                         ///<  `<`
     gt,                         ///< `>`
     comma,                      ///< `.`
     exclude,                    ///< Exclude from AST (`!`)
@@ -761,6 +763,7 @@ private:
     {
         import core.stdc.stdio : printf;
         const lc = offsetLineColumn(_input, _offset + i);
+        // TODO: remove printf
         debug printf("%.*s(%u,%u): %s: %.*s at offset %llu being char `%c` ds:`%.*s`\n",
                      cast(int)_path.length, _path.ptr,
                      lc.line + 1, lc.column + 1,
@@ -769,26 +772,6 @@ private:
                      _offset + i,
                      peekCharNth(i),
                      cast(int)ds.length, ds.ptr);
-    }
-
-    public ptrdiff_t offsetTo(scope const char[] expr) const @trusted nothrow @nogc
-    {
-        return expr.ptr - _input.ptr;
-    }
-
-    public LineColumn offsetToLineColumn() const @trusted nothrow @nogc
-    {
-        return offsetLineColumn(_input, _offset);
-    }
-
-    public LineColumn offsetToLineColumn(size_t offset) const @trusted nothrow @nogc
-    {
-        return offsetLineColumn(_input, offset);
-    }
-
-    public LineColumn charsToLineColumn(scope const(char)[] chars) const @trusted nothrow @nogc
-    {
-        return offsetLineColumn(_input, offsetTo(chars));
     }
 
 private:
@@ -801,9 +784,17 @@ private:
     bool _includeComments = false;
 }
 
+/// AST node.
+extern(C++) class Node          // extern(C++) saves memory
+{
+    Token token;
+    Node[] subs;
+}
+
 /// G4 parser.
 struct G4Parser
 {
+@safe pure:
     alias Input = const(char)[];
     this(Input input,
          string path = null,
@@ -812,8 +803,39 @@ struct G4Parser
         _lexer = G4Lexer(input, path, includeComments);
     }
 
+    @property bool empty() const nothrow scope @nogc
+    {
+        version(D_Coverage) {} else pragma(inline, true);
+        return _lexer.empty;
+    }
+
+    Node front() scope return
+    {
+        version(D_Coverage) {} else pragma(inline, true);
+        assert(!empty);
+        return _top;
+    }
+
+    void popFront()
+    {
+        version(D_Coverage) {} else pragma(inline, true);
+        assert(!empty);
+        nextFront();
+    }
+
+    void nextFront()
+    {
+        Token token = _lexer.front;
+        switch (token.tt)
+        {
+        default:
+            break;
+        }
+    }
+
 private:
     G4Lexer _lexer;
+    Node _top;
 }
 
 /// G4 filer parser.
@@ -854,7 +876,10 @@ unittest
             filePath.endsWith(`.g2`) ||
             filePath.endsWith(`.g4`))
         {
+            // if (!filePath.endsWith(`pascal.g4`)) // only pas
+            //     continue;
             debug writeln("Scanning ", filePath);
+
             auto parser = G4FileParser(filePath);
             while (!parser.lexer.empty)
             {

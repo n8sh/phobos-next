@@ -37,7 +37,7 @@ enum TOK
     leftParen,                  ///< Left parenthesis.
     rightParen,                 ///< Right parenthesis.
 
-    codeBlock,                  ///< Code block.
+    action,                  ///< Code block.
 
     alts,                       ///< Alternatives within '[' ... ']'
 
@@ -354,7 +354,7 @@ private:
         return skipOverN(i);
     }
 
-    Input getJavaCodeBlock() return nothrow @nogc
+    Input getAction() return nothrow @nogc
     {
         size_t i;
 
@@ -556,7 +556,7 @@ private:
                 _offset += 1;
                 break;
             case '{':
-                _token = Token(TOK.codeBlock, getJavaCodeBlock());
+                _token = Token(TOK.action, getAction());
                 break;
             case '[':
                 _token = Token(TOK.alts, getAlts());

@@ -10,7 +10,6 @@
 module nxt.antlr;
 
 import std.conv : to;
-import core.stdc.stdio : printf;
 import std.stdio : writeln;
 
 // `d-deps.el` requires these to be at the top:
@@ -388,9 +387,7 @@ private:
             if (inChar ||
                 inString)
             {
-                while (skipOverEsc(i))
-                {
-                }
+                while (skipOverEsc(i)) {}
             }
 
             if (!inBlockComment &&
@@ -762,6 +759,7 @@ private:
                  size_t i = 0,
                  const(char)[] ds = null) const @trusted nothrow @nogc scope
     {
+        import core.stdc.stdio : printf;
         const lc = offsetLineColumn(_input, _offset + i);
         debug printf("%.*s(%u,%u): %s: %.*s at offset %llu being char `%c` ds:`%.*s`\n",
                      cast(int)_path.length, _path.ptr,

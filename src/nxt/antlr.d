@@ -886,6 +886,7 @@ class Grammar : Leaf
     Input name;
 }
 
+/// See_Also: https://theantlrguy.atlassian.net/wiki/spaces/ANTLR3/pages/2687210/Quick+Starter+on+Parser+Grammars+-+No+Past+Experience+Required
 class ParserGrammar : Leaf
 {
 @safe pure nothrow @nogc:

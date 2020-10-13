@@ -954,7 +954,7 @@ struct G4Parser
                 seq.put(new Symbol(_lexer.frontPop));
             }
             if (!seq.data.length)
-                _lexer.error("Empty sequence");
+                _lexer.error("empty sequence");
             alts.put(new SeqM(name, seq.data));
         }
         if (isFragment)

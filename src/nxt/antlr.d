@@ -156,6 +156,7 @@ struct G4Lexer
     {
         version(D_Coverage) {} else pragma(inline, true);
         assert(!empty);
+        info("popping...");
         nextFront();
     }
 
@@ -366,12 +367,12 @@ private:
     Input getAlternatives() return nothrow @nogc
     {
         size_t i;
-        while (!peekFrontNth(i).among!('\0', ']'))
+        while (!peekFrontNth(i).among!('\0', ']')) // may contain whitespace
         {
             if (!skipOverEsc(i))
                 ++i;
         }
-        if (peekFrontNth(i + 1))
+        if (peekFrontNth(i + 1) == ']') // skip ']'
             ++i;
         return skipOverN(i);
     }
@@ -558,7 +559,7 @@ private:
                 if (_includeComments)
                     _token = Token(TOK.blockComment);
                 else
-                    nextFront();
+                    return nextFront();
             }
             else
                 error("unexpected character");
@@ -696,7 +697,7 @@ private:
             if (_includeWhitespace)
                 _token = Token(TOK.whitespace, ws);
             else
-                nextFront();
+                return nextFront();
             break;
         case '\0':
             _token = Token.init;
@@ -949,7 +950,8 @@ struct G4Parser
             while (_lexer.front.tok != TOK.alts &&
                    _lexer.front.tok != TOK.semicolon)
             {
-                seq.put(new Symbol(_lexer.frontPop));
+                const symbol = _lexer.frontPop;
+                seq.put(new Symbol(symbol));
             }
             if (!seq.data.length)
                 _lexer.error("Empty sequence");
@@ -1021,7 +1023,7 @@ unittest
     import std.path : expandTilde;
 
     const root = "~/Work/grammars-v4/".expandTilde;
-    const testLexer = true;
+    const testLexer = false;
     const testParser = true;
 
     if (testLexer)

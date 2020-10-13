@@ -920,12 +920,16 @@ struct G4Parser
             if (!seq.data.length)
                 _lexer.error("empty sequence");
             alts.put(new SeqM(name, seq.data));
+            if (_lexer.front.tok == TOK.alternative)
+                _lexer.popFront(); // skip terminator
         }
+
+        _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
+
         if (isFragment)
             _front = new FragmentRuleAltM(name, alts.data);
         else
             _front = new RuleAltM(name, alts.data);
-        _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
     }
 
     void nextFront() @trusted
@@ -987,7 +991,7 @@ unittest
     import std.path : expandTilde;
 
     const root = "~/Work/grammars-v4/".expandTilde;
-    const testLexer = true;
+    const testLexer = false;
     const testParser = true;
 
     if (testLexer)

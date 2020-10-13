@@ -984,6 +984,8 @@ struct G4Parser
             {
                 parserFlag = true;
                 _lexer.popFront();
+                if (_lexer.front.tok != TOK.GRAMMAR)
+                    _lexer.error("");
             }
 
             const token = _lexer.frontPop;
@@ -991,19 +993,16 @@ struct G4Parser
             if (_lexer.empty)
                 _lexer.error("expected name after `grammar`");
             if (parserFlag)
-                _front = new ParserGrammar(token,
-                                           _lexer.frontPop.input);
+                _front = new ParserGrammar(token, _lexer.frontPop.input);
             else
-                _front = new Grammar(token,
-                                     _lexer.frontPop.input);
+                _front = new Grammar(token, _lexer.frontPop.input);
 
             _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
             break;
         case TOK.IMPORT:
             if (_lexer.empty)
                 _lexer.error("expected name after `import`");
-            _front = new Import(_lexer.frontPop,
-                                _lexer.frontPop.input);
+            _front = new Import(_lexer.frontPop, _lexer.frontPop.input);
             _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
             break;
         case TOK.FRAGMENT:

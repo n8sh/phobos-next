@@ -887,6 +887,18 @@ class Grammar : Leaf
     Input name;
 }
 
+class Import : Leaf
+{
+@safe pure nothrow @nogc:
+    this(in Token token, Input name)
+    {
+        // debug writeln("token:", token, " name:", name);
+        super(token);
+        this.name = name;
+    }
+    Input name;
+}
+
 /** G4 parser.
  *
  * See: `ANTLRv4Parser.g4`
@@ -955,11 +967,22 @@ struct G4Parser
     {
         switch (_lexer.front.tok)
         {
+        case TOK.PARSER:
+            _lexer.popFront();
+            nextFront();
+            break;
         case TOK.GRAMMAR:
             if (_lexer.empty)
                 _lexer.error("expected name after `grammar`");
             _front = new Grammar(_lexer.frontPop,
                                  _lexer.frontPop.input);
+            _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
+            break;
+        case TOK.IMPORT:
+            if (_lexer.empty)
+                _lexer.error("expected name after `import`");
+            _front = new Import(_lexer.frontPop,
+                                _lexer.frontPop.input);
             _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
             break;
         case TOK.FRAGMENT:
@@ -1035,8 +1058,8 @@ unittest
                 fn.endsWith(`.g2`) ||
                 fn.endsWith(`.g4`))
             {
-                if (!fn.endsWith(`pascal.g4`)) // only pascal
-                    continue;
+                // if (!fn.endsWith(`pascal.g4`)) // only pascal
+                //     continue;
                 debug writeln("Parsing ", fn, " ...");
                 auto parser = G4FileParser(fn);
                 while (!parser.empty)

@@ -152,12 +152,13 @@ struct G4Lexer
         return _token;
     }
 
-    void popFront() scope nothrow
+    void popFront() scope nothrow @trusted
     {
         version(D_Coverage) {} else pragma(inline, true);
         assert(!empty);
-        info("popping...");
+        debug writeln("popping:", _token);
         nextFront();
+        debug writeln("after:", _token);
     }
 
     void popFrontEnforceTOK(in TOK tok, in string msg) nothrow
@@ -372,7 +373,7 @@ private:
             if (!skipOverEsc(i))
                 ++i;
         }
-        if (peekFrontNth(i + 1) == ']') // skip ']'
+        if (peekFrontNth(i) == ']') // skip ']'
             ++i;
         return skipOverN(i);
     }

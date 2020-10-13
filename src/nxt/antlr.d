@@ -157,7 +157,7 @@ struct G4Lexer
         version(D_Coverage) {} else pragma(inline, true);
         assert(!empty);
         nextFront();
-        debug writeln("after:", _token);
+        // debug writeln("after:", _token);
     }
 
     void popFrontEnforceTOK(in TOK tok, in string msg) nothrow
@@ -565,12 +565,10 @@ private:
                 error("unexpected character");
             break;
         case '(':
-            _token = Token(TOK.leftParen, _input[_offset .. _offset + 1]);
-            _offset += 1;
+            _token = Token(TOK.leftParen, _input[_offset .. ++_offset]);
             break;
         case ')':
-            _token = Token(TOK.rightParen, _input[_offset .. _offset + 1]);
-            _offset += 1;
+            _token = Token(TOK.rightParen, _input[_offset .. ++_offset]);
             break;
         case '{':
             _token = Token(TOK.action, getAction());
@@ -587,95 +585,62 @@ private:
                            getTextLiteralSingleQuoted());
             break;
         case ':':
-            _token = Token(TOK.colon, _input[_offset .. _offset + 1]);
-            _offset += 1;
+            _token = Token(TOK.colon, _input[_offset .. ++_offset]);
             break;
         case ';':
-            _token = Token(TOK.semicolon, _input[_offset .. _offset + 1]);
-            _offset += 1;
+            _token = Token(TOK.semicolon, _input[_offset .. ++_offset]);
             break;
         case '#':
-            _token = Token(TOK.hash, _input[_offset .. _offset + 1]);
-            _offset += 1;
+            _token = Token(TOK.hash, _input[_offset .. ++_offset]);
             break;
         case '=':
             if (peekFrontNth(1) == '>')
-            {
-                _token = Token(TOK.alwaysIncludePredicate, _input[_offset .. _offset + 2]);
-                _offset += 2;
-            }
+                _token = Token(TOK.alwaysIncludePredicate, _input[_offset .. (_offset += 2)]);
             else
-            {
-                _token = Token(TOK.labelAssignment, _input[_offset .. _offset + 1]);
-                _offset += 1;
-            }
+                _token = Token(TOK.labelAssignment, _input[_offset .. ++_offset]);
             break;
         case '*':
-            _token = Token(TOK.zeroOrMore, _input[_offset .. _offset + 1]);
-            _offset += 1;
+            _token = Token(TOK.zeroOrMore, _input[_offset .. ++_offset]);
             break;
         case '+':
             if (peekFrontNth(1) == '=')
-            {
-                _token = Token(TOK.listLabelAssignment, _input[_offset .. _offset + 2]);
-                _offset += 2;
-            }
+                _token = Token(TOK.listLabelAssignment, _input[_offset .. (_offset += 2)]);
             else
-            {
-                _token = Token(TOK.oneOrMore, _input[_offset .. _offset + 1]);
-                _offset += 1;
-            }
+                _token = Token(TOK.oneOrMore, _input[_offset .. ++_offset]);
             break;
         case '|':
-            _token = Token(TOK.alternative, _input[_offset .. _offset + 1]);
-            _offset += 1;
+            _token = Token(TOK.alternative, _input[_offset .. ++_offset]);
             break;
         case '~':
-            _token = Token(TOK.negation, _input[_offset .. _offset + 1]);
-            _offset += 1;
+            _token = Token(TOK.negation, _input[_offset .. ++_offset]);
             break;
         case '?':
-            _token = Token(TOK.optOrSemPred, _input[_offset .. _offset + 1]);
-            _offset += 1;
+            _token = Token(TOK.optOrSemPred, _input[_offset .. ++_offset]);
             break;
         case '<':
-            _token = Token(TOK.lt, _input[_offset .. _offset + 1]);
-            _offset += 1;
+            _token = Token(TOK.lt, _input[_offset .. ++_offset]);
             break;
         case '>':
-            _token = Token(TOK.gt, _input[_offset .. _offset + 1]);
-            _offset += 1;
+            _token = Token(TOK.gt, _input[_offset .. ++_offset]);
             break;
         case ',':
-            _token = Token(TOK.comma, _input[_offset .. _offset + 1]);
-            _offset += 1;
+            _token = Token(TOK.comma, _input[_offset .. ++_offset]);
             break;
         case '!':
-            _token = Token(TOK.exclude, _input[_offset .. _offset + 1]);
-            _offset += 1;
+            _token = Token(TOK.exclude, _input[_offset .. ++_offset]);
             break;
         case '^':
-            _token = Token(TOK.rootNode, _input[_offset .. _offset + 1]);
-            _offset += 1;
+            _token = Token(TOK.rootNode, _input[_offset .. ++_offset]);
             break;
         case '.':
             if (peekFrontNth(1) == '.') // `..`
-            {
-                _token = Token(TOK.dotdot, _input[_offset .. _offset + 2]);
-                _offset += 2;
-            }
+                _token = Token(TOK.dotdot, _input[_offset .. (_offset += 2)]);
             else
-            {
-                _token = Token(TOK.wildcard, _input[_offset .. _offset + 1]);
-                _offset += 1;
-            }
+                _token = Token(TOK.wildcard, _input[_offset .. ++_offset]);
             break;
         case '-':
             if (peekFrontNth(1) == '>') // `->`
-            {
-                _token = Token(TOK.rewrite, _input[_offset .. _offset + 2]);
-                _offset += 2;
-            }
+                _token = Token(TOK.rewrite, _input[_offset .. (_offset += 2)]);
             else
                 error("unexpected character");
             break;
@@ -1022,7 +987,7 @@ unittest
     import std.path : expandTilde;
 
     const root = "~/Work/grammars-v4/".expandTilde;
-    const testLexer = false;
+    const testLexer = true;
     const testParser = true;
 
     if (testLexer)

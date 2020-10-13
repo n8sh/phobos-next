@@ -992,9 +992,9 @@ unittest
     import std.file : dirEntries, SpanMode;
     import std.path : expandTilde;
 
+    const root = "~/Work/grammars-v4/".expandTilde;
     const testLexer = true;
     const testParser = true;
-    const root = "~/Work/grammars-v4/".expandTilde;
 
     if (testLexer)
         foreach (e; dirEntries(root, SpanMode.breadth))

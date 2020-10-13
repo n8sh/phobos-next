@@ -848,8 +848,20 @@ final class SeqM : BranchM
     Node[] subs;
 }
 
-/// Alternative.
-final class AltM : BranchM
+/// Rule of alternatives.
+class RuleAltM : BranchM
+{
+@safe pure nothrow @nogc:
+    this(in Token token, Node[] subs = null)
+    {
+        super(token);
+        this.subs = subs;
+    }
+    Node[] subs;
+}
+
+/// Fragment rule of alternatives.
+final class FragmentRuleAltM : RuleAltM
 {
 @safe pure nothrow @nogc:
     this(in Token token, Node[] subs = null)
@@ -925,34 +937,50 @@ struct G4Parser
         nextFront();
     }
 
+    private void handleRule(in Token name,
+                            in bool isFragment) @trusted
+    {
+        _lexer.popFrontEnforceTOK(TOK.colon, "no colon");
+        import std.array : Appender;
+        Appender!(Node[]) alts; // TODO: use stack for small arrays
+        while (_lexer.front.tok != TOK.semicolon)
+        {
+            Appender!(Node[]) seq; // TODO: use stack for small arrays
+            while (_lexer.front.tok != TOK.alts &&
+                   _lexer.front.tok != TOK.semicolon)
+            {
+                seq.put(new Symbol(_lexer.frontPop));
+            }
+            if (!seq.data.length)
+                _lexer.error("Empty sequence");
+            alts.put(new SeqM(name, seq.data));
+        }
+        if (isFragment)
+            _front = new FragmentRuleAltM(name, alts.data);
+        else
+            _front = new RuleAltM(name, alts.data);
+        _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
+    }
+
     void nextFront() @trusted
     {
         switch (_lexer.front.tok)
         {
         case TOK.GRAMMAR:
             if (_lexer.empty)
-                _lexer.error("expected name after grammar");
+                _lexer.error("expected name after `grammar`");
             _front = new Grammar(_lexer.frontPop,
                                  _lexer.frontPop.input);
             _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
             break;
+        case TOK.FRAGMENT:
+            if (_lexer.empty)
+                _lexer.error("expected name after `fragment`");
+            _lexer.popFront();  // skip keyword
+            handleRule(_lexer.frontPop, true);
+            break;
         case TOK.symbol:
-            const name = _lexer.frontPop;
-            _lexer.popFrontEnforceTOK(TOK.colon, "no colon");
-            scope Node[] alts;
-            while (_lexer.front.tok != TOK.semicolon)
-            {
-                debug writeln("i:", _lexer.front);
-                scope Node[] seq;
-                while (_lexer.front.tok != TOK.alts)
-                {
-                    debug writeln("j:", _lexer.front);
-                    seq ~= new Symbol(_lexer.frontPop);
-                }
-                alts ~= new SeqM(name, seq);
-            }
-            _front = new AltM(name, alts);
-            _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
+            handleRule(_lexer.frontPop, false);
             break;
         case TOK.blockComment:
         case TOK.lineComment:

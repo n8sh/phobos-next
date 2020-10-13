@@ -989,43 +989,42 @@ struct G4FileParser           // TODO: convert to `class`
 unittest
 {
     const testLexer = true;
-    const testParser = false;
+    const testParser = true;
+
+    import nxt.array_algorithm : endsWith;
     import std.file : dirEntries, SpanMode;
     import std.path : expandTilde;
-    foreach (dirEntry; dirEntries("~/Work/grammars-v4/".expandTilde, SpanMode.breadth))
-    {
-        import nxt.array_algorithm : endsWith;
-        const fpath = dirEntry.name;
 
-        // skip grammars with inline code. TODO: handle these by skipping over matching braces
-        // if (!fpath.endsWith(`links.g2`))
-        //     continue;
-
-        if (fpath.endsWith(`.g`) ||
-            fpath.endsWith(`.g2`) ||
-            fpath.endsWith(`.g4`))
+    if (testLexer)
+        foreach (dirEntry; dirEntries("~/Work/grammars-v4/".expandTilde, SpanMode.breadth))
         {
-            // if (!fpath.endsWith(`pascal.g4`)) // only pascal
-            //     continue;
-
-            // test lexer
-            if (testLexer)
+            const fpath = dirEntry.name;
+            if (fpath.endsWith(`.g`) ||
+                fpath.endsWith(`.g2`) ||
+                fpath.endsWith(`.g4`))
             {
-                debug writeln("Lexing ", fpath);
-                const data = cast(Input)rawReadPath(fpath); // cast to Input because we don't want to keep all file around:
+                debug writeln("Lexing ", fpath, " ...");
+                const data = cast(Input)rawReadPath(fpath);
                 auto lexer = G4Lexer(data, fpath, false);
                 while (!lexer.empty)
                     lexer.popFront();
             }
+        }
 
-            if (testParser)
+    if (testParser)
+        foreach (dirEntry; dirEntries("~/Work/grammars-v4/".expandTilde, SpanMode.breadth))
+        {
+            const fpath = dirEntry.name;
+            if (fpath.endsWith(`.g`) ||
+                fpath.endsWith(`.g2`) ||
+                fpath.endsWith(`.g4`))
             {
-                debug writeln("Parsing ", fpath);
-                auto fparser = G4FileParser(fpath);
-                while (!fparser.empty)
-                    // debug writeln(fparser._lexer.front);
-                    fparser.popFront();
+                if (!fpath.endsWith(`pascal.g4`)) // only pascal
+                    continue;
+                debug writeln("Parsing ", fpath, " ...");
+                auto parser = G4FileParser(fpath);
+                while (!parser.empty)
+                    parser.popFront();
             }
         }
-    }
 }

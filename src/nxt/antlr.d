@@ -57,7 +57,7 @@ enum TOK
 
     action,                  ///< Code block.
 
-    alts,                       ///< Alternatives within '[' ... ']'
+    hooks,                       ///< Alternatives within '[' ... ']'
 
     textLiteralSingleQuoted,    ///< Text (string) literal, surrounded by single quotes.
     textLiteralDoubleQuoted,    ///< Text (string) literal, surrounded by double quotes.
@@ -365,7 +365,7 @@ private:
         return literal;
     }
 
-    Input getAlternatives() return nothrow @nogc
+    Input getHooks() return nothrow @nogc
     {
         size_t i;
         while (!peekFrontNth(i).among!('\0', ']')) // may contain whitespace
@@ -577,7 +577,7 @@ private:
             _token = Token(TOK.action, getAction());
             break;
         case '[':
-            _token = Token(TOK.alts, getAlternatives());
+            _token = Token(TOK.hooks, getHooks());
             break;
         case '"':
             _token = Token(TOK.textLiteralDoubleQuoted,
@@ -948,11 +948,10 @@ struct G4Parser
         while (_lexer.front.tok != TOK.semicolon)
         {
             Appender!(Node[]) seq; // TODO: use stack for small arrays
-            while (_lexer.front.tok != TOK.alts &&
+            while (_lexer.front.tok != TOK.alternative &&
                    _lexer.front.tok != TOK.semicolon)
             {
-                const symbol = _lexer.frontPop;
-                seq.put(new Symbol(symbol));
+                seq.put(new Symbol(_lexer.frontPop));
             }
             if (!seq.data.length)
                 _lexer.error("Empty sequence");

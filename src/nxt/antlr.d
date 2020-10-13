@@ -90,7 +90,7 @@ enum TOK
 struct Token
 {
 @safe pure nothrow @nogc:
-    this(TOK tok, const(char)[] input = null)
+    this(in TOK tok, in const(char)[] input = null)
     {
         this.tok = tok;
         this.input = input;
@@ -119,10 +119,10 @@ struct G4Lexer
 
 @safe pure:
 
-    this(Input input,
-         string path = null,
-         bool includeComments = false,
-         bool includeWhitespace = false) @trusted
+    this(in Input input,
+         in string path = null,
+         in bool includeComments = false,
+         in bool includeWhitespace = false) @trusted
     {
         _input = input;
         _path = path;
@@ -199,14 +199,14 @@ private:
     }
 
     /// Peek `n`-th next `char` in input.
-    dchar peekFrontNth(size_t n) const scope nothrow @nogc
+    dchar peekFrontNth(in size_t n) const scope nothrow @nogc
     {
         version(D_Coverage) {} else pragma(inline, true);
         return _input[_offset + n]; // TODO: decode `dchar`
     }
 
     /// Get next n `chars` in input as an array of `char`.
-    Input peekStringN(size_t n) const return scope nothrow @nogc
+    Input peekStringN(in size_t n) const return scope nothrow @nogc
     {
         version(D_Coverage) {} else pragma(inline, true);
         return _input[_offset .. _offset + n];
@@ -220,14 +220,14 @@ private:
     }
 
     /// Drop next `n` bytes in input.
-    void dropFrontN(size_t n) nothrow @nogc
+    void dropFrontN(in size_t n) nothrow @nogc
     {
         version(D_Coverage) {} else pragma(inline, true);
         _offset += n;
     }
 
     /// Skip over `n` bytes in input.
-    Input skipOverN(size_t n) return nothrow @nogc
+    Input skipOverN(in size_t n) return nothrow @nogc
     {
         version(D_Coverage) {} else pragma(inline);
         const part = _input[_offset .. _offset + n];
@@ -751,26 +751,26 @@ private:
     }
 
     // TODO: into warning(const char* format...) like in `dmd` and put in `nxt.parsing` and reuse here and in lispy.d
-    void error(const string msg, size_t i = 0) const @trusted nothrow @nogc scope
+    void error(const string msg, in size_t i = 0) const @trusted nothrow @nogc scope
     {
         message("Error", msg, i);
         assert(false);          ///< TODO: propagate error instead of assert
     }
 
-    void warning(const string msg, size_t i = 0) const @trusted nothrow @nogc scope
+    void warning(const string msg, in size_t i = 0) const @trusted nothrow @nogc scope
     {
         message("Warning", msg, i);
     }
 
-    void info(const string msg, size_t i = 0, const(char)[] ds = null) const @trusted nothrow @nogc scope
+    void info(const string msg, in size_t i = 0, in const(char)[] ds = null) const @trusted nothrow @nogc scope
     {
         message("Info", msg, i, ds);
     }
 
-    void message(const string tag,
-                 const string msg,
-                 size_t i = 0,
-                 const(char)[] ds = null) const @trusted nothrow @nogc scope
+    void message(in string tag,
+                 in string msg,
+                 in size_t i = 0,
+                 in const(char)[] ds = null) const @trusted nothrow @nogc scope
     {
         import core.stdc.stdio : printf;
         const lc = offsetLineColumn(_input, _offset + i);
@@ -807,7 +807,7 @@ enum NODE
 abstract class Node
 {
 @safe pure nothrow @nogc:
-    this(Token token)
+    this(in Token token)
     {
         this.token = token;
     }
@@ -817,7 +817,7 @@ abstract class Node
 abstract class BranchN(uint n) : Node
 {
 @safe pure nothrow @nogc:
-    this(Token token, Node[n] sub)
+    this(in Token token, Node[n] sub)
     {
         super(token);
         this.sub = sub;
@@ -828,7 +828,7 @@ abstract class BranchN(uint n) : Node
 abstract class BranchM : Node
 {
 @safe pure nothrow @nogc:
-    this(Token token, Node[] subs = null)
+    this(in Token token, Node[] subs = null)
     {
         super(token);
         this.subs = subs;
@@ -840,7 +840,7 @@ abstract class BranchM : Node
 final class SeqM : BranchM
 {
 @safe pure nothrow @nogc:
-    this(Token token, Node[] subs = null)
+    this(in Token token, Node[] subs = null)
     {
         super(token);
         this.subs = subs;
@@ -852,7 +852,7 @@ final class SeqM : BranchM
 final class AltM : BranchM
 {
 @safe pure nothrow @nogc:
-    this(Token token, Node[] subs = null)
+    this(in Token token, Node[] subs = null)
     {
         super(token);
         this.subs = subs;
@@ -863,7 +863,7 @@ final class AltM : BranchM
 class Leaf : Node
 {
 @safe pure nothrow @nogc:
-    this(Token token)
+    this(in Token token)
     {
         super(token);
     }
@@ -872,7 +872,7 @@ class Leaf : Node
 class Symbol : Node
 {
 @safe pure nothrow @nogc:
-    this(Token token)
+    this(in Token token)
     {
         super(token);
     }
@@ -881,7 +881,7 @@ class Symbol : Node
 class Grammar : Leaf
 {
 @safe pure nothrow @nogc:
-    this(Token token, Input name)
+    this(in Token token, Input name)
     {
         // debug writeln("token:", token, " name:", name);
         super(token);
@@ -897,9 +897,9 @@ class Grammar : Leaf
 struct G4Parser
 {
 @safe pure:
-    this(Input input,
-         string path = null,
-         bool includeComments = false) @trusted
+    this(in Input input,
+         in string path = null,
+         in bool includeComments = false) @trusted
     {
         _lexer = G4Lexer(input, path, includeComments);
         nextFront();
@@ -971,7 +971,7 @@ private:
 struct G4FileParser           // TODO: convert to `class`
 {
 @safe:
-    this(const string filePath)
+    this(in string filePath)
     {
         import std.path : expandTilde;
         const path = filePath.expandTilde;

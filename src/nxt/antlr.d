@@ -880,7 +880,17 @@ class Grammar : Leaf
 @safe pure nothrow @nogc:
     this(in Token token, Input name)
     {
-        // debug writeln("token:", token, " name:", name);
+        super(token);
+        this.name = name;
+    }
+    Input name;
+}
+
+class ParserGrammar : Leaf
+{
+@safe pure nothrow @nogc:
+    this(in Token token, Input name)
+    {
         super(token);
         this.name = name;
     }
@@ -892,7 +902,6 @@ class Import : Leaf
 @safe pure nothrow @nogc:
     this(in Token token, Input name)
     {
-        // debug writeln("token:", token, " name:", name);
         super(token);
         this.name = name;
     }
@@ -968,14 +977,25 @@ struct G4Parser
         switch (_lexer.front.tok)
         {
         case TOK.PARSER:
-            _lexer.popFront();
-            nextFront();
-            break;
         case TOK.GRAMMAR:
+            bool parserFlag;
+            if (_lexer.front.tok == TOK.PARSER)
+            {
+                parserFlag = true;
+                _lexer.popFront();
+            }
+
+            const token = _lexer.frontPop;
+
             if (_lexer.empty)
                 _lexer.error("expected name after `grammar`");
-            _front = new Grammar(_lexer.frontPop,
-                                 _lexer.frontPop.input);
+            if (parserFlag)
+                _front = new ParserGrammar(token,
+                                           _lexer.frontPop.input);
+            else
+                _front = new Grammar(token,
+                                     _lexer.frontPop.input);
+
             _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
             break;
         case TOK.IMPORT:

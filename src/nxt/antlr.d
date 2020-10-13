@@ -9,7 +9,6 @@
  */
 module nxt.antlr;
 
-import std.conv : to;
 import std.stdio : writeln;
 
 // `d-deps.el` requires these to be at the top:
@@ -91,14 +90,14 @@ enum TOK
 struct Token
 {
 @safe pure nothrow @nogc:
-    this(TOK tt, const(char)[] input = null)
+    this(TOK tok, const(char)[] input = null)
     {
-        this.tt = tt;
+        this.tok = tok;
         this.input = input;
-        // debug writeln("tt:", tt, " input:", input);
+        // debug writeln("tok:", tok, " input:", input);
     }
-    TOK tt;
     const(char)[] input;
+    TOK tok;
 }
 
 static bool isSymbolStart(in dchar ch) pure nothrow @safe @nogc
@@ -110,7 +109,10 @@ static bool isSymbolStart(in dchar ch) pure nothrow @safe @nogc
             ch == '@');
 }
 
-/// G4 lexer.
+/** G4 lexer.
+ *
+ * See_Also: `ANTLRv4Lexer.g4`
+ */
 struct G4Lexer
 {
     import std.algorithm.comparison : among;
@@ -119,7 +121,8 @@ struct G4Lexer
 
     this(Input input,
          string path = null,
-         bool includeComments = false) @trusted
+         bool includeComments = false,
+         bool includeWhitespace = false) @trusted
     {
         _input = input;
         _path = path;
@@ -129,6 +132,7 @@ struct G4Lexer
         enforce(_input.isNullTerminated, "Input isn't null-terminated"); // input cannot be trusted
 
         _includeComments = includeComments;
+        _includeWhitespace = includeWhitespace;
 
         nextFront();
     }
@@ -148,11 +152,27 @@ struct G4Lexer
         return _token;
     }
 
-    void popFront() nothrow
+    void popFront() scope nothrow
     {
         version(D_Coverage) {} else pragma(inline, true);
         assert(!empty);
         nextFront();
+    }
+
+    void popFrontEnforce(in TOK tok, in string msg) nothrow
+    {
+        version(D_Coverage) {} else pragma(inline, true);
+        const result = frontPop;
+        if (result.tok != tok)
+            error(msg);
+    }
+
+    Token frontPop() scope return nothrow
+    {
+        version(D_Coverage) {} else pragma(inline, true);
+        auto result = front;
+        popFront();
+        return result;
     }
 
     import std.meta : AliasSeq;
@@ -168,7 +188,6 @@ struct G4Lexer
                                  '\r', // (0x0c)
                                  '\f' // (0x0d)
         );
-    alias digitChars = AliasSeq!('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
 
 private:
 
@@ -358,7 +377,7 @@ private:
         return literal;
     }
 
-    Input getAlts() return nothrow @nogc
+    Input getAlternatives() return nothrow @nogc
     {
         size_t i;
         while (!peekCharNth(i).among!('\0', ']'))
@@ -532,9 +551,8 @@ private:
         return skipOverN(i);
     }
 
-    void nextFront() nothrow @nogc
+    void nextFront() scope nothrow @nogc @trusted
     {
-        import std.uni : isWhite;
         switch (peekChar)
         {
         case '/':
@@ -543,20 +561,18 @@ private:
                 _offset += 2;
                 skipLineComment();
                 if (_includeComments)
-                {
-                    // TODO: store comment
-                }
-                _token = Token(TOK.lineComment);
+                    _token = Token(TOK.lineComment);
+                else
+                    nextFront();
             }
             else if (peekCharNth(1) == '*') // `/*`
             {
                 _offset += 2;
                 skipBlockComment();
                 if (_includeComments)
-                {
-                    // TODO: store comment
-                }
-                _token = Token(TOK.blockComment);
+                    _token = Token(TOK.blockComment);
+                else
+                    nextFront();
             }
             else
                 error("unexpected character");
@@ -573,7 +589,7 @@ private:
             _token = Token(TOK.action, getAction());
             break;
         case '[':
-            _token = Token(TOK.alts, getAlts());
+            _token = Token(TOK.alts, getAlternatives());
             break;
         case '"':
             _token = Token(TOK.textLiteralDoubleQuoted,
@@ -681,16 +697,20 @@ private:
         case '9':
             _token = Token(TOK.number, getNumber());
             break;
-            // from std.ascii.isWhite
         case ' ':
         case '\t':
         case '\n':
         case '\v':
         case '\r':
         case '\f':
-            assert(peekChar.isWhite);
-            getWhitespace();
-            _token = Token(TOK.whitespace);
+            // TODO: extend to std.uni
+            // import std.uni : isWhite;
+            // assert(peekChar.isWhite);
+            const ws = getWhitespace();
+            if (_includeWhitespace)
+                _token = Token(TOK.whitespace, ws);
+            else
+                nextFront();
             break;
         case '\0':
             _token = Token.init;
@@ -787,16 +807,107 @@ private:
     Token _token;
     bool _endOfFile;            // signals null terminator found
     bool _includeComments = false;
+    bool _includeWhitespace = false;
+}
+
+/// Node.
+enum NODE
+{
+    grammar,                    ///< Grammar defintion (name).
+    rule                        ///< Grammar rule.
 }
 
 /// AST node.
-extern(C++) class Node          // extern(C++) saves memory
+abstract class Node
 {
+@safe pure nothrow @nogc:
+    this(Token token)
+    {
+        this.token = token;
+    }
     Token token;
+}
+
+abstract class BranchN(uint n) : Node
+{
+@safe pure nothrow @nogc:
+    this(Token token, Node[n] sub)
+    {
+        super(token);
+        this.sub = sub;
+    }
+    Node[n] sub;
+}
+
+abstract class BranchM : Node
+{
+@safe pure nothrow @nogc:
+    this(Token token, Node[] subs = null)
+    {
+        super(token);
+        this.subs = subs;
+    }
     Node[] subs;
 }
 
-/// G4 parser.
+/// Sequence.
+final class SeqM : BranchM
+{
+@safe pure nothrow @nogc:
+    this(Token token, Node[] subs = null)
+    {
+        super(token);
+        this.subs = subs;
+    }
+    Node[] subs;
+}
+
+/// Alternative.
+final class AltM : BranchM
+{
+@safe pure nothrow @nogc:
+    this(Token token, Node[] subs = null)
+    {
+        super(token);
+        this.subs = subs;
+    }
+    Node[] subs;
+}
+
+class Leaf : Node
+{
+@safe pure nothrow @nogc:
+    this(Token token)
+    {
+        super(token);
+    }
+}
+
+class Symbol : Node
+{
+@safe pure nothrow @nogc:
+    this(Token token)
+    {
+        super(token);
+    }
+}
+
+class Grammar : Leaf
+{
+@safe pure nothrow @nogc:
+    this(Token token, Input name)
+    {
+        // debug writeln("token:", token, " name:", name);
+        super(token);
+        this.name = name;
+    }
+    Input name;
+}
+
+/** G4 parser.
+ *
+ * See: `ANTLRv4Parser.g4`
+ */
 struct G4Parser
 {
 @safe pure:
@@ -805,6 +916,7 @@ struct G4Parser
          bool includeComments = false) @trusted
     {
         _lexer = G4Lexer(input, path, includeComments);
+        nextFront();
     }
 
     @property bool empty() const nothrow scope @nogc
@@ -817,19 +929,56 @@ struct G4Parser
     {
         version(D_Coverage) {} else pragma(inline, true);
         assert(!empty);
-        return _top;            // TODO: use _lexer.front to build stuff
+        return _front;
     }
 
     void popFront()
     {
         version(D_Coverage) {} else pragma(inline, true);
         assert(!empty);
-        _lexer.popFront();
+        nextFront();
+    }
+
+    void nextFront() @trusted
+    {
+        switch (_lexer.front.tok)
+        {
+        case TOK.GRAMMAR:
+            if (_lexer.empty)
+                _lexer.error("expected name after grammar");
+            _front = new Grammar(_lexer.frontPop,
+                                 _lexer.frontPop.input);
+            _lexer.popFrontEnforce(TOK.semicolon, "no terminating semicolon");
+            break;
+        case TOK.symbol:
+            const name = _lexer.frontPop;
+            _lexer.popFrontEnforce(TOK.colon, "no colon");
+            scope Node[] alts;
+            while (_lexer.front.tok != TOK.semicolon)
+            {
+                debug writeln("i:", _lexer.front);
+                scope Node[] seq;
+                while (_lexer.front.tok != TOK.alts)
+                {
+                    debug writeln("j:", _lexer.front);
+                    seq ~= new Symbol(_lexer.frontPop);
+                }
+                alts ~= new SeqM(name, seq);
+            }
+            _front = new AltM(name, alts);
+            _lexer.popFrontEnforce(TOK.semicolon, "no terminating semicolon");
+            break;
+        case TOK.blockComment:
+        case TOK.lineComment:
+            return _lexer.popFront();   // ignore
+        default:
+            return _lexer.error("handle");
+        }
     }
 
 private:
     G4Lexer _lexer;
-    Node _top;
+    Node _front;
 }
 
 /// G4 filer parser.
@@ -881,7 +1030,6 @@ unittest
                 auto lexer = G4Lexer(data, fpath, false);
                 while (!lexer.empty)
                 {
-                    // debug writeln(lexer.front);
                     lexer.popFront();
                 }
             }

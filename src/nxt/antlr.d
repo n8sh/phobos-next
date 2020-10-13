@@ -995,34 +995,36 @@ unittest
     import std.file : dirEntries, SpanMode;
     import std.path : expandTilde;
 
+    const root = "~/Work/grammars-v4/".expandTilde;
+
     if (testLexer)
-        foreach (dirEntry; dirEntries("~/Work/grammars-v4/".expandTilde, SpanMode.breadth))
+        foreach (e; dirEntries(root, SpanMode.breadth))
         {
-            const fpath = dirEntry.name;
-            if (fpath.endsWith(`.g`) ||
-                fpath.endsWith(`.g2`) ||
-                fpath.endsWith(`.g4`))
+            const fn = e.name;
+            if (fn.endsWith(`.g`) ||
+                fn.endsWith(`.g2`) ||
+                fn.endsWith(`.g4`))
             {
-                debug writeln("Lexing ", fpath, " ...");
-                const data = cast(Input)rawReadPath(fpath);
-                auto lexer = G4Lexer(data, fpath, false);
+                debug writeln("Lexing ", fn, " ...");
+                const data = cast(Input)rawReadPath(fn);
+                auto lexer = G4Lexer(data, fn, false);
                 while (!lexer.empty)
                     lexer.popFront();
             }
         }
 
     if (testParser)
-        foreach (dirEntry; dirEntries("~/Work/grammars-v4/".expandTilde, SpanMode.breadth))
+        foreach (e; dirEntries(root, SpanMode.breadth))
         {
-            const fpath = dirEntry.name;
-            if (fpath.endsWith(`.g`) ||
-                fpath.endsWith(`.g2`) ||
-                fpath.endsWith(`.g4`))
+            const fn = e.name;
+            if (fn.endsWith(`.g`) ||
+                fn.endsWith(`.g2`) ||
+                fn.endsWith(`.g4`))
             {
-                if (!fpath.endsWith(`pascal.g4`)) // only pascal
+                if (!fn.endsWith(`pascal.g4`)) // only pascal
                     continue;
-                debug writeln("Parsing ", fpath, " ...");
-                auto parser = G4FileParser(fpath);
+                debug writeln("Parsing ", fn, " ...");
+                auto parser = G4FileParser(fn);
                 while (!parser.empty)
                     parser.popFront();
             }

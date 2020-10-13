@@ -231,14 +231,14 @@ private:
     void dropN(in size_t n) nothrow @nogc
     {
         version(D_Coverage) {} else pragma(inline, true);
-        _offset += n;
+        _offset += n;           // TODO: decode `dchar`
     }
 
     /// Skip over `n` bytes in input.
     Input skipOverN(in size_t n) return nothrow @nogc
     {
         version(D_Coverage) {} else pragma(inline);
-        const part = _input[_offset .. _offset + n];
+        const part = _input[_offset .. _offset + n]; // TODO: decode `dchar`
         dropN(n);
         return part;
     }
@@ -247,21 +247,21 @@ private:
     Input skipOver1() return nothrow @nogc
     {
         version(D_Coverage) {} else pragma(inline);
-        return _input[_offset .. ++_offset];
+        return _input[_offset .. ++_offset]; // TODO: decode `dchar`
     }
 
     /// Skip over next two `char`s.
     Input skipOver2() return nothrow @nogc
     {
         version(D_Coverage) {} else pragma(inline);
-        return _input[_offset .. (_offset += 2)];
+        return _input[_offset .. (_offset += 2)]; // TODO: decode `dchar`
     }
 
     /// Skip line comment.
     void skipLineComment() scope nothrow @nogc
     {
         while (!peek0().among!('\0', endOfLineChars))
-            _offset += 1;
+            _offset += 1;       // TODO: decode `dchar`
     }
 
     /// Skip line comment.
@@ -269,8 +269,8 @@ private:
     {
         size_t i;
         while (!peekN(i).among!('\0', endOfLineChars))
-            ++i;
-        return skipOverN(i);
+            ++i;                // TODO: decode `dchar`
+        return skipOverN(i);    // TODO: decode `dchar`
     }
 
     /// Skip block comment.
@@ -292,7 +292,7 @@ private:
     /// Get symbol.
     Input getSymbol() return nothrow @nogc
     {
-        import std.uni : isAlphaNum;
+        import std.uni : isAlphaNum; // TODO: decode `dchar`
         size_t i;
         if (peek0().isSymbolStart)
             ++i;
@@ -322,7 +322,7 @@ private:
 
     bool skipOverEsc(ref size_t i) nothrow @nogc
     {
-        if (peekN(i) == '\\')
+        if (peekN(i) == '\\')   // TODO: decode `dchar`
         {
             ++i;
             if (peekN(i) == 'n')

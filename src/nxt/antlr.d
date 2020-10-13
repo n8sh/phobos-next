@@ -156,7 +156,6 @@ struct G4Lexer
     {
         version(D_Coverage) {} else pragma(inline, true);
         assert(!empty);
-        debug writeln("popping:", _token);
         nextFront();
         debug writeln("after:", _token);
     }

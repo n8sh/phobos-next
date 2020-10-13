@@ -985,7 +985,7 @@ struct G4Parser
                 parserFlag = true;
                 _lexer.popFront();
                 if (_lexer.front.tok != TOK.GRAMMAR)
-                    _lexer.error("");
+                    _lexer.error("expected `grammar` after `parser`");
             }
 
             const token = _lexer.frontPop;

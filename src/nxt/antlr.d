@@ -988,13 +988,12 @@ struct G4FileParser           // TODO: convert to `class`
 ///
 unittest
 {
-    const testLexer = true;
-    const testParser = true;
-
     import nxt.array_algorithm : endsWith;
     import std.file : dirEntries, SpanMode;
     import std.path : expandTilde;
 
+    const testLexer = true;
+    const testParser = true;
     const root = "~/Work/grammars-v4/".expandTilde;
 
     if (testLexer)

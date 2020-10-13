@@ -159,7 +159,7 @@ struct G4Lexer
         nextFront();
     }
 
-    void popFrontEnforce(in TOK tok, in string msg) nothrow
+    void popFrontEnforceTOK(in TOK tok, in string msg) nothrow
     {
         version(D_Coverage) {} else pragma(inline, true);
         const result = frontPop;
@@ -192,24 +192,24 @@ struct G4Lexer
 private:
 
     /// Peek next `char` in input.
-    dchar peekChar() const scope nothrow @nogc
+    dchar peekFront() const scope nothrow @nogc
     {
         version(D_Coverage) {} else pragma(inline, true);
-        return _input[_offset];    // TODO: .ptr. TODO: decode `dchar`
+        return _input[_offset]; // TODO: decode `dchar`
     }
 
-    /// Peek n-th next `char` in input.
-    dchar peekCharNth(size_t n) const scope nothrow @nogc
+    /// Peek `n`-th next `char` in input.
+    dchar peekFrontNth(size_t n) const scope nothrow @nogc
     {
         version(D_Coverage) {} else pragma(inline, true);
-        return _input[_offset + n]; // TODO: .ptr. TODO: decode `dchar`
+        return _input[_offset + n]; // TODO: decode `dchar`
     }
 
     /// Get next n `chars` in input as an array of `char`.
     Input peekStringN(size_t n) const return scope nothrow @nogc
     {
         version(D_Coverage) {} else pragma(inline, true);
-        return _input[_offset .. _offset + n]; // TODO: .ptr
+        return _input[_offset .. _offset + n];
     }
 
     /// Drop next byte in input.
@@ -230,7 +230,7 @@ private:
     Input skipOverN(size_t n) return nothrow @nogc
     {
         version(D_Coverage) {} else pragma(inline);
-        const part = _input[_offset .. _offset + n]; // TODO: .ptr
+        const part = _input[_offset .. _offset + n];
         dropFrontN(n);
         return part;
     }
@@ -238,30 +238,26 @@ private:
     /// Skip line comment.
     void skipLineComment() scope nothrow @nogc
     {
-        while (!peekChar().among!('\0', endOfLineChars))
-        {
+        while (!peekFront().among!('\0', endOfLineChars))
             _offset += 1;
-        }
     }
 
     /// Skip line comment.
     Input getLineComment() return nothrow @nogc
     {
         size_t i;
-        while (!peekCharNth(i).among!('\0', endOfLineChars))
-        {
+        while (!peekFrontNth(i).among!('\0', endOfLineChars))
             ++i;
-        }
         return skipOverN(i);
     }
 
     /// Skip block comment.
     void skipBlockComment() scope nothrow @nogc
     {
-        while (!peekChar().among!('\0'))
+        while (!peekFront().among!('\0'))
         {
-            if (peekChar == '*' &&
-                peekCharNth(1) == '/')
+            if (peekFront == '*' &&
+                peekFrontNth(1) == '/')
             {
                 _offset += 2;
                 return;
@@ -276,10 +272,10 @@ private:
     {
         import std.uni : isAlphaNum;
         size_t i;
-        if (peekChar.isSymbolStart)
+        if (peekFront.isSymbolStart)
             ++i;
-        while (peekCharNth(i).isAlphaNum ||
-               peekCharNth(i) == '_')
+        while (peekFrontNth(i).isAlphaNum ||
+               peekFrontNth(i) == '_')
             ++i;
         return skipOverN(i);
     }
@@ -289,7 +285,7 @@ private:
     {
         import std.ascii : isDigit;
         size_t i;
-        while (peekCharNth(i).isDigit)
+        while (peekFrontNth(i).isDigit)
             ++i;
         return skipOverN(i);
     }
@@ -297,49 +293,39 @@ private:
     Input getWhitespace() return nothrow @nogc
     {
         size_t i;
-        while (peekCharNth(i).among!(whiteChars)) // NOTE this is faster than `src[i].isWhite`
+        while (peekFrontNth(i).among!(whiteChars)) // NOTE this is faster than `src[i].isWhite`
             ++i;
         return skipOverN(i);
     }
 
     bool skipOverEsc(ref size_t i) nothrow @nogc
     {
-        if (peekCharNth(i) == '\\')
+        if (peekFrontNth(i) == '\\')
         {
             ++i;
-            if (peekCharNth(i) == 'n')
-            {
+            if (peekFrontNth(i) == 'n')
                 ++i;            // TODO: convert to "\r"
-            }
-            else if (peekCharNth(i) == 't')
-            {
+            else if (peekFrontNth(i) == 't')
                 ++i;            // TODO: convert to "\t"
-            }
-            else if (peekCharNth(i) == 'r')
-            {
+            else if (peekFrontNth(i) == 'r')
                 ++i;            // TODO: convert to ASCII "\r"
-            }
-            else if (peekCharNth(i) == ']')
-            {
+            else if (peekFrontNth(i) == ']')
                 ++i;            // TODO: convert to ASCII "]"
-            }
-            else if (peekCharNth(i) == 'u')
+            else if (peekFrontNth(i) == 'u')
             {
                 ++i;
                 import std.ascii : isDigit;
-                while (peekCharNth(i).isDigit)
+                while (peekFrontNth(i).isDigit)
                     ++i;
                 // TODO: convert to `dchar`
             }
-            else if (peekCharNth(i) == '\0')
+            else if (peekFrontNth(i) == '\0')
             {
                 error("unterminated escape sequence at end of file");
                 return false;
             }
             else
-            {
                 i += 1;
-            }
             return true;
         }
         return false;
@@ -349,14 +335,14 @@ private:
     {
         dropFront();
         size_t i;
-        while (!peekCharNth(i).among!('\0', '"'))
+        while (!peekFrontNth(i).among!('\0', '"'))
         {
             if (!skipOverEsc(i))
                 ++i;
         }
         const literal = peekStringN(i);
         dropFrontN(i);
-        if (peekChar() == '"')
+        if (peekFront() == '"')
             dropFront();        // pop ending double singlequote
         return literal;
     }
@@ -365,14 +351,14 @@ private:
     {
         dropFront();
         size_t i;
-        while (!peekCharNth(i).among!('\0', '\''))
+        while (!peekFrontNth(i).among!('\0', '\''))
         {
             if (!skipOverEsc(i))
                 ++i;
         }
         const literal = peekStringN(i);
         dropFrontN(i);
-        if (peekChar() == '\'')
+        if (peekFront() == '\'')
             dropFront();        // pop ending double singlequote
         return literal;
     }
@@ -380,12 +366,12 @@ private:
     Input getAlternatives() return nothrow @nogc
     {
         size_t i;
-        while (!peekCharNth(i).among!('\0', ']'))
+        while (!peekFrontNth(i).among!('\0', ']'))
         {
             if (!skipOverEsc(i))
                 ++i;
         }
-        if (peekCharNth(i + 1))
+        if (peekFrontNth(i + 1))
             ++i;
         return skipOverN(i);
     }
@@ -404,7 +390,7 @@ private:
 
         const infoFlag = false;
 
-        while (!peekCharNth(i).among!('\0'))
+        while (!peekFrontNth(i).among!('\0'))
         {
             // skip over all escape sequences in quoted
             if (inChar ||
@@ -418,28 +404,28 @@ private:
                 !inChar &&
                 !inString)
             {
-                if (peekCharNth(i) == '/' &&
-                    peekCharNth(i + 1) == '/')
+                if (peekFrontNth(i) == '/' &&
+                    peekFrontNth(i + 1) == '/')
                 {
                     if (infoFlag) info("line comment start", i, ds[]);
                     inLineComment = true;
                     i += 2;
                     continue;
                 }
-                else if (peekCharNth(i) == '/' &&
-                         peekCharNth(i + 1) == '*')
+                else if (peekFrontNth(i) == '/' &&
+                         peekFrontNth(i + 1) == '*')
                 {
                     if (infoFlag) info("block comment start", i, ds[]);
                     inBlockComment = true;
                     i += 2;
                     continue;
                 }
-                else if (peekCharNth(i) == '{')
+                else if (peekFrontNth(i) == '{')
                 {
                     if (infoFlag) info("brace open", i, ds[]);
                     ds.insertBack('{');
                 }
-                else if (peekCharNth(i) == '}')
+                else if (peekFrontNth(i) == '}')
                 {
                     if (infoFlag) info("brace close", i, ds[]);
                     if (!ds.empty &&
@@ -447,12 +433,12 @@ private:
                         error("unmatched", i);
                     ds.popBack();
                 }
-                else if (peekCharNth(i) == '[')
+                else if (peekFrontNth(i) == '[')
                 {
                     if (infoFlag) info("hook open", i, ds[]);
                     ds.insertBack('[');
                 }
-                else if (peekCharNth(i) == ']')
+                else if (peekFrontNth(i) == ']')
                 {
                     if (infoFlag) info("hook close", i, ds[]);
                     if (!ds.empty &&
@@ -460,12 +446,12 @@ private:
                         error("unmatched", i);
                     ds.popBack();
                 }
-                else if (peekCharNth(i) == '(')
+                else if (peekFrontNth(i) == '(')
                 {
                     if (infoFlag) info("paren open", i, ds[]);
                     ds.insertBack('(');
                 }
-                else if (peekCharNth(i) == ')')
+                else if (peekFrontNth(i) == ')')
                 {
                     if (infoFlag) info("paren close", i, ds[]);
                     if (!ds.empty &&
@@ -477,8 +463,8 @@ private:
 
             // block comment close
             if (inBlockComment &&
-                peekCharNth(i) == '*' &&
-                peekCharNth(i + 1) == '/')
+                peekFrontNth(i) == '*' &&
+                peekFrontNth(i + 1) == '/')
             {
                 if (infoFlag) info("block comment close", i, ds[]);
                 inBlockComment = false;
@@ -488,8 +474,8 @@ private:
 
             // line comment close
             if (inLineComment &&
-                (peekCharNth(i) == '\n' ||
-                 peekCharNth(i) == '\r'))
+                (peekFrontNth(i) == '\n' ||
+                 peekFrontNth(i) == '\r'))
             {
                 if (infoFlag) info("line comment close", i, ds[]);
                 inLineComment = false;
@@ -499,7 +485,7 @@ private:
             if (!inBlockComment &&
                 !inLineComment &&
                 !inString &&
-                peekCharNth(i) == '\'')
+                peekFrontNth(i) == '\'')
             {
                 if (!ds.empty &&
                     ds.back == '\'')
@@ -520,7 +506,7 @@ private:
             if (!inBlockComment &&
                 !inLineComment &&
                 !inChar &&
-                peekCharNth(i) == '"')
+                peekFrontNth(i) == '"')
             {
                 if (!ds.empty &&
                     ds.back == '"')
@@ -553,10 +539,10 @@ private:
 
     void nextFront() scope nothrow @nogc @trusted
     {
-        switch (peekChar)
+        switch (peekFront)
         {
         case '/':
-            if (peekCharNth(1) == '/') // `//`
+            if (peekFrontNth(1) == '/') // `//`
             {
                 _offset += 2;
                 skipLineComment();
@@ -565,7 +551,7 @@ private:
                 else
                     nextFront();
             }
-            else if (peekCharNth(1) == '*') // `/*`
+            else if (peekFrontNth(1) == '*') // `/*`
             {
                 _offset += 2;
                 skipBlockComment();
@@ -612,7 +598,7 @@ private:
             _offset += 1;
             break;
         case '=':
-            if (peekCharNth(1) == '>')
+            if (peekFrontNth(1) == '>')
             {
                 _token = Token(TOK.alwaysIncludePredicate, _input[_offset .. _offset + 2]);
                 _offset += 2;
@@ -628,7 +614,7 @@ private:
             _offset += 1;
             break;
         case '+':
-            if (peekCharNth(1) == '=')
+            if (peekFrontNth(1) == '=')
             {
                 _token = Token(TOK.listLabelAssignment, _input[_offset .. _offset + 2]);
                 _offset += 2;
@@ -672,7 +658,7 @@ private:
             _offset += 1;
             break;
         case '.':
-            if (peekCharNth(1) == '.') // `..`
+            if (peekFrontNth(1) == '.') // `..`
             {
                 _token = Token(TOK.dotdot, _input[_offset .. _offset + 2]);
                 _offset += 2;
@@ -684,7 +670,7 @@ private:
             }
             break;
         case '-':
-            if (peekCharNth(1) == '>') // `->`
+            if (peekFrontNth(1) == '>') // `->`
             {
                 _token = Token(TOK.rewrite, _input[_offset .. _offset + 2]);
                 _offset += 2;
@@ -705,7 +691,7 @@ private:
         case '\f':
             // TODO: extend to std.uni
             // import std.uni : isWhite;
-            // assert(peekChar.isWhite);
+            // assert(peekFront.isWhite);
             const ws = getWhitespace();
             if (_includeWhitespace)
                 _token = Token(TOK.whitespace, ws);
@@ -717,7 +703,7 @@ private:
             _endOfFile = true;
             return;
         default:
-            if (peekChar.isSymbolStart)
+            if (peekFront.isSymbolStart)
             {
                 const symbol = getSymbol();
                 switch (symbol[0])
@@ -795,7 +781,7 @@ private:
                      tag.ptr,
                      cast(int)msg.length, msg.ptr,
                      _offset + i,
-                     peekCharNth(i),
+                     peekFrontNth(i),
                      cast(int)ds.length, ds.ptr);
     }
 
@@ -948,11 +934,11 @@ struct G4Parser
                 _lexer.error("expected name after grammar");
             _front = new Grammar(_lexer.frontPop,
                                  _lexer.frontPop.input);
-            _lexer.popFrontEnforce(TOK.semicolon, "no terminating semicolon");
+            _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
             break;
         case TOK.symbol:
             const name = _lexer.frontPop;
-            _lexer.popFrontEnforce(TOK.colon, "no colon");
+            _lexer.popFrontEnforceTOK(TOK.colon, "no colon");
             scope Node[] alts;
             while (_lexer.front.tok != TOK.semicolon)
             {
@@ -966,7 +952,7 @@ struct G4Parser
                 alts ~= new SeqM(name, seq);
             }
             _front = new AltM(name, alts);
-            _lexer.popFrontEnforce(TOK.semicolon, "no terminating semicolon");
+            _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
             break;
         case TOK.blockComment:
         case TOK.lineComment:
@@ -1003,7 +989,7 @@ struct G4FileParser           // TODO: convert to `class`
 unittest
 {
     const testLexer = true;
-    const testParser = true;
+    const testParser = false;
     import std.file : dirEntries, SpanMode;
     import std.path : expandTilde;
     foreach (dirEntry; dirEntries("~/Work/grammars-v4/".expandTilde, SpanMode.breadth))
@@ -1019,8 +1005,8 @@ unittest
             fpath.endsWith(`.g2`) ||
             fpath.endsWith(`.g4`))
         {
-            if (!fpath.endsWith(`pascal.g4`)) // only pascal
-                continue;
+            // if (!fpath.endsWith(`pascal.g4`)) // only pascal
+            //     continue;
 
             // test lexer
             if (testLexer)
@@ -1029,9 +1015,7 @@ unittest
                 const data = cast(Input)rawReadPath(fpath); // cast to Input because we don't want to keep all file around:
                 auto lexer = G4Lexer(data, fpath, false);
                 while (!lexer.empty)
-                {
                     lexer.popFront();
-                }
             }
 
             if (testParser)
@@ -1039,10 +1023,8 @@ unittest
                 debug writeln("Parsing ", fpath);
                 auto fparser = G4FileParser(fpath);
                 while (!fparser.empty)
-                {
                     // debug writeln(fparser._lexer.front);
                     fparser.popFront();
-                }
             }
         }
     }

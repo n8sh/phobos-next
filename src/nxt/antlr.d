@@ -47,6 +47,7 @@ enum TOK
     OPTIONS,        ///< Grammar or rule options.
     TOKENS,         ///< Can add tokens with this; usually imaginary tokens.
     IMPORT,         ///< Import grammar(s).
+    CHANNELS,       ///< Channels.
 
     symbol,                     ///< Symbol.
     lexerRuleName,              ///< TODO: use instead of `symbol`
@@ -173,6 +174,15 @@ struct G4Lexer
         const result = frontPop;
         if (result.tok != tok)
             errorAtFront(msg);  // TODO: print: expected token `tok`
+    }
+
+    Token frontPopEnforceTOK(in TOK tok, in string msg) nothrow
+    {
+        version(D_Coverage) {} else pragma(inline, true);
+        auto result = frontPop;
+        if (result.tok != tok)
+            errorAtFront(msg);  // TODO: print: expected token `tok`
+        return result;
     }
 
     Token frontPop() scope return nothrow
@@ -717,6 +727,7 @@ private:
                         case "options": _token = Token(TOK.OPTIONS, symbol); break;
                         case "tokens": _token = Token(TOK.TOKENS, symbol); break;
                         case "import": _token = Token(TOK.IMPORT, symbol); break;
+                        case "channels": _token = Token(TOK.CHANNELS, symbol); break;
                         default: _token = Token(TOK.symbol, symbol); break;
                         }
                     }
@@ -911,6 +922,17 @@ class Grammar : Leaf
     Input name;
 }
 
+class LexerGrammar : Leaf
+{
+@safe pure nothrow @nogc:
+    this(in Token token, Input name)
+    {
+        super(token);
+        this.name = name;
+    }
+    Input name;
+}
+
 /// See_Also: https://theantlrguy.atlassian.net/wiki/spaces/ANTLR3/pages/2687210/Quick+Starter+on+Parser+Grammars+-+No+Past+Experience+Required
 class ParserGrammar : Leaf
 {
@@ -932,6 +954,30 @@ class Import : Leaf
         this.name = name;
     }
     Input name;
+}
+
+class Options : Leaf
+{
+@safe pure nothrow @nogc:
+    this(in Token token, in Token code)
+    {
+        super(token);
+        this.code = code;
+    }
+    Input name;
+    Token code;
+}
+
+class Channels : Leaf
+{
+@safe pure nothrow @nogc:
+    this(in Token token, in Token code)
+    {
+        super(token);
+        this.code = code;
+    }
+    Input name;
+    Token code;
 }
 
 /** G4 parser.
@@ -1002,22 +1048,26 @@ struct G4Parser
     {
         switch (_lexer.front.tok)
         {
+        case TOK.LEXER:
         case TOK.PARSER:
         case TOK.GRAMMAR:
+            const token = _lexer.frontPop;
+            bool lexerFlag;
             bool parserFlag;
-            if (_lexer.front.tok == TOK.PARSER)
+            if (token.tok == TOK.LEXER)
+            {
+                lexerFlag = true;
+                _lexer.popFrontEnforceTOK(TOK.GRAMMAR, "expected `grammar` after `lexer`");
+            }
+            else if (token.tok == TOK.PARSER)
             {
                 parserFlag = true;
-                _lexer.popFront();
-                if (_lexer.front.tok != TOK.GRAMMAR)
-                    _lexer.errorAtFront("`parser` must be followed by `grammar`");
+                _lexer.popFrontEnforceTOK(TOK.GRAMMAR, "expected `grammar` after `parser`");
             }
 
-            const token = _lexer.frontPop;
-
-            if (_lexer.empty)
-                _lexer.errorAtFront("expected name after `grammar`");
-            if (parserFlag)
+            if (lexerFlag)
+                _front = new LexerGrammar(token, _lexer.frontPop.input);
+            else if (parserFlag)
                 _front = new ParserGrammar(token, _lexer.frontPop.input);
             else
                 _front = new Grammar(token, _lexer.frontPop.input);
@@ -1025,16 +1075,22 @@ struct G4Parser
             _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
             break;
         case TOK.IMPORT:
-            if (_lexer.empty)
-                _lexer.errorAtFront("expected name after `import`");
             _front = new Import(_lexer.frontPop, _lexer.frontPop.input);
             _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
             break;
         case TOK.FRAGMENT:
-            if (_lexer.empty)
-                _lexer.errorAtFront("expected name after `fragment`");
             _lexer.popFront();  // skip keyword
             handleRule(_lexer.frontPop, true);
+            break;
+        case TOK.OPTIONS:
+            _front = new Options(_lexer.frontPop,
+                                 _lexer.frontPopEnforceTOK(TOK.action,
+                                                           "missing action after `options`"));
+            break;
+        case TOK.CHANNELS:
+            _front = new Channels(_lexer.frontPop,
+                                  _lexer.frontPopEnforceTOK(TOK.action,
+                                                            "missing action after `options`"));
             break;
         case TOK.symbol:
             handleRule(_lexer.frontPop, false);

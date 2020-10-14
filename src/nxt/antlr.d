@@ -841,19 +841,19 @@ enum NODE
 abstract class Node
 {
 @safe pure nothrow @nogc:
-    this(in Token token)
+    this(in Token head)
     {
-        this.token = token;
+        this.head = head;
     }
-    Token token;
+    Token head;
 }
 
 abstract class BranchN(uint n) : Node
 {
 @safe pure nothrow @nogc:
-    this(in Token token, Node[n] sub)
+    this(in Token head, Node[n] sub)
     {
-        super(token);
+        super(head);
         this.sub = sub;
     }
     Node[n] sub;
@@ -862,9 +862,9 @@ abstract class BranchN(uint n) : Node
 abstract class BranchM : Node
 {
 @safe pure nothrow @nogc:
-    this(in Token token, Node[] subs = null)
+    this(in Token head, Node[] subs = null)
     {
-        super(token);
+        super(head);
         this.subs = subs;
     }
     Node[] subs;
@@ -874,9 +874,9 @@ abstract class BranchM : Node
 final class SeqM : BranchM
 {
 @safe pure nothrow @nogc:
-    this(in Token token, Node[] subs = null)
+    this(in Token head, Node[] subs = null)
     {
-        super(token);
+        super(head);
         this.subs = subs;
     }
     Node[] subs;
@@ -886,9 +886,9 @@ final class SeqM : BranchM
 class RuleAltM : BranchM
 {
 @safe pure nothrow @nogc:
-    this(in Token token, Node[] subs = null)
+    this(in Token head, Node[] subs = null)
     {
-        super(token);
+        super(head);
         this.subs = subs;
     }
     Node[] subs;
@@ -898,9 +898,9 @@ class RuleAltM : BranchM
 final class FragmentRuleAltM : RuleAltM
 {
 @safe pure nothrow @nogc:
-    this(in Token token, Node[] subs = null)
+    this(in Token head, Node[] subs = null)
     {
-        super(token);
+        super(head);
         this.subs = subs;
     }
     Node[] subs;
@@ -909,27 +909,27 @@ final class FragmentRuleAltM : RuleAltM
 class Leaf : Node
 {
 @safe pure nothrow @nogc:
-    this(in Token token)
+    this(in Token head)
     {
-        super(token);
+        super(head);
     }
 }
 
 class Symbol : Node
 {
 @safe pure nothrow @nogc:
-    this(in Token token)
+    this(in Token head)
     {
-        super(token);
+        super(head);
     }
 }
 
 final class Grammar : Leaf
 {
 @safe pure nothrow @nogc:
-    this(in Token token, Input name)
+    this(in Token head, Input name)
     {
-        super(token);
+        super(head);
         this.name = name;
     }
     Input name;
@@ -938,9 +938,9 @@ final class Grammar : Leaf
 final class LexerGrammar : Leaf
 {
 @safe pure nothrow @nogc:
-    this(in Token token, Input name)
+    this(in Token head, Input name)
     {
-        super(token);
+        super(head);
         this.name = name;
     }
     Input name;
@@ -950,9 +950,9 @@ final class LexerGrammar : Leaf
 final class ParserGrammar : Leaf
 {
 @safe pure nothrow @nogc:
-    this(in Token token, Input name)
+    this(in Token head, Input name)
     {
-        super(token);
+        super(head);
         this.name = name;
     }
     Input name;
@@ -961,9 +961,9 @@ final class ParserGrammar : Leaf
 final class Import : Leaf
 {
 @safe pure nothrow @nogc:
-    this(in Token token, const Input[] modules)
+    this(in Token head, const Input[] modules)
     {
-        super(token);
+        super(head);
         this.modules = modules;
     }
     const Input[] modules;
@@ -972,9 +972,9 @@ final class Import : Leaf
 final class Mode : Leaf
 {
 @safe pure nothrow @nogc:
-    this(in Token token, Input name)
+    this(in Token head, Input name)
     {
-        super(token);
+        super(head);
         this.name = name;
     }
     Input name;
@@ -983,9 +983,9 @@ final class Mode : Leaf
 final class Options : Leaf
 {
 @safe pure nothrow @nogc:
-    this(in Token token, in Token code)
+    this(in Token head, in Token code)
     {
-        super(token);
+        super(head);
         this.code = code;
     }
     Input name;
@@ -995,9 +995,9 @@ final class Options : Leaf
 final class Scope : Leaf
 {
 @safe pure nothrow @nogc:
-    this(in Token token, in Token code)
+    this(in Token head, in Token code)
     {
-        super(token);
+        super(head);
         this.code = code;
     }
     Input name;
@@ -1007,9 +1007,9 @@ final class Scope : Leaf
 final class AttributeSymbol : Leaf
 {
 @safe pure nothrow @nogc:
-    this(in Token token, in Token code)
+    this(in Token head, in Token code)
     {
-        super(token);
+        super(head);
         this.code = code;
     }
     Input name;
@@ -1019,9 +1019,9 @@ final class AttributeSymbol : Leaf
 final class ActionSymbol : Leaf
 {
 @safe pure nothrow @nogc:
-    this(in Token token, in Token code)
+    this(in Token head, in Token code)
     {
-        super(token);
+        super(head);
         this.code = code;
     }
     Input name;
@@ -1031,9 +1031,9 @@ final class ActionSymbol : Leaf
 final class Channels : Leaf
 {
 @safe pure nothrow @nogc:
-    this(in Token token, in Token code)
+    this(in Token head, in Token code)
     {
-        super(token);
+        super(head);
         this.code = code;
     }
     Input name;
@@ -1043,9 +1043,9 @@ final class Channels : Leaf
 final class Tokens : Leaf
 {
 @safe pure nothrow @nogc:
-    this(in Token token, in Token code)
+    this(in Token head, in Token code)
     {
-        super(token);
+        super(head);
         this.code = code;
     }
     Input name;
@@ -1149,6 +1149,13 @@ struct G4Parser
                                                           "missing action"));
     }
 
+    Scope getScope(in Token head)
+    {
+        return new Scope(head,
+                         _lexer.frontPopEnforceTOK(TOK.action,
+                                                   "missing action"));
+    }
+
     void nextFront() @trusted
     {
         switch (_lexer.front.tok)
@@ -1191,9 +1198,7 @@ struct G4Parser
             if (_lexer.front.tok == TOK.colon)
                 handleRule(head, false); // normal rule
             else
-                _front = new Scope(head,
-                                   _lexer.frontPopEnforceTOK(TOK.action,
-                                                             "missing action"));
+                _front = getScope(head);
             break;
         case TOK.FRAGMENT:
             _lexer.popFront();  // skip keyword

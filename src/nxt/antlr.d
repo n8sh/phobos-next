@@ -762,7 +762,7 @@ private:
         const lc = offsetLineColumn(_input, offset);
         // debug writeln("lc:", lc);
         // TODO: remove printf
-        debug printf("%.*s(%u,%u): %s: %.*s token `%.*s` at offset %llu\n",
+        debug printf("%.*s(%u,%u): %s: %.*s, token `%.*s` at offset %llu\n",
                      cast(int)_path.length, _path.ptr,
                      lc.line + 1, lc.column + 1,
                      tag.ptr,

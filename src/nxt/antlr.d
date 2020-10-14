@@ -16,6 +16,7 @@
  */
 module nxt.antlr;
 
+import std.array : Appender;
 import std.stdio : writeln;
 
 // `d-deps.el` requires these to be at the top:
@@ -177,7 +178,7 @@ struct G4Lexer
             errorAtFront(msg);  // TODO: print: expected token `tok`
     }
 
-    Token frontPopEnforceTOK(in TOK tok, in string msg) nothrow
+    Token frontPopEnforceTOK(in TOK tok, in string msg = "") nothrow
     {
         version(D_Coverage) {} else pragma(inline, true);
         auto result = frontPop;
@@ -960,12 +961,12 @@ final class ParserGrammar : Leaf
 final class Import : Leaf
 {
 @safe pure nothrow @nogc:
-    this(in Token token, Input name)
+    this(in Token token, const Input[] modules)
     {
         super(token);
-        this.name = name;
+        this.modules = modules;
     }
-    Input name;
+    const Input[] modules;
 }
 
 final class Mode : Leaf
@@ -1090,7 +1091,6 @@ struct G4Parser
                             in bool isFragment) @trusted
     {
         _lexer.popFrontEnforceTOK(TOK.colon, "no colon");
-        import std.array : Appender;
         Appender!(Node[]) alts; // TODO: use stack for small arrays
         while (_lexer.front.tok != TOK.semicolon)
         {
@@ -1126,43 +1126,53 @@ struct G4Parser
         case TOK.LEXER:
         case TOK.PARSER:
         case TOK.GRAMMAR:
-            const token = _lexer.frontPop;
+            const head = _lexer.frontPop;
             bool lexerFlag;
             bool parserFlag;
-            if (token.tok == TOK.LEXER)
+            if (head.tok == TOK.LEXER)
             {
                 lexerFlag = true;
                 _lexer.popFrontEnforceTOK(TOK.GRAMMAR, "expected `grammar` after `lexer`");
             }
-            else if (token.tok == TOK.PARSER)
+            else if (head.tok == TOK.PARSER)
             {
                 parserFlag = true;
                 _lexer.popFrontEnforceTOK(TOK.GRAMMAR, "expected `grammar` after `parser`");
             }
 
             if (lexerFlag)
-                _front = new LexerGrammar(token, _lexer.frontPop.input);
+                _front = new LexerGrammar(head, _lexer.frontPop.input);
             else if (parserFlag)
-                _front = new ParserGrammar(token, _lexer.frontPop.input);
+                _front = new ParserGrammar(head, _lexer.frontPop.input);
             else
-                _front = new Grammar(token, _lexer.frontPop.input);
+                _front = new Grammar(head, _lexer.frontPop.input);
 
             _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
             break;
         case TOK.IMPORT:
-            _front = new Import(_lexer.frontPop, _lexer.frontPop.input);
+            const head = _lexer.frontPop;
+            // TODO: functionize getCommaSeparateArgs()
+            Appender!(Input[]) modules;
+            while (true)
+            {
+                modules.put(_lexer.frontPopEnforceTOK(TOK.symbol).input);
+                if (_lexer.front.tok != TOK.comma)
+                    break;
+                _lexer.popFront();
+            }
             _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
+            _front = new Import(head, modules.data);
             break;
         case TOK.MODE:
             _front = new Mode(_lexer.frontPop, _lexer.frontPop.input);
             _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
             break;
         case TOK.SCOPE:
-            const token = _lexer.frontPop;
+            const head = _lexer.frontPop;
             if (_lexer.front.tok == TOK.colon)
-                handleRule(token, false); // normal rule
+                handleRule(head, false); // normal rule
             else
-                _front = new Scope(token,
+                _front = new Scope(head,
                                    _lexer.frontPopEnforceTOK(TOK.action,
                                                              "missing action"));
             break;

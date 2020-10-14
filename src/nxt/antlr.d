@@ -1088,7 +1088,8 @@ struct G4Parser
     }
 
     private void handleRule(in Token name,
-                            in bool isFragment) @trusted
+                            in bool isFragment,
+                            AttributeSymbol attributeSymbol = null) @trusted
     {
         _lexer.popFrontEnforceTOK(TOK.colon, "no colon");
         Appender!(Node[]) alts; // TODO: use stack for small arrays
@@ -1132,6 +1133,20 @@ struct G4Parser
         }
         _lexer.popFrontEnforceTOK(terminator, "no terminating semicolon");
         return result.data;
+    }
+
+    AttributeSymbol getAttributeSymbol()
+    {
+        return new AttributeSymbol(_lexer.frontPop,
+                                   _lexer.frontPopEnforceTOK(TOK.action,
+                                                             "missing action"));
+    }
+
+    ActionSymbol getActionSymbol()
+    {
+        return new ActionSymbol(_lexer.frontPop,
+                                _lexer.frontPopEnforceTOK(TOK.action,
+                                                          "missing action"));
     }
 
     void nextFront() @trusted
@@ -1200,17 +1215,15 @@ struct G4Parser
                                                             "missing action"));
             break;
         case TOK.symbol:
-            handleRule(_lexer.frontPop, false);
+            handleRule(_lexer.frontPop,
+                       false,
+                       _lexer.front.tok == TOK.attributeSymbol ? getAttributeSymbol() : null);
             break;
         case TOK.attributeSymbol:
-            _front = new AttributeSymbol(_lexer.frontPop,
-                                         _lexer.frontPopEnforceTOK(TOK.action,
-                                                                   "missing action"));
+            _front = getAttributeSymbol();
             break;
         case TOK.actionSymbol:
-            _front = new ActionSymbol(_lexer.frontPop,
-                                      _lexer.frontPopEnforceTOK(TOK.action,
-                                                                "missing action"));
+            _front = getActionSymbol();
             break;
         case TOK.blockComment:
         case TOK.lineComment:

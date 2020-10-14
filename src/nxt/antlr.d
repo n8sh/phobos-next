@@ -1119,6 +1119,21 @@ struct G4Parser
             _front = new RuleAltM(name, alts.data);
     }
 
+    Input[] getArgs(in TOK separator,
+                    in TOK terminator)
+    {
+        Appender!(Input[]) result;
+        while (true)
+        {
+            result.put(_lexer.frontPopEnforceTOK(TOK.symbol).input);
+            if (_lexer.front.tok != separator)
+                break;
+            _lexer.popFront();
+        }
+        _lexer.popFrontEnforceTOK(terminator, "no terminating semicolon");
+        return result.data;
+    }
+
     void nextFront() @trusted
     {
         switch (_lexer.front.tok)
@@ -1150,18 +1165,7 @@ struct G4Parser
             _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
             break;
         case TOK.IMPORT:
-            const head = _lexer.frontPop;
-            // TODO: functionize getCommaSeparateArgs()
-            Appender!(Input[]) modules;
-            while (true)
-            {
-                modules.put(_lexer.frontPopEnforceTOK(TOK.symbol).input);
-                if (_lexer.front.tok != TOK.comma)
-                    break;
-                _lexer.popFront();
-            }
-            _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
-            _front = new Import(head, modules.data);
+            _front = new Import(_lexer.frontPop, getArgs(TOK.comma, TOK.semicolon));
             break;
         case TOK.MODE:
             _front = new Mode(_lexer.frontPop, _lexer.frontPop.input);

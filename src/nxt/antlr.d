@@ -152,7 +152,7 @@ struct G4Lexer
         return _endOfFile;
     }
 
-    Token front() const scope return nothrow
+    inout(Token) front() inout scope return nothrow @nogc
     {
         version(D_Coverage) {} else pragma(inline, true);
         assert(!empty);
@@ -172,7 +172,7 @@ struct G4Lexer
         version(D_Coverage) {} else pragma(inline, true);
         const result = frontPop;
         if (result.tok != tok)
-            error(msg);
+            errorAtFront(msg);  // TODO: print: expected token `tok`
     }
 
     Token frontPop() scope return nothrow
@@ -286,7 +286,7 @@ private:
             }
             _offset += 1;
         }
-        error("unterminated block comment");
+        errorAtFront("unterminated block comment");
     }
 
     /// Get symbol.
@@ -343,7 +343,7 @@ private:
             }
             else if (peekN(i) == '\0')
             {
-                error("unterminated escape sequence at end of file");
+                errorAtIndex("unterminated escape sequence at end of file");
                 return false;
             }
             else
@@ -427,7 +427,7 @@ private:
                 if (peekN(i) == '/' &&
                     peekN(i + 1) == '/')
                 {
-                    if (infoFlag) info("line comment start", i, ds[]);
+                    if (infoFlag) infoAtIndex("line comment start", i, ds[]);
                     inLineComment = true;
                     i += 2;
                     continue;
@@ -435,48 +435,48 @@ private:
                 else if (peekN(i) == '/' &&
                          peekN(i + 1) == '*')
                 {
-                    if (infoFlag) info("block comment start", i, ds[]);
+                    if (infoFlag) infoAtIndex("block comment start", i, ds[]);
                     inBlockComment = true;
                     i += 2;
                     continue;
                 }
                 else if (peekN(i) == '{')
                 {
-                    if (infoFlag) info("brace open", i, ds[]);
+                    if (infoFlag) infoAtIndex("brace open", i, ds[]);
                     ds.insertBack('{');
                 }
                 else if (peekN(i) == '}')
                 {
-                    if (infoFlag) info("brace close", i, ds[]);
+                    if (infoFlag) infoAtIndex("brace close", i, ds[]);
                     if (!ds.empty &&
                         ds.back != '{')
-                        error("unmatched", i);
+                        errorAtIndex("unmatched", i);
                     ds.popBack();
                 }
                 else if (peekN(i) == '[')
                 {
-                    if (infoFlag) info("hook open", i, ds[]);
+                    if (infoFlag) infoAtIndex("hook open", i, ds[]);
                     ds.insertBack('[');
                 }
                 else if (peekN(i) == ']')
                 {
-                    if (infoFlag) info("hook close", i, ds[]);
+                    if (infoFlag) infoAtIndex("hook close", i, ds[]);
                     if (!ds.empty &&
                         ds.back != '[')
-                        error("unmatched", i);
+                        errorAtIndex("unmatched", i);
                     ds.popBack();
                 }
                 else if (peekN(i) == '(')
                 {
-                    if (infoFlag) info("paren open", i, ds[]);
+                    if (infoFlag) infoAtIndex("paren open", i, ds[]);
                     ds.insertBack('(');
                 }
                 else if (peekN(i) == ')')
                 {
-                    if (infoFlag) info("paren close", i, ds[]);
+                    if (infoFlag) infoAtIndex("paren close", i, ds[]);
                     if (!ds.empty &&
                         ds.back != '(')
-                        error("unmatched", i);
+                        errorAtIndex("unmatched", i);
                     ds.popBack();
                 }
             }
@@ -486,7 +486,7 @@ private:
                 peekN(i) == '*' &&
                 peekN(i + 1) == '/')
             {
-                if (infoFlag) info("block comment close", i, ds[]);
+                if (infoFlag) infoAtIndex("block comment close", i, ds[]);
                 inBlockComment = false;
                 i += 2;
                 continue;
@@ -497,7 +497,7 @@ private:
                 (peekN(i) == '\n' ||
                  peekN(i) == '\r'))
             {
-                if (infoFlag) info("line comment close", i, ds[]);
+                if (infoFlag) infoAtIndex("line comment close", i, ds[]);
                 inLineComment = false;
             }
 
@@ -510,13 +510,13 @@ private:
                 if (!ds.empty &&
                     ds.back == '\'')
                 {
-                    if (infoFlag) info("single-quote close", i, ds[]);
+                    if (infoFlag) infoAtIndex("single-quote close", i, ds[]);
                     ds.popBack();
                     inChar = false;
                 }
                 else
                 {
-                    if (infoFlag) info("single-quote open", i, ds[]);
+                    if (infoFlag) infoAtIndex("single-quote open", i, ds[]);
                     ds.insertBack('\'');
                     inChar = true;
                 }
@@ -531,13 +531,13 @@ private:
                 if (!ds.empty &&
                     ds.back == '"')
                 {
-                    if (infoFlag) info("double-quote close", i, ds[]);
+                    if (infoFlag) infoAtIndex("double-quote close", i, ds[]);
                     ds.popBack();
                     inString = false;
                 }
                 else
                 {
-                    if (infoFlag) info("doubl-quote open", i, ds[]);
+                    if (infoFlag) infoAtIndex("doubl-quote open", i, ds[]);
                     ds.insertBack('"');
                     inString = true;
                 }
@@ -550,9 +550,9 @@ private:
         }
 
         if (inBlockComment)
-            error("unterminated block comment", i);
+            errorAtIndex("unterminated block comment", i);
         if (ds.length != 0)
-            error("unbalanced code block", i);
+            errorAtIndex("unbalanced code block", i);
 
         return skipOverN(i);
     }
@@ -581,7 +581,7 @@ private:
                     return nextFront();
             }
             else
-                error("unexpected character");
+                errorAtIndex("unexpected character");
             break;
         case '(':
             _token = Token(TOK.leftParen, skipOver1());
@@ -661,7 +661,7 @@ private:
             if (peek1() == '>') // `->`
                 _token = Token(TOK.rewrite, skipOver2());
             else
-                error("unexpected character");
+                errorAtIndex("unexpected character");
             break;
         case '0':
             ..
@@ -730,32 +730,57 @@ private:
             else
             {
                 _token = Token(TOK._error);
-                error("unexpected character");
+                errorAtIndex("unexpected character");
             }
         }
     }
 
-    // TODO: into warning(const char* format...) like in `dmd` and put in `nxt.parsing` and reuse here and in lispy.d
-    void error(const string msg, in size_t i = 0) const @trusted nothrow @nogc scope
+    void errorAtFront(in string msg) const @trusted nothrow @nogc scope
     {
-        message("Error", msg, i);
+        messageAtToken(front, "Error", msg);
         assert(false);          ///< TODO: propagate error instead of assert
     }
 
-    void warning(const string msg, in size_t i = 0) const @trusted nothrow @nogc scope
+    private void messageAtToken(in Token token,
+                                in string tag,
+                                in string msg) const @trusted nothrow @nogc scope
     {
-        message("Warning", msg, i);
+        import core.stdc.stdio : printf;
+        const offset = token.input.ptr - _input.ptr; // unsafe
+        // debug writeln("offset:", offset);
+        const lc = offsetLineColumn(_input, offset);
+        // debug writeln("lc:", lc);
+        // TODO: remove printf
+        debug printf("%.*s(%u,%u): %s: %.*s token `%.*s` at offset %llu\n",
+                     cast(int)_path.length, _path.ptr,
+                     lc.line + 1, lc.column + 1,
+                     tag.ptr,
+                     cast(int)msg.length, msg.ptr,
+                     cast(int)token.input.length, token.input.ptr,
+                     offset);
     }
 
-    void info(const string msg, in size_t i = 0, in const(char)[] ds = null) const @trusted nothrow @nogc scope
+    // TODO: into warning(const char* format...) like in `dmd` and put in `nxt.parsing` and reuse here and in lispy.d
+    void errorAtIndex(const string msg, in size_t i = 0) const @trusted nothrow @nogc scope
     {
-        message("Info", msg, i, ds);
+        messageAtIndex("Error", msg, i);
+        assert(false);          ///< TODO: propagate error instead of assert
     }
 
-    void message(in string tag,
-                 in string msg,
-                 in size_t i = 0,
-                 in const(char)[] ds = null) const @trusted nothrow @nogc scope
+    void warningAtIndex(const string msg, in size_t i = 0) const @trusted nothrow @nogc scope
+    {
+        messageAtIndex("Warning", msg, i);
+    }
+
+    void infoAtIndex(const string msg, in size_t i = 0, in const(char)[] ds = null) const @trusted nothrow @nogc scope
+    {
+        messageAtIndex("Info", msg, i, ds);
+    }
+
+    void messageAtIndex(in string tag,
+                        in string msg,
+                        in size_t i = 0,
+                        in const(char)[] ds = null) const @trusted nothrow @nogc scope
     {
         import core.stdc.stdio : printf;
         const lc = offsetLineColumn(_input, _offset + i);
@@ -930,7 +955,7 @@ struct G4Parser
         return _lexer.empty;
     }
 
-    Node front() scope return @trusted
+    inout(Node) front() inout scope return @trusted
     {
         version(D_Coverage) {} else pragma(inline, true);
         assert(!empty);
@@ -959,7 +984,7 @@ struct G4Parser
                 seq.put(new Symbol(_lexer.frontPop));
             }
             if (!seq.data.length)
-                _lexer.error("empty sequence");
+                _lexer.errorAtFront("empty sequence");
             alts.put(new SeqM(name, seq.data));
             if (_lexer.front.tok == TOK.alternative)
                 _lexer.popFront(); // skip terminator
@@ -985,13 +1010,13 @@ struct G4Parser
                 parserFlag = true;
                 _lexer.popFront();
                 if (_lexer.front.tok != TOK.GRAMMAR)
-                    _lexer.error("`parser` must be followed by `grammar`");
+                    _lexer.errorAtFront("`parser` must be followed by `grammar`");
             }
 
             const token = _lexer.frontPop;
 
             if (_lexer.empty)
-                _lexer.error("expected name after `grammar`");
+                _lexer.errorAtFront("expected name after `grammar`");
             if (parserFlag)
                 _front = new ParserGrammar(token, _lexer.frontPop.input);
             else
@@ -1001,13 +1026,13 @@ struct G4Parser
             break;
         case TOK.IMPORT:
             if (_lexer.empty)
-                _lexer.error("expected name after `import`");
+                _lexer.errorAtFront("expected name after `import`");
             _front = new Import(_lexer.frontPop, _lexer.frontPop.input);
             _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
             break;
         case TOK.FRAGMENT:
             if (_lexer.empty)
-                _lexer.error("expected name after `fragment`");
+                _lexer.errorAtFront("expected name after `fragment`");
             _lexer.popFront();  // skip keyword
             handleRule(_lexer.frontPop, true);
             break;
@@ -1018,7 +1043,7 @@ struct G4Parser
         case TOK.lineComment:
             return _lexer.popFront();   // ignore
         default:
-            return _lexer.error("handle");
+            return _lexer.errorAtFront("TODO: handle");
         }
     }
 

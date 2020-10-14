@@ -48,6 +48,7 @@ enum TOK
     TOKENS,         ///< Can add tokens with this; usually imaginary tokens.
     IMPORT,         ///< Import grammar(s).
     CHANNELS,       ///< Channels.
+    MODE,           ///< Mode.
 
     symbol,                     ///< Symbol.
     lexerRuleName,              ///< TODO: use instead of `symbol`
@@ -733,6 +734,7 @@ private:
                         case "tokens": _token = Token(TOK.TOKENS, symbol); break;
                         case "import": _token = Token(TOK.IMPORT, symbol); break;
                         case "channels": _token = Token(TOK.CHANNELS, symbol); break;
+                        case "mode": _token = Token(TOK.MODE, symbol); break;
                         default: _token = Token(TOK.symbol, symbol); break;
                         }
                     }
@@ -966,6 +968,17 @@ final class Import : Leaf
     Input name;
 }
 
+final class Mode : Leaf
+{
+@safe pure nothrow @nogc:
+    this(in Token token, Input name)
+    {
+        super(token);
+        this.name = name;
+    }
+    Input name;
+}
+
 final class Options : Leaf
 {
 @safe pure nothrow @nogc:
@@ -1015,6 +1028,18 @@ final class ActionSymbol : Leaf
 }
 
 final class Channels : Leaf
+{
+@safe pure nothrow @nogc:
+    this(in Token token, in Token code)
+    {
+        super(token);
+        this.code = code;
+    }
+    Input name;
+    Token code;
+}
+
+final class Tokens : Leaf
 {
 @safe pure nothrow @nogc:
     this(in Token token, in Token code)
@@ -1128,6 +1153,10 @@ struct G4Parser
             _front = new Import(_lexer.frontPop, _lexer.frontPop.input);
             _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
             break;
+        case TOK.MODE:
+            _front = new Mode(_lexer.frontPop, _lexer.frontPop.input);
+            _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
+            break;
         case TOK.SCOPE:
             const token = _lexer.frontPop;
             if (_lexer.front.tok == TOK.colon)
@@ -1135,7 +1164,7 @@ struct G4Parser
             else
                 _front = new Scope(token,
                                    _lexer.frontPopEnforceTOK(TOK.action,
-                                                             "missing action after `scope`"));
+                                                             "missing action"));
             break;
         case TOK.FRAGMENT:
             _lexer.popFront();  // skip keyword
@@ -1144,12 +1173,17 @@ struct G4Parser
         case TOK.OPTIONS:
             _front = new Options(_lexer.frontPop,
                                  _lexer.frontPopEnforceTOK(TOK.action,
-                                                           "missing action after `options`"));
+                                                           "missing action"));
             break;
         case TOK.CHANNELS:
             _front = new Channels(_lexer.frontPop,
                                   _lexer.frontPopEnforceTOK(TOK.action,
-                                                            "missing action after `options`"));
+                                                            "missing action"));
+            break;
+        case TOK.TOKENS:
+            _front = new Tokens(_lexer.frontPop,
+                                _lexer.frontPopEnforceTOK(TOK.action,
+                                                            "missing action"));
             break;
         case TOK.symbol:
             handleRule(_lexer.frontPop, false);
@@ -1157,12 +1191,12 @@ struct G4Parser
         case TOK.attributeSymbol:
             _front = new AttributeSymbol(_lexer.frontPop,
                                          _lexer.frontPopEnforceTOK(TOK.action,
-                                                                   "missing action after attribute symbol"));
+                                                                   "missing action"));
             break;
         case TOK.actionSymbol:
             _front = new ActionSymbol(_lexer.frontPop,
                                       _lexer.frontPopEnforceTOK(TOK.action,
-                                                                "missing action after action symbol"));
+                                                                "missing action"));
             break;
         case TOK.blockComment:
         case TOK.lineComment:

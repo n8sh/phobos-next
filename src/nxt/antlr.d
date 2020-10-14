@@ -1089,7 +1089,7 @@ struct G4Parser
 
     private void handleRule(in Token name,
                             in bool isFragment,
-                            AttributeSymbol attributeSymbol = null) @trusted
+                            ActionSymbol actionSymbol = null) @trusted
     {
         _lexer.popFrontEnforceTOK(TOK.colon, "no colon");
         Appender!(Node[]) alts; // TODO: use stack for small arrays
@@ -1217,7 +1217,7 @@ struct G4Parser
         case TOK.symbol:
             handleRule(_lexer.frontPop,
                        false,
-                       _lexer.front.tok == TOK.attributeSymbol ? getAttributeSymbol() : null);
+                       _lexer.front.tok == TOK.actionSymbol ? getActionSymbol() : null);
             break;
         case TOK.attributeSymbol:
             _front = getAttributeSymbol();

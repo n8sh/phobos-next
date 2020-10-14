@@ -304,11 +304,16 @@ private:
     {
         import std.uni : isAlphaNum; // TODO: decode `dchar`
         size_t i;
+        const bool attributeFlag = peek0() == '@';
         if (peek0().isSymbolStart)
             ++i;
         while (peekN(i).isAlphaNum ||
-               peekN(i) == '_')
+               peekN(i) == '_' ||
+               (attributeFlag && // attribute name
+                peekN(i) == ':')) // may include colon qualifier
+        {
             ++i;
+        }
         return skipOverN(i);
     }
 
@@ -746,6 +751,11 @@ private:
         }
     }
 
+    void warningAtFront(in string msg) const @trusted nothrow @nogc scope
+    {
+        messageAtToken(front, "Warning", msg);
+    }
+
     void errorAtFront(in string msg) const @trusted nothrow @nogc scope
     {
         messageAtToken(front, "Error", msg);
@@ -911,7 +921,7 @@ class Symbol : Node
     }
 }
 
-class Grammar : Leaf
+final class Grammar : Leaf
 {
 @safe pure nothrow @nogc:
     this(in Token token, Input name)
@@ -922,7 +932,7 @@ class Grammar : Leaf
     Input name;
 }
 
-class LexerGrammar : Leaf
+final class LexerGrammar : Leaf
 {
 @safe pure nothrow @nogc:
     this(in Token token, Input name)
@@ -934,7 +944,7 @@ class LexerGrammar : Leaf
 }
 
 /// See_Also: https://theantlrguy.atlassian.net/wiki/spaces/ANTLR3/pages/2687210/Quick+Starter+on+Parser+Grammars+-+No+Past+Experience+Required
-class ParserGrammar : Leaf
+final class ParserGrammar : Leaf
 {
 @safe pure nothrow @nogc:
     this(in Token token, Input name)
@@ -945,7 +955,7 @@ class ParserGrammar : Leaf
     Input name;
 }
 
-class Import : Leaf
+final class Import : Leaf
 {
 @safe pure nothrow @nogc:
     this(in Token token, Input name)
@@ -956,7 +966,7 @@ class Import : Leaf
     Input name;
 }
 
-class Options : Leaf
+final class Options : Leaf
 {
 @safe pure nothrow @nogc:
     this(in Token token, in Token code)
@@ -968,7 +978,43 @@ class Options : Leaf
     Token code;
 }
 
-class Channels : Leaf
+final class Scope : Leaf
+{
+@safe pure nothrow @nogc:
+    this(in Token token, in Token code)
+    {
+        super(token);
+        this.code = code;
+    }
+    Input name;
+    Token code;
+}
+
+final class AttributeSymbol : Leaf
+{
+@safe pure nothrow @nogc:
+    this(in Token token, in Token code)
+    {
+        super(token);
+        this.code = code;
+    }
+    Input name;
+    Token code;
+}
+
+final class ActionSymbol : Leaf
+{
+@safe pure nothrow @nogc:
+    this(in Token token, in Token code)
+    {
+        super(token);
+        this.code = code;
+    }
+    Input name;
+    Token code;
+}
+
+final class Channels : Leaf
 {
 @safe pure nothrow @nogc:
     this(in Token token, in Token code)
@@ -1030,7 +1076,11 @@ struct G4Parser
                 seq.put(new Symbol(_lexer.frontPop));
             }
             if (!seq.data.length)
-                _lexer.errorAtFront("empty sequence");
+            {
+                _lexer.warningAtFront("empty sequence");
+                _lexer.popFront();
+                continue;
+            }
             alts.put(new SeqM(name, seq.data));
             if (_lexer.front.tok == TOK.alternative)
                 _lexer.popFront(); // skip terminator
@@ -1078,6 +1128,15 @@ struct G4Parser
             _front = new Import(_lexer.frontPop, _lexer.frontPop.input);
             _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
             break;
+        case TOK.SCOPE:
+            const token = _lexer.frontPop;
+            if (_lexer.front.tok == TOK.colon)
+                handleRule(token, false); // normal rule
+            else
+                _front = new Scope(token,
+                                   _lexer.frontPopEnforceTOK(TOK.action,
+                                                             "missing action after `scope`"));
+            break;
         case TOK.FRAGMENT:
             _lexer.popFront();  // skip keyword
             handleRule(_lexer.frontPop, true);
@@ -1094,6 +1153,16 @@ struct G4Parser
             break;
         case TOK.symbol:
             handleRule(_lexer.frontPop, false);
+            break;
+        case TOK.attributeSymbol:
+            _front = new AttributeSymbol(_lexer.frontPop,
+                                         _lexer.frontPopEnforceTOK(TOK.action,
+                                                                   "missing action after attribute symbol"));
+            break;
+        case TOK.actionSymbol:
+            _front = new ActionSymbol(_lexer.frontPop,
+                                      _lexer.frontPopEnforceTOK(TOK.action,
+                                                                "missing action after action symbol"));
             break;
         case TOK.blockComment:
         case TOK.lineComment:

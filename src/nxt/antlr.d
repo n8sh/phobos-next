@@ -47,6 +47,7 @@ enum TOK
     CATCH,          ///< Catch rule exceptions(s).
     FINALLY,        ///< Do this no matter what.
     OPTIONS,        ///< Grammar or rule options.
+    HEADER,
     TOKENS,         ///< Can add tokens with this; usually imaginary tokens.
     IMPORT,         ///< Import grammar(s).
     CHANNELS,       ///< Channels.
@@ -743,6 +744,7 @@ private:
                         case "catch": _token = Token(TOK.CATCH, symbol); break;
                         case "finally": _token = Token(TOK.FINALLY, symbol); break;
                         case "options": _token = Token(TOK.OPTIONS, symbol); break;
+                        case "header": _token = Token(TOK.HEADER, symbol); break;
                         case "tokens": _token = Token(TOK.TOKENS, symbol); break;
                         case "import": _token = Token(TOK.IMPORT, symbol); break;
                         case "channels": _token = Token(TOK.CHANNELS, symbol); break;
@@ -765,6 +767,11 @@ private:
                 errorAtIndex("unexpected character");
             }
         }
+    }
+
+    void infoAtFront(const scope string msg) const @trusted nothrow @nogc scope
+    {
+        messageAtToken(front, "Info", msg);
     }
 
     void warningAtFront(const scope string msg) const @trusted nothrow @nogc scope
@@ -994,6 +1001,18 @@ final class Mode : Leaf
 }
 
 final class Options : Leaf
+{
+@safe pure nothrow @nogc:
+    this(in Token head, in Token code)
+    {
+        super(head);
+        this.code = code;
+    }
+    Input name;
+    Token code;
+}
+
+final class Header : Leaf
 {
 @safe pure nothrow @nogc:
     this(in Token head, in Token code)
@@ -1242,6 +1261,13 @@ struct G4Parser
                                                      "missing action"));
     }
 
+    Header getHeader(in Token head)
+    {
+        return new Header(head,
+                          _lexer.frontPopEnforceTOK(TOK.action,
+                                                    "missing action"));
+    }
+
     /// Skip over options if any.
     Options skipOverOptions()
     {
@@ -1294,12 +1320,23 @@ struct G4Parser
             else
                 _front = getScope(head);
             break;
+        case TOK.HEADER:
+            const head = _lexer.frontPop();
+            if (_lexer.front.tok == TOK.colon)
+                handleRule(head, false); // normal rule
+            else
+                _front = getHeader(head);
+            break;
+        case TOK.OPTIONS:
+            const head = _lexer.frontPop();
+            if (_lexer.front.tok == TOK.colon)
+                handleRule(head, false); // normal rule
+            else
+                _front = getOptions(head);
+            break;
         case TOK.FRAGMENT:
             _lexer.popFront();  // skip keyword
             handleRule(_lexer.frontPop(), true);
-            break;
-        case TOK.OPTIONS:
-            _front = getOptions(_lexer.frontPop());
             break;
         case TOK.CHANNELS:
             _front = new Channels(_lexer.frontPop(),

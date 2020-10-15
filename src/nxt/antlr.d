@@ -1366,9 +1366,8 @@ struct G4Parser
                     !_scope)
                     break;
             }
-            _front = getRule(head,
-                       false,
-                       _lexer.front.tok == TOK.actionSymbol ? getActionSymbol() : null);
+            _front = getRule(head, false,
+                             _lexer.front.tok == TOK.actionSymbol ? getActionSymbol() : null);
             break;
         case TOK.attributeSymbol:
             _front = getAttributeSymbol();

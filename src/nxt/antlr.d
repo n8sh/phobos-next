@@ -1286,6 +1286,13 @@ struct G4Parser
         return null;
     }
 
+    ActionSymbol skipOverActionSymbol()
+    {
+        if (_lexer.front.tok == TOK.actionSymbol)
+            return getActionSymbol();
+        return null;
+    }
+
     void nextFront() @trusted
     {
         switch (_lexer.front.tok)
@@ -1387,8 +1394,7 @@ struct G4Parser
                     !_scope)
                     break;
             }
-            _front = getRule(head, false,
-                             _lexer.front.tok == TOK.actionSymbol ? getActionSymbol() : null);
+            _front = getRule(head, false, skipOverActionSymbol());
             break;
         case TOK.attributeSymbol:
             _front = getAttributeSymbol();

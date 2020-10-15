@@ -8,7 +8,6 @@
  * See_Also: https://bnfc.digitalgrammars.com/
  *
  * TODO:
- *
  * - make diagnostics functions non-pure
  * - parse postfix operators *, +, ?
  * - create index of symbols and link them in second pass

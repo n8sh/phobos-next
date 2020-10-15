@@ -1175,9 +1175,8 @@ struct G4Parser
             }
             if (!seq.data.length)
             {
-                _lexer.warningAtFront("empty sequence");
-                _lexer.popFront();
-                continue;
+                // `seq` may be empty
+                // _lexer.infoAtFront("empty sequence");
             }
             alts.put(new SeqM(name, seq.data));
             if (_lexer.front.tok == TOK.alternative)

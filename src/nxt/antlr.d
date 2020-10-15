@@ -182,7 +182,7 @@ struct G4Lexer
 
     void frontEnforceTOK(in TOK tok, const scope string msg = "") nothrow
     {
-        version(D_Coverage) {} else version(LDC) pragma(inline, true);
+        version(D_Coverage) {} else pragma(inline, true);
         if (front.tok != tok)
             errorAtFront(msg ~ ", expected `TOK." ~ tok.toDefaulted!string(null) ~ "`");
     }

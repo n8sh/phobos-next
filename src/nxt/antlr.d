@@ -1086,6 +1086,15 @@ final class AttributeSymbol : Leaf
     Token code;
 }
 
+final class Action : Leaf
+{
+@safe pure nothrow @nogc:
+    this(in Token head)
+    {
+        super(head);
+    }
+}
+
 final class ActionSymbol : Leaf
 {
 @safe pure nothrow @nogc:
@@ -1172,7 +1181,8 @@ struct G4Parser
 
     private RuleAltM getRule(in Token name,
                              in bool isFragment,
-                             ActionSymbol actionSymbol = null) @trusted
+                             ActionSymbol actionSymbol = null,
+                             Action action = null) @trusted
     {
         _lexer.popFrontEnforceTOK(TOK.colon, "no colon");
         Appender!(Node[]) alts; // TODO: use static array with length being number of `TOK.pipe` till `TOK.semicolon`
@@ -1278,11 +1288,23 @@ struct G4Parser
                                                     "missing action"));
     }
 
+    Action getAction(in Token head)
+    {
+        return new Action(head);
+    }
+
     /// Skip over options if any.
     Options skipOverOptions()
     {
         if (_lexer.front.tok == TOK.OPTIONS)
             return getOptions(_lexer.frontPop());
+        return null;
+    }
+
+    Action skipOverAction()
+    {
+        if (_lexer.front.tok == TOK.action)
+            return getAction(_lexer.frontPop());
         return null;
     }
 
@@ -1390,11 +1412,15 @@ struct G4Parser
             {
                 auto _options = skipOverOptions(); // TODO: pass to `Rule` if any
                 auto _scope = skipOverScope();     // TODO: pass to `Rule` if any
+                auto _action = skipOverAction(); // TODO: pass to `Rule` if any
+                auto _actionSymbol = skipOverActionSymbol(); // TODO: pass to `Rule` if any
                 if (!_options &&
-                    !_scope)
+                    !_scope &&
+                    !_action &&
+                    !_actionSymbol)
                     break;
             }
-            _front = getRule(head, false, skipOverActionSymbol());
+            _front = getRule(head, false);
             break;
         case TOK.attributeSymbol:
             _front = getAttributeSymbol();

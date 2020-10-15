@@ -1159,9 +1159,9 @@ struct G4Parser
         nextFront();
     }
 
-    private void handleRule(in Token name,
-                            in bool isFragment,
-                            ActionSymbol actionSymbol = null) @trusted
+    private RuleAltM getRule(in Token name,
+                             in bool isFragment,
+                             ActionSymbol actionSymbol = null) @trusted
     {
         _lexer.popFrontEnforceTOK(TOK.colon, "no colon");
         Appender!(Node[]) alts; // TODO: use stack for small arrays
@@ -1186,10 +1186,9 @@ struct G4Parser
 
         _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
 
-        if (isFragment)
-            _front = new FragmentRuleAltM(name, alts.data);
-        else
-            _front = new RuleAltM(name, alts.data);
+        return (isFragment ?
+                new FragmentRuleAltM(name, alts.data) :
+                new RuleAltM(name, alts.data));
     }
 
     Input[] getArgs(in TOK separator,
@@ -1316,27 +1315,27 @@ struct G4Parser
         case TOK.SCOPE:
             const head = _lexer.frontPop();
             if (_lexer.front.tok == TOK.colon)
-                handleRule(head, false); // normal rule
+                _front = getRule(head, false); // normal rule
             else
                 _front = getScope(head);
             break;
         case TOK.HEADER:
             const head = _lexer.frontPop();
             if (_lexer.front.tok == TOK.colon)
-                handleRule(head, false); // normal rule
+                _front = getRule(head, false); // normal rule
             else
                 _front = getHeader(head);
             break;
         case TOK.OPTIONS:
             const head = _lexer.frontPop();
             if (_lexer.front.tok == TOK.colon)
-                handleRule(head, false); // normal rule
+                _front = getRule(head, false); // normal rule
             else
                 _front = getOptions(head);
             break;
         case TOK.FRAGMENT:
             _lexer.popFront();  // skip keyword
-            handleRule(_lexer.frontPop(), true);
+            _front = getRule(_lexer.frontPop(), true);
             break;
         case TOK.CHANNELS:
             _front = new Channels(_lexer.frontPop(),
@@ -1367,7 +1366,7 @@ struct G4Parser
                     !_scope)
                     break;
             }
-            handleRule(head,
+            _front = getRule(head,
                        false,
                        _lexer.front.tok == TOK.actionSymbol ? getActionSymbol() : null);
             break;

@@ -49,6 +49,8 @@ enum TOK
     IMPORT,         ///< Import grammar(s).
     CHANNELS,       ///< Channels.
     MODE,           ///< Mode.
+    CLASS,          ///< Class.
+    EXTENDS,        ///< Extends.
 
     symbol,                     ///< Symbol.
     lexerRuleName,              ///< TODO: use instead of `symbol`
@@ -129,7 +131,7 @@ struct G4Lexer
 @safe pure:
 
     this(in Input input,
-         in string path = null,
+         const scope string path = null,
          in bool includeComments = false,
          in bool includeWhitespace = false) @trusted
     {
@@ -169,21 +171,21 @@ struct G4Lexer
         // debug writeln("after:", _token);
     }
 
-    void popFrontEnforceTOK(in TOK tok, in string msg) nothrow
+    void popFrontEnforceTOK(in TOK tok, const scope string msg) nothrow
     {
         version(D_Coverage) {} else pragma(inline, true);
-        const result = frontPop;
+        const result = frontPop();
         if (result.tok != tok)
             errorAtFront(msg);  // TODO: print: expected token `tok`
     }
 
-    Token frontPopEnforceTOK(in TOK tok, in string msg = "") nothrow
+    Token frontPopEnforceTOK(in TOK tok, const scope string msg = "") nothrow
     {
         import nxt.conv_ex : toDefaulted;
         version(LDC) { version(D_Coverage) {} else pragma(inline, true); }
-        auto result = frontPop;
+        auto result = frontPop();
         if (result.tok != tok)
-            errorAtFront(msg ~ ", expected token " ~ tok.toDefaulted!string(null));
+            errorAtFront(msg ~ ", expected `TOK." ~ tok.toDefaulted!string(null) ~ "`");
         return result;
     }
 
@@ -193,6 +195,13 @@ struct G4Lexer
         auto result = front;
         popFront();
         return result;
+    }
+
+    Token skipOverTOK(in TOK tok) scope return nothrow
+    {
+        if (front.tok == tok)
+            return frontPop();
+        return typeof(return).init;
     }
 
     import std.meta : AliasSeq;
@@ -736,6 +745,8 @@ private:
                         case "import": _token = Token(TOK.IMPORT, symbol); break;
                         case "channels": _token = Token(TOK.CHANNELS, symbol); break;
                         case "mode": _token = Token(TOK.MODE, symbol); break;
+                        case "class": _token = Token(TOK.CLASS, symbol); break;
+                        case "extends": _token = Token(TOK.EXTENDS, symbol); break;
                         default: _token = Token(TOK.symbol, symbol); break;
                         }
                     }
@@ -754,20 +765,20 @@ private:
         }
     }
 
-    void warningAtFront(in string msg) const @trusted nothrow @nogc scope
+    void warningAtFront(const scope string msg) const @trusted nothrow @nogc scope
     {
         messageAtToken(front, "Warning", msg);
     }
 
-    void errorAtFront(in string msg) const @trusted nothrow @nogc scope
+    void errorAtFront(const scope string msg) const @trusted nothrow @nogc scope
     {
         messageAtToken(front, "Error", msg);
         assert(false);          ///< TODO: propagate error instead of assert
     }
 
     private void messageAtToken(in Token token,
-                                in string tag,
-                                in string msg) const @trusted nothrow @nogc scope
+                                const scope string tag,
+                                const scope string msg) const @trusted nothrow @nogc scope
     {
         import core.stdc.stdio : printf;
         const offset = token.input.ptr - _input.ptr; // unsafe
@@ -782,24 +793,27 @@ private:
     }
 
     // TODO: into warning(const char* format...) like in `dmd` and put in `nxt.parsing` and reuse here and in lispy.d
-    void errorAtIndex(const string msg, in size_t i = 0) const @trusted nothrow @nogc scope
+    void errorAtIndex(const scope string msg,
+                      in size_t i = 0) const @trusted nothrow @nogc scope
     {
         messageAtIndex("Error", msg, i);
         assert(false);          ///< TODO: propagate error instead of assert
     }
 
-    void warningAtIndex(const string msg, in size_t i = 0) const @trusted nothrow @nogc scope
+    void warningAtIndex(const scope string msg,
+                        in size_t i = 0) const @trusted nothrow @nogc scope
     {
         messageAtIndex("Warning", msg, i);
     }
 
-    void infoAtIndex(const string msg, in size_t i = 0, in const(char)[] ds = null) const @trusted nothrow @nogc scope
+    void infoAtIndex(const scope string msg,
+                     in size_t i = 0, in const(char)[] ds = null) const @trusted nothrow @nogc scope
     {
         messageAtIndex("Info", msg, i, ds);
     }
 
-    void messageAtIndex(in string tag,
-                        in string msg,
+    void messageAtIndex(const scope string tag,
+                        const scope string msg,
                         in size_t i = 0,
                         in const(char)[] ds = null) const @trusted nothrow @nogc scope
     {
@@ -1076,6 +1090,19 @@ final class Tokens : Leaf
     Token code;
 }
 
+final class Class : Leaf
+{
+@safe pure nothrow @nogc:
+    this(in Token head, Input name, Input baseName)
+    {
+        super(head);
+        this.name = name;
+        this.baseName = baseName;
+    }
+    Input name;
+    Input baseName;             ///< Base class name.
+}
+
 /** G4 parser.
  *
  * See: `ANTLRv4Parser.g4`
@@ -1084,7 +1111,7 @@ struct G4Parser
 {
 @safe pure:
     this(in Input input,
-         in string path = null,
+         const scope string path = null,
          in bool includeComments = false) @trusted
     {
         _lexer = G4Lexer(input, path, includeComments);
@@ -1123,7 +1150,7 @@ struct G4Parser
             while (_lexer.front.tok != TOK.alternative &&
                    _lexer.front.tok != TOK.semicolon)
             {
-                seq.put(new Symbol(_lexer.frontPop));
+                seq.put(new Symbol(_lexer.frontPop()));
             }
             if (!seq.data.length)
             {
@@ -1161,24 +1188,23 @@ struct G4Parser
 
     AttributeSymbol getAttributeSymbol()
     {
-        return new AttributeSymbol(_lexer.frontPop,
+        return new AttributeSymbol(_lexer.frontPop(),
                                    _lexer.frontPopEnforceTOK(TOK.action,
                                                              "missing action"));
     }
 
     ActionSymbol getActionSymbol()
     {
-        return new ActionSymbol(_lexer.frontPop,
+        return new ActionSymbol(_lexer.frontPop(),
                                 _lexer.frontPopEnforceTOK(TOK.action,
                                                           "missing action"));
     }
 
     Leaf getScope(in Token head)
     {
-        _lexer.warningAtFront("here");
         if (_lexer.front.tok == TOK.symbol)
         {
-            const symbol = _lexer.frontPop.input;
+            const symbol = _lexer.frontPop().input;
             if (_lexer.front.tok == TOK.action)
                 return new ScopeSymbolAction(head, symbol,
                                              _lexer.frontPopEnforceTOK(TOK.action,
@@ -1199,6 +1225,29 @@ struct G4Parser
         }
     }
 
+    /// Skip over scope if any.
+    Leaf skipOverScope()
+    {
+        if (_lexer.front.tok == TOK.SCOPE)
+            return getScope(_lexer.frontPop());
+        return null;
+    }
+
+    Options getOptions(in Token head)
+    {
+        return new Options(head,
+                           _lexer.frontPopEnforceTOK(TOK.action,
+                                                     "missing action"));
+    }
+
+    /// Skip over options if any.
+    Options skipOverOptions()
+    {
+        if (_lexer.front.tok == TOK.OPTIONS)
+            return getOptions(_lexer.frontPop());
+        return null;
+    }
+
     void nextFront() @trusted
     {
         switch (_lexer.front.tok)
@@ -1206,7 +1255,7 @@ struct G4Parser
         case TOK.LEXER:
         case TOK.PARSER:
         case TOK.GRAMMAR:
-            const head = _lexer.frontPop;
+            const head = _lexer.frontPop();
             bool lexerFlag;
             bool parserFlag;
             if (head.tok == TOK.LEXER)
@@ -1221,23 +1270,23 @@ struct G4Parser
             }
 
             if (lexerFlag)
-                _front = new LexerGrammar(head, _lexer.frontPop.input);
+                _front = new LexerGrammar(head, _lexer.frontPop().input);
             else if (parserFlag)
-                _front = new ParserGrammar(head, _lexer.frontPop.input);
+                _front = new ParserGrammar(head, _lexer.frontPop().input);
             else
-                _front = new Grammar(head, _lexer.frontPop.input);
+                _front = new Grammar(head, _lexer.frontPop().input);
 
             _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
             break;
         case TOK.IMPORT:
-            _front = new Import(_lexer.frontPop, getArgs(TOK.comma, TOK.semicolon));
+            _front = new Import(_lexer.frontPop(), getArgs(TOK.comma, TOK.semicolon));
             break;
         case TOK.MODE:
-            _front = new Mode(_lexer.frontPop, _lexer.frontPop.input);
+            _front = new Mode(_lexer.frontPop(), _lexer.frontPop().input);
             _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
             break;
         case TOK.SCOPE:
-            const head = _lexer.frontPop;
+            const head = _lexer.frontPop();
             if (_lexer.front.tok == TOK.colon)
                 handleRule(head, false); // normal rule
             else
@@ -1245,25 +1294,41 @@ struct G4Parser
             break;
         case TOK.FRAGMENT:
             _lexer.popFront();  // skip keyword
-            handleRule(_lexer.frontPop, true);
+            handleRule(_lexer.frontPop(), true);
             break;
         case TOK.OPTIONS:
-            _front = new Options(_lexer.frontPop,
-                                 _lexer.frontPopEnforceTOK(TOK.action,
-                                                           "missing action"));
+            _front = getOptions(_lexer.frontPop());
             break;
         case TOK.CHANNELS:
-            _front = new Channels(_lexer.frontPop,
+            _front = new Channels(_lexer.frontPop(),
                                   _lexer.frontPopEnforceTOK(TOK.action,
                                                             "missing action"));
             break;
         case TOK.TOKENS:
-            _front = new Tokens(_lexer.frontPop,
+            _front = new Tokens(_lexer.frontPop(),
                                 _lexer.frontPopEnforceTOK(TOK.action,
-                                                            "missing action"));
+                                                          "missing action"));
+            break;
+        case TOK.CLASS:
+            _front = new Class(_lexer.frontPop(),
+                               _lexer.frontPopEnforceTOK(TOK.symbol,
+                                                         "missing symbol").input,
+                               _lexer.skipOverTOK(TOK.EXTENDS).input ?
+                               _lexer.frontPop().input :
+                               null);
+            _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
             break;
         case TOK.symbol:
-            handleRule(_lexer.frontPop,
+            const head = _lexer.frontPop();
+            while (_lexer.front.tok != TOK.colon)
+            {
+                auto _options = skipOverOptions(); // TODO: pass to `Rule` if any
+                auto _scope = skipOverScope();     // TODO: pass to `Rule` if any
+                if (!_options &&
+                    !_scope)
+                    break;
+            }
+            handleRule(head,
                        false,
                        _lexer.front.tok == TOK.actionSymbol ? getActionSymbol() : null);
             break;
@@ -1290,7 +1355,7 @@ private:
 struct G4FileParser           // TODO: convert to `class`
 {
 @safe:
-    this(in string filePath)
+    this(const string filePath)
     {
         import std.path : expandTilde;
         const path = filePath.expandTilde;
@@ -1337,8 +1402,8 @@ unittest
                 fn.endsWith(`.g2`) ||
                 fn.endsWith(`.g4`))
             {
-                // if (!fn.endsWith(`pascal.g4`)) // only pascal
-                //     continue;
+                if (fn.endsWith(`Antlr3.g`))
+                    continue;
                 debug writeln("Parsing ", fn, " ...");
                 auto parser = G4FileParser(fn);
                 while (!parser.empty)

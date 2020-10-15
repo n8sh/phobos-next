@@ -31,6 +31,8 @@ alias Input = const(char)[];
 ///< Token kind. TODO: make this a string type like with std.experimental.lexer
 enum TOK
 {
+    none,
+
     unknown,                    ///< Unknown.
 
     whitespace,
@@ -92,7 +94,7 @@ enum TOK
     lt,                         ///< `<`
     gt,                         ///< `>`
     comma,                      ///< `.`
-    exclude,                    ///< Exclude from AST (`!`)
+    exclamation,                ///< Exclude from AST (`!`)
     rootNode,                   ///< Root node (`^`)
     wildcard,                   ///< `.`
     dotdot,                     ///< `..`
@@ -180,7 +182,7 @@ struct G4Lexer
 
     void frontEnforceTOK(in TOK tok, const scope string msg = "") nothrow
     {
-        version(LDC) { version(D_Coverage) {} else pragma(inline, true); }
+        version(D_Coverage) {} else version(LDC) pragma(inline, true);
         if (front.tok != tok)
             errorAtFront(msg ~ ", expected `TOK." ~ tok.toDefaulted!string(null) ~ "`");
     }
@@ -194,7 +196,7 @@ struct G4Lexer
 
     Token frontPopEnforceTOK(in TOK tok, const scope string msg = "") nothrow
     {
-        version(LDC) { version(D_Coverage) {} else pragma(inline, true); }
+        version(D_Coverage) {} else version(LDC) pragma(inline, true);
         auto result = frontPop();
         if (result.tok != tok)
             errorAtFront(msg ~ ", expected `TOK." ~ tok.toDefaulted!string(null) ~ "`");
@@ -203,7 +205,7 @@ struct G4Lexer
 
     Token frontPop() scope return nothrow
     {
-        version(D_Coverage) {} else pragma(inline, true);
+        version(D_Coverage) {} else version(LDC) pragma(inline, true);
         auto result = front;
         popFront();
         return result;
@@ -684,7 +686,7 @@ private:
             _token = Token(TOK.comma, skipOver1());
             break;
         case '!':
-            _token = Token(TOK.exclude, skipOver1());
+            _token = Token(TOK.exclamation, skipOver1());
             break;
         case '^':
             _token = Token(TOK.rootNode, skipOver1());
@@ -1026,12 +1028,13 @@ final class Options : Leaf
 final class Header : Leaf
 {
 @safe pure nothrow @nogc:
-    this(in Token head, in Token code)
+    this(in Token head, in Token name, in Token code)
     {
         super(head);
+        this.name = name;
         this.code = code;
     }
-    Input name;
+    Token name;
     Token code;
 }
 
@@ -1283,9 +1286,12 @@ struct G4Parser
 
     Header getHeader(in Token head)
     {
-        return new Header(head,
-                          _lexer.frontPopEnforceTOK(TOK.action,
-                                                    "missing action"));
+        const name = (_lexer.front.tok == TOK.textLiteralDoubleQuoted ?
+                      _lexer.frontPop() :
+                      Token.init);
+        const action = _lexer.frontPopEnforceTOK(TOK.action,
+                                                 "missing action");
+        return new Header(head, name, action);
     }
 
     Action getAction(in Token head)
@@ -1299,6 +1305,37 @@ struct G4Parser
         if (_lexer.front.tok == TOK.OPTIONS)
             return getOptions(_lexer.frontPop());
         return null;
+    }
+
+    bool skipOverExclusion()
+    {
+        if (_lexer.front.tok == TOK.exclamation)
+        {
+            _lexer.frontPop();
+            return true;
+        }
+        return false;
+    }
+
+    bool skipOverReturns()
+    {
+        if (_lexer.front.tok == TOK.RETURNS)
+        {
+            _lexer.frontPop();
+            return true;
+        }
+        return false;
+    }
+
+    bool skipOverHooks()
+    {
+        if (_lexer.front.tok == TOK.hooks)
+        {
+            // _lexer.infoAtFront("TODO: use TOK.hooks");
+            _lexer.frontPop();
+            return true;
+        }
+        return false;
     }
 
     Action skipOverAction()
@@ -1402,7 +1439,7 @@ struct G4Parser
             _lexer.frontEnforceTOK(TOK.symbol, "expected symbol after `private`");
             goto case TOK.symbol;
         case TOK.PROTECTED:
-            const protectedFlag = true; // TODO use
+            const protectedFlag = true; // TODO: use
             _lexer.popFront();
             _lexer.frontEnforceTOK(TOK.symbol, "expected symbol after `protected`");
             goto case TOK.symbol;
@@ -1410,15 +1447,20 @@ struct G4Parser
             const head = _lexer.frontPop();
             while (_lexer.front.tok != TOK.colon)
             {
-                auto _options = skipOverOptions(); // TODO: pass to `Rule` if any
-                auto _scope = skipOverScope();     // TODO: pass to `Rule` if any
-                auto _action = skipOverAction(); // TODO: pass to `Rule` if any
-                auto _actionSymbol = skipOverActionSymbol(); // TODO: pass to `Rule` if any
-                if (!_options &&
-                    !_scope &&
-                    !_action &&
-                    !_actionSymbol)
-                    break;
+                if (skipOverExclusion()) // TODO: use
+                    continue;
+                if (skipOverReturns())  // TODO: use
+                    continue;
+                if (skipOverHooks())    // TODO: use
+                    continue;
+                if (const _options = skipOverOptions()) // TODO: use
+                    continue;
+                if (const _scope = skipOverScope())     // TODO: use
+                    continue;
+                if (const _action = skipOverAction()) // TODO: use
+                    continue;
+                if (const _actionSymbol = skipOverActionSymbol()) // TODO: use
+                    continue;
             }
             _front = getRule(head, false);
             break;
@@ -1431,6 +1473,8 @@ struct G4Parser
         case TOK.blockComment:
         case TOK.lineComment:
             return _lexer.popFront();   // ignore
+        case TOK.action:
+            return _lexer.popFront();   // ignore for now
         default:
             return _lexer.errorAtFront("TODO: handle");
         }

@@ -43,6 +43,8 @@ enum TOK
     emptyList,                  ///< Empty list.
 }
 
+@safe:
+
 /** Lisp-like token. */
 struct Token
 {

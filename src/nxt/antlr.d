@@ -179,10 +179,11 @@ struct G4Lexer
 
     Token frontPopEnforceTOK(in TOK tok, in string msg = "") nothrow
     {
-        version(D_Coverage) {} else pragma(inline, true);
+        import nxt.conv_ex : toDefaulted;
+        version(LDC) { version(D_Coverage) {} else pragma(inline, true); }
         auto result = frontPop;
         if (result.tok != tok)
-            errorAtFront(msg);  // TODO: print: expected token `tok`
+            errorAtFront(msg ~ ", expected token " ~ tok.toDefaulted!string(null));
         return result;
     }
 
@@ -988,7 +989,7 @@ final class Options : Leaf
     Token code;
 }
 
-final class Scope : Leaf
+final class ScopeSymbolAction : Leaf
 {
 @safe pure nothrow @nogc:
     this(in Token head,
@@ -1000,6 +1001,30 @@ final class Scope : Leaf
         this.code = code;
     }
     Input name;
+    Token code;
+}
+
+final class ScopeSymbol : Leaf
+{
+@safe pure nothrow @nogc:
+    this(in Token head,
+         in Input name)
+    {
+        super(head);
+        this.name = name;
+    }
+    Input name;
+}
+
+final class ScopeAction : Leaf
+{
+@safe pure nothrow @nogc:
+    this(in Token head,
+         in Token code)
+    {
+        super(head);
+        this.code = code;
+    }
     Token code;
 }
 
@@ -1148,24 +1173,30 @@ struct G4Parser
                                                           "missing action"));
     }
 
-    Scope getScope(in Token head)
+    Leaf getScope(in Token head)
     {
+        _lexer.warningAtFront("here");
         if (_lexer.front.tok == TOK.symbol)
         {
-            return new ScopeSymbol(head, _lexer.frontPop.input,
+            const symbol = _lexer.frontPop.input;
+            if (_lexer.front.tok == TOK.action)
+                return new ScopeSymbolAction(head, symbol,
+                                             _lexer.frontPopEnforceTOK(TOK.action,
+                                                                       "missing action"));
+            else
+            {
+                auto result = new ScopeSymbol(head, symbol);
+                _lexer.frontPopEnforceTOK(TOK.semicolon,
+                                          "missing terminating semicolon");
+                return result;
+            }
+        }
+        else
+        {
+            return new ScopeAction(head,
                                    _lexer.frontPopEnforceTOK(TOK.action,
                                                              "missing action"));
-
         }
-        const symbol = (_lexer.front.tok == TOK.symbol) ? _lexer.frontPop.input : null;
-        if (_lexer.front.tok == TOK.semicolon)
-            return new Scope(head, symbol,
-                             _lexer.frontPopEnforceTOK(TOK.action,
-                                                       "missing action"));
-        else
-            return new Scope(head, symbol,
-                             _lexer.frontPopEnforceTOK(TOK.action,
-                                                       "missing action"));
     }
 
     void nextFront() @trusted

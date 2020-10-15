@@ -133,6 +133,8 @@ struct G4Lexer
 {
     import std.algorithm.comparison : among;
 
+    import nxt.conv_ex : toDefaulted;
+
 @safe pure:
 
     this(in Input input,
@@ -176,17 +178,24 @@ struct G4Lexer
         // debug writeln("after:", _token);
     }
 
+    void frontEnforceTOK(in TOK tok, const scope string msg = "") nothrow
+    {
+        version(LDC) { version(D_Coverage) {} else pragma(inline, true); }
+        auto result = front;
+        if (result.tok != tok)
+            errorAtFront(msg ~ ", expected `TOK." ~ tok.toDefaulted!string(null) ~ "`");
+    }
+
     void popFrontEnforceTOK(in TOK tok, const scope string msg) nothrow
     {
         version(D_Coverage) {} else pragma(inline, true);
         const result = frontPop();
         if (result.tok != tok)
-            errorAtFront(msg);  // TODO: print: expected token `tok`
+            errorAtFront(msg ~ ", expected `TOK." ~ tok.toDefaulted!string(null) ~ "`");
     }
 
     Token frontPopEnforceTOK(in TOK tok, const scope string msg = "") nothrow
     {
-        import nxt.conv_ex : toDefaulted;
         version(LDC) { version(D_Coverage) {} else pragma(inline, true); }
         auto result = frontPop();
         if (result.tok != tok)
@@ -1281,8 +1290,6 @@ struct G4Parser
 
     void nextFront() @trusted
     {
-        bool privateFlag;
-        bool protectedFlag;
         switch (_lexer.front.tok)
         {
         case TOK.LEXER:
@@ -1363,12 +1370,14 @@ struct G4Parser
             _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
             break;
         case TOK.PRIVATE:
-            privateFlag = true;
+            const privateFlag = true; // TODO: use
             _lexer.popFront();
+            _lexer.frontEnforceTOK(TOK.symbol, "expected symbol after `private`");
             goto case TOK.symbol;
         case TOK.PROTECTED:
-            protectedFlag = true;
+            const protectedFlag = true; // TODO use
             _lexer.popFront();
+            _lexer.frontEnforceTOK(TOK.symbol, "expected symbol after `protected`");
             goto case TOK.symbol;
         case TOK.symbol:
             const head = _lexer.frontPop();

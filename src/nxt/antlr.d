@@ -197,7 +197,7 @@ struct G4Lexer
     Token frontPopEnforceTOK(in TOK tok, const scope string msg = "") nothrow
     {
         version(D_Coverage) {} else version(LDC) pragma(inline, true);
-        auto result = frontPop();
+        const result = frontPop();
         if (result.tok != tok)
             errorAtFront(msg ~ ", expected `TOK." ~ tok.toDefaulted!string(null) ~ "`");
         return result;
@@ -206,7 +206,7 @@ struct G4Lexer
     Token frontPop() scope return nothrow
     {
         version(D_Coverage) {} else version(LDC) pragma(inline, true);
-        auto result = front;
+        const result = front;
         popFront();
         return result;
     }

@@ -181,16 +181,14 @@ struct G4Lexer
     void frontEnforceTOK(in TOK tok, const scope string msg = "") nothrow
     {
         version(LDC) { version(D_Coverage) {} else pragma(inline, true); }
-        auto result = front;
-        if (result.tok != tok)
+        if (front.tok != tok)
             errorAtFront(msg ~ ", expected `TOK." ~ tok.toDefaulted!string(null) ~ "`");
     }
 
     void popFrontEnforceTOK(in TOK tok, const scope string msg) nothrow
     {
         version(D_Coverage) {} else pragma(inline, true);
-        const result = frontPop();
-        if (result.tok != tok)
+        if (frontPop().tok != tok)
             errorAtFront(msg ~ ", expected `TOK." ~ tok.toDefaulted!string(null) ~ "`");
     }
 

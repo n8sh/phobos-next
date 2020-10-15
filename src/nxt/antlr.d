@@ -22,6 +22,8 @@ import std.stdio : writeln;
 import nxt.line_column : offsetLineColumn;
 import nxt.file_ex : rawReadPath;
 
+@safe:
+
 enum useKeywords = true;
 
 alias Input = const(char)[];
@@ -1368,7 +1370,7 @@ struct G4FileParser           // TODO: convert to `class`
 }
 
 ///
-unittest
+@trusted unittest
 {
     import nxt.array_algorithm : endsWith;
     import std.file : dirEntries, SpanMode;

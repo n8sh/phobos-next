@@ -9,10 +9,10 @@
  *
  * TODO:
  *
+ * - make diagnostics functions non-pure
  * - parse postfix operators *, +, ?
- * - add printing of set of rules
  * - create index of symbols and link them in second pass
- * - gorup things into a struct G4
+ * - gorup things into a `struct G4`
  */
 module nxt.antlr;
 
@@ -771,10 +771,7 @@ private:
     {
         import core.stdc.stdio : printf;
         const offset = token.input.ptr - _input.ptr; // unsafe
-        // debug writeln("offset:", offset);
         const lc = offsetLineColumn(_input, offset);
-        // debug writeln("lc:", lc);
-        // TODO: remove printf
         debug printf("%.*s(%u,%u): %s: %.*s, token `%.*s` at offset %llu\n",
                      cast(int)_path.length, _path.ptr,
                      lc.line + 1, lc.column + 1,
@@ -995,9 +992,12 @@ final class Options : Leaf
 final class Scope : Leaf
 {
 @safe pure nothrow @nogc:
-    this(in Token head, in Token code)
+    this(in Token head,
+         in Input name,
+         in Token code)
     {
         super(head);
+        this.name = name;
         this.code = code;
     }
     Input name;
@@ -1151,9 +1151,22 @@ struct G4Parser
 
     Scope getScope(in Token head)
     {
-        return new Scope(head,
-                         _lexer.frontPopEnforceTOK(TOK.action,
-                                                   "missing action"));
+        if (_lexer.front.tok == TOK.symbol)
+        {
+            return new ScopeSymbol(head, _lexer.frontPop.input,
+                                   _lexer.frontPopEnforceTOK(TOK.action,
+                                                             "missing action"));
+
+        }
+        const symbol = (_lexer.front.tok == TOK.symbol) ? _lexer.frontPop.input : null;
+        if (_lexer.front.tok == TOK.semicolon)
+            return new Scope(head, symbol,
+                             _lexer.frontPopEnforceTOK(TOK.action,
+                                                       "missing action"));
+        else
+            return new Scope(head, symbol,
+                             _lexer.frontPopEnforceTOK(TOK.action,
+                                                       "missing action"));
     }
 
     void nextFront() @trusted

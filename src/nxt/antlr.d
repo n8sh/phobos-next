@@ -50,10 +50,12 @@ enum TOK
     HEADER,
     TOKENS,         ///< Can add tokens with this; usually imaginary tokens.
     IMPORT,         ///< Import grammar(s).
-    CHANNELS,       ///< Channels.
-    MODE,           ///< Mode.
-    CLASS,          ///< Class.
-    EXTENDS,        ///< Extends.
+    CHANNELS,       ///< `channels`.
+    MODE,           ///< `mode`.
+    CLASS,          ///< `class`.
+    EXTENDS,        ///< `extends`.
+    PRIVATE,        ///< `private`.
+    PROTECTED,      ///< `protected`.
 
     symbol,                     ///< Symbol.
     lexerRuleName,              ///< TODO: use instead of `symbol`
@@ -83,11 +85,11 @@ enum TOK
     listLabelAssignment,        ///< List label assignment `+=`
 
     optOrSemPred,               ///< Optional or semantic predicate (`?`)
-    zeroOrMore,                 ///< Zero or more (`*`)
-    oneOrMore,                  ///< One or more (`+`)
-    alternative,                ///< Alternative (`|`)
-    negation,                   ///< Match negation (`~`)
-    lt,                         ///<  `<`
+    star,                       ///< Zero or more (`*`)
+    plus,                       ///< One or more (`+`)
+    pipe,                       ///< Alternative (`|`)
+    tilde,                      ///< Match negation (`~`)
+    lt,                         ///< `<`
     gt,                         ///< `>`
     comma,                      ///< `.`
     exclude,                    ///< Exclude from AST (`!`)
@@ -648,19 +650,19 @@ private:
                 _token = Token(TOK.labelAssignment, skipOver1());
             break;
         case '*':
-            _token = Token(TOK.zeroOrMore, skipOver1());
+            _token = Token(TOK.star, skipOver1());
             break;
         case '+':
             if (peek1() == '=')
                 _token = Token(TOK.listLabelAssignment, skipOver2());
             else
-                _token = Token(TOK.oneOrMore, skipOver1());
+                _token = Token(TOK.plus, skipOver1());
             break;
         case '|':
-            _token = Token(TOK.alternative, skipOver1());
+            _token = Token(TOK.pipe, skipOver1());
             break;
         case '~':
-            _token = Token(TOK.negation, skipOver1());
+            _token = Token(TOK.tilde, skipOver1());
             break;
         case '?':
             _token = Token(TOK.optOrSemPred, skipOver1());
@@ -751,6 +753,8 @@ private:
                         case "mode": _token = Token(TOK.MODE, symbol); break;
                         case "class": _token = Token(TOK.CLASS, symbol); break;
                         case "extends": _token = Token(TOK.EXTENDS, symbol); break;
+                        case "private": _token = Token(TOK.PRIVATE, symbol); break;
+                        case "protected": _token = Token(TOK.PROTECTED, symbol); break;
                         default: _token = Token(TOK.symbol, symbol); break;
                         }
                     }
@@ -1164,13 +1168,14 @@ struct G4Parser
                              ActionSymbol actionSymbol = null) @trusted
     {
         _lexer.popFrontEnforceTOK(TOK.colon, "no colon");
-        Appender!(Node[]) alts; // TODO: use stack for small arrays
+        Appender!(Node[]) alts; // TODO: use static array with length being number of `TOK.pipe` till `TOK.semicolon`
         while (_lexer.front.tok != TOK.semicolon)
         {
             Appender!(Node[]) seq; // TODO: use stack for small arrays
-            while (_lexer.front.tok != TOK.alternative &&
+            while (_lexer.front.tok != TOK.pipe &&
                    _lexer.front.tok != TOK.semicolon)
             {
+                // TODO: use static array with length being number of tokens till `TOK.pipe`
                 seq.put(new Symbol(_lexer.frontPop()));
             }
             if (!seq.data.length)
@@ -1179,7 +1184,7 @@ struct G4Parser
                 // _lexer.infoAtFront("empty sequence");
             }
             alts.put(new SeqM(name, seq.data));
-            if (_lexer.front.tok == TOK.alternative)
+            if (_lexer.front.tok == TOK.pipe)
                 _lexer.popFront(); // skip terminator
         }
 
@@ -1276,6 +1281,8 @@ struct G4Parser
 
     void nextFront() @trusted
     {
+        bool privateFlag;
+        bool protectedFlag;
         switch (_lexer.front.tok)
         {
         case TOK.LEXER:
@@ -1355,6 +1362,14 @@ struct G4Parser
                                null);
             _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
             break;
+        case TOK.PRIVATE:
+            privateFlag = true;
+            _lexer.popFront();
+            goto case TOK.symbol;
+        case TOK.PROTECTED:
+            protectedFlag = true;
+            _lexer.popFront();
+            goto case TOK.symbol;
         case TOK.symbol:
             const head = _lexer.frontPop();
             while (_lexer.front.tok != TOK.colon)

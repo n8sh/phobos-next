@@ -10,10 +10,23 @@ if (smallCapacity >= 1)
     import std.array : Appender;
     import fixed_array : FixedArray;
 
+    this(this)
+    {
+    }
+
     void put(T x) @trusted
     {
+        import nxt.container_traits : needsMove;
         if (_isLarge)
-            _large.put(x);
+        {
+            static if (needsMove!T)
+            {
+                import core.lifetime : move;
+                _large.put(x.move);
+            }
+            else
+                _large.put(x);
+        }
         else if (_small.full)
         {
             import std.algorithm.mutation : moveEmplaceAll;

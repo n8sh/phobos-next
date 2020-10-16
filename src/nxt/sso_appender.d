@@ -1,4 +1,4 @@
-module nxt.fixed_appender;
+module nxt.sso_appender;
 
 /** Small-Size-Optimized (SSO) `Appender`.
  */

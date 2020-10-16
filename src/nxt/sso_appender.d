@@ -43,7 +43,15 @@ if (smallCapacity >= 1)
             _isLarge = 1;
         }
         else
-            _small.put(x);
+        {
+            static if (needsMove!T)
+            {
+                import core.lifetime : move;
+                _small.put(x.move);
+            }
+            else
+                _small.put(x);
+        }
     }
 
     inout(T)[] data() inout return scope

@@ -1,6 +1,8 @@
 module nxt.sso_appender;
 
 /** Small-Size-Optimized (SSO) `Appender`.
+ *
+ * See_Also: https://forum.dlang.org/post/ifspcvfkwsnvyrdfngpw@forum.dlang.org
  */
 struct SSOAppender(T, size_t smallCapacity)
 if (smallCapacity >= 1)

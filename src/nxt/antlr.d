@@ -1,4 +1,4 @@
-/** Lexer and parser for ANTLR (G,G2,G4) grammars.
+/** Lexer and parser for (E)BNF and ANTLR (G, G2, G4) grammars.
  *
  * See_Also: https://theantlrguy.atlassian.net/wiki/spaces/ANTLR3/pages/2687036/ANTLR+Cheat+Sheet
  * See_Also: https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form
@@ -8,10 +8,11 @@
  * See_Also: https://bnfc.digitalgrammars.com/
  *
  * TODO:
+ * - Avoid Appender use via look ahead in lexer till semicolon. Use `Lexer.save`.
  * - make diagnostics functions non-pure
  * - parse postfix operators *, +, ?
  * - create index of symbols and link them in second pass
- * - gorup things into a `struct G4`
+ * - gorup things into a `struct Gx`
  */
 module nxt.antlr;
 
@@ -94,7 +95,7 @@ enum TOK
     _error,                     ///< Error token.
 }
 
-/// G4 rule.
+/// Gx rule.
 struct Token
 {
 @safe pure nothrow @nogc:
@@ -116,11 +117,11 @@ static bool isSymbolStart(in dchar ch) pure nothrow @safe @nogc
             ch == '@');
 }
 
-/** G4 lexer.
+/** Gx lexer for all version ANTLR grammsrs (`.g`, `.g2`, `.g4`).
  *
  * See_Also: `ANTLRv4Lexer.g4`
  */
-struct G4Lexer
+struct GxLexer
 {
     import std.algorithm.comparison : among;
 
@@ -1150,18 +1151,18 @@ final class Class : Leaf
     Input baseName;             ///< Base class name.
 }
 
-/** G4 parser.
+/** Gx parser.
  *
  * See: `ANTLRv4Parser.g4`
  */
-struct G4Parser
+struct GxParser
 {
 @safe pure:
     this(in Input input,
          const scope string path = null,
          in bool includeComments = false) @trusted
     {
-        _lexer = G4Lexer(input, path, includeComments);
+        _lexer = GxLexer(input, path, includeComments);
         _front = nextFront();
     }
 
@@ -1523,12 +1524,12 @@ struct G4Parser
     }
 
 private:
-    G4Lexer _lexer;
+    GxLexer _lexer;
     Node _front;
 }
 
-/// G4 filer parser.
-struct G4FileParser           // TODO: convert to `class`
+/// Gx filer parser.
+struct GxFileParser           // TODO: convert to `class`
 {
 @safe:
     this(in string filePath)
@@ -1536,10 +1537,10 @@ struct G4FileParser           // TODO: convert to `class`
         import std.path : expandTilde;
         const path = filePath.expandTilde;
         const data = cast(Input)rawReadPath(path); // cast to Input because we don't want to keep all file around:
-        parser = G4Parser(data, filePath, false);
+        parser = GxParser(data, filePath, false);
     }
     ~this() @nogc {}
-    G4Parser parser;
+    GxParser parser;
     alias parser this;
 }
 
@@ -1564,7 +1565,7 @@ struct G4FileParser           // TODO: convert to `class`
             {
                 debug writeln("Lexing ", fn, " ...");
                 const data = cast(Input)rawReadPath(fn);
-                auto lexer = G4Lexer(data, fn, false);
+                auto lexer = GxLexer(data, fn, false);
                 while (!lexer.empty)
                     lexer.popFront();
             }
@@ -1585,7 +1586,7 @@ struct G4FileParser           // TODO: convert to `class`
                 // if (!fn.endsWith(`Thrift.g4`))
                 //     continue;
                 debug writeln("Parsing ", fn, " ...");
-                auto parser = G4FileParser(fn);
+                auto parser = GxFileParser(fn);
                 while (!parser.empty)
                     parser.popFront();
             }

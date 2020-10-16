@@ -946,6 +946,24 @@ class Symbol : Node
     }
 }
 
+class LineComment : Node
+{
+@safe pure nothrow @nogc:
+    this(in Token head)
+    {
+        super(head);
+    }
+}
+
+class BlockComment : Node
+{
+@safe pure nothrow @nogc:
+    this(in Token head)
+    {
+        super(head);
+    }
+}
+
 final class Grammar : Leaf
 {
 @safe pure nothrow @nogc:
@@ -1148,7 +1166,7 @@ struct G4Parser
          in bool includeComments = false) @trusted
     {
         _lexer = G4Lexer(input, path, includeComments);
-        nextFront();
+        _front = nextFront();
     }
 
     @property bool empty() const nothrow scope @nogc
@@ -1168,7 +1186,7 @@ struct G4Parser
     {
         version(D_Coverage) {} else pragma(inline, true);
         assert(!empty);
-        nextFront();
+        _front = nextFront();
     }
 
     private RuleAltM getRule(in Token name,
@@ -1363,9 +1381,8 @@ struct G4Parser
         return null;
     }
 
-    void nextFront() @trusted
+    Node nextFront() @trusted
     {
-        // debug _lexer.infoAtFront("nextFront");
         switch (_lexer.front.tok)
         {
         case TOK.LEXER:
@@ -1387,63 +1404,60 @@ struct G4Parser
 
             if (lexerFlag)
             {
-                _front = new LexerGrammar(head, _lexer.frontPop().input);
+                auto front = new LexerGrammar(head, _lexer.frontPop().input);
                 _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
+                return front;
             }
             else if (parserFlag)
             {
-                _front = new ParserGrammar(head, _lexer.frontPop().input);
+                auto front = new ParserGrammar(head, _lexer.frontPop().input);
                 _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
+                return front;
             }
             else
             {
                 if (_lexer.front.tok == TOK.colon)
-                    _front = getRule(head, false);
+                    return getRule(head, false);
                 else
                 {
-                    _front = new Grammar(head, _lexer.frontPop().input);
+                    auto front = new Grammar(head, _lexer.frontPop().input);
                     _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
+                    return front;
                 }
             }
-
-            break;
         case TOK.MODE:
-            _front = new Mode(_lexer.frontPop(), _lexer.frontPop().input);
+            auto front = new Mode(_lexer.frontPop(), _lexer.frontPop().input);
             _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
-            break;
+            return front;
         case TOK.HEADER:
             const head = _lexer.frontPop();
             if (_lexer.front.tok == TOK.colon)
-                _front = getRule(head, false); // normal rule
+                return getRule(head, false); // normal rule
             else
-                _front = getHeader(head);
-            break;
+                return getHeader(head);
         case TOK.OPTIONS:
             const head = _lexer.frontPop();
             if (_lexer.front.tok == TOK.colon)
-                _front = getRule(head, false); // normal rule
+                return getRule(head, false); // normal rule
             else
-                _front = getOptions(head);
-            break;
+                return getOptions(head);
         case TOK.CHANNELS:
-            _front = new Channels(_lexer.frontPop(),
+            return new Channels(_lexer.frontPop(),
                                   _lexer.frontPopEnforceTOK(TOK.action,
                                                             "missing action"));
-            break;
         case TOK.TOKENS:
-            _front = new Tokens(_lexer.frontPop(),
+            return new Tokens(_lexer.frontPop(),
                                 _lexer.frontPopEnforceTOK(TOK.action,
                                                           "missing action"));
-            break;
         case TOK.CLASS:
-            _front = new Class(_lexer.frontPop(),
+            auto front = new Class(_lexer.frontPop(),
                                _lexer.frontPopEnforceTOK(TOK.symbol,
                                                          "missing symbol").input,
                                _lexer.skipOverToken(Token(TOK.symbol, "extends")).input ?
                                _lexer.frontPop().input :
                                null);
             _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
-            break;
+            return front;
         case TOK.PRIVATE:
             const privateFlag = true; // TODO: use
             _lexer.popFront();
@@ -1455,21 +1469,19 @@ struct G4Parser
             _lexer.frontEnforceTOK(TOK.symbol, "expected symbol after `protected`");
             goto case TOK.symbol;
         case TOK.symbol:
+            debug _lexer.infoAtFront("nextFront symbol");
             const head = _lexer.frontPop();
             switch (head.input)
             {
             case `scope`:
                 if (_lexer.front.tok == TOK.colon)
-                    _front = getRule(head, false); // normal rule
+                    return getRule(head, false); // normal rule
                 else
-                    _front = getScope(head);
-                break;
+                    return getScope(head);
             case `import`:
-                _front = new Import(head, getArgs(TOK.comma, TOK.semicolon));
-                break;
+                return new Import(head, getArgs(TOK.comma, TOK.semicolon));
             case `fragment`: // lexer helper rule, not real token for parser.
-                _front = getRule(_lexer.frontPop(), true);
-                break;
+                return getRule(_lexer.frontPop(), true);
             default:
                 while (_lexer.front.tok != TOK.colon)
                 {
@@ -1488,23 +1500,21 @@ struct G4Parser
                     if (const _actionSymbol = skipOverActionSymbol()) // TODO: use
                         continue;
                 }
-                _front = getRule(head, false);
-                break;
+                return getRule(head, false);
             }
-            break;
         case TOK.attributeSymbol:
-            _front = getAttributeSymbol();
-            break;
+            return getAttributeSymbol();
         case TOK.actionSymbol:
-            _front = getActionSymbol();
-            break;
+            return getActionSymbol();
         case TOK.blockComment:
+            return new BlockComment(_lexer.frontPop());
         case TOK.lineComment:
-            return _lexer.popFront();   // ignore
+            return new LineComment(_lexer.frontPop());
         case TOK.action:
-            return _lexer.popFront();   // ignore for now
+            return new Action(_lexer.frontPop());
         default:
-            return _lexer.errorAtFront("TODO: handle");
+            _lexer.errorAtFront("TODO: handle");
+            assert(false);
         }
     }
 

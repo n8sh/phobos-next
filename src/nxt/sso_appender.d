@@ -14,20 +14,10 @@ if (smallCapacity >= 1)
     {
     }
 
-    void put(T x) @trusted
+    void assertOneMore() @trusted
     {
-        import nxt.container_traits : needsMove;
-        if (_isLarge)
-        {
-            static if (needsMove!T)
-            {
-                import core.lifetime : move;
-                _large.put(x.move);
-            }
-            else
-                _large.put(x);
-        }
-        else if (_small.full)
+        if (!_isLarge &&
+            _small.full)
         {
             import std.algorithm.mutation : moveEmplaceAll;
 
@@ -38,17 +28,30 @@ if (smallCapacity >= 1)
             emplace!Large(&_large);
 
             _large.put(tmp[]);
-            _large.put(x);
-
             _isLarge = 1;
+        }
+    }
+
+    void put(T x) @trusted
+    {
+        import nxt.container_traits : needsMove;
+
+        assertOneMore();
+
+        static if (needsMove!T)
+            import core.lifetime : move;
+
+        if (_isLarge)
+        {
+            static if (needsMove!T)
+                _large.put(x.move);
+            else
+                _large.put(x);
         }
         else
         {
             static if (needsMove!T)
-            {
-                import core.lifetime : move;
                 _small.put(x.move);
-            }
             else
                 _small.put(x);
         }

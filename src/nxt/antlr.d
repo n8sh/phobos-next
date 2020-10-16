@@ -1287,14 +1287,13 @@ struct G4Parser
         }
     }
 
-    bool skipOverSymbol(in string symbolIdentifier) return
+    Symbol skipOverSymbol(in string symbolIdentifier) return
     {
         if (_lexer.front == Token(TOK.symbol, symbolIdentifier))
         {
-            popFront();
-            return true;
+            return new Symbol(_lexer.frontPop());
         }
-        return false;
+        return null;
     }
 
     /// Skip over scope if any.
@@ -1382,6 +1381,7 @@ struct G4Parser
 
     Node nextFront() @trusted
     {
+        // _lexer.infoAtFront("");
         switch (_lexer.front.tok)
         {
         case TOK.LEXER:
@@ -1488,6 +1488,8 @@ struct G4Parser
                     if (skipOverReturns())  // TODO: use
                         continue;
                     if (skipOverHooks())    // TODO: use
+                        continue;
+                    if (const _ = skipOverSymbol("locals")) // TODO: use
                         continue;
                     if (const _options = skipOverOptions()) // TODO: use
                         continue;

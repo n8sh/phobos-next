@@ -1,4 +1,4 @@
-/** Lexer and parser for (E)BNF and ANTLR (G, G2, G4) grammars.
+/** Lexer and parser for ANTLR (G, G2, G4) and (E)BNF grammars.
  *
  * See_Also: https://theantlrguy.atlassian.net/wiki/spaces/ANTLR3/pages/2687036/ANTLR+Cheat+Sheet
  * See_Also: https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form

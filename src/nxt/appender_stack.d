@@ -18,11 +18,13 @@ struct Stack(T)
         return _app.data.length == 0;
     }
 
+    /// Pop back value.
     void pop()
     {
         _app.shrinkTo(_app.data.length - 1);
     }
 
+    /// Pop back value and return it.
     T backPop()
     {
         T value = top;

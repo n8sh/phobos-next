@@ -1249,14 +1249,14 @@ struct G4Parser
         return result.data;
     }
 
-    AttributeSymbol getAttributeSymbol()
+    AttributeSymbol getAttributeSymbol() nothrow
     {
         return new AttributeSymbol(_lexer.frontPop(),
                                    _lexer.frontPopEnforceTOK(TOK.action,
                                                              "missing action"));
     }
 
-    ActionSymbol getActionSymbol()
+    ActionSymbol getActionSymbol() nothrow
     {
         return new ActionSymbol(_lexer.frontPop(),
                                 _lexer.frontPopEnforceTOK(TOK.action,
@@ -1306,14 +1306,14 @@ struct G4Parser
         return null;
     }
 
-    Options getOptions(in Token head)
+    Options makeOptions(in Token head) nothrow
     {
         return new Options(head,
                            _lexer.frontPopEnforceTOK(TOK.action,
                                                      "missing action"));
     }
 
-    Header getHeader(in Token head)
+    Header makeHeader(in Token head)
     {
         const name = (_lexer.front.tok == TOK.textLiteralDoubleQuoted ?
                       _lexer.frontPop() :
@@ -1323,7 +1323,7 @@ struct G4Parser
         return new Header(head, name, action);
     }
 
-    Action getAction(in Token head)
+    Action makeAction(in Token head)
     {
         return new Action(head);
     }
@@ -1332,7 +1332,7 @@ struct G4Parser
     Options skipOverOptions()
     {
         if (_lexer.front.tok == TOK.OPTIONS)
-            return getOptions(_lexer.frontPop());
+            return makeOptions(_lexer.frontPop());
         return null;
     }
 
@@ -1370,7 +1370,7 @@ struct G4Parser
     Action skipOverAction()
     {
         if (_lexer.front.tok == TOK.action)
-            return getAction(_lexer.frontPop());
+            return makeAction(_lexer.frontPop());
         return null;
     }
 
@@ -1434,13 +1434,13 @@ struct G4Parser
             if (_lexer.front.tok == TOK.colon)
                 return getRule(head, false); // normal rule
             else
-                return getHeader(head);
+                return makeHeader(head);
         case TOK.OPTIONS:
             const head = _lexer.frontPop();
             if (_lexer.front.tok == TOK.colon)
                 return getRule(head, false); // normal rule
             else
-                return getOptions(head);
+                return makeOptions(head);
         case TOK.CHANNELS:
             return new Channels(_lexer.frontPop(),
                                   _lexer.frontPopEnforceTOK(TOK.action,

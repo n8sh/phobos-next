@@ -14,7 +14,7 @@ if (smallCapacity >= 1)
     {
     }
 
-    void assertOneMore() @trusted
+    void assureOneMoreCapacity() @trusted
     {
         if (!_isLarge &&
             _small.full)
@@ -36,7 +36,7 @@ if (smallCapacity >= 1)
     {
         import nxt.container_traits : needsMove;
 
-        assertOneMore();
+        assureOneMoreCapacity();
 
         static if (needsMove!T)
             import core.lifetime : move;
@@ -73,12 +73,13 @@ private:
         Small _small;
         Large _large;
     }
-    bool _isLarge;
+    bool _isLarge;              // TODO: pack this into _small
 }
 
 @safe pure nothrow unittest
 {
-    SSOAppender!(int, 2) a;
+    alias A = SSOAppender!(int, 2);
+    A a;
     a.put(11);
     a.put(12);
     assert(a.data[] == [11, 12]);
@@ -86,10 +87,13 @@ private:
     assert(a.data[] == [11, 12, 13]);
     static if (isDIP1000)
     {
+        auto f() @safe pure {
+            A a;
+            return a.data;   // errors with -dip1000
+        }
         static assert(!__traits(compiles, {
-                    auto f() @safe pure
-                    {
-                        auto x = Str("alphas");
+                    auto f() @safe pure {
+                        auto x = SmallAppender!(char)("alphas");
                         auto y = x[];
                         return y;   // errors with -dip1000
                     }

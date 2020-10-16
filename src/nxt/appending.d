@@ -26,9 +26,7 @@ if (args.length != 0)
     {
         data.length += args.length;
         foreach (i, arg; args)
-        {
             data[$ - args.length + i] = arg;
-        }
     }
     else
     {
@@ -62,9 +60,7 @@ if (args.length != 0)
         app.reserve(data.length + estimateLength(args));
 
         foreach (arg; args)
-        {
             app.put(arg);
-        }
         data = app.data;
     }
 

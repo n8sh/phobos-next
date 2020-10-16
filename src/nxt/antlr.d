@@ -1525,7 +1525,7 @@ private:
 struct G4FileParser           // TODO: convert to `class`
 {
 @safe:
-    this(const string filePath)
+    this(in string filePath)
     {
         import std.path : expandTilde;
         const path = filePath.expandTilde;

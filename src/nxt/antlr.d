@@ -38,24 +38,15 @@ enum TOK
     whitespace,
 
     // Keywords:
-    SCOPE,          ///< Dynamically scoped attribute.
-    FRAGMENT,       ///< Lexer rule is a helper rule, not real token for parser.
     LEXER,          ///< Grammar type.
-    TREE,           ///< Grammar type.
     PARSER,         ///< Grammar type
     GRAMMAR,        ///< Grammar header.
-    RETURNS,        ///< Rule return value(s).
-    THROWS,         ///< Rule throws exceptions(s).
-    CATCH,          ///< Catch rule exceptions(s).
-    FINALLY,        ///< Do this no matter what.
     OPTIONS,        ///< Grammar or rule options.
     HEADER,
     TOKENS,         ///< Can add tokens with this; usually imaginary tokens.
-    IMPORT,         ///< Import grammar(s).
     CHANNELS,       ///< `channels`.
     MODE,           ///< `mode`.
     CLASS,          ///< `class`.
-    EXTENDS,        ///< `extends`.
     PRIVATE,        ///< `private`.
     PROTECTED,      ///< `protected`.
 
@@ -209,6 +200,13 @@ struct G4Lexer
         const result = front;
         popFront();
         return result;
+    }
+
+    Token skipOverToken(in Token token) scope return nothrow
+    {
+        if (front == token)
+            return frontPop();
+        return typeof(return).init;
     }
 
     Token skipOverTOK(in TOK tok) scope return nothrow
@@ -744,24 +742,15 @@ private:
                     {
                         switch (symbol)
                         {
-                        case "scope": _token = Token(TOK.SCOPE, symbol); break;
-                        case "fragment": _token = Token(TOK.FRAGMENT, symbol); break;
                         case "lexer": _token = Token(TOK.LEXER, symbol); break;
-                        case "tree": _token = Token(TOK.TREE, symbol); break;
                         case "parser": _token = Token(TOK.PARSER, symbol); break;
                         case "grammar": _token = Token(TOK.GRAMMAR, symbol); break;
-                        case "returns": _token = Token(TOK.RETURNS, symbol); break;
-                        case "throws": _token = Token(TOK.THROWS, symbol); break;
-                        case "catch": _token = Token(TOK.CATCH, symbol); break;
-                        case "finally": _token = Token(TOK.FINALLY, symbol); break;
                         case "options": _token = Token(TOK.OPTIONS, symbol); break;
                         case "header": _token = Token(TOK.HEADER, symbol); break;
                         case "tokens": _token = Token(TOK.TOKENS, symbol); break;
-                        case "import": _token = Token(TOK.IMPORT, symbol); break;
                         case "channels": _token = Token(TOK.CHANNELS, symbol); break;
                         case "mode": _token = Token(TOK.MODE, symbol); break;
                         case "class": _token = Token(TOK.CLASS, symbol); break;
-                        case "extends": _token = Token(TOK.EXTENDS, symbol); break;
                         case "private": _token = Token(TOK.PRIVATE, symbol); break;
                         case "protected": _token = Token(TOK.PROTECTED, symbol); break;
                         default: _token = Token(TOK.symbol, symbol); break;
@@ -1210,6 +1199,18 @@ struct G4Parser
 
         _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
 
+        // needed for ANTLRv2.g2:
+        {
+            if (_lexer.front == Token(TOK.symbol, "exception"))
+                _lexer.popFront();
+            if (_lexer.front == Token(TOK.symbol, "catch"))
+                _lexer.popFront();
+            if (_lexer.front.tok == TOK.hooks)
+                _lexer.popFront();
+            if (_lexer.front.tok == TOK.action)
+                _lexer.popFront();
+        }
+
         return (isFragment ?
                 new FragmentRuleAltM(name, alts.data) :
                 new RuleAltM(name, alts.data));
@@ -1269,10 +1270,20 @@ struct G4Parser
         }
     }
 
+    bool skipOverSymbol(in string symbolIdentifier) return
+    {
+        if (_lexer.front == Token(TOK.symbol, symbolIdentifier))
+        {
+            popFront();
+            return true;
+        }
+        return false;
+    }
+
     /// Skip over scope if any.
     Leaf skipOverScope()
     {
-        if (_lexer.front.tok == TOK.SCOPE)
+        if (_lexer.front == Token(TOK.symbol, "scope"))
             return getScope(_lexer.frontPop());
         return null;
     }
@@ -1319,7 +1330,7 @@ struct G4Parser
 
     bool skipOverReturns()
     {
-        if (_lexer.front.tok == TOK.RETURNS)
+        if (_lexer.front == Token(TOK.symbol, "returns"))
         {
             _lexer.frontPop();
             return true;
@@ -1354,6 +1365,7 @@ struct G4Parser
 
     void nextFront() @trusted
     {
+        // debug _lexer.infoAtFront("nextFront");
         switch (_lexer.front.tok)
         {
         case TOK.LEXER:
@@ -1374,27 +1386,30 @@ struct G4Parser
             }
 
             if (lexerFlag)
+            {
                 _front = new LexerGrammar(head, _lexer.frontPop().input);
+                _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
+            }
             else if (parserFlag)
+            {
                 _front = new ParserGrammar(head, _lexer.frontPop().input);
+                _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
+            }
             else
-                _front = new Grammar(head, _lexer.frontPop().input);
+            {
+                if (_lexer.front.tok == TOK.colon)
+                    _front = getRule(head, false);
+                else
+                {
+                    _front = new Grammar(head, _lexer.frontPop().input);
+                    _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
+                }
+            }
 
-            _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
-            break;
-        case TOK.IMPORT:
-            _front = new Import(_lexer.frontPop(), getArgs(TOK.comma, TOK.semicolon));
             break;
         case TOK.MODE:
             _front = new Mode(_lexer.frontPop(), _lexer.frontPop().input);
             _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
-            break;
-        case TOK.SCOPE:
-            const head = _lexer.frontPop();
-            if (_lexer.front.tok == TOK.colon)
-                _front = getRule(head, false); // normal rule
-            else
-                _front = getScope(head);
             break;
         case TOK.HEADER:
             const head = _lexer.frontPop();
@@ -1410,10 +1425,6 @@ struct G4Parser
             else
                 _front = getOptions(head);
             break;
-        case TOK.FRAGMENT:
-            _lexer.popFront();  // skip keyword
-            _front = getRule(_lexer.frontPop(), true);
-            break;
         case TOK.CHANNELS:
             _front = new Channels(_lexer.frontPop(),
                                   _lexer.frontPopEnforceTOK(TOK.action,
@@ -1428,7 +1439,7 @@ struct G4Parser
             _front = new Class(_lexer.frontPop(),
                                _lexer.frontPopEnforceTOK(TOK.symbol,
                                                          "missing symbol").input,
-                               _lexer.skipOverTOK(TOK.EXTENDS).input ?
+                               _lexer.skipOverToken(Token(TOK.symbol, "extends")).input ?
                                _lexer.frontPop().input :
                                null);
             _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
@@ -1445,24 +1456,41 @@ struct G4Parser
             goto case TOK.symbol;
         case TOK.symbol:
             const head = _lexer.frontPop();
-            while (_lexer.front.tok != TOK.colon)
+            switch (head.input)
             {
-                if (skipOverExclusion()) // TODO: use
-                    continue;
-                if (skipOverReturns())  // TODO: use
-                    continue;
-                if (skipOverHooks())    // TODO: use
-                    continue;
-                if (const _options = skipOverOptions()) // TODO: use
-                    continue;
-                if (const _scope = skipOverScope())     // TODO: use
-                    continue;
-                if (const _action = skipOverAction()) // TODO: use
-                    continue;
-                if (const _actionSymbol = skipOverActionSymbol()) // TODO: use
-                    continue;
+            case `scope`:
+                if (_lexer.front.tok == TOK.colon)
+                    _front = getRule(head, false); // normal rule
+                else
+                    _front = getScope(head);
+                break;
+            case `import`:
+                _front = new Import(head, getArgs(TOK.comma, TOK.semicolon));
+                break;
+            case `fragment`: // lexer helper rule, not real token for parser.
+                _front = getRule(_lexer.frontPop(), true);
+                break;
+            default:
+                while (_lexer.front.tok != TOK.colon)
+                {
+                    if (skipOverExclusion()) // TODO: use
+                        continue;
+                    if (skipOverReturns())  // TODO: use
+                        continue;
+                    if (skipOverHooks())    // TODO: use
+                        continue;
+                    if (const _options = skipOverOptions()) // TODO: use
+                        continue;
+                    if (const _scope = skipOverScope())     // TODO: use
+                        continue;
+                    if (const _action = skipOverAction()) // TODO: use
+                        continue;
+                    if (const _actionSymbol = skipOverActionSymbol()) // TODO: use
+                        continue;
+                }
+                _front = getRule(head, false);
+                break;
             }
-            _front = getRule(head, false);
             break;
         case TOK.attributeSymbol:
             _front = getAttributeSymbol();
@@ -1536,8 +1564,10 @@ struct G4FileParser           // TODO: convert to `class`
                 fn.endsWith(`.g2`) ||
                 fn.endsWith(`.g4`))
             {
-                if (fn.endsWith(`Antlr3.g`))
-                    continue;
+                // if (fn.endsWith(`Antlr3.g`))
+                //     continue;
+                // if (!fn.endsWith(`ANTLRv2.g2`))
+                //     continue;
                 debug writeln("Parsing ", fn, " ...");
                 auto parser = G4FileParser(fn);
                 while (!parser.empty)

@@ -46,7 +46,6 @@ enum TOK
     TOKENS,         ///< Can add tokens with this; usually imaginary tokens.
     CHANNELS,       ///< `channels`.
     MODE,           ///< `mode`.
-    CLASS,          ///< `class`.
     PRIVATE,        ///< `private`.
     PROTECTED,      ///< `protected`.
 
@@ -748,7 +747,6 @@ private:
                         case "tokens": _token = Token(TOK.TOKENS, symbol); break;
                         case "channels": _token = Token(TOK.CHANNELS, symbol); break;
                         case "mode": _token = Token(TOK.MODE, symbol); break;
-                        case "class": _token = Token(TOK.CLASS, symbol); break;
                         case "private": _token = Token(TOK.PRIVATE, symbol); break;
                         case "protected": _token = Token(TOK.PROTECTED, symbol); break;
                         default: _token = Token(TOK.symbol, symbol); break;
@@ -1218,10 +1216,10 @@ struct G4Parser
         // needed for ANTLRv2.g2:
         if (!empty)
         {
-            if (_lexer.front == Token(TOK.symbol, "exception"))
-                _lexer.popFront();
-            if (_lexer.front == Token(TOK.symbol, "catch"))
-                _lexer.popFront();
+            // if (_lexer.front == Token(TOK.symbol, "exception"))
+            //     _lexer.popFront();
+            // if (_lexer.front == Token(TOK.symbol, "catch"))
+            //     _lexer.popFront();
             if (_lexer.front.tok == TOK.hooks)
                 _lexer.popFront();
             if (_lexer.front.tok == TOK.action)
@@ -1448,15 +1446,6 @@ struct G4Parser
             return new Tokens(_lexer.frontPop(),
                                 _lexer.frontPopEnforceTOK(TOK.action,
                                                           "missing action"));
-        case TOK.CLASS:
-            auto front = new Class(_lexer.frontPop(),
-                               _lexer.frontPopEnforceTOK(TOK.symbol,
-                                                         "missing symbol").input,
-                               _lexer.skipOverToken(Token(TOK.symbol, "extends")).input ?
-                               _lexer.frontPop().input :
-                               null);
-            _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
-            return front;
         case TOK.PRIVATE:
             const privateFlag = true; // TODO: use
             _lexer.popFront();
@@ -1471,6 +1460,20 @@ struct G4Parser
             const head = _lexer.frontPop();
             switch (head.input)
             {
+            case `class`:
+                if (_lexer.front.tok == TOK.colon)
+                    return getRule(head, false); // normal rule
+                else
+                {
+                    auto front = new Class(head,
+                                           _lexer.frontPopEnforceTOK(TOK.symbol,
+                                                                     "missing symbol").input,
+                                           _lexer.skipOverToken(Token(TOK.symbol, "extends")).input ?
+                                           _lexer.frontPop().input :
+                                           null);
+                    _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
+                    return front;
+                }
             case `scope`:
                 if (_lexer.front.tok == TOK.colon)
                     return getRule(head, false); // normal rule
@@ -1576,7 +1579,9 @@ struct G4FileParser           // TODO: convert to `class`
             {
                 if (fn.endsWith(`Antlr3.g`))
                     continue;
-                // if (!fn.endsWith(`ANTLRv2.g2`))
+                if (fn.endsWith(`ANTLRv2.g2`))
+                    continue;
+                // if (!fn.endsWith(`Thrift.g4`))
                 //     continue;
                 debug writeln("Parsing ", fn, " ...");
                 auto parser = G4FileParser(fn);

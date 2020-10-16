@@ -1,24 +1,41 @@
 module nxt.appender_stack;
 
-/** Stack.
-    See_Also: http://forum.dlang.org/thread/wswbtzakdvpgaebuhbom@forum.dlang.org
-*/
-
+/** Stack using `std.array.Appender`.
+ *
+ * See_Also: http://forum.dlang.org/thread/wswbtzakdvpgaebuhbom@forum.dlang.org
+ */
 struct Stack(T)
 {
-    import std.array: Appender, appender;
+    import std.array: Appender;
 
-    Appender!(T[]) _app;
+    @property ref inout(T) top() inout
+    {
+        return _app.data[$ - 1];
+    }
 
-    @property ref inout(T) top() inout { return _app.data[$ - 1]; };
+    @property bool empty() const
+    {
+        return _app.data.length == 0;
+    }
 
-    @property bool empty() const { return _app.data.length == 0; }
+    void pop()
+    {
+        _app.shrinkTo(_app.data.length - 1);
+    }
 
-    void pop() { _app.shrinkTo(_app.data.length - 1); }
+    T backPop()
+    {
+        T value = top;
+        _app.shrinkTo(_app.data.length - 1);
+        return value;
+    }
 
-    T backPop() { T value = top; _app.shrinkTo(_app.data.length - 1); return value; }
+    void push(T t)
+    {
+        _app.put(t);
+    }
 
-    void push(T t) { _app.put(t); }
+    private Appender!(T[]) _app;
 }
 
 @safe pure unittest

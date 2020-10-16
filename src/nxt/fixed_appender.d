@@ -3,6 +3,7 @@ module nxt.fixed_appender;
 /** Small-Size-Optimized (SSO) `Appender`.
  */
 struct SSOAppender(T, size_t smallCapacity)
+if (smallCapacity >= 1)
 {
     import std.array : Appender;
     import fixed_array : FixedArray;

@@ -103,7 +103,6 @@ struct Token
     {
         this.tok = tok;
         this.input = input;
-        // debug writeln("tok:", tok, " input:", input);
     }
     const(char)[] input;
     TOK tok;
@@ -168,7 +167,6 @@ struct G4Lexer
         version(D_Coverage) {} else pragma(inline, true);
         assert(!empty);
         nextFront();
-        // debug writeln("after:", _token);
     }
 
     void frontEnforceTOK(in TOK tok, const scope string msg = "") nothrow
@@ -1218,6 +1216,7 @@ struct G4Parser
         _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
 
         // needed for ANTLRv2.g2:
+        if (!empty)
         {
             if (_lexer.front == Token(TOK.symbol, "exception"))
                 _lexer.popFront();
@@ -1469,7 +1468,6 @@ struct G4Parser
             _lexer.frontEnforceTOK(TOK.symbol, "expected symbol after `protected`");
             goto case TOK.symbol;
         case TOK.symbol:
-            debug _lexer.infoAtFront("nextFront symbol");
             const head = _lexer.frontPop();
             switch (head.input)
             {
@@ -1574,8 +1572,8 @@ struct G4FileParser           // TODO: convert to `class`
                 fn.endsWith(`.g2`) ||
                 fn.endsWith(`.g4`))
             {
-                // if (fn.endsWith(`Antlr3.g`))
-                //     continue;
+                if (fn.endsWith(`Antlr3.g`))
+                    continue;
                 // if (!fn.endsWith(`ANTLRv2.g2`))
                 //     continue;
                 debug writeln("Parsing ", fn, " ...");

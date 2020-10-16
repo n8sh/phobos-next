@@ -1285,6 +1285,18 @@ struct G4Parser
         }
     }
 
+    Leaf getClass(in Token head)
+    {
+        auto result = new Class(head,
+                               _lexer.frontPopEnforceTOK(TOK.symbol,
+                                                         "missing symbol").input,
+                               _lexer.skipOverToken(Token(TOK.symbol, "extends")).input ?
+                               _lexer.frontPop().input :
+                               null);
+        _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
+        return result;
+    }
+
     Symbol skipOverSymbol(in string symbolIdentifier) return
     {
         if (_lexer.front == Token(TOK.symbol, symbolIdentifier))
@@ -1463,22 +1475,11 @@ struct G4Parser
             case `class`:
                 if (_lexer.front.tok == TOK.colon)
                     return getRule(head, false); // normal rule
-                else
-                {
-                    auto front = new Class(head,
-                                           _lexer.frontPopEnforceTOK(TOK.symbol,
-                                                                     "missing symbol").input,
-                                           _lexer.skipOverToken(Token(TOK.symbol, "extends")).input ?
-                                           _lexer.frontPop().input :
-                                           null);
-                    _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
-                    return front;
-                }
+                return getClass(head);
             case `scope`:
                 if (_lexer.front.tok == TOK.colon)
                     return getRule(head, false); // normal rule
-                else
-                    return getScope(head);
+                return getScope(head);
             case `import`:
                 return new Import(head, getArgs(TOK.comma, TOK.semicolon));
             case `fragment`: // lexer helper rule, not real token for parser.

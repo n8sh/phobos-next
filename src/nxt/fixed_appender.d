@@ -58,7 +58,6 @@ private:
     assert(a.data[] == [11, 12]);
     a.put(13);
     assert(a.data[] == [11, 12, 13]);
-
     static if (isDIP1000)
     {
         static assert(!__traits(compiles, {

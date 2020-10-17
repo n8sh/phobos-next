@@ -1551,7 +1551,7 @@ struct GxFileReader
     this(in string filePath)
     {
         auto parser = GxFileParser(filePath);
-        while  (!parser.empty)
+        while (!parser.empty)
         {
             if (auto rule = cast(RuleAltM)parser.front)
             {

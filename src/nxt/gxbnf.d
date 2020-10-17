@@ -8,6 +8,7 @@
  * See_Also: https://bnfc.digitalgrammars.com/
  *
  * TODO:
+ * - Move `head` from `Node` and don't store `head` in `SeqM`
  * - Avoid static array `Node[n]` instead of `Appender`
  * - make diagnostics functions non-pure
  * - parse postfix operators *, +, ?
@@ -857,12 +858,16 @@ enum NODE
 }
 
 /// AST node.
-class Node
+abstract class Node
 {
-    final void showHead(in uint indent) const @trusted
+    final void showIndent(in uint indent) const @trusted
     {
         foreach (_; 0 .. indent)
             putchar(' ');
+    }
+    final void showHead(in uint indent) const @trusted
+    {
+        showIndent(indent);
         printf("%.*s", cast(uint)head.input.length, head.input.ptr);
     }
     void show(in uint indent) const @trusted
@@ -905,10 +910,9 @@ final class SeqM : BranchM
 @safe:
     override void show(in uint indent) const @trusted
     {
-        showHead(indent);
-        printf(": ");
+        showIndent(indent);
+        printf("| ");
         showSubs(indent);
-        printf("\n");
     }
     private void showSubs(in uint indent) const
     {
@@ -920,9 +924,9 @@ final class SeqM : BranchM
         }
     }
 @safe pure nothrow @nogc:
-    this(in Token head, Node[] subs = null)
+    this(Node[] subs = null)
     {
-        super(head);
+        super(Token.init);
         this.subs = subs;
     }
 }
@@ -934,7 +938,7 @@ class RuleAltM : BranchM
     override void show(in uint indent) const @trusted
     {
         showHead(indent);
-        printf("\n");
+        printf(":\n");
         showSubs(indent + 4);
     }
     private void showSubs(in uint indent) const
@@ -982,6 +986,13 @@ class Leaf : Node
 
 class Symbol : Node
 {
+@safe:
+    override void show(in uint indent) const @trusted
+    {
+        printf("\"");
+        showHead(indent);
+        printf("\"");
+    }
 @safe pure nothrow @nogc:
     this(in Token head)
     {
@@ -1253,7 +1264,7 @@ struct GxParser
                 // `seq` may be empty
                 // _lexer.infoAtFront("empty sequence");
             }
-            alts.put(new SeqM(name, seq.data));
+            alts.put(new SeqM(seq.data));
             if (_lexer.front.tok == TOK.pipe)
                 _lexer.popFront(); // skip terminator
         }

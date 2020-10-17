@@ -1592,6 +1592,7 @@ struct GxParser
         // _lexer.infoAtFront("");
         switch (_lexer.front.tok)
         {
+            // TODO: move this next to `getRuleOrOther`
         case TOK.LEXER:
         case TOK.PARSER:
         case TOK.GRAMMAR:

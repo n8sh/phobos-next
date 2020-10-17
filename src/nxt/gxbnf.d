@@ -19,7 +19,6 @@ module nxt.gxbnf;
 import core.stdc.stdio : putchar, printf;
 
 import std.array : Appender;
-import std.stdio : writeln;
 
 // `d-deps.el` requires these to be at the top:
 import nxt.line_column : offsetLineColumn;
@@ -1631,7 +1630,7 @@ struct GxFileReader
                 fn.endsWith(`.g2`) ||
                 fn.endsWith(`.g4`))
             {
-                debug writeln("Lexing ", fn, " ...");
+                debug printf("Lexing %.*s ...\n", cast(int)fn.length, fn.ptr);
                 const data = cast(Input)rawReadPath(fn);
                 auto lexer = GxLexer(data, fn, false);
                 while (!lexer.empty)
@@ -1649,7 +1648,7 @@ struct GxFileReader
             {
                 if (fn.endsWith(`Antlr3.g`) || fn.endsWith(`ANTLRv2.g2`)) // skip this crap
                     continue;
-                debug writeln("Reading ", fn, " ...");
+                debug printf("Reading %.*s ...\n", cast(int)fn.length, fn.ptr);
                 auto reader = GxFileReader(fn);
             }
         }

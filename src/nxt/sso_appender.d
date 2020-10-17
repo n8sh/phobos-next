@@ -10,10 +10,6 @@ if (smallCapacity >= 1)
     import std.array : Appender;
     import fixed_array : FixedArray;
 
-    this(this)
-    {
-    }
-
     void assureOneMoreCapacity() @trusted
     {
         if (!_isLarge &&

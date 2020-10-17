@@ -47,7 +47,6 @@ enum TOK
     LEXER,          ///< Grammar type.
     PARSER,         ///< Grammar type
     GRAMMAR,        ///< Grammar header.
-    TOKENS,         ///< Can add tokens with this; usually imaginary tokens.
     PRIVATE,        ///< `private`.
     PROTECTED,      ///< `protected`.
 
@@ -744,7 +743,6 @@ private:
                         case "lexer": _token = Token(TOK.LEXER, symbol); break;
                         case "parser": _token = Token(TOK.PARSER, symbol); break;
                         case "grammar": _token = Token(TOK.GRAMMAR, symbol); break;
-                        case "tokens": _token = Token(TOK.TOKENS, symbol); break;
                         case "private": _token = Token(TOK.PRIVATE, symbol); break;
                         case "protected": _token = Token(TOK.PROTECTED, symbol); break;
                         default: _token = Token(TOK.symbol, symbol); break;
@@ -1463,6 +1461,12 @@ struct GxParser
         return new Channels(head, _lexer.frontPopEnforceTOK(TOK.action, "missing action"));
     }
 
+    Tokens makeTokens(in Token head) nothrow
+    {
+        pragma(inline, true);
+        return new Tokens(head, _lexer.frontPopEnforceTOK(TOK.action, "missing action"));
+    }
+
     Header makeHeader(in Token head)
     {
         const name = (_lexer.front.tok == TOK.textLiteralDoubleQuoted ?
@@ -1576,10 +1580,6 @@ struct GxParser
                     return front;
                 }
             }
-        case TOK.TOKENS:
-            return new Tokens(_lexer.frontPop(),
-                              _lexer.frontPopEnforceTOK(TOK.action,
-                                                        "missing action"));
         case TOK.PRIVATE:
             const privateFlag = true; // TODO: use
             _lexer.popFront();
@@ -1602,6 +1602,8 @@ struct GxParser
                 {
                 case `channels`:
                     return makeChannels(head);
+                case `tokens`:
+                    return makeTokens(head);
                 case `options`:
                     return makeOptions(head);
                 case `header`:      // TODO: move this checking upwards

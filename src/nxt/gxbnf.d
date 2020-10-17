@@ -9,7 +9,7 @@
  *
  * TODO:
  * - Replace uppercased `TOK`s with `TOK.symbol`
- * - Handle all cases in `getRule`
+ * - Handle all TODO's in `getRule`
  * - Avoid static array `Node[n]` instead of `Appender`
  * - make diagnostics functions non-pure
  * - parse postfix operators *, +, ?
@@ -1325,15 +1325,15 @@ struct GxParser
                     seq.put(new Literal(_lexer.frontPop()));
                     break;
                 case TOK.star:
-                    _lexer.infoAtFront("TODO: if previous is ')' pop from stack");
+                    // _lexer.infoAtFront("TODO: if previous is ')' pop from stack");
                     seq.put(new ZeroOrMore(_lexer.frontPop()));
                     break;
                 case TOK.plus:
-                    _lexer.infoAtFront("TODO: if previous is ')' pop from stack");
+                    // _lexer.infoAtFront("TODO: if previous is ')' pop from stack");
                     seq.put(new OneOrMore(_lexer.frontPop()));
                     break;
                 case TOK.optOrSemPred:
-                    _lexer.infoAtFront("TODO: if previous is ')' pop from stack");
+                    // _lexer.infoAtFront("TODO: if previous is ')' pop from stack");
                     seq.put(new ZeroOrOne(_lexer.frontPop()));
                     break;
                 case TOK.leftParen:

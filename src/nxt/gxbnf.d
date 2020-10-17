@@ -21,6 +21,7 @@ import std.stdio : writeln;
 
 // `d-deps.el` requires these to be at the top:
 import nxt.line_column : offsetLineColumn;
+import nxt.dynamic_array : DynamicArray;
 import nxt.file_ex : rawReadPath;
 
 @safe:
@@ -1552,13 +1553,15 @@ struct GxFileReader
         auto parser = GxFileParser(filePath);
         while  (!parser.empty)
         {
-            if (const rule = cast(Rule)front)
+            if (auto rule = cast(RuleAltM)parser.front)
             {
-
+                rules.insertBack(rule);
             }
             parser.popFront();
         }
     }
+    DynamicArray!(RuleAltM) rules;
+    // TODO: `OpenHashMap rulesByName`
     ~this() @nogc {}
 }
 
@@ -1599,10 +1602,8 @@ struct GxFileReader
             {
                 if (fn.endsWith(`Antlr3.g`) || fn.endsWith(`ANTLRv2.g2`)) // skip this crap
                     continue;
-                debug writeln("Parsing ", fn, " ...");
-                auto parser = GxFileParser(fn);
-                while (!parser.empty)
-                    parser.popFront();
+                debug writeln("Reading ", fn, " ...");
+                auto reader = GxFileReader(fn);
             }
         }
 }

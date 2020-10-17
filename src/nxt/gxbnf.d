@@ -8,7 +8,7 @@
  * See_Also: https://bnfc.digitalgrammars.com/
  *
  * TODO:
- * - Avoid Appender use via look ahead in lexer till semicolon. Use `Lexer.save`.
+ * - Avoid static array `Node[n]` instead of `Appender`
  * - make diagnostics functions non-pure
  * - parse postfix operators *, +, ?
  * - create index of symbols and link them in second pass
@@ -1544,6 +1544,24 @@ struct GxFileParser           // TODO: convert to `class`
     alias parser this;
 }
 
+struct GxFileReader
+{
+@safe:
+    this(in string filePath)
+    {
+        auto parser = GxFileParser(filePath);
+        while  (!parser.empty)
+        {
+            if (const rule = cast(Rule)front)
+            {
+
+            }
+            parser.popFront();
+        }
+    }
+    ~this() @nogc {}
+}
+
 ///
 @trusted unittest
 {
@@ -1579,12 +1597,8 @@ struct GxFileParser           // TODO: convert to `class`
                 fn.endsWith(`.g2`) ||
                 fn.endsWith(`.g4`))
             {
-                if (fn.endsWith(`Antlr3.g`))
+                if (fn.endsWith(`Antlr3.g`) || fn.endsWith(`ANTLRv2.g2`)) // skip this crap
                     continue;
-                if (fn.endsWith(`ANTLRv2.g2`))
-                    continue;
-                // if (!fn.endsWith(`Thrift.g4`))
-                //     continue;
                 debug writeln("Parsing ", fn, " ...");
                 auto parser = GxFileParser(fn);
                 while (!parser.empty)

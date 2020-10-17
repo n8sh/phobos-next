@@ -946,7 +946,6 @@ class RuleAltM : BranchM
         foreach (const sub; subs)
         {
             showIndent(indent);
-            printf("| ");
             sub.show(indent);
             putchar('\n');      // separate line
         }
@@ -1702,9 +1701,19 @@ struct GxFileReader
                 rules.insertBack(rule);
                 rule.show(0);
             }
+            else if (auto grammar = cast(Grammar)parser.front)
+            {
+                this.grammar = grammar;
+            }
+            else if (auto import_ = cast(Import)parser.front)
+            {
+                this.imports.insertBack(import_);
+            }
             parser.popFront();
         }
     }
+    Grammar grammar;
+    DynamicArray!(Import) imports;
     DynamicArray!(RuleAltM) rules;
     // TODO: `OpenHashMap rulesByName`
     ~this() @nogc {}

@@ -1342,7 +1342,7 @@ struct GxParser
                     seq.put(new Symbol(_lexer.frontPop())); // TODO: pop last on stack
                     break;
                 default:
-                    _lexer.infoAtFront("TODO: handle");
+                    // _lexer.infoAtFront("TODO: handle");
                     seq.put(new Symbol(_lexer.frontPop()));
                 }
             }
@@ -1699,7 +1699,7 @@ struct GxFileReader
             if (auto rule = cast(RuleAltM)parser.front)
             {
                 rules.insertBack(rule);
-                rule.show(0);
+                // rule.show(0);
             }
             else if (auto grammar = cast(Grammar)parser.front)
             {

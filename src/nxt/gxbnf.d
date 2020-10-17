@@ -905,16 +905,16 @@ abstract class BranchM : Node
 final class SeqM : BranchM
 {
 @safe:
-    void showSubs(in uint indent) const @trusted
-    {
-        foreach (sub; subs)
-            sub.show(indent + 1);
-    }
     override void show(in uint indent) const @trusted
     {
         showHead(indent);
         printf("\n");
         showSubs(indent);
+    }
+    private void showSubs(in uint indent) const @trusted
+    {
+        foreach (sub; subs)
+            sub.show(indent + 1);
     }
 @safe pure nothrow @nogc:
     this(in Token head, Node[] subs = null)
@@ -928,16 +928,16 @@ final class SeqM : BranchM
 class RuleAltM : BranchM
 {
 @safe:
-    void showSubs(in uint indent) const @trusted
-    {
-        foreach (sub; subs)
-            sub.show(indent + 1);
-    }
     override void show(in uint indent) const @trusted
     {
         showHead(indent);
         printf("\n");
         showSubs(indent);
+    }
+    private void showSubs(in uint indent) const @trusted
+    {
+        foreach (sub; subs)
+            sub.show(indent + 1);
     }
 @safe pure nothrow @nogc:
     this(in Token head, Node[] subs = null)

@@ -53,7 +53,7 @@ if (smallCapacity >= 1)
         }
     }
 
-    inout(T)[] data() inout return scope @trusted
+    inout(T)[] data() inout return scope
     {
         if (_isLarge)
             return _large.data[];

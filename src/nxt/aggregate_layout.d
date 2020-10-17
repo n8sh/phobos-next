@@ -80,3 +80,31 @@ version(show)
     // TODO: static assert(T.sizeof == 8);
     printLayout!(T)();
 }
+
+// https://forum.dlang.org/post/jzrztbyzgxlkplslcoaj@forum.dlang.org
+@safe pure unittest
+{
+    struct S
+    {
+        int i;                  // 4 bytes
+        short s;                // 2 byte
+        bool b;                 // 1 byte
+    }
+    static assert(S.sizeof == 8);
+    static assert(S.alignof == 4);
+
+    struct T {
+        union {
+            S s;
+            struct {
+                align(1):
+                ubyte[7] _ignore_me;
+                char c;
+            }
+        }
+    }
+
+    static assert(T.alignof == 4);
+    static assert(T.sizeof == 8);
+    static assert(T.c.offsetof == 7);
+}

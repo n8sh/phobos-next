@@ -8,7 +8,8 @@
  * See_Also: https://bnfc.digitalgrammars.com/
  *
  * TODO:
- ' - Replace uppercased TOKs with TOK.symbol
+ * - Replace uppercased `TOK`s with `TOK.symbol`
+ * - Handle all cases in `getRule`
  * - Avoid static array `Node[n]` instead of `Appender`
  * - make diagnostics functions non-pure
  * - parse postfix operators *, +, ?
@@ -911,8 +912,6 @@ final class SeqM : BranchM
 @safe:
     override void show(in uint indent) const @trusted
     {
-        showIndent(indent);
-        printf("| ");
         showSubs(indent);
     }
     private void showSubs(in uint indent) const
@@ -942,10 +941,12 @@ class RuleAltM : BranchM
         printf(":\n");
         showSubs(indent + 4);
     }
-    private void showSubs(in uint indent) const
+    private void showSubs(in uint indent) const @trusted
     {
         foreach (const sub; subs)
         {
+            showIndent(indent);
+            printf("| ");
             sub.show(indent);
             putchar('\n');      // separate line
         }
@@ -1334,6 +1335,12 @@ struct GxParser
                 case TOK.optOrSemPred:
                     _lexer.infoAtFront("TODO: if previous is ')' pop from stack");
                     seq.put(new ZeroOrOne(_lexer.frontPop()));
+                    break;
+                case TOK.leftParen:
+                    seq.put(new Symbol(_lexer.frontPop())); // TODO: start pushing on stack
+                    break;
+                case TOK.rightParen:
+                    seq.put(new Symbol(_lexer.frontPop())); // TODO: pop last on stack
                     break;
                 default:
                     _lexer.infoAtFront("TODO: handle");

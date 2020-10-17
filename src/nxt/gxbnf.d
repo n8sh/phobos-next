@@ -1476,6 +1476,13 @@ struct GxParser
         return new Header(head, name, action);
     }
 
+    Mode makeMode(in Token head)
+    {
+        auto result = new Mode(head, _lexer.frontPop().input);
+        _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
+        return result;
+    }
+
     Action makeAction(in Token head)
     {
         pragma(inline, true);
@@ -1606,12 +1613,10 @@ struct GxParser
                     return makeTokens(head);
                 case `options`:
                     return makeOptions(head);
-                case `header`:      // TODO: move this checking upwards
+                case `header`:
                     return makeHeader(head);
                 case `mode`:
-                    auto front = new Mode(head, _lexer.frontPop().input);
-                    _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
-                    return front;
+                    return makeMode(head);
                 case `class`:
                     return getClass(head);
                 case `scope`:

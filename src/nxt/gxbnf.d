@@ -167,21 +167,21 @@ struct GxLexer
         nextFront();
     }
 
-    void frontEnforceTOK(in TOK tok, const scope string msg = "") nothrow
+    void frontEnforce(in TOK tok, const scope string msg = "") nothrow
     {
         version(D_Coverage) {} else pragma(inline, true);
         if (front.tok != tok)
             errorAtFront(msg ~ ", expected `TOK." ~ tok.toDefaulted!string(null) ~ "`");
     }
 
-    void popFrontEnforceTOK(in TOK tok, const scope string msg) nothrow
+    void popFrontEnforce(in TOK tok, const scope string msg) nothrow
     {
         version(D_Coverage) {} else pragma(inline, true);
         if (frontPop().tok != tok)
             errorAtFront(msg ~ ", expected `TOK." ~ tok.toDefaulted!string(null) ~ "`");
     }
 
-    Token frontPopEnforceTOK(in TOK tok, const scope string msg = "") nothrow
+    Token frontPopEnforce(in TOK tok, const scope string msg = "") nothrow
     {
         version(D_Coverage) {} else version(LDC) pragma(inline, true);
         const result = frontPop();
@@ -1291,7 +1291,7 @@ struct GxParser
                              ActionSymbol actionSymbol = null,
                              Action action = null) @trusted
     {
-        _lexer.popFrontEnforceTOK(TOK.colon, "no colon");
+        _lexer.popFrontEnforce(TOK.colon, "no colon");
         Appender!(Node[]) alts; // TODO: use static array with length being number of `TOK.pipe` till `TOK.semicolon`
         while (_lexer.front.tok != TOK.semicolon)
         {
@@ -1342,7 +1342,7 @@ struct GxParser
                 _lexer.popFront(); // skip terminator
         }
 
-        _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
+        _lexer.popFrontEnforce(TOK.semicolon, "no terminating semicolon");
 
         // needed for ANTLRv2.g2:
         if (!empty)
@@ -1368,27 +1368,25 @@ struct GxParser
         Appender!(Input[]) result;
         while (true)
         {
-            result.put(_lexer.frontPopEnforceTOK(TOK.symbol).input);
+            result.put(_lexer.frontPopEnforce(TOK.symbol).input);
             if (_lexer.front.tok != separator)
                 break;
             _lexer.popFront();
         }
-        _lexer.popFrontEnforceTOK(terminator, "no terminating semicolon");
+        _lexer.popFrontEnforce(terminator, "no terminating semicolon");
         return result.data;
     }
 
     AttributeSymbol getAttributeSymbol() nothrow
     {
         return new AttributeSymbol(_lexer.frontPop(),
-                                   _lexer.frontPopEnforceTOK(TOK.action,
-                                                             "missing action"));
+                                   _lexer.frontPopEnforce(TOK.action, "missing action"));
     }
 
     ActionSymbol getActionSymbol() nothrow
     {
         return new ActionSymbol(_lexer.frontPop(),
-                                _lexer.frontPopEnforceTOK(TOK.action,
-                                                          "missing action"));
+                                _lexer.frontPopEnforce(TOK.action, "missing action"));
     }
 
     Leaf getScope(in Token head)
@@ -1398,12 +1396,11 @@ struct GxParser
             const symbol = _lexer.frontPop().input;
             if (_lexer.front.tok == TOK.action)
                 return new ScopeSymbolAction(head, symbol,
-                                             _lexer.frontPopEnforceTOK(TOK.action,
-                                                                       "missing action"));
+                                             _lexer.frontPopEnforce(TOK.action, "missing action"));
             else
             {
                 auto result = new ScopeSymbol(head, symbol);
-                _lexer.frontPopEnforceTOK(TOK.semicolon,
+                _lexer.frontPopEnforce(TOK.semicolon,
                                           "missing terminating semicolon");
                 return result;
             }
@@ -1411,20 +1408,18 @@ struct GxParser
         else
         {
             return new ScopeAction(head,
-                                   _lexer.frontPopEnforceTOK(TOK.action,
-                                                             "missing action"));
+                                   _lexer.frontPopEnforce(TOK.action, "missing action"));
         }
     }
 
     Leaf getClass(in Token head)
     {
         auto result = new Class(head,
-                               _lexer.frontPopEnforceTOK(TOK.symbol,
-                                                         "missing symbol").input,
+                               _lexer.frontPopEnforce(TOK.symbol, "missing symbol").input,
                                _lexer.skipOverToken(Token(TOK.symbol, "extends")).input ?
                                _lexer.frontPop().input :
                                null);
-        _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
+        _lexer.popFrontEnforce(TOK.semicolon, "no terminating semicolon");
         return result;
     }
 
@@ -1448,19 +1443,19 @@ struct GxParser
     Options makeOptions(in Token head) nothrow
     {
         pragma(inline, true);
-        return new Options(head, _lexer.frontPopEnforceTOK(TOK.action, "missing action"));
+        return new Options(head, _lexer.frontPopEnforce(TOK.action, "missing action"));
     }
 
     Channels makeChannels(in Token head) nothrow
     {
         pragma(inline, true);
-        return new Channels(head, _lexer.frontPopEnforceTOK(TOK.action, "missing action"));
+        return new Channels(head, _lexer.frontPopEnforce(TOK.action, "missing action"));
     }
 
     Tokens makeTokens(in Token head) nothrow
     {
         pragma(inline, true);
-        return new Tokens(head, _lexer.frontPopEnforceTOK(TOK.action, "missing action"));
+        return new Tokens(head, _lexer.frontPopEnforce(TOK.action, "missing action"));
     }
 
     Header makeHeader(in Token head)
@@ -1468,14 +1463,14 @@ struct GxParser
         const name = (_lexer.front.tok == TOK.textLiteralDoubleQuoted ?
                       _lexer.frontPop() :
                       Token.init);
-        const action = _lexer.frontPopEnforceTOK(TOK.action, "missing action");
+        const action = _lexer.frontPopEnforce(TOK.action, "missing action");
         return new Header(head, name, action);
     }
 
     Mode makeMode(in Token head)
     {
         auto result = new Mode(head, _lexer.frontPop().input);
-        _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
+        _lexer.popFrontEnforce(TOK.semicolon, "no terminating semicolon");
         return result;
     }
 
@@ -1540,15 +1535,15 @@ struct GxParser
 
     Node getRuleOrOther(in Token head)
     {
-        if (_lexer.front.tok == TOK.colon)
-            return getRule(head, false);
+        if (_lexer.front.tok == TOK.colon) // normal case
+            return getRule(head, false);   // fast path
         switch (head.input)
         {
         case `private`:
-            _lexer.frontEnforceTOK(TOK.symbol, "expected symbol after `private`");
+            _lexer.frontEnforce(TOK.symbol, "expected symbol after `private`");
             return getRuleOrOther(_lexer.frontPop); // TODO: set private qualifier
         case `protected`:
-            _lexer.frontEnforceTOK(TOK.symbol, "expected symbol after `protected`");
+            _lexer.frontEnforce(TOK.symbol, "expected symbol after `protected`");
             return getRuleOrOther(_lexer.frontPop); // TODO: set protected qualifier
         case `channels`:
             return makeChannels(head);
@@ -1606,24 +1601,24 @@ struct GxParser
             if (head.tok == TOK.LEXER)
             {
                 lexerFlag = true;
-                _lexer.popFrontEnforceTOK(TOK.GRAMMAR, "expected `grammar` after `lexer`");
+                _lexer.popFrontEnforce(TOK.GRAMMAR, "expected `grammar` after `lexer`");
             }
             else if (head.tok == TOK.PARSER)
             {
                 parserFlag = true;
-                _lexer.popFrontEnforceTOK(TOK.GRAMMAR, "expected `grammar` after `parser`");
+                _lexer.popFrontEnforce(TOK.GRAMMAR, "expected `grammar` after `parser`");
             }
 
             if (lexerFlag)
             {
                 auto front = new LexerGrammar(head, _lexer.frontPop().input);
-                _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
+                _lexer.popFrontEnforce(TOK.semicolon, "no terminating semicolon");
                 return front;
             }
             else if (parserFlag)
             {
                 auto front = new ParserGrammar(head, _lexer.frontPop().input);
-                _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
+                _lexer.popFrontEnforce(TOK.semicolon, "no terminating semicolon");
                 return front;
             }
             else
@@ -1633,7 +1628,7 @@ struct GxParser
                 else
                 {
                     auto front = new Grammar(head, _lexer.frontPop().input);
-                    _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
+                    _lexer.popFrontEnforce(TOK.semicolon, "no terminating semicolon");
                     return front;
                 }
             }

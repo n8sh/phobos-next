@@ -16,6 +16,8 @@
  */
 module nxt.gxbnf;
 
+import core.stdc.stdio : putchar, printf;
+
 import std.array : Appender;
 import std.stdio : writeln;
 
@@ -789,7 +791,6 @@ private:
                                 const scope string tag,
                                 const scope string msg) const @trusted nothrow @nogc scope
     {
-        import core.stdc.stdio : printf;
         const offset = token.input.ptr - _input.ptr; // unsafe
         const lc = offsetLineColumn(_input, offset);
         debug printf("%.*s(%u,%u): %s: %.*s, token `%.*s` at offset %llu\n",
@@ -826,7 +827,6 @@ private:
                         in size_t i = 0,
                         in const(char)[] ds = null) const @trusted nothrow @nogc scope
     {
-        import core.stdc.stdio : printf;
         const lc = offsetLineColumn(_input, _offset + i);
         // TODO: remove printf
         debug printf("%.*s(%u,%u): %s: %.*s at offset %llu being char `%c` ds:`%.*s`\n",
@@ -858,8 +858,19 @@ enum NODE
 }
 
 /// AST node.
-abstract class Node
+class Node
 {
+    final void showHead(in uint indent) const @trusted
+    {
+        foreach (_; 0 .. indent)
+            putchar(' ');
+        printf("%.*s", cast(uint)head.input.length, head.input.ptr);
+    }
+    void show(in uint indent) const @trusted
+    {
+        showHead(indent);
+        printf("\n");
+    }
 @safe pure nothrow @nogc:
     this(in Token head)
     {
@@ -893,37 +904,65 @@ abstract class BranchM : Node
 /// Sequence.
 final class SeqM : BranchM
 {
+@safe:
+    void showSubs(in uint indent) const @trusted
+    {
+        foreach (sub; subs)
+            sub.show(indent + 1);
+    }
+    override void show(in uint indent) const @trusted
+    {
+        showHead(indent);
+        printf("\n");
+        showSubs(indent);
+    }
 @safe pure nothrow @nogc:
     this(in Token head, Node[] subs = null)
     {
         super(head);
         this.subs = subs;
     }
-    Node[] subs;
 }
 
 /// Rule of alternatives.
 class RuleAltM : BranchM
 {
+@safe:
+    void showSubs(in uint indent) const @trusted
+    {
+        foreach (sub; subs)
+            sub.show(indent + 1);
+    }
+    override void show(in uint indent) const @trusted
+    {
+        showHead(indent);
+        printf("\n");
+        showSubs(indent);
+    }
 @safe pure nothrow @nogc:
     this(in Token head, Node[] subs = null)
     {
         super(head);
         this.subs = subs;
     }
-    Node[] subs;
 }
 
 /// Fragment rule of alternatives.
 final class FragmentRuleAltM : RuleAltM
 {
-@safe pure nothrow @nogc:
+@safe:
+    override void show(in uint indent) const @trusted
+    {
+        showHead(indent);
+        printf(" FRAGMENT\n");
+        showSubs(indent + 1);
+    }
+pure nothrow @nogc:
     this(in Token head, Node[] subs = null)
     {
         super(head);
         this.subs = subs;
     }
-    Node[] subs;
 }
 
 class Leaf : Node
@@ -1556,6 +1595,7 @@ struct GxFileReader
             if (auto rule = cast(RuleAltM)parser.front)
             {
                 rules.insertBack(rule);
+                rule.show(0);
             }
             parser.popFront();
         }

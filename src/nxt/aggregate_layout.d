@@ -93,10 +93,13 @@ version(show)
     static assert(S.sizeof == 8);
     static assert(S.alignof == 4);
 
-    struct T {
-        union {
+    struct T
+    {
+        union
+        {
             S s;
-            struct {
+            struct
+            {
                 align(1):
                 ubyte[7] _ignore_me;
                 char c;

@@ -911,7 +911,7 @@ final class SeqM : BranchM
         printf("\n");
         showSubs(indent);
     }
-    private void showSubs(in uint indent) const @trusted
+    private void showSubs(in uint indent) const
     {
         foreach (sub; subs)
             sub.show(indent + 1);
@@ -934,7 +934,7 @@ class RuleAltM : BranchM
         printf("\n");
         showSubs(indent);
     }
-    private void showSubs(in uint indent) const @trusted
+    private void showSubs(in uint indent) const
     {
         foreach (sub; subs)
             sub.show(indent + 1);

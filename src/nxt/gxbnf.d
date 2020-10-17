@@ -48,7 +48,6 @@ enum TOK
     PARSER,         ///< Grammar type
     GRAMMAR,        ///< Grammar header.
     TOKENS,         ///< Can add tokens with this; usually imaginary tokens.
-    CHANNELS,       ///< `channels`.
     PRIVATE,        ///< `private`.
     PROTECTED,      ///< `protected`.
 
@@ -746,7 +745,6 @@ private:
                         case "parser": _token = Token(TOK.PARSER, symbol); break;
                         case "grammar": _token = Token(TOK.GRAMMAR, symbol); break;
                         case "tokens": _token = Token(TOK.TOKENS, symbol); break;
-                        case "channels": _token = Token(TOK.CHANNELS, symbol); break;
                         case "private": _token = Token(TOK.PRIVATE, symbol); break;
                         case "protected": _token = Token(TOK.PROTECTED, symbol); break;
                         default: _token = Token(TOK.symbol, symbol); break;
@@ -1573,10 +1571,6 @@ struct GxParser
                     return front;
                 }
             }
-        case TOK.CHANNELS:
-            return new Channels(_lexer.frontPop(),
-                                _lexer.frontPopEnforceTOK(TOK.action,
-                                                          "missing action"));
         case TOK.TOKENS:
             return new Tokens(_lexer.frontPop(),
                               _lexer.frontPopEnforceTOK(TOK.action,
@@ -1595,6 +1589,13 @@ struct GxParser
             const head = _lexer.frontPop();
             switch (head.input)
             {
+            case `channels`:
+                if (_lexer.front.tok == TOK.colon) // TODO: move this checking upwards
+                    return getRule(head, false); // normal rule
+                else
+                    return new Channels(head,
+                                        _lexer.frontPopEnforceTOK(TOK.action,
+                                                                  "missing action"));
             case `options`:
                 if (_lexer.front.tok == TOK.colon) // TODO: move this checking upwards
                     return getRule(head, false); // normal rule

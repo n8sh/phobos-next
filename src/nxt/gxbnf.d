@@ -8,7 +8,7 @@
  * See_Also: https://bnfc.digitalgrammars.com/
  *
  * TODO:
- * - Move `head` from `Node` and don't store `head` in `SeqM`
+ ' - Replace uppercased TOKs with TOK.symbol
  * - Avoid static array `Node[n]` instead of `Appender`
  * - make diagnostics functions non-pure
  * - parse postfix operators *, +, ?
@@ -1027,6 +1027,20 @@ class OneOrMore : Node
     }
 }
 
+class ZeroOrOne : Node
+{
+@safe:
+    override void show(in uint indent) const @trusted
+    {
+        showHead(indent);
+    }
+@safe pure nothrow @nogc:
+    this(in Token head)
+    {
+        super(head);
+    }
+}
+
 class Literal : Node
 {
 @safe:
@@ -1310,12 +1324,16 @@ struct GxParser
                     seq.put(new Literal(_lexer.frontPop()));
                     break;
                 case TOK.star:
-                    _lexer.infoAtFront("TODO: pop from stack");
+                    _lexer.infoAtFront("TODO: if previous is ')' pop from stack");
                     seq.put(new ZeroOrMore(_lexer.frontPop()));
                     break;
                 case TOK.plus:
-                    _lexer.infoAtFront("TODO: pop from stack");
+                    _lexer.infoAtFront("TODO: if previous is ')' pop from stack");
                     seq.put(new OneOrMore(_lexer.frontPop()));
+                    break;
+                case TOK.optOrSemPred:
+                    _lexer.infoAtFront("TODO: if previous is ')' pop from stack");
+                    seq.put(new ZeroOrOne(_lexer.frontPop()));
                     break;
                 default:
                     _lexer.infoAtFront("TODO: handle");

@@ -1453,9 +1453,14 @@ struct GxParser
 
     Options makeOptions(in Token head) nothrow
     {
-        return new Options(head,
-                           _lexer.frontPopEnforceTOK(TOK.action,
-                                                     "missing action"));
+        pragma(inline, true);
+        return new Options(head, _lexer.frontPopEnforceTOK(TOK.action, "missing action"));
+    }
+
+    Channels makeChannels(in Token head) nothrow
+    {
+        pragma(inline, true);
+        return new Channels(head, _lexer.frontPopEnforceTOK(TOK.action, "missing action"));
     }
 
     Header makeHeader(in Token head)
@@ -1463,13 +1468,13 @@ struct GxParser
         const name = (_lexer.front.tok == TOK.textLiteralDoubleQuoted ?
                       _lexer.frontPop() :
                       Token.init);
-        const action = _lexer.frontPopEnforceTOK(TOK.action,
-                                                 "missing action");
+        const action = _lexer.frontPopEnforceTOK(TOK.action, "missing action");
         return new Header(head, name, action);
     }
 
     Action makeAction(in Token head)
     {
+        pragma(inline, true);
         return new Action(head);
     }
 
@@ -1587,62 +1592,54 @@ struct GxParser
             goto case TOK.symbol;
         case TOK.symbol:
             const head = _lexer.frontPop();
-            switch (head.input)
+            if (_lexer.front.tok == TOK.colon) // TODO: move this checking upwards
             {
-            case `channels`:
-                if (_lexer.front.tok == TOK.colon) // TODO: move this checking upwards
-                    return getRule(head, false); // normal rule
-                else
-                    return new Channels(head,
-                                        _lexer.frontPopEnforceTOK(TOK.action,
-                                                                  "missing action"));
-            case `options`:
-                if (_lexer.front.tok == TOK.colon) // TODO: move this checking upwards
-                    return getRule(head, false); // normal rule
-                else
-                    return makeOptions(head);
-            case `header`:      // TODO: move this checking upwards
-                if (_lexer.front.tok == TOK.colon)
-                    return getRule(head, false); // normal rule
-                else
-                    return makeHeader(head);
-            case `mode`:
-                auto front = new Mode(head, _lexer.frontPop().input);
-                _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
-                return front;
-            case `class`:
-                if (_lexer.front.tok == TOK.colon) // TODO: move this checking upwards
-                    return getRule(head, false); // normal rule
-                return getClass(head);
-            case `scope`:
-                if (_lexer.front.tok == TOK.colon) // TODO: move this checking upwards
-                    return getRule(head, false); // normal rule
-                return getScope(head);
-            case `import`:
-                return new Import(head, getArgs(TOK.comma, TOK.semicolon));
-            case `fragment`: // lexer helper rule, not real token for parser.
-                return getRule(_lexer.frontPop(), true);
-            default:
-                while (_lexer.front.tok != TOK.colon)
+                return getRule(head, false); // normal rule
+            }
+            else
+            {
+                switch (head.input)
                 {
-                    if (skipOverExclusion()) // TODO: use
-                        continue;
-                    if (skipOverReturns())  // TODO: use
-                        continue;
-                    if (skipOverHooks())    // TODO: use
-                        continue;
-                    if (const _ = skipOverSymbol("locals")) // TODO: use
-                        continue;
-                    if (const _options = skipOverOptions()) // TODO: use
-                        continue;
-                    if (const _scope = skipOverScope())     // TODO: use
-                        continue;
-                    if (const _action = skipOverAction()) // TODO: use
-                        continue;
-                    if (const _actionSymbol = skipOverActionSymbol()) // TODO: use
-                        continue;
+                case `channels`:
+                    return makeChannels(head);
+                case `options`:
+                    return makeOptions(head);
+                case `header`:      // TODO: move this checking upwards
+                    return makeHeader(head);
+                case `mode`:
+                    auto front = new Mode(head, _lexer.frontPop().input);
+                    _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
+                    return front;
+                case `class`:
+                    return getClass(head);
+                case `scope`:
+                    return getScope(head);
+                case `import`:
+                    return new Import(head, getArgs(TOK.comma, TOK.semicolon));
+                case `fragment`: // lexer helper rule, not real token for parser.
+                    return getRule(_lexer.frontPop(), true);
+                default:
+                    while (_lexer.front.tok != TOK.colon)
+                    {
+                        if (skipOverExclusion()) // TODO: use
+                            continue;
+                        if (skipOverReturns())  // TODO: use
+                            continue;
+                        if (skipOverHooks())    // TODO: use
+                            continue;
+                        if (const _ = skipOverSymbol("locals")) // TODO: use
+                            continue;
+                        if (const _options = skipOverOptions()) // TODO: use
+                            continue;
+                        if (const _scope = skipOverScope())     // TODO: use
+                            continue;
+                        if (const _action = skipOverAction()) // TODO: use
+                            continue;
+                        if (const _actionSymbol = skipOverActionSymbol()) // TODO: use
+                            continue;
+                    }
+                    return getRule(head, false);
                 }
-                return getRule(head, false);
             }
         case TOK.attributeSymbol:
             return getAttributeSymbol();

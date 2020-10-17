@@ -869,7 +869,6 @@ class Node
     void show(in uint indent) const @trusted
     {
         showHead(indent);
-        printf("\n");
     }
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -908,13 +907,18 @@ final class SeqM : BranchM
     override void show(in uint indent) const @trusted
     {
         showHead(indent);
-        printf("\n");
+        printf(": ");
         showSubs(indent);
+        printf("\n");
     }
     private void showSubs(in uint indent) const
     {
-        foreach (sub; subs)
-            sub.show(indent + 1);
+        foreach (const i, const sub; subs)
+        {
+            if (i)
+                putchar(' ');
+            sub.show(0);
+        }
     }
 @safe pure nothrow @nogc:
     this(in Token head, Node[] subs = null)
@@ -932,12 +936,15 @@ class RuleAltM : BranchM
     {
         showHead(indent);
         printf("\n");
-        showSubs(indent);
+        showSubs(indent + 4);
     }
     private void showSubs(in uint indent) const
     {
-        foreach (sub; subs)
-            sub.show(indent + 1);
+        foreach (const sub; subs)
+        {
+            sub.show(indent);
+            putchar('\n');      // separate line
+        }
     }
 @safe pure nothrow @nogc:
     this(in Token head, Node[] subs = null)

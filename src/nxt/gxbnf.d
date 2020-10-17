@@ -47,7 +47,6 @@ enum TOK
     LEXER,          ///< Grammar type.
     PARSER,         ///< Grammar type
     GRAMMAR,        ///< Grammar header.
-    OPTIONS,        ///< Grammar or rule options.
     TOKENS,         ///< Can add tokens with this; usually imaginary tokens.
     CHANNELS,       ///< `channels`.
     PRIVATE,        ///< `private`.
@@ -746,7 +745,6 @@ private:
                         case "lexer": _token = Token(TOK.LEXER, symbol); break;
                         case "parser": _token = Token(TOK.PARSER, symbol); break;
                         case "grammar": _token = Token(TOK.GRAMMAR, symbol); break;
-                        case "options": _token = Token(TOK.OPTIONS, symbol); break;
                         case "tokens": _token = Token(TOK.TOKENS, symbol); break;
                         case "channels": _token = Token(TOK.CHANNELS, symbol); break;
                         case "private": _token = Token(TOK.PRIVATE, symbol); break;
@@ -1480,7 +1478,7 @@ struct GxParser
     /// Skip over options if any.
     Options skipOverOptions()
     {
-        if (_lexer.front.tok == TOK.OPTIONS)
+        if (_lexer.front == Token(TOK.symbol, "options"))
             return makeOptions(_lexer.frontPop());
         return null;
     }
@@ -1575,12 +1573,6 @@ struct GxParser
                     return front;
                 }
             }
-        case TOK.OPTIONS:
-            const head = _lexer.frontPop();
-            if (_lexer.front.tok == TOK.colon)
-                return getRule(head, false); // normal rule
-            else
-                return makeOptions(head);
         case TOK.CHANNELS:
             return new Channels(_lexer.frontPop(),
                                 _lexer.frontPopEnforceTOK(TOK.action,
@@ -1603,7 +1595,12 @@ struct GxParser
             const head = _lexer.frontPop();
             switch (head.input)
             {
-            case `header`:
+            case `options`:
+                if (_lexer.front.tok == TOK.colon) // TODO: move this checking upwards
+                    return getRule(head, false); // normal rule
+                else
+                    return makeOptions(head);
+            case `header`:      // TODO: move this checking upwards
                 if (_lexer.front.tok == TOK.colon)
                     return getRule(head, false); // normal rule
                 else
@@ -1613,11 +1610,11 @@ struct GxParser
                 _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
                 return front;
             case `class`:
-                if (_lexer.front.tok == TOK.colon)
+                if (_lexer.front.tok == TOK.colon) // TODO: move this checking upwards
                     return getRule(head, false); // normal rule
                 return getClass(head);
             case `scope`:
-                if (_lexer.front.tok == TOK.colon)
+                if (_lexer.front.tok == TOK.colon) // TODO: move this checking upwards
                     return getRule(head, false); // normal rule
                 return getScope(head);
             case `import`:

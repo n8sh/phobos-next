@@ -20,6 +20,7 @@ module nxt.gxbnf;
 import core.stdc.stdio : putchar, printf;
 
 import std.array : Appender;
+import std.conv : to;
 
 // `d-deps.el` requires these to be at the top:
 import nxt.line_column : offsetLineColumn;
@@ -989,6 +990,48 @@ class Symbol : Node
 @safe:
     override void show(in uint indent) const @trusted
     {
+        showHead(indent);
+    }
+@safe pure nothrow @nogc:
+    this(in Token head)
+    {
+        super(head);
+    }
+}
+
+class ZeroOrMore : Node
+{
+@safe:
+    override void show(in uint indent) const @trusted
+    {
+        showHead(indent);
+    }
+@safe pure nothrow @nogc:
+    this(in Token head)
+    {
+        super(head);
+    }
+}
+
+class OneOrMore : Node
+{
+@safe:
+    override void show(in uint indent) const @trusted
+    {
+        showHead(indent);
+    }
+@safe pure nothrow @nogc:
+    this(in Token head)
+    {
+        super(head);
+    }
+}
+
+class Literal : Node
+{
+@safe:
+    override void show(in uint indent) const @trusted
+    {
         printf("\"");
         showHead(indent);
         printf("\"");
@@ -1257,7 +1300,27 @@ struct GxParser
                    _lexer.front.tok != TOK.semicolon)
             {
                 // TODO: use static array with length being number of tokens till `TOK.pipe`
-                seq.put(new Symbol(_lexer.frontPop()));
+                switch (_lexer.front.tok)
+                {
+                case TOK.symbol:
+                    seq.put(new Symbol(_lexer.frontPop()));
+                    break;
+                case TOK.textLiteralSingleQuoted:
+                case TOK.textLiteralDoubleQuoted:
+                    seq.put(new Literal(_lexer.frontPop()));
+                    break;
+                case TOK.star:
+                    _lexer.infoAtFront("TODO: pop from stack");
+                    seq.put(new ZeroOrMore(_lexer.frontPop()));
+                    break;
+                case TOK.plus:
+                    _lexer.infoAtFront("TODO: pop from stack");
+                    seq.put(new OneOrMore(_lexer.frontPop()));
+                    break;
+                default:
+                    _lexer.infoAtFront("TODO: handle");
+                    seq.put(new Symbol(_lexer.frontPop()));
+                }
             }
             if (!seq.data.length)
             {
@@ -1510,12 +1573,12 @@ struct GxParser
                 return makeOptions(head);
         case TOK.CHANNELS:
             return new Channels(_lexer.frontPop(),
-                                  _lexer.frontPopEnforceTOK(TOK.action,
-                                                            "missing action"));
-        case TOK.TOKENS:
-            return new Tokens(_lexer.frontPop(),
                                 _lexer.frontPopEnforceTOK(TOK.action,
                                                           "missing action"));
+        case TOK.TOKENS:
+            return new Tokens(_lexer.frontPop(),
+                              _lexer.frontPopEnforceTOK(TOK.action,
+                                                        "missing action"));
         case TOK.PRIVATE:
             const privateFlag = true; // TODO: use
             _lexer.popFront();

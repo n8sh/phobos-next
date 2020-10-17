@@ -47,8 +47,6 @@ enum TOK
     LEXER,          ///< Grammar type.
     PARSER,         ///< Grammar type
     GRAMMAR,        ///< Grammar header.
-    PRIVATE,        ///< `private`.
-    PROTECTED,      ///< `protected`.
 
     symbol,                     ///< Symbol.
     lexerRuleName,              ///< TODO: use instead of `symbol`
@@ -743,8 +741,6 @@ private:
                         case "lexer": _token = Token(TOK.LEXER, symbol); break;
                         case "parser": _token = Token(TOK.PARSER, symbol); break;
                         case "grammar": _token = Token(TOK.GRAMMAR, symbol); break;
-                        case "private": _token = Token(TOK.PRIVATE, symbol); break;
-                        case "protected": _token = Token(TOK.PROTECTED, symbol); break;
                         default: _token = Token(TOK.symbol, symbol); break;
                         }
                     }
@@ -1542,6 +1538,60 @@ struct GxParser
         return null;
     }
 
+    Node getRuleOrOther(in Token head)
+    {
+        if (_lexer.front.tok == TOK.colon) // TODO: move this checking upwards
+            return getRule(head, false); // normal rule
+        switch (head.input)
+        {
+        case `private`:
+            _lexer.frontEnforceTOK(TOK.symbol, "expected symbol after `private`");
+            return getRuleOrOther(_lexer.frontPop); // TODO: set private qualifier
+        case `protected`:
+            _lexer.frontEnforceTOK(TOK.symbol, "expected symbol after `protected`");
+            return getRuleOrOther(_lexer.frontPop); // TODO: set protected qualifier
+        case `channels`:
+            return makeChannels(head);
+        case `tokens`:
+            return makeTokens(head);
+        case `options`:
+            return makeOptions(head);
+        case `header`:
+            return makeHeader(head);
+        case `mode`:
+            return makeMode(head);
+        case `class`:
+            return getClass(head);
+        case `scope`:
+            return getScope(head);
+        case `import`:
+            return new Import(head, getArgs(TOK.comma, TOK.semicolon));
+        case `fragment`: // lexer helper rule, not real token for parser.
+            return getRule(_lexer.frontPop(), true);
+        default:
+            while (_lexer.front.tok != TOK.colon)
+            {
+                if (skipOverExclusion()) // TODO: use
+                    continue;
+                if (skipOverReturns())  // TODO: use
+                    continue;
+                if (skipOverHooks())    // TODO: use
+                    continue;
+                if (const _ = skipOverSymbol("locals")) // TODO: use
+                    continue;
+                if (const _options = skipOverOptions()) // TODO: use
+                    continue;
+                if (const _scope = skipOverScope())     // TODO: use
+                    continue;
+                if (const _action = skipOverAction()) // TODO: use
+                    continue;
+                if (const _actionSymbol = skipOverActionSymbol()) // TODO: use
+                    continue;
+            }
+            return getRule(head, false);
+        }
+    }
+
     Node nextFront() @trusted
     {
         // _lexer.infoAtFront("");
@@ -1587,67 +1637,6 @@ struct GxParser
                     return front;
                 }
             }
-        case TOK.PRIVATE:
-            const privateFlag = true; // TODO: use
-            _lexer.popFront();
-            _lexer.frontEnforceTOK(TOK.symbol, "expected symbol after `private`");
-            goto case TOK.symbol;
-        case TOK.PROTECTED:
-            const protectedFlag = true; // TODO: use
-            _lexer.popFront();
-            _lexer.frontEnforceTOK(TOK.symbol, "expected symbol after `protected`");
-            goto case TOK.symbol;
-        case TOK.symbol:
-            const head = _lexer.frontPop();
-            if (_lexer.front.tok == TOK.colon) // TODO: move this checking upwards
-            {
-                return getRule(head, false); // normal rule
-            }
-            else
-            {
-                switch (head.input)
-                {
-                case `channels`:
-                    return makeChannels(head);
-                case `tokens`:
-                    return makeTokens(head);
-                case `options`:
-                    return makeOptions(head);
-                case `header`:
-                    return makeHeader(head);
-                case `mode`:
-                    return makeMode(head);
-                case `class`:
-                    return getClass(head);
-                case `scope`:
-                    return getScope(head);
-                case `import`:
-                    return new Import(head, getArgs(TOK.comma, TOK.semicolon));
-                case `fragment`: // lexer helper rule, not real token for parser.
-                    return getRule(_lexer.frontPop(), true);
-                default:
-                    while (_lexer.front.tok != TOK.colon)
-                    {
-                        if (skipOverExclusion()) // TODO: use
-                            continue;
-                        if (skipOverReturns())  // TODO: use
-                            continue;
-                        if (skipOverHooks())    // TODO: use
-                            continue;
-                        if (const _ = skipOverSymbol("locals")) // TODO: use
-                            continue;
-                        if (const _options = skipOverOptions()) // TODO: use
-                            continue;
-                        if (const _scope = skipOverScope())     // TODO: use
-                            continue;
-                        if (const _action = skipOverAction()) // TODO: use
-                            continue;
-                        if (const _actionSymbol = skipOverActionSymbol()) // TODO: use
-                            continue;
-                    }
-                    return getRule(head, false);
-                }
-            }
         case TOK.attributeSymbol:
             return getAttributeSymbol();
         case TOK.actionSymbol:
@@ -1658,6 +1647,8 @@ struct GxParser
             return new LineComment(_lexer.frontPop());
         case TOK.action:
             return new Action(_lexer.frontPop());
+        case TOK.symbol:
+            return getRuleOrOther(_lexer.frontPop());
         default:
             _lexer.errorAtFront("TODO: handle");
             assert(false);

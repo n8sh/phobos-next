@@ -48,10 +48,8 @@ enum TOK
     PARSER,         ///< Grammar type
     GRAMMAR,        ///< Grammar header.
     OPTIONS,        ///< Grammar or rule options.
-    HEADER,
     TOKENS,         ///< Can add tokens with this; usually imaginary tokens.
     CHANNELS,       ///< `channels`.
-    MODE,           ///< `mode`.
     PRIVATE,        ///< `private`.
     PROTECTED,      ///< `protected`.
 
@@ -749,10 +747,8 @@ private:
                         case "parser": _token = Token(TOK.PARSER, symbol); break;
                         case "grammar": _token = Token(TOK.GRAMMAR, symbol); break;
                         case "options": _token = Token(TOK.OPTIONS, symbol); break;
-                        case "header": _token = Token(TOK.HEADER, symbol); break;
                         case "tokens": _token = Token(TOK.TOKENS, symbol); break;
                         case "channels": _token = Token(TOK.CHANNELS, symbol); break;
-                        case "mode": _token = Token(TOK.MODE, symbol); break;
                         case "private": _token = Token(TOK.PRIVATE, symbol); break;
                         case "protected": _token = Token(TOK.PROTECTED, symbol); break;
                         default: _token = Token(TOK.symbol, symbol); break;
@@ -1579,16 +1575,6 @@ struct GxParser
                     return front;
                 }
             }
-        case TOK.MODE:
-            auto front = new Mode(_lexer.frontPop(), _lexer.frontPop().input);
-            _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
-            return front;
-        case TOK.HEADER:
-            const head = _lexer.frontPop();
-            if (_lexer.front.tok == TOK.colon)
-                return getRule(head, false); // normal rule
-            else
-                return makeHeader(head);
         case TOK.OPTIONS:
             const head = _lexer.frontPop();
             if (_lexer.front.tok == TOK.colon)
@@ -1617,6 +1603,15 @@ struct GxParser
             const head = _lexer.frontPop();
             switch (head.input)
             {
+            case `header`:
+                if (_lexer.front.tok == TOK.colon)
+                    return getRule(head, false); // normal rule
+                else
+                    return makeHeader(head);
+            case `mode`:
+                auto front = new Mode(head, _lexer.frontPop().input);
+                _lexer.popFrontEnforceTOK(TOK.semicolon, "no terminating semicolon");
+                return front;
             case `class`:
                 if (_lexer.front.tok == TOK.colon)
                     return getRule(head, false); // normal rule

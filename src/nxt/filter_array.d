@@ -1,3 +1,5 @@
+// See_Also: https://dlang.slack.com/archives/C0JP6JJV6/p1602920347029900
+
 import std.algorithm;
 import std.range;
 

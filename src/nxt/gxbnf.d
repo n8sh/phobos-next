@@ -1540,8 +1540,8 @@ struct GxParser
 
     Node getRuleOrOther(in Token head)
     {
-        if (_lexer.front.tok == TOK.colon) // TODO: move this checking upwards
-            return getRule(head, false); // normal rule
+        if (_lexer.front.tok == TOK.colon)
+            return getRule(head, false);
         switch (head.input)
         {
         case `private`:

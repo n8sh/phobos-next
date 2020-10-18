@@ -732,6 +732,8 @@ pragma(inline):
         _store.length += 1;
     }
 
+    alias put1 = insertBack1;
+
     /** Insert the elements `elements` into the end of the array.
      */
     void insertBack(R)(scope R elements) @trusted

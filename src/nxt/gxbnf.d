@@ -9,9 +9,9 @@
  *
  * TODO:
  * - Append directly into Seq.subs Alt.subs being DynamicArrays and remove need for `DynamicArray.insertBack1`
+ * - Avoid static array `Node[n]` instead of `DynamicArray`
  * - Replace uppercased `TOK`s with `TOK.symbol`
  * - Handle all TODO's in `getRule`
- * - Avoid static array `Node[n]` instead of `DynamicArray`
  * - make diagnostics functions non-pure
  * - parse postfix operators *, +, ?
  * - create index of symbols and link them in second pass

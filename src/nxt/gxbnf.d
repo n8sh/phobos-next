@@ -8,6 +8,9 @@
  * See_Also: https://bnfc.digitalgrammars.com/
  *
  * TODO:
+ *
+ * - Sort AltM subs by descending minimum length
+ * - Check that `DynamicArray.backPop` zeros pointer elements at the end.
  * - parse postfix operators *, +, ?
  * - handle all TODO's in `getRule`
  * - create index of symbols and link them in second pass
@@ -23,6 +26,9 @@ import core.stdc.stdio : putchar, printf;
 import nxt.line_column : offsetLineColumn;
 import nxt.dynamic_array : DynamicArray;
 import nxt.file_ex : rawReadPath;
+import nxt.array_algorithm : endsWith;
+
+import std.stdio : write, writeln;
 
 @safe:
 
@@ -750,6 +756,28 @@ private:
         assert(false);          ///< TODO: propagate error instead of assert
     }
 
+    private void infoAtToken(in Token token,
+                             const scope string tag,
+                             const scope string msg) const @trusted nothrow @nogc scope
+    {
+        messageAtToken(token, "Info", msg);
+    }
+
+    private void warningAtToken(in Token token,
+                                const scope string tag,
+                                const scope string msg) const @trusted nothrow @nogc scope
+    {
+        messageAtToken(token, "Warning", msg);
+    }
+
+    private void errorAtToken(in Token token,
+                              const scope string tag,
+                              const scope string msg) const @trusted nothrow @nogc scope
+    {
+        messageAtToken(token, "Error", msg);
+        assert(false);          ///< TODO: propagate error instead of assert
+    }
+
     private void messageAtToken(in Token token,
                                 const scope string tag,
                                 const scope string msg) const @trusted nothrow @nogc scope
@@ -846,7 +874,7 @@ private void showToken(in Token token,
 private abstract class Node
 {
 @safe:
-    abstract void show(in uint indentDepth) const;
+    abstract void show(in uint indentDepth = 0) const;
 pure nothrow @nogc:
     this()
     {
@@ -870,7 +898,7 @@ alias NodeArray = DynamicArray!(Node, null, uint); // `uint` capacity is enough
 final class SeqM : Node
 {
 @safe:
-    override void show(in uint indentDepth) const
+    override void show(in uint indentDepth = 0) const
     {
         foreach (const i, const sub; subs)
         {
@@ -887,11 +915,26 @@ final class SeqM : Node
     NodeArray subs;
 }
 
+/// Nothing.
+final class Nothing : Node
+{
+@safe:
+    override void show(in uint indentDepth = 0) const
+    {
+    }
+@safe pure nothrow @nogc:
+    this(Token head) @trusted
+    {
+        this.head = head;
+    }
+    Token head;
+}
+
 /// Rule of alternatives.
 class RuleAltM : Node
 {
 @safe:
-    override void show(in uint indentDepth) const @trusted
+    override void show(in uint indentDepth = 0) const @trusted
     {
         showToken(head, indentDepth);
         printf(":\n");
@@ -921,7 +964,7 @@ class RuleAltM : Node
 final class FragmentRuleAltM : RuleAltM
 {
 @safe:
-    override void show(in uint indentDepth) const @trusted
+    override void show(in uint indentDepth = 0) const @trusted
     {
         showToken(head, indentDepth);
         printf(" (fragment):\n");
@@ -937,7 +980,7 @@ pure nothrow @nogc:
 class Leaf : Node
 {
 @safe:
-    override void show(in uint indentDepth) const @trusted
+    override void show(in uint indentDepth = 0) const @trusted
     {
         showToken(head, indentDepth);
     }
@@ -952,7 +995,7 @@ pure nothrow @nogc:
 class ZeroOrMore : Node
 {
 @safe:
-    override void show(in uint indentDepth) const @trusted
+    override void show(in uint indentDepth = 0) const @trusted
     {
         showToken(head, indentDepth);
     }
@@ -968,7 +1011,7 @@ class ZeroOrMore : Node
 class OneOrMore : Node
 {
 @safe:
-    override void show(in uint indentDepth) const @trusted
+    override void show(in uint indentDepth = 0) const @trusted
     {
         showToken(head, indentDepth);
     }
@@ -984,7 +1027,7 @@ class OneOrMore : Node
 class ZeroOrOne : Node
 {
 @safe:
-    override void show(in uint indentDepth) const @trusted
+    override void show(in uint indentDepth = 0) const @trusted
     {
         showToken(head, indentDepth);
     }
@@ -1000,7 +1043,7 @@ class ZeroOrOne : Node
 class Symbol : Leaf
 {
 @safe:
-    override void show(in uint indentDepth) const @trusted
+    override void show(in uint indentDepth = 0) const @trusted
     {
         showToken(head, indentDepth);
     }
@@ -1014,7 +1057,7 @@ class Symbol : Leaf
 class Literal : Leaf
 {
 @safe:
-    override void show(in uint indentDepth) const @trusted
+    override void show(in uint indentDepth = 0) const @trusted
     {
         printf("\"");
         showToken(head, indentDepth);
@@ -1048,7 +1091,7 @@ class BlockComment : Leaf
 final class Grammar : Leaf
 {
 @safe:
-    override void show(in uint indentDepth) const @trusted
+    override void show(in uint indentDepth = 0) const @trusted
     {
         showToken(head, indentDepth);
         putchar(' ');
@@ -1090,7 +1133,7 @@ final class ParserGrammar : Leaf
 final class Import : Leaf
 {
 @safe:
-    override void show(in uint indentDepth) const @trusted
+    override void show(in uint indentDepth = 0) const @trusted
     {
         showToken(head, indentDepth);
         putchar(' ');
@@ -1178,7 +1221,7 @@ final class ScopeSymbol : Leaf
 final class ScopeAction : Leaf
 {
 @safe:
-    override void show(in uint indentDepth) const @trusted
+    override void show(in uint indentDepth = 0) const @trusted
     {
         showToken(head, indentDepth);
     }
@@ -1195,7 +1238,7 @@ pure nothrow @nogc:
 final class AttributeSymbol : Leaf
 {
 @safe:
-    override void show(in uint indentDepth) const @trusted
+    override void show(in uint indentDepth = 0) const @trusted
     {
         showToken(head, indentDepth);
     }
@@ -1220,7 +1263,7 @@ final class Action : Leaf
 final class ActionSymbol : Leaf
 {
 @safe:
-    override void show(in uint indentDepth) const @trusted
+    override void show(in uint indentDepth = 0) const @trusted
     {
         showToken(head, indentDepth);
     }
@@ -1312,8 +1355,10 @@ struct GxParser
         NodeArray alts; // TODO: use static array with length being number of `TOK.pipe` till `TOK.semicolon`
         while (_lexer.front.tok != TOK.semicolon)
         {
+            size_t parentDepth = 0;
             NodeArray seq; // TODO: use stack for small arrays. TODO: use `Rule` as ElementType
-            while (_lexer.front.tok != TOK.pipe &&
+            while ((parentDepth != 0 ||
+                    _lexer.front.tok != TOK.pipe) &&
                    _lexer.front.tok != TOK.semicolon)
             {
                 // TODO: use static array with length being number of tokens till `TOK.pipe`
@@ -1339,10 +1384,58 @@ struct GxParser
                     seq.put1(new ZeroOrOne(_lexer.frontPop()));
                     break;
                 case TOK.leftParen:
-                    seq.put1(new Symbol(_lexer.frontPop())); // TODO: start pushing on stack
+                    parentDepth += 1;
+                    seq.put1(new Symbol(_lexer.frontPop()));
                     break;
                 case TOK.rightParen:
-                    seq.put1(new Symbol(_lexer.frontPop())); // TODO: pop last on stack
+                    parentDepth -= 1;
+                    // find matching '(' if any
+                    size_t li = seq.length; // left paren index
+                    Symbol hs;              // left parent index Symbol
+                    foreach_reverse (const i, const Node node; seq[])
+                    {
+                        auto symbol = cast(Symbol)node;        // TODO: avoid cast
+                        if (symbol &&
+                            symbol.head.tok == TOK.leftParen)
+                        {
+                            li = i;
+                            hs = symbol;
+                            break;
+                        }
+                    }
+                    // debug writeln("li:", li, " seq.length:", seq.length);
+
+                    if (li + 3 <= seq.length) // normal case: ... ( X Y ... )
+                    {
+                        NodeArray subseq; // TODO: use stack for small arrays. TODO: use `Rule` as ElementType
+                        foreach (node; seq[li + 1 .. $])
+                        {
+                            // debug write("putting:");
+                            // debug node.show();
+                            subseq.put1(node);
+                        }
+                        // debug writeln("popped", seq.length - li);
+                        seq.popBackN(seq.length - li);
+                        seq.put1(new SeqM(subseq.move()));
+                    }
+                    else if (li + 2 == seq.length) // single case: ... ( X )
+                    {
+                        // _lexer.warningAtFront("single element group has no use");
+                        Node single = seq.backPop(); // pop X
+                        seq.popBack(); // pop '('
+                        seq.insertBack(single); // insert X
+                    }
+                    else if (li + 1 == seq.length) // empty case: ... ( )
+                    {
+                        auto nothing = new Nothing(hs.head);
+                        seq.popBack(); // pop '('
+                        seq.insertBack(nothing); // TODO: use ZeroOrOne() instead
+                    }
+                    else if (li == seq.length) // unmatched case: ... )
+                    {
+                        _lexer.errorAtFront("no matching opening parenthesis found before this closing parenthesis");
+                    }
+                    _lexer.frontPop();
                     break;
                 default:
                     // _lexer.infoAtFront("TODO: handle");
@@ -1695,24 +1788,24 @@ struct GxFileReader
 @safe:
     this(in string filePath)
     {
-        const showFlag = false;
+        const showFlag = filePath.endsWith("oncrpcv2.g4");
         auto parser = GxFileParser(filePath);
         while (!parser.empty)
         {
             if (auto rule = cast(RuleAltM)parser.front) // TODO: avoid `cast`
             {
                 rules.put1(rule);
-                if (showFlag) rule.show(0);
+                if (showFlag) rule.show();
             }
             else if (auto grammar = cast(Grammar)parser.front) // TODO: avoid `cast`
             {
                 this.grammar = grammar;
-                if (showFlag) grammar.show(0);
+                if (showFlag) grammar.show();
             }
             else if (auto import_ = cast(Import)parser.front) // TODO: avoid `cast`
             {
                 this.imports.put1(import_);
-                if (showFlag) import_.show(0);
+                if (showFlag) import_.show();
             }
             parser.popFront();
         }
@@ -1727,7 +1820,6 @@ struct GxFileReader
 ///
 @trusted unittest
 {
-    import nxt.array_algorithm : endsWith;
     import std.file : dirEntries, SpanMode;
     import std.path : expandTilde;
 

@@ -1699,17 +1699,17 @@ struct GxFileReader
         auto parser = GxFileParser(filePath);
         while (!parser.empty)
         {
-            if (auto rule = cast(RuleAltM)parser.front)
+            if (auto rule = cast(RuleAltM)parser.front) // TODO: avoid `cast`
             {
                 rules.put1(rule);
                 if (showFlag) rule.show(0);
             }
-            else if (auto grammar = cast(Grammar)parser.front)
+            else if (auto grammar = cast(Grammar)parser.front) // TODO: avoid `cast`
             {
                 this.grammar = grammar;
                 if (showFlag) grammar.show(0);
             }
-            else if (auto import_ = cast(Import)parser.front)
+            else if (auto import_ = cast(Import)parser.front) // TODO: avoid `cast`
             {
                 this.imports.put1(import_);
                 if (showFlag) import_.show(0);

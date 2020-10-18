@@ -28,8 +28,6 @@ import nxt.file_ex : rawReadPath;
 
 @safe:
 
-enum useKeywords = true;
-
 alias Input = const(char)[];
 
 ///< Token kind. TODO: make this a string type like with std.experimental.lexer

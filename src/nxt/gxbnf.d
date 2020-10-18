@@ -12,7 +12,6 @@
  * - make diagnostics functions non-pure
  * - parse postfix operators *, +, ?
  * - create index of symbols and link them in second pass
- * - gorup things into a `struct Gx`
  * - Add and use `BranchN`, `AltN` and `SeqN`
  */
 module nxt.gxbnf;

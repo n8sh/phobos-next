@@ -594,27 +594,27 @@ pragma(inline):
     }
 
     /// Index support.
-    ref inout(T) opIndex()(size_t i) inout return // template-lazy
+    ref inout(T) opIndex()(size_t i) inout return scope // template-lazy
     {
         version(D_Coverage) {} else pragma(inline, true);
         return opSlice()[i];
     }
 
     /// Slice support.
-    inout(T)[] opSlice()(size_t i, size_t j) inout return // template-lazy
+    inout(T)[] opSlice()(size_t i, size_t j) inout return scope // template-lazy
     {
         version(D_Coverage) {} else pragma(inline, true);
         return opSlice()[i .. j];
     }
     /// ditto
-    inout(T)[] opSlice()() inout return @trusted // template-lazy
+    inout(T)[] opSlice()() inout return @trusted scope // template-lazy
     {
         version(D_Coverage) {} else pragma(inline, true);
         return _store.ptr[0 .. _store.length];
     }
 
     /// Index assignment support.
-    ref T opIndexAssign(U)(scope U value, size_t i) @trusted return
+    ref T opIndexAssign(U)(scope U value, size_t i) @trusted return scope
     {
         static if (needsMove!T)
         {
@@ -629,28 +629,28 @@ pragma(inline):
     }
 
     /// Slice assignment support.
-    T[] opSliceAssign(U)(scope U value) return
+    T[] opSliceAssign(U)(scope U value) return scope
     {
         version(D_Coverage) {} else pragma(inline, true);
         return opSlice()[] = value;
     }
 
     /// ditto
-    T[] opSliceAssign(U)(scope U value, size_t i, size_t j) return
+    T[] opSliceAssign(U)(scope U value, size_t i, size_t j) return scope
     {
         version(D_Coverage) {} else pragma(inline, true);
         return opSlice()[i .. j] = value;
     }
 
     /// Get reference to front element.
-    ref inout(T) front()() inout return @property // template-lazy
+    @property ref inout(T) front()() inout return scope // template-lazy
     {
         version(D_Coverage) {} else pragma(inline, true);
         return opSlice()[0];      // range-checked by default
     }
 
     /// Get reference to back element.
-    ref inout(T) back()() inout return @property // template-lazy
+    @property ref inout(T) back()() inout return scope // template-lazy
     {
         version(D_Coverage) {} else pragma(inline, true);
         return opSlice()[_store.length - 1]; // range-checked by default

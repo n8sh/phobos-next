@@ -9,6 +9,7 @@
  *
  * TODO:
  * - Append directly into Seq.subs Alt.subs being DynamicArrays and remove need for `DynamicArray.insertBack1`
+ * - Don't store token in `Node` and `SeqM`
  * - Avoid static array `Node[n]` instead of `DynamicArray`
  * - Replace uppercased `TOK`s with `TOK.symbol`
  * - Handle all TODO's in `getRule`
@@ -19,6 +20,7 @@
  */
 module nxt.gxbnf;
 
+import core.lifetime : move;
 import core.stdc.stdio : putchar, printf;
 
 import std.conv : to;
@@ -846,7 +848,7 @@ enum NODE
 }
 
 /// AST node.
-abstract class Node
+private abstract class Node
 {
     final void showIndent(in uint indent) const @trusted
     {
@@ -870,26 +872,28 @@ abstract class Node
     Token head;
 }
 
-abstract class BranchN(uint n) : Node
+private abstract class BranchN(uint n) : Node // TODO: use
 {
 @safe pure nothrow @nogc:
-    this(in Token head, Node[n] sub)
-    {
-        super(head);
-        this.sub = sub;
-    }
-    Node[n] sub;
-}
-
-abstract class BranchM : Node
-{
-@safe pure nothrow @nogc:
-    this(in Token head, Node[] subs = null)
+    this(in Token head, Node[n] subs)
     {
         super(head);
         this.subs = subs;
     }
-    Node[] subs;
+    Node[n] subs;
+}
+
+alias NodeArray = DynamicArray!(Node);
+
+private abstract class BranchM : Node
+{
+@safe pure nothrow @nogc:
+    this(in Token head, NodeArray subs)
+    {
+        super(head);
+        this.subs = subs.move();
+    }
+    NodeArray subs;
 }
 
 /// Sequence.
@@ -910,10 +914,9 @@ final class SeqM : BranchM
         }
     }
 @safe pure nothrow @nogc:
-    this(Node[] subs = null)
+    this(NodeArray subs)
     {
-        super(Token.init);
-        this.subs = subs;
+        super(Token.init, subs.move());
     }
 }
 
@@ -937,10 +940,9 @@ class RuleAltM : BranchM
         }
     }
 @safe pure nothrow @nogc:
-    this(in Token head, Node[] subs = null)
+    this(in Token head, NodeArray subs)
     {
-        super(head);
-        this.subs = subs;
+        super(head, subs.move());
     }
 }
 
@@ -951,14 +953,13 @@ final class FragmentRuleAltM : RuleAltM
     override void show(in uint indent) const @trusted
     {
         showHead(indent);
-        printf(" FRAGMENT\n");
+        printf(" (fragment)\n");
         showSubs(indent + 1);
     }
 pure nothrow @nogc:
-    this(in Token head, Node[] subs = null)
+    this(in Token head, NodeArray subs)
     {
-        super(head);
-        this.subs = subs;
+        super(head, subs.move());
     }
 }
 
@@ -1337,7 +1338,7 @@ struct GxParser
                 // `seq` may be empty
                 // _lexer.infoAtFront("empty sequence");
             }
-            alts.put1(new SeqM(seq[].dup));
+            alts.put1(new SeqM(seq.move()));
             if (_lexer.front.tok == TOK.pipe)
                 _lexer.popFront(); // skip terminator
         }
@@ -1358,8 +1359,8 @@ struct GxParser
         }
 
         return (isFragment ?
-                new FragmentRuleAltM(name, alts[].dup) :
-                new RuleAltM(name, alts[].dup));
+                new FragmentRuleAltM(name, alts.move()) :
+                new RuleAltM(name, alts.move()));
     }
 
     Input[] getArgs(in TOK separator,

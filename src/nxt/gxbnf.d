@@ -8,7 +8,6 @@
  * See_Also: https://bnfc.digitalgrammars.com/
  *
  * TODO:
- * - Append directly into Seq.subs Alt.subs being DynamicArrays and remove need for `DynamicArray.insertBack1`
  * - Don't store token in `Node` and `SeqM`
  * - Avoid static array `Node[n]` instead of `DynamicArray`
  * - Handle all TODO's in `getRule`

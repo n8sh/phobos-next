@@ -8,7 +8,7 @@ struct SSOAppender(T, size_t smallCapacity)
 if (smallCapacity >= 1)
 {
     import std.array : Appender;
-    import fixed_array : FixedArray;
+    import nxt.fixed_array : FixedArray;
 
     void assureOneMoreCapacity() @trusted
     {

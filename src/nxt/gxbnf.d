@@ -423,7 +423,6 @@ private:
     {
         size_t i;
 
-        import nxt.dynamic_array : DynamicArray;
         DynamicArray!char ds;   // delimiter stack
 
         bool inBlockComment;
@@ -865,7 +864,7 @@ private abstract class BranchN(uint n) : Node // TODO: use
     Node[n] subs;
 }
 
-alias NodeArray = DynamicArray!(Node);
+alias NodeArray = DynamicArray!(Node, null, uint); // `uint` capacity is enough
 
 /// Sequence.
 final class SeqM : Node
@@ -1310,10 +1309,10 @@ struct GxParser
                              Action action = null) @trusted
     {
         _lexer.popFrontEnforce(TOK.colon, "no colon");
-        DynamicArray!(Node) alts; // TODO: use static array with length being number of `TOK.pipe` till `TOK.semicolon`
+        NodeArray alts; // TODO: use static array with length being number of `TOK.pipe` till `TOK.semicolon`
         while (_lexer.front.tok != TOK.semicolon)
         {
-            DynamicArray!(Node) seq; // TODO: use stack for small arrays. TODO: use `Rule` as ElementType
+            NodeArray seq; // TODO: use stack for small arrays. TODO: use `Rule` as ElementType
             while (_lexer.front.tok != TOK.pipe &&
                    _lexer.front.tok != TOK.semicolon)
             {
@@ -1696,30 +1695,31 @@ struct GxFileReader
 @safe:
     this(in string filePath)
     {
+        const showFlag = false;
         auto parser = GxFileParser(filePath);
         while (!parser.empty)
         {
             if (auto rule = cast(RuleAltM)parser.front)
             {
                 rules.put1(rule);
-                rule.show(0);
+                if (showFlag) rule.show(0);
             }
             else if (auto grammar = cast(Grammar)parser.front)
             {
                 this.grammar = grammar;
-                grammar.show(0);
+                if (showFlag) grammar.show(0);
             }
             else if (auto import_ = cast(Import)parser.front)
             {
                 this.imports.put1(import_);
-                import_.show(0);
+                if (showFlag) import_.show(0);
             }
             parser.popFront();
         }
     }
     Grammar grammar;
-    DynamicArray!(Import) imports;
-    DynamicArray!(RuleAltM) rules;
+    DynamicArray!(Import, null, uint) imports;
+    DynamicArray!(RuleAltM, null, uint) rules;
     // TODO: `OpenHashMap rulesByName`
     ~this() @nogc {}
 }

@@ -8,9 +8,10 @@
  * See_Also: https://bnfc.digitalgrammars.com/
  *
  * TODO:
+ * - Append directly into Seq.subs Alt.subs being DynamicArrays and remove need for `DynamicArray.insertBack1`
  * - Replace uppercased `TOK`s with `TOK.symbol`
  * - Handle all TODO's in `getRule`
- * - Avoid static array `Node[n]` instead of `Appender`
+ * - Avoid static array `Node[n]` instead of `DynamicArray`
  * - make diagnostics functions non-pure
  * - parse postfix operators *, +, ?
  * - create index of symbols and link them in second pass
@@ -20,7 +21,6 @@ module nxt.gxbnf;
 
 import core.stdc.stdio : putchar, printf;
 
-import std.array : Appender;
 import std.conv : to;
 
 // `d-deps.el` requires these to be at the top:
@@ -477,7 +477,7 @@ private:
                 else if (peekN(i) == '{')
                 {
                     if (infoFlag) infoAtIndex("brace open", i, ds[]);
-                    ds.insertBack('{');
+                    ds.put1('{');
                 }
                 else if (peekN(i) == '}')
                 {
@@ -490,7 +490,7 @@ private:
                 else if (peekN(i) == '[')
                 {
                     if (infoFlag) infoAtIndex("hook open", i, ds[]);
-                    ds.insertBack('[');
+                    ds.put1('[');
                 }
                 else if (peekN(i) == ']')
                 {
@@ -503,7 +503,7 @@ private:
                 else if (peekN(i) == '(')
                 {
                     if (infoFlag) infoAtIndex("paren open", i, ds[]);
-                    ds.insertBack('(');
+                    ds.put1('(');
                 }
                 else if (peekN(i) == ')')
                 {
@@ -551,7 +551,7 @@ private:
                 else
                 {
                     if (infoFlag) infoAtIndex("single-quote open", i, ds[]);
-                    ds.insertBack('\'');
+                    ds.put1('\'');
                     inChar = true;
                 }
             }
@@ -572,7 +572,7 @@ private:
                 else
                 {
                     if (infoFlag) infoAtIndex("doubl-quote open", i, ds[]);
-                    ds.insertBack('"');
+                    ds.put1('"');
                     inString = true;
                 }
             }
@@ -1292,10 +1292,10 @@ struct GxParser
                              Action action = null) @trusted
     {
         _lexer.popFrontEnforce(TOK.colon, "no colon");
-        Appender!(Node[]) alts; // TODO: use static array with length being number of `TOK.pipe` till `TOK.semicolon`
+        DynamicArray!(Node) alts; // TODO: use static array with length being number of `TOK.pipe` till `TOK.semicolon`
         while (_lexer.front.tok != TOK.semicolon)
         {
-            Appender!(Node[]) seq; // TODO: use stack for small arrays
+            DynamicArray!(Node) seq; // TODO: use stack for small arrays. TODO: use `Rule` as ElementType
             while (_lexer.front.tok != TOK.pipe &&
                    _lexer.front.tok != TOK.semicolon)
             {
@@ -1303,41 +1303,41 @@ struct GxParser
                 switch (_lexer.front.tok)
                 {
                 case TOK.symbol:
-                    seq.put(new Symbol(_lexer.frontPop()));
+                    seq.put1(new Symbol(_lexer.frontPop()));
                     break;
                 case TOK.textLiteralSingleQuoted:
                 case TOK.textLiteralDoubleQuoted:
-                    seq.put(new Literal(_lexer.frontPop()));
+                    seq.put1(new Literal(_lexer.frontPop()));
                     break;
                 case TOK.star:
                     // _lexer.infoAtFront("TODO: if previous is ')' pop from stack");
-                    seq.put(new ZeroOrMore(_lexer.frontPop()));
+                    seq.put1(new ZeroOrMore(_lexer.frontPop()));
                     break;
                 case TOK.plus:
                     // _lexer.infoAtFront("TODO: if previous is ')' pop from stack");
-                    seq.put(new OneOrMore(_lexer.frontPop()));
+                    seq.put1(new OneOrMore(_lexer.frontPop()));
                     break;
                 case TOK.optOrSemPred:
                     // _lexer.infoAtFront("TODO: if previous is ')' pop from stack");
-                    seq.put(new ZeroOrOne(_lexer.frontPop()));
+                    seq.put1(new ZeroOrOne(_lexer.frontPop()));
                     break;
                 case TOK.leftParen:
-                    seq.put(new Symbol(_lexer.frontPop())); // TODO: start pushing on stack
+                    seq.put1(new Symbol(_lexer.frontPop())); // TODO: start pushing on stack
                     break;
                 case TOK.rightParen:
-                    seq.put(new Symbol(_lexer.frontPop())); // TODO: pop last on stack
+                    seq.put1(new Symbol(_lexer.frontPop())); // TODO: pop last on stack
                     break;
                 default:
                     // _lexer.infoAtFront("TODO: handle");
-                    seq.put(new Symbol(_lexer.frontPop()));
+                    seq.put1(new Symbol(_lexer.frontPop()));
                 }
             }
-            if (!seq.data.length)
+            if (!seq.length)
             {
                 // `seq` may be empty
                 // _lexer.infoAtFront("empty sequence");
             }
-            alts.put(new SeqM(seq.data));
+            alts.put1(new SeqM(seq[].dup));
             if (_lexer.front.tok == TOK.pipe)
                 _lexer.popFront(); // skip terminator
         }
@@ -1358,23 +1358,23 @@ struct GxParser
         }
 
         return (isFragment ?
-                new FragmentRuleAltM(name, alts.data) :
-                new RuleAltM(name, alts.data));
+                new FragmentRuleAltM(name, alts[].dup) :
+                new RuleAltM(name, alts[].dup));
     }
 
     Input[] getArgs(in TOK separator,
                     in TOK terminator)
     {
-        Appender!(Input[]) result;
+        DynamicArray!(Input) result;
         while (true)
         {
-            result.put(_lexer.frontPopEnforce(TOK.symbol).input);
+            result.put1(_lexer.frontPopEnforce(TOK.symbol).input);
             if (_lexer.front.tok != separator)
                 break;
             _lexer.popFront();
         }
         _lexer.popFrontEnforce(terminator, "no terminating semicolon");
-        return result.data;
+        return result[].dup;
     }
 
     AttributeSymbol getAttributeSymbol() nothrow
@@ -1574,13 +1574,13 @@ struct GxParser
                     continue;
                 if (const _ = skipOverSymbol("locals")) // TODO: use
                     continue;
-                if (const _options = skipOverOptions()) // TODO: use
+                if (const _ = skipOverOptions()) // TODO: use
                     continue;
-                if (const _scope = skipOverScope())     // TODO: use
+                if (const _ = skipOverScope())     // TODO: use
                     continue;
-                if (const _action = skipOverAction()) // TODO: use
+                if (const _ = skipOverAction()) // TODO: use
                     continue;
-                if (const _actionSymbol = skipOverActionSymbol()) // TODO: use
+                if (const _ = skipOverActionSymbol()) // TODO: use
                     continue;
             }
             return getRule(head, false);
@@ -1682,7 +1682,7 @@ struct GxFileReader
         {
             if (auto rule = cast(RuleAltM)parser.front)
             {
-                rules.insertBack(rule);
+                rules.put1(rule);
                 // rule.show(0);
             }
             else if (auto grammar = cast(Grammar)parser.front)
@@ -1691,7 +1691,7 @@ struct GxFileReader
             }
             else if (auto import_ = cast(Import)parser.front)
             {
-                this.imports.insertBack(import_);
+                this.imports.put1(import_);
             }
             parser.popFront();
         }

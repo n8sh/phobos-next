@@ -821,23 +821,32 @@ enum NODE
     rule                        ///< Grammar rule.
 }
 
-enum indentStep = 4;
+private enum indentStep = 4;
+
+private void showIndent(in uint indentDepth)
+{
+    foreach (_; 0 .. indentDepth*indentStep)
+        putchar(' ');
+}
+
+private void showChars(in const(char)[] chars) @trusted
+{
+    printf("%.*s",
+           cast(uint)chars.length,
+           chars.ptr);
+}
+
+private void showToken(in Token token,
+                       in uint indentDepth) @trusted
+{
+    showIndent(indentDepth);
+    showChars(token.input);
+}
 
 /// AST node.
 private abstract class Node
 {
 @safe:
-    final void showIndent(in uint indentDepth) const
-    {
-        foreach (_; 0 .. indentDepth*indentStep)
-            putchar(' ');
-    }
-    final void showHead(in Token head,
-                        in uint indentDepth) const @trusted
-    {
-        showIndent(indentDepth);
-        printf("%.*s", cast(uint)head.input.length, head.input.ptr);
-    }
     abstract void show(in uint indentDepth) const;
 pure nothrow @nogc:
     this()
@@ -885,7 +894,7 @@ class RuleAltM : Node
 @safe:
     override void show(in uint indentDepth) const @trusted
     {
-        showHead(head, indentDepth);
+        showToken(head, indentDepth);
         printf(":\n");
         showSubs(indentDepth + 1);
     }
@@ -915,7 +924,7 @@ final class FragmentRuleAltM : RuleAltM
 @safe:
     override void show(in uint indentDepth) const @trusted
     {
-        showHead(head, indentDepth);
+        showToken(head, indentDepth);
         printf(" (fragment):\n");
         showSubs(indentDepth + 1);
     }
@@ -931,7 +940,7 @@ class Leaf : Node
 @safe:
     override void show(in uint indentDepth) const @trusted
     {
-        showHead(head, indentDepth);
+        showToken(head, indentDepth);
     }
 pure nothrow @nogc:
     this(in Token head)
@@ -946,7 +955,7 @@ class ZeroOrMore : Node
 @safe:
     override void show(in uint indentDepth) const @trusted
     {
-        showHead(head, indentDepth);
+        showToken(head, indentDepth);
     }
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -962,7 +971,7 @@ class OneOrMore : Node
 @safe:
     override void show(in uint indentDepth) const @trusted
     {
-        showHead(head, indentDepth);
+        showToken(head, indentDepth);
     }
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -978,7 +987,7 @@ class ZeroOrOne : Node
 @safe:
     override void show(in uint indentDepth) const @trusted
     {
-        showHead(head, indentDepth);
+        showToken(head, indentDepth);
     }
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -994,7 +1003,7 @@ class Symbol : Leaf
 @safe:
     override void show(in uint indentDepth) const @trusted
     {
-        showHead(head, indentDepth);
+        showToken(head, indentDepth);
     }
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1009,7 +1018,7 @@ class Literal : Leaf
     override void show(in uint indentDepth) const @trusted
     {
         printf("\"");
-        showHead(head, indentDepth);
+        showToken(head, indentDepth);
         printf("\"");
     }
 pure nothrow @nogc:
@@ -1039,7 +1048,15 @@ class BlockComment : Leaf
 
 final class Grammar : Leaf
 {
-@safe pure nothrow @nogc:
+@safe:
+    override void show(in uint indentDepth) const @trusted
+    {
+        showToken(head, indentDepth);
+        putchar(' ');
+        showChars(name);
+        showChars(";\n");
+    }
+pure nothrow @nogc:
     this(in Token head, Input name)
     {
         super(head);
@@ -1073,7 +1090,21 @@ final class ParserGrammar : Leaf
 
 final class Import : Leaf
 {
-@safe pure nothrow @nogc:
+@safe:
+    override void show(in uint indentDepth) const @trusted
+    {
+        showToken(head, indentDepth);
+        putchar(' ');
+        foreach (const i, const m ; modules)
+        {
+            if (i)
+                putchar(',');
+            showChars(m);
+        }
+        putchar(';');
+        putchar('\n');
+    }
+pure nothrow @nogc:
     this(in Token head, const Input[] modules)
     {
         super(head);
@@ -1150,7 +1181,7 @@ final class ScopeAction : Leaf
 @safe:
     override void show(in uint indentDepth) const @trusted
     {
-        showHead(head, indentDepth);
+        showToken(head, indentDepth);
     }
 pure nothrow @nogc:
     this(in Token head,
@@ -1167,7 +1198,7 @@ final class AttributeSymbol : Leaf
 @safe:
     override void show(in uint indentDepth) const @trusted
     {
-        showHead(head, indentDepth);
+        showToken(head, indentDepth);
     }
 pure nothrow @nogc:
     this(in Token head, in Token code)
@@ -1192,7 +1223,7 @@ final class ActionSymbol : Leaf
 @safe:
     override void show(in uint indentDepth) const @trusted
     {
-        showHead(head, indentDepth);
+        showToken(head, indentDepth);
     }
 pure nothrow @nogc:
     this(in Token head, in Token code)
@@ -1671,15 +1702,17 @@ struct GxFileReader
             if (auto rule = cast(RuleAltM)parser.front)
             {
                 rules.put1(rule);
-                // rule.show(0);
+                rule.show(0);
             }
             else if (auto grammar = cast(Grammar)parser.front)
             {
                 this.grammar = grammar;
+                grammar.show(0);
             }
             else if (auto import_ = cast(Import)parser.front)
             {
                 this.imports.put1(import_);
+                import_.show(0);
             }
             parser.popFront();
         }

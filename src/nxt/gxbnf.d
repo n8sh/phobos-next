@@ -22,8 +22,6 @@ module nxt.gxbnf;
 import core.lifetime : move;
 import core.stdc.stdio : putchar, printf;
 
-import std.conv : to;
-
 // `d-deps.el` requires these to be at the top:
 import nxt.line_column : offsetLineColumn;
 import nxt.dynamic_array : DynamicArray;

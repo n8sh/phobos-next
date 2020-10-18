@@ -8,7 +8,6 @@
  * See_Also: https://bnfc.digitalgrammars.com/
  *
  * TODO:
- * - Don't store token in `Node` and `SeqM`
  * - Avoid static array `Node[n]` instead of `DynamicArray`
  * - Handle all TODO's in `getRule`
  * - make diagnostics functions non-pure
@@ -828,26 +827,23 @@ enum indentStep = 4;
 /// AST node.
 private abstract class Node
 {
-    final void showIndent(in uint indentDepth) const @trusted
+@safe:
+    final void showIndent(in uint indentDepth) const
     {
         foreach (_; 0 .. indentDepth*indentStep)
             putchar(' ');
     }
-    final void showHead(in uint indentDepth) const @trusted
+    final void showHead(in Token head,
+                        in uint indentDepth) const @trusted
     {
         showIndent(indentDepth);
         printf("%.*s", cast(uint)head.input.length, head.input.ptr);
     }
-    void show(in uint indentDepth) const @trusted
+    abstract void show(in uint indentDepth) const;
+pure nothrow @nogc:
+    this()
     {
-        showHead(indentDepth);
     }
-@safe pure nothrow @nogc:
-    this(in Token head)
-    {
-        this.head = head;
-    }
-    Token head;
 }
 
 private abstract class BranchN(uint n) : Node // TODO: use
@@ -855,7 +851,7 @@ private abstract class BranchN(uint n) : Node // TODO: use
 @safe pure nothrow @nogc:
     this(in Token head, Node[n] subs)
     {
-        super(head);
+        super();
         this.subs = subs;
     }
     Node[n] subs;
@@ -867,11 +863,7 @@ alias NodeArray = DynamicArray!(Node);
 final class SeqM : Node
 {
 @safe:
-    override void show(in uint indentDepth) const @trusted
-    {
-        showSubs(indentDepth);
-    }
-    private void showSubs(in uint indentDepth) const
+    override void show(in uint indentDepth) const
     {
         foreach (const i, const sub; subs)
         {
@@ -883,7 +875,6 @@ final class SeqM : Node
 @safe pure nothrow @nogc:
     this(NodeArray subs)
     {
-        super(Token.init);
         this.subs = subs.move();
     }
     NodeArray subs;
@@ -895,7 +886,7 @@ class RuleAltM : Node
 @safe:
     override void show(in uint indentDepth) const @trusted
     {
-        showHead(indentDepth);
+        showHead(head, indentDepth);
         printf(":\n");
         showSubs(indentDepth + 1);
     }
@@ -911,9 +902,11 @@ class RuleAltM : Node
 @safe pure nothrow @nogc:
     this(in Token head, NodeArray subs)
     {
-        super(head);
+        super();
+        this.head = head;
         this.subs = subs.move();
     }
+    Token head;
     NodeArray subs;
 }
 
@@ -923,8 +916,8 @@ final class FragmentRuleAltM : RuleAltM
 @safe:
     override void show(in uint indentDepth) const @trusted
     {
-        showHead(indentDepth);
-        printf(" (fragment)\n");
+        showHead(head, indentDepth);
+        printf(" (fragment):\n");
         showSubs(indentDepth + 1);
     }
 pure nothrow @nogc:
@@ -936,25 +929,17 @@ pure nothrow @nogc:
 
 class Leaf : Node
 {
-@safe pure nothrow @nogc:
-    this(in Token head)
-    {
-        super(head);
-    }
-}
-
-class Symbol : Node
-{
 @safe:
     override void show(in uint indentDepth) const @trusted
     {
-        showHead(indentDepth);
+        showHead(head, indentDepth);
     }
-@safe pure nothrow @nogc:
+pure nothrow @nogc:
     this(in Token head)
     {
-        super(head);
+        this.head = head;
     }
+    Token head;
 }
 
 class ZeroOrMore : Node
@@ -962,13 +947,15 @@ class ZeroOrMore : Node
 @safe:
     override void show(in uint indentDepth) const @trusted
     {
-        showHead(indentDepth);
+        showHead(head, indentDepth);
     }
 @safe pure nothrow @nogc:
     this(in Token head)
     {
-        super(head);
+        super();
+        this.head = head;
     }
+    Token head;
 }
 
 class OneOrMore : Node
@@ -976,13 +963,15 @@ class OneOrMore : Node
 @safe:
     override void show(in uint indentDepth) const @trusted
     {
-        showHead(indentDepth);
+        showHead(head, indentDepth);
     }
 @safe pure nothrow @nogc:
     this(in Token head)
     {
-        super(head);
+        super();
+        this.head = head;
     }
+    Token head;
 }
 
 class ZeroOrOne : Node
@@ -990,7 +979,23 @@ class ZeroOrOne : Node
 @safe:
     override void show(in uint indentDepth) const @trusted
     {
-        showHead(indentDepth);
+        showHead(head, indentDepth);
+    }
+@safe pure nothrow @nogc:
+    this(in Token head)
+    {
+        super();
+        this.head = head;
+    }
+    Token head;
+}
+
+class Symbol : Leaf
+{
+@safe:
+    override void show(in uint indentDepth) const @trusted
+    {
+        showHead(head, indentDepth);
     }
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -999,23 +1004,23 @@ class ZeroOrOne : Node
     }
 }
 
-class Literal : Node
+class Literal : Leaf
 {
 @safe:
     override void show(in uint indentDepth) const @trusted
     {
         printf("\"");
-        showHead(indentDepth);
+        showHead(head, indentDepth);
         printf("\"");
     }
-@safe pure nothrow @nogc:
+pure nothrow @nogc:
     this(in Token head)
     {
         super(head);
     }
 }
 
-class LineComment : Node
+class LineComment : Leaf
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1024,7 +1029,7 @@ class LineComment : Node
     }
 }
 
-class BlockComment : Node
+class BlockComment : Leaf
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1143,7 +1148,12 @@ final class ScopeSymbol : Leaf
 
 final class ScopeAction : Leaf
 {
-@safe pure nothrow @nogc:
+@safe:
+    override void show(in uint indentDepth) const @trusted
+    {
+        showHead(head, indentDepth);
+    }
+pure nothrow @nogc:
     this(in Token head,
          in Token code)
     {
@@ -1155,13 +1165,17 @@ final class ScopeAction : Leaf
 
 final class AttributeSymbol : Leaf
 {
-@safe pure nothrow @nogc:
+@safe:
+    override void show(in uint indentDepth) const @trusted
+    {
+        showHead(head, indentDepth);
+    }
+pure nothrow @nogc:
     this(in Token head, in Token code)
     {
         super(head);
         this.code = code;
     }
-    Input name;
     Token code;
 }
 
@@ -1176,13 +1190,17 @@ final class Action : Leaf
 
 final class ActionSymbol : Leaf
 {
-@safe pure nothrow @nogc:
+@safe:
+    override void show(in uint indentDepth) const @trusted
+    {
+        showHead(head, indentDepth);
+    }
+pure nothrow @nogc:
     this(in Token head, in Token code)
     {
         super(head);
         this.code = code;
     }
-    Input name;
     Token code;
 }
 
@@ -1194,7 +1212,6 @@ final class Channels : Leaf
         super(head);
         this.code = code;
     }
-    Input name;
     Token code;
 }
 
@@ -1206,7 +1223,6 @@ final class Tokens : Leaf
         super(head);
         this.code = code;
     }
-    Input name;
     Token code;
 }
 

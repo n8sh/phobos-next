@@ -8,11 +8,11 @@
  * See_Also: https://bnfc.digitalgrammars.com/
  *
  * TODO:
- * - Handle all TODO's in `getRule`
- * - make diagnostics functions non-pure
  * - parse postfix operators *, +, ?
+ * - handle all TODO's in `getRule`
  * - create index of symbols and link them in second pass
- * - Add and use `BranchN`, `AltN` and `SeqN`
+ * - use `BranchN`, `AltN` and `SeqN`
+ * - non-pure diagnostics functions
  */
 module nxt.gxbnf;
 

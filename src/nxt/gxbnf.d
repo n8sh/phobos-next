@@ -155,7 +155,7 @@ struct GxLexer
         return _token;
     }
 
-    void popFront() scope nothrow @trusted
+    void popFront() scope nothrow @trusted @nogc
     {
         version(D_Coverage) {} else pragma(inline, true);
         assert(!empty);
@@ -185,7 +185,7 @@ struct GxLexer
         return result;
     }
 
-    Token frontPop() scope return nothrow
+    Token frontPop() scope return nothrow @nogc
     {
         version(D_Coverage) {} else version(LDC) pragma(inline, true);
         const result = front;

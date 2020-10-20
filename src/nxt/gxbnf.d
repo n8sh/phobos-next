@@ -19,6 +19,8 @@
  */
 module nxt.gxbnf;
 
+version = Do_Inline;
+
 import core.lifetime : move;
 import core.stdc.stdio : putchar, printf;
 
@@ -144,41 +146,41 @@ struct GxLexer
 
     @property bool empty() const nothrow scope @nogc
     {
-        version(D_Coverage) {} else pragma(inline, true);
+        version(D_Coverage) {} else version(Do_Inline) pragma(inline, true);
         return _endOfFile;
     }
 
     inout(Token) front() inout scope return nothrow @nogc
     {
-        version(D_Coverage) {} else pragma(inline, true);
+        version(D_Coverage) {} else version(Do_Inline) pragma(inline, true);
         assert(!empty);
         return _token;
     }
 
     void popFront() scope nothrow @trusted @nogc
     {
-        version(D_Coverage) {} else pragma(inline, true);
+        version(D_Coverage) {} else version(Do_Inline) pragma(inline, true);
         assert(!empty);
         nextFront();
     }
 
     void frontEnforce(in TOK tok, const scope string msg = "") nothrow
     {
-        version(D_Coverage) {} else pragma(inline, true);
+        version(D_Coverage) {} else version(Do_Inline) pragma(inline, true);
         if (front.tok != tok)
             errorAtFront(msg ~ ", expected `TOK." ~ tok.toDefaulted!string(null) ~ "`");
     }
 
     void popFrontEnforce(in TOK tok, const scope string msg) nothrow
     {
-        version(D_Coverage) {} else version(LDC) pragma(inline, true);
+        version(D_Coverage) {} else version(LDC) version(Do_Inline) pragma(inline, true);
         if (frontPop().tok != tok)
             errorAtFront(msg ~ ", expected `TOK." ~ tok.toDefaulted!string(null) ~ "`");
     }
 
     Token frontPopEnforce(in TOK tok, const scope string msg = "") nothrow
     {
-        version(D_Coverage) {} else version(LDC) pragma(inline, true);
+        version(D_Coverage) {} else version(LDC) version(Do_Inline) pragma(inline, true);
         const result = frontPop();
         if (result.tok != tok)
             errorAtFront(msg ~ ", expected `TOK." ~ tok.toDefaulted!string(null) ~ "`");
@@ -187,7 +189,7 @@ struct GxLexer
 
     Token frontPop() scope return nothrow @nogc
     {
-        version(D_Coverage) {} else version(LDC) pragma(inline, true);
+        version(D_Coverage) {} else version(LDC) version(Do_Inline) pragma(inline, true);
         const result = front;
         popFront();
         return result;
@@ -226,35 +228,35 @@ private:
     /// Peek next `char` in input.
     dchar peek0() const scope nothrow @nogc
     {
-        version(D_Coverage) {} else pragma(inline, true);
+        version(D_Coverage) {} else version(Do_Inline) pragma(inline, true);
         return _input[_offset]; // TODO: decode `dchar`
     }
 
     /// Peek next next `char` in input.
     dchar peek1() const scope nothrow @nogc
     {
-        version(D_Coverage) {} else pragma(inline, true);
+        version(D_Coverage) {} else version(Do_Inline) pragma(inline, true);
         return _input[_offset + 1]; // TODO: decode `dchar`
     }
 
     /// Peek `n`-th next `char` in input.
     dchar peekN(in size_t n) const scope nothrow @nogc
     {
-        version(D_Coverage) {} else pragma(inline, true);
+        version(D_Coverage) {} else version(Do_Inline) pragma(inline, true);
         return _input[_offset + n]; // TODO: decode `dchar`
     }
 
     /// Drop next byte in input.
     void drop1() nothrow @nogc
     {
-        version(D_Coverage) {} else pragma(inline, true);
+        version(D_Coverage) {} else version(Do_Inline) pragma(inline, true);
         _offset += 1;
     }
 
     /// Drop next `n` bytes in input.
     void dropN(in size_t n) nothrow @nogc
     {
-        version(D_Coverage) {} else pragma(inline, true);
+        version(D_Coverage) {} else version(Do_Inline) pragma(inline, true);
         _offset += n;           // TODO: decode `dchar`
     }
 
@@ -757,21 +759,18 @@ private:
     }
 
     private void infoAtToken(in Token token,
-                             const scope string tag,
                              const scope string msg) const @trusted nothrow @nogc scope
     {
         messageAtToken(token, "Info", msg);
     }
 
     private void warningAtToken(in Token token,
-                                const scope string tag,
                                 const scope string msg) const @trusted nothrow @nogc scope
     {
         messageAtToken(token, "Warning", msg);
     }
 
     private void errorAtToken(in Token token,
-                              const scope string tag,
                               const scope string msg) const @trusted nothrow @nogc scope
     {
         messageAtToken(token, "Error", msg);
@@ -1318,20 +1317,20 @@ struct GxParser
 
     @property bool empty() const nothrow scope @nogc
     {
-        version(D_Coverage) {} else pragma(inline, true);
+        version(D_Coverage) {} else version(Do_Inline) pragma(inline, true);
         return _front is null;
     }
 
     inout(Node) front() inout scope return @trusted
     {
-        version(D_Coverage) {} else pragma(inline, true);
+        version(D_Coverage) {} else version(Do_Inline) pragma(inline, true);
         assert(!empty);
         return _front;
     }
 
     void popFront()
     {
-        version(D_Coverage) {} else pragma(inline, true);
+        version(D_Coverage) {} else version(Do_Inline) pragma(inline, true);
         assert(!empty);
         if (_lexer.empty)
             _front = null;      // make `this` empty
@@ -1448,7 +1447,7 @@ struct GxParser
         _lexer.popFrontEnforce(TOK.semicolon, "no terminating semicolon");
 
         // needed for ANTLRv2.g2:
-        if (!empty)
+        if (!_lexer.empty)
         {
             // if (_lexer.front == Token(TOK.symbol, "exception"))
             //     _lexer.popFront();
@@ -1544,19 +1543,19 @@ struct GxParser
 
     Options makeOptions(in Token head) nothrow
     {
-        pragma(inline, true);
+        version(Do_Inline) pragma(inline, true);
         return new Options(head, _lexer.frontPopEnforce(TOK.action, "missing action"));
     }
 
     Channels makeChannels(in Token head) nothrow
     {
-        pragma(inline, true);
+        version(Do_Inline) pragma(inline, true);
         return new Channels(head, _lexer.frontPopEnforce(TOK.action, "missing action"));
     }
 
     Tokens makeTokens(in Token head) nothrow
     {
-        pragma(inline, true);
+        version(Do_Inline) pragma(inline, true);
         return new Tokens(head, _lexer.frontPopEnforce(TOK.action, "missing action"));
     }
 
@@ -1578,7 +1577,7 @@ struct GxParser
 
     Action makeAction(in Token head)
     {
-        pragma(inline, true);
+        version(Do_Inline) pragma(inline, true);
         return new Action(head);
     }
 
@@ -1638,7 +1637,9 @@ struct GxParser
     Node getRuleOrOther(in Token head)
     {
         if (_lexer.front.tok == TOK.colon) // normal case
+        {
             return getRule(head, false);   // fast path
+        }
 
         if (head.input == "lexer" ||
             head.input == "parser" ||
@@ -1734,7 +1735,6 @@ struct GxParser
 
     Node nextFront() @trusted
     {
-        // _lexer.infoAtFront("");
         const head = _lexer.frontPop();
         switch (head.tok)
         {

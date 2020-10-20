@@ -1312,13 +1312,14 @@ struct GxParser
          in bool includeComments = false) @trusted
     {
         _lexer = GxLexer(input, path, includeComments);
-        _front = nextFront();
+        if (!_lexer.empty)
+            _front = nextFront();
     }
 
     @property bool empty() const nothrow scope @nogc
     {
         version(D_Coverage) {} else pragma(inline, true);
-        return _lexer.empty;
+        return _front is null;
     }
 
     inout(Node) front() inout scope return @trusted
@@ -1332,7 +1333,10 @@ struct GxParser
     {
         version(D_Coverage) {} else pragma(inline, true);
         assert(!empty);
-        _front = nextFront();
+        if (_lexer.empty)
+            _front = null;      // make `this` empty
+        else
+            _front = nextFront();
     }
 
     private RuleAltM getRule(in Token name,
@@ -1456,9 +1460,10 @@ struct GxParser
                 _lexer.popFront();
         }
 
-        return (isFragment ?
-                new FragmentRuleAltM(name, alts.move()) :
-                new RuleAltM(name, alts.move()));
+        if (isFragment)
+            return new FragmentRuleAltM(name, alts.move());
+        else
+            return new RuleAltM(name, alts.move());
     }
 
     Input[] getArgs(in TOK separator,
@@ -1796,6 +1801,10 @@ struct GxFileReader
                 this.imports.put1(import_);
                 if (showFlag) import_.show();
             }
+            else
+            {
+                debug writeln("else");
+            }
             parser.popFront();
         }
     }
@@ -1841,6 +1850,8 @@ struct GxFileReader
                 fn.endsWith(`.g4`))
             {
                 if (fn.endsWith(`Antlr3.g`) || fn.endsWith(`ANTLRv2.g2`)) // skip this crap
+                    continue;
+                if (!fn.endsWith("oncrpcv2.g4"))
                     continue;
                 debug printf("Reading %.*s ...\n", cast(int)fn.length, fn.ptr);
                 auto reader = GxFileReader(fn);

@@ -903,33 +903,6 @@ final class SeqM : Node
     NodeArray subs;
 }
 
-/// Anonymous Alternative.
-final class AltM : Node
-{
-@safe:
-    override void show(in uint indentDepth = 0) const
-    {
-        putchar('(');
-        foreach (const i, const sub; subs)
-        {
-            if (i)
-                putchar(' ');
-            sub.show(0);
-        putchar(')');
-        }
-    }
-@safe pure nothrow @nogc:
-    this(NodeArray subs)
-    {
-        this.subs = subs.move();
-    }
-    this(uint n)(Node[n] subs)
-    {
-        this.subs = subs.move();
-    }
-    NodeArray subs;
-}
-
 /// Nothing.
 final class Nothing : Node
 {
@@ -945,17 +918,43 @@ final class Nothing : Node
     Token head;
 }
 
-/// Rule of alternatives.
-class RuleAltM : Node
+/// Rule.
+class Rule : Node
 {
 @safe:
     override void show(in uint indentDepth = 0) const @trusted
     {
         showToken(head, indentDepth);
         printf(":\n");
-        showSubs(indentDepth + 1);
+        top.show(indentDepth + 1);
     }
-    private void showSubs(in uint indentDepth) const @trusted
+@safe pure nothrow @nogc:
+    this(in Token head, Node top)
+    {
+        this.head = head;
+        this.top = top;
+    }
+    Token head;
+    Node top;
+}
+
+final class FragmentRule : Rule
+{
+@safe pure nothrow @nogc:
+    this(in Token head, Node top)
+    {
+        super(head, top);
+    }
+}
+
+final class AltM : Node
+{
+@safe:
+    override void show(in uint indentDepth = 0) const @trusted
+    {
+        showSubs(indentDepth);
+    }
+    final void showSubs(in uint indentDepth) const @trusted
     {
         foreach (const i, const sub; subs)
         {
@@ -968,31 +967,12 @@ class RuleAltM : Node
         }
     }
 @safe pure nothrow @nogc:
-    this(in Token head, NodeArray subs)
+    this(NodeArray subs)
     {
         super();
-        this.head = head;
         this.subs = subs.move();
     }
-    Token head;
     NodeArray subs;
-}
-
-/// Fragment rule of alternatives.
-final class FragmentRuleAltM : RuleAltM
-{
-@safe:
-    override void show(in uint indentDepth = 0) const @trusted
-    {
-        showToken(head, indentDepth);
-        printf(" (fragment):\n");
-        showSubs(indentDepth + 1);
-    }
-pure nothrow @nogc:
-    this(in Token head, NodeArray subs)
-    {
-        super(head, subs.move());
-    }
 }
 
 class Leaf : Node
@@ -1343,29 +1323,29 @@ final class Class : Leaf
     Input baseName;             ///< Base class name.
 }
 
-Node splitByPipe(const scope ref GxLexer lexer,
-                 NodeArray nodes) pure nothrow
-{
-    NodeArray result;
-    foreach (const i, node; nodes)
-    {
-        if (result.empty)
-        {
-            if (auto pipe = cast(Pipe)node)
-                lexer.errorAtToken(pipe.head, "no left-hand side argument to binary operator `|`");
-            result.put(node);
-        }
-        else if (result.length >= 2) // result: ... X Y
-        {
-            if (auto pipe = cast(Pipe)result.back) // result: ... X '|'
-            {
-                result.popBack(); // pop '|'
-                result.put1(new AltM([result.backPop()])); // pop X
-            }
-        }
-    }
-    return new SeqM(result.move());
-}
+// Node splitByPipe(const scope ref GxLexer lexer,
+//                  NodeArray nodes) pure nothrow
+// {
+//     NodeArray result;
+//     foreach (const i, node; nodes)
+//     {
+//         if (result.empty)
+//         {
+//             if (auto pipe = cast(Pipe)node)
+//                 lexer.errorAtToken(pipe.head, "no left-hand side argument to binary operator `|`");
+//             result.put(node);
+//         }
+//         else if (result.length >= 2) // result: ... X Y
+//         {
+//             if (auto pipe = cast(Pipe)result.back) // result: ... X '|'
+//             {
+//                 result.popBack(); // pop '|'
+//                 result.put1(new AltM([result.backPop()])); // pop X
+//             }
+//         }
+//     }
+//     return new SeqM(result.move());
+// }
 
 /** Gx parser.
  *
@@ -1406,10 +1386,10 @@ struct GxParser
             _front = nextFront();
     }
 
-    private RuleAltM getRule(in Token name,
-                             in bool isFragment,
-                             ActionSymbol actionSymbol = null,
-                             Action action = null) @trusted
+    private Rule getRule(in Token name,
+                         in bool isFragment,
+                         ActionSymbol actionSymbol = null,
+                         Action action = null) @trusted
     {
         _lexer.popFrontEnforce(TOK.colon, "no colon");
         NodeArray alts; // TODO: use static array with length being number of `TOK.pipe` till `TOK.semicolon`
@@ -1528,9 +1508,9 @@ struct GxParser
         }
 
         if (isFragment)
-            return new FragmentRuleAltM(name, alts.move());
+            return new FragmentRule(name, new AltM(alts.move()));
         else
-            return new RuleAltM(name, alts.move());
+            return new Rule(name, new AltM(alts.move()));
     }
 
     Input[] getArgs(in TOK separator,
@@ -1854,7 +1834,7 @@ struct GxFileReader
         auto parser = GxFileParser(filePath);
         while (!parser.empty)
         {
-            if (auto rule = cast(RuleAltM)parser.front) // TODO: avoid `cast`
+            if (auto rule = cast(Rule)parser.front) // TODO: avoid `cast`
             {
                 rules.put1(rule);
                 if (showFlag) rule.show();
@@ -1878,7 +1858,7 @@ struct GxFileReader
     }
     Grammar grammar;
     DynamicArray!(Import, null, uint) imports;
-    DynamicArray!(RuleAltM, null, uint) rules;
+    DynamicArray!(Rule, null, uint) rules;
     // TODO: `OpenHashMap rulesByName`
     ~this() @nogc {}
 }

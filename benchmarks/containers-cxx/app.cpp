@@ -87,17 +87,16 @@ void benchmarkVector(const Samples& ulongArray, const size_t runCount)
     showHeader<Vector>();
 }
 
-template<class Set>
-void benchmarkSet(const Samples& ulongArray, const size_t runCount)
+template<class Set, bool reserveFlag>
+Set benchmarkSet_insert(const Samples& ulongArray,
+                         const size_t runCount)
 {
-    cout << "- ";
-    Set x;
-    if constexpr (has_member(Set, reserve))
-    {
-        x.reserve(ulongArray.size());
-    }
-
     Durs durs(runCount);
+
+    Set x;
+
+    if constexpr (reserveFlag)
+        x.reserve(ulongArray.size());
 
     for (size_t runIx = 0; runIx != runCount; ++runIx)
     {
@@ -108,7 +107,28 @@ void benchmarkSet(const Samples& ulongArray, const size_t runCount)
         }
         durs[runIx] = Clock::now() - beg;
     }
-    showResults("insert", durs, ulongArray.size(), true);
+    if constexpr (reserveFlag)
+        showResults("insert (reserved)", durs, ulongArray.size(), true);
+    else
+        showResults("insert", durs, ulongArray.size(), true);
+
+    return x;
+}
+
+template<class Set>
+void benchmarkSet(const Samples& ulongArray,
+                  const size_t runCount)
+{
+    cout << "- ";
+
+    if constexpr (has_member(Set, reserve))
+    {
+        const Set __attribute__((unused)) x = benchmarkSet_insert<Set, true>(ulongArray, runCount);
+    }
+
+    Durs durs(runCount);
+
+    Set x = benchmarkSet_insert<Set, false>(ulongArray, runCount);
 
     bool allHit = true;
     for (size_t runIx = 0; runIx != runCount; ++runIx)
@@ -228,6 +248,21 @@ Samples getSource(size_t elementCount)
     return source;
 }
 
+void benchmarkAllUnorderedSets(const Samples& ulongArray,
+                               const size_t runCount)
+{
+    benchmarkSet<tsl::robin_set<Sample>>(ulongArray, runCount);
+    benchmarkSet<tsl::robin_set<Sample>>(ulongArray, runCount);
+    benchmarkSet<tsl::robin_pg_set<Sample>>(ulongArray, runCount);
+    benchmarkSet<ska::flat_hash_set<Sample>>(ulongArray, runCount);
+    /* TODO: benchmarkSet<ska::bytell_hash_set<Sample>>(ulongArray, runCount); */
+    benchmarkSet<robin_hood::unordered_flat_set<Sample>>(ulongArray, runCount);
+    benchmarkSet<robin_hood::unordered_node_set<Sample>>(ulongArray, runCount);
+    benchmarkSet<robin_hood::unordered_set<Sample>>(ulongArray, runCount);
+    benchmarkSet<std::unordered_set<Sample>>(ulongArray, runCount);
+    benchmarkSet<std::unordered_multiset<Sample>>(ulongArray, runCount);
+}
+
 int main(__attribute__((unused)) int argc,
          __attribute__((unused)) const char* argv[],
          __attribute__((unused)) const char* envp[])
@@ -241,15 +276,7 @@ int main(__attribute__((unused)) int argc,
     benchmarkVector<std::vector<Sample>>(ulongArray, runCount);
 
     cout << "# Unordered Sets:" << endl;
-    benchmarkSet<tsl::robin_set<Sample>>(ulongArray, runCount);
-    benchmarkSet<tsl::robin_pg_set<Sample>>(ulongArray, runCount);
-    benchmarkSet<ska::flat_hash_set<Sample>>(ulongArray, runCount);
-    /* TODO: benchmarkSet<ska::bytell_hash_set<Sample>>(ulongArray, runCount); */
-    benchmarkSet<robin_hood::unordered_flat_set<Sample>>(ulongArray, runCount);
-    benchmarkSet<robin_hood::unordered_node_set<Sample>>(ulongArray, runCount);
-    benchmarkSet<robin_hood::unordered_set<Sample>>(ulongArray, runCount);
-    benchmarkSet<std::unordered_set<Sample>>(ulongArray, runCount);
-    benchmarkSet<std::unordered_multiset<Sample>>(ulongArray, runCount);
+    benchmarkAllUnorderedSets(ulongArray, runCount);
 
     cout << "# Ordered Sets:" << endl;
     benchmarkSet<std::set<Sample>>(ulongArray, runCount);

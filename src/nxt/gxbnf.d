@@ -903,6 +903,31 @@ final class SeqM : Node
     NodeArray subs;
 }
 
+/// Anonymous Alternative.
+final class AltM : Node
+{
+@safe:
+    override void show(in uint indentDepth = 0) const
+    {
+        foreach (const i, const sub; subs)
+        {
+            if (i)
+                putchar(' ');
+            sub.show(0);
+        }
+    }
+@safe pure nothrow @nogc:
+    this(NodeArray subs)
+    {
+        this.subs = subs.move();
+    }
+    this(uint n)(Node[n] subs)
+    {
+        this.subs = subs.move();
+    }
+    NodeArray subs;
+}
+
 /// Nothing.
 final class Nothing : Node
 {
@@ -1029,6 +1054,20 @@ class ZeroOrOne : Node
 }
 
 class Symbol : Leaf
+{
+@safe:
+    override void show(in uint indentDepth = 0) const @trusted
+    {
+        showToken(head, indentDepth);
+    }
+@safe pure nothrow @nogc:
+    this(in Token head)
+    {
+        super(head);
+    }
+}
+
+class Pipe : Leaf
 {
 @safe:
     override void show(in uint indentDepth = 0) const @trusted
@@ -1299,6 +1338,30 @@ final class Class : Leaf
     Input baseName;             ///< Base class name.
 }
 
+Node splitByPipe(const scope ref GxLexer lexer,
+                 NodeArray nodes) pure nothrow
+{
+    NodeArray result;
+    foreach (const i, node; nodes)
+    {
+        if (result.empty)
+        {
+            if (auto pipe = cast(Pipe)node)
+                lexer.errorAtToken(pipe.head, "no left-hand side argument to binary operator `|`");
+            result.put(node);
+        }
+        else if (result.length >= 2) // result: ... X Y
+        {
+            if (auto pipe = cast(Pipe)result.back) // result: ... X '|'
+            {
+                result.popBack(); // pop '|'
+                result.put1(new AltM([result.backPop()])); // pop X
+            }
+        }
+    }
+    return new SeqM(result.move());
+}
+
 /** Gx parser.
  *
  * See: `ANTLRv4Parser.g4`
@@ -1363,17 +1426,20 @@ struct GxParser
                 case TOK.textLiteralDoubleQuoted:
                     seq.put1(new Literal(_lexer.frontPop()));
                     break;
-                case TOK.star:
+                case TOK.star:  // postfix operator
                     // _lexer.infoAtFront("TODO: if previous is ')' pop from stack");
                     seq.put1(new ZeroOrMore(_lexer.frontPop()));
                     break;
-                case TOK.plus:
+                case TOK.plus:  // postfix operator
                     // _lexer.infoAtFront("TODO: if previous is ')' pop from stack");
                     seq.put1(new OneOrMore(_lexer.frontPop()));
                     break;
-                case TOK.optOrSemPred:
+                case TOK.optOrSemPred: // postfix operator
                     // _lexer.infoAtFront("TODO: if previous is ')' pop from stack");
                     seq.put1(new ZeroOrOne(_lexer.frontPop()));
+                    break;
+                case TOK.pipe:
+                    seq.put1(new Pipe(_lexer.frontPop())); // sentinel
                     break;
                 case TOK.leftParen:
                     parentDepth += 1;
@@ -1430,7 +1496,7 @@ struct GxParser
                     _lexer.frontPop();
                     break;
                 default:
-                    // _lexer.infoAtFront("TODO: handle");
+                    _lexer.infoAtFront("TODO: unhandled token type");
                     seq.put1(new Symbol(_lexer.frontPop()));
                 }
             }

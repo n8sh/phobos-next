@@ -13,7 +13,8 @@
  * - parse postfix operators *, +, ?
  * - handle all TODO's in `getRule`
  * - create index of symbols and link them in second pass
- * - use `BranchN`, `AltN` and `SeqN`
+ * - add RuleAltN(uint n)
+ * - add SeqN(uint n)
  * - non-pure diagnostics functions
  */
 module nxt.gxbnf;
@@ -878,17 +879,6 @@ pure nothrow @nogc:
     this()
     {
     }
-}
-
-private abstract class BranchN(uint n) : Node // TODO: use
-{
-@safe pure nothrow @nogc:
-    this(in Token head, Node[n] subs)
-    {
-        super();
-        this.subs = subs;
-    }
-    Node[n] subs;
 }
 
 alias NodeArray = DynamicArray!(Node, null, uint); // `uint` capacity is enough

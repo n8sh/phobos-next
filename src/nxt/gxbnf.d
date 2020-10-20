@@ -63,7 +63,7 @@ enum TOK
 
     hooks,                       ///< Alternatives within '[' ... ']'
 
-    literal,            ///< Text (string) literal, surrounded by single quotes.
+    literal,            ///< Text (string) literal, surrounded by either single or double quotes.
 
     colon,                      ///< Colon `:`.
     semicolon,                  ///< Semicolon `;`.

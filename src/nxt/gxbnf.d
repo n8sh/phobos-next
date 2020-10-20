@@ -63,8 +63,7 @@ enum TOK
 
     hooks,                       ///< Alternatives within '[' ... ']'
 
-    literalSingleQuoted, ///< Text (string) literal, surrounded by single quotes.
-    literalDoubleQuoted, ///< Text (string) literal, surrounded by double quotes.
+    literal,            ///< Text (string) literal, surrounded by single quotes.
 
     colon,                      ///< Colon `:`.
     semicolon,                  ///< Semicolon `;`.
@@ -295,7 +294,7 @@ private:
     {
         size_t i;
         while (!peekN(i).among!('\0', endOfLineChars))
-            ++i;                // TODO: decode `dchar`
+            i +=1;                // TODO: decode `dchar`
         return skipOverN(i);    // TODO: decode `dchar`
     }
 
@@ -322,13 +321,13 @@ private:
         size_t i;
         const bool attributeFlag = peek0() == '@';
         if (peek0().isSymbolStart)
-            ++i;
+            i +=1;
         while (peekN(i).isAlphaNum ||
                peekN(i) == '_' ||
                (attributeFlag && // attribute name
                 peekN(i) == ':')) // may include colon qualifier
         {
-            ++i;
+            i +=1;
         }
         return skipOverN(i);
     }
@@ -339,7 +338,7 @@ private:
         import std.ascii : isDigit;
         size_t i;
         while (peekN(i).isDigit)
-            ++i;
+            i +=1;
         return skipOverN(i);
     }
 
@@ -347,7 +346,7 @@ private:
     {
         size_t i;
         while (peekN(i).among!(whiteChars)) // NOTE this is faster than `src[i].isWhite`
-            ++i;
+            i +=1;
         return skipOverN(i);
     }
 
@@ -355,28 +354,25 @@ private:
     {
         if (peekN(i) == '\\')   // TODO: decode `dchar`
         {
-            ++i;
+            i +=1;
             if (peekN(i) == 'n')
-                ++i;            // TODO: convert to "\r"
+                i +=1;            // TODO: convert to "\r"
             else if (peekN(i) == 't')
-                ++i;            // TODO: convert to "\t"
+                i +=1;            // TODO: convert to "\t"
             else if (peekN(i) == 'r')
-                ++i;            // TODO: convert to ASCII "\r"
+                i +=1;            // TODO: convert to ASCII "\r"
             else if (peekN(i) == ']')
-                ++i;            // TODO: convert to ASCII "]"
+                i +=1;            // TODO: convert to ASCII "]"
             else if (peekN(i) == 'u')
             {
-                ++i;
+                i +=1;
                 import std.ascii : isDigit;
                 while (peekN(i).isDigit)
-                    ++i;
+                    i +=1;
                 // TODO: convert to `dchar`
             }
             else if (peekN(i) == '\0')
-            {
                 errorAtIndex("unterminated escape sequence at end of file");
-                return false;
-            }
             else
                 i += 1;
             return true;
@@ -384,46 +380,25 @@ private:
         return false;
     }
 
-    Input getTextLiteralDoubleQuoted() return nothrow @nogc
+    Input getLiteral(dchar terminator)() return nothrow @nogc
     {
-        drop1();
-        size_t i;
-        while (!peekN(i).among!('\0', '"'))
-        {
+        size_t i = 1;
+        while (!peekN(i).among!('\0', terminator))
             if (!skipOverEsc(i))
-                ++i;
-        }
-        const literal = skipOverN(i);
-        if (peek0() == '"')
-            drop1();        // pop ending double singlequote
-        return literal;
-    }
-
-    Input getTextLiteralSingleQuoted() return nothrow @nogc
-    {
-        drop1();
-        size_t i;
-        while (!peekN(i).among!('\0', '\''))
-        {
-            if (!skipOverEsc(i))
-                ++i;
-        }
-        const literal = skipOverN(i);
-        if (peek0() == '\'')
-            drop1();        // pop ending double singlequote
-        return literal;
+                i +=1;
+        if (peekN(i) == '\0')
+            errorAtIndex("unterminated string literal at end of file");
+        return skipOverN(i + 1); // include terminator
     }
 
     Input getHooks() return nothrow @nogc
     {
         size_t i;
         while (!peekN(i).among!('\0', ']')) // may contain whitespace
-        {
             if (!skipOverEsc(i))
-                ++i;
-        }
+                i +=1;
         if (peekN(i) == ']') // skip ']'
-            ++i;
+            i +=1;
         return skipOverN(i);
     }
 
@@ -626,12 +601,10 @@ private:
             _token = Token(TOK.hooks, getHooks());
             break;
         case '"':
-            _token = Token(TOK.literalDoubleQuoted,
-                           getTextLiteralDoubleQuoted());
+            _token = Token(TOK.literal, getLiteral!('"')());
             break;
         case '\'':
-            _token = Token(TOK.literalSingleQuoted,
-                           getTextLiteralSingleQuoted());
+            _token = Token(TOK.literal, getLiteral!('\'')());
             break;
         case ':':
             _token = Token(TOK.colon, skipOver1());
@@ -1071,9 +1044,7 @@ class Literal : Leaf
 @safe:
     override void show(in uint indentDepth = 0) const @trusted
     {
-        printf("\"");
         showToken(head, indentDepth);
-        printf("\"");
     }
 pure nothrow @nogc:
     this(in Token head)
@@ -1407,8 +1378,7 @@ struct GxParser
                 case TOK.symbol:
                     seq.put1(new Symbol(_lexer.frontPop()));
                     break;
-                case TOK.literalSingleQuoted:
-                case TOK.literalDoubleQuoted:
+                case TOK.literal:
                     seq.put1(new Literal(_lexer.frontPop()));
                     break;
                 case TOK.star:
@@ -1611,7 +1581,7 @@ struct GxParser
 
     Header makeHeader(in Token head)
     {
-        const name = (_lexer.front.tok == TOK.literalDoubleQuoted ?
+        const name = (_lexer.front.tok == TOK.literal ?
                       _lexer.frontPop() :
                       Token.init);
         const action = _lexer.frontPopEnforce(TOK.action, "missing action");

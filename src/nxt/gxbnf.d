@@ -909,11 +909,13 @@ final class AltM : Node
 @safe:
     override void show(in uint indentDepth = 0) const
     {
+        putchar('(');
         foreach (const i, const sub; subs)
         {
             if (i)
                 putchar(' ');
             sub.show(0);
+        putchar(')');
         }
     }
 @safe pure nothrow @nogc:
@@ -955,11 +957,14 @@ class RuleAltM : Node
     }
     private void showSubs(in uint indentDepth) const @trusted
     {
-        foreach (const sub; subs)
+        foreach (const i, const sub; subs)
         {
             showIndent(indentDepth);
             sub.show(indentDepth);
-            putchar('\n');      // separate line
+            if (i + 1 != subs.length)
+                printf(" |\n");
+            else
+                printf(" ;\n");
         }
     }
 @safe pure nothrow @nogc:

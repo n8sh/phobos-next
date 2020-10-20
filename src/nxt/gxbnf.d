@@ -8,7 +8,6 @@
  * See_Also: https://bnfc.digitalgrammars.com/
  *
  * TODO:
- *
  * - Sort AltM subs by descending minimum length
  * - Check that `DynamicArray.backPop` zeros pointer elements at the end.
  * - parse postfix operators *, +, ?

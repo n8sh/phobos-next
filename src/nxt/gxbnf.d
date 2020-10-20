@@ -888,6 +888,7 @@ final class SeqM : Node
 @safe:
     override void show(in uint indentDepth = 0) const
     {
+        showIndent(indentDepth);
         foreach (const i, const sub; subs)
         {
             if (i)
@@ -927,6 +928,7 @@ class Rule : Node
         showToken(head, indentDepth);
         printf(":\n");
         top.show(indentDepth + 1);
+        printf(" ;\n");
     }
 @safe pure nothrow @nogc:
     this(in Token head, Node top)
@@ -962,8 +964,6 @@ final class AltM : Node
             sub.show(indentDepth);
             if (i + 1 != subs.length)
                 printf(" |\n");
-            else
-                printf(" ;\n");
         }
     }
 @safe pure nothrow @nogc:
@@ -1508,9 +1508,11 @@ struct GxParser
         }
 
         if (isFragment)
-            return new FragmentRule(name, new AltM(alts.move()));
+            return new FragmentRule(name,
+                                    alts.length == 1 ? alts.backPop() : new AltM(alts.move()));
         else
-            return new Rule(name, new AltM(alts.move()));
+            return new Rule(name,
+                            alts.length == 1 ? alts.backPop() : new AltM(alts.move()));
     }
 
     Input[] getArgs(in TOK separator,

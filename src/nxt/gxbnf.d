@@ -63,8 +63,8 @@ enum TOK
 
     hooks,                       ///< Alternatives within '[' ... ']'
 
-    textLiteralSingleQuoted,    ///< Text (string) literal, surrounded by single quotes.
-    textLiteralDoubleQuoted,    ///< Text (string) literal, surrounded by double quotes.
+    literalSingleQuoted, ///< Text (string) literal, surrounded by single quotes.
+    literalDoubleQuoted, ///< Text (string) literal, surrounded by double quotes.
 
     colon,                      ///< Colon `:`.
     semicolon,                  ///< Semicolon `;`.
@@ -72,7 +72,7 @@ enum TOK
     labelAssignment,            ///< Label assignment `=`
     listLabelAssignment,        ///< List label assignment `+=`
 
-    optOrSemPred,               ///< Optional or semantic predicate (`?`)
+    qmark,               ///< Optional or semantic predicate (`?`)
     star,                       ///< Zero or more (`*`)
     plus,                       ///< One or more (`+`)
     pipe,                       ///< Alternative (`|`)
@@ -626,11 +626,11 @@ private:
             _token = Token(TOK.hooks, getHooks());
             break;
         case '"':
-            _token = Token(TOK.textLiteralDoubleQuoted,
+            _token = Token(TOK.literalDoubleQuoted,
                            getTextLiteralDoubleQuoted());
             break;
         case '\'':
-            _token = Token(TOK.textLiteralSingleQuoted,
+            _token = Token(TOK.literalSingleQuoted,
                            getTextLiteralSingleQuoted());
             break;
         case ':':
@@ -664,7 +664,7 @@ private:
             _token = Token(TOK.tilde, skipOver1());
             break;
         case '?':
-            _token = Token(TOK.optOrSemPred, skipOver1());
+            _token = Token(TOK.qmark, skipOver1());
             break;
         case '<':
             _token = Token(TOK.lt, skipOver1());
@@ -1005,52 +1005,52 @@ pure nothrow @nogc:
     Token head;
 }
 
-class ZeroOrMore : Node
+abstract class UnaryOp : Node
 {
 @safe:
-    override void show(in uint indentDepth = 0) const @trusted
+    final override void show(in uint indentDepth = 0) const @trusted
     {
+        putchar('(');
+        sub.show(indentDepth);
+        putchar(')');
         showToken(head, indentDepth);
     }
 @safe pure nothrow @nogc:
-    this(in Token head)
+    this(in Token head, Node sub)
     {
         super();
         this.head = head;
+        this.sub = sub;
     }
     Token head;
+    Node sub;
 }
 
-class OneOrMore : Node
+class ZeroOrOne : UnaryOp
 {
-@safe:
-    override void show(in uint indentDepth = 0) const @trusted
-    {
-        showToken(head, indentDepth);
-    }
 @safe pure nothrow @nogc:
-    this(in Token head)
+    this(in Token head, Node sub)
     {
-        super();
-        this.head = head;
+        super(head, sub);
     }
-    Token head;
 }
 
-class ZeroOrOne : Node
+class ZeroOrMore : UnaryOp
 {
-@safe:
-    override void show(in uint indentDepth = 0) const @trusted
-    {
-        showToken(head, indentDepth);
-    }
 @safe pure nothrow @nogc:
-    this(in Token head)
+    this(in Token head, Node sub)
     {
-        super();
-        this.head = head;
+        super(head, sub);
     }
-    Token head;
+}
+
+class OneOrMore : UnaryOp
+{
+@safe pure nothrow @nogc:
+    this(in Token head, Node sub)
+    {
+        super(head, sub);
+    }
 }
 
 class Symbol : Leaf
@@ -1422,21 +1422,18 @@ struct GxParser
                 case TOK.symbol:
                     seq.put1(new Symbol(_lexer.frontPop()));
                     break;
-                case TOK.textLiteralSingleQuoted:
-                case TOK.textLiteralDoubleQuoted:
+                case TOK.literalSingleQuoted:
+                case TOK.literalDoubleQuoted:
                     seq.put1(new Literal(_lexer.frontPop()));
                     break;
-                case TOK.star:  // postfix operator
-                    // _lexer.infoAtFront("TODO: if previous is ')' pop from stack");
-                    seq.put1(new ZeroOrMore(_lexer.frontPop()));
+                case TOK.star:
+                    seq.put1(new ZeroOrMore(_lexer.frontPop(), seq.backPop));
                     break;
-                case TOK.plus:  // postfix operator
-                    // _lexer.infoAtFront("TODO: if previous is ')' pop from stack");
-                    seq.put1(new OneOrMore(_lexer.frontPop()));
+                case TOK.plus:
+                    seq.put1(new OneOrMore(_lexer.frontPop(), seq.backPop()));
                     break;
-                case TOK.optOrSemPred: // postfix operator
-                    // _lexer.infoAtFront("TODO: if previous is ')' pop from stack");
-                    seq.put1(new ZeroOrOne(_lexer.frontPop()));
+                case TOK.qmark:
+                    seq.put1(new ZeroOrOne(_lexer.frontPop(), seq.frontPop()));
                     break;
                 case TOK.pipe:
                     seq.put1(new Pipe(_lexer.frontPop())); // sentinel
@@ -1627,7 +1624,7 @@ struct GxParser
 
     Header makeHeader(in Token head)
     {
-        const name = (_lexer.front.tok == TOK.textLiteralDoubleQuoted ?
+        const name = (_lexer.front.tok == TOK.literalDoubleQuoted ?
                       _lexer.frontPop() :
                       Token.init);
         const action = _lexer.frontPopEnforce(TOK.action, "missing action");

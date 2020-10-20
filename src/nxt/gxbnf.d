@@ -13,8 +13,8 @@
  * - parse postfix operators *, +, ?
  * - handle all TODO's in `getRule`
  * - create index of symbols and link them in second pass
- * - add RuleAltN(uint n)
- * - add SeqN(uint n)
+ * - add `RuleAltN(uint n)`
+ * - add `SeqN(uint n)`
  * - non-pure diagnostics functions
  */
 module nxt.gxbnf;

@@ -622,6 +622,9 @@ private:
             else
                 _token = Token(TOK.labelAssignment, skipOver1());
             break;
+        case '?':
+            _token = Token(TOK.qmark, skipOver1());
+            break;
         case '*':
             _token = Token(TOK.star, skipOver1());
             break;
@@ -636,9 +639,6 @@ private:
             break;
         case '~':
             _token = Token(TOK.tilde, skipOver1());
-            break;
-        case '?':
-            _token = Token(TOK.qmark, skipOver1());
             break;
         case '<':
             _token = Token(TOK.lt, skipOver1());
@@ -1483,7 +1483,7 @@ struct GxParser
                     seqPutCheck(new Literal(_lexer.frontPop()));
                     break;
                 case TOK.star:
-                    seq.put1(new ZeroOrMore(_lexer.frontPop(), seq.backPop));
+                    seq.put1(new ZeroOrMore(_lexer.frontPop(), seq.backPop()));
                     break;
                 case TOK.plus:
                     seq.put1(new OneOrMore(_lexer.frontPop(), seq.backPop()));

@@ -874,9 +874,11 @@ bool equals(const scope Node a,
     return a is b;              // TODO: generalize to casting
 }
 
-Node makeSeqM(NodeArray subs) pure nothrow
+Node makeSeqM(NodeArray subs,
+              in bool rewriteFlag = false) pure nothrow
 {
-    if (subs.length == 2)
+    if (rewriteFlag &&
+        subs.length == 2)
     {
         if (ZeroOrMore zom = cast(ZeroOrMore)subs[0])
             if (zom.sub.equals(subs[1]))

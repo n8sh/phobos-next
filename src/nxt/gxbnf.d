@@ -10,7 +10,6 @@
  * TODO:
  * - Sort `AltM` subs by descending minimum length
  * - Check that `DynamicArray.backPop` zeros pointer elements at the end.
- * - parse postfix operators *, +, ?
  * - handle all TODO's in `getRule`
  * - create index of symbols and link them in second pass
  * - add `RuleAltN(uint n)`

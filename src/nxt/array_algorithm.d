@@ -118,9 +118,8 @@ bool endsWith(T)(scope const T[] haystack,
 bool endsWithEither(T)(scope const T[] haystack,
                        scope const T[][] needles) @trusted
 {
-    // TODO: optimize
     foreach (const needle; needles)
-        if (haystack.endsWith(needle))
+        if (haystack.endsWith(needle)) // TODO: optimize
             return true;
     return false;
 }
@@ -128,9 +127,8 @@ bool endsWithEither(T)(scope const T[] haystack,
 bool endsWithEither(T)(scope const T[] haystack,
                        scope const T[] needles) @trusted
 {
-    // TODO: optimize
     foreach (const needle; needles)
-        if (haystack.endsWith(needle))
+        if (haystack.endsWith(needle)) // TODO: optimize
             return true;
     return false;
 }
@@ -141,6 +139,7 @@ bool endsWithEither(T)(scope const T[] haystack,
     const x = "beta version";
     assert(x.endsWithEither(["version", ""]));
     assert(x.endsWithEither(['n', ' ']));
+    assert(x.endsWithEither("ab"));
 }
 
 /** Array-specialization of `findSkip` with default predicate.

@@ -18,6 +18,7 @@
  * - add `SeqN(uint n)`
  * - non-pure diagnostics functions
  * - Display column range for tokens in messages. Use head.input.length.
+ * - Avoid casts
  */
 module nxt.gxbnf;
 
@@ -415,7 +416,7 @@ private:
         bool inChar;
         bool inString;
 
-        const infoFlag = true;
+        const infoFlag = false;
 
         while (!peekN(i).among!('\0'))
         {
@@ -947,6 +948,12 @@ final class AltM : Node
         super();
         this.subs = subs.move();
     }
+    this(uint n)(Node[n] subs)
+    {
+        super();
+        foreach (sub; subs)
+            this.subs.put1(sub);
+    }
     NodeArray subs;
 }
 
@@ -1369,7 +1376,21 @@ struct GxParser
         while (_lexer.front.tok != TOK.semicolon)
         {
             size_t parentDepth = 0;
+
             NodeArray seq; // TODO: use stack for small arrays. TODO: use `Rule` as ElementType
+
+            void seqPutCheckPipe(Node last)
+            {
+                if (!seq.empty &&
+                    cast(Pipe)seq.back)
+                {
+                    seq.popBack(); // pop `Pipe`
+                    seq.put1(new AltM([seq.backPop(), last]));
+                }
+                else
+                    seq.put1(last);
+            }
+
             while ((parentDepth != 0 ||
                     _lexer.front.tok != TOK.pipe) &&
                    _lexer.front.tok != TOK.semicolon)
@@ -1378,10 +1399,10 @@ struct GxParser
                 switch (_lexer.front.tok)
                 {
                 case TOK.symbol:
-                    seq.put1(new Symbol(_lexer.frontPop()));
+                    seqPutCheckPipe(new Symbol(_lexer.frontPop()));
                     break;
                 case TOK.literal:
-                    seq.put1(new Literal(_lexer.frontPop()));
+                    seqPutCheckPipe(new Literal(_lexer.frontPop()));
                     break;
                 case TOK.star:
                     seq.put1(new ZeroOrMore(_lexer.frontPop(), seq.backPop));
@@ -1428,20 +1449,20 @@ struct GxParser
                         }
                         // debug writeln("popped", seq.length - li);
                         seq.popBackN(seq.length - li);
-                        seq.put1(new SeqM(subseq.move()));
+                        seqPutCheckPipe(new SeqM(subseq.move()));
                     }
                     else if (li + 2 == seq.length) // single case: ... ( X )
                     {
                         // _lexer.warningAtFront("single element group has no use");
                         Node single = seq.backPop(); // pop X
                         seq.popBack(); // pop '('
-                        seq.insertBack(single); // insert X
+                        seqPutCheckPipe(single); // insert X
                     }
                     else if (li + 1 == seq.length) // empty case: ... ( )
                     {
                         auto nothing = new Nothing(hs.head);
                         seq.popBack(); // pop '('
-                        seq.insertBack(nothing); // TODO: use ZeroOrOne() instead
+                        seqPutCheckPipe(nothing); // TODO: use ZeroOrOne() instead
                     }
                     else if (li == seq.length) // unmatched case: ... )
                     {
@@ -1451,7 +1472,7 @@ struct GxParser
                     break;
                 default:
                     _lexer.infoAtFront("TODO: unhandled token type");
-                    seq.put1(new Symbol(_lexer.frontPop()));
+                    seqPutCheckPipe(new Symbol(_lexer.frontPop()));
                 }
             }
             if (!seq.length)
@@ -1837,6 +1858,11 @@ struct GxFileReader
     ~this() @nogc {}
 }
 
+bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
+{
+    return name.endsWithEither([`.g`, `.g2`, `.g4`]);
+}
+
 ///
 @trusted unittest
 {
@@ -1851,7 +1877,7 @@ struct GxFileReader
         foreach (const e; dirEntries(root, SpanMode.breadth))
         {
             const fn = e.name;
-            if (fn.endsWithEither([`.g`, `.g2`, `.g4`]))
+            if (fn.isGxFileName)
             {
                 debug printf("Lexing %.*s ...\n", cast(int)fn.length, fn.ptr);
                 const data = cast(Input)rawReadPath(fn);
@@ -1865,9 +1891,10 @@ struct GxFileReader
         foreach (const e; dirEntries(root, SpanMode.breadth))
         {
             const fn = e.name;
-            if (fn.endsWithEither([`.g`, `.g2`, `.g4`]))
+            if (fn.isGxFileName)
             {
-                if (fn.endsWith(`Antlr3.g`) || fn.endsWith(`ANTLRv2.g2`)) // skip this crap
+                if (fn.endsWith(`Antlr3.g`) ||
+                    fn.endsWith(`ANTLRv2.g2`)) // skip this crap
                     continue;
                 if (!fn.endsWith("oncrpcv2.g4"))
                     continue;

@@ -835,7 +835,6 @@ struct Format
     enum indentStep = 4;
     uint indentDepth;           ///< Indentation depth.
     Layout layout;
-
     void showIndent() @safe const nothrow @nogc
     {
         foreach (_; 0 .. indentDepth*Format.indentStep)
@@ -1838,23 +1837,24 @@ struct GxFileReader
     this(in string filePath)
     {
         const showFlag = filePath.endsWith("oncrpcv2.g4");
+        Format fmt;
         auto parser = GxFileParser(filePath);
         while (!parser.empty)
         {
             if (auto rule = cast(Rule)parser.front) // TODO: avoid `cast`
             {
                 rules.put1(rule);
-                if (showFlag) rule.show();
+                if (showFlag) rule.show(fmt);
             }
             else if (auto grammar = cast(Grammar)parser.front) // TODO: avoid `cast`
             {
                 this.grammar = grammar;
-                if (showFlag) grammar.show();
+                if (showFlag) grammar.show(fmt);
             }
             else if (auto import_ = cast(Import)parser.front) // TODO: avoid `cast`
             {
                 this.imports.put1(import_);
-                if (showFlag) import_.show();
+                if (showFlag) import_.show(fmt);
             }
             else
             {

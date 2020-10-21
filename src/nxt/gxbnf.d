@@ -947,7 +947,6 @@ final class AltM : Node
     {
         foreach (const i, const sub; subs)
         {
-            fmt.showIndent();
             sub.show(fmt);
             if (i + 1 != subs.length)
                 printf(" |\n");

@@ -8,6 +8,7 @@
  * See_Also: https://bnfc.digitalgrammars.com/
  *
  * TODO:
+ * - Handle: `var_name=lvalue op=ASSIGN global_name=id_global;`
  * - Sort `AltM` subs by descending minimum length
  * - Check that `DynamicArray.backPop` zeros pointer elements at the end.
  * - handle all TODO's in `getRule`
@@ -1484,7 +1485,7 @@ struct GxParser
                     seqPutCheck(new Literal(_lexer.frontPop()));
                     break;
                 case TOK.qmark:
-                    seq.put1(new ZeroOrOne(_lexer.frontPop(), seq.frontPop()));
+                    seq.put1(new ZeroOrOne(_lexer.frontPop(), seq.backPop()));
                     break;
                 case TOK.star:
                     seq.put1(new ZeroOrMore(_lexer.frontPop(), seq.backPop()));
@@ -1944,7 +1945,8 @@ struct GxFileReader
             }
             else
             {
-                debug writeln("else");
+                debug write("TODO: handle:");
+                if (showFlag) parser.front.show(fmt);
             }
             parser.popFront();
         }

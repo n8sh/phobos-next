@@ -949,7 +949,12 @@ final class AltM : Node
         {
             sub.show(fmt);
             if (i + 1 != subs.length)
-                printf(" |\n");
+            {
+                if (fmt.indentDepth)
+                    printf(" |\n");
+                else
+                    printf(" | ");
+            }
         }
     }
 @safe pure nothrow @nogc:

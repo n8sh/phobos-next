@@ -139,7 +139,7 @@ bool endsWithEither(T)(scope const T[] haystack,
     const x = "beta version";
     assert(x.endsWithEither(["version", ""]));
     assert(x.endsWithEither(['n', ' ']));
-    assert(x.endsWithEither("ab"));
+    assert(x.endsWithEither("n "));
 }
 
 /** Array-specialization of `findSkip` with default predicate.

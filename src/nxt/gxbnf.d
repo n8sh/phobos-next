@@ -839,17 +839,29 @@ private void showChars(in const(char)[] chars) @trusted
 }
 
 private void showToken(in Token token,
-                       in uint indentDepth) @trusted
+                       in Format fmt) @trusted
 {
-    showIndent(indentDepth);
+    showIndent(fmt.indentDepth);
     showChars(token.input);
+}
+
+/// Format when printing AST (nodes).
+enum FormatKind : ubyte
+{
+    source,                     ///< Try to mimic original source.
+    tree                        ///< Makes AST-structure clear.
+}
+struct Format
+{
+    uint indentDepth;
+    FormatKind kind;
 }
 
 /// AST node.
 private abstract class Node
 {
 @safe:
-    abstract void show(in uint indentDepth = 0) const;
+    abstract void show(in Format fmt = Format.init) const;
 pure nothrow @nogc:
     this()
     {
@@ -862,14 +874,14 @@ alias NodeArray = DynamicArray!(Node, null, uint); // `uint` capacity is enough
 final class SeqM : Node
 {
 @safe:
-    override void show(in uint indentDepth = 0) const
+    override void show(in Format fmt = Format.init) const
     {
-        showIndent(indentDepth);
+        showIndent(fmt.indentDepth);
         foreach (const i, const sub; subs)
         {
             if (i)
                 putchar(' ');
-            sub.show(0);
+            sub.show();
         }
     }
 @safe pure nothrow @nogc:
@@ -884,7 +896,7 @@ final class SeqM : Node
 final class Nothing : Node
 {
 @safe:
-    override void show(in uint indentDepth = 0) const
+    override void show(in Format fmt = Format.init) const
     {
     }
 @safe pure nothrow @nogc:
@@ -899,11 +911,11 @@ final class Nothing : Node
 class Rule : Node
 {
 @safe:
-    override void show(in uint indentDepth = 0) const @trusted
+    override void show(in Format fmt = Format.init) const @trusted
     {
-        showToken(head, indentDepth);
+        showToken(head, fmt);
         printf(":\n");
-        top.show(indentDepth + 1);
+        top.show(Format(fmt.indentDepth + 1));
         printf(" ;\n");
     }
 @safe pure nothrow @nogc:
@@ -928,16 +940,16 @@ final class FragmentRule : Rule
 final class AltM : Node
 {
 @safe:
-    override void show(in uint indentDepth = 0) const @trusted
+    override void show(in Format fmt = Format.init) const @trusted
     {
-        showSubs(indentDepth);
+        showSubs(fmt);
     }
-    final void showSubs(in uint indentDepth) const @trusted
+    final void showSubs(in Format fmt) const @trusted
     {
         foreach (const i, const sub; subs)
         {
-            showIndent(indentDepth);
-            sub.show(indentDepth);
+            showIndent(fmt.indentDepth);
+            sub.show(fmt);
             if (i + 1 != subs.length)
                 printf(" |\n");
         }
@@ -960,9 +972,9 @@ final class AltM : Node
 class Leaf : Node
 {
 @safe:
-    override void show(in uint indentDepth = 0) const @trusted
+    override void show(in Format fmt = Format.init) const @trusted
     {
-        showToken(head, indentDepth);
+        showToken(head, fmt);
     }
 pure nothrow @nogc:
     this(in Token head)
@@ -975,12 +987,12 @@ pure nothrow @nogc:
 abstract class UnaryOp : Node
 {
 @safe:
-    final override void show(in uint indentDepth = 0) const @trusted
+    final override void show(in Format fmt = Format.init) const @trusted
     {
         putchar('(');
-        sub.show(indentDepth);
+        sub.show(fmt);
         putchar(')');
-        showToken(head, indentDepth);
+        showToken(head, fmt);
     }
 @safe pure nothrow @nogc:
     this(in Token head, Node sub)
@@ -1023,9 +1035,9 @@ class OneOrMore : UnaryOp
 class Symbol : Leaf
 {
 @safe:
-    override void show(in uint indentDepth = 0) const @trusted
+    override void show(in Format fmt = Format.init) const @trusted
     {
-        showToken(head, indentDepth);
+        showToken(head, fmt);
     }
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1037,9 +1049,9 @@ class Symbol : Leaf
 class Pipe : Leaf
 {
 @safe:
-    override void show(in uint indentDepth = 0) const @trusted
+    override void show(in Format fmt = Format.init) const @trusted
     {
-        showToken(head, indentDepth);
+        showToken(head, fmt);
     }
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1051,9 +1063,9 @@ class Pipe : Leaf
 class Literal : Leaf
 {
 @safe:
-    override void show(in uint indentDepth = 0) const @trusted
+    override void show(in Format fmt = Format.init) const @trusted
     {
-        showToken(head, indentDepth);
+        showToken(head, fmt);
     }
 pure nothrow @nogc:
     this(in Token head)
@@ -1083,9 +1095,9 @@ class BlockComment : Leaf
 final class Grammar : Leaf
 {
 @safe:
-    override void show(in uint indentDepth = 0) const @trusted
+    override void show(in Format fmt = Format.init) const @trusted
     {
-        showToken(head, indentDepth);
+        showToken(head, fmt);
         putchar(' ');
         showChars(name);
         showChars(";\n");
@@ -1125,9 +1137,9 @@ final class ParserGrammar : Leaf
 final class Import : Leaf
 {
 @safe:
-    override void show(in uint indentDepth = 0) const @trusted
+    override void show(in Format fmt = Format.init) const @trusted
     {
-        showToken(head, indentDepth);
+        showToken(head, fmt);
         putchar(' ');
         foreach (const i, const m ; modules)
         {
@@ -1213,9 +1225,9 @@ final class ScopeSymbol : Leaf
 final class ScopeAction : Leaf
 {
 @safe:
-    override void show(in uint indentDepth = 0) const @trusted
+    override void show(in Format fmt = Format.init) const @trusted
     {
-        showToken(head, indentDepth);
+        showToken(head, fmt);
     }
 pure nothrow @nogc:
     this(in Token head,
@@ -1230,9 +1242,9 @@ pure nothrow @nogc:
 final class AttributeSymbol : Leaf
 {
 @safe:
-    override void show(in uint indentDepth = 0) const @trusted
+    override void show(in Format fmt = Format.init) const @trusted
     {
-        showToken(head, indentDepth);
+        showToken(head, fmt);
     }
 pure nothrow @nogc:
     this(in Token head, in Token code)
@@ -1255,9 +1267,9 @@ final class Action : Leaf
 final class ActionSymbol : Leaf
 {
 @safe:
-    override void show(in uint indentDepth = 0) const @trusted
+    override void show(in Format fmt = Format.init) const @trusted
     {
-        showToken(head, indentDepth);
+        showToken(head, fmt);
     }
 pure nothrow @nogc:
     this(in Token head, in Token code)

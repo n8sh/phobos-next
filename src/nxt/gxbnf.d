@@ -17,6 +17,7 @@
  * - add `RuleAltN(uint n)`
  * - add `SeqN(uint n)`
  * - non-pure diagnostics functions
+ * - Display column range for tokens in messages. Use head.input.length.
  */
 module nxt.gxbnf;
 
@@ -414,7 +415,7 @@ private:
         bool inChar;
         bool inString;
 
-        const infoFlag = false;
+        const infoFlag = true;
 
         while (!peekN(i).among!('\0'))
         {

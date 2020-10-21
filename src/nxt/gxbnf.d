@@ -30,7 +30,7 @@ import core.stdc.stdio : putchar, printf;
 import nxt.line_column : offsetLineColumn;
 import nxt.dynamic_array : DynamicArray;
 import nxt.file_ex : rawReadPath;
-import nxt.array_algorithm : endsWith;
+import nxt.array_algorithm : endsWith, endsWithEither;
 
 import std.stdio : write, writeln;
 
@@ -1848,12 +1848,10 @@ struct GxFileReader
     const testParser = true;
 
     if (testLexer)
-        foreach (e; dirEntries(root, SpanMode.breadth))
+        foreach (const e; dirEntries(root, SpanMode.breadth))
         {
             const fn = e.name;
-            if (fn.endsWith(`.g`) ||
-                fn.endsWith(`.g2`) ||
-                fn.endsWith(`.g4`))
+            if (fn.endsWithEither([`.g`, `.g2`, `.g4`]))
             {
                 debug printf("Lexing %.*s ...\n", cast(int)fn.length, fn.ptr);
                 const data = cast(Input)rawReadPath(fn);
@@ -1864,12 +1862,10 @@ struct GxFileReader
         }
 
     if (testParser)
-        foreach (e; dirEntries(root, SpanMode.breadth))
+        foreach (const e; dirEntries(root, SpanMode.breadth))
         {
             const fn = e.name;
-            if (fn.endsWith(`.g`) ||
-                fn.endsWith(`.g2`) ||
-                fn.endsWith(`.g4`))
+            if (fn.endsWithEither([`.g`, `.g2`, `.g4`]))
             {
                 if (fn.endsWith(`Antlr3.g`) || fn.endsWith(`ANTLRv2.g2`)) // skip this crap
                     continue;

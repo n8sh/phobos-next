@@ -1482,14 +1482,14 @@ struct GxParser
                 case TOK.literal:
                     seqPutCheck(new Literal(_lexer.frontPop()));
                     break;
+                case TOK.qmark:
+                    seq.put1(new ZeroOrOne(_lexer.frontPop(), seq.frontPop()));
+                    break;
                 case TOK.star:
                     seq.put1(new ZeroOrMore(_lexer.frontPop(), seq.backPop()));
                     break;
                 case TOK.plus:
                     seq.put1(new OneOrMore(_lexer.frontPop(), seq.backPop()));
-                    break;
-                case TOK.qmark:
-                    seq.put1(new ZeroOrOne(_lexer.frontPop(), seq.frontPop()));
                     break;
                 case TOK.tilde:
                     seq.put1(new Tilde(_lexer.frontPop()));

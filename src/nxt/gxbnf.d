@@ -832,7 +832,7 @@ enum Layout : ubyte
 
 struct Format
 {
-    enum indentStep = 4;
+    enum indentStep = 4;        ///< Indentation size in number of spaces.
     uint indentDepth;           ///< Indentation depth.
     Layout layout;
     void showIndent() @safe const nothrow @nogc

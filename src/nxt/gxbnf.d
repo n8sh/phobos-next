@@ -823,12 +823,24 @@ enum NODE
     rule                        ///< Grammar rule.
 }
 
-private enum indentStep = 4;
-
-private void showIndent(in uint indentDepth)
+/// Format when printing AST (nodes).
+enum Layout : ubyte
 {
-    foreach (_; 0 .. indentDepth*indentStep)
-        putchar(' ');
+    source,                     ///< Try to mimic original source.
+    tree                        ///< Makes AST-structure clear.
+}
+
+struct Format
+{
+    enum indentStep = 4;
+    uint indentDepth;           ///< Indentation depth.
+    Layout layout;
+
+    void showIndent() @safe const nothrow @nogc
+    {
+        foreach (_; 0 .. indentDepth*Format.indentStep)
+            putchar(' ');
+    }
 }
 
 private void showChars(in const(char)[] chars) @trusted
@@ -841,20 +853,8 @@ private void showChars(in const(char)[] chars) @trusted
 private void showToken(in Token token,
                        in Format fmt) @trusted
 {
-    showIndent(fmt.indentDepth);
+    fmt.showIndent();
     showChars(token.input);
-}
-
-/// Format when printing AST (nodes).
-enum Layout : ubyte
-{
-    source,                     ///< Try to mimic original source.
-    tree                        ///< Makes AST-structure clear.
-}
-struct Format
-{
-    uint indentDepth;
-    Layout layout;
 }
 
 /// AST node.
@@ -876,7 +876,7 @@ final class SeqM : Node
 @safe:
     override void show(in Format fmt = Format.init) const
     {
-        showIndent(fmt.indentDepth);
+        fmt.showIndent();
         foreach (const i, const sub; subs)
         {
             if (i)
@@ -948,7 +948,7 @@ final class AltM : Node
     {
         foreach (const i, const sub; subs)
         {
-            showIndent(fmt.indentDepth);
+            fmt.showIndent();
             sub.show(fmt);
             if (i + 1 != subs.length)
                 printf(" |\n");

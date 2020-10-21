@@ -1037,6 +1037,15 @@ class ZeroOrOne : UnaryOp
     }
 }
 
+class Not : UnaryOp
+{
+@safe pure nothrow @nogc:
+    this(in Token head, Node sub)
+    {
+        super(head, sub);
+    }
+}
+
 class ZeroOrMore : UnaryOp
 {
 @safe pure nothrow @nogc:
@@ -1071,11 +1080,42 @@ class Symbol : Leaf
 
 class Pipe : Leaf
 {
-@safe:
-    override void show(in Format fmt = Format.init) const @trusted
+@safe pure nothrow @nogc:
+    this(in Token head)
     {
-        showToken(head, fmt);
+        super(head);
     }
+}
+
+class Tilde : Leaf
+{
+@safe pure nothrow @nogc:
+    this(in Token head)
+    {
+        super(head);
+    }
+}
+
+class Wildcard : Leaf
+{
+@safe pure nothrow @nogc:
+    this(in Token head)
+    {
+        super(head);
+    }
+}
+
+class DotDot : Leaf
+{
+@safe pure nothrow @nogc:
+    this(in Token head)
+    {
+        super(head);
+    }
+}
+
+class Hooks : Leaf
+{
 @safe pure nothrow @nogc:
     this(in Token head)
     {
@@ -1085,12 +1125,7 @@ class Pipe : Leaf
 
 class Literal : Leaf
 {
-@safe:
-    override void show(in Format fmt = Format.init) const @trusted
-    {
-        showToken(head, fmt);
-    }
-pure nothrow @nogc:
+@safe pure nothrow @nogc:
     this(in Token head)
     {
         super(head);
@@ -1414,16 +1449,24 @@ struct GxParser
 
             NodeArray seq; // TODO: use stack for small arrays. TODO: use `Rule` as ElementType
 
-            void seqPutCheckPipe(Node last)
+            void seqPutCheck(Node last)
             {
-                if (!seq.empty &&
-                    cast(Pipe)seq.back)
+                if (!seq.empty)
                 {
-                    seq.popBack(); // pop `Pipe`
-                    seq.put1(new AltM([seq.backPop(), last]));
+                    if (cast(Pipe)seq.back) // binary operator
+                    {
+                        seq.popBack(); // pop `Pipe`
+                        seq.put1(new AltM([seq.backPop(), last]));
+                        return;
+                    }
+                    else if (auto tilde = cast(Tilde)seq.back) // prefix unary operator
+                    {
+                        seq.popBack(); // pop `Tilde`
+                        seq.put1(new Not(tilde.head, last));
+                        return;
+                    }
                 }
-                else
-                    seq.put1(last);
+                return seq.put1(last);
             }
 
             while ((parentDepth != 0 ||
@@ -1434,10 +1477,10 @@ struct GxParser
                 switch (_lexer.front.tok)
                 {
                 case TOK.symbol:
-                    seqPutCheckPipe(new Symbol(_lexer.frontPop()));
+                    seqPutCheck(new Symbol(_lexer.frontPop()));
                     break;
                 case TOK.literal:
-                    seqPutCheckPipe(new Literal(_lexer.frontPop()));
+                    seqPutCheck(new Literal(_lexer.frontPop()));
                     break;
                 case TOK.star:
                     seq.put1(new ZeroOrMore(_lexer.frontPop(), seq.backPop));
@@ -1448,8 +1491,26 @@ struct GxParser
                 case TOK.qmark:
                     seq.put1(new ZeroOrOne(_lexer.frontPop(), seq.frontPop()));
                     break;
+                case TOK.tilde:
+                    seq.put1(new Tilde(_lexer.frontPop()));
+                    break;
                 case TOK.pipe:
                     seq.put1(new Pipe(_lexer.frontPop())); // sentinel
+                    break;
+                case TOK.wildcard:
+                    seq.put1(new Wildcard(_lexer.frontPop())); // sentinel
+                    break;
+                case TOK.dotdot:
+                    seq.put1(new DotDot(_lexer.frontPop())); // sentinel
+                    break;
+                case TOK.hooks:
+                    seq.put1(new Hooks(_lexer.frontPop())); // sentinel
+                    break;
+                case TOK.hash:
+                case TOK.rewrite:
+                    while (_lexer.front.tok != TOK.pipe &&
+                           _lexer.front.tok != TOK.semicolon)
+                        _lexer.popFront(); // ignore for now
                     break;
                 case TOK.leftParen:
                     parentDepth += 1;
@@ -1484,20 +1545,20 @@ struct GxParser
                         }
                         // debug writeln("popped", seq.length - li);
                         seq.popBackN(seq.length - li);
-                        seqPutCheckPipe(makeSeqM(subseq.move()));
+                        seqPutCheck(makeSeqM(subseq.move()));
                     }
                     else if (li + 2 == seq.length) // single case: ... ( X )
                     {
                         // _lexer.warningAtFront("single element group has no use");
                         Node single = seq.backPop(); // pop X
                         seq.popBack(); // pop '('
-                        seqPutCheckPipe(single); // insert X
+                        seqPutCheck(single); // insert X
                     }
                     else if (li + 1 == seq.length) // empty case: ... ( )
                     {
                         auto nothing = new Nothing(hs.head);
                         seq.popBack(); // pop '('
-                        seqPutCheckPipe(nothing); // TODO: use ZeroOrOne() instead
+                        seqPutCheck(nothing); // TODO: use ZeroOrOne() instead
                     }
                     else if (li == seq.length) // unmatched case: ... )
                     {
@@ -1507,7 +1568,7 @@ struct GxParser
                     break;
                 default:
                     _lexer.infoAtFront("TODO: unhandled token type");
-                    seqPutCheckPipe(new Symbol(_lexer.frontPop()));
+                    seqPutCheck(new Symbol(_lexer.frontPop()));
                 }
             }
             if (!seq.length)
@@ -1932,8 +1993,8 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
                 if (fn.endsWith(`Antlr3.g`) ||
                     fn.endsWith(`ANTLRv2.g2`)) // skip this crap
                     continue;
-                if (!fn.endsWith("oncrpcv2.g4"))
-                    continue;
+                // if (!fn.endsWith("oncrpcv2.g4"))
+                //     continue;
                 debug printf("Reading %.*s ...\n", cast(int)fn.length, fn.ptr);
                 auto reader = GxFileReader(fn);
             }

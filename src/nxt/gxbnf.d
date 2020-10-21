@@ -846,7 +846,7 @@ private void showToken(in Token token,
 }
 
 /// Format when printing AST (nodes).
-enum FormatKind : ubyte
+enum Layout : ubyte
 {
     source,                     ///< Try to mimic original source.
     tree                        ///< Makes AST-structure clear.
@@ -854,7 +854,7 @@ enum FormatKind : ubyte
 struct Format
 {
     uint indentDepth;
-    FormatKind kind;
+    Layout layout;
 }
 
 /// AST node.

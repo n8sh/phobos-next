@@ -9,7 +9,6 @@
  *
  * TODO:
  * - Sort `AltM` subs by descending minimum length
- * - Convert `procedureDef (procedureDef)*` to `(procedureDef)+`
  * - Check that `DynamicArray.backPop` zeros pointer elements at the end.
  * - parse postfix operators *, +, ?
  * - handle all TODO's in `getRule`
@@ -869,6 +868,26 @@ pure nothrow @nogc:
 
 alias NodeArray = DynamicArray!(Node, null, uint); // `uint` capacity is enough
 
+bool equals(const scope Node a,
+            const scope Node b) pure nothrow @nogc
+{
+    return a is b;              // TODO: generalize to casting
+}
+
+Node makeSeqM(NodeArray subs) pure nothrow
+{
+    if (subs.length == 2)
+    {
+        if (ZeroOrMore zom = cast(ZeroOrMore)subs[0])
+            if (zom.sub.equals(subs[1]))
+                return new OneOrMore(zom.head, zom.sub); // `X* X` => `(X)+`
+        if (ZeroOrMore zom = cast(ZeroOrMore)subs[1])
+            if (zom.sub.equals(subs[0]))
+                return new OneOrMore(zom.head, zom.sub); // `X X*` => `(X)+`
+    }
+    return new SeqM(subs.move());
+}
+
 /// Sequence.
 final class SeqM : Node
 {
@@ -1339,7 +1358,7 @@ final class Class : Leaf
 //             }
 //         }
 //     }
-//     return new SeqM(result.move());
+//     return makeSeqM(result.move());
 // }
 
 /** Gx parser.
@@ -1464,7 +1483,7 @@ struct GxParser
                         }
                         // debug writeln("popped", seq.length - li);
                         seq.popBackN(seq.length - li);
-                        seqPutCheckPipe(new SeqM(subseq.move()));
+                        seqPutCheckPipe(makeSeqM(subseq.move()));
                     }
                     else if (li + 2 == seq.length) // single case: ... ( X )
                     {
@@ -1495,7 +1514,7 @@ struct GxParser
                 // `seq` may be empty
                 // _lexer.infoAtFront("empty sequence");
             }
-            alts.put1(new SeqM(seq.move()));
+            alts.put1(makeSeqM(seq.move()));
             if (_lexer.front.tok == TOK.pipe)
                 _lexer.popFront(); // skip terminator
         }

@@ -876,6 +876,7 @@ bool equals(const scope Node a,
 Node makeSeqM(NodeArray subs,
               in bool rewriteFlag = false) pure nothrow
 {
+    version(none)
     if (rewriteFlag &&
         subs.length == 2)
     {

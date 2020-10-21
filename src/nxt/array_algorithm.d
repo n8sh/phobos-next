@@ -37,7 +37,7 @@ bool startsWith(T)(scope const T[] haystack,
 ///
 @safe pure nothrow @nogc unittest
 {
-    auto x = "beta version";
+    const x = "beta version";
     assert(x.startsWith("beta"));
     assert(x.startsWith('b'));
     assert(!x.startsWith("_"));
@@ -109,10 +109,38 @@ bool endsWith(T)(scope const T[] haystack,
 ///
 @safe pure nothrow @nogc unittest
 {
-    auto x = "beta version";
+    const x = "beta version";
     assert(x.endsWith("version"));
     assert(x.endsWith('n'));
     assert(!x.startsWith("_"));
+}
+
+bool endsWithEither(T)(scope const T[] haystack,
+                       scope const T[][] needles) @trusted
+{
+    // TODO: optimize
+    foreach (const needle; needles)
+        if (haystack.endsWith(needle))
+            return true;
+    return false;
+}
+/// ditto
+bool endsWithEither(T)(scope const T[] haystack,
+                       scope const T[] needles) @trusted
+{
+    // TODO: optimize
+    foreach (const needle; needles)
+        if (haystack.endsWith(needle))
+            return true;
+    return false;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    const x = "beta version";
+    assert(x.endsWithEither(["version", ""]));
+    assert(x.endsWithEither(['n', ' ']));
 }
 
 /** Array-specialization of `findSkip` with default predicate.

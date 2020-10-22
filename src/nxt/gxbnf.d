@@ -11,7 +11,7 @@
  * - Handle: `var_name=lvalue op=ASSIGN global_name=id_global;`
  * - Sort `AltM` subs by descending minimum length
  * - Check that `DynamicArray.backPop` zeros pointer elements at the end.
- * - handle all TODO's in `getRule`
+ * - handle all TODO's in `makeRule`
  * - create index of symbols and link them in second pass
  * - add `RuleAltN(uint n)`
  * - add `SeqN(uint n)`
@@ -31,6 +31,8 @@ import nxt.line_column : offsetLineColumn;
 import nxt.dynamic_array : DynamicArray;
 import nxt.file_ex : rawReadPath;
 import nxt.array_algorithm : endsWith, endsWithEither;
+import std.conv : to;
+import nxt.conv_ex : toDefaulted;
 
 import std.stdio : write, writeln;
 
@@ -120,8 +122,6 @@ static bool isSymbolStart(in dchar ch) pure nothrow @safe @nogc
 struct GxLexer
 {
     import std.algorithm.comparison : among;
-
-    import nxt.conv_ex : toDefaulted;
 
 @safe pure:
 
@@ -1385,7 +1385,7 @@ final class Class : Leaf
 //         {
 //             if (auto pipe = cast(Pipe)node)
 //                 lexer.errorAtToken(pipe.head, "no left-hand side argument to binary operator `|`");
-//             result.put(node);
+//             result.put1(node);
 //         }
 //         else if (result.length >= 2) // result: ... X Y
 //         {
@@ -1438,7 +1438,7 @@ struct GxParser
             _front = nextFront();
     }
 
-    private Rule getRule(in Token name,
+    private Rule makeRule(in Token name,
                          in bool isFragment,
                          ActionSymbol actionSymbol = null,
                          Action action = null) @trusted
@@ -1568,8 +1568,11 @@ struct GxParser
                     }
                     _lexer.frontPop();
                     break;
+                case TOK.action:
+                    _lexer.frontPop(); // ignore action
+                    break;
                 default:
-                    _lexer.infoAtFront("TODO: unhandled token type");
+                    _lexer.infoAtFront("TODO: unhandled token type" ~ _lexer.front.to!string);
                     seqPutCheck(new Symbol(_lexer.frontPop()));
                 }
             }
@@ -1598,15 +1601,16 @@ struct GxParser
                 _lexer.popFront();
         }
 
-        if (isFragment)
-            return new FragmentRule(name,
-                                    alts.length == 1 ? alts.backPop() : new AltM(alts.move()));
-        else
-            return new Rule(name,
-                            alts.length == 1 ? alts.backPop() : new AltM(alts.move()));
+        Rule rule = (isFragment
+                     ? new FragmentRule(name,
+                                        alts.length == 1 ? alts.backPop() : new AltM(alts.move()))
+                     : new Rule(name,
+                                alts.length == 1 ? alts.backPop() : new AltM(alts.move())));
+        rules.put1(rule);
+        return rule;
     }
 
-    Input[] getArgs(in TOK separator,
+    Input[] makeArgs(in TOK separator,
                     in TOK terminator)
     {
         DynamicArray!(Input) result;
@@ -1621,17 +1625,17 @@ struct GxParser
         return result[].dup;
     }
 
-    AttributeSymbol getAttributeSymbol(in Token head) nothrow
+    AttributeSymbol makeAttributeSymbol(in Token head) nothrow
     {
         return new AttributeSymbol(head, _lexer.frontPopEnforce(TOK.action, "missing action"));
     }
 
-    ActionSymbol getActionSymbol(in Token head) nothrow
+    ActionSymbol makeActionSymbol(in Token head) nothrow
     {
         return new ActionSymbol(head, _lexer.frontPopEnforce(TOK.action, "missing action"));
     }
 
-    Leaf getScope(in Token head)
+    Leaf makeScope(in Token head)
     {
         if (_lexer.front.tok == TOK.symbol)
         {
@@ -1654,7 +1658,14 @@ struct GxParser
         }
     }
 
-    Leaf getClass(in Token head)
+    Import makeImport(in Token head)
+    {
+        auto import_ = new Import(head, makeArgs(TOK.comma, TOK.semicolon));
+        this.imports.put1(import_);
+        return import_;
+    }
+
+    Leaf makeClass(in Token head)
     {
         auto result = new Class(head,
                                _lexer.frontPopEnforce(TOK.symbol, "missing symbol").input,
@@ -1678,7 +1689,7 @@ struct GxParser
     Leaf skipOverScope()
     {
         if (_lexer.front == Token(TOK.symbol, "scope"))
-            return getScope(_lexer.frontPop());
+            return makeScope(_lexer.frontPop());
         return null;
     }
 
@@ -1771,15 +1782,15 @@ struct GxParser
     ActionSymbol skipOverActionSymbol()
     {
         if (_lexer.front.tok == TOK.actionSymbol)
-            return getActionSymbol(_lexer.frontPop);
+            return makeActionSymbol(_lexer.frontPop);
         return null;
     }
 
-    Node getRuleOrOther(in Token head)
+    Node makeRuleOrOther(in Token head)
     {
         if (_lexer.front.tok == TOK.colon) // normal case
         {
-            return getRule(head, false);   // fast path
+            return makeRule(head, false);   // fast path
         }
 
         if (head.input == "lexer" ||
@@ -1801,25 +1812,26 @@ struct GxParser
 
             if (lexerFlag)
             {
-                auto front = new LexerGrammar(head, _lexer.frontPop().input);
+                auto lexerGrammar = new LexerGrammar(head, _lexer.frontPop().input);
                 _lexer.popFrontEnforce(TOK.semicolon, "no terminating semicolon");
-                return front;
+                return this.lexerGrammar = lexerGrammar;
             }
             else if (parserFlag)
             {
-                auto front = new ParserGrammar(head, _lexer.frontPop().input);
+                auto parserGrammar = new ParserGrammar(head, _lexer.frontPop().input);
                 _lexer.popFrontEnforce(TOK.semicolon, "no terminating semicolon");
-                return front;
+                return this.parserGrammar = parserGrammar;
             }
             else
             {
                 if (_lexer.front.tok == TOK.colon)
-                    return getRule(head, false);
+                    return makeRule(head, false);
                 else
                 {
-                    auto front = new Grammar(head, _lexer.frontPop().input);
+                    auto grammar = new Grammar(head, _lexer.frontPop().input);
                     _lexer.popFrontEnforce(TOK.semicolon, "no terminating semicolon");
-                    return front;
+                    this.grammar = grammar;
+                    return grammar;
                 }
             }
         }
@@ -1828,10 +1840,10 @@ struct GxParser
         {
         case `private`:
             _lexer.frontEnforce(TOK.symbol, "expected symbol after `private`");
-            return getRuleOrOther(_lexer.frontPop); // TODO: set private qualifier
+            return makeRuleOrOther(_lexer.frontPop); // TODO: set private qualifier
         case `protected`:
             _lexer.frontEnforce(TOK.symbol, "expected symbol after `protected`");
-            return getRuleOrOther(_lexer.frontPop); // TODO: set protected qualifier
+            return makeRuleOrOther(_lexer.frontPop); // TODO: set protected qualifier
         case `channels`:
             return makeChannels(head);
         case `tokens`:
@@ -1843,13 +1855,13 @@ struct GxParser
         case `mode`:
             return makeMode(head);
         case `class`:
-            return getClass(head);
+            return makeClass(head);
         case `scope`:
-            return getScope(head);
+            return makeScope(head);
         case `import`:
-            return new Import(head, getArgs(TOK.comma, TOK.semicolon));
+            return makeImport(head);
         case `fragment`: // lexer helper rule, not real token for parser.
-            return getRule(_lexer.frontPop(), true);
+            return makeRule(_lexer.frontPop(), true);
         default:
             while (_lexer.front.tok != TOK.colon)
             {
@@ -1870,7 +1882,7 @@ struct GxParser
                 if (const _ = skipOverActionSymbol()) // TODO: use
                     continue;
             }
-            return getRule(head, false);
+            return makeRule(head, false);
         }
     }
 
@@ -1880,9 +1892,9 @@ struct GxParser
         switch (head.tok)
         {
         case TOK.attributeSymbol:
-            return getAttributeSymbol(head);
+            return makeAttributeSymbol(head);
         case TOK.actionSymbol:
-            return getActionSymbol(head);
+            return makeActionSymbol(head);
         case TOK.blockComment:
             return new BlockComment(head);
         case TOK.lineComment:
@@ -1890,13 +1902,19 @@ struct GxParser
         case TOK.action:
             return new Action(head);
         case TOK.symbol:
-            return getRuleOrOther(head);
+            return makeRuleOrOther(head);
         default:
             _lexer.errorAtFront("TODO: handle");
             assert(false);
         }
     }
 
+    Grammar grammar;
+    LexerGrammar lexerGrammar;
+    ParserGrammar parserGrammar;
+    Node options;
+    DynamicArray!(Import, null, uint) imports;
+    DynamicArray!(Rule, null, uint) rules;
 private:
     GxLexer _lexer;
     Node _front;
@@ -1928,32 +1946,10 @@ struct GxFileReader
         auto parser = GxFileParser(filePath);
         while (!parser.empty)
         {
-            if (auto rule = cast(Rule)parser.front) // TODO: avoid `cast`
-            {
-                rules.put1(rule);
-                if (showFlag) rule.show(fmt);
-            }
-            else if (auto grammar = cast(Grammar)parser.front) // TODO: avoid `cast`
-            {
-                this.grammar = grammar;
-                if (showFlag) grammar.show(fmt);
-            }
-            else if (auto import_ = cast(Import)parser.front) // TODO: avoid `cast`
-            {
-                this.imports.put1(import_);
-                if (showFlag) import_.show(fmt);
-            }
-            else
-            {
-                debug write("TODO: handle:");
-                if (showFlag) parser.front.show(fmt);
-            }
+            // parser.front.show(fmt);
             parser.popFront();
         }
     }
-    Grammar grammar;
-    DynamicArray!(Import, null, uint) imports;
-    DynamicArray!(Rule, null, uint) rules;
     // TODO: `OpenHashMap rulesByName`
     ~this() @nogc {}
 }

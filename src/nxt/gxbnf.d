@@ -9,6 +9,8 @@
  *
  * TODO:
  *
+ * - Make members `lexerGrammar` and `parserGrammar` members instead
+ *
  * - Detect (indirect) mutual direct left-recursion. How? Parses enters a rule
  *   again without offset change.
  *
@@ -903,7 +905,7 @@ Node makeSeqM(NodeArray subs,
     switch (subs.length)
     {
     case 0:
-        return null;
+        return null;            // TODO: use new Nothing => EmptySeq instead
     case 1:
         return subs[0];
     case 2:
@@ -1045,12 +1047,27 @@ final class AltM : Node
         this.subs = subs.move();
     }
     this(uint n)(Node[n] subs)
+    if (n >= 2)
     {
         super();
         foreach (sub; subs)
             this.subs.put1(sub);
     }
     NodeArray subs;
+}
+
+Node makeAltM(NodeArray subs,
+              in bool _rewriteFlag = false) pure nothrow
+{
+    switch (subs.length)
+    {
+    case 0:
+        return null;
+    case 1:
+        return subs[0];
+    default:
+        return new AltM(subs.move());
+    }
 }
 
 class Leaf : Node
@@ -1512,6 +1529,11 @@ struct GxParser
 
             void seqPutCheck(Node last)
             {
+                if (last is null)
+                {
+                    _lexer.warningAtToken(name,"empty sequence");
+                    return;
+                }
                 if (!seq.empty)
                 {
                     if (cast(Pipe)seq.back) // binary operator
@@ -1672,10 +1694,10 @@ struct GxParser
 
         Rule rule = (isFragment
                      ? new FragmentRule(name,
-                                        alts.length == 1 ? alts.backPop() : new AltM(alts.move()),
+                                        alts.length == 1 ? alts.backPop() : makeAltM(alts.move()),
                                         _lexer)
                      : new Rule(name,
-                                alts.length == 1 ? alts.backPop() : new AltM(alts.move()),
+                                alts.length == 1 ? alts.backPop() : makeAltM(alts.move()),
                                 _lexer));
         rules.put1(rule);
         return rule;
@@ -2071,8 +2093,6 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
             {
                 if (fn.endsWith(`Antlr3.g`) ||
                     fn.endsWith(`ANTLRv2.g2`)) // skip this crap
-                    continue;
-                if (!fn.endsWith(`/home/per/Work/grammars-v4/antlr/antlr3/examples/C.g`))
                     continue;
                 debug printf("Reading %.*s ...\n", cast(int)fn.length, fn.ptr);
                 auto reader = GxFileReader(fn);

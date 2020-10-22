@@ -900,16 +900,25 @@ bool equals(const scope Node a,
 Node makeSeqM(NodeArray subs,
               in bool rewriteFlag = false) pure nothrow
 {
-    version(none)
-    if (rewriteFlag &&
-        subs.length == 2)
+    switch (subs.length)
     {
-        if (ZeroOrMore zom = cast(ZeroOrMore)subs[0])
-            if (zom.sub.equals(subs[1]))
-                return new OneOrMore(zom.head, zom.sub); // `X* X` => `(X)+`
-        if (ZeroOrMore zom = cast(ZeroOrMore)subs[1])
-            if (zom.sub.equals(subs[0]))
-                return new OneOrMore(zom.head, zom.sub); // `X X*` => `(X)+`
+    case 0:
+        return null;
+    case 1:
+        return subs[0];
+    case 2:
+        if (rewriteFlag)
+        {
+            if (ZeroOrMore zom = cast(ZeroOrMore)subs[0])
+                if (zom.sub.equals(subs[1]))
+                    return new OneOrMore(zom.head, zom.sub); // `X* X` => `(X)+`
+            if (ZeroOrMore zom = cast(ZeroOrMore)subs[1])
+                if (zom.sub.equals(subs[0]))
+                    return new OneOrMore(zom.head, zom.sub); // `X X*` => `(X)+`
+        }
+        break;
+    default:
+        break;
     }
     return new SeqM(subs.move());
 }
@@ -963,10 +972,36 @@ class Rule : Node
         printf(" ;\n");
     }
 @safe pure nothrow @nogc:
-    this(in Token head, Node top)
+    void checkRecursions(const scope ref GxLexer lexer)
+    {
+        void checkSymbolRecursion(const scope Node node)
+        {
+            if (const s = cast(const Symbol)node) // common case
+                if (head.input == s.head.input)
+                    lexer.warningAtToken(s.head, "left-recusion");
+        }
+        if (const alt = cast(AltM)top) // common case
+        {
+            if (const seq = cast(const SeqM)alt.subs[0]) // common case
+                return checkSymbolRecursion(seq.subs[0]);
+            else if (const s0 = cast(const Symbol)alt.subs[0])
+                return checkSymbolRecursion(s0);
+        }
+        else if (const seq = cast(const SeqM)top)
+        {
+            return checkSymbolRecursion(seq.subs[0]);
+        }
+        else
+        {
+            return checkSymbolRecursion(top);
+        }
+    }
+    this(in Token head, Node top,
+         const scope ref GxLexer lexer)
     {
         this.head = head;
         this.top = top;
+        checkRecursions(lexer);
     }
     Token head;
     Node top;
@@ -975,9 +1010,10 @@ class Rule : Node
 final class FragmentRule : Rule
 {
 @safe pure nothrow @nogc:
-    this(in Token head, Node top)
+    this(in Token head, Node top,
+         const scope ref GxLexer lexer)
     {
-        super(head, top);
+        super(head, top, lexer);
     }
 }
 
@@ -1462,9 +1498,9 @@ struct GxParser
     }
 
     private Rule makeRule(in Token name,
-                         in bool isFragment,
-                         ActionSymbol actionSymbol = null,
-                         Action action = null) @trusted
+                          in bool isFragment,
+                          ActionSymbol actionSymbol = null,
+                          Action action = null) @trusted
     {
         _lexer.popFrontEnforce(TOK.colon, "no colon");
         NodeArray alts; // TODO: use static array with length being number of `TOK.pipe` till `TOK.semicolon`
@@ -1636,9 +1672,11 @@ struct GxParser
 
         Rule rule = (isFragment
                      ? new FragmentRule(name,
-                                        alts.length == 1 ? alts.backPop() : new AltM(alts.move()))
+                                        alts.length == 1 ? alts.backPop() : new AltM(alts.move()),
+                                        _lexer)
                      : new Rule(name,
-                                alts.length == 1 ? alts.backPop() : new AltM(alts.move())));
+                                alts.length == 1 ? alts.backPop() : new AltM(alts.move()),
+                                _lexer));
         rules.put1(rule);
         return rule;
     }
@@ -1905,6 +1943,7 @@ struct GxParser
         default:
             while (_lexer.front.tok != TOK.colon)
             {
+                // TODO: use switch
                 if (skipOverExclusion()) // TODO: use
                     continue;
                 if (skipOverReturns())  // TODO: use

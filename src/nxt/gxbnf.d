@@ -1070,7 +1070,7 @@ Node makeAltM(NodeArray subs,
     }
 }
 
-class Leaf : Node
+class TokenNode : Node
 {
 @safe:
     override void show(in Format fmt = Format.init) const @trusted
@@ -1142,7 +1142,7 @@ class OneOrMore : UnaryOp
     }
 }
 
-class Symbol : Leaf
+class Symbol : TokenNode
 {
 @safe:
     override void show(in Format fmt = Format.init) const @trusted
@@ -1156,7 +1156,7 @@ class Symbol : Leaf
     }
 }
 
-class Pipe : Leaf
+class Pipe : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1165,7 +1165,7 @@ class Pipe : Leaf
     }
 }
 
-class Tilde : Leaf
+class Tilde : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1174,7 +1174,7 @@ class Tilde : Leaf
     }
 }
 
-class Wildcard : Leaf
+class Wildcard : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1183,7 +1183,7 @@ class Wildcard : Leaf
     }
 }
 
-class DotDot : Leaf
+class DotDot : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1192,7 +1192,7 @@ class DotDot : Leaf
     }
 }
 
-class Hooks : Leaf
+class Hooks : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1201,7 +1201,7 @@ class Hooks : Leaf
     }
 }
 
-class Literal : Leaf
+class Literal : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1210,7 +1210,7 @@ class Literal : Leaf
     }
 }
 
-class LineComment : Leaf
+class LineComment : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1219,7 +1219,7 @@ class LineComment : Leaf
     }
 }
 
-class BlockComment : Leaf
+class BlockComment : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1228,7 +1228,7 @@ class BlockComment : Leaf
     }
 }
 
-final class Grammar : Leaf
+final class Grammar : TokenNode
 {
 @safe:
     override void show(in Format fmt = Format.init) const @trusted
@@ -1247,7 +1247,7 @@ pure nothrow @nogc:
     Input name;
 }
 
-final class LexerGrammar : Leaf
+final class LexerGrammar : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head, Input name)
@@ -1259,7 +1259,7 @@ final class LexerGrammar : Leaf
 }
 
 /// See_Also: https://theantlrguy.atlassian.net/wiki/spaces/ANTLR3/pages/2687210/Quick+Starter+on+Parser+Grammars+-+No+Past+Experience+Required
-final class ParserGrammar : Leaf
+final class ParserGrammar : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head, Input name)
@@ -1270,7 +1270,7 @@ final class ParserGrammar : Leaf
     Input name;
 }
 
-final class Import : Leaf
+final class Import : TokenNode
 {
 @safe:
     override void show(in Format fmt = Format.init) const @trusted
@@ -1295,7 +1295,7 @@ pure nothrow @nogc:
     const Input[] modules;
 }
 
-final class Mode : Leaf
+final class Mode : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head, Input name)
@@ -1306,7 +1306,7 @@ final class Mode : Leaf
     Input name;
 }
 
-final class Options : Leaf
+final class Options : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head, in Token code)
@@ -1318,7 +1318,7 @@ final class Options : Leaf
     Token code;
 }
 
-final class Header : Leaf
+final class Header : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head, in Token name, in Token code)
@@ -1331,7 +1331,7 @@ final class Header : Leaf
     Token code;
 }
 
-final class ScopeSymbolAction : Leaf
+final class ScopeSymbolAction : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head,
@@ -1346,7 +1346,7 @@ final class ScopeSymbolAction : Leaf
     Token code;
 }
 
-final class ScopeSymbol : Leaf
+final class ScopeSymbol : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head,
@@ -1358,7 +1358,7 @@ final class ScopeSymbol : Leaf
     Input name;
 }
 
-final class ScopeAction : Leaf
+final class ScopeAction : TokenNode
 {
 @safe:
     override void show(in Format fmt = Format.init) const @trusted
@@ -1375,7 +1375,7 @@ pure nothrow @nogc:
     Token code;
 }
 
-final class AttributeSymbol : Leaf
+final class AttributeSymbol : TokenNode
 {
 @safe:
     override void show(in Format fmt = Format.init) const @trusted
@@ -1391,7 +1391,7 @@ pure nothrow @nogc:
     Token code;
 }
 
-final class Action : Leaf
+final class Action : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1400,7 +1400,7 @@ final class Action : Leaf
     }
 }
 
-final class ActionSymbol : Leaf
+final class ActionSymbol : TokenNode
 {
 @safe:
     override void show(in Format fmt = Format.init) const @trusted
@@ -1416,7 +1416,7 @@ pure nothrow @nogc:
     Token code;
 }
 
-final class Channels : Leaf
+final class Channels : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head, in Token code)
@@ -1427,7 +1427,7 @@ final class Channels : Leaf
     Token code;
 }
 
-final class Tokens : Leaf
+final class Tokens : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head, in Token code)
@@ -1438,7 +1438,7 @@ final class Tokens : Leaf
     Token code;
 }
 
-final class Class : Leaf
+final class Class : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head, Input name, Input baseName)
@@ -1728,7 +1728,7 @@ struct GxParser
         return new ActionSymbol(head, _lexer.frontPopEnforce(TOK.action, "missing action"));
     }
 
-    Leaf makeScope(in Token head)
+    TokenNode makeScope(in Token head)
     {
         if (_lexer.front.tok == TOK.symbol)
         {
@@ -1758,7 +1758,7 @@ struct GxParser
         return import_;
     }
 
-    Leaf makeClass(in Token head)
+    TokenNode makeClass(in Token head)
     {
         auto result = new Class(head,
                                _lexer.frontPopEnforce(TOK.symbol, "missing symbol").input,
@@ -1779,7 +1779,7 @@ struct GxParser
     }
 
     /// Skip over scope if any.
-    Leaf skipOverScope()
+    TokenNode skipOverScope()
     {
         if (_lexer.front == Token(TOK.symbol, "scope"))
             return makeScope(_lexer.frontPop());
@@ -1914,13 +1914,13 @@ struct GxParser
             {
                 auto lexerGrammar = new LexerGrammar(head, _lexer.frontPop().input);
                 _lexer.popFrontEnforce(TOK.semicolon, "no terminating semicolon");
-                return this.lexerGrammar = lexerGrammar;
+                return this.grammar = lexerGrammar;
             }
             else if (parserFlag)
             {
                 auto parserGrammar = new ParserGrammar(head, _lexer.frontPop().input);
                 _lexer.popFrontEnforce(TOK.semicolon, "no terminating semicolon");
-                return this.parserGrammar = parserGrammar;
+                return this.grammar = parserGrammar;
             }
             else
             {
@@ -2011,9 +2011,7 @@ struct GxParser
         }
     }
 
-    Grammar grammar;
-    LexerGrammar lexerGrammar;
-    ParserGrammar parserGrammar;
+    Node grammar;
     Node options;
     DynamicArray!(Import, null, uint) imports;
     DynamicArray!(Rule, null, uint) rules;

@@ -11,8 +11,8 @@
  *
  * - Make members `lexerGrammar` and `parserGrammar` members instead
  *
- * - Detect indirect mutual left-recursion. How? Parses enters a rule again
- *   without offset change.
+ * - Detect indirect mutual left-recursion. How? Simple-way in generated parsers:
+ *   enters a rule again without offset change.
  *
  * - Handle tabs in `offsetLineColumn`
  *

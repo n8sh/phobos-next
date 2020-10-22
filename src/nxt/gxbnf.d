@@ -9,7 +9,7 @@
  *
  * TODO:
  *
- * - Make members `lexerGrammar` and `parserGrammar` members instead
+ * - Make members `lexerGrammar` and `parserGrammar` flags instead
  *
  * - Detect indirect mutual left-recursion. How? Simple-way in generated parsers:
  *   enters a rule again without offset change.

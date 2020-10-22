@@ -1789,7 +1789,7 @@ struct GxParser
     Node makeRuleOrOther(in Token head)
     {
         if (_lexer.front.tok == TOK.colon) // normal case
-            return makeRule(head, false);   // fast path
+            return makeRule(head, false);  // fast path
 
         if (head.input == "lexer" ||
             head.input == "parser" ||

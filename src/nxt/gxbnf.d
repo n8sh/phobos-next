@@ -14,8 +14,6 @@
  * - Detect indirect mutual left-recursion. How? Simple-way in generated parsers:
  *   enters a rule again without offset change.
  *
- * - Handle tabs in `offsetLineColumn`
- *
  * - Handle: `var_name=lvalue op=ASSIGN global_name=id_global;`
  *
  * - Sort `AltM` subs by descending minimum length
@@ -31,6 +29,8 @@
  * - add `RuleAltN(uint n)`
  *
  * - add `SeqN(uint n)`
+ *
+ * - Handle tabs in `offsetLineColumn`
  *
  * - non-pure diagnostics functions
  *

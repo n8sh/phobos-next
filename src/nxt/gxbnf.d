@@ -22,7 +22,11 @@
  * - add `RuleAltN(uint n)`
  * - add `SeqN(uint n)`
  * - non-pure diagnostics functions
- * - Display column range for tokens in messages. Use `head.input.length`
+ *
+ * - Display column range for tokens in messages. Use `head.input.length`.
+ *   Use GNU-style formatting: fix-it:"test.c":{45:3-45:21}:"gtk_widget_show_all".
+ *   Requires updating FlyCheck.
+ *
  * - Avoid casts
  */
 module nxt.gxbnf;

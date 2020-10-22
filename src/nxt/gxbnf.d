@@ -12,16 +12,17 @@
  * - Detect (indirect) mutual direct left-recursion. How? Parses enters a rule
  *   again without offset change.
  *
+ * - Handle tabs in `offsetLineColumn`
  * - Handle: `var_name=lvalue op=ASSIGN global_name=id_global;`
  * - Sort `AltM` subs by descending minimum length
- * - Check that `DynamicArray.backPop` zeros pointer elements at the end.
+ * - Check that `DynamicArray.backPop` zeros pointer elements at the end
  * - handle all TODO's in `makeRule`
  * - create index of symbols and link them in second pass
- * - Replace `options{greedy=false;}:` with non-greedy operator `*?`.
+ * - Replace `options{greedy=false;}:` with non-greedy operator `*?`
  * - add `RuleAltN(uint n)`
  * - add `SeqN(uint n)`
  * - non-pure diagnostics functions
- * - Display column range for tokens in messages. Use head.input.length.
+ * - Display column range for tokens in messages. Use `head.input.length`
  * - Avoid casts
  */
 module nxt.gxbnf;
@@ -2000,8 +2001,8 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
                 if (fn.endsWith(`Antlr3.g`) ||
                     fn.endsWith(`ANTLRv2.g2`)) // skip this crap
                     continue;
-                // if (!fn.endsWith("TJSLexer.g4"))
-                //     continue;
+                if (!fn.endsWith("CMake.g4"))
+                    continue;
                 debug printf("Reading %.*s ...\n", cast(int)fn.length, fn.ptr);
                 auto reader = GxFileReader(fn);
             }

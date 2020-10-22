@@ -8,6 +8,10 @@
  * See_Also: https://bnfc.digitalgrammars.com/
  *
  * TODO:
+ *
+ * - Detect (indirect) mutual direct left-recursion. How? Parses enters a rule
+ *   again without offset change.
+ *
  * - Handle: `var_name=lvalue op=ASSIGN global_name=id_global;`
  * - Sort `AltM` subs by descending minimum length
  * - Check that `DynamicArray.backPop` zeros pointer elements at the end.
@@ -1570,6 +1574,7 @@ struct GxParser
                     break;
                 case TOK.action:
                     _lexer.frontPop(); // ignore action
+                    _lexer.skipOverTOK(TOK.qmark); // TODO: handle in a more generic way
                     break;
                 default:
                     _lexer.infoAtFront("TODO: unhandled token type" ~ _lexer.front.to!string);
@@ -1696,7 +1701,10 @@ struct GxParser
     Options makeOptions(in Token head) nothrow
     {
         version(Do_Inline) pragma(inline, true);
-        return new Options(head, _lexer.frontPopEnforce(TOK.action, "missing action"));
+        const action = _lexer.frontPopEnforce(TOK.action, "missing action");
+        // See_Also: https://stackoverflow.com/questions/64477446/meaning-of-colon-inside-parenthesises/64477817#64477817
+        _lexer.skipOverTOK(TOK.colon); // optionally scoped
+        return new Options(head, action);
     }
 
     Channels makeChannels(in Token head) nothrow
@@ -1887,6 +1895,7 @@ struct GxParser
     Node nextFront() @trusted
     {
         const head = _lexer.frontPop();
+        // _lexer.infoAtToken(head, "here");
         switch (head.tok)
         {
         case TOK.attributeSymbol:
@@ -1900,7 +1909,6 @@ struct GxParser
         case TOK.action:
             return new Action(head);
         case TOK.symbol:
-            _lexer.infoAtToken(head, "here"); // break for `RegularExpressionLiteral`
             return makeRuleOrOther(head);
         default:
             _lexer.errorAtFront("TODO: handle");
@@ -1991,7 +1999,7 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
                 if (fn.endsWith(`Antlr3.g`) ||
                     fn.endsWith(`ANTLRv2.g2`)) // skip this crap
                     continue;
-                // if (!fn.endsWith("oncrpcv2.g4"))
+                // if (!fn.endsWith("TJSLexer.g4"))
                 //     continue;
                 debug printf("Reading %.*s ...\n", cast(int)fn.length, fn.ptr);
                 auto reader = GxFileReader(fn);

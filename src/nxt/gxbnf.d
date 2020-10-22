@@ -13,14 +13,23 @@
  *   again without offset change.
  *
  * - Handle tabs in `offsetLineColumn`
+ *
  * - Handle: `var_name=lvalue op=ASSIGN global_name=id_global;`
+ *
  * - Sort `AltM` subs by descending minimum length
+ *
  * - Check that `DynamicArray.backPop` zeros pointer elements at the end
+ *
  * - handle all TODO's in `makeRule`
+ *
  * - create index of symbols and link them in second pass
+ *
  * - Replace `options{greedy=false;}:` with non-greedy operator `*?`
+ *
  * - add `RuleAltN(uint n)`
+ *
  * - add `SeqN(uint n)`
+ *
  * - non-pure diagnostics functions
  *
  * - Display column range for tokens in messages. Use `head.input.length`.
@@ -28,6 +37,8 @@
  *   See: `-fdiagnostics-print-source-range-info` at https://clang.llvm.org/docs/UsersManual.html.
  *   See: https://clang.llvm.org/diagnostics.html
  *   Use GNU-style formatting such as: fix-it:"test.c":{45:3-45:21}:"gtk_widget_show_all".
+ *
+ * - Emacs click on link in `compilation-mode` doesn't navigate to correct offset on lines containing tabs before offset
  *
  * - Avoid casts by compared with `head.tok` for `isA!NodeType`
  */
@@ -1509,6 +1520,15 @@ struct GxParser
                     seq.put1(new Tilde(_lexer.frontPop()));
                     break;
                 case TOK.pipe:
+                    if (const symbol = cast(Symbol)seq.back)
+                    {
+                        if (symbol.head.tok == TOK.leftParen)
+                        {
+                            _lexer.warningAtToken(symbol.head, "ignoring operator");
+                            _lexer.frontPop();
+                            continue;
+                        }
+                    }
                     seq.put1(new Pipe(_lexer.frontPop())); // sentinel
                     break;
                 case TOK.wildcard:
@@ -2006,8 +2026,6 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
             {
                 if (fn.endsWith(`Antlr3.g`) ||
                     fn.endsWith(`ANTLRv2.g2`)) // skip this crap
-                    continue;
-                if (!fn.endsWith("CMake.g4"))
                     continue;
                 debug printf("Reading %.*s ...\n", cast(int)fn.length, fn.ptr);
                 auto reader = GxFileReader(fn);

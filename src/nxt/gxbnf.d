@@ -17,6 +17,7 @@
  * - Check that `DynamicArray.backPop` zeros pointer elements at the end.
  * - handle all TODO's in `makeRule`
  * - create index of symbols and link them in second pass
+ * - Replace `options{greedy=false;}:` with non-greedy operator `*?`.
  * - add `RuleAltN(uint n)`
  * - add `SeqN(uint n)`
  * - non-pure diagnostics functions

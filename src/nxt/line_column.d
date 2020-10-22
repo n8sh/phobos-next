@@ -1,3 +1,7 @@
+/** Conversions from string/file offset to line and column.
+ *
+ * See_Also: https://clang.llvm.org/diagnostics.html
+ */
 module nxt.line_column;
 
 @safe:

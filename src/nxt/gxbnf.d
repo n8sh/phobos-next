@@ -24,10 +24,12 @@
  * - non-pure diagnostics functions
  *
  * - Display column range for tokens in messages. Use `head.input.length`.
- *   Use GNU-style formatting: fix-it:"test.c":{45:3-45:21}:"gtk_widget_show_all".
  *   Requires updating FlyCheck.
+ *   See: `-fdiagnostics-print-source-range-info` at https://clang.llvm.org/docs/UsersManual.html.
+ *   See: https://clang.llvm.org/diagnostics.html
+ *   Use GNU-style formatting such as: fix-it:"test.c":{45:3-45:21}:"gtk_widget_show_all".
  *
- * - Avoid casts
+ * - Avoid casts by compared with `head.tok` for `isA!NodeType`
  */
 module nxt.gxbnf;
 

@@ -1789,9 +1789,7 @@ struct GxParser
     Node makeRuleOrOther(in Token head)
     {
         if (_lexer.front.tok == TOK.colon) // normal case
-        {
             return makeRule(head, false);   // fast path
-        }
 
         if (head.input == "lexer" ||
             head.input == "parser" ||
@@ -1902,6 +1900,7 @@ struct GxParser
         case TOK.action:
             return new Action(head);
         case TOK.symbol:
+            _lexer.infoAtToken(head, "here"); // break for `RegularExpressionLiteral`
             return makeRuleOrOther(head);
         default:
             _lexer.errorAtFront("TODO: handle");

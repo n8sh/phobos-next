@@ -1726,12 +1726,18 @@ struct GxParser
         return null;
     }
 
-    Options makeOptions(in Token head) nothrow
+    Options makeRuleOptions(in Token head) nothrow
     {
         version(Do_Inline) pragma(inline, true);
         const action = _lexer.frontPopEnforce(TOK.action, "missing action");
-        // See_Also: https://stackoverflow.com/questions/64477446/meaning-of-colon-inside-parenthesises/64477817#64477817
-        _lexer.skipOverTOK(TOK.colon); // optionally scoped
+        return new Options(head, action);
+    }
+
+    Options makeTopOptions(in Token head) nothrow
+    {
+        version(Do_Inline) pragma(inline, true);
+        const action = _lexer.frontPopEnforce(TOK.action, "missing action");
+        _lexer.skipOverTOK(TOK.colon); // optionally scoped. See_Also: https://stackoverflow.com/questions/64477446/meaning-of-colon-inside-parenthesises/64477817#64477817
         return new Options(head, action);
     }
 
@@ -1770,10 +1776,10 @@ struct GxParser
     }
 
     /// Skip over options if any.
-    Options skipOverOptions()
+    Options skipOverRuleOptions()
     {
         if (_lexer.front == Token(TOK.symbol, "options"))
-            return makeOptions(_lexer.frontPop());
+            return makeRuleOptions(_lexer.frontPop());
         return null;
     }
 
@@ -1883,7 +1889,7 @@ struct GxParser
         case `tokens`:
             return makeTokens(head);
         case `options`:
-            return makeOptions(head);
+            return makeTopOptions(head);
         case `header`:
             return makeHeader(head);
         case `mode`:
@@ -1907,7 +1913,7 @@ struct GxParser
                     continue;
                 if (const _ = skipOverSymbol("locals")) // TODO: use
                     continue;
-                if (const _ = skipOverOptions()) // TODO: use
+                if (const _ = skipOverRuleOptions()) // TODO: use
                     continue;
                 if (const _ = skipOverScope())     // TODO: use
                     continue;
@@ -1915,6 +1921,7 @@ struct GxParser
                     continue;
                 if (const _ = skipOverActionSymbol()) // TODO: use
                     continue;
+                break;          // no progression so done
             }
             return makeRule(head, false);
         }
@@ -1923,7 +1930,6 @@ struct GxParser
     Node nextFront() @trusted
     {
         const head = _lexer.frontPop();
-        // _lexer.infoAtToken(head, "here");
         switch (head.tok)
         {
         case TOK.attributeSymbol:
@@ -2026,6 +2032,8 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
             {
                 if (fn.endsWith(`Antlr3.g`) ||
                     fn.endsWith(`ANTLRv2.g2`)) // skip this crap
+                    continue;
+                if (!fn.endsWith(`/home/per/Work/grammars-v4/antlr/antlr3/examples/C.g`))
                     continue;
                 debug printf("Reading %.*s ...\n", cast(int)fn.length, fn.ptr);
                 auto reader = GxFileReader(fn);

@@ -9,8 +9,6 @@
  *
  * TODO:
  *
- * - Add lhs and rhs to `Range` ctor
- *
  * - Use `TOK.tokenSpecOptions` in parsing. Ignored for now.
  *
  * - Detect indirect mutual left-recursion. How? Simple-way in generated parsers:
@@ -1213,6 +1211,15 @@ class Pipe : TokenNode
     }
 }
 
+class DotDot : TokenNode
+{
+@safe pure nothrow @nogc:
+    this(in Token head)
+    {
+        super(head);
+    }
+}
+
 class Tilde : TokenNode
 {
 @safe pure nothrow @nogc:
@@ -1234,10 +1241,14 @@ class Wildcard : TokenNode
 class Range : TokenNode
 {
 @safe pure nothrow @nogc:
-    this(in Token head)
+    this(in Token head, Node lower, Node upper)
     {
         super(head);
+        this.lower = lower;
+        this.upper = upper;
     }
+    Node lower;
+    Node upper;
 }
 
 class Hooks : TokenNode
@@ -1599,6 +1610,12 @@ struct GxParser
                         seq.put1(new AltM([seq.backPop(), last]));
                         return;
                     }
+                    else if (auto dotdot = cast(DotDot)seq.back) // binary operator
+                    {
+                        seq.popBack(); // pop `DotDot`
+                        seq.put1(new Range(dotdot.head, seq.backPop(), last));
+                        return;
+                    }
                     else if (auto tilde = cast(Tilde)seq.back) // prefix unary operator
                     {
                         seq.popBack(); // pop `Tilde`
@@ -1661,8 +1678,7 @@ struct GxParser
                     seq.put1(new Wildcard(_lexer.frontPop())); // sentinel
                     break;
                 case TOK.dotdot:
-                    _lexer.infoAtFront("handle range arguments");
-                    seq.put1(new Range(_lexer.frontPop())); // sentinel
+                    seq.put1(new DotDot(_lexer.frontPop())); // sentinel
                     break;
                 case TOK.hooks:
                     seq.put1(new Hooks(_lexer.frontPop())); // sentinel
@@ -2206,8 +2222,8 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
                 if (fn.endsWith(`Antlr3.g`) ||
                     fn.endsWith(`ANTLRv2.g2`)) // skip this crap
                     continue;
-                if (!fn.endsWith(`CMake.g4`))
-                    continue;
+                // if (!fn.endsWith(`CMake.g4`))
+                //     continue;
                 debug printf("Reading %.*s ...\n", cast(int)fn.length, fn.ptr);
                 auto reader = GxFileReader(fn);
             }

@@ -9,6 +9,8 @@
  *
  * TODO:
  *
+ * - Add lhs and rhs to `Range` ctor
+ *
  * - Use `TOK.tokenSpecOptions` in parsing. Ignored for now.
  *
  * - Detect indirect mutual left-recursion. How? Simple-way in generated parsers:
@@ -1659,6 +1661,7 @@ struct GxParser
                     seq.put1(new Wildcard(_lexer.frontPop())); // sentinel
                     break;
                 case TOK.dotdot:
+                    _lexer.infoAtFront("handle range arguments");
                     seq.put1(new Range(_lexer.frontPop())); // sentinel
                     break;
                 case TOK.hooks:

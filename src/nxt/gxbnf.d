@@ -12,6 +12,8 @@
  * - Detect indirect mutual left-recursion. How? Simple-way in generated parsers:
  *   enters a rule again without offset change.
  *
+ * - Handle: `listLabelAssignment
+ *
  * - Sort `AltM` subs by descending minimum length
  *
  * - Check that `DynamicArray.backPop` zeros pointer elements at the end
@@ -355,9 +357,11 @@ private:
         while (peekN(j).among!(whiteChars)) // NOTE this is faster than `src[i].isWhite`
             j += 1;
 
-        const labelAssignmentFlag = peekN(j) == '=';
-        if (labelAssignmentFlag)
-            return skipOverN(j + 1); // TOK.labelAssignment
+        if (peekN(j) == '=')         // label assignment
+            return skipOverN(j + 1);
+        else if (peekN(j) == '+' &&
+                 peekN(j + 1) == '=') // list label assignment
+            return skipOverN(j + 2);
         else
             return skipOverN(i);
     }
@@ -724,7 +728,14 @@ private:
             if (peek0().isSymbolStart)
             {
                 const symbol = getSymbol();
-                if (symbol.endsWith('='))
+                if (symbol.endsWith("+="))
+                {
+                    if (_includeListLabelAssignment)
+                        _token = Token(TOK.listLabelAssignment, symbol);
+                    else
+                        return nextFront();
+                }
+                else if (symbol.endsWith('='))
                 {
                     if (_includeLabelAssignment)
                         _token = Token(TOK.labelAssignment, symbol);
@@ -850,6 +861,7 @@ private:
     bool _includeComments = false;
     bool _includeWhitespace = false;
     bool _includeLabelAssignment = false;
+    bool _includeListLabelAssignment = false;
 }
 
 /// Node.

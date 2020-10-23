@@ -9,7 +9,6 @@
  *
  * TODO:
  *
- * - Use `TOK.rootNode` in parsing. Ignored for now.
  * - Use `TOK.tokenSpecOptions` in parsing. Ignored for now.
  *
  * - Detect indirect mutual left-recursion. How? Simple-way in generated parsers:

@@ -1733,6 +1733,10 @@ struct GxParser
                 case TOK.tokenSpecOptions:
                     _lexer.frontPop(); // ignore for now
                     break;
+                case TOK.colon:
+                    _lexer.frontPop(); // ignore for now
+                    _lexer.warningAtFront("ignoring colon with no effect");
+                    continue;
                 default:
                     _lexer.infoAtFront("TODO: unhandled token type" ~ _lexer.front.to!string);
                     seqPutCheck(new Symbol(_lexer.frontPop()));

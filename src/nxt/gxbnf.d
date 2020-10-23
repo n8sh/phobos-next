@@ -9,6 +9,8 @@
  *
  * TODO:
  *
+ * - Use `TOK.rootNode` in parsing. Ignored for now.
+ *
  * - Detect indirect mutual left-recursion. How? Simple-way in generated parsers:
  *   enters a rule again without offset change.
  *
@@ -1690,6 +1692,9 @@ struct GxParser
                         _lexer.errorAtFront("non-symbol before label assignment");
                     _lexer.frontPop();
                     seq.popBack(); // ignore
+                    break;
+                case TOK.rootNode:
+                    _lexer.frontPop(); // ignore AST root node
                     break;
                 default:
                     _lexer.infoAtFront("TODO: unhandled token type" ~ _lexer.front.to!string);

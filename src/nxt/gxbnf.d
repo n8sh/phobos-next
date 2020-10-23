@@ -12,8 +12,6 @@
  * - Detect indirect mutual left-recursion. How? Simple-way in generated parsers:
  *   enters a rule again without offset change.
  *
- * - Handle: `listLabelAssignment
- *
  * - Sort `AltM` subs by descending minimum length
  *
  * - Check that `DynamicArray.backPop` zeros pointer elements at the end

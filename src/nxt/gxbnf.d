@@ -1152,6 +1152,30 @@ abstract class UnaryOp : Node
     Node sub;
 }
 
+abstract class BinaryOp : Node
+{
+@safe:
+    final override void show(in Format fmt = Format.init) const @trusted
+    {
+        fmt.showIndent();
+        subs[0].show(fmt);
+        putchar(' ');
+        showChars(head.input);
+        putchar(' ');
+        subs[1].show(fmt);
+    }
+@safe pure nothrow @nogc:
+    this(in Token head, Node[2] subs)
+    {
+        assert(subs[0]);
+        assert(subs[1]);
+        super();
+        this.subs = subs;
+    }
+    Token head;
+    Node[2] subs;
+}
+
 class ZeroOrOne : UnaryOp
 {
 @safe pure nothrow @nogc:
@@ -1238,17 +1262,13 @@ class Wildcard : TokenNode
     }
 }
 
-class Range : TokenNode
+class Range : BinaryOp
 {
 @safe pure nothrow @nogc:
-    this(in Token head, Node lower, Node upper)
+    this(in Token head, Node[2] limits)
     {
-        super(head);
-        this.lower = lower;
-        this.upper = upper;
+        super(head, limits);
     }
-    Node lower;
-    Node upper;
 }
 
 class Hooks : TokenNode
@@ -1613,7 +1633,7 @@ struct GxParser
                     else if (auto dotdot = cast(DotDot)seq.back) // binary operator
                     {
                         seq.popBack(); // pop `DotDot`
-                        seq.put1(new Range(dotdot.head, seq.backPop(), last));
+                        seq.put1(new Range(dotdot.head, [seq.backPop(), last]));
                         return;
                     }
                     else if (auto tilde = cast(Tilde)seq.back) // prefix unary operator

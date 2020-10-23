@@ -881,10 +881,10 @@ private:
 
     Token _token;
     bool _endOfFile;            // signals null terminator found
-    bool _includeComments = false;
-    bool _includeWhitespace = false;
-    bool _includeLabelAssignment = false;
-    bool _includeListLabelAssignment = false;
+    bool _includeComments;
+    bool _includeWhitespace;
+    bool _includeLabelAssignment;
+    bool _includeListLabelAssignment;
 }
 
 /// Node.
@@ -1607,7 +1607,10 @@ struct GxParser
                 switch (_lexer.front.tok)
                 {
                 case TOK.symbol:
-                    seqPutCheck(new Symbol(_lexer.frontPop()));
+                    if (_lexer.front.input == "options")
+                        auto _ = makeRuleOptions(_lexer.frontPop(), true);
+                    else
+                        seqPutCheck(new Symbol(_lexer.frontPop()));
                     break;
                 case TOK.literal:
                     seqPutCheck(new Literal(_lexer.frontPop()));
@@ -1846,10 +1849,13 @@ struct GxParser
         return null;
     }
 
-    Options makeRuleOptions(in Token head) nothrow
+    Options makeRuleOptions(in Token head,
+                            in bool skipOverColon = false) nothrow
     {
         version(Do_Inline) pragma(inline, true);
         const action = _lexer.frontPopEnforce(TOK.action, "missing action");
+        if (skipOverColon)
+            _lexer.skipOverTOK(TOK.colon);
         return new Options(head, action);
     }
 
@@ -1896,7 +1902,7 @@ struct GxParser
     }
 
     /// Skip over options if any.
-    Options skipOverRuleOptions()
+    Options skipOverPreRuleOptions()
     {
         if (_lexer.front == Token(TOK.symbol, "options"))
             return makeRuleOptions(_lexer.frontPop());
@@ -2034,7 +2040,7 @@ struct GxParser
                     continue;
                 if (const _ = skipOverSymbol("locals")) // TODO: use
                     continue;
-                if (const _ = skipOverRuleOptions()) // TODO: use
+                if (const _ = skipOverPreRuleOptions()) // TODO: use
                     continue;
                 if (const _ = skipOverScope())     // TODO: use
                     continue;
@@ -2126,7 +2132,7 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
     import std.path : expandTilde;
 
     const root = "~/Work/grammars-v4/".expandTilde;
-    const testLexer = true;
+    const testLexer = false;
     const testParser = true;
 
     if (testLexer)
@@ -2151,6 +2157,8 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
             {
                 if (fn.endsWith(`Antlr3.g`) ||
                     fn.endsWith(`ANTLRv2.g2`)) // skip this crap
+                    continue;
+                if (!fn.endsWith(`Java6Lex.g`))
                     continue;
                 debug printf("Reading %.*s ...\n", cast(int)fn.length, fn.ptr);
                 auto reader = GxFileReader(fn);

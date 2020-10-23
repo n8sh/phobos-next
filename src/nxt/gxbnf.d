@@ -109,7 +109,7 @@ enum TOK
     wildcard,                   ///< `.`
     dotdot,                     ///< `..`
     rewrite,                    ///< Rewrite rule (`->`)
-    alwaysIncludePredicate,     ///< Rewrite rule (`=>`)
+    rewriteSyntacticPredicate,  ///< Rewrite rule (`=>`)
 
     /** Token spec options:
         "<"
@@ -677,7 +677,7 @@ private:
             break;
         case '=':
             if (peek1() == '>')
-                _token = Token(TOK.alwaysIncludePredicate, skipOver2());
+                _token = Token(TOK.rewriteSyntacticPredicate, skipOver2());
             else
                 errorAtFront("expected '>' after '='");
             break;
@@ -1498,6 +1498,15 @@ final class Class : TokenNode
     Input baseName;             ///< Base class name.
 }
 
+final class AlwaysIncludePredicate : TokenNode
+{
+@safe pure nothrow @nogc:
+    this(in Token head)
+    {
+        super(head);
+    }
+}
+
 // Node splitByPipe(const scope ref GxLexer lexer,
 //                  NodeArray nodes) pure nothrow
 // {
@@ -1640,7 +1649,7 @@ struct GxParser
                     {
                         if (symbol.head.tok == TOK.leftParen)
                         {
-                            _lexer.warningAtToken(symbol.head, "ignoring operator");
+                            _lexer.warningAtToken(symbol.head, "ignoring left paren");
                             _lexer.frontPop();
                             continue;
                         }
@@ -1727,19 +1736,44 @@ struct GxParser
                     _lexer.frontPop();
                     seq.popBack(); // ignore
                     break;
-                case TOK.rootNode:
-                    _lexer.frontPop(); // ignore for now
-                    break;
                 case TOK.tokenSpecOptions:
-                    _lexer.frontPop(); // ignore for now
+                    _lexer.frontPop(); // ignore
                     break;
                 case TOK.colon:
-                    _lexer.frontPop(); // ignore for now
                     _lexer.warningAtFront("ignoring colon with no effect");
+                    _lexer.frontPop(); // ignore
                     continue;
+                case TOK.rootNode:
+                    /* AST root operator. When generating abstract syntax trees
+                     * (ASTs), token references suffixed with the "^" root
+                     * operator force AST nodes to be created and added as the
+                     * root of the current tree. This symbol is only effective
+                     * when the buildAST option is set. More information about
+                     * ASTs is also available. */
+                    _lexer.frontPop(); // ignore
+                    break;
+                case TOK.exclamation:
+                    /* AST exclude operator. When generating abstract syntax
+                     * trees, token references suffixed with the "!" exclude
+                     * operator are not included in the AST constructed for that
+                     * rule. Rule references can also be suffixed with the
+                     * exclude operator, which implies that, while the tree for
+                     * the referenced rule is constructed, it is not linked into
+                     * the tree for the referencing rule. This symbol is only
+                     * effective when the buildAST option is set. More
+                     * information about ASTs is also available. */
+                    _lexer.frontPop(); // ignore
+                    break;
+                case TOK.rewriteSyntacticPredicate:
+                    if (seq.empty)
+                        _lexer.errorAtFront("missing left-hand side of semantic predicate");
+                    // TODO: pop seq.back `seq` and pair with symbol after or parens after
+                    seqPutCheck(new AlwaysIncludePredicate(_lexer.frontPop()));
+                    break;
                 default:
                     _lexer.infoAtFront("TODO: unhandled token type" ~ _lexer.front.to!string);
                     seqPutCheck(new Symbol(_lexer.frontPop()));
+                    break;
                 }
             }
             if (!seq.length)

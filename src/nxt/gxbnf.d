@@ -1539,30 +1539,6 @@ final class AlwaysIncludePredicate : TokenNode
     }
 }
 
-// Node splitByPipe(const scope ref GxLexer lexer,
-//                  NodeArray nodes) pure nothrow
-// {
-//     NodeArray result;
-//     foreach (const i, node; nodes)
-//     {
-//         if (result.empty)
-//         {
-//             if (auto pipe = cast(PipeSentinel)node)
-//                 lexer.errorAtToken(pipe.head, "no left-hand side argument to binary operator `|`");
-//             result.put1(node);
-//         }
-//         else if (result.length >= 2) // result: ... X Y
-//         {
-//             if (auto pipe = cast(PipeSentinel)result.back) // result: ... X '|'
-//             {
-//                 result.popBack(); // pop '|'
-//                 result.put1(new AltM([result.backPop()])); // pop X
-//             }
-//         }
-//     }
-//     return makeSeqM(result.move());
-// }
-
 /** Gx parser.
  *
  * See: `ANTLRv4Parser.g4`
@@ -1687,7 +1663,7 @@ struct GxParser
                     {
                         if (symbol.head.tok == TOK.leftParen)
                         {
-                            _lexer.warningAtFront("operator '|' without left-hand side argument has no effect");
+                            // _lexer.warningAtFront("operator '|' without left-hand side argument has no effect");
                             _lexer.frontPop();
                             continue;
                         }

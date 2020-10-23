@@ -1027,7 +1027,7 @@ class Rule : Node
         {
             if (const s = cast(const Symbol)node) // common case
                 if (head.input == s.head.input)
-                    lexer.warningAtToken(s.head, "left-recusion");
+                    lexer.warningAtToken(s.head, "left-recursion");
         }
         if (const alt = cast(AltM)top) // common case
         {

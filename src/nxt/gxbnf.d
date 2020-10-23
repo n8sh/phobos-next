@@ -1226,7 +1226,7 @@ class Symbol : TokenNode
     }
 }
 
-class Pipe : TokenNode
+class PipeSentinel : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1235,7 +1235,7 @@ class Pipe : TokenNode
     }
 }
 
-class DotDot : TokenNode
+class DotDotSentinel : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1253,7 +1253,7 @@ class Tilde : TokenNode
     }
 }
 
-class Wildcard : TokenNode
+class WildcardSentinel : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1547,13 +1547,13 @@ final class AlwaysIncludePredicate : TokenNode
 //     {
 //         if (result.empty)
 //         {
-//             if (auto pipe = cast(Pipe)node)
+//             if (auto pipe = cast(PipeSentinel)node)
 //                 lexer.errorAtToken(pipe.head, "no left-hand side argument to binary operator `|`");
 //             result.put1(node);
 //         }
 //         else if (result.length >= 2) // result: ... X Y
 //         {
-//             if (auto pipe = cast(Pipe)result.back) // result: ... X '|'
+//             if (auto pipe = cast(PipeSentinel)result.back) // result: ... X '|'
 //             {
 //                 result.popBack(); // pop '|'
 //                 result.put1(new AltM([result.backPop()])); // pop X
@@ -1624,15 +1624,15 @@ struct GxParser
                 }
                 if (!seq.empty)
                 {
-                    if (cast(Pipe)seq.back) // binary operator
+                    if (cast(PipeSentinel)seq.back) // binary operator
                     {
-                        seq.popBack(); // pop `Pipe`
+                        seq.popBack(); // pop `PipeSentinel`
                         seq.put1(new AltM([seq.backPop(), last]));
                         return;
                     }
-                    else if (auto dotdot = cast(DotDot)seq.back) // binary operator
+                    else if (auto dotdot = cast(DotDotSentinel)seq.back) // binary operator
                     {
-                        seq.popBack(); // pop `DotDot`
+                        seq.popBack(); // pop `DotDotSentinel`
                         seq.put1(new Range(dotdot.head, [seq.backPop(), last]));
                         return;
                     }
@@ -1692,16 +1692,16 @@ struct GxParser
                             continue;
                         }
                     }
-                    seq.put1(new Pipe(_lexer.frontPop())); // sentinel
+                    seq.put1(new PipeSentinel(_lexer.frontPop()));
                     break;
                 case TOK.wildcard:
-                    seq.put1(new Wildcard(_lexer.frontPop())); // sentinel
+                    seq.put1(new WildcardSentinel(_lexer.frontPop()));
                     break;
                 case TOK.dotdot:
-                    seq.put1(new DotDot(_lexer.frontPop())); // sentinel
+                    seq.put1(new DotDotSentinel(_lexer.frontPop()));
                     break;
                 case TOK.hooks:
-                    seq.put1(new Hooks(_lexer.frontPop())); // sentinel
+                    seq.put1(new Hooks(_lexer.frontPop()));
                     break;
                 case TOK.hash:
                 case TOK.rewrite:

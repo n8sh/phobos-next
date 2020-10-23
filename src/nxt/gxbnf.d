@@ -27,8 +27,6 @@
  * - add `RuleAltN(uint n)`
  * - add `SeqN(uint n)`
  *
- * - Handle tabs in `offsetLineColumn`
- *
  * - non-pure diagnostics functions
  *
  * - Display column range for tokens in messages. Use `head.input.length`.

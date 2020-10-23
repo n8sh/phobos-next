@@ -1610,7 +1610,15 @@ struct GxParser
                     if (_lexer.front.input == "options")
                         auto _ = makeRuleOptions(_lexer.frontPop(), true);
                     else
-                        seqPutCheck(new Symbol(_lexer.frontPop()));
+                    {
+                        auto symbol = _lexer.frontPop();
+                        if (_lexer.front.tok == TOK.colon)
+                        {
+                            _lexer.popFront();
+                            continue; // skip element label: SYMBOL '.'. See_Also: https://www.antlr2.org/doc/metalang.html section "Element Labels"
+                        }
+                        seqPutCheck(new Symbol(symbol));
+                    }
                     break;
                 case TOK.literal:
                     seqPutCheck(new Literal(_lexer.frontPop()));

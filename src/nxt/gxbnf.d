@@ -1649,7 +1649,7 @@ struct GxParser
                     {
                         if (symbol.head.tok == TOK.leftParen)
                         {
-                            _lexer.warningAtToken(symbol.head, "ignoring left paren");
+                            _lexer.warningAtToken(symbol.head, "ignoring left parenthesis");
                             _lexer.frontPop();
                             continue;
                         }

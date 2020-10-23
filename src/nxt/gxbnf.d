@@ -1229,7 +1229,7 @@ class Wildcard : TokenNode
     }
 }
 
-class DotDot : TokenNode
+class Range : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1659,7 +1659,7 @@ struct GxParser
                     seq.put1(new Wildcard(_lexer.frontPop())); // sentinel
                     break;
                 case TOK.dotdot:
-                    seq.put1(new DotDot(_lexer.frontPop())); // sentinel
+                    seq.put1(new Range(_lexer.frontPop())); // sentinel
                     break;
                 case TOK.hooks:
                     seq.put1(new Hooks(_lexer.frontPop())); // sentinel

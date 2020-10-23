@@ -25,7 +25,6 @@
  * - Replace `options{greedy=false;}:` with non-greedy operator `*?`
  *
  * - add `RuleAltN(uint n)`
- *
  * - add `SeqN(uint n)`
  *
  * - Handle tabs in `offsetLineColumn`

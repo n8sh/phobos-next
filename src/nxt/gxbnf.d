@@ -2132,7 +2132,7 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
     import std.path : expandTilde;
 
     const root = "~/Work/grammars-v4/".expandTilde;
-    const testLexer = false;
+    const testLexer = true;
     const testParser = true;
 
     if (testLexer)
@@ -2158,8 +2158,8 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
                 if (fn.endsWith(`Antlr3.g`) ||
                     fn.endsWith(`ANTLRv2.g2`)) // skip this crap
                     continue;
-                if (!fn.endsWith(`Java6Lex.g`))
-                    continue;
+                // if (!fn.endsWith(`Java6Lex.g`))
+                //     continue;
                 debug printf("Reading %.*s ...\n", cast(int)fn.length, fn.ptr);
                 auto reader = GxFileReader(fn);
             }

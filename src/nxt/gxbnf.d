@@ -699,7 +699,7 @@ private:
             _token = Token(TOK.tilde, skipOver1());
             break;
         case '<':
-            Token(TOK.tokenSpecOptions, getTokenSpecOptions());
+            _token = Token(TOK.tokenSpecOptions, getTokenSpecOptions());
             break;
         case ',':
             _token = Token(TOK.comma, skipOver1());

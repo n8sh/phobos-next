@@ -1650,7 +1650,7 @@ struct GxParser
                     {
                         if (symbol.head.tok == TOK.leftParen)
                         {
-                            _lexer.warningAtToken(symbol.head, "ignoring left parenthesis");
+                            _lexer.warningAtFront("operator '|' without left-hand side argument has no effect");
                             _lexer.frontPop();
                             continue;
                         }
@@ -2180,7 +2180,7 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
     import std.path : expandTilde;
 
     const root = "~/Work/grammars-v4/".expandTilde;
-    const testLexer = true;
+    const testLexer = false;
     const testParser = true;
 
     if (testLexer)
@@ -2206,8 +2206,8 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
                 if (fn.endsWith(`Antlr3.g`) ||
                     fn.endsWith(`ANTLRv2.g2`)) // skip this crap
                     continue;
-                // if (!fn.endsWith(`Java6Lex.g`))
-                //     continue;
+                if (!fn.endsWith(`CMake.g4`))
+                    continue;
                 debug printf("Reading %.*s ...\n", cast(int)fn.length, fn.ptr);
                 auto reader = GxFileReader(fn);
             }

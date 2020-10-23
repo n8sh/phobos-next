@@ -110,6 +110,15 @@ enum TOK
     rewrite,                    ///< Rewrite rule (`->`)
     alwaysIncludePredicate,     ///< Rewrite rule (`=>`)
 
+    /** Token spec options:
+        "<"
+        id ASSIGN optionValue
+        ( SEMI id ASSIGN optionValue )*
+        ">"
+        ;
+    */
+    tokenSpecOptions,
+
     _error,                     ///< Error token.
 }
 
@@ -425,6 +434,22 @@ private:
         return skipOverN(i + 1); // include terminator
     }
 
+    Input getTokenSpecOptions() return nothrow @nogc
+    {
+        enum dchar terminator = '>';
+        size_t i = 1;
+        while (!peekN(i).among!('\0', terminator))
+            i += 1;
+        if (peekN(i) != terminator)
+        {
+            if (peekN(i) == '\0')
+                errorAtIndex("unterminated string literal at end of file");
+            else
+                errorAtIndex("unterminated token spec option");
+        }
+        return skipOverN(i + 1); // include terminator '>'
+    }
+
     Input getHooks() return nothrow @nogc
     {
         size_t i;
@@ -674,10 +699,7 @@ private:
             _token = Token(TOK.tilde, skipOver1());
             break;
         case '<':
-            _token = Token(TOK.lt, skipOver1());
-            break;
-        case '>':
-            _token = Token(TOK.gt, skipOver1());
+            Token(TOK.tokenSpecOptions, getTokenSpecOptions());
             break;
         case ',':
             _token = Token(TOK.comma, skipOver1());

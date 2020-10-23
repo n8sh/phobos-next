@@ -316,7 +316,7 @@ private:
     {
         size_t i;
         while (!peekN(i).among!('\0', endOfLineChars))
-            i +=1;                // TODO: decode `dchar`
+            i += 1;                // TODO: decode `dchar`
         return skipOverN(i);    // TODO: decode `dchar`
     }
 
@@ -343,15 +343,25 @@ private:
         size_t i;
         const bool attributeFlag = peek0() == '@';
         if (peek0().isSymbolStart)
-            i +=1;
+            i += 1;
         while (peekN(i).isAlphaNum ||
                peekN(i) == '_' ||
                (attributeFlag && // attribute name
                 peekN(i) == ':')) // may include colon qualifier
         {
-            i +=1;
+            i += 1;
         }
-        return skipOverN(i);
+
+        // skip optional whitespace before label assignment
+        auto j = i;
+        while (peekN(j).among!(whiteChars)) // NOTE this is faster than `src[i].isWhite`
+            j += 1;
+
+        const labelAssignmentFlag = peekN(j) == '=';
+        if (labelAssignmentFlag)
+            return skipOverN(j + 1); // TOK.labelAssignment
+        else
+            return skipOverN(i);
     }
 
     /// Get number.
@@ -360,7 +370,7 @@ private:
         import std.ascii : isDigit;
         size_t i;
         while (peekN(i).isDigit)
-            i +=1;
+            i += 1;
         return skipOverN(i);
     }
 
@@ -368,7 +378,7 @@ private:
     {
         size_t i;
         while (peekN(i).among!(whiteChars)) // NOTE this is faster than `src[i].isWhite`
-            i +=1;
+            i += 1;
         return skipOverN(i);
     }
 
@@ -376,21 +386,21 @@ private:
     {
         if (peekN(i) == '\\')   // TODO: decode `dchar`
         {
-            i +=1;
+            i += 1;
             if (peekN(i) == 'n')
-                i +=1;            // TODO: convert to "\r"
+                i += 1;            // TODO: convert to "\r"
             else if (peekN(i) == 't')
-                i +=1;            // TODO: convert to "\t"
+                i += 1;            // TODO: convert to "\t"
             else if (peekN(i) == 'r')
-                i +=1;            // TODO: convert to ASCII "\r"
+                i += 1;            // TODO: convert to ASCII "\r"
             else if (peekN(i) == ']')
-                i +=1;            // TODO: convert to ASCII "]"
+                i += 1;            // TODO: convert to ASCII "]"
             else if (peekN(i) == 'u')
             {
-                i +=1;
+                i += 1;
                 import std.ascii : isDigit;
                 while (peekN(i).isDigit)
-                    i +=1;
+                    i += 1;
                 // TODO: convert to `dchar`
             }
             else if (peekN(i) == '\0')
@@ -407,7 +417,7 @@ private:
         size_t i = 1;
         while (!peekN(i).among!('\0', terminator))
             if (!skipOverEsc(i))
-                i +=1;
+                i += 1;
         if (peekN(i) == '\0')
             errorAtIndex("unterminated string literal at end of file");
         return skipOverN(i + 1); // include terminator
@@ -418,9 +428,9 @@ private:
         size_t i;
         while (!peekN(i).among!('\0', ']')) // may contain whitespace
             if (!skipOverEsc(i))
-                i +=1;
+                i += 1;
         if (peekN(i) == ']') // skip ']'
-            i +=1;
+            i += 1;
         return skipOverN(i);
     }
 
@@ -641,7 +651,7 @@ private:
             if (peek1() == '>')
                 _token = Token(TOK.alwaysIncludePredicate, skipOver2());
             else
-                _token = Token(TOK.labelAssignment, skipOver1());
+                errorAtFront("expected '>' after '='");
             break;
         case '?':
             _token = Token(TOK.qmark, skipOver1());
@@ -716,18 +726,26 @@ private:
             if (peek0().isSymbolStart)
             {
                 const symbol = getSymbol();
-                switch (symbol[0])
+                if (symbol.endsWith('='))
                 {
-                case '$':
-                    _token = Token(TOK.attributeSymbol, symbol);
-                    break;
-                case '@':
-                    _token = Token(TOK.actionSymbol, symbol);
-                    break;
-                default:
-                    _token = Token(TOK.symbol, symbol);
-                    break;
+                    if (_includeLabelAssignment)
+                        _token = Token(TOK.labelAssignment, symbol);
+                    else
+                        return nextFront();
                 }
+                else
+                    switch (symbol[0])
+                    {
+                    case '$':
+                        _token = Token(TOK.attributeSymbol, symbol);
+                        break;
+                    case '@':
+                        _token = Token(TOK.actionSymbol, symbol);
+                        break;
+                    default:
+                        _token = Token(TOK.symbol, symbol);
+                        break;
+                    }
             }
             else
             {
@@ -833,6 +851,7 @@ private:
     bool _endOfFile;            // signals null terminator found
     bool _includeComments = false;
     bool _includeWhitespace = false;
+    bool _includeLabelAssignment = false;
 }
 
 /// Node.
@@ -1656,6 +1675,13 @@ struct GxParser
                 case TOK.action:
                     _lexer.frontPop(); // ignore action
                     _lexer.skipOverTOK(TOK.qmark); // TODO: handle in a more generic way
+                    break;
+                case TOK.labelAssignment:
+                    // ignore for now: SYMBOL '='
+                    if (!cast(Symbol)seq.back)
+                        _lexer.errorAtFront("non-symbol before label assignment");
+                    _lexer.frontPop();
+                    seq.popBack(); // ignore
                     break;
                 default:
                     _lexer.infoAtFront("TODO: unhandled token type" ~ _lexer.front.to!string);

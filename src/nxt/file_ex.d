@@ -27,9 +27,7 @@ immutable(void)[] rawReadPath(string path) @trusted
     file.rawRead(data);
 
     if (totalSize)
-    {
         data[file.size] = 0;     // zero terminator for sentinel
-    }
 
     import std.exception : assumeUnique;
     return assumeUnique(data);

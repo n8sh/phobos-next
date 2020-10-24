@@ -2201,7 +2201,7 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
     string adjustPath(const return scope string path)
     {
         const cwd = getcwd();
-        if (cwd.startsWith(root))
+        if (root.startsWith(cwd))
             return path.relativePath(cwd);
         return path;
     }

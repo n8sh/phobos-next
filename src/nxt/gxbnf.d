@@ -968,8 +968,12 @@ final class SeqM : Node
 }
 
 Node makeSeq(NodeArray subs,
-             in bool rewriteFlag = false) pure nothrow
+             in bool rewriteFlag = true) pure nothrow
 {
+    if (subs.empty)
+        return null;
+    if (rewriteFlag)
+        subs = flattenSubs!SeqM(subs.move());
     switch (subs.length)
     {
     case 0:
@@ -990,7 +994,7 @@ Node makeSeq(NodeArray subs,
     default:
         break;
     }
-    return new SeqM(flattenSubs!SeqM(subs.move()));
+    return new SeqM(subs.move());
 }
 
 NodeArray flattenSubs(BranchNode)(NodeArray subs) pure nothrow @nogc
@@ -1109,8 +1113,12 @@ final class AltM : Node
 }
 
 Node makeAlt(NodeArray subs,
-             in bool _rewriteFlag = false) pure nothrow
+             in bool rewriteFlag = true) pure nothrow
 {
+    if (subs.empty)
+        return null;
+    if (rewriteFlag)
+        subs = flattenSubs!AltM(subs.move());
     switch (subs.length)
     {
     case 0:

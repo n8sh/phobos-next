@@ -2193,30 +2193,37 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
     import std.path : expandTilde;
 
     const root = "~/Work/grammars-v4/".expandTilde;
-    const lexerFlag = false;
+    const lexerFlag = true;
     const parserFlag = true;
 
-    scope StopWatch sw;
-
-    auto f = stdout;
+    auto of = stdout;           // output file
 
     if (lexerFlag)
+    {
+        scope StopWatch swAll;
+        swAll.start();
         foreach (const e; dirEntries(root, SpanMode.breadth))
         {
             const fn = e.name;
             if (fn.isGxFileName)
             {
-                f.write("Lexing ", fn, " ..."); f.flush();
-                const data = cast(Input)rawReadPath(fn);
-                sw.reset();
+                of.write("Lexing ", fn, " ..."); of.flush();
+                const data = cast(Input)rawReadPath(fn); // exclude from benchmark
+                scope StopWatch swOne;
+                swOne.start();
                 auto lexer = GxLexer(data, fn, false);
                 while (!lexer.empty)
                     lexer.popFront();
-                f.writeln("took ", sw.peek());
+                of.writeln("took ", swOne.peek());
             }
         }
+        of.writeln("Lexing all took ", swAll.peek());
+    }
 
     if (parserFlag)
+    {
+        scope StopWatch swAll;
+        swAll.start();
         foreach (const e; dirEntries(root, SpanMode.breadth))
         {
             const fn = e.name;
@@ -2227,10 +2234,13 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
                     continue;
                 // if (!fn.endsWith(`CMake.g4`))
                 //     continue;
-                f.write("Reading ", fn, " ..."); f.flush();
-                sw.reset();
+                of.write("Reading ", fn, " ..."); of.flush();
+                scope StopWatch swOne;
+                swOne.start();
                 auto reader = GxFileReader(fn);
-                f.writeln("took ", sw.peek());
+                of.writeln("took ", swOne.peek());
             }
         }
+        of.writeln("Reading all took ", swAll.peek());
+    }
 }

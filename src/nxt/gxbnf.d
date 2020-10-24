@@ -18,6 +18,7 @@
  * - Detect indirect mutual left-recursion. How? Simple-way in generated parsers:
  *   enters a rule again without offset change.
  *
+ * - Add properties for matchMinLength matchMaxLength if any.
  * - Sort `AltM` subs by descending minimum length
  *
  * - Check that `DynamicArray.backPop` zeros pointer elements at the end
@@ -157,9 +158,9 @@ struct GxLexer
 @safe pure:
 
     this(in Input input,
-         const scope string path = null,
+         const string path = null,
          in bool includeComments = false,
-         in bool includeWhitespace = false) @trusted
+         in bool includeWhitespace = false)
     {
         _input = input;
         _path = path;
@@ -189,7 +190,7 @@ struct GxLexer
         return _token;
     }
 
-    void popFront() scope nothrow @trusted @nogc
+    void popFront() scope nothrow @nogc
     {
         version(D_Coverage) {} else version(Do_Inline) pragma(inline, true);
         assert(!empty);
@@ -788,36 +789,36 @@ private:
         }
     }
 
-    void infoAtFront(const scope string msg) const @trusted nothrow @nogc scope
+    void infoAtFront(const scope string msg) const nothrow @nogc scope
     {
         messageAtToken(front, "Info", msg);
     }
 
-    void warningAtFront(const scope string msg) const @trusted nothrow @nogc scope
+    void warningAtFront(const scope string msg) const nothrow @nogc scope
     {
         messageAtToken(front, "Warning", msg);
     }
 
-    void errorAtFront(const scope string msg) const @trusted nothrow @nogc scope
+    void errorAtFront(const scope string msg) const nothrow @nogc scope
     {
         messageAtToken(front, "Error", msg);
         assert(false);          ///< TODO: propagate error instead of assert
     }
 
     private void infoAtToken(in Token token,
-                             const scope string msg) const @trusted nothrow @nogc scope
+                             const scope string msg) const nothrow @nogc scope
     {
         messageAtToken(token, "Info", msg);
     }
 
     private void warningAtToken(in Token token,
-                                const scope string msg) const @trusted nothrow @nogc scope
+                                const scope string msg) const nothrow @nogc scope
     {
         messageAtToken(token, "Warning", msg);
     }
 
     private void errorAtToken(in Token token,
-                              const scope string msg) const @trusted nothrow @nogc scope
+                              const scope string msg) const nothrow @nogc scope
     {
         messageAtToken(token, "Error", msg);
         assert(false);          ///< TODO: propagate error instead of assert
@@ -840,20 +841,20 @@ private:
 
     // TODO: into warning(const char* format...) like in `dmd` and put in `nxt.parsing` and reuse here and in lispy.d
     void errorAtIndex(const scope string msg,
-                      in size_t i = 0) const @trusted nothrow @nogc scope
+                      in size_t i = 0) const nothrow @nogc scope
     {
         messageAtIndex("Error", msg, i);
         assert(false);          ///< TODO: propagate error instead of assert
     }
 
     void warningAtIndex(const scope string msg,
-                        in size_t i = 0) const @trusted nothrow @nogc scope
+                        in size_t i = 0) const nothrow @nogc scope
     {
         messageAtIndex("Warning", msg, i);
     }
 
     void infoAtIndex(const scope string msg,
-                     in size_t i = 0, in const(char)[] ds = null) const @trusted nothrow @nogc scope
+                     in size_t i = 0, in const(char)[] ds = null) const nothrow @nogc scope
     {
         messageAtIndex("Info", msg, i, ds);
     }
@@ -922,7 +923,7 @@ private void showChars(in const(char)[] chars) @trusted
 }
 
 private void showToken(in Token token,
-                       in Format fmt) @trusted
+                       in Format fmt)
 {
     fmt.showIndent();
     showChars(token.input);
@@ -1048,7 +1049,7 @@ final class Nothing : TokenNode
     {
     }
 @safe pure nothrow @nogc:
-    this(Token head) @trusted
+    this(Token head)
     {
         super(head);
     }
@@ -1068,9 +1069,9 @@ class Rule : Node
 @safe pure nothrow @nogc:
     void diagnoseDirectLeftRecursion(const scope ref GxLexer lexer)
     {
-        void checkLeft(const scope Node top) @trusted pure nothrow @nogc
+        void checkLeft(const scope Node top) @safe pure nothrow @nogc
         {
-            if (const alt = cast(AltM)top) // common case
+            if (const alt = cast(const AltM)top) // common case
                 foreach (const sub; alt.subs[]) // all alternatives
                     checkLeft(sub);
             else if (const seq = cast(const SeqM)top)
@@ -1113,11 +1114,11 @@ final class FragmentRule : Rule
 final class AltM : NaryExpr
 {
 @safe:
-    override void show(in Format fmt = Format.init) const @trusted
+    override void show(in Format fmt = Format.init) const
     {
         showSubs(fmt);
     }
-    final void showSubs(in Format fmt) const @trusted
+    final void showSubs(in Format fmt) const
     {
         foreach (const i, const sub; subs)
         {
@@ -1125,9 +1126,9 @@ final class AltM : NaryExpr
             if (i + 1 != subs.length)
             {
                 if (fmt.indentDepth)
-                    printf(" |\n");
+                    showChars(" |\n");
                 else
-                    printf(" | ");
+                    showChars(" | ");
             }
         }
     }
@@ -1163,7 +1164,7 @@ Node makeAlt(NodeArray subs,
 class TokenNode : Node
 {
 @safe:
-    override void show(in Format fmt = Format.init) const @trusted
+    override void show(in Format fmt = Format.init) const
     {
         showToken(head, fmt);
     }
@@ -1186,7 +1187,7 @@ pure nothrow @nogc:
 abstract class UnExpr : Node
 {
 @safe:
-    final override void show(in Format fmt = Format.init) const @trusted
+    final override void show(in Format fmt = Format.init) const
     {
         putchar('(');
         sub.show(fmt);
@@ -1216,7 +1217,7 @@ abstract class UnExpr : Node
 abstract class BinExpr : Node
 {
 @safe:
-    final override void show(in Format fmt = Format.init) const @trusted
+    final override void show(in Format fmt = Format.init) const
     {
         fmt.showIndent();
         subs[0].show(fmt);
@@ -1285,7 +1286,7 @@ final class OneOrMore : UnExpr
 final class Symbol : TokenNode
 {
 @safe:
-    override void show(in Format fmt = Format.init) const @trusted
+    override void show(in Format fmt = Format.init) const
     {
         showToken(head, fmt);
     }
@@ -1380,7 +1381,7 @@ final class BlockComment : TokenNode
 final class Grammar : TokenNode
 {
 @safe:
-    override void show(in Format fmt = Format.init) const @trusted
+    override void show(in Format fmt = Format.init) const
     {
         showToken(head, fmt);
         putchar(' ');
@@ -1431,7 +1432,7 @@ final class ParserGrammar : TokenNode
 final class Import : TokenNode
 {
 @safe:
-    override void show(in Format fmt = Format.init) const @trusted
+    override void show(in Format fmt = Format.init) const
     {
         showToken(head, fmt);
         putchar(' ');

@@ -11,6 +11,8 @@
  *
  * - Replace `options{greedy=false;}:` with non-greedy operator `*?`
  *
+ * - TODO: use .ptr in equalsAll
+ *
  * - Use `TOK.tokenSpecOptions` in parsing. Ignored for now.
  *
  * - Detect indirect mutual left-recursion. How? Simple-way in generated parsers:
@@ -932,6 +934,7 @@ private abstract class Node
 @safe:
     abstract void show(in Format fmt = Format.init) const;
 pure nothrow @nogc:
+    abstract bool equals(const Node o) const;
     this()
     {
     }
@@ -939,14 +942,44 @@ pure nothrow @nogc:
 
 alias NodeArray = DynamicArray!(Node, null, uint); // `uint` capacity is enough
 
-bool equals(const scope Node a,
-            const scope Node b) pure nothrow @nogc
+bool equalsAll(const scope Node[] a,
+               const scope Node[] b) pure nothrow @nogc
 {
-    return a is b;              // TODO: generalize to casting
+    if (a.length != b.length)
+        return false;
+    foreach (const i; 0 .. a.length)
+        if (!a[i].equals(b[i]))
+            return false;
+    return true;
+}
+
+/// N-ary expression.
+abstract class NaryExpr : Node
+{
+@safe pure nothrow @nogc:
+    this(NodeArray subs)
+    {
+        move(subs, this.subs);
+    }
+    override bool equals(const Node o) const
+    {
+        if (this is o)
+            return true;
+        if (const o_ = cast(const typeof(this))o)
+            return equalsAll(this.subs[], o_.subs[]);
+        return false;
+    }
+    this(uint n)(Node[n] subs)
+    if (n >= 2)
+    {
+        foreach (sub; subs)
+            this.subs.put1(sub);
+    }
+    NodeArray subs;
 }
 
 /// Sequence.
-final class SeqM : Node
+final class SeqM : NaryExpr
 {
 @safe:
     override void show(in Format fmt = Format.init) const
@@ -962,37 +995,32 @@ final class SeqM : Node
 @safe pure nothrow @nogc:
     this(NodeArray subs)
     {
-        move(subs, this.subs);
+        super(subs.move());
     }
-    NodeArray subs;
+    this(uint n)(Node[n] subs) if (n >= 2)
+    {
+        super(subs);
+    }
 }
 
 Node makeSeq(NodeArray subs,
+             const scope ref GxLexer lexer,
              in bool rewriteFlag = true) pure nothrow
 {
     if (subs.empty)
-        return null;
+        return null;            // TODO: use new Nothing => EmptySeq instead
     if (rewriteFlag)
         subs = flattenSubs!SeqM(subs.move());
-    switch (subs.length)
+    foreach (const i, const sub; subs)
     {
-    case 0:
-        return null;            // TODO: use new Nothing => EmptySeq instead
-    case 1:
-        return subs[0];
-    case 2:
-        if (rewriteFlag)
-        {
-            if (ZeroOrMore zom = cast(ZeroOrMore)subs[0])
-                if (zom.sub.equals(subs[1]))
-                    return new OneOrMore(zom.head, zom.sub); // `X* X` => `(X)+`
-            if (ZeroOrMore zom = cast(ZeroOrMore)subs[1])
-                if (zom.sub.equals(subs[0]))
-                    return new OneOrMore(zom.head, zom.sub); // `X X*` => `(X)+`
-        }
-        break;
-    default:
-        break;
+        if (i + 1 == subs.length) // skip last
+            break;
+        if (const zom = cast(const ZeroOrMore)sub)
+            if (zom.sub.equals(subs[i + 1]))
+                lexer.warningAtToken(zom.head, "replace with `X+`");
+        if (const zom = cast(const ZeroOrMore)subs[i + 1])
+            if (zom.sub.equals(sub))
+                lexer.warningAtToken(zom.head, "replace with `X+`");
     }
     return new SeqM(subs.move());
 }
@@ -1013,7 +1041,7 @@ if (is(BranchNode : SeqM) ||
 }
 
 /// Nothing.
-final class Nothing : Node
+final class Nothing : TokenNode
 {
 @safe:
     override void show(in Format fmt = Format.init) const
@@ -1022,9 +1050,8 @@ final class Nothing : Node
 @safe pure nothrow @nogc:
     this(Token head) @trusted
     {
-        this.head = head;
+        super(head);
     }
-    Token head;
 }
 
 /// Rule.
@@ -1061,7 +1088,15 @@ class Rule : Node
         this.top = top;
         diagnoseDirectLeftRecursion(lexer);
     }
-    Token head;
+    override bool equals(const Node o) const
+    {
+        if (this is o)
+            return true;
+        if (const o_ = cast(const typeof(this))o)
+            return head == o_.head && top.equals(o_.top);
+        return false;
+    }
+    Token head;                 ///< Name.
     Node top;
 }
 
@@ -1075,7 +1110,7 @@ final class FragmentRule : Rule
     }
 }
 
-final class AltM : Node
+final class AltM : NaryExpr
 {
 @safe:
     override void show(in Format fmt = Format.init) const @trusted
@@ -1099,17 +1134,12 @@ final class AltM : Node
 @safe pure nothrow @nogc:
     this(NodeArray subs)
     {
-        super();
-        move(subs, this.subs);
+        super(subs.move());
     }
-    this(uint n)(Node[n] subs)
-    if (n >= 2)
+    this(uint n)(Node[n] subs) if (n >= 2)
     {
-        super();
-        foreach (sub; subs)
-            this.subs.put1(sub);
+        super(subs);
     }
-    NodeArray subs;
 }
 
 Node makeAlt(NodeArray subs,
@@ -1142,10 +1172,18 @@ pure nothrow @nogc:
     {
         this.head = head;
     }
+    override bool equals(const Node o) const
+    {
+        if (this is o)
+            return true;
+        if (const o_ = cast(const typeof(this))o)
+            return head == o_.head;
+        return false;
+    }
     Token head;
 }
 
-abstract class UnaryOp : Node
+abstract class UnExpr : Node
 {
 @safe:
     final override void show(in Format fmt = Format.init) const @trusted
@@ -1162,11 +1200,20 @@ abstract class UnaryOp : Node
         this.head = head;
         this.sub = sub;
     }
+    final override bool equals(const Node o) const
+    {
+        if (this is o)
+            return true;
+        if (const o_ = cast(const typeof(this))o)
+            return (head == o_.head &&
+                    this.sub.equals(o_.sub));
+        return false;
+    }
     Token head;
     Node sub;
 }
 
-abstract class BinaryOp : Node
+abstract class BinExpr : Node
 {
 @safe:
     final override void show(in Format fmt = Format.init) const @trusted
@@ -1186,11 +1233,20 @@ abstract class BinaryOp : Node
         super();
         this.subs = subs;
     }
+    final override bool equals(const Node o) const
+    {
+        if (this is o)
+            return true;
+        if (const o_ = cast(const typeof(this))o)
+            return (head == o_.head &&
+                    equalsAll(this.subs[], o_.subs[]));
+        return false;
+    }
     Token head;
     Node[2] subs;
 }
 
-class ZeroOrOne : UnaryOp
+final class ZeroOrOne : UnExpr
 {
 @safe pure nothrow @nogc:
     this(in Token head, Node sub)
@@ -1199,7 +1255,7 @@ class ZeroOrOne : UnaryOp
     }
 }
 
-class Not : UnaryOp
+final class Not : UnExpr
 {
 @safe pure nothrow @nogc:
     this(in Token head, Node sub)
@@ -1208,7 +1264,7 @@ class Not : UnaryOp
     }
 }
 
-class ZeroOrMore : UnaryOp
+final class ZeroOrMore : UnExpr
 {
 @safe pure nothrow @nogc:
     this(in Token head, Node sub)
@@ -1217,7 +1273,7 @@ class ZeroOrMore : UnaryOp
     }
 }
 
-class OneOrMore : UnaryOp
+final class OneOrMore : UnExpr
 {
 @safe pure nothrow @nogc:
     this(in Token head, Node sub)
@@ -1226,7 +1282,7 @@ class OneOrMore : UnaryOp
     }
 }
 
-class Symbol : TokenNode
+final class Symbol : TokenNode
 {
 @safe:
     override void show(in Format fmt = Format.init) const @trusted
@@ -1240,7 +1296,7 @@ class Symbol : TokenNode
     }
 }
 
-class PipeSentinel : TokenNode
+final class PipeSentinel : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1249,7 +1305,7 @@ class PipeSentinel : TokenNode
     }
 }
 
-class DotDotSentinel : TokenNode
+final class DotDotSentinel : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1258,7 +1314,7 @@ class DotDotSentinel : TokenNode
     }
 }
 
-class Tilde : TokenNode
+final class Tilde : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1267,7 +1323,7 @@ class Tilde : TokenNode
     }
 }
 
-class WildcardSentinel : TokenNode
+final class WildcardSentinel : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1276,7 +1332,7 @@ class WildcardSentinel : TokenNode
     }
 }
 
-class Range : BinaryOp
+final class Range : BinExpr
 {
 @safe pure nothrow @nogc:
     this(in Token head, Node[2] limits)
@@ -1285,7 +1341,7 @@ class Range : BinaryOp
     }
 }
 
-class Hooks : TokenNode
+final class Hooks : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1294,7 +1350,7 @@ class Hooks : TokenNode
     }
 }
 
-class Literal : TokenNode
+final class Literal : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1303,7 +1359,7 @@ class Literal : TokenNode
     }
 }
 
-class LineComment : TokenNode
+final class LineComment : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1312,7 +1368,7 @@ class LineComment : TokenNode
     }
 }
 
-class BlockComment : TokenNode
+final class BlockComment : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1336,6 +1392,15 @@ pure nothrow @nogc:
     {
         super(head);
         this.name = name;
+    }
+    final override bool equals(const Node o) const
+    {
+        if (this is o)
+            return true;
+        if (const o_ = cast(const typeof(this))o)
+            return (head == o_.head &&
+                    name == o_.name);
+        return false;
     }
     Input name;
 }
@@ -1732,7 +1797,7 @@ struct GxParser
                         }
                         // debug writeln("popped", seq.length - li);
                         seq.popBackN(seq.length - li);
-                        seqPutCheck(makeSeq(subseq.move()));
+                        seqPutCheck(makeSeq(subseq.move(), _lexer));
                     }
                     else if (li + 2 == seq.length) // single case: ... ( X )
                     {
@@ -1809,7 +1874,7 @@ struct GxParser
                 // `seq` may be empty
                 // _lexer.infoAtFront("empty sequence");
             }
-            alts.put1(makeSeq(seq.move()));
+            alts.put1(makeSeq(seq.move(), _lexer));
             if (_lexer.front.tok == TOK.pipe)
                 _lexer.popFront(); // skip terminator
         }

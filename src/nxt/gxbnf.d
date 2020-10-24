@@ -1022,30 +1022,18 @@ class Rule : Node
 @safe pure nothrow @nogc:
     void checkRecursions(const scope ref GxLexer lexer)
     {
-        void checkSymbolRecursion(const scope Node node)
+        void checkSymbolRecursion(const scope Node top) @trusted pure nothrow @nogc
         {
-            if (const s = cast(const Symbol)node) // common case
+            if (const alt = cast(AltM)top) // common case
+                foreach (const sub; alt.subs[]) // all alternatives
+                    checkSymbolRecursion(sub);
+            else if (const seq = cast(const SeqM)top)
+                return checkSymbolRecursion(seq.subs[0]); // only first in sequence
+            else if (const s = cast(const Symbol)top)
                 if (head.input == s.head.input)
                     lexer.warningAtToken(s.head, "left-recursion");
         }
-        if (const alt = cast(AltM)top) // common case
-        {
-            foreach (const alt_sub; alt.subs[])
-            {
-                if (const seq = cast(const SeqM)alt_sub) // common case
-                    return checkSymbolRecursion(seq.subs[0]); // TODO: recurse if seq.subs[0] is a seq
-                else if (const s0 = cast(const Symbol)alt_sub)
-                    return checkSymbolRecursion(s0);
-            }
-        }
-        else if (const seq = cast(const SeqM)top)
-        {
-            return checkSymbolRecursion(seq.subs[0]);
-        }
-        else
-        {
-            return checkSymbolRecursion(top);
-        }
+        checkSymbolRecursion(top);
     }
     this(in Token head, Node top,
          const scope ref GxLexer lexer)
@@ -2196,7 +2184,7 @@ bool isGxFilename(const scope char[] name) @safe pure nothrow @nogc
     import std.path : expandTilde, relativePath;
 
     const root = "~/Work/grammars-v4/".expandTilde;
-    const lexerFlag = true;
+    const lexerFlag = false;
     const parserFlag = true;
 
     auto of = stdout;           // output file
@@ -2243,8 +2231,6 @@ bool isGxFilename(const scope char[] name) @safe pure nothrow @nogc
                 if (fn.endsWith(`Antlr3.g`) ||
                     fn.endsWith(`ANTLRv2.g2`)) // skip this crap
                     continue;
-                // if (!fn.endsWith(`CMake.g4`))
-                //     continue;
                 of.writeln("Reading ", adjustPath(fn), " ...");
                 scope StopWatch swOne;
                 swOne.start();

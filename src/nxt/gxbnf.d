@@ -2218,14 +2218,14 @@ bool isGxFilename(const scope char[] name) @safe pure nothrow @nogc
             const fn = e.name;
             if (fn.isGxFilename)
             {
-                of.write("Lexing ", adjustPath(fn), " ..."); of.flush(); // TODO: read use curren directory
+                of.writeln("Lexing ", adjustPath(fn), " ...");  // TODO: read use curren directory
                 const data = cast(Input)rawReadPath(fn); // exclude from benchmark
                 scope StopWatch swOne;
                 swOne.start();
                 auto lexer = GxLexer(data, fn, false);
                 while (!lexer.empty)
                     lexer.popFront();
-                of.writeln(" took ", swOne.peek());
+                of.writeln("Lexing ", adjustPath(fn), " took ", swOne.peek());
             }
         }
         of.writeln("Lexing all took ", swAll.peek());
@@ -2245,11 +2245,11 @@ bool isGxFilename(const scope char[] name) @safe pure nothrow @nogc
                     continue;
                 // if (!fn.endsWith(`CMake.g4`))
                 //     continue;
-                of.write("Reading ", adjustPath(fn), " ..."); of.flush();
+                of.writeln("Reading ", adjustPath(fn), " ...");
                 scope StopWatch swOne;
                 swOne.start();
                 auto reader = GxFileReader(fn);
-                of.writeln(" took ", swOne.peek());
+                of.writeln("Reading ", adjustPath(fn), " took ", swOne.peek());
             }
         }
         of.writeln("Reading all took ", swAll.peek());

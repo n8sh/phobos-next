@@ -9,8 +9,6 @@
  *
  * TODO:
  *
- * - Replace Seq of Seq with Seq of non-Seqs
- *
  * - Replace `options{greedy=false;}:` with non-greedy operator `*?`
  *
  * - Use `TOK.tokenSpecOptions` in parsing. Ignored for now.
@@ -950,6 +948,18 @@ bool equals(const scope Node a,
 Node makeSeq(NodeArray subs,
              in bool rewriteFlag = false) pure nothrow
 {
+    static NodeArray flatten(NodeArray subs) pure nothrow @nogc
+    {
+        typeof(subs) subs_;
+        foreach (sub; subs)
+        {
+            if (auto subseq = cast(SeqM)sub)
+                subs_.insertBack(flatten(subseq.subs.move()));
+            else
+                subs_.insertBack(sub);
+        }
+        return subs_.move();
+    }
     switch (subs.length)
     {
     case 0:
@@ -970,7 +980,7 @@ Node makeSeq(NodeArray subs,
     default:
         break;
     }
-    return new SeqM(subs.move());
+    return new SeqM(flatten(subs.move()));
 }
 
 /// Sequence.
@@ -990,7 +1000,7 @@ final class SeqM : Node
 @safe pure nothrow @nogc:
     this(NodeArray subs)
     {
-        this.subs = subs.move();
+        move(subs, this.subs);
     }
     NodeArray subs;
 }
@@ -1083,7 +1093,7 @@ final class AltM : Node
     this(NodeArray subs)
     {
         super();
-        this.subs = subs.move();
+        move(subs, this.subs);
     }
     this(uint n)(Node[n] subs)
     if (n >= 2)

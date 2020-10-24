@@ -1030,10 +1030,13 @@ class Rule : Node
         }
         if (const alt = cast(AltM)top) // common case
         {
-            if (const seq = cast(const SeqM)alt.subs[0]) // common case
-                return checkSymbolRecursion(seq.subs[0]);
-            else if (const s0 = cast(const Symbol)alt.subs[0])
-                return checkSymbolRecursion(s0);
+            foreach (const alt_sub; alt.subs[])
+            {
+                if (const seq = cast(const SeqM)alt_sub) // common case
+                    return checkSymbolRecursion(seq.subs[0]); // TODO: recurse if seq.subs[0] is a seq
+                else if (const s0 = cast(const Symbol)alt_sub)
+                    return checkSymbolRecursion(s0);
+            }
         }
         else if (const seq = cast(const SeqM)top)
         {

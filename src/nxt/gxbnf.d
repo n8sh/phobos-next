@@ -1785,18 +1785,12 @@ struct GxParser
                             break;
                         }
                     }
-                    // debug writeln("li:", li, " seq.length:", seq.length);
 
                     if (li + 3 <= seq.length) // normal case: ... ( X Y ... )
                     {
                         NodeArray subseq; // TODO: use stack for small arrays. TODO: use `Rule` as ElementType
                         foreach (node; seq[li + 1 .. $])
-                        {
-                            // debug write("putting:");
-                            // debug node.show();
                             subseq.put1(node);
-                        }
-                        // debug writeln("popped", seq.length - li);
                         seq.popBackN(seq.length - li);
                         seqPutCheck(makeSeq(subseq.move(), _lexer));
                     }

@@ -1020,27 +1020,27 @@ class Rule : Node
         printf(" ;\n");
     }
 @safe pure nothrow @nogc:
-    void checkRecursions(const scope ref GxLexer lexer)
+    void diagnoseDirectLeftRecursion(const scope ref GxLexer lexer)
     {
-        void checkNode(const scope Node top) @trusted pure nothrow @nogc
+        void checkLeft(const scope Node top) @trusted pure nothrow @nogc
         {
             if (const alt = cast(AltM)top) // common case
                 foreach (const sub; alt.subs[]) // all alternatives
-                    checkNode(sub);
+                    checkLeft(sub);
             else if (const seq = cast(const SeqM)top)
-                return checkNode(seq.subs[0]); // only first in sequence
+                return checkLeft(seq.subs[0]); // only first in sequence
             else if (const s = cast(const Symbol)top)
                 if (head.input == s.head.input)
                     lexer.warningAtToken(s.head, "left-recursion");
         }
-        checkNode(top);
+        checkLeft(top);
     }
     this(in Token head, Node top,
          const scope ref GxLexer lexer)
     {
         this.head = head;
         this.top = top;
-        checkRecursions(lexer);
+        diagnoseDirectLeftRecursion(lexer);
     }
     Token head;
     Node top;

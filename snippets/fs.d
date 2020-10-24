@@ -298,7 +298,7 @@ enum ScanContext
     fileName,    // Name of file being scanned
     name = fileName,
 
-    regularFileName,    // Name of file being scanned
+    regularFilename,    // Name of file being scanned
     symlinkName, // Name of symbolic linke being scanned
 
     fileContent, // Contents of file being scanned
@@ -4118,7 +4118,7 @@ FKind tryLookupKindIn(RegFile regFile,
     }
 }
 
-string displayedFileName(AnyFile)(GStats gstats,
+string displayedFilename(AnyFile)(GStats gstats,
                                   AnyFile theFile) @safe pure
 {
     return ((gstats.pathFormat == PathFormat.relative &&
@@ -4853,7 +4853,7 @@ class Scanner(Term)
                                 if (!anyFileHit)
                                 {
                                     viz.pp(horizontalRuler,
-                                           displayedFileName(gstats, theFile).asPath.asH!3);
+                                           displayedFilename(gstats, theFile).asPath.asH!3);
                                     viz.ppTagOpen(`table`, `border=1`);
                                     anyFileHit = true;
                                 }
@@ -4876,7 +4876,7 @@ class Scanner(Term)
                                                " -> ");
                                     }
                                     // show file path/name
-                                    viz.pp(displayedFileName(gstats, theFile).asPath); // show path
+                                    viz.pp(displayedFilename(gstats, theFile).asPath); // show path
                                 }
                             }
 
@@ -5118,7 +5118,7 @@ class Scanner(Term)
                 `ELF` in gstats.selFKinds.byName) // if user selected ELF file show them
             {
                 viz.pp(horizontalRuler,
-                       displayedFileName(gstats, elfFile).asPath.asH!3,
+                       displayedFilename(gstats, elfFile).asPath.asH!3,
                        asH!4(`ELF Symbol Strings Table (`, `.strtab`.asCode, `)`),
                        scan.asTable);
             }
@@ -5140,7 +5140,7 @@ class Scanner(Term)
         // Scan name
         if ((gstats.scanContext == ScanContext.all ||
              gstats.scanContext == ScanContext.fileName ||
-             gstats.scanContext == ScanContext.regularFileName) &&
+             gstats.scanContext == ScanContext.regularFilename) &&
             !keys.empty)
         {
             immutable hitCountInName = scanForKeys(viz,

@@ -570,12 +570,12 @@ void readMatlabSimulinkModelBlockdiagram(string path)
     writeln("Reading Simulink model ", path);
     import std.zip : ZipArchive;
     auto zip = new ZipArchive(read(path));
-    foreach (zipFileName, am; zip.directory)
+    foreach (zipFilename, am; zip.directory)
     {
         // print
         if (show)
         {
-            writef("%10s  %08x  %s", am.expandedSize, am.crc32, zipFileName);
+            writef("%10s  %08x  %s", am.expandedSize, am.crc32, zipFilename);
             if (!am.comment.empty) { writef(" comment:", am.comment); }
             writeln;
         }
@@ -583,7 +583,7 @@ void readMatlabSimulinkModelBlockdiagram(string path)
         // assert(am.expandedData.length == 0);
         zip.expand(am);
         // assert(am.expandedData.length == am.expandedSize);
-        if (zipFileName == "simulink/blockdiagram.xml")
+        if (zipFilename == "simulink/blockdiagram.xml")
         {
             const sam = cast(string)am.expandedData;
             check(sam); // check that XML is well-formed

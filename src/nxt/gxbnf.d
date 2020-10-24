@@ -2180,7 +2180,7 @@ struct GxFileReader
     ~this() @nogc {}
 }
 
-bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
+bool isGxFilename(const scope char[] name) @safe pure nothrow @nogc
 {
     return name.endsWithEither([`.g`, `.g2`, `.g4`]);
 }
@@ -2213,7 +2213,7 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
         foreach (const e; dirEntries(root, SpanMode.breadth))
         {
             const fn = e.name;
-            if (fn.isGxFileName)
+            if (fn.isGxFilename)
             {
                 of.write("Lexing ", adjustPath(fn), " ..."); of.flush(); // TODO: read use curren directory
                 const data = cast(Input)rawReadPath(fn); // exclude from benchmark
@@ -2235,7 +2235,7 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
         foreach (const e; dirEntries(root, SpanMode.breadth))
         {
             const fn = e.name;
-            if (fn.isGxFileName)
+            if (fn.isGxFilename)
             {
                 if (fn.endsWith(`Antlr3.g`) ||
                     fn.endsWith(`ANTLRv2.g2`)) // skip this crap

@@ -945,44 +945,6 @@ bool equals(const scope Node a,
     return a is b;              // TODO: generalize to casting
 }
 
-Node makeSeq(NodeArray subs,
-             in bool rewriteFlag = false) pure nothrow
-{
-    static NodeArray flatten(NodeArray subs) pure nothrow @nogc
-    {
-        typeof(subs) subs_;
-        foreach (sub; subs)
-        {
-            if (auto subseq = cast(SeqM)sub)
-                subs_.insertBack(flatten(subseq.subs.move()));
-            else
-                subs_.insertBack(sub);
-        }
-        return subs_.move();
-    }
-    switch (subs.length)
-    {
-    case 0:
-        return null;            // TODO: use new Nothing => EmptySeq instead
-    case 1:
-        return subs[0];
-    case 2:
-        if (rewriteFlag)
-        {
-            if (ZeroOrMore zom = cast(ZeroOrMore)subs[0])
-                if (zom.sub.equals(subs[1]))
-                    return new OneOrMore(zom.head, zom.sub); // `X* X` => `(X)+`
-            if (ZeroOrMore zom = cast(ZeroOrMore)subs[1])
-                if (zom.sub.equals(subs[0]))
-                    return new OneOrMore(zom.head, zom.sub); // `X X*` => `(X)+`
-        }
-        break;
-    default:
-        break;
-    }
-    return new SeqM(flatten(subs.move()));
-}
-
 /// Sequence.
 final class SeqM : Node
 {
@@ -1003,6 +965,47 @@ final class SeqM : Node
         move(subs, this.subs);
     }
     NodeArray subs;
+}
+
+Node makeSeq(NodeArray subs,
+             in bool rewriteFlag = false) pure nothrow
+{
+    switch (subs.length)
+    {
+    case 0:
+        return null;            // TODO: use new Nothing => EmptySeq instead
+    case 1:
+        return subs[0];
+    case 2:
+        if (rewriteFlag)
+        {
+            if (ZeroOrMore zom = cast(ZeroOrMore)subs[0])
+                if (zom.sub.equals(subs[1]))
+                    return new OneOrMore(zom.head, zom.sub); // `X* X` => `(X)+`
+            if (ZeroOrMore zom = cast(ZeroOrMore)subs[1])
+                if (zom.sub.equals(subs[0]))
+                    return new OneOrMore(zom.head, zom.sub); // `X X*` => `(X)+`
+        }
+        break;
+    default:
+        break;
+    }
+    return new SeqM(flattenSubs!SeqM(subs.move()));
+}
+
+NodeArray flattenSubs(BranchNode)(NodeArray subs) pure nothrow @nogc
+if (is(BranchNode : SeqM) ||
+    is(BranchNode : AltM))
+{
+    typeof(subs) subs_;
+    foreach (sub; subs)
+    {
+        if (auto sub_ = cast(BranchNode)sub)
+            subs_.insertBack(flattenSubs!(BranchNode)(sub_.subs.move()));
+        else
+            subs_.insertBack(sub);
+    }
+    return subs_.move();
 }
 
 /// Nothing.

@@ -2190,7 +2190,7 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
 {
     import std.datetime.stopwatch : StopWatch;
     import std.file : dirEntries, SpanMode;
-    import std.path : expandTilde;
+    import std.path : expandTilde, relativePath;
 
     const root = "~/Work/grammars-v4/".expandTilde;
     const lexerFlag = true;
@@ -2207,14 +2207,14 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
             const fn = e.name;
             if (fn.isGxFileName)
             {
-                of.write("Lexing ", fn, " ..."); of.flush();
+                of.write("Lexing ", fn.relativePath(root), " ..."); of.flush();
                 const data = cast(Input)rawReadPath(fn); // exclude from benchmark
                 scope StopWatch swOne;
                 swOne.start();
                 auto lexer = GxLexer(data, fn, false);
                 while (!lexer.empty)
                     lexer.popFront();
-                of.writeln("took ", swOne.peek());
+                of.writeln(" took ", swOne.peek());
             }
         }
         of.writeln("Lexing all took ", swAll.peek());
@@ -2234,11 +2234,11 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
                     continue;
                 // if (!fn.endsWith(`CMake.g4`))
                 //     continue;
-                of.write("Reading ", fn, " ..."); of.flush();
+                of.write("Reading ", fn.relativePath(root), " ..."); of.flush();
                 scope StopWatch swOne;
                 swOne.start();
                 auto reader = GxFileReader(fn);
-                of.writeln("took ", swOne.peek());
+                of.writeln(" took ", swOne.peek());
             }
         }
         of.writeln("Reading all took ", swAll.peek());

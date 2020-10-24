@@ -2198,7 +2198,7 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
 
     auto of = stdout;           // output file
 
-    auto adjustPath(in string path)
+    string adjustPath(const return scope string path)
     {
         const cwd = getcwd();
         if (cwd.startsWith(root))

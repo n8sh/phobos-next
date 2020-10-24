@@ -1059,12 +1059,12 @@ final class Nothing : TokenNode
 class Rule : Node
 {
 @safe:
-    override void show(in Format fmt = Format.init) const @trusted
+    override void show(in Format fmt = Format.init) const
     {
         showToken(head, fmt);
-        printf(":\n");
+        showChars(":\n");
         top.show(Format(fmt.indentDepth + 1));
-        printf(" ;\n");
+        showChars(" ;\n");
     }
 @safe pure nothrow @nogc:
     void diagnoseDirectLeftRecursion(const scope ref GxLexer lexer)
@@ -1520,7 +1520,7 @@ final class ScopeSymbol : TokenNode
 final class ScopeAction : TokenNode
 {
 @safe:
-    override void show(in Format fmt = Format.init) const @trusted
+    override void show(in Format fmt = Format.init) const
     {
         showToken(head, fmt);
     }
@@ -1537,7 +1537,7 @@ pure nothrow @nogc:
 final class AttributeSymbol : TokenNode
 {
 @safe:
-    override void show(in Format fmt = Format.init) const @trusted
+    override void show(in Format fmt = Format.init) const
     {
         showToken(head, fmt);
     }
@@ -1562,7 +1562,7 @@ final class Action : TokenNode
 final class ActionSymbol : TokenNode
 {
 @safe:
-    override void show(in Format fmt = Format.init) const @trusted
+    override void show(in Format fmt = Format.init) const
     {
         showToken(head, fmt);
     }
@@ -1627,8 +1627,8 @@ struct GxParser
 {
 @safe pure:
     this(in Input input,
-         const scope string path = null,
-         in bool includeComments = false) @trusted
+         const string path = null,
+         in bool includeComments = false)
     {
         _lexer = GxLexer(input, path, includeComments);
         if (!_lexer.empty)
@@ -1641,7 +1641,7 @@ struct GxParser
         return _front is null;
     }
 
-    inout(Node) front() inout scope return @trusted
+    inout(Node) front() inout scope return
     {
         version(D_Coverage) {} else version(Do_Inline) pragma(inline, true);
         assert(!empty);
@@ -2194,7 +2194,7 @@ struct GxParser
         }
     }
 
-    Node nextFront() @trusted
+    Node nextFront()
     {
         const head = _lexer.frontPop();
         switch (head.tok)

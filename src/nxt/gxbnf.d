@@ -1022,18 +1022,18 @@ class Rule : Node
 @safe pure nothrow @nogc:
     void checkRecursions(const scope ref GxLexer lexer)
     {
-        void checkSymbolRecursion(const scope Node top) @trusted pure nothrow @nogc
+        void checkNode(const scope Node top) @trusted pure nothrow @nogc
         {
             if (const alt = cast(AltM)top) // common case
                 foreach (const sub; alt.subs[]) // all alternatives
-                    checkSymbolRecursion(sub);
+                    checkNode(sub);
             else if (const seq = cast(const SeqM)top)
-                return checkSymbolRecursion(seq.subs[0]); // only first in sequence
+                return checkNode(seq.subs[0]); // only first in sequence
             else if (const s = cast(const Symbol)top)
                 if (head.input == s.head.input)
                     lexer.warningAtToken(s.head, "left-recursion");
         }
-        checkSymbolRecursion(top);
+        checkNode(top);
     }
     this(in Token head, Node top,
          const scope ref GxLexer lexer)

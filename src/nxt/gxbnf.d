@@ -11,8 +11,6 @@
  *
  * - Replace `options{greedy=false;}:` with non-greedy operator `*?`
  *
- * - TODO: use .ptr in equalsAll
- *
  * - Use `TOK.tokenSpecOptions` in parsing. Ignored for now.
  *
  * - Detect indirect mutual left-recursion. How? Simple-way in generated parsers:
@@ -949,7 +947,7 @@ bool equalsAll(const scope Node[] a,
     if (a.length != b.length)
         return false;
     foreach (const i; 0 .. a.length)
-        if (!a[i].equals(b[i]))
+        if (!a[i].equals(b[i])) // TODO: use .ptr if needed
             return false;
     return true;
 }

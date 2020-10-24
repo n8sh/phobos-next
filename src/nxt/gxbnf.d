@@ -9,6 +9,10 @@
  *
  * TODO:
  *
+ * - Replace Seq of Seq with Seq of non-Seqs
+ *
+ * - Replace `options{greedy=false;}:` with non-greedy operator `*?`
+ *
  * - Use `TOK.tokenSpecOptions` in parsing. Ignored for now.
  *
  * - Detect indirect mutual left-recursion. How? Simple-way in generated parsers:
@@ -21,8 +25,6 @@
  * - handle all TODO's in `makeRule`
  *
  * - create index of symbols and link them in second pass
- *
- * - Replace `options{greedy=false;}:` with non-greedy operator `*?`
  *
  * - add `RuleAltN(uint n)`
  * - add `SeqN(uint n)`
@@ -945,8 +947,8 @@ bool equals(const scope Node a,
     return a is b;              // TODO: generalize to casting
 }
 
-Node makeSeqM(NodeArray subs,
-              in bool rewriteFlag = false) pure nothrow
+Node makeSeq(NodeArray subs,
+             in bool rewriteFlag = false) pure nothrow
 {
     switch (subs.length)
     {
@@ -1093,8 +1095,8 @@ final class AltM : Node
     NodeArray subs;
 }
 
-Node makeAltM(NodeArray subs,
-              in bool _rewriteFlag = false) pure nothrow
+Node makeAlt(NodeArray subs,
+             in bool _rewriteFlag = false) pure nothrow
 {
     switch (subs.length)
     {
@@ -1709,7 +1711,7 @@ struct GxParser
                         }
                         // debug writeln("popped", seq.length - li);
                         seq.popBackN(seq.length - li);
-                        seqPutCheck(makeSeqM(subseq.move()));
+                        seqPutCheck(makeSeq(subseq.move()));
                     }
                     else if (li + 2 == seq.length) // single case: ... ( X )
                     {
@@ -1786,7 +1788,7 @@ struct GxParser
                 // `seq` may be empty
                 // _lexer.infoAtFront("empty sequence");
             }
-            alts.put1(makeSeqM(seq.move()));
+            alts.put1(makeSeq(seq.move()));
             if (_lexer.front.tok == TOK.pipe)
                 _lexer.popFront(); // skip terminator
         }
@@ -1808,10 +1810,10 @@ struct GxParser
 
         Rule rule = (isFragment
                      ? new FragmentRule(name,
-                                        alts.length == 1 ? alts.backPop() : makeAltM(alts.move()),
+                                        alts.length == 1 ? alts.backPop() : makeAlt(alts.move()),
                                         _lexer)
                      : new Rule(name,
-                                alts.length == 1 ? alts.backPop() : makeAltM(alts.move()),
+                                alts.length == 1 ? alts.backPop() : makeAlt(alts.move()),
                                 _lexer));
         rules.put1(rule);
         return rule;

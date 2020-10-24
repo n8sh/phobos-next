@@ -50,7 +50,7 @@ import core.stdc.stdio : putchar, printf;
 import nxt.line_column : offsetLineColumn;
 import nxt.dynamic_array : DynamicArray;
 import nxt.file_ex : rawReadPath;
-import nxt.array_algorithm : endsWith, endsWithEither;
+import nxt.array_algorithm : startsWith, endsWith, endsWithEither;
 import std.conv : to;
 import nxt.conv_ex : toDefaulted;
 
@@ -2189,7 +2189,7 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
 @trusted unittest
 {
     import std.datetime.stopwatch : StopWatch;
-    import std.file : dirEntries, SpanMode;
+    import std.file : dirEntries, SpanMode, getcwd;
     import std.path : expandTilde, relativePath;
 
     const root = "~/Work/grammars-v4/".expandTilde;
@@ -2197,6 +2197,14 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
     const parserFlag = true;
 
     auto of = stdout;           // output file
+
+    auto adjustPath(in string path)
+    {
+        const cwd = getcwd();
+        if (cwd.startsWith(root))
+            return path.relativePath(cwd);
+        return path;
+    }
 
     if (lexerFlag)
     {
@@ -2207,7 +2215,7 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
             const fn = e.name;
             if (fn.isGxFileName)
             {
-                of.write("Lexing ", fn.relativePath(root), " ..."); of.flush();
+                of.write("Lexing ", adjustPath(fn), " ..."); of.flush(); // TODO: read use curren directory
                 const data = cast(Input)rawReadPath(fn); // exclude from benchmark
                 scope StopWatch swOne;
                 swOne.start();
@@ -2234,7 +2242,7 @@ bool isGxFileName(const scope char[] name) @safe pure nothrow @nogc
                     continue;
                 // if (!fn.endsWith(`CMake.g4`))
                 //     continue;
-                of.write("Reading ", fn.relativePath(root), " ..."); of.flush();
+                of.write("Reading ", adjustPath(fn), " ..."); of.flush();
                 scope StopWatch swOne;
                 swOne.start();
                 auto reader = GxFileReader(fn);

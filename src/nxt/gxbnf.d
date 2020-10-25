@@ -25,9 +25,6 @@
  *
  * - create index of symbols and link them in second pass
  *
- * - add `RuleAltN(uint n)`
- * - add `SeqN(uint n)`
- *
  * - non-pure diagnostics functions
  *
  * - Warn about `options{greedy=false;}:` and advice to replace with non-greedy variants
@@ -41,7 +38,10 @@
  *
  * - Emacs click on link in `compilation-mode` doesn't navigate to correct offset on lines containing tabs before offset
  *
- * - If performance is needed: Avoid casts and instead compare against `head.tok` for `isA!NodeType`
+ * - If performance is needed:
+ *   - Avoid casts and instead compare against `head.tok` for `isA!NodeType`
+ *   - use `RuleAltN(uint n)` in `makeAlt`
+ *   - use `SeqN(uint n)` in `makeSeq`
  */
 module nxt.gxbnf;
 

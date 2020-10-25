@@ -53,6 +53,7 @@ import core.stdc.stdio : putchar, printf;
 
 // `d-deps.el` requires these to be at the top:
 import nxt.line_column : offsetLineColumn;
+import nxt.fixed_array : FixedArray;
 import nxt.dynamic_array : DynamicArray;
 import nxt.file_ex : rawReadPath;
 import nxt.array_algorithm : startsWith, endsWith, endsWithEither;
@@ -1743,7 +1744,8 @@ struct GxParser
         {
             size_t parentDepth = 0;
 
-            NodeArray seq; // TODO: use stack for small arrays. TODO: use `Rule` as ElementType
+            scope FixedArray!(Node, 100) seq;
+            // NodeArray seq; // TODO: use `Rule` as ElementType
 
             void seqPutCheck(Node last)
             {
@@ -1959,7 +1961,7 @@ struct GxParser
                 // _lexer.infoAtFront("empty sequence");
             }
             assert(seq.length <= 23);
-            alts.put(makeSeq(seq.move(), _lexer));
+            alts.put(makeSeq(seq[], _lexer));
             if (_lexer.front.tok == TOK.pipe)
                 _lexer.popFront(); // skip terminator
         }
@@ -2360,6 +2362,7 @@ version(show)
     const root = "~/Work/grammars-v4/".expandTilde;
     const lexerFlag = false;
     const parserFlag = true;
+    const showProgressFlag = false;
 
     auto of = stdout;           // output file
 
@@ -2380,14 +2383,14 @@ version(show)
             const fn = e.name;
             if (fn.isGxFilename)
             {
-                of.writeln("Lexing ", adjustPath(fn), " ...");  // TODO: read use curren directory
+                if (showProgressFlag) of.writeln("Lexing ", adjustPath(fn), " ...");  // TODO: read use curren directory
                 const data = cast(Input)rawReadPath(fn); // exclude from benchmark
                 scope StopWatch swOne;
                 swOne.start();
                 auto lexer = GxLexer(data, fn, false);
                 while (!lexer.empty)
                     lexer.popFront();
-                of.writeln("Lexing ", adjustPath(fn), " took ", swOne.peek());
+                if (showProgressFlag) of.writeln("Lexing ", adjustPath(fn), " took ", swOne.peek());
             }
         }
         of.writeln("Lexing all took ", swAll.peek());
@@ -2405,11 +2408,11 @@ version(show)
                 if (fn.endsWith(`Antlr3.g`) ||
                     fn.endsWith(`ANTLRv2.g2`)) // skip this crap
                     continue;
-                of.writeln("Reading ", adjustPath(fn), " ...");
+                if (showProgressFlag) of.writeln("Reading ", adjustPath(fn), " ...");
                 scope StopWatch swOne;
                 swOne.start();
                 auto reader = GxFileReader(fn);
-                of.writeln("Reading ", adjustPath(fn), " took ", swOne.peek());
+                if (showProgressFlag) of.writeln("Reading ", adjustPath(fn), " took ", swOne.peek());
             }
         }
         of.writeln("Reading all took ", swAll.peek());

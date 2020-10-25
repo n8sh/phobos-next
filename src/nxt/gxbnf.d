@@ -48,6 +48,8 @@ module nxt.gxbnf;
 version = show;
 version = Do_Inline;
 
+enum useStaticTempArrays = false; ///< Use fixed-size (statically allocated) sequence and alternative buffers.
+
 import core.lifetime : move;
 import core.stdc.stdio : putchar, printf;
 
@@ -1181,6 +1183,12 @@ Node makeAlt(NodeArray subs,
     }
 }
 
+Node makeAlt(Node[] subs,
+             in bool rewriteFlag = true) pure nothrow
+{
+    return makeAlt(NodeArray(subs), rewriteFlag);
+}
+
 class TokenNode : Node
 {
 @safe:
@@ -1739,16 +1747,20 @@ struct GxParser
                           Action action = null) @trusted
     {
         _lexer.popFrontEnforce(TOK.colon, "no colon");
-        NodeArray alts; // TODO: use static array with length being number of `TOK.pipe` till `TOK.semicolon`
+
+        static if (useStaticTempArrays)
+            FixedArray!(Node, 100) alts;
+        else
+            NodeArray alts;
+
         while (_lexer.front.tok != TOK.semicolon)
         {
             size_t parentDepth = 0;
 
-            enum useFixedSeq = true; ///< Use fixed-size (statically allocated) sequence buffer.
-            static if (useFixedSeq)
-                FixedArray!(Node, 100) seq; // doesn't speed up that much
+            static if (useStaticTempArrays)
+                FixedArray!(Node, 70) seq; // doesn't speed up that much
             else
-                NodeArray seq; // TODO: use `Rule` as ElementType
+                NodeArray seq;
 
             void seqPutCheck(Node last)
             {
@@ -1963,8 +1975,11 @@ struct GxParser
                 // `seq` may be empty
                 // _lexer.infoAtFront("empty sequence");
             }
-            static if (useFixedSeq)
+            static if (useStaticTempArrays)
+            {
                 alts.put(makeSeq(seq[], _lexer));
+                seq.clear();
+            }
             else
                 alts.put(makeSeq(seq.move(), _lexer));
             if (_lexer.front.tok == TOK.pipe)
@@ -1986,11 +2001,18 @@ struct GxParser
                 _lexer.popFront();
         }
 
+        static if (useStaticTempArrays)
+        {
+            Node top = alts.length == 1 ? alts.backPop() : makeAlt(alts[]);
+            alts.clear();
+        }
+        else
+            Node top = alts.length == 1 ? alts.backPop() : makeAlt(alts.move());
+
         Rule rule = (isFragment
-                     ? new FragmentRule(name,
-                                        alts.length == 1 ? alts.backPop() : makeAlt(alts.move()))
-                     : new Rule(name,
-                                alts.length == 1 ? alts.backPop() : makeAlt(alts.move())));
+                     ? new FragmentRule(name, top)
+                     : new Rule(name, top));
+
         if (_lexer._diagnoseLeftRecursion)
             rule.diagnoseDirectLeftRecursion(_lexer);
         rules.put(rule);

@@ -48,7 +48,7 @@ module nxt.gxbnf;
 version = show;
 version = Do_Inline;
 
-enum useStaticTempArrays = false; ///< Use fixed-size (statically allocated) sequence and alternative buffers.
+enum useStaticTempArrays = true; ///< Use fixed-size (statically allocated) sequence and alternative buffers.
 
 import core.lifetime : move;
 import core.stdc.stdio : putchar, printf;
@@ -73,32 +73,32 @@ enum TOK
 {
     none,
 
-    unknown,                    ///< Unknown.
+    unknown,                    ///< Unknown
 
-    whitespace,
+    whitespace,                 ///< Whitespace
 
-    symbol,                     ///< Symbol.
+    symbol,                     ///< Symbol
     lexerRuleName,              ///< TODO: use instead of `symbol`
     parserRuleName,             ///< TODO: use instead of `symbol`
-    attributeSymbol,            ///< Attribute Symbol (starting with `$`).
-    actionSymbol,               ///< Action Symbol (starting with `@`).
+    attributeSymbol,            ///< Attribute Symbol (starting with `$`)
+    actionSymbol,               ///< Action Symbol (starting with `@`)
 
-    number,                     ///< Number.
+    number,                     ///< Number
 
-    lineComment,                ///< Single line comment.
-    blockComment,               ///< Multi-line (block) comment.
+    lineComment,                ///< Single line comment
+    blockComment,               ///< Multi-line (block) comment
 
-    leftParen,                  ///< Left parenthesis.
-    rightParen,                 ///< Right parenthesis.
+    leftParen,                  ///< Left parenthesis
+    rightParen,                 ///< Right parenthesis
 
-    action,                  ///< Code block.
+    action,                     ///< Code block
 
-    hooks,                       ///< Alternatives within '[' ... ']'
+    hooks,                      ///< Alternatives within '[' ... ']'
 
-    literal,            ///< Text (string) literal, surrounded by either single or double quotes.
+    literal,                    ///< Text literal, single or double quoted
 
-    colon,                      ///< Colon `:`.
-    semicolon,                  ///< Semicolon `;`.
+    colon,                      ///< Colon `:`
+    semicolon,                  ///< Semicolon `;`
     hash,                       ///< Hash `#`
     labelAssignment,            ///< Label assignment `=`
     listLabelAssignment,        ///< List label assignment `+=`
@@ -133,7 +133,7 @@ enum TOK
     */
     tokenSpecOptions,
 
-    _error,                     ///< Error token.
+    _error,                     ///< Error token
 }
 
 /// Gx rule.
@@ -1748,7 +1748,7 @@ struct GxParser
     {
         _lexer.popFrontEnforce(TOK.colon, "no colon");
 
-        static if (useStaticTempArrays)
+        static if (false/*useStaticTempArrays*/)
             FixedArray!(Node, 100) alts;
         else
             NodeArray alts;
@@ -2015,6 +2015,7 @@ struct GxParser
 
         if (_lexer._diagnoseLeftRecursion)
             rule.diagnoseDirectLeftRecursion(_lexer);
+
         rules.put(rule);
         return rule;
     }

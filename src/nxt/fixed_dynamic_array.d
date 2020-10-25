@@ -68,29 +68,29 @@ pragma(inline, true):
     /// Get element at index `i`.
     scope ref inout(T) opIndex(size_t i) inout @system return
     {
-        return _store.ptr[i];
+        return (*(cast(inout(T)[]*)&_store))[i];
     }
 
     /// Slice support.
     scope inout(T)[] opSlice(size_t i, size_t j) inout @system return
     {
-        return _store.ptr[i .. j];
+        return (*(cast(inout(T)[]*)&_store))[i .. j];
     }
     /// ditto
     scope inout(T)[] opSlice() inout @system return
     {
-        return _store.ptr[0 .. _store.length];
+        return (*(cast(inout(T)[]*)&_store))[0 .. _store.length];
     }
 
     /// Slice assignment support.
     scope T[] opSliceAssign(U)(U value) return
     {
-        return _store.ptr[0 .. _store.length] = value;
+        return (*(cast(inout(T)[]*)&_store))[0 .. _store.length] = value;
     }
     /// ditto
     scope T[] opSliceAssign(U)(U value, size_t i, size_t j) return
     {
-        return _store.ptr[i .. j] = value;
+        return (*(cast(inout(T)[]*)&_store))[i .. j] = value;
     }
 
 private:

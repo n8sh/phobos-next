@@ -11,16 +11,12 @@ import core.internal.traits : Unqual;
  * garbage collector. Array uses malloc, realloc and free for managing its own
  * memory.
  *
- * Use `std.bitmanip.BitArray` for array container storing boolean values.
- *
- * TODO: optimize by making members templates. 0.579s before, eval-dwim: 0.67s
+ * TODO: Use `std.bitmanip.BitArray` for array container storing boolean values.
  *
  * TODO: Add OutputRange.writer support as
  * https://github.com/burner/StringBuffer/blob/master/source/stringbuffer.d#L45
  *
  * TODO: Use `std.traits.areCopyCompatibleArrays`
- *
- * See_Also: https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md
  */
 struct DynamicArray(T,
                     alias Allocator = null, // null means means to qcmeman functions. TODO: use `PureMallocator` by default

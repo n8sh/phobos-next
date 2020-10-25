@@ -13,9 +13,7 @@ module nxt.fixed_array;
  * See_Also: https://en.cppreference.com/w/cpp/container/array
  *
  * TODO: Merge member functions with basic_*_array.d and array_ex.d
- *
  * TODO: Add @safe nothrow @nogc ctor from static array (of known length)
- *
  * TODO: use opPostMove (https://github.com/dlang/DIPs/blob/master/DIPs/accepted/DIP1014.md)
  */
 struct FixedArray(T, uint capacity_, bool borrowChecked = false)

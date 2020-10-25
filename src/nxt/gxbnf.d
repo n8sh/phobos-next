@@ -78,8 +78,6 @@ enum TOK
     whitespace,                 ///< Whitespace
 
     symbol,                     ///< Symbol
-    lexerRuleName,              ///< TODO: use instead of `symbol`
-    parserRuleName,             ///< TODO: use instead of `symbol`
     attributeSymbol,            ///< Attribute Symbol (starting with `$`)
     actionSymbol,               ///< Action Symbol (starting with `@`)
 

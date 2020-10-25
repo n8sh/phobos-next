@@ -198,7 +198,8 @@ pragma(inline):
         // TODO: use import emplace_all instead
 
         _store.ptr = allocate(values.length, false);
-        _store.capacity = values.length;
+        assert(values.length <= CapacityType.max);
+        _store.capacity = cast(CapacityType)values.length;
 
         foreach (index; 0 .. values.length)
             static if (needsMove!(T))
@@ -217,7 +218,8 @@ pragma(inline):
         // TODO: use import emplace_all instead
 
         _store.ptr = allocate(values.length, false);
-        _store.capacity = values.length;
+        static assert(values.length <= CapacityType.max);
+        _store.capacity = cast(CapacityType)values.length;
 
         static foreach (index; 0 .. values.length)
             static if (needsMove!(T))

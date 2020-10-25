@@ -45,7 +45,7 @@
  */
 module nxt.gxbnf;
 
-// version = show;
+version = show;
 version = Do_Inline;
 
 import core.lifetime : move;
@@ -1032,9 +1032,6 @@ Node makeSeq(NodeArray subs,
     {
         if (i + 1 == subs.length) // skip last
             break;
-        if (const zom = cast(const GreedyZeroOrMore)sub)
-            if (zom.sub.equals(subs[i + 1]))
-                lexer.warningAtToken(zom.head, "replace with `X+`");
         if (const zom = cast(const GreedyZeroOrMore)subs[i + 1])
             if (zom.sub.equals(sub))
                 lexer.warningAtToken(zom.head, "replace with `X+`");

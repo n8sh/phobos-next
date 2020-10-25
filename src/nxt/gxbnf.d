@@ -903,7 +903,7 @@ private:
     bool _includeWhitespace;
     bool _includeLabelAssignment;
     bool _includeListLabelAssignment;
-    bool _diagnoseLeftRecursion;
+    bool _diagnoseLeftRecursion; ///< Diagnose left-recursion.
 }
 
 /// Node.
@@ -1096,13 +1096,10 @@ class Rule : Node
         }
         checkLeft(top);
     }
-    this(in Token head, Node top,
-         const scope ref GxLexer lexer)
+    this(in Token head, Node top)
     {
         this.head = head;
         this.top = top;
-        if (lexer._diagnoseLeftRecursion)
-            diagnoseDirectLeftRecursion(lexer);
     }
     override bool equals(const Node o) const
     {
@@ -1119,10 +1116,9 @@ class Rule : Node
 final class FragmentRule : Rule
 {
 @safe pure nothrow @nogc:
-    this(in Token head, Node top,
-         const scope ref GxLexer lexer)
+    this(in Token head, Node top)
     {
-        super(head, top, lexer);
+        super(head, top);
     }
 }
 
@@ -1976,11 +1972,11 @@ struct GxParser
 
         Rule rule = (isFragment
                      ? new FragmentRule(name,
-                                        alts.length == 1 ? alts.backPop() : makeAlt(alts.move()),
-                                        _lexer)
+                                        alts.length == 1 ? alts.backPop() : makeAlt(alts.move()))
                      : new Rule(name,
-                                alts.length == 1 ? alts.backPop() : makeAlt(alts.move()),
-                                _lexer));
+                                alts.length == 1 ? alts.backPop() : makeAlt(alts.move())));
+        if (_lexer._diagnoseLeftRecursion)
+            rule.diagnoseDirectLeftRecursion(_lexer);
         rules.put(rule);
         return rule;
     }

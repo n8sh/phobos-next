@@ -182,6 +182,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     bool insertBackMaybe(Es...)(Es es) @trusted
     if (Es.length <= capacity) // TODO: use `isAssignable`
     {
+        version(LDC) pragma(inline, true);
         if (_length + Es.length > capacity) { return false; }
         insertBack(es);
         return true;

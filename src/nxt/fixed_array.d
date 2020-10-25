@@ -6,8 +6,11 @@ module nxt.fixed_array;
 
 /** Statically allocated `T`-array of fixed pre-allocated length.
  *
- * Similar to Rust's `fixedvec`: https://docs.rs/fixedvec/0.2.3/fixedvec/
- * Similar to `mir.small_array` at http://mir-algorithm.libmir.org/mir_small_array.html.
+ * Similar to C++'s `std::array<T, CapacityType>`
+ * Similar to Rust's `fixedvec`: https://docs.rs/fixedvec/0.2.4/fixedvec/
+ * Similar to `mir.small_array` at http://mir-algorithm.libmir.org/mir_small_array.html
+ *
+ * See_Also: https://en.cppreference.com/w/cpp/container/array
  *
  * TODO: Merge member functions with basic_*_array.d and array_ex.d
  *

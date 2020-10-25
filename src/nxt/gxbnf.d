@@ -9,7 +9,7 @@
  *
  * TODO:
  *
- * - Use DETECT upper-case lexer rules LexerRule
+ * - Use `DETECT` upper-case lexer rules LexerRule
  *
  * - Use `TOK.tokenSpecOptions` in parsing. Ignored for now.
  *
@@ -2389,7 +2389,7 @@ version(show)
     const root = "~/Work/grammars-v4/".expandTilde;
     const lexerFlag = false;
     const parserFlag = true;
-    const showProgressFlag = false;
+    const showProgressFlag = true;
 
     auto of = stdout;           // output file
 

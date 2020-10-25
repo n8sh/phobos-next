@@ -36,8 +36,6 @@
  *
  * - Emacs click on link in `compilation-mode` doesn't navigate to correct offset on lines containing tabs before offset
  *
- * - Check that `DynamicArray.backPop` zeros pointer elements at the end
- *
  * - If performance is needed:
  *   - Avoid casts and instead compare against `head.tok` for `isA!NodeType`
  *   - use `RuleAltN(uint n)` in `makeAlt`

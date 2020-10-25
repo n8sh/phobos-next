@@ -9,7 +9,7 @@
  *
  * TODO:
  *
- * - Replace `options{greedy=false;}:` with non-greedy operator `*?`
+ * - Use DETECT upper-case lexer rules LexerRule
  *
  * - Use `TOK.tokenSpecOptions` in parsing. Ignored for now.
  *
@@ -29,6 +29,9 @@
  * - add `SeqN(uint n)`
  *
  * - non-pure diagnostics functions
+ *
+ * - Warn about `options{greedy=false;}:` and advice to replace with non-greedy variants
+ * - Warn about `options{greedy=true;}:` being deprecated
  *
  * - Display column range for tokens in messages. Use `head.input.length`.
  *   Requires updating FlyCheck.

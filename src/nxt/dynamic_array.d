@@ -784,18 +784,15 @@ pragma(inline):
         _store.length -= 1;
         static if (needsMove!T)
             return move(_mptr[_store.length]);
-        else
+        else static if (is(T == class) || isPointer!T || hasIndirections!T) // fast, medium, slow path
         {
-            static if (is(T == class) || isPointer!T || hasIndirections!T) // fast, medium, slow path
-            {
-                pragma(msg, T);
-                T e = void;
-                moveEmplace(_mptr[_store.length], e); // reset pointers
-                return e;
-            }
-            else
-                return _mptr[_store.length]; // no move needed
+            pragma(msg, T);
+            T e = void;
+            moveEmplace(_mptr[_store.length], e); // reset pointers
+            return e;
         }
+        else
+            return _mptr[_store.length]; // no move needed
     }
 
     /** Pop element at `index`. */

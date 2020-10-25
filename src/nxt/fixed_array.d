@@ -93,11 +93,11 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     this(Us...)(Us values) @trusted
     if (Us.length <= capacity)
     {
-        foreach (immutable ix, ref value; values)
+        static foreach (const i, value; values)
             static if (needsMove!(typeof(value)))
-                moveEmplace(value, _store[ix]);
+                moveEmplace(value, _store[i]);
             else
-                _store[ix] = value;
+                _store[i] = value;
         _length = cast(Length)values.length;
         static if (borrowChecked)
         {
@@ -184,7 +184,12 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     {
         if (_length + Es.length > capacity) { return false; }
         static foreach (const i, e; es)
-            moveEmplace(e, _store[_length + i]); // TODO: remove `move` when compiler does it for us
+        {
+            static if (needsMove!T)
+                moveEmplace(e, _store[_length + i]); // TODO: remove `move` when compiler does it for us
+            else
+                _store[_length + i] = e;
+        }
         _length = cast(Length)(_length + Es.length); // TODO: better?
         return true;
     }

@@ -1223,7 +1223,7 @@ final class Not : UnExpr
     }
 }
 
-/// Match zero or one instances of type `sub`.
+/// Match (greedily) zero or one instances of type `sub`.
 final class ZeroOrOne : UnExpr
 {
 @safe pure nothrow @nogc:

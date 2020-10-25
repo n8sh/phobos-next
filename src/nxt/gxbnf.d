@@ -1040,6 +1040,13 @@ Node makeSeq(NodeArray subs,
     return new SeqM(subs.move());
 }
 
+Node makeSeq(Node[] subs,
+             const scope ref GxLexer lexer,
+             in bool rewriteFlag = true) pure nothrow
+{
+    return makeSeq(NodeArray(subs), lexer, rewriteFlag);
+}
+
 NodeArray flattenSubs(BranchNode)(NodeArray subs) pure nothrow @nogc
 if (is(BranchNode : SeqM) ||
     is(BranchNode : AltM))
@@ -1950,6 +1957,7 @@ struct GxParser
                 // `seq` may be empty
                 // _lexer.infoAtFront("empty sequence");
             }
+            assert(seq.length <= 23);
             alts.put(makeSeq(seq.move(), _lexer));
             if (_lexer.front.tok == TOK.pipe)
                 _lexer.popFront(); // skip terminator

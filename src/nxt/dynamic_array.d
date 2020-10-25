@@ -198,7 +198,9 @@ pragma(inline):
         // TODO: use import emplace_all instead
 
         _store.ptr = allocate(values.length, false);
-        assert(values.length <= CapacityType.max);
+        static if (!is(CapacityType == size_t))
+            assert(values.length <= CapacityType.max,
+                   "Minimum capacity doesn't fit in capacity type.");
         _store.capacity = cast(CapacityType)values.length;
 
         foreach (index; 0 .. values.length)

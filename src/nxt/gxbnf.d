@@ -16,7 +16,7 @@
  * - Detect indirect mutual left-recursion. How? Simple-way in generated parsers:
  *   enters a rule again without offset change.
  *
- * - Add properties for matchMinLength matchMaxLength if any.
+ * - Add properties for uint, uint lengthRange()
  * - Sort `AltM` subs by descending minimum length
  *
  * - Check that `DynamicArray.backPop` zeros pointer elements at the end
@@ -947,7 +947,7 @@ bool equalsAll(const scope Node[] a,
     if (a.length != b.length)
         return false;
     foreach (const i; 0 .. a.length)
-        if (!a[i].equals(b[i])) // TODO: use .ptr if needed
+        if (!a[i].equals(b[i])) // TODO: use `.ptr` if needed
             return false;
     return true;
 }
@@ -1182,6 +1182,7 @@ pure nothrow @nogc:
     Token head;
 }
 
+/// Unary match combinator.
 abstract class UnExpr : Node
 {
 @safe:
@@ -1212,48 +1213,7 @@ abstract class UnExpr : Node
     Node sub;
 }
 
-abstract class BinExpr : Node
-{
-@safe:
-    final override void show(in Format fmt = Format.init) const
-    {
-        fmt.showIndent();
-        subs[0].show(fmt);
-        putchar(' ');
-        showChars(head.input);
-        putchar(' ');
-        subs[1].show(fmt);
-    }
-@safe pure nothrow @nogc:
-    this(in Token head, Node[2] subs)
-    {
-        assert(subs[0]);
-        assert(subs[1]);
-        super();
-        this.subs = subs;
-    }
-    final override bool equals(const Node o) const
-    {
-        if (this is o)
-            return true;
-        if (const o_ = cast(const typeof(this))o)
-            return (head == o_.head &&
-                    equalsAll(this.subs[], o_.subs[]));
-        return false;
-    }
-    Token head;
-    Node[2] subs;
-}
-
-final class ZeroOrOne : UnExpr
-{
-@safe pure nothrow @nogc:
-    this(in Token head, Node sub)
-    {
-        super(head, sub);
-    }
-}
-
+/// Don't match an instance of type `sub`.
 final class Not : UnExpr
 {
 @safe pure nothrow @nogc:
@@ -1263,6 +1223,17 @@ final class Not : UnExpr
     }
 }
 
+/// Match zero or one instances of type `sub`.
+final class ZeroOrOne : UnExpr
+{
+@safe pure nothrow @nogc:
+    this(in Token head, Node sub)
+    {
+        super(head, sub);
+    }
+}
+
+/// Match (greedily) zero or more instances of type `sub`.
 final class ZeroOrMore : UnExpr
 {
 @safe pure nothrow @nogc:
@@ -1272,6 +1243,7 @@ final class ZeroOrMore : UnExpr
     }
 }
 
+/// Match (greedily) one or more instances of type `sub`.
 final class OneOrMore : UnExpr
 {
 @safe pure nothrow @nogc:
@@ -1331,6 +1303,41 @@ final class WildcardSentinel : TokenNode
     }
 }
 
+/// Binary match combinator.
+abstract class BinExpr : Node
+{
+@safe:
+    final override void show(in Format fmt = Format.init) const
+    {
+        fmt.showIndent();
+        subs[0].show(fmt);
+        putchar(' ');
+        showChars(head.input);
+        putchar(' ');
+        subs[1].show(fmt);
+    }
+@safe pure nothrow @nogc:
+    this(in Token head, Node[2] subs)
+    {
+        assert(subs[0]);
+        assert(subs[1]);
+        super();
+        this.subs = subs;
+    }
+    final override bool equals(const Node o) const
+    {
+        if (this is o)
+            return true;
+        if (const o_ = cast(const typeof(this))o)
+            return (head == o_.head &&
+                    equalsAll(this.subs[], o_.subs[]));
+        return false;
+    }
+    Token head;
+    Node[2] subs;
+}
+
+/// Match value range between `limits[0]` and `limits[1]`.
 final class Range : BinExpr
 {
 @safe pure nothrow @nogc:
@@ -1349,6 +1356,7 @@ final class Hooks : TokenNode
     }
 }
 
+/// Match literal `head.input`.
 final class Literal : TokenNode
 {
 @safe pure nothrow @nogc:
@@ -1376,6 +1384,7 @@ final class BlockComment : TokenNode
     }
 }
 
+/// Grammar named `name`.
 final class Grammar : TokenNode
 {
 @safe:
@@ -1404,6 +1413,7 @@ pure nothrow @nogc:
     Input name;
 }
 
+/// Lexer grammar named `name`.
 final class LexerGrammar : TokenNode
 {
 @safe pure nothrow @nogc:
@@ -1415,7 +1425,10 @@ final class LexerGrammar : TokenNode
     Input name;
 }
 
-/// See_Also: https://theantlrguy.atlassian.net/wiki/spaces/ANTLR3/pages/2687210/Quick+Starter+on+Parser+Grammars+-+No+Past+Experience+Required
+/** Parser grammar named `name`.
+ *
+ * See_Also: https://theantlrguy.atlassian.net/wiki/spaces/ANTLR3/pages/2687210/Quick+Starter+on+Parser+Grammars+-+No+Past+Experience+Required
+ */
 final class ParserGrammar : TokenNode
 {
 @safe pure nothrow @nogc:
@@ -1427,6 +1440,7 @@ final class ParserGrammar : TokenNode
     Input name;
 }
 
+/// Import of `modules`.
 final class Import : TokenNode
 {
 @safe:

@@ -96,9 +96,15 @@ enum TOK
     labelAssignment,            ///< Label assignment `=`
     listLabelAssignment,        ///< List label assignment `+=`
 
-    qmark,               ///< Optional or semantic predicate (`?`)
-    star,                       ///< Zero or more (`*`)
-    plus,                       ///< One or more (`+`)
+    qmark,                      ///< Greedy optional or semantic predicate (`?`)
+    qmarkQmark,                 ///< Non-Greedy optional (`??`)
+
+    star,                       ///< Greedy zero or more (`*`)
+    starQmark,                  ///< Non-Greedy Zero or more (`*?`)
+
+    plus,                       ///< Greedy one or more (`+`)
+    plusQmark,                  ///< Non-Greedy One or more (`+?`)
+
     pipe,                       ///< Alternative (`|`)
     tilde,                      ///< Match negation (`~`)
     lt,                         ///< `<`
@@ -682,14 +688,22 @@ private:
                 errorAtFront("expected '>' after '='");
             break;
         case '?':
-            _token = Token(TOK.qmark, skipOver1());
+            if (peek1() == '?')
+                _token = Token(TOK.qmarkQmark, skipOver2());
+            else
+                _token = Token(TOK.qmark, skipOver1());
             break;
         case '*':
-            _token = Token(TOK.star, skipOver1());
+            if (peek1() == '?')
+                _token = Token(TOK.starQmark, skipOver2());
+            else
+                _token = Token(TOK.star, skipOver1());
             break;
         case '+':
             if (peek1() == '=')
                 _token = Token(TOK.listLabelAssignment, skipOver2());
+            else if (peek1() == '?')
+                _token = Token(TOK.plusQmark, skipOver2());
             else
                 _token = Token(TOK.plus, skipOver1());
             break;
@@ -1253,6 +1267,36 @@ final class GreedyOneOrMore : UnExpr
     }
 }
 
+/// Match (non-greedily) zero or one instances of type `sub`.
+final class NonGreedyZeroOrOne : UnExpr
+{
+@safe pure nothrow @nogc:
+    this(in Token head, Node sub)
+    {
+        super(head, sub);
+    }
+}
+
+/// Match (non-greedily) zero or more instances of type `sub`.
+final class NonGreedyZeroOrMore : UnExpr
+{
+@safe pure nothrow @nogc:
+    this(in Token head, Node sub)
+    {
+        super(head, sub);
+    }
+}
+
+/// Match (non-greedily) one or more instances of type `sub`.
+final class NonGreedyOneOrMore : UnExpr
+{
+@safe pure nothrow @nogc:
+    this(in Token head, Node sub)
+    {
+        super(head, sub);
+    }
+}
+
 /// Match `count` number of instances of type `sub`.
 final class Several : UnExpr
 {
@@ -1753,13 +1797,25 @@ struct GxParser
                     const head = _lexer.frontPop();
                     seq.put1(new GreedyZeroOrOne(head, seq.backPop()));
                     break;
+                case TOK.qmarkQmark:
+                    const head = _lexer.frontPop();
+                    seq.put1(new NonGreedyZeroOrOne(head, seq.backPop()));
+                    break;
                 case TOK.star:
                     const head = _lexer.frontPop();
                     seq.put1(new GreedyZeroOrMore(head, seq.backPop()));
                     break;
+                case TOK.starQmark:
+                    const head = _lexer.frontPop();
+                    seq.put1(new NonGreedyZeroOrMore(head, seq.backPop()));
+                    break;
                 case TOK.plus:
                     const head = _lexer.frontPop();
                     seq.put1(new GreedyOneOrMore(head, seq.backPop()));
+                    break;
+                case TOK.plusQmark:
+                    const head = _lexer.frontPop();
+                    seq.put1(new NonGreedyOneOrMore(head, seq.backPop()));
                     break;
                 case TOK.tilde:
                     seq.put1(new Tilde(_lexer.frontPop()));

@@ -1744,8 +1744,11 @@ struct GxParser
         {
             size_t parentDepth = 0;
 
-            scope FixedArray!(Node, 100) seq;
-            // NodeArray seq; // TODO: use `Rule` as ElementType
+            enum useFixedSeq = false; ///< Use fixed-size (statically allocated) sequence buffer.
+            static if (useFixedSeq)
+                FixedArray!(Node, 100) seq; // doesn't speed up that much
+            else
+                NodeArray seq; // TODO: use `Rule` as ElementType
 
             void seqPutCheck(Node last)
             {
@@ -1960,8 +1963,10 @@ struct GxParser
                 // `seq` may be empty
                 // _lexer.infoAtFront("empty sequence");
             }
-            assert(seq.length <= 23);
-            alts.put(makeSeq(seq[], _lexer));
+            static if (useFixedSeq)
+                alts.put(makeSeq(seq[], _lexer));
+            else
+                alts.put(makeSeq(seq.move(), _lexer));
             if (_lexer.front.tok == TOK.pipe)
                 _lexer.popFront(); // skip terminator
         }
@@ -1993,7 +1998,7 @@ struct GxParser
     }
 
     Input[] makeArgs(in TOK separator,
-                    in TOK terminator)
+                     in TOK terminator)
     {
         DynamicArray!(Input) result;
         while (true)

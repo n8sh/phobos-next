@@ -1744,7 +1744,7 @@ struct GxParser
         {
             size_t parentDepth = 0;
 
-            enum useFixedSeq = false; ///< Use fixed-size (statically allocated) sequence buffer.
+            enum useFixedSeq = true; ///< Use fixed-size (statically allocated) sequence buffer.
             static if (useFixedSeq)
                 FixedArray!(Node, 100) seq; // doesn't speed up that much
             else

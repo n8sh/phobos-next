@@ -66,29 +66,29 @@ pragma(inline, true):
     @disable this(this);
 
     /// Get element at index `i`.
-    scope ref inout(T) opIndex(size_t i) inout @system return
+    ref inout(T) opIndex(size_t i) inout @trusted return scope
     {
         return (*(cast(inout(T)[]*)&_store))[i];
     }
 
     /// Slice support.
-    scope inout(T)[] opSlice(size_t i, size_t j) inout @system return
+    inout(T)[] opSlice(size_t i, size_t j) inout @trusted return scope
     {
         return (*(cast(inout(T)[]*)&_store))[i .. j];
     }
     /// ditto
-    scope inout(T)[] opSlice() inout @system return
+    inout(T)[] opSlice() inout @trusted return scope
     {
         return (*(cast(inout(T)[]*)&_store))[0 .. _store.length];
     }
 
     /// Slice assignment support.
-    scope T[] opSliceAssign(U)(U value) return
+    T[] opSliceAssign(U)(U value) return scope
     {
         return (*(cast(inout(T)[]*)&_store))[0 .. _store.length] = value;
     }
     /// ditto
-    scope T[] opSliceAssign(U)(U value, size_t i, size_t j) return
+    T[] opSliceAssign(U)(U value, size_t i, size_t j) return scope
     {
         return (*(cast(inout(T)[]*)&_store))[i .. j] = value;
     }

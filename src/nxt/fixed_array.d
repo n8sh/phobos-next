@@ -180,17 +180,10 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
      * Returns: `true` iff all `es` were pushed, `false` otherwise.
      */
     bool insertBackMaybe(Es...)(Es es) @trusted
-    if (Es.length <= capacity)
+    if (Es.length <= capacity) // TODO: use `isAssignable`
     {
         if (_length + Es.length > capacity) { return false; }
-        static foreach (const i, e; es)
-        {
-            static if (needsMove!T)
-                moveEmplace(e, _store[_length + i]); // TODO: remove `move` when compiler does it for us
-            else
-                _store[_length + i] = e;
-        }
-        _length = cast(Length)(_length + Es.length); // TODO: better?
+        insertBack(es);
         return true;
     }
     /// ditto

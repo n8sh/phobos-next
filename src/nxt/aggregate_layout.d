@@ -1,5 +1,7 @@
 module nxt.aggregate_layout;
 
+// version = show;
+
 @safe:
 
 void printLayout(T)()
@@ -57,8 +59,6 @@ if (is(T == struct) ||
 
     maybePrintPaddingInfo(noPaddingOffset, T.sizeof);
 }
-
-version = show;
 
 version(show)
 @safe unittest

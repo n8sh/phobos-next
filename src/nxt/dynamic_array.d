@@ -294,7 +294,7 @@ pragma(inline):
                     static if (needsMove!(ElementType!R))
                         result.insertBackMove(value); // steal element
                     else
-                        result.insertBack1(value);
+                        result.insertBack(value);
             }
         }
         return result;
@@ -667,14 +667,21 @@ pragma(inline):
         _store.length += 1;
     }
 
-    /** Insert unmoveable `value` into the end of the array.
+    /** Insert `value` into the end of the array.
      */
     void insertBack()(T value) @trusted // template-lazy
-    if (!__traits(isCopyable, T))
     {
-        version(LDC) pragma(inline, true);
-        insertBackMove(value);
+        static if (needsMove!T)
+            insertBackMove(*cast(MutableE*)(&value));
+        else
+        {
+            reserve(_store.length + 1);
+            _mptr[_store.length] = value;
+            _store.length += 1;
+        }
     }
+
+    alias put = insertBack;
 
     /** Insert the elements `values` into the end of the array.
      */
@@ -684,7 +691,7 @@ pragma(inline):
     {
         if (values.length == 1) // TODO: branch should be detected at compile-time
             // twice as fast as array assignment below
-            return insertBack1(values[0]);
+            return insertBack(values[0]);
 
         static if (is(T == immutable(T)))
         {
@@ -716,23 +723,6 @@ pragma(inline):
         }
         _store.length += values.length;
     }
-
-    /** Insert `value` into the end of the array.
-     *
-     * TODO: rename to `insertBack` and make this steal scalar calls over
-     * insertBack(U)(U[] values...) overload below
-     */
-    void insertBack1()(T value) @trusted // template-lazy
-    {
-        reserve(_store.length + 1);
-        static if (needsMove!T)
-            insertBackMove(*cast(MutableE*)(&value));
-        else
-            _mptr[_store.length] = value;
-        _store.length += 1;
-    }
-
-    alias put1 = insertBack1;
 
     /** Insert the elements `elements` into the end of the array.
      */

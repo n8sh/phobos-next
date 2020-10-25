@@ -19,8 +19,6 @@
  * - Add properties for uint, uint lengthRange()
  * - Sort `AltM` subs by descending minimum length
  *
- * - Check that `DynamicArray.backPop` zeros pointer elements at the end
- *
  * - handle all TODO's in `makeRule`
  *
  * - create index of symbols and link them in second pass
@@ -38,6 +36,8 @@
  *
  * - Emacs click on link in `compilation-mode` doesn't navigate to correct offset on lines containing tabs before offset
  *
+ * - Check that `DynamicArray.backPop` zeros pointer elements at the end
+ *
  * - If performance is needed:
  *   - Avoid casts and instead compare against `head.tok` for `isA!NodeType`
  *   - use `RuleAltN(uint n)` in `makeAlt`
@@ -45,6 +45,7 @@
  */
 module nxt.gxbnf;
 
+// version = show;
 version = Do_Inline;
 
 import core.lifetime : move;
@@ -517,7 +518,7 @@ private:
                 else if (peekN(i) == '{')
                 {
                     if (infoFlag) infoAtIndex("brace open", i, ds[]);
-                    ds.put1('{');
+                    ds.put('{');
                 }
                 else if (peekN(i) == '}')
                 {
@@ -530,7 +531,7 @@ private:
                 else if (peekN(i) == '[')
                 {
                     if (infoFlag) infoAtIndex("hook open", i, ds[]);
-                    ds.put1('[');
+                    ds.put('[');
                 }
                 else if (peekN(i) == ']')
                 {
@@ -543,7 +544,7 @@ private:
                 else if (peekN(i) == '(')
                 {
                     if (infoFlag) infoAtIndex("paren open", i, ds[]);
-                    ds.put1('(');
+                    ds.put('(');
                 }
                 else if (peekN(i) == ')')
                 {
@@ -591,7 +592,7 @@ private:
                 else
                 {
                     if (infoFlag) infoAtIndex("single-quote open", i, ds[]);
-                    ds.put1('\'');
+                    ds.put('\'');
                     inChar = true;
                 }
             }
@@ -612,7 +613,7 @@ private:
                 else
                 {
                     if (infoFlag) infoAtIndex("doubl-quote open", i, ds[]);
-                    ds.put1('"');
+                    ds.put('"');
                     inString = true;
                 }
             }
@@ -989,7 +990,7 @@ abstract class NaryExpr : Node
     if (n >= 2)
     {
         foreach (sub; subs)
-            this.subs.put1(sub);
+            this.subs.put(sub);
     }
     NodeArray subs;
 }
@@ -1753,23 +1754,23 @@ struct GxParser
                     if (cast(PipeSentinel)seq.back) // binary operator
                     {
                         seq.popBack(); // pop `PipeSentinel`
-                        seq.put1(new AltM([seq.backPop(), last]));
+                        seq.put(new AltM([seq.backPop(), last]));
                         return;
                     }
                     else if (auto dotdot = cast(DotDotSentinel)seq.back) // binary operator
                     {
                         seq.popBack(); // pop `DotDotSentinel`
-                        seq.put1(new Range(dotdot.head, [seq.backPop(), last]));
+                        seq.put(new Range(dotdot.head, [seq.backPop(), last]));
                         return;
                     }
                     else if (auto tilde = cast(Tilde)seq.back) // prefix unary operator
                     {
                         seq.popBack(); // pop `Tilde`
-                        seq.put1(new Not(tilde.head, last));
+                        seq.put(new Not(tilde.head, last));
                         return;
                     }
                 }
-                return seq.put1(last);
+                return seq.put(last);
             }
 
             while ((parentDepth != 0 ||
@@ -1798,30 +1799,30 @@ struct GxParser
                     break;
                 case TOK.qmark:
                     const head = _lexer.frontPop();
-                    seq.put1(new GreedyZeroOrOne(head, seq.backPop()));
+                    seq.put(new GreedyZeroOrOne(head, seq.backPop()));
                     break;
                 case TOK.qmarkQmark:
                     const head = _lexer.frontPop();
-                    seq.put1(new NonGreedyZeroOrOne(head, seq.backPop()));
+                    seq.put(new NonGreedyZeroOrOne(head, seq.backPop()));
                     break;
                 case TOK.star:
                     const head = _lexer.frontPop();
-                    seq.put1(new GreedyZeroOrMore(head, seq.backPop()));
+                    seq.put(new GreedyZeroOrMore(head, seq.backPop()));
                     break;
                 case TOK.starQmark:
                     const head = _lexer.frontPop();
-                    seq.put1(new NonGreedyZeroOrMore(head, seq.backPop()));
+                    seq.put(new NonGreedyZeroOrMore(head, seq.backPop()));
                     break;
                 case TOK.plus:
                     const head = _lexer.frontPop();
-                    seq.put1(new GreedyOneOrMore(head, seq.backPop()));
+                    seq.put(new GreedyOneOrMore(head, seq.backPop()));
                     break;
                 case TOK.plusQmark:
                     const head = _lexer.frontPop();
-                    seq.put1(new NonGreedyOneOrMore(head, seq.backPop()));
+                    seq.put(new NonGreedyOneOrMore(head, seq.backPop()));
                     break;
                 case TOK.tilde:
-                    seq.put1(new Tilde(_lexer.frontPop()));
+                    seq.put(new Tilde(_lexer.frontPop()));
                     break;
                 case TOK.pipe:
                     if (const symbol = cast(Symbol)seq.back)
@@ -1833,16 +1834,16 @@ struct GxParser
                             continue;
                         }
                     }
-                    seq.put1(new PipeSentinel(_lexer.frontPop()));
+                    seq.put(new PipeSentinel(_lexer.frontPop()));
                     break;
                 case TOK.wildcard:
-                    seq.put1(new WildcardSentinel(_lexer.frontPop()));
+                    seq.put(new WildcardSentinel(_lexer.frontPop()));
                     break;
                 case TOK.dotdot:
-                    seq.put1(new DotDotSentinel(_lexer.frontPop()));
+                    seq.put(new DotDotSentinel(_lexer.frontPop()));
                     break;
                 case TOK.hooks:
-                    seq.put1(new Hooks(_lexer.frontPop()));
+                    seq.put(new Hooks(_lexer.frontPop()));
                     break;
                 case TOK.hash:
                 case TOK.rewrite:
@@ -1852,7 +1853,7 @@ struct GxParser
                     break;
                 case TOK.leftParen:
                     parentDepth += 1;
-                    seq.put1(new Symbol(_lexer.frontPop()));
+                    seq.put(new Symbol(_lexer.frontPop()));
                     break;
                 case TOK.rightParen:
                     parentDepth -= 1;
@@ -1875,7 +1876,7 @@ struct GxParser
                     {
                         NodeArray subseq; // TODO: use stack for small arrays. TODO: use `Rule` as ElementType
                         foreach (node; seq[li + 1 .. $])
-                            subseq.put1(node);
+                            subseq.put(node);
                         seq.popBackN(seq.length - li);
                         seqPutCheck(makeSeq(subseq.move(), _lexer));
                     }
@@ -1954,7 +1955,7 @@ struct GxParser
                 // `seq` may be empty
                 // _lexer.infoAtFront("empty sequence");
             }
-            alts.put1(makeSeq(seq.move(), _lexer));
+            alts.put(makeSeq(seq.move(), _lexer));
             if (_lexer.front.tok == TOK.pipe)
                 _lexer.popFront(); // skip terminator
         }
@@ -1981,7 +1982,7 @@ struct GxParser
                      : new Rule(name,
                                 alts.length == 1 ? alts.backPop() : makeAlt(alts.move()),
                                 _lexer));
-        rules.put1(rule);
+        rules.put(rule);
         return rule;
     }
 
@@ -1991,7 +1992,7 @@ struct GxParser
         DynamicArray!(Input) result;
         while (true)
         {
-            result.put1(_lexer.frontPopEnforce(TOK.symbol).input);
+            result.put(_lexer.frontPopEnforce(TOK.symbol).input);
             if (_lexer.front.tok != separator)
                 break;
             _lexer.popFront();
@@ -2036,7 +2037,7 @@ struct GxParser
     Import makeImport(in Token head)
     {
         auto import_ = new Import(head, makeArgs(TOK.comma, TOK.semicolon));
-        this.imports.put1(import_);
+        this.imports.put(import_);
         return import_;
     }
 
@@ -2345,6 +2346,7 @@ bool isGxFilename(const scope char[] name) @safe pure nothrow @nogc
 }
 
 ///
+version(show)
 @trusted unittest
 {
     import std.datetime.stopwatch : StopWatch;

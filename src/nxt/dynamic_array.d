@@ -792,7 +792,7 @@ pragma(inline):
             return e;
         }
         else
-            return _mptr[_store.length]; // no move needed
+            return _mptr[_store.length];
     }
 
     /** Pop element at `index`. */

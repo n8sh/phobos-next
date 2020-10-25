@@ -453,13 +453,9 @@ struct SSOHashMapOrSet(K, V = void,
         {
             // TODO: use `insertMoveWithoutBinCountGrowth` when call to `reserveExtra` works
             static if (hasIndirections!T)
-            {
                 insert(element);
-            }
             else
-            {
                 insert(*cast(Unqual!T*)&element);
-            }
         }
     }
 

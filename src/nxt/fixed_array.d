@@ -22,7 +22,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     import core.exception : onRangeError;
     import core.lifetime : move, moveEmplace;
     import std.bitmanip : bitfields;
-    import std.traits : isSomeChar, isAssignable;
+    import std.traits : isSomeChar, isAssignable, hasIndirections;
     import core.internal.traits : hasElaborateDestructor;
     import nxt.container_traits : mustAddGCRange, needsMove;
 
@@ -90,6 +90,31 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     /// Is `true` iff `U` can be assign to the element type `T` of `this`.
     private enum isElementAssignable(U) = isAssignable!(T, U);
 
+    /// Empty.
+    void clear() @nogc
+    {
+        releaseElementsStore();
+        resetInternalData();
+    }
+
+    /// Release elements and internal store.
+    private void releaseElementsStore() @trusted @nogc
+    {
+        static if (borrowChecked) { assert(!isBorrowed); }
+        foreach (immutable i; 0 .. length)
+            static if (hasElaborateDestructor!T)
+                .destroy(_store.ptr[i]);
+            else static if (hasIndirections!T)
+                _store.ptr[i] = T.init; // nullify any pointers
+    }
+
+    /// Reset internal data.
+    private void resetInternalData() @nogc
+    {
+        version(D_Coverage) {} else pragma(inline, true);
+        _length = 0;
+    }
+
     /// Construct from element `values`.
     this(Us...)(Us values) @trusted
     if (Us.length <= capacity)
@@ -147,12 +172,9 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
                hasElaborateDestructor!T)
     {
         /** Destruct. */
-        ~this() @trusted @nogc
+        ~this() @nogc
         {
-            static if (borrowChecked) { assert(!isBorrowed); }
-            static if (hasElaborateDestructor!T)
-                foreach (immutable i; 0 .. length)
-                    .destroy(_store.ptr[i]);
+            releaseElementsStore();
         }
     }
 

@@ -314,32 +314,25 @@ pragma(inline):
      */
     ~this() @nogc /*TODO: scope*/
     {
-        release();
+        releaseElementsStore();
     }
 
     /// Empty.
     void clear() @nogc
     {
-        release();
+        releaseElementsStore();
         resetInternalData();
     }
 
-    /// Release internal store.
-    private void release() @nogc
+    /// Release elements and internal store.
+    private void releaseElementsStore() @nogc @trusted
     {
-        static if (hasElaborateDestructor!T)
-            destroyElements();
-        freeStore();
-    }
-
-    /// Destroy elements.
-    static if (hasElaborateDestructor!T)
-    {
-        private void destroyElements() @trusted
-        {
-            foreach (immutable index; 0 .. _store.length)
+        foreach (immutable index; 0 .. _store.length)
+            static if (hasElaborateDestructor!T)
                 .destroy(_mptr[index]);
-        }
+            else static if (hasIndirections!T)
+                _mptr[index] = T.init; // nullify any pointers
+        freeStore();
     }
 
     /// Free internal store.

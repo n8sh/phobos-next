@@ -23,7 +23,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     import std.bitmanip : bitfields;
     import std.traits : isSomeChar, isAssignable;
     import core.internal.traits : hasElaborateDestructor;
-    import nxt.container_traits : mustAddGCRange;
+    import nxt.container_traits : mustAddGCRange, needsMove;
 
     alias capacity = capacity_; // for public use
 
@@ -93,7 +93,6 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     this(Us...)(Us values) @trusted
     if (Us.length <= capacity)
     {
-        import nxt.container_traits : needsMove;
         foreach (immutable ix, ref value; values)
             static if (needsMove!(typeof(value)))
                 moveEmplace(value, _store[ix]);
@@ -164,8 +163,13 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     if (Es.length <= capacity) // TODO: use `isAssignable`
     {
         version(assert) if (_length + Es.length > capacity) onRangeError(); // `Arguments don't fit in array`
-        foreach (immutable i, ref e; es)
-            moveEmplace(e, _store[_length + i]); // TODO: remove `move` when compiler does it for us
+        static foreach (const i, e; es)
+        {
+            static if (needsMove!T)
+                moveEmplace(e, _store[_length + i]); // TODO: remove `move` when compiler does it for us
+            else
+                _store[_length + i] = e;
+        }
         _length = cast(Length)(_length + Es.length); // TODO: better?
     }
     /// ditto
@@ -179,7 +183,7 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
     if (Es.length <= capacity)
     {
         if (_length + Es.length > capacity) { return false; }
-        foreach (immutable i, ref e; es)
+        static foreach (const i, e; es)
             moveEmplace(e, _store[_length + i]); // TODO: remove `move` when compiler does it for us
         _length = cast(Length)(_length + Es.length); // TODO: better?
         return true;
@@ -224,6 +228,16 @@ struct FixedArray(T, uint capacity_, bool borrowChecked = false)
             .destroy(_store.ptr[_length]);
         else static if (mustAddGCRange!T)
             _store.ptr[_length] = T.init; // avoid GC mark-phase dereference
+    }
+
+    T backPop()() @trusted      // template-lazy
+    {
+        assert(!empty);
+        _length -= 1;
+        static if (needsMove!T)
+            return move(_store.ptr[length]); // move is indeed need here
+        else
+            return _store.ptr[length]; // no move needed
     }
 
     /** Pop the `n` last (back) elements. */

@@ -13,15 +13,15 @@
  *
  * - Use `TOK.tokenSpecOptions` in parsing. Ignored for now.
  *
- * - Detect indirect mutual left-recursion. How? Simple-way in generated parsers:
- *   enters a rule again without offset change.
- *
  * - Add properties for uint, uint lengthRange()
  * - Sort `AltM` subs by descending minimum length
  *
  * - handle all TODO's in `makeRule`
  *
  * - create index of symbols and link them in second pass
+ *
+ * - Detect indirect mutual left-recursion. How? Simple-way in generated parsers:
+ *   enters a rule again without offset change.
  *
  * - non-pure diagnostics functions
  *
@@ -903,6 +903,7 @@ private:
     bool _includeWhitespace;
     bool _includeLabelAssignment;
     bool _includeListLabelAssignment;
+    bool _diagnoseLeftRecursion;
 }
 
 /// Node.
@@ -1100,7 +1101,8 @@ class Rule : Node
     {
         this.head = head;
         this.top = top;
-        diagnoseDirectLeftRecursion(lexer);
+        if (lexer._diagnoseLeftRecursion)
+            diagnoseDirectLeftRecursion(lexer);
     }
     override bool equals(const Node o) const
     {

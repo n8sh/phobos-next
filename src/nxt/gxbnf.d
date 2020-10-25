@@ -1014,10 +1014,10 @@ Node makeSeq(NodeArray subs,
     {
         if (i + 1 == subs.length) // skip last
             break;
-        if (const zom = cast(const ZeroOrMore)sub)
+        if (const zom = cast(const GreedyZeroOrMore)sub)
             if (zom.sub.equals(subs[i + 1]))
                 lexer.warningAtToken(zom.head, "replace with `X+`");
-        if (const zom = cast(const ZeroOrMore)subs[i + 1])
+        if (const zom = cast(const GreedyZeroOrMore)subs[i + 1])
             if (zom.sub.equals(sub))
                 lexer.warningAtToken(zom.head, "replace with `X+`");
     }
@@ -1224,7 +1224,7 @@ final class Not : UnExpr
 }
 
 /// Match (greedily) zero or one instances of type `sub`.
-final class ZeroOrOne : UnExpr
+final class GreedyZeroOrOne : UnExpr
 {
 @safe pure nothrow @nogc:
     this(in Token head, Node sub)
@@ -1234,7 +1234,7 @@ final class ZeroOrOne : UnExpr
 }
 
 /// Match (greedily) zero or more instances of type `sub`.
-final class ZeroOrMore : UnExpr
+final class GreedyZeroOrMore : UnExpr
 {
 @safe pure nothrow @nogc:
     this(in Token head, Node sub)
@@ -1244,7 +1244,7 @@ final class ZeroOrMore : UnExpr
 }
 
 /// Match (greedily) one or more instances of type `sub`.
-final class OneOrMore : UnExpr
+final class GreedyOneOrMore : UnExpr
 {
 @safe pure nothrow @nogc:
     this(in Token head, Node sub)
@@ -1750,13 +1750,16 @@ struct GxParser
                     seqPutCheck(new Literal(_lexer.frontPop()));
                     break;
                 case TOK.qmark:
-                    seq.put1(new ZeroOrOne(_lexer.frontPop(), seq.backPop()));
+                    const head = _lexer.frontPop();
+                    seq.put1(new GreedyZeroOrOne(head, seq.backPop()));
                     break;
                 case TOK.star:
-                    seq.put1(new ZeroOrMore(_lexer.frontPop(), seq.backPop()));
+                    const head = _lexer.frontPop();
+                    seq.put1(new GreedyZeroOrMore(head, seq.backPop()));
                     break;
                 case TOK.plus:
-                    seq.put1(new OneOrMore(_lexer.frontPop(), seq.backPop()));
+                    const head = _lexer.frontPop();
+                    seq.put1(new GreedyOneOrMore(head, seq.backPop()));
                     break;
                 case TOK.tilde:
                     seq.put1(new Tilde(_lexer.frontPop()));
@@ -1828,7 +1831,7 @@ struct GxParser
                     {
                         auto nothing = new Nothing(hs.head);
                         seq.popBack(); // pop '('
-                        seqPutCheck(nothing); // TODO: use ZeroOrOne() instead
+                        seqPutCheck(nothing); // TODO: use GreedyZeroOrOne() instead
                     }
                     else if (li == seq.length) // unmatched case: ... )
                     {

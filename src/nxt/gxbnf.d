@@ -1027,15 +1027,17 @@ Node makeSeq(NodeArray subs,
 {
     if (subs.empty)
         return null;            // TODO: use new Nothing => EmptySeq instead
+    subs = flattenSubs!SeqM(subs.move());
     if (rewriteFlag)
-        subs = flattenSubs!SeqM(subs.move());
-    foreach (const i, const sub; subs)
     {
-        if (i + 1 == subs.length) // skip last
-            break;
-        if (const zom = cast(const GreedyZeroOrMore)subs[i + 1])
-            if (zom.sub.equals(sub))
-                lexer.warningAtToken(zom.head, "replace with `X+`");
+        foreach (const i, const sub; subs)
+        {
+            if (i + 1 == subs.length) // skip last
+                break;
+            if (const zom = cast(const GreedyZeroOrMore)subs[i + 1])
+                if (zom.sub.equals(sub))
+                    lexer.warningAtToken(zom.head, "replace with `X+`");
+        }
     }
     return new SeqM(subs.move());
 }
@@ -1166,8 +1168,7 @@ Node makeAlt(NodeArray subs,
 {
     if (subs.empty)
         return null;
-    if (rewriteFlag)
-        subs = flattenSubs!AltM(subs.move());
+    subs = flattenSubs!AltM(subs.move());
     switch (subs.length)
     {
     case 0:

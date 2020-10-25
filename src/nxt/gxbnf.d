@@ -1253,6 +1253,17 @@ final class OneOrMore : UnExpr
     }
 }
 
+/// Match `count` number of instances of type `sub`.
+final class Several : UnExpr
+{
+@safe pure nothrow @nogc:
+    this(in Token head, Node sub)
+    {
+        super(head, sub);
+    }
+    ulong count;
+}
+
 final class Symbol : TokenNode
 {
 @safe:

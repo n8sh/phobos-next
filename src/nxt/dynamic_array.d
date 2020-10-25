@@ -30,7 +30,7 @@ if (!is(Unqual!T == bool) &&             // use `BitArray` instead
 
     import std.range.primitives : isInputRange, ElementType, hasLength, hasSlicing, isInfinite;
     import std.traits : hasIndirections, hasAliasing,
-        isMutable, TemplateOf, isArray, isAssignable, isType, hasFunctionAttributes, isIterable;
+        isMutable, TemplateOf, isArray, isAssignable, isType, hasFunctionAttributes, isIterable, isPointer;
     import core.lifetime : emplace, move, moveEmplace;
 
     import nxt.qcmeman : malloc, calloc, realloc, free, gc_addRange, gc_removeRange;
@@ -330,7 +330,7 @@ pragma(inline):
         foreach (immutable index; 0 .. _store.length)
             static if (hasElaborateDestructor!T)
                 .destroy(_mptr[index]);
-            else static if (hasIndirections!T)
+            else static if (is(T == class) || isPointer!T || hasIndirections!T)
                 _mptr[index] = T.init; // nullify any pointers
         freeStore();
     }
@@ -612,7 +612,7 @@ pragma(inline):
             move(*(cast(MutableE*)(&value)), _mptr[i]); // TODO: is this correct?
             return opSlice()[i];
         }
-        else static if (hasIndirections!T && // TODO: `hasAliasing` instead?
+        else static if ((is(T == class) || isPointer!T || hasIndirections!T) &&
                         !isMutable!T)
             static assert("Cannot modify constant elements with indirections");
         else
@@ -783,9 +783,19 @@ pragma(inline):
         assert(!empty);
         _store.length -= 1;
         static if (needsMove!T)
-            return move(_mptr[_store.length]); // move is indeed need here
+            return move(_mptr[_store.length]);
         else
-            return _mptr[_store.length]; // no move needed
+        {
+            static if (is(T == class) || isPointer!T || hasIndirections!T) // fast, medium, slow path
+            {
+                pragma(msg, T);
+                T e = void;
+                moveEmplace(_mptr[_store.length], e); // reset pointers
+                return e;
+            }
+            else
+                return _mptr[_store.length]; // no move needed
+        }
     }
 
     /** Pop element at `index`. */

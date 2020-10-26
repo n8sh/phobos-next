@@ -34,6 +34,10 @@
  *   See: https://clang.llvm.org/diagnostics.html
  *   Use GNU-style formatting such as: fix-it:"test.c":{45:3-45:21}:"gtk_widget_show_all".
  *
+ * - Use a region allocator on top of the GC to pre-allocate the
+ *   nodes. Maybe one region for each file. Calculate the region size from lexer
+ *   statistics (number of operators, symbols and literals).
+ *
  * - Emacs click on link in `compilation-mode` doesn't navigate to correct offset on lines containing tabs before offset
  *
  * - If performance is needed:

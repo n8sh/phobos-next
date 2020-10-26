@@ -15,8 +15,8 @@ struct Tree(Node) if (is(Node == class))
 
 class C { this() {} int x; }
 
-@safe pure unittest
+@safe unittest
 {
-    C f() {       Tree!C t; return t.root; } // shouldn't this error aswell?
-    C g() { scope Tree!C t; return t.root; } // errors
+    C f() { auto  t = Tree!C(42); return t.root; } // shouldn't this error aswell?
+    C g() { scope t = Tree!C(42); return t.root; } // errors
 }

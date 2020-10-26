@@ -2016,7 +2016,7 @@ struct GxParser
         if (_lexer._diagnoseLeftRecursion)
             rule.diagnoseDirectLeftRecursion(_lexer);
 
-        rules.put(rule);
+        rulesByName[rule.head.input] = rule;
         return rule;
     }
 
@@ -2334,7 +2334,8 @@ struct GxParser
     Node grammar;
     Node options;
     DynamicArray!(Import, null, uint) imports;
-    DynamicArray!(Rule, null, uint) rules;
+    // DynamicArray!(Rule, null, uint) rules;
+    Rule[Input] rulesByName;
 private:
     GxLexer _lexer;
     Node _front;
@@ -2370,7 +2371,6 @@ struct GxFileReader
             parser.popFront();
         }
     }
-    // TODO: `OpenHashMap rulesByName`
     ~this() @nogc {}
 }
 

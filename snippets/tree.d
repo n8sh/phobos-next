@@ -6,10 +6,7 @@ struct Tree(Node)
 if (is(Node == class))
 {
 @safe:
-    Node root() return scope pure nothrow @nogc
-    {
-        return _root;
-    }
+    Node root() return scope pure nothrow @nogc { return _root; }
     void makeRoot() @trusted
     {
         import core.lifetime : emplace;
@@ -21,26 +18,10 @@ private:
     void[nodeSize] _store;
 }
 
-/++ C
- +/
-class C
-{
-	this()
-	{
-	}
-    int x;
-}
+class C { this() {} int x; }
 
 @safe pure unittest
 {
-    C f()
-    {
-        Tree!C t;
-        return t.root;
-    }
-    C g()
-    {
-        scope Tree!C t;
-        return t.root;
-    }
+    C f() {       Tree!C t; return t.root; } // shouldn't this error aswell?
+    C g() { scope Tree!C t; return t.root; } // errors
 }

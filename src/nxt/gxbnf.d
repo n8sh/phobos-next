@@ -2411,14 +2411,16 @@ version(show)
             const fn = e.name;
             if (fn.isGxFilename)
             {
-                if (showProgressFlag) of.writeln("Lexing ", adjustPath(fn), " ...");  // TODO: read use curren directory
+                if (showProgressFlag)
+                    of.writeln("Lexing ", adjustPath(fn), " ...");  // TODO: read use curren directory
                 const data = cast(Input)rawReadPath(fn); // exclude from benchmark
                 scope StopWatch swOne;
                 swOne.start();
                 auto lexer = GxLexer(data, fn, false);
                 while (!lexer.empty)
                     lexer.popFront();
-                if (showProgressFlag) of.writeln("Lexing ", adjustPath(fn), " took ", swOne.peek());
+                if (showProgressFlag)
+                    of.writeln("Lexing ", adjustPath(fn), " took ", swOne.peek());
             }
         }
         of.writeln("Lexing all took ", swAll.peek());
@@ -2436,11 +2438,13 @@ version(show)
                 if (fn.endsWith(`Antlr3.g`) ||
                     fn.endsWith(`ANTLRv2.g2`)) // skip this crap
                     continue;
-                if (showProgressFlag) of.writeln("Reading ", adjustPath(fn), " ...");
+                if (showProgressFlag)
+                    of.writeln("Reading ", adjustPath(fn), " ...");
                 scope StopWatch swOne;
                 swOne.start();
                 auto reader = GxFileReader(fn);
-                if (showProgressFlag) of.writeln("Reading ", adjustPath(fn), " took ", swOne.peek());
+                if (showProgressFlag)
+                    of.writeln("Reading ", adjustPath(fn), " took ", swOne.peek());
             }
         }
         of.writeln("Reading all took ", swAll.peek());

@@ -1126,7 +1126,8 @@ class Rule : Node
     Output toParserString() const
     {
         typeof(return) result;
-        result.put(q{bool match});
+        result.put(q{Match match__});
+        result.put(head.input);
         result.put(q{(Input s, ref size_t offset)
 {
 }
@@ -2394,6 +2395,8 @@ struct GxFileReader
 });
 
         parserString.put(q{alias Input = const(char)[];
+
+enum Match { no, yes }
 
 struct Parser
 {

@@ -4,14 +4,13 @@ struct Tree(Node) if (is(Node == class))
 {
 @safe:
     Node root() return scope pure nothrow @nogc { return _root; }
-    void makeRoot() @trusted
+    this(uint dummy) @trusted
     {
         import core.lifetime : emplace;
-        emplace!Node(_store);
+        _root = emplace!Node(_store);
     }
-private:
-    Node _root;
-    void[__traits(classInstanceSize, Node)] _store;
+    private Node _root;
+    private void[__traits(classInstanceSize, Node)] _store;
 }
 
 class C { this() {} int x; }

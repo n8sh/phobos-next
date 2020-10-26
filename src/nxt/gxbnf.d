@@ -93,7 +93,7 @@ enum TOK
 
     action,                     ///< Code block
 
-    hooks,                      ///< Alternatives within '[' ... ']'
+    brackets,                   ///< Alternatives within '[' ... ']'
 
     literal,                    ///< Text literal, single or double quoted
 
@@ -671,7 +671,7 @@ private:
             _token = Token(TOK.action, getAction());
             break;
         case '[':
-            _token = Token(TOK.hooks, getHooks());
+            _token = Token(TOK.brackets, getHooks());
             break;
         case '"':
             _token = Token(TOK.literal, getLiteral!('"')());
@@ -1867,7 +1867,7 @@ struct GxParser
                 case TOK.dotdot:
                     seq.put(new DotDotSentinel(_lexer.frontPop()));
                     break;
-                case TOK.hooks:
+                case TOK.brackets:
                     seq.put(new Hooks(_lexer.frontPop()));
                     break;
                 case TOK.hash:
@@ -2000,7 +2000,7 @@ struct GxParser
             //     _lexer.popFront();
             // if (_lexer.front == Token(TOK.symbol, "catch"))
             //     _lexer.popFront();
-            if (_lexer.front.tok == TOK.hooks)
+            if (_lexer.front.tok == TOK.brackets)
                 _lexer.popFront();
             if (_lexer.front.tok == TOK.action)
                 _lexer.popFront();
@@ -2190,9 +2190,9 @@ struct GxParser
 
     bool skipOverHooks()
     {
-        if (_lexer.front.tok == TOK.hooks)
+        if (_lexer.front.tok == TOK.brackets)
         {
-            // _lexer.infoAtFront("TODO: use TOK.hooks");
+            // _lexer.infoAtFront("TODO: use TOK.brackets");
             _lexer.frontPop();
             return true;
         }

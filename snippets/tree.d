@@ -1,7 +1,5 @@
 /// Test https://forum.dlang.org/post/fwtgemakyefkkptxmlvl@forum.dlang.org
 
-@safe:
-
 struct Tree(Node)
 if (is(Node == class))
 {

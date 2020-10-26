@@ -787,7 +787,7 @@ pragma(inline):
         else static if (is(T == class) || isPointer!T || hasIndirections!T) // fast, medium, slow path
         {
             T e = void;
-            moveEmplace(_mptr[_store.length], e); // reset pointers
+            moveEmplace(_mptr[_store.length], e); // reset any pointers at `back`
             return e;
         }
         else

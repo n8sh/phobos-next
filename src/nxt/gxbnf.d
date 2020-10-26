@@ -1089,7 +1089,8 @@ class Rule : Node
     {
         showToken(head, fmt);
         showChars(":\n");
-        top.show(Format(fmt.indentDepth + 1));
+        if (top)
+            top.show(Format(fmt.indentDepth + 1));
         showChars(" ;\n");
     }
 @safe pure nothrow @nogc:
@@ -1120,6 +1121,10 @@ class Rule : Node
         if (const o_ = cast(const typeof(this))o)
             return head == o_.head && top.equals(o_.top);
         return false;
+    }
+    bool empty() const
+    {
+        return top is null;
     }
     Token head;                 ///< Name.
     Node top;
@@ -2370,6 +2375,12 @@ struct GxFileReader
             // parser.front.show(fmt);
             parser.popFront();
         }
+        foreach (kv; parser.rulesByName.byKeyValue)
+        {
+            const name = kv.key;
+            const value = kv.value;
+            value.show(fmt);
+        }
     }
     ~this() @nogc {}
 }
@@ -2437,6 +2448,8 @@ version(show)
             {
                 if (fn.endsWith(`Antlr3.g`) ||
                     fn.endsWith(`ANTLRv2.g2`)) // skip this crap
+                    continue;
+                if (!fn.endsWith(`pascal.g4`))
                     continue;
                 if (showProgressFlag)
                     of.writeln("Reading ", adjustPath(fn), " ...");

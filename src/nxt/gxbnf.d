@@ -1127,7 +1127,7 @@ class Rule : Node
     {
         typeof(return) result;
         result.put(q{bool match});
-        result.put(q{(string s, ref size_t offset)
+        result.put(q{(Input s, ref size_t offset)
 {
 }
 });
@@ -2374,6 +2374,7 @@ struct GxFileReader
 @safe:
     this(in string filePath)
     {
+        import std.path : baseName, stripExtension;
         const showFlag = filePath.endsWith("oncrpcv2.g4");
         Format fmt;
         auto gxp = GxFileParser(filePath);
@@ -2385,6 +2386,12 @@ struct GxFileReader
             // gxp.front.show(fmt);
             gxp.popFront();
         }
+
+        const moduleName = filePath.baseName.stripExtension ~ "_parser";
+
+        parserString.put(q{import } ~ moduleName ~ q{;
+
+});
 
         parserString.put(q{alias Input = const(char)[];
 
@@ -2402,10 +2409,17 @@ struct Parser
             parserString.put(rule.toParserString());
         }
 
-        const parserPath = filePath ~ "-parser.d";
+        const parserPath = filePath.stripExtension ~ "_parser.d";
+
         import std.file : write;
         write(parserPath, parserString[]);
         debug writeln("Wrote parser ", parserPath);
+
+        import std.process : execute;
+        auto dmd = execute(["dmd", "-c", parserPath]);
+        if (dmd.status != 0)
+            writeln("Compilation failed:\n", dmd.output);
+
     }
     ~this() @nogc {}
 }

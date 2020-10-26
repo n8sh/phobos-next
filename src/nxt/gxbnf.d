@@ -2386,9 +2386,12 @@ struct GxFileReader
             gxp.popFront();
         }
 
-        parserString.put(q{struct Parser
+        parserString.put(q{alias Input = const(char)[];
+
+struct Parser
 {
 }
+
 });
 
         foreach (kv; gxp.rulesByName.byKeyValue)

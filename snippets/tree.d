@@ -1,7 +1,6 @@
 /// Test https://forum.dlang.org/post/fwtgemakyefkkptxmlvl@forum.dlang.org
 
-struct Tree(Node)
-if (is(Node == class))
+struct Tree(Node) if (is(Node == class))
 {
 @safe:
     Node root() return scope pure nothrow @nogc { return _root; }

@@ -68,7 +68,8 @@ import std.stdio : stdout, write, writeln;
 
 @safe:
 
-alias Input = const(char)[];
+alias Input = const(char)[];      ///< Grammar input source.
+alias Output = DynamicArray!char; ///< Generated parser output source.
 
 ///< Token kind. TODO: make this a string type like with std.experimental.lexer
 enum TOK
@@ -1122,9 +1123,15 @@ class Rule : Node
             return head == o_.head && top.equals(o_.top);
         return false;
     }
-    bool empty() const
+    Output toParserString() const
     {
-        return top is null;
+        typeof(return) result;
+        result.put(q{bool match});
+        result.put(q{(string s, ref size_t offset)
+{
+}
+});
+        return result;
     }
     Token head;                 ///< Name.
     Node top;
@@ -2369,18 +2376,33 @@ struct GxFileReader
     {
         const showFlag = filePath.endsWith("oncrpcv2.g4");
         Format fmt;
-        auto parser = GxFileParser(filePath);
-        while (!parser.empty)
+        auto gxp = GxFileParser(filePath);
+
+        Output parserString;
+
+        while (!gxp.empty)
         {
-            // parser.front.show(fmt);
-            parser.popFront();
+            // gxp.front.show(fmt);
+            gxp.popFront();
         }
-        foreach (kv; parser.rulesByName.byKeyValue)
+
+        parserString.put(q{struct Parser
+{
+}
+});
+
+        foreach (kv; gxp.rulesByName.byKeyValue)
         {
-            const name = kv.key;
-            const value = kv.value;
-            value.show(fmt);
+            Input name = kv.key;
+            Rule rule = kv.value;
+            rule.show(fmt);
+            parserString.put(rule.toParserString());
         }
+
+        const parserPath = filePath ~ "-parser.d";
+        import std.file : write;
+        write(parserPath, parserString[]);
+        debug writeln("Wrote parser ", parserPath);
     }
     ~this() @nogc {}
 }

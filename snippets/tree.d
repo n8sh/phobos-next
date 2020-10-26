@@ -5,14 +5,20 @@
 struct Tree(Node)
 if (is(Node == class))
 {
-@safe pure nothrow @nogc:
-    Node root() return scope
+@safe:
+    Node root() return scope pure nothrow @nogc
     {
         return _root;
     }
+    void makeRoot() @trusted
+    {
+        import core.lifetime : emplace;
+        emplace!Node(_store);
+    }
 private:
     Node _root;
-    void* _store;
+    enum nodeSize = __traits(classInstanceSize, Node);
+    void[nodeSize] _store;
 }
 
 /++ C

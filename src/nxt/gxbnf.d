@@ -2389,7 +2389,7 @@ struct GxFileReader
 
         const moduleName = filePath.baseName.stripExtension ~ "_parser";
 
-        parserString.put(q{import } ~ moduleName ~ q{;
+        parserString.put(q{module } ~ moduleName ~ q{;
 
 });
 

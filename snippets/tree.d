@@ -14,8 +14,7 @@ if (is(Node == class))
     }
 private:
     Node _root;
-    enum nodeSize = __traits(classInstanceSize, Node);
-    void[nodeSize] _store;
+    void[__traits(classInstanceSize, Node)] _store;
 }
 
 class C { this() {} int x; }

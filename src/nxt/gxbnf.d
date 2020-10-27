@@ -1123,7 +1123,7 @@ class Rule : Node
             return head == o_.head && top.equals(o_.top);
         return false;
     }
-    void toParserString(ref Output sink) const
+    void toMatcherSource(ref Output sink) const
     {
         sink.put(q{Match match__});
         sink.put(head.input);
@@ -2408,7 +2408,7 @@ struct Parser
             Input name = kv.key;
             Rule rule = kv.value;
             rule.show(fmt);
-            rule.toParserString(parserSource);
+            rule.toMatcherSource(parserSource);
         }
 
         const parserPath = filePath.stripExtension ~ "_parser.d";

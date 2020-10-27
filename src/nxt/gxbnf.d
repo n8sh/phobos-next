@@ -1130,6 +1130,7 @@ class Rule : Node
         result.put(head.input);
         result.put(q{(Input s, ref size_t offset)
 {
+    return Match.no;
 }
 });
         return result;
@@ -2420,8 +2421,11 @@ struct Parser
 
         import std.process : execute;
         auto dmd = execute(["dmd", "-c", parserPath]);
-        if (dmd.status != 0)
-            writeln("Compilation failed:\n", dmd.output);
+        if (dmd.status == 0)
+            writeln("Compilation of ", parserPath, " successful");
+        else
+            writeln("Compilation of ", parserPath, " failed:\n",
+                    dmd.output);
 
     }
     ~this() @nogc {}

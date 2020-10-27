@@ -1123,7 +1123,7 @@ class Rule : Node
             return head == o_.head && top.equals(o_.top);
         return false;
     }
-    void toMatcherSource(ref Output sink) const
+    void toMatcherSource(scope ref Output sink) const
     {
         sink.put(q{Match match__});
         sink.put(head.input);

@@ -1123,17 +1123,15 @@ class Rule : Node
             return head == o_.head && top.equals(o_.top);
         return false;
     }
-    Output toParserString() const
+    void toParserString(ref Output sink) const
     {
-        typeof(return) result;
-        result.put(q{Match match__});
-        result.put(head.input);
-        result.put(q{(Input s, ref size_t offset)
+        sink.put(q{Match match__});
+        sink.put(head.input);
+        sink.put(q{(Input s, ref size_t offset)
 {
     return Match.no;
 }
 });
-        return result;
     }
     Token head;                 ///< Name.
     Node top;
@@ -2381,7 +2379,7 @@ struct GxFileReader
         Format fmt;
         auto gxp = GxFileParser(filePath);
 
-        Output parserString;
+        Output parserSource;
 
         while (!gxp.empty)
         {
@@ -2391,11 +2389,11 @@ struct GxFileReader
 
         const moduleName = filePath.baseName.stripExtension ~ "_parser";
 
-        parserString.put(q{module } ~ moduleName ~ q{;
+        parserSource.put(q{module } ~ moduleName ~ q{;
 
 });
 
-        parserString.put(q{alias Input = const(char)[];
+        parserSource.put(q{alias Input = const(char)[];
 
 enum Match { no, yes }
 
@@ -2410,13 +2408,13 @@ struct Parser
             Input name = kv.key;
             Rule rule = kv.value;
             rule.show(fmt);
-            parserString.put(rule.toParserString());
+            rule.toParserString(parserSource);
         }
 
         const parserPath = filePath.stripExtension ~ "_parser.d";
 
         import std.file : write;
-        write(parserPath, parserString[]);
+        write(parserPath, parserSource[]);
         debug writeln("Wrote parser ", parserPath);
 
         import std.process : execute;

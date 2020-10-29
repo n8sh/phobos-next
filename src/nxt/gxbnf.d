@@ -1,4 +1,4 @@
-/** Lexer and parser for ANTLR (G, G2, G4) and (E)BNF grammars.
+/** Lexer/Parser Generator for ANTLR (G, G2, G4) and (E)BNF grammars.
  *
  * See_Also: https://theantlrguy.atlassian.net/wiki/spaces/ANTLR3/pages/2687036/ANTLR+Cheat+Sheet
  * See_Also: https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form
@@ -55,13 +55,15 @@ enum useStaticTempArrays = true; ///< Use fixed-size (statically allocated) sequ
 import core.lifetime : move;
 import core.stdc.stdio : putchar, printf;
 
+import std.conv : to;
+import std.algorithm.iteration : substitute;
+
 // `d-deps.el` requires these to be at the top:
 import nxt.line_column : offsetLineColumn;
 import nxt.fixed_array : FixedArray;
 import nxt.dynamic_array : DynamicArray;
 import nxt.file_ex : rawReadPath;
 import nxt.array_algorithm : startsWith, endsWith, endsWithEither;
-import std.conv : to;
 import nxt.conv_ex : toDefaulted;
 
 import std.stdio : stdout, write, writeln;
@@ -955,11 +957,10 @@ private abstract class Node
 {
 @safe:
     abstract void show(in Format fmt = Format.init) const;
-pure nothrow @nogc:
-    abstract bool equals(const Node o) const;
-    this()
-    {
-    }
+pure nothrow:
+    abstract bool equals(const Node o) const @nogc;
+    abstract void toMatchCallSource(scope ref Output sink) const @nogc;
+    this() @nogc {}
 }
 
 alias NodeArray = DynamicArray!(Node, null, uint); // `uint` capacity is enough
@@ -1014,7 +1015,7 @@ final class SeqM : NaryExpr
             sub.show();
         }
     }
-@safe pure nothrow @nogc:
+pure nothrow @nogc:
     this(NodeArray subs)
     {
         super(subs.move());
@@ -1022,6 +1023,15 @@ final class SeqM : NaryExpr
     this(uint n)(Node[n] subs) if (n >= 2)
     {
         super(subs);
+    }
+    override void toMatchCallSource(scope ref Output sink) const
+    {
+        foreach (const i, const sub; subs)
+        {
+            if (i)
+                sink.put(" && ");
+            sub.toMatchCallSource(sink);
+        }
     }
 }
 
@@ -1132,6 +1142,7 @@ class Rule : Node
     return Match.no;
 }
 });
+        top.toMatchCallSource(sink);
     }
     Token head;                 ///< Name.
     Node top;
@@ -1167,7 +1178,7 @@ final class AltM : NaryExpr
             }
         }
     }
-@safe pure nothrow @nogc:
+pure nothrow @nogc:
     this(NodeArray subs)
     {
         super(subs.move());
@@ -1175,6 +1186,17 @@ final class AltM : NaryExpr
     this(uint n)(Node[n] subs) if (n >= 2)
     {
         super(subs);
+    }
+    override void toMatchCallSource(scope ref Output sink) const
+    {
+        foreach (const i, const sub; subs)
+        {
+            if (i)
+                sink.put(" || ");
+            sink.put("() { const _ = offset;");
+            sub.toMatchCallSource(sink);
+            sink.put("if (!match) offset = _; }())");
+        }
     }
 }
 
@@ -1213,13 +1235,19 @@ pure nothrow @nogc:
     {
         this.head = head;
     }
-    override bool equals(const Node o) const
+    override bool equals(const Node o) const @nogc
     {
         if (this is o)
             return true;
         if (const o_ = cast(const typeof(this))o)
             return head == o_.head;
         return false;
+    }
+    override void toMatchCallSource(scope ref Output sink) const @trusted
+    {
+        sink.put("s.skipOver(");
+        sink.put(head.input);
+        sink.put(")");
     }
     Token head;
 }
@@ -1263,6 +1291,11 @@ final class Not : UnExpr
     {
         super(head, sub);
     }
+    override void toMatchCallSource(scope ref Output sink) const
+    {
+        sink.put("!");
+        sub.toMatchCallSource(sink);
+    }
 }
 
 /// Match (greedily) zero or one instances of type `sub`.
@@ -1273,6 +1306,12 @@ final class GreedyZeroOrOne : UnExpr
     {
         super(head, sub);
     }
+    override void toMatchCallSource(scope ref Output sink) const
+    {
+        sink.put("() { const _ = offset;");
+        sub.toMatchCallSource(sink);
+        sink.put("if (!match) offset = _; }())");
+    }
 }
 
 /// Match (greedily) zero or more instances of type `sub`.
@@ -1282,6 +1321,13 @@ final class GreedyZeroOrMore : UnExpr
     this(in Token head, Node sub)
     {
         super(head, sub);
+    }
+    override void toMatchCallSource(scope ref Output sink) const
+    {
+        sink.put("() { const _ = offset;");
+        sink.put("while (offset.isNotTerminator) { if (!");
+        sub.toMatchCallSource(sink);
+        sink.put(") { break; offset = _;} } }())");
     }
 }
 
@@ -1386,6 +1432,16 @@ final class WildcardSentinel : TokenNode
     }
 }
 
+/// Match literal `head.input`.
+final class Literal : TokenNode
+{
+@safe pure nothrow @nogc:
+    this(in Token head)
+    {
+        super(head);
+    }
+}
+
 /// Binary match combinator.
 abstract class BinExpr : Node
 {
@@ -1428,19 +1484,21 @@ final class Range : BinExpr
     {
         super(head, limits);
     }
-}
-
-final class Hooks : TokenNode
-{
-@safe pure nothrow @nogc:
-    this(in Token head)
+    override void toMatchCallSource(scope ref Output sink) const
     {
-        super(head);
+        if (const lower = cast(const Literal)subs[0])
+            sink.put(lower.head.input);
+        else
+            assert(false);
+        sink.put(" <= s[offset] && s[offset] <= ");
+        if (const upper = cast(const Literal)subs[1])
+            sink.put(upper.head.input);
+        else
+            assert(false);
     }
 }
 
-/// Match literal `head.input`.
-final class Literal : TokenNode
+final class Hooks : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)

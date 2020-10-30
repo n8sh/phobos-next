@@ -1906,29 +1906,25 @@ struct GxParser
             void seqPutCheck(Node last)
             {
                 if (last is null)
-                {
-                    _lexer.warningAtToken(name,"empty sequence");
-                    return;
-                }
+                    return _lexer.warningAtToken(name, "empty sequence");
+                if (!_lexer.empty && _lexer.front.tok == TOK.dotdot)
+                    return seq.put(last); // ... has higher prescedence
                 if (!seq.empty)
                 {
-                    if (cast(PipeSentinel)seq.back) // binary operator
+                    if (cast(PipeSentinel)seq.back) // binary operator. TODO: if skipOver!PipeSentinel
                     {
                         seq.popBack(); // pop `PipeSentinel`
-                        seq.put(new AltM([seq.backPop(), last]));
-                        return;
+                        return seq.put(new AltM([seq.backPop(), last]));
                     }
-                    else if (auto dotdot = cast(DotDotSentinel)seq.back) // binary operator
+                    if (auto dotdot = cast(DotDotSentinel)seq.back) // binary operator
                     {
                         seq.popBack(); // pop `DotDotSentinel`
-                        seq.put(new Range(dotdot.head, [seq.backPop(), last]));
-                        return;
+                        return seq.put(new Range(dotdot.head, [seq.backPop(), last]));
                     }
-                    else if (auto tilde = cast(Tilde)seq.back) // prefix unary operator
+                    if (auto tilde = cast(Tilde)seq.back) // prefix unary operator
                     {
                         seq.popBack(); // pop `Tilde`
-                        seq.put(new Not(tilde.head, last));
-                        return;
+                        return seq.put(new Not(tilde.head, last));
                     }
                 }
                 return seq.put(last);

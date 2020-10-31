@@ -9,6 +9,8 @@
  *
  * TODO:
  *
+ * - Find top rule is the rule that isn't reference anywhere else
+ *
  * - Use `DETECT` upper-case lexer rules LexerRule
  *
  * - Is `RulesByName` needed?

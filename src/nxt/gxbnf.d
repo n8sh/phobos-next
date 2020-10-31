@@ -2637,7 +2637,7 @@ struct Parser
         const off0 = off;
         foreach (const ref matcher; matchers)
         {
-            auto match = matcher;
+            const match = matcher;
             if (!match)
             {
                 off = off0;     // restore

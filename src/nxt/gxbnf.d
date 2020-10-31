@@ -11,6 +11,8 @@
  *
  * - Use `DETECT` upper-case lexer rules LexerRule
  *
+ * - Is `RulesByName` needed?
+ *
  * - Use `TOK.tokenSpecOptions` in parsing. Ignored for now.
  *
  * - Add properties for uint, uint lengthRange()

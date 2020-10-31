@@ -1047,9 +1047,11 @@ Node makeSeq(NodeArray subs,
              const scope ref GxLexer lexer,
              in bool rewriteFlag = true) pure nothrow
 {
+    subs = flattenSubs!SeqM(subs.move());
     if (subs.empty)
         return null;            // TODO: use new Nothing => EmptySeq instead
-    subs = flattenSubs!SeqM(subs.move());
+    if (subs.length == 1)
+        return subs[0];
     if (rewriteFlag)
     {
         foreach (const i, const sub; subs)
@@ -1223,8 +1225,6 @@ pure nothrow @nogc:
 Node makeAlt(NodeArray subs,
              in bool rewriteFlag = true) pure nothrow
 {
-    if (subs.empty)
-        return null;
     subs = flattenSubs!AltM(subs.move());
     switch (subs.length)
     {

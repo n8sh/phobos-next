@@ -1140,7 +1140,7 @@ class Rule : Node
     override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const @nogc {} // dummy
     void toMatcherSource(scope ref Output sink, const scope ref RulesByName rulesByName) const
     {
-        sink.put(q{Match match__});
+        sink.put(`Match m__`);
         sink.put(head.input);
         sink.put(`(Input s, ref size_t offset)
 {
@@ -1561,6 +1561,7 @@ pure nothrow @nogc:
     }
     override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const
     {
+        sink.put("rng(");
         if (const lower = cast(const Literal)subs[0])
             sink.put(lower.head.input);
         else
@@ -1569,11 +1570,13 @@ pure nothrow @nogc:
             debug subs[0].show();
             assert(false);
         }
-        sink.put(" <= s[offset] && s[offset] <= ");
+        sink.put(",");
+        // sink.put(" <= s[offset] && s[offset] <= ");
         if (const upper = cast(const Literal)subs[1])
             sink.put(upper.head.input);
         else
             assert(false);
+        sink.put(")");
     }
 }
 

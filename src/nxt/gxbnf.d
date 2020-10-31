@@ -2579,7 +2579,7 @@ struct Parser
         if (offset + x.length <= inp.length &&
             inp[off .. off + x.length] == x) // inp[offset .. $].startsWith(x)
         {
-            off += 1;
+            off += x.length;
             return Match.yes;
         }
         return Match.no;

@@ -2635,7 +2635,7 @@ struct Parser
     Match seq(Matchers...)(const scope lazy Matchers matchers)
     {
         const off0 = off;
-        foreach (const ref matcher; matchers)
+        foreach (const matcher; matchers)
         {
             const match = matcher;
             if (!match)

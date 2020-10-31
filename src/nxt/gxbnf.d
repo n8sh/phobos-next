@@ -1948,17 +1948,17 @@ struct GxParser
                     if (cast(PipeSentinel)seq.back) // binary operator. TODO: if skipOver!PipeSentinel
                     {
                         seq.popBack(); // pop `PipeSentinel`
-                        return seq.put(new AltM([seq.backPop(), last]));
+                        return seqPutCheck(new AltM([seq.backPop(), last]));
                     }
                     if (auto dotdot = cast(DotDotSentinel)seq.back) // binary operator
                     {
                         seq.popBack(); // pop `DotDotSentinel`
-                        return seq.put(new Range(dotdot.head, [seq.backPop(), last]));
+                        return seqPutCheck(new Range(dotdot.head, [seq.backPop(), last]));
                     }
                     if (auto tilde = cast(Tilde)seq.back) // prefix unary operator
                     {
                         seq.popBack(); // pop `Tilde`
-                        return seq.put(new Not(tilde.head, last));
+                        return seqPutCheck(new Not(tilde.head, last));
                     }
                 }
                 return seq.put(last);

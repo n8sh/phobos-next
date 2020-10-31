@@ -2576,9 +2576,8 @@ struct Parser
     Match str(const scope string x)
     {
         pragma(inline, true);
-        // inp[offset .. $].startsWith(x)
-        if (offset + xlength <= inp.length &&
-            inp[off .. off + x.length] == x)
+        if (offset + x.length <= inp.length &&
+            inp[off .. off + x.length] == x) // inp[offset .. $].startsWith(x)
         {
             off += 1;
             return Match.yes;

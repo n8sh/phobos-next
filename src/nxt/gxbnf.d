@@ -1481,12 +1481,16 @@ final class Tilde : TokenNode
     }
 }
 
-final class WildcardSentinel : TokenNode
+final class Wildcard : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
     {
         super(head);
+    }
+    override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const @trusted
+    {
+        sink.put(`any()`);
     }
 }
 
@@ -2027,11 +2031,11 @@ struct GxParser
                     }
                     seq.put(new PipeSentinel(_lexer.frontPop()));
                     break;
-                case TOK.wildcard:
-                    seq.put(new WildcardSentinel(_lexer.frontPop()));
-                    break;
                 case TOK.dotdot:
                     seq.put(new DotDotSentinel(_lexer.frontPop()));
+                    break;
+                case TOK.wildcard:
+                    seq.put(new Wildcard(_lexer.frontPop()));
                     break;
                 case TOK.brackets:
                     seq.put(new Hooks(_lexer.frontPop()));

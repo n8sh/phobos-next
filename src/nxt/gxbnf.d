@@ -67,7 +67,7 @@ import nxt.line_column : offsetLineColumn;
 import nxt.fixed_array : FixedArray;
 import nxt.dynamic_array : DynamicArray;
 import nxt.file_ex : rawReadPath;
-import nxt.array_algorithm : startsWith, endsWith, endsWithEither;
+import nxt.array_algorithm : startsWith, endsWith, endsWithEither, skipOver, skipOverBack;
 import nxt.conv_ex : toDefaulted;
 
 import std.stdio : stdout, write, writeln;
@@ -1626,6 +1626,36 @@ final class Hooks : TokenNode
     {
         super(head);
     }
+    override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const
+    {
+        Input input = head.input;
+
+        assert(input.skipOver('['));
+        assert(input.skipOverBack(']'));
+
+        sink.put("alts(");
+
+        for (size_t i; i < input.length;)
+        {
+            if (i)
+                sink.put(", ");
+            sink.put('\'');
+            if (input[i] == '\\')
+            {
+                sink.put('\\');
+                i += 1;
+                sink.put(input[i]);
+                i += 1;
+            }
+            else
+            {
+                sink.put(input[i]);
+                i += 1;
+            }
+            sink.put('\'');
+        }
+        sink.put(")");
+    }
 }
 
 final class LineComment : TokenNode
@@ -2607,8 +2637,8 @@ struct Parser
     Match str(const scope string x)
     {
         pragma(inline, true);
-        if (offset + x.length <= inp.length &&
-            inp[off .. off + x.length] == x) // inp[offset .. $].startsWith(x)
+        if (off + x.length <= inp.length &&
+            inp[off .. off + x.length] == x) // inp[off .. $].startsWith(x)
         {
             off += x.length;
             return Match(x.length);

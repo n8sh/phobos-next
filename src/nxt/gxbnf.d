@@ -1149,7 +1149,7 @@ class Rule : Node
         sink.put(`Match `);
         sink.put(matcherFunctionNamePrefix);
         sink.put(head.input);
-        sink.put(`(Input s, ref size_t offset)
+        sink.put(`()
 {
     return`);
         if (top)
@@ -1448,7 +1448,7 @@ final class Symbol : TokenNode
     {
         sink.put(matcherFunctionNamePrefix);
         sink.put(head.input);
-        sink.put(`(s, offset)`);
+        sink.put(`()`);
         // if (const Rule* rulePtr = head.input in rulesByName)
         //     (*rulePtr).toMatchCallSource(sink, rulesByName);
     }
@@ -2558,6 +2558,8 @@ enum Match { no, yes }
 
 struct Parser
 {
+    Input s;
+    size_t offset;
 `);
 
         foreach (kv; gxp.rulesByName.byKeyValue)

@@ -2606,8 +2606,8 @@ struct Match
 struct Parser
 {
 @safe:
-    Input inp;
-    size_t off;
+    Input inp;                  ///< Input.
+    size_t off;                 ///< Current offset into inp.
 
     Match ch(dchar x) pure nothrow @nogc
     {
@@ -2771,7 +2771,8 @@ version(show)
                 if (fn.endsWith(`Antlr3.g`) ||
                     fn.endsWith(`ANTLRv2.g2`)) // skip this crap
                     continue;
-                if (!fn.endsWith(`pascal.g4`))
+                if (!fn.endsWith(`pascal.g4`) &&
+                    !fn.endsWith(`Sexpr.g`))
                     continue;
                 if (showProgressFlag)
                     of.writeln("Reading ", adjustPath(fn), " ...");

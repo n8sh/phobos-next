@@ -9,6 +9,8 @@
  *
  * TODO:
  *
+ * Move parserSourceBegin to gxbnf_rdbase.d
+ *
  * - Find top rule is the rule that isn't referenced anywhere else
  *
  * - Use `DETECT` upper-case lexer rules LexerRule

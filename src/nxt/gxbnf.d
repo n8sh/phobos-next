@@ -932,16 +932,28 @@ enum Layout : ubyte
     tree                        ///< Makes AST-structure clear.
 }
 
+enum indentStep = 4;        ///< Indentation size in number of spaces.
+
 struct Format
 {
-    enum indentStep = 4;        ///< Indentation size in number of spaces.
     uint indentDepth;           ///< Indentation depth.
     Layout layout;
     void showIndent() @safe const nothrow @nogc
     {
-        foreach (_; 0 .. indentDepth*Format.indentStep)
-            putchar(' ');
+        showNSpaces(indentDepth);
     }
+}
+
+void showNSpaces(uint indentDepth) @safe nothrow @nogc
+{
+    foreach (_; 0 .. indentDepth*indentStep)
+        putchar(' ');
+}
+
+void showNSpaces(scope ref Output sink, uint indentDepth) @safe pure nothrow @nogc
+{
+    foreach (_; 0 .. indentDepth*indentStep)
+        sink.put(" ");
 }
 
 private void showChars(in const(char)[] chars) @trusted
@@ -1146,20 +1158,18 @@ class Rule : Node
     override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const @nogc {} // dummy
     void toMatcherSource(scope ref Output sink, const scope ref RulesByName rulesByName) const
     {
-        sink.put(`Match `);
+        sink.showNSpaces(1); sink.put(`Match `);
         sink.put(matcherFunctionNamePrefix);
-        sink.put(head.input);
-        sink.put(`()
-{
-    return`);
+        sink.put(head.input); sink.put("()\n");
+        sink.showNSpaces(1); sink.put("{\n");
+        sink.showNSpaces(2); sink.put(`return`);
         if (top)
         {
             sink.put(` `);
             top.toMatchCallSource(sink, rulesByName);
         }
-        sink.put(`;
-}
-`);
+        sink.put(";\n");
+        sink.showNSpaces(1); sink.put("}\n");
     }
     Token head;                 ///< Name.
     Node top;

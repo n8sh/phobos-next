@@ -1265,19 +1265,9 @@ pure nothrow @nogc:
     }
     override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const @trusted
     {
-        debug writeln(head.input, " ", head.input.length);
-        if (head.input.length == 3)
-        {
-            sink.put(`tok(`);
-            sink.put(head.input[1 .. $-1]);
-            sink.put(`)`);
-        }
-        else
-        {
-            sink.put(`tok("`);
-            sink.put(head.input[1 .. $-1]);
-            sink.put(`")`);
-        }
+        sink.put(`tok(`);
+        sink.put(head.input[]);
+        sink.put(`)`);
     }
     Token head;
 }
@@ -1507,6 +1497,24 @@ final class Literal : TokenNode
     this(in Token head)
     {
         super(head);
+    }
+    override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const @trusted
+    {
+        if (head.input.length == 3)
+        {
+            sink.put(`ch('`);
+            sink.put(head.input[1 .. $-1]);
+            sink.put(`')`);
+        }
+        else
+        {
+            sink.put(`str("`);
+            if (head.input.length >= 3)
+                sink.put(head.input[1 .. $-1]);
+            else
+                sink.put(head.input[]);
+            sink.put(`")`);
+        }
     }
 }
 

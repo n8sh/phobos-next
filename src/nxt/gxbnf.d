@@ -9,7 +9,7 @@
  *
  * TODO:
  *
- * - Find top rule is the rule that isn't reference anywhere else
+ * - Find top rule is the rule that isn't referenced anywhere else
  *
  * - Use `DETECT` upper-case lexer rules LexerRule
  *

@@ -2614,6 +2614,11 @@ struct Match
     {
         return _length;
     }
+    this(uint length)
+    {
+        assert(length <= _length.max);
+        this._length = cast(typeof(_length))length;
+    }
     const uint _length;                // length == uint.max is no match
 }
 

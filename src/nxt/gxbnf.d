@@ -75,6 +75,8 @@ alias Output = DynamicArray!char; ///< Generated parser output source.
 
 alias RulesByName = Rule[Input];
 
+enum matcherFunctionNamePrefix = `m__`;
+
 ///< Token kind. TODO: make this a string type like with std.experimental.lexer
 enum TOK
 {
@@ -1140,7 +1142,8 @@ class Rule : Node
     override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const @nogc {} // dummy
     void toMatcherSource(scope ref Output sink, const scope ref RulesByName rulesByName) const
     {
-        sink.put(`Match m__`);
+        sink.put(`Match `);
+        sink.put(matcherFunctionNamePrefix);
         sink.put(head.input);
         sink.put(`(Input s, ref size_t offset)
 {
@@ -1441,7 +1444,7 @@ final class Symbol : TokenNode
     }
     override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const
     {
-        sink.put(`match__`);
+        sink.put(matcherFunctionNamePrefix);
         sink.put(head.input);
         sink.put(`(s, offset)`);
         // if (const Rule* rulePtr = head.input in rulesByName)

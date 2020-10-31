@@ -1166,6 +1166,12 @@ class Rule : Node
         sink.put(matcherFunctionNamePrefix);
         sink.put(head.input); sink.put("()\n");
         sink.showNSpaces(1); sink.put("{\n");
+        import std.ascii : isUpper;
+        if (head.input[0].isUpper ||
+            cast(const FragmentRule)this)
+        {
+        sink.showNSpaces(2); sink.put("pragma(inline, true);\n");
+        }
         sink.showNSpaces(2); sink.put(`return`);
         if (top)
         {

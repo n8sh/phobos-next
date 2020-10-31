@@ -2203,6 +2203,8 @@ struct GxParser
         if (_lexer._diagnoseLeftRecursion)
             rule.diagnoseDirectLeftRecursion(_lexer);
 
+        if (rulesByName.length == 0)
+            firstRule = rule;
         rulesByName[rule.head.input] = rule;
         return rule;
     }
@@ -2522,6 +2524,7 @@ struct GxParser
     Node options;
     DynamicArray!(Import, null, uint) imports;
     // DynamicArray!(Rule, null, uint) rules;
+    Rule firstRule;
     RulesByName rulesByName;
 private:
     GxLexer _lexer;

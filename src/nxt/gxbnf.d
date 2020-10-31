@@ -2657,7 +2657,45 @@ struct Parser
                 return match;   // propagate failure
             }
         }
-        return Match(off - off0); // match length
+        return Match(off - off0);
+    }
+
+    Match gzm(Matcher)(const scope lazy Matcher matcher)
+    {
+        const off0 = off;
+        while (true)
+        {
+            const off1 = off;
+            const match = matcher;
+            if (!match)
+            {
+                off = off1;     // restore
+                break;
+            }
+        }
+        return Match(off - off0);
+    }
+
+    Match gom(Matcher)(const scope lazy Matcher matcher)
+    {
+        const off0 = off;
+        const match = matcher;
+        if (!match)
+        {
+            off = off0;         // restore
+            return Match.none();
+        }
+        while (true)
+        {
+            const off1 = off;
+            const match = matcher;
+            if (!match)
+            {
+                off = off1;     // restore
+                break;
+            }
+        }
+        return Match(off - off0);
     }
 
 `;

@@ -1522,9 +1522,13 @@ final class Literal : TokenNode
     {
         super(head);
     }
+    final bool isCharacter() const
+    {
+        return head.input.length == 3;
+    }
     override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const @trusted
     {
-        if (head.input.length == 3)
+        if (isCharacter)
         {
             sink.put(`ch('`);
             sink.put(head.input[1 .. $-1]);

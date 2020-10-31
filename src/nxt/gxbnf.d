@@ -1151,15 +1151,15 @@ class Rule : Node
         sink.put(head.input);
         sink.put(`(Input s, ref size_t offset)
 {
-`);
+    return`);
         if (top)
         {
-            sink.put("    return ");
+            sink.put(` `);
             top.toMatchCallSource(sink, rulesByName);
-            sink.put(`;
+        }
+        sink.put(`;
 }
 `);
-        }
     }
     Token head;                 ///< Name.
     Node top;
@@ -2552,15 +2552,13 @@ struct GxFileReader
 
 });
 
-        parserSource.put(q{alias Input = const(char)[];
+        parserSource.put(`alias Input = const(char)[];
 
 enum Match { no, yes }
 
 struct Parser
 {
-}
-
-});
+`);
 
         foreach (kv; gxp.rulesByName.byKeyValue)
         {
@@ -2569,6 +2567,9 @@ struct Parser
             rule.show(fmt);
             rule.toMatcherSource(parserSource, gxp.rulesByName);
         }
+
+        parserSource.put(`} // struct Parser
+`);
 
         const parserPath = filePath.stripExtension ~ "_parser.d";
 
@@ -2583,8 +2584,8 @@ struct Parser
         else
             writeln("Compilation of ", parserPath, " failed:\n",
                     dmd.output);
-
     }
+
     ~this() @nogc {}
 }
 

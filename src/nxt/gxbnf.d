@@ -2591,6 +2591,10 @@ struct Match
     {
         return _length;
     }
+    bool opCast(U : bool)() const
+    {
+        return _length != _length.max;
+    }
     this(size_t length)
     {
         assert(length <= _length.max);
@@ -2601,11 +2605,11 @@ struct Match
 
 struct Parser
 {
-@safe nothrow @nogc:
+@safe:
     Input inp;
     size_t off;
 
-    Match ch(dchar x)
+    Match ch(dchar x) pure nothrow @nogc
     {
         pragma(inline, true);
         if (inp[off] == x)
@@ -2616,7 +2620,7 @@ struct Parser
         return Match.none();
     }
 
-    Match str(const scope string x)
+    Match str(const scope string x) pure nothrow @nogc
     {
         pragma(inline, true);
         if (off + x.length <= inp.length &&
@@ -2626,6 +2630,21 @@ struct Parser
             return Match(x.length);
         }
         return Match.none();
+    }
+
+    Match seq(Matchers...)(const scope lazy Matchers matchers)
+    {
+        const off0 = off;
+        foreach (const ref matcher; matchers)
+        {
+            auto match = matcher;
+            if (!match)
+            {
+                off = off0;     // restore
+                return match;   // propagate failure
+            }
+        }
+        return Match(off - off0); // match length
     }
 
 `;

@@ -2614,7 +2614,7 @@ struct Match
     {
         return _length;
     }
-    this(uint length)
+    this(size_t length)
     {
         assert(length <= _length.max);
         this._length = cast(typeof(_length))length;

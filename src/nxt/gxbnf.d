@@ -2632,6 +2632,7 @@ struct Parser
         return Match.none();
     }
 
+    /// Match string x.
     Match str(const scope string x) pure nothrow @nogc
     {
         pragma(inline, true);

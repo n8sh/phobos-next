@@ -1142,12 +1142,17 @@ class Rule : Node
     {
         sink.put(q{Match match__});
         sink.put(head.input);
-        sink.put(q{(Input s, ref size_t offset)
+        sink.put(`(Input s, ref size_t offset)
 {
-    return Match.no;
+`);
+        if (top)
+        {
+            sink.put("    return ");
+            top.toMatchCallSource(sink, rulesByName);
+            sink.put(`;
 }
-});
-        top.toMatchCallSource(sink, rulesByName);
+`);
+        }
     }
     Token head;                 ///< Name.
     Node top;
@@ -1255,7 +1260,7 @@ pure nothrow @nogc:
     }
     override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const @trusted
     {
-        sink.put("s.skipOver(");
+        sink.put("tok(");
         sink.put(head.input);
         sink.put(")");
     }
@@ -1436,8 +1441,11 @@ final class Symbol : TokenNode
     }
     override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const
     {
-        if (const Rule* rulePtr = head.input in rulesByName)
-            (*rulePtr).toMatchCallSource(sink, rulesByName);
+        sink.put(`match__`);
+        sink.put(head.input);
+        sink.put(`(s, offset)`);
+        // if (const Rule* rulePtr = head.input in rulesByName)
+        //     (*rulePtr).toMatchCallSource(sink, rulesByName);
     }
 }
 

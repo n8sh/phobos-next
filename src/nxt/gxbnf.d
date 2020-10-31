@@ -2577,31 +2577,8 @@ struct GxFileParser           // TODO: convert to `class`
     alias parser this;
 }
 
-struct GxFileReader
-{
-@safe:
-    this(in string filePath)
-    {
-        import std.path : baseName, stripExtension;
-        const showFlag = filePath.endsWith("oncrpcv2.g4");
-        Format fmt;
-        auto gxp = GxFileParser(filePath);
-
-        Output parserSource;
-
-        while (!gxp.empty)
-        {
-            // gxp.front.show(fmt);
-            gxp.popFront();
-        }
-
-        const moduleName = filePath.baseName.stripExtension ~ "_parser";
-
-        parserSource.put(q{module } ~ moduleName ~ q{;
-
-});
-
-        parserSource.put(`alias Input = const(char)[];
+static immutable parserSourceBase =
+`alias Input = const(char)[];
 
 struct Match
 {
@@ -2651,7 +2628,33 @@ struct Parser
         return Match.none();
     }
 
-`);
+`;
+
+struct GxFileReader
+{
+@safe:
+    this(in string filePath)
+    {
+        import std.path : baseName, stripExtension;
+        const showFlag = filePath.endsWith("oncrpcv2.g4");
+        Format fmt;
+        auto gxp = GxFileParser(filePath);
+
+        Output parserSource;
+
+        while (!gxp.empty)
+        {
+            // gxp.front.show(fmt);
+            gxp.popFront();
+        }
+
+        const moduleName = filePath.baseName.stripExtension ~ "_parser";
+
+        parserSource.put(q{module } ~ moduleName ~ q{;
+
+});
+
+        parserSource.put(parserSourceBase);
 
         foreach (kv; gxp.rulesByName.byKeyValue)
         {

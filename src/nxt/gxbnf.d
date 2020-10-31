@@ -2554,7 +2554,19 @@ struct GxFileReader
 
         parserSource.put(`alias Input = const(char)[];
 
-enum Match { no, yes }
+struct Match
+{
+@safe pure nothrow @nogc:
+    @property static Match none()
+    {
+        return typeof(return)(_length.max);
+    }
+    @property uint length()
+    {
+        return _length;
+    }
+    const uint _length;                // length == uint.max is no match
+}
 
 struct Parser
 {
@@ -2568,9 +2580,9 @@ struct Parser
         if (inp[off] == x)
         {
             off += 1;
-            return Match.yes;
+            return Match(1);
         }
-        return Match.no;
+        return Match.none();
     }
 
     Match str(const scope string x)
@@ -2580,9 +2592,9 @@ struct Parser
             inp[off .. off + x.length] == x) // inp[offset .. $].startsWith(x)
         {
             off += x.length;
-            return Match.yes;
+            return Match(x.length);
         }
-        return Match.no;
+        return Match.none();
     }
 
 `);

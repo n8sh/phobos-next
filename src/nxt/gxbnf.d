@@ -2577,7 +2577,7 @@ struct GxFileParser           // TODO: convert to `class`
     alias parser this;
 }
 
-static immutable parserSourceBase =
+static immutable parserSourceBegin =
 `alias Input = const(char)[];
 
 struct Match
@@ -2630,6 +2630,10 @@ struct Parser
 
 `;
 
+static immutable parserSourceEnd =
+`} // struct Parser
+`;
+
 struct GxFileReader
 {
 @safe:
@@ -2654,7 +2658,7 @@ struct GxFileReader
 
 });
 
-        parserSource.put(parserSourceBase);
+        parserSource.put(parserSourceBegin);
 
         foreach (kv; gxp.rulesByName.byKeyValue)
         {
@@ -2664,8 +2668,7 @@ struct GxFileReader
             rule.toMatcherSource(parserSource, gxp.rulesByName);
         }
 
-        parserSource.put(`} // struct Parser
-`);
+        parserSource.put(parserSourceEnd);
 
         const parserPath = filePath.stripExtension ~ "_parser.d";
 

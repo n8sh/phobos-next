@@ -1265,9 +1265,18 @@ pure nothrow @nogc:
     }
     override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const @trusted
     {
-        sink.put("tok(");
-        sink.put(head.input);
-        sink.put(")");
+        if (head.input.length == 3)
+        {
+            sink.put(`tok(`);
+            sink.put(head.input[1 .. $-1]);
+            sink.put(`)`);
+        }
+        else
+        {
+            sink.put(`tok("`);
+            sink.put(head.input[1 .. $-1]);
+            sink.put(`")`);
+        }
     }
     Token head;
 }

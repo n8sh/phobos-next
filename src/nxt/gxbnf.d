@@ -2558,8 +2558,32 @@ enum Match { no, yes }
 
 struct Parser
 {
-    Input s;
-    size_t offset;
+@safe nothrow @nogc:
+    Input inp;
+    size_t off;
+
+    Match ch(dchar x)
+    {
+        pragma(inline, true);
+        if (inp[off] == x)
+        {
+            off += 1;
+            return Match.yes;
+        }
+        return Match.no;
+    }
+
+    Match str(const scope string x)
+    {
+        pragma(inline, true);
+        if (inp[off .. off + x.length] == x)
+        {
+            off += 1;
+            return Match.yes;
+        }
+        return Match.no;
+    }
+
 `);
 
         foreach (kv; gxp.rulesByName.byKeyValue)

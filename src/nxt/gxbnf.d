@@ -1674,8 +1674,10 @@ final class Hooks : TokenNode
     {
         Input input = head.input;
 
-        assert(input.skipOver('['));
-        assert(input.skipOverBack(']'));
+        const lbracket = input.skipOver('[');
+        const rbracket = input.skipOverBack(']');
+        assert(lbracket);
+        assert(rbracket);
 
         if (input.canFind('-'))
             debug assert(false, "TODO: handle - in " ~ input);

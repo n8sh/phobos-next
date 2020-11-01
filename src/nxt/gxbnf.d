@@ -1069,7 +1069,7 @@ pure nothrow @nogc:
         foreach (const i, const sub; subs)
         {
             if (i)
-                sink.put(", ");
+                sink.put(", "); // separator
             sub.toMatchInSource(sink);
         }
         sink.put(")");
@@ -1274,7 +1274,7 @@ pure nothrow @nogc:
         foreach (const i, const sub; subs)
         {
             if (i)
-                sink.put(", ");
+                sink.put(", "); // separator
             if (allSubChars)
             {
                 const lsub = cast(const Literal)sub;
@@ -1720,7 +1720,7 @@ final class Hooks : TokenNode
             for (size_t i; i < input.length; ++n)
             {
                 if (i)
-                    asink.put(", ");
+                    asink.put(", "); // separator
 
                 if (i + 3 <= input.length &&
                     input[i + 1] == '-') // range
@@ -1762,7 +1762,7 @@ final class Hooks : TokenNode
         for (size_t i; i < input.length;)
         {
             if (i)
-                sink.put(", ");
+                sink.put(", "); // separator
 
             sink.put('\'');
 

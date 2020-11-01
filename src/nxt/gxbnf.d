@@ -1644,7 +1644,7 @@ pure nothrow @nogc:
     }
     override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const
     {
-        sink.put("rng(");
+        sink.put("range(");
         if (const lower = cast(const Literal)subs[0])
             sink.put(lower.head.input);
         else
@@ -2728,8 +2728,20 @@ struct Parser
     Match altNch(chars...)() pure nothrow @nogc
     {
         pragma(inline, true);
-        import std.algorithm.comparison : among;
+        import std.algorithm.comparison : among; // TODO: replace with switch
         if (inp[off].among!(chars))
+        {
+            off += 1;
+            return Match(1);
+        }
+        return Match.none();
+    }
+
+    Match range(char lower, char upper) pure nothrow @nogc
+    {
+        pragma(inline, true);
+        if (lower <= inp[off] &&
+            inp[off] <= upper)
         {
             off += 1;
             return Match(1);

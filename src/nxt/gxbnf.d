@@ -1170,7 +1170,7 @@ class Rule : Node
         if (head.input[0].isUpper ||
             cast(const FragmentRule)this)
         {
-        sink.showNSpaces(2); sink.put("pragma(inline, true);\n");
+            sink.showNSpaces(2); sink.put("pragma(inline, true);\n");
         }
         sink.showNSpaces(2); sink.put(`return`);
         if (top)
@@ -1178,6 +1178,8 @@ class Rule : Node
             sink.put(` `);
             top.toMatchCallSource(sink, rulesByName);
         }
+        else
+            sink.put(` Match.zero()`);
         sink.put(";\n");
         sink.showNSpaces(1); sink.put("}\n");
     }
@@ -2633,6 +2635,10 @@ static immutable parserSourceBegin =
 struct Match
 {
 @safe pure nothrow @nogc:
+    @property static Match zero()
+    {
+        return typeof(return)(0);
+    }
     @property static Match none()
     {
         return typeof(return)(_length.max);

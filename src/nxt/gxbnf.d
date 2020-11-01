@@ -1678,7 +1678,7 @@ final class Hooks : TokenNode
         assert(input.skipOverBack(']'));
 
         // TODO: use `altNch` if all literals of length 1
-        sink.put("alts(");
+        sink.put("altNch!(");
 
         for (size_t i; i < input.length;)
         {
@@ -1699,7 +1699,7 @@ final class Hooks : TokenNode
             }
             sink.put('\'');
         }
-        sink.put(")");
+        sink.put(")()");
     }
 }
 

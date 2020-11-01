@@ -2702,6 +2702,19 @@ struct Parser
         return Match(off - off0);
     }
 
+    Match alt(Matchers...)(const scope lazy Matchers matchers)
+    {
+        foreach (const matcher; matchers)
+        {
+            const off0 = off;
+            if (const match = matcher)
+                return match;
+            else
+                off = off0;     // restore
+        }
+        return Match.none();
+    }
+
     Match altNch(chars...)() pure nothrow @nogc
     {
         pragma(inline, true);

@@ -1407,7 +1407,7 @@ final class NonGreedyZeroOrOne : UnExpr
 final class NonGreedyZeroOrMore : UnExpr
 {
 @safe pure nothrow @nogc:
-    this(in Token head, Node sub, const Token terminator)
+    this(in Token head, Node sub, const Node terminator)
     {
         super(head, sub);
         this.terminator = terminator;
@@ -1416,15 +1416,11 @@ final class NonGreedyZeroOrMore : UnExpr
     {
         sink.put("nzm(");
         sub.toMatchCallSource(sink, rulesByName);
-
-        assert(terminator.tok == TOK.literal);
-        sink.put(", str(\"");
-        sink.put(terminator.input[1 .. $-1]);
-        sink.put("\")");
-
+        sink.put(",");
+        terminator.toMatchCallSource(sink, rulesByName);
         sink.put(")");
     }
-    const Token terminator;
+    const Node terminator;
 }
 
 /// Match (non-greedily) one or more instances of type `sub`.
@@ -2069,7 +2065,8 @@ struct GxParser
                 case TOK.starQmark:
                     const head = _lexer.frontPop();
                     const terminator = _lexer.front();
-                    seq.put(new NonGreedyZeroOrMore(head, seq.backPop(), terminator));
+                    assert(terminator.tok == TOK.literal);
+                    seq.put(new NonGreedyZeroOrMore(head, seq.backPop(), new Literal(terminator)));
                     break;
                 case TOK.plus:
                     const head = _lexer.frontPop();

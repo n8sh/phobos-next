@@ -2689,6 +2689,18 @@ struct Parser
         return Match(off - off0);
     }
 
+    Match gzo(Matcher)(const scope lazy Matcher matcher)
+    {
+        const off0 = off;
+        const match = matcher;
+        if (!match)
+        {
+            off = off0;         // restore
+            return Match.none();
+        }
+        return Match(off - off0);
+    }
+
     Match gom(Matcher)(const scope lazy Matcher matcher)
     {
         const off0 = off;

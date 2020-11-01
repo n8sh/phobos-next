@@ -981,7 +981,7 @@ private abstract class Node
     abstract void show(in Format fmt = Format.init) const;
 pure nothrow:
     abstract bool equals(const Node o) const @nogc;
-    abstract void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const @nogc;
+    abstract void toMatchCallSource(scope ref Output sink) const @nogc;
     this() @nogc {}
 }
 
@@ -1046,14 +1046,14 @@ pure nothrow @nogc:
     {
         super(subs);
     }
-    override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const
+    override void toMatchCallSource(scope ref Output sink) const
     {
         sink.put("seq(");
         foreach (const i, const sub; subs)
         {
             if (i)
                 sink.put(", ");
-            sub.toMatchCallSource(sink, rulesByName);
+            sub.toMatchCallSource(sink);
         }
         sink.put(")");
     }
@@ -1159,8 +1159,8 @@ class Rule : Node
             return head == o_.head && top.equals(o_.top);
         return false;
     }
-    override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const @nogc {} // dummy
-    void toMatcherSource(scope ref Output sink, const scope ref RulesByName rulesByName) const
+    override void toMatchCallSource(scope ref Output sink) const @nogc {} // dummy
+    void toMatcherSource(scope ref Output sink) const
     {
         sink.showNSpaces(1); sink.put(`Match `);
         sink.put(matcherFunctionNamePrefix);
@@ -1176,7 +1176,7 @@ class Rule : Node
         if (top)
         {
             sink.put(` `);
-            top.toMatchCallSource(sink, rulesByName);
+            top.toMatchCallSource(sink);
         }
         else
             sink.put(` Match.zero()`);
@@ -1231,7 +1231,7 @@ pure nothrow @nogc:
     {
         super(subs);
     }
-    override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const
+    override void toMatchCallSource(scope ref Output sink) const
     {
         bool allSubChars = true;
         foreach (const sub; subs)
@@ -1264,7 +1264,7 @@ pure nothrow @nogc:
                 sink.put(lsub.head.input);
             }
             else
-                sub.toMatchCallSource(sink, rulesByName);
+                sub.toMatchCallSource(sink);
         }
         sink.put(")");
         if (allSubChars)
@@ -1313,7 +1313,7 @@ pure nothrow @nogc:
             return head == o_.head;
         return false;
     }
-    override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const @trusted
+    override void toMatchCallSource(scope ref Output sink) const @trusted
     {
         sink.put(`tok(`);
         sink.put(head.input[]);
@@ -1361,10 +1361,10 @@ final class Not : UnExpr
     {
         super(head, sub);
     }
-    override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const
+    override void toMatchCallSource(scope ref Output sink) const
     {
         sink.put("not(");
-        sub.toMatchCallSource(sink, rulesByName);
+        sub.toMatchCallSource(sink);
         sink.put(")");
     }
 }
@@ -1377,10 +1377,10 @@ final class GreedyZeroOrOne : UnExpr
     {
         super(head, sub);
     }
-    override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const
+    override void toMatchCallSource(scope ref Output sink) const
     {
         sink.put("gzo(");
-        sub.toMatchCallSource(sink, rulesByName);
+        sub.toMatchCallSource(sink);
         sink.put(")");
     }
 }
@@ -1393,10 +1393,10 @@ final class GreedyZeroOrMore : UnExpr
     {
         super(head, sub);
     }
-    override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const
+    override void toMatchCallSource(scope ref Output sink) const
     {
         sink.put("gzm(");
-        sub.toMatchCallSource(sink, rulesByName);
+        sub.toMatchCallSource(sink);
         sink.put(")");
     }
 }
@@ -1409,10 +1409,10 @@ final class GreedyOneOrMore : UnExpr
     {
         super(head, sub);
     }
-    override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const
+    override void toMatchCallSource(scope ref Output sink) const
     {
         sink.put("gom(");
-        sub.toMatchCallSource(sink, rulesByName);
+        sub.toMatchCallSource(sink);
         sink.put(")");
     }
 }
@@ -1425,10 +1425,10 @@ final class NonGreedyZeroOrOne : UnExpr
     {
         super(head, sub);
     }
-    override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const
+    override void toMatchCallSource(scope ref Output sink) const
     {
         sink.put("nzo(");
-        sub.toMatchCallSource(sink, rulesByName);
+        sub.toMatchCallSource(sink);
         sink.put(")");
     }
 }
@@ -1442,12 +1442,12 @@ final class NonGreedyZeroOrMore : UnExpr
         super(head, sub);
         this.terminator = terminator;
     }
-    override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const
+    override void toMatchCallSource(scope ref Output sink) const
     {
         sink.put("nzm(");
-        sub.toMatchCallSource(sink, rulesByName);
+        sub.toMatchCallSource(sink);
         sink.put(",");
-        terminator.toMatchCallSource(sink, rulesByName);
+        terminator.toMatchCallSource(sink);
         sink.put(")");
     }
     const Node terminator;
@@ -1461,10 +1461,10 @@ final class NonGreedyOneOrMore : UnExpr
     {
         super(head, sub);
     }
-    override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const
+    override void toMatchCallSource(scope ref Output sink) const
     {
         sink.put("nom(");
-        sub.toMatchCallSource(sink, rulesByName);
+        sub.toMatchCallSource(sink);
         sink.put(")");
     }
 }
@@ -1477,10 +1477,10 @@ final class Several : UnExpr
     {
         super(head, sub);
     }
-    override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const
+    override void toMatchCallSource(scope ref Output sink) const
     {
         sink.put("cnt(");
-        sub.toMatchCallSource(sink, rulesByName);
+        sub.toMatchCallSource(sink);
         sink.put(")");
     }
     ulong count;
@@ -1498,13 +1498,13 @@ final class Symbol : TokenNode
     {
         super(head);
     }
-    override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const
+    override void toMatchCallSource(scope ref Output sink) const
     {
         sink.put(matcherFunctionNamePrefix);
         sink.put(head.input);
         sink.put(`()`);
         // if (const Rule* rulePtr = head.input in rulesByName)
-        //     (*rulePtr).toMatchCallSource(sink, rulesByName);
+        //     (*rulePtr).toMatchCallSource(sink);
     }
 }
 
@@ -1542,7 +1542,7 @@ final class Wildcard : TokenNode
     {
         super(head);
     }
-    override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const @trusted
+    override void toMatchCallSource(scope ref Output sink) const @trusted
     {
         sink.put(`any()`);
     }
@@ -1560,7 +1560,7 @@ final class Literal : TokenNode
     {
         return head.input.length == 3;
     }
-    override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const @trusted
+    override void toMatchCallSource(scope ref Output sink) const @trusted
     {
         if (isCharacter)
         {
@@ -1644,7 +1644,7 @@ pure nothrow @nogc:
     {
         super(head, limits);
     }
-    override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const
+    override void toMatchCallSource(scope ref Output sink) const
     {
         sink.put("range(");
         if (const lower = cast(const Literal)subs[0])
@@ -1672,7 +1672,7 @@ final class Hooks : TokenNode
     {
         super(head);
     }
-    override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const
+    override void toMatchCallSource(scope ref Output sink) const
     {
         Input input = head.input;
 
@@ -2867,7 +2867,7 @@ struct GxFileReader
             Input name = kv.key;
             Rule rule = kv.value;
             rule.show(fmt);
-            rule.toMatcherSource(parserSource, gxp.rulesByName);
+            rule.toMatcherSource(parserSource);
         }
 
         parserSource.put(parserSourceEnd);

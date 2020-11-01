@@ -1249,16 +1249,24 @@ pure nothrow @nogc:
             }
         }
         if (allSubChars)
-            sink.put("altNch(");
+            sink.put("altNch!(");
         else
             sink.put("alt(");
         foreach (const i, const sub; subs)
         {
             if (i)
                 sink.put(", ");
-            sub.toMatchCallSource(sink, rulesByName);
+            if (allSubChars)
+            {
+                const lsub = cast(const Literal)sub;
+                sink.put(lsub.head.input);
+            }
+            else
+                sub.toMatchCallSource(sink, rulesByName);
         }
         sink.put(")");
+        if (allSubChars)
+            sink.put("()");
     }
 }
 
@@ -2693,6 +2701,18 @@ struct Parser
         return Match(off - off0);
     }
 
+    Match altNch(chars...)() pure nothrow @nogc
+    {
+        pragma(inline, true);
+        import std.algorithm.comparison : among;
+        if (inp[off].among!(chars))
+        {
+            off += 1;
+            return Match(1);
+        }
+        return Match.none();
+    }
+
     Match gzm(Matcher)(const scope lazy Matcher matcher)
     {
         const off0 = off;
@@ -2724,8 +2744,8 @@ struct Parser
     Match gom(Matcher)(const scope lazy Matcher matcher)
     {
         const off0 = off;
-        const match = matcher;
-        if (!match)
+        const match0 = matcher;
+        if (!match0)
         {
             off = off0;         // restore
             return Match.none();
@@ -2733,8 +2753,8 @@ struct Parser
         while (true)
         {
             const off1 = off;
-            const match = matcher;
-            if (!match)
+            const match1 = matcher;
+            if (!match1)
             {
                 off = off1;     // restore
                 break;

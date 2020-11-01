@@ -2737,7 +2737,7 @@ struct Parser
         return Match.none();
     }
 
-    Match range(char lower, char upper) pure nothrow @nogc
+    Match range(in char lower, in char upper) pure nothrow @nogc
     {
         pragma(inline, true);
         if (lower <= inp[off] &&

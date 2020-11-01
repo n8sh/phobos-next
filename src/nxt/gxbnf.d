@@ -139,6 +139,16 @@ enum TOK
 
     /** Syntactic predicate rule rewrite (`=>`).
      *
+     * Wikipedia: A syntactic predicate specifies the syntactic validity of
+     * applying a production in a formal grammar and is analogous to a semantic
+     * predicate that specifies the semantic validity of applying a
+     * production. It is a simple and effective means of dramatically improving
+     * the recognition strength of an LL parser by providing arbitrary
+     * lookahead. In their original implementation, syntactic predicates had the
+     * form “( α )?” and could only appear on the left edge of a production.
+     * The required syntactic condition α could be any valid context-free
+     * grammar fragment.
+     *
      * See_Also: https://en.wikipedia.org/wiki/Syntactic_predicate
      * See_Also: https://wincent.com/wiki/ANTLR_predicates
      */
@@ -1493,6 +1503,21 @@ final class Several : UnExpr
     ulong count;
 }
 
+final class AlwaysIncludePredicate : UnExpr
+{
+@safe pure nothrow @nogc:
+    this(in Token head, Node sub)
+    {
+        super(head, sub);
+    }
+    override void toMatchCallSource(scope ref Output sink) const
+    {
+        sink.put("synpred(");
+        sub.toMatchCallSource(sink);
+        sink.put(")");
+    }
+}
+
 final class Symbol : TokenNode
 {
 @safe:
@@ -1971,15 +1996,6 @@ final class Class : TokenNode
     Input baseName;             ///< Base class name.
 }
 
-final class AlwaysIncludePredicate : TokenNode
-{
-@safe pure nothrow @nogc:
-    this(in Token head)
-    {
-        super(head);
-    }
-}
-
 /** Gx parser.
  *
  * See: `ANTLRv4Parser.g4`
@@ -2093,28 +2109,47 @@ struct GxParser
                     break;
                 case TOK.qmark:
                     const head = _lexer.frontPop();
+                    if (seq.empty)
+                        _lexer.errorAtToken(head, "missing left-hand side of operator");
                     seq.put(new GreedyZeroOrOne(head, seq.backPop()));
                     break;
                 case TOK.qmarkQmark:
                     const head = _lexer.frontPop();
+                    if (seq.empty)
+                        _lexer.errorAtToken(head, "missing left-hand side of operator");
                     seq.put(new NonGreedyZeroOrOne(head, seq.backPop()));
                     break;
                 case TOK.star:
                     const head = _lexer.frontPop();
+                    if (seq.empty)
+                        _lexer.errorAtToken(head, "missing left-hand side of operator");
                     seq.put(new GreedyZeroOrMore(head, seq.backPop()));
+                    break;
+                case TOK.rewriteSyntacticPredicate:
+                    const head = _lexer.frontPop();
+                    if (seq.empty)
+                        _lexer.errorAtToken(head, "missing left-hand side of operator");
+                    // TODO: pop seq.back `seq` and pair with symbol after or parens after
+                    seq.put(new AlwaysIncludePredicate(head, seq.backPop()));
                     break;
                 case TOK.starQmark:
                     const head = _lexer.frontPop();
+                    if (seq.empty)
+                        _lexer.errorAtToken(head, "missing left-hand side of operator");
                     const terminator = _lexer.front();
                     assert(terminator.tok == TOK.literal);
                     seq.put(new NonGreedyZeroOrMore(head, seq.backPop(), new Literal(terminator)));
                     break;
                 case TOK.plus:
                     const head = _lexer.frontPop();
+                    if (seq.empty)
+                        _lexer.errorAtToken(head, "missing left-hand side of operator");
                     seq.put(new GreedyOneOrMore(head, seq.backPop()));
                     break;
                 case TOK.plusQmark:
                     const head = _lexer.frontPop();
+                    if (seq.empty)
+                        _lexer.errorAtToken(head, "missing left-hand side of operator");
                     seq.put(new NonGreedyOneOrMore(head, seq.backPop()));
                     break;
                 case TOK.tilde:
@@ -2233,12 +2268,6 @@ struct GxParser
                      * effective when the buildAST option is set. More
                      * information about ASTs is also available. */
                     _lexer.frontPop(); // ignore
-                    break;
-                case TOK.rewriteSyntacticPredicate:
-                    if (seq.empty)
-                        _lexer.errorAtFront("missing left-hand side of semantic predicate");
-                    // TODO: pop seq.back `seq` and pair with symbol after or parens after
-                    seqPutCheck(new AlwaysIncludePredicate(_lexer.frontPop()));
                     break;
                 default:
                     _lexer.infoAtFront("TODO: unhandled token type" ~ _lexer.front.to!string);

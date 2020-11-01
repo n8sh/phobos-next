@@ -2705,7 +2705,7 @@ struct Parser
         return Match(off - off0);
     }
 
-    Match nzm(Matcher1, Matcher2)(const scope lazy Matcher matcher, Matcher2 terminator)
+    Match nzm(Matcher1, Matcher2)(const scope lazy Matcher1 matcher, Matcher2 terminator)
     {
         const off0 = off;
         while (true)

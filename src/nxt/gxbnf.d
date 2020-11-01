@@ -134,8 +134,15 @@ enum TOK
     rootNode,                   ///< Root node (`^`)
     wildcard,                   ///< `.`
     dotdot,                     ///< `..`
+
     rewrite,                    ///< Rewrite rule (`->`)
-    rewriteSyntacticPredicate,  ///< Rewrite rule (`=>`)
+
+    /** Syntactic predicate rule rewrite (`=>`).
+     *
+     * See_Also: https://en.wikipedia.org/wiki/Syntactic_predicate
+     * See_Also: https://wincent.com/wiki/ANTLR_predicates
+     */
+    rewriteSyntacticPredicate,
 
     /** Token spec options:
         "<"

@@ -971,7 +971,13 @@ void showNSpaces(uint indentDepth) @safe nothrow @nogc
         putchar(' ');
 }
 
-void showNSpaces(scope ref Output sink, uint indentDepth) @safe pure nothrow @nogc
+void showNSpaces(scope ref Output sink, uint n) @safe pure nothrow @nogc
+{
+    foreach (_; 0 .. n)
+        sink.put(" ");
+}
+
+void showNIndents(scope ref Output sink, uint indentDepth) @safe pure nothrow @nogc
 {
     foreach (_; 0 .. indentDepth*indentStep)
         sink.put(" ");
@@ -1179,17 +1185,17 @@ class Rule : Node
     override void toMatchInSource(scope ref Output sink) const @nogc {} // dummy
     void toMatcherInSource(scope ref Output sink) const
     {
-        sink.showNSpaces(1); sink.put(`Match `);
+        sink.showNIndents(1); sink.put(`Match `);
         sink.put(matcherFunctionNamePrefix);
         sink.put(head.input); sink.put("()\n");
-        sink.showNSpaces(1); sink.put("{\n");
+        sink.showNIndents(1); sink.put("{\n");
         import std.ascii : isUpper;
         if (head.input[0].isUpper ||
             cast(const FragmentRule)this)
         {
-            sink.showNSpaces(2); sink.put("pragma(inline, true);\n");
+            sink.showNIndents(2); sink.put("pragma(inline, true);\n");
         }
-        sink.showNSpaces(2); sink.put(`return`);
+        sink.showNIndents(2); sink.put(`return`);
         if (top)
         {
             sink.put(` `);
@@ -1198,7 +1204,7 @@ class Rule : Node
         else
             sink.put(` Match.zero()`);
         sink.put(";\n");
-        sink.showNSpaces(1); sink.put("}\n");
+        sink.showNIndents(1); sink.put("}\n");
     }
     Token head;                 ///< Name.
     Node top;
@@ -1250,6 +1256,7 @@ pure nothrow @nogc:
     }
     override void toMatchInSource(scope ref Output sink) const
     {
+        // preprocess
         bool allSubChars = true;
         foreach (const sub; subs)
         {
@@ -1267,14 +1274,22 @@ pure nothrow @nogc:
                 break;
             }
         }
+
+        // prefix
         if (allSubChars)
             sink.put("altNch!(");
         else
             sink.put("alt(");
+
+        // iterate subs
         foreach (const i, const sub; subs)
         {
             if (i)
-                sink.put(", "); // separator
+            {
+                sink.put(",\n"); // separator
+                sink.showNIndents(2);
+                sink.showNSpaces(11);
+            }
             if (allSubChars)
             {
                 const lsub = cast(const Literal)sub;
@@ -1283,6 +1298,8 @@ pure nothrow @nogc:
             else
                 sub.toMatchInSource(sink);
         }
+
+        // postfix
         sink.put(")");
         if (allSubChars)
             sink.put("()");

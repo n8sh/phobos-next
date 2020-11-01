@@ -2715,6 +2715,16 @@ struct Parser
         return Match.none();
     }
 
+    Match not(Matcher)(const scope lazy Matcher matcher)
+    {
+        const off0 = off;
+        const match = matcher;
+        if (!match)
+            return match;
+        off = off0;             // restore
+        return Match.none();
+    }
+
     Match altNch(chars...)() pure nothrow @nogc
     {
         pragma(inline, true);

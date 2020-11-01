@@ -2170,10 +2170,7 @@ struct GxParser
                     seq.put(new Wildcard(_lexer.frontPop()));
                     break;
                 case TOK.brackets:
-                    const head = _lexer.frontPop();
-                    if (head.input.canFind('-'))
-                        _lexer.errorAtToken(head, "TODO: handle `-`");
-                    seq.put(new Hooks(head));
+                    seq.put(new Hooks(_lexer.frontPop()));
                     break;
                 case TOK.hash:
                 case TOK.rewrite:

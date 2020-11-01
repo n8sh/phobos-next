@@ -2621,6 +2621,13 @@ struct Parser
     Input inp;                  ///< Input.
     size_t off;                 ///< Current offset into inp.
 
+    Match any() pure nothrow @nogc
+    {
+        pragma(inline, true);
+        off += 1;
+        return Match(1);
+    }
+
     Match ch(dchar x) pure nothrow @nogc
     {
         pragma(inline, true);

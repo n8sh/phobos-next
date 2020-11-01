@@ -69,7 +69,7 @@ import nxt.line_column : offsetLineColumn;
 import nxt.fixed_array : FixedArray;
 import nxt.dynamic_array : DynamicArray;
 import nxt.file_ex : rawReadPath;
-import nxt.array_algorithm : startsWith, endsWith, endsWithEither, skipOver, skipOverBack;
+import nxt.array_algorithm : startsWith, endsWith, endsWithEither, skipOver, skipOverBack, canFind;
 import nxt.conv_ex : toDefaulted;
 
 import std.stdio : stdout, write, writeln;
@@ -1677,7 +1677,8 @@ final class Hooks : TokenNode
         assert(input.skipOver('['));
         assert(input.skipOverBack(']'));
 
-        // TODO: use `altNch` if all literals of length 1
+        if (input.canFind('-'))
+            assert(false, "handle -");
         sink.put("altNch!(");
 
         for (size_t i; i < input.length;)

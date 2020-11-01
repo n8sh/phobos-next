@@ -1713,9 +1713,6 @@ final class Hooks : TokenNode
         assert(lbracket);
         assert(rbracket);
 
-        if (input.canFind('-'))
-            debug assert(false, "TODO: handle - in " ~ input);
-
         sink.put("altNch!(");
         for (size_t i; i < input.length;)
         {
@@ -2173,7 +2170,10 @@ struct GxParser
                     seq.put(new Wildcard(_lexer.frontPop()));
                     break;
                 case TOK.brackets:
-                    seq.put(new Hooks(_lexer.frontPop()));
+                    const head = _lexer.frontPop();
+                    if (head.input.canFind('-'))
+                        _lexer.errorAtToken(head, "TODO: handle `-`");
+                    seq.put(new Hooks(head));
                     break;
                 case TOK.hash:
                 case TOK.rewrite:
@@ -2942,7 +2942,7 @@ version(show)
 {
     import std.datetime.stopwatch : StopWatch;
     import std.file : dirEntries, SpanMode, getcwd;
-    import std.path : expandTilde, relativePath;
+    import std.path : expandTilde, relativePath, baseName;
 
     const root = "~/Work/grammars-v4/".expandTilde;
     const lexerFlag = false;
@@ -2990,14 +2990,16 @@ version(show)
         foreach (const e; dirEntries(root, SpanMode.breadth))
         {
             const fn = e.name;
+            const bn = fn.baseName;
             if (fn.isGxFilename)
             {
-                if (fn.endsWith(`Antlr3.g`) ||
-                    fn.endsWith(`ANTLRv2.g2`)) // skip this crap
+                if (bn == `Antlr3.g` ||
+                    bn == `ANTLRv2.g2`) // skip this crap
                     continue;
-                if (!fn.endsWith(`pascal.g4`) &&
-                    // !fn.endsWith(`ada.g4`) &&
-                    !fn.endsWith(`Sexpr.g`))
+                if (bn != `pascal.g4` &&
+                    bn != `C.g4` &&
+                    // bn != `ada.g4` &&
+                    bn != `Sexpr.g`)
                     continue;
                 if (showProgressFlag)
                     of.writeln("Reading ", adjustPath(fn), " ...");

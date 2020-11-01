@@ -1512,7 +1512,7 @@ final class AlwaysIncludePredicate : UnExpr
     }
     override void toMatchCallSource(scope ref Output sink) const
     {
-        sink.put("synpred(");
+        sink.put("syn(");
         sub.toMatchCallSource(sink);
         sink.put(")");
     }

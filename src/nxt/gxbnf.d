@@ -1284,23 +1284,23 @@ pure nothrow @nogc:
         // iterate subs
         foreach (const i, const sub; subs)
         {
-            if (i)
-            {
-                sink.put(","); // separator
-                if (!allSubChars)
-                {
-                    sink.put("\n");
-                    sink.showNIndents(2);
-                    sink.showNSpaces(11);
-                }
-            }
             if (allSubChars)
             {
+                if (i)
+                    sink.put(","); // separator
                 const lsub = cast(const Literal)sub;
                 sink.put(lsub.head.input);
             }
             else
+            {
+                if (i)
+                {
+                    sink.put(",\n");
+                    sink.showNIndents(2);
+                    sink.showNSpaces(11);
+                }
                 sub.toMatchInSource(sink);
+            }
         }
 
         // postfix

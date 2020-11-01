@@ -2691,7 +2691,7 @@ struct Parser
     {
         const off0 = off;
         static foreach (const matcher; matchers)
-        {{
+        {{                      // scoped
             const match = matcher;
             if (!match)
             {
@@ -2704,14 +2704,14 @@ struct Parser
 
     Match alt(Matchers...)(const scope lazy Matchers matchers)
     {
-        foreach (const matcher; matchers)
-        {
+        static foreach (const matcher; matchers)
+        {{                      // scoped
             const off0 = off;
             if (const match = matcher)
                 return match;
             else
                 off = off0;     // restore
-        }
+        }}
         return Match.none();
     }
 

@@ -1231,7 +1231,27 @@ pure nothrow @nogc:
     }
     override void toMatchCallSource(scope ref Output sink, const scope ref RulesByName rulesByName) const
     {
-        sink.put("alt(");
+        bool allSubChars = true;
+        foreach (const sub; subs)
+        {
+            if (const lit = cast(const Literal)sub)
+            {
+                if (lit.head.input.length != 3)
+                {
+                    allSubChars = false;
+                    break;
+                }
+            }
+            else
+            {
+                allSubChars = false;
+                break;
+            }
+        }
+        if (allSubChars)
+            sink.put("altNch(");
+        else
+            sink.put("alt(");
         foreach (const i, const sub; subs)
         {
             if (i)

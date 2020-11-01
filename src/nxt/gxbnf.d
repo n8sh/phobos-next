@@ -9,7 +9,9 @@
  *
  * TODO:
  *
- * Move parserSourceBegin to gxbnf_rdbase.d
+ * - Move parserSourceBegin to gxbnf_rdbase.d
+ *
+ * - flattenSubs doesn't work for rule in C.g4
  *
  * - Find top rule is the rule that isn't referenced anywhere else
  *
@@ -2962,6 +2964,9 @@ struct GxFileReader
 
         const moduleName = filePath.baseName.stripExtension ~ "_parser";
 
+        parserSource.put("/// Automatically generated from `");
+        parserSource.put(filePath.baseName);
+        parserSource.put("`.\n");
         parserSource.put(q{module } ~ moduleName ~ q{;
 
 });

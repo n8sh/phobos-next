@@ -1678,7 +1678,7 @@ final class Hooks : TokenNode
         assert(input.skipOverBack(']'));
 
         if (input.canFind('-'))
-            assert(false, "handle -");
+            debug assert(false, "TODO: handle - in " ~ input);
         sink.put("altNch!(");
 
         for (size_t i; i < input.length;)

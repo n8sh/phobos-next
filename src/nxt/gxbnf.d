@@ -2698,6 +2698,28 @@ struct Parser
         return Match(off - off0);
     }
 
+    Match nzm(Matcher1, Matcher2)(const scope lazy Matcher matcher, Matcher2 terminator)
+    {
+        const off0 = off;
+        while (true)
+        {
+            const off1 = off;
+            if (const match = terminator)
+            {
+                return Match(off1 - off0);
+            }
+            off = off1;         // restore
+            const off2 = off;
+            const match = matcher;
+            if (!match)
+            {
+                off = off2;     // restore
+                break;
+            }
+        }
+        return Match(off - off0);
+    }
+
 `;
 
 static immutable parserSourceEnd =

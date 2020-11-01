@@ -2649,7 +2649,7 @@ struct Parser
     Match str(const scope string x) pure nothrow @nogc
     {
         pragma(inline, true);
-        if (off + x.length <= inp.length &&
+        if (off + x.length <= inp.length && // TODO: optimize by using null-sentinel
             inp[off .. off + x.length] == x) // inp[off .. $].startsWith(x)
         {
             off += x.length;

@@ -2670,11 +2670,11 @@ static immutable parserSourceBegin =
 struct Match
 {
 @safe pure nothrow @nogc:
-    @property static Match zero()
+    static Match zero()
     {
         return typeof(return)(0);
     }
-    @property static Match none()
+    static Match none()
     {
         return typeof(return)(_length.max);
     }
@@ -2865,6 +2865,11 @@ struct Parser
         return Match(off - off0);
     }
 
+    Match syn(Matcher)(const scope lazy Matcher matcher)
+    {
+        return Match.zero(); // pass, backtracking is performed by default
+    }
+
 `;
 
 static immutable parserSourceEnd =
@@ -2990,6 +2995,7 @@ version(show)
                     fn.endsWith(`ANTLRv2.g2`)) // skip this crap
                     continue;
                 if (!fn.endsWith(`pascal.g4`) &&
+                    // !fn.endsWith(`ada.g4`) &&
                     !fn.endsWith(`Sexpr.g`))
                     continue;
                 if (showProgressFlag)

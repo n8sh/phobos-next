@@ -1286,9 +1286,13 @@ pure nothrow @nogc:
         {
             if (i)
             {
-                sink.put(",\n"); // separator
-                sink.showNIndents(2);
-                sink.showNSpaces(11);
+                sink.put(","); // separator
+                if (!allSubChars)
+                {
+                    sink.put("\n");
+                    sink.showNIndents(2);
+                    sink.showNSpaces(11);
+                }
             }
             if (allSubChars)
             {

@@ -1713,6 +1713,51 @@ final class Hooks : TokenNode
         assert(lbracket);
         assert(rbracket);
 
+        if (input.canFind('-'))
+        {
+            Output asink;       // argument sink
+            size_t n = 0;       // alt count
+            for (size_t i; i < input.length; ++n)
+            {
+                if (i)
+                    asink.put(", ");
+
+                if (i + 3 <= input.length &&
+                    input[i + 1] == '-') // range
+                {
+                    asink.put("range('");
+                    asink.put(input[i]),
+                    asink.put("', '");
+                    asink.put(input[i + 2]),
+                    asink.put("')");
+                    i += 3;
+                }
+                else
+                {
+                    asink.put('\'');
+                    if (input[i] == '\\')
+                    {
+                        asink.put('\\');
+                        i += 1;
+                        asink.put(input[i]);
+                        i += 1;
+                    }
+                    else
+                    {
+                        asink.put(input[i]);
+                        i += 1;
+                    }
+                    asink.put('\'');
+                }
+            }
+            if (n >= 2)
+                sink.put("alt(");
+            sink.put(asink[]);
+            if (n >= 2)
+                sink.put(")");
+            return;
+        }
+
         sink.put("altNch!(");
         for (size_t i; i < input.length;)
         {

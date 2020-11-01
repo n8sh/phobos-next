@@ -1503,7 +1503,7 @@ final class Several : UnExpr
     ulong count;
 }
 
-final class AlwaysIncludePredicate : UnExpr
+final class RewriteSyntacticPredicate : UnExpr
 {
 @safe pure nothrow @nogc:
     this(in Token head, Node sub)
@@ -2130,7 +2130,7 @@ struct GxParser
                     if (seq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side of operator");
                     // TODO: pop seq.back `seq` and pair with symbol after or parens after
-                    seq.put(new AlwaysIncludePredicate(head, seq.backPop()));
+                    seq.put(new RewriteSyntacticPredicate(head, seq.backPop()));
                     break;
                 case TOK.starQmark:
                     const head = _lexer.frontPop();

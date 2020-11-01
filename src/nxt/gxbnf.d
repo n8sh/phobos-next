@@ -1681,7 +1681,6 @@ final class Hooks : TokenNode
             debug assert(false, "TODO: handle - in " ~ input);
 
         sink.put("altNch!(");
-
         for (size_t i; i < input.length;)
         {
             if (i)

@@ -2882,7 +2882,7 @@ struct GxFileReader
     this(in string filePath)
     {
         import std.path : baseName, stripExtension;
-        const showFlag = filePath.endsWith("oncrpcv2.g4");
+        const showFlag = false; // filePath.endsWith("oncrpcv2.g4");
         Format fmt;
         auto gxp = GxFileParser(filePath);
 
@@ -2906,7 +2906,8 @@ struct GxFileReader
         {
             Input name = kv.key;
             Rule rule = kv.value;
-            rule.show(fmt);
+            if (showFlag)
+                rule.show(fmt);
             rule.toMatcherSource(parserSource);
         }
 

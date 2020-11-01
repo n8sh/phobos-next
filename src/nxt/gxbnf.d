@@ -2388,9 +2388,10 @@ struct GxParser
         if (_lexer._diagnoseLeftRecursion)
             rule.diagnoseDirectLeftRecursion(_lexer);
 
-        if (rulesByName.length == 0)
+        if (rules.length == 0)
             firstRule = rule;
-        rulesByName[rule.head.input] = rule;
+        rules.insertBack(rule);
+        // rulesByName[rule.head.input] = rule;
         return rule;
     }
 
@@ -2708,9 +2709,9 @@ struct GxParser
     Node grammar;
     Node options;
     DynamicArray!(Import, null, uint) imports;
-    // DynamicArray!(Rule, null, uint) rules;
+    DynamicArray!(Rule, null, uint) rules;
     Rule firstRule;
-    RulesByName rulesByName;
+    // RulesByName rulesByName;
 private:
     GxLexer _lexer;
     Node _front;
@@ -2973,10 +2974,8 @@ struct GxFileReader
 
         parserSource.put(parserSourceBegin);
 
-        foreach (kv; gxp.rulesByName.byKeyValue)
+        foreach (rule; gxp.rules)
         {
-            Input name = kv.key;
-            Rule rule = kv.value;
             if (showFlag)
                 rule.show(fmt);
             rule.toMatcherInSource(parserSource);

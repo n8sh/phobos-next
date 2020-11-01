@@ -13,7 +13,7 @@
  *
  * - `flattenSubs` doesn't work for some rules in C.g4 but instead creates nested calls to alt(alt(...))
  *
- * - Find top rule is the rule that isn't referenced anywhere else
+ * - Find top rule, that isn't referenced anywhere else
  *
  * - Use `DETECT` upper-case lexer rules LexerRule
  *

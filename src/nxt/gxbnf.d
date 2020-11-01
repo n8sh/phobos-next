@@ -2690,15 +2690,15 @@ struct Parser
     Match seq(Matchers...)(const scope lazy Matchers matchers)
     {
         const off0 = off;
-        foreach (const matcher; matchers)
-        {
+        static foreach (const matcher; matchers)
+        {{
             const match = matcher;
             if (!match)
             {
                 off = off0;     // restore
                 return match;   // propagate failure
             }
-        }
+        }}
         return Match(off - off0);
     }
 

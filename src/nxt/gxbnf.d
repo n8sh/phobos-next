@@ -9,8 +9,6 @@
  *
  * TODO:
  *
- * - remove need for EOF
- *
  * - `not(...)`'s implementation needs to be adjusted. often used in conjunction with `altNch`?
  *
  * - Move parserSourceBegin to gxbnf_rdbase.d
@@ -1747,8 +1745,6 @@ final class Hooks : TokenNode
             size_t n = 0;       // alt count
             for (size_t i; i < input.length; ++n)
             {
-                debug writeln("i:", i);
-
                 if (i)
                     asink.put(", "); // separator
 
@@ -2778,6 +2774,24 @@ struct Parser
 @safe:
     Input inp;                  ///< Input.
     size_t off;                 ///< Current offset into inp.
+
+    Match m__EOF() pure nothrow @nogc
+    {
+        pragma(inline, true);
+        if (inp[off] == '\r' &&
+            inp[off + 1] == '\n')
+        {
+            off += 2;
+            return Match(1);
+        }
+        if (inp[off] == '\r' ||
+            inp[off] == '\n')
+        {
+            off += 1;
+            return Match(1);
+        }
+        return Match.none();
+    }
 
     Match any() pure nothrow @nogc
     {

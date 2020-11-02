@@ -1292,7 +1292,7 @@ pure nothrow @nogc:
                     sink.put(","); // separator
                 const lsub = cast(const Literal)sub;
                 if (lsub.head.input == "'")
-                    sink.put("\\'");
+                    sink.put(`\'`);
                 else
                     sink.put(lsub.head.input);
             }
@@ -1797,6 +1797,11 @@ final class Hooks : TokenNode
                 sink.put('\\');
                 i += 1;
                 sink.put(input[i]);
+                i += 1;
+            }
+            else if (input[i] == '\'')
+            {
+                sink.put(`\'`);
                 i += 1;
             }
             else

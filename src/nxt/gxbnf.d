@@ -1188,7 +1188,8 @@ class Rule : Node
     void toMatcherInSource(scope ref Output sink) const
     {
         sink.showNIndents(1); sink.put(`Match `);
-        sink.put(matcherFunctionNamePrefix);
+        if (head.input != "EOF")
+            sink.put(matcherFunctionNamePrefix);
         sink.put(head.input); sink.put("()\n");
         sink.showNIndents(1); sink.put("{\n");
         import std.ascii : isUpper;
@@ -1558,7 +1559,8 @@ final class Symbol : TokenNode
     }
     override void toMatchInSource(scope ref Output sink) const
     {
-        sink.put(matcherFunctionNamePrefix);
+        if (head.input != "EOF")
+            sink.put(matcherFunctionNamePrefix);
         sink.put(head.input);
         sink.put(`()`);
         // if (const Rule* rulePtr = head.input in rulesByName)
@@ -2775,7 +2777,7 @@ struct Parser
     Input inp;                  ///< Input.
     size_t off;                 ///< Current offset into inp.
 
-    Match m__EOF() pure nothrow @nogc
+    Match EOF() pure nothrow @nogc
     {
         pragma(inline, true);
         if (inp[off] == '\r' &&

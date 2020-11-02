@@ -1745,6 +1745,8 @@ final class Hooks : TokenNode
             size_t n = 0;       // alt count
             for (size_t i; i < input.length; ++n)
             {
+                debug writeln("i:", i);
+
                 if (i)
                     asink.put(", "); // separator
 
@@ -1760,7 +1762,7 @@ final class Hooks : TokenNode
                 }
                 else
                 {
-                    asink.put('\'');
+                    asink.put("ch('");
                     if (input[i] == '\\')
                     {
                         asink.put('\\');
@@ -1773,7 +1775,7 @@ final class Hooks : TokenNode
                         asink.put(input[i]);
                         i += 1;
                     }
-                    asink.put('\'');
+                    asink.put("')");
                 }
             }
             if (n >= 2)

@@ -2784,7 +2784,7 @@ struct Parser
             inp[off + 1] == '\n') // Windows
         {
             off += 2;
-            return Match(1);
+            return Match(2);
         }
         if (inp[off] == '\n' || // Unix/Linux
             inp[off] == '\r')   // Mac?
@@ -3092,10 +3092,10 @@ version(show)
                 if (bn == `Antlr3.g` ||
                     bn == `ANTLRv2.g2`) // skip this crap
                     continue;
-                if (// bn != `pascal.g4` &&
-                    bn != `C.g4`
-                    // bn != `ada.g4` &&
-                    // bn != `Sexpr.g`
+                if (bn != `pascal.g4` &&
+                    bn != `C.g4` &&
+                    bn != `ada.g4` &&
+                    bn != `Sexpr.g`
                     )
                     continue;
                 if (showProgressFlag)

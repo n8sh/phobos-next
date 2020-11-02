@@ -1584,7 +1584,7 @@ final class DotDotSentinel : TokenNode
     }
 }
 
-final class Tilde : TokenNode
+final class TildeSentinel : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -2150,9 +2150,9 @@ struct GxParser
                         seq.popBack(); // pop `DotDotSentinel`
                         return seqPutCheck(new Range(dotdot.head, [seq.backPop(), last]));
                     }
-                    if (auto tilde = cast(Tilde)seq.back) // prefix unary operator
+                    if (auto tilde = cast(TildeSentinel)seq.back) // prefix unary operator
                     {
-                        seq.popBack(); // pop `Tilde`
+                        seq.popBack(); // pop `TildeSentinel`
                         return seqPutCheck(new Not(tilde.head, last));
                     }
                 }
@@ -2228,7 +2228,7 @@ struct GxParser
                     seq.put(new NonGreedyOneOrMore(head, seq.backPop()));
                     break;
                 case TOK.tilde:
-                    seq.put(new Tilde(_lexer.frontPop()));
+                    seq.put(new TildeSentinel(_lexer.frontPop()));
                     break;
                 case TOK.pipe:
                     if (const symbol = cast(Symbol)seq.back)

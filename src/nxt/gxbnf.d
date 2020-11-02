@@ -1291,7 +1291,10 @@ pure nothrow @nogc:
                 if (i)
                     sink.put(","); // separator
                 const lsub = cast(const Literal)sub;
-                sink.put(lsub.head.input);
+                if (lsub.head.input == "'")
+                    sink.put("\\'");
+                else
+                    sink.put(lsub.head.input);
             }
             else
             {

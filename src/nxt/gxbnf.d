@@ -9,6 +9,8 @@
  *
  * TODO:
  *
+ * - `not(...)`'s implementation needs to be adjusted. often used in conjunction with `altNch`?
+ *
  * - Move parserSourceBegin to gxbnf_rdbase.d
  *
  * - Find top rule, that isn't referenced anywhere else
@@ -2186,25 +2188,25 @@ struct GxParser
                     const head = _lexer.frontPop();
                     if (seq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side of operator");
-                    seq.put(new GreedyZeroOrOne(head, seq.backPop()));
+                    seqPutCheck(new GreedyZeroOrOne(head, seq.backPop()));
                     break;
                 case TOK.qmarkQmark:
                     const head = _lexer.frontPop();
                     if (seq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side of operator");
-                    seq.put(new NonGreedyZeroOrOne(head, seq.backPop()));
+                    seqPutCheck(new NonGreedyZeroOrOne(head, seq.backPop()));
                     break;
                 case TOK.star:
                     const head = _lexer.frontPop();
                     if (seq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side of operator");
-                    seq.put(new GreedyZeroOrMore(head, seq.backPop()));
+                    seqPutCheck(new GreedyZeroOrMore(head, seq.backPop()));
                     break;
                 case TOK.rewriteSyntacticPredicate:
                     const head = _lexer.frontPop();
                     if (seq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side of operator");
-                    seq.put(new RewriteSyntacticPredicate(head, seq.backPop()));
+                    seqPutCheck(new RewriteSyntacticPredicate(head, seq.backPop()));
                     break;
                 case TOK.starQmark:
                     const head = _lexer.frontPop();
@@ -2212,19 +2214,19 @@ struct GxParser
                         _lexer.errorAtToken(head, "missing left-hand side of operator");
                     const terminator = _lexer.front();
                     assert(terminator.tok == TOK.literal);
-                    seq.put(new NonGreedyZeroOrMore(head, seq.backPop(), new Literal(terminator)));
+                    seqPutCheck(new NonGreedyZeroOrMore(head, seq.backPop(), new Literal(terminator)));
                     break;
                 case TOK.plus:
                     const head = _lexer.frontPop();
                     if (seq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side of operator");
-                    seq.put(new GreedyOneOrMore(head, seq.backPop()));
+                    seqPutCheck(new GreedyOneOrMore(head, seq.backPop()));
                     break;
                 case TOK.plusQmark:
                     const head = _lexer.frontPop();
                     if (seq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side of operator");
-                    seq.put(new NonGreedyOneOrMore(head, seq.backPop()));
+                    seqPutCheck(new NonGreedyOneOrMore(head, seq.backPop()));
                     break;
                 case TOK.tilde:
                     seq.put(new TildeSentinel(_lexer.frontPop()));
@@ -2245,10 +2247,10 @@ struct GxParser
                     seq.put(new DotDotSentinel(_lexer.frontPop()));
                     break;
                 case TOK.wildcard:
-                    seq.put(new Wildcard(_lexer.frontPop()));
+                    seqPutCheck(new Wildcard(_lexer.frontPop()));
                     break;
                 case TOK.brackets:
-                    seq.put(new Hooks(_lexer.frontPop()));
+                    seqPutCheck(new Hooks(_lexer.frontPop()));
                     break;
                 case TOK.hash:
                 case TOK.rewrite:

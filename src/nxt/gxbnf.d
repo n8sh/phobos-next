@@ -9,6 +9,8 @@
  *
  * TODO:
  *
+ * - remove need for EOF
+ *
  * - `not(...)`'s implementation needs to be adjusted. often used in conjunction with `altNch`?
  *
  * - Move parserSourceBegin to gxbnf_rdbase.d

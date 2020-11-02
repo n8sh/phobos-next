@@ -11,8 +11,6 @@
  *
  * - Move parserSourceBegin to gxbnf_rdbase.d
  *
- * - `flattenSubs` doesn't work for some rules in C.g4 but instead creates nested calls to alt(alt(...))
- *
  * - Find top rule, that isn't referenced anywhere else
  *
  * - Use `DETECT` upper-case lexer rules LexerRule
@@ -2143,7 +2141,7 @@ struct GxParser
                     if (cast(PipeSentinel)seq.back) // binary operator. TODO: if skipOver!PipeSentinel
                     {
                         seq.popBack(); // pop `PipeSentinel`
-                        return seqPutCheck(new AltM([seq.backPop(), last]));
+                        return seqPutCheck(makeAlt([seq.backPop(), last]));
                     }
                     if (auto dotdot = cast(DotDotSentinel)seq.back) // binary operator
                     {
@@ -2152,6 +2150,7 @@ struct GxParser
                     }
                     if (auto tilde = cast(TildeSentinel)seq.back) // prefix unary operator
                     {
+
                         seq.popBack(); // pop `TildeSentinel`
                         return seqPutCheck(new Not(tilde.head, last));
                     }
@@ -3071,10 +3070,11 @@ version(show)
                 if (bn == `Antlr3.g` ||
                     bn == `ANTLRv2.g2`) // skip this crap
                     continue;
-                if (bn != `pascal.g4` &&
-                    bn != `C.g4` &&
+                if (// bn != `pascal.g4` &&
+                    bn != `C.g4`
                     // bn != `ada.g4` &&
-                    bn != `Sexpr.g`)
+                    // bn != `Sexpr.g`
+                    )
                     continue;
                 if (showProgressFlag)
                     of.writeln("Reading ", adjustPath(fn), " ...");

@@ -2781,13 +2781,13 @@ struct Parser
     {
         pragma(inline, true);
         if (inp[off] == '\r' &&
-            inp[off + 1] == '\n')
+            inp[off + 1] == '\n') // Windows
         {
             off += 2;
             return Match(1);
         }
-        if (inp[off] == '\r' ||
-            inp[off] == '\n')
+        if (inp[off] == '\n' || // Unix/Linux
+            inp[off] == '\r')   // Mac?
         {
             off += 1;
             return Match(1);

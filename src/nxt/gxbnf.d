@@ -3156,7 +3156,7 @@ struct GxFileReader
         }
 
         foreach (import_; fp.imports)
-            foreach (module_; import_.modules)
+            foreach (const module_; import_.modules)
                 processImportedModule(module_);
 
         if (fp.options)

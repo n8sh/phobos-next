@@ -2841,7 +2841,7 @@ struct Parser
         return Match.none();
     }
 
-    Match cc!(string class)() pure nothrow @nogc
+    Match cc(string class)() pure nothrow @nogc
     {
         pragma(inline, true);
         off += 1;               // TODO: switch on class

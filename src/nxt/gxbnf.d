@@ -3119,7 +3119,7 @@ struct GxFileReader
 
         output.put(parserSourceBegin);
 
-        foreach (rule; rules)
+        foreach (const rule; rules)
         {
             if (showFlag)
                 rule.show();
@@ -3129,11 +3129,11 @@ struct GxFileReader
         foreach (import_; imports)
             foreach (module_; import_.modules)
             {
-                const modulePath = chainPath(dirName(filePath), module_ ~ ".g4").array.idup;
-                auto mp = GxFileParser(modulePath);
-                while (!mp.empty)
-                    mp.popFront();
-                foreach (rule; mp.rules)
+                const modulePath = chainPath(dirName(filePath), module_ ~ ".g4").array.idup; // TODO: detect mutual file recursion
+                auto fp = GxFileParser(modulePath);
+                while (!fp.empty)
+                    fp.popFront();
+                foreach (const rule; fp.rules)
                 {
                     if (showFlag)
                         rule.show();

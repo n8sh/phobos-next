@@ -206,7 +206,7 @@ struct GxLexer
          in bool includeWhitespace = false)
     {
         _input = input;
-        _path = path;
+        this.path = path;
 
         import std.exception : enforce;
         import nxt.parsing : isNullTerminated;
@@ -882,7 +882,7 @@ private:
         const offset = token.input.ptr - _input.ptr; // unsafe
         const lc = offsetLineColumn(_input, offset);
         debug printf("%.*s(%u,%u): %s: %.*s, token `%.*s` at offset %llu\n",
-                     cast(int)_path.length, _path.ptr,
+                     cast(int)path.length, path.ptr,
                      lc.line + 1, lc.column + 1,
                      tag.ptr,
                      cast(int)msg.length, msg.ptr,
@@ -918,7 +918,7 @@ private:
         const lc = offsetLineColumn(_input, _offset + i);
         // TODO: remove printf
         debug printf("%.*s(%u,%u): %s: %.*s at offset %llu being char `%c` ds:`%.*s`\n",
-                     cast(int)_path.length, _path.ptr,
+                     cast(int)path.length, path.ptr,
                      lc.line + 1, lc.column + 1,
                      tag.ptr,
                      cast(int)msg.length, msg.ptr,
@@ -930,7 +930,7 @@ private:
 private:
     size_t _offset;             // current offset in `_input`
     const Input _input;         ///< Input data.
-    const string _path;         ///< Input file (or null if in-memory).
+    const string path;         ///< Input file (or null if in-memory).
 
     Token _token;
     bool _endOfFile;            // signals null terminator found

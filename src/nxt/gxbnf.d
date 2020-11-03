@@ -21,7 +21,7 @@
  *
  * - Use `TOK.tokenSpecOptions` in parsing. Ignored for now.
  *
- * - Add properties for uint, uint lengthRange()
+ * - Add properties for uint, uint lengthRng()
  * - Sort `AltM` subs by descending minimum length
  *
  * - Add array `PrefixedRules` sorted by literal for faster lookup
@@ -1738,7 +1738,7 @@ pure nothrow @nogc:
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
-        sink.put("range(");
+        sink.put("rng(");
         if (const lower = cast(const Literal)subs[0])
             sink.put(lower.head.input);
         else
@@ -1838,7 +1838,7 @@ final class Brackets : TokenNode
             if (i + 3 <= input.length &&
                 input[i + 1] == '-') // such as: `a-z`
             {
-                asink.put("range('");
+                asink.put("rng('");
                 asink.put(input[i]),
                 asink.put("', '");
                 asink.put(input[i + 2]),
@@ -1850,7 +1850,7 @@ final class Brackets : TokenNode
                      input[i + 1] == 'u' &&
                      input[i + 6] == '-') // such as: `\u0021-\u0031`
             {
-                asink.put("range('");
+                asink.put("rng('");
                 asink.put(input[i .. i + 6]),
                 asink.put("', '");
                 asink.put(input[i + 7 .. i + 7 + 6]),
@@ -2959,7 +2959,7 @@ struct Parser
         return Match.none();
     }
 
-    Match range(in char lower, in char upper) pure nothrow @nogc
+    Match rng(in char lower, in char upper) pure nothrow @nogc
     {
         pragma(inline, true);
         if (lower <= inp[off] &&
@@ -3175,12 +3175,12 @@ version(show)
                 if (bn == `Antlr3.g` ||
                     bn == `ANTLRv2.g2`) // skip this crap
                     continue;
-                if (bn != `pascal.g4` &&
-                    bn != `C.g4` &&
-                    bn != `ada.g4` &&
-                    bn != `Sexpr.g`
-                    )
-                    continue;
+                // if (bn != `pascal.g4` &&
+                //     bn != `C.g4` &&
+                //     bn != `ada.g4` &&
+                //     bn != `Sexpr.g`
+                //     )
+                //     continue;
                 if (showProgressFlag)
                     of.writeln("Reading ", adjustPath(fn), " ...");
                 scope StopWatch swOne;

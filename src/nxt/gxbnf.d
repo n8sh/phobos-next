@@ -1767,8 +1767,9 @@ final class Hooks : TokenNode
             if (i)
                 sink.put(", "); // separator
 
-            sink.put('\'');
+            sink.put('\'');     // prefix
 
+            // contents:
             if (input[i] == '\\')
             {
                 sink.put('\\');
@@ -1787,7 +1788,7 @@ final class Hooks : TokenNode
                 i += 1;
             }
 
-            sink.put('\'');
+            sink.put('\'');     // suffix
         }
         sink.put(")()");
     }

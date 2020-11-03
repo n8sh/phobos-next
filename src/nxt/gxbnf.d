@@ -1654,7 +1654,15 @@ final class Literal : TokenNode
         {
             sink.put(`str("`);
             if (head.input.length >= 3)
-                sink.put(head.input[1 .. $-1]);
+            {
+                auto content = head.input[1 .. $-1];
+                if (content.skipOver('"'))
+                    sink.put(`\"`);
+                const backFlag = content.skipOverBack('"');
+                sink.put(content);
+                if (backFlag)
+                    sink.put(`\"`);
+            }
             else
                 sink.put(head.input[]);
             sink.put(`")`);

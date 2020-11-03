@@ -71,7 +71,7 @@ import nxt.line_column : offsetLineColumn;
 import nxt.fixed_array : FixedArray;
 import nxt.dynamic_array : DynamicArray;
 import nxt.file_ex : rawReadPath;
-import nxt.array_algorithm : startsWith, endsWith, endsWithEither, skipOver, skipOverBack, canFind;
+import nxt.array_algorithm : startsWith, endsWith, endsWithEither, skipOver, skipOverBack, canFind, indexOf;
 import nxt.conv_ex : toDefaulted;
 
 import std.stdio : stdout, write, writeln;
@@ -2799,7 +2799,7 @@ struct GxParser
     }
 
     Node grammar;
-    Node options;
+    Options options;
     Imports imports;
     Rules rules;
     // RulesByName rulesByName;
@@ -3141,23 +3141,54 @@ struct GxFileReader
             rule.toMatcherInSource(output, fp.parser._lexer);
         }
 
+        void processImportedModule(in const(char)[] module_)
+        {
+            const modulePath = chainPath(dirName(path), module_ ~ ".g4").array.idup; // TODO: detect mutual file recursion
+            auto fp_ = GxFileParser(modulePath);
+            while (!fp_.empty)
+                fp_.popFront();
+            foreach (const rule; fp_.rules)
+            {
+                if (showFlag)
+                    rule.show();
+                rule.toMatcherInSource(output, fp.parser._lexer);
+            }
+        }
+
         foreach (import_; fp.imports)
             foreach (module_; import_.modules)
-            {
-                const modulePath = chainPath(dirName(path), module_ ~ ".g4").array.idup; // TODO: detect mutual file recursion
-                auto fp_ = GxFileParser(modulePath);
-                while (!fp_.empty)
-                    fp_.popFront();
-                foreach (const rule; fp_.rules)
-                {
-                    if (showFlag)
-                        rule.show();
-                    rule.toMatcherInSource(output, fp.parser._lexer);
-                }
-            }
+                processImportedModule(module_);
 
         if (fp.options)
         {
+            import std.algorithm.comparison : among;
+            const(char)[] co = fp.options.code.input;
+
+            void skipws()
+            {
+                size_t i;
+                while (co.length &&
+                       co[i].among!(GxLexer.whiteChars))
+                    i += 1;
+                co = co[i .. $];
+            }
+
+            co.skipOver('{');
+            co.skipOverBack('}');
+
+            skipws();
+
+            if (co.skipOver("tokenVocab"))
+            {
+                skipws();
+                co.skipOver('=');
+                skipws();
+                if (const ix = co.indexOf(';'))
+                {
+                    const module_ = co[0 .. ix];
+                    processImportedModule(module_);
+                }
+            }
         }
 
         output.put(parserSourceEnd);

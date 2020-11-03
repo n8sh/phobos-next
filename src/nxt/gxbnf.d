@@ -2139,6 +2139,9 @@ final class Class : TokenNode
     Input baseName;             ///< Base class name.
 }
 
+alias Imports = DynamicArray!(Import, null, uint);
+alias Rules = DynamicArray!(Rule, null, uint);
+
 /** Gx parser.
  *
  * See: `ANTLRv4Parser.g4`
@@ -2793,8 +2796,8 @@ struct GxParser
 
     Node grammar;
     Node options;
-    DynamicArray!(Import, null, uint) imports;
-    DynamicArray!(Rule, null, uint) rules;
+    Imports imports;
+    Rules rules;
     // RulesByName rulesByName;
 private:
     GxLexer _lexer;
@@ -3067,45 +3070,23 @@ static immutable parserSourceEnd =
 
 struct GxFileReader
 {
+    import std.path : stripExtension;
+    enum showFlag = false; // filePath.endsWith("oncrpcv2.g4");
 @safe:
     this(in string filePath)
     {
-        import std.path : baseName, stripExtension;
-        const showFlag = false; // filePath.endsWith("oncrpcv2.g4");
-        Format fmt;
         auto gxp = GxFileParser(filePath);
-
-        Output parserSource;
 
         while (!gxp.empty)
         {
-            // gxp.front.show(fmt);
+            // gxp.front.show();
             gxp.popFront();
         }
 
-        const moduleName = filePath.baseName.stripExtension ~ "_parser";
-
-        parserSource.put("/// Automatically generated from `");
-        parserSource.put(filePath.baseName);
-        parserSource.put("`.\n");
-        parserSource.put(q{module } ~ moduleName ~ q{;
-
-});
-
-        parserSource.put(parserSourceBegin);
-
-        foreach (rule; gxp.rules)
-        {
-            if (showFlag)
-                rule.show(fmt);
-            rule.toMatcherInSource(parserSource, gxp.parser._lexer);
-        }
-
-        parserSource.put(parserSourceEnd);
-
-        const parserPath = filePath.stripExtension ~ "_parser.d";
+        Output parserSource = generateParserSource(filePath, gxp.rules, gxp.imports, gxp.parser._lexer);
 
         import std.file : write;
+        const parserPath = filePath.stripExtension ~ "_parser.d";
         write(parserPath, parserSource[]);
         debug writeln("Wrote ", parserPath);
 
@@ -3116,6 +3097,42 @@ struct GxFileReader
         else
             writeln("Compilation of ", parserPath, " failed:\n",
                     dmd.output);
+    }
+
+    static Output generateParserSource(in string filePath,
+                                       const scope ref Rules rules,
+                                       const scope ref Imports imports,
+                                       const scope ref GxLexer lexer)
+    {
+        import std.path : baseName;
+        typeof(return) output;
+
+        const moduleName = filePath.baseName.stripExtension ~ "_parser";
+
+        output.put("/// Automatically generated from `");
+        output.put(filePath.baseName);
+        output.put("`.\n");
+        output.put(q{module } ~ moduleName ~ q{;
+
+});
+
+        output.put(parserSourceBegin);
+
+        foreach (rule; rules)
+        {
+            if (showFlag)
+                rule.show();
+            rule.toMatcherInSource(output, lexer);
+        }
+
+        foreach (import_; imports)
+        {
+            debug writeln(import_);
+        }
+
+        output.put(parserSourceEnd);
+
+        return output;
     }
 
     ~this() @nogc {}

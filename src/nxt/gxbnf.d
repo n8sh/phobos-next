@@ -26,8 +26,6 @@
  *
  * - handle all TODO's in `makeRule`
  *
- * - create index of symbols and link them in second pass
- *
  * - Detect indirect mutual left-recursion. How? Simple-way in generated parsers:
  *   enters a rule again without offset change.
  *

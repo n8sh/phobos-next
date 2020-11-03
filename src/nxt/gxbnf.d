@@ -2841,10 +2841,10 @@ struct Parser
         return Match.none();
     }
 
-    Match cc(string class)() pure nothrow @nogc
+    Match cc(string cclass)() pure nothrow @nogc
     {
         pragma(inline, true);
-        off += 1;               // TODO: switch on class
+        off += 1;               // TODO: switch on cclass
         return Match(1);
     }
 

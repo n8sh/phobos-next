@@ -3096,7 +3096,7 @@ struct GxFileReader
 
         import std.file : write;
         write(parserPath, parserSource[]);
-        debug writeln("Wrote parser ", parserPath);
+        debug writeln("Wrote ", parserPath);
 
         import std.process : execute;
         auto dmd = execute(["dmd", "-c", parserPath]);

@@ -2283,7 +2283,8 @@ struct GxParser
                     if (seq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side of operator");
                     const terminator = _lexer.front();
-                    assert(terminator.tok == TOK.literal);
+                    if (terminator.tok != TOK.literal)
+                        _lexer.errorAtToken(terminator, "non-literal terminator");
                     seqPutCheck(new NonGreedyZeroOrMore(head, seq.backPop(), new Literal(terminator)));
                     break;
                 case TOK.plus:

@@ -3099,7 +3099,7 @@ struct GxFileReader
             fp.popFront();
         }
 
-        Output parserSource = generateParserSource(path, fp);
+        Output parserSource = generateParserSource(fp);
 
         import std.file : write;
         const parserPath = path.stripExtension ~ "_parser.d";
@@ -3115,14 +3115,14 @@ struct GxFileReader
                     dmd.output);
     }
 
-    static Output generateParserSource(in string path,
-                                       const scope ref GxFileParser fp)
+    static Output generateParserSource(const scope ref GxFileParser fp)
     {
         import std.path : chainPath, dirName, baseName;
         import std.array : array;
 
         typeof(return) output;
 
+        const path = fp.parser._lexer.path;
         const moduleName = path.baseName.stripExtension ~ "_parser";
 
         output.put("/// Automatically generated from `");

@@ -1636,36 +1636,36 @@ final class Literal : TokenNode
         assert(head.input[$-1] == '\'');
         super(head);
     }
-    final bool isCharacter() const
+    static bool isCharacter(in Input content)
     {
-        return (head.input.length == 3 ||
-                (head.input.length == 4 &&
-                 head.input[1] == '\\')); // backquoted character
+        return (content.length == 1 ||
+                (content.length == 2 &&
+                 content[1] == '\\')); // backquoted character
     }
     override void toMatchInSource(scope ref Output sink) const @trusted
     {
-        if (isCharacter)
+        auto content = head.input[1 .. $-1]; // skipping single-quotes
+        if (isCharacter(content))
         {
             sink.put(`ch('`);
-            sink.put(head.input[1 .. $-1]);
+            sink.put(content);
             sink.put(`')`);
         }
         else
         {
             sink.put(`str("`);
-            if (head.input.length >= 3)
-            {
-                auto content = head.input[1 .. $-1];
-                const leadFlag = content.skipOver('"');
-                const backFlag = content.skipOverBack('"');
-                if (leadFlag)
-                    sink.put(`\"`);
-                sink.put(content);
-                if (backFlag)
-                    sink.put(`\"`);
-            }
-            else
-                sink.put(head.input[]);
+
+            const leadFlag = content.skipOver('"');
+            const backFlag = content.skipOverBack('"');
+
+            if (leadFlag)
+                sink.put(`\"`);
+
+            sink.put(content);
+
+            if (backFlag)
+                sink.put(`\"`);
+
             sink.put(`")`);
         }
     }

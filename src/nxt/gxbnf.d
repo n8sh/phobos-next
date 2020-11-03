@@ -24,6 +24,8 @@
  * - Add properties for uint, uint lengthRange()
  * - Sort `AltM` subs by descending minimum length
  *
+ * - Add array `PrefixedRules` sorted by literal for faster lookup
+ *
  * - handle all TODO's in `makeRule`
  *
  * - Detect indirect mutual left-recursion. How? Simple-way in generated parsers:
@@ -1263,7 +1265,7 @@ pure nothrow @nogc:
         {
             if (const lit = cast(const Literal)sub)
             {
-                if (lit.head.input.length != 3)
+                if (lit.head.input.length != 3) // non-character literal
                 {
                     allSubChars = false;
                     break;
@@ -1742,10 +1744,54 @@ pure nothrow @nogc:
 
 final class Hooks : TokenNode
 {
-@safe pure nothrow @nogc:
+    @safe pure nothrow @nogc:
     this(in Token head)
     {
         super(head);
+    }
+    private void toMatchRangeInSource(in Input input,
+                                      scope ref Output sink) const
+    {
+        Output asink;       // argument sink
+        size_t n = 0;       // alt count
+        for (size_t i; i < input.length; ++n)
+        {
+            if (i)
+                asink.put(", "); // separator
+
+            if (i + 3 <= input.length &&
+                input[i + 1] == '-') // range
+            {
+                asink.put("range('");
+                asink.put(input[i]),
+                asink.put("', '");
+                asink.put(input[i + 2]),
+                asink.put("')");
+                i += 3;
+            }
+            else
+            {
+                asink.put("ch('");
+                if (input[i] == '\\')
+                {
+                    asink.put('\\');
+                    i += 1;
+                    asink.put(input[i]);
+                    i += 1;
+                }
+                else
+                {
+                    asink.put(input[i]);
+                    i += 1;
+                }
+                asink.put("')");
+            }
+        }
+        if (n >= 2)
+            sink.put("alt(");
+        sink.put(asink[]);
+        if (n >= 2)
+            sink.put(")");
     }
     override void toMatchInSource(scope ref Output sink) const
     {
@@ -1757,49 +1803,7 @@ final class Hooks : TokenNode
         assert(rbracket);
 
         if (input.canFind('-'))
-        {
-            Output asink;       // argument sink
-            size_t n = 0;       // alt count
-            for (size_t i; i < input.length; ++n)
-            {
-                if (i)
-                    asink.put(", "); // separator
-
-                if (i + 3 <= input.length &&
-                    input[i + 1] == '-') // range
-                {
-                    asink.put("range('");
-                    asink.put(input[i]),
-                    asink.put("', '");
-                    asink.put(input[i + 2]),
-                    asink.put("')");
-                    i += 3;
-                }
-                else
-                {
-                    asink.put("ch('");
-                    if (input[i] == '\\')
-                    {
-                        asink.put('\\');
-                        i += 1;
-                        asink.put(input[i]);
-                        i += 1;
-                    }
-                    else
-                    {
-                        asink.put(input[i]);
-                        i += 1;
-                    }
-                    asink.put("')");
-                }
-            }
-            if (n >= 2)
-                sink.put("alt(");
-            sink.put(asink[]);
-            if (n >= 2)
-                sink.put(")");
-            return;
-        }
+            return toMatchRangeInSource(input, sink);
 
         sink.put("altNch!(");
         for (size_t i; i < input.length;)

@@ -1595,10 +1595,10 @@ final class TildeSentinel : TokenNode
     }
 }
 
-final class Wildcard : TokenNode
+final class AnyClass : TokenNode
 {
 @safe pure nothrow @nogc:
-    this(in Token head)
+this(in Token head)
     {
         super(head);
     }
@@ -1606,6 +1606,23 @@ final class Wildcard : TokenNode
     {
         sink.put(`any()`);
     }
+}
+
+final class CharKind : TokenNode
+{
+@safe pure nothrow:
+this(in Token head, in const(char)[] kind)
+    {
+        super(head);
+        this.kind = kind.idup;
+    }
+    override void toMatchInSource(scope ref Output sink) const @trusted @nogc
+    {
+        sink.put(`cc!"`);
+        sink.put(kind);
+        sink.put(`"()`);
+    }
+    string kind;
 }
 
 /// Match literal `head.input`.
@@ -2249,10 +2266,21 @@ struct GxParser
                     seq.put(new DotDotSentinel(_lexer.frontPop()));
                     break;
                 case TOK.wildcard:
-                    seqPutCheck(new Wildcard(_lexer.frontPop()));
+                    seqPutCheck(new AnyClass(_lexer.frontPop()));
                     break;
                 case TOK.brackets:
-                    seqPutCheck(new Hooks(_lexer.frontPop()));
+                    Node node;
+                    const head = _lexer.frontPop();
+                    Input input = head.input;
+                    if (input.skipOver(`[\p{`) &&
+                        input.skipOverBack(`}]`) &&
+                        (input.length == 1 ||
+                         input.length == 2))
+                        node = new CharKind(head, input);
+                    else
+                        node = new Hooks(head);
+                    if (node)
+                        seqPutCheck(node);
                     break;
                 case TOK.hash:
                 case TOK.rewrite:
@@ -2811,6 +2839,13 @@ struct Parser
             return Match(1);
         }
         return Match.none();
+    }
+
+    Match cc!(string class)() pure nothrow @nogc
+    {
+        pragma(inline, true);
+        off += 1;               // TODO: switch on class
+        return Match(1);
     }
 
     /// Match string x.

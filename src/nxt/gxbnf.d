@@ -1757,13 +1757,15 @@ pure nothrow @nogc:
     }
 }
 
-final class Hooks : TokenNode
+final class Brackets : TokenNode
 {
     @safe pure nothrow @nogc:
+
     this(in Token head)
     {
         super(head);
     }
+
     override void toMatchInSource(scope ref Output sink) const
     {
         Input input = head.input;
@@ -1807,6 +1809,7 @@ final class Hooks : TokenNode
         }
         sink.put(")()");
     }
+
     private void toMatchRangeInSource(in Input input,
                                       scope ref Output sink) const
     {
@@ -1818,7 +1821,7 @@ final class Hooks : TokenNode
                 asink.put(", "); // separator
 
             if (i + 3 <= input.length &&
-                input[i + 1] == '-') // range
+                input[i + 1] == '-') // such as: `a-z`
             {
                 asink.put("range('");
                 asink.put(input[i]),
@@ -2296,7 +2299,7 @@ struct GxParser
                          input.length == 2))
                         node = new CharKind(head, input);
                     else
-                        node = new Hooks(head);
+                        node = new Brackets(head);
                     if (node)
                         seqPutCheck(node);
                     break;

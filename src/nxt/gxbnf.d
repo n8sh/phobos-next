@@ -2733,7 +2733,10 @@ struct GxParser
         case `tokens`:
             return makeTokens(head);
         case `options`:
-            return makeTopOptions(head);
+            if (options)
+                _lexer.errorAtToken(head, "cannot have multiple options");
+            options = makeTopOptions(head);
+            return options;
         case `header`:
             return makeHeader(head);
         case `mode`:
@@ -3096,7 +3099,7 @@ struct GxFileReader
             fp.popFront();
         }
 
-        Output parserSource = generateParserSource(path, fp.rules, fp.imports, fp.parser._lexer);
+        Output parserSource = generateParserSource(path, fp);
 
         import std.file : write;
         const parserPath = path.stripExtension ~ "_parser.d";
@@ -3113,9 +3116,7 @@ struct GxFileReader
     }
 
     static Output generateParserSource(in string path,
-                                       const scope ref Rules rules,
-                                       const scope ref Imports imports,
-                                       const scope ref GxLexer lexer)
+                                       const scope ref GxFileParser fp)
     {
         import std.path : chainPath, dirName, baseName;
         import std.array : array;
@@ -3133,27 +3134,31 @@ struct GxFileReader
 
         output.put(parserSourceBegin);
 
-        foreach (const rule; rules)
+        foreach (const rule; fp.rules)
         {
             if (showFlag)
                 rule.show();
-            rule.toMatcherInSource(output, lexer);
+            rule.toMatcherInSource(output, fp.parser._lexer);
         }
 
-        foreach (import_; imports)
+        foreach (import_; fp.imports)
             foreach (module_; import_.modules)
             {
                 const modulePath = chainPath(dirName(path), module_ ~ ".g4").array.idup; // TODO: detect mutual file recursion
-                auto fp = GxFileParser(modulePath);
-                while (!fp.empty)
-                    fp.popFront();
-                foreach (const rule; fp.rules)
+                auto fp_ = GxFileParser(modulePath);
+                while (!fp_.empty)
+                    fp_.popFront();
+                foreach (const rule; fp_.rules)
                 {
                     if (showFlag)
                         rule.show();
-                    rule.toMatcherInSource(output, lexer);
+                    rule.toMatcherInSource(output, fp.parser._lexer);
                 }
             }
+
+        if (fp.options)
+        {
+        }
 
         output.put(parserSourceEnd);
 

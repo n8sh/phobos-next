@@ -2971,18 +2971,6 @@ struct Parser
         return Match.none();
     }
 
-    Match rng(in dchar lower, in dchar upper) pure nothrow @nogc
-    {
-        pragma(inline, true);
-        if (lower <= inp[off] &&
-            inp[off] <= upper)  // TODO: adapt to next variable length encoded dchar
-        {
-            off += 1; // TODO: adapt to next variable length encoded dchar
-            return Match(1);
-        }
-        return Match.none();
-    }
-
     Match gzm(Matcher)(const scope lazy Matcher matcher)
     {
         const off0 = off;

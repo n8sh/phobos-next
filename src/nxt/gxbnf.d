@@ -3075,15 +3075,15 @@ struct GxFileReader
 @safe:
     this(in string filePath)
     {
-        auto gxp = GxFileParser(filePath);
+        auto fp = GxFileParser(filePath);
 
-        while (!gxp.empty)
+        while (!fp.empty)
         {
-            // gxp.front.show();
-            gxp.popFront();
+            // fp.front.show();
+            fp.popFront();
         }
 
-        Output parserSource = generateParserSource(filePath, gxp.rules, gxp.imports, gxp.parser._lexer);
+        Output parserSource = generateParserSource(filePath, fp.rules, fp.imports, fp.parser._lexer);
 
         import std.file : write;
         const parserPath = filePath.stripExtension ~ "_parser.d";
@@ -3104,7 +3104,8 @@ struct GxFileReader
                                        const scope ref Imports imports,
                                        const scope ref GxLexer lexer)
     {
-        import std.path : baseName;
+        import std.path : chainPath, dirName, baseName;
+        import std.array : array;
         typeof(return) output;
 
         const moduleName = filePath.baseName.stripExtension ~ "_parser";
@@ -3126,9 +3127,19 @@ struct GxFileReader
         }
 
         foreach (import_; imports)
-        {
-            debug writeln(import_);
-        }
+            foreach (module_; import_.modules)
+            {
+                const modulePath = chainPath(dirName(filePath), module_ ~ ".g4").array.idup;
+                auto mp = GxFileParser(modulePath);
+                while (!mp.empty)
+                    mp.popFront();
+                foreach (rule; mp.rules)
+                {
+                    if (showFlag)
+                        rule.show();
+                    rule.toMatcherInSource(output, lexer);
+                }
+            }
 
         output.put(parserSourceEnd);
 

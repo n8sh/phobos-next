@@ -1656,14 +1656,14 @@ final class Literal : TokenNode
             sink.put(`str("`);
 
             const leadFlag = content.skipOver('"');
-            const backFlag = content.skipOverBack('"');
+            const trailFlag = content.skipOverBack('"');
 
             if (leadFlag)
                 sink.put(`\"`);
 
             sink.put(content);
 
-            if (backFlag)
+            if (trailFlag)
                 sink.put(`\"`);
 
             sink.put(`")`);

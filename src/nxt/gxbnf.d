@@ -1631,13 +1631,16 @@ final class Literal : TokenNode
 @safe pure nothrow @nogc:
     this(in Token head)
     {
+        assert(head.input.length >= 2);
+        assert(head.input[0] == '\'');
+        assert(head.input[$-1] == '\'');
         super(head);
     }
     final bool isCharacter() const
     {
         return (head.input.length == 3 ||
                 (head.input.length == 4 &&
-                 head.input[1] == '\\'));
+                 head.input[1] == '\\')); // backquoted character
     }
     override void toMatchInSource(scope ref Output sink) const @trusted
     {

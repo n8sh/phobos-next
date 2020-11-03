@@ -2878,13 +2878,24 @@ struct Parser
         return Match(1);
     }
 
-    Match ch(dchar x) pure nothrow @nogc
+    Match ch(char x) pure nothrow @nogc
     {
         pragma(inline, true);
         if (inp[off] == x)
         {
             off += 1;
             return Match(1);
+        }
+        return Match.none();
+    }
+
+    Match ch(dchar x) pure nothrow @nogc
+    {
+        pragma(inline, true);
+        if (inp[off] == x) // TODO: decode next dchar
+        {
+            off += 1;           // TODO: decode next dchar
+            return Match(1);    // TODO: decode next dchar
         }
         return Match.none();
     }

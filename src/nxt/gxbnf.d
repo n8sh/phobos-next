@@ -1006,7 +1006,7 @@ private abstract class Node
     abstract void show(in Format fmt = Format.init) const;
 pure nothrow:
     abstract bool equals(const Node o) const @nogc;
-    abstract void toMatchInSource(scope ref Output sink) const @nogc;
+    abstract void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @nogc;
     this() @nogc {}
 }
 
@@ -1071,14 +1071,14 @@ pure nothrow @nogc:
     {
         super(subs);
     }
-    override void toMatchInSource(scope ref Output sink) const
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
         sink.put("seq(");
         foreach (const i, const sub; subs)
         {
             if (i)
                 sink.put(", "); // separator
-            sub.toMatchInSource(sink);
+            sub.toMatchInSource(sink, lexer);
         }
         sink.put(")");
     }
@@ -1184,8 +1184,8 @@ class Rule : Node
             return head == o_.head && top.equals(o_.top);
         return false;
     }
-    override void toMatchInSource(scope ref Output sink) const @nogc {} // dummy
-    void toMatcherInSource(scope ref Output sink) const
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @nogc {} // dummy
+    void toMatcherInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
         sink.showNIndents(1); sink.put(`Match `);
         if (head.input != "EOF")
@@ -1202,7 +1202,7 @@ class Rule : Node
         if (top)
         {
             sink.put(` `);
-            top.toMatchInSource(sink);
+            top.toMatchInSource(sink, lexer);
         }
         else
             sink.put(` Match.zero()`);
@@ -1257,7 +1257,7 @@ pure nothrow @nogc:
     {
         super(subs);
     }
-    override void toMatchInSource(scope ref Output sink) const
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
         // preprocess
         bool allSubChars = true;
@@ -1305,7 +1305,7 @@ pure nothrow @nogc:
                     sink.showNIndents(2);
                     sink.showNSpaces(11);
                 }
-                sub.toMatchInSource(sink);
+                sub.toMatchInSource(sink, lexer);
             }
         }
 
@@ -1357,7 +1357,7 @@ pure nothrow @nogc:
             return head == o_.head;
         return false;
     }
-    override void toMatchInSource(scope ref Output sink) const @trusted
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @trusted
     {
         sink.put(`tok(`);
         sink.put(head.input[]);
@@ -1405,10 +1405,10 @@ final class Not : UnExpr
     {
         super(head, sub);
     }
-    override void toMatchInSource(scope ref Output sink) const
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
         sink.put("not(");
-        sub.toMatchInSource(sink);
+        sub.toMatchInSource(sink, lexer);
         sink.put(")");
     }
 }
@@ -1421,10 +1421,10 @@ final class GreedyZeroOrOne : UnExpr
     {
         super(head, sub);
     }
-    override void toMatchInSource(scope ref Output sink) const
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
         sink.put("gzo(");
-        sub.toMatchInSource(sink);
+        sub.toMatchInSource(sink, lexer);
         sink.put(")");
     }
 }
@@ -1437,10 +1437,10 @@ final class GreedyZeroOrMore : UnExpr
     {
         super(head, sub);
     }
-    override void toMatchInSource(scope ref Output sink) const
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
         sink.put("gzm(");
-        sub.toMatchInSource(sink);
+        sub.toMatchInSource(sink, lexer);
         sink.put(")");
     }
 }
@@ -1453,10 +1453,10 @@ final class GreedyOneOrMore : UnExpr
     {
         super(head, sub);
     }
-    override void toMatchInSource(scope ref Output sink) const
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
         sink.put("gom(");
-        sub.toMatchInSource(sink);
+        sub.toMatchInSource(sink, lexer);
         sink.put(")");
     }
 }
@@ -1469,10 +1469,10 @@ final class NonGreedyZeroOrOne : UnExpr
     {
         super(head, sub);
     }
-    override void toMatchInSource(scope ref Output sink) const
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
         sink.put("nzo(");
-        sub.toMatchInSource(sink);
+        sub.toMatchInSource(sink, lexer);
         sink.put(")");
     }
 }
@@ -1486,12 +1486,12 @@ final class NonGreedyZeroOrMore : UnExpr
         super(head, sub);
         this.terminator = terminator;
     }
-    override void toMatchInSource(scope ref Output sink) const
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
         sink.put("nzm(");
-        sub.toMatchInSource(sink);
+        sub.toMatchInSource(sink, lexer);
         sink.put(",");
-        terminator.toMatchInSource(sink);
+        terminator.toMatchInSource(sink, lexer);
         sink.put(")");
     }
     const Node terminator;
@@ -1505,10 +1505,10 @@ final class NonGreedyOneOrMore : UnExpr
     {
         super(head, sub);
     }
-    override void toMatchInSource(scope ref Output sink) const
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
         sink.put("nom(");
-        sub.toMatchInSource(sink);
+        sub.toMatchInSource(sink, lexer);
         sink.put(")");
     }
 }
@@ -1521,10 +1521,10 @@ final class Several : UnExpr
     {
         super(head, sub);
     }
-    override void toMatchInSource(scope ref Output sink) const
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
         sink.put("cnt(");
-        sub.toMatchInSource(sink);
+        sub.toMatchInSource(sink, lexer);
         sink.put(")");
     }
     ulong count;
@@ -1537,10 +1537,10 @@ final class RewriteSyntacticPredicate : UnExpr
     {
         super(head, sub);
     }
-    override void toMatchInSource(scope ref Output sink) const
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
         sink.put("syn(");
-        sub.toMatchInSource(sink);
+        sub.toMatchInSource(sink, lexer);
         sink.put(")");
     }
 }
@@ -1557,14 +1557,14 @@ final class Symbol : TokenNode
     {
         super(head);
     }
-    override void toMatchInSource(scope ref Output sink) const
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
         if (head.input != "EOF")
             sink.put(matcherFunctionNamePrefix);
         sink.put(head.input);
         sink.put(`()`);
         // if (const Rule* rulePtr = head.input in rulesByName)
-        //     (*rulePtr).toMatchInSource(sink);
+        //     (*rulePtr).toMatchInSource(sink, lexer);
     }
 }
 
@@ -1602,7 +1602,7 @@ this(in Token head)
     {
         super(head);
     }
-    override void toMatchInSource(scope ref Output sink) const @trusted
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @trusted
     {
         sink.put(`any()`);
     }
@@ -1616,7 +1616,7 @@ this(in Token head, in const(char)[] kind)
         super(head);
         this.kind = kind.idup;
     }
-    override void toMatchInSource(scope ref Output sink) const @trusted @nogc
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @trusted @nogc
     {
         sink.put(`cc!"`);
         sink.put(kind);
@@ -1643,7 +1643,7 @@ final class Literal : TokenNode
         assert(head.input[$-1] == '\'');
         super(head);
     }
-    override void toMatchInSource(scope ref Output sink) const @trusted
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @trusted
     {
         auto content = head.input[1 .. $-1]; // skipping single-quotes
         if (isCharacter(content))
@@ -1736,7 +1736,7 @@ pure nothrow @nogc:
     {
         super(head, limits);
     }
-    override void toMatchInSource(scope ref Output sink) const
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
         sink.put("range(");
         if (const lower = cast(const Literal)subs[0])
@@ -1766,7 +1766,7 @@ final class Brackets : TokenNode
         super(head);
     }
 
-    override void toMatchInSource(scope ref Output sink) const
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
         Input input = head.input;
 
@@ -1791,8 +1791,23 @@ final class Brackets : TokenNode
             {
                 sink.put('\\');
                 i += 1;
-                sink.put(input[i]);
-                i += 1;
+                if (input[i] == 'u')
+                {
+                    import std.ascii : isHexDigit;
+                    if (i + 5 > input.length &&
+                        !(input[i + 1].isHexDigit &&
+                          input[i + 2].isHexDigit &&
+                          input[i + 3].isHexDigit &&
+                          input[i + 4].isHexDigit))
+                        lexer.errorAtToken(Token(head.tok, input[i + 1 .. $]), "incorrect unicode escape sequence");
+                    sink.put(input[i .. i + 5]);
+                    i += 5;
+                }
+                else
+                {
+                    sink.put(input[i]);
+                    i += 1;
+                }
             }
             else if (input[i] == '\'')
             {
@@ -3060,7 +3075,7 @@ struct GxFileReader
         {
             if (showFlag)
                 rule.show(fmt);
-            rule.toMatcherInSource(parserSource);
+            rule.toMatcherInSource(parserSource, gxp.parser._lexer);
         }
 
         parserSource.put(parserSourceEnd);

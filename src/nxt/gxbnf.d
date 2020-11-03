@@ -1635,7 +1635,9 @@ final class Literal : TokenNode
     }
     final bool isCharacter() const
     {
-        return head.input.length == 3;
+        return (head.input.length == 3 ||
+                (head.input.length == 4 &&
+                 head.input[1] == '\\'));
     }
     override void toMatchInSource(scope ref Output sink) const @trusted
     {

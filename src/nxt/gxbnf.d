@@ -2808,12 +2808,11 @@ private:
 struct GxFileParser           // TODO: convert to `class`
 {
 @safe:
-    this(in string filePath)
+    this(in string path)
     {
         import std.path : expandTilde;
-        const path = filePath.expandTilde;
-        const data = cast(Input)rawReadPath(path); // cast to Input because we don't want to keep all file around:
-        parser = GxParser(data, filePath, false);
+        const data = cast(Input)rawReadPath(path.expandTilde); // cast to Input because we don't want to keep all file around:
+        parser = GxParser(data, path, false);
     }
     ~this() @nogc {}
     GxParser parser;
@@ -3071,11 +3070,11 @@ static immutable parserSourceEnd =
 struct GxFileReader
 {
     import std.path : stripExtension;
-    enum showFlag = false; // filePath.endsWith("oncrpcv2.g4");
+    enum showFlag = false;
 @safe:
-    this(in string filePath)
+    this(in string path)
     {
-        auto fp = GxFileParser(filePath);
+        auto fp = GxFileParser(path);
 
         while (!fp.empty)
         {
@@ -3083,10 +3082,10 @@ struct GxFileReader
             fp.popFront();
         }
 
-        Output parserSource = generateParserSource(filePath, fp.rules, fp.imports, fp.parser._lexer);
+        Output parserSource = generateParserSource(path, fp.rules, fp.imports, fp.parser._lexer);
 
         import std.file : write;
-        const parserPath = filePath.stripExtension ~ "_parser.d";
+        const parserPath = path.stripExtension ~ "_parser.d";
         write(parserPath, parserSource[]);
         debug writeln("Wrote ", parserPath);
 
@@ -3099,19 +3098,20 @@ struct GxFileReader
                     dmd.output);
     }
 
-    static Output generateParserSource(in string filePath,
+    static Output generateParserSource(in string path,
                                        const scope ref Rules rules,
                                        const scope ref Imports imports,
                                        const scope ref GxLexer lexer)
     {
         import std.path : chainPath, dirName, baseName;
         import std.array : array;
+
         typeof(return) output;
 
-        const moduleName = filePath.baseName.stripExtension ~ "_parser";
+        const moduleName = path.baseName.stripExtension ~ "_parser";
 
         output.put("/// Automatically generated from `");
-        output.put(filePath.baseName);
+        output.put(path.baseName);
         output.put("`.\n");
         output.put(q{module } ~ moduleName ~ q{;
 
@@ -3129,7 +3129,7 @@ struct GxFileReader
         foreach (import_; imports)
             foreach (module_; import_.modules)
             {
-                const modulePath = chainPath(dirName(filePath), module_ ~ ".g4").array.idup; // TODO: detect mutual file recursion
+                const modulePath = chainPath(dirName(path), module_ ~ ".g4").array.idup; // TODO: detect mutual file recursion
                 auto fp = GxFileParser(modulePath);
                 while (!fp.empty)
                     fp.popFront();

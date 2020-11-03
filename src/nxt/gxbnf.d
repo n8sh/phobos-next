@@ -3261,7 +3261,10 @@ version(show)
             const bn = fn.baseName;
             if (fn.isGxFilename)
             {
-                if (bn == `Antlr3.g` ||
+                if (bn == `RexxParser.g4` ||
+                    bn == `RexxLexer.g4` ||
+                    bn == `StackTrace.g4` ||
+                    bn == `Antlr3.g` ||
                     bn == `ANTLRv2.g2`) // skip this crap
                     continue;
                 // if (bn != `pascal.g4` &&

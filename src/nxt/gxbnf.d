@@ -1749,6 +1749,48 @@ final class Hooks : TokenNode
     {
         super(head);
     }
+    override void toMatchInSource(scope ref Output sink) const
+    {
+        Input input = head.input;
+
+        const lbracket = input.skipOver('[');
+        const rbracket = input.skipOverBack(']');
+        assert(lbracket);
+        assert(rbracket);
+
+        if (input.canFind('-'))
+            return toMatchRangeInSource(input, sink);
+
+        sink.put("altNch!(");
+        for (size_t i; i < input.length;)
+        {
+            if (i)
+                sink.put(", "); // separator
+
+            sink.put('\'');
+
+            if (input[i] == '\\')
+            {
+                sink.put('\\');
+                i += 1;
+                sink.put(input[i]);
+                i += 1;
+            }
+            else if (input[i] == '\'')
+            {
+                sink.put(`\'`);
+                i += 1;
+            }
+            else
+            {
+                sink.put(input[i]);
+                i += 1;
+            }
+
+            sink.put('\'');
+        }
+        sink.put(")()");
+    }
     private void toMatchRangeInSource(in Input input,
                                       scope ref Output sink) const
     {
@@ -1792,48 +1834,6 @@ final class Hooks : TokenNode
         sink.put(asink[]);
         if (n >= 2)
             sink.put(")");
-    }
-    override void toMatchInSource(scope ref Output sink) const
-    {
-        Input input = head.input;
-
-        const lbracket = input.skipOver('[');
-        const rbracket = input.skipOverBack(']');
-        assert(lbracket);
-        assert(rbracket);
-
-        if (input.canFind('-'))
-            return toMatchRangeInSource(input, sink);
-
-        sink.put("altNch!(");
-        for (size_t i; i < input.length;)
-        {
-            if (i)
-                sink.put(", "); // separator
-
-            sink.put('\'');
-
-            if (input[i] == '\\')
-            {
-                sink.put('\\');
-                i += 1;
-                sink.put(input[i]);
-                i += 1;
-            }
-            else if (input[i] == '\'')
-            {
-                sink.put(`\'`);
-                i += 1;
-            }
-            else
-            {
-                sink.put(input[i]);
-                i += 1;
-            }
-
-            sink.put('\'');
-        }
-        sink.put(")()");
     }
 }
 

@@ -1625,6 +1625,13 @@ this(in Token head, in const(char)[] kind)
     string kind;
 }
 
+private bool isCharacter(in Input content) pure nothrow @nogc
+{
+    return (content.length == 1 ||
+            (content.length == 2 &&
+             content[1] == '\\')); // backquoted character
+}
+
 /// Match literal `head.input`.
 final class Literal : TokenNode
 {
@@ -1635,12 +1642,6 @@ final class Literal : TokenNode
         assert(head.input[0] == '\'');
         assert(head.input[$-1] == '\'');
         super(head);
-    }
-    static bool isCharacter(in Input content)
-    {
-        return (content.length == 1 ||
-                (content.length == 2 &&
-                 content[1] == '\\')); // backquoted character
     }
     override void toMatchInSource(scope ref Output sink) const @trusted
     {

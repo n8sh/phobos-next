@@ -1845,6 +1845,18 @@ final class Brackets : TokenNode
                 asink.put("')");
                 i += 3;
             }
+            else if (i + 13 <= input.length &&
+                     input[i] == '\\' &&
+                     input[i + 1] == 'u' &&
+                     input[i + 6] == '-') // such as: `\u0021-\u0031`
+            {
+                asink.put("range('");
+                asink.put(input[i .. i + 6]),
+                asink.put("', '");
+                asink.put(input[i + 7 .. i + 7 + 6]),
+                asink.put("')");
+                i += 13;
+            }
             else
             {
                 asink.put("ch('");

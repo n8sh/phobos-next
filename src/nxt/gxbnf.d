@@ -2959,7 +2959,7 @@ struct Parser
             const match = matcher;
             if (!match)
             {
-                off = off0;     // restore
+                off = off0;     // backtrack
                 return match;   // propagate failure
             }
         }}
@@ -2974,7 +2974,7 @@ struct Parser
             if (const match = matcher)
                 return match;
             else
-                off = off0;     // restore
+                off = off0;     // backtrack
         }}
         return Match.none();
     }
@@ -2985,7 +2985,7 @@ struct Parser
         const match = matcher;
         if (!match)
             return match;
-        off = off0;             // restore
+        off = off0;             // backtrack
         return Match.none();
     }
 
@@ -3035,7 +3035,7 @@ struct Parser
             const match = matcher;
             if (!match)
             {
-                off = off1;     // restore
+                off = off1;     // backtrack
                 break;
             }
         }
@@ -3048,7 +3048,7 @@ struct Parser
         const match = matcher;
         if (!match)
         {
-            off = off0;         // restore
+            off = off0;         // backtrack
             return Match.none();
         }
         return Match(off - off0);
@@ -3060,7 +3060,7 @@ struct Parser
         const match0 = matcher;
         if (!match0)
         {
-            off = off0;         // restore
+            off = off0;         // backtrack
             return Match.none();
         }
         while (true)
@@ -3069,7 +3069,7 @@ struct Parser
             const match1 = matcher;
             if (!match1)
             {
-                off = off1;     // restore
+                off = off1;     // backtrack
                 break;
             }
         }
@@ -3079,15 +3079,16 @@ struct Parser
     Match nzo(Matcher1, Matcher2)(const scope lazy Matcher1 matcher, Matcher2 terminator)
     {
         const off0 = off;
-        if (terminator())
+        if (terminator)
         {
-            off = off0;         // restore
-            return Match(off1 - off0); // doee
+            off = off0;         // backtrack
+            return Match.zero(); // done
         }
+        off = off0;             // backtrack
         const match = matcher;
         if (!match)
         {
-            off = off0;         // restore
+            off = off0;         // backtrack
             return Match.none();
         }
         return Match(off - off0);
@@ -3099,19 +3100,49 @@ struct Parser
         while (true)
         {
             const off1 = off;
-            if (terminator())
+            if (terminator)
             {
-                off = off1;     // restore
+                off = off1;     // backtrack
                 return Match(off1 - off0); // done
             }
-            off = off1;         // restore
+            off = off1;         // backtrack
             const off2 = off;
             const match = matcher;
             if (!match)
             {
-                off = off2;     // restore
+                off = off2;     // backtrack
                 break;
             }
+        }
+        return Match(off - off0);
+    }
+
+    Match nom(Matcher1, Matcher2)(const scope lazy Matcher1 matcher, Matcher2 terminator)
+    {
+        const off0 = off;
+        bool firstFlag;
+        while (true)
+        {
+            const off1 = off;
+            if (terminator)
+            {
+                off = off1;     // backtrack
+                return Match(off1 - off0); // done
+            }
+            off = off1;         // backtrack
+            const off2 = off;
+            const match = matcher;
+            if (!match)
+            {
+                off = off2;     // backtrack
+                break;
+            }
+            firstFlag = true;
+        }
+        if (!firstFlag)
+        {
+            off = off0;         // backtrack
+            return Match.none();
         }
         return Match(off - off0);
     }

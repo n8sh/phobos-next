@@ -1482,9 +1482,14 @@ final class NonGreedyZeroOrOne : NonGreedyUnaExpr
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
-        assert(terminator);
         sink.put("nzo(");
+
         sub.toMatchInSource(sink, lexer);
+
+        assert(terminator);
+        sink.put(",");
+        terminator.toMatchInSource(sink, lexer);
+
         sink.put(")");
     }
 }
@@ -1499,11 +1504,14 @@ final class NonGreedyZeroOrMore : NonGreedyUnaExpr
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
-        assert(terminator);
         sink.put("nzm(");
+
         sub.toMatchInSource(sink, lexer);
+
+        assert(terminator);
         sink.put(",");
         terminator.toMatchInSource(sink, lexer);
+
         sink.put(")");
     }
 }
@@ -1518,9 +1526,13 @@ final class NonGreedyOneOrMore : NonGreedyUnaExpr
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
-        assert(terminator);
         sink.put("nom(");
         sub.toMatchInSource(sink, lexer);
+
+        assert(terminator);
+        sink.put(",");
+        terminator.toMatchInSource(sink, lexer);
+
         sink.put(")");
     }
 }
@@ -3064,15 +3076,33 @@ struct Parser
         return Match(off - off0);
     }
 
+    Match nzo(Matcher1, Matcher2)(const scope lazy Matcher1 matcher, Matcher2 terminator)
+    {
+        const off0 = off;
+        if (terminator())
+        {
+            off = off0;         // restore
+            return Match(off1 - off0); // doee
+        }
+        const match = matcher;
+        if (!match)
+        {
+            off = off0;         // restore
+            return Match.none();
+        }
+        return Match(off - off0);
+    }
+
     Match nzm(Matcher1, Matcher2)(const scope lazy Matcher1 matcher, Matcher2 terminator)
     {
         const off0 = off;
         while (true)
         {
             const off1 = off;
-            if (const match = terminator)
+            if (terminator())
             {
-                return Match(off1 - off0);
+                off = off1;     // restore
+                return Match(off1 - off0); // done
             }
             off = off1;         // restore
             const off2 = off;

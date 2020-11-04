@@ -15,6 +15,8 @@
  *
  * - Is `RulesByName` needed?
  *
+ * - handle all TODO's in `makeRule`
+ *
  * - Move parserSourceBegin to gxbnf_rdbase.d
  *
  * - Use `TOK.tokenSpecOptions` in parsing. Ignored for now.
@@ -23,8 +25,6 @@
  * - Sort `AltM` subs by descending minimum length
  *
  * - Add array `PrefixedRules` sorted by literal for faster lookup
- *
- * - handle all TODO's in `makeRule`
  *
  * - Detect indirect mutual left-recursion. How? Simple-way in generated parsers:
  *   enters a rule again without offset change.

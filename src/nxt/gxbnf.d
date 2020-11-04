@@ -1247,8 +1247,9 @@ final class AltM : NaryExpr
         }
     }
 pure nothrow @nogc:
-    this(NodeArray subs)
+    this(Token head, NodeArray subs)
     {
+        this.head = head;
         super(subs.move());
     }
     this(uint n)(Node[n] subs) if (n >= 2)
@@ -1312,9 +1313,11 @@ pure nothrow @nogc:
         if (allSubChars)
             sink.put("()");
     }
+    Token head;
 }
 
-Node makeAltA(NodeArray subs,
+Node makeAltA(Token head,
+              NodeArray subs,
               in bool rewriteFlag = true) pure nothrow
 {
     subs = flattenSubs!AltM(subs.move());
@@ -1325,21 +1328,23 @@ Node makeAltA(NodeArray subs,
     case 1:
         return subs[0];
     default:
-        return new AltM(subs.move());
+        return new AltM(head, subs.move());
     }
 }
 
-Node makeAltM(Node[] subs,
+Node makeAltM(Token head,
+              Node[] subs,
               in bool rewriteFlag = true) pure nothrow
 {
-    return makeAltA(NodeArray(subs), rewriteFlag);
+    return makeAltA(head, NodeArray(subs), rewriteFlag);
 }
 
-Node makeAltN(uint n)(Node[n] subs,
+Node makeAltN(uint n)(Token head,
+                      Node[n] subs,
                       in bool rewriteFlag = true) pure nothrow
 if (n >= 2)
 {
-    return makeAltA(NodeArray(subs), rewriteFlag);
+    return makeAltA(head, NodeArray(subs), rewriteFlag);
 }
 
 class TokenNode : Node
@@ -2242,7 +2247,7 @@ struct GxParser
                     if (auto pipe = cast(PipeSentinel)seq.back) // binary operator. TODO: if skipOver!PipeSentinel
                     {
                         seq.popBack(); // pop `PipeSentinel`
-                        return seqPutCheck(makeAltN!2([seq.backPop(), last]));
+                        return seqPutCheck(makeAltN!2(pipe.head, [seq.backPop(), last]));
                     }
                     if (auto dotdot = cast(DotDotSentinel)seq.back) // binary operator
                     {
@@ -2496,11 +2501,11 @@ struct GxParser
 
         static if (useStaticTempArrays)
         {
-            Node top = alts.length == 1 ? alts.backPop() : makeAltM(alts[]);
+            Node top = alts.length == 1 ? alts.backPop() : makeAltM(Token.init, alts[]);
             alts.clear();
         }
         else
-            Node top = alts.length == 1 ? alts.backPop() : makeAlt(alts.move());
+            Node top = alts.length == 1 ? alts.backPop() : makeAltA(Token.init, alts.move());
 
         Rule rule = (isFragment
                      ? new FragmentRule(name, top)

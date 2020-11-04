@@ -1895,22 +1895,16 @@ final class Brackets : TokenNode
             {
                 asink.put("ch('");
                 if (input[i] == '\'')
-                {
                     asink.put(`\'`); // need backquoting
-                    i += 1;
-                }
                 else if (input[i] == '\\')
                 {
                     asink.put('\\');
                     i += 1;
                     asink.put(input[i]);
-                    i += 1;
                 }
                 else
-                {
                     asink.put(input[i]);
-                    i += 1;
-                }
+                i += 1;
                 asink.put("')");
             }
         }

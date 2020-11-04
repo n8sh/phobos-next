@@ -1314,8 +1314,8 @@ pure nothrow @nogc:
     }
 }
 
-Node makeAlt(NodeArray subs,
-             in bool rewriteFlag = true) pure nothrow
+Node makeAltA(NodeArray subs,
+              in bool rewriteFlag = true) pure nothrow
 {
     subs = flattenSubs!AltM(subs.move());
     switch (subs.length)
@@ -1329,10 +1329,17 @@ Node makeAlt(NodeArray subs,
     }
 }
 
-Node makeAlt(Node[] subs,
-             in bool rewriteFlag = true) pure nothrow
+Node makeAltM(Node[] subs,
+              in bool rewriteFlag = true) pure nothrow
 {
-    return makeAlt(NodeArray(subs), rewriteFlag);
+    return makeAltA(NodeArray(subs), rewriteFlag);
+}
+
+Node makeAltN(uint n)(Node[n] subs,
+                      in bool rewriteFlag = true) pure nothrow
+if (n >= 2)
+{
+    return makeAltA(NodeArray(subs), rewriteFlag);
 }
 
 class TokenNode : Node
@@ -2235,7 +2242,7 @@ struct GxParser
                     if (auto pipe = cast(PipeSentinel)seq.back) // binary operator. TODO: if skipOver!PipeSentinel
                     {
                         seq.popBack(); // pop `PipeSentinel`
-                        return seqPutCheck(makeAlt([seq.backPop(), last]));
+                        return seqPutCheck(makeAltN!2([seq.backPop(), last]));
                     }
                     if (auto dotdot = cast(DotDotSentinel)seq.back) // binary operator
                     {
@@ -2489,7 +2496,7 @@ struct GxParser
 
         static if (useStaticTempArrays)
         {
-            Node top = alts.length == 1 ? alts.backPop() : makeAlt(alts[]);
+            Node top = alts.length == 1 ? alts.backPop() : makeAltM(alts[]);
             alts.clear();
         }
         else

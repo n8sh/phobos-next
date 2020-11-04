@@ -11,13 +11,11 @@
  *
  * - `not(...)`'s implementation needs to be adjusted. often used in conjunction with `altNch`?
  *
- * - Move parserSourceBegin to gxbnf_rdbase.d
- *
- * - Find top rule, that isn't referenced anywhere else
- *
  * - Use `DETECT` upper-case lexer rules LexerRule
  *
  * - Is `RulesByName` needed?
+ *
+ * - Move parserSourceBegin to gxbnf_rdbase.d
  *
  * - Use `TOK.tokenSpecOptions` in parsing. Ignored for now.
  *

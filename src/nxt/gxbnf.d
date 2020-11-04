@@ -9,8 +9,6 @@
  *
  * TODO:
  *
- * - Make NonGreedy-terminators a Node. Look up when terminator is add as node or during matching
- *
  * - `not(...)`'s implementation needs to be adjusted. often used in conjunction with `altNch`?
  *
  * - Move parserSourceBegin to gxbnf_rdbase.d
@@ -1369,7 +1367,7 @@ pure nothrow @nogc:
 }
 
 /// Unary match combinator.
-abstract class UnExpr : Node
+abstract class UnaExpr : Node
 {
 @safe:
     final override void show(in Format fmt = Format.init) const
@@ -1400,7 +1398,7 @@ abstract class UnExpr : Node
 }
 
 /// Don't match an instance of type `sub`.
-final class Not : UnExpr
+final class Not : UnaExpr
 {
 @safe pure nothrow @nogc:
     this(in Token head, Node sub)
@@ -1416,7 +1414,7 @@ final class Not : UnExpr
 }
 
 /// Match (greedily) zero or one instances of type `sub`.
-final class GreedyZeroOrOne : UnExpr
+final class GreedyZeroOrOne : UnaExpr
 {
 @safe pure nothrow @nogc:
     this(in Token head, Node sub)
@@ -1432,7 +1430,7 @@ final class GreedyZeroOrOne : UnExpr
 }
 
 /// Match (greedily) zero or more instances of type `sub`.
-final class GreedyZeroOrMore : UnExpr
+final class GreedyZeroOrMore : UnaExpr
 {
 @safe pure nothrow @nogc:
     this(in Token head, Node sub)
@@ -1448,7 +1446,7 @@ final class GreedyZeroOrMore : UnExpr
 }
 
 /// Match (greedily) one or more instances of type `sub`.
-final class GreedyOneOrMore : UnExpr
+final class GreedyOneOrMore : UnaExpr
 {
 @safe pure nothrow @nogc:
     this(in Token head, Node sub)
@@ -1463,16 +1461,28 @@ final class GreedyOneOrMore : UnExpr
     }
 }
 
-/// Match (non-greedily) zero or one instances of type `sub`.
-final class NonGreedyZeroOrOne : UnExpr
+abstract class NonGreedyUnaExpr : UnaExpr
 {
 @safe pure nothrow @nogc:
-    this(in Token head, Node sub)
+    this(in Token head, Node sub, Node terminator = null)
     {
         super(head, sub);
+        this.terminator = terminator;
+    }
+    Node terminator;
+}
+
+/// Match (non-greedily) zero or one instances of type `sub`.
+final class NonGreedyZeroOrOne : NonGreedyUnaExpr
+{
+@safe pure nothrow @nogc:
+    this(in Token head, Node sub, Node terminator = null)
+    {
+        super(head, sub, terminator);
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
+        assert(terminator);
         sink.put("nzo(");
         sub.toMatchInSource(sink, lexer);
         sink.put(")");
@@ -1480,35 +1490,35 @@ final class NonGreedyZeroOrOne : UnExpr
 }
 
 /// Match (non-greedily) zero or more instances of type `sub`.
-final class NonGreedyZeroOrMore : UnExpr
+final class NonGreedyZeroOrMore : NonGreedyUnaExpr
 {
 @safe pure nothrow @nogc:
-    this(in Token head, Node sub, const Node terminator)
+    this(in Token head, Node sub, Node terminator = null)
     {
-        super(head, sub);
-        this.terminator = terminator;
+        super(head, sub, terminator);
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
+        assert(terminator);
         sink.put("nzm(");
         sub.toMatchInSource(sink, lexer);
         sink.put(",");
         terminator.toMatchInSource(sink, lexer);
         sink.put(")");
     }
-    const Node terminator;
 }
 
 /// Match (non-greedily) one or more instances of type `sub`.
-final class NonGreedyOneOrMore : UnExpr
+final class NonGreedyOneOrMore : NonGreedyUnaExpr
 {
 @safe pure nothrow @nogc:
-    this(in Token head, Node sub)
+    this(in Token head, Node sub, Node terminator = null)
     {
-        super(head, sub);
+        super(head, sub, terminator);
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
+        assert(terminator);
         sink.put("nom(");
         sub.toMatchInSource(sink, lexer);
         sink.put(")");
@@ -1516,7 +1526,7 @@ final class NonGreedyOneOrMore : UnExpr
 }
 
 /// Match `count` number of instances of type `sub`.
-final class Several : UnExpr
+final class Several : UnaExpr
 {
 @safe pure nothrow @nogc:
     this(in Token head, Node sub)
@@ -1532,7 +1542,7 @@ final class Several : UnExpr
     ulong count;
 }
 
-final class RewriteSyntacticPredicate : UnExpr
+final class RewriteSyntacticPredicate : UnaExpr
 {
 @safe pure nothrow @nogc:
     this(in Token head, Node sub)
@@ -2262,32 +2272,11 @@ struct GxParser
                         _lexer.errorAtToken(head, "missing left-hand side of operator");
                     seqPutCheck(new GreedyZeroOrOne(head, seq.backPop()));
                     break;
-                case TOK.qmarkQmark:
-                    const head = _lexer.frontPop();
-                    if (seq.empty)
-                        _lexer.errorAtToken(head, "missing left-hand side of operator");
-                    seqPutCheck(new NonGreedyZeroOrOne(head, seq.backPop()));
-                    break;
                 case TOK.star:
                     const head = _lexer.frontPop();
                     if (seq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side of operator");
                     seqPutCheck(new GreedyZeroOrMore(head, seq.backPop()));
-                    break;
-                case TOK.rewriteSyntacticPredicate:
-                    const head = _lexer.frontPop();
-                    if (seq.empty)
-                        _lexer.errorAtToken(head, "missing left-hand side of operator");
-                    seqPutCheck(new RewriteSyntacticPredicate(head, seq.backPop()));
-                    break;
-                case TOK.starQmark:
-                    const head = _lexer.frontPop();
-                    if (seq.empty)
-                        _lexer.errorAtToken(head, "missing left-hand side of operator");
-                    const terminator = _lexer.front();
-                    if (terminator.tok != TOK.literal)
-                        _lexer.errorAtToken(terminator, "non-literal terminator");
-                    seqPutCheck(new NonGreedyZeroOrMore(head, seq.backPop(), new Literal(terminator)));
                     break;
                 case TOK.plus:
                     const head = _lexer.frontPop();
@@ -2295,11 +2284,29 @@ struct GxParser
                         _lexer.errorAtToken(head, "missing left-hand side of operator");
                     seqPutCheck(new GreedyOneOrMore(head, seq.backPop()));
                     break;
+                case TOK.qmarkQmark:
+                    const head = _lexer.frontPop();
+                    if (seq.empty)
+                        _lexer.errorAtToken(head, "missing left-hand side of operator");
+                    seqPutCheck(new NonGreedyZeroOrOne(head, seq.backPop()));
+                    break;
+                case TOK.starQmark:
+                    const head = _lexer.frontPop();
+                    if (seq.empty)
+                        _lexer.errorAtToken(head, "missing left-hand side of operator");
+                    seqPutCheck(new NonGreedyZeroOrMore(head, seq.backPop()));
+                    break;
                 case TOK.plusQmark:
                     const head = _lexer.frontPop();
                     if (seq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side of operator");
                     seqPutCheck(new NonGreedyOneOrMore(head, seq.backPop()));
+                    break;
+                case TOK.rewriteSyntacticPredicate:
+                    const head = _lexer.frontPop();
+                    if (seq.empty)
+                        _lexer.errorAtToken(head, "missing left-hand side of operator");
+                    seqPutCheck(new RewriteSyntacticPredicate(head, seq.backPop()));
                     break;
                 case TOK.tilde:
                     seq.put(new TildeSentinel(_lexer.frontPop()));

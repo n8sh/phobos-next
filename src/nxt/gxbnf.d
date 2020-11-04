@@ -9,6 +9,8 @@
  *
  * TODO:
  *
+ * - Make NonGreedy-terminators a Node. Look up when terminator is add as node or during matching
+ *
  * - `not(...)`'s implementation needs to be adjusted. often used in conjunction with `altNch`?
  *
  * - Move parserSourceBegin to gxbnf_rdbase.d

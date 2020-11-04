@@ -2222,7 +2222,7 @@ struct GxParser
                     return seq.put(last); // ... has higher prescedence
                 if (!seq.empty)
                 {
-                    if (cast(PipeSentinel)seq.back) // binary operator. TODO: if skipOver!PipeSentinel
+                    if (auto pipe = cast(PipeSentinel)seq.back) // binary operator. TODO: if skipOver!PipeSentinel
                     {
                         seq.popBack(); // pop `PipeSentinel`
                         return seqPutCheck(makeAlt([seq.backPop(), last]));
@@ -2237,6 +2237,10 @@ struct GxParser
 
                         seq.popBack(); // pop `TildeSentinel`
                         return seqPutCheck(new Not(tilde.head, last));
+                    }
+                    if (auto ng = cast(NonGreedyUnaExpr)seq.back)
+                    {
+                        ng.terminator = last;
                     }
                 }
                 return seq.put(last);

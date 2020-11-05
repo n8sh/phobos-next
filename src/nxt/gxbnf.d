@@ -1668,8 +1668,8 @@ final class Literal : TokenNode
     this(in Token head)
     {
         assert(head.input.length >= 2);
-        assert((head.input[0] == '\'' && head.input[$-1] == '\'') ||
-               (head.input[0] ==  '"' && head.input[$-1] ==  '"'));
+        assert(head.input[0] == '\'' && head.input[$-1] == '\'' ||
+               head.input[0] ==  '"' && head.input[$-1] ==  '"');
         super(head);
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @trusted

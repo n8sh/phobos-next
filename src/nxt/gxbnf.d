@@ -3177,7 +3177,7 @@ struct GxFileReader
         auto fp = GxFileParser(path);
         while (!fp.empty)
         {
-            fp.front.show();
+            // fp.front.show();
             fp.popFront();
         }
         const ppath = createParserSourceFile(fp);

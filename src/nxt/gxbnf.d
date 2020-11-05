@@ -3203,12 +3203,13 @@ struct GxFileReader
 
     static Output generateParserSourceString(const scope ref GxFileParser fp)
     {
-        import std.path : chainPath, dirName, baseName;
+        import std.path : chainPath, dirName, baseName, extension;
         import std.array : array;
 
         typeof(return) output;
 
         const path = fp.parser._lexer.path;
+        const ext = path.extension;
         const moduleName = path.baseName.stripExtension ~ "_parser";
 
         output.put("/// Automatically generated from `");
@@ -3227,9 +3228,9 @@ struct GxFileReader
             rule.toMatcherInSource(output, fp.parser._lexer);
         }
 
-        void processImportedModule(in const(char)[] module_)
+        void processImportedModule(in const(char)[] module_, in string extension)
         {
-            const modulePath = chainPath(dirName(path), module_ ~ ".g4").array.idup; // TODO: detect mutual file recursion
+            const modulePath = chainPath(dirName(path), module_ ~ extension).array.idup; // TODO: detect mutual file recursion
             auto fp_ = GxFileParser(modulePath);
             while (!fp_.empty)
                 fp_.popFront();
@@ -3243,7 +3244,7 @@ struct GxFileReader
 
         foreach (import_; fp.imports)
             foreach (const module_; import_.modules)
-                processImportedModule(module_);
+                processImportedModule(module_, ext);
 
         if (fp.options)
         {
@@ -3272,7 +3273,7 @@ struct GxFileReader
                 if (const ix = co.indexOf(';'))
                 {
                     const module_ = co[0 .. ix];
-                    processImportedModule(module_);
+                    processImportedModule(module_, ext);
                 }
             }
         }
@@ -3350,6 +3351,8 @@ version(show)
                 if (bn == `RexxParser.g4` ||
                     bn == `RexxLexer.g4` ||
                     bn == `StackTrace.g4` ||
+                    bn == `StackTraceText.g` ||
+                    bn == `memcached_protocol.g4` ||
                     bn == `Antlr3.g` ||
                     bn == `ANTLRv2.g2`) // skip this crap
                     continue;

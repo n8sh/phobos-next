@@ -3284,7 +3284,7 @@ struct GxFileReader
 }
 
 /// Build the D source files `ppaths`.
-void buildDSourceFiles(const string[] ppaths)
+void buildSourceFiles(const string[] ppaths)
 {
     import std.process : execute;
     const dmd = execute(["dmd", "-c"] ~ ppaths);
@@ -3384,7 +3384,7 @@ version(show)
                     of.writeln("Reading ", adjustPath(fn), " took ", swOne.peek());
             }
         }
-        buildDSourceFiles(ppaths[]);
+        buildSourceFiles(ppaths[]);
         of.writeln("Reading all took ", swAll.peek());
     }
 }

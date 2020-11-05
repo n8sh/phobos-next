@@ -3171,17 +3171,6 @@ static immutable parserSourceEnd =
 `} // struct Parser
 `;
 
-void buildDSourceFile(in string ppath)
-{
-    import std.process : execute;
-    const dmd = execute(["dmd", "-c", ppath]);
-    if (dmd.status == 0)
-        writeln("Compilation of ", ppath, " successful");
-    else
-        writeln("Compilation of ", ppath, " failed with output:\n",
-                dmd.output);
-}
-
 struct GxFileReader
 {
     import std.path : stripExtension;
@@ -3294,6 +3283,17 @@ struct GxFileReader
     ~this() @nogc {}
 }
 
+void buildDSourceFiles(in string[] ppaths)
+{
+    import std.process : execute;
+    const dmd = execute(["dmd", "-c"] ~ ppaths);
+    if (dmd.status == 0)
+        writeln("Compilation of ", ppaths, " successful");
+    else
+        writeln("Compilation of ", ppaths, " failed with output:\n",
+                dmd.output);
+}
+
 bool isGxFilename(const scope char[] name) @safe pure nothrow @nogc
 {
     return name.endsWithEither([`.g`, `.g2`, `.g4`]);
@@ -3350,6 +3350,7 @@ version(show)
     {
         scope StopWatch swAll;
         swAll.start();
+        DynamicArray!string ppaths;
         foreach (const e; dirEntries(root, SpanMode.breadth))
         {
             const fn = e.name;
@@ -3376,13 +3377,13 @@ version(show)
                 swOne.start();
 
                 auto reader = GxFileReader(fn);
-                const ppath = reader.createParserSourceFile();
-                buildDSourceFile(ppath);
+                ppaths.insertBack(reader.createParserSourceFile());
 
                 if (showProgressFlag)
                     of.writeln("Reading ", adjustPath(fn), " took ", swOne.peek());
             }
         }
+        buildDSourceFiles(ppaths[]);
         of.writeln("Reading all took ", swAll.peek());
     }
 }

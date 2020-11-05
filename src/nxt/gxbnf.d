@@ -15,8 +15,6 @@
  *
  * - Use `DETECT` upper-case lexer rules LexerRule
  *
- * - Is `RulesByName` needed?
- *
  * - handle all TODO's in `makeRule`
  *
  * - Move parserSourceBegin to gxbnf_rdbase.d
@@ -81,7 +79,7 @@ import std.stdio : stdout, write, writeln;
 alias Input = const(char)[];      ///< Grammar input source.
 alias Output = DynamicArray!char; ///< Generated parser output source.
 
-alias RulesByName = Rule[Input];
+// alias RulesByName = Rule[Input];
 
 enum matcherFunctionNamePrefix = `m__`;
 

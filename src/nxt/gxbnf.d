@@ -2300,7 +2300,7 @@ struct GxParser
                     if (seq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side of operator");
                     if (cast(GreedyOneOrMore)seq.back)
-                        _lexer.warningAtToken(head, "rewrite as `X*`");
+                        _lexer.warningAtToken(head, "rewrite as `X*`"); // See_Also: https://stackoverflow.com/questions/64706408/rewriting-x-as-x-in-antlr-grammars
                     seqPutCheck(new GreedyZeroOrOne(head, seq.backPop()));
                     break;
                 case TOK.star:

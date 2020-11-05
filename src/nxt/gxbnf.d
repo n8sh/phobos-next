@@ -1539,7 +1539,8 @@ final class NonGreedyOneOrMore : NonGreedyUnaExpr
         sink.put("nom(");
         sub.toMatchInSource(sink, lexer);
 
-        assert(terminator);
+        if (!terminator)
+            lexer.errorAtToken(head, "missing terminator");
         sink.put(",");
         terminator.toMatchInSource(sink, lexer);
 

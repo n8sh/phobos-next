@@ -686,6 +686,30 @@ ptrdiff_t indexOf(T)(scope inout(T)[] haystack,
     assert("__a".indexOf('a') == 2);
 }
 
+/// ditto
+ptrdiff_t indexOfEither(T)(scope inout(T)[] haystack,
+                           scope const T[] needles)
+{
+    if (needles.length == 0)
+        return -1;
+    foreach (const offset, const ref element; haystack)
+        foreach (const needle; needles)
+            if (element == needle)
+                return offset;
+    return -1;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    assert("_".indexOfEither("a") == -1);
+    assert("_a".indexOfEither("a") == 1);
+    assert("_a".indexOfEither("ab") == 1);
+    assert("_b".indexOfEither("ab") == 1);
+    assert("_b".indexOfEither("_") == 0);
+    assert("_b".indexOfEither("xy") == -1);
+}
+
 /** Array-specialization of `lastIndexOf` with default predicate.
  */
 ptrdiff_t lastIndexOf(T)(scope inout(T)[] haystack,
@@ -693,12 +717,8 @@ ptrdiff_t lastIndexOf(T)(scope inout(T)[] haystack,
 {
     if (haystack.length < needle.length) { return -1; }
     foreach_reverse (const offset; 0 .. haystack.length - needle.length + 1)
-    {
         if (haystack.ptr[offset .. offset + needle.length] == needle)
-        {
             return offset;
-        }
-    }
     return -1;
 }
 /// ditto

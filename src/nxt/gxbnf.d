@@ -3366,12 +3366,6 @@ version(show)
                     bn == `Antlr3.g` ||
                     bn == `ANTLRv2.g2`) // skip this crap
                     continue;
-                // if (bn != `pascal.g4` &&
-                //     bn != `C.g4` &&
-                //     bn != `ada.g4` &&
-                //     bn != `Sexpr.g`
-                //     )
-                //     continue;
                 if (showProgressFlag)
                     of.writeln("Reading ", adjustPath(fn), " ...");
                 scope StopWatch swOne;

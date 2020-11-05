@@ -3225,7 +3225,7 @@ struct GxFileReader
             rule.toMatcherInSource(output, fp.parser._lexer);
         }
 
-        void processImportedModule(in const(char)[] module_, in string extension)
+        void processImportedModule(in const(char)[] module_, const scope string extension)
         {
             const modulePath = chainPath(dirName(path), module_ ~ extension).array.idup; // TODO: detect mutual file recursion
             auto fp_ = GxFileParser(modulePath);
@@ -3283,7 +3283,7 @@ struct GxFileReader
     ~this() @nogc {}
 }
 
-void buildDSourceFiles(const scope string[] ppaths)
+void buildDSourceFiles(const string[] ppaths)
 {
     import std.process : execute;
     const dmd = execute(["dmd", "-c"] ~ ppaths);

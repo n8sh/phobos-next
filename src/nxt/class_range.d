@@ -5,8 +5,6 @@ import std.range.primitives : isInputRange, ElementType;
 
 /** Upcast all elements in `x` of type `T` to the type `U`, where `U` is a
  * superclass of `T`.
- *
- * TODO: move to phobos-next
  */
 inout(U)[] upcastElementsTo(U, T)(scope inout(T)[] x) @trusted
 if (is(T == class) &&
@@ -14,6 +12,9 @@ if (is(T == class) &&
     // TODO: also check that `T` is a subclass of `U`
     )
 {
+    static if (__VERSION__ >= 2095) {
+        static assert(0, "This function is not needed anymore");
+    }
     return cast(typeof(return))x;
 }
 

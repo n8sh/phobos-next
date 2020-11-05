@@ -9,6 +9,8 @@
  *
  * TODO:
  *
+ * - Generat all parsers in one go and then compile them.
+ *
  * - `not(...)`'s implementation needs to be adjusted. often used in conjunction with `altNch`?
  *
  * - Use `DETECT` upper-case lexer rules LexerRule
@@ -3182,12 +3184,7 @@ struct GxFileReader
             fp.popFront();
         }
 
-        Output parserSource = generateParserSource(fp);
-
-        import std.file : write;
-        const parserPath = path.stripExtension ~ "_parser.d";
-        write(parserPath, parserSource[]);
-        debug writeln("Wrote ", parserPath);
+        const parserPath = createParserSourceFile(fp);
 
         import std.process : execute;
         auto dmd = execute(["dmd", "-c", parserPath]);
@@ -3198,7 +3195,18 @@ struct GxFileReader
                     dmd.output);
     }
 
-    static Output generateParserSource(const scope ref GxFileParser fp)
+    string createParserSourceFile(const scope ref GxFileParser fp)
+    {
+        const pss = generateParserSourceString(fp);
+        import std.file : write;
+        const path = fp.parser._lexer.path;
+        const parserPath = path.stripExtension ~ "_parser.d";
+        write(parserPath, pss[]);
+        debug writeln("Wrote ", parserPath);
+        return parserPath;
+    }
+
+    static Output generateParserSourceString(const scope ref GxFileParser fp)
     {
         import std.path : chainPath, dirName, baseName;
         import std.array : array;

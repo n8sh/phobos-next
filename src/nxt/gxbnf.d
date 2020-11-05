@@ -1546,7 +1546,7 @@ final class NonGreedyOneOrMore : NonGreedyUnaExpr
             terminator.toMatchInSource(sink, lexer);
         }
         else
-            lexer.errorAtToken(head, "no terminator after non-greedy");
+            lexer.warningAtToken(head, "no terminator after non-greedy");
         sink.put(")");
     }
 }

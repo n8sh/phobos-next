@@ -3204,7 +3204,8 @@ struct GxFileReader
         if (dmd.status == 0)
             writeln("Compilation of ", ppath, " successful");
         else
-            writeln("Compilation of ", ppath, " failed with output:\n", dmd.output);
+            writeln("Compilation of ", ppath, " failed with output:\n",
+                    dmd.output);
     }
 
     static Output generateParserSourceString(const scope ref GxFileParser fp)

@@ -3175,20 +3175,19 @@ struct GxFileReader
 {
     import std.path : stripExtension;
     enum showFlag = false;
+    GxFileParser fp;
 @safe:
     this(in string path)
     {
-        auto fp = GxFileParser(path);
+        fp = GxFileParser(path);
         while (!fp.empty)
         {
             // fp.front.show();
             fp.popFront();
         }
-        const ppath = createParserSourceFile(fp);
-        // buildParserSourceFile(ppath);
     }
 
-    string createParserSourceFile(const scope ref GxFileParser fp)
+    string createParserSourceFile()
     {
         const pss = generateParserSourceString(fp);
         import std.file : write;
@@ -3375,7 +3374,11 @@ version(show)
                     of.writeln("Reading ", adjustPath(fn), " ...");
                 scope StopWatch swOne;
                 swOne.start();
+
                 auto reader = GxFileReader(fn);
+                const ppath = reader.createParserSourceFile();
+                reader.buildParserSourceFile(ppath);
+
                 if (showProgressFlag)
                     of.writeln("Reading ", adjustPath(fn), " took ", swOne.peek());
             }

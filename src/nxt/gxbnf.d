@@ -9,8 +9,6 @@
  *
  * TODO:
  *
- * - Warn: `(X+)?` should be rewritten a `X*`
- *
  * - Generat all parsers in one go and then compile them.
  *
  * - `not(...)`'s implementation needs to be adjusted. often used in conjunction with `altNch`?
@@ -1114,7 +1112,7 @@ Node makeSeq(NodeArray subs,
                 break;
             if (const zom = cast(const GreedyZeroOrMore)subs[i + 1])
                 if (zom.sub.equals(sub))
-                    lexer.warningAtToken(zom.head, "replace with `X+`");
+                    lexer.warningAtToken(zom.head, "rewrite as `X+`");
         }
     }
     return new SeqM(subs.move());
@@ -2301,12 +2299,15 @@ struct GxParser
                     const head = _lexer.frontPop();
                     if (seq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side of operator");
+                    if (cast(GreedyOneOrMore)seq.back)
+                        _lexer.warningAtToken(head, "rewrite as `X*`");
                     seqPutCheck(new GreedyZeroOrOne(head, seq.backPop()));
                     break;
                 case TOK.star:
                     const head = _lexer.frontPop();
                     if (seq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side of operator");
+
                     seqPutCheck(new GreedyZeroOrMore(head, seq.backPop()));
                     break;
                 case TOK.plus:

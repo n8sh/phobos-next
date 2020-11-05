@@ -9,6 +9,8 @@
  *
  * TODO:
  *
+ * - Warn: `(X+)?` should be rewritten a `X*`
+ *
  * - Generat all parsers in one go and then compile them.
  *
  * - `not(...)`'s implementation needs to be adjusted. often used in conjunction with `altNch`?

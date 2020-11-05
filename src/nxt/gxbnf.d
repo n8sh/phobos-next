@@ -3283,7 +3283,7 @@ struct GxFileReader
     ~this() @nogc {}
 }
 
-void buildDSourceFiles(in string[] ppaths)
+void buildDSourceFiles(const scope string[] ppaths)
 {
     import std.process : execute;
     const dmd = execute(["dmd", "-c"] ~ ppaths);

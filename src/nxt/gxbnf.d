@@ -3200,12 +3200,11 @@ struct GxFileReader
     void buildParserSourceFile(in string ppath)
     {
         import std.process : execute;
-        auto dmd = execute(["dmd", "-c", ppath]);
+        const dmd = execute(["dmd", "-c", ppath]);
         if (dmd.status == 0)
             writeln("Compilation of ", ppath, " successful");
         else
-            writeln("Compilation of ", ppath, " failed:\n",
-                    dmd.output);
+            writeln("Compilation of ", ppath, " failed with output:\n", dmd.output);
     }
 
     static Output generateParserSourceString(const scope ref GxFileParser fp)

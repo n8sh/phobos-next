@@ -3283,6 +3283,7 @@ struct GxFileReader
     ~this() @nogc {}
 }
 
+/// Build the D source files `ppaths`.
 void buildDSourceFiles(const string[] ppaths)
 {
     import std.process : execute;

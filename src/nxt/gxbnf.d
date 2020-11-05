@@ -3177,22 +3177,13 @@ struct GxFileReader
     this(in string path)
     {
         auto fp = GxFileParser(path);
-
         while (!fp.empty)
         {
             // fp.front.show();
             fp.popFront();
         }
-
-        const parserPath = createParserSourceFile(fp);
-
-        import std.process : execute;
-        auto dmd = execute(["dmd", "-c", parserPath]);
-        if (dmd.status == 0)
-            writeln("Compilation of ", parserPath, " successful");
-        else
-            writeln("Compilation of ", parserPath, " failed:\n",
-                    dmd.output);
+        const ppath = createParserSourceFile(fp);
+        buildParserSourceFile(ppath);
     }
 
     string createParserSourceFile(const scope ref GxFileParser fp)
@@ -3200,10 +3191,21 @@ struct GxFileReader
         const pss = generateParserSourceString(fp);
         import std.file : write;
         const path = fp.parser._lexer.path;
-        const parserPath = path.stripExtension ~ "_parser.d";
-        write(parserPath, pss[]);
-        debug writeln("Wrote ", parserPath);
-        return parserPath;
+        const ppath = path.stripExtension ~ "_parser.d";
+        write(ppath, pss[]);
+        debug writeln("Wrote ", ppath);
+        return ppath;
+    }
+
+    void buildParserSourceFile(in string ppath)
+    {
+        import std.process : execute;
+        auto dmd = execute(["dmd", "-c", ppath]);
+        if (dmd.status == 0)
+            writeln("Compilation of ", ppath, " successful");
+        else
+            writeln("Compilation of ", ppath, " failed:\n",
+                    dmd.output);
     }
 
     static Output generateParserSourceString(const scope ref GxFileParser fp)

@@ -2419,7 +2419,7 @@ struct GxParser
                     {
                         auto nothing = new SeqM(hs.head);
                         seq.popBack(); // pop '('
-                        seqPutCheck(nothing); // TODO: use GreedyZeroOrOne() instead
+                        seqPutCheck(nothing);
                     }
                     else if (li == seq.length) // unmatched case: ... )
                     {

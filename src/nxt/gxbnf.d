@@ -1048,7 +1048,11 @@ abstract class NaryExpr : Node
     NodeArray subs;
 }
 
-/// Sequence.
+/** Sequence.
+ *
+ * A Sequence is empty in case when a rule provides an empty alternative.
+ * Such cases `() | ...` should be rewritten to `(...)?` in `makeAlt`.
+ */
 final class SeqM : NaryExpr
 {
 @safe:
@@ -1063,8 +1067,14 @@ final class SeqM : NaryExpr
         }
     }
 pure nothrow @nogc:
+    this(in Token head)
+    {
+        super(NodeArray.init);
+        this.head = head;
+    }
     this(NodeArray subs)
     {
+        this.head = Token.init;
         super(subs.move());
     }
     this(uint n)(Node[n] subs) if (n >= 2)
@@ -1073,6 +1083,8 @@ pure nothrow @nogc:
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
+        if (subs.empty)
+            return;
         sink.put("seq(");
         foreach (const i, const sub; subs)
         {
@@ -1082,6 +1094,7 @@ pure nothrow @nogc:
         }
         sink.put(")");
     }
+    const Token head;
 }
 
 Node makeSeq(NodeArray subs,
@@ -1089,8 +1102,6 @@ Node makeSeq(NodeArray subs,
              in bool rewriteFlag = true) pure nothrow
 {
     subs = flattenSubs!SeqM(subs.move());
-    if (subs.empty)
-        return null;            // TODO: use new Nothing => EmptySeq instead
     if (subs.length == 1)
         return subs[0];
     if (rewriteFlag)
@@ -1127,20 +1138,6 @@ if (is(BranchNode : SeqM) ||
             subs_.insertBack(sub);
     }
     return subs_.move();
-}
-
-/// Nothing.
-final class Nothing : TokenNode
-{
-@safe:
-    override void show(in Format fmt = Format.init) const
-    {
-    }
-@safe pure nothrow @nogc:
-    this(Token head)
-    {
-        super(head);
-    }
 }
 
 /// Rule.
@@ -1251,6 +1248,7 @@ final class AltM : NaryExpr
 pure nothrow @nogc:
     this(Token head, NodeArray subs)
     {
+        assert(!subs.empty);
         this.head = head;
         super(subs.move());
     }
@@ -2414,7 +2412,7 @@ struct GxParser
                     }
                     else if (li + 1 == seq.length) // empty case: ... ( )
                     {
-                        auto nothing = new Nothing(hs.head);
+                        auto nothing = new SeqM(hs.head);
                         seq.popBack(); // pop '('
                         seqPutCheck(nothing); // TODO: use GreedyZeroOrOne() instead
                     }
@@ -3179,11 +3177,11 @@ struct GxFileReader
         auto fp = GxFileParser(path);
         while (!fp.empty)
         {
-            // fp.front.show();
+            fp.front.show();
             fp.popFront();
         }
         const ppath = createParserSourceFile(fp);
-        buildParserSourceFile(ppath);
+        // buildParserSourceFile(ppath);
     }
 
     string createParserSourceFile(const scope ref GxFileParser fp)

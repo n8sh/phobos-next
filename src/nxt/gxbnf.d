@@ -3372,7 +3372,9 @@ version(show)
                 swOne.start();
 
                 auto reader = GxFileReader(fn);
-                ppaths.insertBack(reader.createParserSourceFile());
+                const ppath = reader.createParserSourceFile();
+                ppaths.insertBack(ppath);
+                buildSourceFiles([ppath]);
 
                 if (showProgressFlag)
                     of.writeln("Reading ", adjustPath(fn), " took ", swOne.peek());

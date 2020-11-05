@@ -6,7 +6,7 @@ import std.range.primitives : isInputRange, ElementType;
 /** Upcast all elements in `x` of type `T` to the type `U`, where `U` is a
  * superclass of `T`.
  */
-inout(U)[] upcastElementsTo(U, T)(scope inout(T)[] x) @trusted
+inout(U)[] upcastElementsTo(U, T)(return scope inout(T)[] x) @trusted
 if (is(T == class) &&
     is(U == class)
     // TODO: also check that `T` is a subclass of `U`

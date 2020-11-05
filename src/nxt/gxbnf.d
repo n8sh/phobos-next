@@ -1050,7 +1050,7 @@ abstract class NaryExpr : Node
 
 /** Sequence.
  *
- * A Sequence is empty in case when a rule provides an empty alternative.
+ * A `Sequence` is empty in case when a rule provides an empty alternative.
  * Such cases `() | ...` should be rewritten to `(...)?` in `makeAlt`.
  */
 final class SeqM : NaryExpr

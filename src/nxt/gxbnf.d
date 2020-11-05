@@ -1494,10 +1494,13 @@ final class NonGreedyZeroOrOne : NonGreedyUnaExpr
     {
         sink.put("nzo(");
         sub.toMatchInSource(sink, lexer);
-        if (!terminator)
-            lexer.errorAtToken(head, "missing terminator");
-        sink.put(",");
-        terminator.toMatchInSource(sink, lexer);
+        if (terminator)
+        {
+            sink.put(",");
+            terminator.toMatchInSource(sink, lexer);
+        }
+        else
+            lexer.warningAtToken(head, "missing terminator");
         sink.put(")");
     }
 }
@@ -1514,10 +1517,13 @@ final class NonGreedyZeroOrMore : NonGreedyUnaExpr
     {
         sink.put("nzm(");
         sub.toMatchInSource(sink, lexer);
-        if (!terminator)
-            lexer.errorAtToken(head, "missing terminator");
-        sink.put(",");
-        terminator.toMatchInSource(sink, lexer);
+        if (terminator)
+        {
+            sink.put(",");
+            terminator.toMatchInSource(sink, lexer);
+        }
+        else
+            lexer.warningAtToken(head, "missing terminator");
         sink.put(")");
     }
 }
@@ -1534,10 +1540,13 @@ final class NonGreedyOneOrMore : NonGreedyUnaExpr
     {
         sink.put("nom(");
         sub.toMatchInSource(sink, lexer);
-        if (!terminator)
+        if (terminator)
+        {
+            sink.put(",");
+            terminator.toMatchInSource(sink, lexer);
+        }
+        else
             lexer.errorAtToken(head, "missing terminator");
-        sink.put(",");
-        terminator.toMatchInSource(sink, lexer);
         sink.put(")");
     }
 }

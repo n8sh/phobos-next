@@ -2762,9 +2762,8 @@ struct GxParser
         case `tokens`:
             return makeTokens(head);
         case `options`:
-            if (options)
-                _lexer.errorAtToken(head, "cannot have multiple options");
-            options = makeTopOptions(head);
+            auto options = makeTopOptions(head);
+            optionsSet.insertBack(options);
             return options;
         case `header`:
             return makeHeader(head);
@@ -2828,7 +2827,7 @@ struct GxParser
     }
 
     Node grammar;
-    Options options;
+    DynamicArray!(Options) optionsSet;
     Imports imports;
     Rules rules;
     // RulesByName rulesByName;
@@ -3246,10 +3245,10 @@ struct GxFileReader
             foreach (const module_; import_.modules)
                 processImportedModule(module_, ext);
 
-        if (fp.options)
+        foreach (options; fp.optionsSet[])
         {
             import std.algorithm.comparison : among;
-            const(char)[] co = fp.options.code.input;
+            const(char)[] co = options.code.input;
 
             void skipws()
             {

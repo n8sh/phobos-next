@@ -71,7 +71,7 @@ import nxt.line_column : offsetLineColumn;
 import nxt.fixed_array : FixedArray;
 import nxt.dynamic_array : DynamicArray;
 import nxt.file_ex : rawReadPath;
-import nxt.array_algorithm : startsWith, endsWith, endsWithEither, skipOver, skipOverBack, canFind, indexOf;
+import nxt.array_algorithm : startsWith, endsWith, endsWithEither, skipOver, skipOverBack, canFind, indexOf, indexOfEither;
 import nxt.conv_ex : toDefaulted;
 
 import std.stdio : stdout, write, writeln;
@@ -3269,7 +3269,7 @@ struct GxFileReader
                 skipws();
                 co.skipOver('=');
                 skipws();
-                if (const ix = co.indexOf(';'))
+                if (const ix = co.indexOfEither(" ;"))
                 {
                     const module_ = co[0 .. ix];
                     processImportedModule(module_, ext);

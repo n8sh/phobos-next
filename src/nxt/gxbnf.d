@@ -1500,7 +1500,7 @@ final class NonGreedyZeroOrOne : NonGreedyUnaExpr
             terminator.toMatchInSource(sink, lexer);
         }
         else
-            lexer.warningAtToken(head, "missing terminator for non-greedy");
+            lexer.warningAtToken(head, "no terminator after non-greedy");
         sink.put(")");
     }
 }
@@ -1523,7 +1523,7 @@ final class NonGreedyZeroOrMore : NonGreedyUnaExpr
             terminator.toMatchInSource(sink, lexer);
         }
         else
-            lexer.warningAtToken(head, "missing terminator for non-greedy");
+            lexer.warningAtToken(head, "no terminator after non-greedy");
         sink.put(")");
     }
 }
@@ -1546,7 +1546,7 @@ final class NonGreedyOneOrMore : NonGreedyUnaExpr
             terminator.toMatchInSource(sink, lexer);
         }
         else
-            lexer.errorAtToken(head, "missing terminator for non-greedy");
+            lexer.errorAtToken(head, "no terminator after non-greedy");
         sink.put(")");
     }
 }

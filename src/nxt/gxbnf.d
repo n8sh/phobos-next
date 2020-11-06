@@ -1825,24 +1825,32 @@ final class Brackets : TokenNode
             // contents:
             if (input[i] == '\\')
             {
-                sink.put('\\');
-                i += 1;
-                if (input[i] == 'u')
+                if (input[i + 1] == ']')
                 {
-                    import std.ascii : isHexDigit;
-                    if (i + 5 > input.length &&
-                        !(input[i + 1].isHexDigit &&
-                          input[i + 2].isHexDigit &&
-                          input[i + 3].isHexDigit &&
-                          input[i + 4].isHexDigit))
-                        lexer.errorAtToken(Token(head.tok, input[i + 1 .. $]), "incorrect unicode escape sequence");
-                    sink.put(input[i .. i + 5]);
-                    i += 5;
+                    sink.put(']');
+                    i += 2;
                 }
                 else
                 {
-                    sink.put(input[i]);
+                    sink.put('\\');
                     i += 1;
+                    if (input[i] == 'u')
+                    {
+                        import std.ascii : isHexDigit;
+                        if (i + 5 > input.length &&
+                            !(input[i + 1].isHexDigit &&
+                              input[i + 2].isHexDigit &&
+                              input[i + 3].isHexDigit &&
+                              input[i + 4].isHexDigit))
+                            lexer.errorAtToken(Token(head.tok, input[i + 1 .. $]), "incorrect unicode escape sequence");
+                        sink.put(input[i .. i + 5]);
+                        i += 5;
+                    }
+                    else
+                    {
+                        sink.put(input[i]);
+                        i += 1;
+                    }
                 }
             }
             else if (input[i] == '\'')

@@ -1819,7 +1819,9 @@ final class Brackets : TokenNode
     {
         Input input = trimmedInput;
 
-        if (input.canFind('-'))
+        // TODO use `switch` `case` ranges
+
+        if (input.canFind('-')) // check that range is not backquoted
         {
             size_t altCount;
             const asink = toMatchRangeInSource(input, altCount);
@@ -1842,21 +1844,21 @@ final class Brackets : TokenNode
             // contents:
             if (input[i] == '\\')
             {
-                if (input[i + 1] == ']' ||
-                    input[i + 1] == '-')
+                i += 1;
+                if (input[i] == ']' ||
+                    input[i] == '-')
                 {
-                    sink.put(input[i + 1]); // for instance: `\]` => `]`
-                    i += 2;
+                    sink.put(input[i]); // for instance: `\]` => `]`
+                    i += 1;
                 }
-                else if (input[i + 1] == '\\')
+                else if (input[i] == '\\')
                 {
                     sink.put(`\\`); // `\\` => `\\`
-                    i += 2;
+                    i += 1;
                 }
                 else
                 {
                     sink.put('\\');
-                    i += 1;
                     if (input[i] == 'u')
                     {
                         import std.ascii : isHexDigit;

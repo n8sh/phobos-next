@@ -1821,12 +1821,12 @@ final class Brackets : TokenNode
 
         if (input.canFind('-'))
         {
-            size_t n;
-            const asink = toMatchRangeInSource(input, n);
-            if (n >= 2)
+            size_t altCount;
+            const asink = toMatchRangeInSource(input, altCount);
+            if (altCount >= 2)
                 sink.put("alt(");
             sink.put(asink[]);
-            if (n >= 2)
+            if (altCount >= 2)
                 sink.put(")");
             return;
         }
@@ -1893,10 +1893,10 @@ final class Brackets : TokenNode
     }
 
     private Output toMatchRangeInSource(in Input input,
-                                      out size_t n) const // alt count
+                                        out size_t altCount) const // alt count
     {
         typeof(return) sink;       // argument sink
-        for (size_t i; i < input.length; ++n)
+        for (size_t i; i < input.length; ++altCount)
         {
             if (i)
                 sink.put(", "); // separator

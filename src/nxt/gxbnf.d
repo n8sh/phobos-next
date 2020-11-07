@@ -1925,15 +1925,19 @@ final class Brackets : TokenNode
                 else if (input[i] == '\\')
                 {
                     i += 1;                 // skip '\\'
-                    if (input[i] == ']' ||
-                        input[i] == '-')
-                        sink.put(input[i]); // for instance: `\]` => `]`
-                    else if (input[i] == '\\')
-                        sink.put(`\\`); // `\\` => `\\`
-                    else
+                    switch (input[i])
                     {
+                    case ']':
+                    case '-':
+                        sink.put(input[i]); // for instance: `\]` => `]`
+                        break;
+                    case '\\':
+                        sink.put(`\\`); // `\\` => `\\`
+                        break;
+                    default:
                         asink.put(`\\`);
                         asink.put(input[i]);
+                        break;
                     }
                 }
                 else

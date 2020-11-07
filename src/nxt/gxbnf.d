@@ -1819,14 +1819,8 @@ final class Brackets : TokenNode
     {
         Input input = trimmedInput;
 
-        foreach (const i; 1 .. input.length)
-        {
-            if (input[i - 1] != '\\' &&
-                input[i] == '-')
-            {
-                return toMatchRangeInSource(input, sink);
-            }
-        }
+        if (input.canFind('-'))
+            return toMatchRangeInSource(input, sink);
 
         sink.put("altNch!(");
         for (size_t i; i < input.length;)

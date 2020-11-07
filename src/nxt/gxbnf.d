@@ -1847,13 +1847,9 @@ final class Brackets : TokenNode
                 i += 1;
                 if (input[i] == ']' ||
                     input[i] == '-')
-                {
                     sink.put(input[i]); // for instance: `\]` => `]`
-                }
                 else if (input[i] == '\\')
-                {
                     sink.put(`\\`); // `\\` => `\\`
-                }
                 else
                 {
                     sink.put('\\');

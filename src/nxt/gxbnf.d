@@ -1814,14 +1814,12 @@ final class CharAltLiteral : TokenNode
 @safe pure nothrow @nogc:
     this(in Token head)
     {
-        assert(head.input.length == 1 ||
-               head.input.length == 2);
         super(head);
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @trusted
     {
         sink.put(`ch('`);
-        if (head.input.length == 1 &&
+        if (head.input.length <= 1 &&
             (head.input[0] == '\'' ||
              head.input[0] == '\\'))
             sink.put(`\`);

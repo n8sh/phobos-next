@@ -1897,6 +1897,8 @@ Node parseCharAltM(const scope return CharAltM alt,
                 }
                 else
                 {
+                    /* Unicode code point `\u....` where `....` is the hexadecimal
+                       number of the code point you want to match. */
                     import std.ascii : isHexDigit;
                     if (i + 5 > input.length &&
                         !(input[i + 1].isHexDigit &&

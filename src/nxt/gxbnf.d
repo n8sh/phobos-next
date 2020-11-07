@@ -1797,24 +1797,36 @@ pure nothrow @nogc:
 
 final class Brackets : TokenNode
 {
-    @safe pure nothrow @nogc:
+@safe pure nothrow @nogc:
 
     this(in Token head)
     {
         super(head);
     }
 
-    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
+    Input trimmedInput() const scope return
     {
         Input input = head.input;
-
+        // trim:
         const lbracket = input.skipOver('[');
         const rbracket = input.skipOverBack(']');
         assert(lbracket);
         assert(rbracket);
+        return input;
+    }
 
-        if (input.canFind('-'))
-            return toMatchRangeInSource(input, sink);
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
+    {
+        Input input = trimmedInput;
+
+        foreach (const i; 1 .. input.length)
+        {
+            if (input[i - 1] != '\\' &&
+                input[i] == '-')
+            {
+                return toMatchRangeInSource(input, sink);
+            }
+        }
 
         sink.put("altNch!(");
         for (size_t i; i < input.length;)

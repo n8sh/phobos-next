@@ -1865,7 +1865,7 @@ Node parseCharAltM(const scope return CharAltM alt,
         i += 1;
         subs.insertBack(new Literal(Token(TOK.literal, inputi)));
     }
-    return makeAltA(alt.head, subs.move());
+    return makeAltA(alt.head, subs.move()); // potentially flatten
 }
 
 final class CharAltM : TokenNode

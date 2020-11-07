@@ -1276,7 +1276,7 @@ pure nothrow @nogc:
         bool allSubChars = true;
         foreach (const sub; subs)
         {
-            if (const lit = cast(const Literal)sub)
+            if (const lit = cast(const StrLiteral)sub)
             {
                 if (lit.head.input.length != 3) // non-character literal
                 {
@@ -1304,7 +1304,7 @@ pure nothrow @nogc:
             {
                 if (i)
                     sink.put(","); // separator
-                const lsub = cast(const Literal)sub;
+                const lsub = cast(const StrLiteral)sub;
                 if (lsub.head.input == "'")
                     sink.put(`\'`);
                 else
@@ -1684,8 +1684,7 @@ private bool isCharacter(in Input content) pure nothrow @nogc
              content[1] == '\\')); // backquoted character
 }
 
-/// Match literal `head.input`.
-final class Literal : TokenNode
+final class StrLiteral : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1722,6 +1721,35 @@ final class Literal : TokenNode
             sink.put(`")`);
         }
     }
+}
+
+final class CharLiteral : TokenNode
+{
+@safe pure nothrow @nogc:
+    this(in Token head)
+    {
+        super(head);
+    }
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @trusted
+    {
+        sink.put(`ch('`);
+        if (head.input.length <= 1 &&
+            (head.input[0] == '\'' ||
+             head.input[0] == '\\'))
+            sink.put(`\`);
+        sink.put(head.input);
+        sink.put(`')`);
+    }
+}
+
+version(none)
+TokenNode makeLiteral(in Token head) pure nothrow
+{
+    assert(head.input.length >= 3);
+    if (isCharacter(head.input[1 .. $-1]))
+        return new CharLiteral(head);
+    else
+        return new StrLiteral(head);
 }
 
 bool needsWrapping(const scope Node[] subs) @safe pure nothrow @nogc
@@ -1792,9 +1820,9 @@ pure nothrow @nogc:
     {
         sink.put("rng(");
 
-        if (const lower = cast(const Literal)subs[0])
+        if (const lower = cast(const StrLiteral)subs[0])
             sink.put(lower.head.input);
-        else if (const lower = cast(const CharAltLiteral)subs[0])
+        else if (const lower = cast(const CharLiteral)subs[0])
         {
             sink.put('\'');
             sink.put(lower.head.input);
@@ -1811,9 +1839,9 @@ pure nothrow @nogc:
 
         // sink.put(" <= s[offset] && s[offset] <= ");
 
-        if (const upper = cast(const Literal)subs[1])
+        if (const upper = cast(const StrLiteral)subs[1])
             sink.put(upper.head.input);
-        else if (const upper = cast(const CharAltLiteral)subs[1])
+        else if (const upper = cast(const CharLiteral)subs[1])
         {
             sink.put('\'');
             sink.put(upper.head.input);
@@ -1823,25 +1851,6 @@ pure nothrow @nogc:
             assert(false);
 
         sink.put(")");
-    }
-}
-
-final class CharAltLiteral : TokenNode
-{
-@safe pure nothrow @nogc:
-    this(in Token head)
-    {
-        super(head);
-    }
-    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @trusted
-    {
-        sink.put(`ch('`);
-        if (head.input.length <= 1 &&
-            (head.input[0] == '\'' ||
-             head.input[0] == '\\'))
-            sink.put(`\`);
-        sink.put(head.input);
-        sink.put(`')`);
     }
 }
 
@@ -1895,7 +1904,7 @@ Node parseCharAltM(const scope return CharAltM alt,
 
         i += 1;
 
-        auto lit = new CharAltLiteral(Token(TOK.literal, inputi.idup));
+        auto lit = new CharLiteral(Token(TOK.literal, inputi.idup));
         if (inRange)
             subs.insertBack(new Range(Token.init, [subs.backPop(), lit]));
         else
@@ -2435,7 +2444,7 @@ struct GxParser
                     }
                     break;
                 case TOK.literal:
-                    seqPutCheck(new Literal(_lexer.frontPop()));
+                    seqPutCheck(new StrLiteral(_lexer.frontPop()));
                     break;
                 case TOK.qmark:
                     const head = _lexer.frontPop();

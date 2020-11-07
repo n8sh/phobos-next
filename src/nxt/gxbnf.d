@@ -856,26 +856,26 @@ private:
         assert(false);          ///< TODO: propagate error instead of assert
     }
 
-    private void infoAtToken(in Token token,
+    private void infoAtToken(const scope Token token,
                              const scope string msg) const nothrow @nogc scope
     {
         messageAtToken(token, "Info", msg);
     }
 
-    private void warningAtToken(in Token token,
+    private void warningAtToken(const scope Token token,
                                 const scope string msg) const nothrow @nogc scope
     {
         messageAtToken(token, "Warning", msg);
     }
 
-    private void errorAtToken(in Token token,
+    private void errorAtToken(const scope Token token,
                               const scope string msg) const nothrow @nogc scope
     {
         messageAtToken(token, "Error", msg);
         assert(false);          ///< TODO: propagate error instead of assert
     }
 
-    private void messageAtToken(in Token token,
+    private void messageAtToken(const scope Token token,
                                 const scope string tag,
                                 const scope string msg) const @trusted nothrow @nogc scope
     {
@@ -1096,7 +1096,7 @@ pure nothrow @nogc:
 }
 
 Node makeSeq(NodeArray subs,
-             const scope ref GxLexer lexer,
+             const ref GxLexer lexer,
              in bool rewriteFlag = true) pure nothrow
 {
     subs = flattenSubs!SeqM(subs.move());
@@ -1113,11 +1113,14 @@ Node makeSeq(NodeArray subs,
                     lexer.warningAtToken(zom.head, "rewrite as `X+`");
         }
     }
+    if (subs.empty)
+        lexer.warningAtToken(Token(TOK.leftParen, lexer._input[0 .. 0]),
+                             "empty sequence");
     return new SeqM(subs.move());
 }
 
 Node makeSeq(Node[] subs,
-             const scope ref GxLexer lexer,
+             const ref GxLexer lexer,
              in bool rewriteFlag = true) pure nothrow
 {
     return makeSeq(NodeArray(subs), lexer, rewriteFlag);
@@ -3056,8 +3059,9 @@ struct Parser
     Match rng(in char lower, in char upper) pure nothrow @nogc
     {
         pragma(inline, true);
-        if (lower <= inp[off] &&
-            inp[off] <= upper)
+        const x = inp[off];
+        if (lower <= x &&
+            x <= upper)
         {
             off += 1;
             return Match(1);
@@ -3069,8 +3073,9 @@ struct Parser
     {
         pragma(inline, true);
         // TODO: decode dchar at inp[off]
-        if (lower <= inp[off] &&
-            inp[off] <= upper)
+        const x = inp[off];
+        if (lower <= x &&
+            x <= upper)
         {
             off += 1; // TODO: handle dchar at inp[off]
             return Match(1);

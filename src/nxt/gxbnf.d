@@ -1820,7 +1820,16 @@ final class Brackets : TokenNode
         Input input = trimmedInput;
 
         if (input.canFind('-'))
-            return toMatchRangeInSource(input, sink);
+        {
+            size_t n;
+            const asink = toMatchRangeInSource(input, n);
+            if (n >= 2)
+                sink.put("alt(");
+            sink.put(asink[]);
+            if (n >= 2)
+                sink.put(")");
+            return;
+        }
 
         sink.put("altNch!(");
         for (size_t i; i < input.length;)
@@ -1883,25 +1892,24 @@ final class Brackets : TokenNode
         sink.put(")()");
     }
 
-    private void toMatchRangeInSource(in Input input,
-                                      scope ref Output sink) const
+    private Output toMatchRangeInSource(in Input input,
+                                      out size_t n) const // alt count
     {
-        Output asink;       // argument sink
-        size_t n = 0;       // alt count
+        typeof(return) sink;       // argument sink
         for (size_t i; i < input.length; ++n)
         {
             if (i)
-                asink.put(", "); // separator
+                sink.put(", "); // separator
 
             if (i + 3 <= input.length &&
                 input[i] != '\\' &&
                 input[i + 1] == '-') // such as: `a-z`
             {
-                asink.put("rng('");
-                asink.put(input[i]),
-                asink.put("', '");
-                asink.put(input[i + 2]),
-                asink.put("')");
+                sink.put("rng('");
+                sink.put(input[i]),
+                sink.put("', '");
+                sink.put(input[i + 2]),
+                sink.put("')");
                 i += 3;
             }
             else if (i + 13 <= input.length &&
@@ -1910,18 +1918,18 @@ final class Brackets : TokenNode
                      input[i + 5] != '\\' &&
                      input[i + 6] == '-') // such as: `\u0021-\u0031`
             {
-                asink.put("rng('");
-                asink.put(input[i .. i + 6]),
-                asink.put("', '");
-                asink.put(input[i + 7 .. i + 7 + 6]),
-                asink.put("')");
+                sink.put("rng('");
+                sink.put(input[i .. i + 6]),
+                sink.put("', '");
+                sink.put(input[i + 7 .. i + 7 + 6]),
+                sink.put("')");
                 i += 13;
             }
             else
             {
-                asink.put("ch('");
+                sink.put("ch('");
                 if (input[i] == '\'')
-                    asink.put(`\'`); // escaped single quote
+                    sink.put(`\'`); // escaped single quote
                 else if (input[i] == '\\')
                 {
                     i += 1;                 // skip '\\'
@@ -1935,22 +1943,18 @@ final class Brackets : TokenNode
                         sink.put(`\\`); // `\\` => `\\`
                         break;
                     default:
-                        asink.put(`\\`);
-                        asink.put(input[i]);
+                        sink.put(`\\`);
+                        sink.put(input[i]);
                         break;
                     }
                 }
                 else
-                    asink.put(input[i]);
+                    sink.put(input[i]);
                 i += 1;
-                asink.put("')");
+                sink.put("')");
             }
         }
-        if (n >= 2)
-            sink.put("alt(");
-        sink.put(asink[]);
-        if (n >= 2)
-            sink.put(")");
+        return sink;
     }
 }
 

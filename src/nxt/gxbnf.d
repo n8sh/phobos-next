@@ -1808,9 +1808,71 @@ pure nothrow @nogc:
     }
 }
 
-const(CharAltM) parseCharAltM(const scope return CharAltM alt) @safe pure nothrow @nogc
+Node parseCharAltM(const scope return CharAltM alt,
+                   const scope ref GxLexer lexer) @safe pure nothrow
 {
-    return alt;
+    Input input = alt.trimmedInput;
+
+    // TODO use `switch` `case` ranges
+
+    version(none)
+    if (input.canFind('-')) // check that range is not backquoted
+    {
+        size_t altCount;
+        const asink = toMatchRangeInSource(input, altCount);
+        if (altCount >= 2)
+            sink.put("alt(");
+        sink.put(asink[]);
+        if (altCount >= 2)
+            sink.put(")");
+        return;
+    }
+
+    NodeArray subs;
+    for (size_t i; i < input.length;)
+    {
+        size_t i0, i1;
+
+        // contents:
+        if (input[i] == '\\')
+        {
+            i += 1;             // skip '\\'
+            switch (input[i])
+            {
+            case ']':
+            case '-':
+            case '\\':
+                i0 = i;
+                i1 = i + 1;
+                break;
+            default:
+                i0 = i - 1;
+                if (input[i] == 'u')
+                {
+                    import std.ascii : isHexDigit;
+                    if (i + 5 > input.length &&
+                        !(input[i + 1].isHexDigit &&
+                          input[i + 2].isHexDigit &&
+                          input[i + 3].isHexDigit &&
+                          input[i + 4].isHexDigit))
+                        lexer.errorAtToken(Token(alt.head.tok, input[i + 1 .. $]), "incorrect unicode escape sequence");
+                    i1 = i0 + 6;
+                    i += 4;
+                }
+                else
+                    i1 = i0 + 2;
+                break;
+            }
+        }
+        else
+        {
+            i0 = i;
+            i1 = i + 1;
+        }
+        i += 1;
+        subs.insertBack(new Literal(Token(TOK.literal, input[i0 .. i1])));
+    }
+    return makeAltA(alt.head, subs.move());
 }
 
 final class CharAltM : TokenNode

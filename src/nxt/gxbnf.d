@@ -1831,7 +1831,7 @@ Node parseCharAltM(const scope return CharAltM alt,
     NodeArray subs;
     for (size_t i; i < input.length;)
     {
-        size_t i0, i1;
+        Input inputi;
 
         // contents:
         if (input[i] == '\\')
@@ -1842,35 +1842,28 @@ Node parseCharAltM(const scope return CharAltM alt,
             case ']':
             case '-':
             case '\\':
-                i0 = i;
-                i1 = i + 1;
+                inputi = input[i .. i + 1];
+                break;
+            case 'u':
+                import std.ascii : isHexDigit;
+                if (i + 5 > input.length &&
+                    !(input[i + 1].isHexDigit &&
+                      input[i + 2].isHexDigit &&
+                      input[i + 3].isHexDigit &&
+                      input[i + 4].isHexDigit))
+                    lexer.errorAtToken(Token(alt.head.tok, input[i + 1 .. $]), "incorrect unicode escape sequence");
+                inputi = input[i - 1 .. i + 5];
+                i += 4;
                 break;
             default:
-                i0 = i - 1;
-                if (input[i] == 'u')
-                {
-                    import std.ascii : isHexDigit;
-                    if (i + 5 > input.length &&
-                        !(input[i + 1].isHexDigit &&
-                          input[i + 2].isHexDigit &&
-                          input[i + 3].isHexDigit &&
-                          input[i + 4].isHexDigit))
-                        lexer.errorAtToken(Token(alt.head.tok, input[i + 1 .. $]), "incorrect unicode escape sequence");
-                    i1 = i0 + 6;
-                    i += 4;
-                }
-                else
-                    i1 = i0 + 2;
+                inputi = input[i .. i + 1];
                 break;
             }
         }
         else
-        {
-            i0 = i;
-            i1 = i + 1;
-        }
+            inputi = input[i .. i + 1];
         i += 1;
-        subs.insertBack(new Literal(Token(TOK.literal, input[i0 .. i1])));
+        subs.insertBack(new Literal(Token(TOK.literal, inputi)));
     }
     return makeAltA(alt.head, subs.move());
 }

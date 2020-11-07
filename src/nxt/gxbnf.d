@@ -9,6 +9,8 @@
  *
  * TODO:
  *
+ * - Rule[] rulesByLiteralPrefix
+ *
  * - Generat all parsers in one go and then compile them.
  *
  * - `not(...)`'s implementation needs to be adjusted. often used in conjunction with `altNch`?
@@ -3295,7 +3297,7 @@ struct GxFileReader
 void buildSourceFiles(const string[] ppaths)
 {
     import std.process : execute;
-    const dmd = execute(["dmd", "-c"] ~ ppaths);
+    const dmd = execute(["dmd", "-c", "-dip25", "-dip1000", "-vcolumns", "-wi"] ~ ppaths);
     if (dmd.status == 0)
         writeln("Compilation of ", ppaths, " successful");
     else

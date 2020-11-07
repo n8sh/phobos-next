@@ -1919,20 +1919,21 @@ final class Brackets : TokenNode
             }
             else
             {
+                debug writeln("input:", input[i .. $]);
                 asink.put("ch('");
                 if (input[i] == '\'')
                     asink.put(`\'`); // escaped single quote
                 else if (input[i] == '\\')
                 {
                     i += 1;                 // skip '\\'
-                    if (input[i + 1] == ']' ||
-                        input[i + 1] == '-')
+                    if (input[i] == ']' ||
+                        input[i] == '-')
                         sink.put(input[i]); // for instance: `\]` => `]`
-                    else if (input[i + 1] == '\\')
+                    else if (input[i] == '\\')
                         sink.put(`\\`); // `\\` => `\\`
                     else
                     {
-                        asink.put('\\');
+                        asink.put(`\\`);
                         asink.put(input[i]);
                     }
                 }

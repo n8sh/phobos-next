@@ -1723,7 +1723,7 @@ final class StrLiteral : TokenNode
     }
 }
 
-final class CharLiteral : TokenNode
+final class CharAltLiteral : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1742,12 +1742,12 @@ final class CharLiteral : TokenNode
     }
 }
 
-version(none)
+version(none)                   // TODO use
 TokenNode makeLiteral(in Token head) pure nothrow
 {
     assert(head.input.length >= 3);
     if (isCharacter(head.input[1 .. $-1]))
-        return new CharLiteral(head);
+        return new CharAltLiteral(head);
     else
         return new StrLiteral(head);
 }
@@ -1822,7 +1822,7 @@ pure nothrow @nogc:
 
         if (const lower = cast(const StrLiteral)subs[0])
             sink.put(lower.head.input);
-        else if (const lower = cast(const CharLiteral)subs[0])
+        else if (const lower = cast(const CharAltLiteral)subs[0])
         {
             sink.put('\'');
             sink.put(lower.head.input);
@@ -1841,7 +1841,7 @@ pure nothrow @nogc:
 
         if (const upper = cast(const StrLiteral)subs[1])
             sink.put(upper.head.input);
-        else if (const upper = cast(const CharLiteral)subs[1])
+        else if (const upper = cast(const CharAltLiteral)subs[1])
         {
             sink.put('\'');
             sink.put(upper.head.input);
@@ -1883,16 +1883,31 @@ Node parseCharAltM(const scope return CharAltM alt,
                 inputi = input[i .. i + 1];
                 break;
             case 'u':
-                import std.ascii : isHexDigit;
-                if (i + 5 > input.length &&
-                    !(input[i + 1].isHexDigit &&
-                      input[i + 2].isHexDigit &&
-                      input[i + 3].isHexDigit &&
-                      input[i + 4].isHexDigit))
-                    lexer.errorAtToken(Token(alt.head.tok, input.idup[i + 1 .. $]),
-                                       "incorrect unicode escape sequence");
-                inputi = input[i - 1 .. i + 5];
-                i += 4;
+                if (input[i + 1] == '{')
+                {
+                    const hit = input[i + 1 .. $].indexOf('}');
+                    if (hit >= 0)
+                    {
+                        inputi = input[i - 1 .. i + 1 + hit + 1];
+                        i += hit + 1;
+                    }
+                    else
+                        lexer.errorAtToken(Token(alt.head.tok, input.idup[i + 1 .. $]),
+                                           "incorrect unicode escape sequence, missing matching closing brace '}'");
+                }
+                else
+                {
+                    import std.ascii : isHexDigit;
+                    if (i + 5 > input.length &&
+                        !(input[i + 1].isHexDigit &&
+                          input[i + 2].isHexDigit &&
+                          input[i + 3].isHexDigit &&
+                          input[i + 4].isHexDigit))
+                        lexer.errorAtToken(Token(alt.head.tok, input.idup[i + 1 .. $]),
+                                           "incorrect unicode escape sequence");
+                    inputi = input[i - 1 .. i + 5];
+                    i += 4;
+                }
                 break;
             default:
                 inputi = input[i - 1 .. i + 1];
@@ -1904,7 +1919,7 @@ Node parseCharAltM(const scope return CharAltM alt,
 
         i += 1;
 
-        auto lit = new CharLiteral(Token(TOK.literal, inputi.idup));
+        auto lit = new CharAltLiteral(Token(TOK.literal, inputi.idup));
         if (inRange)
             subs.insertBack(new Range(Token.init, [subs.backPop(), lit]));
         else

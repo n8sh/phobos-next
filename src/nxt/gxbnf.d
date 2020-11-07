@@ -19,8 +19,6 @@
  *
  * - Rule[] rulesByLiteralPrefix
  *
- * - Generat all parsers in one go and then compile them.
- *
  * - `not(...)`'s implementation needs to be adjusted. often used in conjunction with `altNch`?
  *
  * - Use `DETECT` upper-case lexer rules LexerRule

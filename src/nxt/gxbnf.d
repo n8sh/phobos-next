@@ -1872,18 +1872,12 @@ final class Brackets : TokenNode
                         sink.put(input[i]);
                     break;
                 }
-                i += 1;
             }
             else if (input[i] == '\'')
-            {
                 sink.put(`\'`);
-                i += 1;
-            }
             else
-            {
                 sink.put(input[i]);
-                i += 1;
-            }
+            i += 1;
 
             sink.put('\'');     // suffix
         }

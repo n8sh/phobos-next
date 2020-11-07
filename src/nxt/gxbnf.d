@@ -1808,6 +1808,11 @@ pure nothrow @nogc:
     }
 }
 
+const(CharAltM) parseCharAltM(const scope return CharAltM alt) @safe pure nothrow @nogc
+{
+    return alt;
+}
+
 final class CharAltM : TokenNode
 {
 @safe pure nothrow @nogc:

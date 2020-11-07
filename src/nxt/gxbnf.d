@@ -1845,13 +1845,16 @@ final class Brackets : TokenNode
             if (input[i] == '\\')
             {
                 i += 1;
-                if (input[i] == ']' ||
-                    input[i] == '-')
-                    sink.put(input[i]); // for instance: `\]` => `]`
-                else if (input[i] == '\\')
-                    sink.put(`\\`); // `\\` => `\\`
-                else
+                switch (input[i])
                 {
+                case ']':
+                case '-':
+                    sink.put(input[i]); // for instance: `\]` => `]`
+                    break;
+                case '\\':
+                    sink.put(`\\`); // `\\` => `\\`
+                    break;
+                default:
                     sink.put('\\');
                     if (input[i] == 'u')
                     {
@@ -1867,6 +1870,7 @@ final class Brackets : TokenNode
                     }
                     else
                         sink.put(input[i]);
+                    break;
                 }
                 i += 1;
             }

@@ -1935,7 +1935,7 @@ final class Brackets : TokenNode
                         sink.put(`\\`); // `\\` => `\\`
                         break;
                     default:
-                        sink.put(`\\`);
+                        sink.put('\\');
                         sink.put(input[i]);
                         break;
                     }

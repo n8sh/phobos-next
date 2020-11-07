@@ -9,7 +9,8 @@
  *
  * TODO:
  *
- * Move parsing of Hooks to optimize representation of
+ *
+ * Get rid of calls to input... idup
  *
  * fragment Letter
  *  : [a-zA-Z$_] // these are below 0x7F
@@ -252,21 +253,21 @@ struct GxLexer
         nextFront();
     }
 
-    void frontEnforce(in TOK tok, const scope string msg = "") nothrow
+    void frontEnforce(in TOK tok, const scope Input msg = "") nothrow
     {
         version(D_Coverage) {} else version(Do_Inline) pragma(inline, true);
         if (front.tok != tok)
             errorAtFront(msg ~ ", expected `TOK." ~ tok.toDefaulted!string(null) ~ "`");
     }
 
-    void popFrontEnforce(in TOK tok, const scope string msg) nothrow
+    void popFrontEnforce(in TOK tok, const scope Input msg) nothrow
     {
         version(D_Coverage) {} else version(LDC) version(Do_Inline) pragma(inline, true);
         if (frontPop().tok != tok)
             errorAtFront(msg ~ ", expected `TOK." ~ tok.toDefaulted!string(null) ~ "`");
     }
 
-    Token frontPopEnforce(in TOK tok, const scope string msg = "") nothrow
+    Token frontPopEnforce(in TOK tok, const scope Input msg = "") nothrow
     {
         version(D_Coverage) {} else version(LDC) version(Do_Inline) pragma(inline, true);
         const result = frontPop();
@@ -852,36 +853,36 @@ private:
         }
     }
 
-    void infoAtFront(const scope string msg) const nothrow @nogc scope
+    void infoAtFront(const scope Input msg) const nothrow @nogc scope
     {
         messageAtToken(front, "Info", msg);
     }
 
-    void warningAtFront(const scope string msg) const nothrow @nogc scope
+    void warningAtFront(const scope Input msg) const nothrow @nogc scope
     {
         messageAtToken(front, "Warning", msg);
     }
 
-    void errorAtFront(const scope string msg) const nothrow @nogc scope
+    void errorAtFront(const scope Input msg) const nothrow @nogc scope
     {
         messageAtToken(front, "Error", msg);
         assert(false);          ///< TODO: propagate error instead of assert
     }
 
     private void infoAtToken(const scope Token token,
-                             const scope string msg) const nothrow @nogc scope
+                             const scope Input msg) const nothrow @nogc scope
     {
         messageAtToken(token, "Info", msg);
     }
 
     private void warningAtToken(const scope Token token,
-                                const scope string msg) const nothrow @nogc scope
+                                const scope Input msg) const nothrow @nogc scope
     {
         messageAtToken(token, "Warning", msg);
     }
 
     private void errorAtToken(const scope Token token,
-                              const scope string msg) const nothrow @nogc scope
+                              const scope Input msg) const nothrow @nogc scope
     {
         messageAtToken(token, "Error", msg);
         assert(false);          ///< TODO: propagate error instead of assert
@@ -889,7 +890,7 @@ private:
 
     private void messageAtToken(const scope Token token,
                                 const scope string tag,
-                                const scope string msg) const @trusted nothrow @nogc scope
+                                const scope Input msg) const @trusted nothrow @nogc scope
     {
         const offset = token.input.ptr - _input.ptr; // unsafe
         const lc = offsetLineColumn(_input, offset);
@@ -903,27 +904,27 @@ private:
     }
 
     // TODO: into warning(const char* format...) like in `dmd` and put in `nxt.parsing` and reuse here and in lispy.d
-    void errorAtIndex(const scope string msg,
+    void errorAtIndex(const scope Input msg,
                       in size_t i = 0) const nothrow @nogc scope
     {
         messageAtIndex("Error", msg, i);
         assert(false);          ///< TODO: propagate error instead of assert
     }
 
-    void warningAtIndex(const scope string msg,
+    void warningAtIndex(const scope Input msg,
                         in size_t i = 0) const nothrow @nogc scope
     {
         messageAtIndex("Warning", msg, i);
     }
 
-    void infoAtIndex(const scope string msg,
+    void infoAtIndex(const scope Input msg,
                      in size_t i = 0, in const(char)[] ds = null) const nothrow @nogc scope
     {
         messageAtIndex("Info", msg, i, ds);
     }
 
     void messageAtIndex(const scope string tag,
-                        const scope string msg,
+                        const scope Input msg,
                         in size_t i = 0,
                         in const(char)[] ds = null) const @trusted nothrow @nogc scope
     {
@@ -1808,6 +1809,27 @@ pure nothrow @nogc:
     }
 }
 
+final class CharAltLiteral : TokenNode
+{
+@safe pure nothrow @nogc:
+    this(in Token head)
+    {
+        assert(head.input.length == 1 ||
+               head.input.length == 2);
+        super(head);
+    }
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @trusted
+    {
+        sink.put(`ch('`);
+        if (head.input.length == 1 &&
+            (head.input[0] == '\'' ||
+             head.input[0] == '\\'))
+            sink.put(`\`);
+        sink.put(head.input);
+        sink.put(`')`);
+    }
+}
+
 Node parseCharAltM(const scope return CharAltM alt,
                    const scope ref GxLexer lexer) @safe pure nothrow
 {
@@ -1851,19 +1873,20 @@ Node parseCharAltM(const scope return CharAltM alt,
                       input[i + 2].isHexDigit &&
                       input[i + 3].isHexDigit &&
                       input[i + 4].isHexDigit))
-                    lexer.errorAtToken(Token(alt.head.tok, input[i + 1 .. $]), "incorrect unicode escape sequence");
+                    lexer.errorAtToken(Token(alt.head.tok, input.idup[i + 1 .. $]),
+                                       "incorrect unicode escape sequence");
                 inputi = input[i - 1 .. i + 5];
                 i += 4;
                 break;
             default:
-                inputi = input[i .. i + 1];
+                inputi = input[i - 1 .. i + 1];
                 break;
             }
         }
         else
             inputi = input[i .. i + 1];
         i += 1;
-        subs.insertBack(new Literal(Token(TOK.literal, inputi)));
+        subs.insertBack(new CharAltLiteral(Token(TOK.literal, inputi.idup)));
     }
     return makeAltA(alt.head, subs.move()); // potentially flatten
 }
@@ -2483,7 +2506,7 @@ struct GxParser
                          input.length == 2))
                         node = new CharKind(head, input);
                     else
-                        node = new CharAltM(head);
+                        node = parseCharAltM(new CharAltM(head), _lexer);
                     if (node)
                         seqPutCheck(node);
                     break;

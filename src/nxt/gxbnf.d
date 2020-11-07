@@ -2244,41 +2244,42 @@ struct GxParser
         {
             size_t parentDepth = 0;
 
+            // temporary node sequence stack
             static if (useStaticTempArrays)
-                FixedArray!(Node, 70) seq; // doesn't speed up that much
+                FixedArray!(Node, 70) tseq; // doesn't speed up that much
             else
-                NodeArray seq;
+                NodeArray tseq;
 
             void seqPutCheck(Node last)
             {
                 if (last is null)
                     return _lexer.warningAtToken(name, "empty sequence");
                 if (!_lexer.empty && _lexer.front.tok == TOK.dotdot)
-                    return seq.put(last); // ... has higher prescedence
-                if (!seq.empty)
+                    return tseq.put(last); // ... has higher prescedence
+                if (!tseq.empty)
                 {
-                    if (auto pipe = cast(PipeSentinel)seq.back) // binary operator. TODO: if skipOver!PipeSentinel
+                    if (auto pipe = cast(PipeSentinel)tseq.back) // binary operator. TODO: if skipOver!PipeSentinel
                     {
-                        seq.popBack(); // pop `PipeSentinel`
-                        return seqPutCheck(makeAltN!2(pipe.head, [seq.backPop(), last]));
+                        tseq.popBack(); // pop `PipeSentinel`
+                        return seqPutCheck(makeAltN!2(pipe.head, [tseq.backPop(), last]));
                     }
-                    if (auto dotdot = cast(DotDotSentinel)seq.back) // binary operator
+                    if (auto dotdot = cast(DotDotSentinel)tseq.back) // binary operator
                     {
-                        seq.popBack(); // pop `DotDotSentinel`
-                        return seqPutCheck(new Range(dotdot.head, [seq.backPop(), last]));
+                        tseq.popBack(); // pop `DotDotSentinel`
+                        return seqPutCheck(new Range(dotdot.head, [tseq.backPop(), last]));
                     }
-                    if (auto tilde = cast(TildeSentinel)seq.back) // prefix unary operator
+                    if (auto tilde = cast(TildeSentinel)tseq.back) // prefix unary operator
                     {
 
-                        seq.popBack(); // pop `TildeSentinel`
+                        tseq.popBack(); // pop `TildeSentinel`
                         return seqPutCheck(new Not(tilde.head, last));
                     }
-                    if (auto ng = cast(NonGreedyUnaExpr)seq.back)
+                    if (auto ng = cast(NonGreedyUnaExpr)tseq.back)
                     {
                         ng.terminator = last;
                     }
                 }
-                return seq.put(last);
+                return tseq.put(last);
             }
 
             while ((parentDepth != 0 ||
@@ -2307,62 +2308,62 @@ struct GxParser
                     break;
                 case TOK.qmark:
                     const head = _lexer.frontPop();
-                    if (seq.empty)
+                    if (tseq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side of operator");
                     Node node;
-                    if (auto oom = cast(GreedyOneOrMore)seq.back)
+                    if (auto oom = cast(GreedyOneOrMore)tseq.back)
                     {
                         // See_Also: https://stackoverflow.com/questions/64706408/rewriting-x-as-x-in-antlr-grammars
                         node = oom.sub;
-                        seq.popBack();
+                        tseq.popBack();
                         _lexer.warningAtToken(head, "read `(X+)?` as `X*`");
                     }
                     else
-                        node = new GreedyZeroOrOne(head, seq.backPop());
+                        node = new GreedyZeroOrOne(head, tseq.backPop());
                     seqPutCheck(node);
                     break;
                 case TOK.star:
                     const head = _lexer.frontPop();
-                    if (seq.empty)
+                    if (tseq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side of operator");
 
-                    seqPutCheck(new GreedyZeroOrMore(head, seq.backPop()));
+                    seqPutCheck(new GreedyZeroOrMore(head, tseq.backPop()));
                     break;
                 case TOK.plus:
                     const head = _lexer.frontPop();
-                    if (seq.empty)
+                    if (tseq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side of operator");
-                    seqPutCheck(new GreedyOneOrMore(head, seq.backPop()));
+                    seqPutCheck(new GreedyOneOrMore(head, tseq.backPop()));
                     break;
                 case TOK.qmarkQmark:
                     const head = _lexer.frontPop();
-                    if (seq.empty)
+                    if (tseq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side of operator");
-                    seqPutCheck(new NonGreedyZeroOrOne(head, seq.backPop()));
+                    seqPutCheck(new NonGreedyZeroOrOne(head, tseq.backPop()));
                     break;
                 case TOK.starQmark:
                     const head = _lexer.frontPop();
-                    if (seq.empty)
+                    if (tseq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side of operator");
-                    seqPutCheck(new NonGreedyZeroOrMore(head, seq.backPop()));
+                    seqPutCheck(new NonGreedyZeroOrMore(head, tseq.backPop()));
                     break;
                 case TOK.plusQmark:
                     const head = _lexer.frontPop();
-                    if (seq.empty)
+                    if (tseq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side of operator");
-                    seqPutCheck(new NonGreedyOneOrMore(head, seq.backPop()));
+                    seqPutCheck(new NonGreedyOneOrMore(head, tseq.backPop()));
                     break;
                 case TOK.rewriteSyntacticPredicate:
                     const head = _lexer.frontPop();
-                    if (seq.empty)
+                    if (tseq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side of operator");
-                    seqPutCheck(new RewriteSyntacticPredicate(head, seq.backPop()));
+                    seqPutCheck(new RewriteSyntacticPredicate(head, tseq.backPop()));
                     break;
                 case TOK.tilde:
-                    seq.put(new TildeSentinel(_lexer.frontPop()));
+                    tseq.put(new TildeSentinel(_lexer.frontPop()));
                     break;
                 case TOK.pipe:
-                    if (const symbol = cast(Symbol)seq.back)
+                    if (const symbol = cast(Symbol)tseq.back)
                     {
                         if (symbol.head.tok == TOK.leftParen)
                         {
@@ -2371,10 +2372,10 @@ struct GxParser
                             continue;
                         }
                     }
-                    seq.put(new PipeSentinel(_lexer.frontPop()));
+                    tseq.put(new PipeSentinel(_lexer.frontPop()));
                     break;
                 case TOK.dotdot:
-                    seq.put(new DotDotSentinel(_lexer.frontPop()));
+                    tseq.put(new DotDotSentinel(_lexer.frontPop()));
                     break;
                 case TOK.wildcard:
                     seqPutCheck(new AnyClass(_lexer.frontPop()));
@@ -2401,14 +2402,14 @@ struct GxParser
                     break;
                 case TOK.leftParen:
                     parentDepth += 1;
-                    seq.put(new Symbol(_lexer.frontPop()));
+                    tseq.put(new Symbol(_lexer.frontPop()));
                     break;
                 case TOK.rightParen:
                     parentDepth -= 1;
                     // find matching '(' if any
-                    size_t li = seq.length; // left paren index
+                    size_t li = tseq.length; // left paren index
                     Symbol hs;              // left parent index Symbol
-                    foreach_reverse (const i, const Node node; seq[])
+                    foreach_reverse (const i, const Node node; tseq[])
                     {
                         auto symbol = cast(Symbol)node;        // TODO: avoid cast
                         if (symbol &&
@@ -2420,28 +2421,28 @@ struct GxParser
                         }
                     }
 
-                    if (li + 3 <= seq.length) // normal case: ... ( X Y ... )
+                    if (li + 3 <= tseq.length) // normal case: ... ( X Y ... )
                     {
                         NodeArray subseq; // TODO: use stack for small arrays. TODO: use `Rule` as ElementType
-                        foreach (node; seq[li + 1 .. $])
+                        foreach (node; tseq[li + 1 .. $])
                             subseq.put(node);
-                        seq.popBackN(seq.length - li);
+                        tseq.popBackN(tseq.length - li);
                         seqPutCheck(makeSeq(subseq.move(), _lexer));
                     }
-                    else if (li + 2 == seq.length) // single case: ... ( X )
+                    else if (li + 2 == tseq.length) // single case: ... ( X )
                     {
                         // _lexer.warningAtFront("single element group has no use");
-                        Node single = seq.backPop(); // pop X
-                        seq.popBack(); // pop '('
+                        Node single = tseq.backPop(); // pop X
+                        tseq.popBack(); // pop '('
                         seqPutCheck(single); // insert X
                     }
-                    else if (li + 1 == seq.length) // empty case: ... ( )
+                    else if (li + 1 == tseq.length) // empty case: ... ( )
                     {
                         auto nothing = new SeqM(hs.head);
-                        seq.popBack(); // pop '('
+                        tseq.popBack(); // pop '('
                         seqPutCheck(nothing);
                     }
-                    else if (li == seq.length) // unmatched case: ... )
+                    else if (li == tseq.length) // unmatched case: ... )
                     {
                         _lexer.errorAtFront("no matching opening parenthesis found before this closing parenthesis");
                     }
@@ -2453,10 +2454,10 @@ struct GxParser
                     break;
                 case TOK.labelAssignment:
                     // ignore for now: SYMBOL '='
-                    if (!cast(Symbol)seq.back)
+                    if (!cast(Symbol)tseq.back)
                         _lexer.errorAtFront("non-symbol before label assignment");
                     _lexer.frontPop();
-                    seq.popBack(); // ignore
+                    tseq.popBack(); // ignore
                     break;
                 case TOK.tokenSpecOptions:
                     _lexer.frontPop(); // ignore
@@ -2492,18 +2493,18 @@ struct GxParser
                     break;
                 }
             }
-            if (!seq.length)
+            if (!tseq.length)
             {
-                // `seq` may be empty
+                // `tseq` may be empty
                 // _lexer.infoAtFront("empty sequence");
             }
             static if (useStaticTempArrays)
             {
-                alts.put(makeSeq(seq[], _lexer));
-                seq.clear();
+                alts.put(makeSeq(tseq[], _lexer));
+                tseq.clear();
             }
             else
-                alts.put(makeSeq(seq.move(), _lexer));
+                alts.put(makeSeq(tseq.move(), _lexer));
             if (_lexer.front.tok == TOK.pipe)
                 _lexer.popFront(); // skip terminator
         }

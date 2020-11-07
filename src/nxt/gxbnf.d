@@ -1894,6 +1894,7 @@ final class Brackets : TokenNode
                 asink.put(", "); // separator
 
             if (i + 3 <= input.length &&
+                input[i] != '\\' &&
                 input[i + 1] == '-') // such as: `a-z`
             {
                 asink.put("rng('");
@@ -1906,6 +1907,7 @@ final class Brackets : TokenNode
             else if (i + 13 <= input.length &&
                      input[i] == '\\' &&
                      input[i + 1] == 'u' &&
+                     input[i + 5] != '\\' &&
                      input[i + 6] == '-') // such as: `\u0021-\u0031`
             {
                 asink.put("rng('");
@@ -1919,12 +1921,20 @@ final class Brackets : TokenNode
             {
                 asink.put("ch('");
                 if (input[i] == '\'')
-                    asink.put(`\'`); // need backquoting
+                    asink.put(`\'`); // escaped single quote
                 else if (input[i] == '\\')
                 {
-                    asink.put('\\');
-                    i += 1;
-                    asink.put(input[i]);
+                    i += 1;                 // skip '\\'
+                    if (input[i + 1] == ']' ||
+                        input[i + 1] == '-')
+                        sink.put(input[i]); // for instance: `\]` => `]`
+                    else if (input[i + 1] == '\\')
+                        sink.put(`\\`); // `\\` => `\\`
+                    else
+                    {
+                        asink.put('\\');
+                        asink.put(input[i]);
+                    }
                 }
                 else
                     asink.put(input[i]);

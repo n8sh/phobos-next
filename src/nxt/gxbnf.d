@@ -17,6 +17,12 @@
  *  | [\uD800-\uDBFF] [\uDC00-\uDFFF]
  *  ;
  *
+ * alt(alt(rng('a', 'z'), rng('A', 'Z'), ch('$'), ch('_')),
+ *     not(alt(rng('\u0000', '\u007F'), rng('\uD800', '\uDBFF'))),
+ *     seq(rng('\uD800', '\uDBFF'), rng('\uDC00', '\uDFFF')));
+ *
+ * using `makeAltM`
+ *
  * - Rule[] rulesByLiteralPrefix
  *
  * - `not(...)`'s implementation needs to be adjusted. often used in conjunction with `altNch`?
@@ -1802,7 +1808,7 @@ pure nothrow @nogc:
     }
 }
 
-final class Brackets : TokenNode
+final class CharAltM : TokenNode
 {
 @safe pure nothrow @nogc:
 
@@ -2417,7 +2423,7 @@ struct GxParser
                          input.length == 2))
                         node = new CharKind(head, input);
                     else
-                        node = new Brackets(head);
+                        node = new CharAltM(head);
                     if (node)
                         seqPutCheck(node);
                     break;

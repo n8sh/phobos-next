@@ -2309,9 +2309,17 @@ struct GxParser
                     const head = _lexer.frontPop();
                     if (seq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side of operator");
-                    if (cast(GreedyOneOrMore)seq.back)
-                        _lexer.warningAtToken(head, "rewrite as `X*`"); // See_Also: https://stackoverflow.com/questions/64706408/rewriting-x-as-x-in-antlr-grammars
-                    seqPutCheck(new GreedyZeroOrOne(head, seq.backPop()));
+                    Node node;
+                    if (auto oom = cast(GreedyOneOrMore)seq.back)
+                    {
+                        // See_Also: https://stackoverflow.com/questions/64706408/rewriting-x-as-x-in-antlr-grammars
+                        node = oom.sub;
+                        seq.popBack();
+                        _lexer.warningAtToken(head, "read `(X+)?` as `X*`");
+                    }
+                    else
+                        node = new GreedyZeroOrOne(head, seq.backPop());
+                    seqPutCheck(node);
                     break;
                 case TOK.star:
                     const head = _lexer.frontPop();

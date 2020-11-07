@@ -1833,27 +1833,19 @@ Node parseCharAltM(const scope return CharAltM alt,
 {
     Input input = alt.trimmedInput;
 
-    // TODO use `switch` `case` ranges
-
-    version(none)
-    if (input.canFind('-')) // check that range is not backquoted
-    {
-        size_t altCount;
-        const asink = toMatchRangeInSource(input, altCount);
-        if (altCount >= 2)
-            sink.put("alt(");
-        sink.put(asink[]);
-        if (altCount >= 2)
-            sink.put(")");
-        return;
-    }
-
+    bool inRange;
     NodeArray subs;
     for (size_t i; i < input.length;)
     {
         Input inputi;
 
-        // contents:
+        if (input[i] == '-')
+        {
+            inRange = true;
+            i += 1;
+            continue;
+        }
+
         if (input[i] == '\\')
         {
             i += 1;             // skip '\\'
@@ -1883,8 +1875,16 @@ Node parseCharAltM(const scope return CharAltM alt,
         }
         else
             inputi = input[i .. i + 1];
+
         i += 1;
-        subs.insertBack(new CharAltLiteral(Token(TOK.literal, inputi.idup)));
+
+        auto lit = new CharAltLiteral(Token(TOK.literal, inputi.idup));
+        if (inRange)
+            subs.insertBack(new Range(Token.init, [subs.backPop(), lit]));
+        else
+            subs.insertBack(lit);
+
+        inRange = false;
     }
     return makeAltA(alt.head, subs.move()); // potentially flatten
 }

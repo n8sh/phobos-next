@@ -1919,7 +1919,6 @@ final class Brackets : TokenNode
             }
             else
             {
-                debug writeln("input:", input[i .. $]);
                 asink.put("ch('");
                 if (input[i] == '\'')
                     asink.put(`\'`); // escaped single quote

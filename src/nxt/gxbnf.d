@@ -1849,12 +1849,10 @@ final class Brackets : TokenNode
                     input[i] == '-')
                 {
                     sink.put(input[i]); // for instance: `\]` => `]`
-                    i += 1;
                 }
                 else if (input[i] == '\\')
                 {
                     sink.put(`\\`); // `\\` => `\\`
-                    i += 1;
                 }
                 else
                 {
@@ -1869,14 +1867,12 @@ final class Brackets : TokenNode
                               input[i + 4].isHexDigit))
                             lexer.errorAtToken(Token(head.tok, input[i + 1 .. $]), "incorrect unicode escape sequence");
                         sink.put(input[i .. i + 5]);
-                        i += 5;
+                        i += 4;
                     }
                     else
-                    {
                         sink.put(input[i]);
-                        i += 1;
-                    }
                 }
+                i += 1;
             }
             else if (input[i] == '\'')
             {

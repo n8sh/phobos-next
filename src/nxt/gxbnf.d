@@ -1835,7 +1835,7 @@ final class Brackets : TokenNode
                 }
                 else if (input[i + 1] == '\\')
                 {
-                    sink.put(`\\`);
+                    sink.put(`\\`); // `\\` => `\\`
                     i += 2;
                 }
                 else

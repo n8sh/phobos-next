@@ -1083,8 +1083,6 @@ pure nothrow @nogc:
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
-        if (subs.empty)
-            return;
         sink.put("seq(");
         foreach (const i, const sub; subs)
         {

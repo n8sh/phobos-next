@@ -9,6 +9,14 @@
  *
  * TODO:
  *
+ * Move parsing of Hooks to optimize representation of
+ *
+ * fragment Letter
+ *  : [a-zA-Z$_] // these are below 0x7F
+ *  | ~[\u0000-\u007F\uD800-\uDBFF]
+ *  | [\uD800-\uDBFF] [\uDC00-\uDFFF]
+ *  ;
+ *
  * - Rule[] rulesByLiteralPrefix
  *
  * - Generat all parsers in one go and then compile them.

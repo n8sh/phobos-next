@@ -1791,20 +1791,37 @@ pure nothrow @nogc:
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
         sink.put("rng(");
+
         if (const lower = cast(const Literal)subs[0])
             sink.put(lower.head.input);
+        else if (const lower = cast(const CharAltLiteral)subs[0])
+        {
+            sink.put('\'');
+            sink.put(lower.head.input);
+            sink.put('\'');
+        }
         else
         {
             debug writeln("handle sub[0] of type ", typeid(subs[0]).name);
             debug subs[0].show();
             assert(false);
         }
+
         sink.put(",");
+
         // sink.put(" <= s[offset] && s[offset] <= ");
+
         if (const upper = cast(const Literal)subs[1])
             sink.put(upper.head.input);
+        else if (const upper = cast(const CharAltLiteral)subs[1])
+        {
+            sink.put('\'');
+            sink.put(upper.head.input);
+            sink.put('\'');
+        }
         else
             assert(false);
+
         sink.put(")");
     }
 }

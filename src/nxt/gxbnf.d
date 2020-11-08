@@ -1685,11 +1685,11 @@ final class StrLiteral : TokenNode
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @trusted
     {
-        auto content = head.input[1 .. $-1]; // skipping single-quotes
+        auto content = trimmedInput; // skipping single-quotes
         if (isCharacter(content))
         {
             sink.put(`ch(`);
-            sink.putCharLiteral(head.input);
+            sink.putCharLiteral(content);
             sink.put(`)`);
         }
         else

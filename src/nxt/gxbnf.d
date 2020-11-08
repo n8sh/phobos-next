@@ -2467,7 +2467,7 @@ struct GxParser
                     if (auto oom = cast(GreedyOneOrMore)tseq.back)
                     {
                         // See_Also: https://stackoverflow.com/questions/64706408/rewriting-x-as-x-in-antlr-grammars
-                        node = oom.sub;
+                        node = new GreedyZeroOrMore(head, oom.sub);
                         tseq.popBack();
                         _lexer.warningAtToken(head, "read `(X+)?` as `X*`");
                     }

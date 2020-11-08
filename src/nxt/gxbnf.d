@@ -84,7 +84,7 @@ import nxt.line_column : offsetLineColumn;
 import nxt.fixed_array : FixedArray;
 import nxt.dynamic_array : DynamicArray;
 import nxt.file_ex : rawReadPath;
-import nxt.array_algorithm : startsWith, endsWith, endsWithEither, skipOver, skipOverBack, canFind, indexOf, indexOfEither;
+import nxt.array_algorithm : startsWith, endsWith, endsWithEither, skipOver, skipOverBack, skipOverAround, canFind, indexOf, indexOfEither;
 import nxt.conv_ex : toDefaulted;
 
 import std.stdio : stdout, write, writeln;
@@ -1857,7 +1857,7 @@ pure nothrow @nogc:
 Node parseCharAltM(const scope return CharAltM alt,
                    const scope ref GxLexer lexer) @safe pure nothrow
 {
-    Input input = alt.trimmedInput;
+    const Input input = alt.trimmedInput;
 
     bool inRange;
     NodeArray subs;
@@ -1944,11 +1944,7 @@ final class CharAltM : TokenNode
     Input trimmedInput() const scope return
     {
         Input input = head.input;
-        // trim:
-        const lbracket = input.skipOver('[');
-        const rbracket = input.skipOverBack(']');
-        assert(lbracket);
-        assert(rbracket);
+        assert(input.skipOverAround('[', ']')); // trim
         return input;
     }
 
@@ -2541,8 +2537,7 @@ struct GxParser
                     Node node;
                     const head = _lexer.frontPop();
                     Input input = head.input;
-                    if (input.skipOver(`[\p{`) &&
-                        input.skipOverBack(`}]`) &&
+                    if (input.skipOverAround(`[\p{`, `}]`) &&
                         (input.length == 1 ||
                          input.length == 2))
                         node = new CharKind(head, input);
@@ -3437,8 +3432,7 @@ struct GxFileReader
                 co = co[i .. $];
             }
 
-            co.skipOver('{');
-            co.skipOverBack('}');
+            co.skipOverAround('{', '}');
 
             skipws();
 

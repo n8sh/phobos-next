@@ -2503,7 +2503,6 @@ struct GxParser
 
                         Node nseq = makeSeq(tseq[ih + 1 .. $], _lexer);
                         tseq.popBackN(n-1);                             // don't op sentinel
-                        // TODO assert(tseq[$-1]); is LeftParenSentinel
                         return seqPutCheck(makeAltN!2(pipe.head, [nseq, last]));
                     }
                     if (auto dotdot = cast(DotDotSentinel)tseq.back) // binary operator

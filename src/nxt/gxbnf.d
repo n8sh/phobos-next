@@ -2499,7 +2499,8 @@ struct GxParser
                         }
 
                         const n = tseq.length - ih;
-                        assert(n >= 2, "parse error");
+                        if (n < 2)
+                            _lexer.errorAtToken(pipe.head, "missing left-hand side of alternative");
 
                         Node nseq = makeSeq(tseq[ih + 1 .. $], _lexer);
                         tseq.popBackN(n-1);                             // don't op sentinel

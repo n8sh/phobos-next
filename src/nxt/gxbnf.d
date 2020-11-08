@@ -1666,18 +1666,33 @@ this(in Token head, in const(char)[] kind)
     string kind;
 }
 
-private bool isASCIICharacterLiteral(in Input content) pure nothrow @nogc
+private bool isASCIICharacterLiteral(in Input x) pure nothrow @nogc
 {
-    return (content.length == 1 ||
-            (content.length == 2 &&
-             content[0] == '\\')); // backquoted character
+    return (x.length == 1 ||
+            (x.length == 2 &&
+             x[0] == '\\')); // backquoted character
 }
 
-private bool isUnicodeCharacterLiteral(in Input content) pure nothrow @nogc
+private size_t isUnicodeCharacterLiteral(scope Input x) pure nothrow @nogc
 {
-    return (content.length >= 3 &&
-            content[0] == '\\' &&
-            content[1] == 'u');
+    if (!x.skipOver('\\'))
+        return false;
+    if (!(x.skipOver('u') ||
+          x.skipOver('U')))
+        return false;
+
+    x.skipOverAround('{', '}'); // optional
+
+    if (!x.skipOver('0'))
+        return false;
+    if (!(x.skipOver('x') ||
+          x.skipOver('X')))
+        return false;
+
+    while (x.length &&
+           x[0] == '0')   // trim leading zero
+        x = x[1 .. $];
+    return x.length;            // number of significant hex digits
 }
 
 final class StrLiteral : TokenNode
@@ -1693,10 +1708,18 @@ final class StrLiteral : TokenNode
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @trusted
     {
         auto content = trimmedInput; // skipping single-quotes
-        if (content.isASCIICharacterLiteral() ||
-            content.isUnicodeCharacterLiteral())
+        if (content.isASCIICharacterLiteral())
         {
             sink.put(`ch(`);
+            sink.putCharLiteral(content);
+            sink.put(`)`);
+        }
+        else if (const hexDigitCount = content.isUnicodeCharacterLiteral())
+        {
+            if (hexDigitCount <= 2)
+                sink.put(`ch(`);
+            else
+                sink.put(`dch(`);
             sink.putCharLiteral(content);
             sink.put(`)`);
         }
@@ -3132,7 +3155,7 @@ struct Parser
         return Match.none();
     }
 
-    Match ch(dchar x) pure nothrow @nogc
+    Match dch(dchar x) pure nothrow @nogc
     {
         pragma(inline, true);
         if (inp[off] == x) // TODO: decode next dchar

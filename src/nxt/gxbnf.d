@@ -1666,11 +1666,18 @@ this(in Token head, in const(char)[] kind)
     string kind;
 }
 
-private bool isASCIICharacter(in Input content) pure nothrow @nogc
+private bool isASCIICharacterLiteral(in Input content) pure nothrow @nogc
 {
     return (content.length == 1 ||
             (content.length == 2 &&
-             content[1] == '\\')); // backquoted character
+             content[0] == '\\')); // backquoted character
+}
+
+private bool isUnicodeCharacterLiteral(in Input content) pure nothrow @nogc
+{
+    return (content.length >= 3 &&
+            content[0] == '\\' &&
+            content[1] == 'u');
 }
 
 final class StrLiteral : TokenNode
@@ -1686,7 +1693,8 @@ final class StrLiteral : TokenNode
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @trusted
     {
         auto content = trimmedInput; // skipping single-quotes
-        if (content.isASCIICharacter())
+        if (content.isASCIICharacterLiteral() ||
+            content.isUnicodeCharacterLiteral())
         {
             sink.put(`ch(`);
             sink.putCharLiteral(content);
@@ -1739,9 +1747,24 @@ void putCharLiteral(scope ref Output sink,
         inp.skipOver(`\U`))
     {
         inp.skipOverAround('{', '}');
-        sink.put(`cast(dchar)`);
-        sink.put(`0x`);
-        sink.put(inp);
+
+        // strip leading zeros
+        while (inp.length > 2 &&
+               inp[0] == '0')
+            inp = inp[1 .. $];
+
+        if (inp.length == 2)    // if ASCII
+        {
+            sink.put(`'\u00`);
+            sink.put(inp);
+            sink.put('\'');
+        }
+        else
+        {
+            sink.put(`cast(dchar)`);
+            sink.put(`0x`);
+            sink.put(inp);
+        }
     }
     else
     {
@@ -1759,7 +1782,7 @@ version(none)                   // TODO use
 TokenNode makeLiteral(in Token head) pure nothrow
 {
     assert(head.input.length >= 3);
-    if (head.input[1 .. $-1].isASCIICharacter)
+    if (head.input[1 .. $-1].isASCIICharacterLiteral)
         return new CharAltLiteral(head);
     else
         return new StrLiteral(head);

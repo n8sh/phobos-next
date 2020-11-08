@@ -2487,7 +2487,7 @@ struct GxParser
 
                         size_t ih = tseq.length;
                         foreach_reverse (const i, e; tseq)
-                            if (auto sym = cast(Symbol)e)
+                            if (auto sym = cast(Symbol)e) // TODO: use `LeftParenSentinel`
                                 if (sym.head.tok == TOK.leftParen)
                                 {
                                     ih = i;

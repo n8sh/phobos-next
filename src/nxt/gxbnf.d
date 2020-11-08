@@ -1732,13 +1732,32 @@ final class CharAltLiteral : TokenNode
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @trusted
     {
-        sink.put(`ch('`);
-        if (head.input.length <= 1 &&
-            (head.input[0] == '\'' ||
-             head.input[0] == '\\'))
-            sink.put(`\`);
-        sink.put(head.input);
-        sink.put(`')`);
+        sink.put(`ch(`);
+        sink.putCharLiteral(head.input);
+        sink.put(`)`);
+    }
+}
+
+void putCharLiteral(scope ref Output sink,
+                    const scope Input input) pure nothrow @nogc
+{
+    Input inp = input;
+    if (inp.skipOver(`\u`))
+    {
+        inp.skipOverAround('{', '}');
+        sink.put(`cast(dchar)`);
+        sink.put(`0x`);
+        sink.put(inp);
+    }
+    else
+    {
+        sink.put(`'`);
+        if (inp.length == 1 &&
+            (inp[0] == '\'' ||
+             inp[0] == '\\'))
+            sink.put(`\`);      // need backquoting
+        sink.put(inp);
+        sink.put(`'`);
     }
 }
 
@@ -1823,11 +1842,7 @@ pure nothrow @nogc:
         if (const lower = cast(const StrLiteral)subs[0])
             sink.put(lower.head.input);
         else if (const lower = cast(const CharAltLiteral)subs[0])
-        {
-            sink.put('\'');
-            sink.put(lower.head.input);
-            sink.put('\'');
-        }
+            sink.putCharLiteral(lower.head.input);
         else
         {
             debug writeln("handle sub[0] of type ", typeid(subs[0]).name);
@@ -1842,11 +1857,7 @@ pure nothrow @nogc:
         if (const upper = cast(const StrLiteral)subs[1])
             sink.put(upper.head.input);
         else if (const upper = cast(const CharAltLiteral)subs[1])
-        {
-            sink.put('\'');
-            sink.put(upper.head.input);
-            sink.put('\'');
-        }
+            sink.putCharLiteral(upper.head.input);
         else
             assert(false);
 

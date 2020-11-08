@@ -1666,7 +1666,7 @@ this(in Token head, in const(char)[] kind)
     string kind;
 }
 
-private bool isCharacter(in Input content) pure nothrow @nogc
+private bool isASCIICharacter(in Input content) pure nothrow @nogc
 {
     return (content.length == 1 ||
             (content.length == 2 &&
@@ -1686,7 +1686,7 @@ final class StrLiteral : TokenNode
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @trusted
     {
         auto content = trimmedInput; // skipping single-quotes
-        if (isCharacter(content))
+        if (content.isASCIICharacter())
         {
             sink.put(`ch(`);
             sink.putCharLiteral(content);
@@ -1759,7 +1759,7 @@ version(none)                   // TODO use
 TokenNode makeLiteral(in Token head) pure nothrow
 {
     assert(head.input.length >= 3);
-    if (isCharacter(head.input[1 .. $-1]))
+    if (head.input[1 .. $-1].isASCIICharacter)
         return new CharAltLiteral(head);
     else
         return new StrLiteral(head);

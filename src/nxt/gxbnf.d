@@ -1123,7 +1123,7 @@ Node makeSeq(NodeArray subs,
                 break;
             if (const zom = cast(const GreedyZeroOrMore)subs[i + 1])
                 if (zom.sub.equals(sub))
-                    lexer.warningAtToken(zom.head, "rewrite as `X+`");
+                    lexer.warningAtToken(zom.head, "should be rewritten into `X+`");
         }
     }
     if (subs.empty)

@@ -1743,7 +1743,7 @@ void putCharLiteral(scope ref Output sink,
 {
     Input inp = input;
     if (inp.skipOver(`\u`) ||
-        inp.skipOver(`\U`))     // TODO: use `skipOverSeq`
+        inp.skipOver(`\U`))
     {
         inp.skipOverAround('{', '}');
         sink.put(`cast(dchar)`);

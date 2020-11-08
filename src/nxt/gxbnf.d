@@ -1688,9 +1688,9 @@ final class StrLiteral : TokenNode
         auto content = head.input[1 .. $-1]; // skipping single-quotes
         if (isCharacter(content))
         {
-            sink.put(`ch('`);
-            sink.put(content);
-            sink.put(`')`);
+            sink.put(`ch(`);
+            sink.putCharLiteral(head.input);
+            sink.put(`)`);
         }
         else
         {
@@ -1709,6 +1709,10 @@ final class StrLiteral : TokenNode
 
             sink.put(`")`);
         }
+    }
+    Input trimmedInput() const scope return
+    {
+        return head.input[1 .. $ - 1];
     }
 }
 
@@ -1830,7 +1834,7 @@ pure nothrow @nogc:
         sink.put("rng(");
 
         if (const lower = cast(const StrLiteral)subs[0])
-            sink.put(lower.head.input);
+            sink.putCharLiteral(lower.trimmedInput);
         else if (const lower = cast(const CharAltLiteral)subs[0])
             sink.putCharLiteral(lower.head.input);
         else
@@ -1842,10 +1846,8 @@ pure nothrow @nogc:
 
         sink.put(",");
 
-        // sink.put(" <= s[offset] && s[offset] <= ");
-
         if (const upper = cast(const StrLiteral)subs[1])
-            sink.put(upper.head.input);
+            sink.putCharLiteral(upper.trimmedInput);
         else if (const upper = cast(const CharAltLiteral)subs[1])
             sink.putCharLiteral(upper.head.input);
         else

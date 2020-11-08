@@ -1742,7 +1742,8 @@ void putCharLiteral(scope ref Output sink,
                     const scope Input input) pure nothrow @nogc
 {
     Input inp = input;
-    if (inp.skipOver(`\u`))
+    if (inp.skipOver(`\u`) ||
+        inp.skipOver(`\U`))
     {
         inp.skipOverAround('{', '}');
         sink.put(`cast(dchar)`);

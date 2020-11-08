@@ -1673,26 +1673,41 @@ private bool isASCIICharacterLiteral(in Input x) pure nothrow @nogc
              x[0] == '\\')); // backquoted character
 }
 
-private size_t isUnicodeCharacterLiteral(scope Input x) pure nothrow @nogc
+private uint isUnicodeCharacterLiteral(scope Input x) pure nothrow @nogc
 {
     if (!x.skipOver('\\'))
-        return false;
+        return 0;
     if (!(x.skipOver('u') ||
           x.skipOver('U')))
-        return false;
+        return 0;
 
     x.skipOverAround('{', '}'); // optional
 
-    if (!x.skipOver('0'))
-        return false;
-    if (!(x.skipOver('x') ||
-          x.skipOver('X')))
-        return false;
+    if (x.skipOver(`0x`) ||     // optional
+        x.skipOver(`0X`)) {}
 
     while (x.length &&
            x[0] == '0')   // trim leading zero
         x = x[1 .. $];
-    return x.length;            // number of significant hex digits
+
+    uint u;
+    while (x.length)
+    {
+        u *= 16;
+        import std.ascii : isDigit, isLower, isUpper;
+        const c = x[0];
+        if (c.isDigit)
+            u += c - '0';
+        else if (c.isUpper)
+            u += c - 'A' + 10;
+        else if (c.isLower)
+            u += c - 'a' + 10;
+        else
+            assert(0, "error decoding literal");
+        x = x[1 .. $];      // pop front
+    }
+
+    return u;
 }
 
 final class StrLiteral : TokenNode
@@ -1714,9 +1729,9 @@ final class StrLiteral : TokenNode
             sink.putCharLiteral(content);
             sink.put(`)`);
         }
-        else if (const hexDigitCount = content.isUnicodeCharacterLiteral())
+        else if (const uvalue = content.isUnicodeCharacterLiteral())
         {
-            if (hexDigitCount <= 2)
+            if (uvalue <= 0x7f)
                 sink.put(`ch(`);
             else
                 sink.put(`dch(`);
@@ -1756,7 +1771,11 @@ final class CharAltLiteral : TokenNode
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @trusted
     {
-        sink.put(`ch(`);
+        const uvalue = head.input.isUnicodeCharacterLiteral();
+        if (uvalue <= 0x7f)
+            sink.put(`ch(`);
+        else
+            sink.put(`dch(`);
         sink.putCharLiteral(head.input);
         sink.put(`)`);
     }

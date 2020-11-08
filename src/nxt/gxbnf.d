@@ -9,6 +9,8 @@
  *
  * TODO:
  *
+ * - Add LeftParenSentinel
+ *
  * - Rule[] rulesByLiteralPrefix
  *
  * - Get rid of calls to input... idup

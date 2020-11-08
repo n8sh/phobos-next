@@ -9,18 +9,6 @@
  *
  * TODO:
  *
- * fragment Letter
- *  : [a-zA-Z$_] // these are below 0x7F
- *  | ~[\u0000-\u007F\uD800-\uDBFF]
- *  | [\uD800-\uDBFF] [\uDC00-\uDFFF]
- *  ;
- *
- * alt(alt(rng('a', 'z'), rng('A', 'Z'), ch('$'), ch('_')),
- *     not(alt(rng('\u0000', '\u007F'), rng('\uD800', '\uDBFF'))),
- *     seq(rng('\uD800', '\uDBFF'), rng('\uDC00', '\uDFFF')));
- *
- * using `makeAltM`
- *
  * - Rule[] rulesByLiteralPrefix
  *
  * - Get rid of calls to input... idup

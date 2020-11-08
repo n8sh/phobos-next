@@ -9,9 +9,6 @@
  *
  * TODO:
  *
- *
- * Get rid of calls to input... idup
- *
  * fragment Letter
  *  : [a-zA-Z$_] // these are below 0x7F
  *  | ~[\u0000-\u007F\uD800-\uDBFF]
@@ -25,6 +22,8 @@
  * using `makeAltM`
  *
  * - Rule[] rulesByLiteralPrefix
+ *
+ * - Get rid of calls to input... idup
  *
  * - `not(...)`'s implementation needs to be adjusted. often used in conjunction with `altNch`?
  *
@@ -40,6 +39,8 @@
  * - Sort `AltM` subs by descending minimum length
  *
  * - Add array `PrefixedRules` sorted by literal for faster lookup
+ *
+ * - Add AA Node[Input] tokensByLiteral
  *
  * - Detect indirect mutual left-recursion. How? Simple-way in generated parsers:
  *   enters a rule again without offset change.

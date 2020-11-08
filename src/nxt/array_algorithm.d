@@ -378,6 +378,36 @@ bool skipOverBack(T)(scope ref inout(T)[] haystack,
     assert(x == "bet");
 }
 
+bool skipOverAround(T)(scope ref inout(T)[] haystack,
+                       scope const T[] needleFront,
+                       scope const T[] needleBack) @trusted
+{
+    if (!startsWith(haystack, needleFront) ||
+        !endsWith(haystack, needleBack)) { return false; }
+    haystack = haystack.ptr[needleFront.length .. haystack.length - needleBack.length];
+    return true;
+}
+/// ditto
+bool skipOverAround(T)(scope ref inout(T)[] haystack,
+                       scope const T needleFront,
+                       scope const T needleBack) @trusted
+{
+    if (!startsWith(haystack, needleFront) ||
+        !endsWith(haystack, needleBack)) { return false; }
+    haystack = haystack.ptr[1 .. haystack.length - 1];
+    return true;
+}
+
+///
+@safe pure nothrow @nogc unittest
+{
+    string x = "alpha beta_gamma";
+    assert(x.skipOverAround("alpha", "gamma"));
+    assert(x == " beta_");
+    assert(x.skipOverAround(' ', '_'));
+    assert(x == "beta");
+}
+
 /** Array-specialization of `stripLeft` with default predicate.
  *
  * See_Also: https://forum.dlang.org/post/dhxwgtaubzbmjaqjmnmq@forum.dlang.org

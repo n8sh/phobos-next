@@ -2487,16 +2487,12 @@ struct GxParser
 
                         size_t ih = tseq.length;
                         foreach_reverse (const i, e; tseq)
-                        {
                             if (auto sym = cast(Symbol)e)
-                            {
                                 if (sym.head.tok == TOK.leftParen)
                                 {
                                     ih = i;
                                     break;
                                 }
-                            }
-                        }
 
                         const n = tseq.length - ih;
                         if (n < 2)

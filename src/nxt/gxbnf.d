@@ -9,8 +9,6 @@
  *
  * TODO:
  *
- * - Add LeftParenSentinel
- *
  * - Rule[] rulesByLiteralPrefix
  *
  * - Get rid of calls to input... idup
@@ -1611,6 +1609,15 @@ final class Symbol : TokenNode
     }
 }
 
+final class LeftParenSentinel : TokenNode
+{
+@safe pure nothrow @nogc:
+    this(in Token head)
+    {
+        super(head);
+    }
+}
+
 final class PipeSentinel : TokenNode
 {
 @safe pure nothrow @nogc:
@@ -2487,12 +2494,11 @@ struct GxParser
 
                         size_t ih = tseq.length;
                         foreach_reverse (const i, const e; tseq)
-                            if (auto sym = cast(const Symbol)e) // TODO: use `LeftParenSentinel`
-                                if (sym.head.tok == TOK.leftParen)
-                                {
-                                    ih = i;
-                                    break;
-                                }
+                            if (auto sym = cast(const LeftParenSentinel)e)
+                            {
+                                ih = i;
+                                break;
+                            }
 
                         const n = tseq.length - ih;
                         if (n < 2)
@@ -2602,14 +2608,11 @@ struct GxParser
                     tseq.put(new TildeSentinel(_lexer.frontPop()));
                     break;
                 case TOK.pipe:
-                    if (const symbol = cast(Symbol)tseq.back)
+                    if (const symbol = cast(LeftParenSentinel)tseq.back)
                     {
-                        if (symbol.head.tok == TOK.leftParen)
-                        {
-                            // _lexer.warningAtFront("operator '|' without left-hand side argument has no effect");
-                            _lexer.frontPop();
-                            continue;
-                        }
+                        // _lexer.warningAtFront("operator '|' without left-hand side argument has no effect");
+                        _lexer.frontPop();
+                        continue;
                     }
                     tseq.put(new PipeSentinel(_lexer.frontPop()));
                     break;
@@ -2640,21 +2643,19 @@ struct GxParser
                     break;
                 case TOK.leftParen:
                     parentDepth += 1;
-                    tseq.put(new Symbol(_lexer.frontPop()));
+                    tseq.put(new LeftParenSentinel(_lexer.frontPop()));
                     break;
                 case TOK.rightParen:
                     parentDepth -= 1;
                     // find matching '(' if any
                     size_t li = tseq.length; // left paren index
-                    Symbol hs;              // left parent index Symbol
+                    LeftParenSentinel hs;    // left parent index Symbol
                     foreach_reverse (const i, const Node node; tseq[])
                     {
-                        auto symbol = cast(Symbol)node;        // TODO: avoid cast
-                        if (symbol &&
-                            symbol.head.tok == TOK.leftParen)
+                        if (auto lp = cast(LeftParenSentinel)node)
                         {
                             li = i;
-                            hs = symbol;
+                            hs = lp;
                             break;
                         }
                     }

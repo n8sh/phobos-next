@@ -2482,7 +2482,27 @@ struct GxParser
                     if (auto pipe = cast(PipeSentinel)tseq.back) // binary operator. TODO: if skipOver!PipeSentinel
                     {
                         tseq.popBack(); // pop `PipeSentinel`
-                        return seqPutCheck(makeAltN!2(pipe.head, [tseq.backPop(), last]));
+
+                        size_t ih = tseq.length;
+                        foreach_reverse (const i, e; tseq)
+                        {
+                            if (auto sym = cast(Symbol)e)
+                            {
+                                if (sym.head.tok == TOK.leftParen)
+                                {
+                                    ih = i;
+                                    break;
+                                }
+                            }
+                        }
+
+                        const n = tseq.length - ih;
+                        assert(n >= 2, "parse error");
+
+                        Node nseq = makeSeq(tseq[ih + 1 .. $], _lexer);
+                        tseq.popBackN(n-1);                             // don't op sentinel
+                        // TODO assert(tseq[$-1]); is LeftParenSentinel
+                        return seqPutCheck(makeAltN!2(pipe.head, [nseq, last]));
                     }
                     if (auto dotdot = cast(DotDotSentinel)tseq.back) // binary operator
                     {

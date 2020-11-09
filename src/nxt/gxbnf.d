@@ -1782,7 +1782,7 @@ void putStringLiteral(scope ref Output sink,
         else if (i + 2 <= inp.length &&
                  inp[i .. i + 2] == `\'`)
         {
-            i += 1;
+            i += 1;             // one extra char
             sink.put('\'');
         }
         else

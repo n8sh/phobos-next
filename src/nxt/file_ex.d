@@ -10,7 +10,7 @@ module nxt.file_ex;
  * See_Also: https://en.wikipedia.org/wiki/Sentinel_value
  * See_Also: http://forum.dlang.org/post/pdzxpkusvifelumkrtdb@forum.dlang.org
  */
-immutable(void)[] rawReadPath(string path) @trusted
+immutable(void)[] rawReadPath(const scope string path) @trusted
 {
     import std.array : uninitializedArray;
 

@@ -3523,6 +3523,7 @@ struct GxFileReader
 
             skipws();
 
+            // See_Also: https://stackoverflow.com/questions/28829049/antlr4-any-difference-between-import-and-tokenvocab
             if (co.skipOver("tokenVocab"))
             {
                 skipws();
@@ -3619,6 +3620,8 @@ version(show)
             const bn = fn.baseName;
             if (fn.isGxFilename)
             {
+                if (bn != `Python3.g4`)
+                    continue;
                 if (bn == `RexxParser.g4` ||
                     bn == `RexxLexer.g4` ||
                     bn == `StackTrace.g4` ||

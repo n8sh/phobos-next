@@ -9,7 +9,7 @@
  *
  * TODO:
  *
- * - Detect conflicting rules with import and tokenVocab
+ * - Detect conflicting rules with `import` and `tokenVocab`
  *
  * - Rule[] rulesByLiteralPrefix
  *

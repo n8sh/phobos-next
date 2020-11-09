@@ -15,9 +15,9 @@
  *   Use https://www.regular-expressions.info/unicode.html
  *   Use https://forum.dlang.org/post/rsmlqfwowpnggwyuibok@forum.dlang.org
  *
- * - Detect conflicting rules with `import` and `tokenVocab`
- *
- * - Rule[] rulesByLiteralPrefix
+ * - Rule[Input] RulesByName
+ * - Rule[Input] RulesByLiteralPrefix
+ * - Use to detect conflicting rules with `import` and `tokenVocab`
  *
  * - Ask on forums for AST node allocation patterns. Use region allocator of
  *   immutable. Size can be predicate.
@@ -1762,24 +1762,32 @@ final class StrLiteral : TokenNode
         else
         {
             sink.put(`str("`);
-
-            const leadFlag = content.skipOver('"');
-            const trailFlag = content.skipOverBack('"');
-
-            if (leadFlag)
-                sink.put(`\"`);
-
-            sink.put(content);
-
-            if (trailFlag)
-                sink.put(`\"`);
-
+            sink.putStringLiteral(content);
             sink.put(`")`);
         }
     }
     Input trimmedInput() const scope return
     {
         return head.input[1 .. $ - 1];
+    }
+}
+
+void putStringLiteral(scope ref Output sink,
+                      const scope Input input) pure nothrow @nogc
+{
+    for (size_t i; i < input.length;)
+    {
+        if (input[i] == '"')
+            sink.put(`\"`);
+        else if (i + 2 <= input.length &&
+                 input[i .. i + 2] == `\'`)
+        {
+            i += 1;
+            sink.put('\'');
+        }
+        else
+            sink.put(input[i]);
+        i += 1;
     }
 }
 

@@ -1664,7 +1664,7 @@ this(in Token head)
     {
         super(head);
     }
-    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @trusted
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
         sink.put(`any()`);
     }
@@ -1678,7 +1678,7 @@ this(in Token head, in Input kind)
         super(head);
         this.kind = kind;
     }
-    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @trusted @nogc
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @nogc
     {
         sink.put(`cc!"`);
         sink.put(kind);
@@ -1741,7 +1741,7 @@ final class StrLiteral : TokenNode
                head.input[0] ==  '"' && head.input[$-1] ==  '"');
         super(head);
     }
-    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @trusted
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
         auto content = trimmedInput; // skipping single-quotes
         if (content.isASCIICharacterLiteral())
@@ -1790,7 +1790,7 @@ final class CharAltLiteral : TokenNode
     {
         super(head);
     }
-    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @trusted
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
         const uvalue = head.input.isUnicodeCharacterLiteral();
         if (uvalue <= 0x7f)

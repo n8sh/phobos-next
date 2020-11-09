@@ -11,7 +11,9 @@
  *
  * TODO:
  *
- * - Support unicode regular expressions. https://www.regular-expressions.info/unicode.html
+ * - unicode regular expressions.
+ *   Use https://www.regular-expressions.info/unicode.html
+ *   Use https://forum.dlang.org/post/rsmlqfwowpnggwyuibok@forum.dlang.org
  *
  * - Detect conflicting rules with `import` and `tokenVocab`
  *

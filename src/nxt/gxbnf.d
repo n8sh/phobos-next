@@ -1773,21 +1773,20 @@ final class StrLiteral : TokenNode
 }
 
 void putStringLiteral(scope ref Output sink,
-                      const scope Input input) pure nothrow @nogc
+                      const scope Input inp) pure nothrow @nogc
 {
-    for (size_t i; i < input.length;)
+    for (size_t i; i < inp.length; ++i)
     {
-        if (input[i] == '"')
+        if (inp[i] == '"')
             sink.put(`\"`);
-        else if (i + 2 <= input.length &&
-                 input[i .. i + 2] == `\'`)
+        else if (i + 2 <= inp.length &&
+                 inp[i .. i + 2] == `\'`)
         {
             i += 1;
             sink.put('\'');
         }
         else
-            sink.put(input[i]);
-        i += 1;
+            sink.put(inp[i]);
     }
 }
 
@@ -1811,9 +1810,8 @@ final class CharAltLiteral : TokenNode
 }
 
 void putCharLiteral(scope ref Output sink,
-                    const scope Input input) pure nothrow @nogc
+                    scope Input inp) pure nothrow @nogc
 {
-    Input inp = input;
     if (inp.skipOver(`\u`) ||
         inp.skipOver(`\U`))
     {

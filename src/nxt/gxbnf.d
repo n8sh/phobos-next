@@ -1003,9 +1003,7 @@ void showNIndents(scope ref Output sink, uint indentDepth) @safe pure nothrow @n
 
 private void showChars(in const(char)[] chars) @trusted
 {
-    printf("%.*s",
-           cast(uint)chars.length,
-           chars.ptr);
+    printf("%.*s", cast(uint)chars.length, chars.ptr);
 }
 
 private void showToken(in Token token,
@@ -1384,7 +1382,7 @@ pure nothrow @nogc:
             return head == o_.head;
         return false;
     }
-    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @trusted
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
         sink.put(`tok(`);
         sink.put(head.input[]);

@@ -21,6 +21,8 @@
  * - Rule[Input] RulesByLiteralPrefix
  * - Use to detect conflicting rules with `import` and `tokenVocab`
  *
+ * - Add AA Node[Input] tokensByLiteral
+ *
  * - Ask on forums for AST node allocation patterns. Use region allocator of
  *   immutable. Size can be predicate.
  *
@@ -38,10 +40,6 @@
  *
  * - Add properties for uint, uint lengthRng()
  * - Sort `AltM` subs by descending minimum length
- *
- * - Add array `PrefixedRules` sorted by literal for faster lookup
- *
- * - Add AA Node[Input] tokensByLiteral
  *
  * - Deal with differences between `import` and `tokenVocab`.
  *   See: https://stackoverflow.com/questions/28829049/antlr4-any-difference-between-import-and-tokenvocab
@@ -1811,7 +1809,7 @@ final class AltCharLiteral : TokenNode
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
-        if (head.input.startsWith(`\p`) ||
+        if (head.input.startsWith(`\p`) || // https://github.com/antlr/antlr4/pull/1688
             head.input.startsWith(`\P`))
         {
             sink.put(`cc!(`);
@@ -1855,7 +1853,7 @@ void putCharLiteral(scope ref Output sink,
             sink.put(inp);
         }
     }
-    else if (inp.skipOver(`\p`) ||
+    else if (inp.skipOver(`\p`) || // https://github.com/antlr/antlr4/pull/1688
              inp.skipOver(`\P`))
     {
         inp.skipOverAround('{', '}');
@@ -2459,6 +2457,9 @@ final class Tokens : TokenNode
     {
         super(head);
         this.code = code;
+    }
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
+    {
     }
     Token code;
 }

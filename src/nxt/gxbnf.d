@@ -11,6 +11,8 @@
  *
  * TODO:
  *
+ * - Use `CharKind` instead of `AltCharLiteral`
+ *
  * - unicode regular expressions.
  *   Use https://www.regular-expressions.info/unicode.html
  *   Use https://forum.dlang.org/post/rsmlqfwowpnggwyuibok@forum.dlang.org
@@ -1817,7 +1819,7 @@ void putStringLiteralBackQuoted(scope ref Output sink,
     }
 }
 
-final class CharAltLiteral : TokenNode
+final class AltCharLiteral : TokenNode
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1826,11 +1828,19 @@ final class CharAltLiteral : TokenNode
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
-        const uvalue = head.input.isUnicodeCharacterLiteral();
-        if (uvalue <= 0x7f)
-            sink.put(`ch(`);
+        if (head.input.startsWith(`\p`) ||
+            head.input.startsWith(`\P`))
+        {
+            sink.put(`cc!(`);
+        }
         else
-            sink.put(`dch(`);
+        {
+            const uvalue = head.input.isUnicodeCharacterLiteral();
+            if (uvalue <= 0x7f)
+                sink.put(`ch(`);
+            else
+                sink.put(`dch(`);
+        }
         sink.putCharLiteral(head.input);
         sink.put(`)`);
     }
@@ -1862,6 +1872,14 @@ void putCharLiteral(scope ref Output sink,
             sink.put(inp);
         }
     }
+    else if (inp.skipOver(`\p`) ||
+             inp.skipOver(`\P`))
+    {
+        inp.skipOverAround('{', '}');
+        sink.put('"');
+        sink.put(inp);
+        sink.put('"');
+    }
     else
     {
         sink.put(`'`);
@@ -1879,7 +1897,7 @@ TokenNode makeLiteral(in Token head) pure nothrow
 {
     assert(head.input.length >= 3);
     if (head.input[1 .. $-1].isASCIICharacterLiteral)
-        return new CharAltLiteral(head);
+        return new AltCharLiteral(head);
     else
         return new StrLiteral(head);
 }
@@ -1954,7 +1972,7 @@ pure nothrow @nogc:
 
         if (const lower = cast(const StrLiteral)subs[0])
             sink.putCharLiteral(lower.trimmedInput);
-        else if (const lower = cast(const CharAltLiteral)subs[0])
+        else if (const lower = cast(const AltCharLiteral)subs[0])
             sink.putCharLiteral(lower.head.input);
         else
         {
@@ -1967,7 +1985,7 @@ pure nothrow @nogc:
 
         if (const upper = cast(const StrLiteral)subs[1])
             sink.putCharLiteral(upper.trimmedInput);
-        else if (const upper = cast(const CharAltLiteral)subs[1])
+        else if (const upper = cast(const AltCharLiteral)subs[1])
             sink.putCharLiteral(upper.head.input);
         else
             assert(false);
@@ -2003,6 +2021,20 @@ Node parseCharAltM(const CharAltM alt,
             case '-':
             case '\\':
                 inputi = input[i .. i + 1];
+                break;
+            case 'p':
+                if (input[i + 1] != '{')
+                    lexer.errorAtToken(Token(alt.head.tok, input[i + 1 .. $]),
+                                       "expected brace");
+                const hit = input[i + 1 .. $].indexOf('}');
+                if (hit >= 0)
+                {
+                    inputi = input[i - 1 .. i + 1 + hit + 1];
+                    i += hit + 1;
+                }
+                else
+                    lexer.errorAtToken(Token(alt.head.tok, input[i + 1 .. $]),
+                                       "incorrect unicode escape sequence, missing matching closing brace '}'");
                 break;
             case 'u':
                 if (input[i + 1] == '{')
@@ -2043,7 +2075,7 @@ Node parseCharAltM(const CharAltM alt,
 
         i += 1;
 
-        auto lit = new CharAltLiteral(Token(TOK.literal, inputi));
+        auto lit = new AltCharLiteral(Token(TOK.literal, inputi));
         if (inRange)
             subs.insertBack(new Range(Token.init, [subs.backPop(), lit]));
         else

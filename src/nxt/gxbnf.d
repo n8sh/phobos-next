@@ -6,8 +6,11 @@
  * See_Also: https://github.com/antlr/grammars-v4/blob/master/bnf/bnf.g4
  * See_Also: https://stackoverflow.com/questions/53245751/convert-a-form-of-bnf-grammar-to-g4-grammar
  * See_Also: https://bnfc.digitalgrammars.com/
+ * See_Also: https://www.regular-expressions.info/unicode.html
  *
  * TODO:
+ *
+ * - Support unicode regular expressions. https://www.regular-expressions.info/unicode.html
  *
  * - Detect conflicting rules with `import` and `tokenVocab`
  *

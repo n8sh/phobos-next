@@ -9,6 +9,8 @@
  *
  * TODO:
  *
+ * - Detect conflicting rules with import and tokenVocab
+ *
  * - Rule[] rulesByLiteralPrefix
  *
  * - Get rid of calls to input... idup
@@ -30,7 +32,6 @@
  *
  * - Add AA Node[Input] tokensByLiteral
  *
- * - Detect conflicting rules with import and tokenVocab
  * - Deal with differences between `import` and `tokenVocab`.
  *   See: https://stackoverflow.com/questions/28829049/antlr4-any-difference-between-import-and-tokenvocab
  *

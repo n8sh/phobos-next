@@ -2473,7 +2473,7 @@ struct GxParser
     private Rule makeRule(in Token name,
                           in bool isFragment,
                           ActionSymbol actionSymbol = null,
-                          Action action = null) @trusted
+                          Action action = null)
     {
         _lexer.popFrontEnforce(TOK.colon, "no colon");
 
@@ -2662,7 +2662,7 @@ struct GxParser
                     // find matching '(' if any
                     size_t li = tseq.length; // left paren index
                     LeftParenSentinel hs;    // left parent index Symbol
-                    foreach_reverse (const i, const Node node; tseq[])
+                    foreach_reverse (const i, Node node; tseq[])
                     {
                         if (auto lp = cast(LeftParenSentinel)node)
                         {

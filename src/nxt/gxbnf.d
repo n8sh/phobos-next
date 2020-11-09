@@ -1761,9 +1761,18 @@ final class StrLiteral : TokenNode
         }
         else
         {
-            sink.put(`str("`);
-            sink.putStringLiteral(content);
-            sink.put(`")`);
+            if (content.canFind('`'))
+            {
+                sink.put(`str("`);
+                sink.putStringLiteralDoubleQuoted(content);
+                sink.put(`")`);
+            }
+            else
+            {
+                sink.put("str(`");
+                sink.putStringLiteralBackQuoted(content);
+                sink.put("`)");
+            }
         }
     }
     Input trimmedInput() const scope return
@@ -1772,13 +1781,31 @@ final class StrLiteral : TokenNode
     }
 }
 
-void putStringLiteral(scope ref Output sink,
-                      const scope Input inp) pure nothrow @nogc
+void putStringLiteralDoubleQuoted(scope ref Output sink,
+                                  const scope Input inp) pure nothrow @nogc
 {
     for (size_t i; i < inp.length; ++i)
     {
         if (inp[i] == '"')
             sink.put(`\"`);
+        else if (i + 2 <= inp.length &&
+                 inp[i .. i + 2] == `\'`)
+        {
+            i += 1;             // one extra char
+            sink.put('\'');
+        }
+        else
+            sink.put(inp[i]);
+    }
+}
+
+void putStringLiteralBackQuoted(scope ref Output sink,
+                                const scope Input inp) pure nothrow @nogc
+{
+    for (size_t i; i < inp.length; ++i)
+    {
+        if (inp[i] == '`')
+            sink.put("\\`");
         else if (i + 2 <= inp.length &&
                  inp[i .. i + 2] == `\'`)
         {

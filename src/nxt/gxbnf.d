@@ -11,8 +11,6 @@
  *
  * TODO:
  *
- * - Use `CharKind` instead of `AltCharLiteral`
- *
  * - unicode regular expressions.
  *   Use https://www.regular-expressions.info/unicode.html
  *   Use https://forum.dlang.org/post/rsmlqfwowpnggwyuibok@forum.dlang.org
@@ -1672,23 +1670,6 @@ this(in Token head)
     }
 }
 
-final class CharKind : TokenNode
-{
-@safe pure nothrow:
-this(in Token head, in Input kind)
-    {
-        super(head);
-        this.kind = kind;
-    }
-    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @nogc
-    {
-        sink.put(`cc!"`);
-        sink.put(kind);
-        sink.put(`"()`);
-    }
-    string kind;
-}
-
 private bool isASCIICharacterLiteral(in Input x) pure nothrow @nogc
 {
     return (x.length == 1 ||
@@ -2700,17 +2681,7 @@ struct GxParser
                     seqPutCheck(new AnyClass(_lexer.frontPop()));
                     break;
                 case TOK.brackets:
-                    Node node;
-                    const head = _lexer.frontPop();
-                    Input input = head.input;
-                    if (input.skipOverAround(`[\p{`, `}]`) &&
-                        (input.length == 1 ||
-                         input.length == 2))
-                        node = new CharKind(head, input);
-                    else
-                        node = parseCharAltM(new CharAltM(head), _lexer);
-                    if (node)
-                        seqPutCheck(node);
+                    seqPutCheck(parseCharAltM(new CharAltM(_lexer.frontPop()), _lexer));
                     break;
                 case TOK.hash:
                 case TOK.rewrite:

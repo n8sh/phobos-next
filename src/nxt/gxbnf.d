@@ -30,6 +30,9 @@
  *
  * - Add AA Node[Input] tokensByLiteral
  *
+ * - Deal with differences between import and tokenVocab.
+ *   See: https://stackoverflow.com/questions/28829049/antlr4-any-difference-between-import-and-tokenvocab
+ *
  * - Detect indirect mutual left-recursion. How? Simple-way in generated parsers:
  *   enters a rule again without offset change.
  *

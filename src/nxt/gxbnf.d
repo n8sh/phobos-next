@@ -683,7 +683,7 @@ private:
         return skipOverN(i);
     }
 
-    void nextFront() scope nothrow @nogc @trusted
+    void nextFront() scope nothrow @nogc @trusted // TODO: remove `@trusted`
     {
         switch (peek0())
         {

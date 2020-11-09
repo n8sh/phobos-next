@@ -94,7 +94,7 @@ import std.stdio : stdout, write, writeln;
 
 @safe:
 
-alias Input = const(char)[];      ///< Grammar input source.
+alias Input = string;      ///< Grammar input source.
 alias Output = DynamicArray!char; ///< Generated parser output source.
 
 // alias RulesByName = Rule[Input];
@@ -188,12 +188,12 @@ enum TOK
 struct Token
 {
 @safe pure nothrow @nogc:
-    this(in TOK tok, in const(char)[] input = null)
+    this(in TOK tok, in Input input = null)
     {
         this.tok = tok;
         this.input = input;
     }
-    const(char)[] input;
+    Input input;
     TOK tok;
 }
 
@@ -1675,10 +1675,10 @@ this(in Token head)
 final class CharKind : TokenNode
 {
 @safe pure nothrow:
-this(in Token head, in const(char)[] kind)
+this(in Token head, in Input kind)
     {
         super(head);
-        this.kind = kind.idup;
+        this.kind = kind;
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @trusted @nogc
     {
@@ -1945,7 +1945,7 @@ pure nothrow @nogc:
     }
 }
 
-Node parseCharAltM(const scope return CharAltM alt,
+Node parseCharAltM(const CharAltM alt,
                    const scope ref GxLexer lexer) @safe pure nothrow
 {
     const Input input = alt.trimmedInput;
@@ -1983,7 +1983,7 @@ Node parseCharAltM(const scope return CharAltM alt,
                         i += hit + 1;
                     }
                     else
-                        lexer.errorAtToken(Token(alt.head.tok, input.idup[i + 1 .. $]),
+                        lexer.errorAtToken(Token(alt.head.tok, input[i + 1 .. $]),
                                            "incorrect unicode escape sequence, missing matching closing brace '}'");
                 }
                 else
@@ -1996,7 +1996,7 @@ Node parseCharAltM(const scope return CharAltM alt,
                           input[i + 2].isHexDigit &&
                           input[i + 3].isHexDigit &&
                           input[i + 4].isHexDigit))
-                        lexer.errorAtToken(Token(alt.head.tok, input.idup[i + 1 .. $]),
+                        lexer.errorAtToken(Token(alt.head.tok, input[i + 1 .. $]),
                                            "incorrect unicode escape sequence");
                     inputi = input[i - 1 .. i + 5];
                     i += 4;
@@ -2012,7 +2012,7 @@ Node parseCharAltM(const scope return CharAltM alt,
 
         i += 1;
 
-        auto lit = new CharAltLiteral(Token(TOK.literal, inputi.idup));
+        auto lit = new CharAltLiteral(Token(TOK.literal, inputi));
         if (inRange)
             subs.insertBack(new Range(Token.init, [subs.backPop(), lit]));
         else
@@ -2032,7 +2032,7 @@ final class CharAltM : TokenNode
         super(head);
     }
 
-    Input trimmedInput() const scope return
+    Input trimmedInput() const
     {
         Input input = head.input;
         assert(input.skipOverAround('[', ']')); // trim
@@ -2809,7 +2809,7 @@ struct GxParser
             _lexer.popFront();
         }
         _lexer.popFrontEnforce(terminator, "no terminating semicolon");
-        return result[].dup;
+        return result[];
     }
 
     AttributeSymbol makeAttributeSymbol(in Token head) nothrow
@@ -3127,7 +3127,7 @@ struct GxFileParser           // TODO: convert to `class`
     this(in string path)
     {
         import std.path : expandTilde;
-        const data = cast(Input)rawReadPath(path.expandTilde); // cast to Input because we don't want to keep all file around:
+        Input data = cast(Input)rawReadPath(path.expandTilde); // cast to Input because we don't want to keep all file around:
         parser = GxParser(data, path, false);
     }
     ~this() @nogc {}

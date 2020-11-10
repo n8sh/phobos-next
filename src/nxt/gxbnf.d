@@ -2566,7 +2566,7 @@ struct GxParser
 
                         const n = tseq.length - ih;
                         if (n < 2)
-                            _lexer.errorAtToken(pipe.head, "missing left-hand side of alternative");
+                            _lexer.errorAtToken(pipe.head, "missing left-hand side");
 
                         Node nseq = makeSeq(tseq[ih + 1 .. $], _lexer);
                         tseq.popBackN(n-1);                             // don't op sentinel
@@ -2618,7 +2618,7 @@ struct GxParser
                 case TOK.qmark:
                     const head = _lexer.frontPop();
                     if (tseq.empty)
-                        _lexer.errorAtToken(head, "missing left-hand side of operator");
+                        _lexer.errorAtToken(head, "missing left-hand side");
                     Node node;
                     if (auto oom = cast(GreedyOneOrMore)tseq.back)
                     {
@@ -2634,38 +2634,38 @@ struct GxParser
                 case TOK.star:
                     const head = _lexer.frontPop();
                     if (tseq.empty)
-                        _lexer.errorAtToken(head, "missing left-hand side of operator");
+                        _lexer.errorAtToken(head, "missing left-hand side");
 
                     seqPutCheck(new GreedyZeroOrMore(head, tseq.backPop()));
                     break;
                 case TOK.plus:
                     const head = _lexer.frontPop();
                     if (tseq.empty)
-                        _lexer.errorAtToken(head, "missing left-hand side of operator");
+                        _lexer.errorAtToken(head, "missing left-hand side");
                     seqPutCheck(new GreedyOneOrMore(head, tseq.backPop()));
                     break;
                 case TOK.qmarkQmark:
                     const head = _lexer.frontPop();
                     if (tseq.empty)
-                        _lexer.errorAtToken(head, "missing left-hand side of operator");
+                        _lexer.errorAtToken(head, "missing left-hand side");
                     seqPutCheck(new NonGreedyZeroOrOne(head, tseq.backPop()));
                     break;
                 case TOK.starQmark:
                     const head = _lexer.frontPop();
                     if (tseq.empty)
-                        _lexer.errorAtToken(head, "missing left-hand side of operator");
+                        _lexer.errorAtToken(head, "missing left-hand side");
                     seqPutCheck(new NonGreedyZeroOrMore(head, tseq.backPop()));
                     break;
                 case TOK.plusQmark:
                     const head = _lexer.frontPop();
                     if (tseq.empty)
-                        _lexer.errorAtToken(head, "missing left-hand side of operator");
+                        _lexer.errorAtToken(head, "missing left-hand side");
                     seqPutCheck(new NonGreedyOneOrMore(head, tseq.backPop()));
                     break;
                 case TOK.rewriteSyntacticPredicate:
                     const head = _lexer.frontPop();
                     if (tseq.empty)
-                        _lexer.errorAtToken(head, "missing left-hand side of operator");
+                        _lexer.errorAtToken(head, "missing left-hand side");
                     seqPutCheck(new RewriteSyntacticPredicate(head, tseq.backPop()));
                     break;
                 case TOK.tilde:
@@ -2674,13 +2674,13 @@ struct GxParser
                 case TOK.pipe:
                     if (tseq.empty)
                     {
-                        _lexer.warningAtFront("missing left-hand side argument");
+                        _lexer.warningAtFront("missing left-hand side");
                         _lexer.frontPop();
                         continue;
                     }
                     else if (const symbol = cast(LeftParenSentinel)tseq.back)
                     {
-                        _lexer.warningAtToken(symbol.head, "missing left-hand side argument");
+                        _lexer.warningAtToken(symbol.head, "missing left-hand side");
                         _lexer.frontPop();
                         continue;
                     }

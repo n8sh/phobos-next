@@ -2674,7 +2674,7 @@ struct GxParser
                 case TOK.pipe:
                     if (const symbol = cast(LeftParenSentinel)tseq.back)
                     {
-                        _lexer.warningAtFront("missing left-hand side argument");
+                        _lexer.warningAtToken(symbol.head, "missing left-hand side argument");
                         _lexer.frontPop();
                         continue;
                     }

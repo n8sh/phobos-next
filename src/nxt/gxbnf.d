@@ -2572,12 +2572,11 @@ struct GxParser
                             }
                         }
 
-                        const n = tseq.length - (ih + 1);
-                        if (n < 1)
+                        if (ih == tseq.length)
                             _lexer.errorAtToken(pipe.head, "missing left-hand side");
 
                         Node nseq = makeSeq(tseq[ih + 1 .. $], _lexer);
-                        tseq.popBackN(n); // exclude op sentinel
+                        tseq.popBackN(tseq.length - (ih + 1)); // exclude op sentinel
                         return seqPutCheck(makeAltN!2(pipe.head, [nseq, last]));
                     }
                     if (auto dotdot = cast(DotDotSentinel)tseq.back) // binary operator

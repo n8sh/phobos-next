@@ -2672,7 +2672,13 @@ struct GxParser
                     tseq.put(new TildeSentinel(_lexer.frontPop()));
                     break;
                 case TOK.pipe:
-                    if (const symbol = cast(LeftParenSentinel)tseq.back)
+                    if (tseq.empty)
+                    {
+                        _lexer.warningAtFront("missing left-hand side argument");
+                        _lexer.frontPop();
+                        continue;
+                    }
+                    else if (const symbol = cast(LeftParenSentinel)tseq.back)
                     {
                         _lexer.warningAtToken(symbol.head, "missing left-hand side argument");
                         _lexer.frontPop();

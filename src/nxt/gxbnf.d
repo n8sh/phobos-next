@@ -2674,7 +2674,7 @@ struct GxParser
                 case TOK.pipe:
                     if (const symbol = cast(LeftParenSentinel)tseq.back)
                     {
-                        // _lexer.warningAtFront("operator '|' without left-hand side argument has no effect");
+                        _lexer.warningAtFront("missing left-hand side argument");
                         _lexer.frontPop();
                         continue;
                     }
@@ -3674,7 +3674,7 @@ version(show)
             const bn = fn.baseName;
             if (fn.isGxFilename)
             {
-                if (bn != `Python3.g4`)
+                if (bn != `PythonLexer.g4`)
                     continue;
                 if (bn == `RexxParser.g4` ||
                     bn == `RexxLexer.g4` ||

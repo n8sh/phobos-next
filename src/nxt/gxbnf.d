@@ -2556,7 +2556,7 @@ struct GxParser
                     {
                         tseq.popBack(); // pop `PipeSentinel`
 
-                        // search backwards in `tseq` until '(' or '|'
+                        // find backwards index `ih` in `tseq` at '(' or '|'
                         size_t ih = tseq.length;
                         foreach_reverse (const i, const e; tseq)
                         {
@@ -2572,12 +2572,12 @@ struct GxParser
                             }
                         }
 
-                        const n = tseq.length - ih;
-                        if (n < 2)
+                        const n = tseq.length - (ih + 1);
+                        if (n < 1)
                             _lexer.errorAtToken(pipe.head, "missing left-hand side");
 
                         Node nseq = makeSeq(tseq[ih + 1 .. $], _lexer);
-                        tseq.popBackN(n-1);                             // exclude op sentinel
+                        tseq.popBackN(n); // exclude op sentinel
                         return seqPutCheck(makeAltN!2(pipe.head, [nseq, last]));
                     }
                     if (auto dotdot = cast(DotDotSentinel)tseq.back) // binary operator

@@ -2556,20 +2556,28 @@ struct GxParser
                     {
                         tseq.popBack(); // pop `PipeSentinel`
 
+                        // search backwards in `tseq` until '(' or '|'
                         size_t ih = tseq.length;
                         foreach_reverse (const i, const e; tseq)
-                            if (auto sym = cast(const LeftParenSentinel)e)
+                        {
+                            if (auto sym = cast(const PipeSentinel)e)
                             {
                                 ih = i;
                                 break;
                             }
+                            else if (auto sym = cast(const LeftParenSentinel)e)
+                            {
+                                ih = i;
+                                break;
+                            }
+                        }
 
                         const n = tseq.length - ih;
                         if (n < 2)
                             _lexer.errorAtToken(pipe.head, "missing left-hand side");
 
                         Node nseq = makeSeq(tseq[ih + 1 .. $], _lexer);
-                        tseq.popBackN(n-1);                             // don't op sentinel
+                        tseq.popBackN(n-1);                             // exclude op sentinel
                         return seqPutCheck(makeAltN!2(pipe.head, [nseq, last]));
                     }
                     if (auto dotdot = cast(DotDotSentinel)tseq.back) // binary operator

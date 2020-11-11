@@ -2612,7 +2612,6 @@ struct GxParser
                 case TOK.star:
                     if (tseq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side");
-
                     seqPutCheck(new GreedyZeroOrMore(head, tseq.backPop()));
                     break;
                 case TOK.plus:

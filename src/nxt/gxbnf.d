@@ -2552,33 +2552,6 @@ struct GxParser
                     return tseq.put(last); // ... has higher prescedence
                 if (!tseq.empty)
                 {
-                    if (auto pipe = cast(PipeSentinel)tseq.back) // binary operator. TODO: if skipOver!PipeSentinel
-                    {
-                        tseq.popBack(); // pop `PipeSentinel`
-
-                        // find backwards index `ih` in `tseq` at '(' or '|'
-                        size_t ih = tseq.length;
-                        foreach_reverse (const i, const e; tseq)
-                        {
-                            if (auto sym = cast(const PipeSentinel)e)
-                            {
-                                ih = i;
-                                break;
-                            }
-                            else if (auto sym = cast(const LeftParenSentinel)e)
-                            {
-                                ih = i;
-                                break;
-                            }
-                        }
-
-                        if (ih == tseq.length)
-                            _lexer.errorAtToken(pipe.head, "missing left-hand side");
-
-                        Node nseq = makeSeq(tseq[ih + 1 .. $], _lexer);
-                        tseq.popBackN(tseq.length - (ih + 1)); // exclude op sentinel
-                        return seqPutCheck(makeAltN!2(pipe.head, [nseq, last]));
-                    }
                     if (auto dotdot = cast(DotDotSentinel)tseq.back) // binary operator
                     {
                         tseq.popBack(); // pop `DotDotSentinel`
@@ -2586,7 +2559,6 @@ struct GxParser
                     }
                     if (auto tilde = cast(TildeSentinel)tseq.back) // prefix unary operator
                     {
-
                         tseq.popBack(); // pop `TildeSentinel`
                         return seqPutCheck(new Not(tilde.head, last));
                     }
@@ -2603,27 +2575,26 @@ struct GxParser
                    _lexer.front.tok != TOK.semicolon)
             {
                 // TODO: use static array with length being number of tokens till `TOK.pipe`
-                switch (_lexer.front.tok)
+                const head = _lexer.frontPop();
+                switch (head.tok)
                 {
                 case TOK.symbol:
-                    if (_lexer.front.input == "options")
-                        auto _ = makeRuleOptions(_lexer.frontPop(), true);
+                    if (head.input == "options")
+                        auto _ = makeRuleOptions(head, true);
                     else
                     {
-                        auto symbol = _lexer.frontPop();
                         if (_lexer.front.tok == TOK.colon)
                         {
                             _lexer.popFront();
                             continue; // skip element label: SYMBOL '.'. See_Also: https://www.antlr2.org/doc/metalang.html section "Element Labels"
                         }
-                        seqPutCheck(new Symbol(symbol));
+                        seqPutCheck(new Symbol(head));
                     }
                     break;
                 case TOK.literal:
-                    seqPutCheck(new StrLiteral(_lexer.frontPop()));
+                    seqPutCheck(new StrLiteral(head));
                     break;
                 case TOK.qmark:
-                    const head = _lexer.frontPop();
                     if (tseq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side");
                     Node node;
@@ -2639,138 +2610,179 @@ struct GxParser
                     seqPutCheck(node);
                     break;
                 case TOK.star:
-                    const head = _lexer.frontPop();
                     if (tseq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side");
 
                     seqPutCheck(new GreedyZeroOrMore(head, tseq.backPop()));
                     break;
                 case TOK.plus:
-                    const head = _lexer.frontPop();
                     if (tseq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side");
                     seqPutCheck(new GreedyOneOrMore(head, tseq.backPop()));
                     break;
                 case TOK.qmarkQmark:
-                    const head = _lexer.frontPop();
                     if (tseq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side");
                     seqPutCheck(new NonGreedyZeroOrOne(head, tseq.backPop()));
                     break;
                 case TOK.starQmark:
-                    const head = _lexer.frontPop();
                     if (tseq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side");
                     seqPutCheck(new NonGreedyZeroOrMore(head, tseq.backPop()));
                     break;
                 case TOK.plusQmark:
-                    const head = _lexer.frontPop();
                     if (tseq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side");
                     seqPutCheck(new NonGreedyOneOrMore(head, tseq.backPop()));
                     break;
                 case TOK.rewriteSyntacticPredicate:
-                    const head = _lexer.frontPop();
                     if (tseq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side");
                     seqPutCheck(new RewriteSyntacticPredicate(head, tseq.backPop()));
                     break;
                 case TOK.tilde:
-                    tseq.put(new TildeSentinel(_lexer.frontPop()));
+                    tseq.put(new TildeSentinel(head));
                     break;
                 case TOK.pipe:
                     if (tseq.empty)
                     {
                         _lexer.warningAtFront("missing left-hand side");
-                        _lexer.frontPop();
                         continue;
                     }
                     else if (const symbol = cast(LeftParenSentinel)tseq.back)
                     {
                         _lexer.warningAtToken(symbol.head, "missing left-hand side");
-                        _lexer.frontPop();
                         continue;
                     }
-                    tseq.put(new PipeSentinel(_lexer.frontPop()));
+
+                    void groupLastSeq() @safe nothrow
+                    {
+                        // find backwards index `ih` in `tseq` at '(' or '|'. TODO: reuse `lastIndexOf`
+                        size_t ih = tseq.length;
+                        foreach_reverse (const i, const e; tseq)
+                        {
+                            if (auto sym = cast(const PipeSentinel)e)
+                            {
+                                ih = i;
+                                break;
+                            }
+                            else if (auto sym = cast(const LeftParenSentinel)e)
+                            {
+                                ih = i;
+                                break;
+                            }
+                        }
+                        if (ih == tseq.length)
+                            _lexer.errorAtToken(head, "missing left-hand side");
+                        Node nseq = makeSeq(tseq[ih + 1 .. $], _lexer);
+                        tseq.popBackN(tseq.length - (ih + 1)); // exclude op sentinel
+                        tseq.insertBack(nseq);                 // put it back
+                    }
+
+                    groupLastSeq();
+
+                    tseq.put(new PipeSentinel(head));
                     break;
                 case TOK.dotdot:
-                    tseq.put(new DotDotSentinel(_lexer.frontPop()));
+                    tseq.put(new DotDotSentinel(head));
                     break;
                 case TOK.wildcard:
-                    seqPutCheck(new AnyClass(_lexer.frontPop()));
+                    seqPutCheck(new AnyClass(head));
                     break;
                 case TOK.brackets:
-                    seqPutCheck(parseCharAltM(new CharAltM(_lexer.frontPop()), _lexer));
+                    seqPutCheck(parseCharAltM(new CharAltM(head), _lexer));
                     break;
                 case TOK.hash:
                 case TOK.rewrite:
+                    // ignore `head`
                     while (_lexer.front.tok != TOK.pipe &&
                            _lexer.front.tok != TOK.semicolon)
                         _lexer.popFront(); // ignore for now
                     break;
                 case TOK.leftParen:
                     parentDepth += 1;
-                    tseq.put(new LeftParenSentinel(_lexer.frontPop()));
+                    tseq.put(new LeftParenSentinel(head));
                     break;
                 case TOK.rightParen:
                     parentDepth -= 1;
                     // find matching '(' if any
-                    size_t li = tseq.length; // left paren index
-                    LeftParenSentinel hs;    // left parent index Symbol
+                    size_t si = tseq.length; // left paren sentinel index
+                    LeftParenSentinel ss;    // left parent index Symbol
                     foreach_reverse (const i, Node node; tseq[])
                     {
                         if (auto lp = cast(LeftParenSentinel)node)
                         {
-                            li = i;
-                            hs = lp;
+                            si = i;
+                            ss = lp;
                             break;
                         }
                     }
 
-                    if (li + 3 <= tseq.length) // normal case: ... ( X Y ... )
+                    NodeArray asubs; // TODO: use stack allocation of length tseq[si .. $].length - number of `PipeSentinel`s
+                    Token ahead;
+                    foreach (Node e; tseq[si + 1.. $])
+                        if (auto ps = cast(PipeSentinel)e)
+                        {
+                            if (ahead != Token.init)
+                                ahead = ps.head;
+                        }
+                        else
+                            asubs.put(e);
+                    if (asubs.empty)
                     {
-                        NodeArray subseq; // TODO: use stack for small arrays. TODO: use `Rule` as ElementType
-                        foreach (node; tseq[li + 1 .. $])
-                            subseq.put(node);
-                        tseq.popBackN(tseq.length - li);
-                        seqPutCheck(makeSeq(subseq.move(), _lexer));
-                    }
-                    else if (li + 2 == tseq.length) // single case: ... ( X )
-                    {
-                        // _lexer.warningAtFront("single element group has no use");
-                        Node single = tseq.backPop(); // pop X
-                        tseq.popBack(); // pop '('
-                        seqPutCheck(single); // insert X
-                    }
-                    else if (li + 1 == tseq.length) // empty case: ... ( )
-                    {
-                        auto nothing = new SeqM(hs.head);
+                        auto nothing = new SeqM(ss.head);
                         tseq.popBack(); // pop '('
                         seqPutCheck(nothing);
                     }
-                    else if (li == tseq.length) // unmatched case: ... )
+                    else
                     {
-                        _lexer.errorAtFront("no matching opening parenthesis found before this closing parenthesis");
+                        auto lalt = makeAltA(ahead, asubs.move());
+                        tseq.popBackN(tseq.length - si);
+                        Node[1] ssubs = [lalt];
+                        seqPutCheck(makeSeq(ssubs, _lexer));
                     }
-                    _lexer.frontPop();
+                    // if (si + 3 <= tseq.length) // normal case: ... ( X Y ... )
+                    // {
+                    //     NodeArray subseq; // TODO: use stack for small arrays. TODO: use `Rule` as ElementType
+                    //     foreach (node; tseq[si + 1 .. $])
+                    //         subseq.put(node);
+                    //     tseq.popBackN(tseq.length - si);
+                    //     seqPutCheck(makeSeq(subseq.move(), _lexer));
+                    // }
+                    // else if (si + 2 == tseq.length) // single case: ... ( X )
+                    // {
+                    //     // _lexer.warningAtFront("single element group has no use");
+                    //     Node single = tseq.backPop(); // pop X
+                    //     tseq.popBack(); // pop '('
+                    //     seqPutCheck(single); // insert X
+                    // }
+                    // else if (si + 1 == tseq.length) // empty case: ... ( )
+                    // {
+                    //     auto nothing = new SeqM(ss.head);
+                    //     tseq.popBack(); // pop '('
+                    //     seqPutCheck(nothing);
+                    // }
+                    // else if (si == tseq.length) // unmatched case: ... )
+                    // {
+                    //     _lexer.errorAtFront("no matching opening parenthesis found before this closing parenthesis");
+                    // }
                     break;
                 case TOK.action:
-                    _lexer.frontPop(); // ignore action
+                    // ignore action
                     _lexer.skipOverTOK(TOK.qmark); // TODO: handle in a more generic way
                     break;
                 case TOK.labelAssignment:
                     // ignore for now: SYMBOL '='
                     if (!cast(Symbol)tseq.back)
                         _lexer.errorAtFront("non-symbol before label assignment");
-                    _lexer.frontPop();
                     tseq.popBack(); // ignore
                     break;
                 case TOK.tokenSpecOptions:
-                    _lexer.frontPop(); // ignore
+                    // ignore
                     break;
                 case TOK.colon:
+                    // ignore
                     _lexer.warningAtFront("ignoring colon with no effect");
-                    _lexer.frontPop(); // ignore
                     continue;
                 case TOK.rootNode:
                     /* AST root operator. When generating abstract syntax trees
@@ -2779,7 +2791,7 @@ struct GxParser
                      * root of the current tree. This symbol is only effective
                      * when the buildAST option is set. More information about
                      * ASTs is also available. */
-                    _lexer.frontPop(); // ignore
+                    // ignore
                     break;
                 case TOK.exclamation:
                     /* AST exclude operator. When generating abstract syntax
@@ -2791,11 +2803,11 @@ struct GxParser
                      * the tree for the referencing rule. This symbol is only
                      * effective when the buildAST option is set. More
                      * information about ASTs is also available. */
-                    _lexer.frontPop(); // ignore
+                    // ignore
                     break;
                 default:
                     _lexer.infoAtFront("TODO: unhandled token type" ~ _lexer.front.to!string);
-                    seqPutCheck(new Symbol(_lexer.frontPop()));
+                    seqPutCheck(new Symbol(head));
                     break;
                 }
             }

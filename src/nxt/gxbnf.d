@@ -2577,7 +2577,7 @@ struct GxParser
                 // TODO: use static array with length being number of tokens till `TOK.pipe`
                 const head = _lexer.frontPop();
 
-                void groupLastSeq() @safe nothrow
+                void groupLastSeq() @safe pure nothrow
                 {
                     // find backwards index `ih` in `tseq` at '(' or '|'. TODO: reuse `lastIndexOf`
                     size_t ih = tseq.length;

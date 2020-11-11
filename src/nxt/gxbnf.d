@@ -2576,6 +2576,31 @@ struct GxParser
             {
                 // TODO: use static array with length being number of tokens till `TOK.pipe`
                 const head = _lexer.frontPop();
+
+                void groupLastSeq() @safe nothrow
+                {
+                    // find backwards index `ih` in `tseq` at '(' or '|'. TODO: reuse `lastIndexOf`
+                    size_t ih = tseq.length;
+                    foreach_reverse (const i, const e; tseq)
+                    {
+                        if (auto sym = cast(const PipeSentinel)e)
+                        {
+                            ih = i;
+                            break;
+                        }
+                        else if (auto sym = cast(const LeftParenSentinel)e)
+                        {
+                            ih = i;
+                            break;
+                        }
+                    }
+                    if (ih == tseq.length)
+                        _lexer.errorAtToken(head, "missing left-hand side");
+                    Node nseq = makeSeq(tseq[ih + 1 .. $], _lexer);
+                    tseq.popBackN(tseq.length - (ih + 1)); // exclude op sentinel
+                    tseq.insertBack(nseq);                 // put it back
+                }
+
                 switch (head.tok)
                 {
                 case TOK.symbol:
@@ -2653,33 +2678,7 @@ struct GxParser
                         _lexer.warningAtToken(symbol.head, "missing left-hand side");
                         continue;
                     }
-
-                    void groupLastSeq() @safe nothrow
-                    {
-                        // find backwards index `ih` in `tseq` at '(' or '|'. TODO: reuse `lastIndexOf`
-                        size_t ih = tseq.length;
-                        foreach_reverse (const i, const e; tseq)
-                        {
-                            if (auto sym = cast(const PipeSentinel)e)
-                            {
-                                ih = i;
-                                break;
-                            }
-                            else if (auto sym = cast(const LeftParenSentinel)e)
-                            {
-                                ih = i;
-                                break;
-                            }
-                        }
-                        if (ih == tseq.length)
-                            _lexer.errorAtToken(head, "missing left-hand side");
-                        Node nseq = makeSeq(tseq[ih + 1 .. $], _lexer);
-                        tseq.popBackN(tseq.length - (ih + 1)); // exclude op sentinel
-                        tseq.insertBack(nseq);                 // put it back
-                    }
-
                     groupLastSeq();
-
                     tseq.put(new PipeSentinel(head));
                     break;
                 case TOK.dotdot:
@@ -2704,6 +2703,9 @@ struct GxParser
                     break;
                 case TOK.rightParen:
                     parentDepth -= 1;
+
+                    groupLastSeq();
+
                     // find matching '(' if any
                     size_t si = tseq.length; // left paren sentinel index
                     LeftParenSentinel ss;    // left parent index Symbol
@@ -2723,7 +2725,7 @@ struct GxParser
                         if (auto ps = cast(PipeSentinel)e)
                         {
                             if (ahead != Token.init)
-                                ahead = ps.head;
+                                ahead = ps.head; // use first '|' as head of alternative below
                         }
                         else
                             asubs.put(e);

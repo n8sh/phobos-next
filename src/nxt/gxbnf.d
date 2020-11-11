@@ -2742,31 +2742,6 @@ struct GxParser
                         Node[1] ssubs = [lalt];
                         seqPutCheck(makeSeq(ssubs, _lexer));
                     }
-                    // if (si + 3 <= tseq.length) // normal case: ... ( X Y ... )
-                    // {
-                    //     NodeArray subseq; // TODO: use stack for small arrays. TODO: use `Rule` as ElementType
-                    //     foreach (node; tseq[si + 1 .. $])
-                    //         subseq.put(node);
-                    //     tseq.popBackN(tseq.length - si);
-                    //     seqPutCheck(makeSeq(subseq.move(), _lexer));
-                    // }
-                    // else if (si + 2 == tseq.length) // single case: ... ( X )
-                    // {
-                    //     // _lexer.warningAtFront("single element group has no use");
-                    //     Node single = tseq.backPop(); // pop X
-                    //     tseq.popBack(); // pop '('
-                    //     seqPutCheck(single); // insert X
-                    // }
-                    // else if (si + 1 == tseq.length) // empty case: ... ( )
-                    // {
-                    //     auto nothing = new SeqM(ss.head);
-                    //     tseq.popBack(); // pop '('
-                    //     seqPutCheck(nothing);
-                    // }
-                    // else if (si == tseq.length) // unmatched case: ... )
-                    // {
-                    //     _lexer.errorAtFront("no matching opening parenthesis found before this closing parenthesis");
-                    // }
                     break;
                 case TOK.action:
                     // ignore action

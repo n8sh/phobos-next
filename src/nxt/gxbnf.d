@@ -92,6 +92,7 @@ import nxt.dynamic_array : DynamicArray;
 import nxt.file_ex : rawReadPath;
 import nxt.array_algorithm : startsWith, endsWith, endsWithEither, skipOver, skipOverBack, skipOverAround, canFind, indexOf, indexOfEither;
 import nxt.conv_ex : toDefaulted;
+import nxt.dbgio;
 
 import std.stdio : stdout, write, writeln;
 
@@ -2313,12 +2314,12 @@ final class Import : TokenNode
         putchar('\n');
     }
 pure nothrow @nogc:
-    this(in Token head, const Input[] modules)
+    this(in Token head, DynamicArray!(Input) modules)
     {
         super(head);
-        this.modules = modules;
+        move(modules, this.modules);
     }
-    const Input[] modules;
+    DynamicArray!(Input) modules;
 }
 
 final class Mode : TokenNode
@@ -2483,11 +2484,11 @@ final class Class : TokenNode
 alias Imports = DynamicArray!(Import, null, uint);
 alias Rules = DynamicArray!(Rule, null, uint);
 
-/** Gx parser.
+/** Gx parser with range interface over all statements.
  *
  * See: `ANTLRv4Parser.g4`
  */
-struct GxParser
+struct GxParserByStatement
 {
 @safe pure:
     this(in Input input,
@@ -2838,10 +2839,10 @@ struct GxParser
         return rule;
     }
 
-    Input[] makeArgs(in TOK separator,
-                     in TOK terminator)
+    DynamicArray!(Input) makeArgs(in TOK separator,
+                                  in TOK terminator)
     {
-        DynamicArray!(Input) result;
+        typeof(return) result;
         while (true)
         {
             result.put(_lexer.frontPopEnforce(TOK.symbol).input);
@@ -2850,7 +2851,7 @@ struct GxParser
             _lexer.popFront();
         }
         _lexer.popFrontEnforce(terminator, "no terminating semicolon");
-        return result[];
+        return result;
     }
 
     AttributeSymbol makeAttributeSymbol(in Token head) nothrow
@@ -3169,10 +3170,10 @@ struct GxFileParser           // TODO: convert to `class`
     {
         import std.path : expandTilde;
         Input data = cast(Input)rawReadPath(path.expandTilde); // cast to Input because we don't want to keep all file around:
-        parser = GxParser(data, path, false);
+        parser = GxParserByStatement(data, path, false);
     }
     ~this() @nogc {}
-    GxParser parser;
+    GxParserByStatement parser;
     alias parser this;
 }
 
@@ -3491,17 +3492,14 @@ static immutable parserSourceEnd =
 struct GxFileReader
 {
     import std.path : stripExtension;
-    enum showFlag = false;
+    enum showFlag = true;
     GxFileParser fp;
 @safe:
     this(in string path)
     {
         fp = GxFileParser(path);
         while (!fp.empty)
-        {
-            // fp.front.show();
             fp.popFront();
-        }
     }
 
     string createParserSourceFile()
@@ -3675,7 +3673,7 @@ version(show)
             const bn = fn.baseName;
             if (fn.isGxFilename)
             {
-                if (bn != `PythonLexer.g4`)
+                if (bn != `oncrpcv2.g4`)
                     continue;
                 if (bn == `RexxParser.g4` ||
                     bn == `RexxLexer.g4` ||

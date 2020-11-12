@@ -17,6 +17,7 @@
       - `dcharCountSpan` and
       - `toMatchInSource`
       members of `Matcher`.
+      - Remove `Symbol.toMatchInSource`
 
     - Set `dcharCountSpan` internally upon construction
 
@@ -1067,13 +1068,13 @@ private abstract class Node
 @safe:
     abstract void show(in Format fmt = Format.init) const;
 pure nothrow:
-    abstract DcharCountSpan dcharCountSpan() const @nogc;
     abstract bool equals(const Node o) const @nogc;
     abstract void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @nogc;
     this() @nogc {}
 }
 
 alias NodeArray = DynamicArray!(Node, null, uint); // `uint` capacity is enough
+alias PatternArray = DynamicArray!(Pattern, null, uint); // `uint` capacity is enough
 
 bool equalsAll(const scope Node[] a,
                const scope Node[] b) pure nothrow @nogc
@@ -1087,11 +1088,12 @@ bool equalsAll(const scope Node[] a,
 }
 
 /// N-ary expression.
-abstract class NaryExpr : Node
+abstract class NaryOpPattern : Pattern
 {
 @safe pure nothrow @nogc:
-    this(NodeArray subs)
+    this(in Token head, PatternArray subs)
     {
+        super(head);
         move(subs, this.subs);
     }
     override bool equals(const Node o) const
@@ -1102,13 +1104,14 @@ abstract class NaryExpr : Node
             return equalsAll(this.subs[], o_.subs[]);
         return false;
     }
-    this(uint n)(Node[n] subs)
+    this(uint n)(Token head, Pattern[n] subs)
     if (n >= 2)
     {
+        super(head);
         foreach (sub; subs)
             this.subs.put(sub);
     }
-    NodeArray subs;
+    PatternArray subs;
 }
 
 /** Sequence.
@@ -1116,7 +1119,7 @@ abstract class NaryExpr : Node
  * A `Sequence` is empty in case when a rule provides an empty alternative.
  * Such cases `() | ...` should be rewritten to `(...)?` in `makeAlt`.
  */
-final class SeqM : NaryExpr
+final class SeqM : NaryOpPattern
 {
 @safe:
     override void show(in Format fmt = Format.init) const
@@ -1132,13 +1135,13 @@ final class SeqM : NaryExpr
 pure nothrow @nogc:
     this(in Token head)
     {
-        super(NodeArray.init);
         this.head = head;
+        super(head, PatternArray.init);
     }
-    this(NodeArray subs)
+    this(PatternArray subs)
     {
         this.head = Token.init;
-        super(subs.move());
+        super(Token.init, subs.move());
     }
     this(uint n)(Node[n] subs) if (n >= 2)
     {
@@ -1178,9 +1181,9 @@ pure nothrow @nogc:
     const Token head;
 }
 
-Node makeSeq(NodeArray subs,
-             const ref GxLexer lexer,
-             in bool rewriteFlag = true) pure nothrow
+Pattern makeSeq(PatternArray subs,
+                const ref GxLexer lexer,
+                in bool rewriteFlag = true) pure nothrow
 {
     subs = flattenSubs!SeqM(subs.move());
     if (subs.length == 1)
@@ -1202,22 +1205,45 @@ Node makeSeq(NodeArray subs,
     return new SeqM(subs.move());
 }
 
-Node makeSeq(Node[] subs,
-             const ref GxLexer lexer,
-             in bool rewriteFlag = true) pure nothrow
+Pattern makeSeq(Pattern[] subs,
+                const ref GxLexer lexer,
+                in bool rewriteFlag = true) pure nothrow
 {
-    return makeSeq(NodeArray(subs), lexer, rewriteFlag);
+    return makeSeq(PatternArray(subs), lexer, rewriteFlag);
 }
 
-NodeArray flattenSubs(BranchNode)(NodeArray subs) pure nothrow @nogc
-if (is(BranchNode : SeqM) ||
-    is(BranchNode : AltM))
+Pattern makeSeq(Node[] subs,
+                const ref GxLexer lexer,
+                in bool rewriteFlag = true) pure nothrow
+{
+    return makeSeq(checkedCastSubs(subs, lexer), lexer, rewriteFlag);
+}
+
+private PatternArray checkedCastSubs(Node[] subs,
+                                     const ref GxLexer lexer) pure nothrow @nogc
+{
+    auto psubs = typeof(return).withLength(subs.length);
+    foreach (const i, sub; subs)
+    {
+        psubs[i] = cast(Pattern)sub;
+        if (psubs[i])
+        {
+            lexer.warningAtFront("non-Pattern sub");
+            debug sub.show();
+        }
+    }
+    return psubs;
+}
+
+PatternArray flattenSubs(BranchPattern)(PatternArray subs) pure nothrow @nogc
+if (is(BranchPattern : SeqM) ||
+    is(BranchPattern : AltM))
 {
     typeof(subs) subs_;
     foreach (sub; subs)
     {
-        if (auto sub_ = cast(BranchNode)sub)
-            subs_.insertBack(flattenSubs!(BranchNode)(sub_.subs.move()));
+        if (auto sub_ = cast(BranchPattern)sub)
+            subs_.insertBack(flattenSubs!(BranchPattern)(sub_.subs.move()));
         else
             subs_.insertBack(sub);
     }
@@ -1239,20 +1265,20 @@ class Rule : Node
 @safe pure nothrow @nogc:
     void diagnoseDirectLeftRecursion(const scope ref GxLexer lexer)
     {
-        void checkLeft(const scope Node top) @safe pure nothrow @nogc
+        void checkLeft(const scope Pattern top) @safe pure nothrow @nogc
         {
             if (const alt = cast(const AltM)top) // common case
                 foreach (const sub; alt.subs[]) // all alternatives
                     checkLeft(sub);
             else if (const seq = cast(const SeqM)top)
                 return checkLeft(seq.subs[0]); // only first in sequence
-            else if (const s = cast(const Symbol)top)
+            else if (const s = cast(const SymbolPattern)top)
                 if (head.input == s.head.input)
                     lexer.warningAtToken(s.head, "left-recursion");
         }
         checkLeft(top);
     }
-    this(in Token head, Node top)
+    this(in Token head, Pattern top)
     {
         this.head = head;
         this.top = top;
@@ -1290,24 +1316,20 @@ class Rule : Node
         sink.put(";\n");
         sink.showNIndents(1); sink.put("}\n");
     }
-    override DcharCountSpan dcharCountSpan() const @nogc
-    {
-        return top.dcharCountSpan;
-    }
     Token head;                 ///< Name.
-    Node top;
+    Pattern top;
 }
 
 final class FragmentRule : Rule
 {
 @safe pure nothrow @nogc:
-    this(in Token head, Node top)
+    this(in Token head, Pattern top)
     {
         super(head, top);
     }
 }
 
-final class AltM : NaryExpr
+final class AltM : NaryOpPattern
 {
 @safe:
     override void show(in Format fmt = Format.init) const
@@ -1334,13 +1356,12 @@ final class AltM : NaryExpr
         }
     }
 pure nothrow @nogc:
-    this(Token head, NodeArray subs)
+    this(in Token head, PatternArray subs)
     {
         assert(!subs.empty);
-        this.head = head;
-        super(subs.move());
+        super(head, subs.move());
     }
-    this(uint n)(Node[n] subs) if (n >= 2)
+    this(uint n)(Pattern[n] subs) if (n >= 2)
     {
         super(subs);
     }
@@ -1408,7 +1429,7 @@ pure nothrow @nogc:
     Token head;
 }
 
-DcharCountSpan dcharCountSpanOf(const scope Node[] subs) @safe pure nothrow @nogc
+DcharCountSpan dcharCountSpanOf(const scope Pattern[] subs) @safe pure nothrow @nogc
 {
     if (subs.length == 0)
         return typeof(return)(0, 0);
@@ -1422,9 +1443,9 @@ DcharCountSpan dcharCountSpanOf(const scope Node[] subs) @safe pure nothrow @nog
     return lr;
 }
 
-Node makeAltA(Token head,
-              NodeArray subs,
-              in bool rewriteFlag = true) pure nothrow
+Pattern makeAltA(Token head,
+                 PatternArray subs,
+                 in bool rewriteFlag = true) pure nothrow
 {
     subs = flattenSubs!AltM(subs.move());
     switch (subs.length)
@@ -1438,20 +1459,20 @@ Node makeAltA(Token head,
     }
 }
 
-Node makeAltM(Token head,
-              Node[] subs,
-              in bool rewriteFlag = true) pure nothrow
+Pattern makeAltM(Token head,
+                 Pattern[] subs,
+                 in bool rewriteFlag = true) pure nothrow
 {
-    return makeAltA(head, NodeArray(subs), rewriteFlag);
+    return makeAltA(head, PatternArray(subs), rewriteFlag);
 }
 
-Node makeAltN(uint n)(Token head,
-                      Node[n] subs,
-                      in bool rewriteFlag = true) pure nothrow
-if (n >= 2)
-{
-    return makeAltA(head, NodeArray(subs), rewriteFlag);
-}
+Pattern makeAltN(uint n)(Token head,
+                         Pattern[n] subs,
+                         in bool rewriteFlag = true) pure nothrow
+    if (n >= 2)
+    {
+        return makeAltA(head, PatternArray(subs), rewriteFlag);
+    }
 
 class TokenNode : Node
 {
@@ -1483,7 +1504,7 @@ pure nothrow @nogc:
 }
 
 /// Unary match combinator.
-abstract class UnaExpr : Node
+abstract class UnaryOpPattern : Pattern
 {
 @safe:
     final override void show(in Format fmt = Format.init) const
@@ -1494,10 +1515,10 @@ abstract class UnaExpr : Node
         showToken(head, fmt);
     }
 @safe pure nothrow @nogc:
-    this(in Token head, Node sub)
+    this(in Token head, Pattern sub)
     {
-        super();
-        this.head = head;
+        assert(sub);
+        super(head);
         this.sub = sub;
     }
     final override bool equals(const Node o) const
@@ -1510,14 +1531,14 @@ abstract class UnaExpr : Node
         return false;
     }
     Token head;
-    Node sub;
+    Pattern sub;
 }
 
 /// Don't match an instance of type `sub`.
-final class Not : UnaExpr
+final class NotPattern : UnaryOpPattern
 {
 @safe pure nothrow @nogc:
-    this(in Token head, Node sub)
+    this(in Token head, Pattern sub)
     {
         super(head, sub);
     }
@@ -1534,12 +1555,18 @@ final class Not : UnaExpr
 }
 
 /// Match (greedily) zero or one instances of type `sub`.
-final class GreedyZeroOrOne : UnaExpr
+final class GreedyZeroOrOne : UnaryOpPattern
 {
 @safe pure nothrow @nogc:
-    this(in Token head, Node sub)
+    this(in Token head, Pattern sub)
     {
         super(head, sub);
+    }
+    this(in Token head, Node sub)
+    {
+        Pattern psub = cast(Pattern)sub;
+        assert(psub);
+        super(head, psub);
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
@@ -1554,12 +1581,18 @@ final class GreedyZeroOrOne : UnaExpr
 }
 
 /// Match (greedily) zero or more instances of type `sub`.
-final class GreedyZeroOrMore : UnaExpr
+final class GreedyZeroOrMore : UnaryOpPattern
 {
 @safe pure nothrow @nogc:
-    this(in Token head, Node sub)
+    this(in Token head, Pattern sub)
     {
         super(head, sub);
+    }
+    this(in Token head, Node sub)
+    {
+        Pattern psub = cast(Pattern)sub;
+        assert(psub);
+        super(head, psub);
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
@@ -1574,12 +1607,18 @@ final class GreedyZeroOrMore : UnaExpr
 }
 
 /// Match (greedily) one or more instances of type `sub`.
-final class GreedyOneOrMore : UnaExpr
+final class GreedyOneOrMore : UnaryOpPattern
 {
 @safe pure nothrow @nogc:
-    this(in Token head, Node sub)
+    this(in Token head, Pattern sub)
     {
         super(head, sub);
+    }
+    this(in Token head, Node sub)
+    {
+        Pattern psub = cast(Pattern)sub;
+        assert(psub);
+        super(head, psub);
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
@@ -1594,24 +1633,30 @@ final class GreedyOneOrMore : UnaExpr
     }
 }
 
-abstract class NonGreedyUnaExpr : UnaExpr
+abstract class TerminatedUnaryOpPattern : UnaryOpPattern
 {
 @safe pure nothrow @nogc:
-    this(in Token head, Node sub, Node terminator = null)
+    this(in Token head, Pattern sub, Pattern terminator = null)
     {
         super(head, sub);
         this.terminator = terminator;
     }
-    Node terminator;
+    Pattern terminator;
 }
 
 /// Match (non-greedily) zero or one instances of type `sub`.
-final class NonGreedyZeroOrOne : NonGreedyUnaExpr
+final class NonGreedyZeroOrOne : TerminatedUnaryOpPattern
 {
 @safe pure nothrow @nogc:
-    this(in Token head, Node sub, Node terminator = null)
+    this(in Token head, Pattern sub, Pattern terminator = null)
     {
         super(head, sub, terminator);
+    }
+    this(in Token head, Node sub, Pattern terminator = null)
+    {
+        Pattern psub = cast(Pattern)sub;
+        assert(psub);
+        super(head, psub, terminator);
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
@@ -1633,12 +1678,18 @@ final class NonGreedyZeroOrOne : NonGreedyUnaExpr
 }
 
 /// Match (non-greedily) zero or more instances of type `sub`.
-final class NonGreedyZeroOrMore : NonGreedyUnaExpr
+final class NonGreedyZeroOrMore : TerminatedUnaryOpPattern
 {
 @safe pure nothrow @nogc:
-    this(in Token head, Node sub, Node terminator = null)
+    this(in Token head, Pattern sub, Pattern terminator = null)
     {
         super(head, sub, terminator);
+    }
+    this(in Token head, Node sub, Pattern terminator = null)
+    {
+        Pattern psub = cast(Pattern)sub;
+        assert(psub);
+        super(head, psub, terminator);
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
@@ -1660,12 +1711,18 @@ final class NonGreedyZeroOrMore : NonGreedyUnaExpr
 }
 
 /// Match (non-greedily) one or more instances of type `sub`.
-final class NonGreedyOneOrMore : NonGreedyUnaExpr
+final class NonGreedyOneOrMore : TerminatedUnaryOpPattern
 {
 @safe pure nothrow @nogc:
-    this(in Token head, Node sub, Node terminator = null)
+    this(in Token head, Pattern sub, Pattern terminator = null)
     {
         super(head, sub, terminator);
+    }
+    this(in Token head, Node sub, Pattern terminator = null)
+    {
+        Pattern psub = cast(Pattern)sub;
+        assert(psub);
+        super(head, psub, terminator);
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
@@ -1688,12 +1745,18 @@ final class NonGreedyOneOrMore : NonGreedyUnaExpr
 }
 
 /// Match `count` number of instances of type `sub`.
-final class GreedyCount : UnaExpr
+final class GreedyCount : UnaryOpPattern
 {
 @safe pure nothrow @nogc:
-    this(in Token head, Node sub)
+    this(in Token head, Pattern sub)
     {
         super(head, sub);
+    }
+    this(in Token head, Node sub)
+    {
+        Pattern psub = cast(Pattern)sub;
+        assert(psub);
+        super(head, psub);
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
@@ -1710,12 +1773,18 @@ final class GreedyCount : UnaExpr
     ulong count;
 }
 
-final class RewriteSyntacticPredicate : UnaExpr
+final class RewriteSyntacticPredicate : UnaryOpPattern
 {
 @safe pure nothrow @nogc:
-    this(in Token head, Node sub)
+    this(in Token head, Pattern sub)
     {
         super(head, sub);
+    }
+    this(in Token head, Node sub)
+    {
+        Pattern psub = cast(Pattern)sub;
+        assert(psub);
+        super(head, psub);
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
@@ -1729,7 +1798,28 @@ final class RewriteSyntacticPredicate : UnaExpr
     }
 }
 
-final class Symbol : TokenNode
+final class OtherSymbol : TokenNode
+{
+@safe:
+    override void show(in Format fmt = Format.init) const
+    {
+        showToken(head, fmt);
+    }
+@safe pure nothrow @nogc:
+    this(in Token head)
+    {
+        super(head);
+    }
+    override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
+    {
+        if (head.input != "EOF")
+            sink.put(matcherFunctionNamePrefix);
+        sink.put(head.input);
+        sink.put(`()`);
+    }
+}
+
+final class SymbolPattern : Pattern
 {
 @safe:
     override void show(in Format fmt = Format.init) const
@@ -1750,10 +1840,6 @@ final class Symbol : TokenNode
         // if (const Rule* rulePtr = head.input in rulesByName)
         //     (*rulePtr).toMatchInSource(sink, lexer);
     }
-    override DcharCountSpan dcharCountSpan() const @nogc
-    {
-        return DcharCountSpan(head.input.length);
-    }
 }
 
 final class LeftParenSentinel : TokenNode
@@ -1762,10 +1848,6 @@ final class LeftParenSentinel : TokenNode
     this(in Token head)
     {
         super(head);
-    }
-    override DcharCountSpan dcharCountSpan() const @nogc
-    {
-        return typeof(return)(1);
     }
 }
 
@@ -1776,10 +1858,6 @@ final class PipeSentinel : TokenNode
     {
         super(head);
     }
-    override DcharCountSpan dcharCountSpan() const @nogc
-    {
-        return typeof(return)(1);
-    }
 }
 
 final class DotDotSentinel : TokenNode
@@ -1788,10 +1866,6 @@ final class DotDotSentinel : TokenNode
     this(in Token head)
     {
         super(head);
-    }
-    override DcharCountSpan dcharCountSpan() const @nogc
-    {
-        return typeof(return)(1);
     }
 }
 
@@ -1802,13 +1876,9 @@ final class TildeSentinel : TokenNode
     {
         super(head);
     }
-    override DcharCountSpan dcharCountSpan() const @nogc
-    {
-        return typeof(return)(1);
-    }
 }
 
-final class AnyClass : TokenNode
+final class AnyClass : Pattern
 {
 @safe pure nothrow @nogc:
 this(in Token head)
@@ -1869,7 +1939,17 @@ private uint isUnicodeCharacterLiteral(scope Input x) pure nothrow @nogc
     return u;
 }
 
-final class StrLiteral : TokenNode
+abstract class Pattern : TokenNode
+{
+@safe pure nothrow @nogc:
+    this(in Token head)
+    {
+        super(head);
+    }
+    abstract DcharCountSpan dcharCountSpan() const @nogc;
+}
+
+final class StrLiteral : Pattern
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -1915,7 +1995,6 @@ final class StrLiteral : TokenNode
     }
     override DcharCountSpan dcharCountSpan() const @nogc
     {
-        import nxt.string_traits : isASCIIString;
         const inp = unquotedInput; // skipping single-quotes
         size_t cnt;
         if (inp.isASCIICharacterLiteral()) // must come first
@@ -1937,6 +2016,15 @@ final class StrLiteral : TokenNode
     {
         return head.input[1 .. $ - 1];
     }
+}
+
+// linker error when using version defined in string_traits
+private bool isASCIIString(scope const(char)[] input) pure nothrow @nogc
+{
+    foreach (e; cast(const(ubyte)[])input) // no decoding to `dchar` needed
+        if (e >= 0x7F)
+            return false;
+    return true;
 }
 
 void putStringLiteralDoubleQuoted(scope ref Output sink,
@@ -1975,7 +2063,7 @@ void putStringLiteralBackQuoted(scope ref Output sink,
     }
 }
 
-final class AltCharLiteral : TokenNode
+final class AltCharLiteral : Pattern
 {
 @safe pure nothrow @nogc:
     this(in Token head)
@@ -2076,8 +2164,8 @@ bool needsWrapping(const scope Node[] subs) @safe pure nothrow @nogc
     return wrapFlag;
 }
 
-/// Binary match combinator.
-abstract class BinExpr : Node
+/// Binary pattern combinator.
+abstract class BinaryOpPattern : Pattern
 {
 @safe:
     override void show(in Format fmt = Format.init) const
@@ -2090,11 +2178,11 @@ abstract class BinExpr : Node
         subs[1].show(fmt);
     }
 @safe pure nothrow @nogc:
-    this(in Token head, Node[2] subs)
+    this(in Token head, Pattern[2] subs)
     {
         assert(subs[0]);
         assert(subs[1]);
-        super();
+        super(head);
         this.subs = subs;
     }
     final override bool equals(const Node o) const
@@ -2107,11 +2195,11 @@ abstract class BinExpr : Node
         return false;
     }
     Token head;
-    Node[2] subs;
+    Pattern[2] subs;
 }
 
 /// Match value range between `limits[0]` and `limits[1]`.
-final class Range : BinExpr
+final class Range : BinaryOpPattern
 {
 @safe:
     override void show(in Format fmt = Format.init) const
@@ -2127,8 +2215,10 @@ final class Range : BinExpr
             putchar(')');
     }
 pure nothrow @nogc:
-    this(in Token head, Node[2] limits)
+    this(in Token head, Pattern[2] limits)
     {
+        assert(limits[0]);
+        assert(limits[1]);
         super(head, limits);
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
@@ -2163,13 +2253,13 @@ pure nothrow @nogc:
     }
 }
 
-Node parseCharAltM(const CharAltM alt,
-                   const scope ref GxLexer lexer) @safe pure nothrow
+Pattern parseCharAltM(const CharAltM alt,
+                      const scope ref GxLexer lexer) @safe pure nothrow
 {
     const Input inp = alt.unquotedInput;
 
     bool inRange;
-    NodeArray subs;
+    PatternArray subs;
     for (size_t i; i < inp.length;)
     {
         Input inpi;
@@ -2255,7 +2345,7 @@ Node parseCharAltM(const CharAltM alt,
     return makeAltA(alt.head, subs.move()); // potentially flatten
 }
 
-final class CharAltM : TokenNode
+final class CharAltM : Pattern
 {
 @safe pure nothrow @nogc:
 
@@ -2603,10 +2693,6 @@ pure nothrow @nogc:
         super(head);
         this.code = code;
     }
-    override DcharCountSpan dcharCountSpan() const @nogc
-    {
-        return typeof(return)(code.input.length);
-    }
     Token code;
 }
 
@@ -2723,9 +2809,9 @@ struct GxParserByStatement
         _lexer.popFrontEnforce(TOK.colon, "no colon");
 
         static if (false/*useStaticTempArrays*/)
-            FixedArray!(Node, 100) alts;
+            FixedArray!(Pattern, 100) alts;
         else
-            NodeArray alts;
+            PatternArray alts;
 
         while (_lexer.front.tok != TOK.semicolon)
         {
@@ -2748,16 +2834,20 @@ struct GxParserByStatement
                     if (auto dotdot = cast(DotDotSentinel)tseq.back) // binary operator
                     {
                         tseq.popBack(); // pop `DotDotSentinel`
-                        return seqPutCheck(new Range(dotdot.head, [tseq.backPop(), last]));
+                        return seqPutCheck(new Range(dotdot.head,
+                                                     [cast(Pattern)tseq.backPop(), cast(Pattern)last]));
                     }
                     if (auto tilde = cast(TildeSentinel)tseq.back) // prefix unary operator
                     {
                         tseq.popBack(); // pop `TildeSentinel`
-                        return seqPutCheck(new Not(tilde.head, last));
+                        return seqPutCheck(new NotPattern(tilde.head,
+                                                          cast(Pattern)last));
                     }
-                    if (auto ng = cast(NonGreedyUnaExpr)tseq.back)
+                    if (auto ng = cast(TerminatedUnaryOpPattern)tseq.back)
                     {
-                        ng.terminator = last;
+                        Pattern lastp = cast(Pattern)last;
+                        assert(lastp);
+                        ng.terminator = lastp;
                     }
                 }
                 return tseq.put(last);
@@ -2789,7 +2879,7 @@ struct GxParserByStatement
                     }
                     if (ih == tseq.length)
                         _lexer.errorAtToken(head, "missing left-hand side");
-                    Node nseq = makeSeq(tseq[ih + 1 .. $], _lexer);
+                    Pattern nseq = makeSeq(tseq[ih + 1 .. $], _lexer);
                     tseq.popBackN(tseq.length - (ih + 1)); // exclude op sentinel
                     tseq.insertBack(nseq);                 // put it back
                 }
@@ -2806,7 +2896,7 @@ struct GxParserByStatement
                             _lexer.popFront();
                             continue; // skip element label: SYMBOL '.'. See_Also: https://www.antlr2.org/doc/metalang.html section "Element Labels"
                         }
-                        seqPutCheck(new Symbol(head));
+                        seqPutCheck(new OtherSymbol(head));
                     }
                     break;
                 case TOK.literal:
@@ -2815,7 +2905,7 @@ struct GxParserByStatement
                 case TOK.qmark:
                     if (tseq.empty)
                         _lexer.errorAtToken(head, "missing left-hand side");
-                    Node node;
+                    Pattern node;
                     if (auto oom = cast(GreedyOneOrMore)tseq.back)
                     {
                         // See_Also: https://stackoverflow.com/questions/64706408/rewriting-x-as-x-in-antlr-grammars
@@ -2912,16 +3002,22 @@ struct GxParserByStatement
                         }
                     }
 
-                    NodeArray asubs; // TODO: use stack allocation of length tseq[si .. $].length - number of `PipeSentinel`s
+                    PatternArray asubs; // TODO: use stack allocation of length tseq[si .. $].length - number of `PipeSentinel`s
                     Token ahead;
-                    foreach (Node e; tseq[si + 1.. $])
+                    foreach (e; tseq[si + 1.. $])
+                    {
                         if (auto ps = cast(PipeSentinel)e)
                         {
                             if (ahead != Token.init)
                                 ahead = ps.head; // use first '|' as head of alternative below
                         }
                         else
-                            asubs.put(e);
+                        {
+                            Pattern pe = cast(Pattern)e;
+                            assert(pe);
+                            asubs.put(pe);
+                        }
+                    }
                     if (asubs.empty)
                     {
                         auto nothing = new SeqM(ss.head);
@@ -2942,7 +3038,7 @@ struct GxParserByStatement
                     break;
                 case TOK.labelAssignment:
                     // ignore for now: SYMBOL '='
-                    if (!cast(Symbol)tseq.back)
+                    if (!cast(OtherSymbol)tseq.back)
                         _lexer.errorAtFront("non-symbol before label assignment");
                     tseq.popBack(); // ignore
                     break;
@@ -2976,7 +3072,7 @@ struct GxParserByStatement
                     break;
                 default:
                     _lexer.infoAtFront("TODO: unhandled token type" ~ _lexer.front.to!string);
-                    seqPutCheck(new Symbol(head));
+                    seqPutCheck(new OtherSymbol(head));
                     break;
                 }
             }
@@ -3013,11 +3109,11 @@ struct GxParserByStatement
 
         static if (useStaticTempArrays)
         {
-            Node top = alts.length == 1 ? alts.backPop() : makeAltM(Token.init, alts[]);
+            Pattern top = alts.length == 1 ? alts.backPop() : makeAltM(Token.init, alts[]);
             alts.clear();
         }
         else
-            Node top = alts.length == 1 ? alts.backPop() : makeAltA(Token.init, alts.move());
+            Pattern top = alts.length == 1 ? alts.backPop() : makeAltA(Token.init, alts.move());
 
         Rule rule = (isFragment
                      ? new FragmentRule(name, top)
@@ -3097,11 +3193,11 @@ struct GxParserByStatement
         return result;
     }
 
-    Symbol skipOverSymbol(in string symbolIdentifier) return
+    OtherSymbol skipOverOtherSymbol(in string symbolIdentifier) return
     {
         if (_lexer.front == Token(TOK.symbol, symbolIdentifier))
         {
-            return new Symbol(_lexer.frontPop());
+            return new typeof(return)(_lexer.frontPop());
         }
         return null;
     }
@@ -3305,7 +3401,7 @@ struct GxParserByStatement
                     continue;
                 if (skipOverHooks())    // TODO: use
                     continue;
-                if (const _ = skipOverSymbol("locals")) // TODO: use
+                if (const _ = skipOverOtherSymbol("locals")) // TODO: use
                     continue;
                 if (const _ = skipOverPreRuleOptions()) // TODO: use
                     continue;

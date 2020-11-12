@@ -2066,7 +2066,6 @@ Node parseCharAltM(const CharAltM alt,
             subs.insertBack(new Range(Token.init, [subs.backPop(), lit]));
         else
             subs.insertBack(lit);
-
         inRange = false;
     }
     return makeAltA(alt.head, subs.move()); // potentially flatten

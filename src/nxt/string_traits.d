@@ -1,6 +1,6 @@
 module nxt.string_traits;
 
-@safe
+@safe:
 
 /** Returns: `true` iff `x` is an ASCII (7-bit clean) set of `char`s.
  *
@@ -9,7 +9,7 @@ module nxt.string_traits;
  */
 bool isASCIIString(scope const(char)[] input) pure nothrow @nogc
 {
-    foreach (e; cast(const(ubyte)[])input) // no decoding to `dchar` needed
+    foreach (const e; cast(const(ubyte)[])input) // no decoding to `dchar` needed
         if (e >= 0x7F)
             return false;
     return true;

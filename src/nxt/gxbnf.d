@@ -1617,7 +1617,11 @@ final class GreedyOneOrMore : UnaryOpPattern
     this(in Token head, Node sub)
     {
         Pattern psub = cast(Pattern)sub;
-        assert(psub);
+        if (!psub)
+        {
+            debug sub.show();
+            assert(false);
+        }
         super(head, psub);
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
@@ -1839,6 +1843,11 @@ final class SymbolPattern : Pattern
         sink.put(`()`);
         // if (const Rule* rulePtr = head.input in rulesByName)
         //     (*rulePtr).toMatchInSource(sink, lexer);
+    }
+    override DcharCountSpan dcharCountSpan() const @nogc
+    {
+        assert(false);
+        // return typeof(return).init;
     }
 }
 
@@ -2896,7 +2905,7 @@ struct GxParserByStatement
                             _lexer.popFront();
                             continue; // skip element label: SYMBOL '.'. See_Also: https://www.antlr2.org/doc/metalang.html section "Element Labels"
                         }
-                        seqPutCheck(new OtherSymbol(head));
+                        seqPutCheck(new SymbolPattern(head));
                     }
                     break;
                 case TOK.literal:

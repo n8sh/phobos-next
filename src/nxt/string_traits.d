@@ -10,9 +10,8 @@ module nxt.string_traits;
 bool isASCIIString(scope const(char)[] input)
 {
     foreach (e; cast(const(ubyte)[])input) // no decoding to `dchar` needed
-    {
-        if (e >= 0x7F) { return false; }
-    }
+        if (e >= 0x7F)
+            return false;
     return true;
 }
 

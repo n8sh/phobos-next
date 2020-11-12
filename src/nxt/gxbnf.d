@@ -13,6 +13,13 @@
 
     TODO:
 
+    - Make `Rule.top` be of type `Matcher` and make
+      - `dcharCountSpan` and
+      - `toMatchInSource`
+      members of `Matcher`.
+
+    - Set `dcharCountSpan` internally upon construction
+
     - Support `tokens { INDENT_WS, DEDENT_WS, LINE_BREAK_WS }` to get
       Python3.g4` with TOK.whitespaceIndent, whitespaceDedent, whitespaceLineBreak useWhitespaceClassesFlag
       See: https://stackoverflow.com/questions/8642154/antlr-what-is-simpliest-way-to-realize-python-like-indent-depending-grammar
@@ -1019,18 +1026,36 @@ private void showToken(in Token token,
     showChars(token.input);
 }
 
-struct LengthRange
+/** Lower and upper limit of `dchar` count.
+ */
+struct DcharCountSpan
 {
-    @disable this();
-    this(uint lower, uint upper) @safe pure nothrow @nogc
+@safe pure nothrow @nogc:
+    @disable this();       // be explicit for now as default init is not obvious
+    static typeof(this) full()
+    {
+        return typeof(this)(this.lower.min,
+                            this.upper.max);
+    }
+    this(in uint lower, in uint upper)
     {
         this.lower = lower;
         this.upper = upper;
     }
-    this(uint length) @safe pure nothrow @nogc
+    this(in size_t lower, in size_t upper)
     {
-        this.lower = length;
-        this.upper = length;
+        assert(lower <= this.lower.max);
+        assert(upper <= this.upper.max);
+        this.lower = cast(typeof(this.lower))lower;
+        this.upper = cast(typeof(this.upper))upper;
+    }
+    this(in uint length)
+    {
+        this(length, length);
+    }
+    this(in size_t length) @safe pure nothrow @nogc
+    {
+        this(length, length);
     }
     uint lower = uint.max;
     uint upper = 0;
@@ -1042,7 +1067,7 @@ private abstract class Node
 @safe:
     abstract void show(in Format fmt = Format.init) const;
 pure nothrow:
-    abstract LengthRange lengthRange() const @nogc;
+    abstract DcharCountSpan dcharCountSpan() const @nogc;
     abstract bool equals(const Node o) const @nogc;
     abstract void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @nogc;
     this() @nogc {}
@@ -1130,13 +1155,13 @@ pure nothrow @nogc:
         }
         sink.put(")");
     }
-    override LengthRange lengthRange() const @nogc
+    override DcharCountSpan dcharCountSpan() const @nogc
     {
         assert(!subs.empty);
         auto lr = typeof(return)(0, uint.max);
         foreach (const sub; subs)
         {
-            const sublr = sub.lengthRange;
+            const sublr = sub.dcharCountSpan;
             if (lr.lower == uint.max ||
                 sublr.lower == uint.max)
                 lr.lower = uint.max;
@@ -1265,6 +1290,10 @@ class Rule : Node
         sink.put(";\n");
         sink.showNIndents(1); sink.put("}\n");
     }
+    override DcharCountSpan dcharCountSpan() const @nogc
+    {
+        return top.dcharCountSpan;
+    }
     Token head;                 ///< Name.
     Node top;
 }
@@ -1372,21 +1401,21 @@ pure nothrow @nogc:
         if (allSubChars)
             sink.put("()");
     }
-    override LengthRange lengthRange() const @nogc
+    override DcharCountSpan dcharCountSpan() const @nogc
     {
-        return lengthRangeOf(subs[]);
+        return dcharCountSpanOf(subs[]);
     }
     Token head;
 }
 
-LengthRange lengthRangeOf(const scope Node[] subs) @safe pure nothrow @nogc
+DcharCountSpan dcharCountSpanOf(const scope Node[] subs) @safe pure nothrow @nogc
 {
     if (subs.length == 0)
         return typeof(return)(0, 0);
     auto lr = typeof(return)(uint.max, 0);
     foreach (const sub; subs)
     {
-        const sublr = sub.lengthRange;
+        const sublr = sub.dcharCountSpan;
         lr.lower = min(lr.lower, sublr.lower);
         lr.upper = max(lr.upper, sublr.upper);
     }
@@ -1498,9 +1527,9 @@ final class Not : UnaExpr
         sub.toMatchInSource(sink, lexer);
         sink.put(")");
     }
-    override LengthRange lengthRange() const @nogc
+    override DcharCountSpan dcharCountSpan() const @nogc
     {
-        return sub.lengthRange();
+        return sub.dcharCountSpan();
     }
 }
 
@@ -1518,6 +1547,10 @@ final class GreedyZeroOrOne : UnaExpr
         sub.toMatchInSource(sink, lexer);
         sink.put(")");
     }
+    override DcharCountSpan dcharCountSpan() const @nogc
+    {
+        return typeof(return)(0, sub.dcharCountSpan.upper);
+    }
 }
 
 /// Match (greedily) zero or more instances of type `sub`.
@@ -1534,6 +1567,10 @@ final class GreedyZeroOrMore : UnaExpr
         sub.toMatchInSource(sink, lexer);
         sink.put(")");
     }
+    override DcharCountSpan dcharCountSpan() const @nogc
+    {
+        return typeof(return).full();
+    }
 }
 
 /// Match (greedily) one or more instances of type `sub`.
@@ -1549,6 +1586,11 @@ final class GreedyOneOrMore : UnaExpr
         sink.put("gom(");
         sub.toMatchInSource(sink, lexer);
         sink.put(")");
+    }
+    override DcharCountSpan dcharCountSpan() const @nogc
+    {
+        return typeof(return)(sub.dcharCountSpan.lower,
+                              typeof(return).upper.max);
     }
 }
 
@@ -1584,6 +1626,10 @@ final class NonGreedyZeroOrOne : NonGreedyUnaExpr
             lexer.warningAtToken(head, "no terminator after non-greedy");
         sink.put(")");
     }
+    override DcharCountSpan dcharCountSpan() const @nogc
+    {
+        return typeof(return)(0, sub.dcharCountSpan.upper);
+    }
 }
 
 /// Match (non-greedily) zero or more instances of type `sub`.
@@ -1606,6 +1652,10 @@ final class NonGreedyZeroOrMore : NonGreedyUnaExpr
         else
             lexer.warningAtToken(head, "no terminator after non-greedy");
         sink.put(")");
+    }
+    override DcharCountSpan dcharCountSpan() const @nogc
+    {
+        return typeof(return).full();
     }
 }
 
@@ -1630,10 +1680,15 @@ final class NonGreedyOneOrMore : NonGreedyUnaExpr
             lexer.warningAtToken(head, "no terminator after non-greedy");
         sink.put(")");
     }
+    override DcharCountSpan dcharCountSpan() const @nogc
+    {
+        return typeof(return)(sub.dcharCountSpan.lower,
+                              typeof(return).upper.max);
+    }
 }
 
 /// Match `count` number of instances of type `sub`.
-final class Several : UnaExpr
+final class GreedyCount : UnaExpr
 {
 @safe pure nothrow @nogc:
     this(in Token head, Node sub)
@@ -1645,6 +1700,12 @@ final class Several : UnaExpr
         sink.put("cnt(");
         sub.toMatchInSource(sink, lexer);
         sink.put(")");
+    }
+    override DcharCountSpan dcharCountSpan() const @nogc
+    {
+        const ss = sub.dcharCountSpan;
+        return typeof(return)(ss.lower == uint.max ? uint.max : ss.lower * count,
+                              ss.upper == uint.max ? uint.max : ss.upper * count);
     }
     ulong count;
 }
@@ -1661,6 +1722,10 @@ final class RewriteSyntacticPredicate : UnaExpr
         sink.put("syn(");
         sub.toMatchInSource(sink, lexer);
         sink.put(")");
+    }
+    override DcharCountSpan dcharCountSpan() const @nogc
+    {
+        return sub.dcharCountSpan;
     }
 }
 
@@ -1685,10 +1750,9 @@ final class Symbol : TokenNode
         // if (const Rule* rulePtr = head.input in rulesByName)
         //     (*rulePtr).toMatchInSource(sink, lexer);
     }
-    override LengthRange lengthRange() const @nogc
+    override DcharCountSpan dcharCountSpan() const @nogc
     {
-        assert(head.input.length <= typeof(return).upper.max);
-        return LengthRange(cast(uint)head.input.length);
+        return DcharCountSpan(head.input.length);
     }
 }
 
@@ -1699,6 +1763,10 @@ final class LeftParenSentinel : TokenNode
     {
         super(head);
     }
+    override DcharCountSpan dcharCountSpan() const @nogc
+    {
+        return typeof(return)(1);
+    }
 }
 
 final class PipeSentinel : TokenNode
@@ -1707,6 +1775,10 @@ final class PipeSentinel : TokenNode
     this(in Token head)
     {
         super(head);
+    }
+    override DcharCountSpan dcharCountSpan() const @nogc
+    {
+        return typeof(return)(1);
     }
 }
 
@@ -1717,6 +1789,10 @@ final class DotDotSentinel : TokenNode
     {
         super(head);
     }
+    override DcharCountSpan dcharCountSpan() const @nogc
+    {
+        return typeof(return)(1);
+    }
 }
 
 final class TildeSentinel : TokenNode
@@ -1725,6 +1801,10 @@ final class TildeSentinel : TokenNode
     this(in Token head)
     {
         super(head);
+    }
+    override DcharCountSpan dcharCountSpan() const @nogc
+    {
+        return typeof(return)(1);
     }
 }
 
@@ -1738,6 +1818,10 @@ this(in Token head)
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
         sink.put(`any()`);
+    }
+    override DcharCountSpan dcharCountSpan() const @nogc
+    {
+        return typeof(return)(1);
     }
 }
 
@@ -1797,39 +1881,59 @@ final class StrLiteral : TokenNode
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
-        auto content = trimmedInput; // skipping single-quotes
-        if (content.isASCIICharacterLiteral())
+        auto inp = unquotedInput; // skipping single-quotes
+        if (inp.isASCIICharacterLiteral())
         {
             sink.put(`ch(`);
-            sink.putCharLiteral(content);
+            sink.putCharLiteral(inp);
             sink.put(`)`);
         }
-        else if (const uvalue = content.isUnicodeCharacterLiteral())
+        else if (const uvalue = inp.isUnicodeCharacterLiteral())
         {
             if (uvalue <= 0x7f)
                 sink.put(`ch(`);
             else
                 sink.put(`dch(`);
-            sink.putCharLiteral(content);
+            sink.putCharLiteral(inp);
             sink.put(`)`);
         }
         else
         {
-            if (content.canFind('`'))
+            if (inp.canFind('`'))
             {
                 sink.put(`str("`);
-                sink.putStringLiteralDoubleQuoted(content);
+                sink.putStringLiteralDoubleQuoted(inp);
                 sink.put(`")`);
             }
             else
             {
                 sink.put("str(`");
-                sink.putStringLiteralBackQuoted(content);
+                sink.putStringLiteralBackQuoted(inp);
                 sink.put("`)");
             }
         }
     }
-    Input trimmedInput() const scope return
+    override DcharCountSpan dcharCountSpan() const @nogc
+    {
+        import nxt.string_traits : isASCIIString;
+        const inp = unquotedInput; // skipping single-quotes
+        size_t cnt;
+        if (inp.isASCIICharacterLiteral()) // must come first
+            cnt = 1;
+        else if (const _ = inp.isUnicodeCharacterLiteral()) // must come second
+            cnt = 1;
+        else if (inp.isASCIIString) // must come third
+            cnt = inp.length;
+        else
+        {
+            // TODO: optimize
+            import std.utf : byDchar;
+            import std.algorithm.searching : count;
+            cnt = inp.byDchar.count;
+        }
+        return typeof(return)(cnt);
+    }
+    Input unquotedInput() const scope return
     {
         return head.input[1 .. $ - 1];
     }
@@ -1896,13 +2000,13 @@ final class AltCharLiteral : TokenNode
         sink.putCharLiteral(head.input);
         sink.put(`)`);
     }
-    override LengthRange lengthRange() const @nogc
+    override DcharCountSpan dcharCountSpan() const @nogc
     {
-        return LengthRange(1, 1);
+        return DcharCountSpan(1, 1);
         // if (head.input.isASCIICharacterLiteral)
-        //     return LengthRange(1, 1);
+        //     return DcharCountSpan(1, 1);
         // else
-        //     return LengthRange(0, uint.max);
+        //     return DcharCountSpan(0, uint.max);
     }
 }
 
@@ -1927,9 +2031,10 @@ void putCharLiteral(scope ref Output sink,
         }
         else
         {
-            sink.put(`cast(dchar)`);
+            sink.put(`dchar(`);
             sink.put(`0x`);
             sink.put(inp);
+            sink.put(`)`);
         }
     }
     else if (inp.skipOver(`\p`) || // https://github.com/antlr/antlr4/pull/1688
@@ -2031,7 +2136,7 @@ pure nothrow @nogc:
         sink.put("rng(");
 
         if (const lower = cast(const StrLiteral)subs[0])
-            sink.putCharLiteral(lower.trimmedInput);
+            sink.putCharLiteral(lower.unquotedInput);
         else if (const lower = cast(const AltCharLiteral)subs[0])
             sink.putCharLiteral(lower.head.input);
         else
@@ -2044,7 +2149,7 @@ pure nothrow @nogc:
         sink.put(",");
 
         if (const upper = cast(const StrLiteral)subs[1])
-            sink.putCharLiteral(upper.trimmedInput);
+            sink.putCharLiteral(upper.unquotedInput);
         else if (const upper = cast(const AltCharLiteral)subs[1])
             sink.putCharLiteral(upper.head.input);
         else
@@ -2052,16 +2157,16 @@ pure nothrow @nogc:
 
         sink.put(")");
     }
-    override LengthRange lengthRange() const @nogc
+    override DcharCountSpan dcharCountSpan() const @nogc
     {
-        return lengthRangeOf(subs[]);
+        return dcharCountSpanOf(subs[]);
     }
 }
 
 Node parseCharAltM(const CharAltM alt,
                    const scope ref GxLexer lexer) @safe pure nothrow
 {
-    const Input inp = alt.trimmedInput;
+    const Input inp = alt.unquotedInput;
 
     bool inRange;
     NodeArray subs;
@@ -2159,7 +2264,7 @@ final class CharAltM : TokenNode
         super(head);
     }
 
-    Input trimmedInput() const
+    Input unquotedInput() const
     {
         Input inp = head.input;
         assert(inp.skipOverAround('[', ']')); // trim
@@ -2168,14 +2273,14 @@ final class CharAltM : TokenNode
 
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
     {
-        Input input = trimmedInput;
+        Input inp = unquotedInput;
 
         // TODO use `switch` `case` ranges
 
-        if (input.canFind('-')) // check that range is not backquoted
+        if (inp.canFind('-')) // check that range is not backquoted
         {
             size_t altCount;
-            const asink = toMatchRangeInSource(input, altCount);
+            const asink = toMatchRangeInSource(inp, altCount);
             if (altCount >= 2)
                 sink.put("alt(");
             sink.put(asink[]);
@@ -2185,7 +2290,7 @@ final class CharAltM : TokenNode
         }
 
         sink.put("altNch!(");
-        for (size_t i; i < input.length;)
+        for (size_t i; i < inp.length;)
         {
             if (i)
                 sink.put(", "); // separator
@@ -2193,41 +2298,41 @@ final class CharAltM : TokenNode
             sink.put('\'');     // prefix
 
             // contents:
-            if (input[i] == '\\')
+            if (inp[i] == '\\')
             {
                 i += 1;
-                switch (input[i])
+                switch (inp[i])
                 {
                 case ']':
                 case '-':
-                    sink.put(input[i]); // for instance: `\]` => `]`
+                    sink.put(inp[i]); // for instance: `\]` => `]`
                     break;
                 case '\\':
                     sink.put(`\\`); // `\\` => `\\`
                     break;
                 default:
                     sink.put('\\');
-                    if (input[i] == 'u')
+                    if (inp[i] == 'u')
                     {
                         import std.ascii : isHexDigit;
-                        if (i + 5 > input.length &&
-                            !(input[i + 1].isHexDigit &&
-                              input[i + 2].isHexDigit &&
-                              input[i + 3].isHexDigit &&
-                              input[i + 4].isHexDigit))
-                            lexer.errorAtToken(Token(head.tok, input[i + 1 .. $]), "incorrect unicode escape sequence");
-                        sink.put(input[i .. i + 5]);
+                        if (i + 5 > inp.length &&
+                            !(inp[i + 1].isHexDigit &&
+                              inp[i + 2].isHexDigit &&
+                              inp[i + 3].isHexDigit &&
+                              inp[i + 4].isHexDigit))
+                            lexer.errorAtToken(Token(head.tok, inp[i + 1 .. $]), "incorrect unicode escape sequence");
+                        sink.put(inp[i .. i + 5]);
                         i += 4;
                     }
                     else
-                        sink.put(input[i]);
+                        sink.put(inp[i]);
                     break;
                 }
             }
-            else if (input[i] == '\'')
+            else if (inp[i] == '\'')
                 sink.put(`\'`);
             else
-                sink.put(input[i]);
+                sink.put(inp[i]);
             i += 1;
 
             sink.put('\'');     // suffix
@@ -2298,6 +2403,10 @@ final class CharAltM : TokenNode
             }
         }
         return sink;
+    }
+    override DcharCountSpan dcharCountSpan() const @nogc
+    {
+        return typeof(return)(1);
     }
 }
 
@@ -2493,6 +2602,10 @@ pure nothrow @nogc:
     {
         super(head);
         this.code = code;
+    }
+    override DcharCountSpan dcharCountSpan() const @nogc
+    {
+        return typeof(return)(code.input.length);
     }
     Token code;
 }
@@ -3270,6 +3383,7 @@ struct Match
     {
         return typeof(return)(_length.max);
     }
+    /// Match length in number of UTF-8 chars or 0 if empty.
     @property uint length()
     {
         return _length;
@@ -3317,7 +3431,7 @@ struct Parser
         return Match(1);
     }
 
-    Match ch(char x) pure nothrow @nogc
+    Match ch(const char x) pure nothrow @nogc
     {
         pragma(inline, true);
         if (inp[off] == x)
@@ -3328,13 +3442,21 @@ struct Parser
         return Match.none();
     }
 
-    Match dch(dchar x) pure nothrow @nogc
+    Match dch(const dchar x) pure nothrow @nogc
     {
-        pragma(inline, true);
-        if (inp[off] == x) // TODO: decode next dchar
+        import std.typecons : Yes;
+        import std.utf : encode, UseReplacementDchar;
+        char[4] ch4;
+        const replacementChar = dchar(0x110000);
+        const size_t n = x.encode!(UseReplacementDchar)(ch4, replacementChar));
+        if (n == replacementChar)
         {
-            off += 1;           // TODO: decode next dchar
-            return Match(1);    // TODO: decode next dchar
+            return Match.none(); // TODO: warn
+        }
+        if (inp[off .. off + n] == ch4[0 .. n)
+        {
+            off += n;
+            return Match(n);
         }
         return Match.none();
     }

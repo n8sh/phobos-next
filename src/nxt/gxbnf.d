@@ -1,77 +1,78 @@
 /** Lexer/Parser Generator for ANTLR (G, G2, G4) and (E)BNF grammars.
- *
- * See_Also: https://theantlrguy.atlassian.net/wiki/spaces/ANTLR3/pages/2687036/ANTLR+Cheat+Sheet
- * See_Also: https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form
- * See_Also: https://github.com/antlr/grammars-v4
- * See_Also: https://github.com/antlr/grammars-v4/blob/master/bnf/bnf.g4
- * See_Also: https://stackoverflow.com/questions/53245751/convert-a-form-of-bnf-grammar-to-g4-grammar
- * See_Also: https://bnfc.digitalgrammars.com/
- * See_Also: https://forum.dlang.org/post/rsmlqfwowpnggwyuibok@forum.dlang.org
- * See_Also: https://www.regular-expressions.info/unicode.html
- * See_Also: https://stackoverflow.com/questions/64654430/meaning-of-plu-in-antlr-grammar/64658336#64658336
- * See_Also: https://stackoverflow.com/questions/28829049/antlr4-any-difference-between-import-and-tokenvocab
- *
- * TODO:
- *
- * - Support `tokens { INDENT, DEDENT }` in `Python3.g4`
- *   See: https://stackoverflow.com/questions/8642154/antlr-what-is-simpliest-way-to-realize-python-like-indent-depending-grammar
- *
- * - unicode regular expressions.
- *   Use https://www.regular-expressions.info/unicode.html
- *   Use https://forum.dlang.org/post/rsmlqfwowpnggwyuibok@forum.dlang.org
- *
- * - Rule[Input] RulesByName
- * - Rule[Input] RulesByLiteralPrefix
- * - Use to detect conflicting rules with `import` and `tokenVocab`
- *
- * - Add AA Node[Input] tokensByLiteral
- *
- * - Ask on forums for AST node allocation patterns. Use region allocator of
- *   immutable. Size can be predicate.
- *
- * - Get rid of calls to input... idup
- *
- * - `not(...)`'s implementation needs to be adjusted. often used in conjunction with `altNch`?
- *
- * - Use `DETECT` upper-case lexer rules LexerRule
- *
- * - handle all TODO's in `makeRule`
- *
- * - Move parserSourceBegin to gxbnf_rdbase.d
- *
- * - Use `TOK.tokenSpecOptions` in parsing. Ignored for now.
- *
- * - Add properties for uint, uint lengthRng()
- * - Sort `AltM` subs by descending minimum length
- *
- * - Deal with differences between `import` and `tokenVocab`.
- *   See: https://stackoverflow.com/questions/28829049/antlr4-any-difference-between-import-and-tokenvocab
- *
- * - Detect indirect mutual left-recursion. How? Simple-way in generated parsers:
- *   enters a rule again without offset change.
- *
- * - non-pure diagnostics functions
- *
- * - Warn about `options{greedy=false;}:` and advice to replace with non-greedy variants
- * - Warn about `options{greedy=true;}:` being deprecated
- *
- * - Display column range for tokens in messages. Use `head.input.length`.
- *   Requires updating FlyCheck.
- *   See: `-fdiagnostics-print-source-range-info` at https://clang.llvm.org/docs/UsersManual.html.
- *   See: https://clang.llvm.org/diagnostics.html
- *   Use GNU-style formatting such as: fix-it:"test.c":{45:3-45:21}:"gtk_widget_show_all".
- *
- * - Use a region allocator on top of the GC to pre-allocate the
- *   nodes. Maybe one region for each file. Calculate the region size from lexer
- *   statistics (number of operators, symbols and literals).
- *
- * - Emacs click on link in `compilation-mode` doesn't navigate to correct offset on lines containing tabs before offset
- *
- * - If performance is needed:
- *   - Avoid casts and instead compare against `head.tok` for `isA!NodeType`
- *   - use `RuleAltN(uint n)` in `makeAlt`
- *   - use `SeqN(uint n)` in `makeSeq`
- */
+
+    See_Also: https://theantlrguy.atlassian.net/wiki/spaces/ANTLR3/pages/2687036/ANTLR+Cheat+Sheet
+    See_Also: https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form
+    See_Also: https://github.com/antlr/grammars-v4
+    See_Also: https://github.com/antlr/grammars-v4/blob/master/bnf/bnf.g4
+    See_Also: https://stackoverflow.com/questions/53245751/convert-a-form-of-bnf-grammar-to-g4-grammar
+    See_Also: https://bnfc.digitalgrammars.com/
+    See_Also: https://forum.dlang.org/post/rsmlqfwowpnggwyuibok@forum.dlang.org
+    See_Also: https://www.regular-expressions.info/unicode.html
+    See_Also: https://stackoverflow.com/questions/64654430/meaning-of-plu-in-antlr-grammar/64658336#64658336
+    See_Also: https://stackoverflow.com/questions/28829049/antlr4-any-difference-between-import-and-tokenvocab
+
+    TODO:
+
+    - Support `tokens { INDENT_WS, DEDENT_WS, LINE_BREAK_WS }` to get
+      Python3.g4` with TOK.whitespaceIndent, whitespaceDedent, whitespaceLineBreak useWhitespaceClassesFlag
+      See: https://stackoverflow.com/questions/8642154/antlr-what-is-simpliest-way-to-realize-python-like-indent-depending-grammar
+
+    - unicode regular expressions.
+      Use https://www.regular-expressions.info/unicode.html
+      Use https://forum.dlang.org/post/rsmlqfwowpnggwyuibok@forum.dlang.org
+
+    - Rule[Input] RulesByName
+    - Rule[Input] RulesByLiteralPrefix
+    - Use to detect conflicting rules with `import` and `tokenVocab`
+
+    - Add AA Node[Input] tokensByLiteral
+
+    - Ask on forums for AST node allocation patterns. Use region allocator of
+      immutable. Size can be predicate.
+
+    - Get rid of calls to input... idup
+
+    - `not(...)`'s implementation needs to be adjusted. often used in conjunction with `altNch`?
+
+    - Use `DETECT` upper-case lexer rules LexerRule
+
+    - handle all TODO's in `makeRule`
+
+    - Move parserSourceBegin to gxbnf_rdbase.d
+
+    - Use `TOK.tokenSpecOptions` in parsing. Ignored for now.
+
+    - Add properties for uint, uint lengthRng()
+    - Sort `AltM` subs by descending minimum length
+
+    - Deal with differences between `import` and `tokenVocab`.
+      See: https://stackoverflow.com/questions/28829049/antlr4-any-difference-between-import-and-tokenvocab
+
+    - Detect indirect mutual left-recursion. How? Simple-way in generated
+      parsers: enters a rule again without offset change.
+
+    - non-pure diagnostics functions
+
+    - Warn about `options{greedy=false;}:` and advice to replace with non-greedy variants
+    - Warn about `options{greedy=true;}:` being deprecated
+
+    - Display column range for tokens in messages. Use `head.input.length`.
+      Requires updating FlyCheck.
+      See: `-fdiagnostics-print-source-range-info` at https://clang.llvm.org/docs/UsersManual.html.
+      See: https://clang.llvm.org/diagnostics.html
+      Use GNU-style formatting such as: fix-it:"test.c":{45:3-45:21}:"gtk_widget_show_all".
+
+    - Use a region allocator on top of the GC to pre-allocate the
+      nodes. Maybe one region for each file. Calculate the region size from lexer
+      statistics (number of operators, symbols and literals).
+
+    - Emacs click on link in `compilation-mode` doesn't navigate to correct offset on lines containing tabs before offset
+
+    - If performance is needed:
+    - Avoid casts and instead compare against `head.tok` for `isA!NodeType`
+    - use `RuleAltN(uint n)` in `makeAlt`
+    - use `SeqN(uint n)` in `makeSeq`
+*/
 module nxt.gxbnf;
 
 version = show;
@@ -3492,7 +3493,7 @@ static immutable parserSourceEnd =
 struct GxFileReader
 {
     import std.path : stripExtension;
-    enum showFlag = true;
+    enum showFlag = false;
     GxFileParser fp;
 @safe:
     this(in string path)
@@ -3673,8 +3674,8 @@ version(show)
             const bn = fn.baseName;
             if (fn.isGxFilename)
             {
-                if (bn != `MySqlLexer.g4`)
-                    continue;
+                // if (bn != `MySqlLexer.g4`)
+                //     continue;
                 if (bn == `RexxParser.g4` ||
                     bn == `RexxLexer.g4` ||
                     bn == `StackTrace.g4` ||

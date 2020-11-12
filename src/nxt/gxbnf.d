@@ -2018,10 +2018,10 @@ final class StrLiteral : Pattern
     }
 }
 
-// linker error when using version defined in string_traits
+// TODO: avoid linker error when using version defined in `nxt.string_traits`
 private bool isASCIIString(scope const(char)[] input) pure nothrow @nogc
 {
-    foreach (e; cast(const(ubyte)[])input) // no decoding to `dchar` needed
+    foreach (const e; cast(const(ubyte)[])input) // no decoding to `dchar` needed
         if (e >= 0x7F)
             return false;
     return true;

@@ -1982,56 +1982,57 @@ pure nothrow @nogc:
 Node parseCharAltM(const CharAltM alt,
                    const scope ref GxLexer lexer) @safe pure nothrow
 {
-    const Input input = alt.trimmedInput;
+    const Input inp = alt.trimmedInput;
 
     bool inRange;
     NodeArray subs;
-    for (size_t i; i < input.length;)
+    for (size_t i; i < inp.length;)
     {
-        Input inputi;
+        Input inpi;
 
-        if (input[i] == '-')
+        if (inp[i] == '-' &&
+            !subs.empty)        // not first character
         {
             inRange = true;
             i += 1;
             continue;
         }
 
-        if (input[i] == '\\')
+        if (inp[i] == '\\')
         {
             i += 1;             // skip '\\'
-            switch (input[i])
+            switch (inp[i])
             {
             case ']':
             case '-':
             case '\\':
-                inputi = input[i .. i + 1];
+                inpi = inp[i .. i + 1];
                 break;
             case 'p':
-                if (input[i + 1] != '{')
-                    lexer.errorAtToken(Token(alt.head.tok, input[i + 1 .. $]),
+                if (inp[i + 1] != '{')
+                    lexer.errorAtToken(Token(alt.head.tok, inp[i + 1 .. $]),
                                        "expected brace");
-                const hit = input[i + 1 .. $].indexOf('}');
+                const hit = inp[i + 1 .. $].indexOf('}');
                 if (hit >= 0)
                 {
-                    inputi = input[i - 1 .. i + 1 + hit + 1];
+                    inpi = inp[i - 1 .. i + 1 + hit + 1];
                     i += hit + 1;
                 }
                 else
-                    lexer.errorAtToken(Token(alt.head.tok, input[i + 1 .. $]),
+                    lexer.errorAtToken(Token(alt.head.tok, inp[i + 1 .. $]),
                                        "incorrect unicode escape sequence, missing matching closing brace '}'");
                 break;
             case 'u':
-                if (input[i + 1] == '{')
+                if (inp[i + 1] == '{')
                 {
-                    const hit = input[i + 1 .. $].indexOf('}');
+                    const hit = inp[i + 1 .. $].indexOf('}');
                     if (hit >= 0)
                     {
-                        inputi = input[i - 1 .. i + 1 + hit + 1];
+                        inpi = inp[i - 1 .. i + 1 + hit + 1];
                         i += hit + 1;
                     }
                     else
-                        lexer.errorAtToken(Token(alt.head.tok, input[i + 1 .. $]),
+                        lexer.errorAtToken(Token(alt.head.tok, inp[i + 1 .. $]),
                                            "incorrect unicode escape sequence, missing matching closing brace '}'");
                 }
                 else
@@ -2039,28 +2040,28 @@ Node parseCharAltM(const CharAltM alt,
                     /* Unicode code point `\u....` where `....` is the hexadecimal
                        number of the code point you want to match. */
                     import std.ascii : isHexDigit;
-                    if (i + 5 > input.length &&
-                        !(input[i + 1].isHexDigit &&
-                          input[i + 2].isHexDigit &&
-                          input[i + 3].isHexDigit &&
-                          input[i + 4].isHexDigit))
-                        lexer.errorAtToken(Token(alt.head.tok, input[i + 1 .. $]),
+                    if (i + 5 > inp.length &&
+                        !(inp[i + 1].isHexDigit &&
+                          inp[i + 2].isHexDigit &&
+                          inp[i + 3].isHexDigit &&
+                          inp[i + 4].isHexDigit))
+                        lexer.errorAtToken(Token(alt.head.tok, inp[i + 1 .. $]),
                                            "incorrect unicode escape sequence");
-                    inputi = input[i - 1 .. i + 5];
+                    inpi = inp[i - 1 .. i + 5];
                     i += 4;
                 }
                 break;
             default:
-                inputi = input[i - 1 .. i + 1];
+                inpi = inp[i - 1 .. i + 1];
                 break;
             }
         }
         else
-            inputi = input[i .. i + 1];
+            inpi = inp[i .. i + 1];
 
         i += 1;
 
-        auto lit = new AltCharLiteral(Token(TOK.literal, inputi));
+        auto lit = new AltCharLiteral(Token(TOK.literal, inpi));
         if (inRange)
             subs.insertBack(new Range(Token.init, [subs.backPop(), lit]));
         else
@@ -2082,9 +2083,9 @@ final class CharAltM : TokenNode
 
     Input trimmedInput() const
     {
-        Input input = head.input;
-        assert(input.skipOverAround('[', ']')); // trim
-        return input;
+        Input inp = head.input;
+        assert(inp.skipOverAround('[', ']')); // trim
+        return inp;
     }
 
     override void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const
@@ -3673,7 +3674,7 @@ version(show)
             const bn = fn.baseName;
             if (fn.isGxFilename)
             {
-                if (bn != `oncrpcv2.g4`)
+                if (bn != `MySqlLexer.g4`)
                     continue;
                 if (bn == `RexxParser.g4` ||
                     bn == `RexxLexer.g4` ||

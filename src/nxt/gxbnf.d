@@ -43,7 +43,7 @@
     - Use `TOK.tokenSpecOptions` in parsing. Ignored for now.
 
     - Add properties for uint, uint lengthRng()
-    - Sort `AltM` subs by descending minimum length
+    - Sort `AltM` subs by descending minLength
 
     - Deal with differences between `import` and `tokenVocab`.
       See: https://stackoverflow.com/questions/28829049/antlr4-any-difference-between-import-and-tokenvocab
@@ -85,6 +85,7 @@ import core.stdc.stdio : putchar, printf;
 
 import std.conv : to;
 import std.algorithm.iteration : substitute;
+import std.algorithm.comparison : min, max;
 
 // `d-deps.el` requires these to be at the top:
 import nxt.line_column : offsetLineColumn;
@@ -1018,12 +1019,30 @@ private void showToken(in Token token,
     showChars(token.input);
 }
 
+struct LengthRange
+{
+    @disable this();
+    this(uint lower, uint upper) @safe pure nothrow @nogc
+    {
+        this.lower = lower;
+        this.upper = upper;
+    }
+    this(uint length) @safe pure nothrow @nogc
+    {
+        this.lower = length;
+        this.upper = length;
+    }
+    uint lower = uint.max;
+    uint upper = 0;
+}
+
 /// AST node.
 private abstract class Node
 {
 @safe:
     abstract void show(in Format fmt = Format.init) const;
 pure nothrow:
+    abstract LengthRange lengthRange() const @nogc;
     abstract bool equals(const Node o) const @nogc;
     abstract void toMatchInSource(scope ref Output sink, const scope ref GxLexer lexer) const @nogc;
     this() @nogc {}
@@ -1110,6 +1129,26 @@ pure nothrow @nogc:
             sub.toMatchInSource(sink, lexer);
         }
         sink.put(")");
+    }
+    override LengthRange lengthRange() const @nogc
+    {
+        assert(!subs.empty);
+        auto lr = typeof(return)(0, uint.max);
+        foreach (const sub; subs)
+        {
+            const sublr = sub.lengthRange;
+            if (lr.lower == uint.max ||
+                sublr.lower == uint.max)
+                lr.lower = uint.max;
+            else
+                lr.lower += sublr.lower;
+            if (lr.upper == uint.max ||
+                sublr.upper == uint.max)
+                lr.upper = uint.max;
+            else
+                lr.upper += sublr.upper;
+        }
+        return lr;
     }
     const Token head;
 }
@@ -1333,7 +1372,25 @@ pure nothrow @nogc:
         if (allSubChars)
             sink.put("()");
     }
+    override LengthRange lengthRange() const @nogc
+    {
+        return lengthRangeOf(subs[]);
+    }
     Token head;
+}
+
+LengthRange lengthRangeOf(const scope Node[] subs) @safe pure nothrow @nogc
+{
+    if (subs.length == 0)
+        return typeof(return)(0, 0);
+    auto lr = typeof(return)(uint.max, 0);
+    foreach (const sub; subs)
+    {
+        const sublr = sub.lengthRange;
+        lr.lower = min(lr.lower, sublr.lower);
+        lr.upper = max(lr.upper, sublr.upper);
+    }
+    return lr;
 }
 
 Node makeAltA(Token head,
@@ -1440,6 +1497,10 @@ final class Not : UnaExpr
         sink.put("not(");
         sub.toMatchInSource(sink, lexer);
         sink.put(")");
+    }
+    override LengthRange lengthRange() const @nogc
+    {
+        return sub.lengthRange();
     }
 }
 
@@ -1623,6 +1684,11 @@ final class Symbol : TokenNode
         sink.put(`()`);
         // if (const Rule* rulePtr = head.input in rulesByName)
         //     (*rulePtr).toMatchInSource(sink, lexer);
+    }
+    override LengthRange lengthRange() const @nogc
+    {
+        assert(head.input.length <= typeof(return).upper.max);
+        return LengthRange(cast(uint)head.input.length);
     }
 }
 
@@ -1830,6 +1896,14 @@ final class AltCharLiteral : TokenNode
         sink.putCharLiteral(head.input);
         sink.put(`)`);
     }
+    override LengthRange lengthRange() const @nogc
+    {
+        return LengthRange(1, 1);
+        // if (head.input.isASCIICharacterLiteral)
+        //     return LengthRange(1, 1);
+        // else
+        //     return LengthRange(0, uint.max);
+    }
 }
 
 void putCharLiteral(scope ref Output sink,
@@ -1977,6 +2051,10 @@ pure nothrow @nogc:
             assert(false);
 
         sink.put(")");
+    }
+    override LengthRange lengthRange() const @nogc
+    {
+        return lengthRangeOf(subs[]);
     }
 }
 

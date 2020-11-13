@@ -2133,8 +2133,7 @@ void putCharLiteral(scope ref Output sink,
         }
         else
         {
-            sink.put(`cast(dchar)`);
-            sink.put(`0x`);
+            sink.put(`cast(dchar)0x`);
             sink.put(inp);
         }
     }

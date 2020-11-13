@@ -3536,6 +3536,8 @@ struct Parser
     Match any() pure nothrow @nogc
     {
         pragma(inline, true);
+        if (off == inp.length)  // TODO:
+            return Match.none();
         off += 1;
         return Match(1);
     }
@@ -3543,7 +3545,7 @@ struct Parser
     Match ch(const char x) pure nothrow @nogc
     {
         pragma(inline, true);
-        if (off + 1 > inp.length)
+        if (off == inp.length)  // TODO:
             return Match.none();
         if (inp[off] == x)
         {
@@ -3559,7 +3561,7 @@ struct Parser
         import std.utf : encode, UseReplacementDchar;
         char[4] ch4;
         const size_t n = encode(ch4, x); // TODO: handle UTFException
-        if (off + n > inp.length)
+        if (off + n > inp.length) // TODO:
             return Match.none();
         if (inp[off .. off + n] == ch4[0 .. n])
         {
@@ -3573,6 +3575,8 @@ struct Parser
     {
         pragma(inline, true);
         off += 1;               // TODO: switch on cclass
+        if (off > inp.length)   // TODO:
+            return Match.none();
         return Match(1);
     }
 

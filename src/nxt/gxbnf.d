@@ -3556,7 +3556,8 @@ struct Parser
         import std.typecons : Yes;
         import std.utf;
         char[4] ch4;
-        const size_t n = x.encode!(Yes.useReplacementDchar)(ch4, cast(dchar)0x110000);
+        const dchar replacementChar = cast(dchar)0x110000;
+        const size_t n = x.encode!(Yes.useReplacementDchar)(ch4, replacementChar);
         if (n == replacementChar)
         {
             return Match.none(); // TODO: warn

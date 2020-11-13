@@ -2133,8 +2133,9 @@ void putCharLiteral(scope ref Output sink,
         }
         else
         {
-            sink.put(`cast(dchar)0x`);
+            sink.put(`dchar(0x`);
             sink.put(inp);
+            sink.put(`)`);
         }
     }
     else if (inp.skipOver(`\p`) || // https://github.com/antlr/antlr4/pull/1688
@@ -3555,7 +3556,7 @@ struct Parser
         import std.typecons : Yes;
         import std.utf : encode, UseReplacementDchar;
         char[4] ch4;
-        const replacementChar = dchar(0x110000);
+        const replacementChar = cast(dchar)0x110000;
         const size_t n = x.encode!(UseReplacementDchar)(ch4, replacementChar);
         if (n == replacementChar)
         {

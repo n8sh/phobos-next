@@ -3563,7 +3563,7 @@ struct Parser
         {
             return Match.none(); // TODO: warn
         }
-        if (inp[off .. off + n] == ch4[0 .. n)
+        if (inp[off .. off + n] == ch4[0 .. n])
         {
             off += n;
             return Match(n);
@@ -3984,8 +3984,8 @@ version(show)
             const bn = fn.baseName;
             if (fn.isGxFilename)
             {
-                // if (bn != `MySqlLexer.g4`)
-                //     continue;
+                if (bn != `oncrpcv2.g4`)
+                    continue;
                 if (bn == `RexxParser.g4` ||
                     bn == `RexxLexer.g4` ||
                     bn == `StackTrace.g4` ||

@@ -3554,7 +3554,7 @@ struct Parser
     Match dch(const dchar x) pure nothrow @nogc
     {
         import std.typecons : Yes;
-        import std.utf;
+        import std.utf : encode, UseReplacementDchar;
         char[4] ch4;
         const dchar replacementChar = cast(dchar)0x110000;
         const size_t n = x.encode(ch4, replacementChar);

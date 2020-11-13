@@ -2133,10 +2133,9 @@ void putCharLiteral(scope ref Output sink,
         }
         else
         {
-            sink.put(`dchar(`);
+            sink.put(`cast(dchar)`);
             sink.put(`0x`);
             sink.put(inp);
-            sink.put(`)`);
         }
     }
     else if (inp.skipOver(`\p`) || // https://github.com/antlr/antlr4/pull/1688

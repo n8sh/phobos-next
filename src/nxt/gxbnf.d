@@ -1230,7 +1230,7 @@ private PatternArray checkedCastSubs(Node[] subs,
         psubs[i] = cast(Pattern)sub;
         if (psubs[i])
         {
-            lexer.errorAtFront("non-Pattern sub");
+            lexer.errorAtFront("non-`Pattern` sub");
             debug sub.show();
         }
     }

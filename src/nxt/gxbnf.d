@@ -1502,7 +1502,7 @@ pure nothrow:
         sink.put(head.input[]);
         sink.put(`)`);
     }
-    Token head;
+    const Token head;
 }
 
 /// Unary match combinator.
@@ -1522,7 +1522,6 @@ abstract class UnaryOpPattern : Pattern
         debug assert(head.input.ptr);
         assert(sub);
         super(head);
-        this.head = head;
         this.sub = sub;
     }
     final override bool equals(const Node o) const
@@ -2211,7 +2210,6 @@ abstract class BinaryOpPattern : Pattern
                     equalsAll(this.subs[], o_.subs[]));
         return false;
     }
-    Token head;
     Pattern[2] subs;
 }
 

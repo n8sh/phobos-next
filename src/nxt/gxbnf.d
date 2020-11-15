@@ -3982,8 +3982,8 @@ version(show)
     const root = "~/Work/grammars-v4/".expandTilde;
     const lexerFlag = false;
     const parserFlag = true;
-    const buildSingle = false;
-    const buildAll = false;
+    const buildSingleFlag = false;
+    const buildAllFlag = false;
     const showProgressFlag = true;
 
     auto of = stdout;           // output file
@@ -4047,14 +4047,14 @@ version(show)
                 auto reader = GxFileReader(fn);
                 const ppath = reader.createParserSourceFile();
                 ppaths.insertBack(ppath);
-                if (buildSingle)
+                if (buildSingleFlag)
                     buildSourceFiles([ppath]);
 
                 if (showProgressFlag)
                     of.writeln("Reading ", adjustPath(fn), " took ", swOne.peek());
             }
         }
-        if (buildAll)
+        if (buildAllFlag)
             buildSourceFiles(ppaths[]);
         of.writeln("Reading all took ", swAll.peek());
     }

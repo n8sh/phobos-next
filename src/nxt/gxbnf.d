@@ -33,8 +33,6 @@
     - Rule[Input] RulesByLiteralPrefix
     - Use to detect conflicting rules with `import` and `tokenVocab`
 
-    - Add AA Node[Input] tokensByLiteral
-
     - Ask on forums for AST node allocation patterns. Use region allocator of
       immutable. Size can be predicate.
 

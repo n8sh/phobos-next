@@ -3479,6 +3479,8 @@ struct GxFileParser           // TODO: convert to `class`
         parser = GxParserByStatement(data, path, false);
     }
 
+    alias RuleNames = DynamicArray!string;
+
     void generateParserSourceString(scope ref Output output)
     {
         import std.path : chainPath, dirName, baseName, extension, stripExtension;
@@ -3494,13 +3496,15 @@ struct GxFileParser           // TODO: convert to `class`
 
 });
         output.put(parserSourceBegin);
-        toMatchersForRules(output);
-        toMatchersForImports(output);
-        toMatchersForOptionsTokenVocab(output);
+        RuleNames doneRuleNames;
+        toMatchersForRules(doneRuleNames, output);
+        toMatchersForImports(doneRuleNames, output);
+        toMatchersForOptionsTokenVocab(doneRuleNames, output);
         output.put(parserSourceEnd);
     }
 
     void toMatchersForImportedModule(in const(char)[] moduleName,
+                                     scope ref RuleNames doneRuleNames,
                                      scope ref Output output) const scope
     {
         import std.path : chainPath, dirName, extension;
@@ -3516,7 +3520,7 @@ struct GxFileParser           // TODO: convert to `class`
         while (!fp_.parser.empty)
             fp_.parser.popFront();
 
-        fp_.toMatchersForImports(output); // transitive imports
+        fp_.toMatchersForImports(doneRuleNames, output); // transitive imports
 
         /** Rules in the “main grammar” override rules from imported
             grammars to implement inheritance.
@@ -3525,49 +3529,49 @@ struct GxFileParser           // TODO: convert to `class`
         bool isOverridden(const scope Rule rule) const @safe pure nothrow @nogc
         {
             bool result;
-            foreach (const topRule; parser.rules)
-                if (topRule.head.input == rule.head.input)
+            foreach (const ruleName; doneRuleNames)
+                if (rule.head.input == ruleName)
                     result = true;
             return result;
         }
 
         foreach (const importedRule; fp_.parser.rules)
         {
-            if (isOverridden(importedRule)) // if `importedRule` is overridden by top-rule
+            if (isOverridden(importedRule)) // if `importedRule` has already been defined
             {
-                // fp_.parser._lexer.warningAtToken(importedRule.head, "ignoring rule overridden in top grammar");
+                // fp_.parser._lexer.warningattoken(importedrule.head, "ignoring rule overridden in top grammar");
                 continue;
             }
-            // importedRule.show();
             importedRule.toMatcherInSource(output, parser._lexer);
         }
     }
 
-    void toMatchersForRules(scope ref Output output) const scope
+    void toMatchersForRules(scope ref RuleNames doneRuleNames, scope ref Output output) const scope
     {
         foreach (const rule; parser.rules)
         {
             // rule.show();
             rule.toMatcherInSource(output, parser._lexer);
+            doneRuleNames.put(rule.head.input);
         }
     }
 
-    void toMatchersForImports(scope ref Output output) const scope
+    void toMatchersForImports(scope ref RuleNames doneRuleNames, scope ref Output output) const scope
     {
         foreach (const import_; parser.imports)
             foreach (const module_; import_.modules)
-                toMatchersForImportedModule(module_, output);
+                toMatchersForImportedModule(module_, doneRuleNames, output);
     }
 
-    void toMatchersForOptionsTokenVocab(scope ref Output output) const scope
+    void toMatchersForOptionsTokenVocab(scope ref RuleNames doneRuleNames, scope ref Output output) const scope
     {
         foreach (const options; parser.optionsSet[])
         {
-            import std.algorithm.comparison : among;
             const(char)[] co = options.code.input;
 
             void skipWhitespace()
             {
+                import std.algorithm.comparison : among;
                 size_t i;
                 while (co.length &&
                        co[i].among!(GxLexer.whiteChars))
@@ -3588,7 +3592,7 @@ struct GxFileParser           // TODO: convert to `class`
                 if (const ix = co.indexOfEither(" ;"))
                 {
                     const module_ = co[0 .. ix];
-                    toMatchersForImportedModule(module_, output);
+                    toMatchersForImportedModule(module_, doneRuleNames, output);
                 }
             }
         }

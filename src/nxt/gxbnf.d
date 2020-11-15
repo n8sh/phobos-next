@@ -3541,6 +3541,41 @@ struct GxFileParser           // TODO: convert to `class`
                 toMatchersForImportedModule(module_, output);
     }
 
+    void toMatchersForOptionsTokenVocab(ref Output output) const scope
+    {
+        foreach (const options; parser.optionsSet[])
+        {
+            import std.algorithm.comparison : among;
+            const(char)[] co = options.code.input;
+
+            void skipWhitespace()
+            {
+                size_t i;
+                while (co.length &&
+                       co[i].among!(GxLexer.whiteChars))
+                    i += 1;
+                co = co[i .. $];
+            }
+
+            co.skipOverAround('{', '}');
+
+            skipWhitespace();
+
+            // See_Also: https://stackoverflow.com/questions/28829049/antlr4-any-difference-between-import-and-tokenvocab
+            if (co.skipOver("tokenVocab"))
+            {
+                skipWhitespace();
+                co.skipOver('=');
+                skipWhitespace();
+                if (const ix = co.indexOfEither(" ;"))
+                {
+                    const module_ = co[0 .. ix];
+                    toMatchersForImportedModule(module_, output);
+                }
+            }
+        }
+    }
+
     ~this() @nogc {}
 
     GxParserByStatement parser;
@@ -3904,7 +3939,6 @@ struct GxFileReader
         typeof(return) output;
 
         const path = fp.parser._lexer.path;
-        const ext = path.extension;
         const moduleName = path.baseName.stripExtension ~ "_parser";
 
         output.put("/// Automatically generated from `");
@@ -3914,42 +3948,9 @@ struct GxFileReader
 
 });
         output.put(parserSourceBegin);
-
         fp.toMatchersForRules(output);
         fp.toMatchersForImports(output);
-
-        foreach (const options; fp.parser.optionsSet[])
-        {
-            import std.algorithm.comparison : among;
-            const(char)[] co = options.code.input;
-
-            void skipWhitespace()
-            {
-                size_t i;
-                while (co.length &&
-                       co[i].among!(GxLexer.whiteChars))
-                    i += 1;
-                co = co[i .. $];
-            }
-
-            co.skipOverAround('{', '}');
-
-            skipWhitespace();
-
-            // See_Also: https://stackoverflow.com/questions/28829049/antlr4-any-difference-between-import-and-tokenvocab
-            if (co.skipOver("tokenVocab"))
-            {
-                skipWhitespace();
-                co.skipOver('=');
-                skipWhitespace();
-                if (const ix = co.indexOfEither(" ;"))
-                {
-                    const module_ = co[0 .. ix];
-                    fp.toMatchersForImportedModule(module_, output);
-                }
-            }
-        }
-
+        fp.toMatchersForOptionsTokenVocab(output);
         output.put(parserSourceEnd);
 
         return output;

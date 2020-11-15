@@ -3863,11 +3863,20 @@ struct GxFileReader
             auto fp_ = GxFileParser(modulePath);
             while (!fp_.empty)
                 fp_.popFront();
-            foreach (const rule; fp_.rules)
+            foreach (const importedRule; fp_.rules)
             {
+                bool isOverridden;
+                foreach (const topRule; fp.rules)
+                    if (topRule.head.input == importedRule.head.input)
+                        isOverridden = true;
+                if (isOverridden) // if importedRule is overridden by topRule
+                {
+                    fp_.parser._lexer.warningAtToken(importedRule.head, "ignoring rule overridden in top grammar");
+                    continue;
+                }
                 if (showFlag)
-                    rule.show();
-                rule.toMatcherInSource(output, fp.parser._lexer);
+                    importedRule.show();
+                importedRule.toMatcherInSource(output, fp.parser._lexer);
             }
         }
 

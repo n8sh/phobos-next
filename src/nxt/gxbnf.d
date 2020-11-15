@@ -3871,11 +3871,11 @@ struct GxFileReader
             }
         }
 
-        foreach (import_; fp.imports)
+        foreach (const import_; fp.imports)
             foreach (const module_; import_.modules)
                 processImportedModule(module_, ext);
 
-        foreach (options; fp.optionsSet[])
+        foreach (const options; fp.optionsSet[])
         {
             import std.algorithm.comparison : among;
             const(char)[] co = options.code.input;

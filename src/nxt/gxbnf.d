@@ -3880,7 +3880,7 @@ struct GxFileReader
 
             foreach (const importedRule; fp_.rules)
             {
-                if (isOverridden(importedRule)) // if importedRule is overridden by topRule
+                if (isOverridden(importedRule)) // if `importedRule` is overridden by top-rule
                 {
                     // fp_.parser._lexer.warningAtToken(importedRule.head, "ignoring rule overridden in top grammar");
                     continue;

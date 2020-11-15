@@ -3561,7 +3561,10 @@ struct Parser
         import std.typecons : Yes;
         import std.utf : encode;
         char[4] ch4;
-        const n = encode!(Yes.useReplacementDchar)(ch4, cast(dchar) 0x110000);
+        const replacementChar = cast(dchar) 0x110000;
+        const n = encode!(Yes.useReplacementDchar)(ch4, replacementChar);
+        if (ch4[0 .. n] == [239, 191, 189]) // encoding of replacementChar
+            return Match.none();
         if (off + n > inp.length) // TODO:
             return Match.none();
         if (inp[off .. off + n] == ch4[0 .. n])

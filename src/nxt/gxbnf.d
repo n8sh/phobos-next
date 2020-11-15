@@ -3885,7 +3885,6 @@ struct GxFileReader
                     // fp_.parser._lexer.warningAtToken(importedRule.head, "ignoring rule overridden in top grammar");
                     continue;
                 }
-
                 if (showFlag)
                     importedRule.show();
                 importedRule.toMatcherInSource(output, fp.parser._lexer);

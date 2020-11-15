@@ -3484,15 +3484,19 @@ struct GxFileParser           // TODO: convert to `class`
     {
         import std.path : chainPath, dirName, extension;
         import std.array : array;
+
         const string path = parser._lexer.path;
         const string ext = path.extension;
+
         const modulePath = chainPath(dirName(path), moduleName ~ ext).array.idup; // TODO: detect mutual file recursion
+
         auto fp_ = GxFileParser(modulePath);
-        while (!fp_.empty)
-            fp_.popFront();
+
+        while (!fp_.parser.empty)
+            fp_.parser.popFront();
 
         // transitive imports
-        foreach (const import_; fp_.imports)
+        foreach (const import_; fp_.parser.imports)
             foreach (const subModuleName; import_.modules)
                 toMatchersForImportedModule(subModuleName, output);
 
@@ -3503,13 +3507,13 @@ struct GxFileParser           // TODO: convert to `class`
         bool isOverridden(const scope Rule rule) const @safe pure nothrow @nogc
         {
             bool result;
-            foreach (const topRule; rules)
+            foreach (const topRule; parser.rules)
                 if (topRule.head.input == rule.head.input)
                     result = true;
             return result;
         }
 
-        foreach (const importedRule; fp_.rules)
+        foreach (const importedRule; fp_.parser.rules)
         {
             if (isOverridden(importedRule)) // if `importedRule` is overridden by top-rule
             {
@@ -3523,7 +3527,7 @@ struct GxFileParser           // TODO: convert to `class`
 
     void toMatchersForRules(ref Output output) const scope
     {
-        foreach (const rule; rules)
+        foreach (const rule; parser.rules)
         {
             // rule.show();
             rule.toMatcherInSource(output, parser._lexer);
@@ -3532,7 +3536,7 @@ struct GxFileParser           // TODO: convert to `class`
 
     void toMatchersForImports(ref Output output) const scope
     {
-        foreach (const import_; imports)
+        foreach (const import_; parser.imports)
             foreach (const module_; import_.modules)
                 toMatchersForImportedModule(module_, output);
     }
@@ -3540,8 +3544,6 @@ struct GxFileParser           // TODO: convert to `class`
     ~this() @nogc {}
 
     GxParserByStatement parser;
-
-    alias parser this;
 }
 
 static immutable parserSourceBegin =
@@ -3879,8 +3881,8 @@ struct GxFileReader
     this(in string path)
     {
         fp = GxFileParser(path);
-        while (!fp.empty)
-            fp.popFront();
+        while (!fp.parser.empty)
+            fp.parser.popFront();
     }
 
     string createParserSourceFile()
@@ -3916,7 +3918,7 @@ struct GxFileReader
         fp.toMatchersForRules(output);
         fp.toMatchersForImports(output);
 
-        foreach (const options; fp.optionsSet[])
+        foreach (const options; fp.parser.optionsSet[])
         {
             import std.algorithm.comparison : among;
             const(char)[] co = options.code.input;

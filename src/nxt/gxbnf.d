@@ -3479,7 +3479,8 @@ struct GxFileParser           // TODO: convert to `class`
         parser = GxParserByStatement(data, path, false);
     }
 
-    void processImportedModule(in const(char)[] moduleName, ref Output output) const scope
+    void toMatchersForImportedModule(in const(char)[] moduleName,
+                                     ref Output output) const scope
     {
         import std.path : chainPath, dirName, extension;
         import std.array : array;
@@ -3493,13 +3494,13 @@ struct GxFileParser           // TODO: convert to `class`
         // transitive imports
         foreach (const import_; fp_.imports)
             foreach (const subModuleName; import_.modules)
-                processImportedModule(subModuleName, output);
+                toMatchersForImportedModule(subModuleName, output);
 
         /** Rules in the “main grammar” override rules from imported
             grammars to implement inheritance.
             See_Also: https://github.com/antlr/antlr4/blob/master/doc/grammars.md#grammar-imports
         */
-        bool isOverridden(const scope Rule rule) @safe pure nothrow @nogc
+        bool isOverridden(const scope Rule rule) const @safe pure nothrow @nogc
         {
             bool result;
             foreach (const topRule; rules)
@@ -3520,11 +3521,20 @@ struct GxFileParser           // TODO: convert to `class`
         }
     }
 
-    void processImports(ref Output output) const scope
+    void toMatchersForRules(ref Output output) const scope
+    {
+        foreach (const rule; rules)
+        {
+            // rule.show();
+            rule.toMatcherInSource(output, parser._lexer);
+        }
+    }
+
+    void toMatchersForImports(ref Output output) const scope
     {
         foreach (const import_; imports)
             foreach (const module_; import_.modules)
-                processImportedModule(module_, output);
+                toMatchersForImportedModule(module_, output);
     }
 
     ~this() @nogc {}
@@ -3899,16 +3909,10 @@ struct GxFileReader
         output.put(q{module } ~ moduleName ~ q{;
 
 });
-
         output.put(parserSourceBegin);
 
-        foreach (const rule; fp.rules)
-        {
-            // rule.show();
-            rule.toMatcherInSource(output, fp.parser._lexer);
-        }
-
-        fp.processImports(output);
+        fp.toMatchersForRules(output);
+        fp.toMatchersForImports(output);
 
         foreach (const options; fp.optionsSet[])
         {
@@ -3937,7 +3941,7 @@ struct GxFileReader
                 if (const ix = co.indexOfEither(" ;"))
                 {
                     const module_ = co[0 .. ix];
-                    fp.processImportedModule(module_, output);
+                    fp.toMatchersForImportedModule(module_, output);
                 }
             }
         }

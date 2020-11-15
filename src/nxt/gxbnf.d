@@ -3516,10 +3516,7 @@ struct GxFileParser           // TODO: convert to `class`
         while (!fp_.parser.empty)
             fp_.parser.popFront();
 
-        // transitive imports
-        foreach (const import_; fp_.parser.imports)
-            foreach (const subModuleName; import_.modules)
-                toMatchersForImportedModule(subModuleName, output);
+        fp_.toMatchersForImports(output); // transitive imports
 
         /** Rules in the “main grammar” override rules from imported
             grammars to implement inheritance.

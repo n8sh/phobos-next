@@ -3479,8 +3479,29 @@ struct GxFileParser           // TODO: convert to `class`
         parser = GxParserByStatement(data, path, false);
     }
 
+    void generateParserSourceString(scope ref Output output)
+    {
+        import std.path : chainPath, dirName, baseName, extension, stripExtension;
+        import std.array : array;
+
+        const path = parser._lexer.path;
+        const moduleName = path.baseName.stripExtension ~ "_parser";
+
+        output.put("/// Automatically generated from `");
+        output.put(path.baseName);
+        output.put("`.\n");
+        output.put(q{module } ~ moduleName ~ q{;
+
+});
+        output.put(parserSourceBegin);
+        toMatchersForRules(output);
+        toMatchersForImports(output);
+        toMatchersForOptionsTokenVocab(output);
+        output.put(parserSourceEnd);
+    }
+
     void toMatchersForImportedModule(in const(char)[] moduleName,
-                                     ref Output output) const scope
+                                     scope ref Output output) const scope
     {
         import std.path : chainPath, dirName, extension;
         import std.array : array;
@@ -3525,7 +3546,7 @@ struct GxFileParser           // TODO: convert to `class`
         }
     }
 
-    void toMatchersForRules(ref Output output) const scope
+    void toMatchersForRules(scope ref Output output) const scope
     {
         foreach (const rule; parser.rules)
         {
@@ -3534,14 +3555,14 @@ struct GxFileParser           // TODO: convert to `class`
         }
     }
 
-    void toMatchersForImports(ref Output output) const scope
+    void toMatchersForImports(scope ref Output output) const scope
     {
         foreach (const import_; parser.imports)
             foreach (const module_; import_.modules)
                 toMatchersForImportedModule(module_, output);
     }
 
-    void toMatchersForOptionsTokenVocab(ref Output output) const scope
+    void toMatchersForOptionsTokenVocab(scope ref Output output) const scope
     {
         foreach (const options; parser.optionsSet[])
         {
@@ -3922,38 +3943,14 @@ struct GxFileReader
 
     string createParserSourceFile()
     {
-        const pss = generateParserSourceString(fp);
+        Output pss;
+        fp.generateParserSourceString(pss);
         import std.file : write;
         const path = fp.parser._lexer.path;
         const ppath = path.stripExtension ~ "_parser.d";
         write(ppath, pss[]);
         debug writeln("Wrote ", ppath);
         return ppath;
-    }
-
-    static Output generateParserSourceString(const scope ref GxFileParser fp)
-    {
-        import std.path : chainPath, dirName, baseName, extension;
-        import std.array : array;
-
-        typeof(return) output;
-
-        const path = fp.parser._lexer.path;
-        const moduleName = path.baseName.stripExtension ~ "_parser";
-
-        output.put("/// Automatically generated from `");
-        output.put(path.baseName);
-        output.put("`.\n");
-        output.put(q{module } ~ moduleName ~ q{;
-
-});
-        output.put(parserSourceBegin);
-        fp.toMatchersForRules(output);
-        fp.toMatchersForImports(output);
-        fp.toMatchersForOptionsTokenVocab(output);
-        output.put(parserSourceEnd);
-
-        return output;
     }
 
     ~this() @nogc {}

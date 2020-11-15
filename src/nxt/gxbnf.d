@@ -3864,9 +3864,10 @@ struct GxFileReader
             while (!fp_.empty)
                 fp_.popFront();
 
+            // https://github.com/antlr/antlr4/blob/master/doc/grammars.md#grammar-imports
             bool isOverridden(const scope Rule rule) @safe pure nothrow @nogc
             {
-                bool result; // https://github.com/antlr/antlr4/blob/master/doc/grammars.md#grammar-imports
+                bool result;
                 foreach (const topRule; fp.rules)
                     if (topRule.head.input == rule.head.input)
                         result = true;

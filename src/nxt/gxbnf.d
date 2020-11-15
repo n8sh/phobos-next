@@ -87,7 +87,7 @@ module nxt.gxbnf;
 version = show;
 version = Do_Inline;
 
-enum useStaticTempArrays = true; ///< Use fixed-size (statically allocated) sequence and alternative buffers.
+enum useStaticTempArrays = false; ///< Use fixed-size (statically allocated) sequence and alternative buffers.
 
 import core.lifetime : move;
 import core.stdc.stdio : putchar, printf;
@@ -2822,7 +2822,7 @@ struct GxParserByStatement
     {
         _lexer.popFrontEnforce(TOK.colon, "no colon");
 
-        static if (false/*useStaticTempArrays*/)
+        static if (useStaticTempArrays)
             FixedArray!(Pattern, 100) alts;
         else
             PatternArray alts;
@@ -3102,7 +3102,10 @@ struct GxParserByStatement
                 tseq.clear();
             }
             else
-                alts.put(makeSeq(tseq.move(), _lexer));
+            {
+                alts.put(makeSeq(tseq[], _lexer)); // TODO: use `tseq.move()` when tseq is a `PatternArray`
+                tseq.clear();
+            }
             if (_lexer.front.tok == TOK.pipe)
                 _lexer.popFront(); // skip terminator
         }

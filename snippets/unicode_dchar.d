@@ -7,3 +7,14 @@
     assert(dch0 == dch1);
     assert(dch1 == dch2);
 }
+
+pure unittest
+{
+    import std.typecons : Yes;
+    import std.utf : encode;
+    scope char[4] ch4;
+    const replacementChar = cast(dchar) 0x110000;
+    const n = encode!(Yes.useReplacementDchar)(ch4, replacementChar);
+    import std.stdio;
+    debug writeln(cast(ubyte[])ch4[0 .. n]);
+}

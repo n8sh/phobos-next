@@ -1110,7 +1110,7 @@ abstract class NaryOpPattern : Pattern
     this(uint n)(Token head, Pattern[n] subs) @nogc if (n >= 2)
     {
         super(head);
-        foreach (sub; subs)
+        foreach (const sub; subs)
             this.subs.put(sub);
     }
     PatternArray subs;

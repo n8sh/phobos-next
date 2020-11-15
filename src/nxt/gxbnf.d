@@ -3980,10 +3980,11 @@ version(show)
     import std.path : expandTilde, relativePath, baseName;
 
     const root = "~/Work/grammars-v4/".expandTilde;
+
     const lexerFlag = false;
     const parserFlag = true;
     const buildSingleFlag = false;
-    const buildAllFlag = false;
+    const buildAllFlag = true;
     const showProgressFlag = true;
 
     auto of = stdout;           // output file

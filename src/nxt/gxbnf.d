@@ -3882,7 +3882,7 @@ struct GxFileReader
             {
                 if (isOverridden(importedRule)) // if importedRule is overridden by topRule
                 {
-                    fp_.parser._lexer.warningAtToken(importedRule.head, "ignoring rule overridden in top grammar");
+                    // fp_.parser._lexer.warningAtToken(importedRule.head, "ignoring rule overridden in top grammar");
                     continue;
                 }
 

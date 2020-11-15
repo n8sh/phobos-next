@@ -1228,7 +1228,7 @@ private PatternArray checkedCastSubs(Node[] subs,
     foreach (const i, sub; subs)
     {
         psubs[i] = cast(Pattern)sub;
-        if (psubs[i])
+        if (!psubs[i])
         {
             lexer.errorAtFront("non-`Pattern` sub");
             debug sub.show();
@@ -3083,16 +3083,17 @@ struct GxParserByStatement
                      * information about ASTs is also available. */
                     // ignore
                     break;
+                case TOK.semicolon:
+                    assert(false);
                 default:
                     _lexer.infoAtFront("TODO: unhandled token type" ~ _lexer.front.to!string);
                     seqPutCheck(new OtherSymbol(head));
                     break;
                 }
             }
-            if (!tseq.length)
+            if (!tseq.length)   // may be empty
             {
-                // `tseq` may be empty
-                // _lexer.infoAtFront("empty sequence");
+                // _lexer.warningAtFront("empty rule sequence");
             }
             static if (useStaticTempArrays)
             {
@@ -3558,9 +3559,9 @@ struct Parser
     Match dch(const dchar x) pure nothrow @nogc
     {
         import std.typecons : Yes;
-        import std.utf : encode, UseReplacementDchar;
+        import std.utf : encode;
         char[4] ch4;
-        const size_t n = encode(ch4, x); // TODO: handle UTFException
+        const n = encode!(Yes.useReplacementDchar)(ch4, cast(dchar) 0x110000);
         if (off + n > inp.length) // TODO:
             return Match.none();
         if (inp[off .. off + n] == ch4[0 .. n])

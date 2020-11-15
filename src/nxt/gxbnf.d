@@ -4036,8 +4036,8 @@ version(show)
             const bn = fn.baseName;
             if (fn.isGxFilename)
             {
-                if (bn != `vba.g4`)
-                    continue;
+                // if (bn != `vba.g4`)
+                //     continue;
                 if (bn == `RexxParser.g4` ||
                     bn == `RexxLexer.g4` ||
                     bn == `StackTrace.g4` ||

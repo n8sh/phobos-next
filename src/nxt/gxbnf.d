@@ -36,8 +36,6 @@
     - Ask on forums for AST node allocation patterns. Use region allocator of
       immutable. Size can be predicate.
 
-    - Get rid of calls to input... idup
-
     - `not(...)`'s implementation needs to be adjusted. often used in conjunction with `altNch`?
 
     - Use `DETECT` upper-case lexer rules LexerRule

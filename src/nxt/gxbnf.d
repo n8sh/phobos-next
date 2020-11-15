@@ -3538,7 +3538,9 @@ struct GxFileParser           // TODO: convert to `class`
     }
 
     ~this() @nogc {}
+
     GxParserByStatement parser;
+
     alias parser this;
 }
 

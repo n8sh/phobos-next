@@ -1,7 +1,5 @@
 /** Dynamic Ownership and borrowing á lá Rust at run-time instead of compile-time.
 
-    TODO: Define `opPostMove`
-
     TODO: Override all members with write checks. See
     http://forum.dlang.org/post/mailman.63.1478697690.3405.digitalmars-d-learn@puremagic.com
 

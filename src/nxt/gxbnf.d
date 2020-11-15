@@ -3475,6 +3475,55 @@ struct GxFileParser           // TODO: convert to `class`
         Input data = cast(Input)rawReadPath(path.expandTilde); // cast to Input because we don't want to keep all file around:
         parser = GxParserByStatement(data, path, false);
     }
+
+    void processImportedModule(in const(char)[] moduleName, ref Output output) const
+    {
+        import std.path : chainPath, dirName, extension;
+        import std.array : array;
+        const string path = parser._lexer.path;
+        const string ext = path.extension;
+        const modulePath = chainPath(dirName(path), moduleName ~ ext).array.idup; // TODO: detect mutual file recursion
+        auto fp_ = GxFileParser(modulePath);
+        while (!fp_.empty)
+            fp_.popFront();
+
+        // transitive imports
+        foreach (const import_; fp_.imports)
+            foreach (const subModuleName; import_.modules)
+                processImportedModule(subModuleName, output);
+
+        /** Rules in the “main grammar” override rules from imported
+            grammars to implement inheritance.
+            See_Also: https://github.com/antlr/antlr4/blob/master/doc/grammars.md#grammar-imports
+        */
+        bool isOverridden(const scope Rule rule) @safe pure nothrow @nogc
+        {
+            bool result;
+            foreach (const topRule; rules)
+                if (topRule.head.input == rule.head.input)
+                    result = true;
+            return result;
+        }
+
+        foreach (const importedRule; fp_.rules)
+        {
+            if (isOverridden(importedRule)) // if `importedRule` is overridden by top-rule
+            {
+                // fp_.parser._lexer.warningAtToken(importedRule.head, "ignoring rule overridden in top grammar");
+                continue;
+            }
+            // importedRule.show();
+            importedRule.toMatcherInSource(output, parser._lexer);
+        }
+    }
+
+    void processImports(ref Output output) const
+    {
+        foreach (const import_; imports)
+            foreach (const module_; import_.modules)
+                processImportedModule(module_, output);
+    }
+
     ~this() @nogc {}
     GxParserByStatement parser;
     alias parser this;
@@ -3810,7 +3859,6 @@ static immutable parserSourceEnd =
 struct GxFileReader
 {
     import std.path : stripExtension;
-    enum showFlag = false;
     GxFileParser fp;
 @safe:
     this(in string path)
@@ -3853,47 +3901,11 @@ struct GxFileReader
 
         foreach (const rule; fp.rules)
         {
-            if (showFlag)
-                rule.show();
+            // rule.show();
             rule.toMatcherInSource(output, fp.parser._lexer);
         }
 
-        void processImportedModule(in const(char)[] module_, const scope string extension)
-        {
-            const modulePath = chainPath(dirName(path), module_ ~ extension).array.idup; // TODO: detect mutual file recursion
-            auto fp_ = GxFileParser(modulePath);
-            while (!fp_.empty)
-                fp_.popFront();
-
-            /** Rules in the “main grammar” override rules from imported
-                grammars to implement inheritance.
-                See_Also: https://github.com/antlr/antlr4/blob/master/doc/grammars.md#grammar-imports
-            */
-            bool isOverridden(const scope Rule rule) @safe pure nothrow @nogc
-            {
-                bool result;
-                foreach (const topRule; fp.rules)
-                    if (topRule.head.input == rule.head.input)
-                        result = true;
-                return result;
-            }
-
-            foreach (const importedRule; fp_.rules)
-            {
-                if (isOverridden(importedRule)) // if `importedRule` is overridden by top-rule
-                {
-                    // fp_.parser._lexer.warningAtToken(importedRule.head, "ignoring rule overridden in top grammar");
-                    continue;
-                }
-                if (showFlag)
-                    importedRule.show();
-                importedRule.toMatcherInSource(output, fp.parser._lexer);
-            }
-        }
-
-        foreach (const import_; fp.imports)
-            foreach (const module_; import_.modules)
-                processImportedModule(module_, ext);
+        fp.processImports(output);
 
         foreach (const options; fp.optionsSet[])
         {
@@ -3922,7 +3934,7 @@ struct GxFileReader
                 if (const ix = co.indexOfEither(" ;"))
                 {
                     const module_ = co[0 .. ix];
-                    processImportedModule(module_, ext);
+                    fp.processImportedModule(module_, output);
                 }
             }
         }

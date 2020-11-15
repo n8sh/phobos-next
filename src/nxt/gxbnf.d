@@ -1095,7 +1095,7 @@ abstract class NaryOpPattern : Pattern
     this(in Token head, PatternArray subs) @nogc
     {
         super(head);
-        this.subs = subs.move(); // TODO: remove when compiler this for us
+        this.subs = subs.move(); // TODO: remove when compiler does this for us
     }
     override bool equals(const Node o) const @nogc
     {

@@ -3866,7 +3866,6 @@ struct GxFileReader
 
             /** Rules in the “main grammar” override rules from imported
                 grammars to implement inheritance.
-
                 See_Also: https://github.com/antlr/antlr4/blob/master/doc/grammars.md#grammar-imports
             */
             bool isOverridden(const scope Rule rule) @safe pure nothrow @nogc

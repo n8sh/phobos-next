@@ -3880,7 +3880,7 @@ struct GxFileReader
             import std.algorithm.comparison : among;
             const(char)[] co = options.code.input;
 
-            void skipws()
+            void skipWhitespace()
             {
                 size_t i;
                 while (co.length &&
@@ -3891,14 +3891,14 @@ struct GxFileReader
 
             co.skipOverAround('{', '}');
 
-            skipws();
+            skipWhitespace();
 
             // See_Also: https://stackoverflow.com/questions/28829049/antlr4-any-difference-between-import-and-tokenvocab
             if (co.skipOver("tokenVocab"))
             {
-                skipws();
+                skipWhitespace();
                 co.skipOver('=');
-                skipws();
+                skipWhitespace();
                 if (const ix = co.indexOfEither(" ;"))
                 {
                     const module_ = co[0 .. ix];

@@ -3863,17 +3863,24 @@ struct GxFileReader
             auto fp_ = GxFileParser(modulePath);
             while (!fp_.empty)
                 fp_.popFront();
+
+            bool isOverridden(const scope Rule rule) @safe pure nothrow @nogc
+            {
+                bool result; // https://github.com/antlr/antlr4/blob/master/doc/grammars.md#grammar-imports
+                foreach (const topRule; fp.rules)
+                    if (topRule.head.input == rule.head.input)
+                        result = true;
+                return result;
+            }
+
             foreach (const importedRule; fp_.rules)
             {
-                bool isOverridden;
-                foreach (const topRule; fp.rules)
-                    if (topRule.head.input == importedRule.head.input)
-                        isOverridden = true;
-                if (isOverridden) // if importedRule is overridden by topRule
+                if (isOverridden(importedRule)) // if importedRule is overridden by topRule
                 {
                     fp_.parser._lexer.warningAtToken(importedRule.head, "ignoring rule overridden in top grammar");
                     continue;
                 }
+
                 if (showFlag)
                     importedRule.show();
                 importedRule.toMatcherInSource(output, fp.parser._lexer);

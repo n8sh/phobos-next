@@ -3476,7 +3476,7 @@ struct GxFileParser           // TODO: convert to `class`
         parser = GxParserByStatement(data, path, false);
     }
 
-    void processImportedModule(in const(char)[] moduleName, ref Output output) const
+    void processImportedModule(in const(char)[] moduleName, ref Output output) const scope
     {
         import std.path : chainPath, dirName, extension;
         import std.array : array;
@@ -3517,7 +3517,7 @@ struct GxFileParser           // TODO: convert to `class`
         }
     }
 
-    void processImports(ref Output output) const
+    void processImports(ref Output output) const scope
     {
         foreach (const import_; imports)
             foreach (const module_; import_.modules)

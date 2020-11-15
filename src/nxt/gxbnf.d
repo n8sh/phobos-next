@@ -1319,7 +1319,7 @@ class Rule : Node
         sink.put(";\n");
         sink.showNIndents(1); sink.put("}\n");
     }
-    Token head;                 ///< Name.
+    const Token head;           ///< Name.
     Pattern top;
 }
 
@@ -1429,7 +1429,6 @@ pure nothrow:
     {
         return dcharCountSpanOf(subs[]);
     }
-    Token head;
 }
 
 DcharCountSpan dcharCountSpanOf(const scope Pattern[] subs) @safe pure nothrow @nogc
@@ -1520,8 +1519,10 @@ abstract class UnaryOpPattern : Pattern
 @safe pure nothrow:
     this(in Token head, Pattern sub) @nogc
     {
+        debug assert(head.input.ptr);
         assert(sub);
         super(head);
+        this.head = head;
         this.sub = sub;
     }
     final override bool equals(const Node o) const
@@ -1533,7 +1534,6 @@ abstract class UnaryOpPattern : Pattern
                     this.sub.equals(o_.sub));
         return false;
     }
-    Token head;
     Pattern sub;
 }
 
@@ -1645,6 +1645,7 @@ abstract class TerminatedUnaryOpPattern : UnaryOpPattern
 @safe pure nothrow:
     this(in Token head, Pattern sub, Pattern terminator = null) @nogc
     {
+        debug assert(head.input.ptr);
         super(head, sub);
         this.terminator = terminator;
     }
@@ -1690,10 +1691,12 @@ final class NonGreedyZeroOrMore : TerminatedUnaryOpPattern
 @safe pure nothrow:
     this(in Token head, Pattern sub, Pattern terminator = null) @nogc
     {
+        debug assert(head.input.ptr);
         super(head, sub, terminator);
     }
     this(in Token head, Node sub, Pattern terminator = null) @nogc
     {
+        debug assert(head.input.ptr);
         Pattern psub = cast(Pattern)sub;
         assert(psub);
         super(head, psub, terminator);
@@ -1702,13 +1705,16 @@ final class NonGreedyZeroOrMore : TerminatedUnaryOpPattern
     {
         sink.put("nzm(");
         sub.toMatchInSource(sink, lexer);
+        debug assert(head.input.ptr);
         if (terminator)
         {
             sink.put(",");
             terminator.toMatchInSource(sink, lexer);
         }
         else
+        {
             lexer.warningAtToken(head, "no terminator after non-greedy");
+        }
         sink.put(")");
     }
     override DcharCountSpan dcharCountSpan() const @nogc
@@ -4032,6 +4038,8 @@ version(show)
             const bn = fn.baseName;
             if (fn.isGxFilename)
             {
+                if (bn != `vba.g4`)
+                    continue;
                 if (bn == `RexxParser.g4` ||
                     bn == `RexxLexer.g4` ||
                     bn == `StackTrace.g4` ||

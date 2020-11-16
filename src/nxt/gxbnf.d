@@ -3471,17 +3471,28 @@ private:
     Node _front;
 }
 
-/// Returns: `path` as module name.
-string toPathModuleName(scope string path) @safe pure
+string adjustDirectoryName(string name) pure
 {
-    import std.path : stripExtension;
     import std.string : replace;
+    if (name == "asm")
+        return "asm_";
+    return name.replace('-', '_');
+}
+
+/// Returns: `path` as module name.
+string toPathModuleName(scope string path) pure
+{
+    import std.path : pathSplitter, stripExtension;
+    import std.algorithm.iteration : map, joiner;
+    import std.conv : to;
     while (path[0] == '/' ||
            path[0] == '\\')
         path = path[1 .. $];
     return path.stripExtension
-               .replace(`-`, `_`)
-               .replace(`/`, `.`) ~ "_parser"; // TODO: use lazy ranges that return `char`;
+               .pathSplitter()
+               .map!(_ => adjustDirectoryName(_))
+               .joiner(".")
+               .to!string ~ "_parser"; // TODO: use lazy ranges that return `char`;
 }
 
 /// Gx filer parser.

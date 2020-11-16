@@ -3476,7 +3476,9 @@ string adjustDirectoryName(string name) pure
     import std.string : replace;
     if (name == "asm")
         return "asm_";
-    return name.replace('-', '_');
+    if (name.canFind('-'))
+        return name.replace('-', '_');
+    return name;
 }
 
 /// Returns: `path` as module name.

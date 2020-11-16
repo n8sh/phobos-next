@@ -3489,7 +3489,7 @@ string toPathModuleName(scope string path) pure
     import std.conv : to;
     while (path[0] == '/' ||
            path[0] == '\\')
-        path = path[1 .. $];
+        path = path[1 .. $];    // strip leading '/'s
     return path.stripExtension
                .pathSplitter()
                .map!(_ => adjustDirectoryName(_))

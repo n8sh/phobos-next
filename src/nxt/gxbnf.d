@@ -3474,7 +3474,8 @@ string toPathModuleName(scope string path) @safe pure
 {
     import std.path : stripExtension;
     import std.string : replace;
-    while (path[0] == '/')
+    while (path[0] == '/' ||
+           path[0] == '\\')
         path = path[1 .. $];
     return path.stripExtension
                .replace(`-`, `_`)

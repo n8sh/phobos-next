@@ -1947,7 +1947,7 @@ private uint isUnicodeCharacterLiteral(scope Input x) pure nothrow @nogc
         else if (c.isLower)
             u += c - 'a' + 10;
         else
-            assert(0, "error decoding literal");
+            return 0;           // string literal such as '\uD835\uDD38'
         x = x[1 .. $];      // pop front
     }
 
@@ -3549,7 +3549,7 @@ struct GxFileParser           // TODO: convert to `class`
     {
         foreach (const rule; parser.rules)
         {
-            // rule.show();
+            rule.show();
             rule.toMatcherInSource(output, parser._lexer);
             doneRuleNames.put(rule.head.input);
         }
@@ -4034,8 +4034,8 @@ version(show)
             const bn = fn.baseName;
             if (fn.isGxFilename)
             {
-                // if (bn != `vba.g4`)
-                //     continue;
+                if (bn != `ZLexer.g4`)
+                    continue;
                 if (bn == `RexxParser.g4` ||
                     bn == `RexxLexer.g4` ||
                     bn == `StackTrace.g4` ||

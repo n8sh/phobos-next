@@ -3549,7 +3549,7 @@ struct GxFileParser           // TODO: convert to `class`
     {
         foreach (const rule; parser.rules)
         {
-            rule.show();
+            // rule.show();
             rule.toMatcherInSource(output, parser._lexer);
             doneRuleNames.put(rule.head.input);
         }

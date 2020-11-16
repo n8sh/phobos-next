@@ -14,6 +14,8 @@
 
     TODO:
 
+    - Detect literals str(`...`) that are equal to tokens such `ELLIPSIS` in `Python3.g4`
+
     - Make `Rule.top` be of type `Matcher` and make
       - `dcharCountSpan` and
       - `toMatchInSource`
@@ -4034,8 +4036,8 @@ version(show)
             const bn = fn.baseName;
             if (fn.isGxFilename)
             {
-                if (bn != `ZLexer.g4`)
-                    continue;
+                // if (bn != `ZLexer.g4`)
+                //     continue;
                 if (bn == `RexxParser.g4` ||
                     bn == `RexxLexer.g4` ||
                     bn == `StackTrace.g4` ||

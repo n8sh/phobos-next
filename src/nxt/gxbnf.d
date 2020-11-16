@@ -3470,12 +3470,13 @@ private:
 }
 
 /// Returns: `path` as module name.
-string toPathModuleName(in string path) @safe pure
+string toPathModuleName(scope string path) @safe pure
 {
     import std.path : stripExtension;
-    import std.string : replace, stripLeft;
+    import std.string : replace;
+    while (path[0] == '/')
+        path = path[1 .. $];
     return path.stripExtension
-               .stripLeft("/")
                .replace(`-`, `_`)
                .replace(`/`, `.`) ~ "_parser"; // TODO: use lazy ranges that return `char`;
 }

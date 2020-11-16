@@ -3564,11 +3564,7 @@ struct GxFileParser           // TODO: convert to `class`
         */
         bool isOverridden(const scope Rule rule) const @safe pure nothrow @nogc
         {
-            bool result;
-            foreach (const ruleName; doneRuleNames)
-                if (rule.head.input == ruleName)
-                    result = true;
-            return result;
+            return doneRuleNames[].canFind(rule.head.input);
         }
 
         foreach (const importedRule; fp_.parser.rules)
@@ -3579,6 +3575,7 @@ struct GxFileParser           // TODO: convert to `class`
                 continue;
             }
             importedRule.toMatcherInSource(output, parser._lexer);
+            doneRuleNames.put(importedRule.head.input);
         }
     }
 

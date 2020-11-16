@@ -3473,7 +3473,7 @@ private:
 /// Returns: `path` as module name.
 string toPathModuleName(scope string path) pure
 {
-    string adjustDirectoryName(string name) pure nothrow @nogc
+    string adjustDirectoryName(const return scope string name) pure nothrow @nogc
     {
         if (name == "asm")
             return "asm_";

@@ -3475,7 +3475,7 @@ string toPathModuleName(scope string path) pure
 {
     string adjustDirectoryName(const return scope string name) pure nothrow @nogc
     {
-        if (name == "asm")
+        if (name == "asm")      // TODO extend to check if a keyword
             return "asm_";
         return name;
     }

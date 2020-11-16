@@ -2092,9 +2092,9 @@ final class AltCharLiteral : Pattern
     {
         if (head.input.startsWith(`\p`) || // https://github.com/antlr/antlr4/pull/1688
             head.input.startsWith(`\P`))
-        {
             sink.put(`cc!(`);
-        }
+        else if (head.input[0] >= 0x80)
+            sink.put(`dch(`);
         else
         {
             const uvalue = head.input.isUnicodeCharacterLiteral();
@@ -2346,19 +2346,19 @@ Pattern parseCharAltM(const CharAltM alt,
                 break;
             }
         }
-        else if (inp[i] >= 0x7f)
+        else if (inp[i] >= 0x80)
         {
             import std.typecons : Yes;
             import std.utf : decode;
             const replacementChar = cast(dchar)0x110000;
-            const dch = decode!(Yes.useReplacementDchar)(inp, i);
-            debug writeln(i);
-            inpi = inp[i .. i + 1];
+            const i0 = i;
+            const ch = decode!(Yes.useReplacementDchar)(inp, i);
+            if (ch == replacementChar)
+                lexer.errorAtToken(alt.head, "invalid UTF-sequence `" ~ inp[i0 .. $] ~ "`");
+            inpi = inp[i0 .. i];
         }
         else
-        {
             inpi = inp[i .. i + 1];
-        }
 
         i += 1;
 

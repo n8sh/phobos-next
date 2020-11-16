@@ -3489,6 +3489,7 @@ struct GxFileParser           // TODO: convert to `class`
         import std.array : array;
 
         const path = parser._lexer.path;
+        // TODO: use lazy ranges that return `char`
         const moduleName = path.stripExtension.stripLeft("/").replace(`-`, `_`).replace(`/`, `.`) ~ "_parser";
 
         output.put("/// Automatically generated from `");

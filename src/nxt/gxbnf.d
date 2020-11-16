@@ -3469,6 +3469,13 @@ private:
     Node _front;
 }
 
+string toPathModuleName(in string path) @safe pure
+{
+    import std.path : stripExtension;
+    import std.string : replace, stripLeft;
+    return path.stripExtension.stripLeft("/").replace(`-`, `_`).replace(`/`, `.`) ~ "_parser"; // TODO: use lazy ranges that return `char`;
+}
+
 /// Gx filer parser.
 struct GxFileParser           // TODO: convert to `class`
 {
@@ -3484,12 +3491,8 @@ struct GxFileParser           // TODO: convert to `class`
 
     void generateParserSourceString(scope ref Output output)
     {
-        import std.path : chainPath, dirName, baseName, extension, stripExtension, pathSplitter;
-        import std.string : replace, stripLeft;
-        import std.array : array;
-
         const path = parser._lexer.path;
-        const moduleName = path.stripExtension.stripLeft("/").replace(`-`, `_`).replace(`/`, `.`) ~ "_parser"; // TODO: use lazy ranges that return `char`
+        const moduleName = path.toPathModuleName();
 
         output.put("/// Automatically generated from `");
         output.put(path);

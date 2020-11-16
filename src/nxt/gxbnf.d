@@ -92,7 +92,6 @@ import core.lifetime : move;
 import core.stdc.stdio : putchar, printf;
 
 import std.conv : to;
-import std.algorithm.iteration : substitute;
 import std.algorithm.comparison : min, max;
 
 // `d-deps.el` requires these to be at the top:
@@ -3471,13 +3470,10 @@ private:
     Node _front;
 }
 
-string adjustDirectoryName(string name) pure
+string adjustDirectoryName(string name) pure nothrow @nogc
 {
-    import std.string : replace;
     if (name == "asm")
         return "asm_";
-    if (name.canFind('-'))
-        return name.replace('-', '_');
     return name;
 }
 
@@ -3485,7 +3481,7 @@ string adjustDirectoryName(string name) pure
 string toPathModuleName(scope string path) pure
 {
     import std.path : pathSplitter, stripExtension;
-    import std.algorithm.iteration : map, joiner;
+    import std.algorithm.iteration : map, joiner, substitute;
     import std.conv : to;
     while (path[0] == '/' ||
            path[0] == '\\')
@@ -3494,6 +3490,7 @@ string toPathModuleName(scope string path) pure
                .pathSplitter()
                .map!(_ => adjustDirectoryName(_))
                .joiner(".")
+               .substitute('-', '_')
                .to!string ~ "_parser"; // TODO: use lazy ranges that return `char`;
 }
 

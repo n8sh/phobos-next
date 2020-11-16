@@ -3484,16 +3484,17 @@ struct GxFileParser           // TODO: convert to `class`
 
     void generateParserSourceString(scope ref Output output)
     {
-        import std.path : chainPath, dirName, baseName, extension, stripExtension;
+        import std.path : chainPath, dirName, baseName, extension, stripExtension, pathSplitter;
+        import std.string : replace, stripLeft;
         import std.array : array;
 
         const path = parser._lexer.path;
-        const moduleName = path.baseName.stripExtension ~ "_parser";
+        const moduleName = path.stripExtension.stripLeft("/").replace(`-`, `_`).replace(`/`, `.`) ~ "_parser";
 
         output.put("/// Automatically generated from `");
-        output.put(path.baseName);
+        output.put(path);
         output.put("`.\n");
-        output.put(q{module } ~ moduleName ~ q{;
+        output.put("module " ~ moduleName ~ q{;
 
 });
         output.put(parserSourceBegin);

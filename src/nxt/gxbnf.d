@@ -2346,8 +2346,19 @@ Pattern parseCharAltM(const CharAltM alt,
                 break;
             }
         }
-        else
+        else if (inp[i] >= 0x7f)
+        {
+            import std.typecons : Yes;
+            import std.utf : decode;
+            const replacementChar = cast(dchar)0x110000;
+            const dch = decode!(Yes.useReplacementDchar)(inp, i);
+            debug writeln(i);
             inpi = inp[i .. i + 1];
+        }
+        else
+        {
+            inpi = inp[i .. i + 1];
+        }
 
         i += 1;
 
@@ -3707,7 +3718,7 @@ struct Parser
         import std.typecons : Yes;
         import std.utf : encode;
         char[4] ch4;
-        const replacementChar = cast(dchar) 0x110000;
+        const replacementChar = cast(dchar)0x110000;
         const n = encode!(Yes.useReplacementDchar)(ch4, replacementChar);
         if (ch4[0 .. n] == [239, 191, 189]) // encoding of replacementChar
             return Match.none();
@@ -4057,6 +4068,8 @@ version(show)
             const bn = fn.baseName;
             if (fn.isGxFilename)
             {
+                if (bn != `VisualBasic6Lexer.g4`)
+                    continue;
                 if (bn == `RexxParser.g4` ||
                     bn == `RexxLexer.g4` ||
                     bn == `StackTrace.g4` ||

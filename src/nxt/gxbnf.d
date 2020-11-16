@@ -4077,6 +4077,7 @@ version(show)
                     // TODO:
                     bn == `ResourcePlanParser.g4` ||
                     bn == `SelectClauseParser.g4` ||
+                    bn == `IdentifiersParser.g4` ||
 
                     // TODO:
                     bn == `AspectJParser.g4` || // TODO: find rule for `annotationName` in apex.g4

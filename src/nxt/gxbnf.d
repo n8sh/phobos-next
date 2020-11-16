@@ -16,7 +16,7 @@
 
     - Handle: fragment LETTERORDIGIT: [a-zA-Z0-9_äöüÄÖÜáéíóúÁÉÍÓÚâêîôûÂÊÎÔÛàèìòùÀÈÌÒÙãẽĩõũÃẼĨÕŨçÇ];
 
-    - Detect literals str(`...`) that are equal to tokens such `ELLIPSIS` in `Python3.g4`
+    - Warng about literals str(`...`) that are equal to tokens such `ELLIPSIS` in `Python3.g4`
 
     - Make `Rule.top` be of type `Matcher` and make
       - `dcharCountSpan` and

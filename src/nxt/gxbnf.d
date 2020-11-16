@@ -4068,8 +4068,21 @@ version(show)
             const bn = fn.baseName;
             if (fn.isGxFilename)
             {
-                if (bn == `AspectJParser.g4` || // TODO: find rule for `annotationName` in apex.g4
+                if (// TODO:
+                    bn == `Python2.g4` ||
+                    bn == `Python3.g4` ||
+                    bn == `AltPython3.g4` ||
+                    bn == `PythonParser.g4` ||
+
+                    // TODO:
+                    bn == `ResourcePlanParser.g4` ||
+                    bn == `SelectClauseParser.g4` ||
+
+                    // TODO:
+                    bn == `AspectJParser.g4` || // TODO: find rule for `annotationName` in apex.g4
                     bn == `AspectJLexer.g4` ||
+
+                    // TODO:
                     bn == `RexxParser.g4` ||
                     bn == `RexxLexer.g4` ||
                     bn == `StackTrace.g4` ||

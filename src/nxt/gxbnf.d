@@ -4068,9 +4068,9 @@ version(show)
             const bn = fn.baseName;
             if (fn.isGxFilename)
             {
-                if (bn != `AspectJParser.g4`)
-                    continue;
-                if (bn == `RexxParser.g4` ||
+                if (bn == `AspectJParser.g4` || // TODO: find rule for `annotationName` in apex.g4
+                    bn == `AspectJLexer.g4` ||
+                    bn == `RexxParser.g4` ||
                     bn == `RexxLexer.g4` ||
                     bn == `StackTrace.g4` ||
                     bn == `memcached_protocol.g4`) // skip this crap

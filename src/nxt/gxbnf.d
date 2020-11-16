@@ -2092,13 +2092,17 @@ final class AltCharLiteral : Pattern
     {
         if (head.input.startsWith(`\p`) || // https://github.com/antlr/antlr4/pull/1688
             head.input.startsWith(`\P`))
+        {
             sink.put(`cc!(`);
+        }
         else if (head.input[0] >= 0x80)
+        {
             sink.put(`dch(`);
+        }
         else
         {
             const uvalue = head.input.isUnicodeCharacterLiteral();
-            if (uvalue <= 0x7f)
+            if (uvalue < 0x00)
                 sink.put(`ch(`);
             else
                 sink.put(`dch(`);

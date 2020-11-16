@@ -3469,11 +3469,15 @@ private:
     Node _front;
 }
 
+/// Returns: `path` as module name.
 string toPathModuleName(in string path) @safe pure
 {
     import std.path : stripExtension;
     import std.string : replace, stripLeft;
-    return path.stripExtension.stripLeft("/").replace(`-`, `_`).replace(`/`, `.`) ~ "_parser"; // TODO: use lazy ranges that return `char`;
+    return path.stripExtension
+               .stripLeft("/")
+               .replace(`-`, `_`)
+               .replace(`/`, `.`) ~ "_parser"; // TODO: use lazy ranges that return `char`;
 }
 
 /// Gx filer parser.

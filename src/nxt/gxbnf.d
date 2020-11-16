@@ -2349,6 +2349,7 @@ Pattern parseCharAltM(const CharAltM alt,
                 inpi = inp[i - 1 .. i + 1];
                 break;
             }
+            i += 1;
         }
         else if (inp[i] >= 0x80)
         {
@@ -2360,12 +2361,9 @@ Pattern parseCharAltM(const CharAltM alt,
             if (ch == replacementChar)
                 lexer.errorAtToken(alt.head, "invalid UTF-sequence `" ~ inp[i0 .. $] ~ "`");
             inpi = inp[i0 .. i];
-            i -= 1;
         }
         else
-            inpi = inp[i .. i + 1];
-
-        i += 1;
+            inpi = inp[i .. ++i];
 
         auto lit = new AltCharLiteral(Token(TOK.literal, inpi));
         if (inRange)
@@ -4073,8 +4071,8 @@ version(show)
             const bn = fn.baseName;
             if (fn.isGxFilename)
             {
-                if (bn != `VisualBasic6Lexer.g4`)
-                    continue;
+                // if (bn != `VisualBasic6Lexer.g4`)
+                //     continue;
                 if (bn == `RexxParser.g4` ||
                     bn == `RexxLexer.g4` ||
                     bn == `StackTrace.g4` ||

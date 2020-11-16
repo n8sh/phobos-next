@@ -2360,6 +2360,7 @@ Pattern parseCharAltM(const CharAltM alt,
             if (ch == replacementChar)
                 lexer.errorAtToken(alt.head, "invalid UTF-sequence `" ~ inp[i0 .. $] ~ "`");
             inpi = inp[i0 .. i];
+            debug writeln("ch:", ch, " length:", i-i0, " inp:", inpi);
         }
         else
             inpi = inp[i .. i + 1];

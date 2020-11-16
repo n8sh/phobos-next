@@ -4071,8 +4071,8 @@ version(show)
             const bn = fn.baseName;
             if (fn.isGxFilename)
             {
-                // if (bn != `VisualBasic6Lexer.g4`)
-                //     continue;
+                if (bn != `AspectJParser.g4`)
+                    continue;
                 if (bn == `RexxParser.g4` ||
                     bn == `RexxLexer.g4` ||
                     bn == `StackTrace.g4` ||

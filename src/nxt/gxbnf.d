@@ -3982,7 +3982,7 @@ void buildSourceFiles(const string[] ppaths)
 
 bool isGxFilename(const scope char[] name) @safe pure nothrow @nogc
 {
-    return name.endsWithEither([`.g`, `.g2`, `.g4`]);
+    return name.endsWith(`.g4`);
 }
 
 ///
@@ -4046,15 +4046,10 @@ version(show)
             const bn = fn.baseName;
             if (fn.isGxFilename)
             {
-                // if (bn != `ZLexer.g4`)
-                //     continue;
                 if (bn == `RexxParser.g4` ||
                     bn == `RexxLexer.g4` ||
                     bn == `StackTrace.g4` ||
-                    bn == `StackTraceText.g` ||
-                    bn == `memcached_protocol.g4` ||
-                    bn == `Antlr3.g` ||
-                    bn == `ANTLRv2.g2`) // skip this crap
+                    bn == `memcached_protocol.g4`) // skip this crap
                     continue;
                 if (showProgressFlag)
                     of.writeln("Reading ", adjustPath(fn), " ...");

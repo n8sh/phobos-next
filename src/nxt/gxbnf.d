@@ -3470,16 +3470,15 @@ private:
     Node _front;
 }
 
-string adjustDirectoryName(string name) pure nothrow @nogc
-{
-    if (name == "asm")
-        return "asm_";
-    return name;
-}
-
 /// Returns: `path` as module name.
 string toPathModuleName(scope string path) pure
 {
+    string adjustDirectoryName(string name) pure nothrow @nogc
+    {
+        if (name == "asm")
+            return "asm_";
+        return name;
+    }
     import std.path : pathSplitter, stripExtension;
     import std.algorithm.iteration : map, joiner, substitute;
     import std.conv : to;

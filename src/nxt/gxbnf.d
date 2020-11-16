@@ -4063,7 +4063,10 @@ version(show)
 
                 auto reader = GxFileReader(fn);
                 const ppath = reader.createParserSourceFile();
-                ppaths.insertBack(ppath);
+                if (ppaths[].canFind(ppath)) // TODO: remove because this should not happen
+                    writeln("Warning: duplicate entry of ", ppath);
+                else
+                    ppaths.insertBack(ppath);
                 if (buildSingleFlag)
                     buildSourceFiles([ppath]);
 

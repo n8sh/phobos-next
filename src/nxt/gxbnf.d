@@ -2141,7 +2141,7 @@ void putCharLiteral(scope ref Output sink,
         }
         else
         {
-            sink.put(`dchar(0x`);
+            sink.put(`(cast(dchar)0x`);
             sink.put(inp);
             sink.put(`)`);
         }
@@ -4084,7 +4084,13 @@ version(show)
                     bn == `AspectJParser.g4` || // TODO: find rule for `annotationName` in apex.g4
                     bn == `AspectJLexer.g4` ||
 
-                    bn == `FromClauseParser.g4` || // TODO: missing tokens
+                    // TODO: missing tokens
+                    bn == `FromClauseParser.g4` ||
+                    bn == `TSqlParser.g4` ||
+                    bn == `informix.g4` ||
+                    bn == `icon.g4` ||
+                    bn == `ANTLRv4Parser.g4` ||
+                    bn == `JPA.g4` || // INT_NUMERAL missing
 
                     // TODO:
                     bn == `RexxParser.g4` ||

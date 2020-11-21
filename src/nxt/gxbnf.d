@@ -14,6 +14,8 @@
 
     TODO:
 
+    - Add errors for missing symbols during code generation
+
     - Warng about string literals, such as str(`...`), that are equal to tokens such `ELLIPSIS` in `Python3.g4`
 
     - Make `Rule.top` be of type `Matcher` and make
@@ -4080,6 +4082,8 @@ version(show)
                     // TODO:
                     bn == `AspectJParser.g4` || // TODO: find rule for `annotationName` in apex.g4
                     bn == `AspectJLexer.g4` ||
+
+                    bn == `FromClauseParser.g4` || // TODO: missing tokens
 
                     // TODO:
                     bn == `RexxParser.g4` ||

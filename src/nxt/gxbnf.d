@@ -2141,7 +2141,7 @@ void putCharLiteral(scope ref Output sink,
         }
         else
         {
-            sink.put(`(cast(dchar)0x`);
+            sink.put(`(cast(dchar)0x`); // TODO: use `dchar(...)` for valid numbers
             sink.put(inp);
             sink.put(`)`);
         }

@@ -4092,6 +4092,7 @@ version(show)
                     bn == `ANTLRv4Parser.g4` ||
                     bn == `JPA.g4` || // INT_NUMERAL missing
                     bn == `STParser.g4` ||
+                    bn == `STGParser.g4` ||
 
                     // TODO:
                     bn == `RexxParser.g4` ||

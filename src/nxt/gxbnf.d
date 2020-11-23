@@ -1,3 +1,4 @@
+
 /** Lexer/Parser Generator for ANTLR (G, G2, G4) and (E)BNF grammars.
 
     See_Also: https://theantlrguy.atlassian.net/wiki/spaces/ANTLR3/pages/2687036/ANTLR+Cheat+Sheet
@@ -13,6 +14,8 @@
     See_Also: https://github.com/antlr/antlr4/blob/master/doc/grammars.md
 
     TODO:
+
+    - Rewriting (X+)? as X* in ANTLR grammars and commit to grammars-v4. See https://stackoverflow.com/questions/64706408/rewriting-x-as-x-in-antlr-grammars
 
     - Add errors for missing symbols during code generation
 

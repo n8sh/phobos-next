@@ -1,4 +1,3 @@
-
 /** Lexer/Parser Generator for ANTLR (G, G2, G4) and (E)BNF grammars.
 
     See_Also: https://theantlrguy.atlassian.net/wiki/spaces/ANTLR3/pages/2687036/ANTLR+Cheat+Sheet

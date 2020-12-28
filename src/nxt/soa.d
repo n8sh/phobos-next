@@ -6,6 +6,7 @@
  * See_Also: https://maikklein.github.io/post/soa-d/
  * See_Also: http://forum.dlang.org/post/wvulryummkqtskiwrusb@forum.dlang.org
  * See_Also: https://forum.dlang.org/post/purhollnapramxczmcka@forum.dlang.org
+ * See_Also: https://forum.dlang.org/post/cvxuagislrpfomalcelc@forum.dlang.org
  */
 module nxt.soa;
 

@@ -186,7 +186,7 @@ if (is(S == struct))        // TODO: extend to `isAggregate!S`?
 
 /// Reference to slice in `soaPtr`.
 private struct SOASlice(S)
-    if (is(S == struct))        // TODO: extend to `isAggregate!S`?
+if (is(S == struct))            // TODO: extend to `isAggregate!S`?
 {
     SOA!S* soaPtr;
 

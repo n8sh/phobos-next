@@ -23,7 +23,7 @@ if (is(S == struct))        // TODO: extend to `isAggregate!S`?
     private alias toType(string s) = typeof(__traits(getMember, S, s));
     private alias Types = typeof(S.tupleof);
 
-    this(size_t initialCapacity)
+    this(in size_t initialCapacity)
     {
         _capacity = initialCapacity;
         allocate(initialCapacity);
@@ -31,7 +31,7 @@ if (is(S == struct))        // TODO: extend to `isAggregate!S`?
 
     auto opDispatch(string name)()
     {
-        static foreach (index, memberSymbol; S.tupleof)
+        static foreach (const index, memberSymbol; S.tupleof)
             static if (name == memberSymbol.stringof)
                 return getArray!index;
         // TODO: static assert(0, S.stringof ~ " has no field named " ~ name);
@@ -60,7 +60,7 @@ if (is(S == struct))        // TODO: extend to `isAggregate!S`?
     }
 
     void opOpAssign(string op, S)(S value)
-        if (op == "~")
+    if (op == "~")
     {
         pragma(inline, true);
         insertBack(value);
@@ -86,7 +86,7 @@ if (is(S == struct))        // TODO: extend to `isAggregate!S`?
     }
 
     /** Index operator. */
-    inout(SOAElementRef!S) opIndex()(size_t elementIndex) inout return // template-lazy
+    inout(SOAElementRef!S) opIndex()(in size_t elementIndex) inout return // template-lazy
     {
         assert(elementIndex < _length);
         return typeof(return)(&this, elementIndex);
@@ -101,7 +101,7 @@ if (is(S == struct))        // TODO: extend to `isAggregate!S`?
 private:
 
     // generate array definitions
-    static foreach (index, Type; Types)
+    static foreach (const index, Type; Types)
         mixin(Type.stringof ~ `[] _container` ~ index.stringof ~ ";");
 
     /// Get array of all fields at aggregate field index `index`.
@@ -114,7 +114,7 @@ private:
     size_t _capacity = 0;       ///< Current capacity.
     enum _growthFactor = 2;     ///< Growth factor.
 
-    void allocate(size_t newCapacity) @trusted
+    void allocate(in size_t newCapacity) @trusted
     {
         // if (_alloc is null)
         // {
@@ -173,10 +173,10 @@ if (is(S == struct))            // TODO: extend to `isAggregate!S`?
     @disable this(this);
 
     /// Access aggregate at `index`.
-    inout(S) opIndex(size_t index) inout @trusted return scope
+    inout(S) opIndex(in size_t index) inout @trusted return scope
     {
         S s = void;
-        static foreach (memberIndex, memberSymbol; S.tupleof)
+        static foreach (const memberIndex, memberSymbol; S.tupleof)
             mixin(`s.` ~ memberSymbol.stringof ~ `= (*soaPtr).getArray!` ~ memberIndex.stringof ~ `[index];`);
         return s;
     }

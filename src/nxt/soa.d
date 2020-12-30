@@ -32,12 +32,8 @@ if (is(S == struct))        // TODO: extend to `isAggregate!S`?
     auto opDispatch(string name)()
     {
         static foreach (index, memberSymbol; S.tupleof)
-        {
             static if (name == memberSymbol.stringof)
-            {
                 return getArray!index;
-            }
-        }
         // TODO: static assert(0, S.stringof ~ " has no field named " ~ name);
     }
 
@@ -47,10 +43,8 @@ if (is(S == struct))        // TODO: extend to `isAggregate!S`?
         import core.lifetime : moveEmplace;
         reserveOneExtra();
         static foreach (const index, memberSymbol; S.tupleof)
-        {
             moveEmplace(__traits(getMember, value, memberSymbol.stringof),
                         getArray!index[_length]); // TODO: assert that
-        }
         ++_length;
     }
 
@@ -61,9 +55,7 @@ if (is(S == struct))        // TODO: extend to `isAggregate!S`?
         reserveOneExtra();
         // move each member to its position respective array
         static foreach (const index, _; members)
-        {
             moveEmplace(members[index], getArray!index[_length]); // same as `getArray!index[_length] = members[index];`
-        }
         ++_length;
     }
 
@@ -90,9 +82,7 @@ if (is(S == struct))        // TODO: extend to `isAggregate!S`?
     {
         import std.experimental.allocator : dispose;
         static foreach (const index, _; S.tupleof)
-        {
             PureMallocator.instance.dispose(getArray!index);
-        }
     }
 
     /** Index operator. */
@@ -112,9 +102,7 @@ private:
 
     // generate array definitions
     static foreach (index, Type; Types)
-    {
         mixin(Type.stringof ~ `[] _container` ~ index.stringof ~ ";");
-    }
 
     /// Get array of all fields at aggregate field index `index`.
     ref inout(Types[index][]) getArray(size_t index)() inout return
@@ -134,35 +122,27 @@ private:
         // }
         import std.experimental.allocator : makeArray;
         static foreach (const index, _; S.tupleof)
-        {
             getArray!index = PureMallocator.instance.makeArray!(Types[index])(newCapacity);
-        }
     }
 
     void grow() @trusted
     {
         import std.algorithm.comparison : max;
+        import std.experimental.allocator : expandArray;
         const newCapacity = max(1, _capacity * _growthFactor);
         const expandSize = newCapacity - _capacity;
-
         if (_capacity is 0)
-        {
             allocate(newCapacity);
-        }
         else
-        {
-            import std.experimental.allocator : expandArray;
             static foreach (const index, _; S.tupleof)
-            {
                 PureMallocator.instance.expandArray(getArray!index, expandSize);
-            }
-        }
         _capacity = newCapacity;
     }
 
     void reserveOneExtra()
     {
-        if (_length == _capacity) { grow(); }
+        if (_length == _capacity)
+            grow();
     }
 }
 alias StructArrays = SOA;
@@ -197,9 +177,7 @@ if (is(S == struct))            // TODO: extend to `isAggregate!S`?
     {
         S s = void;
         static foreach (memberIndex, memberSymbol; S.tupleof)
-        {
             mixin(`s.` ~ memberSymbol.stringof ~ `= (*soaPtr).getArray!` ~ memberIndex.stringof ~ `[index];`);
-        }
         return s;
     }
 }

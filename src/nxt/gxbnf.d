@@ -3884,6 +3884,19 @@ struct Parser
         return Match(off - off0);
     }
 
+    // TODO merge overloads of nzo by using a default type and value for Matcher2
+    Match nzo(Matcher1)(const scope lazy Matcher1 matcher)
+    {
+        const off0 = off;
+        off = off0;             // backtrack
+        const match = matcher;
+        if (!match)
+        {
+            off = off0;         // backtrack
+            return Match.none();
+        }
+        return Match(off - off0);
+    }
     Match nzo(Matcher1, Matcher2)(const scope lazy Matcher1 matcher, Matcher2 terminator)
     {
         const off0 = off;
@@ -3902,6 +3915,24 @@ struct Parser
         return Match(off - off0);
     }
 
+    // TODO merge overloads of nzm by using a default type and value for Matcher2
+    Match nzm(Matcher1)(const scope lazy Matcher1 matcher)
+    {
+        const off0 = off;
+        while (true)
+        {
+            const off1 = off;
+            off = off1;         // backtrack
+            const off2 = off;
+            const match = matcher;
+            if (!match)
+            {
+                off = off2;     // backtrack
+                break;
+            }
+        }
+        return Match(off - off0);
+    }
     Match nzm(Matcher1, Matcher2)(const scope lazy Matcher1 matcher, Matcher2 terminator)
     {
         const off0 = off;
@@ -3925,6 +3956,31 @@ struct Parser
         return Match(off - off0);
     }
 
+    // TODO merge overloads of nom by using a default type and value for Matcher2
+    Match nom(Matcher1)(const scope lazy Matcher1 matcher)
+    {
+        const off0 = off;
+        bool firstFlag;
+        while (true)
+        {
+            const off1 = off;
+            off = off1;         // backtrack
+            const off2 = off;
+            const match = matcher;
+            if (!match)
+            {
+                off = off2;     // backtrack
+                break;
+            }
+            firstFlag = true;
+        }
+        if (!firstFlag)
+        {
+            off = off0;         // backtrack
+            return Match.none();
+        }
+        return Match(off - off0);
+    }
     Match nom(Matcher1, Matcher2)(const scope lazy Matcher1 matcher, Matcher2 terminator)
     {
         const off0 = off;

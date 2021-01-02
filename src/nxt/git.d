@@ -189,7 +189,7 @@ void main(string[] args) @safe
     const path = args[1];
     //enforce(path.isFile, "'" ~ path ~ "' is not a file.");
 
-    static void hLine()
+    static void hLine() @safe
     {
         import std.range : repeat;
         "%-(%s%)".writefln("-".repeat(20));

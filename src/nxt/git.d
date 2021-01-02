@@ -12,6 +12,8 @@ import std.file : exists, getcwd, isDir, isFile;
 import std.path : absolutePath, buildNormalizedPath, dirName, relativePath;
 import std.stdio : writeln, writefln;
 
+@safe:
+
 /// Based on: https://git-scm.com/docs/git-status#_output
 enum GitStatusSingleSide : char
 {

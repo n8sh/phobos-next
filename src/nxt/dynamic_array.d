@@ -16,8 +16,7 @@ import core.internal.traits : Unqual;
  * https://github.com/burner/StringBuffer/blob/master/source/stringbuffer.d#L45
  * TODO: Use `std.traits.areCopyCompatibleArrays`
  */
-struct DynamicArray(T,
-                    alias Allocator = null, // null means means to qcmeman functions. TODO: use `PureMallocator` by default
+struct DynamicArray(T, alias Allocator = null, // null means means to qcmeman functions. TODO: use `PureMallocator` by default
                     CapacityType = size_t)  // see also https://github.com/izabera/s
 if (!is(Unqual!T == bool) &&             // use `BitArray` instead
     (is(CapacityType == ulong) ||        // 3 64-bit words

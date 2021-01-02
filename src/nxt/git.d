@@ -11,7 +11,6 @@ import std.format : format;
 import std.file : exists, getcwd, isDir, isFile;
 import std.path : absolutePath, buildNormalizedPath, dirName, relativePath;
 import std.stdio : writeln, writefln;
-import std.range;
 
 /// Based on: https://git-scm.com/docs/git-status#_output
 enum GitStatusSingleSide : char
@@ -64,7 +63,7 @@ string interpretGitStatus(GitStatus s)
     }
 }
 
-GitStatus gitStatus(string filePath)
+GitStatus gitStatus(scope string filePath)
 {
     //enforce(filePath.isFile, "'" ~ filePath ~ "' is not a file.");
 
@@ -85,7 +84,7 @@ GitStatus gitStatus(string filePath)
 }
 
 
-string toGitRelativePath(string path)
+string toGitRelativePath(scope string path)
 {
     const cwd = getcwd();
     const gitRoot = path.getGitRootPathOfFileOrDir;
@@ -93,17 +92,16 @@ string toGitRelativePath(string path)
     .relativePath(/* base: */ gitRoot).buildNormalizedPath;
 }
 
-string getGitRootPathOfFileOrDir(string path_)
+string getGitRootPathOfFileOrDir(scope string path_)
 {
     auto path = path_.absolutePath;
 
     // Find the closest directory to the path that exists
-    while (!path.exists || !path.isDir)
+    while (!path.exists ||
+           !path.isDir)
         path = path.dirName;
 
-    const gitRootPathResult = "git rev-parse --show-toplevel"
-    .executeInDir(path);
-
+    const gitRootPathResult = "git rev-parse --show-toplevel".executeInDir(path);
     return gitRootPathResult;
 }
 
@@ -143,10 +141,8 @@ in (workDir.isDir)
             /* workDir: */ workDir
             ); // comments written in anticipation of DIP1030 ;)
 
-    messageIfCommandFails = "command: '%-s' failed.%s"
-    .format(cmd, "\n" ~ messageIfCommandFails);
-
-    enforce(result.status == 0, messageIfCommandFails);
+    enforce(result.status == 0,
+            "command: '%-s' failed.%s".format(cmd, "\n" ~ messageIfCommandFails));
 
     return result.output.stripRight;
 }
@@ -168,11 +164,13 @@ if (is(E == enum))
     final switch (value)
     {
         static foreach (memberName; __traits(allMembers, E))
-        {{
+        {
+            {
                 enum member = mixin(E, '.', memberName);
                 case member:
                     return member;
-            }}
+            }
+        }
     }
 }
 
@@ -187,18 +185,22 @@ template BaseEnumType(E)
 void main(string[] args)
 {
     enforce(args.length == 2, "Usage:\n\tabs_to_rel_git_path <path>");
-    auto path = args[1];
+    const path = args[1];
     //enforce(path.isFile, "'" ~ path ~ "' is not a file.");
 
-    static void hLine() { "%-(%s%)".writefln("-".repeat(20)); }
+    static void hLine()
+    {
+        import std.range : repeat;
+        "%-(%s%)".writefln("-".repeat(20));
+    }
 
-    auto gitRoot = path.getGitRootPathOfFileOrDir;
-    auto relativePath = path.toGitRelativePath;
-    auto status = path.gitStatus;
+    const gitRoot = path.getGitRootPathOfFileOrDir;
+    const relativePath = path.toGitRelativePath;
+    const status = path.gitStatus;
 
-    hLine;
+    hLine();
     writeln("Git repo: ", gitRoot);
-    hLine;
+    hLine();
     writefln("File: %s\nStatus: %s", relativePath, status.interpretGitStatus);
-    hLine;
+    hLine();
 }

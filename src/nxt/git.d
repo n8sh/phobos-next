@@ -1,5 +1,7 @@
 /** Git operations.
  *
+ * Original version https://gist.github.com/PetarKirov/b4c8b64e7fc9bb7391901bcb541ddf3a
+ *
  * See_Also: https://forum.dlang.org/post/ziqgqpkdjolplyfztulp@forum.dlang.org
  */
 module nxt.git;

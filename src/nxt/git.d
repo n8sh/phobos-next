@@ -12,8 +12,6 @@ import std.file : exists, getcwd, isDir, isFile;
 import std.path : absolutePath, buildNormalizedPath, dirName, relativePath;
 import std.stdio : writeln, writefln;
 
-@safe:
-
 /// Based on: https://git-scm.com/docs/git-status#_output
 enum GitStatusSingleSide : char
 {
@@ -28,21 +26,21 @@ enum GitStatusSingleSide : char
     @("updated but unmerged") updatedNotMerged = 'U'
 }
 
-struct GitStatus
+@safe struct GitStatus
 {
     GitStatusSingleSide x, y;
-    char[2] xy() { return [x, y]; }
+    char[2] xy() const pure nothrow { return [x, y]; }
     alias xy this;
 }
 
-string interpretGitStatus(GitStatus s)
+string interpretGitStatus(GitStatus s) @safe pure
 {
     if (s.x == 'U' ||
         s.y == 'U' ||
         s == "DD" ||
         s == "AA")
     {
-        // Unmerged
+        // unmerged
         if (s.x == s.y)
             return "both " ~ s.x.enumUdaToString;
         else if (s.x == 'U')
@@ -60,12 +58,12 @@ string interpretGitStatus(GitStatus s)
     }
     else
     {
-        // No merge conflict
+        // no merge conflict
         return "in index: <%s> | <%s> in work tree".format(s.tupleof);
     }
 }
 
-GitStatus gitStatus(scope string filePath)
+GitStatus gitStatus(scope string filePath) @safe
 {
     //enforce(filePath.isFile, "'" ~ filePath ~ "' is not a file.");
 
@@ -86,15 +84,15 @@ GitStatus gitStatus(scope string filePath)
 }
 
 
-string toGitRelativePath(scope string path)
+string toGitRelativePath(scope string path) @safe
 {
     const cwd = getcwd();
-    const gitRoot = path.getGitRootPathOfFileOrDir;
+    const gitRoot = path.getGitRootPathOfFileOrDir();
     return path
     .relativePath(/* base: */ gitRoot).buildNormalizedPath;
 }
 
-string getGitRootPathOfFileOrDir(scope string path_)
+string getGitRootPathOfFileOrDir(scope string path_) @safe
 {
     auto path = path_.absolutePath;
 
@@ -118,9 +116,10 @@ string getGitRootPathOfFileOrDir(scope string path_)
  whitespace removed.
  +/
 string executeInDir(Cmd)(scope Cmd cmd,
-                         string workDir,
-                         string messageIfCommandFails = null)
-if (is(Cmd : const char[]) || is(Cmd : const char[][]))
+                         scope string workDir,
+                         scope string messageIfCommandFails = null)
+if (is(Cmd : const char[]) ||
+    is(Cmd : const char[][]))
 in (workDir.isDir)
 {
     import std.process : Config, execute, executeShell;
@@ -184,7 +183,7 @@ template BaseEnumType(E)
         static assert (0, "`E` is not an enum type");
 }
 
-void main(string[] args)
+void main(string[] args) @safe
 {
     enforce(args.length == 2, "Usage:\n\tabs_to_rel_git_path <path>");
     const path = args[1];

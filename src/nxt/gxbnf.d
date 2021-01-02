@@ -14,7 +14,7 @@
 
     TODO:
 
-    - Use: https://forum.dlang.org/post/ziqgqpkdjolplyfztulp@forum.dlang.org
+    - Use: `nxt.git` to scan parsing examples in `grammars-v4`
 
     - Rewriting (X+)? as X* in ANTLR grammars and commit to grammars-v4. See https://stackoverflow.com/questions/64706408/rewriting-x-as-x-in-antlr-grammars
 

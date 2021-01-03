@@ -76,14 +76,12 @@ if (isCharArray!S)
     {
         try
         {
+            import std.uni: toLower;
             if (tryToLower)
-            {
-                import std.uni: toLower;
                 return value.toLower.tolerantTo!U(tryStrippingPluralS,
                                                   false,
                                                   tryLevenshtein,
                                                   levenshteinMaxDistance);
-            }
         }
         catch (Exception e)
         {
@@ -92,12 +90,10 @@ if (isCharArray!S)
                 value.endsWith(`s`))
             {
                 try
-                {
                     return value[0 .. $ - 1].tolerantTo!U(false,
                                                           tryToLower,
                                                           tryLevenshtein,
                                                           levenshteinMaxDistance);
-                }
                 catch (Exception e)
                 {
                 }
@@ -262,13 +258,9 @@ if (isSourceOfSomeChar!Source)
 
         // empty
         static if (isInfinite!Source)
-        {
             enum bool empty = false;
-        }
         else
-        {
             @property bool empty() const { return _empty; }
-        }
 
         @property E front() const { return _decodedFront; }
 
@@ -296,9 +288,7 @@ if (isSourceOfSomeChar!Source)
         Source _remainingSource;
         E _decodedFront;
         static if (!isInfinite!Source)
-        {
             bool _empty;
-        }
     }
 
     return Result(s);

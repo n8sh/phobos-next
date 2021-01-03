@@ -183,7 +183,7 @@ template BaseEnumType(E)
         static assert (0, "`E` is not an enum type");
 }
 
-void main(scope string[] args) @safe
+private void testMe(scope string[] args) @safe
 {
     enforce(args.length == 2, "Usage:\n\tabs_to_rel_git_path <path>");
     const path = args[1];

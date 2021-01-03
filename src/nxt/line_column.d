@@ -35,13 +35,9 @@ LineColumn offsetLineColumn(scope const char[] haystack,
     while (cursor != 0) // TODO: extend to support UTF-8
     {
         if (cursor >= 1)
-        {
             if (haystack[cursor - 1] == '\n' || // TODO: extend to support UTF-8
                 haystack[cursor - 1] == '\r')   // TODO: extend to support UTF-8
-            {
                 break;
-            }
-        }
         cursor -= 1;
     }
     // cursor is not at beginning of line
@@ -67,9 +63,7 @@ LineColumn offsetLineColumn(scope const char[] haystack,
             lineCounter += 1;
         }
         else                // no line ending at cursor
-        {
             cursor -= 1;
-        }
     }
 
     return typeof(return)(cast(uint)lineCounter,

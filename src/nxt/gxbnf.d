@@ -3899,10 +3899,10 @@ struct Parser
         }
         return Match(off - off0);
     }
-    Match nzo(Matcher1, Matcher2)(const scope lazy Matcher1 matcher, Matcher2 terminator)
+    Match nzo(Matcher1, Matcher2)(const scope lazy Matcher1 matcher, const scope lazy Matcher2 terminator)
     {
         const off0 = off;
-        if (terminator)
+        if (terminator())
         {
             off = off0;         // backtrack
             return Match.zero(); // done
@@ -3935,13 +3935,13 @@ struct Parser
         }
         return Match(off - off0);
     }
-    Match nzm(Matcher1, Matcher2)(const scope lazy Matcher1 matcher, Matcher2 terminator)
+    Match nzm(Matcher1, Matcher2)(const scope lazy Matcher1 matcher, const scope lazy Matcher2 terminator)
     {
         const off0 = off;
         while (true)
         {
             const off1 = off;
-            if (terminator)
+            if (terminator())
             {
                 off = off1;     // backtrack
                 return Match(off1 - off0); // done
@@ -3983,14 +3983,14 @@ struct Parser
         }
         return Match(off - off0);
     }
-    Match nom(Matcher1, Matcher2)(const scope lazy Matcher1 matcher, Matcher2 terminator)
+    Match nom(Matcher1, Matcher2)(const scope lazy Matcher1 matcher, const scope lazy Matcher2 terminator)
     {
         const off0 = off;
         bool firstFlag;
         while (true)
         {
             const off1 = off;
-            if (terminator)
+            if (terminator())
             {
                 off = off1;     // backtrack
                 return Match(off1 - off0); // done

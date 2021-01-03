@@ -207,7 +207,7 @@ enum TOK
 struct Token
 {
 @safe pure nothrow:
-    this(in TOK tok, in Input input = null) @nogc
+    this(in TOK tok, Input input = null) @nogc
     {
         this.tok = tok;
         this.input = input;
@@ -235,7 +235,7 @@ struct GxLexer
 
 @safe pure:
 
-    this(in Input input,
+    this(const Input input,
          const string path = null,
          in bool includeComments = false,
          in bool includeWhitespace = false)
@@ -306,7 +306,7 @@ struct GxLexer
         return result;
     }
 
-    Token skipOverToken(in Token token) scope return nothrow
+    Token skipOverToken(Token token) scope return nothrow
     {
         if (front == token)
             return frontPop();
@@ -1028,7 +1028,7 @@ private void showChars(in const(char)[] chars) @trusted
     printf("%.*s", cast(uint)chars.length, chars.ptr);
 }
 
-private void showToken(in Token token,
+private void showToken(Token token,
                        in Format fmt)
 {
     fmt.showIndent();
@@ -1099,7 +1099,7 @@ bool equalsAll(const scope Node[] a,
 abstract class NaryOpPattern : Pattern
 {
 @safe pure nothrow:
-    this(in Token head, PatternArray subs) @nogc
+    this(Token head, PatternArray subs) @nogc
     {
         super(head);
         this.subs = subs.move(); // TODO: remove when compiler does this for us
@@ -1140,7 +1140,7 @@ final class SeqM : NaryOpPattern
         }
     }
 pure nothrow:
-    this(in Token head) @nogc
+    this(Token head) @nogc
     {
         this.head = head;
         super(head, PatternArray.init);
@@ -1285,7 +1285,7 @@ class Rule : Node
         }
         checkLeft(top);
     }
-    this(in Token head, Pattern top) @nogc
+    this(Token head, Pattern top) @nogc
     {
         this.head = head;
         this.top = top;
@@ -1333,7 +1333,7 @@ class Rule : Node
 final class FragmentRule : Rule
 {
 @safe pure nothrow:
-    this(in Token head, Pattern top) @nogc
+    this(Token head, Pattern top) @nogc
     {
         super(head, top);
     }
@@ -1366,7 +1366,7 @@ final class AltM : NaryOpPattern
         }
     }
 pure nothrow:
-    this(in Token head, PatternArray subs) @nogc
+    this(Token head, PatternArray subs) @nogc
     {
         assert(!subs.empty);
         super(head, subs.move());
@@ -1491,7 +1491,7 @@ class TokenNode : Node
         showToken(head, fmt);
     }
 pure nothrow:
-    this(in Token head) @nogc
+    this(Token head) @nogc
     {
         this.head = head;
     }
@@ -1524,7 +1524,7 @@ abstract class UnaryOpPattern : Pattern
         showToken(head, fmt);
     }
 @safe pure nothrow:
-    this(in Token head, Pattern sub) @nogc
+    this(Token head, Pattern sub) @nogc
     {
         debug assert(head.input.ptr);
         assert(sub);
@@ -1547,7 +1547,7 @@ abstract class UnaryOpPattern : Pattern
 final class NotPattern : UnaryOpPattern
 {
 @safe pure nothrow:
-    this(in Token head, Pattern sub) @nogc
+    this(Token head, Pattern sub) @nogc
     {
         super(head, sub);
     }
@@ -1567,11 +1567,11 @@ final class NotPattern : UnaryOpPattern
 final class GreedyZeroOrOne : UnaryOpPattern
 {
 @safe pure nothrow:
-    this(in Token head, Pattern sub) @nogc
+    this(Token head, Pattern sub) @nogc
     {
         super(head, sub);
     }
-    this(in Token head, Node sub) @nogc
+    this(Token head, Node sub) @nogc
     {
         Pattern psub = cast(Pattern)sub;
         assert(psub);
@@ -1593,11 +1593,11 @@ final class GreedyZeroOrOne : UnaryOpPattern
 final class GreedyZeroOrMore : UnaryOpPattern
 {
 @safe pure nothrow:
-    this(in Token head, Pattern sub) @nogc
+    this(Token head, Pattern sub) @nogc
     {
         super(head, sub);
     }
-    this(in Token head, Node sub) @nogc
+    this(Token head, Node sub) @nogc
     {
         Pattern psub = cast(Pattern)sub;
         assert(psub);
@@ -1619,11 +1619,11 @@ final class GreedyZeroOrMore : UnaryOpPattern
 final class GreedyOneOrMore : UnaryOpPattern
 {
 @safe pure nothrow:
-    this(in Token head, Pattern sub) @nogc
+    this(Token head, Pattern sub) @nogc
     {
         super(head, sub);
     }
-    this(in Token head, Node sub) @nogc
+    this(Token head, Node sub) @nogc
     {
         Pattern psub = cast(Pattern)sub;
         if (!psub)
@@ -1649,7 +1649,7 @@ final class GreedyOneOrMore : UnaryOpPattern
 abstract class TerminatedUnaryOpPattern : UnaryOpPattern
 {
 @safe pure nothrow:
-    this(in Token head, Pattern sub, Pattern terminator = null) @nogc
+    this(Token head, Pattern sub, Pattern terminator = null) @nogc
     {
         debug assert(head.input.ptr);
         super(head, sub);
@@ -1662,11 +1662,11 @@ abstract class TerminatedUnaryOpPattern : UnaryOpPattern
 final class NonGreedyZeroOrOne : TerminatedUnaryOpPattern
 {
 @safe pure nothrow:
-    this(in Token head, Pattern sub, Pattern terminator = null) @nogc
+    this(Token head, Pattern sub, Pattern terminator = null) @nogc
     {
         super(head, sub, terminator);
     }
-    this(in Token head, Node sub, Pattern terminator = null) @nogc
+    this(Token head, Node sub, Pattern terminator = null) @nogc
     {
         Pattern psub = cast(Pattern)sub;
         assert(psub);
@@ -1695,12 +1695,12 @@ final class NonGreedyZeroOrOne : TerminatedUnaryOpPattern
 final class NonGreedyZeroOrMore : TerminatedUnaryOpPattern
 {
 @safe pure nothrow:
-    this(in Token head, Pattern sub, Pattern terminator = null) @nogc
+    this(Token head, Pattern sub, Pattern terminator = null) @nogc
     {
         debug assert(head.input.ptr);
         super(head, sub, terminator);
     }
-    this(in Token head, Node sub, Pattern terminator = null) @nogc
+    this(Token head, Node sub, Pattern terminator = null) @nogc
     {
         debug assert(head.input.ptr);
         Pattern psub = cast(Pattern)sub;
@@ -1733,11 +1733,11 @@ final class NonGreedyZeroOrMore : TerminatedUnaryOpPattern
 final class NonGreedyOneOrMore : TerminatedUnaryOpPattern
 {
 @safe pure nothrow:
-    this(in Token head, Pattern sub, Pattern terminator = null) @nogc
+    this(Token head, Pattern sub, Pattern terminator = null) @nogc
     {
         super(head, sub, terminator);
     }
-    this(in Token head, Node sub, Pattern terminator = null) @nogc
+    this(Token head, Node sub, Pattern terminator = null) @nogc
     {
         Pattern psub = cast(Pattern)sub;
         assert(psub);
@@ -1767,11 +1767,11 @@ final class NonGreedyOneOrMore : TerminatedUnaryOpPattern
 final class GreedyCount : UnaryOpPattern
 {
 @safe pure nothrow:
-    this(in Token head, Pattern sub) @nogc
+    this(Token head, Pattern sub) @nogc
     {
         super(head, sub);
     }
-    this(in Token head, Node sub) @nogc
+    this(Token head, Node sub) @nogc
     {
         Pattern psub = cast(Pattern)sub;
         assert(psub);
@@ -1795,11 +1795,11 @@ final class GreedyCount : UnaryOpPattern
 final class RewriteSyntacticPredicate : UnaryOpPattern
 {
 @safe pure nothrow:
-    this(in Token head, Pattern sub) @nogc
+    this(Token head, Pattern sub) @nogc
     {
         super(head, sub);
     }
-    this(in Token head, Node sub) @nogc
+    this(Token head, Node sub) @nogc
     {
         Pattern psub = cast(Pattern)sub;
         assert(psub);
@@ -1825,7 +1825,7 @@ final class OtherSymbol : TokenNode
         showToken(head, fmt);
     }
 @safe pure nothrow:
-    this(in Token head) @nogc
+    this(Token head) @nogc
     {
         super(head);
     }
@@ -1846,7 +1846,7 @@ final class SymbolPattern : Pattern
         showToken(head, fmt);
     }
 @safe pure nothrow:
-    this(in Token head) @nogc
+    this(Token head) @nogc
     {
         super(head);
     }
@@ -1869,7 +1869,7 @@ final class SymbolPattern : Pattern
 final class LeftParenSentinel : TokenNode
 {
 @safe pure nothrow:
-    this(in Token head) @nogc
+    this(Token head) @nogc
     {
         super(head);
     }
@@ -1878,7 +1878,7 @@ final class LeftParenSentinel : TokenNode
 final class PipeSentinel : TokenNode
 {
 @safe pure nothrow:
-    this(in Token head) @nogc
+    this(Token head) @nogc
     {
         super(head);
     }
@@ -1887,7 +1887,7 @@ final class PipeSentinel : TokenNode
 final class DotDotSentinel : TokenNode
 {
 @safe pure nothrow:
-    this(in Token head) @nogc
+    this(Token head) @nogc
     {
         super(head);
     }
@@ -1896,7 +1896,7 @@ final class DotDotSentinel : TokenNode
 final class TildeSentinel : TokenNode
 {
 @safe pure nothrow:
-    this(in Token head) @nogc
+    this(Token head) @nogc
     {
         super(head);
     }
@@ -1905,7 +1905,7 @@ final class TildeSentinel : TokenNode
 final class AnyClass : Pattern
 {
 @safe pure nothrow:
-    this(in Token head) @nogc
+    this(Token head) @nogc
     {
         super(head);
     }
@@ -1919,7 +1919,7 @@ final class AnyClass : Pattern
     }
 }
 
-private bool isASCIICharacterLiteral(in Input x) pure nothrow @nogc
+private bool isASCIICharacterLiteral(Input x) pure nothrow @nogc
 {
     return (x.length == 1 ||
             (x.length == 2 &&
@@ -1966,7 +1966,7 @@ private uint isUnicodeCharacterLiteral(scope Input x) pure nothrow @nogc
 abstract class Pattern : TokenNode
 {
 @safe pure nothrow:
-    this(in Token head) @nogc
+    this(Token head) @nogc
     {
         super(head);
     }
@@ -1976,7 +1976,7 @@ abstract class Pattern : TokenNode
 final class StrLiteral : Pattern
 {
 @safe pure nothrow:
-    this(in Token head) @nogc
+    this(Token head) @nogc
     {
         assert(head.input.length >= 2);
         assert(head.input[0] == '\'' && head.input[$-1] == '\'' ||
@@ -2090,7 +2090,7 @@ void putStringLiteralBackQuoted(scope ref Output sink,
 final class AltCharLiteral : Pattern
 {
 @safe pure nothrow:
-    this(in Token head) @nogc
+    this(Token head) @nogc
     {
         super(head);
     }
@@ -2173,7 +2173,7 @@ void putCharLiteral(scope ref Output sink,
 }
 
 version(none)                   // TODO use
-TokenNode makeLiteral(in Token head) pure nothrow
+TokenNode makeLiteral(Token head) pure nothrow
 {
     assert(head.input.length >= 3);
     if (head.input[1 .. $-1].isASCIICharacterLiteral)
@@ -2205,7 +2205,7 @@ abstract class BinaryOpPattern : Pattern
         subs[1].show(fmt);
     }
 @safe pure nothrow:
-    this(in Token head, Pattern[2] subs) @nogc
+    this(Token head, Pattern[2] subs) @nogc
     {
         assert(subs[0]);
         assert(subs[1]);
@@ -2241,7 +2241,7 @@ final class Range : BinaryOpPattern
             putchar(')');
     }
 pure nothrow:
-    this(in Token head, Pattern[2] limits) @nogc
+    this(Token head, Pattern[2] limits) @nogc
     {
         assert(limits[0]);
         assert(limits[1]);
@@ -2385,7 +2385,7 @@ final class CharAltM : Pattern
 {
 @safe pure nothrow:
 
-    this(in Token head) @nogc
+    this(Token head) @nogc
     {
         super(head);
     }
@@ -2466,7 +2466,7 @@ final class CharAltM : Pattern
         sink.put(")()");
     }
 
-    private Output toMatchRangeInSource(in Input input,
+    private Output toMatchRangeInSource(Input input,
                                         out size_t altCount) const // alt count
     {
         typeof(return) sink;       // argument sink
@@ -2539,7 +2539,7 @@ final class CharAltM : Pattern
 final class LineComment : TokenNode
 {
 @safe pure nothrow:
-    this(in Token head) @nogc
+    this(Token head) @nogc
     {
         super(head);
     }
@@ -2548,7 +2548,7 @@ final class LineComment : TokenNode
 final class BlockComment : TokenNode
 {
 @safe pure nothrow:
-    this(in Token head) @nogc
+    this(Token head) @nogc
     {
         super(head);
     }
@@ -2566,7 +2566,7 @@ final class Grammar : TokenNode
         showChars(";\n");
     }
 pure nothrow:
-    this(in Token head, Input name) @nogc
+    this(Token head, Input name) @nogc
     {
         super(head);
         this.name = name;
@@ -2587,7 +2587,7 @@ pure nothrow:
 final class LexerGrammar : TokenNode
 {
 @safe pure nothrow:
-    this(in Token head, Input name) @nogc
+    this(Token head, Input name) @nogc
     {
         super(head);
         this.name = name;
@@ -2602,7 +2602,7 @@ final class LexerGrammar : TokenNode
 final class ParserGrammar : TokenNode
 {
 @safe pure nothrow:
-    this(in Token head, Input name) @nogc
+    this(Token head, Input name) @nogc
     {
         super(head);
         this.name = name;
@@ -2628,7 +2628,7 @@ final class Import : TokenNode
         putchar('\n');
     }
 pure nothrow:
-    this(in Token head, DynamicArray!(Input) modules) @nogc
+    this(Token head, DynamicArray!(Input) modules) @nogc
     {
         super(head);
         move(modules, this.modules);
@@ -2639,7 +2639,7 @@ pure nothrow:
 final class Mode : TokenNode
 {
 @safe pure nothrow:
-    this(in Token head, Input name) @nogc
+    this(Token head, Input name) @nogc
     {
         super(head);
         this.name = name;
@@ -2650,7 +2650,7 @@ final class Mode : TokenNode
 final class Options : TokenNode
 {
 @safe pure nothrow:
-    this(in Token head, in Token code) @nogc
+    this(Token head, Token code) @nogc
     {
         super(head);
         this.code = code;
@@ -2662,7 +2662,7 @@ final class Options : TokenNode
 final class Header : TokenNode
 {
 @safe pure nothrow:
-    this(in Token head, in Token name, in Token code) @nogc
+    this(Token head, Token name, Token code) @nogc
     {
         super(head);
         this.name = name;
@@ -2675,9 +2675,9 @@ final class Header : TokenNode
 final class ScopeSymbolAction : TokenNode
 {
 @safe pure nothrow:
-    this(in Token head,
-         in Input name,
-         in Token code) @nogc
+    this(Token head,
+         Input name,
+         Token code) @nogc
     {
         super(head);
         this.name = name;
@@ -2690,8 +2690,8 @@ final class ScopeSymbolAction : TokenNode
 final class ScopeSymbol : TokenNode
 {
 @safe pure nothrow:
-    this(in Token head,
-         in Input name) @nogc
+    this(Token head,
+         Input name) @nogc
     {
         super(head);
         this.name = name;
@@ -2707,8 +2707,8 @@ final class ScopeAction : TokenNode
         showToken(head, fmt);
     }
 pure nothrow:
-    this(in Token head,
-         in Token code) @nogc
+    this(Token head,
+         Token code) @nogc
     {
         super(head);
         this.code = code;
@@ -2724,7 +2724,7 @@ final class AttributeSymbol : TokenNode
         showToken(head, fmt);
     }
 pure nothrow:
-    this(in Token head, in Token code) @nogc
+    this(Token head, Token code) @nogc
     {
         super(head);
         this.code = code;
@@ -2735,7 +2735,7 @@ pure nothrow:
 final class Action : TokenNode
 {
 @safe pure nothrow:
-    this(in Token head) @nogc
+    this(Token head) @nogc
     {
         super(head);
     }
@@ -2749,7 +2749,7 @@ final class ActionSymbol : TokenNode
         showToken(head, fmt);
     }
 pure nothrow:
-    this(in Token head, in Token code) @nogc
+    this(Token head, Token code) @nogc
     {
         super(head);
         this.code = code;
@@ -2760,7 +2760,7 @@ pure nothrow:
 final class Channels : TokenNode
 {
 @safe pure nothrow:
-    this(in Token head, in Token code) @nogc
+    this(Token head, Token code) @nogc
     {
         super(head);
         this.code = code;
@@ -2771,7 +2771,7 @@ final class Channels : TokenNode
 final class Tokens : TokenNode
 {
 @safe pure nothrow:
-    this(in Token head, in Token code) @nogc
+    this(Token head, Token code) @nogc
     {
         super(head);
         this.code = code;
@@ -2785,7 +2785,7 @@ final class Tokens : TokenNode
 final class Class : TokenNode
 {
 @safe pure nothrow:
-    this(in Token head, Input name, Input baseName) @nogc
+    this(Token head, Input name, Input baseName) @nogc
     {
         super(head);
         this.name = name;
@@ -2805,7 +2805,7 @@ alias Rules = DynamicArray!(Rule, null, uint);
 struct GxParserByStatement
 {
 @safe pure:
-    this(in Input input,
+    this(Input input,
          const string path = null,
          in bool includeComments = false)
     {
@@ -2837,7 +2837,7 @@ struct GxParserByStatement
             _front = nextFront();
     }
 
-    private Rule makeRule(in Token name,
+    private Rule makeRule(Token name,
                           in bool isFragment,
                           ActionSymbol actionSymbol = null,
                           Action action = null)
@@ -3182,17 +3182,17 @@ struct GxParserByStatement
         return result;
     }
 
-    AttributeSymbol makeAttributeSymbol(in Token head) nothrow
+    AttributeSymbol makeAttributeSymbol(Token head) nothrow
     {
         return new AttributeSymbol(head, _lexer.frontPopEnforce(TOK.action, "missing action"));
     }
 
-    ActionSymbol makeActionSymbol(in Token head) nothrow
+    ActionSymbol makeActionSymbol(Token head) nothrow
     {
         return new ActionSymbol(head, _lexer.frontPopEnforce(TOK.action, "missing action"));
     }
 
-    TokenNode makeScope(in Token head)
+    TokenNode makeScope(Token head)
     {
         if (_lexer.front.tok == TOK.symbol)
         {
@@ -3215,14 +3215,14 @@ struct GxParserByStatement
         }
     }
 
-    Import makeImport(in Token head)
+    Import makeImport(Token head)
     {
         auto import_ = new Import(head, makeArgs(TOK.comma, TOK.semicolon));
         this.imports.put(import_);
         return import_;
     }
 
-    TokenNode makeClass(in Token head)
+    TokenNode makeClass(Token head)
     {
         auto result = new Class(head,
                                _lexer.frontPopEnforce(TOK.symbol, "missing symbol").input,
@@ -3233,7 +3233,7 @@ struct GxParserByStatement
         return result;
     }
 
-    OtherSymbol skipOverOtherSymbol(in string symbolIdentifier) return
+    OtherSymbol skipOverOtherSymbol(string symbolIdentifier) return
     {
         if (_lexer.front == Token(TOK.symbol, symbolIdentifier))
         {
@@ -3250,7 +3250,7 @@ struct GxParserByStatement
         return null;
     }
 
-    Options makeRuleOptions(in Token head,
+    Options makeRuleOptions(Token head,
                             in bool skipOverColon = false) nothrow
     {
         version(Do_Inline) pragma(inline, true);
@@ -3260,7 +3260,7 @@ struct GxParserByStatement
         return new Options(head, action);
     }
 
-    Options makeTopOptions(in Token head) nothrow
+    Options makeTopOptions(Token head) nothrow
     {
         version(Do_Inline) pragma(inline, true);
         const action = _lexer.frontPopEnforce(TOK.action, "missing action");
@@ -3268,19 +3268,19 @@ struct GxParserByStatement
         return new Options(head, action);
     }
 
-    Channels makeChannels(in Token head) nothrow
+    Channels makeChannels(Token head) nothrow
     {
         version(Do_Inline) pragma(inline, true);
         return new Channels(head, _lexer.frontPopEnforce(TOK.action, "missing action"));
     }
 
-    Tokens makeTokens(in Token head) nothrow
+    Tokens makeTokens(Token head) nothrow
     {
         version(Do_Inline) pragma(inline, true);
         return new Tokens(head, _lexer.frontPopEnforce(TOK.action, "missing action"));
     }
 
-    Header makeHeader(in Token head)
+    Header makeHeader(Token head)
     {
         const name = (_lexer.front.tok == TOK.literal ?
                       _lexer.frontPop() :
@@ -3289,14 +3289,14 @@ struct GxParserByStatement
         return new Header(head, name, action);
     }
 
-    Mode makeMode(in Token head)
+    Mode makeMode(Token head)
     {
         auto result = new Mode(head, _lexer.frontPop().input);
         _lexer.popFrontEnforce(TOK.semicolon, "no terminating semicolon");
         return result;
     }
 
-    Action makeAction(in Token head)
+    Action makeAction(Token head)
     {
         version(Do_Inline) pragma(inline, true);
         return new Action(head);
@@ -3355,7 +3355,7 @@ struct GxParserByStatement
         return null;
     }
 
-    Node makeRuleOrOther(in Token head)
+    Node makeRuleOrOther(Token head)
     {
         if (_lexer.front.tok == TOK.colon) // normal case
             return makeRule(head, false);  // fast path
@@ -3518,7 +3518,7 @@ string toPathModuleName(scope string path) pure
 struct GxFileParser           // TODO: convert to `class`
 {
 @safe:
-    this(in string path)
+    this(string path)
     {
         import std.path : expandTilde;
         Input data = cast(Input)rawReadPath(path.expandTilde); // cast to Input because we don't want to keep all file around:
@@ -3674,7 +3674,8 @@ struct Match
     const uint _length;                // length == uint.max is no match
 }
 
-alias Matcher = Match function(Matcher[] matchers...);
+/// https://forum.dlang.org/post/zcvjwdetohmklaxriswk@forum.dlang.org
+version(none) alias Matcher = Match function(lazy Matcher[] matchers...);
 
 struct Parser
 {
@@ -4033,7 +4034,7 @@ struct GxFileReader
     import std.path : stripExtension;
     GxFileParser fp;
 @safe:
-    this(in string path)
+    this(string path)
     {
         fp = GxFileParser(path);
         while (!fp.parser.empty)

@@ -89,17 +89,16 @@ enum isIndex(I) = (is(I == enum) ||
  * TODO: move to traits_ex.d
  * TODO: Add to Phobos
  */
-enum hasIndexing(T, I = size_t) = __traits(compiles,
-                                           {
-                                               void f(E)(ref E t) {}
-                                               f(T.init[I.init]);
-                                           }); // TODO: better to use `auto _ = (T.init[I.init]);`
+enum hasIndexing(T, I = size_t) = is(typeof(T.init[I.init]) == typeof(T.init[0]));
 
 ///
 @safe pure nothrow @nogc unittest
 {
+    static assert(!hasIndexing!(int));
+    static assert(hasIndexing!(int[3]));
     static assert(hasIndexing!(byte[]));
     static assert(hasIndexing!(byte[], uint));
+    static assert(hasIndexing!(string));
 }
 
 /** Check if `R` is indexable by `I`. */

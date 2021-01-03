@@ -42,7 +42,7 @@ LineColumn offsetLineColumn(scope const char[] haystack,
     }
     // cursor is not at beginning of line
 
-    const column = offset-cursor; // column byte offset
+    const column = offset - cursor; // column byte offset
 
     // find 0-based line offset
     size_t lineCounter = 0;

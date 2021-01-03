@@ -3764,7 +3764,7 @@ struct Parser
         const off0 = off;
         static foreach (const matcher; matchers)
         {{                      // scoped
-            const match = matcher;
+            const match = matcher();
             if (!match)
             {
                 off = off0;     // backtrack
@@ -3779,7 +3779,7 @@ struct Parser
         static foreach (const matcher; matchers)
         {{                      // scoped
             const off0 = off;
-            if (const match = matcher)
+            if (const match = matcher())
                 return match;
             else
                 off = off0;     // backtrack
@@ -3790,7 +3790,7 @@ struct Parser
     Match not(Matcher)(const scope lazy Matcher matcher)
     {
         const off0 = off;
-        const match = matcher;
+        const match = matcher();
         if (!match)
             return match;
         off = off0;             // backtrack
@@ -3842,7 +3842,7 @@ struct Parser
         while (true)
         {
             const off1 = off;
-            const match = matcher;
+            const match = matcher();
             if (!match)
             {
                 off = off1;     // backtrack
@@ -3855,7 +3855,7 @@ struct Parser
     Match gzo(Matcher)(const scope lazy Matcher matcher)
     {
         const off0 = off;
-        const match = matcher;
+        const match = matcher();
         if (!match)
         {
             off = off0;         // backtrack
@@ -3891,7 +3891,7 @@ struct Parser
     {
         const off0 = off;
         off = off0;             // backtrack
-        const match = matcher;
+        const match = matcher();
         if (!match)
         {
             off = off0;         // backtrack
@@ -3908,7 +3908,7 @@ struct Parser
             return Match.zero(); // done
         }
         off = off0;             // backtrack
-        const match = matcher;
+        const match = matcher();
         if (!match)
         {
             off = off0;         // backtrack
@@ -3926,7 +3926,7 @@ struct Parser
             const off1 = off;
             off = off1;         // backtrack
             const off2 = off;
-            const match = matcher;
+            const match = matcher();
             if (!match)
             {
                 off = off2;     // backtrack
@@ -3948,7 +3948,7 @@ struct Parser
             }
             off = off1;         // backtrack
             const off2 = off;
-            const match = matcher;
+            const match = matcher();
             if (!match)
             {
                 off = off2;     // backtrack
@@ -3968,7 +3968,7 @@ struct Parser
             const off1 = off;
             off = off1;         // backtrack
             const off2 = off;
-            const match = matcher;
+            const match = matcher();
             if (!match)
             {
                 off = off2;     // backtrack
@@ -3997,7 +3997,7 @@ struct Parser
             }
             off = off1;         // backtrack
             const off2 = off;
-            const match = matcher;
+            const match = matcher();
             if (!match)
             {
                 off = off2;     // backtrack

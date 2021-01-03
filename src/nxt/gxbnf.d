@@ -14,6 +14,8 @@
 
     TODO:
 
+    - Use: https://forum.dlang.org/post/zcvjwdetohmklaxriswk@forum.dlang.org
+
     - Use: `nxt.git` to scan parsing examples in `grammars-v4`
 
     - Rewriting (X+)? as X* in ANTLR grammars and commit to grammars-v4. See https://stackoverflow.com/questions/64706408/rewriting-x-as-x-in-antlr-grammars
@@ -3671,6 +3673,8 @@ struct Match
     }
     const uint _length;                // length == uint.max is no match
 }
+
+alias Matcher = Match function(Matcher[] matchers...);
 
 struct Parser
 {

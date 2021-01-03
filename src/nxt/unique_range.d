@@ -14,7 +14,7 @@ import std.range.primitives : hasLength;
     member `.dup`.
  */
 struct UniqueRange(Source)
-    if (hasLength!Source)       // TODO: use traits `isArrayContainer` checking fo
+if (hasLength!Source)       // TODO: use traits `isArrayContainer` checking fo
 {
     import std.range.primitives : ElementType, isBidirectionalRange;
     import std.traits : isArray;
@@ -242,7 +242,8 @@ alias intoGenerator = intoUniqueRange;
 
 import std.functional : unaryFun;
 
-template mapUnique(fun...) if (fun.length >= 1)
+template mapUnique(fun...)
+if (fun.length >= 1)
 {
     import std.algorithm.mutation : move;
     import std.range.primitives : isInputRange, ElementType;
@@ -402,14 +403,15 @@ private struct MapUniqueResult(alias fun, Range)
 }
 
 // TODO: Add duck-typed interface that shows that result is still sorted according to `predicate`
-template filterUnique(alias predicate) if (is(typeof(unaryFun!predicate)))
+template filterUnique(alias predicate)
+if (is(typeof(unaryFun!predicate)))
 {
     import std.algorithm.mutation : move;
     import std.range.primitives : isInputRange;
     import core.internal.traits : Unqual;
 
     auto filterUnique(Range)(Range range)
-        if (isInputRange!(Unqual!Range))
+    if (isInputRange!(Unqual!Range))
     {
         return FilterUniqueResult!(unaryFun!predicate, Range)(move(range));
     }
@@ -497,10 +499,10 @@ UniqueTake!(R) takeUnique(R)(R input, size_t n)
 }
 
 struct UniqueTake(Range)
-    if (isInputRange!(Unqual!Range) &&
-        //take _cannot_ test hasSlicing on infinite ranges, because hasSlicing uses
-        //take for slicing infinite ranges.
-        !((!isInfinite!(Unqual!Range) && hasSlicing!(Unqual!Range)) || is(Range T == UniqueTake!T)))
+if (isInputRange!(Unqual!Range) &&
+    //take _cannot_ test hasSlicing on infinite ranges, because hasSlicing uses
+    //take for slicing infinite ranges.
+    !((!isInfinite!(Unqual!Range) && hasSlicing!(Unqual!Range)) || is(Range T == UniqueTake!T)))
 {
     import std.range.primitives : isForwardRange, hasAssignableElements, ElementType, hasMobileElements, isRandomAccessRange, moveFront;
 

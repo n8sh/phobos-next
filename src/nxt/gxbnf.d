@@ -4113,7 +4113,7 @@ version(show)
 {
     import std.datetime.stopwatch : StopWatch;
     import std.file : dirEntries, SpanMode, getcwd;
-    import std.path : expandTilde, relativePath, baseName;
+    import std.path : expandTilde, relativePath, baseName, dirName, buildPath;
 
     const root = "~/Work/grammars-v4/".expandTilde;
 
@@ -4165,9 +4165,14 @@ version(show)
         foreach (const e; dirEntries(root, SpanMode.breadth))
         {
             const fn = e.name;
+            const dn = fn.dirName;
+            const ex = buildPath(dn, "examples"); // examples directory
             const bn = fn.baseName;
             if (fn.isGxFilenameParsed)
             {
+                import std.file : exists, isDir;
+                if (ex.exists && ex.isDir)
+                    writeln("ex: ", ex);
                 if (showProgressFlag)
                     of.writeln("Reading ", adjustPath(fn), " ...");
 

@@ -4161,18 +4161,21 @@ version(show)
     {
         scope StopWatch swAll;
         swAll.start();
-        DynamicArray!string ppaths;
+        DynamicArray!string parserPaths; ///< Paths to generated parsers in D.
         foreach (const e; dirEntries(root, SpanMode.breadth))
         {
             const fn = e.name;
             const dn = fn.dirName;
-            const ex = buildPath(dn, "examples"); // examples directory
+            const exDirPath = buildPath(dn, "examples"); // examples directory
             const bn = fn.baseName;
             if (bn.isGxFilenameParsed)
             {
                 import std.file : exists, isDir;
-                if (ex.exists && ex.isDir)
-                    writeln("ex: ", ex);
+                if (exDirPath.exists && exDirPath.isDir)
+                {
+                    foreach (const exf; dirEntries(exDirPath, SpanMode.breadth))
+                        writeln("Parse example file: ", exf);
+                }
                 if (showProgressFlag)
                     of.writeln("Reading ", adjustPath(fn), " ...");
 
@@ -4180,20 +4183,20 @@ version(show)
                 swOne.start();
 
                 auto reader = GxFileReader(fn);
-                const ppath = reader.createParserSourceFile();
-                if (ppaths[].canFind(ppath)) // TODO: remove because this should not happen
-                    writeln("Warning: duplicate entry of ", ppath);
+                const parsePath = reader.createParserSourceFile();
+                if (parserPaths[].canFind(parsePath)) // TODO: remove because this should not happen
+                    writeln("Warning: duplicate entry of ", parsePath);
                 else
-                    ppaths.insertBack(ppath);
+                    parserPaths.insertBack(parsePath);
                 if (buildSingleFlag)
-                    buildSourceFiles([ppath]);
+                    buildSourceFiles([parsePath]);
 
                 if (showProgressFlag)
                     of.writeln("Reading ", adjustPath(fn), " took ", swOne.peek());
             }
         }
         if (buildAllFlag)
-            buildSourceFiles(ppaths[]);
+            buildSourceFiles(parserPaths[]);
         of.writeln("Reading all took ", swAll.peek());
     }
 }

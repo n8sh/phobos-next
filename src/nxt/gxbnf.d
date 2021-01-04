@@ -4168,7 +4168,7 @@ version(show)
             const dn = fn.dirName;
             const ex = buildPath(dn, "examples"); // examples directory
             const bn = fn.baseName;
-            if (fn.isGxFilenameParsed)
+            if (bn.isGxFilenameParsed)
             {
                 import std.file : exists, isDir;
                 if (ex.exists && ex.isDir)

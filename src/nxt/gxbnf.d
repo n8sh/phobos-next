@@ -4073,6 +4073,40 @@ bool isGxFilename(const scope char[] name) @safe pure nothrow @nogc
     return name.endsWith(`.g4`);
 }
 
+private bool isGxFilenameParsed(const scope char[] name) @safe pure nothrow @nogc
+{
+    if (!isGxFilename(name))
+         return false;
+    if (// TODO:
+        name == `Python2.g4` ||
+        name == `Python3.g4` ||
+        name == `AltPython3.g4` ||
+        name == `PythonParser.g4` ||
+        // TODO:
+        name == `ResourcePlanParser.g4` ||
+        name == `SelectClauseParser.g4` ||
+        name == `IdentifiersParser.g4` ||
+        // TODO:
+        name == `AspectJParser.g4` || // TODO: find rule for `annotationName` in apex.g4
+        name == `AspectJLexer.g4` ||
+        // TODO: missing tokens
+        name == `FromClauseParser.g4` ||
+        name == `TSqlParser.g4` ||
+        name == `informix.g4` ||
+        name == `icon.g4` ||
+        name == `ANTLRv4Parser.g4` ||
+        name == `JPA.g4` || // INT_NUMERAL missing
+        name == `STParser.g4` ||
+        name == `STGParser.g4` ||
+        // TODO:
+        name == `RexxParser.g4` ||
+        name == `RexxLexer.g4` ||
+        name == `StackTrace.g4` ||
+        name == `memcached_protocol.g4`) // skip this crap
+        return false;
+    return true;
+}
+
 ///
 version(show)
 @trusted unittest
@@ -4132,41 +4166,11 @@ version(show)
         {
             const fn = e.name;
             const bn = fn.baseName;
-            if (fn.isGxFilename)
+            if (fn.isGxFilenameParsed)
             {
-                if (// TODO:
-                    bn == `Python2.g4` ||
-                    bn == `Python3.g4` ||
-                    bn == `AltPython3.g4` ||
-                    bn == `PythonParser.g4` ||
-
-                    // TODO:
-                    bn == `ResourcePlanParser.g4` ||
-                    bn == `SelectClauseParser.g4` ||
-                    bn == `IdentifiersParser.g4` ||
-
-                    // TODO:
-                    bn == `AspectJParser.g4` || // TODO: find rule for `annotationName` in apex.g4
-                    bn == `AspectJLexer.g4` ||
-
-                    // TODO: missing tokens
-                    bn == `FromClauseParser.g4` ||
-                    bn == `TSqlParser.g4` ||
-                    bn == `informix.g4` ||
-                    bn == `icon.g4` ||
-                    bn == `ANTLRv4Parser.g4` ||
-                    bn == `JPA.g4` || // INT_NUMERAL missing
-                    bn == `STParser.g4` ||
-                    bn == `STGParser.g4` ||
-
-                    // TODO:
-                    bn == `RexxParser.g4` ||
-                    bn == `RexxLexer.g4` ||
-                    bn == `StackTrace.g4` ||
-                    bn == `memcached_protocol.g4`) // skip this crap
-                    continue;
                 if (showProgressFlag)
                     of.writeln("Reading ", adjustPath(fn), " ...");
+
                 scope StopWatch swOne;
                 swOne.start();
 

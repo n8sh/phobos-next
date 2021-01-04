@@ -4068,7 +4068,7 @@ void buildSourceFiles(const string[] ppaths)
                 dmd.output);
 }
 
-bool isGxFilename(const scope char[] name) @safe pure nothrow @nogc
+private bool isGxFilename(const scope char[] name) @safe pure nothrow @nogc
 {
     return name.endsWith(`.g4`);
 }

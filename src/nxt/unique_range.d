@@ -16,14 +16,13 @@ import std.range.primitives : hasLength;
 struct UniqueRange(Source)
 if (hasLength!Source)       // TODO: use traits `isArrayContainer` checking fo
 {
+@safe pure nothrow @nogc:
     import std.range.primitives : ElementType, isBidirectionalRange;
     import std.traits : isArray;
     alias SourceRange = typeof(Source.init[]);
     alias E = ElementType!SourceRange;
 
     @disable this(this);        // not intended to be copied
-
-    pragma(inline, true) @safe pure nothrow @nogc:
 
     /// Construct from `source`.
     this(Source source)
@@ -45,9 +44,7 @@ if (hasLength!Source)       // TODO: use traits `isArrayContainer` checking fo
     @property bool empty() const @trusted
     {
         static if (!__traits(hasMember, SourceRange, "empty"))
-        {
             import std.range.primitives : empty;
-        }
         return (cast(Unqual!SourceRange)_sourceRange).empty; // TODO: remove cast and @trusted when SortedRange.empty is const
     }
 
@@ -65,9 +62,7 @@ if (hasLength!Source)       // TODO: use traits `isArrayContainer` checking fo
     {
         assert(!empty);
         static if (!__traits(hasMember, SourceRange, "front"))
-        {
             import std.range.primitives : front;
-        }
         return cast(inout(E))(cast(SourceRange)_sourceRange).front;
     }
 
@@ -75,9 +70,7 @@ if (hasLength!Source)       // TODO: use traits `isArrayContainer` checking fo
     void popFront()
     {
         static if (!__traits(hasMember, SourceRange, "popFront"))
-        {
             import std.range.primitives : popFront;
-        }
         _sourceRange.popFront(); // should include check for emptyness
     }
 
@@ -114,9 +107,7 @@ if (hasLength!Source)       // TODO: use traits `isArrayContainer` checking fo
         {
             assert(!empty);
             static if (!__traits(hasMember, SourceRange, "back"))
-            {
                 import std.range.primitives : back;
-            }
             return cast(inout(E))(cast(SourceRange)_sourceRange).back;
         }
 
@@ -124,9 +115,7 @@ if (hasLength!Source)       // TODO: use traits `isArrayContainer` checking fo
         void popBack()
         {
             static if (!__traits(hasMember, SourceRange, "popBack"))
-            {
                 import std.range.primitives : popBack;
-            }
             _sourceRange.popBack(); // should include check for emptyness
         }
 
@@ -249,7 +238,8 @@ if (fun.length >= 1)
     import std.range.primitives : isInputRange, ElementType;
     import core.internal.traits : Unqual;
 
-    auto mapUnique(Range)(Range r) if (isInputRange!(Unqual!Range))
+    auto mapUnique(Range)(Range r)
+    if (isInputRange!(Unqual!Range))
     {
         import std.meta : AliasSeq, staticMap;
 
@@ -430,31 +420,22 @@ private struct FilterUniqueResult(alias pred, Range)
     {
         _input = move(r);       // TODO: remove `move` when compiler does it for us
         while (!_input.empty && !pred(_input.front))
-        {
             _input.popFront();
-        }
     }
 
     static if (__traits(isCopyable, Range))
-    {
         auto opSlice() { return this; }
-    }
 
     static if (isInfinite!Range)
-    {
         enum bool empty = false;
-    }
     else
-    {
         @property bool empty() { return _input.empty; }
-    }
 
     void popFront()
     {
         do
-        {
             _input.popFront();
-        } while (!_input.empty && !pred(_input.front));
+        while (!_input.empty && !pred(_input.front));
     }
 
     @property auto ref front()
@@ -489,10 +470,10 @@ UniqueTake!R takeUnique(R)(R input, size_t n)
 
 /// ditto
 UniqueTake!(R) takeUnique(R)(R input, size_t n)
-    if (isInputRange!(Unqual!R) &&
-        (isInfinite!(Unqual!R) ||
-         !hasSlicing!(Unqual!R) &&
-         !is(R T == UniqueTake!T)))
+if (isInputRange!(Unqual!R) &&
+    (isInfinite!(Unqual!R) ||
+     !hasSlicing!(Unqual!R) &&
+     !is(R T == UniqueTake!T)))
 {
     import std.algorithm.mutation : move;
     return UniqueTake!R(move(input), n); // TODO: remove `move` when compiler does it for us
@@ -722,14 +703,12 @@ if (isInputRange!(Unqual!Range) &&
 import std.functional : binaryFun;
 
 InputRange findUnique(alias pred = "a == b", InputRange, Element)(InputRange haystack, scope Element needle)
-    if (isInputRange!InputRange &&
-        is (typeof(binaryFun!pred(haystack.front, needle)) : bool))
+if (isInputRange!InputRange &&
+    is (typeof(binaryFun!pred(haystack.front, needle)) : bool))
 {
     for (; !haystack.empty; haystack.popFront())
-    {
         if (binaryFun!pred(haystack.front, needle))
             break;
-    }
     import std.algorithm.mutation : move;
     return move(haystack);
 }

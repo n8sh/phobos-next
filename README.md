@@ -51,3 +51,7 @@ For reference semantics wrap uncopyable containers in `std.typecons.RefCounter`.
 ## Extensions
 - Various extension to Phobos (often ending with _ex.d)
 - ...
+
+## License
+
+Boost

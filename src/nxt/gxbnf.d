@@ -1979,8 +1979,10 @@ final class StrLiteral : Pattern
     this(Token head) @nogc
     {
         assert(head.input.length >= 2);
-        assert(head.input[0] == '\'' && head.input[$-1] == '\'' ||
-               head.input[0] ==  '"' && head.input[$-1] ==  '"');
+        assert((head.input[0] == '\'' &&
+                head.input[$-1] == '\'') ||
+               (head.input[0] ==  '"' &&
+                head.input[$-1] ==  '"'));
         super(head);
     }
     override void toMatchInSource(scope ref Output sink, const scope ref GxParserByStatement parser) const
@@ -2863,7 +2865,8 @@ struct GxParserByStatement
             {
                 if (last is null)
                     return _lexer.warningAtToken(name, "empty sequence");
-                if (!_lexer.empty && _lexer.front.tok == TOK.dotdot)
+                if (!_lexer.empty &&
+                    _lexer.front.tok == TOK.dotdot)
                     return tseq.put(last); // ... has higher prescedence
                 if (!tseq.empty)
                 {
@@ -4171,7 +4174,8 @@ version(show)
             if (bn.isGxFilenameParsed)
             {
                 import std.file : exists, isDir;
-                if (exDirPath.exists && exDirPath.isDir)
+                if (exDirPath.exists &&
+                    exDirPath.isDir)
                 {
                     foreach (const exf; dirEntries(exDirPath, SpanMode.breadth))
                         writeln("TODO: Parse example file: ", exf);
